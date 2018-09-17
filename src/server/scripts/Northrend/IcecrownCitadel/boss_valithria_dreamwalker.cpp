@@ -316,8 +316,8 @@ class boss_valithria_dreamwalker : public CreatureScript
 
                 DoCast(me, SPELL_COPY_DAMAGE);
                 _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                _events.ScheduleEvent(EVENT_INTRO_TALK, 15000);
-                _events.ScheduleEvent(EVENT_DREAM_PORTAL, urand(45000, 48000));
+                _events.ScheduleEvent(EVENT_INTRO_TALK, 15s);
+                _events.ScheduleEvent(EVENT_DREAM_PORTAL, 45s, 48s);
                 if (IsHeroic())
                     _events.ScheduleEvent(EVENT_BERSERK, 420000);
             }
@@ -338,7 +338,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
                     DoCast(me, SPELL_ACHIEVEMENT_CHECK);
                     DoCastAOE(SPELL_DREAMWALKERS_RAGE);
-                    _events.ScheduleEvent(EVENT_DREAM_SLIP, 3500);
+                    _events.ScheduleEvent(EVENT_DREAM_SLIP, 3500ms);
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_LICH_KING)))
                         lichKing->AI()->EnterEvadeMode();
                 }
@@ -442,7 +442,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                                 Talk(SAY_VALITHRIA_DREAM_PORTAL);
                             for (uint32 i = 0; i < _portalCount; ++i)
                                 DoCast(me, SUMMON_PORTAL);
-                            _events.ScheduleEvent(EVENT_DREAM_PORTAL, urand(45000, 48000));
+                            _events.ScheduleEvent(EVENT_DREAM_PORTAL, 45s, 48s);
                             break;
                         case EVENT_DREAM_SLIP:
                             DoCast(me, SPELL_DREAM_SLIP);
@@ -581,11 +581,11 @@ class npc_the_lich_king_controller : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, 5000);
-                _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, 10000);
-                _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, 15000);
-                _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, 20000);
-                _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, 30000);
+                _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, 5s);
+                _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, 10s);
+                _events.ScheduleEvent(EVENT_BLISTERING_ZOMBIE_SUMMONER, 15s);
+                _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, 20s);
+                _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, 30s);
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -690,9 +690,9 @@ class npc_risen_archmage : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, urand(5000, 15000));
-                _events.ScheduleEvent(EVENT_MANA_VOID, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, urand(10000, 20000));
+                _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 5s, 15s);
+                _events.ScheduleEvent(EVENT_MANA_VOID, 20s, 25s);
+                _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, 10s, 20s);
                 Initialize();
             }
 
@@ -761,17 +761,17 @@ class npc_risen_archmage : public CreatureScript
                     {
                         case EVENT_FROSTBOLT_VOLLEY:
                             DoCast(me, SPELL_FROSTBOLT_VOLLEY);
-                            _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, urand(8000, 15000));
+                            _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 8s, 15s);
                             break;
                         case EVENT_MANA_VOID:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, ManaVoidSelector(me)))
                                 DoCast(target, SPELL_MANA_VOID);
-                            _events.ScheduleEvent(EVENT_MANA_VOID, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_MANA_VOID, 20s, 25s);
                             break;
                         case EVENT_COLUMN_OF_FROST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, -10.0f, true))
                                 DoCast(target, SPELL_COLUMN_OF_FROST);
-                            _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, urand(15000, 25000));
+                            _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, 15s, 25s);
                             break;
                         default:
                             break;
@@ -807,8 +807,8 @@ class npc_blazing_skeleton : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_FIREBALL, urand(2000, 4000));
-                _events.ScheduleEvent(EVENT_LEY_WASTE, urand(15000, 20000));
+                _events.ScheduleEvent(EVENT_FIREBALL, 2s, 4s);
+                _events.ScheduleEvent(EVENT_LEY_WASTE, 15s, 20s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -828,11 +828,11 @@ class npc_blazing_skeleton : public CreatureScript
                         case EVENT_FIREBALL:
                             if (!me->IsWithinMeleeRange(me->GetVictim()))
                                 DoCastVictim(SPELL_FIREBALL);
-                            _events.ScheduleEvent(EVENT_FIREBALL, urand(2000, 4000));
+                            _events.ScheduleEvent(EVENT_FIREBALL, 2s, 4s);
                             break;
                         case EVENT_LEY_WASTE:
                             DoCast(me, SPELL_LEY_WASTE);
-                            _events.ScheduleEvent(EVENT_LEY_WASTE, urand(15000, 20000));
+                            _events.ScheduleEvent(EVENT_LEY_WASTE, 15s, 20s);
                             break;
                         default:
                             break;
@@ -867,7 +867,7 @@ class npc_suppresser : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SUPPRESSION, urand(10000, 15000));
+                _events.ScheduleEvent(EVENT_SUPPRESSION, 10s, 15s);
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -911,7 +911,7 @@ class npc_suppresser : public CreatureScript
                     {
                         case EVENT_SUPPRESSION:
                             DoCastAOE(SPELL_SUPPRESSION);
-                            _events.ScheduleEvent(EVENT_SUPPRESSION, 5000);
+                            _events.ScheduleEvent(EVENT_SUPPRESSION, 5s);
                             break;
                         default:
                             break;
@@ -980,7 +980,7 @@ class npc_gluttonous_abomination : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_GUT_SPRAY, urand(10000, 13000));
+                _events.ScheduleEvent(EVENT_GUT_SPRAY, 10s, 13s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -1004,7 +1004,7 @@ class npc_gluttonous_abomination : public CreatureScript
                     {
                         case EVENT_GUT_SPRAY:
                             DoCast(me, SPELL_GUT_SPRAY);
-                            _events.ScheduleEvent(EVENT_GUT_SPRAY, urand(10000, 13000));
+                            _events.ScheduleEvent(EVENT_GUT_SPRAY, 10s, 13s);
                             break;
                         default:
                             break;
@@ -1080,7 +1080,7 @@ class npc_dream_cloud : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
+                _events.ScheduleEvent(EVENT_CHECK_PLAYER, 1s);
                 me->SetCorpseDelay(0);  // remove corpse immediately
                 me->LoadCreaturesAddon();
             }

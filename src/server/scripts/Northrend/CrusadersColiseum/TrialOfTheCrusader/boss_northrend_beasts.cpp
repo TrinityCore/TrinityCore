@@ -878,7 +878,7 @@ struct boss_dreadscale : public boss_jormungarAI
     void MovementInform(uint32 type, uint32 pointId) override
     {
         if (type == SPLINE_CHAIN_MOTION_TYPE && pointId == POINT_INITIAL_MOVEMENT)
-            events.ScheduleEvent(EVENT_ENGAGE, Seconds(3));
+            events.ScheduleEvent(EVENT_ENGAGE, 3s);
     }
 };
 
@@ -900,7 +900,7 @@ struct boss_acidmaw : public boss_jormungarAI
         wasMobile = false;
         me->SetControlled(true, UNIT_STATE_ROOT);
         DoCastSelf(SPELL_GROUND_VISUAL_1, true);
-        events.ScheduleEvent(EVENT_ENGAGE, Seconds(3));
+        events.ScheduleEvent(EVENT_ENGAGE, 3s);
     }
 };
 

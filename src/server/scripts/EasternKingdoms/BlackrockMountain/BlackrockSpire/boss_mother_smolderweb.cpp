@@ -55,7 +55,7 @@ public:
         {
             _JustEngagedWith();
             events.ScheduleEvent(EVENT_CRYSTALIZE,   20 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_MOTHERS_MILK, 10 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_MOTHERS_MILK, 10s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -85,7 +85,7 @@ public:
                 {
                     case EVENT_CRYSTALIZE:
                         DoCast(me, SPELL_CRYSTALIZE);
-                        events.ScheduleEvent(EVENT_CRYSTALIZE, 15 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CRYSTALIZE, 15s);
                         break;
                     case EVENT_MOTHERS_MILK:
                         DoCast(me, SPELL_MOTHERSMILK);

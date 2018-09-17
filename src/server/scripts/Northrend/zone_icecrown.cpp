@@ -217,7 +217,7 @@ class npc_tournament_training_dummy : public CreatureScript
                 Initialize();
 
                 events.Reset();
-                events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
+                events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5s);
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -288,13 +288,13 @@ class npc_tournament_training_dummy : public CreatureScript
                             }
                         }
                         isVulnerable = false;
-                        events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
+                        events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5s);
                         break;
                     case EVENT_DUMMY_RESET:
                         if (UpdateVictim())
                         {
                             EnterEvadeMode(EVADE_REASON_OTHER);
-                            events.ScheduleEvent(EVENT_DUMMY_RESET, 10000);
+                            events.ScheduleEvent(EVENT_DUMMY_RESET, 10s);
                         }
                         break;
                 }
@@ -435,7 +435,7 @@ public:
             me->SetRegenerateHealth(false);
             DoCast(SPELL_THREAT_PULSE);
             Talk(BANNER_SAY);
-            events.ScheduleEvent(EVENT_SPAWN, 3000);
+            events.ScheduleEvent(EVENT_SPAWN, 3s);
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -554,8 +554,8 @@ public:
                             Mason3->GetMotionMaster()->MovePoint(0, Mason3Pos[2]);
                             Mason3->SetHomePosition(Mason3Pos[2]);
                         }
-                        events.ScheduleEvent(EVENT_START_FIGHT, 5000);
-                        events.ScheduleEvent(EVENT_MASON_ACTION, 15000);
+                        events.ScheduleEvent(EVENT_START_FIGHT, 5s);
+                        events.ScheduleEvent(EVENT_MASON_ACTION, 15s);
                     }
                     break;
                 case EVENT_MASON_ACTION:
@@ -583,7 +583,7 @@ public:
                             LK->AI()->Talk(LK_TALK_1);
                         if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                             Dalfors->AI()->Talk(DALFORS_SAY_START);
-                        events.ScheduleEvent(EVENT_WAVE_SPAWN, 1000);
+                        events.ScheduleEvent(EVENT_WAVE_SPAWN, 1s);
                     }
                     break;
                 case EVENT_WAVE_SPAWN:
@@ -633,9 +633,9 @@ public:
                         PhaseCount++;
 
                         if (PhaseCount < 8)
-                            events.ScheduleEvent(EVENT_WAVE_SPAWN, urand(10000, 20000));
+                            events.ScheduleEvent(EVENT_WAVE_SPAWN, 10s, 20s);
                         else
-                            events.ScheduleEvent(EVENT_HALOF, urand(10000, 20000));
+                            events.ScheduleEvent(EVENT_HALOF, 10s, 20s);
                     }
                     break;
                 case EVENT_HALOF:
@@ -680,7 +680,7 @@ public:
                         Summons.DespawnEntry(NPC_HALOF_THE_DEATHBRINGER);
                         if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                             Dalfors->AI()->Talk(DALFORS_YELL_FINISHED);
-                        events.ScheduleEvent(EVENT_ENDED, 10000);
+                        events.ScheduleEvent(EVENT_ENDED, 10s);
                     }
         }
     };
@@ -765,7 +765,7 @@ class npc_frostbrood_skytalon : public CreatureScript
                         break;
                     case SPELL_RIDE:
                         DoCastAOE(SPELL_PING_BUNNY);
-                        events.ScheduleEvent(EVENT_FLY_AWAY, 100);
+                        events.ScheduleEvent(EVENT_FLY_AWAY, 100ms);
                         break;
                 }
             }

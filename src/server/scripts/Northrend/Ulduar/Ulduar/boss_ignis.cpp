@@ -146,11 +146,11 @@ class boss_ignis : public CreatureScript
             {
                 _JustEngagedWith();
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_JET, 30000);
+                events.ScheduleEvent(EVENT_JET, 30s);
                 events.ScheduleEvent(EVENT_SCORCH, 25000);
                 events.ScheduleEvent(EVENT_SLAG_POT, 35000);
                 events.ScheduleEvent(EVENT_CONSTRUCT, 15000);
-                events.ScheduleEvent(EVENT_END_POT, 40000);
+                events.ScheduleEvent(EVENT_END_POT, 40s);
                 events.ScheduleEvent(EVENT_BERSERK, 480000);
                 Initialize();
                 instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEVEMENT_IGNIS_START_EVENT);
@@ -222,7 +222,7 @@ class boss_ignis : public CreatureScript
                         case EVENT_JET:
                             Talk(EMOTE_JETS);
                             DoCast(me, SPELL_FLAME_JETS);
-                            events.ScheduleEvent(EVENT_JET, urand(35000, 40000));
+                            events.ScheduleEvent(EVENT_JET, 35s, 40s);
                             break;
                         case EVENT_SLAG_POT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
@@ -231,7 +231,7 @@ class boss_ignis : public CreatureScript
                                 _slagPotGUID = target->GetGUID();
                                 DoCast(target, SPELL_GRAB);
                                 events.DelayEvents(3000);
-                                events.ScheduleEvent(EVENT_GRAB_POT, 500);
+                                events.ScheduleEvent(EVENT_GRAB_POT, 500ms);
                             }
                             events.ScheduleEvent(EVENT_SLAG_POT, RAID_MODE(30000, 15000));
                             break;
@@ -240,7 +240,7 @@ class boss_ignis : public CreatureScript
                             {
                                 slagPotTarget->EnterVehicle(me, 0);
                                 events.CancelEvent(EVENT_GRAB_POT);
-                                events.ScheduleEvent(EVENT_CHANGE_POT, 1000);
+                                events.ScheduleEvent(EVENT_CHANGE_POT, 1s);
                             }
                             break;
                         case EVENT_CHANGE_POT:
@@ -249,7 +249,7 @@ class boss_ignis : public CreatureScript
                                 DoCast(slagPotTarget, SPELL_SLAG_POT, true);
                                 slagPotTarget->EnterVehicle(me, 1);
                                 events.CancelEvent(EVENT_CHANGE_POT);
-                                events.ScheduleEvent(EVENT_END_POT, 10000);
+                                events.ScheduleEvent(EVENT_END_POT, 10s);
                             }
                             break;
                         case EVENT_END_POT:

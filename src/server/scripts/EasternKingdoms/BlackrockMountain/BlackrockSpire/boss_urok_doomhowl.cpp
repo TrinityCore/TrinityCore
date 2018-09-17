@@ -56,8 +56,8 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             _JustEngagedWith();
-            events.ScheduleEvent(SPELL_REND, urand(17000,20000));
-            events.ScheduleEvent(SPELL_STRIKE, urand(10000,12000));
+            events.ScheduleEvent(SPELL_REND, 17s, 20s);
+            events.ScheduleEvent(SPELL_STRIKE, 10s, 12s);
             Talk(SAY_AGGRO);
         }
 
@@ -82,11 +82,11 @@ public:
                 {
                     case SPELL_REND:
                         DoCastVictim(SPELL_REND);
-                        events.ScheduleEvent(SPELL_REND, urand(8000,10000));
+                        events.ScheduleEvent(SPELL_REND, 8s, 10s);
                         break;
                     case SPELL_STRIKE:
                         DoCastVictim(SPELL_STRIKE);
-                        events.ScheduleEvent(SPELL_STRIKE, urand(8000,10000));
+                        events.ScheduleEvent(SPELL_STRIKE, 8s, 10s);
                         break;
                     default:
                         break;

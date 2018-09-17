@@ -75,10 +75,10 @@ class boss_loatheb : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_NECROTIC_AURA, Seconds(17));
-                events.ScheduleEvent(EVENT_DEATHBLOOM, Seconds(5));
-                events.ScheduleEvent(EVENT_SPORE, Seconds(18));
-                events.ScheduleEvent(EVENT_INEVITABLE_DOOM, Minutes(2));
+                events.ScheduleEvent(EVENT_NECROTIC_AURA, 17s);
+                events.ScheduleEvent(EVENT_DEATHBLOOM, 5s);
+                events.ScheduleEvent(EVENT_SPORE, 18s);
+                events.ScheduleEvent(EVENT_INEVITABLE_DOOM, 2min);
             }
 
             void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
@@ -106,8 +106,8 @@ class boss_loatheb : public CreatureScript
                         case EVENT_NECROTIC_AURA:
                             DoCastAOE(SPELL_NECROTIC_AURA);
                             Talk(SAY_NECROTIC_AURA_APPLIED);
-                            events.ScheduleEvent(EVENT_NECROTIC_AURA_FADING, Seconds(14));
-                            events.ScheduleEvent(EVENT_NECROTIC_AURA_FADED, Seconds(17));
+                            events.ScheduleEvent(EVENT_NECROTIC_AURA_FADING, 14s);
+                            events.ScheduleEvent(EVENT_NECROTIC_AURA_FADED, 17s);
                             events.Repeat(Seconds(20));
                             break;
                         case EVENT_DEATHBLOOM:

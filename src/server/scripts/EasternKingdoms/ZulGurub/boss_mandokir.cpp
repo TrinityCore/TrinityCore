@@ -147,10 +147,10 @@ class boss_mandokir : public CreatureScript
                     }
                 }
 
-                events.ScheduleEvent(EVENT_DECAPITATE, 10000);
-                events.ScheduleEvent(EVENT_BLOODLETTING, 15000);
-                events.ScheduleEvent(EVENT_SUMMON_OHGAN, 20000);
-                events.ScheduleEvent(EVENT_DEVASTATING_SLAM, 25000);
+                events.ScheduleEvent(EVENT_DECAPITATE, 10s);
+                events.ScheduleEvent(EVENT_BLOODLETTING, 15s);
+                events.ScheduleEvent(EVENT_SUMMON_OHGAN, 20s);
+                events.ScheduleEvent(EVENT_DEVASTATING_SLAM, 25s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -186,7 +186,7 @@ class boss_mandokir : public CreatureScript
                 switch (action)
                 {
                     case ACTION_OHGAN_IS_DEATH:
-                        events.ScheduleEvent(EVENT_REANIMATE_OHGAN, 4000);
+                        events.ScheduleEvent(EVENT_REANIMATE_OHGAN, 4s);
                         _ohganotSoFast = false;
                         break;
                     case ACTION_START_REVIVE:
@@ -249,7 +249,7 @@ class boss_mandokir : public CreatureScript
                             break;
                         case EVENT_DECAPITATE:
                             DoCastAOE(SPELL_DECAPITATE);
-                            events.ScheduleEvent(EVENT_DECAPITATE, me->HasAura(SPELL_FRENZY) ? 17500 : 35000);
+                            events.ScheduleEvent(EVENT_DECAPITATE, me->HasAura(SPELL_FRENZY) ? (17s + 500ms) : 35s);
                             break;
                         case EVENT_BLOODLETTING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
@@ -257,18 +257,18 @@ class boss_mandokir : public CreatureScript
                                 DoCast(target, SPELL_BLOODLETTING, true);
                                 me->ClearUnitState(UNIT_STATE_CASTING);
                             }
-                            events.ScheduleEvent(EVENT_BLOODLETTING, 25000);
+                            events.ScheduleEvent(EVENT_BLOODLETTING, 25s);
                             break;
                         case EVENT_REANIMATE_OHGAN:
                             if (_reanimateOhganCooldown)
-                                events.ScheduleEvent(EVENT_REANIMATE_OHGAN, 1000);
+                                events.ScheduleEvent(EVENT_REANIMATE_OHGAN, 1s);
                             else
                             {
                                 DoCastAOE(SPELL_REANIMATE_OHGAN);
                                 Talk(SAY_REANIMATE_OHGAN);
                                 // Cooldown
                                 _reanimateOhganCooldown = true;
-                                events.ScheduleEvent(EVENT_REANIMATE_OHGAN_COOLDOWN, 20000);
+                                events.ScheduleEvent(EVENT_REANIMATE_OHGAN_COOLDOWN, 20s);
                             }
                             break;
                         case EVENT_REANIMATE_OHGAN_COOLDOWN:
@@ -276,7 +276,7 @@ class boss_mandokir : public CreatureScript
                             break;
                         case EVENT_DEVASTATING_SLAM:
                             DoCastAOE(SPELL_DEVASTATING_SLAM_TRIGGER);
-                            events.ScheduleEvent(EVENT_DEVASTATING_SLAM, 30000);
+                            events.ScheduleEvent(EVENT_DEVASTATING_SLAM, 30s);
                             break;
                         default:
                             break;

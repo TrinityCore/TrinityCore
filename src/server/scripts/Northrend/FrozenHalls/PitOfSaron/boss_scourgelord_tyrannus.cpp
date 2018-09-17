@@ -213,7 +213,7 @@ class boss_tyrannus : public CreatureScript
                     events.ScheduleEvent(EVENT_INTRO_1, 14000, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_INTRO_2, 22000, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_INTRO_3, 34000, 0, PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_COMBAT_START, 36000, 0, PHASE_INTRO);
+                    events.ScheduleEvent(EVENT_COMBAT_START, 36s, 0, PHASE_INTRO);
                     instance->SetBossState(DATA_TYRANNUS, IN_PROGRESS);
                 }
             }
@@ -247,24 +247,24 @@ class boss_tyrannus : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             DoCast(me, SPELL_FULL_HEAL);
                             DoZoneInCombat();
-                            events.ScheduleEvent(EVENT_OVERLORD_BRAND, urand(5000, 7000));
-                            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, urand(14000, 16000));
-                            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, urand(25000, 27000));
+                            events.ScheduleEvent(EVENT_OVERLORD_BRAND, 5s, 7s);
+                            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 14s, 16s);
+                            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 25s, 27s);
                             break;
                         case EVENT_OVERLORD_BRAND:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                 DoCast(target, SPELL_OVERLORD_BRAND);
-                            events.ScheduleEvent(EVENT_OVERLORD_BRAND, urand(11000, 12000));
+                            events.ScheduleEvent(EVENT_OVERLORD_BRAND, 11s, 12s);
                             break;
                         case EVENT_FORCEFUL_SMASH:
                             DoCastVictim(SPELL_FORCEFUL_SMASH);
-                            events.ScheduleEvent(EVENT_UNHOLY_POWER, 1000);
+                            events.ScheduleEvent(EVENT_UNHOLY_POWER, 1s);
                             break;
                         case EVENT_UNHOLY_POWER:
                             Talk(SAY_DARK_MIGHT_1);
                             Talk(SAY_DARK_MIGHT_2);
                             DoCast(me, SPELL_UNHOLY_POWER);
-                            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, urand(40000, 48000));
+                            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 40s, 48s);
                             break;
                         case EVENT_MARK_OF_RIMEFANG:
                             Talk(SAY_MARK_RIMEFANG_1);
@@ -273,7 +273,7 @@ class boss_tyrannus : public CreatureScript
                                 Talk(SAY_MARK_RIMEFANG_2, target);
                                 DoCast(target, SPELL_MARK_OF_RIMEFANG);
                             }
-                            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, urand(24000, 26000));
+                            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 24s, 26s);
                             break;
                     }
 
@@ -332,7 +332,7 @@ class boss_rimefang : public CreatureScript
                     _events.SetPhase(PHASE_COMBAT);
                     DoZoneInCombat();
                     _events.ScheduleEvent(EVENT_MOVE_NEXT, 500, 0, PHASE_COMBAT);
-                    _events.ScheduleEvent(EVENT_ICY_BLAST, 15000, 0, PHASE_COMBAT);
+                    _events.ScheduleEvent(EVENT_ICY_BLAST, 15s, 0, PHASE_COMBAT);
                 }
                 else if (actionId == ACTION_END_COMBAT)
                     _EnterEvadeMode();
@@ -343,7 +343,7 @@ class boss_rimefang : public CreatureScript
                 if (id == GUID_HOARFROST)
                 {
                     _hoarfrostTargetGUID = guid;
-                    _events.ScheduleEvent(EVENT_HOARFROST, 1000);
+                    _events.ScheduleEvent(EVENT_HOARFROST, 1s);
                 }
             }
 
@@ -363,12 +363,12 @@ class boss_rimefang : public CreatureScript
                                 _currentWaypoint = 1;
                             me->GetMotionMaster()->MovePoint(0, rimefangPos[_currentWaypoint]);
                             ++_currentWaypoint;
-                            _events.ScheduleEvent(EVENT_MOVE_NEXT, 2000, 0, PHASE_COMBAT);
+                            _events.ScheduleEvent(EVENT_MOVE_NEXT, 2s, 0, PHASE_COMBAT);
                             break;
                         case EVENT_ICY_BLAST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_ICY_BLAST);
-                            _events.ScheduleEvent(EVENT_ICY_BLAST, 15000, 0, PHASE_COMBAT);
+                            _events.ScheduleEvent(EVENT_ICY_BLAST, 15s, 0, PHASE_COMBAT);
                             break;
                         case EVENT_HOARFROST:
                             if (Unit* target = ObjectAccessor::GetUnit(*me, _hoarfrostTargetGUID))

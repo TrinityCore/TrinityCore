@@ -68,10 +68,10 @@ class boss_eck : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_BITE, 5 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SPIT, 10 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SPRING, 8 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_BERSERK, urand(60 * IN_MILLISECONDS, 90 * IN_MILLISECONDS)); // 60-90 secs according to wowwiki
+                events.ScheduleEvent(EVENT_BITE, 5s);
+                events.ScheduleEvent(EVENT_SPIT, 10s);
+                events.ScheduleEvent(EVENT_SPRING, 8s);
+                events.ScheduleEvent(EVENT_BERSERK, 60s, 90s); // 60-90 secs according to wowwiki
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -89,16 +89,16 @@ class boss_eck : public CreatureScript
                 {
                     case EVENT_BITE:
                         DoCastVictim(SPELL_ECK_BITE);
-                        events.ScheduleEvent(EVENT_BITE, urand(8 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_BITE, 8s, 12s);
                         break;
                     case EVENT_SPIT:
                         DoCastVictim(SPELL_ECK_SPIT);
-                        events.ScheduleEvent(EVENT_SPIT, urand(6 * IN_MILLISECONDS, 14 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_SPIT, 6s, 14s);
                         break;
                     case EVENT_SPRING:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 35.0f, true))
                             DoCast(target, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
-                        events.ScheduleEvent(EVENT_SPRING, urand(5 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_SPRING, 5s, 10s);
                         break;
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_ECK_BERSERK);

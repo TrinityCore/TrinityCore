@@ -70,10 +70,10 @@ class boss_occuthar : public CreatureScript
             {
                 _JustEngagedWith();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.ScheduleEvent(EVENT_SEARING_SHADOWS, 8 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_FOCUSED_FIRE, 15 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_EYES_OF_OCCUTHAR, 30 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_BERSERK, 5 * MINUTE * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SEARING_SHADOWS, 8s);
+                events.ScheduleEvent(EVENT_FOCUSED_FIRE, 15s);
+                events.ScheduleEvent(EVENT_EYES_OF_OCCUTHAR, 30s);
+                events.ScheduleEvent(EVENT_BERSERK, 5min);
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -121,16 +121,16 @@ class boss_occuthar : public CreatureScript
                     {
                         case EVENT_SEARING_SHADOWS:
                             DoCastAOE(SPELL_SEARING_SHADOWS);
-                            events.ScheduleEvent(EVENT_SEARING_SHADOWS, 25 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SEARING_SHADOWS, 25s);
                             break;
                         case EVENT_FOCUSED_FIRE:
                             DoCastAOE(SPELL_FOCUSED_FIRE_TRIGGER, true);
-                            events.ScheduleEvent(EVENT_FOCUSED_FIRE, 15 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_FOCUSED_FIRE, 15s);
                             break;
                         case EVENT_EYES_OF_OCCUTHAR:
                             DoCastAOE(SPELL_EYES_OF_OCCUTHAR);
-                            events.RescheduleEvent(EVENT_FOCUSED_FIRE, 15 * IN_MILLISECONDS);
-                            events.ScheduleEvent(EVENT_EYES_OF_OCCUTHAR, 60 * IN_MILLISECONDS);
+                            events.RescheduleEvent(EVENT_FOCUSED_FIRE, 15s);
+                            events.ScheduleEvent(EVENT_EYES_OF_OCCUTHAR, 60s);
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK, true);

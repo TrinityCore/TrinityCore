@@ -724,16 +724,16 @@ public:
             GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
             owner->SetFaction(35);
             owner->SetImmuneToAll(true);
-            owner->DespawnOrUnsummon(3 * MINUTE*IN_MILLISECONDS);
+            owner->DespawnOrUnsummon(3min);
         }
 
-        void Register()
+        void Register() override
         {
             AfterEffectRemove += AuraEffectRemoveFn(spell_red_dragonblood_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_red_dragonblood_AuraScript();
     }
@@ -2444,7 +2444,7 @@ public:
             if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                 me->SetFacingToObject(player);
 
-            _events.ScheduleEvent(EVENT_TALK, Seconds(1));
+            _events.ScheduleEvent(EVENT_TALK, 1s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -2465,7 +2465,7 @@ public:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             Talk(SAY_BLOODMAGE_LAURITH, player);
                         _playerGUID.Clear();
-                        _events.ScheduleEvent(EVENT_RESET_ORIENTATION, Seconds(5));
+                        _events.ScheduleEvent(EVENT_RESET_ORIENTATION, 5s);
                         break;
                     case EVENT_RESET_ORIENTATION:
                         me->SetFacingTo(me->GetHomePosition().GetOrientation());

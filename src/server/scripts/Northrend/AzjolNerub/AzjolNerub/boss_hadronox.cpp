@@ -229,7 +229,7 @@ public:
             events.ScheduleEvent(EVENT_ACID_CLOUD, randtime(Seconds(7), Seconds(13)));
             events.ScheduleEvent(EVENT_WEB_GRAB, randtime(Seconds(13), Seconds(19)));
             events.ScheduleEvent(EVENT_PIERCE_ARMOR, randtime(Seconds(4), Seconds(7)));
-            events.ScheduleEvent(EVENT_PLAYER_CHECK, Seconds(1));
+            events.ScheduleEvent(EVENT_PLAYER_CHECK, 1s);
             me->setActive(true);
         }
 

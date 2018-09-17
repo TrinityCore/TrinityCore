@@ -72,9 +72,9 @@ class boss_rokmar_the_crackler : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, 10000);
-                events.ScheduleEvent(EVENT_ENSNARING_MOSS, 20000);
-                events.ScheduleEvent(EVENT_WATER_SPIT, 14000);
+                events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, 10s);
+                events.ScheduleEvent(EVENT_ENSNARING_MOSS, 20s);
+                events.ScheduleEvent(EVENT_WATER_SPIT, 14s);
             }
 
             void KilledUnit(Unit* /*victim*/) override { }
@@ -95,15 +95,15 @@ class boss_rokmar_the_crackler : public CreatureScript
                     {
                         case EVENT_GRIEVOUS_WOUND:
                             DoCastVictim(SPELL_GRIEVOUS_WOUND, true);
-                            events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, 20s, 30s);
                             break;
                         case EVENT_ENSNARING_MOSS:
                             DoCastAOE(SPELL_ENSNARING_MOSS);
-                            events.ScheduleEvent(EVENT_ENSNARING_MOSS, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_ENSNARING_MOSS, 20s, 30s);
                             break;
                         case EVENT_WATER_SPIT:
                             DoCastAOE(SPELL_WATER_SPIT);
-                            events.ScheduleEvent(EVENT_WATER_SPIT, urand(14000, 18000));
+                            events.ScheduleEvent(EVENT_WATER_SPIT, 14s, 18s);
                             break;
                         default:
                             break;

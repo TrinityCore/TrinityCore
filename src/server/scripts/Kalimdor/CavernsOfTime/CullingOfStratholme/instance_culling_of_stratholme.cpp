@@ -312,7 +312,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 default:
                                     break;
                             }
-                            events.ScheduleEvent(EVENT_INFINITE_TIMER, 60000);
+                            events.ScheduleEvent(EVENT_INFINITE_TIMER, 1min);
                             --_eventTimer;
                             break;
                         default:

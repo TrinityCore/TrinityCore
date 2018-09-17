@@ -65,11 +65,11 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_CLEAVE, urand(1 * IN_MILLISECONDS, 9 * IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, urand(2 * IN_MILLISECONDS, 19 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_CLEAVE, 1s, 9s);
+            events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, 2s, 19s);
             events.ScheduleEvent(EVENT_WHIRLWIND1, urand(1 * IN_MILLISECONDS, 13 * IN_MILLISECONDS));
             events.ScheduleEvent(EVENT_WHIRLWIND2, urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_MORTAL_STRIKE, 5s, 20s);
         }
 
         void DoAction(int32 actionId) override
@@ -106,11 +106,11 @@ public:
                 {
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, urand(10 * IN_MILLISECONDS, 16 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_CLEAVE, 10s, 16s);
                         break;
                     case EVENT_FRIGHTENING_SHOUT:
                         DoCastVictim(SPELL_FRIGHTENING_SHOUT);
-                        events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, 10s, 15s);
                         break;
                     case EVENT_WHIRLWIND1:
                         DoCastVictim(SPELL_WHIRLWIND1);
@@ -122,7 +122,7 @@ public:
                         break;
                     case EVENT_MORTAL_STRIKE:
                         DoCastVictim(SPELL_MORTAL_STRIKE);
-                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 10s, 30s);
                         break;
                     default:
                         break;

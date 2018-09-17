@@ -160,7 +160,7 @@ struct boss_reliquary_of_souls : public BossAI
             _inCombat = true;
             DoZoneInCombat();
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            events.ScheduleEvent(EVENT_SUBMERGE, Seconds(10));
+            events.ScheduleEvent(EVENT_SUBMERGE, 10s);
         }
     }
 
@@ -184,13 +184,13 @@ struct boss_reliquary_of_souls : public BossAI
                 me->RemoveAurasDueToSpell(SPELL_SUBMERGE_VISUAL);
                 events.SetPhase(PHASE_ESSENCE_OF_DESIRE);
                 HandleSpirits();
-                events.ScheduleEvent(EVENT_SUBMERGE, Seconds(40));
+                events.ScheduleEvent(EVENT_SUBMERGE, 40s);
                 break;
             case ACTION_ESSENCE_OF_DESIRE_DEAD:
                 me->RemoveAurasDueToSpell(SPELL_SUBMERGE_VISUAL);
                 events.SetPhase(PHASE_ESSENCE_OF_ANGER);
                 HandleSpirits();
-                events.ScheduleEvent(EVENT_SUBMERGE, Seconds(40));
+                events.ScheduleEvent(EVENT_SUBMERGE, 40s);
                 break;
             case ACTION_KILL_SELF:
                 me->KillSelf();
@@ -272,7 +272,7 @@ struct boss_reliquary_of_souls : public BossAI
             {
                 case EVENT_SUBMERGE:
                     DoCastSelf(SPELL_SUBMERGE_VISUAL, true);
-                    events.ScheduleEvent(EVENT_SUMMON_ESSENCE, Seconds(3));
+                    events.ScheduleEvent(EVENT_SUMMON_ESSENCE, 3s);
                     break;
                 case EVENT_SUMMON_ESSENCE:
                 {
@@ -347,8 +347,8 @@ struct boss_essence_of_suffering : public BossAI
         me->setActive(true);
         DoZoneInCombat();
 
-        events.ScheduleEvent(EVENT_SOUL_DRAIN, Seconds(20));
-        events.ScheduleEvent(EVENT_FRENZY, Seconds(45));
+        events.ScheduleEvent(EVENT_SOUL_DRAIN, 20s);
+        events.ScheduleEvent(EVENT_FRENZY, 45s);
         Talk(SUFF_SAY_AGRO);
     }
 
@@ -417,9 +417,9 @@ struct boss_essence_of_desire : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        events.ScheduleEvent(EVENT_SPIRIT_SHOCK, Seconds(11));
-        events.ScheduleEvent(EVENT_RUNE_SHIELD, Seconds(16));
-        events.ScheduleEvent(EVENT_DEADEN, Seconds(31));
+        events.ScheduleEvent(EVENT_SPIRIT_SHOCK, 11s);
+        events.ScheduleEvent(EVENT_RUNE_SHIELD, 16s);
+        events.ScheduleEvent(EVENT_DEADEN, 31s);
 
         me->SetCombatPulseDelay(5);
         me->setActive(true);
@@ -531,9 +531,9 @@ struct boss_essence_of_anger : public BossAI
     {
         Talk(ANGER_SAY_FREED);
 
-        events.ScheduleEvent(EVENT_START_CHECK_TANKER, Seconds(5));
-        events.ScheduleEvent(EVENT_SOUL_SCREAM, Seconds(11));
-        events.ScheduleEvent(EVENT_SPITE, Seconds(20));
+        events.ScheduleEvent(EVENT_START_CHECK_TANKER, 5s);
+        events.ScheduleEvent(EVENT_SOUL_SCREAM, 11s);
+        events.ScheduleEvent(EVENT_SPITE, 20s);
         events.ScheduleEvent(EVENT_FREED_2, Seconds(1), Minutes(3));
 
         me->SetCombatPulseDelay(5);
@@ -590,7 +590,7 @@ struct boss_essence_of_anger : public BossAI
                     if (Unit* target = me->GetVictim())
                     {
                         _targetGUID = target->GetGUID();
-                        events.ScheduleEvent(EVENT_CHECK_TANKER, Seconds(1));
+                        events.ScheduleEvent(EVENT_CHECK_TANKER, 1s);
                     }
                     else
                         events.Repeat(Seconds(1));

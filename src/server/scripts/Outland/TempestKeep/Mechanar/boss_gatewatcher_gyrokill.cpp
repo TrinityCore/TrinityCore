@@ -68,8 +68,8 @@ class boss_gatewatcher_gyrokill : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 10000);
-                events.ScheduleEvent(EVENT_SAW_BLADE, 20000);
+                events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 10s);
+                events.ScheduleEvent(EVENT_SAW_BLADE, 20s);
                 events.ScheduleEvent(EVENT_SHADOW_POWER, 25000);
                 Talk(SAY_AGGRO);
             }
@@ -95,16 +95,16 @@ class boss_gatewatcher_gyrokill : public CreatureScript
                     {
                         case EVENT_STREAM_OF_MACHINE_FLUID:
                             DoCastVictim(SPELL_STREAM_OF_MACHINE_FLUID, true);
-                            events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, urand(13000, 17000));
+                            events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 13s, 17s);
                             break;
                         case EVENT_SAW_BLADE:
                             DoCast(me, SPELL_SAW_BLADE);
                             Talk(SAY_SAW_BLADEs);
-                            events.ScheduleEvent(EVENT_SAW_BLADE, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_SAW_BLADE, 20s, 30s);
                             break;
                         case EVENT_SHADOW_POWER:
                             DoCast(me, SPELL_SHADOW_POWER);
-                            events.ScheduleEvent(EVENT_SAW_BLADE, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_SAW_BLADE, 25s, 35s);
                             break;
                         default:
                             break;

@@ -71,10 +71,10 @@ public:
             Talk(SAY_AGGRO);
 
             DoCastSelf(SPELL_HOLYGROUND, true);
-            events.ScheduleEvent(EVENT_REPENTANCE, Seconds(33), Seconds(45));
-            events.ScheduleEvent(EVENT_HOLYFIRE, Seconds(8));
-            events.ScheduleEvent(EVENT_HOLYWRATH, Seconds(15), Seconds(25));
-            events.ScheduleEvent(EVENT_ENRAGE, Minutes(10));
+            events.ScheduleEvent(EVENT_REPENTANCE, 33s, 45s);
+            events.ScheduleEvent(EVENT_HOLYFIRE, 8s);
+            events.ScheduleEvent(EVENT_HOLYWRATH, 15s, 25s);
+            events.ScheduleEvent(EVENT_ENRAGE, 10min);
         }
 
         void UpdateAI(uint32 diff) override

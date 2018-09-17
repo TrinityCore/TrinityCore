@@ -64,8 +64,8 @@ class boss_infinite_corruptor : public CreatureScript
             {
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 7000);
-                events.ScheduleEvent(EVENT_VOID_STRIKE, 5000);
+                events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 7s);
+                events.ScheduleEvent(EVENT_VOID_STRIKE, 5s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -90,11 +90,11 @@ class boss_infinite_corruptor : public CreatureScript
                     case EVENT_CORRUPTING_BLIGHT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
                             DoCast(target, SPELL_CORRUPTING_BLIGHT);
-                        events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 17000);
+                        events.ScheduleEvent(EVENT_CORRUPTING_BLIGHT, 15s);
                         break;
                     case EVENT_VOID_STRIKE:
                         DoCastVictim(SPELL_VOID_STRIKE);
-                        events.ScheduleEvent(EVENT_VOID_STRIKE, 5000);
+                        events.ScheduleEvent(EVENT_VOID_STRIKE, 5s);
                         break;
                     default:
                         break;

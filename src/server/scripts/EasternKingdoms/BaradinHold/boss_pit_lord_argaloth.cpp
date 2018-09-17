@@ -55,9 +55,9 @@ class boss_pit_lord_argaloth : public CreatureScript
             {
                 _JustEngagedWith();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.ScheduleEvent(EVENT_METEOR_SLASH, urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_BERSERK, 5 * MINUTE * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_METEOR_SLASH, 10s, 20s);
+                events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, 20s, 25s);
+                events.ScheduleEvent(EVENT_BERSERK, 5min);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -97,11 +97,11 @@ class boss_pit_lord_argaloth : public CreatureScript
                     {
                         case EVENT_METEOR_SLASH:
                             DoCastAOE(SPELL_METEOR_SLASH);
-                            events.ScheduleEvent(EVENT_METEOR_SLASH, urand(15 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_METEOR_SLASH, 15s, 20s);
                             break;
                         case EVENT_CONSUMING_DARKNESS:
                             DoCastAOE(SPELL_CONSUMING_DARKNESS, true);
-                            events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, 20s, 25s);
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK, true);

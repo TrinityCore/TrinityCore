@@ -53,7 +53,7 @@ class boss_houndmaster_loksey : public CreatureScript
             {
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_BLOODLUST, 20000);
+                events.ScheduleEvent(EVENT_BLOODLUST, 20s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -67,7 +67,7 @@ class boss_houndmaster_loksey : public CreatureScript
                 {
                     case EVENT_BLOODLUST:
                         DoCast(me, SPELL_BLOODLUST);
-                        events.ScheduleEvent(EVENT_BLOODLUST, 20000);
+                        events.ScheduleEvent(EVENT_BLOODLUST, 20s);
                         break;
                     default:
                         break;

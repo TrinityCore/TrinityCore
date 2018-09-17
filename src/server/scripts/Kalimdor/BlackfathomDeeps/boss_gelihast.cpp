@@ -41,7 +41,7 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             _JustEngagedWith();
-            events.ScheduleEvent(EVENT_THROW_NET, urand(2000, 4000));
+            events.ScheduleEvent(EVENT_THROW_NET, 2s, 4s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -56,7 +56,7 @@ public:
                 if (eventId == EVENT_THROW_NET)
                 {
                     DoCastVictim(SPELL_NET);
-                    events.ScheduleEvent(EVENT_THROW_NET, urand(4000, 7000));
+                    events.ScheduleEvent(EVENT_THROW_NET, 4s, 7s);
                 }
             }
 

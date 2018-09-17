@@ -115,9 +115,9 @@ class boss_prince_taldaram : public CreatureScript
             {
                 _JustEngagedWith();
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_BLOODTHIRST, 10000);
-                events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));
-                events.ScheduleEvent(EVENT_CONJURE_FLAME_SPHERES, 5000);
+                events.ScheduleEvent(EVENT_BLOODTHIRST, 10s);
+                events.ScheduleEvent(EVENT_VANISH, 25s, 35s);
+                events.ScheduleEvent(EVENT_CONJURE_FLAME_SPHERES, 5s);
             }
 
             void JustSummoned(Creature* summon) override
@@ -177,7 +177,7 @@ class boss_prince_taldaram : public CreatureScript
                     {
                         case EVENT_BLOODTHIRST:
                             DoCast(me, SPELL_BLOODTHIRST);
-                            events.ScheduleEvent(EVENT_BLOODTHIRST, 10000);
+                            events.ScheduleEvent(EVENT_BLOODTHIRST, 10s);
                             break;
                         case EVENT_CONJURE_FLAME_SPHERES:
                             // random target?
@@ -197,9 +197,9 @@ class boss_prince_taldaram : public CreatureScript
                                 Talk(SAY_VANISH);
                                 DoCast(me, SPELL_VANISH);
                                 events.DelayEvents(500);
-                                events.ScheduleEvent(EVENT_START_FEEDING, 2000);
+                                events.ScheduleEvent(EVENT_START_FEEDING, 2s);
                             }
-                            events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_VANISH, 25s, 35s);
                             break;
                         }
                         case EVENT_START_FEEDING:
@@ -209,7 +209,7 @@ class boss_prince_taldaram : public CreatureScript
                                 DoCast(embraceTarget, SPELL_SHADOWSTEP);
                                 DoCast(embraceTarget, SPELL_EMBRACE_OF_THE_VAMPYR);
                                 Talk(SAY_FEED);
-                                events.ScheduleEvent(EVENT_DONE_FEEDING, 20000);
+                                events.ScheduleEvent(EVENT_DONE_FEEDING, 20s);
                             }
                             break;
                         case EVENT_DONE_FEEDING:
@@ -322,8 +322,8 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
 
                 _flameSphereTargetGUID.Clear();
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_START_MOVE, 3 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_DESPAWN, 13 * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_START_MOVE, 3s);
+                _events.ScheduleEvent(EVENT_DESPAWN, 13s);
             }
 
             void SetGUID(ObjectGuid const& guid, int32 /*id*/) override

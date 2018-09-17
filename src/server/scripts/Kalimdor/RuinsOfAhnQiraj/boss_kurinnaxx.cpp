@@ -66,10 +66,10 @@ class boss_kurinnaxx : public CreatureScript
             {
                 _Reset();
                 Initialize();
-                events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);
-                events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
-                events.ScheduleEvent(EVENT_TRASH, 1000);
-                events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
+                events.ScheduleEvent(EVENT_MORTAL_WOUND, 8s);
+                events.ScheduleEvent(EVENT_SANDTRAP, 5s, 15s);
+                events.ScheduleEvent(EVENT_TRASH, 1s);
+                events.ScheduleEvent(EVENT_WIDE_SLASH, 11s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -104,22 +104,22 @@ class boss_kurinnaxx : public CreatureScript
                     {
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTALWOUND);
-                            events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);
+                            events.ScheduleEvent(EVENT_MORTAL_WOUND, 8s);
                             break;
                         case EVENT_SANDTRAP:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 target->CastSpell(target, SPELL_SANDTRAP, true);
                             else if (Unit* victim = me->GetVictim())
                                 victim->CastSpell(victim, SPELL_SANDTRAP, true);
-                            events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
+                            events.ScheduleEvent(EVENT_SANDTRAP, 5s, 15s);
                             break;
                         case EVENT_WIDE_SLASH:
                             DoCast(me, SPELL_WIDE_SLASH);
-                            events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
+                            events.ScheduleEvent(EVENT_WIDE_SLASH, 11s);
                             break;
                         case EVENT_TRASH:
                             DoCast(me, SPELL_TRASH);
-                            events.ScheduleEvent(EVENT_WIDE_SLASH, 16000);
+                            events.ScheduleEvent(EVENT_WIDE_SLASH, 15s);
                             break;
                         default:
                             break;

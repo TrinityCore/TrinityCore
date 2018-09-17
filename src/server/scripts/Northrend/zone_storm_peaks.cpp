@@ -280,7 +280,7 @@ public:
 
         void Reset() override
         {
-            events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
+            events.ScheduleEvent(EVENT_CHECK_AREA, 5s);
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -290,7 +290,7 @@ public:
 
             if (id == 15)
             // drake reached village
-            events.ScheduleEvent(EVENT_REACHED_HOME, 2000);
+            events.ScheduleEvent(EVENT_REACHED_HOME, 2s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -311,7 +311,7 @@ public:
                             }
                     }
                     else
-                        events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
+                        events.ScheduleEvent(EVENT_CHECK_AREA, 5s);
                     break;
                 case EVENT_REACHED_HOME:
                     if (Vehicle* vehicle = me->GetVehicleKit())

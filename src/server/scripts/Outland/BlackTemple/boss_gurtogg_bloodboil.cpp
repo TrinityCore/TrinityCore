@@ -130,8 +130,8 @@ struct boss_gurtogg_bloodboil : public BossAI
     {
         Talk(SAY_AGGRO);
         _JustEngagedWith();
-        events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-        events.ScheduleEvent(EVENT_CHANGE_PHASE, Seconds(60));
+        events.ScheduleEvent(EVENT_BERSERK, 10min);
+        events.ScheduleEvent(EVENT_CHANGE_PHASE, 1min);
         ScheduleEvents();
     }
 
@@ -274,14 +274,14 @@ struct boss_gurtogg_bloodboil : public BossAI
         {
             events.SetPhase(PHASE_2);
             events.CancelEventGroup(GROUP_PHASE_1);
-            events.ScheduleEvent(EVENT_CHANGE_PHASE, Seconds(30));
+            events.ScheduleEvent(EVENT_CHANGE_PHASE, 30s);
             ScheduleEvents();
         }
         else if (events.IsInPhase(PHASE_2))
         {
             events.SetPhase(PHASE_1);
             events.CancelEventGroup(GROUP_PHASE_2);
-            events.ScheduleEvent(EVENT_CHANGE_PHASE, Seconds(60));
+            events.ScheduleEvent(EVENT_CHANGE_PHASE, 1min);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
             ScheduleEvents();

@@ -82,10 +82,10 @@ public:
         {
             _JustEngagedWith();
 
-            events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(8000, 16000));
-            events.ScheduleEvent(EVENT_FREEZE, urand(8000, 16000));
-            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(8000, 16000));
-            events.ScheduleEvent(EVENT_KNOCK_AWAY, urand(12000, 18000));
+            events.ScheduleEvent(EVENT_CORROSIVE_ACID, 8s, 16s);
+            events.ScheduleEvent(EVENT_FREEZE, 8s, 16s);
+            events.ScheduleEvent(EVENT_FLAME_BREATH, 8s, 16s);
+            events.ScheduleEvent(EVENT_KNOCK_AWAY, 12s, 18s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -98,7 +98,7 @@ public:
             switch (data)
             {
                 case 1:
-                    events.ScheduleEvent(EVENT_SUMMONED_1, 1000);
+                    events.ScheduleEvent(EVENT_SUMMONED_1, 1s);
                     break;
                 default:
                     break;
@@ -129,7 +129,7 @@ public:
                                 portcullis->UseDoorOrButton();
                             if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
                                 victor->AI()->SetData(1, 1);
-                            events.ScheduleEvent(EVENT_SUMMONED_2, 2000);
+                            events.ScheduleEvent(EVENT_SUMMONED_2, 2s);
                             break;
                         case EVENT_SUMMONED_2:
                             me->GetMotionMaster()->MovePath(GYTH_PATH_1, false);
@@ -152,19 +152,19 @@ public:
                 {
                     case EVENT_CORROSIVE_ACID:
                         DoCast(me, SPELL_CORROSIVE_ACID);
-                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(10000, 16000));
+                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, 10s, 16s);
                         break;
                     case EVENT_FREEZE:
                         DoCast(me, SPELL_FREEZE);
-                        events.ScheduleEvent(EVENT_FREEZE, urand(10000, 16000));
+                        events.ScheduleEvent(EVENT_FREEZE, 10s, 16s);
                         break;
                     case EVENT_FLAME_BREATH:
                         DoCast(me, SPELL_FLAMEBREATH);
-                        events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 16000));
+                        events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 16s);
                         break;
                     case EVENT_KNOCK_AWAY:
                         DoCastVictim(SPELL_KNOCK_AWAY);
-                        events.ScheduleEvent(EVENT_KNOCK_AWAY, urand(14000, 20000));
+                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 14s, 20s);
                         break;
                     default:
                         break;

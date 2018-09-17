@@ -74,11 +74,11 @@ class boss_mennu_the_betrayer : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_TAINTED_STONESKIN_TOTEM, 30000);
-                events.ScheduleEvent(EVENT_TAINTED_EARTHGRAB_TOTEM, 20000);
-                events.ScheduleEvent(EVENT_CORRUPTED_NOVA_TOTEM, 60000);
-                events.ScheduleEvent(EVENT_MENNUS_HEALING_WARD, urand(14000, 25000));
-                events.ScheduleEvent(EVENT_LIGHTNING_BOLT, urand(14000, 19000));
+                events.ScheduleEvent(EVENT_TAINTED_STONESKIN_TOTEM, 30s);
+                events.ScheduleEvent(EVENT_TAINTED_EARTHGRAB_TOTEM, 20s);
+                events.ScheduleEvent(EVENT_CORRUPTED_NOVA_TOTEM, 1min);
+                events.ScheduleEvent(EVENT_MENNUS_HEALING_WARD, 14s, 25s);
+                events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 14s, 19s);
                 Talk(SAY_AGGRO);
             }
 
@@ -104,7 +104,7 @@ class boss_mennu_the_betrayer : public CreatureScript
                         case EVENT_TAINTED_STONESKIN_TOTEM:
                             if (HealthBelowPct(100))
                                 DoCast(me, SPELL_TAINTED_STONESKIN_TOTEM);
-                            events.ScheduleEvent(EVENT_TAINTED_STONESKIN_TOTEM, 30000);
+                            events.ScheduleEvent(EVENT_TAINTED_STONESKIN_TOTEM, 30s);
                             break;
                         case EVENT_TAINTED_EARTHGRAB_TOTEM:
                             DoCast(me, SPELL_TAINTED_EARTHGRAB_TOTEM);
@@ -114,11 +114,11 @@ class boss_mennu_the_betrayer : public CreatureScript
                             break;
                         case EVENT_MENNUS_HEALING_WARD:
                             DoCast(me, SPELL_MENNUS_HEALING_WARD);
-                            events.ScheduleEvent(EVENT_MENNUS_HEALING_WARD, urand(14000, 25000));
+                            events.ScheduleEvent(EVENT_MENNUS_HEALING_WARD, 14s, 25s);
                             break;
                         case EVENT_LIGHTNING_BOLT:
                             DoCastVictim(SPELL_LIGHTNING_BOLT, true);
-                            events.ScheduleEvent(EVENT_LIGHTNING_BOLT, urand(14000, 25000));
+                            events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 14s, 25s);
                             break;
                         default:
                             break;

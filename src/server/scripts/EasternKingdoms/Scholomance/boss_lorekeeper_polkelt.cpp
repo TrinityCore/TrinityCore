@@ -53,10 +53,10 @@ class boss_lorekeeper_polkelt : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_VOLATILEINFECTION, 38000);
-                events.ScheduleEvent(EVENT_DARKPLAGUE, 8000);
-                events.ScheduleEvent(EVENT_CORROSIVEACID, 45000);
-                events.ScheduleEvent(EVENT_NOXIOUSCATALYST, 35000);
+                events.ScheduleEvent(EVENT_VOLATILEINFECTION, 38s);
+                events.ScheduleEvent(EVENT_DARKPLAGUE, 8s);
+                events.ScheduleEvent(EVENT_CORROSIVEACID, 45s);
+                events.ScheduleEvent(EVENT_NOXIOUSCATALYST, 35s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -75,19 +75,19 @@ class boss_lorekeeper_polkelt : public CreatureScript
                     {
                         case EVENT_VOLATILEINFECTION:
                             DoCastVictim(SPELL_VOLATILEINFECTION, true);
-                            events.ScheduleEvent(EVENT_VOLATILEINFECTION, 32000);
+                            events.ScheduleEvent(EVENT_VOLATILEINFECTION, 32s);
                             break;
                         case EVENT_DARKPLAGUE:
                             DoCastVictim(SPELL_DARKPLAGUE, true);
-                            events.ScheduleEvent(EVENT_DARKPLAGUE, 8000);
+                            events.ScheduleEvent(EVENT_DARKPLAGUE, 8s);
                             break;
                         case EVENT_CORROSIVEACID:
                             DoCastVictim(SPELL_CORROSIVEACID, true);
-                            events.ScheduleEvent(EVENT_CORROSIVEACID, 25000);
+                            events.ScheduleEvent(EVENT_CORROSIVEACID, 25s);
                             break;
                         case EVENT_NOXIOUSCATALYST:
                             DoCastVictim(SPELL_NOXIOUSCATALYST, true);
-                            events.ScheduleEvent(EVENT_NOXIOUSCATALYST, 38000);
+                            events.ScheduleEvent(EVENT_NOXIOUSCATALYST, 38s);
                             break;
                         default:
                             break;

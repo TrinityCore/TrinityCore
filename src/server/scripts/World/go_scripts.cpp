@@ -1545,8 +1545,8 @@ public:
 
         go_brewfest_musicAI(GameObject* go) : GameObjectAI(go)
         {
-            _events.ScheduleEvent(EVENT_BM_SELECT_MUSIC, 1000);
-            _events.ScheduleEvent(EVENT_BM_START_MUSIC, 2000);
+            _events.ScheduleEvent(EVENT_BM_SELECT_MUSIC, 1s);
+            _events.ScheduleEvent(EVENT_BM_START_MUSIC, 2s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1658,7 +1658,7 @@ public:
                             break;
                     }
 
-                    _events.ScheduleEvent(EVENT_BM_START_MUSIC, 5000); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client
+                    _events.ScheduleEvent(EVENT_BM_START_MUSIC, 5s); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client
                     break;
                 default:
                     break;
@@ -1699,7 +1699,7 @@ public:
     {
         go_midsummer_musicAI(GameObject* go) : GameObjectAI(go)
         {
-            _events.ScheduleEvent(EVENT_MM_START_MUSIC, 1000);
+            _events.ScheduleEvent(EVENT_MM_START_MUSIC, 1s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1723,7 +1723,7 @@ public:
                             else
                                 me->PlayDirectMusic(EVENTMIDSUMMERFIREFESTIVAL_A, player);
                         }
-                        _events.ScheduleEvent(EVENT_MM_START_MUSIC, 5000); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
+                        _events.ScheduleEvent(EVENT_MM_START_MUSIC, 5s); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
                         break;
                     }
                 default:
@@ -1764,7 +1764,7 @@ public:
     {
         go_darkmoon_faire_musicAI(GameObject* go) : GameObjectAI(go)
         {
-            _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 1000);
+            _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 1s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1778,7 +1778,7 @@ public:
                     if (!IsHolidayActive(HOLIDAY_DARKMOON_FAIRE))
                         break;
                     me->PlayDirectMusic(MUSIC_DARKMOON_FAIRE_MUSIC);
-                    _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 5000);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
+                    _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 5s);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
                     break;
                 default:
                     break;
@@ -1818,7 +1818,7 @@ public:
     {
         go_pirate_day_musicAI(GameObject* go) : GameObjectAI(go)
         {
-            _events.ScheduleEvent(EVENT_PDM_START_MUSIC, 1000);
+            _events.ScheduleEvent(EVENT_PDM_START_MUSIC, 1s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1832,7 +1832,7 @@ public:
                     if (!IsHolidayActive(HOLIDAY_PIRATES_DAY))
                         break;
                     me->PlayDirectMusic(MUSIC_PIRATE_DAY_MUSIC);
-                    _events.ScheduleEvent(EVENT_PDM_START_MUSIC, 5000);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
+                    _events.ScheduleEvent(EVENT_PDM_START_MUSIC, 5s);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
                     break;
                 default:
                     break;

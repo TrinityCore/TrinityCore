@@ -198,8 +198,8 @@ public:
             events.ScheduleEvent(EVENT_SHIMMER, 0);
             events.ScheduleEvent(EVENT_BREATH_1, 30000);
             events.ScheduleEvent(EVENT_BREATH_2, 60000);
-            events.ScheduleEvent(EVENT_AFFLICTION, 10000);
-            events.ScheduleEvent(EVENT_FRENZY, 15000);
+            events.ScheduleEvent(EVENT_AFFLICTION, 10s);
+            events.ScheduleEvent(EVENT_FRENZY, 15s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -227,7 +227,7 @@ public:
                             DoCast(me, spell);
                             CurrentVurln_Spell = spell;
                             Talk(EMOTE_SHIMMER);
-                            events.ScheduleEvent(EVENT_SHIMMER, 45000);
+                            events.ScheduleEvent(EVENT_SHIMMER, 45s);
                             break;
                         }
                     case EVENT_BREATH_1:
@@ -259,11 +259,11 @@ public:
                                 }
                             }
                         }
-                        events.ScheduleEvent(EVENT_AFFLICTION, 10000);
+                        events.ScheduleEvent(EVENT_AFFLICTION, 10s);
                         break;
                     case EVENT_FRENZY:
                         DoCast(me, SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, urand(10000, 15000));
+                        events.ScheduleEvent(EVENT_FRENZY, 10s, 15s);
                         break;
                 }
 

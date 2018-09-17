@@ -561,7 +561,7 @@ public:
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_CHOP, Seconds(3), Seconds(6));
+        _events.ScheduleEvent(EVENT_CHOP, 3s, 6s);
     }
 
         void Reset() override

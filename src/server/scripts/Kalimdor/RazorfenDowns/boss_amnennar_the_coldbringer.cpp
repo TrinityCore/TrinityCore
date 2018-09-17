@@ -71,9 +71,9 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             _JustEngagedWith();
-            events.ScheduleEvent(EVENT_AMNENNARSWRATH, 8000);
-            events.ScheduleEvent(EVENT_FROSTBOLT, 1000);
-            events.ScheduleEvent(EVENT_FROST_NOVA, urand(10000, 15000));
+            events.ScheduleEvent(EVENT_AMNENNARSWRATH, 8s);
+            events.ScheduleEvent(EVENT_FROSTBOLT, 1s);
+            events.ScheduleEvent(EVENT_FROST_NOVA, 10s, 15s);
             Talk(SAY_AGGRO);
         }
 
@@ -104,15 +104,15 @@ public:
                 {
                     case EVENT_AMNENNARSWRATH:
                         DoCastVictim(SPELL_AMNENNARSWRATH);
-                        events.ScheduleEvent(EVENT_AMNENNARSWRATH, 12000);
+                        events.ScheduleEvent(EVENT_AMNENNARSWRATH, 12s);
                         break;
                     case EVENT_FROSTBOLT:
                         DoCastVictim(SPELL_FROSTBOLT);
-                        events.ScheduleEvent(EVENT_FROSTBOLT, 8000);
+                        events.ScheduleEvent(EVENT_FROSTBOLT, 8s);
                         break;
                     case EVENT_FROST_NOVA:
                         DoCast(me, SPELL_FROST_NOVA);
-                        events.ScheduleEvent(EVENT_FROST_NOVA, 15000);
+                        events.ScheduleEvent(EVENT_FROST_NOVA, 15s);
                         break;
                 }
 
