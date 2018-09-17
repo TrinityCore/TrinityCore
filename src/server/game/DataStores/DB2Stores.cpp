@@ -27,6 +27,7 @@
 #include "Timer.h"
 #include "Util.h"
 #include <array>
+#include <numeric>
 #include <sstream>
 #include <cctype>
 
@@ -95,6 +96,8 @@ DB2Storage<DurabilityQualityEntry>              sDurabilityQualityStore("Durabil
 DB2Storage<EmotesEntry>                         sEmotesStore("Emotes.db2", EmotesLoadInfo::Instance());
 DB2Storage<EmotesTextEntry>                     sEmotesTextStore("EmotesText.db2", EmotesTextLoadInfo::Instance());
 DB2Storage<EmotesTextSoundEntry>                sEmotesTextSoundStore("EmotesTextSound.db2", EmotesTextSoundLoadInfo::Instance());
+DB2Storage<ExpectedStatEntry>                   sExpectedStatStore("ExpectedStat.db2", ExpectedStatLoadInfo::Instance());
+DB2Storage<ExpectedStatModEntry>                sExpectedStatModStore("ExpectedStatMod.db2", ExpectedStatModLoadInfo::Instance());
 DB2Storage<FactionEntry>                        sFactionStore("Faction.db2", FactionLoadInfo::Instance());
 DB2Storage<FactionTemplateEntry>                sFactionTemplateStore("FactionTemplate.db2", FactionTemplateLoadInfo::Instance());
 DB2Storage<GameObjectDisplayInfoEntry>          sGameObjectDisplayInfoStore("GameObjectDisplayInfo.db2", GameobjectDisplayInfoLoadInfo::Instance());
@@ -214,7 +217,6 @@ DB2Storage<SkillLineAbilityEntry>               sSkillLineAbilityStore("SkillLin
 DB2Storage<SkillRaceClassInfoEntry>             sSkillRaceClassInfoStore("SkillRaceClassInfo.db2", SkillRaceClassInfoLoadInfo::Instance());
 DB2Storage<SoundKitEntry>                       sSoundKitStore("SoundKit.db2", SoundKitLoadInfo::Instance());
 DB2Storage<SpecializationSpellsEntry>           sSpecializationSpellsStore("SpecializationSpells.db2", SpecializationSpellsLoadInfo::Instance());
-DB2Storage<SpellEntry>                          sSpellStore("Spell.db2", SpellLoadInfo::Instance());
 DB2Storage<SpellAuraOptionsEntry>               sSpellAuraOptionsStore("SpellAuraOptions.db2", SpellAuraOptionsLoadInfo::Instance());
 DB2Storage<SpellAuraRestrictionsEntry>          sSpellAuraRestrictionsStore("SpellAuraRestrictions.db2", SpellAuraRestrictionsLoadInfo::Instance());
 DB2Storage<SpellCastTimesEntry>                 sSpellCastTimesStore("SpellCastTimes.db2", SpellCastTimesLoadInfo::Instance());
@@ -233,6 +235,7 @@ DB2Storage<SpellItemEnchantmentConditionEntry>  sSpellItemEnchantmentConditionSt
 DB2Storage<SpellLearnSpellEntry>                sSpellLearnSpellStore("SpellLearnSpell.db2", SpellLearnSpellLoadInfo::Instance());
 DB2Storage<SpellLevelsEntry>                    sSpellLevelsStore("SpellLevels.db2", SpellLevelsLoadInfo::Instance());
 DB2Storage<SpellMiscEntry>                      sSpellMiscStore("SpellMisc.db2", SpellMiscLoadInfo::Instance());
+DB2Storage<SpellNameEntry>                      sSpellNameStore("SpellName.db2", SpellNameLoadInfo::Instance());
 DB2Storage<SpellPowerEntry>                     sSpellPowerStore("SpellPower.db2", SpellPowerLoadInfo::Instance());
 DB2Storage<SpellPowerDifficultyEntry>           sSpellPowerDifficultyStore("SpellPowerDifficulty.db2", SpellPowerDifficultyLoadInfo::Instance());
 DB2Storage<SpellProcsPerMinuteEntry>            sSpellProcsPerMinuteStore("SpellProcsPerMinute.db2", SpellProcsPerMinuteLoadInfo::Instance());
@@ -348,6 +351,7 @@ namespace
     ChrSpecialzationByClassContainer _defaultChrSpecializationsByClass;
     CurvePointsContainer _curvePoints;
     EmotesTextSoundContainer _emoteTextSounds;
+    std::unordered_map<std::pair<uint32 /*level*/, int32 /*expansion*/>, ExpectedStatEntry const*> _expectedStatsByLevel;
     FactionTeamContainer _factionTeams;
     HeirloomItemsContainer _heirlooms;
     GlyphBindableSpellsContainer _glyphBindableSpells;
@@ -533,6 +537,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sEmotesStore);
     LOAD_DB2(sEmotesTextStore);
     LOAD_DB2(sEmotesTextSoundStore);
+    LOAD_DB2(sExpectedStatStore);
+    LOAD_DB2(sExpectedStatModStore);
     LOAD_DB2(sFactionStore);
     LOAD_DB2(sFactionTemplateStore);
     LOAD_DB2(sGameObjectsStore);
@@ -652,7 +658,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sSkillRaceClassInfoStore);
     LOAD_DB2(sSoundKitStore);
     LOAD_DB2(sSpecializationSpellsStore);
-    LOAD_DB2(sSpellStore);
     LOAD_DB2(sSpellAuraOptionsStore);
     LOAD_DB2(sSpellAuraRestrictionsStore);
     LOAD_DB2(sSpellCastTimesStore);
@@ -671,6 +676,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sSpellLearnSpellStore);
     LOAD_DB2(sSpellLevelsStore);
     LOAD_DB2(sSpellMiscStore);
+    LOAD_DB2(sSpellNameStore);
     LOAD_DB2(sSpellPowerStore);
     LOAD_DB2(sSpellPowerDifficultyStore);
     LOAD_DB2(sSpellProcsPerMinuteStore);
@@ -813,6 +819,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (EmotesTextSoundEntry const* emoteTextSound : sEmotesTextSoundStore)
         _emoteTextSounds[EmotesTextSoundContainer::key_type(emoteTextSound->EmotesTextID, emoteTextSound->RaceID, emoteTextSound->SexID, emoteTextSound->ClassID)] = emoteTextSound;
+
+    for (ExpectedStatEntry const* expectedStat : sExpectedStatStore)
+        _expectedStatsByLevel[std::make_pair(expectedStat->Lvl, expectedStat->ExpansionID)] = expectedStat;
 
     for (FactionEntry const* faction : sFactionStore)
         if (faction->ParentFactionID)
@@ -1149,7 +1158,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         !sItemStore.LookupEntry(157831) ||                   // last item added in 7.3.5 (25996)
         !sItemExtendedCostStore.LookupEntry(6300) ||         // last item extended cost added in 7.3.5 (25996)
         !sMapStore.LookupEntry(1903) ||                      // last map added in 7.3.5 (25996)
-        !sSpellStore.LookupEntry(263166))                    // last spell added in 7.3.5 (25996)
+        !sSpellNameStore.LookupEntry(263166))                // last spell added in 7.3.5 (25996)
     {
         TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         exit(1);
@@ -1541,6 +1550,98 @@ EmotesTextSoundEntry const* DB2Manager::GetTextSoundEmoteFor(uint32 emote, uint8
         return itr->second;
 
     return nullptr;
+}
+
+template<float(ExpectedStatModEntry::*field)>
+struct ExpectedStatModReducer
+{
+    float operator()(float mod, ExpectedStatModEntry const* expectedStatMod)
+    {
+        return mod * (expectedStatMod ? expectedStatMod->*field : 1.0f);
+    }
+};
+
+float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int32 expansion, uint32 contentTuningId, Classes unitClass) const
+{
+    auto expectedStatItr = _expectedStatsByLevel.find(std::make_pair(level, expansion));
+    if (expectedStatItr == _expectedStatsByLevel.end())
+        expectedStatItr = _expectedStatsByLevel.find(std::make_pair(level, -2));
+
+    if (expectedStatItr == _expectedStatsByLevel.end())
+        return 1.0f;
+
+    std::array<ExpectedStatModEntry const*, 3> mods;
+    mods.fill(nullptr);
+    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId))
+    {
+        mods[0] = sExpectedStatModStore.LookupEntry(contentTuning->ExpectedStatModID);
+        mods[1] = sExpectedStatModStore.LookupEntry(contentTuning->ExpectedStatModID2);
+    }
+
+    switch (unitClass)
+    {
+        case CLASS_WARRIOR:
+            mods[2] = sExpectedStatModStore.LookupEntry(4);
+            break;
+        case CLASS_PALADIN:
+            mods[2] = sExpectedStatModStore.LookupEntry(2);
+            break;
+        case CLASS_ROGUE:
+            mods[2] = sExpectedStatModStore.LookupEntry(3);
+            break;
+        case CLASS_MAGE:
+            mods[2] = sExpectedStatModStore.LookupEntry(1);
+            break;
+        default:
+            break;
+    }
+
+    float value = 0.0f;
+    switch (stat)
+    {
+        case ExpectedStatType::CreatureHealth:
+            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->CreatureHealth,
+                ExpectedStatModReducer<&ExpectedStatModEntry::CreatureHealthMod>());
+            break;
+        case ExpectedStatType::PlayerHealth:
+            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->PlayerHealth,
+                ExpectedStatModReducer<&ExpectedStatModEntry::PlayerHealthMod>());
+            break;
+        case ExpectedStatType::CreatureAutoAttackDps:
+            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->CreatureAutoAttackDps,
+                ExpectedStatModReducer<&ExpectedStatModEntry::CreatureAutoAttackDPSMod>());
+            break;
+        case ExpectedStatType::CreatureArmor:
+            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->CreatureArmor,
+                ExpectedStatModReducer<&ExpectedStatModEntry::CreatureArmorMod>());
+            break;
+        case ExpectedStatType::PlayerMana:
+            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->PlayerMana,
+                ExpectedStatModReducer<&ExpectedStatModEntry::PlayerManaMod>());
+            break;
+        case ExpectedStatType::PlayerPrimaryStat:
+            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->PlayerPrimaryStat,
+                ExpectedStatModReducer<&ExpectedStatModEntry::PlayerPrimaryStatMod>());
+            break;
+        case ExpectedStatType::PlayerSecondaryStat:
+            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->PlayerSecondaryStat,
+                ExpectedStatModReducer<&ExpectedStatModEntry::PlayerSecondaryStatMod>());
+            break;
+        case ExpectedStatType::ArmorConstant:
+            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->ArmorConstant,
+                ExpectedStatModReducer<&ExpectedStatModEntry::ArmorConstantMod>());
+            break;
+        case ExpectedStatType::None:
+            break;
+        case ExpectedStatType::CreatureSpellDamage:
+            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->CreatureSpellDamage,
+                ExpectedStatModReducer<&ExpectedStatModEntry::CreatureSpellDamageMod>());
+            break;
+        default:
+            break;
+    }
+
+    return value;
 }
 
 std::vector<uint32> const* DB2Manager::GetFactionTeamList(uint32 faction) const

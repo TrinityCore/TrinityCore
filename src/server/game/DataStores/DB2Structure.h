@@ -550,7 +550,7 @@ struct ContentTuningEntry
     int32 MaxLevel;
     int32 Flags;
     int32 ExpectedStatModID;
-    int32 Unknown;
+    int32 ExpectedStatModID2;
 };
 
 struct ConversationLineEntry
@@ -953,6 +953,36 @@ struct EmotesTextSoundEntry
     uint8 SexID;
     uint32 SoundID;
     uint16 EmotesTextID;
+};
+
+struct ExpectedStatEntry
+{
+    uint32 ID;
+    int32 ExpansionID;
+    float CreatureHealth;
+    float PlayerHealth;
+    float CreatureAutoAttackDps;
+    float CreatureArmor;
+    float PlayerMana;
+    float PlayerPrimaryStat;
+    float PlayerSecondaryStat;
+    float ArmorConstant;
+    float CreatureSpellDamage;
+    int32 Lvl;
+};
+
+struct ExpectedStatModEntry
+{
+    uint32 ID;
+    float CreatureHealthMod;
+    float PlayerHealthMod;
+    float CreatureAutoAttackDPSMod;
+    float CreatureArmorMod;
+    float PlayerManaMod;
+    float PlayerPrimaryStatMod;
+    float PlayerSecondaryStatMod;
+    float ArmorConstantMod;
+    float CreatureSpellDamageMod;
 };
 
 struct FactionEntry
