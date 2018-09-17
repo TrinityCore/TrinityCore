@@ -50,49 +50,49 @@ void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
 void WorldSession::HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse)
 {
     if (duelResponse.Accepted && !duelResponse.Forfeited)
-        HandleDuelAccepted();
+        HandleDuelAccepted(duelResponse.ArbiterGUID);
     else
         HandleDuelCancelled();
 }
 
-void WorldSession::HandleDuelAccepted()
+void WorldSession::HandleDuelAccepted(ObjectGuid arbiterGuid)
 {
-    if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
+    Player* player = GetPlayer();
+    if (!player->duel || player == player->duel->Initiator || player->duel->State != DUEL_STATE_CHALLENGED)
         return;
 
-    Player* player = GetPlayer();
-    Player* plTarget = player->duel->opponent;
-
-    if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
+    Player* target = player->duel->Opponent;
+    if (*target->m_playerData->DuelArbiter != arbiterGuid)
         return;
 
     TC_LOG_DEBUG("network", "Player 1 is: %s (%s)", player->GetGUID().ToString().c_str(), player->GetName().c_str());
-    TC_LOG_DEBUG("network", "Player 2 is: %s (%s)", plTarget->GetGUID().ToString().c_str(), plTarget->GetName().c_str());
+    TC_LOG_DEBUG("network", "Player 2 is: %s (%s)", target->GetGUID().ToString().c_str(), target->GetName().c_str());
 
     time_t now = GameTime::GetGameTime();
-    player->duel->startTimer = now;
-    plTarget->duel->startTimer = now;
+    player->duel->StartTime = now + 3;
+    target->duel->StartTime = now + 3;
 
     WorldPackets::Duel::DuelCountdown packet(3000); // milliseconds
     WorldPacket const* worldPacket = packet.Write();
     player->GetSession()->SendPacket(worldPacket);
-    plTarget->GetSession()->SendPacket(worldPacket);
+    target->GetSession()->SendPacket(worldPacket);
     player->EnablePvpRules();
-    plTarget->EnablePvpRules();
+    target->EnablePvpRules();
 }
 
 void WorldSession::HandleDuelCancelled()
 {
+    Player* player = GetPlayer();
+
     // no duel requested
-    if (!GetPlayer()->duel)
+    if (!player->duel || player->duel->State == DUEL_STATE_COMPLETED)
         return;
 
     // player surrendered in a duel using /forfeit
-    if (GetPlayer()->duel->startTime != 0)
+    if (GetPlayer()->duel->State == DUEL_STATE_IN_PROGRESS)
     {
         GetPlayer()->CombatStopWithPets(true);
-        if (GetPlayer()->duel->opponent)
-            GetPlayer()->duel->opponent->CombatStopWithPets(true);
+        GetPlayer()->duel->Opponent->CombatStopWithPets(true);
 
         GetPlayer()->CastSpell(GetPlayer(), 7267, true);    // beg
         GetPlayer()->DuelComplete(DUEL_WON);
