@@ -267,7 +267,9 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
             dungeon.o = at->target_Orientation;
         }
 
-        if (dungeon.type != LFG_TYPE_RANDOM)
+        if (dungeon.type == LFG_TYPE_RANDOM)
+            AddDungeonsFromGroupingMap(CachedDungeonMapStore, dungeon.group, dungeon.id);
+        else
             CachedDungeonMapStore[dungeon.group].insert(dungeon.id);
         CachedDungeonMapStore[0].insert(dungeon.id);
     }
@@ -2088,6 +2090,19 @@ LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion)
             randomDungeons.insert(dungeon.Entry());
     }
     return randomDungeons;
+}
+
+void LFGMgr::AddDungeonsFromGroupingMap(LfgCachedDungeonContainer& container, uint32 groupId, uint32 dungeonId)
+{
+    // Check for grouped dungeons from grouping map
+    for (auto itr : sLFGDungeonsGroupingMapStore)
+    {
+        if (itr->randomLfgDungeonId == dungeonId)
+        {
+            if (container[groupId].find(itr->dungeonId) == container[groupId].end())
+                container[groupId].insert(itr->dungeonId);
+        }
+    }
 }
 
 } // namespace lfg

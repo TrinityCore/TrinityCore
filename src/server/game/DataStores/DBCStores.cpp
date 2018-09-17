@@ -144,6 +144,7 @@ DBCStorage <ItemRandomSuffixEntry> sItemRandomSuffixStore(ItemRandomSuffixfmt);
 DBCStorage <ItemSetEntry> sItemSetStore(ItemSetEntryfmt);
 
 DBCStorage <LFGDungeonEntry> sLFGDungeonStore(LFGDungeonEntryfmt);
+DBCStorage <LFGDungeonsGroupingMapEntry> sLFGDungeonsGroupingMapStore(LFGDungeonsGroupingMapfmt);
 DBCStorage <LightEntry> sLightStore(LightEntryfmt);
 DBCStorage <LiquidTypeEntry> sLiquidTypeStore(LiquidTypefmt);
 DBCStorage <LockEntry> sLockStore(LockEntryfmt);
@@ -419,6 +420,7 @@ void LoadDBCStores(const std::string& dataPath)
     LOAD_DBC(sItemDamageWandStore,                "ItemDamageWand.dbc");//15595
     LOAD_DBC(sItemDisenchantLootStore,            "ItemDisenchantLoot.dbc");
     LOAD_DBC(sLFGDungeonStore,                    "LFGDungeons.dbc");//15595
+    LOAD_DBC(sLFGDungeonsGroupingMapStore,        "LFGDungeonsGroupingmap.dbc");//15595
     LOAD_DBC(sLightStore,                         "Light.dbc"); //15595
     LOAD_DBC(sLiquidTypeStore,                    "LiquidType.dbc");//15595
     LOAD_DBC(sLockStore,                          "Lock.dbc");//15595
