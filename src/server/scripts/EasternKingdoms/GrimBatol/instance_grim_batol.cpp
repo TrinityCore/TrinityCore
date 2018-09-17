@@ -81,10 +81,7 @@ class instance_grim_batol : public InstanceMapScript
                             erudax->AI()->JustSummoned(creature);
 
                         if (Creature* stalker = GetCreature(DATA_SHADOW_GALE_CONTROLLER_STALKER))
-                        {
-                            creature->SetSpeed(MOVE_FLIGHT, 4.5f);
                             creature->GetMotionMaster()->MoveCirclePath(stalker->GetPositionX(), stalker->GetPositionY(), 253.845f, 30.0f, true, 8);
-                        }
                         break;
                     case NPC_ALEXSTRASZAS_EGG:
                         creature->SetCorpseDelay(DAY);
