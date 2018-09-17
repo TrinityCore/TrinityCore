@@ -17911,7 +17911,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder)
 
     GetSpellHistory()->LoadFromDB<Player>(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELL_COOLDOWNS));
 
-    uint32 savedHealth = fields[55].GetUInt32();
+    uint32 savedHealth = fields[51].GetUInt32();
     if (!savedHealth)
         m_deathState = CORPSE;
 
