@@ -34,7 +34,9 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "Hyperlinks.h"
 #include "IpAddress.h"
+#include "Log.h"
 #include "Map.h"
 #include "Metric.h"
 #include "MiscPackets.h"
@@ -653,6 +655,20 @@ void WorldSession::KickPlayer()
             forceExit = true;
         }
     }
+}
+
+bool WorldSession::ValidateHyperlinksAndMaybeKick(std::string const& str)
+{
+    if (Trinity::Hyperlinks::CheckAllLinks(str))
+        return true;
+
+    TC_LOG_ERROR("network", "Player %s (%s) sent a message with an invalid link:\n%s", GetPlayer()->GetName().c_str(),
+        GetPlayer()->GetGUID().ToString().c_str(), str.c_str());
+
+    if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
+        KickPlayer();
+
+    return false;
 }
 
 void WorldSession::SendNotification(char const* format, ...)

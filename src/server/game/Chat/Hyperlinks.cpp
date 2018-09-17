@@ -675,77 +675,46 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
 }
 
 // Validates all hyperlinks and control sequences contained in str
-bool Trinity::Hyperlinks::ValidateLinks(std::string& str)
+bool Trinity::Hyperlinks::CheckAllLinks(std::string const& str)
 {
-    bool allValid = true;
-    std::string::size_type pos = std::string::npos;
-    // Step 1: Strip all control sequences except ||, |H, |h, |c and |r
-    do
+    // Step 1: Disallow all control sequences except ||, |H, |h, |c and |r
     {
-        if ((pos = str.rfind('|', pos)) == std::string::npos)
-            break;
-        if (pos && str[pos - 1] == '|')
+        std::string::size_type pos = 0;
+        while ((pos = str.find('|', pos)) != std::string::npos)
         {
-            --pos;
-            continue;
+            char next = str[pos + 1];
+            if (next == 'H' || next == 'h' || next == 'c' || next == 'r' || next == '|')
+                pos += 2;
+            else
+                return false;
         }
-        char next = str[pos + 1];
-        if (next == 'H' || next == 'h' || next == 'c' || next == 'r')
-            continue;
-
-        allValid = false;
-        str.erase(pos, 2);
-    } while (pos--);
-
+    }
+    
     // Step 2: Parse all link sequences
     // They look like this: |c<color>|H<linktag>:<linkdata>|h[<linktext>]|h|r
     // - <color> is 8 hex characters AARRGGBB
     // - <linktag> is arbitrary length [a-z_]
     // - <linkdata> is arbitrary length, no | contained
     // - <linktext> is printable
-    pos = 0;
-    while (pos < str.size() && (pos = str.find('|', pos)) != std::string::npos)
     {
-        if (str[pos + 1] == '|') // this is an escaped pipe character (||)
+        std::string::size_type pos = 0;
+        while ((pos = str.find('|', pos)) != std::string::npos)
         {
-            pos += 2;
-            continue;
-        }
-
-        HyperlinkInfo info = ParseHyperlink(str.c_str() + pos);
-        if (!info)
-        {   // cannot be parsed at all, so we'll need to cut it out entirely
-            // find the next start of a link
-            std::string::size_type next = str.find("|c", pos + 1);
-            // then backtrack to the previous return control sequence
-            std::string::size_type end = str.rfind("|r", next);
-            if (end == std::string::npos || end <= pos) // there is no potential end tag, remove everything after pos (up to next, if available)
+            if (str[pos + 1] == '|') // this is an escaped pipe character (||)
             {
-                if (next == std::string::npos)
-                    str.erase(pos);
-                else
-                    str.erase(pos, next - pos);
+                pos += 2;
+                continue;
             }
-            else
-                str.erase(pos, end - pos + 2);
 
-            allValid = false;
-            continue;
+            HyperlinkInfo info = ParseHyperlink(str.c_str() + pos);
+            if (!info || !ValidateLinkInfo(info))
+                return false;
+
+            // tag is fine, find the next one
+            pos = info.next - str.c_str();
         }
-
-        // ok, link parsed successfully - now validate it based on the tag
-        if (!ValidateLinkInfo(info))
-        {
-            // invalid link info, replace with just text
-            str.replace(pos, (info.next - str.c_str()) - pos, str, info.text.first - str.c_str(), info.text.second);
-            allValid = false;
-            continue;
-        }
-
-        // tag is fine, find the next one
-        pos = info.next - str.c_str();
     }
 
-    // all tags validated
-    return allValid;
+    // all tags are valid
+    return true;
 }

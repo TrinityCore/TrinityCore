@@ -29,7 +29,6 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "Hyperlinks.h"
 #include "Language.h"
 #include "LanguageMgr.h"
 #include "Log.h"
@@ -206,6 +205,9 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
         return;
     }
 
+    if (msg.size() > 255)
+        return;
+
     // Strip invisible characters for non-addon messages
     if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
         StripInvisibleChars(msg);
@@ -216,20 +218,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
     if (ChatHandler(this).ParseCommands(msg.c_str()))
         return;
 
-    bool validMessage = Trinity::Hyperlinks::ValidateLinks(msg);
-    if (!validMessage)
-    {
-        TC_LOG_ERROR("network", "Player %s (%s) sent a chatmessage with an invalid link - corrected", GetPlayer()->GetName().c_str(),
-            GetPlayer()->GetGUID().ToString().c_str());
-
-        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
-        {
-            KickPlayer();
-            return;
-        }
-    }
-
-    if (msg.length() > 255)
+    if (!ValidateHyperlinksAndMaybeKick(msg))
         return;
 
     switch (type)
@@ -468,19 +457,6 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
     if (prefix == AddonChannelCommandHandler::PREFIX && AddonChannelCommandHandler(this).ParseCommands(text.c_str()))
         return;
 
-    bool validMessage = Trinity::Hyperlinks::ValidateLinks(text);
-    if (!validMessage)
-    {
-        TC_LOG_ERROR("network", "Player %s (%s) sent a chatmessage with an invalid link - corrected", GetPlayer()->GetName().c_str(),
-            GetPlayer()->GetGUID().ToString().c_str());
-
-        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
-        {
-            KickPlayer();
-            return;
-        }
-    }
-
     if (text.length() > 255)
         return;
 
@@ -558,24 +534,14 @@ void WorldSession::HandleChatMessageAFKOpcode(WorldPackets::Chat::ChatMessageAFK
     if (sender->IsInCombat())
         return;
 
+    if (chatMessageAFK.Text.length() > 255)
+        return;
+
     // Strip invisible characters for non-addon messages
     if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
         StripInvisibleChars(chatMessageAFK.Text);
 
-    bool validMessage = Trinity::Hyperlinks::ValidateLinks(chatMessageAFK.Text);
-    if (!validMessage)
-    {
-        TC_LOG_ERROR("network", "Player %s (%s) sent a chatmessage with an invalid link - corrected", GetPlayer()->GetName().c_str(),
-            GetPlayer()->GetGUID().ToString().c_str());
-
-        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
-        {
-            KickPlayer();
-            return;
-        }
-    }
-
-    if (chatMessageAFK.Text.length() > 255)
+    if (!ValidateHyperlinksAndMaybeKick(chatMessageAFK.Text))
         return;
 
     if (sender->HasAura(GM_SILENCE_AURA))
@@ -614,24 +580,14 @@ void WorldSession::HandleChatMessageDNDOpcode(WorldPackets::Chat::ChatMessageDND
     if (sender->IsInCombat())
         return;
 
+    if (chatMessageDND.Text.length() > 255)
+        return;
+
     // Strip invisible characters for non-addon messages
     if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
         StripInvisibleChars(chatMessageDND.Text);
 
-    bool validMessage = Trinity::Hyperlinks::ValidateLinks(chatMessageDND.Text);
-    if (!validMessage)
-    {
-        TC_LOG_ERROR("network", "Player %s (%s) sent a chatmessage with an invalid link - corrected", GetPlayer()->GetName().c_str(),
-            GetPlayer()->GetGUID().ToString().c_str());
-
-        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
-        {
-            KickPlayer();
-            return;
-        }
-    }
-
-    if (chatMessageDND.Text.length() > 255)
+    if (!ValidateHyperlinksAndMaybeKick(chatMessageDND.Text))
         return;
 
     if (sender->HasAura(GM_SILENCE_AURA))
