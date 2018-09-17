@@ -72,7 +72,7 @@ struct npc_wrathbone_flayer : public ScriptedAI
 
     void Reset() override
     {
-        _events.ScheduleEvent(EVENT_GET_CHANNELERS, 3000);
+        _events.ScheduleEvent(EVENT_GET_CHANNELERS, 3s);
         Initialize();
         _bloodmageList.clear();
         _deathshaperList.clear();
@@ -82,8 +82,8 @@ struct npc_wrathbone_flayer : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_CLEAVE, 5000);
-        _events.ScheduleEvent(EVENT_IGNORED, 7000);
+        _events.ScheduleEvent(EVENT_CLEAVE, 5s);
+        _events.ScheduleEvent(EVENT_IGNORED, 7s);
         _enteredCombat = true;
     }
 
@@ -121,7 +121,7 @@ struct npc_wrathbone_flayer : public ScriptedAI
                                     (*itr)->Respawn();
                             }
 
-                        _events.ScheduleEvent(EVENT_SET_CHANNELERS, 3000);
+                        _events.ScheduleEvent(EVENT_SET_CHANNELERS, 3s);
 
                         break;
                     }
@@ -135,7 +135,7 @@ struct npc_wrathbone_flayer : public ScriptedAI
                             if (Creature* deathshaper = ObjectAccessor::GetCreature(*me, guid))
                                 deathshaper->CastSpell(nullptr, SPELL_SUMMON_CHANNEL);
 
-                        _events.ScheduleEvent(EVENT_SET_CHANNELERS, 12000);
+                        _events.ScheduleEvent(EVENT_SET_CHANNELERS, 12s);
 
                         break;
                     }
@@ -156,12 +156,12 @@ struct npc_wrathbone_flayer : public ScriptedAI
             {
                 case EVENT_CLEAVE:
                     DoCastVictim(SPELL_CLEAVE);
-                    _events.ScheduleEvent(EVENT_CLEAVE, urand(1000, 2000));
+                    _events.ScheduleEvent(EVENT_CLEAVE, 1s, 2s);
                     break;
                 case EVENT_IGNORED:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_IGNORED);
-                    _events.ScheduleEvent(EVENT_IGNORED, 10000);
+                    _events.ScheduleEvent(EVENT_IGNORED, 10s);
                     break;
                 default:
                     break;

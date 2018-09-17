@@ -155,7 +155,7 @@ class instance_magisters_terrace : public InstanceMapScript
             {
                 if (eventId == EVENT_SPAWN_KALECGOS)
                     if (!instance->GetCreature(KalecgosGUID) && Events.Empty())
-                       Events.ScheduleEvent(EVENT_SPAWN_KALECGOS, Minutes(1));
+                       Events.ScheduleEvent(EVENT_SPAWN_KALECGOS, 1min);
             }
 
             void Update(uint32 diff) override

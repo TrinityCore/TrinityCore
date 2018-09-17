@@ -51,8 +51,8 @@ public:
         {
             _JustEngagedWith();
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_MIND_BLAST, urand(2000, 5000));
-            events.ScheduleEvent(EVENT_SLEEP, urand(9000, 12000));
+            events.ScheduleEvent(EVENT_MIND_BLAST, 2s, 5s);
+            events.ScheduleEvent(EVENT_SLEEP, 9s, 12s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -77,7 +77,7 @@ public:
                 {
                     case EVENT_MIND_BLAST:
                         DoCastVictim(SPELL_MIND_BLAST);
-                        events.ScheduleEvent(EVENT_MIND_BLAST, urand(7000, 9000));
+                        events.ScheduleEvent(EVENT_MIND_BLAST, 7s, 9s);
                         break;
                     case EVENT_SLEEP:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -85,7 +85,7 @@ public:
                             Talk(SAY_SLEEP);
                             DoCast(target, SPELL_SLEEP);
                         }
-                        events.ScheduleEvent(EVENT_SLEEP, urand(15000, 20000));
+                        events.ScheduleEvent(EVENT_SLEEP, 15s, 20s);
                         break;
                     default:
                         break;

@@ -107,7 +107,7 @@ horde:
     AV_SOUND_HORDE_GOOD                     = 8213,
     AV_SOUND_BOTH_TOWER_DEFEND              = 8192,
 
-    AV_SOUND_ALLIANCE_CAPTAIN               = 8232, //gets called when someone attacks them and at the beginning after 3min+rand(x)*10sec (maybe buff)
+    AV_SOUND_ALLIANCE_CAPTAIN               = 8232, //gets called when someone attacks them and at the beginning after 5min+rand(x)*10sec (maybe buff)
     AV_SOUND_HORDE_CAPTAIN                  = 8333
 };
 

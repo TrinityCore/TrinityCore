@@ -78,12 +78,12 @@ public:
             summons.DoAction(ACTION_DESPAWN_IMPS, pred);
             _Reset();
 
-            events.ScheduleEvent(EVENT_SHADOWBOLT, Seconds(1));
-            events.ScheduleEvent(EVENT_SUMMON_KILREK, Seconds(3));
-            events.ScheduleEvent(EVENT_SACRIFICE, Seconds(30));
+            events.ScheduleEvent(EVENT_SHADOWBOLT, 1s);
+            events.ScheduleEvent(EVENT_SUMMON_KILREK, 3s);
+            events.ScheduleEvent(EVENT_SACRIFICE, 30s);
             events.ScheduleEvent(EVENT_SUMMON_PORTAL_1, Seconds(10));
             events.ScheduleEvent(EVENT_SUMMON_PORTAL_2, Seconds(11));
-            events.ScheduleEvent(EVENT_ENRAGE, Minutes(10));
+            events.ScheduleEvent(EVENT_ENRAGE, 10min);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -95,7 +95,7 @@ public:
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_BROKEN_PACT)
-                events.ScheduleEvent(EVENT_SUMMON_KILREK, Seconds(32));
+                events.ScheduleEvent(EVENT_SUMMON_KILREK, 32s);
         }
 
         void KilledUnit(Unit* victim) override

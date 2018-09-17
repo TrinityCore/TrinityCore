@@ -768,7 +768,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
             return 0;
 
         // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
-        if (victim->ToPlayer()->duel->opponent == attacker->GetControllingPlayer())
+        if (victim->ToPlayer()->duel->Opponent == attacker->GetControllingPlayer())
             damage = health - 1;
 
         duel_hasEnded = true;
@@ -777,13 +777,13 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     {
         Player* victimRider = victim->GetCharmer()->ToPlayer();
 
-        if (victimRider && victimRider->duel && victimRider->duel->isMounted)
+        if (victimRider && victimRider->duel && victimRider->duel->IsMounted)
         {
             if (!attacker)
                 return 0;
 
             // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
-            if (victimRider->duel->opponent == attacker->GetControllingPlayer())
+            if (victimRider->duel->Opponent == attacker->GetControllingPlayer())
                 damage = health - 1;
 
             duel_wasMounted = true;
@@ -903,7 +903,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
             else
                 he->SetHealth(1);
 
-            he->duel->opponent->CombatStopWithPets(true);
+            he->duel->Opponent->CombatStopWithPets(true);
             he->CombatStopWithPets(true);
 
             he->CastSpell(he, 7267, true);                  // beg
@@ -8193,7 +8193,7 @@ void Unit::AttackedTarget(Unit* target, bool canInitialAggro)
 
     Player* myPlayerOwner = GetCharmerOrOwnerPlayerOrPlayerItself();
     Player* targetPlayerOwner = target->GetCharmerOrOwnerPlayerOrPlayerItself();
-    if (myPlayerOwner && targetPlayerOwner && !(myPlayerOwner->duel && myPlayerOwner->duel->opponent == targetPlayerOwner))
+    if (myPlayerOwner && targetPlayerOwner && !(myPlayerOwner->duel && myPlayerOwner->duel->Opponent == targetPlayerOwner))
     {
         myPlayerOwner->UpdatePvP(true);
         myPlayerOwner->SetContestedPvP(targetPlayerOwner);
@@ -10935,7 +10935,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         // last damage from non duel opponent or opponent controlled creature
         if (plrVictim->duel)
         {
-            plrVictim->duel->opponent->CombatStopWithPets(true);
+            plrVictim->duel->Opponent->CombatStopWithPets(true);
             plrVictim->CombatStopWithPets(true);
             plrVictim->DuelComplete(DUEL_INTERRUPTED);
         }
@@ -12549,7 +12549,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     Player* player = ToPlayer();
 
     // If the player is on mounted duel and exits the mount, he should immediatly lose the duel
-    if (player && player->duel && player->duel->isMounted)
+    if (player && player->duel && player->duel->IsMounted)
         player->DuelComplete(DUEL_FLED);
 
     SetControlled(false, UNIT_STATE_ROOT);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT

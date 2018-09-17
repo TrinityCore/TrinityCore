@@ -201,7 +201,7 @@ class boss_svala : public CreatureScript
                         arthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         _arthasGUID = arthas->GetGUID();
                     }
-                    events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_0, 1 * IN_MILLISECONDS, 0, INTRO);
+                    events.ScheduleEvent(EVENT_INTRO_SVALA_TALK_0, 1s, 0, INTRO);
                 }
             }
 
@@ -349,7 +349,7 @@ class boss_svala : public CreatureScript
                             break;
                         case EVENT_SINISTER_STRIKE:
                             DoCastVictim(SPELL_SINSTER_STRIKE);
-                            events.ScheduleEvent(EVENT_SINISTER_STRIKE, urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS), 0, NORMAL);
+                            events.ScheduleEvent(EVENT_SINISTER_STRIKE, 5s, 9s, 0, NORMAL);
                             break;
                         case EVENT_CALL_FLAMES:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))

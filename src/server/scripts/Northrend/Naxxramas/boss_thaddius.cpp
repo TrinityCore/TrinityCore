@@ -265,7 +265,7 @@ struct boss_thaddius : public BossAI
                         feugen->AI()->DoAction(ACTION_FEUGEN_REVIVING_FX);
                     feugenAlive = false;
                     if (stalaggAlive)
-                        events.ScheduleEvent(EVENT_REVIVE_FEUGEN, Seconds(5), 0, PHASE_PETS);
+                        events.ScheduleEvent(EVENT_REVIVE_FEUGEN, 5s, 0, PHASE_PETS);
                     else
                         Transition();
 
@@ -275,7 +275,7 @@ struct boss_thaddius : public BossAI
                         stalagg->AI()->DoAction(ACTION_STALAGG_REVIVING_FX);
                     stalaggAlive = false;
                     if (feugenAlive)
-                        events.ScheduleEvent(EVENT_REVIVE_STALAGG, Seconds(5), 0, PHASE_PETS);
+                        events.ScheduleEvent(EVENT_REVIVE_STALAGG, 5s, 0, PHASE_PETS);
                     else
                         Transition();
 
@@ -300,9 +300,9 @@ struct boss_thaddius : public BossAI
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-            events.ScheduleEvent(EVENT_TRANSITION_1, Seconds(10), 0, PHASE_TRANSITION);
-            events.ScheduleEvent(EVENT_TRANSITION_2, Seconds(12), 0, PHASE_TRANSITION);
-            events.ScheduleEvent(EVENT_TRANSITION_3, Seconds(14), 0, PHASE_TRANSITION);
+            events.ScheduleEvent(EVENT_TRANSITION_1, 10s, 0, PHASE_TRANSITION);
+            events.ScheduleEvent(EVENT_TRANSITION_2, 12s, 0, PHASE_TRANSITION);
+            events.ScheduleEvent(EVENT_TRANSITION_3, 14s, 0, PHASE_TRANSITION);
         }
 
         void BeginResetEncounter()
@@ -401,10 +401,10 @@ struct boss_thaddius : public BossAI
 
                         Talk(SAY_AGGRO);
 
-                        events.ScheduleEvent(EVENT_ENABLE_BALL_LIGHTNING, Seconds(5), 0, PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_SHIFT, Seconds(10), 0, PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_CHAIN, randtime(Seconds(10), Seconds(20)), 0, PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_BERSERK, Minutes(6), 0, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_ENABLE_BALL_LIGHTNING, 5s, 0, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_SHIFT, 10s, 0, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_CHAIN, 10s, 20s, 0, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_BERSERK, 6min, 0, PHASE_THADDIUS);
 
                         break;
                     case EVENT_ENABLE_BALL_LIGHTNING:
@@ -413,8 +413,8 @@ struct boss_thaddius : public BossAI
                     case EVENT_SHIFT:
                         me->CastStop(); // shift overrides all other spells
                         DoCastAOE(SPELL_POLARITY_SHIFT);
-                        events.ScheduleEvent(EVENT_SHIFT_TALK, Seconds(3), PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_SHIFT, Seconds(30), PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_SHIFT_TALK, 3s, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_SHIFT, 30s, PHASE_THADDIUS);
                         break;
                     case EVENT_SHIFT_TALK:
                         Talk(SAY_ELECT);
