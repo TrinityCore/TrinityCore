@@ -248,24 +248,29 @@ struct LinkValidator<LinkTags::enchant>
 {
     static bool IsTextValid(SpellInfo const* info, char const* pos, size_t len)
     {
+        if (LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len))
+            return true;
         SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(info->Id);
         if (bounds.first == bounds.second)
-            return LinkValidator<LinkTags::spell>::IsTextValid(info, pos, len);
-
-        SkillLineEntry const* skill = sSkillLineStore.LookupEntry(bounds.first->second->SkillupSkillLineID
-            ? bounds.first->second->SkillupSkillLineID
-            : bounds.first->second->SkillLine);
-        if (!skill)
             return false;
 
-        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+        for (auto pair = bounds.first; pair != bounds.second; ++pair)
         {
-            char const* skillName = skill->DisplayName[i];
-            size_t skillLen = strlen(skillName);
-            if (len > skillLen + 2 &&                         // or of form [Skill Name: Spell Name]
-                !strncmp(pos, skillName, skillLen) && !strncmp(pos + skillLen, ": ", 2) &&
-                equal_with_len((*info->SpellName)[i], pos + (skillLen + 2), len - (skillLen + 2)))
-                return true;
+            SkillLineEntry const* skill = sSkillLineStore.LookupEntry(pair->second->SkillupSkillLineID
+                ? pair->second->SkillupSkillLineID
+                : pair->second->SkillLine);
+            if (!skill)
+                return false;
+
+            for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+            {
+                char const* skillName = skill->DisplayName[i];
+                size_t skillLen = strlen(skillName);
+                if (len > skillLen + 2 &&                         // or of form [Skill Name: Spell Name]
+                    !strncmp(pos, skillName, skillLen) && !strncmp(pos + skillLen, ": ", 2) &&
+                    equal_with_len((*info->SpellName)[i], pos + (skillLen + 2), len - (skillLen + 2)))
+                    return true;
+            }
         }
         return false;
     }
