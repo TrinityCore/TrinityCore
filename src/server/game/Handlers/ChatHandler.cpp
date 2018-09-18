@@ -41,36 +41,40 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include <algorithm>
 
-static void StripInvisibleChars(std::string& str)
+inline bool isNasty(char c)
 {
-    static std::string const invChars = " \t\7\n";
+    if (c < 32) // all of these are control characters
+        return true;
+    if (c == 127) // ascii delete
+        return true;
+    if (uint8(c) == 255) // non-breaking whitespace
+        return true;
+    return false;
+}
 
-    size_t wpos = 0;
-
-    bool space = false;
-    for (size_t pos = 0; pos < str.size(); ++pos)
+inline bool ValidateMessage(Player const* player, std::string& msg)
+{
+    // abort on any sort of nasty character
+    for (char c : msg)
     {
-        if (invChars.find(str[pos]) != std::string::npos)
+        if (isNasty(c))
         {
-            if (!space)
-            {
-                str[wpos++] = ' ';
-                space = true;
-            }
-        }
-        else
-        {
-            if (wpos != pos)
-                str[wpos++] = str[pos];
-            else
-                ++wpos;
-            space = false;
+            TC_LOG_ERROR("network", "Player %s (%s) sent a message containing control character %u - blocked", player->GetName().c_str(),
+                player->GetGUID().ToString().c_str(), uint32(c));
+            return false;
         }
     }
 
-    if (wpos < str.size())
-        str.erase(wpos, str.size());
+    // collapse multiple spaces into one
+    if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
+    {
+        auto end = std::unique(msg.begin(), msg.end(), [](char c1, char c2) { return (c1 == ' ') && (c2 == ' '); });
+        msg.erase(end, msg.end());
+    }
+
+    return true;
 }
 
 void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage)
@@ -208,9 +212,6 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
     if (msg.size() > 255)
         return;
 
-    // Strip invisible characters for non-addon messages
-    if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
-        StripInvisibleChars(msg);
 
     if (msg.empty())
         return;
@@ -218,6 +219,11 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
     if (ChatHandler(this).ParseCommands(msg.c_str()))
         return;
 
+    // do message validity checks
+    if (!ValidateMessage(GetPlayer(), msg))
+        return;
+
+    // validate hyperlinks
     if (!ValidateHyperlinksAndMaybeKick(msg))
         return;
 
@@ -537,9 +543,9 @@ void WorldSession::HandleChatMessageAFKOpcode(WorldPackets::Chat::ChatMessageAFK
     if (chatMessageAFK.Text.length() > 255)
         return;
 
-    // Strip invisible characters for non-addon messages
-    if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
-        StripInvisibleChars(chatMessageAFK.Text);
+    // do message validity checks
+    if (!ValidateMessage(sender, chatMessageAFK.Text))
+        return;
 
     if (!ValidateHyperlinksAndMaybeKick(chatMessageAFK.Text))
         return;
@@ -583,9 +589,9 @@ void WorldSession::HandleChatMessageDNDOpcode(WorldPackets::Chat::ChatMessageDND
     if (chatMessageDND.Text.length() > 255)
         return;
 
-    // Strip invisible characters for non-addon messages
-    if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
-        StripInvisibleChars(chatMessageDND.Text);
+    // do message validity checks
+    if (!ValidateMessage(sender, chatMessageDND.Text))
+        return;
 
     if (!ValidateHyperlinksAndMaybeKick(chatMessageDND.Text))
         return;
