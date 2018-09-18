@@ -41,6 +41,7 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include <utf8.h>
 #include <algorithm>
 
 inline bool isNasty(uint8 c)
@@ -258,6 +259,14 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
             }
 
+        // validate utf8
+        if (!utf8::is_valid(msg.begin(), msg.end()))
+        {
+            TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a message containing an invalid UTF8 sequence - blocked", GetPlayer()->GetName().c_str(),
+                GetPlayer()->GetGUID().GetCounter());
+            return;
+        }
+        
         // collapse multiple spaces into one
         if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
         {
