@@ -43,25 +43,30 @@
 #include "WorldPacket.h"
 #include <algorithm>
 
-inline bool isNasty(char c)
+inline bool isNasty(uint8 c)
 {
-    if (c < 32) // all of these are control characters
-        return true;
-    if (c == 127) // ascii delete
-        return true;
-    if (uint8(c) == 255) // non-breaking whitespace
+    if (c == '\t')
+        return false;
+    if (c <= '\037') // ASCII control block
         return true;
     return false;
 }
 
 inline bool ValidateMessage(Player const* player, std::string& msg)
 {
+    // cut at the first newline or carriage return
+    std::string::size_type pos = msg.find_first_of("\n\r");
+    if (pos == 0)
+        return false;
+    else if (pos != std::string::npos)
+        msg.erase(pos);
+
     // abort on any sort of nasty character
-    for (char c : msg)
+    for (uint8 c : msg)
     {
         if (isNasty(c))
         {
-            TC_LOG_ERROR("network", "Player %s (%s) sent a message containing control character %u - blocked", player->GetName().c_str(),
+            TC_LOG_ERROR("network", "Player %s (%s) sent a message containing invalid character %u - blocked", player->GetName().c_str(),
                 player->GetGUID().ToString().c_str(), uint32(c));
             return false;
         }
