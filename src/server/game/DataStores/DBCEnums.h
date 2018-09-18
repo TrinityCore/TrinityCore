@@ -1003,8 +1003,7 @@ enum SummonPropFlags
 
 #define MAX_TALENT_TIERS 7
 #define MAX_TALENT_COLUMNS 3
-#define MAX_PVP_TALENT_TIERS 6
-#define MAX_PVP_TALENT_COLUMNS 3
+#define MAX_PVP_TALENT_SLOTS 4
 
 enum TaxiNodeFlags
 {

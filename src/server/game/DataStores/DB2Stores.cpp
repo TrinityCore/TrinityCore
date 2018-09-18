@@ -191,9 +191,9 @@ DB2Storage<PowerTypeEntry>                      sPowerTypeStore("PowerType.db2",
 DB2Storage<PrestigeLevelInfoEntry>              sPrestigeLevelInfoStore("PrestigeLevelInfo.db2", PrestigeLevelInfoLoadInfo::Instance());
 DB2Storage<PVPDifficultyEntry>                  sPVPDifficultyStore("PVPDifficulty.db2", PvpDifficultyLoadInfo::Instance());
 DB2Storage<PVPItemEntry>                        sPVPItemStore("PVPItem.db2", PvpItemLoadInfo::Instance());
-DB2Storage<PvpRewardEntry>                      sPvpRewardStore("PvpReward.db2", PvpRewardLoadInfo::Instance());
 DB2Storage<PvpTalentEntry>                      sPvpTalentStore("PvpTalent.db2", PvpTalentLoadInfo::Instance());
-DB2Storage<PvpTalentUnlockEntry>                sPvpTalentUnlockStore("PvpTalentUnlock.db2", PvpTalentUnlockLoadInfo::Instance());
+DB2Storage<PvpTalentCategoryEntry>              sPvpTalentCategoryStore("PvpTalentCategory.db2", PvpTalentCategoryLoadInfo::Instance());
+DB2Storage<PvpTalentSlotUnlockEntry>            sPvpTalentSlotUnlockStore("PvpTalentSlotUnlock.db2", PvpTalentSlotUnlockLoadInfo::Instance());
 DB2Storage<QuestFactionRewardEntry>             sQuestFactionRewardStore("QuestFactionReward.db2", QuestFactionRewardLoadInfo::Instance());
 DB2Storage<QuestMoneyRewardEntry>               sQuestMoneyRewardStore("QuestMoneyReward.db2", QuestMoneyRewardLoadInfo::Instance());
 DB2Storage<QuestPackageItemEntry>               sQuestPackageItemStore("QuestPackageItem.db2", QuestPackageItemLoadInfo::Instance());
@@ -320,7 +320,6 @@ typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 
 typedef std::array<std::vector<Trinity::wregex>, TOTAL_LOCALES + 1> NameValidationRegexContainer;
 typedef std::unordered_map<uint32, std::vector<uint32>> PhaseGroupContainer;
 typedef std::array<PowerTypeEntry const*, MAX_POWERS> PowerTypesContainer;
-typedef std::vector<PvpTalentEntry const*> PvpTalentsByPosition[MAX_CLASSES][MAX_PVP_TALENT_TIERS][MAX_PVP_TALENT_COLUMNS];
 typedef std::unordered_map<uint32, std::pair<std::vector<QuestPackageItemEntry const*>, std::vector<QuestPackageItemEntry const*>>> QuestPackageItemContainer;
 typedef std::unordered_map<uint32, uint32> RulesetItemUpgradeContainer;
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoContainer;
@@ -377,9 +376,7 @@ namespace
     PhaseGroupContainer _phasesByGroup;
     PowerTypesContainer _powerTypes;
     std::unordered_map<uint32, uint8> _pvpItemBonus;
-    std::unordered_map<std::pair<uint32 /*prestige level*/, uint32 /*honor level*/>, uint32> _pvpRewardPack;
-    PvpTalentsByPosition _pvpTalentsByPosition;
-    uint32 _pvpTalentUnlock[MAX_PVP_TALENT_TIERS][MAX_PVP_TALENT_COLUMNS];
+    PvpTalentSlotUnlockEntry const* _pvpTalentSlotUnlock[MAX_PVP_TALENT_SLOTS];
     QuestPackageItemContainer _questPackages;
     std::unordered_map<uint32, std::vector<RewardPackXCurrencyTypeEntry const*>> _rewardPackCurrencyTypes;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
@@ -632,9 +629,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sPrestigeLevelInfoStore);
     LOAD_DB2(sPVPDifficultyStore);
     LOAD_DB2(sPVPItemStore);
-    LOAD_DB2(sPvpRewardStore);
+    //LOAD_DB2(sPvpRewardStore);
     LOAD_DB2(sPvpTalentStore);
-    LOAD_DB2(sPvpTalentUnlockStore);
+    LOAD_DB2(sPvpTalentCategoryStore);
+    LOAD_DB2(sPvpTalentSlotUnlockStore);
     LOAD_DB2(sQuestFactionRewardStore);
     LOAD_DB2(sQuestMoneyRewardStore);
     LOAD_DB2(sQuestPackageItemStore);
@@ -976,28 +974,17 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (PVPItemEntry const* pvpItem : sPVPItemStore)
         _pvpItemBonus[pvpItem->ItemID] = pvpItem->ItemLevelDelta;
 
-    for (PvpRewardEntry const* pvpReward : sPvpRewardStore)
-        _pvpRewardPack[std::make_pair(pvpReward->PrestigeLevel, pvpReward->HonorLevel)] = pvpReward->RewardPackID;
-
-    for (PvpTalentEntry const* talentInfo : sPvpTalentStore)
+    for (PvpTalentSlotUnlockEntry const* talentUnlock : sPvpTalentSlotUnlockStore)
     {
-        ASSERT(talentInfo->ClassID < MAX_CLASSES);
-        ASSERT(talentInfo->TierID < MAX_PVP_TALENT_TIERS, "MAX_PVP_TALENT_TIERS must be at least %u", talentInfo->TierID + 1);
-        ASSERT(talentInfo->ColumnIndex < MAX_PVP_TALENT_COLUMNS, "MAX_PVP_TALENT_COLUMNS must be at least %u", talentInfo->ColumnIndex + 1);
-        if (!talentInfo->ClassID)
+        ASSERT(talentUnlock->Slot < (1 << MAX_PVP_TALENT_SLOTS));
+        for (int8 i = 0; i < MAX_PVP_TALENT_SLOTS; ++i)
         {
-            for (uint32 i = 1; i < MAX_CLASSES; ++i)
-                _pvpTalentsByPosition[i][talentInfo->TierID][talentInfo->ColumnIndex].push_back(talentInfo);
+            if (talentUnlock->Slot & (1 << i))
+            {
+                ASSERT(!_pvpTalentSlotUnlock[i]);
+                _pvpTalentSlotUnlock[i] = talentUnlock;
+            }
         }
-        else
-            _pvpTalentsByPosition[talentInfo->ClassID][talentInfo->TierID][talentInfo->ColumnIndex].push_back(talentInfo);
-    }
-
-    for (PvpTalentUnlockEntry const* talentUnlock : sPvpTalentUnlockStore)
-    {
-        ASSERT(talentUnlock->TierID < MAX_PVP_TALENT_TIERS, "MAX_PVP_TALENT_TIERS must be at least %u", talentUnlock->TierID + 1);
-        ASSERT(talentUnlock->ColumnIndex < MAX_PVP_TALENT_COLUMNS, "MAX_PVP_TALENT_COLUMNS must be at least %u", talentUnlock->ColumnIndex + 1);
-        _pvpTalentUnlock[talentUnlock->TierID][talentUnlock->ColumnIndex] = talentUnlock->HonorLevel;
     }
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
@@ -2000,16 +1987,6 @@ ResponseCodes DB2Manager::ValidateName(std::wstring const& name, LocaleConstant 
     return CHAR_NAME_SUCCESS;
 }
 
-uint8 DB2Manager::GetMaxPrestige() const
-{
-    uint8 max = 0;
-    for (PrestigeLevelInfoEntry const* prestigeLevelInfo : sPrestigeLevelInfoStore)
-        if (!prestigeLevelInfo->IsDisabled())
-            max = std::max(prestigeLevelInfo->PrestigeLevel, max);
-
-    return max;
-}
-
 PVPDifficultyEntry const* DB2Manager::GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
 {
     PVPDifficultyEntry const* maxEntry = nullptr;           // used for level > max listed level case
@@ -2040,27 +2017,24 @@ PVPDifficultyEntry const* DB2Manager::GetBattlegroundBracketById(uint32 mapid, B
     return nullptr;
 }
 
-uint32 DB2Manager::GetRewardPackIDForPvpRewardByHonorLevelAndPrestige(uint8 honorLevel, uint8 prestige) const
+uint32 DB2Manager::GetRequiredLevelForPvpTalentSlot(uint8 slot, Classes class_) const
 {
-    auto itr = _pvpRewardPack.find({ prestige, honorLevel });
-    if (itr == _pvpRewardPack.end())
-        itr = _pvpRewardPack.find({ 0, honorLevel });
+    ASSERT(slot < MAX_PVP_TALENT_SLOTS);
+    if (_pvpTalentSlotUnlock[slot])
+    {
+        switch (class_)
+        {
+            case CLASS_DEATH_KNIGHT:
+                return _pvpTalentSlotUnlock[slot]->DeathKnightLevelRequired;
+            case CLASS_DEMON_HUNTER:
+                return _pvpTalentSlotUnlock[slot]->DemonHunterLevelRequired;
+            default:
+                break;
+        }
+        return _pvpTalentSlotUnlock[slot]->LevelRequired;
+    }
 
-    if (itr == _pvpRewardPack.end())
-        return 0;
-
-    return itr->second;
-}
-
-uint32 DB2Manager::GetRequiredHonorLevelForPvpTalent(PvpTalentEntry const* talentInfo) const
-{
-    ASSERT(talentInfo);
-    return _pvpTalentUnlock[talentInfo->TierID][talentInfo->ColumnIndex];
-}
-
-std::vector<PvpTalentEntry const*> const& DB2Manager::GetPvpTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const
-{
-    return _pvpTalentsByPosition[class_][tier][column];
+    return 0;
 }
 
 std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItems(uint32 questPackageID) const

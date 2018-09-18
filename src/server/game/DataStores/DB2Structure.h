@@ -2220,6 +2220,21 @@ struct PvpTalentEntry
     int32 LevelRequired;
 };
 
+struct PvpTalentCategoryEntry
+{
+    uint32 ID;
+    uint8 TalentSlotMask;
+};
+
+struct PvpTalentSlotUnlockEntry
+{
+    uint32 ID;
+    int8 Slot;
+    int32 LevelRequired;
+    int32 DeathKnightLevelRequired;
+    int32 DemonHunterLevelRequired;
+};
+
 struct QuestFactionRewardEntry
 {
     uint32 ID;

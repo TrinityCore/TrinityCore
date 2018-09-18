@@ -3565,9 +3565,6 @@ void Player::ResetPvpTalents()
         if (!talentInfo)
             continue;
 
-        if (talentInfo->ClassID && talentInfo->ClassID != getClass())
-            continue;
-
         RemovePvpTalent(talentInfo);
     }
 
@@ -6496,23 +6493,10 @@ void Player::SetHonorLevel(uint8 level)
     if (level == oldHonorLevel)
         return;
 
-    uint32 rewardPackID = sDB2Manager.GetRewardPackIDForPvpRewardByHonorLevelAndPrestige(level, prestige);
-    RewardPlayerWithRewardPack(rewardPackID);
-
     SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, level);
     UpdateHonorNextLevel();
 
     UpdateCriteria(CRITERIA_TYPE_HONOR_LEVEL_REACHED);
-
-    // This code is here because no link was found between those items and this reward condition in the db2 files.
-    // Interesting CriteriaTree found: Tree ids: 51140, 51156 (criteria id 31773, modifier tree id 37759)
-    if (level == 50 && prestige == 1)
-    {
-        if (GetTeam() == ALLIANCE)
-            AddItem(138992, 1);
-        else
-            AddItem(138996, 1);
-    }
 
     if (CanPrestige())
         Prestige();
@@ -6529,15 +6513,12 @@ void Player::Prestige()
 
 bool Player::CanPrestige() const
 {
-    if (GetSession()->GetExpansion() >= EXPANSION_LEGION && getLevel() >= PLAYER_LEVEL_MIN_HONOR && GetHonorLevel() >= PLAYER_MAX_HONOR_LEVEL && GetPrestigeLevel() < sDB2Manager.GetMaxPrestige())
-        return true;
-
     return false;
 }
 
 bool Player::IsMaxPrestige() const
 {
-    return GetPrestigeLevel() == sDB2Manager.GetMaxPrestige();
+    return true;
 }
 
 void Player::UpdateHonorNextLevel()
@@ -26238,62 +26219,59 @@ void Player::ResetTalentSpecialization()
     UpdateItemSetAuras(false);
 }
 
-TalentLearnResult Player::LearnPvpTalent(uint32 talentID, int32* spellOnCooldown)
+TalentLearnResult Player::LearnPvpTalent(uint32 talentID, uint8 slot, int32* spellOnCooldown)
 {
+    if (slot >= MAX_PVP_TALENT_SLOTS)
+        return TALENT_FAILED_UNKNOWN;
+
     if (IsInCombat())
         return TALENT_FAILED_AFFECTING_COMBAT;
 
-    if (getLevel() < PLAYER_LEVEL_MIN_HONOR)
-        return TALENT_FAILED_UNKNOWN;
+    if (isDead())
+        return TALENT_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
     PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(talentID);
     if (!talentInfo)
         return TALENT_FAILED_UNKNOWN;
 
-    if (talentInfo->SpecID)
-    {
-        if (talentInfo->SpecID != GetInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
-            return TALENT_FAILED_UNKNOWN;
-    }
-    else if (talentInfo->Role >= 0)
-    {
-        if (talentInfo->Role != sChrSpecializationStore.AssertEntry(GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))->Role)
-            return TALENT_FAILED_UNKNOWN;
-    }
-
-    // prevent learn talent for different class (cheating)
-    if (talentInfo->ClassID && talentInfo->ClassID != getClass())
+    if (talentInfo->SpecID != GetInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
         return TALENT_FAILED_UNKNOWN;
 
-    if (!GetPrestigeLevel())
-        if (sDB2Manager.GetRequiredHonorLevelForPvpTalent(talentInfo) > GetHonorLevel())
+    if (talentInfo->LevelRequired > getLevel())
+        return TALENT_FAILED_UNKNOWN;
+
+    if (sDB2Manager.GetRequiredLevelForPvpTalentSlot(slot, Classes(getClass())) > getLevel())
+        return TALENT_FAILED_UNKNOWN;
+
+    if (PvpTalentCategoryEntry const* talentCategory = sPvpTalentCategoryStore.LookupEntry(talentInfo->PvpTalentCategoryID))
+        if (!(talentCategory->TalentSlotMask & (1 << slot)))
             return TALENT_FAILED_UNKNOWN;
 
-    // Check if player doesn't have any talent in current tier
-    for (uint32 c = 0; c < MAX_PVP_TALENT_COLUMNS; ++c)
+    // Check if player doesn't have this talent in other slot
+    if (HasPvpTalent(talentID, GetActiveTalentGroup()))
+        return TALENT_FAILED_UNKNOWN;
+
+    if (PvpTalentEntry const* talent = sPvpTalentStore.LookupEntry(GetPvpTalentMap(GetActiveTalentGroup())[slot]))
     {
-        for (PvpTalentEntry const* talent : sDB2Manager.GetPvpTalentsByPosition(getClass(), talentInfo->TierID, c))
+        if (!HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHANGING_TALENTS))
+            return TALENT_FAILED_REST_AREA;
+
+        if (GetSpellHistory()->HasCooldown(talent->SpellID))
         {
-            if (HasPvpTalent(talent->ID, GetActiveTalentGroup()) && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
-                return TALENT_FAILED_REST_AREA;
-
-            if (GetSpellHistory()->HasCooldown(talent->SpellID))
-            {
-                *spellOnCooldown = talent->SpellID;
-                return TALENT_FAILED_CANT_REMOVE_TALENT;
-            }
-
-            RemovePvpTalent(talent);
+            *spellOnCooldown = talent->SpellID;
+            return TALENT_FAILED_CANT_REMOVE_TALENT;
         }
+
+        RemovePvpTalent(talent);
     }
 
-    if (!AddPvpTalent(talentInfo, GetActiveTalentGroup(), true))
+    if (!AddPvpTalent(talentInfo, GetActiveTalentGroup(), slot))
         return TALENT_FAILED_UNKNOWN;
 
     return TALENT_LEARN_OK;
 }
 
-bool Player::AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup, bool learning)
+bool Player::AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup, uint8 slot)
 {
     ASSERT(talent);
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->SpellID);
@@ -26316,11 +26294,7 @@ bool Player::AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup,
     if (talent->OverridesSpellID)
         AddOverrideSpell(talent->OverridesSpellID, talent->SpellID);
 
-    PlayerTalentMap::iterator itr = GetPvpTalentMap(activeTalentGroup)->find(talent->ID);
-    if (itr != GetPvpTalentMap(activeTalentGroup)->end())
-        itr->second = PLAYERSPELL_UNCHANGED;
-    else
-        (*GetPvpTalentMap(activeTalentGroup))[talent->ID] = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
+    GetPvpTalentMap(activeTalentGroup)[slot] = talent->ID;
 
     return true;
 }
@@ -26338,28 +26312,29 @@ void Player::RemovePvpTalent(PvpTalentEntry const* talent)
         RemoveOverrideSpell(talent->OverridesSpellID, talent->SpellID);
 
     // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
-    PlayerTalentMap::iterator plrPvpTalent = GetPvpTalentMap(GetActiveTalentGroup())->find(talent->ID);
-    if (plrPvpTalent != GetPvpTalentMap(GetActiveTalentGroup())->end())
-        plrPvpTalent->second = PLAYERSPELL_REMOVED;
+    auto plrPvpTalent = std::find(GetPvpTalentMap(GetActiveTalentGroup()).begin(), GetPvpTalentMap(GetActiveTalentGroup()).end(), talent->ID);
+    if (plrPvpTalent != GetPvpTalentMap(GetActiveTalentGroup()).end())
+        *plrPvpTalent = 0;
 }
 
 void Player::TogglePvpTalents(bool enable)
 {
-    PlayerTalentMap const* pvpTalents = GetPvpTalentMap(GetActiveTalentGroup());
-    for (PlayerTalentMap::value_type const& v : *pvpTalents)
+    PlayerPvpTalentMap const& pvpTalents = GetPvpTalentMap(GetActiveTalentGroup());
+    for (uint32 pvpTalentId : pvpTalents)
     {
-        PvpTalentEntry const* pvpTalentInfo = sPvpTalentStore.AssertEntry(v.first);
-        if (enable && v.second != PLAYERSPELL_REMOVED)
-            LearnSpell(pvpTalentInfo->SpellID, false);
-        else
-            RemoveSpell(pvpTalentInfo->SpellID, true);
+        if (PvpTalentEntry const* pvpTalentInfo = sPvpTalentStore.LookupEntry(pvpTalentId))
+        {
+            if (enable)
+                LearnSpell(pvpTalentInfo->SpellID, false);
+            else
+                RemoveSpell(pvpTalentInfo->SpellID, true);
+        }
     }
 }
 
 bool Player::HasPvpTalent(uint32 talentID, uint8 activeTalentGroup) const
 {
-    PlayerTalentMap::const_iterator itr = GetPvpTalentMap(activeTalentGroup)->find(talentID);
-    return (itr != GetPvpTalentMap(activeTalentGroup)->end() && itr->second != PLAYERSPELL_REMOVED);
+    return std::find(GetPvpTalentMap(activeTalentGroup).begin(), GetPvpTalentMap(activeTalentGroup).end(), talentID) != GetPvpTalentMap(activeTalentGroup).end();
 }
 
 void Player::EnablePvpRules(bool dueToCombat /*= false*/)
@@ -26517,12 +26492,11 @@ void Player::SendTalentsInfoData()
             continue;
 
         PlayerTalentMap* talents = GetTalentMap(i);
-        PlayerTalentMap* pvpTalents = GetPvpTalentMap(i);
+        PlayerPvpTalentMap const& pvpTalents = GetPvpTalentMap(i);
 
         WorldPackets::Talent::TalentGroupInfo groupInfoPkt;
         groupInfoPkt.SpecID = spec->ID;
         groupInfoPkt.TalentIDs.reserve(talents->size());
-        groupInfoPkt.PvPTalentIDs.reserve(pvpTalents->size());
 
         for (PlayerTalentMap::const_iterator itr = talents->begin(); itr != talents->end(); ++itr)
         {
@@ -26537,9 +26511,6 @@ void Player::SendTalentsInfoData()
                 continue;
             }
 
-            if (talentInfo->ClassID != getClass())
-                continue;
-
             SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
             if (!spellEntry)
             {
@@ -26551,21 +26522,18 @@ void Player::SendTalentsInfoData()
             groupInfoPkt.TalentIDs.push_back(uint16(itr->first));
         }
 
-        for (PlayerTalentMap::const_iterator itr = pvpTalents->begin(); itr != pvpTalents->end(); ++itr)
+        for (std::size_t slot = 0; slot < MAX_PVP_TALENT_SLOTS; ++slot)
         {
-            if (itr->second == PLAYERSPELL_REMOVED)
+            if (!pvpTalents[slot])
                 continue;
 
-            PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(itr->first);
+            PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(pvpTalents[slot]);
             if (!talentInfo)
             {
                 TC_LOG_ERROR("entities.player", "Player::SendTalentsInfoData: Player '%s' (%s) has unknown pvp talent id: %u",
-                    GetName().c_str(), GetGUID().ToString().c_str(), itr->first);
+                    GetName().c_str(), GetGUID().ToString().c_str(), pvpTalents[slot]);
                 continue;
             }
-
-            if (talentInfo->ClassID && talentInfo->ClassID != getClass())
-                continue;
 
             SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
             if (!spellEntry)
@@ -26575,7 +26543,7 @@ void Player::SendTalentsInfoData()
                 continue;
             }
 
-            groupInfoPkt.PvPTalentIDs.push_back(uint16(itr->first));
+            groupInfoPkt.PvPTalentIDs.push_back(uint16(pvpTalents[slot]));
         }
 
         packet.Info.TalentGroups.push_back(groupInfoPkt);
@@ -26854,12 +26822,13 @@ void Player::_LoadTalents(PreparedQueryResult result)
 
 void Player::_LoadPvpTalents(PreparedQueryResult result)
 {
-    // "SELECT TalentID, TalentGroup FROM character_pvp_talent WHERE guid = ?"
+    // "SELECT talentID0, talentID1, talentID2, talentID3, talentGroup FROM character_pvp_talent WHERE guid = ?"
     if (result)
     {
         do
-            if (PvpTalentEntry const* talent = sPvpTalentStore.LookupEntry((*result)[0].GetUInt32()))
-                AddPvpTalent(talent, (*result)[1].GetUInt8(), false);
+            for (uint8 slot = 0; slot < MAX_PVP_TALENT_SLOTS; ++slot)
+                if (PvpTalentEntry const* talent = sPvpTalentStore.LookupEntry((*result)[slot].GetUInt32()))
+                    AddPvpTalent(talent, (*result)[4].GetUInt8(), slot);
         while (result->NextRow());
     }
 }
@@ -26870,11 +26839,10 @@ void Player::_SaveTalents(SQLTransaction& trans)
     stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
-    PlayerTalentMap* talents;
     for (uint8 group = 0; group < MAX_SPECIALIZATIONS; ++group)
     {
-        talents = GetTalentMap(group);
-        for (PlayerTalentMap::iterator itr = talents->begin(); itr != talents->end();)
+        PlayerTalentMap* talents = GetTalentMap(group);
+        for (auto itr = talents->begin(); itr != talents->end();)
         {
             if (itr->second == PLAYERSPELL_REMOVED)
             {
@@ -26897,22 +26865,15 @@ void Player::_SaveTalents(SQLTransaction& trans)
 
     for (uint8 group = 0; group < MAX_SPECIALIZATIONS; ++group)
     {
-        talents = GetPvpTalentMap(group);
-        for (PlayerTalentMap::iterator itr = talents->begin(); itr != talents->end();)
-        {
-            if (itr->second == PLAYERSPELL_REMOVED)
-            {
-                itr = talents->erase(itr);
-                continue;
-            }
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_PVP_TALENT);
-            stmt->setUInt64(0, GetGUID().GetCounter());
-            stmt->setUInt32(1, itr->first);
-            stmt->setUInt8(2, group);
-            trans->Append(stmt);
-            ++itr;
-        }
+        PlayerPvpTalentMap const& talents = GetPvpTalentMap(group);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_PVP_TALENT);
+        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt32(1, talents[0]);
+        stmt->setUInt32(2, talents[1]);
+        stmt->setUInt32(3, talents[2]);
+        stmt->setUInt32(4, talents[3]);
+        stmt->setUInt8(5, group);
+        trans->Append(stmt);
     }
 }
 
@@ -26996,15 +26957,6 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
         if (!talentInfo)
             continue;
 
-        // unlearn only talents for character class
-        // some spell learned by one class as normal spells or know at creation but another class learn it as talent,
-        // to prevent unexpected lost normal learned spell skip another class talents
-        if (talentInfo->ClassID && talentInfo->ClassID != getClass())
-            continue;
-
-        if (talentInfo->SpellID == 0)
-            continue;
-
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
         if (!spellInfo)
             continue;
@@ -27053,21 +27005,16 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
         }
     }
 
-    for (uint32 pvpTalentID = 0; pvpTalentID < sTalentStore.GetNumRows(); ++pvpTalentID)
+    for (uint8 slot = 0; slot < MAX_PVP_TALENT_SLOTS; ++slot)
     {
-        PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(pvpTalentID);
+        PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(GetPvpTalentMap(GetActiveTalentGroup())[slot]);
         if (!talentInfo)
-            continue;
-
-        // learn only talents for character class (or x-class talents)
-        if (talentInfo->ClassID && talentInfo->ClassID != getClass())
             continue;
 
         if (!talentInfo->SpellID)
             continue;
 
-        if (HasPvpTalent(talentInfo->ID, GetActiveTalentGroup()))
-            AddPvpTalent(talentInfo, GetActiveTalentGroup(), true);
+        AddPvpTalent(talentInfo, GetActiveTalentGroup(), slot);
     }
 
     LearnSpecializationSpells();

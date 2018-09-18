@@ -57,7 +57,7 @@ void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTal
     bool anythingLearned = false;
     for (uint32 talentId : packet.Talents)
     {
-        if (TalentLearnResult result = _player->LearnPvpTalent(talentId, &learnPvpTalentsFailed.SpellID))
+        if (TalentLearnResult result = _player->LearnPvpTalent(talentId, 0, &learnPvpTalentsFailed.SpellID))
         {
             if (!learnPvpTalentsFailed.Reason)
                 learnPvpTalentsFailed.Reason = result;
