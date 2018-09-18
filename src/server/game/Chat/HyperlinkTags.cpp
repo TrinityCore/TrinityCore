@@ -135,13 +135,9 @@ bool Trinity::Hyperlinks::LinkTags::trade::StoreTo(TradeskillLinkData& val, char
 {
     HyperlinkDataTokenizer t(pos, len);
     uint32 spellId;
-    uint64 guid;
     if (!t.TryConsumeTo(spellId))
         return false;
     val.Spell = sSpellMgr->GetSpellInfo(spellId);
-    if (!(val.Spell && val.Spell->Effects[0].Effect == SPELL_EFFECT_TRADE_SKILL && t.TryConsumeTo(val.CurValue) &&
-      t.TryConsumeTo(val.MaxValue) && t.TryConsumeTo(guid) && t.TryConsumeTo(val.KnownRecipes) && t.IsEmpty()))
-        return false;
-    val.Owner.Set(guid);
-    return true;
+    return (val.Spell && val.Spell->Effects[0].Effect == SPELL_EFFECT_TRADE_SKILL && t.TryConsumeTo(val.CurValue) &&
+        t.TryConsumeTo(val.MaxValue) && t.TryConsumeTo(val.Owner) && t.TryConsumeTo(val.KnownRecipes) && t.IsEmpty());
 }
