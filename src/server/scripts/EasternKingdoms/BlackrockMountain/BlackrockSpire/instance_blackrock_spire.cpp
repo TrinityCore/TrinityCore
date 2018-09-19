@@ -28,6 +28,13 @@
 
 uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUMMONER, NPC_BLACKHAND_VETERAN };
 
+DoorData const doorData[] =
+{
+    { GO_DRAKKISATH_DOOR_1,     DATA_GENERAL_DRAKKISATH,    DOOR_TYPE_PASSAGE },
+    { GO_DRAKKISATH_DOOR_2,     DATA_GENERAL_DRAKKISATH,    DOOR_TYPE_PASSAGE },
+    { 0,                        0,                          DOOR_TYPE_ROOM }
+};
+
 enum EventIds
 {
     EVENT_DARGONSPIRE_ROOM_STORE           = 1,
@@ -51,6 +58,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
+            LoadDoorData(doorData);
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -116,6 +124,8 @@ public:
 
         void OnGameObjectCreate(GameObject* go) override
         {
+            InstanceScript::OnGameObjectCreate(go);
+
             switch (go->GetEntry())
             {
                 case GO_WHELP_SPAWNER:
