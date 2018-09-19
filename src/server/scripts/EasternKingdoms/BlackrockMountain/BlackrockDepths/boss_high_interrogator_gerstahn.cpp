@@ -51,10 +51,10 @@ class boss_high_interrogator_gerstahn : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 4000);
-                _events.ScheduleEvent(EVENT_MANABURN, 14000);
-                _events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, 32000);
-                _events.ScheduleEvent(EVENT_SHADOWSHIELD, 8000);
+                _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 4s);
+                _events.ScheduleEvent(EVENT_MANABURN, 14s);
+                _events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, 32s);
+                _events.ScheduleEvent(EVENT_SHADOWSHIELD, 8s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -71,20 +71,20 @@ class boss_high_interrogator_gerstahn : public CreatureScript
                         case EVENT_SHADOW_WORD_PAIN:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_SHADOWWORDPAIN);
-                            _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 7000);
+                            _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 7s);
                             break;
                         case EVENT_PSYCHIC_SCREAM:
                             DoCastVictim(SPELL_PSYCHICSCREAM);
-                            _events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, 30000);
+                            _events.ScheduleEvent(EVENT_PSYCHIC_SCREAM, 30s);
                             break;
                         case EVENT_MANABURN:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_MANABURN);
-                            _events.ScheduleEvent(EVENT_MANABURN, 10000);
+                            _events.ScheduleEvent(EVENT_MANABURN, 10s);
                             break;
                         case EVENT_SHADOWSHIELD:
                             DoCast(me, SPELL_SHADOWSHIELD);
-                            _events.ScheduleEvent(EVENT_SHADOWSHIELD, 25000);
+                            _events.ScheduleEvent(EVENT_SHADOWSHIELD, 25s);
                             break;
                         default:
                             break;

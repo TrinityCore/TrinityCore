@@ -108,8 +108,8 @@ public:
             Talk(SAY_AGGRO);
             events.SetPhase(PHASE_NORMAL);
             events.ScheduleEvent(EVENT_ARC_LIGHTNING, 15000);
-            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20000);
-            events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, 1000);
+            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20s);
+            events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, 1s);
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
         }
 
@@ -132,7 +132,7 @@ public:
             {
                 _isIntroDone = true;
                 Talk(SAY_INTRO_1);
-                events.ScheduleEvent(EVENT_INTRO_DIALOGUE, 20000, 0, PHASE_INTRO);
+                events.ScheduleEvent(EVENT_INTRO_DIALOGUE, 20s, 0, PHASE_INTRO);
             }
             BossAI::MoveInLineOfSight(who);
         }
@@ -151,7 +151,7 @@ public:
                     case EVENT_ARC_LIGHTNING:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_ARC_LIGHTNING);
-                        events.ScheduleEvent(EVENT_ARC_LIGHTNING, urand(15000, 16000));
+                        events.ScheduleEvent(EVENT_ARC_LIGHTNING, 15s, 16s);
                         break;
                     case EVENT_LIGHTNING_NOVA:
                         Talk(SAY_NOVA);
@@ -159,7 +159,7 @@ public:
                         DoCastAOE(SPELL_LIGHTNING_NOVA);
                         me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_PULSING_SHOCKWAVE, me));
                         events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, DUNGEON_MODE(5000, 4000)); // Pause Pulsing Shockwave aura
-                        events.ScheduleEvent(EVENT_LIGHTNING_NOVA, urand(20000, 21000));
+                        events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20s, 21s);
                         break;
                     case EVENT_RESUME_PULSING_SHOCKWAVE:
                         DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);

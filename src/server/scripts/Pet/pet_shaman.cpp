@@ -68,7 +68,7 @@ class npc_pet_shaman_earth_elemental : public CreatureScript
                 if (_events.ExecuteEvent() == EVENT_SHAMAN_ANGEREDEARTH)
                 {
                     DoCastVictim(SPELL_SHAMAN_ANGEREDEARTH);
-                    _events.ScheduleEvent(EVENT_SHAMAN_ANGEREDEARTH, urand(5000, 20000));
+                    _events.ScheduleEvent(EVENT_SHAMAN_ANGEREDEARTH, 5s, 20s);
                 }
 
                 DoMeleeAttackIfReady();
@@ -96,8 +96,8 @@ class npc_pet_shaman_fire_elemental : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SHAMAN_FIRENOVA, urand(5000, 20000));
-                _events.ScheduleEvent(EVENT_SHAMAN_FIREBLAST, urand(5000, 20000));
+                _events.ScheduleEvent(EVENT_SHAMAN_FIRENOVA, 5s, 20s);
+                _events.ScheduleEvent(EVENT_SHAMAN_FIREBLAST, 5s, 20s);
                 _events.ScheduleEvent(EVENT_SHAMAN_FIRESHIELD, 0);
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
             }
@@ -118,15 +118,15 @@ class npc_pet_shaman_fire_elemental : public CreatureScript
                     {
                         case EVENT_SHAMAN_FIRENOVA:
                             DoCastVictim(SPELL_SHAMAN_FIRENOVA);
-                            _events.ScheduleEvent(EVENT_SHAMAN_FIRENOVA, urand(5000, 20000));
+                            _events.ScheduleEvent(EVENT_SHAMAN_FIRENOVA, 5s, 20s);
                             break;
                         case EVENT_SHAMAN_FIRESHIELD:
                             DoCastVictim(SPELL_SHAMAN_FIRESHIELD);
-                            _events.ScheduleEvent(EVENT_SHAMAN_FIRESHIELD, 2000);
+                            _events.ScheduleEvent(EVENT_SHAMAN_FIRESHIELD, 2s);
                             break;
                         case EVENT_SHAMAN_FIREBLAST:
                             DoCastVictim(SPELL_SHAMAN_FIREBLAST);
-                            _events.ScheduleEvent(EVENT_SHAMAN_FIREBLAST, urand(5000, 20000));
+                            _events.ScheduleEvent(EVENT_SHAMAN_FIREBLAST, 5s, 20s);
                             break;
                         default:
                             break;

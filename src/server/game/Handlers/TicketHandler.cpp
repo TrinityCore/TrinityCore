@@ -20,7 +20,6 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
-#include "Hyperlinks.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectMgr.h"
@@ -32,21 +31,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include <zlib.h>
-
-#define ValidateLinksAndMaybeKick(str)                                                                              \
-{                                                                                                                   \
-    if (!Trinity::Hyperlinks::ValidateLinks(str))                                                                   \
-    {                                                                                                               \
-        TC_LOG_ERROR("network", "Player %s (GUID: %u) tried to add an invalid link to a GM ticket - corrected",     \
-            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().GetCounter());                                   \
-                                                                                                                    \
-        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))                                            \
-        {                                                                                                           \
-            KickPlayer();                                                                                           \
-            return;                                                                                                 \
-        }                                                                                                           \
-    }                                                                                                               \
-}
 
 void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 {
@@ -83,7 +67,8 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
         recvData >> x >> y >> z;
         recvData >> message;
 
-        ValidateLinksAndMaybeKick(message);
+        if (!ValidateHyperlinksAndMaybeKick(message))
+            return;
 
         recvData >> needResponse;
         recvData >> needMoreHelp;
@@ -120,16 +105,15 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
             recvData.rfinish(); // Will still have compressed data in buffer.
         }
 
+        if (!chatLog.empty() && !ValidateHyperlinksAndMaybeKick(chatLog))
+            return;
+
         ticket = new GmTicket(GetPlayer());
         ticket->SetPosition(mapId, x, y, z);
         ticket->SetMessage(message);
         ticket->SetGmAction(needResponse, needMoreHelp);
-
         if (!chatLog.empty())
-        {
-            ValidateLinksAndMaybeKick(chatLog);
             ticket->SetChatLog(times, chatLog);
-        }
 
         sTicketMgr->AddTicket(ticket);
         sTicketMgr->UpdateLastChange();
@@ -149,7 +133,8 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
     std::string message;
     recvData >> message;
 
-    ValidateLinksAndMaybeKick(message);
+    if (!ValidateHyperlinksAndMaybeKick(message))
+        return;
 
     GMTicketResponse response = GMTICKET_RESPONSE_UPDATE_ERROR;
     if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
@@ -233,7 +218,8 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
         if (!surveyIds.insert(subSurveyId).second)
             continue;
 
-        ValidateLinksAndMaybeKick(comment);
+        if (!ValidateHyperlinksAndMaybeKick(comment))
+            return;
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SUBSURVEY);
         stmt->setUInt32(0, nextSurveyID);
@@ -246,7 +232,8 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
     std::string comment; // just a guess
     recvData >> comment;
 
-    ValidateLinksAndMaybeKick(comment);
+    if (!ValidateHyperlinksAndMaybeKick(comment))
+        return;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
     stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());

@@ -95,10 +95,10 @@ class boss_tharon_ja : public CreatureScript
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
 
-                events.ScheduleEvent(EVENT_DECAY_FLESH, 20000);
-                events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1000);
-                events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
-                events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
+                events.ScheduleEvent(EVENT_DECAY_FLESH, 20s);
+                events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1s);
+                events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
+                events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
             }
 
             void KilledUnit(Unit* who) override
@@ -133,34 +133,34 @@ class boss_tharon_ja : public CreatureScript
                         case EVENT_CURSE_OF_LIFE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_CURSE_OF_LIFE);
-                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 10s, 15s);
                             return;
                         case EVENT_SHADOW_VOLLEY:
                             DoCastVictim(SPELL_SHADOW_VOLLEY);
-                            events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
+                            events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
                             return;
                         case EVENT_RAIN_OF_FIRE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_RAIN_OF_FIRE);
-                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
+                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
                             return;
                         case EVENT_LIGHTNING_BREATH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_LIGHTNING_BREATH);
-                            events.ScheduleEvent(EVENT_LIGHTNING_BREATH, urand(6000, 7000));
+                            events.ScheduleEvent(EVENT_LIGHTNING_BREATH, 6s, 7s);
                             return;
                         case EVENT_EYE_BEAM:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_EYE_BEAM);
-                            events.ScheduleEvent(EVENT_EYE_BEAM, urand(4000, 6000));
+                            events.ScheduleEvent(EVENT_EYE_BEAM, 4s, 6s);
                             return;
                         case EVENT_POISON_CLOUD:
                             DoCastAOE(SPELL_POISON_CLOUD);
-                            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(10000, 12000));
+                            events.ScheduleEvent(EVENT_POISON_CLOUD, 10s, 12s);
                             return;
                         case EVENT_DECAY_FLESH:
                             DoCastAOE(SPELL_DECAY_FLESH);
-                            events.ScheduleEvent(EVENT_GOING_FLESH, 6000);
+                            events.ScheduleEvent(EVENT_GOING_FLESH, 6s);
                             return;
                         case EVENT_GOING_FLESH:
                             Talk(SAY_FLESH);
@@ -170,14 +170,14 @@ class boss_tharon_ja : public CreatureScript
                             DoCast(me, SPELL_DUMMY, true);
 
                             events.Reset();
-                            events.ScheduleEvent(EVENT_RETURN_FLESH, 20000);
-                            events.ScheduleEvent(EVENT_LIGHTNING_BREATH, urand(3000, 4000));
-                            events.ScheduleEvent(EVENT_EYE_BEAM, urand(4000, 8000));
-                            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(6000, 7000));
+                            events.ScheduleEvent(EVENT_RETURN_FLESH, 20s);
+                            events.ScheduleEvent(EVENT_LIGHTNING_BREATH, 3s, 4s);
+                            events.ScheduleEvent(EVENT_EYE_BEAM, 4s, 8s);
+                            events.ScheduleEvent(EVENT_POISON_CLOUD, 6s, 7s);
                             break;
                         case EVENT_RETURN_FLESH:
                             DoCastAOE(SPELL_RETURN_FLESH);
-                            events.ScheduleEvent(EVENT_GOING_SKELETAL, 6000);
+                            events.ScheduleEvent(EVENT_GOING_SKELETAL, 6s);
                             return;
                         case EVENT_GOING_SKELETAL:
                             Talk(SAY_SKELETON);
@@ -185,10 +185,10 @@ class boss_tharon_ja : public CreatureScript
                             DoCastAOE(SPELL_CLEAR_GIFT_OF_THARON_JA, true);
 
                             events.Reset();
-                            events.ScheduleEvent(EVENT_DECAY_FLESH, 20000);
-                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1000);
-                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(14000, 18000));
-                            events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(8000, 10000));
+                            events.ScheduleEvent(EVENT_DECAY_FLESH, 20s);
+                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1s);
+                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
+                            events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
                             break;
                         default:
                             break;

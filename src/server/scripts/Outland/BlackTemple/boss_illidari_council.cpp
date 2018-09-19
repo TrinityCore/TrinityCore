@@ -157,8 +157,8 @@ struct boss_illidari_council : public BossAI
                     DoZoneInCombat(council);
                 }
             }
-            events.ScheduleEvent(EVENT_EMPYREAL_EQUIVALENCY, Seconds(2));
-            events.ScheduleEvent(EVENT_BERSERK, Minutes(15));
+            events.ScheduleEvent(EVENT_EMPYREAL_EQUIVALENCY, 2s);
+            events.ScheduleEvent(EVENT_BERSERK, 15min);
             if (Creature* council = instance->GetCreature(CouncilData[urand(0, 3)]))
                 council->AI()->Talk(SAY_COUNCIL_AGRO);
         }
@@ -314,11 +314,11 @@ struct boss_gathios_the_shatterer : public IllidariCouncilBossAI
     void ScheduleEvents() override
     {
         DoCastSelf(SPELL_SEAL_OF_BLOOD);
-        events.ScheduleEvent(EVENT_BLESS, Seconds(20));
-        events.ScheduleEvent(EVENT_CONSECRATION, Seconds(10));
-        events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, Seconds(10));
-        events.ScheduleEvent(EVENT_JUDGEMENT, Seconds(15));
-        events.ScheduleEvent(EVENT_AURA, Seconds(6));
+        events.ScheduleEvent(EVENT_BLESS, 20s);
+        events.ScheduleEvent(EVENT_CONSECRATION, 10s);
+        events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 10s);
+        events.ScheduleEvent(EVENT_JUDGEMENT, 15s);
+        events.ScheduleEvent(EVENT_AURA, 6s);
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -376,16 +376,16 @@ struct boss_high_nethermancer_zerevor : public IllidariCouncilBossAI
 
     void ScheduleEvents() override
     {
-        events.ScheduleEvent(EVENT_FLAMESTRIKE, Seconds(8));
-        events.ScheduleEvent(EVENT_BLIZZARD, Seconds(25));
-        events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, Seconds(5));
+        events.ScheduleEvent(EVENT_FLAMESTRIKE, 8s);
+        events.ScheduleEvent(EVENT_BLIZZARD, 25s);
+        events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 5s);
         DoCastSelf(SPELL_DAMPEN_MAGIC);
     }
 
     void DoAction(int32 actionId) override
     {
         if (actionId == ACTION_REFRESH_DAMPEN)
-            events.ScheduleEvent(EVENT_DAMPEN_MAGIC, Seconds(50));
+            events.ScheduleEvent(EVENT_DAMPEN_MAGIC, 50s);
     }
     void ExecuteEvent(uint32 eventId) override
     {
@@ -410,7 +410,7 @@ struct boss_high_nethermancer_zerevor : public IllidariCouncilBossAI
                 {
                     DoCastSelf(SPELL_ARCANE_EXPLOSION);
                     _canUseArcaneExplosion = false;
-                    events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_CHECK, Seconds(5));
+                    events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_CHECK, 5s);
                 }
                 events.Repeat(Seconds(1));
                 break;
@@ -452,9 +452,9 @@ struct boss_lady_malande : public IllidariCouncilBossAI
 
     void ScheduleEvents() override
     {
-        events.ScheduleEvent(EVENT_CIRCLE_OF_HEALING, Seconds(20));
-        events.ScheduleEvent(EVENT_REFLECTIVE_SHIELD, Seconds(25));
-        events.ScheduleEvent(EVENT_DIVINE_WRATH, Seconds(32));
+        events.ScheduleEvent(EVENT_CIRCLE_OF_HEALING, 20s);
+        events.ScheduleEvent(EVENT_REFLECTIVE_SHIELD, 25s);
+        events.ScheduleEvent(EVENT_DIVINE_WRATH, 32s);
     }
 
     void HealReceived(Unit* /*who*/, uint32& addhealth) override
@@ -516,8 +516,8 @@ struct boss_veras_darkshadow : public IllidariCouncilBossAI
 
     void ScheduleEvents() override
     {
-        events.ScheduleEvent(EVENT_DEADLY_STRIKE, Seconds(18));
-        events.ScheduleEvent(EVENT_VANISH, Seconds(18));
+        events.ScheduleEvent(EVENT_DEADLY_STRIKE, 18s);
+        events.ScheduleEvent(EVENT_VANISH, 18s);
     }
 
     void ExecuteEvent(uint32 eventId) override

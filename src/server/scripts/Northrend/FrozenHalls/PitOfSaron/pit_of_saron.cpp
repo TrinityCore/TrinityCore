@@ -73,8 +73,8 @@ class npc_ymirjar_flamebearer : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_FIREBALL, 4000);
-                _events.ScheduleEvent(EVENT_TACTICAL_BLINK, 15000);
+                _events.ScheduleEvent(EVENT_FIREBALL, 4s);
+                _events.ScheduleEvent(EVENT_TACTICAL_BLINK, 15s);
             }
 
             void UpdateAI(uint32 diff) override

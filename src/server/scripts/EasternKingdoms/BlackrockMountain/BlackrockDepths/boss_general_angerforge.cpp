@@ -58,9 +58,9 @@ class boss_general_angerforge : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.SetPhase(PHASE_ONE);
-                _events.ScheduleEvent(EVENT_MIGHTYBLOW, 8000);
-                _events.ScheduleEvent(EVENT_HAMSTRING, 12000);
-                _events.ScheduleEvent(EVENT_CLEAVE, 16000);
+                _events.ScheduleEvent(EVENT_MIGHTYBLOW, 8s);
+                _events.ScheduleEvent(EVENT_HAMSTRING, 12s);
+                _events.ScheduleEvent(EVENT_CLEAVE, 16s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -98,15 +98,15 @@ class boss_general_angerforge : public CreatureScript
                     {
                         case EVENT_MIGHTYBLOW:
                             DoCastVictim(SPELL_MIGHTYBLOW);
-                            _events.ScheduleEvent(EVENT_MIGHTYBLOW, 18000);
+                            _events.ScheduleEvent(EVENT_MIGHTYBLOW, 18s);
                             break;
                         case EVENT_HAMSTRING:
                             DoCastVictim(SPELL_HAMSTRING);
-                            _events.ScheduleEvent(EVENT_HAMSTRING, 15000);
+                            _events.ScheduleEvent(EVENT_HAMSTRING, 15s);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            _events.ScheduleEvent(EVENT_CLEAVE, 9000);
+                            _events.ScheduleEvent(EVENT_CLEAVE, 9s);
                             break;
                         case EVENT_MEDIC:
                             for (uint8 i = 0; i < 2; ++i)
@@ -115,7 +115,7 @@ class boss_general_angerforge : public CreatureScript
                         case EVENT_ADDS:
                             for (uint8 i = 0; i < 3; ++i)
                                 SummonAdd(me->GetVictim());
-                            _events.ScheduleEvent(EVENT_ADDS, 25000, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_ADDS, 25s, 0, PHASE_TWO);
                             break;
                         default:
                             break;

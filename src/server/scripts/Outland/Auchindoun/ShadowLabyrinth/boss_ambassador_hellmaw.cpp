@@ -73,10 +73,10 @@ class boss_ambassador_hellmaw : public CreatureScript
                 _events.Reset();
                 _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, NOT_STARTED);
 
-                _events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(5000, 10000));
-                _events.ScheduleEvent(EVENT_FEAR, urand(25000, 30000));
+                _events.ScheduleEvent(EVENT_CORROSIVE_ACID, 5s, 10s);
+                _events.ScheduleEvent(EVENT_FEAR, 25s, 30s);
                 if (IsHeroic())
-                    _events.ScheduleEvent(EVENT_BERSERK, 180000);
+                    _events.ScheduleEvent(EVENT_BERSERK, 3min);
 
                 DoAction(ACTION_AMBASSADOR_HELLMAW_BANISH);
             }
@@ -154,11 +154,11 @@ class boss_ambassador_hellmaw : public CreatureScript
                     {
                         case EVENT_CORROSIVE_ACID:
                             DoCastVictim(SPELL_CORROSIVE_ACID);
-                            _events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(15000, 25000));
+                            _events.ScheduleEvent(EVENT_CORROSIVE_ACID, 15s, 25s);
                             break;
                         case EVENT_FEAR:
                             DoCastAOE(SPELL_FEAR);
-                            _events.ScheduleEvent(EVENT_FEAR, urand(20000, 35000));
+                            _events.ScheduleEvent(EVENT_FEAR, 20s, 35s);
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_ENRAGE, true);

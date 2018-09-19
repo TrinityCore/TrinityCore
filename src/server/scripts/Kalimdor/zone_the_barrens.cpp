@@ -627,7 +627,7 @@ public:
                     if (Player* player = GetPlayerForEscort())
                     {
                         player->GroupEventHappens(QUEST_ESCAPE, me);
-                        me->DespawnOrUnsummon(3min);
+                        me->DespawnOrUnsummon(5min);
                         me->SummonCreature(NPC_PILOT_WIZZ, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 180000);
                     }
                     break;

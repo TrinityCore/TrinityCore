@@ -278,10 +278,10 @@ class boss_flame_leviathan : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 events.ScheduleEvent(EVENT_PURSUE, 1);
                 events.ScheduleEvent(EVENT_MISSILE, urand(1500, 4*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_VENT, 20*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SHUTDOWN, 150*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SPEED, 15*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SUMMON, 1*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_VENT, 20s);
+                events.ScheduleEvent(EVENT_SHUTDOWN, 150s);
+                events.ScheduleEvent(EVENT_SPEED, 15s);
+                events.ScheduleEvent(EVENT_SUMMON, 1s);
                 ActiveTower(); //void ActiveTower
             }
 
@@ -292,25 +292,25 @@ class boss_flame_leviathan : public CreatureScript
                     if (towerOfStorms)
                     {
                         me->AddAura(SPELL_BUFF_TOWER_OF_STORMS, me);
-                        events.ScheduleEvent(EVENT_THORIM_S_HAMMER, 35*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_THORIM_S_HAMMER, 35s);
                     }
 
                     if (towerOfFlames)
                     {
                         me->AddAura(SPELL_BUFF_TOWER_OF_FLAMES, me);
-                        events.ScheduleEvent(EVENT_MIMIRON_S_INFERNO, 70*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_MIMIRON_S_INFERNO, 70s);
                     }
 
                     if (towerOfFrost)
                     {
                         me->AddAura(SPELL_BUFF_TOWER_OF_FR0ST, me);
-                        events.ScheduleEvent(EVENT_HODIR_S_FURY, 105*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_HODIR_S_FURY, 105s);
                     }
 
                     if (towerOfLife)
                     {
                         me->AddAura(SPELL_BUFF_TOWER_OF_LIFE, me);
-                        events.ScheduleEvent(EVENT_FREYA_S_WARD, 140*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_FREYA_S_WARD, 140s);
                     }
 
                     if (!towerOfLife && !towerOfFrost && !towerOfFlames && !towerOfStorms)
@@ -384,7 +384,7 @@ class boss_flame_leviathan : public CreatureScript
                 if (Shutdown == RAID_MODE(TWO_SEATS, FOUR_SEATS))
                 {
                     Shutdown = 0;
-                    events.ScheduleEvent(EVENT_SHUTDOWN, 4000);
+                    events.ScheduleEvent(EVENT_SHUTDOWN, 4s);
                     me->RemoveAurasDueToSpell(SPELL_OVERLOAD_CIRCUIT);
                     me->InterruptNonMeleeSpells(true);
                     return;
@@ -400,25 +400,25 @@ class boss_flame_leviathan : public CreatureScript
                         case EVENT_PURSUE:
                             Talk(SAY_TARGET);
                             DoCast(SPELL_PURSUED);  // Will select target in spellscript
-                            events.ScheduleEvent(EVENT_PURSUE, 35*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_PURSUE, 35s);
                             break;
                         case EVENT_MISSILE:
                             DoCast(me, SPELL_MISSILE_BARRAGE, true);
-                            events.ScheduleEvent(EVENT_MISSILE, 2*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_MISSILE, 2s);
                             break;
                         case EVENT_VENT:
                             DoCastAOE(SPELL_FLAME_VENTS);
-                            events.ScheduleEvent(EVENT_VENT, 20*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_VENT, 20s);
                             break;
                         case EVENT_SPEED:
                             DoCastAOE(SPELL_GATHERING_SPEED);
-                            events.ScheduleEvent(EVENT_SPEED, 15*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SPEED, 15s);
                             break;
                         case EVENT_SUMMON:
                             if (summons.size() < 15)
                                 if (Creature* lift = DoSummonFlyer(NPC_MECHANOLIFT, me, 30.0f, 50.0f, 0))
                                     lift->GetMotionMaster()->MoveRandom(100);
-                            events.ScheduleEvent(EVENT_SUMMON, 2*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SUMMON, 2s);
                             break;
                         case EVENT_SHUTDOWN:
                             Talk(SAY_OVERLOAD);
@@ -426,13 +426,13 @@ class boss_flame_leviathan : public CreatureScript
                             me->CastSpell(me, SPELL_SYSTEMS_SHUTDOWN, true);
                             if (Shutout)
                                 Shutout = false;
-                            events.ScheduleEvent(EVENT_REPAIR, 4000);
+                            events.ScheduleEvent(EVENT_REPAIR, 4s);
                             events.DelayEvents(20 * IN_MILLISECONDS, 0);
                             break;
                         case EVENT_REPAIR:
                             Talk(EMOTE_REPAIR);
                             me->ClearUnitState(UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
-                            events.ScheduleEvent(EVENT_SHUTDOWN, 150*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SHUTDOWN, 150s);
                             events.CancelEvent(EVENT_REPAIR);
                             break;
                         case EVENT_THORIM_S_HAMMER: // Tower of Storms

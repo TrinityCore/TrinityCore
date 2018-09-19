@@ -103,12 +103,12 @@ public:
             // now drop damage requirement to be able to take loot
             me->ResetPlayerDamageReq();
 
-            events.ScheduleEvent(EVENT_CLEAVE, 10000);
-            events.ScheduleEvent(EVENT_FLAMEBREATH, 15000);
-            events.ScheduleEvent(EVENT_FIRENOVA, 20000);
-            events.ScheduleEvent(EVENT_TAILSWIPE, 11000);
-            events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15000);
-            events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45000);
+            events.ScheduleEvent(EVENT_CLEAVE, 10s);
+            events.ScheduleEvent(EVENT_FLAMEBREATH, 15s);
+            events.ScheduleEvent(EVENT_FIRENOVA, 20s);
+            events.ScheduleEvent(EVENT_TAILSWIPE, 11s);
+            events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15s);
+            events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45s);
         }
 
         void BeginSpeech(Unit* target)
@@ -171,16 +171,16 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CLEAVE:
-                        events.ScheduleEvent(EVENT_CLEAVE, 15000);
+                        events.ScheduleEvent(EVENT_CLEAVE, 15s);
                         DoCastVictim(SPELL_CLEAVE);
                         break;
                     case EVENT_FLAMEBREATH:
                         DoCastVictim(SPELL_FLAMEBREATH);
-                        events.ScheduleEvent(EVENT_FLAMEBREATH, urand(8000, 14000));
+                        events.ScheduleEvent(EVENT_FLAMEBREATH, 8s, 14s);
                         break;
                     case EVENT_FIRENOVA:
                         DoCastVictim(SPELL_FIRENOVA);
-                        events.ScheduleEvent(EVENT_FIRENOVA, 15000);
+                        events.ScheduleEvent(EVENT_FIRENOVA, 15s);
                         break;
                     case EVENT_TAILSWIPE:
                         //Only cast if we are behind
@@ -188,7 +188,7 @@ public:
                         {
                         DoCast(me->GetVictim(), SPELL_TAILSWIPE);
                         }*/
-                        events.ScheduleEvent(EVENT_TAILSWIPE, 15000);
+                        events.ScheduleEvent(EVENT_TAILSWIPE, 15s);
                         break;
                     case EVENT_BURNINGADRENALINE_CASTER:
                         {
@@ -200,12 +200,12 @@ public:
                             }
                         }
                         //reschedule the event
-                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15000);
+                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15s);
                         break;
                     case EVENT_BURNINGADRENALINE_TANK:
                         //Vael has to cast it himself; contrary to the previous commit's comment. Nothing happens otherwise.
                         me->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, true);
-                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45000);
+                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45s);
                         break;
                 }
 
