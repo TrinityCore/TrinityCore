@@ -137,10 +137,10 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_ICY_TOUCH, 1000, GCD_CAST);
-            events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 3000, GCD_CAST);
-            events.ScheduleEvent(EVENT_BLOOD_STRIKE, 2000, GCD_CAST);
-            events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
+            events.ScheduleEvent(EVENT_ICY_TOUCH, 1s, GCD_CAST);
+            events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 3s, GCD_CAST);
+            events.ScheduleEvent(EVENT_BLOOD_STRIKE, 2s, GCD_CAST);
+            events.ScheduleEvent(EVENT_DEATH_COIL, 5s, GCD_CAST);
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -258,22 +258,22 @@ public:
                     case EVENT_ICY_TOUCH:
                         DoCastVictim(SPELL_ICY_TOUCH);
                         events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_ICY_TOUCH, 5000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_ICY_TOUCH, 5s, GCD_CAST);
                         break;
                     case EVENT_PLAGUE_STRIKE:
                         DoCastVictim(SPELL_PLAGUE_STRIKE);
                         events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 5000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 5s, GCD_CAST);
                         break;
                     case EVENT_BLOOD_STRIKE:
                         DoCastVictim(SPELL_BLOOD_STRIKE);
                         events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5s, GCD_CAST);
                         break;
                     case EVENT_DEATH_COIL:
                         DoCastVictim(SPELL_DEATH_COIL);
                         events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_DEATH_COIL, 5s, GCD_CAST);
                         break;
                     }
                 }

@@ -83,8 +83,8 @@ class boss_herod : public CreatureScript
                 DoCast(me, SPELL_RUSHINGCHARGE);
                 _JustEngagedWith();
 
-                events.ScheduleEvent(EVENT_CLEAVE, 12000);
-                events.ScheduleEvent(EVENT_WHIRLWIND, 60000);
+                events.ScheduleEvent(EVENT_CLEAVE, 12s);
+                events.ScheduleEvent(EVENT_WHIRLWIND, 1min);
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -117,12 +117,12 @@ class boss_herod : public CreatureScript
                 {
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 12000);
+                        events.ScheduleEvent(EVENT_CLEAVE, 12s);
                         break;
                     case EVENT_WHIRLWIND:
                         Talk(SAY_WHIRLWIND);
                         DoCastVictim(SPELL_WHIRLWIND);
-                        events.ScheduleEvent(EVENT_WHIRLWIND, 30000);
+                        events.ScheduleEvent(EVENT_WHIRLWIND, 30s);
                         break;
                     default:
                         break;

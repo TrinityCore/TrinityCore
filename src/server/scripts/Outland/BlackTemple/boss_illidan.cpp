@@ -493,8 +493,8 @@ struct boss_illidan_stormrage : public BossAI
         me->SetCanDualWield(true);
         if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
             musicController->PlayDirectMusic(EVENT_BT_SUMMIT_WALK_3_SOUND_ID);
-        specialEvents.ScheduleEvent(EVENT_EVADE_CHECK, Seconds(10));
-        specialEvents.ScheduleEvent(EVENT_BERSERK, Minutes(25));
+        specialEvents.ScheduleEvent(EVENT_EVADE_CHECK, 10s);
+        specialEvents.ScheduleEvent(EVENT_BERSERK, 25min);
         ScheduleEvents(GROUP_PHASE_1, GROUP_PHASE_1);
         events.ScheduleEvent(EVENT_TAUNT, Seconds(30), Seconds(60), GROUP_PHASE_ALL);
     }
@@ -638,7 +638,7 @@ struct boss_illidan_stormrage : public BossAI
                 specialEvents.Reset();
                 DoCastSelf(SPELL_DEATH, true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                events.ScheduleEvent(EVENT_DEFEATED_TEXT, Seconds(4));
+                events.ScheduleEvent(EVENT_DEFEATED_TEXT, 4s);
                 break;
             default:
                 break;
@@ -949,7 +949,7 @@ struct boss_illidan_stormrage : public BossAI
                     DoCastSelf(SPELL_DEMON_TRANSFORM_1, true);
                     events.ScheduleEvent(EVENT_DEMON_TEXT, Seconds(2), GROUP_PHASE_ALL);
                     specialEvents.ScheduleEvent(EVENT_CANCEL_DEMON_FORM, Minutes(1) + Seconds(12));
-                    events.ScheduleEvent(EVENT_SCHEDULE_DEMON_SPELLS, Seconds(15));
+                    events.ScheduleEvent(EVENT_SCHEDULE_DEMON_SPELLS, 15s);
                     break;
                 case EVENT_SCHEDULE_DEMON_SPELLS:
                     ResetThreatList();
@@ -1013,7 +1013,7 @@ struct boss_illidan_stormrage : public BossAI
                     Talk(SAY_ILLIDAN_DEFEATED);
                     if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
                         musicController->PlayDirectMusic(EVENT_BT_ARRIVAL_WALK_HERO_1_SOUND_ID);
-                    events.ScheduleEvent(EVENT_QUIET_SUICIDE, Seconds(18));
+                    events.ScheduleEvent(EVENT_QUIET_SUICIDE, 18s);
                     break;
                 case EVENT_QUIET_SUICIDE:
                 {
@@ -1121,28 +1121,28 @@ struct npc_akama_illidan : public ScriptedAI
                 _events.SetPhase(PHASE_INTRO);
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 _events.SetPhase(PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_TELEPORT, Seconds(1));
+                _events.ScheduleEvent(EVENT_TELEPORT, 1s);
                 _events.ScheduleEvent(EVENT_MOVE_TO_ILLIDARI_ROOM, Seconds(1) + Milliseconds(500));
                 break;
             case ACTION_OPEN_DOOR:
                 _instance->SetData(ACTION_OPEN_DOOR, 0);
-                _events.ScheduleEvent(EVENT_AKAMA_THANKS, Seconds(2));
+                _events.ScheduleEvent(EVENT_AKAMA_THANKS, 2s);
                 break;
             case ACTION_FREE:
-                _events.ScheduleEvent(EVENT_FREE, Seconds(14));
+                _events.ScheduleEvent(EVENT_FREE, 14s);
                 break;
             case ACTION_START_ENCOUNTER:
                 DoZoneInCombat();
-                _events.ScheduleEvent(EVENT_HEALING_POTION, Seconds(1));
+                _events.ScheduleEvent(EVENT_HEALING_POTION, 1s);
                 break;
             case ACTION_START_MINIONS:
-                _events.ScheduleEvent(EVENT_AKAMA_MINIONS, Seconds(8));
+                _events.ScheduleEvent(EVENT_AKAMA_MINIONS, 8s);
                 break;
             case ACTION_START_OUTRO:
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_AKAMA_MOVE_BACK, Seconds(2));
+                _events.ScheduleEvent(EVENT_AKAMA_MOVE_BACK, 2s);
                 break;
             default:
                 break;
@@ -1168,7 +1168,7 @@ struct npc_akama_illidan : public ScriptedAI
                 break;
             case POINT_STAIRS:
                 ChangeOrientation(6.265732f);
-                _events.ScheduleEvent(EVENT_AKAMA_SAY_DOOR, Seconds(5));
+                _events.ScheduleEvent(EVENT_AKAMA_SAY_DOOR, 5s);
                 break;
             case POINT_ILLIDAN_ROOM:
                 ChangeOrientation(2.129302f);
@@ -1177,7 +1177,7 @@ struct npc_akama_illidan : public ScriptedAI
                 break;
             case POINT_FACE_ILLIDAN:
                 ChangeOrientation(3.140537f);
-                _events.ScheduleEvent(EVENT_START_ILLIDAN, Seconds(2));
+                _events.ScheduleEvent(EVENT_START_ILLIDAN, 2s);
                 break;
             case POINT_TELEPORT:
                 DoCastSelf(SPELL_AKAMA_TELEPORT);
@@ -1189,13 +1189,13 @@ struct npc_akama_illidan : public ScriptedAI
                 me->SetReactState(REACT_AGGRESSIVE);
                 if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                     illidan->AI()->DoAction(ACTION_START_MINIONS_WEAVE);
-                _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, Seconds(2));
+                _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 2s);
                 break;
             case POINT_MOVE_BACK:
                 _events.ScheduleEvent(EVENT_AKAMA_MOVE_TO_ILLIDAN, Milliseconds(1));
                 break;
             case POINT_ILLIDAN:
-                _events.ScheduleEvent(EVENT_AKAMA_LIGHT_TEXT, Seconds(1));
+                _events.ScheduleEvent(EVENT_AKAMA_LIGHT_TEXT, 1s);
                 break;
             default:
                 break;
@@ -1230,15 +1230,15 @@ struct npc_akama_illidan : public ScriptedAI
                     break;
                 case EVENT_AKAMA_SAY_DOOR:
                     Talk(SAY_AKAMA_DOOR);
-                    _events.ScheduleEvent(EVENT_AKAMA_DOOR_FAIL, Seconds(4));
+                    _events.ScheduleEvent(EVENT_AKAMA_DOOR_FAIL, 4s);
                     break;
                 case EVENT_AKAMA_DOOR_FAIL:
                     DoCastSelf(SPELL_AKAMA_DOOR_FAIL);
-                    _events.ScheduleEvent(EVENT_AKAMA_SAY_ALONE, Seconds(10));
+                    _events.ScheduleEvent(EVENT_AKAMA_SAY_ALONE, 10s);
                     break;
                 case EVENT_AKAMA_SAY_ALONE:
                     Talk(SAY_AKAMA_ALONE);
-                    _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, Seconds(7));
+                    _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 7s);
                     break;
                 case EVENT_SUMMON_SPIRITS:
                     me->SummonCreatureGroup(SUMMON_GROUP);
@@ -1252,7 +1252,7 @@ struct npc_akama_illidan : public ScriptedAI
                 case EVENT_SPIRIT_SAY_2:
                     if (Creature* olum = ObjectAccessor::GetCreature(*me, _spiritOfOlumGUID))
                         olum->AI()->Talk(SAY_SPIRIT_ALONE);
-                    _events.ScheduleEvent(EVENT_AKAMA_DOOR_SUCCESS, Seconds(6));
+                    _events.ScheduleEvent(EVENT_AKAMA_DOOR_SUCCESS, 6s);
                     break;
                 case EVENT_AKAMA_DOOR_SUCCESS:
                     DoCastSelf(SPELL_AKAMA_DOOR_CHANNEL);
@@ -1260,7 +1260,7 @@ struct npc_akama_illidan : public ScriptedAI
                         undalo->CastSpell((Unit*) nullptr, SPELL_DEATHSWORN_DOOR_CHANNEL);
                     if (Creature* olum = ObjectAccessor::GetCreature(*me, _spiritOfOlumGUID))
                         olum->CastSpell((Unit*) nullptr, SPELL_DEATHSWORN_DOOR_CHANNEL);
-                    _events.ScheduleEvent(EVENT_AKAMA_START_SOUND, Seconds(5));
+                    _events.ScheduleEvent(EVENT_AKAMA_START_SOUND, 5s);
                     break;
                 case EVENT_AKAMA_START_SOUND:
                     if (GameObject* musicController = _instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
@@ -1268,8 +1268,8 @@ struct npc_akama_illidan : public ScriptedAI
                     break;
                 case EVENT_AKAMA_THANKS:
                     Talk(SAY_AKAMA_SALUTE);
-                    _events.ScheduleEvent(EVENT_SPIRIT_SALUTE, Seconds(3));
-                    _events.ScheduleEvent(EVENT_RUN_FROM_ILLIDAN_ROOM, Seconds(7));
+                    _events.ScheduleEvent(EVENT_SPIRIT_SALUTE, 3s);
+                    _events.ScheduleEvent(EVENT_RUN_FROM_ILLIDAN_ROOM, 7s);
                     break;
                 case EVENT_SPIRIT_SALUTE:
                     if (Creature* undalo = ObjectAccessor::GetCreature(*me, _spiritOfUdaloGUID))
@@ -1292,11 +1292,11 @@ struct npc_akama_illidan : public ScriptedAI
                     break;
                 case EVENT_FREE:
                     Talk(SAY_AKAMA_FREE);
-                    _events.ScheduleEvent(EVENT_TIME_HAS_COME, Seconds(18));
+                    _events.ScheduleEvent(EVENT_TIME_HAS_COME, 18s);
                     break;
                 case EVENT_TIME_HAS_COME:
                     Talk(SAY_AKAMA_TIME_HAS_COME);
-                    _events.ScheduleEvent(EVENT_ROAR, Seconds(2));
+                    _events.ScheduleEvent(EVENT_ROAR, 2s);
                     break;
                 case EVENT_ROAR:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
@@ -1312,14 +1312,14 @@ struct npc_akama_illidan : public ScriptedAI
                     break;
                 case EVENT_AKAMA_MINIONS:
                     Talk(SAY_AKAMA_MINIONS);
-                    _events.ScheduleEvent(EVENT_AKAMA_MINIONS_EMOTE, Seconds(2));
+                    _events.ScheduleEvent(EVENT_AKAMA_MINIONS_EMOTE, 2s);
                     break;
                 case EVENT_AKAMA_MINIONS_EMOTE:
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                     me->SetImmuneToNPC(true);
-                    _events.ScheduleEvent(EVENT_AKAMA_MINIONS_MOVE, Seconds(4));
+                    _events.ScheduleEvent(EVENT_AKAMA_MINIONS_MOVE, 4s);
                     break;
                 case EVENT_AKAMA_MINIONS_MOVE:
                     _isTeleportToMinions = true;
@@ -1341,11 +1341,11 @@ struct npc_akama_illidan : public ScriptedAI
                     break;
                 case EVENT_AKAMA_LIGHT_TEXT:
                     Talk(SAY_AKAMA_LIGHT);
-                    _events.ScheduleEvent(EVENT_FINAL_SALUTE, Seconds(4));
+                    _events.ScheduleEvent(EVENT_FINAL_SALUTE, 4s);
                     break;
                 case EVENT_FINAL_SALUTE:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-                    _events.ScheduleEvent(EVENT_AKAMA_DESPAWN, Seconds(5));
+                    _events.ScheduleEvent(EVENT_AKAMA_DESPAWN, 5s);
                     break;
                 case EVENT_AKAMA_DESPAWN:
                     DoCastSelf(SPELL_AKAMA_DESPAWN, true);
@@ -1486,8 +1486,8 @@ struct npc_flame_of_azzinoth : public ScriptedAI
             illidan->AI()->JustSummoned(me);
         DoCastSelf(SPELL_FLAME_TEAR_OF_AZZINOTH, true); // Idk what this spell should do
         me->SetReactState(REACT_PASSIVE);
-        _events.ScheduleEvent(EVENT_ENGAGE, Seconds(3));
-        _events.ScheduleEvent(EVENT_FLAME_BLAST, Seconds(11));
+        _events.ScheduleEvent(EVENT_ENGAGE, 3s);
+        _events.ScheduleEvent(EVENT_FLAME_BLAST, 11s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -1507,7 +1507,7 @@ struct npc_flame_of_azzinoth : public ScriptedAI
                 case EVENT_ENGAGE:
                     me->SetReactState(REACT_AGGRESSIVE);
                     DoZoneInCombat();
-                    _events.ScheduleEvent(EVENT_FLAME_CHARGE, Seconds(5));
+                    _events.ScheduleEvent(EVENT_FLAME_CHARGE, 5s);
                     break;
                 case EVENT_FLAME_CHARGE:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, ChargeTargetSelector()))
@@ -1627,19 +1627,19 @@ struct npc_maiev : public ScriptedAI
             me->SetFacingToObject(illidan);
         me->SetReactState(REACT_PASSIVE);
         _events.SetPhase(PHASE_INTRO);
-        _events.ScheduleEvent(EVENT_MAIEV_APPEAR, Seconds(1));
-        _events.ScheduleEvent(EVENT_MAIEV_EXCLAMATION, Seconds(2));
-        _events.ScheduleEvent(EVENT_MAIEV_JUSTICE_TEXT, Seconds(14));
-        _events.ScheduleEvent(EVENT_TAUNT, Seconds(20), Seconds(60));
+        _events.ScheduleEvent(EVENT_MAIEV_APPEAR, 1s);
+        _events.ScheduleEvent(EVENT_MAIEV_EXCLAMATION, 2s);
+        _events.ScheduleEvent(EVENT_MAIEV_JUSTICE_TEXT, 14s);
+        _events.ScheduleEvent(EVENT_TAUNT, 20s, 1min);
         _canDown = true;
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
         _events.SetPhase(PHASE_1);
-        _events.ScheduleEvent(EVENT_CAGE_TRAP, Seconds(30));
-        _events.ScheduleEvent(EVENT_SHADOW_STRIKE, Seconds(50));
-        _events.ScheduleEvent(EVENT_THROW_DAGGER, Seconds(1));
+        _events.ScheduleEvent(EVENT_CAGE_TRAP, 30s);
+        _events.ScheduleEvent(EVENT_SHADOW_STRIKE, 50s);
+        _events.ScheduleEvent(EVENT_THROW_DAGGER, 1s);
     }
 
     void DoAction(int32 actionId) override
@@ -1652,7 +1652,7 @@ struct npc_maiev : public ScriptedAI
             if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                 me->SetFacingToObject(illidan);
             Talk(SAY_MAIEV_SHADOWSONG_FINISHED);
-            _events.ScheduleEvent(EVENT_MAIEV_OUTRO_TEXT, Seconds(28));
+            _events.ScheduleEvent(EVENT_MAIEV_OUTRO_TEXT, 28s);
         }
         else if (actionId == ACTION_MAIEV_DOWN_FADE)
             _canDown = true;
@@ -1691,15 +1691,15 @@ struct npc_maiev : public ScriptedAI
                     break;
                 case EVENT_MAIEV_JUSTICE_TEXT:
                     Talk(SAY_MAIEV_SHADOWSONG_JUSTICE);
-                    _events.ScheduleEvent(EVENT_MAIEV_YES, Seconds(2));
+                    _events.ScheduleEvent(EVENT_MAIEV_YES, 2s);
                     break;
                 case EVENT_MAIEV_YES:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_YES);
-                    _events.ScheduleEvent(EVENT_MAIEV_ROAR, Seconds(3));
+                    _events.ScheduleEvent(EVENT_MAIEV_ROAR, 3s);
                     break;
                 case EVENT_MAIEV_ROAR:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                    _events.ScheduleEvent(EVENT_MAIEV_COMBAT, Seconds(3));
+                    _events.ScheduleEvent(EVENT_MAIEV_COMBAT, 3s);
                     break;
                 case EVENT_MAIEV_COMBAT:
                     me->SetReactState(REACT_AGGRESSIVE);
@@ -1733,11 +1733,11 @@ struct npc_maiev : public ScriptedAI
                     break;
                 case EVENT_MAIEV_OUTRO_TEXT:
                     Talk(SAY_MAIEV_SHADOWSONG_OUTRO);
-                    _events.ScheduleEvent(EVENT_MAIEV_FAREWELL_TEXT, Seconds(11));
+                    _events.ScheduleEvent(EVENT_MAIEV_FAREWELL_TEXT, 11s);
                     break;
                 case EVENT_MAIEV_FAREWELL_TEXT:
                     Talk(SAY_MAIEV_SHADOWSONG_FAREWELL);
-                    _events.ScheduleEvent(EVENT_MAIEV_TELEPORT_DESPAWN, Seconds(3));
+                    _events.ScheduleEvent(EVENT_MAIEV_TELEPORT_DESPAWN, 3s);
                     break;
                 case EVENT_MAIEV_TELEPORT_DESPAWN:
                     DoCastSelf(SPELL_TELEPORT_VISUAL);

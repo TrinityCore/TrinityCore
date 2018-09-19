@@ -781,7 +781,7 @@ public:
                         if (Creature* portal = ObjectAccessor::GetCreature(*me, stormwindPortalGUID))
                             portal->DespawnOrUnsummon();
 
-                        events.ScheduleEvent(EVENT_HERALD_RESET, 60000);
+                        events.ScheduleEvent(EVENT_HERALD_RESET, 1min);
                         break;
                     }
                     case EVENT_HERALD_RESET:

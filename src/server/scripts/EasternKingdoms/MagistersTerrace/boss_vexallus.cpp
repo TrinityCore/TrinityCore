@@ -88,8 +88,8 @@ class boss_vexallus : public CreatureScript
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
 
-                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8000);
-                events.ScheduleEvent(EVENT_ARCANE_SHOCK, 5000);
+                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8s);
+                events.ScheduleEvent(EVENT_ARCANE_SHOCK, 5s);
             }
 
             void JustSummoned(Creature* summoned) override
@@ -113,7 +113,7 @@ class boss_vexallus : public CreatureScript
                     {
                         _enraged = true;
                         events.Reset();
-                        events.ScheduleEvent(EVENT_OVERLOAD, 1200);
+                        events.ScheduleEvent(EVENT_OVERLOAD, 1200ms);
                         return;
                     }
                     else
@@ -149,16 +149,16 @@ class boss_vexallus : public CreatureScript
                         case EVENT_CHAIN_LIGHTNING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8000);
+                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8s);
                             break;
                         case EVENT_ARCANE_SHOCK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
                                 DoCast(target, SPELL_ARCANE_SHOCK);
-                            events.ScheduleEvent(EVENT_ARCANE_SHOCK, 8000);
+                            events.ScheduleEvent(EVENT_ARCANE_SHOCK, 8s);
                             break;
                         case EVENT_OVERLOAD:
                             DoCastVictim(SPELL_OVERLOAD);
-                            events.ScheduleEvent(EVENT_OVERLOAD, 2000);
+                            events.ScheduleEvent(EVENT_OVERLOAD, 2s);
                             break;
                         default:
                             break;

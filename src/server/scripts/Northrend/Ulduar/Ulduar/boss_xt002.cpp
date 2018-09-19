@@ -342,7 +342,7 @@ struct boss_xt002 : public BossAI
                     Talk(EMOTE_TYMPANIC_TANTRUM);
                     events.DelayEvents(10s, GROUP_SEARING_GRAVITY);
                     DoCastSelf(SPELL_TYMPANIC_TANTRUM);
-                    events.Repeat(60s);
+                    events.Repeat(1min);
                     break;
                 case EVENT_PHASE_CHECK:
                     if (me->HealthBelowPct(_exposeHeartPercent))

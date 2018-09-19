@@ -110,7 +110,7 @@ class boss_saviana_ragefire : public CreatureScript
                 switch (point)
                 {
                     case POINT_FLIGHT:
-                        events.ScheduleEvent(EVENT_CONFLAGRATION, Seconds(1));
+                        events.ScheduleEvent(EVENT_CONFLAGRATION, 1s);
                         Talk(SAY_CONFLAGRATION);
                         break;
                     case POINT_LAND:

@@ -731,7 +731,7 @@ public:
         void DoAction(int32 /*action*/) override
         {
             Talk(SAY_FREE);
-            _events.ScheduleEvent(EVENT_TELEPORT, Seconds(5));
+            _events.ScheduleEvent(EVENT_TELEPORT, 5s);
         }
 
         void UpdateAI(uint32 diff) override

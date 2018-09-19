@@ -30,6 +30,7 @@
 #include "Packet.h"
 #include "QueryCallbackProcessor.h"
 #include "SharedDefines.h"
+#include <string>
 #include <unordered_map>
 
 class BigNumber;
@@ -335,6 +336,9 @@ class TC_GAME_API WorldSession
 
         void LogoutPlayer(bool save);
         void KickPlayer();
+        // Returns true if all contained hyperlinks are valid
+        // May kick player on false depending on world config (handler should abort)
+        bool ValidateHyperlinksAndMaybeKick(std::string const& str);
 
         void QueuePacket(WorldPacket* new_packet);
         bool Update(uint32 diff, PacketFilter& updater);

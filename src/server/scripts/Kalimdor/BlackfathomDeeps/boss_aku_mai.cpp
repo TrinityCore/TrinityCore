@@ -57,7 +57,7 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             _JustEngagedWith();
-            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(5000, 9000));
+            events.ScheduleEvent(EVENT_POISON_CLOUD, 5s, 9s);
         }
 
         void DamageTaken(Unit* /*atacker*/, uint32 &damage) override
@@ -75,7 +75,7 @@ public:
             {
                 case EVENT_POISON_CLOUD:
                     DoCastVictim(SPELL_POISON_CLOUD);
-                    events.ScheduleEvent(EVENT_POISON_CLOUD, urand(25000, 50000));
+                    events.ScheduleEvent(EVENT_POISON_CLOUD, 25s, 50s);
                     break;
                 default:
                     break;

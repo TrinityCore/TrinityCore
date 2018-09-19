@@ -884,10 +884,10 @@ class npc_darnavan : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, Seconds(10));
-                _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, Seconds(20), Seconds(25));
-                _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, Seconds(25), Seconds(30));
-                _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, Seconds(5), Seconds(8));
+                _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, 10s);
+                _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, 20s, 25s);
+                _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, 25s, 30s);
+                _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, 5s, 8s);
                 Initialize();
             }
 
@@ -939,7 +939,7 @@ class npc_darnavan : public CreatureScript
                 {
                     DoCastVictim(SPELL_SHATTERING_THROW);
                     _canShatter = false;
-                    _events.ScheduleEvent(EVENT_DARNAVAN_SHATTERING_THROW, Seconds(30));
+                    _events.ScheduleEvent(EVENT_DARNAVAN_SHATTERING_THROW, 30s);
                     return;
                 }
 
@@ -947,7 +947,7 @@ class npc_darnavan : public CreatureScript
                 {
                     DoCastVictim(SPELL_CHARGE);
                     _canCharge = false;
-                    _events.ScheduleEvent(EVENT_DARNAVAN_CHARGE, Seconds(20));
+                    _events.ScheduleEvent(EVENT_DARNAVAN_CHARGE, 20s);
                     return;
                 }
 
@@ -957,7 +957,7 @@ class npc_darnavan : public CreatureScript
                     {
                         case EVENT_DARNAVAN_BLADESTORM:
                             DoCast(SPELL_BLADESTORM);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, Seconds(90), Seconds(100));
+                            _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, 90s, 100s);
                             break;
                         case EVENT_DARNAVAN_CHARGE:
                             _canCharge = true;
@@ -968,14 +968,14 @@ class npc_darnavan : public CreatureScript
                             break;
                         case EVENT_DARNAVAN_MORTAL_STRIKE:
                             DoCastVictim(SPELL_MORTAL_STRIKE);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, Seconds(15), Seconds(30));
+                            _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, 15s, 30s);
                             break;
                         case EVENT_DARNAVAN_SHATTERING_THROW:
                             _canShatter = true;
                             break;
                         case EVENT_DARNAVAN_SUNDER_ARMOR:
                             DoCastVictim(SPELL_SUNDER_ARMOR);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, Seconds(3), Seconds(7));
+                            _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, 3s, 7s);
                             break;
                     }
                 }

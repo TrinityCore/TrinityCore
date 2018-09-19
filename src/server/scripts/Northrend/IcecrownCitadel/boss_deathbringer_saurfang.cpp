@@ -306,11 +306,11 @@ class boss_deathbringer_saurfang : public CreatureScript
                 _introDone = true;
 
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 30000, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 30s, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 360000 : 480000, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BOILING_BLOOD, 15500, 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_BLOOD_NOVA, 17000, 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, 20000, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_BLOOD_NOVA, 17s, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, 20s, 0, PHASE_COMBAT);
 
                 _fallenChampionCastCount = 0;
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
@@ -503,9 +503,9 @@ class boss_deathbringer_saurfang : public CreatureScript
                                 for (uint32 i25 = 0; i25 < 3; ++i25)
                                     DoCast(me, SPELL_SUMMON_BLOOD_BEAST_25_MAN+i25);
                             Talk(SAY_BLOOD_BEASTS);
-                            events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 40000, 0, PHASE_COMBAT);
+                            events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 40s, 0, PHASE_COMBAT);
                             if (IsHeroic())
-                                events.ScheduleEvent(EVENT_SCENT_OF_BLOOD, 10000, 0, PHASE_COMBAT);
+                                events.ScheduleEvent(EVENT_SCENT_OF_BLOOD, 10s, 0, PHASE_COMBAT);
                             break;
                         case EVENT_BLOOD_NOVA:
                             DoCastAOE(SPELL_BLOOD_NOVA_TRIGGER);
@@ -576,7 +576,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                             return;
 
                         events.ScheduleEvent(EVENT_INTRO_ALLIANCE_6, 6500+500, 0, PHASE_INTRO_A);
-                        events.ScheduleEvent(EVENT_INTRO_FINISH, 8000, 0, PHASE_INTRO_A);
+                        events.ScheduleEvent(EVENT_INTRO_FINISH, 8s, 0, PHASE_INTRO_A);
 
                         events.ScheduleEvent(EVENT_INTRO_HORDE_4, 6500, 0, PHASE_INTRO_H);
                         events.ScheduleEvent(EVENT_INTRO_HORDE_9, 46700+1000+500, 0, PHASE_INTRO_H);

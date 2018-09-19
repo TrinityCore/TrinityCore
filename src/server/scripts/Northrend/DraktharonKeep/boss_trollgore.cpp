@@ -97,11 +97,11 @@ class boss_trollgore : public CreatureScript
                 _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
-                events.ScheduleEvent(EVENT_CONSUME, 15000);
-                events.ScheduleEvent(EVENT_CRUSH, urand(1000, 5000));
-                events.ScheduleEvent(EVENT_INFECTED_WOUND, urand(10000, 60000));
-                events.ScheduleEvent(EVENT_CORPSE_EXPLODE, 3000);
-                events.ScheduleEvent(EVENT_SPAWN, urand(30000, 40000));
+                events.ScheduleEvent(EVENT_CONSUME, 15s);
+                events.ScheduleEvent(EVENT_CRUSH, 1s, 5s);
+                events.ScheduleEvent(EVENT_INFECTED_WOUND, 10s, 60s);
+                events.ScheduleEvent(EVENT_CORPSE_EXPLODE, 3s);
+                events.ScheduleEvent(EVENT_SPAWN, 30s, 40s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -121,27 +121,27 @@ class boss_trollgore : public CreatureScript
                         case EVENT_CONSUME:
                             Talk(SAY_CONSUME);
                             DoCastAOE(SPELL_CONSUME);
-                            events.ScheduleEvent(EVENT_CONSUME, 15000);
+                            events.ScheduleEvent(EVENT_CONSUME, 15s);
                             break;
                         case EVENT_CRUSH:
                             DoCastVictim(SPELL_CRUSH);
-                            events.ScheduleEvent(EVENT_CRUSH, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_CRUSH, 10s, 15s);
                             break;
                         case EVENT_INFECTED_WOUND:
                             DoCastVictim(SPELL_INFECTED_WOUND);
-                            events.ScheduleEvent(EVENT_INFECTED_WOUND, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_INFECTED_WOUND, 25s, 35s);
                             break;
                         case EVENT_CORPSE_EXPLODE:
                             Talk(SAY_EXPLODE);
                             DoCastAOE(SPELL_CORPSE_EXPLODE);
-                            events.ScheduleEvent(EVENT_CORPSE_EXPLODE, urand(15000, 19000));
+                            events.ScheduleEvent(EVENT_CORPSE_EXPLODE, 15s, 19s);
                             break;
                         case EVENT_SPAWN:
                             for (uint8 i = 0; i < 3; ++i)
                                 if (Creature* trigger = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TROLLGORE_INVADER_SUMMONER_1 + i)))
                                     trigger->CastSpell(trigger, RAND(SPELL_SUMMON_INVADER_A, SPELL_SUMMON_INVADER_B, SPELL_SUMMON_INVADER_C), me->GetGUID());
 
-                            events.ScheduleEvent(EVENT_SPAWN, urand(30000, 40000));
+                            events.ScheduleEvent(EVENT_SPAWN, 30s, 40s);
                             break;
                         default:
                             break;

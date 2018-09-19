@@ -55,7 +55,7 @@ class boss_magmus : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.SetPhase(PHASE_ONE);
-                _events.ScheduleEvent(EVENT_FIERY_BURST, 5000);
+                _events.ScheduleEvent(EVENT_FIERY_BURST, 5s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -80,11 +80,11 @@ class boss_magmus : public CreatureScript
                     {
                         case EVENT_FIERY_BURST:
                             DoCastVictim(SPELL_FIERYBURST);
-                            _events.ScheduleEvent(EVENT_FIERY_BURST, 6000);
+                            _events.ScheduleEvent(EVENT_FIERY_BURST, 6s);
                             break;
                         case EVENT_WARSTOMP:
                             DoCastVictim(SPELL_WARSTOMP);
-                            _events.ScheduleEvent(EVENT_WARSTOMP, 8000, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_WARSTOMP, 8s, 0, PHASE_TWO);
                             break;
                         default:
                             break;

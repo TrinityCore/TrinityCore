@@ -124,7 +124,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
                 if (damage >= me->GetHealth() && events.IsInPhase(PHASE_HUMAN))
                 {
                     events.SetPhase(PHASE_EVENT);
-                    events.ScheduleEvent(EVENT_SUMMON_BANSHEE, 3 * IN_MILLISECONDS, 0, PHASE_EVENT);
+                    events.ScheduleEvent(EVENT_SUMMON_BANSHEE, 3s, 0, PHASE_EVENT);
 
                     me->RemoveAllAuras();
                     me->StopMoving();
@@ -151,7 +151,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
                 me->RemoveAura(SPELL_INGVAR_FEIGN_DEATH);
                 DoCast(me, SPELL_INGVAR_TRANSFORM, true);
                 me->UpdateEntry(NPC_INGVAR_UNDEAD);
-                events.ScheduleEvent(EVENT_JUST_TRANSFORMED, IN_MILLISECONDS / 2, 0, PHASE_EVENT);
+                events.ScheduleEvent(EVENT_JUST_TRANSFORMED, 500ms, 0, PHASE_EVENT);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -162,10 +162,10 @@ class boss_ingvar_the_plunderer : public CreatureScript
 
                 Talk(SAY_AGGRO);
                 events.SetPhase(PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_CLEAVE, urand(6, 12)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18, 21)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_ENRAGE, urand(7, 14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_SMASH, urand(12, 17)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_CLEAVE, 6s, 12s, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_STAGGERING_ROAR, 18s, 21s, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_ENRAGE, 7s, 14s, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_SMASH, 12s, 17s, 0, PHASE_HUMAN);
             }
 
             void AttackStart(Unit* who) override
@@ -184,9 +184,9 @@ class boss_ingvar_the_plunderer : public CreatureScript
             void ScheduleSecondPhase()
             {
                 events.SetPhase(PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_DARK_SMASH, urand(14, 18)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_DARK_SMASH, 14s, 18s, 0, PHASE_UNDEAD);
                 events.ScheduleEvent(EVENT_DREADFUL_ROAR, 0, 0, PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10, 14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_WOE_STRIKE, 10s, 14s, 0, PHASE_UNDEAD);
                 events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
             }
 
@@ -213,19 +213,19 @@ class boss_ingvar_the_plunderer : public CreatureScript
                         // PHASE ONE
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            events.ScheduleEvent(EVENT_CLEAVE, urand(6, 12)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                            events.ScheduleEvent(EVENT_CLEAVE, 6s, 12s, 0, PHASE_HUMAN);
                             break;
                         case EVENT_STAGGERING_ROAR:
                             DoCast(me, SPELL_STAGGERING_ROAR);
-                            events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18, 22)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                            events.ScheduleEvent(EVENT_STAGGERING_ROAR, 18s, 22s, 0, PHASE_HUMAN);
                             break;
                         case EVENT_ENRAGE:
                             DoCast(me, SPELL_ENRAGE);
-                            events.ScheduleEvent(EVENT_ENRAGE, urand(7, 14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                            events.ScheduleEvent(EVENT_ENRAGE, 7s, 14s, 0, PHASE_HUMAN);
                             break;
                         case EVENT_SMASH:
                             DoCastAOE(SPELL_SMASH);
-                            events.ScheduleEvent(EVENT_SMASH, urand(12, 16)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                            events.ScheduleEvent(EVENT_SMASH, 12s, 16s, 0, PHASE_HUMAN);
                             break;
                         case EVENT_JUST_TRANSFORMED:
                             ScheduleSecondPhase();
@@ -245,15 +245,15 @@ class boss_ingvar_the_plunderer : public CreatureScript
                         // PHASE TWO
                         case EVENT_DARK_SMASH:
                             DoCastVictim(SPELL_DARK_SMASH);
-                            events.ScheduleEvent(EVENT_DARK_SMASH, urand(12, 16)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                            events.ScheduleEvent(EVENT_DARK_SMASH, 12s, 16s, 0, PHASE_UNDEAD);
                             break;
                         case EVENT_DREADFUL_ROAR:
                             DoCast(me, SPELL_DREADFUL_ROAR);
-                            events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18, 22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                            events.ScheduleEvent(EVENT_DREADFUL_ROAR, 18s, 22s, 0, PHASE_UNDEAD);
                             break;
                         case EVENT_WOE_STRIKE:
                             DoCastVictim(SPELL_WOE_STRIKE);
-                            events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10, 14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                            events.ScheduleEvent(EVENT_WOE_STRIKE, 10s, 14s, 0, PHASE_UNDEAD);
                             break;
                         case EVENT_SHADOW_AXE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))

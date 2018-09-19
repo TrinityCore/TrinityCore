@@ -138,7 +138,7 @@ class boss_arlokk : public CreatureScript
                 _JustEngagedWith();
                 events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(7000, 9000), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_GOUGE, urand(12000, 15000), 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_SUMMON_PROWLERS, 6000, 0, PHASE_ALL);
+                events.ScheduleEvent(EVENT_SUMMON_PROWLERS, 6s, 0, PHASE_ALL);
                 events.ScheduleEvent(EVENT_MARK_OF_ARLOKK, urand(9000, 11000), 0, PHASE_ALL);
                 events.ScheduleEvent(EVENT_TRANSFORM, urand(15000, 20000), 0, PHASE_ONE);
                 Talk(SAY_AGGRO);
@@ -223,7 +223,7 @@ class boss_arlokk : public CreatureScript
                                     ++_summonCountB;
                                 }
                             }
-                            events.ScheduleEvent(EVENT_SUMMON_PROWLERS, 6000, 0, PHASE_ALL);
+                            events.ScheduleEvent(EVENT_SUMMON_PROWLERS, 6s, 0, PHASE_ALL);
                             break;
                         case EVENT_MARK_OF_ARLOKK:
                         {
@@ -255,7 +255,7 @@ class boss_arlokk : public CreatureScript
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                             DoCast(me, SPELL_VANISH_VISUAL);
                             DoCast(me, SPELL_VANISH);
-                            events.ScheduleEvent(EVENT_VANISH, 1000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_VANISH, 1s, 0, PHASE_ONE);
                             break;
                         }
                         case EVENT_VANISH:
@@ -372,7 +372,7 @@ class npc_zulian_prowler : public CreatureScript
 
                 if (Unit* arlokk = ObjectAccessor::GetUnit(*me, _instance->GetGuidData(NPC_ARLOKK)))
                     me->GetMotionMaster()->MovePoint(0, arlokk->GetPositionX(), arlokk->GetPositionY(), arlokk->GetPositionZ());
-                _events.ScheduleEvent(EVENT_ATTACK, 6000);
+                _events.ScheduleEvent(EVENT_ATTACK, 6s);
             }
 
             void JustEngagedWith(Unit* /*who*/) override

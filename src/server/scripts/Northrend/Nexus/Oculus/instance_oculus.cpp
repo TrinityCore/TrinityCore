@@ -202,7 +202,7 @@ class instance_oculus : public InstanceMapScript
                             {
                                 eregos->SetPhaseMask(1, true);
                                 GreaterWhelps();
-                                events.ScheduleEvent(EVENT_EREGOS_INTRO, 5000);
+                                events.ScheduleEvent(EVENT_EREGOS_INTRO, 5s);
                             }
                         }
                         break;

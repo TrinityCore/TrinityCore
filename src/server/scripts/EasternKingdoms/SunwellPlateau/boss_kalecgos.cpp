@@ -152,12 +152,12 @@ struct boss_kalecgos : public BossAI
         _isEnraged = false;
         _isBanished = false;
         _Reset();
-        events.ScheduleEvent(EVENT_ARCANE_BUFFET, Seconds(8));
-        events.ScheduleEvent(EVENT_FROST_BREATH, Seconds(15));
-        events.ScheduleEvent(EVENT_WILD_MAGIC, Seconds(10));
-        events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(25));
-        events.ScheduleEvent(EVENT_SPECTRAL_BLAST, Seconds(20), Seconds(25));
-        events.ScheduleEvent(EVENT_CHECK_TIMER, Seconds(1));
+        events.ScheduleEvent(EVENT_ARCANE_BUFFET, 8s);
+        events.ScheduleEvent(EVENT_FROST_BREATH, 15s);
+        events.ScheduleEvent(EVENT_WILD_MAGIC, 10s);
+        events.ScheduleEvent(EVENT_TAIL_LASH, 25s);
+        events.ScheduleEvent(EVENT_SPECTRAL_BLAST, 20s, 25s);
+        events.ScheduleEvent(EVENT_CHECK_TIMER, 1s);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -190,7 +190,7 @@ struct boss_kalecgos : public BossAI
         switch (action)
         {
             case ACTION_START_OUTRO:
-                events.ScheduleEvent(EVENT_OUTRO_START, Seconds(1));
+                events.ScheduleEvent(EVENT_OUTRO_START, 1s);
                 break;
             case ACTION_ENRAGE:
                 _isEnraged = true;
@@ -361,8 +361,8 @@ struct boss_kalecgos_human : public ScriptedAI
         if (Creature* sath = _instance->GetCreature(DATA_SATHROVARR))
             _sathGUID = sath->GetGUID();
 
-        _events.ScheduleEvent(EVENT_REVITALIZE, Seconds(5));
-        _events.ScheduleEvent(EVENT_HEROIC_STRIKE, Seconds(3));
+        _events.ScheduleEvent(EVENT_REVITALIZE, 5s);
+        _events.ScheduleEvent(EVENT_HEROIC_STRIKE, 3s);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -456,10 +456,10 @@ struct boss_sathrovarr : public BossAI
         _isEnraged = false;
         _isBanished = false;
         _Reset();
-        events.ScheduleEvent(EVENT_SHADOWBOLT, Seconds(7), Seconds(10));
-        events.ScheduleEvent(EVENT_AGONY_CURSE, Seconds(20));
-        events.ScheduleEvent(EVENT_CORRUPTION_STRIKE, Seconds(13));
-        events.ScheduleEvent(EVENT_CHECK_TIMER, Seconds(1));
+        events.ScheduleEvent(EVENT_SHADOWBOLT, 7s, 10s);
+        events.ScheduleEvent(EVENT_AGONY_CURSE, 20s);
+        events.ScheduleEvent(EVENT_CORRUPTION_STRIKE, 13s);
+        events.ScheduleEvent(EVENT_CHECK_TIMER, 1s);
     }
 
     void JustEngagedWith(Unit* /*who*/) override

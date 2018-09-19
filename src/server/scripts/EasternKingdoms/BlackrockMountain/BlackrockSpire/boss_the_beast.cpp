@@ -149,12 +149,12 @@ struct boss_the_beast : public BossAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         _JustEngagedWith();
-        events.ScheduleEvent(EVENT_FLAME_BREAK, Seconds(12));
-        events.ScheduleEvent(EVENT_IMMOLATE, Seconds(3));
-        events.ScheduleEvent(EVENT_TERRIFYING_ROAR, Seconds(23));
-        events.ScheduleEvent(EVENT_BERSERKER_CHARGE, Seconds(2));
-        events.ScheduleEvent(EVENT_FIREBALL, Seconds(8), Seconds(21));
-        events.ScheduleEvent(EVENT_FIREBLAST, Seconds(5), Seconds(8));
+        events.ScheduleEvent(EVENT_FLAME_BREAK, 12s);
+        events.ScheduleEvent(EVENT_IMMOLATE, 3s);
+        events.ScheduleEvent(EVENT_TERRIFYING_ROAR, 23s);
+        events.ScheduleEvent(EVENT_BERSERKER_CHARGE, 2s);
+        events.ScheduleEvent(EVENT_FIREBALL, 8s, 21s);
+        events.ScheduleEvent(EVENT_FIREBLAST, 5s, 8s);
     }
 
     void UpdateAI(uint32 diff) override

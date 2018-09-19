@@ -360,7 +360,7 @@ struct boss_razorscale : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         ScheduleAirPhaseEvents();
         summons.DoAction(ACTION_START_FIGHT, DummyEntryCheckPredicate());
-        events.ScheduleEvent(EVENT_BERSERK, Minutes(15));
+        events.ScheduleEvent(EVENT_BERSERK, 15min);
         HandleMusic(true);
         me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
     }
@@ -715,7 +715,7 @@ struct npc_expedition_commander : public ScriptedAI
 
         _harpoons.clear();
         BuildBrokenHarpoons();
-        _events.ScheduleEvent(EVENT_HANDLE_DESTROY_HARPOON, Seconds(10));
+        _events.ScheduleEvent(EVENT_HANDLE_DESTROY_HARPOON, 10s);
     }
 
     void HandleControllersStopCast()
@@ -1261,15 +1261,15 @@ struct npc_darkrune_watcher : public ScriptedAI
     {
         _events.Reset();
         me->SetReactState(REACT_PASSIVE);
-        _events.ScheduleEvent(EVENT_START_COMBAT, Seconds(2));
+        _events.ScheduleEvent(EVENT_START_COMBAT, 2s);
         if (Creature* razorscale = _instance->GetCreature(BOSS_RAZORSCALE))
             razorscale->AI()->JustSummoned(me);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_LIGHTNING_BOLT, Seconds(5));
-        _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, Seconds(34));
+        _events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 5s);
+        _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 34s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -1322,14 +1322,14 @@ struct npc_darkrune_guardian : public ScriptedAI
     {
         _events.Reset();
         me->SetReactState(REACT_PASSIVE);
-        _events.ScheduleEvent(EVENT_START_COMBAT, Seconds(2));
+        _events.ScheduleEvent(EVENT_START_COMBAT, 2s);
         if (Creature* razorscale = _instance->GetCreature(BOSS_RAZORSCALE))
             razorscale->AI()->JustSummoned(me);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_STORMSTRIKE, Seconds(23));
+        _events.ScheduleEvent(EVENT_STORMSTRIKE, 23s);
     }
 
     uint32 GetData(uint32 type) const override
@@ -1390,16 +1390,16 @@ struct npc_darkrune_sentinel : public ScriptedAI
     {
         _events.Reset();
         me->SetReactState(REACT_PASSIVE);
-        _events.ScheduleEvent(EVENT_START_COMBAT, Seconds(2));
+        _events.ScheduleEvent(EVENT_START_COMBAT, 2s);
         if (Creature* razorscale = _instance->GetCreature(BOSS_RAZORSCALE))
             razorscale->AI()->JustSummoned(me);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_HEROIC_STRIKE, Seconds(9));
-        _events.ScheduleEvent(EVENT_BATTLE_SHOUT, Seconds(15));
-        _events.ScheduleEvent(EVENT_WHIRLWIND, Seconds(17));
+        _events.ScheduleEvent(EVENT_HEROIC_STRIKE, 9s);
+        _events.ScheduleEvent(EVENT_BATTLE_SHOUT, 15s);
+        _events.ScheduleEvent(EVENT_WHIRLWIND, 17s);
     }
 
     void UpdateAI(uint32 diff) override

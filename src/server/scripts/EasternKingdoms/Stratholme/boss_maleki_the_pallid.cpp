@@ -65,7 +65,7 @@ public:
         {
             _events.ScheduleEvent(EVENT_FROSTBOLT,  1 * IN_MILLISECONDS);
             _events.ScheduleEvent(EVENT_ICETOMB,   16 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_DRAINLIFE, 31 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_DRAINLIFE, 31s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -96,12 +96,12 @@ public:
                     case EVENT_ICETOMB:
                         if (rand32() % 65)
                             DoCastVictim(SPELL_ICETOMB);
-                        _events.ScheduleEvent(EVENT_ICETOMB, 28 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_ICETOMB, 28s);
                         break;
                     case EVENT_DRAINLIFE:
                         if (rand32() % 55)
                             DoCastVictim(SPELL_DRAINLIFE);
-                        _events.ScheduleEvent(EVENT_DRAINLIFE, 31 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_DRAINLIFE, 31s);
                         break;
                     default:
                         break;
