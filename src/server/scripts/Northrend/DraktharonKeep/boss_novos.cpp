@@ -153,12 +153,12 @@ public:
                 {
                     case EVENT_SUMMON_MINIONS:
                         DoCast(SPELL_SUMMON_MINIONS);
-                        events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
+                        events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
                         break;
                     case EVENT_ATTACK:
                         if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM))
                             DoCast(victim, RAND(SPELL_ARCANE_BLAST, SPELL_BLIZZARD, SPELL_FROSTBOLT, SPELL_WRATH_OF_MISERY));
-                        events.ScheduleEvent(EVENT_ATTACK, 3000);
+                        events.ScheduleEvent(EVENT_ATTACK, 3s);
                         break;
                     default:
                         break;
@@ -265,9 +265,9 @@ public:
                 Talk(SAY_ARCANE_FIELD);
                 SetSummonerStatus(false);
                 SetBubbled(false);
-                events.ScheduleEvent(EVENT_ATTACK, 3000);
+                events.ScheduleEvent(EVENT_ATTACK, 3s);
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
+                    events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
             }
             else if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_SUMMONER_4))
                 if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))

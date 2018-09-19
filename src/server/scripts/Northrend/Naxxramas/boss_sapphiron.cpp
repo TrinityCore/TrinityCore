@@ -183,7 +183,7 @@ class boss_sapphiron : public CreatureScript
 
                 events.SetPhase(PHASE_GROUND);
                 events.ScheduleEvent(EVENT_CHECK_RESISTS, 0s);
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(15));
+                events.ScheduleEvent(EVENT_BERSERK, 15min);
                 EnterPhaseGround(true);
             }
 
@@ -215,7 +215,7 @@ class boss_sapphiron : public CreatureScript
                 if (param == ACTION_BIRTH)
                 {
                     events.SetPhase(PHASE_BIRTH);
-                    events.ScheduleEvent(EVENT_BIRTH, Seconds(23));
+                    events.ScheduleEvent(EVENT_BIRTH, 23s);
                 }
             }
 

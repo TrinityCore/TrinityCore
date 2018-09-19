@@ -215,7 +215,7 @@ struct boss_ahune : public BossAI
         if (action == ACTION_AHUNE_RETREAT)
         {
             Submerge();
-            events.ScheduleEvent(EVENT_EMERGE, Seconds(35));
+            events.ScheduleEvent(EVENT_EMERGE, 35s);
         }
     }
 

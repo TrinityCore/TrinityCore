@@ -53,10 +53,10 @@ class boss_the_ravenian : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_TRAMPLE, 24000);
-                events.ScheduleEvent(EVENT_CLEAVE, 15000);
-                events.ScheduleEvent(EVENT_SUNDERINCLEAVE, 40000);
-                events.ScheduleEvent(EVENT_KNOCKAWAY, 32000);
+                events.ScheduleEvent(EVENT_TRAMPLE, 24s);
+                events.ScheduleEvent(EVENT_CLEAVE, 15s);
+                events.ScheduleEvent(EVENT_SUNDERINCLEAVE, 40s);
+                events.ScheduleEvent(EVENT_KNOCKAWAY, 32s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -75,19 +75,19 @@ class boss_the_ravenian : public CreatureScript
                     {
                         case EVENT_TRAMPLE:
                             DoCastVictim(SPELL_TRAMPLE, true);
-                            events.ScheduleEvent(EVENT_TRAMPLE, 10000);
+                            events.ScheduleEvent(EVENT_TRAMPLE, 10s);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE, true);
-                            events.ScheduleEvent(EVENT_CLEAVE, 7000);
+                            events.ScheduleEvent(EVENT_CLEAVE, 7s);
                             break;
                         case EVENT_SUNDERINCLEAVE:
                             DoCastVictim(SPELL_SUNDERINCLEAVE, true);
-                            events.ScheduleEvent(EVENT_SUNDERINCLEAVE, 20000);
+                            events.ScheduleEvent(EVENT_SUNDERINCLEAVE, 20s);
                             break;
                         case EVENT_KNOCKAWAY:
                             DoCastVictim(SPELL_KNOCKAWAY, true);
-                            events.ScheduleEvent(EVENT_KNOCKAWAY, 12000);
+                            events.ScheduleEvent(EVENT_KNOCKAWAY, 12s);
                             break;
                         default:
                             break;

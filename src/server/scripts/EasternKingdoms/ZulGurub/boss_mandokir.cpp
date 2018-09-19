@@ -131,7 +131,7 @@ class boss_mandokir : public CreatureScript
                     _Reset();
                     Initialize();
                     me->SetImmuneToAll(true);
-                    events.ScheduleEvent(EVENT_CHECK_START, 1000);
+                    events.ScheduleEvent(EVENT_CHECK_START, 1s);
                     if (Creature* speaker = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_VILEBRANCH_SPEAKER)))
                         if (!speaker->IsAlive())
                             speaker->Respawn(true);
@@ -158,11 +158,11 @@ class boss_mandokir : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_OVERPOWER, urand(7000, 9000));
-                events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(12000, 18000));
-                events.ScheduleEvent(EVENT_WHIRLWIND, urand(24000, 30000));
-                events.ScheduleEvent(EVENT_WATCH_PLAYER, urand(13000, 15000));
-                events.ScheduleEvent(EVENT_CHARGE_PLAYER, urand(33000, 38000));
+                events.ScheduleEvent(EVENT_OVERPOWER, 7s, 9s);
+                events.ScheduleEvent(EVENT_MORTAL_STRIKE, 12s, 18s);
+                events.ScheduleEvent(EVENT_WHIRLWIND, 24s, 30s);
+                events.ScheduleEvent(EVENT_WATCH_PLAYER, 13s, 15s);
+                events.ScheduleEvent(EVENT_CHARGE_PLAYER, 33s, 38s);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 Talk(SAY_AGGRO);
                 me->Dismount();
@@ -232,10 +232,10 @@ class boss_mandokir : public CreatureScript
                                     if (instance->GetBossState(DATA_MANDOKIR) == SPECIAL)
                                     {
                                         me->GetMotionMaster()->MovePoint(0, PosMandokir[1].m_positionX, PosMandokir[1].m_positionY, PosMandokir[1].m_positionZ);
-                                        events.ScheduleEvent(EVENT_STARTED, 6000);
+                                        events.ScheduleEvent(EVENT_STARTED, 6s);
                                     }
                                     else
-                                        events.ScheduleEvent(EVENT_CHECK_START, 1000);
+                                        events.ScheduleEvent(EVENT_CHECK_START, 1s);
                                     break;
                                 case EVENT_STARTED:
                                     me->SetImmuneToAll(false);
@@ -258,16 +258,16 @@ class boss_mandokir : public CreatureScript
                     {
                         case EVENT_OVERPOWER:
                             DoCastVictim(SPELL_OVERPOWER, true);
-                            events.ScheduleEvent(EVENT_OVERPOWER, urand(6000, 12000));
+                            events.ScheduleEvent(EVENT_OVERPOWER, 6s, 12s);
                             break;
                         case EVENT_MORTAL_STRIKE:
                             if (me->GetVictim() && me->EnsureVictim()->HealthBelowPct(50))
                                 DoCastVictim(SPELL_MORTAL_STRIKE, true);
-                            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(12000, 18000));
+                            events.ScheduleEvent(EVENT_MORTAL_STRIKE, 12s, 18s);
                             break;
                         case EVENT_WHIRLWIND:
                             DoCast(me, SPELL_WHIRLWIND);
-                            events.ScheduleEvent(EVENT_WHIRLWIND, urand(22000, 26000));
+                            events.ScheduleEvent(EVENT_WHIRLWIND, 22s, 26s);
                             break;
                         case EVENT_WATCH_PLAYER:
                             if (Unit* player = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -275,11 +275,11 @@ class boss_mandokir : public CreatureScript
                                 DoCast(player, SPELL_WATCH);
                                 Talk(SAY_WATCH, player);
                             }
-                            events.ScheduleEvent(EVENT_WATCH_PLAYER, urand(12000, 15000));
+                            events.ScheduleEvent(EVENT_WATCH_PLAYER, 12s, 15s);
                             break;
                         case EVENT_CHARGE_PLAYER:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true), SPELL_CHARGE);
-                            events.ScheduleEvent(EVENT_CHARGE_PLAYER, urand(22000, 30000));
+                            events.ScheduleEvent(EVENT_CHARGE_PLAYER, 22s, 30s);
                             break;
                         default:
                             break;

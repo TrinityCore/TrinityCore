@@ -82,7 +82,7 @@ public:
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                 me->SetDisableGravity(false);
                 me->SetHover(false);
-                events.ScheduleEvent(EVENT_KALECGOS_LANDING, Seconds(2));
+                events.ScheduleEvent(EVENT_KALECGOS_LANDING, 2s);
             }
         }
 
@@ -95,7 +95,7 @@ public:
                 case EVENT_KALECGOS_LANDING:
                     DoCastAOE(SPELL_CAMERA_SHAKE);
                     me->SetObjectScale(0.6f);
-                    events.ScheduleEvent(EVENT_KALECGOS_TRANSFORM, Seconds(1));
+                    events.ScheduleEvent(EVENT_KALECGOS_TRANSFORM, 1s);
                     break;
                 case EVENT_KALECGOS_TRANSFORM:
                     DoCast(me, SPELL_ORB_KILL_CREDIT, true);

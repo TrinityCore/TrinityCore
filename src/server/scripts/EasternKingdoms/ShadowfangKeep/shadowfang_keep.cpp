@@ -257,10 +257,10 @@ class boss_archmage_arugal : public CreatureScript
             {
                 _JustEngagedWith();
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_CURSE, Seconds(7));
-                events.ScheduleEvent(EVENT_TELEPORT, Seconds(15));
-                events.ScheduleEvent(EVENT_VOID_BOLT, Seconds(1));
-                events.ScheduleEvent(EVENT_THUNDERSHOCK, Seconds(10));
+                events.ScheduleEvent(EVENT_CURSE, 7s);
+                events.ScheduleEvent(EVENT_TELEPORT, 15s);
+                events.ScheduleEvent(EVENT_VOID_BOLT, 1s);
+                events.ScheduleEvent(EVENT_THUNDERSHOCK, 10s);
             }
 
             void AttackStart(Unit* who) override

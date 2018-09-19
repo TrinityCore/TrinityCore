@@ -83,13 +83,13 @@ class boss_elder_nadox : public CreatureScript
                 _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
-                events.ScheduleEvent(EVENT_PLAGUE, 13 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 10 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_PLAGUE, 13s);
+                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 10s);
 
                 if (IsHeroic())
                 {
-                    events.ScheduleEvent(EVENT_RAGE, 12 * IN_MILLISECONDS);
-                    events.ScheduleEvent(EVENT_CHECK_ENRAGE, 5 * IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_RAGE, 12s);
+                    events.ScheduleEvent(EVENT_CHECK_ENRAGE, 5s);
                 }
             }
 
@@ -132,25 +132,25 @@ class boss_elder_nadox : public CreatureScript
                     {
                         case EVENT_PLAGUE:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_BROOD_PLAGUE, true);
-                            events.ScheduleEvent(EVENT_PLAGUE, 15 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_PLAGUE, 15s);
                             break;
                         case EVENT_RAGE:
                             DoCast(H_SPELL_BROOD_RAGE);
-                            events.ScheduleEvent(EVENT_RAGE, urand(10 * IN_MILLISECONDS, 50 * IN_MILLISECONDS));
+                            events.ScheduleEvent(EVENT_RAGE, 10s, 50s);
                             break;
                         case EVENT_SUMMON_SWARMER:
                             /// @todo: summoned by egg
                             DoCast(me, SPELL_SUMMON_SWARMERS);
                             if (urand(1, 3) == 3) // 33% chance of dialog
                                 Talk(SAY_EGG_SAC);
-                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 10 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 10s);
                             break;
                         case EVENT_CHECK_ENRAGE:
                             if (me->HasAura(SPELL_ENRAGE))
                                 return;
                             if (me->GetPositionZ() < 24.0f)
                                 DoCast(me, SPELL_ENRAGE, true);
-                            events.ScheduleEvent(EVENT_CHECK_ENRAGE, 5 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_CHECK_ENRAGE, 5s);
                             break;
                         default:
                             break;
@@ -191,7 +191,7 @@ class npc_ahnkahar_nerubian : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SPRINT, 13 * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_SPRINT, 13s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -210,7 +210,7 @@ class npc_ahnkahar_nerubian : public CreatureScript
                     {
                         case EVENT_SPRINT:
                             DoCast(me, SPELL_SPRINT);
-                            _events.ScheduleEvent(EVENT_SPRINT, 20 * IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_SPRINT, 20s);
                             break;
                     }
                 }

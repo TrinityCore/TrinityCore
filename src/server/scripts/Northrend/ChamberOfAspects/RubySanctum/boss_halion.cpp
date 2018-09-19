@@ -247,12 +247,12 @@ class boss_halion : public CreatureScript
 
                 _JustEngagedWith();
                 me->AddAura(SPELL_TWILIGHT_PRECISION, me);
-                events.ScheduleEvent(EVENT_ACTIVATE_FIREWALL, Seconds(5));
+                events.ScheduleEvent(EVENT_ACTIVATE_FIREWALL, 5s);
                 events.ScheduleEvent(EVENT_BREATH, randtime(Seconds(5), Seconds(15)));
                 events.ScheduleEvent(EVENT_CLEAVE, randtime(Seconds(6), Seconds(10)));
                 events.ScheduleEvent(EVENT_TAIL_LASH, randtime(Seconds(7), Seconds(12)));
                 events.ScheduleEvent(EVENT_FIERY_COMBUSTION, randtime(Seconds(15), Seconds(18)));
-                events.ScheduleEvent(EVENT_METEOR_STRIKE, Seconds(18));
+                events.ScheduleEvent(EVENT_METEOR_STRIKE, 18s);
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
@@ -357,14 +357,14 @@ class boss_halion : public CreatureScript
                                 me->CastSpell(_meteorStrikePos, SPELL_METEOR_STRIKE, me->GetGUID());
                                 Talk(SAY_METEOR_STRIKE);
                             }
-                            events.ScheduleEvent(EVENT_METEOR_STRIKE, Seconds(38));
+                            events.ScheduleEvent(EVENT_METEOR_STRIKE, 38s);
                             break;
                         }
                         case EVENT_FIERY_COMBUSTION:
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_TWILIGHT_REALM))
                                 me->CastSpell(target, SPELL_FIERY_COMBUSTION, TRIGGERED_IGNORE_SET_FACING);
-                            events.ScheduleEvent(EVENT_FIERY_COMBUSTION, Seconds(25));
+                            events.ScheduleEvent(EVENT_FIERY_COMBUSTION, 25s);
                             break;
                         }
                         default:
@@ -417,8 +417,8 @@ class boss_twilight_halion : public CreatureScript
                 me->SetPhaseMask(0x20, true);
                 me->SetReactState(REACT_DEFENSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                events.ScheduleEvent(EVENT_TAIL_LASH, Seconds(12));
-                events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, Seconds(15));
+                events.ScheduleEvent(EVENT_TAIL_LASH, 12s);
+                events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 15s);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -427,8 +427,8 @@ class boss_twilight_halion : public CreatureScript
 
                 _JustEngagedWith();
                 me->AddAura(SPELL_TWILIGHT_PRECISION, me);
-                events.ScheduleEvent(EVENT_CLEAVE, Seconds(3));
-                events.ScheduleEvent(EVENT_BREATH, Seconds(12));
+                events.ScheduleEvent(EVENT_CLEAVE, 3s);
+                events.ScheduleEvent(EVENT_BREATH, 12s);
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
             }
@@ -537,7 +537,7 @@ class boss_twilight_halion : public CreatureScript
                         case EVENT_SOUL_CONSUMPTION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, SPELL_TWILIGHT_REALM))
                                 me->CastSpell(target, SPELL_SOUL_CONSUMPTION, TRIGGERED_IGNORE_SET_FACING);
-                            events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, Seconds(20));
+                            events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 20s);
                             break;
                         default:
                             break;
@@ -610,8 +610,8 @@ class npc_halion_controller : public CreatureScript
                 _twilightDamageTaken = 0;
                 _materialDamageTaken = 0;
 
-                _events.ScheduleEvent(EVENT_TRIGGER_BERSERK, Minutes(8));
-                _events.ScheduleEvent(EVENT_EVADE_CHECK, Seconds(5));
+                _events.ScheduleEvent(EVENT_TRIGGER_BERSERK, 8min);
+                _events.ScheduleEvent(EVENT_EVADE_CHECK, 5s);
             }
 
             void JustExitedCombat() override
@@ -644,7 +644,7 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_INTRO_HALION:
                         _events.Reset();
                         _events.SetPhase(PHASE_INTRO);
-                        _events.ScheduleEvent(EVENT_START_INTRO, Seconds(2));
+                        _events.ScheduleEvent(EVENT_START_INTRO, 2s);
                         break;
                     case ACTION_INTRO_HALION_2:
                         if (_instance->GetGuidData(DATA_HALION))
@@ -681,11 +681,11 @@ class npc_halion_controller : public CreatureScript
                         _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, 50);
                         _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, 50);
 
-                        _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, Seconds(7));
+                        _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 7s);
                         break;
                     }
                     case ACTION_ACTIVATE_EMBERS:
-                        _events.ScheduleEvent(EVENT_ACTIVATE_EMBERS, Seconds(6));
+                        _events.ScheduleEvent(EVENT_ACTIVATE_EMBERS, 6s);
                         break;
                     default:
                         break;
@@ -743,11 +743,11 @@ class npc_halion_controller : public CreatureScript
                         case EVENT_SHADOW_PULSARS_SHOOT:
                             if (Creature* orbCarrier = _instance->GetCreature(DATA_ORB_CARRIER))
                                 orbCarrier->AI()->DoAction(ACTION_WARNING_SHOOT);
-                            _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, Seconds(30));
+                            _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30s);
                             break;
                         case EVENT_CHECK_CORPOREALITY:
                             UpdateCorporeality();
-                            _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, Seconds(5));
+                            _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 5s);
                             break;
                         case EVENT_ACTIVATE_EMBERS:
                             _summons.DoZoneInCombat(NPC_LIVING_EMBER);
@@ -791,7 +791,7 @@ class npc_halion_controller : public CreatureScript
                                 DoZoneInCombat();
                                 break;
                             case PHASE_TWO:
-                                _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, Seconds(35));
+                                _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 35s);
                                 break;
                             default:
                                 break;

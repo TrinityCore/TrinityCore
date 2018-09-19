@@ -368,12 +368,12 @@ class boss_hodir : public CreatureScript
                 iHaveTheCoolestFriends = true;
                 iCouldSayThatThisCacheWasRare = true;
 
-                events.ScheduleEvent(EVENT_ICICLE, 2000);
-                events.ScheduleEvent(EVENT_FREEZE, 25000);
-                events.ScheduleEvent(EVENT_BLOWS, urand(60000, 65000));
-                events.ScheduleEvent(EVENT_FLASH_FREEZE, 45000);
-                events.ScheduleEvent(EVENT_RARE_CACHE, 180000);
-                events.ScheduleEvent(EVENT_BERSERK, 480000);
+                events.ScheduleEvent(EVENT_ICICLE, 2s);
+                events.ScheduleEvent(EVENT_FREEZE, 25s);
+                events.ScheduleEvent(EVENT_BLOWS, 60s, 65s);
+                events.ScheduleEvent(EVENT_FLASH_FREEZE, 45s);
+                events.ScheduleEvent(EVENT_RARE_CACHE, 3min);
+                events.ScheduleEvent(EVENT_BERSERK, 8min);
             }
 
             void KilledUnit(Unit* who) override
@@ -435,7 +435,7 @@ class boss_hodir : public CreatureScript
                     {
                         case EVENT_FREEZE:
                             DoCastAOE(SPELL_FREEZE);
-                            events.ScheduleEvent(EVENT_FREEZE, urand(30000, 45000));
+                            events.ScheduleEvent(EVENT_FREEZE, 30s, 45s);
                             break;
                         case EVENT_ICICLE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
@@ -449,7 +449,7 @@ class boss_hodir : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                     target->CastSpell(target, SPELL_ICICLE_SNOWDRIFT, true);
                             DoCast(SPELL_FLASH_FREEZE);
-                            events.ScheduleEvent(EVENT_FLASH_FREEZE_EFFECT, 500);
+                            events.ScheduleEvent(EVENT_FLASH_FREEZE_EFFECT, 500ms);
                             break;
                         case EVENT_FLASH_FREEZE_EFFECT:
                         {
@@ -459,14 +459,14 @@ class boss_hodir : public CreatureScript
                                 (*itr)->CastSpell(me, SPELL_FLASH_FREEZE_VISUAL, true);
                             FlashFreeze();
                             events.CancelEvent(EVENT_FLASH_FREEZE_EFFECT);
-                            events.ScheduleEvent(EVENT_FLASH_FREEZE, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_FLASH_FREEZE, 25s, 35s);
                             break;
                         }
                         case EVENT_BLOWS:
                             Talk(SAY_STALACTITE);
                             Talk(EMOTE_BLOWS);
                             DoCast(me, SPELL_FROZEN_BLOWS);
-                            events.ScheduleEvent(EVENT_BLOWS, urand(60000, 65000));
+                            events.ScheduleEvent(EVENT_BLOWS, 60s, 65s);
                             break;
                         case EVENT_RARE_CACHE:
                             Talk(SAY_HARD_MODE_FAILED);
@@ -661,8 +661,8 @@ class npc_hodir_priest : public CreatureScript
             void Reset() override
             {
                 events.Reset();
-                events.ScheduleEvent(EVENT_HEAL, urand(4000, 8000));
-                events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15000, 20000));
+                events.ScheduleEvent(EVENT_HEAL, 4s, 8s);
+                events.ScheduleEvent(EVENT_DISPEL_MAGIC, 15s, 20s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -687,7 +687,7 @@ class npc_hodir_priest : public CreatureScript
                     {
                         case EVENT_HEAL:
                             DoCastAOE(SPELL_GREATER_HEAL);
-                            events.ScheduleEvent(EVENT_HEAL, urand(7500, 10000));
+                            events.ScheduleEvent(EVENT_HEAL, 7500ms, 10s);
                             break;
                         case EVENT_DISPEL_MAGIC:
                         {
@@ -698,7 +698,7 @@ class npc_hodir_priest : public CreatureScript
                             for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                                 if ((*itr)->HasAura(SPELL_FREEZE))
                                     DoCast(*itr, SPELL_DISPEL_MAGIC, true);
-                            events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_DISPEL_MAGIC, 15s, 20s);
                             break;
                         }
                         default:
@@ -744,7 +744,7 @@ class npc_hodir_shaman : public CreatureScript
             void Reset() override
             {
                 events.Reset();
-                events.ScheduleEvent(EVENT_STORM_CLOUD, urand(10000, 12500));
+                events.ScheduleEvent(EVENT_STORM_CLOUD, 10s, 12500ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -764,7 +764,7 @@ class npc_hodir_shaman : public CreatureScript
                         case EVENT_STORM_CLOUD:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_STORM_CLOUD, true);
-                            events.ScheduleEvent(EVENT_STORM_CLOUD, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_STORM_CLOUD, 15s, 20s);
                             break;
                         default:
                             break;
@@ -809,7 +809,7 @@ class npc_hodir_druid : public CreatureScript
             void Reset() override
             {
                 events.Reset();
-                events.ScheduleEvent(EVENT_STARLIGHT, urand(15000, 17500));
+                events.ScheduleEvent(EVENT_STARLIGHT, 15s, 17500ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -828,7 +828,7 @@ class npc_hodir_druid : public CreatureScript
                     {
                         case EVENT_STARLIGHT:
                             DoCast(me, SPELL_STARLIGHT, true);
-                            events.ScheduleEvent(EVENT_STARLIGHT, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_STARLIGHT, 25s, 35s);
                             break;
                         default:
                             break;
@@ -874,8 +874,8 @@ class npc_hodir_mage : public CreatureScript
             {
                 events.Reset();
                 summons.DespawnAll();
-                events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(10000, 12500));
-                events.ScheduleEvent(EVENT_MELT_ICE, 5000);
+                events.ScheduleEvent(EVENT_CONJURE_FIRE, 10s, 12500ms);
+                events.ScheduleEvent(EVENT_MELT_ICE, 5s);
             }
 
             void JustSummoned(Creature* summoned) override
@@ -908,12 +908,12 @@ class npc_hodir_mage : public CreatureScript
                             if (summons.size() >= RAID_MODE<uint64>(2, 4))
                                 break;
                             DoCast(me, SPELL_CONJURE_FIRE, true);
-                            events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_CONJURE_FIRE, 15s, 20s);
                             break;
                         case EVENT_MELT_ICE:
                             if (Creature* FlashFreeze = me->FindNearestCreature(NPC_FLASH_FREEZE, 50.0f, true))
                                 DoCast(FlashFreeze, SPELL_MELT_ICE, true);
-                            events.ScheduleEvent(EVENT_MELT_ICE, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_MELT_ICE, 10s, 15s);
                             break;
                     }
 

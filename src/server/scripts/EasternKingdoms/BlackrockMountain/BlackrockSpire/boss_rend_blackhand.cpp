@@ -185,9 +185,9 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             _JustEngagedWith();
-            events.ScheduleEvent(EVENT_WHIRLWIND,     urand(13000, 15000));
-            events.ScheduleEvent(EVENT_CLEAVE,        urand(15000, 17000));
-            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(17000, 19000));
+            events.ScheduleEvent(EVENT_WHIRLWIND, 13s, 15s);
+            events.ScheduleEvent(EVENT_CLEAVE, 15s, 17s);
+            events.ScheduleEvent(EVENT_MORTAL_STRIKE, 17s, 19s);
         }
 
         void IsSummonedBy(Unit* /*summoner*/) override
@@ -266,7 +266,7 @@ public:
                             if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
                                 victor->AI()->Talk(SAY_NEFARIUS_1);
                             events.ScheduleEvent(EVENT_WAVE_1, 2000);
-                            events.ScheduleEvent(EVENT_TURN_TO_REND, 4000);
+                            events.ScheduleEvent(EVENT_TURN_TO_REND, 4s);
                             events.ScheduleEvent(EVENT_WAVES_TEXT_1, 20000);
                             break;
                         case EVENT_TURN_TO_REND:
@@ -350,14 +350,14 @@ public:
                             if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
                                 victor->AI()->Talk(SAY_NEFARIUS_7);
                             Talk(SAY_BLACKHAND_2);
-                            events.ScheduleEvent(EVENT_PATH_REND, 1000);
+                            events.ScheduleEvent(EVENT_PATH_REND, 1s);
                             events.ScheduleEvent(EVENT_WAVES_COMPLETE_TEXT_3, 4000);
                             break;
                         case EVENT_WAVES_COMPLETE_TEXT_3:
                             if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
                                 victor->AI()->Talk(SAY_NEFARIUS_8);
-                            events.ScheduleEvent(EVENT_PATH_NEFARIUS, 1000);
-                            events.ScheduleEvent(EVENT_PATH_REND, 1000);
+                            events.ScheduleEvent(EVENT_PATH_NEFARIUS, 1s);
+                            events.ScheduleEvent(EVENT_PATH_REND, 1s);
                             break;
                         case EVENT_PATH_NEFARIUS:
                             if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
@@ -429,15 +429,15 @@ public:
                 {
                     case EVENT_WHIRLWIND:
                         DoCast(SPELL_WHIRLWIND);
-                        events.ScheduleEvent(EVENT_WHIRLWIND, urand(13000, 18000));
+                        events.ScheduleEvent(EVENT_WHIRLWIND, 13s, 18s);
                         break;
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, urand(10000, 14000));
+                        events.ScheduleEvent(EVENT_CLEAVE, 10s, 14s);
                         break;
                     case EVENT_MORTAL_STRIKE:
                         DoCastVictim(SPELL_MORTAL_STRIKE);
-                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(14000, 16000));
+                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 14s, 16s);
                         break;
                 }
 

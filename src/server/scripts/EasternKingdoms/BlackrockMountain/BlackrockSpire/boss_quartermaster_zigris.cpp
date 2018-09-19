@@ -50,8 +50,8 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             _JustEngagedWith();
-            events.ScheduleEvent(EVENT_SHOOT,      1000);
-            events.ScheduleEvent(EVENT_STUN_BOMB, 16000);
+            events.ScheduleEvent(EVENT_SHOOT, 1s);
+            events.ScheduleEvent(EVENT_STUN_BOMB, 16s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -75,11 +75,11 @@ public:
                 {
                     case EVENT_SHOOT:
                         DoCastVictim(SPELL_SHOOT);
-                        events.ScheduleEvent(EVENT_SHOOT, 500);
+                        events.ScheduleEvent(EVENT_SHOOT, 500ms);
                         break;
                     case EVENT_STUN_BOMB:
                         DoCastVictim(SPELL_STUNBOMB);
-                        events.ScheduleEvent(EVENT_STUN_BOMB, 14000);
+                        events.ScheduleEvent(EVENT_STUN_BOMB, 14s);
                         break;
                 }
 

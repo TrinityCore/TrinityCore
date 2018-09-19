@@ -90,11 +90,11 @@ class boss_jindo : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_BRAIN_WASH_TOTEM, 20000);
-                events.ScheduleEvent(EVENT_POWERFULL_HEALING_WARD, 16000);
-                events.ScheduleEvent(EVENT_HEX, 8000);
-                events.ScheduleEvent(EVENT_DELUSIONS_OF_JINDO, 10000);
-                events.ScheduleEvent(EVENT_TELEPORT, 5000);
+                events.ScheduleEvent(EVENT_BRAIN_WASH_TOTEM, 20s);
+                events.ScheduleEvent(EVENT_POWERFULL_HEALING_WARD, 15s);
+                events.ScheduleEvent(EVENT_HEX, 8s);
+                events.ScheduleEvent(EVENT_DELUSIONS_OF_JINDO, 10s);
+                events.ScheduleEvent(EVENT_TELEPORT, 5s);
                 Talk(SAY_AGGRO);
             }
 
@@ -114,11 +114,11 @@ class boss_jindo : public CreatureScript
                     {
                         case EVENT_BRAIN_WASH_TOTEM:
                             DoCast(me, SPELL_BRAIN_WASH_TOTEM);
-                            events.ScheduleEvent(EVENT_BRAIN_WASH_TOTEM, urand(18000, 26000));
+                            events.ScheduleEvent(EVENT_BRAIN_WASH_TOTEM, 18s, 26s);
                             break;
                         case EVENT_POWERFULL_HEALING_WARD:
                             DoCast(me, SPELL_POWERFULL_HEALING_WARD);
-                            events.ScheduleEvent(EVENT_POWERFULL_HEALING_WARD, urand(14000, 20000));
+                            events.ScheduleEvent(EVENT_POWERFULL_HEALING_WARD, 14s, 20s);
                             break;
                         case EVENT_HEX:
                             if (Unit* target = me->GetVictim())
@@ -127,7 +127,7 @@ class boss_jindo : public CreatureScript
                                 if (GetThreat(target))
                                     ModifyThreatByPercent(target, -80);
                             }
-                            events.ScheduleEvent(EVENT_HEX, urand(12000, 20000));
+                            events.ScheduleEvent(EVENT_HEX, 12s, 20s);
                             break;
                         case EVENT_DELUSIONS_OF_JINDO:
                             // Casting the delusion curse with a shade so shade will attack the same target with the curse.
@@ -136,7 +136,7 @@ class boss_jindo : public CreatureScript
                                 DoCast(target, SPELL_SHADE_OF_JINDO, true);
                                 DoCast(target, SPELL_DELUSIONS_OF_JINDO);
                             }
-                            events.ScheduleEvent(EVENT_DELUSIONS_OF_JINDO, urand(4000, 12000));
+                            events.ScheduleEvent(EVENT_DELUSIONS_OF_JINDO, 4s, 12s);
                             break;
                         case EVENT_TELEPORT:
                             // Teleports a random player and spawns 9 Sacrificed Trolls to attack player
@@ -151,7 +151,7 @@ class boss_jindo : public CreatureScript
                                     if (Creature* SacrificedTroll = me->SummonCreature(NPC_SACRIFICED_TROLL, Formation[i].GetPositionX(), Formation[i].GetPositionY(), Formation[i].GetPositionZ(), Formation[i].GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
                                         SacrificedTroll->AI()->AttackStart(target);
                             }
-                            events.ScheduleEvent(EVENT_TELEPORT, urand(15000, 23000));
+                            events.ScheduleEvent(EVENT_TELEPORT, 15s, 23s);
                             break;
                         default:
                             break;

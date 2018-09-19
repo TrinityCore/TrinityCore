@@ -215,18 +215,18 @@ public:
                         events.ScheduleEvent(EVENT_START_INTRO_PATH, Milliseconds(1));
                         break;
                     case POINT_INTRO_END:
-                        events.ScheduleEvent(EVENT_END_INTRO, Seconds(2));
+                        events.ScheduleEvent(EVENT_END_INTRO, 2s);
                         break;
                     case POINT_INTRO_LANDING:
                         me->SetDisableGravity(false);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-                        events.ScheduleEvent(EVENT_INTRO_LANDING, Seconds(3));
+                        events.ScheduleEvent(EVENT_INTRO_LANDING, 3s);
                         break;
                     case POINT_PHASE_TWO_LANDING:
                         events.SetPhase(PHASE_GROUND);
                         me->SetDisableGravity(false);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-                        events.ScheduleEvent(EVENT_LANDED, Seconds(3));
+                        events.ScheduleEvent(EVENT_LANDED, 3s);
                         break;
                     case POINT_PHASE_TWO_END:
                         events.ScheduleEvent(EVENT_END_PHASE_TWO, Milliseconds(1));

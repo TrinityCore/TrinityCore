@@ -54,8 +54,8 @@ class boss_azshir_the_sleepless : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_CALL_OF_GRAVE, 30000);
-                events.ScheduleEvent(EVENT_TERRIFY, 20000);
+                events.ScheduleEvent(EVENT_CALL_OF_GRAVE, 30s);
+                events.ScheduleEvent(EVENT_TERRIFY, 20s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -68,7 +68,7 @@ class boss_azshir_the_sleepless : public CreatureScript
                 if (!_siphon && me->HealthBelowPctDamaged(50, damage))
                 {
                     DoCastVictim(SPELL_SOUL_SIPHON);
-                    events.ScheduleEvent(EVENT_SOUL_SIPHON, 20000);
+                    events.ScheduleEvent(EVENT_SOUL_SIPHON, 20s);
                     _siphon = true;
                 }
             }
@@ -89,15 +89,15 @@ class boss_azshir_the_sleepless : public CreatureScript
                     {
                         case EVENT_CALL_OF_GRAVE:
                             DoCastVictim(SPELL_CALL_OF_THE_GRAVE);
-                            events.ScheduleEvent(EVENT_CALL_OF_GRAVE, 30000);
+                            events.ScheduleEvent(EVENT_CALL_OF_GRAVE, 30s);
                             break;
                         case EVENT_TERRIFY:
                             DoCastVictim(SPELL_TERRIFY);
-                            events.ScheduleEvent(EVENT_TERRIFY, 20000);
+                            events.ScheduleEvent(EVENT_TERRIFY, 20s);
                             break;
                         case EVENT_SOUL_SIPHON:
                             DoCastVictim(SPELL_SOUL_SIPHON);
-                            events.ScheduleEvent(EVENT_SOUL_SIPHON, 20000);
+                            events.ScheduleEvent(EVENT_SOUL_SIPHON, 20s);
                             break;
                         default:
                             break;

@@ -123,10 +123,10 @@ class boss_thekal : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_MORTALCLEAVE, 4000, 0, PHASE_ONE);     // Phase 1
-                events.ScheduleEvent(EVENT_SILENCE, 9000, 0, PHASE_ONE);          // Phase 1
-                events.ScheduleEvent(EVENT_CHECK_TIMER, 10000, 0, PHASE_ONE);     // Phase 1
-                events.ScheduleEvent(EVENT_RESURRECT_TIMER, 10000, 0, PHASE_ONE); // Phase 1
+                events.ScheduleEvent(EVENT_MORTALCLEAVE, 4s, 0, PHASE_ONE);     // Phase 1
+                events.ScheduleEvent(EVENT_SILENCE, 9s, 0, PHASE_ONE);          // Phase 1
+                events.ScheduleEvent(EVENT_CHECK_TIMER, 10s, 0, PHASE_ONE);     // Phase 1
+                events.ScheduleEvent(EVENT_RESURRECT_TIMER, 10s, 0, PHASE_ONE); // Phase 1
                 Talk(SAY_AGGRO);
             }
 
@@ -173,14 +173,14 @@ class boss_thekal : public CreatureScript
                                 */
                                 me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageIncrease); // hack
                                 ResetThreatList();
-                                events.ScheduleEvent(EVENT_FRENZY, 30000, 0, PHASE_TWO);          // Phase 2
-                                events.ScheduleEvent(EVENT_FORCEPUNCH, 4000, 0, PHASE_TWO);       // Phase 2
-                                events.ScheduleEvent(EVENT_SPELL_CHARGE, 12000, 0, PHASE_TWO);    // Phase 2
-                                events.ScheduleEvent(EVENT_ENRAGE, 32000, 0, PHASE_TWO);          // Phase 2
-                                events.ScheduleEvent(EVENT_SUMMONTIGERS, 25000, 0, PHASE_TWO);    // Phase 2
+                                events.ScheduleEvent(EVENT_FRENZY, 30s, 0, PHASE_TWO);          // Phase 2
+                                events.ScheduleEvent(EVENT_FORCEPUNCH, 4s, 0, PHASE_TWO);       // Phase 2
+                                events.ScheduleEvent(EVENT_SPELL_CHARGE, 12s, 0, PHASE_TWO);    // Phase 2
+                                events.ScheduleEvent(EVENT_ENRAGE, 32s, 0, PHASE_TWO);          // Phase 2
+                                events.ScheduleEvent(EVENT_SUMMONTIGERS, 25s, 0, PHASE_TWO);    // Phase 2
                                 events.SetPhase(PHASE_TWO);
                             }
-                            events.ScheduleEvent(EVENT_RESURRECT_TIMER, 10000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_RESURRECT_TIMER, 10s, 0, PHASE_ONE);
                             break;
                         case EVENT_CHECK_TIMER:
                             //Check_Timer for the death of LorKhan and Zath.
@@ -212,11 +212,11 @@ class boss_thekal : public CreatureScript
                                     }
                                 }
                             }
-                            events.ScheduleEvent(EVENT_CHECK_TIMER, 5000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_CHECK_TIMER, 5s, 0, PHASE_ONE);
                             break;
                         case EVENT_FRENZY:
                             DoCast(me, SPELL_FRENZY);
-                            events.ScheduleEvent(EVENT_FRENZY, 30000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_FRENZY, 30s, 0, PHASE_TWO);
                             break;
                         case EVENT_FORCEPUNCH:
                             DoCastVictim(SPELL_FORCEPUNCH, true);
@@ -237,7 +237,7 @@ class boss_thekal : public CreatureScript
                                 DoCast(me, SPELL_ENRAGE);
                                 Enraged = true;
                             }
-                            events.ScheduleEvent(EVENT_ENRAGE, 30000);
+                            events.ScheduleEvent(EVENT_ENRAGE, 30s);
                             break;
                         case EVENT_SUMMONTIGERS:
                             DoCastVictim(SPELL_SUMMONTIGERS, true);

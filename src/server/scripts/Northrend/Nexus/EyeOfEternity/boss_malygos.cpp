@@ -542,10 +542,10 @@ public:
                     events.ScheduleEvent(EVENT_START_FIRST_RANDOM_PORTAL, 2*IN_MILLISECONDS, 1, _phase);
                     break;
                 case PHASE_ONE:
-                    events.ScheduleEvent(EVENT_ARCANE_BREATH, urand(8, 10)*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_ARCANE_STORM, urand(3, 6)*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_VORTEX, urand(30, 35)*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_POWER_SPARKS, urand(20, 30)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_ARCANE_BREATH, 8s, 10s, 0, _phase);
+                    events.ScheduleEvent(EVENT_ARCANE_STORM, 3s, 6s, 0, _phase);
+                    events.ScheduleEvent(EVENT_VORTEX, 30s, 35s, 0, _phase);
+                    events.ScheduleEvent(EVENT_POWER_SPARKS, 20s, 30s, 0, _phase);
                     break;
                 case PHASE_TWO:
                     events.ScheduleEvent(EVENT_MOVE_TO_POINT_SURGE_P_TWO, 60*IN_MILLISECONDS, 0, _phase);
@@ -554,8 +554,8 @@ public:
                 case PHASE_THREE:
                     events.ScheduleEvent(EVENT_ARCANE_PULSE, 7*IN_MILLISECONDS, 0, _phase);
                     events.ScheduleEvent(EVENT_ARCANE_STORM, 10*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_SURGE_OF_POWER_P_THREE, urand(4, 6)*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_STATIC_FIELD, urand(20, 30)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_SURGE_OF_POWER_P_THREE, 4s, 6s, 0, _phase);
+                    events.ScheduleEvent(EVENT_STATIC_FIELD, 20s, 30s, 0, _phase);
                     break;
             }
         }
@@ -772,12 +772,12 @@ public:
                         break;
                     case EVENT_SAY_INTRO:
                         Talk(SAY_INTRO_EVENT);
-                        events.ScheduleEvent(EVENT_SAY_INTRO, urand(85, 95)*IN_MILLISECONDS, 1, PHASE_NOT_STARTED);
+                        events.ScheduleEvent(EVENT_SAY_INTRO, 85s, 95s, 1, PHASE_NOT_STARTED);
                         break;
                     case EVENT_VORTEX:
                         _executingVortex = true;
                         DoAction(ACTION_LIFT_IN_AIR);
-                        events.ScheduleEvent(EVENT_VORTEX, urand(60, 80)*IN_MILLISECONDS, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_VORTEX, 60s, 80s, 0, PHASE_ONE);
                         break;
                     case EVENT_MOVE_TO_VORTEX_POINT:
                         me->SetReactState(REACT_PASSIVE);
@@ -786,7 +786,7 @@ public:
                         break;
                     case EVENT_POWER_SPARKS:
                         instance->SetData(DATA_POWER_SPARKS_HANDLING, 0);
-                        events.ScheduleEvent(EVENT_POWER_SPARKS, urand(30, 35)*IN_MILLISECONDS, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_POWER_SPARKS, 30s, 35s, 0, PHASE_ONE);
                         break;
                     case EVENT_ARCANE_BREATH:
                         if (_executingVortex)
@@ -813,7 +813,7 @@ public:
                         else if (_phase == PHASE_THREE)
                         {
                             DoCastAOE(SPELL_ARCANE_STORM_P_III, true);
-                            events.ScheduleEvent(EVENT_ARCANE_STORM, urand(6, 12)*IN_MILLISECONDS, 0, PHASE_THREE);
+                            events.ScheduleEvent(EVENT_ARCANE_STORM, 6s, 12s, 0, PHASE_THREE);
                         }
                         break;
                     case EVENT_FLY_OUT_OF_PLATFORM:
@@ -893,7 +893,7 @@ public:
                             if (Creature* lastArcaneOverloadBunny = ObjectAccessor::GetCreature(*me, _arcaneOverloadGUID))
                                 DoCast(lastArcaneOverloadBunny, SPELL_ARCANE_BOMB_TRIGGER, true);
                         }
-                        events.ScheduleEvent(EVENT_SUMMON_ARCANE_BOMB, urand(15, 16)*IN_MILLISECONDS, 2, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_SUMMON_ARCANE_BOMB, 15s, 16s, 2, PHASE_TWO);
                         break;
                     case EVENT_ARCANE_PULSE:
                         if (_preparingPulsesChecker < 2)
@@ -951,13 +951,13 @@ public:
                             DoCastAOE(SPELL_SURGE_OF_POWER_WARNING_SELECTOR_25, true);
                         }
 
-                        events.ScheduleEvent(EVENT_SURGE_OF_POWER_P_THREE, urand(9, 18)*IN_MILLISECONDS, 0, PHASE_THREE);
+                        events.ScheduleEvent(EVENT_SURGE_OF_POWER_P_THREE, 9s, 18s, 0, PHASE_THREE);
                         break;
                     case EVENT_STATIC_FIELD:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, false, true, SPELL_RIDE_RED_DRAGON_BUDDY))
                             DoCast(target, SPELL_STATIC_FIELD_MISSLE, true);
 
-                        events.ScheduleEvent(EVENT_STATIC_FIELD, urand(15, 30)*IN_MILLISECONDS, 0, PHASE_THREE);
+                        events.ScheduleEvent(EVENT_STATIC_FIELD, 15s, 30s, 0, PHASE_THREE);
                         break;
                     case EVENT_PREVENT_SAY_SPAM_ON_KILL:
                         _killSpamFilter = false;
@@ -1320,8 +1320,8 @@ class npc_nexus_lord : public CreatureScript
             void DoAction(int32 /*action*/) override
             {
                 _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1);
-                _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 2*IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_HASTE_BUFF, 12*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 2s);
+                _events.ScheduleEvent(EVENT_HASTE_BUFF, 12s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1338,16 +1338,16 @@ class npc_nexus_lord : public CreatureScript
                         case EVENT_ARCANE_SHOCK:
                             if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
                                 DoCast(victim, SPELL_ARCANE_SHOCK);
-                            _events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(7, 15)*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 7s, 15s);
                             break;
                         case EVENT_HASTE_BUFF:
                             DoCast(me, SPELL_HASTE);
-                            _events.ScheduleEvent(EVENT_HASTE_BUFF, 15*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_HASTE_BUFF, 15s);
                             break;
                         case EVENT_NUKE_DUMMY:
                             DoCastVictim(SPELL_DUMMY_NUKE, true);
                             DoCast(me, SPELL_ALIGN_DISK_AGGRO, true);
-                            _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1s);
                             break;
                     }
                 }
@@ -1391,7 +1391,7 @@ class npc_scion_of_eternity : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {
-                _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(14, 29)*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 14s, 29s);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -1416,7 +1416,7 @@ class npc_scion_of_eternity : public CreatureScript
                     {
                         case EVENT_ARCANE_BARRAGE:
                             DoCast(me, SPELL_ARCANE_BARRAGE);
-                            _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3, 15)*IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 3s, 15s);
                             break;
                     }
                 }
@@ -1511,7 +1511,7 @@ public:
             if (Player* player = summoner->ToPlayer())
             {
                 _summoner = player->GetGUID();
-                _events.ScheduleEvent(EVENT_CAST_RIDE_SPELL, 2*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_CAST_RIDE_SPELL, 2s);
             }
         }
 

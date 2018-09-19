@@ -65,9 +65,9 @@ class boss_baron_geddon : public CreatureScript
             void JustEngagedWith(Unit* victim) override
             {
                 BossAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_INFERNO, 45000);
-                events.ScheduleEvent(EVENT_IGNITE_MANA, 30000);
-                events.ScheduleEvent(EVENT_LIVING_BOMB, 35000);
+                events.ScheduleEvent(EVENT_INFERNO, 45s);
+                events.ScheduleEvent(EVENT_IGNITE_MANA, 30s);
+                events.ScheduleEvent(EVENT_LIVING_BOMB, 35s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -95,17 +95,17 @@ class boss_baron_geddon : public CreatureScript
                     {
                         case EVENT_INFERNO:
                             DoCast(me, SPELL_INFERNO);
-                            events.ScheduleEvent(EVENT_INFERNO, 45000);
+                            events.ScheduleEvent(EVENT_INFERNO, 45s);
                             break;
                         case EVENT_IGNITE_MANA:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_IGNITE_MANA))
                                 DoCast(target, SPELL_IGNITE_MANA);
-                            events.ScheduleEvent(EVENT_IGNITE_MANA, 30000);
+                            events.ScheduleEvent(EVENT_IGNITE_MANA, 30s);
                             break;
                         case EVENT_LIVING_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_LIVING_BOMB);
-                            events.ScheduleEvent(EVENT_LIVING_BOMB, 35000);
+                            events.ScheduleEvent(EVENT_LIVING_BOMB, 35s);
                             break;
                         default:
                             break;

@@ -162,11 +162,11 @@ class boss_devourer_of_souls : public CreatureScript
 
                 if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn
                     instance->instance->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
-                events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
-                events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8000);
-                events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30000);
-                events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 20000);
-                events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
+                events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5s);
+                events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8s);
+                events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30s);
+                events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 20s);
+                events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
             }
 
             void KilledUnit(Unit* victim) override
@@ -252,17 +252,17 @@ class boss_devourer_of_souls : public CreatureScript
                     {
                         case EVENT_PHANTOM_BLAST:
                             DoCastVictim(SPELL_PHANTOM_BLAST);
-                            events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
+                            events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5s);
                             break;
                         case EVENT_MIRRORED_SOUL:
                             DoCastAOE(SPELL_MIRRORED_SOUL_TARGET_SELECTOR);
                             Talk(EMOTE_MIRRORED_SOUL);
-                            events.ScheduleEvent(EVENT_MIRRORED_SOUL, urand(15000, 30000));
+                            events.ScheduleEvent(EVENT_MIRRORED_SOUL, 15s, 30s);
                             break;
                         case EVENT_WELL_OF_SOULS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_WELL_OF_SOULS);
-                            events.ScheduleEvent(EVENT_WELL_OF_SOULS, 20000);
+                            events.ScheduleEvent(EVENT_WELL_OF_SOULS, 20s);
                             break;
                         case EVENT_UNLEASHED_SOULS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -270,8 +270,8 @@ class boss_devourer_of_souls : public CreatureScript
                             me->SetDisplayId(DISPLAY_SORROW);
                             Talk(SAY_FACE_UNLEASH_SOUL);
                             Talk(EMOTE_UNLEASH_SOUL);
-                            events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 30000);
-                            events.ScheduleEvent(EVENT_FACE_ANGER, 5000);
+                            events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 30s);
+                            events.ScheduleEvent(EVENT_FACE_ANGER, 5s);
                             break;
                         case EVENT_FACE_ANGER:
                             me->SetDisplayId(DISPLAY_ANGER);
@@ -305,7 +305,7 @@ class boss_devourer_of_souls : public CreatureScript
 
                             wailingSoulTick = 15;
                             events.DelayEvents(18000); // no other events during wailing souls
-                            events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3000); // first one after 3 secs.
+                            events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3s); // first one after 3 secs.
                             break;
 
                         case EVENT_WAILING_SOULS_TICK:
@@ -316,14 +316,14 @@ class boss_devourer_of_souls : public CreatureScript
                             DoCast(me, SPELL_WAILING_SOULS);
 
                             if (--wailingSoulTick)
-                                events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 1000);
+                                events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 1s);
                             else
                             {
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 me->SetDisplayId(DISPLAY_ANGER);
                                 me->SetControlled(false, UNIT_STATE_ROOT);
                                 me->GetMotionMaster()->MoveChase(me->GetVictim());
-                                events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
+                                events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
                             }
                             break;
                     }
