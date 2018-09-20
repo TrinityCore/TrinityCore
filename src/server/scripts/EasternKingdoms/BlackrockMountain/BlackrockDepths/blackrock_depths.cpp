@@ -36,24 +36,31 @@ class go_shadowforge_brazier : public GameObjectScript
 
         struct go_shadowforge_brazierAI : public GameObjectAI
         {
-            go_shadowforge_brazierAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
-
-            InstanceScript* instance;
+            go_shadowforge_brazierAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
 
             bool GossipHello(Player* /*player*/) override
             {
-                if (instance->GetData(TYPE_LYCEUM) == IN_PROGRESS)
-                    instance->SetData(TYPE_LYCEUM, DONE);
-                else
-                    instance->SetData(TYPE_LYCEUM, IN_PROGRESS);
-                // If used brazier open linked doors (North or South)
-                if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_N))
-                    instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_S))
-                    instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
+                GameObject* northBrazier = _instance->GetGameObject(DATA_SF_BRAZIER_N);
+                GameObject* southBrazier = _instance->GetGameObject(DATA_SF_BRAZIER_S);
+
+                if (!northBrazier || !southBrazier)
+                    return false;
+
+                if ((me->GetEntry() == GO_SF_BRAZIER_N && southBrazier->GetGoState() == GO_STATE_ACTIVE)
+                    || (me->GetEntry() == GO_SF_BRAZIER_S  && northBrazier->GetGoState() == GO_STATE_ACTIVE))
+                {
+                    if (GameObject* door = _instance->GetGameObject(DATA_GOLEM_DOOR_N))
+                        _instance->HandleGameObject(door->GetGUID(), true);
+
+                    if (GameObject* door = _instance->GetGameObject(DATA_GOLEM_DOOR_S))
+                        _instance->HandleGameObject(door->GetGUID(), true);
+                }
 
                 return false;
             }
+
+        private:
+            InstanceScript* _instance;
         };
 
         GameObjectAI* GetAI(GameObject* go) const override
