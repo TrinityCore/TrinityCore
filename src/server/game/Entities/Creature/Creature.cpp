@@ -487,6 +487,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     UpdateMovementFlags();
     LoadCreaturesAddon();
+    //We must update last scriptId or it looks like we reloaded a script, breaking some things such as gossip temporarily
+    LastUsedScriptID = GetScriptId();
     return true;
 }
 
