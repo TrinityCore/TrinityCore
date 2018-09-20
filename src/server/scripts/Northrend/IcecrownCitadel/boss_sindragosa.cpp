@@ -16,6 +16,8 @@
  */
 
 #include "icecrown_citadel.h"
+#include "Containers.h"
+#include "DB2Stores.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -23,6 +25,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
@@ -1152,46 +1155,59 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
         }
 };
 
-class UnchainedMagicTargetSelector
+class spell_sindragosa_unchained_magic : public SpellScript
 {
-    public:
-        UnchainedMagicTargetSelector() { }
+    PrepareSpellScript(spell_sindragosa_unchained_magic);
 
-        bool operator()(WorldObject* object) const
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        std::vector<WorldObject*> healers;
+        std::vector<WorldObject*> casters;
+        for (WorldObject* target : targets)
         {
-            if (Unit* unit = object->ToUnit())
-                return unit->GetPowerType() != POWER_MANA;
-            return true;
-        }
-};
+            Player* player = target->ToPlayer();
+            if (!player)
+                continue;
 
-class spell_sindragosa_unchained_magic : public SpellScriptLoader
-{
-    public:
-        spell_sindragosa_unchained_magic() : SpellScriptLoader("spell_sindragosa_unchained_magic") { }
-
-        class spell_sindragosa_unchained_magic_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sindragosa_unchained_magic_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(player->GetPrimarySpecialization());
+            if (specialization->Role == 1)
             {
-                unitList.remove_if(UnchainedMagicTargetSelector());
-                uint32 maxSize = uint32(GetCaster()->GetMap()->Is25ManRaid() ? 6 : 2);
-                if (unitList.size() > maxSize)
-                    Trinity::Containers::RandomResize(unitList, maxSize);
+                healers.push_back(target);
+                continue;
             }
 
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_unchained_magic_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_sindragosa_unchained_magic_SpellScript();
+            if (specialization->Flags & CHR_SPECIALIZATION_FLAG_CASTER)
+                casters.push_back(target);
         }
+
+        targets.clear();
+
+        bool const is25ManRaid = GetCaster()->GetMap()->Is25ManRaid();
+        if (!healers.empty())
+        {
+            Trinity::Containers::RandomResize(healers, size_t(is25ManRaid ? 3 : 1));
+            while (!healers.empty())
+            {
+                targets.push_back(healers.back());
+                healers.pop_back();
+            }
+        }
+        if (!casters.empty())
+        {
+            Trinity::Containers::RandomShuffle(casters);
+            size_t const maxSize = is25ManRaid ? 6 : 2;
+            while (!casters.empty() && targets.size() < maxSize)
+            {
+                targets.push_back(casters.back());
+                casters.pop_back();
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_unchained_magic::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
 };
 
 class spell_sindragosa_frost_breath : public SpellScriptLoader
@@ -1690,7 +1706,7 @@ void AddSC_boss_sindragosa()
     new npc_rimefang();
     new npc_sindragosa_trash();
     new spell_sindragosa_s_fury();
-    new spell_sindragosa_unchained_magic();
+    RegisterSpellScript(spell_sindragosa_unchained_magic);
     new spell_sindragosa_frost_breath();
     new spell_sindragosa_instability();
     new spell_sindragosa_frost_beacon();
