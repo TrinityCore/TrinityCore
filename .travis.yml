@@ -1,4 +1,4 @@
-sudo: required
+sudo: false
 dist: trusty
 
 language: cpp
@@ -8,11 +8,30 @@ compiler:
 git:
   depth: 1
 
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - sourceline: 'ppa:kzemek/boost'
+    packages:
+      - g++-6
+      - libboost1.58-dev
+      - libboost-filesystem1.58-dev
+      - libboost-iostreams1.58-dev
+      - libboost-program-options1.58-dev
+      - libboost-regex1.58-dev
+      - libboost-system1.58-dev
+      - libboost-thread1.58-dev
+      - libssl-dev
+      - libmysqlclient-dev
+      - libreadline6-dev
+      - zlib1g-dev
+      - libbz2-dev
+
+services:
+  - mysql
+
 before_install:
-  - sudo apt-get -qq install build-essential libtool make cmake cmake-data openssl
-  - sudo apt-get -qq install libssl-dev libmysqlclient-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev
-  - sudo apt-get -qq install libboost1.55-dev libboost-thread1.55-dev libboost-filesystem1.55-dev libboost-system1.55-dev libboost-program-options1.55-dev libboost-iostreams1.55-dev
-  - sudo apt-get -qq install mysql-server
   - git config user.email "travis@build.bot" && git config user.name "Travis CI"
   - git tag -a -m "Travis build" init
 
@@ -20,7 +39,7 @@ install:
   - mysql -uroot -e 'create database test_mysql;'
   - mkdir bin
   - cd bin
-  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS="dynamic" -DSERVERS=1 -DNOJEM=1 -DWITH_DYNAMIC_LINKING=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_INSTALL_PREFIX=check_install
+  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
   - cd ..
   - chmod +x contrib/check_updates.sh
 
@@ -35,7 +54,7 @@ script:
   - cat sql/updates/world/3.3.5/*.sql | mysql -utrinity -ptrinity world
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
-  - make -j 8 -k && make install
+  - make -j 4 -k && make install
   - cd check_install/bin
   - ./authserver --version
   - ./worldserver --version

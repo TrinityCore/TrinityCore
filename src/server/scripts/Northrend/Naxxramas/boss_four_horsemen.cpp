@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "GameTime.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Horseman
 {
@@ -67,7 +73,7 @@ enum Actions
 
 enum HorsemenData
 {
-    DATA_HORSEMEN_IS_TIMED_KILL = Data::DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT, // inherit from naxxramas.h - this needs to be the first entry to ensure that there are no conflicts
+    DATA_HORSEMEN_IS_TIMED_KILL = NAXData::DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT, // inherit from naxxramas.h - this needs to be the first entry to ensure that there are no conflicts
     DATA_MOVEMENT_FINISHED,
     DATA_DEATH_TIME
 };
@@ -209,7 +215,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                 return;
             }
             instance->SetBossState(BOSS_HORSEMEN, IN_PROGRESS);
-            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (players.isEmpty()) // sanity check
                 ResetEncounter();
 
@@ -225,6 +231,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                     cBoss->SetReactState(REACT_PASSIVE);
                     cBoss->AttackStop(); // clear initial target that was set on enter combat
                     cBoss->setActive(true);
+                    cBoss->SetFarVisible(true);
 
                     for (Map::PlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
                     {
@@ -234,11 +241,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                                 continue;
 
                             if (player->IsAlive())
-                            {
-                                cBoss->AddThreat(player, 0.0f);
-                                cBoss->SetInCombatWith(player);
-                                player->SetInCombatWith(cBoss);
-                            }
+                                AddThreat(player, 0.0f, cBoss);
                         }
                     }
 
@@ -263,14 +266,9 @@ struct boss_four_horsemen_baseAI : public BossAI
             for (Horseman boss : horsemen)
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))
-                {
-                    cBoss->DespawnOrUnsummon(0);
-                    cBoss->SetRespawnTime(15);
-                }
+                    cBoss->DespawnOrUnsummon(0, Seconds(15));
                 else
-                {
                     TC_LOG_WARN("scripts", "FourHorsemenAI: Encounter resetting but horseman with id %u is not present", uint32(boss));
-                }
             }
         }
 
@@ -283,7 +281,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             DoCastAOE(SPELL_ENCOUNTER_CREDIT, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (instance->GetBossState(BOSS_HORSEMEN) == IN_PROGRESS || instance->GetBossState(BOSS_HORSEMEN) == DONE) // another horseman already did it
                 return;
@@ -327,7 +325,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             }
 
             Talk(SAY_DEATH);
-            _timeDied = getMSTime();
+            _timeDied = GameTime::GetGameTimeMS();
             for (Horseman boss : horsemen)
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))
@@ -377,7 +375,7 @@ struct boss_four_horsemen_baseAI : public BossAI
 
     private:
         const Horseman _which;
-        const Position* _initialPath;
+        Position const* _initialPath;
         bool _myMovementFinished;
         uint8 _nextMovement;
         uint32 _timeDied;
@@ -397,22 +395,22 @@ class boss_four_horsemen_baron : public CreatureScript
             {
                 SetCombatMovement(true);
                 me->SetReactState(REACT_AGGRESSIVE);
-                ThreatManager& threat = me->getThreatManager();
-                if (threat.isThreatListEmpty())
+                ThreatManager& threat = me->GetThreatManager();
+                if (threat.IsThreatListEmpty())
                 {
                     if (Unit* nearest = me->SelectNearestPlayer(5000.0f))
                     {
-                        me->AddThreat(nearest, 1.0f);
+                        AddThreat(nearest, 1.0f);
                         AttackStart(nearest);
                     }
                     else
                         ResetEncounter();
                 }
                 else
-                    AttackStart(threat.getHostilTarget());
+                    AttackStart(threat.GetCurrentVictim());
 
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-                events.ScheduleEvent(EVENT_MARK, Seconds(24));
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
+                events.ScheduleEvent(EVENT_MARK, 24s);
                 events.ScheduleEvent(EVENT_UNHOLYSHADOW, randtime(Seconds(3), Seconds(7)));
             }
 
@@ -454,7 +452,7 @@ class boss_four_horsemen_baron : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_four_horsemen_baronAI>(creature);
+            return GetNaxxramasAI<boss_four_horsemen_baronAI>(creature);
         }
 };
 
@@ -470,22 +468,22 @@ class boss_four_horsemen_thane : public CreatureScript
             {
                 SetCombatMovement(true);
                 me->SetReactState(REACT_AGGRESSIVE);
-                ThreatManager& threat = me->getThreatManager();
-                if (threat.isThreatListEmpty())
+                ThreatManager& threat = me->GetThreatManager();
+                if (threat.IsThreatListEmpty())
                 {
                     if (Unit* nearest = me->SelectNearestPlayer(5000.0f))
                     {
-                        me->AddThreat(nearest, 1.0f);
+                        AddThreat(nearest, 1.0f);
                         AttackStart(nearest);
                     }
                     else
                         ResetEncounter();
                 }
                 else
-                    AttackStart(threat.getHostilTarget());
+                    AttackStart(threat.GetCurrentVictim());
 
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-                events.ScheduleEvent(EVENT_MARK, Seconds(24));
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
+                events.ScheduleEvent(EVENT_MARK, 24s);
                 events.ScheduleEvent(EVENT_METEOR, randtime(Seconds(10), Seconds(25)));
             }
             void _UpdateAI(uint32 diff) override
@@ -536,7 +534,7 @@ class boss_four_horsemen_thane : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_four_horsemen_thaneAI>(creature);
+            return GetNaxxramasAI<boss_four_horsemen_thaneAI>(creature);
         }
 };
 
@@ -550,8 +548,8 @@ class boss_four_horsemen_lady : public CreatureScript
             boss_four_horsemen_ladyAI(Creature* creature) : boss_four_horsemen_baseAI(creature, LADY, ladyPath) { }
             void BeginFighting() override
             {
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-                events.ScheduleEvent(EVENT_MARK, Seconds(24));
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
+                events.ScheduleEvent(EVENT_MARK, 24s);
                 events.ScheduleEvent(EVENT_VOIDZONE, randtime(Seconds(5), Seconds(10)));
             }
 
@@ -561,7 +559,7 @@ class boss_four_horsemen_lady : public CreatureScript
                     return;
                 if (!_ourMovementFinished)
                     return;
-                if (me->getThreatManager().isThreatListEmpty())
+                if (me->GetThreatManager().IsThreatListEmpty())
                 {
                     EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
@@ -594,7 +592,7 @@ class boss_four_horsemen_lady : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 45.0f, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 45.0f, true))
                     DoCast(target, SPELL_SHADOW_BOLT);
                 else
                 {
@@ -606,7 +604,7 @@ class boss_four_horsemen_lady : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_four_horsemen_ladyAI>(creature);
+            return GetNaxxramasAI<boss_four_horsemen_ladyAI>(creature);
         }
 };
 
@@ -620,8 +618,8 @@ class boss_four_horsemen_sir : public CreatureScript
             boss_four_horsemen_sirAI(Creature* creature) : boss_four_horsemen_baseAI(creature, SIR, sirPath), _shouldSay(true) { }
             void BeginFighting() override
             {
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-                events.ScheduleEvent(EVENT_MARK, Seconds(24));
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
+                events.ScheduleEvent(EVENT_MARK, 24s);
                 events.ScheduleEvent(EVENT_HOLYWRATH, randtime(Seconds(13), Seconds(18)));
             }
 
@@ -631,7 +629,7 @@ class boss_four_horsemen_sir : public CreatureScript
                     return;
                 if (!_ourMovementFinished)
                     return;
-                if (me->getThreatManager().isThreatListEmpty())
+                if (me->GetThreatManager().IsThreatListEmpty())
                 {
                     EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
@@ -651,7 +649,7 @@ class boss_four_horsemen_sir : public CreatureScript
                             events.Repeat(Seconds(15));
                             break;
                         case EVENT_HOLYWRATH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 45.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 45.0f, true))
                             {
                                 DoCast(target, SPELL_HOLY_WRATH, true);
                                 _shouldSay = true;
@@ -664,7 +662,7 @@ class boss_four_horsemen_sir : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 45.0f, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 45.0f, true))
                     DoCast(target, SPELL_HOLY_BOLT);
                 else
                 {
@@ -688,7 +686,7 @@ class boss_four_horsemen_sir : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_four_horsemen_sirAI>(creature);
+            return GetNaxxramasAI<boss_four_horsemen_sirAI>(creature);
         }
 };
 
@@ -731,7 +729,11 @@ class spell_four_horsemen_mark : public SpellScriptLoader
                             break;
                     }
                     if (damage)
-                        caster->CastCustomSpell(SPELL_MARK_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget());
+                    {
+                        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                        args.AddSpellBP0(damage);
+                        caster->CastSpell(GetTarget(), SPELL_MARK_DAMAGE, args);
+                    }
                 }
             }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,15 +30,15 @@ npc_giant_spotlight
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 #include "SpellInfo.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
-#include "CellImpl.h"
+#include "TemporarySummon.h"
 
 /*######
 ## npc_clintar_spirit
@@ -97,7 +97,7 @@ enum ClintarSpirit
 {
     ASPECT_RAVEN                        = 22915,
 
-    // Texts for EnterCombat, the event and the end of the event are missing
+    // Texts for JustEngagedWith, the event and the end of the event are missing
     CLINTAR_SPIRIT_SAY_START            = 0,
 };
 
@@ -111,10 +111,10 @@ public:
         return new npc_clintar_spiritAI(creature);
     }
 
-    struct npc_clintar_spiritAI : public npc_escortAI
+    struct npc_clintar_spiritAI : public EscortAI
     {
     public:
-        npc_clintar_spiritAI(Creature* creature) : npc_escortAI(creature)
+        npc_clintar_spiritAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
             PlayerGUID.Clear();
@@ -150,7 +150,7 @@ public:
             std::list<Player*> playerOnQuestList;
             Trinity::AnyPlayerInObjectRangeCheck checker(me, 5.0f);
             Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, playerOnQuestList, checker);
-            me->VisitNearbyWorldObject(5.0f, searcher);
+            Cell::VisitWorldObjects(me, searcher, 5.0f);
             for (std::list<Player*>::const_iterator itr = playerOnQuestList.begin(); itr != playerOnQuestList.end(); ++itr)
             {
                 // Check if found player target has active quest
@@ -189,7 +189,7 @@ public:
                 AttackStart(player->getAttackerForHelper());
                 return;
             }
-            npc_escortAI::EnterEvadeMode(why);
+            EscortAI::EnterEvadeMode(why);
         }
 
         void StartEvent(Player* player)
@@ -198,7 +198,7 @@ public:
             {
                 for (uint8 i = 0; i < 41; ++i)
                 {
-                    AddWaypoint(i, Clintar_spirit_WP[i][0], Clintar_spirit_WP[i][1], Clintar_spirit_WP[i][2], (uint32)Clintar_spirit_WP[i][4]);
+                    AddWaypoint(i, Clintar_spirit_WP[i][0], Clintar_spirit_WP[i][1], Clintar_spirit_WP[i][2], Clintar_spirit_WP[i][3], (uint32)Clintar_spirit_WP[i][4]);
                 }
                 PlayerGUID = player->GetGUID();
                 Start(true, false, PlayerGUID);
@@ -210,7 +210,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!PlayerGUID)
             {
@@ -301,7 +301,7 @@ public:
                             case 0:
                                 if (Creature* mob = me->SummonCreature(ASPECT_RAVEN, AspectRavenSummon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000))
                                 {
-                                    mob->AddThreat(me, 10000.0f);
+                                    AddThreat(me, 10000.0f, mob);
                                     mob->AI()->AttackStart(me);
                                 }
                                 EventTimer = 2000;
@@ -370,7 +370,7 @@ public:
             } else if (EventOnWait) EventTimer -= diff;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             CurrWP = waypointId;
             EventTimer = 0;
@@ -411,7 +411,7 @@ public:
     {
         npc_omenAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             me->GetMotionMaster()->MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
         }
 
@@ -425,17 +425,17 @@ public:
             if (pointId == 1)
             {
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 if (Player* player = me->SelectNearestPlayer(40.0f))
                     AttackStart(player);
             }
         }
 
-        void EnterCombat(Unit* /*attacker*/) override
+        void JustEngagedWith(Unit* /*attacker*/) override
         {
             events.Reset();
-            events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(3000, 5000));
-            events.ScheduleEvent(EVENT_CAST_STARFALL, urand(8000, 10000));
+            events.ScheduleEvent(EVENT_CAST_CLEAVE, 3s, 5s);
+            events.ScheduleEvent(EVENT_CAST_STARFALL, 8s, 10s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -443,7 +443,7 @@ public:
             DoCast(SPELL_OMEN_SUMMON_SPOTLIGHT);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_ELUNE_CANDLE)
             {
@@ -465,12 +465,12 @@ public:
             {
                 case EVENT_CAST_CLEAVE:
                     DoCastVictim(SPELL_OMEN_CLEAVE);
-                    events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(8000, 10000));
+                    events.ScheduleEvent(EVENT_CAST_CLEAVE, 8s, 10s);
                     break;
                 case EVENT_CAST_STARFALL:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_OMEN_STARFALL);
-                    events.ScheduleEvent(EVENT_CAST_STARFALL, urand(14000, 16000));
+                    events.ScheduleEvent(EVENT_CAST_STARFALL, 14s, 16s);
                     break;
             }
 

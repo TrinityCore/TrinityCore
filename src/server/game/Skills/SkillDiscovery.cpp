@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,14 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SkillDiscovery.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include "World.h"
-#include "Util.h"
-#include "SkillDiscovery.h"
-#include "SpellMgr.h"
 #include "Player.h"
+#include "Random.h"
+#include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "Util.h"
+#include "World.h"
 #include <map>
 
 struct SkillDiscoveryEntry
@@ -55,7 +56,7 @@ void LoadSkillDiscoveryTable()
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
         return;
     }
 

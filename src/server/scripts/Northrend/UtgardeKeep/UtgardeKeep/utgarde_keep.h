@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef UTGARDE_KEEP_H_
 #define UTGARDE_KEEP_H_
 
+#include "CreatureAIImpl.h"
+
 #define UKScriptName "instance_utgarde_keep"
 #define DataHeader "UK"
 
 uint32 const EncounterCount = 3;
 
-enum DataTypes
+enum UKDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_PRINCE_KELESETH    = 0,
@@ -39,7 +41,7 @@ enum DataTypes
     DATA_FORGE_3            = 7
 };
 
-enum CreatureIds
+enum UKCreatureIds
 {
     NPC_PRINCE_KELESETH     = 23953,
     NPC_SKARVALD            = 24200,
@@ -56,7 +58,7 @@ enum CreatureIds
     NPC_ANNHYLDE_THE_CALLER = 24068
 };
 
-enum GameObjectIds
+enum UKGameObjectIds
 {
     GO_BELLOW_1             = 186688,
     GO_BELLOW_2             = 186689,
@@ -85,10 +87,10 @@ struct ForgeInfo
     uint32 Event;
 };
 
-template<class AI>
-AI* GetUtgardeKeepAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetUtgardeKeepAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, UKScriptName);
+    return GetInstanceAI<AI>(obj, UKScriptName);
 }
 
 #endif // UTGARDE_KEEP_H_

@@ -1,0 +1,22 @@
+ dep/libmpq/libmpq/extract.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/dep/libmpq/libmpq/extract.c b/dep/libmpq/libmpq/extract.c
+index dc970b7..f9f14d6 100644
+--- a/dep/libmpq/libmpq/extract.c
++++ b/dep/libmpq/libmpq/extract.c
+@@ -57,9 +57,12 @@ int32_t libmpq__decompress_huffman(uint8_t *in_buf, uint32_t in_size, uint8_t *o
+ 	struct huffman_input_stream_s *is;
+ 
+ 	/* allocate memory for the huffman tree. */
+-	if ((ht = malloc(sizeof(struct huffman_tree_s))) == NULL ||
+-	    (is = malloc(sizeof(struct huffman_input_stream_s))) == NULL) {
++    if ((ht = malloc(sizeof(struct huffman_tree_s))) == NULL) {
++        /* memory allocation problem. */
++        return LIBMPQ_ERROR_MALLOC;
++    }
+ 
++    if ((is = malloc(sizeof(struct huffman_input_stream_s))) == NULL) {
+ 		/* memory allocation problem. */
+ 		return LIBMPQ_ERROR_MALLOC;
+ 	}

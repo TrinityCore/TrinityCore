@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,10 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "molten_core.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 Position const SummonPositions[10] =
 {
@@ -34,10 +37,13 @@ Position const SummonPositions[10] =
     {838.510f, -829.840f, -232.000f, 2.00000f},
 };
 
+Position const RagnarosTelePos   = {829.159f, -815.773f, -228.972f, 5.30500f};
+Position const RagnarosSummonPos = {838.510f, -829.840f, -232.000f, 2.00000f};
+
 class instance_molten_core : public InstanceMapScript
 {
     public:
-        instance_molten_core() : InstanceMapScript("instance_molten_core", 409) { }
+        instance_molten_core() : InstanceMapScript(MCScriptName, 409) { }
 
         struct instance_molten_core_InstanceMapScript : public InstanceScript
         {

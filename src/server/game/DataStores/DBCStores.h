@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,12 +19,19 @@
 #ifndef TRINITY_DBCSTORES_H
 #define TRINITY_DBCSTORES_H
 
-#include "Common.h"
 #include "DBCStore.h"
 #include "DBCStructure.h"
 #include "SharedDefines.h"
-
 #include <list>
+#include <map>
+#include <unordered_map>
+
+enum LocaleConstant : uint8;
+
+ // temporary hack until includes are sorted out (don't want to pull in Windows.h)
+#ifdef GetClassName
+#undef GetClassName
+#endif
 
 typedef std::list<uint32> SimpleFactionsList;
 TC_GAME_API SimpleFactionsList const* GetFactionTeamList(uint32 faction);
@@ -40,7 +47,7 @@ TC_GAME_API WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid,
 
 TC_GAME_API uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
 
-enum ContentLevels
+enum ContentLevels : uint8
 {
     CONTENT_1_60 = 0,
     CONTENT_61_70,
@@ -64,8 +71,9 @@ TC_GAME_API uint32 GetLiquidFlags(uint32 liquidType);
 TC_GAME_API PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
 TC_GAME_API PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
 
-TC_GAME_API CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender);
+TC_GAME_API CharacterFacialHairStylesEntry const* GetCharFacialHairEntry(uint8 race, uint8 gender, uint8 facialHairID);
 TC_GAME_API CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color);
+TC_GAME_API CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender);
 
 TC_GAME_API LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
 
@@ -91,8 +99,9 @@ TC_GAME_API extern DBCStorage <BannedAddOnsEntry>            sBannedAddOnsStore;
 TC_GAME_API extern DBCStorage <BarberShopStyleEntry>         sBarberShopStyleStore;
 TC_GAME_API extern DBCStorage <BattlemasterListEntry>        sBattlemasterListStore;
 TC_GAME_API extern DBCStorage <ChatChannelsEntry>            sChatChannelsStore;
-TC_GAME_API extern DBCStorage <CharStartOutfitEntry>         sCharStartOutfitStore;
+TC_GAME_API extern DBCStorage <CharacterFacialHairStylesEntry> sCharacterFacialHairStylesStore;
 TC_GAME_API extern DBCStorage <CharSectionsEntry>            sCharSectionsStore;
+TC_GAME_API extern DBCStorage <CharStartOutfitEntry>         sCharStartOutfitStore;
 TC_GAME_API extern DBCStorage <CharTitlesEntry>              sCharTitlesStore;
 TC_GAME_API extern DBCStorage <ChrClassesEntry>              sChrClassesStore;
 TC_GAME_API extern DBCStorage <ChrRacesEntry>                sChrRacesStore;
@@ -186,6 +195,8 @@ TC_GAME_API extern TaxiMask                                  sAllianceTaxiNodesM
 TC_GAME_API extern TaxiMask                                  sDeathKnightTaxiNodesMask;
 TC_GAME_API extern TaxiPathSetBySource                       sTaxiPathSetBySource;
 TC_GAME_API extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
+TC_GAME_API extern DBCStorage <TransportAnimationEntry>      sTransportAnimationStore;
+TC_GAME_API extern DBCStorage <TransportRotationEntry>       sTransportRotationStore;
 TC_GAME_API extern DBCStorage <TeamContributionPointsEntry>  sTeamContributionPointsStore;
 TC_GAME_API extern DBCStorage <TotemCategoryEntry>           sTotemCategoryStore;
 TC_GAME_API extern DBCStorage <VehicleEntry>                 sVehicleStore;

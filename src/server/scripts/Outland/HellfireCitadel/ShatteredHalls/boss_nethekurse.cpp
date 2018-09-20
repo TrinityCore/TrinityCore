@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,6 +30,8 @@ npc_lesser_shadow_fissure
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "shattered_halls.h"
 
@@ -199,20 +201,20 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
 
             void JustSummoned(Creature* summoned) override
             {
-                summoned->setFaction(16);
+                summoned->SetFaction(FACTION_MONSTER_2);
                 summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 //triggered spell of consumption does not properly show it's SpellVisual, wrong spellid?
                 summoned->CastSpell(summoned, SPELL_TEMPORARY_VISUAL, true);
-                summoned->CastSpell(summoned, SPELL_CONSUMPTION, false, 0, 0, me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_CONSUMPTION, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()));
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -299,7 +301,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_grand_warlock_nethekurseAI>(creature);
+            return GetShatteredHallsAI<boss_grand_warlock_nethekurseAI>(creature);
         }
 };
 
@@ -326,9 +328,9 @@ class npc_fel_orc_convert : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                events.ScheduleEvent(EVENT_HEMORRHAGE, 3000);
+                events.ScheduleEvent(EVENT_HEMORRHAGE, 3s);
 
                 if (Creature* Kurse = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GRAND_WARLOCK_NETHEKURSE)))
                     if (me->IsWithinDist(Kurse, 45.0f))
@@ -367,7 +369,7 @@ class npc_fel_orc_convert : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_fel_orc_convertAI>(creature);
+            return GetShatteredHallsAI<npc_fel_orc_convertAI>(creature);
         }
 };
 
@@ -387,12 +389,12 @@ class npc_lesser_shadow_fissure : public CreatureScript
             void Reset() override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
             void AttackStart(Unit* /*who*/) override { }
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_lesser_shadow_fissureAI(creature);
+            return GetShatteredHallsAI<npc_lesser_shadow_fissureAI>(creature);
         }
 };
 

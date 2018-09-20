@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,8 @@ SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "mechanar.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -62,9 +62,9 @@ class boss_gatewatcher_iron_hand : public CreatureScript
         {
             boss_gatewatcher_iron_handAI(Creature* creature) : BossAI(creature, DATA_GATEWATCHER_IRON_HAND) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 55000);
                 events.ScheduleEvent(EVENT_JACKHAMMER, 45000);
                 events.ScheduleEvent(EVENT_SHADOW_POWER, 25000);
@@ -99,7 +99,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                     {
                         case EVENT_STREAM_OF_MACHINE_FLUID:
                             DoCastVictim(SPELL_STREAM_OF_MACHINE_FLUID, true);
-                            events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, urand(35000, 50000));
+                            events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 35s, 50s);
                             break;
                         case EVENT_JACKHAMMER:
                             Talk(EMOTE_HAMMER);
@@ -107,11 +107,11 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                             DoCastVictim(SPELL_JACKHAMMER, true);
                             if (roll_chance_i(50))
                                 Talk(SAY_HAMMER);
-                            events.ScheduleEvent(EVENT_JACKHAMMER, 30000);
+                            events.ScheduleEvent(EVENT_JACKHAMMER, 30s);
                             break;
                         case EVENT_SHADOW_POWER:
                             DoCast(me, SPELL_SHADOW_POWER);
-                            events.ScheduleEvent(EVENT_SHADOW_POWER, urand(20000, 28000));
+                            events.ScheduleEvent(EVENT_SHADOW_POWER, 20s, 28s);
                             break;
                         default:
                             break;
@@ -127,7 +127,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_gatewatcher_iron_handAI(creature);
+            return GetMechanarAI<boss_gatewatcher_iron_handAI>(creature);
         }
 };
 
@@ -135,4 +135,3 @@ void AddSC_boss_gatewatcher_iron_hand()
 {
     new boss_gatewatcher_iron_hand();
 }
-

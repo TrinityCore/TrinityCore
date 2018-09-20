@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,10 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "blackwing_lair.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 DoorData const doorData[] =
 {
@@ -63,7 +68,7 @@ uint32 const Entry[5] = {12422, 12458, 12416, 12420, 12459};
 class instance_blackwing_lair : public InstanceMapScript
 {
 public:
-    instance_blackwing_lair() : InstanceMapScript(BRLScriptName, 469) { }
+    instance_blackwing_lair() : InstanceMapScript(BWLScriptName, 469) { }
 
     struct instance_blackwing_lair_InstanceMapScript : public InstanceScript
     {
@@ -190,7 +195,7 @@ public:
                 switch (data)
                 {
                     case IN_PROGRESS:
-                        _events.ScheduleEvent(EVENT_RAZOR_SPAWN, 45 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_RAZOR_SPAWN, 45s);
                         EggEvent = data;
                         EggCount = 0;
                         break;
@@ -208,7 +213,7 @@ public:
                                 razor->RemoveAurasDueToSpell(42013); // MindControl
                                 DoRemoveAurasDueToSpellOnPlayers(42013);
                             }
-                            _events.ScheduleEvent(EVENT_RAZOR_PHASE_TWO, 1 * IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_RAZOR_PHASE_TWO, 1s);
                             _events.CancelEvent(EVENT_RAZOR_SPAWN);
                         }
                         if (EggEvent == NOT_STARTED)
@@ -237,10 +242,10 @@ public:
                 switch (eventId)
                 {
                     case EVENT_RAZOR_SPAWN:
-                        for (uint8 i = urand(2, 5); i > 0 ; --i)
-                            if (Creature* summon =  instance->SummonCreature(Entry[urand(0, 4)], SummonPosition[urand(0, 7)]))
-                                summon->SetInCombatWithZone();
-                        _events.ScheduleEvent(EVENT_RAZOR_SPAWN, urand(12, 17) * IN_MILLISECONDS);
+                        for (uint8 i = urand(2, 5); i > 0; --i)
+                            if (Creature* summon = instance->SummonCreature(Entry[urand(0, 4)], SummonPosition[urand(0, 7)]))
+                                summon->AI()->DoZoneInCombat();
+                        _events.ScheduleEvent(EVENT_RAZOR_SPAWN, 12s, 17s);
                         break;
                     case EVENT_RAZOR_PHASE_TWO:
                         _events.CancelEvent(EVENT_RAZOR_SPAWN);
@@ -252,6 +257,7 @@ public:
                         {
                             nefarius->SetPhaseMask(1, true);
                             nefarius->setActive(true);
+                            nefarius->SetFarVisible(true);
                             nefarius->Respawn();
                             nefarius->GetMotionMaster()->MoveTargetedHome();
                         }

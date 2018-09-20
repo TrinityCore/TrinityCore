@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "violet_hold.h"
 
 enum Spells
@@ -48,20 +49,15 @@ class boss_moragg : public CreatureScript
                 BossAI::Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
             }
 
             void JustReachedHome() override
             {
                 BossAI::JustReachedHome();
                 instance->SetData(DATA_HANDLE_CELLS, DATA_MORAGG);
-            }
-
-            void JustDied(Unit* killer) override
-            {
-                BossAI::JustDied(killer);
             }
 
             void UpdateAI(uint32 diff) override
@@ -115,14 +111,12 @@ class spell_moragg_ray : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (!GetTarget()->IsAIEnabled)
-                    return;
-
-                if (Unit* target = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
-                {
-                    uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                    GetTarget()->CastSpell(target, triggerSpell, TRIGGERED_FULL_MASK, nullptr, aurEff);
-                }
+                if (UnitAI* AI = GetTarget()->GetAI())
+                    if (Unit* target = AI->SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                    {
+                        uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+                        GetTarget()->CastSpell(target, triggerSpell, aurEff);
+                    }
             }
 
             void Register() override
@@ -151,12 +145,12 @@ public:
             if (Unit* caster = GetCaster())
             {
                 if (aurEff->GetTickNumber() >= 8)
-                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_3, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_3, aurEff);
 
                 if (aurEff->GetTickNumber() >= 4)
-                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_2, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_2, aurEff);
 
-                caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_1, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_1, aurEff);
             }
         }
 

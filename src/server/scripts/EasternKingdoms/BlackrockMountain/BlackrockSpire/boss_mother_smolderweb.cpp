@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,8 +17,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -40,7 +40,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_mothersmolderwebAI(creature);
+        return GetBlackrockSpireAI<boss_mothersmolderwebAI>(creature);
     }
 
     struct boss_mothersmolderwebAI : public BossAI
@@ -52,11 +52,11 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_CRYSTALIZE,   20 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_MOTHERS_MILK, 10 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_MOTHERS_MILK, 10s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -86,7 +86,7 @@ public:
                 {
                     case EVENT_CRYSTALIZE:
                         DoCast(me, SPELL_CRYSTALIZE);
-                        events.ScheduleEvent(EVENT_CRYSTALIZE, 15 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CRYSTALIZE, 15s);
                         break;
                     case EVENT_MOTHERS_MILK:
                         DoCast(me, SPELL_MOTHERSMILK);

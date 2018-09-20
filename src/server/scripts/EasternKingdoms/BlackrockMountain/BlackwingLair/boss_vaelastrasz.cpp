@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,10 +17,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackwing_lair.h"
-#include "ScriptedGossip.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Says
 {
@@ -42,8 +45,9 @@ enum Spells
    SPELL_FLAMEBREATH                 = 23461,
    SPELL_FIRENOVA                    = 23462,
    SPELL_TAILSWIPE                   = 15847,
-   SPELL_BURNINGADRENALINE           = 23620,
-   SPELL_CLEAVE                      = 20684   //Chain cleave is most likely named something different and contains a dummy effect
+   SPELL_BURNINGADRENALINE           = 18173,  //Cast this one. It's what 3.3.5 DBM expects.
+   SPELL_BURNINGADRENALINE_EXPLOSION = 23478,
+   SPELL_CLEAVE                      = 19983   //Chain cleave is most likely named something different and contains a dummy effect
 };
 
 enum Events
@@ -72,7 +76,7 @@ public:
         {
             Initialize();
             creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            creature->setFaction(35);
+            creature->SetFaction(FACTION_FRIENDLY);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -90,21 +94,21 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
 
             DoCast(me, SPELL_ESSENCEOFTHERED);
             me->SetHealth(me->CountPctFromMaxHealth(30));
             // now drop damage requirement to be able to take loot
             me->ResetPlayerDamageReq();
 
-            events.ScheduleEvent(EVENT_CLEAVE, 10000);
-            events.ScheduleEvent(EVENT_FLAMEBREATH, 15000);
-            events.ScheduleEvent(EVENT_FIRENOVA, 20000);
-            events.ScheduleEvent(EVENT_TAILSWIPE, 11000);
-            events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15000);
-            events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45000);
+            events.ScheduleEvent(EVENT_CLEAVE, 10s);
+            events.ScheduleEvent(EVENT_FLAMEBREATH, 15s);
+            events.ScheduleEvent(EVENT_FIRENOVA, 20s);
+            events.ScheduleEvent(EVENT_TAILSWIPE, 11s);
+            events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15s);
+            events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45s);
         }
 
         void BeginSpeech(Unit* target)
@@ -150,7 +154,7 @@ public:
                             events.ScheduleEvent(EVENT_SPEECH_4, 16000);
                             break;
                         case EVENT_SPEECH_4:
-                            me->setFaction(103);
+                            me->SetFaction(FACTION_DRAGONFLIGHT_BLACK);
                             if (PlayerGUID && ObjectAccessor::GetUnit(*me, PlayerGUID))
                                 AttackStart(ObjectAccessor::GetUnit(*me, PlayerGUID));;
                             break;
@@ -167,16 +171,16 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CLEAVE:
-                        events.ScheduleEvent(EVENT_CLEAVE, 15000);
+                        events.ScheduleEvent(EVENT_CLEAVE, 15s);
                         DoCastVictim(SPELL_CLEAVE);
                         break;
                     case EVENT_FLAMEBREATH:
                         DoCastVictim(SPELL_FLAMEBREATH);
-                        events.ScheduleEvent(EVENT_FLAMEBREATH, urand(8000, 14000));
+                        events.ScheduleEvent(EVENT_FLAMEBREATH, 8s, 14s);
                         break;
                     case EVENT_FIRENOVA:
                         DoCastVictim(SPELL_FIRENOVA);
-                        events.ScheduleEvent(EVENT_FIRENOVA, 15000);
+                        events.ScheduleEvent(EVENT_FIRENOVA, 15s);
                         break;
                     case EVENT_TAILSWIPE:
                         //Only cast if we are behind
@@ -184,29 +188,24 @@ public:
                         {
                         DoCast(me->GetVictim(), SPELL_TAILSWIPE);
                         }*/
-                        events.ScheduleEvent(EVENT_TAILSWIPE, 15000);
+                        events.ScheduleEvent(EVENT_TAILSWIPE, 15s);
                         break;
                     case EVENT_BURNINGADRENALINE_CASTER:
                         {
-                            Unit* target = NULL;
-
-                            uint8 i = 0;
-                            while (i < 3)   // max 3 tries to get a random target with power_mana
+                            //selects a random target that isn't the current victim and is a mana user (selects mana users) but not pets
+                            //it also ignores targets who have the aura. We don't want to place the debuff on the same target twice.
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, [&](Unit* u) { return u && !u->IsPet() && u->GetPowerType() == POWER_MANA && !u->HasAura(SPELL_BURNINGADRENALINE); }))
                             {
-                                ++i;
-                                target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); // not aggro leader
-                                if (target && target->getPowerType() == POWER_MANA)
-                                    i = 3;
+                                me->CastSpell(target, SPELL_BURNINGADRENALINE, true);
                             }
-                            if (target)                                     // cast on self (see below)
-                                target->CastSpell(target, SPELL_BURNINGADRENALINE, true);
                         }
-                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15000);
+                        //reschedule the event
+                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15s);
                         break;
                     case EVENT_BURNINGADRENALINE_TANK:
-                        // have the victim cast the spell on himself otherwise the third effect aura will be applied to Vael instead of the player
-                        me->EnsureVictim()->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, true);
-                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45000);
+                        //Vael has to cast it himself; contrary to the previous commit's comment. Nothing happens otherwise.
+                        me->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, true);
+                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45s);
                         break;
                 }
 
@@ -224,13 +223,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_ID && gossipListId == 0)
             {
                 CloseGossipMenuFor(player);
                 BeginSpeech(player);
             }
+            return false;
         }
 
         private:
@@ -240,11 +240,43 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_vaelAI(creature);
+        return GetBlackwingLairAI<boss_vaelAI>(creature);
+    }
+};
+
+//Need to define an aurascript for EVENT_BURNINGADRENALINE's death effect.
+// 18173 - Burning Adrenaline
+class spell_vael_burning_adrenaline : public SpellScriptLoader
+{
+public:
+    spell_vael_burning_adrenaline() : SpellScriptLoader("spell_vael_burning_adrenaline") { }
+
+    class spell_vael_burning_adrenaline_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_vael_burning_adrenaline_AuraScript);
+
+        void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            //The tooltip says the on death the AoE occurs. According to information: http://qaliaresponse.stage.lithium.com/t5/WoW-Mayhem/Surviving-Burning-Adrenaline-For-tanks/td-p/48609
+            //Burning Adrenaline can be survived therefore Blizzard's implementation was an AoE bomb that went off if you were still alive and dealt
+            //damage to the target. You don't have to die for it to go off. It can go off whether you live or die.
+            GetTarget()->CastSpell(GetTarget(), SPELL_BURNINGADRENALINE_EXPLOSION, true);
+        }
+
+        void Register() override
+        {
+            AfterEffectRemove += AuraEffectRemoveFn(spell_vael_burning_adrenaline_AuraScript::OnAuraRemoveHandler, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_vael_burning_adrenaline_AuraScript();
     }
 };
 
 void AddSC_boss_vaelastrasz()
 {
     new boss_vaelastrasz();
+    new spell_vael_burning_adrenaline();
 }

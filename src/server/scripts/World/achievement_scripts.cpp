@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -237,7 +237,7 @@ class achievement_tilted : public AchievementCriteriaScript
                                 player->GetAreaId() == AREA_RING_OF_HORDE_VALIANTS ||
                                 player->GetAreaId() == AREA_RING_OF_CHAMPIONS;
 
-            return checkArea && player->duel && player->duel->isMounted;
+            return checkArea && player->duel && player->duel->IsMounted;
         }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,10 @@ SDCategory: Tempest Keep, The Botanica
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "the_botanica.h"
 
 enum Says
@@ -90,10 +93,9 @@ class npc_warp_splinter_treant : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
-
 
             void UpdateAI(uint32 diff) override
             {
@@ -106,8 +108,8 @@ class npc_warp_splinter_treant : public CreatureScript
                             if (me->IsWithinMeleeRange(Warp))
                             {
                                 int32 CurrentHP_Treant = (int32)me->GetHealth();
-                                Warp->CastCustomSpell(Warp, SPELL_HEAL_FATHER, &CurrentHP_Treant, 0, 0, true, 0, 0, me->GetGUID());
-                                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                                Warp->CastSpell(Warp, SPELL_HEAL_FATHER, CastSpellExtraArgs(me->GetGUID()).AddSpellBP0(CurrentHP_Treant));
+                                me->KillSelf();
                                 return;
                             }
                             me->GetMotionMaster()->MoveFollow(Warp, 0, 0);
@@ -125,7 +127,7 @@ class npc_warp_splinter_treant : public CreatureScript
         };
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_warp_splinter_treantAI(creature);
+            return GetBotanicaAI<npc_warp_splinter_treantAI>(creature);
         }
 };
 
@@ -170,7 +172,7 @@ class boss_warp_splinter : public CreatureScript
                 me->SetSpeedRate(MOVE_RUN, 0.7f);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
@@ -193,7 +195,7 @@ class boss_warp_splinter : public CreatureScript
 
                     float X = Treant_Spawn_Pos_X + TREANT_SPAWN_DIST * std::cos(angle);
                     float Y = Treant_Spawn_Pos_Y + TREANT_SPAWN_DIST * std::sin(angle);
-                    float O = - me->GetAngle(X, Y);
+                    float O = - me->GetAbsoluteAngle(X, Y);
 
                     if (Creature* pTreant = me->SummonCreature(CREATURE_TREANT, treant_pos[i][0], treant_pos[i][1], treant_pos[i][2], O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
                         ENSURE_AI(npc_warp_splinter_treant::npc_warp_splinter_treantAI, pTreant->AI())->WarpGuid = me->GetGUID();
@@ -239,7 +241,7 @@ class boss_warp_splinter : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_warp_splinterAI(creature);
+            return GetBotanicaAI<boss_warp_splinterAI>(creature);
         }
 };
 
@@ -248,4 +250,3 @@ void AddSC_boss_warp_splinter()
     new boss_warp_splinter();
     new npc_warp_splinter_treant();
 }
-

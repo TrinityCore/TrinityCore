@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "sunwell_plateau.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "sunwell_plateau.h"
 
 enum Spells
 {
@@ -122,7 +124,7 @@ class VoidSpawnSummon : public BasicEvent
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/)
         {
-            _owner->CastSpell((Unit*)nullptr, SPELL_SUMMON_VOID_SENTINEL, true);
+            _owner->CastSpell(nullptr, SPELL_SUMMON_VOID_SENTINEL, true);
             return true;
         }
 
@@ -180,7 +182,7 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override
         {
-            if (Creature* muru = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MURU)))
+            if (Creature* muru = instance->GetCreature(DATA_MURU))
                 muru->AI()->EnterEvadeMode();
 
             DoResetPortals();
@@ -192,7 +194,7 @@ public:
         {
             _JustDied();
 
-            if (Creature* muru = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MURU)))
+            if (Creature* muru = instance->GetCreature(DATA_MURU))
                 muru->DisappearAndDie();
         }
 
@@ -274,9 +276,9 @@ public:
             });
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             DoCast(me, SPELL_OPEN_PORTAL_PERIODIC, true);
             DoCast(me, SPELL_DARKNESS_PERIODIC, true);
             DoCast(me, SPELL_NEGATIVE_ENERGY_PERIODIC, true);
@@ -466,11 +468,11 @@ public:
 
         void IsSummonedBy(Unit* /*summoner*/) override
         {
-            if (Creature* muru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MURU)))
+            if (Creature* muru = _instance->GetCreature(DATA_MURU))
                 muru->AI()->JustSummoned(me);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCast(me, SPELL_SHADOW_PULSE_PERIODIC, true);
 
@@ -581,16 +583,13 @@ class spell_summon_blood_elves_script : SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                for (uint8 i = 0; i < MAX_SUMMON_BLOOD_ELVES; ++i)
-                    if (!sSpellMgr->GetSpellInfo(SummonBloodElvesSpells[i]))
-                        return false;
-                return true;
+                return ValidateSpellInfo(SummonBloodElvesSpells);
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 for (uint8 i = 0; i < MAX_SUMMON_BLOOD_ELVES; ++i)
-                    GetCaster()->CastSpell((Unit*)nullptr, SummonBloodElvesSpells[urand(0,3)], true);
+                    GetCaster()->CastSpell(nullptr, SummonBloodElvesSpells[urand(0,3)], true);
             }
 
             void Register() override
@@ -616,16 +615,13 @@ class spell_muru_darkness : SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                for (uint8 i = 0; i < MAX_SUMMON_DARK_FIEND; ++i)
-                    if (!sSpellMgr->GetSpellInfo(SummonDarkFiendSpells[i]))
-                        return false;
-                return true;
+                return ValidateSpellInfo(SummonDarkFiendSpells);
             }
 
             void HandleAfterCast()
             {
                 for (uint8 i = 0; i < MAX_SUMMON_DARK_FIEND; ++i)
-                    GetCaster()->CastSpell((Unit*)nullptr, SummonDarkFiendSpells[i], true);
+                    GetCaster()->CastSpell(nullptr, SummonDarkFiendSpells[i], true);
             }
 
             void Register() override
@@ -687,7 +683,7 @@ class spell_transform_visual_missile_periodic : public SpellScriptLoader
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
-                GetTarget()->CastSpell((Unit*)nullptr, RAND(TRANSFORM_VISUAL_MISSILE_1, TRANSFORM_VISUAL_MISSILE_2), true);
+                GetTarget()->CastSpell(nullptr, RAND(TRANSFORM_VISUAL_MISSILE_1, TRANSFORM_VISUAL_MISSILE_2), true);
             }
 
             void Register() override
@@ -713,7 +709,7 @@ class spell_summon_blood_elves_periodic : public SpellScriptLoader
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
-                GetTarget()->CastSpell((Unit*)nullptr, SPELL_SUMMON_BLOOD_ELVES_SCRIPT, true);
+                GetTarget()->CastSpell(nullptr, SPELL_SUMMON_BLOOD_ELVES_SCRIPT, true);
             }
 
             void Register() override

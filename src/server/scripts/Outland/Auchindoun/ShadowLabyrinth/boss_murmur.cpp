@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,10 @@ SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "shadow_labyrinth.h"
+#include "SpellScript.h"
 
 enum Murmur
 {
@@ -67,14 +68,14 @@ class boss_murmur : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                events.ScheduleEvent(EVENT_SONIC_BOOM, 30000);
-                events.ScheduleEvent(EVENT_MURMURS_TOUCH, urand(8000, 20000));
-                events.ScheduleEvent(EVENT_RESONANCE, 5000);
-                events.ScheduleEvent(EVENT_MAGNETIC_PULL, urand(15000, 30000));
+                events.ScheduleEvent(EVENT_SONIC_BOOM, 30s);
+                events.ScheduleEvent(EVENT_MURMURS_TOUCH, 8s, 20s);
+                events.ScheduleEvent(EVENT_RESONANCE, 5s);
+                events.ScheduleEvent(EVENT_MAGNETIC_PULL, 15s, 30s);
                 if (IsHeroic())
                 {
                     events.ScheduleEvent(EVENT_THUNDERING_STORM, 15000);
-                    events.ScheduleEvent(EVENT_SONIC_SHOCK, 10000);
+                    events.ScheduleEvent(EVENT_SONIC_SHOCK, 10s);
                 }
 
                 // database should have `RegenHealth`=0 to prevent regen
@@ -84,9 +85,9 @@ class boss_murmur : public CreatureScript
                 me->ResetPlayerDamageReq();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -111,29 +112,29 @@ class boss_murmur : public CreatureScript
                         case EVENT_SONIC_BOOM:
                             Talk(EMOTE_SONIC_BOOM);
                             DoCast(me, SPELL_SONIC_BOOM_CAST);
-                            events.ScheduleEvent(EVENT_SONIC_BOOM, 30000);
-                            events.ScheduleEvent(EVENT_RESONANCE, 1500);
+                            events.ScheduleEvent(EVENT_SONIC_BOOM, 30s);
+                            events.ScheduleEvent(EVENT_RESONANCE, 1500ms);
                             break;
                         case EVENT_MURMURS_TOUCH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f, true))
                                 DoCast(target, SPELL_MURMURS_TOUCH);
-                            events.ScheduleEvent(EVENT_MURMURS_TOUCH, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_MURMURS_TOUCH, 25s, 35s);
                             break;
                         case EVENT_RESONANCE:
                             if (!(me->IsWithinMeleeRange(me->GetVictim())))
                             {
                                 DoCast(me, SPELL_RESONANCE);
-                                events.ScheduleEvent(EVENT_RESONANCE, 5000);
+                                events.ScheduleEvent(EVENT_RESONANCE, 5s);
                             }
                             break;
                         case EVENT_MAGNETIC_PULL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
                                 DoCast(target, SPELL_MAGNETIC_PULL);
-                                events.ScheduleEvent(EVENT_MAGNETIC_PULL, urand(15000, 30000));
+                                events.ScheduleEvent(EVENT_MAGNETIC_PULL, 15s, 30s);
                                 break;
                             }
-                            events.ScheduleEvent(EVENT_MAGNETIC_PULL, 500);
+                            events.ScheduleEvent(EVENT_MAGNETIC_PULL, 500ms);
                             break;
                         case EVENT_THUNDERING_STORM:
                             DoCastAOE(SPELL_THUNDERING_STORM, true);
@@ -142,7 +143,7 @@ class boss_murmur : public CreatureScript
                         case EVENT_SONIC_SHOCK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, false))
                                 DoCast(target, SPELL_SONIC_SHOCK);
-                            events.ScheduleEvent(EVENT_SONIC_SHOCK, urand(10000, 20000));
+                            events.ScheduleEvent(EVENT_SONIC_SHOCK, 10s, 20s);
                             break;
                     }
 
@@ -155,16 +156,7 @@ class boss_murmur : public CreatureScript
                     return;
 
                 if (!me->IsWithinMeleeRange(me->GetVictim()))
-                {
-                    ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
-                    for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
-                        if (Unit* target = ObjectAccessor::GetUnit(*me, (*i)->getUnitGuid()))
-                            if (me->IsWithinMeleeRange(target))
-                            {
-                                me->TauntApply(target);
-                                break;
-                            }
-                }
+                    me->GetThreatManager().ResetThreat(me->GetVictim());
 
                 DoMeleeAttackIfReady();
             }
@@ -188,14 +180,12 @@ class spell_murmur_sonic_boom : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SONIC_BOOM_EFFECT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SONIC_BOOM_EFFECT });
             }
 
             void HandleEffect(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell((Unit*)NULL, SPELL_SONIC_BOOM_EFFECT, true);
+                GetCaster()->CastSpell(nullptr, SPELL_SONIC_BOOM_EFFECT, true);
             }
 
             void Register() override

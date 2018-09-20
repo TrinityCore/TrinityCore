@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,9 @@
 
 #ifndef DBCENUMS_H
 #define DBCENUMS_H
+
+#include "Define.h"
+#include <array>
 
 #pragma pack(push, 1)
 
@@ -100,7 +103,9 @@ enum AchievementCriteriaCondition
     ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE         = 4,    // only used in "Win 10 arenas without losing"
     ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT    = 9,    // requires the player not to be hit by specific spell
     ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP    = 10,   // requires the player not to be in group
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK13           = 13    // unk
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK13           = 13,   // unk
+
+    ACHIEVEMENT_CRITERIA_CONDITION_MAX
 };
 
 enum AchievementCriteriaFlags
@@ -113,7 +118,7 @@ enum AchievementCriteriaFlags
     ACHIEVEMENT_CRITERIA_FLAG_MONEY_COUNTER     = 0x00000020          // Displays counter as money
 };
 
-enum AchievementCriteriaTimedTypes
+enum AchievementCriteriaTimedTypes : uint8
 {
     ACHIEVEMENT_TIMED_TYPE_EVENT            = 1,    // Timer is started by internal event with id in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_QUEST            = 2,    // Timer is started by accepting quest with entry in timerStartEvent
@@ -125,7 +130,7 @@ enum AchievementCriteriaTimedTypes
     ACHIEVEMENT_TIMED_TYPE_MAX
 };
 
-enum AchievementCriteriaTypes
+enum AchievementCriteriaTypes : uint8
 {
     ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE                 = 0,
     ACHIEVEMENT_CRITERIA_TYPE_WIN_BG                        = 1,
@@ -231,7 +236,7 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS = 119,
 };
 
-#define ACHIEVEMENT_CRITERIA_TYPE_TOTAL 120
+#define ACHIEVEMENT_CRITERIA_TYPE_TOTAL 124
 
 enum AchievementCategory
 {
@@ -243,7 +248,7 @@ enum AreaFlags
     AREA_FLAG_UNK0               = 0x00000001,                // Unknown
     AREA_FLAG_UNK1               = 0x00000002,                // Razorfen Downs, Naxxramas and Acherus: The Ebon Hold (3.3.5a)
     AREA_FLAG_UNK2               = 0x00000004,                // Only used for areas on map 571 (development before)
-    AREA_FLAG_SLAVE_CAPITAL      = 0x00000008,                // city and city subsones
+    AREA_FLAG_SLAVE_CAPITAL      = 0x00000008,                // city and city subzones
     AREA_FLAG_UNK3               = 0x00000010,                // can't find common meaning
     AREA_FLAG_SLAVE_CAPITAL2     = 0x00000020,                // slave capital city flag?
     AREA_FLAG_ALLOW_DUELS        = 0x00000040,                // allow to duel here
@@ -271,7 +276,7 @@ enum AreaFlags
     AREA_FLAG_NO_FLY_ZONE        = 0x20000000                 // Marks zones where you cannot fly
 };
 
-enum Difficulty
+enum Difficulty : uint8
 {
     REGULAR_DIFFICULTY           = 0,
 
@@ -312,7 +317,6 @@ enum SpawnMask
 
 enum FactionTemplateFlags
 {
-    FACTION_TEMPLATE_ENEMY_SPAR             = 0x00000020,   // guessed, sparring with enemies?
     FACTION_TEMPLATE_FLAG_PVP               = 0x00000800,   // flagged for PvP
     FACTION_TEMPLATE_FLAG_CONTESTED_GUARD   = 0x00001000,   // faction will attack players that were involved in PvP combats
     FACTION_TEMPLATE_FLAG_HOSTILE_BY_DEFAULT= 0x00002000
@@ -382,6 +386,18 @@ enum SpellCategoryFlags
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04
 };
 
+#define MAX_SPELL_EFFECTS 3
+#define MAX_EFFECT_MASK 7
+#define MAX_SPELL_REAGENTS 8
+
+enum EnchantmentSlotMask
+{
+    ENCHANTMENT_CAN_SOULBOUND = 0x01,
+    ENCHANTMENT_UNK1 = 0x02,
+    ENCHANTMENT_UNK2 = 0x04,
+    ENCHANTMENT_UNK3 = 0x08
+};
+
 // SummonProperties.dbc, col 1
 enum SummonPropGroup
 {
@@ -413,6 +429,13 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK15           = 0x00004000,          // Force of Nature, Shadowfiend, Feral Spirit, Summon Water Elemental
     SUMMON_PROP_FLAG_UNK16           = 0x00008000           // Light/Dark Bullet, Soul/Fiery Consumption, Twisted Visage, Twilight Whelp. Phase related?
 };
+
+#define MAX_TALENT_RANK 5
+#define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
+#define MAX_TALENT_TABS 3
+
+#define TaxiMaskSize 14
+typedef std::array<uint32, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
 {

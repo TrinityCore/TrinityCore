@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,14 +22,17 @@ Comment: All learn related commands
 Category: commandscripts
 EndScriptData */
 
-#include "Chat.h"
 #include "ScriptMgr.h"
-#include "ObjectMgr.h"
+#include "Chat.h"
+#include "DBCStores.h"
 #include "Language.h"
-#include "SpellMgr.h"
-#include "SpellInfo.h"
-#include "Player.h"
+#include "ObjectMgr.h"
 #include "Pet.h"
+#include "Player.h"
+#include "RBAC.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "WorldSession.h"
 
 class learn_commandscript : public CommandScript
 {
@@ -48,7 +51,7 @@ public:
 
         static std::vector<ChatCommand> learnAllCommandTable =
         {
-            { "my",      rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY,      false, NULL,                          "", learnAllMyCommandTable },
+            { "my",      rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY,      false, nullptr,                          "", learnAllMyCommandTable },
             { "gm",      rbac::RBAC_PERM_COMMAND_LEARN_ALL_GM,      false, &HandleLearnAllGMCommand,      "" },
             { "crafts",  rbac::RBAC_PERM_COMMAND_LEARN_ALL_CRAFTS,  false, &HandleLearnAllCraftsCommand,  "" },
             { "default", rbac::RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT, false, &HandleLearnAllDefaultCommand, "" },
@@ -58,13 +61,13 @@ public:
 
         static std::vector<ChatCommand> learnCommandTable =
         {
-            { "all", rbac::RBAC_PERM_COMMAND_LEARN_ALL, false, NULL,                "", learnAllCommandTable },
+            { "all", rbac::RBAC_PERM_COMMAND_LEARN_ALL, false, nullptr,                "", learnAllCommandTable },
             { "",    rbac::RBAC_PERM_COMMAND_LEARN,     false, &HandleLearnCommand, "" },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "learn",   rbac::RBAC_PERM_COMMAND_LEARN,   false, NULL,                  "", learnCommandTable },
+            { "learn",   rbac::RBAC_PERM_COMMAND_LEARN,   false, nullptr,                  "", learnCommandTable },
             { "unlearn", rbac::RBAC_PERM_COMMAND_UNLEARN, false, &HandleUnLearnCommand, "" },
         };
         return commandTable;
@@ -86,7 +89,7 @@ public:
         if (!spell || !sSpellMgr->GetSpellInfo(spell))
             return false;
 
-        char const* all = strtok(NULL, " ");
+        char const* all = strtok(nullptr, " ");
         bool allRanks = all ? (strncmp(all, "all", strlen(all)) == 0) : false;
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
@@ -314,9 +317,9 @@ public:
 
     static bool HandleLearnAllLangCommand(ChatHandler* handler, char const* /*args*/)
     {
-        // skipping UNIVERSAL language (0)
-        for (uint8 i = 1; i < LANGUAGES_COUNT; ++i)
-            handler->GetSession()->GetPlayer()->LearnSpell(lang_description[i].spell_id, false);
+        for (LanguageDesc const& langDesc : lang_description)
+            if (uint32 langSpellId = langDesc.spell_id)
+                handler->GetSession()->GetPlayer()->LearnSpell(langSpellId, false);
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_ALL_LANG);
         return true;
@@ -384,7 +387,7 @@ public:
 
         std::string name;
 
-        SkillLineEntry const* targetSkillInfo = NULL;
+        SkillLineEntry const* targetSkillInfo = nullptr;
         for (uint32 i = 1; i < sSkillLineStore.GetNumRows(); ++i)
         {
             SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(i);
@@ -480,7 +483,7 @@ public:
         if (!spellId)
             return false;
 
-        char const* allStr = strtok(NULL, " ");
+        char const* allStr = strtok(nullptr, " ");
         bool allRanks = allStr ? (strncmp(allStr, "all", strlen(allStr)) == 0) : false;
 
         Player* target = handler->getSelectedPlayer();

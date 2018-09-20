@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,8 +17,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
 #include "nexus.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 
 enum Spells
@@ -84,15 +85,15 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
 
-            events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12000);
-            events.ScheduleEvent(EVENT_TRAMPLE, 10000);
-            events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30000);
+            events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12s);
+            events.ScheduleEvent(EVENT_TRAMPLE, 10s);
+            events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30s);
             if (IsHeroic())
-                events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 17000);
+                events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 15s);
 
             Talk(SAY_AGGRO);
         }
@@ -135,22 +136,22 @@ public:
                 {
                     case EVENT_TRAMPLE:
                         DoCast(me, SPELL_TRAMPLE);
-                        events.ScheduleEvent(EVENT_TRAMPLE, 10000);
+                        events.ScheduleEvent(EVENT_TRAMPLE, 10s);
                         break;
                     case EVENT_SPELL_REFLECTION:
                         Talk(SAY_REFLECT);
                         DoCast(me, SPELL_SPELL_REFLECTION);
-                        events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30000);
+                        events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30s);
                         break;
                     case EVENT_CRYSTAL_SPIKES:
                         Talk(SAY_CRYSTAL_SPIKES);
                         DoCast(SPELL_CRYSTAL_SPIKES);
-                        events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12000);
+                        events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12s);
                         break;
                     case EVENT_CRYSTALLINE_TANGLER:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, OrmorokTanglerPredicate(me)))
                             DoCast(target, SPELL_SUMMON_CRYSTALLINE_TANGLER);
-                        events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 17000);
+                        events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 15s);
                         break;
                     default:
                         break;
@@ -170,7 +171,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_ormorokAI>(creature);
+        return GetNexusAI<boss_ormorokAI>(creature);
     }
 };
 
@@ -258,7 +259,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_crystal_spike_triggerAI(creature);
+        return GetNexusAI<npc_crystal_spike_triggerAI>(creature);
     }
 };
 

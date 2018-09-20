@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,10 +18,9 @@
 #ifndef _CHARACTERDATABASE_H
 #define _CHARACTERDATABASE_H
 
-#include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-enum CharacterDatabaseStatements
+enum CharacterDatabaseStatements : uint32
 {
     /*  Naming standard for defines:
         {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
@@ -33,7 +32,6 @@ enum CharacterDatabaseStatements
     CHAR_INS_QUEST_POOL_SAVE,
     CHAR_DEL_NONEXISTENT_GUILD_BANK_ITEM,
     CHAR_DEL_EXPIRED_BANS,
-    CHAR_SEL_GUID_BY_NAME,
     CHAR_SEL_CHECK_NAME,
     CHAR_SEL_CHECK_GUID,
     CHAR_SEL_SUM_CHARS,
@@ -51,8 +49,6 @@ enum CharacterDatabaseStatements
     CHAR_SEL_ENUM,
     CHAR_SEL_ENUM_DECLINED_NAME,
     CHAR_SEL_FREE_NAME,
-    CHAR_SEL_GUID_RACE_ACC_BY_NAME,
-    CHAR_SEL_CHAR_LEVEL,
     CHAR_SEL_CHAR_ZONE,
     CHAR_SEL_CHARACTER_NAME_DATA,
     CHAR_SEL_CHAR_POSITION_XYZ,
@@ -117,6 +113,9 @@ enum CharacterDatabaseStatements
     CHAR_DEL_AUCTION,
     CHAR_UPD_AUCTION_BID,
     CHAR_SEL_AUCTIONS,
+    CHAR_SEL_AUCTION_BIDDERS,
+    CHAR_INS_AUCTION_BIDDERS,
+    CHAR_DEL_AUCTION_BIDDERS,
     CHAR_INS_MAIL,
     CHAR_DEL_MAIL_BY_ID,
     CHAR_INS_MAIL_ITEM,
@@ -142,12 +141,11 @@ enum CharacterDatabaseStatements
     CHAR_DEL_GIFT,
     CHAR_SEL_CHARACTER_GIFT_BY_ITEM,
     CHAR_SEL_ACCOUNT_BY_NAME,
+    CHAR_UPD_ACCOUNT_BY_GUID,
     CHAR_DEL_ACCOUNT_INSTANCE_LOCK_TIMES,
     CHAR_INS_ACCOUNT_INSTANCE_LOCK_TIMES,
-    CHAR_SEL_CHARACTER_NAME_CLASS,
     CHAR_SEL_MATCH_MAKER_RATING,
     CHAR_SEL_CHARACTER_COUNT,
-    CHAR_UPD_NAME,
     CHAR_UPD_NAME_BY_GUID,
     CHAR_DEL_DECLINED_NAME,
 
@@ -214,7 +212,6 @@ enum CharacterDatabaseStatements
     CHAR_DEL_PLAYER_ACCOUNT_DATA,
 
     CHAR_SEL_TUTORIALS,
-    CHAR_SEL_HAS_TUTORIALS,
     CHAR_INS_TUTORIALS,
     CHAR_UPD_TUTORIALS,
     CHAR_DEL_TUTORIALS,
@@ -239,7 +236,6 @@ enum CharacterDatabaseStatements
     CHAR_UPD_ARENA_TEAM_MEMBER,
     CHAR_DEL_CHARACTER_ARENA_STATS,
     CHAR_REP_CHARACTER_ARENA_STATS,
-    CHAR_SEL_PLAYER_ARENA_TEAMS,
     CHAR_UPD_ARENA_TEAM_NAME,
 
     CHAR_SEL_PETITION,
@@ -271,7 +267,6 @@ enum CharacterDatabaseStatements
     CHAR_REP_CREATURE_RESPAWN,
     CHAR_DEL_CREATURE_RESPAWN,
     CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE,
-    CHAR_SEL_MAX_CREATURE_RESPAWNS,
 
     CHAR_SEL_GO_RESPAWNS,
     CHAR_REP_GO_RESPAWN,
@@ -323,6 +318,8 @@ enum CharacterDatabaseStatements
     CHAR_DEL_GROUP_INSTANCE_BY_GUID,
     CHAR_REP_GROUP_INSTANCE,
     CHAR_UPD_INSTANCE_RESETTIME,
+    CHAR_INS_GLOBAL_INSTANCE_RESETTIME,
+    CHAR_DEL_GLOBAL_INSTANCE_RESETTIME,
     CHAR_UPD_GLOBAL_INSTANCE_RESETTIME,
     CHAR_UPD_CHAR_ONLINE,
     CHAR_UPD_CHAR_NAME_AT_LOGIN,
@@ -333,8 +330,7 @@ enum CharacterDatabaseStatements
     CHAR_INS_CHAR_INSTANCE,
     CHAR_UPD_GENDER_AND_APPEARANCE,
     CHAR_DEL_CHARACTER_SKILL,
-    CHAR_UPD_ADD_CHARACTER_SOCIAL_FLAGS,
-    CHAR_UPD_REM_CHARACTER_SOCIAL_FLAGS,
+    CHAR_UPD_CHARACTER_SOCIAL_FLAGS,
     CHAR_INS_CHARACTER_SOCIAL,
     CHAR_DEL_CHARACTER_SOCIAL,
     CHAR_UPD_CHARACTER_SOCIAL_NOTE,
@@ -360,15 +356,14 @@ enum CharacterDatabaseStatements
     CHAR_SEL_POOL_QUEST_SAVE,
     CHAR_SEL_CHARACTER_AT_LOGIN,
     CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN,
-    CHAR_SEL_CHAR_AT_LOGIN_TITLES,
+    CHAR_SEL_CHAR_CUSTOMIZE_INFO,
+    CHAR_SEL_CHAR_RACE_OR_FACTION_CHANGE_INFOS,
     CHAR_SEL_INSTANCE,
     CHAR_SEL_PERM_BIND_BY_INSTANCE,
     CHAR_SEL_CHAR_COD_ITEM_MAIL,
     CHAR_SEL_CHAR_SOCIAL,
     CHAR_SEL_CHAR_OLD_CHARS,
-    CHAR_SEL_ARENA_TEAM_ID_BY_PLAYER_GUID,
     CHAR_SEL_MAIL,
-    CHAR_SEL_CHAR_GUID_BY_NAME,
     CHAR_DEL_CHAR_AURA_FROZEN,
     CHAR_SEL_CHAR_INVENTORY_COUNT_ITEM,
     CHAR_SEL_MAIL_COUNT_ITEM,
@@ -403,7 +398,7 @@ enum CharacterDatabaseStatements
     CHAR_DEL_PETITION_SIGNATURE_BY_GUID,
     CHAR_DEL_CHAR_DECLINED_NAME,
     CHAR_INS_CHAR_DECLINED_NAME,
-    CHAR_UPD_FACTION_OR_RACE,
+    CHAR_UPD_CHAR_RACE,
     CHAR_DEL_CHAR_SKILL_LANGUAGES,
     CHAR_INS_CHAR_SKILL_LANGUAGE,
     CHAR_UPD_CHAR_TAXI_PATH,
@@ -512,6 +507,7 @@ enum CharacterDatabaseStatements
     CHAR_UPD_CHAR_PET_SLOT_BY_ID,
     CHAR_DEL_CHAR_PET_BY_ID,
     CHAR_DEL_CHAR_PET_BY_SLOT,
+    CHAR_INS_PET,
 
     CHAR_SEL_ITEMCONTAINER_ITEMS,
     CHAR_DEL_ITEMCONTAINER_ITEMS,
@@ -542,13 +538,12 @@ public:
     typedef CharacterDatabaseStatements Statements;
 
     //- Constructors for sync and async connections
-    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-    CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo);
+    CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    ~CharacterDatabaseConnection();
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;
 };
-
-typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;
 
 #endif

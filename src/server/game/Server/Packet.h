@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@ namespace WorldPackets
     class TC_GAME_API Packet
     {
     public:
-        Packet(WorldPacket&& worldPacket) : _worldPacket(std::move(worldPacket)) { }
+        Packet(WorldPacket&& worldPacket);
 
         virtual ~Packet() = default;
 
@@ -42,31 +42,27 @@ namespace WorldPackets
         WorldPacket _worldPacket;
     };
 
-    class ServerPacket : public Packet
+    class TC_GAME_API ServerPacket : public Packet
     {
     public:
-        ServerPacket(OpcodeServer opcode, size_t initialSize = 200) : Packet(WorldPacket(opcode, initialSize)) { }
+        ServerPacket(OpcodeServer opcode, size_t initialSize = 200);
 
-        void Read() override final { ASSERT(!"Read not implemented for server packets."); }
+        void Read() override final;
 
         void Clear() { _worldPacket.clear(); }
         WorldPacket&& Move() { return std::move(_worldPacket); }
+        void ShrinkToFit() { _worldPacket.shrink_to_fit(); }
 
         OpcodeServer GetOpcode() const { return OpcodeServer(_worldPacket.GetOpcode()); }
     };
 
-    class ClientPacket : public Packet
+    class TC_GAME_API ClientPacket : public Packet
     {
     public:
-        ClientPacket(WorldPacket&& packet) : Packet(std::move(packet)) { }
-        ClientPacket(OpcodeClient expectedOpcode, WorldPacket&& packet) : Packet(std::move(packet)) { ASSERT(GetOpcode() == expectedOpcode); }
+        ClientPacket(WorldPacket&& packet);
+        ClientPacket(OpcodeClient expectedOpcode, WorldPacket&& packet);
 
-        WorldPacket const* Write() override final
-        {
-            ASSERT(!"Write not allowed for client packets.");
-            // Shut up some compilers
-            return nullptr;
-        }
+        WorldPacket const* Write() override final;
 
         OpcodeClient GetOpcode() const { return OpcodeClient(_worldPacket.GetOpcode()); }
     };

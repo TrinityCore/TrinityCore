@@ -1,0 +1,3 @@
+-- 
+DELETE FROM `gameobject` WHERE `guid` BETWEEN 99928 AND 99934;
+DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN 99928 AND 99934;

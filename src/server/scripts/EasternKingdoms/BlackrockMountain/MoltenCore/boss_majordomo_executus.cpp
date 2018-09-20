@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,12 +23,14 @@ SDComment: Correct spawning and Event NYI
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "molten_core.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "molten_core.h"
-#include "Player.h"
 
 enum Texts
 {
@@ -55,7 +57,6 @@ enum Spells
 enum Extras
 {
     OPTION_ID_YOU_CHALLENGED_US   = 0,
-    FACTION_FRIENDLY              = 35,
     MENU_OPTION_YOU_CHALLENGED_US = 4108
 };
 
@@ -88,14 +89,14 @@ class boss_majordomo : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_MAGIC_REFLECTION, 30000);
-                events.ScheduleEvent(EVENT_DAMAGE_REFLECTION, 15000);
-                events.ScheduleEvent(EVENT_BLAST_WAVE, 10000);
-                events.ScheduleEvent(EVENT_TELEPORT, 20000);
+                events.ScheduleEvent(EVENT_MAGIC_REFLECTION, 30s);
+                events.ScheduleEvent(EVENT_DAMAGE_REFLECTION, 15s);
+                events.ScheduleEvent(EVENT_BLAST_WAVE, 10s);
+                events.ScheduleEvent(EVENT_TELEPORT, 20s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -109,8 +110,8 @@ class boss_majordomo : public CreatureScript
 
                     if (!me->FindNearestCreature(NPC_FLAMEWAKER_HEALER, 100.0f) && !me->FindNearestCreature(NPC_FLAMEWAKER_ELITE, 100.0f))
                     {
-                        instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, me->GetEntry(), me);
-                        me->setFaction(FACTION_FRIENDLY);
+                        instance->UpdateEncounterStateForKilledCreature(me->GetEntry(), me);
+                        me->SetFaction(FACTION_FRIENDLY);
                         EnterEvadeMode();
                         Talk(SAY_DEFEAT);
                         _JustDied();
@@ -130,20 +131,20 @@ class boss_majordomo : public CreatureScript
                         {
                             case EVENT_MAGIC_REFLECTION:
                                 DoCast(me, SPELL_MAGIC_REFLECTION);
-                                events.ScheduleEvent(EVENT_MAGIC_REFLECTION, 30000);
+                                events.ScheduleEvent(EVENT_MAGIC_REFLECTION, 30s);
                                 break;
                             case EVENT_DAMAGE_REFLECTION:
                                 DoCast(me, SPELL_DAMAGE_REFLECTION);
-                                events.ScheduleEvent(EVENT_DAMAGE_REFLECTION, 30000);
+                                events.ScheduleEvent(EVENT_DAMAGE_REFLECTION, 30s);
                                 break;
                             case EVENT_BLAST_WAVE:
                                 DoCastVictim(SPELL_BLAST_WAVE);
-                                events.ScheduleEvent(EVENT_BLAST_WAVE, 10000);
+                                events.ScheduleEvent(EVENT_BLAST_WAVE, 10s);
                                 break;
                             case EVENT_TELEPORT:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                     DoCast(target, SPELL_TELEPORT);
-                                events.ScheduleEvent(EVENT_TELEPORT, 20000);
+                                events.ScheduleEvent(EVENT_TELEPORT, 20s);
                                 break;
                             default:
                                 break;
@@ -191,24 +192,25 @@ class boss_majordomo : public CreatureScript
                 }
                 else if (action == ACTION_START_RAGNAROS_ALT)
                 {
-                    me->setFaction(FACTION_FRIENDLY);
+                    me->SetFaction(FACTION_FRIENDLY);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == MENU_OPTION_YOU_CHALLENGED_US && gossipListId == OPTION_ID_YOU_CHALLENGED_US)
                 {
                     CloseGossipMenuFor(player);
                     DoAction(ACTION_START_RAGNAROS);
                 }
+                return false;
             }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_majordomoAI>(creature);
+            return GetMoltenCoreAI<boss_majordomoAI>(creature);
         }
 };
 

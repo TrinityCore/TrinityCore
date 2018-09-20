@@ -1,26 +1,25 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITYSERVER_MOVESPLINEFLAG_H
 #define TRINITYSERVER_MOVESPLINEFLAG_H
-#include "MovementTypedefs.h"
 
-#include <string>
+#include "MovementTypedefs.h"
 
 namespace Movement
 {
@@ -37,7 +36,7 @@ namespace Movement
             Falling             = 0x00000200,           // Affects elevation computation, can't be combined with Parabolic flag
             No_Spline           = 0x00000400,
             Parabolic           = 0x00000800,           // Affects elevation computation, can't be combined with Falling flag
-            Walkmode            = 0x00001000,
+            CanSwim             = 0x00001000,
             Flying              = 0x00002000,           // Smooth movement(Catmullrom interpolation mode), flying animation
             OrientationFixed    = 0x00004000,           // Model orientation fixed
             Final_Point         = 0x00008000,
@@ -52,7 +51,7 @@ namespace Movement
             TransportExit       = 0x01000000,
             Unknown7            = 0x02000000,
             Unknown8            = 0x04000000,
-            OrientationInversed = 0x08000000,
+            Backward            = 0x08000000,
             Unknown10           = 0x10000000,
             Unknown11           = 0x20000000,
             Unknown12           = 0x40000000,
@@ -71,11 +70,11 @@ namespace Movement
         };
 
         inline uint32& raw() { return (uint32&)*this; }
-        inline const uint32& raw() const { return (const uint32&)*this; }
+        inline uint32 const& raw() const { return (uint32 const&)*this; }
 
         MoveSplineFlag() { raw() = 0; }
         MoveSplineFlag(uint32 f) { raw() = f; }
-        MoveSplineFlag(const MoveSplineFlag& f) { raw() = f.raw(); }
+        MoveSplineFlag(MoveSplineFlag const& f) { raw() = f.raw(); }
 
         // Constant interface
 
@@ -111,7 +110,7 @@ namespace Movement
         bool falling             : 1;
         bool no_spline           : 1;
         bool parabolic           : 1;
-        bool walkmode            : 1;
+        bool canswim             : 1;
         bool flying              : 1;
         bool orientationFixed    : 1;
         bool final_point         : 1;
@@ -126,7 +125,7 @@ namespace Movement
         bool transportExit       : 1;
         bool unknown7            : 1;
         bool unknown8            : 1;
-        bool orientationInversed : 1;
+        bool backward            : 1;
         bool unknown10           : 1;
         bool unknown11           : 1;
         bool unknown12           : 1;

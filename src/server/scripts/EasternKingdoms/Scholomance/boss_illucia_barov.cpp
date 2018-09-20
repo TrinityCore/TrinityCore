@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,15 +23,16 @@ Category: Scholomance
 */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "scholomance.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
-    SPELL_CURSEOFAGONY          = 34794,
-    SPELL_SHADOWSHOCK           = 34799,
-    SPELL_SILENCE               = 34803,
-    SPELL_FEAR                  = 34803
+    SPELL_CURSEOFAGONY          = 18671,
+    SPELL_DOMINATE              = 7645, // UNUSED YET added for documentation
+    SPELL_FEAR                  = 12542,
+    SPELL_SHADOWSHOCK           = 17234,
+    SPELL_SILENCE               = 12528
 };
 
 enum Events
@@ -50,13 +51,13 @@ class boss_illucia_barov : public CreatureScript
         {
             boss_illuciabarovAI(Creature* creature) : BossAI(creature, DATA_LADYILLUCIABAROV) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_CURSEOFAGONY, 18000);
-                events.ScheduleEvent(EVENT_SHADOWSHOCK, 9000);
-                events.ScheduleEvent(EVENT_SILENCE, 5000);
-                events.ScheduleEvent(EVENT_FEAR, 30000);
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_CURSEOFAGONY, 18s);
+                events.ScheduleEvent(EVENT_SHADOWSHOCK, 9s);
+                events.ScheduleEvent(EVENT_SILENCE, 5s);
+                events.ScheduleEvent(EVENT_FEAR, 30s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -75,19 +76,19 @@ class boss_illucia_barov : public CreatureScript
                     {
                         case EVENT_CURSEOFAGONY:
                             DoCastVictim(SPELL_CURSEOFAGONY, true);
-                            events.ScheduleEvent(EVENT_CURSEOFAGONY, 30000);
+                            events.ScheduleEvent(EVENT_CURSEOFAGONY, 30s);
                             break;
                         case EVENT_SHADOWSHOCK:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_SHADOWSHOCK, true);
-                            events.ScheduleEvent(EVENT_SHADOWSHOCK, 12000);
+                            events.ScheduleEvent(EVENT_SHADOWSHOCK, 12s);
                             break;
                         case EVENT_SILENCE:
                             DoCastVictim(SPELL_SILENCE, true);
-                            events.ScheduleEvent(EVENT_SILENCE, 14000);
+                            events.ScheduleEvent(EVENT_SILENCE, 14s);
                             break;
                         case EVENT_FEAR:
                             DoCastVictim(SPELL_FEAR, true);
-                            events.ScheduleEvent(EVENT_FEAR, 30000);
+                            events.ScheduleEvent(EVENT_FEAR, 30s);
                             break;
                         default:
                             break;
@@ -103,7 +104,7 @@ class boss_illucia_barov : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_illuciabarovAI(creature);
+            return GetScholomanceAI<boss_illuciabarovAI>(creature);
         }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,10 +54,10 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(5000, 9000));
+            _JustEngagedWith();
+            events.ScheduleEvent(EVENT_POISON_CLOUD, 5s, 9s);
         }
 
         void DamageTaken(Unit* /*atacker*/, uint32 &damage) override
@@ -75,7 +75,7 @@ public:
             {
                 case EVENT_POISON_CLOUD:
                     DoCastVictim(SPELL_POISON_CLOUD);
-                    events.ScheduleEvent(EVENT_POISON_CLOUD, urand(25000, 50000));
+                    events.ScheduleEvent(EVENT_POISON_CLOUD, 25s, 50s);
                     break;
                 default:
                     break;
@@ -88,7 +88,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_aku_maiAI>(creature);
+        return GetBlackfathomDeepsAI<boss_aku_maiAI>(creature);
     }
 };
 

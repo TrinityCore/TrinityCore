@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +23,9 @@
 #include "DBCEnums.h"
 #include "Battleground.h"
 #include "BattlegroundQueue.h"
+#include <unordered_map>
+
+struct BattlemasterListEntry;
 
 typedef std::map<uint32, Battleground*> BattlegroundContainer;
 typedef std::set<uint32> BattlegroundClientIdsContainer;
@@ -56,7 +59,7 @@ struct BattlegroundTemplate
     uint32 ScriptId;
     BattlemasterListEntry const* BattlemasterEntry;
 
-    bool IsArena() const { return BattlemasterEntry->type == MAP_ARENA; }
+    bool IsArena() const;
 };
 
 class TC_GAME_API BattlegroundMgr

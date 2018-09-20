@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -73,8 +73,8 @@ class boss_moam : public CreatureScript
                 _Reset();
                 me->SetPower(POWER_MANA, 0);
                 Initialize();
-                events.ScheduleEvent(EVENT_STONE_PHASE, 90000);
-                //events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
+                events.ScheduleEvent(EVENT_STONE_PHASE, 90s);
+                //events.ScheduleEvent(EVENT_WIDE_SLASH, 11s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -93,7 +93,7 @@ class boss_moam : public CreatureScript
                     case ACTION_STONE_PHASE_END:
                     {
                         me->RemoveAurasDueToSpell(SPELL_ENERGIZE);
-                        events.ScheduleEvent(EVENT_STONE_PHASE, 90000);
+                        events.ScheduleEvent(EVENT_STONE_PHASE, 90s);
                         _isStonePhase = false;
                         break;
                     }
@@ -103,7 +103,7 @@ class boss_moam : public CreatureScript
                         DoCast(me, SPELL_SUMMON_MANA_FIEND_2);
                         DoCast(me, SPELL_SUMMON_MANA_FIEND_3);
                         DoCast(me, SPELL_ENERGIZE);
-                        events.ScheduleEvent(EVENT_STONE_PHASE_END, 90000);
+                        events.ScheduleEvent(EVENT_STONE_PHASE_END, 90s);
                         break;
                     }
                     default:
@@ -148,27 +148,26 @@ class boss_moam : public CreatureScript
                         {
                             std::list<Unit*> targetList;
                             {
-                                const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
-                                for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                                    if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->getPowerType() == POWER_MANA)
-                                        targetList.push_back((*itr)->getTarget());
+                                for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
+                                    if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetVictim()->GetPowerType() == POWER_MANA)
+                                        targetList.push_back(ref->GetVictim());
                             }
 
-                            Trinity::Containers::RandomResizeList(targetList, 5);
+                            Trinity::Containers::RandomResize(targetList, 5);
 
                             for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                                 DoCast(*itr, SPELL_DRAIN_MANA);
 
-                            events.ScheduleEvent(EVENT_DRAIN_MANA, urand(5000, 15000));
+                            events.ScheduleEvent(EVENT_DRAIN_MANA, 5s, 15s);
                             break;
                         }/*
                         case EVENT_WIDE_SLASH:
                             DoCast(me, SPELL_WIDE_SLASH);
-                            events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
+                            events.ScheduleEvent(EVENT_WIDE_SLASH, 11s);
                             break;
                         case EVENT_TRASH:
                             DoCast(me, SPELL_TRASH);
-                            events.ScheduleEvent(EVENT_WIDE_SLASH, 16000);
+                            events.ScheduleEvent(EVENT_WIDE_SLASH, 15s);
                             break;*/
                         default:
                             break;
@@ -183,7 +182,7 @@ class boss_moam : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_moamAI(creature);
+            return GetAQ20AI<boss_moamAI>(creature);
         }
 };
 

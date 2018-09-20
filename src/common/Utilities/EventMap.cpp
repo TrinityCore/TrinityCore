@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "EventMap.h"
+#include "Random.h"
 
 void EventMap::Reset()
 {
@@ -32,6 +33,11 @@ void EventMap::SetPhase(uint8 phase)
         _phase = uint8(1 << (phase - 1));
 }
 
+void EventMap::ScheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group /*= 0*/, uint32 phase /*= 0*/)
+{
+    ScheduleEvent(eventId, urand(uint32(minTime.count()), uint32(maxTime.count())), group, phase);
+}
+
 void EventMap::ScheduleEvent(uint32 eventId, uint32 time, uint32 group /*= 0*/, uint8 phase /*= 0*/)
 {
     if (group && group <= 8)
@@ -41,6 +47,16 @@ void EventMap::ScheduleEvent(uint32 eventId, uint32 time, uint32 group /*= 0*/, 
         eventId |= (1 << (phase + 23));
 
     _eventMap.insert(EventStore::value_type(_time + time, eventId));
+}
+
+void EventMap::RescheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group /*= 0*/, uint32 phase /*= 0*/)
+{
+    RescheduleEvent(eventId, urand(uint32(minTime.count()), uint32(maxTime.count())), group, phase);
+}
+
+void EventMap::Repeat(uint32 minTime, uint32 maxTime)
+{
+    Repeat(urand(minTime, maxTime));
 }
 
 uint32 EventMap::ExecuteEvent()

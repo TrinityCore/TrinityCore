@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,16 +19,19 @@
 #ifndef DEF_SERPENT_SHRINE_H
 #define DEF_SERPENT_SHRINE_H
 
+#include "CreatureAIImpl.h"
+
+#define SSCScriptName "instance_serpent_shrine"
 #define DataHeader "SS"
 
-enum WaterEventState
+enum SSWaterEventState
 {
     WATERSTATE_NONE     = 0,
     WATERSTATE_FRENZY   = 1,
     WATERSTATE_SCALDING = 2
 };
 
-enum DataTypes
+enum SSDataTypes
 {
     DATA_CANSTARTPHASE3             = 1,
     DATA_CARIBDIS                   = 2,
@@ -57,5 +60,10 @@ enum DataTypes
     DATA_TRASH                      = 25,
 };
 
-#endif
+template <class AI, class T>
+inline AI* GetSerpentshrineCavernAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, SSCScriptName);
+}
 
+#endif

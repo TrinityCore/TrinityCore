@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "naxxramas.h"
-#include "Player.h"
 
 enum Spells
 {
@@ -77,7 +81,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_heiganAI>(creature);
+        return GetNaxxramasAI<boss_heiganAI>(creature);
     }
 
     struct boss_heiganAI : public BossAI
@@ -110,16 +114,16 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
 
             _safeSection = 0;
             events.ScheduleEvent(EVENT_DISRUPT, randtime(Seconds(15), Seconds(20)), 0, PHASE_FIGHT);
             events.ScheduleEvent(EVENT_FEVER, randtime(Seconds(10), Seconds(20)), 0, PHASE_FIGHT);
             events.ScheduleEvent(EVENT_DANCE, Minutes(1) + Seconds(30), 0, PHASE_FIGHT);
-            events.ScheduleEvent(EVENT_ERUPT, Seconds(15), 0, PHASE_FIGHT);
+            events.ScheduleEvent(EVENT_ERUPT, 15s);
 
             _safetyDance = true;
 
@@ -131,8 +135,8 @@ public:
                 _eruptTiles[section].clear();
                 for (uint8 i = 0; i < numEruptions[section]; ++i)
                 {
-                    std::pair<std::unordered_multimap<uint32, GameObject*>::const_iterator, std::unordered_multimap<uint32, GameObject*>::const_iterator> tileIt = mapGOs.equal_range(spawnId++);
-                    for (std::unordered_multimap<uint32, GameObject*>::const_iterator it = tileIt.first; it != tileIt.second; ++it)
+                    auto tileIt = mapGOs.equal_range(spawnId++);
+                    for (auto it = tileIt.first; it != tileIt.second; ++it)
                         _eruptTiles[section].push_back(it->second->GetGUID());
                 }
             }
@@ -168,7 +172,7 @@ public:
                         DoCast(SPELL_TELEPORT_SELF);
                         DoCastAOE(SPELL_PLAGUE_CLOUD);
                         events.ScheduleEvent(EVENT_DANCE_END, Seconds(45), 0, PHASE_DANCE);
-                        events.ScheduleEvent(EVENT_ERUPT, Seconds(10));
+                        events.RescheduleEvent(EVENT_ERUPT, Seconds(10));
                         break;
                     case EVENT_DANCE_END:
                         events.SetPhase(PHASE_FIGHT);
@@ -177,7 +181,7 @@ public:
                         events.ScheduleEvent(EVENT_DISRUPT, randtime(Seconds(10), Seconds(25)), 0, PHASE_FIGHT);
                         events.ScheduleEvent(EVENT_FEVER, randtime(Seconds(15), Seconds(20)), 0, PHASE_FIGHT);
                         events.ScheduleEvent(EVENT_DANCE, Minutes(1) + Seconds(30), 0, PHASE_FIGHT);
-                        events.ScheduleEvent(EVENT_ERUPT, Seconds(15), 0, PHASE_FIGHT);
+                        events.RescheduleEvent(EVENT_ERUPT, Seconds(15));
                         me->CastStop();
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoZoneInCombat();
@@ -230,13 +234,13 @@ class spell_heigan_eruption : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*eff*/)
             {
                 Unit* caster = GetCaster();
-                if (!caster || !GetHitPlayer())
+                if (!caster || !GetHitUnit())
                     return;
 
-                if (GetHitDamage() >= int32(GetHitPlayer()->GetHealth()))
+                if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_HEIGAN)))
-                            Heigan->AI()->KilledUnit(GetHitPlayer());
+                            Heigan->AI()->KilledUnit(GetHitUnit());
             }
 
             void Register() override

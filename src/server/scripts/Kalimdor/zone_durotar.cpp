@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,99 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Vehicle.h"
-#include "SpellScript.h"
+#include "CreatureAIImpl.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-
-/*######
-##Quest 5441: Lazy Peons
-##npc_lazy_peon
-######*/
-
-enum LazyPeonYells
-{
-    SAY_SPELL_HIT                                 = 0
-};
-
-enum LazyPeon
-{
-    QUEST_LAZY_PEONS                              = 5441,
-    GO_LUMBERPILE                                 = 175784,
-    SPELL_BUFF_SLEEP                              = 17743,
-    SPELL_AWAKEN_PEON                             = 19938
-};
-
-class npc_lazy_peon : public CreatureScript
-{
-public:
-    npc_lazy_peon() : CreatureScript("npc_lazy_peon") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_lazy_peonAI(creature);
-    }
-
-    struct npc_lazy_peonAI : public ScriptedAI
-    {
-        npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            RebuffTimer = 0;
-            work = false;
-        }
-
-        uint32 RebuffTimer;
-        bool work;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void MovementInform(uint32 /*type*/, uint32 id) override
-        {
-            if (id == 1)
-                work = true;
-        }
-
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
-        {
-            if (spell->Id != SPELL_AWAKEN_PEON)
-                return;
-
-            Player* player = caster->ToPlayer();
-            if (player && player->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)
-            {
-                player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
-                Talk(SAY_SPELL_HIT, caster);
-                me->RemoveAllAuras();
-                if (GameObject* Lumberpile = me->FindNearestGameObject(GO_LUMBERPILE, 20))
-                    me->GetMotionMaster()->MovePoint(1, Lumberpile->GetPositionX()-1, Lumberpile->GetPositionY(), Lumberpile->GetPositionZ());
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (work == true)
-                me->HandleEmoteCommand(EMOTE_ONESHOT_WORK_CHOPWOOD);
-            if (RebuffTimer <= diff)
-            {
-                DoCast(me, SPELL_BUFF_SLEEP);
-                RebuffTimer = 300000;                 //Rebuff agian in 5 minutes
-            }
-            else
-                RebuffTimer -= diff;
-            if (!UpdateVictim())
-                return;
-            DoMeleeAttackIfReady();
-        }
-    };
-};
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 enum Texts
 {
@@ -188,7 +104,7 @@ class npc_tiger_matriarch_credit : public CreatureScript
            npc_tiger_matriarch_creditAI(Creature* creature) : ScriptedAI(creature)
            {
                SetCombatMovement(false);
-               events.ScheduleEvent(EVENT_CHECK_SUMMON_AURA, 2000);
+               events.ScheduleEvent(EVENT_CHECK_SUMMON_AURA, 2s);
            }
 
             void UpdateAI(uint32 diff) override
@@ -218,7 +134,7 @@ class npc_tiger_matriarch_credit : public CreatureScript
                         }
                     }
 
-                    events.ScheduleEvent(EVENT_CHECK_SUMMON_AURA, 5000);
+                    events.ScheduleEvent(EVENT_CHECK_SUMMON_AURA, 5s);
                 }
             }
 
@@ -243,11 +159,11 @@ class npc_tiger_matriarch : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_POUNCE, 100);
-                _events.ScheduleEvent(EVENT_NOSUMMON, 50000);
+                _events.ScheduleEvent(EVENT_POUNCE, 100ms);
+                _events.ScheduleEvent(EVENT_NOSUMMON, 50s);
             }
 
             void IsSummonedBy(Unit* summoner) override
@@ -258,7 +174,7 @@ class npc_tiger_matriarch : public CreatureScript
                 _tigerGuid = summoner->GetVehicle()->GetBase()->GetGUID();
                 if (Unit* tiger = ObjectAccessor::GetUnit(*me, _tigerGuid))
                 {
-                    me->AddThreat(tiger, 500000.0f);
+                    AddThreat(tiger, 500000.0f);
                     DoCast(me, SPELL_FURIOUS_BITE);
                 }
             }
@@ -280,7 +196,7 @@ class npc_tiger_matriarch : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
-                if (!attacker->IsSummon())
+                if (!attacker || !attacker->IsSummon())
                     return;
 
                 if (HealthBelowPct(20))
@@ -318,7 +234,7 @@ class npc_tiger_matriarch : public CreatureScript
                     {
                         case EVENT_POUNCE:
                             DoCastVictim(SPELL_POUNCE);
-                            _events.ScheduleEvent(EVENT_POUNCE, 30000);
+                            _events.ScheduleEvent(EVENT_POUNCE, 30s);
                             break;
                         case EVENT_NOSUMMON: // Reapply SPELL_NO_SUMMON_AURA
                             if (Unit* tiger = ObjectAccessor::GetUnit(*me, _tigerGuid))
@@ -327,7 +243,7 @@ class npc_tiger_matriarch : public CreatureScript
                                     if (Unit* vehSummoner = tiger->ToTempSummon()->GetSummoner())
                                         me->AddAura(SPELL_NO_SUMMON_AURA, vehSummoner);
                             }
-                            _events.ScheduleEvent(EVENT_NOSUMMON, 50000);
+                            _events.ScheduleEvent(EVENT_NOSUMMON, 50s);
                             break;
                         default:
                             break;
@@ -462,9 +378,7 @@ class spell_mount_check : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MOUNTING_CHECK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MOUNTING_CHECK });
             }
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -510,11 +424,7 @@ class spell_voljin_war_drums : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MOTIVATE_1))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_MOTIVATE_2))
-                    return false;
-               return true;
+                return ValidateSpellInfo({ SPELL_MOTIVATE_1, SPELL_MOTIVATE_2 });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -567,12 +477,7 @@ class spell_voodoo : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BREW) || !sSpellMgr->GetSpellInfo(SPELL_GHOSTLY) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HEX1) || !sSpellMgr->GetSpellInfo(SPELL_HEX2) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HEX3) || !sSpellMgr->GetSpellInfo(SPELL_GROW) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_LAUNCH))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BREW, SPELL_GHOSTLY, SPELL_HEX1, SPELL_HEX2, SPELL_HEX3, SPELL_GROW, SPELL_LAUNCH });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -596,7 +501,6 @@ class spell_voodoo : public SpellScriptLoader
 
 void AddSC_durotar()
 {
-    new npc_lazy_peon();
     new npc_tiger_matriarch_credit();
     new npc_tiger_matriarch();
     new npc_troll_volunteer();

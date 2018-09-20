@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,11 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "SpellInfo.h"
 
 enum Yells
 {
@@ -82,7 +83,7 @@ class boss_faerlina : public CreatureScript
 
             void InitializeAI() override
             {
-                if (!me->isDead())
+                if (!me->isDead() && instance->GetBossState(BOSS_FAERLINA) != DONE)
                 {
                     Reset();
                     SummonAdds();
@@ -95,14 +96,14 @@ class boss_faerlina : public CreatureScript
                 SummonAdds();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 summons.DoZoneInCombat();
                 events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
                 events.ScheduleEvent(EVENT_FIRE, randtime(Seconds(6), Seconds(18)));
-                events.ScheduleEvent(EVENT_FRENZY, Minutes(1)+randtime(Seconds(0), Seconds(20)));
+                events.ScheduleEvent(EVENT_FRENZY, Minutes(1)+randtime(0s, Seconds(20)));
             }
 
             void Reset() override
@@ -129,7 +130,7 @@ class boss_faerlina : public CreatureScript
                 {
                     ++_frenzyDispels;
                     Talk(EMOTE_WIDOW_EMBRACE, caster);
-                    me->Kill(caster);
+                    Unit::Kill(me, caster);
                 }
             }
 
@@ -172,7 +173,7 @@ class boss_faerlina : public CreatureScript
                             {
                                 DoCast(SPELL_FRENZY);
                                 Talk(EMOTE_FRENZY);
-                                events.Repeat(Minutes(1) + randtime(Seconds(0), Seconds(20)));
+                                events.Repeat(Minutes(1) + randtime(0s, Seconds(20)));
                             }
                             break;
                     }
@@ -190,7 +191,7 @@ class boss_faerlina : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_faerlinaAI(creature);
+            return GetNaxxramasAI<boss_faerlinaAI>(creature);
         }
 };
 
@@ -214,10 +215,10 @@ class npc_faerlina_add : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FAERLINA)))
-                    faerlina->AI()->DoZoneInCombat(nullptr, 250.0f);
+                    faerlina->AI()->DoZoneInCombat();
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -244,7 +245,7 @@ class npc_faerlina_add : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_faerlina_addAI>(creature);
+            return GetNaxxramasAI<npc_faerlina_addAI>(creature);
         }
 };
 
@@ -259,20 +260,19 @@ class achievement_momma_said_knock_you_out : public AchievementCriteriaScript
         }
 };
 
-class at_faerlina_entrance : public AreaTriggerScript
+class at_faerlina_entrance : public OnlyOnceAreaTriggerScript
 {
     public:
-        at_faerlina_entrance() : AreaTriggerScript("at_faerlina_entrance") { }
+        at_faerlina_entrance() : OnlyOnceAreaTriggerScript("at_faerlina_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
-            if (!instance || instance->GetData(DATA_HAD_FAERLINA_GREET) || instance->GetBossState(BOSS_FAERLINA) != NOT_STARTED)
+            if (!instance || instance->GetBossState(BOSS_FAERLINA) != NOT_STARTED)
                 return true;
 
             if (Creature* faerlina = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_FAERLINA)))
                 faerlina->AI()->Talk(SAY_GREET);
-            instance->SetData(DATA_HAD_FAERLINA_GREET, 1u);
 
             return true;
         }

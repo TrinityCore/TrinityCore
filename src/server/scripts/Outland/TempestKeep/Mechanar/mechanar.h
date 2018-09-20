@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,14 @@
 #ifndef DEF_MECHANAR_H
 #define DEF_MECHANAR_H
 
+#include "CreatureAIImpl.h"
+
+#define MechanarScriptName "instance_mechanar"
 #define DataHeader "MR"
 
 uint32 const EncounterCount             = 5;
 
-enum DataTypes
+enum MRDataTypes
 {
     DATA_GATEWATCHER_GYROKILL           = 0,
     DATA_GATEWATCHER_IRON_HAND          = 1,
@@ -31,11 +34,17 @@ enum DataTypes
     DATA_PATHALEON_THE_CALCULATOR       = 4
 };
 
-enum GameobjectIds
+enum MRGameobjectIds
 {
     GO_DOOR_MOARG_1                     = 184632,
     GO_DOOR_MOARG_2                     = 184322,
     GO_DOOR_NETHERMANCER                = 184449
 };
+
+template <class AI, class T>
+inline AI* GetMechanarAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, MechanarScriptName);
+}
 
 #endif

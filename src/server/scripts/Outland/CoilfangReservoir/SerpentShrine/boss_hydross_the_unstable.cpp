@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,11 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
+#include "TemporarySummon.h"
 
 enum HydrossTheUnstable
 {
@@ -86,7 +89,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_hydross_the_unstableAI>(creature);
+        return GetSerpentshrineCavernAI<boss_hydross_the_unstableAI>(creature);
     }
 
     struct boss_hydross_the_unstableAI : public ScriptedAI
@@ -168,13 +171,10 @@ public:
             for (uint8 i = 0; i < 2; ++i)
             {
                 if (Creature* mob = ObjectAccessor::GetCreature(*me, beams[i]))
-                {
-                    mob->setDeathState(DEAD);
-                    mob->RemoveCorpse();
-                }
+                    mob->DespawnOrUnsummon();
             }
         }
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -220,7 +220,7 @@ public:
             if (!beam)
             {
                 SummonBeams();
-                beam=true;
+                beam = true;
             }
             //Return since we have no target
             if (!UpdateVictim())
@@ -292,7 +292,7 @@ public:
                         MarkOfHydross_Count = 0;
 
                         Talk(SAY_SWITCH_TO_CLEAN);
-                        DoResetThreat();
+                        ResetThreatList();
                         SummonBeams();
 
                         // spawn 4 adds
@@ -376,7 +376,7 @@ public:
                         CorruptedForm = true;
 
                         Talk(SAY_SWITCH_TO_CORRUPT);
-                        DoResetThreat();
+                        ResetThreatList();
                         DeSummonBeams();
 
                         // spawn 4 adds

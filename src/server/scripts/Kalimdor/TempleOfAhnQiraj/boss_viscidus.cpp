@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "temple_of_ahnqiraj.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -115,7 +119,7 @@ class boss_viscidus : public CreatureScript
 
                 ++_hitcounter;
 
-                if (attacker->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && _hitcounter >= HITCOUNTER_EXPLODE)
+                if (attacker && attacker->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && _hitcounter >= HITCOUNTER_EXPLODE)
                 {
                     Talk(EMOTE_EXPLODE);
                     events.Reset();
@@ -160,7 +164,7 @@ class boss_viscidus : public CreatureScript
                         _phase = PHASE_MELEE;
                         DoCast(me, SPELL_VISCIDUS_FREEZE);
                         me->RemoveAura(SPELL_VISCIDUS_SLOWED_MORE);
-                        events.ScheduleEvent(EVENT_RESET_PHASE, 15000);
+                        events.ScheduleEvent(EVENT_RESET_PHASE, 15s);
                     }
                     else if (_hitcounter >= HITCOUNTER_SLOW_MORE)
                     {
@@ -176,9 +180,9 @@ class boss_viscidus : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.Reset();
                 InitSpells();
             }
@@ -186,8 +190,8 @@ class boss_viscidus : public CreatureScript
             void InitSpells()
             {
                 DoCast(me, SPELL_TOXIN);
-                events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, urand(10000, 15000));
-                events.ScheduleEvent(EVENT_POISON_SHOCK, urand(7000, 12000));
+                events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, 10s, 15s);
+                events.ScheduleEvent(EVENT_POISON_SHOCK, 7s, 12s);
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -209,7 +213,7 @@ class boss_viscidus : public CreatureScript
 
                 if (_phase == PHASE_GLOB && summons.empty())
                 {
-                    DoResetThreat();
+                    ResetThreatList();
                     me->NearTeleportTo(ViscidusCoord.GetPositionX(),
                         ViscidusCoord.GetPositionY(),
                         ViscidusCoord.GetPositionZ(),
@@ -229,11 +233,11 @@ class boss_viscidus : public CreatureScript
                     {
                         case EVENT_POISONBOLT_VOLLEY:
                             DoCast(me, SPELL_POISONBOLT_VOLLEY);
-                            events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, 10s, 15s);
                             break;
                         case EVENT_POISON_SHOCK:
                             DoCast(me, SPELL_POISON_SHOCK);
-                            events.ScheduleEvent(EVENT_POISON_SHOCK, urand(7000, 12000));
+                            events.ScheduleEvent(EVENT_POISON_SHOCK, 7s, 12s);
                             break;
                         case EVENT_RESET_PHASE:
                             _hitcounter = 0;
@@ -255,7 +259,7 @@ class boss_viscidus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_viscidusAI(creature);
+            return GetAQ40AI<boss_viscidusAI>(creature);
         }
 };
 
@@ -272,7 +276,7 @@ class npc_glob_of_viscidus : public CreatureScript
             {
                 InstanceScript* Instance = me->GetInstanceScript();
 
-                if (Creature* Viscidus = me->GetMap()->GetCreature(Instance->GetGuidData(DATA_VISCIDUS)))
+                if (Creature* Viscidus = ObjectAccessor::GetCreature(*me, Instance->GetGuidData(DATA_VISCIDUS)))
                 {
                     if (BossAI* ViscidusAI = dynamic_cast<BossAI*>(Viscidus->GetAI()))
                         ViscidusAI->SummonedCreatureDespawn(me);
@@ -281,7 +285,7 @@ class npc_glob_of_viscidus : public CreatureScript
                     {
                         Viscidus->SetVisible(true);
                         if (Viscidus->GetVictim())
-                            Viscidus->EnsureVictim()->Kill(Viscidus);
+                            Unit::Kill(Viscidus->EnsureVictim(), Viscidus);
                     }
                     else
                     {
@@ -304,7 +308,7 @@ class npc_glob_of_viscidus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_glob_of_viscidusAI>(creature);
+            return GetAQ40AI<npc_glob_of_viscidusAI>(creature);
         }
 };
 

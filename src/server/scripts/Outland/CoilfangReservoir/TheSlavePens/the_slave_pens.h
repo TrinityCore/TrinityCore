@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef SLAVE_PENS_H
 #define SLAVE_PENS_H
 
+#include "CreatureAIImpl.h"
+
 uint32 const EncounterCount               = 3;
 
 #define SPScriptName "instance_the_slave_pens"
 #define DataHeader "SP"
 
-enum DataTypes
+enum SPDataTypes
 {
     DATA_MENNU_THE_BETRAYER               = 1,
     DATA_ROKMAR_THE_CRACKLER              = 2,
@@ -43,7 +45,7 @@ enum DataTypes
     DATA_LUMA_SKYMOTHER                   = 16
 };
 
-enum CreaturesIds
+enum SPCreaturesIds
 {
     NPC_AHUNE                            = 25740,
     NPC_FROZEN_CORE                      = 25865,
@@ -55,15 +57,21 @@ enum CreaturesIds
     NPC_SHAMAN_BONFIRE_BUNNY_002         = 25973,
     NPC_SHAMAN_BEAM_BUNNY_000            = 25964,
     NPC_SHAMAN_BEAM_BUNNY_001            = 25965,
-    NPC_SHAMAN_BEAM_BUNNY_002            = 25966,
-    NPC_WHISP_DEST_BUNNY                 = 26120,
-    NPC_WHISP_SOURCE_BUNNY               = 26121
+    NPC_SHAMAN_BEAM_BUNNY_002            = 25966
 };
 
-enum GameObjectIds
+enum SPGameObjectIds
 {
     GO_ICE_SPEAR                         = 188077,
     GO_ICE_STONE                         = 187882
 };
+
+template <class AI, class T>
+inline AI* GetSlavePensAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, SPScriptName);
+}
+
+#define RegisterSlavePensCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSlavePensAI)
 
 #endif // SLAVE_PENS_H

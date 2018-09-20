@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "CreatureAI.h"
 #include "CreatureTextMgr.h"
 #include "culling_of_stratholme.h"
+#include "EventMap.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
-#include "TemporarySummon.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 /* Culling of Stratholme encounters:
 0 - Meathook
@@ -292,7 +297,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                     if (Creature* infinite = instance->GetCreature(_infiniteGUID))
                                     {
                                         if (Creature* guardian = infinite->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f))
-                                            infinite->Kill(guardian);
+                                            Unit::Kill(infinite, guardian);
 
                                         if (Creature* rift = infinite->FindNearestCreature(NPC_TIME_RIFT, 100.0f))
                                         {
@@ -308,7 +313,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 default:
                                     break;
                             }
-                            events.ScheduleEvent(EVENT_INFINITE_TIMER, 60000);
+                            events.ScheduleEvent(EVENT_INFINITE_TIMER, 1min);
                             --_eventTimer;
                             break;
                         default:

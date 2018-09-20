@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "EventMap.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "magisters_terrace.h"
-#include "EventMap.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 /*
 0  - Selin Fireheart
@@ -43,7 +47,7 @@ Position const KalecgosSpawnPos = { 164.3747f, -397.1197f, 2.151798f, 1.66219f }
 class instance_magisters_terrace : public InstanceMapScript
 {
     public:
-        instance_magisters_terrace() : InstanceMapScript("instance_magisters_terrace", 585) { }
+        instance_magisters_terrace() : InstanceMapScript(MGTScriptName, 585) { }
 
         struct instance_magisters_terrace_InstanceMapScript : public InstanceScript
         {
@@ -147,11 +151,11 @@ class instance_magisters_terrace : public InstanceMapScript
                 }
             }
 
-            void ProcessEvent(WorldObject* obj, uint32 eventId) override
+            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
             {
                 if (eventId == EVENT_SPAWN_KALECGOS)
-                    if (!ObjectAccessor::GetCreature(*obj, KalecgosGUID) && Events.Empty())
-                       Events.ScheduleEvent(EVENT_SPAWN_KALECGOS, Minutes(1));
+                    if (!instance->GetCreature(KalecgosGUID) && Events.Empty())
+                       Events.ScheduleEvent(EVENT_SPAWN_KALECGOS, 1min);
             }
 
             void Update(uint32 diff) override
@@ -159,11 +163,13 @@ class instance_magisters_terrace : public InstanceMapScript
                 Events.Update(diff);
 
                 if (Events.ExecuteEvent() == EVENT_SPAWN_KALECGOS)
+                {
                     if (Creature* kalecgos = instance->SummonCreature(NPC_KALECGOS, KalecgosSpawnPos))
                     {
                         kalecgos->GetMotionMaster()->MovePath(PATH_KALECGOS_FLIGHT, false);
                         kalecgos->AI()->Talk(SAY_KALECGOS_SPAWN);
                     }
+                }
             }
 
             bool SetBossState(uint32 type, EncounterState state) override

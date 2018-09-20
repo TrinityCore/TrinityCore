@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -73,22 +73,22 @@ class boss_doomlord_kazzak : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(6000, 10000));
-                _events.ScheduleEvent(EVENT_CLEAVE, 7000);
-                _events.ScheduleEvent(EVENT_THUNDERCLAP, urand(14000, 18000));
-                _events.ScheduleEvent(EVENT_VOID_BOLT, 30000);
+                _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 6s, 10s);
+                _events.ScheduleEvent(EVENT_CLEAVE, 7s);
+                _events.ScheduleEvent(EVENT_THUNDERCLAP, 14s, 18s);
+                _events.ScheduleEvent(EVENT_VOID_BOLT, 30s);
                 _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 25000);
-                _events.ScheduleEvent(EVENT_ENRAGE, 60000);
-                _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 33000);
-                _events.ScheduleEvent(EVENT_BERSERK, 180000);
+                _events.ScheduleEvent(EVENT_ENRAGE, 1min);
+                _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 33s);
+                _events.ScheduleEvent(EVENT_BERSERK, 3min);
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
                 Talk(SAY_INTRO);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
@@ -126,29 +126,29 @@ class boss_doomlord_kazzak : public CreatureScript
                     {
                         case EVENT_SHADOW_VOLLEY:
                             DoCastVictim(SPELL_SHADOW_VOLLEY);
-                            _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(4000, 6000));
+                            _events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 4s, 6s);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            _events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 12000));
+                            _events.ScheduleEvent(EVENT_CLEAVE, 8s, 12s);
                             break;
                         case EVENT_THUNDERCLAP:
                             DoCastVictim(SPELL_THUNDERCLAP);
-                            _events.ScheduleEvent(EVENT_THUNDERCLAP, urand(10000, 14000));
+                            _events.ScheduleEvent(EVENT_THUNDERCLAP, 10s, 14s);
                             break;
                         case EVENT_VOID_BOLT:
                             DoCastVictim(SPELL_VOID_BOLT);
-                            _events.ScheduleEvent(EVENT_VOID_BOLT, urand(15000, 18000));
+                            _events.ScheduleEvent(EVENT_VOID_BOLT, 15s, 18s);
                             break;
                         case EVENT_MARK_OF_KAZZAK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_MARK_OF_KAZZAK);
-                            _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 20000);
+                            _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 20s);
                             break;
                         case EVENT_ENRAGE:
                             Talk(EMOTE_FRENZY);
                             DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, 30000);
+                            _events.ScheduleEvent(EVENT_ENRAGE, 30s);
                             break;
                         case EVENT_TWISTED_REFLECTION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
@@ -187,9 +187,7 @@ class spell_mark_of_kazzak : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_KAZZAK_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MARK_OF_KAZZAK_DAMAGE });
             }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
@@ -204,7 +202,7 @@ class spell_mark_of_kazzak : public SpellScriptLoader
 
                 if (target->GetPower(POWER_MANA) == 0)
                 {
-                    target->CastSpell(target, SPELL_MARK_OF_KAZZAK_DAMAGE, true, NULL, aurEff);
+                    target->CastSpell(target, SPELL_MARK_OF_KAZZAK_DAMAGE, aurEff);
                     // Remove aura
                     SetDuration(0);
                 }
@@ -234,19 +232,17 @@ class spell_twisted_reflection : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TWISTED_REFLECTION_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TWISTED_REFLECTION_HEAL });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
                 if (!damageInfo || !damageInfo->GetDamage())
                     return;
 
-                eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActor(), SPELL_TWISTED_REFLECTION_HEAL, true);
+                eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActor(), SPELL_TWISTED_REFLECTION_HEAL, aurEff);
             }
 
             void Register() override

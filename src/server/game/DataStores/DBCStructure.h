@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,9 +19,12 @@
 #ifndef TRINITY_DBCSTRUCTURE_H
 #define TRINITY_DBCSTRUCTURE_H
 
-#include "Common.h"
+#include "Define.h"
 #include "DBCEnums.h"
+#include "SharedDefines.h"
 #include "Util.h"
+#include <set>
+#include <map>
 
 // Structures using to access raw DBC data and required packing to portability
 #pragma pack(push, 1)
@@ -299,18 +302,12 @@ struct BattlemasterListEntry
     //uint32 SomeLevel;                                     // 31, may be max level
 };
 
-#define MAX_OUTFIT_ITEMS 24
-
-struct CharStartOutfitEntry
+struct CharacterFacialHairStylesEntry
 {
-    //uint32 Id;                                            // 0
-    uint8 Race;                                             // 1
-    uint8 Class;                                            // 2
-    uint8 Gender;                                           // 3
-    //uint8 Unused;                                         // 4
-    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 5-28
-    //int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                // 29-52 not required at server side
-    //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 53-76 not required at server side
+    uint32 Race;
+    uint32 Gender;
+    uint32 Variation;
+    // uint32 Geoset[5];
 };
 
 enum CharSectionFlags
@@ -338,6 +335,22 @@ struct CharSectionsEntry
     uint32 Flags;
     uint32 Type;
     uint32 Color;
+
+    inline bool HasFlag(CharSectionFlags flag) const { return !!(Flags & flag); }
+};
+
+#define MAX_OUTFIT_ITEMS 24
+
+struct CharStartOutfitEntry
+{
+    //uint32 Id;                                            // 0
+    uint8 Race;                                             // 1
+    uint8 Class;                                            // 2
+    uint8 Gender;                                           // 3
+    //uint8 Unused;                                         // 4
+    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 5-28
+    //int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                // 29-52 not required at server side
+    //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 53-76 not required at server side
 };
 
 struct CharTitlesEntry
@@ -500,8 +513,6 @@ struct CreatureModelDataEntry
     float MountHeight;                                       // Used in calculation of unit collision data when mounted
     //float Unks[11]
 };
-
-#define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 struct CreatureSpellDataEntry
 {
@@ -684,7 +695,6 @@ struct FactionTemplateEntry
         return hostileMask == 0 && friendlyMask == 0;
     }
     bool IsContestedGuardFaction() const { return (factionFlags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
-    bool ShouldSparAttack() const { return (factionFlags & FACTION_TEMPLATE_ENEMY_SPAR) != 0; }
 };
 
 struct GameObjectDisplayInfoEntry
@@ -822,7 +832,7 @@ struct HolidaysEntry
     //uint32 holidayDescriptionId;                          // 50       m_holidayDescriptionID (HolidayDescriptions.dbc)
     char* TextureFilename;                                  // 51       m_textureFilename
     uint32 Priority;                                        // 52       m_priority
-    uint32 CalendarFilterType;                              // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)
+    int32 CalendarFilterType;                               // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)
     //uint32 flags;                                         // 54       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
 };
 
@@ -1317,10 +1327,6 @@ struct SoundEntriesEntry
                                                             // 29       new in 3.1
 };
 
-#define MAX_SPELL_EFFECTS 3
-#define MAX_EFFECT_MASK 7
-#define MAX_SPELL_REAGENTS 8
-
 struct SpellEntry
 {
     uint32    Id;                                           // 0        m_ID
@@ -1398,7 +1404,7 @@ struct SpellEntry
     uint32    SpellVisual[2];                               // 131-132  m_spellVisualID
     uint32    SpellIconID;                                  // 133      m_spellIconID
     uint32    activeIconID;                                 // 134      m_activeIconID
-    //uint32    spellPriority;                              // 135 not used
+    uint32    SpellPriority;                                // 135      m_spellPriority
     char*     SpellName[16];                                // 136-151  m_name_lang
     //uint32    SpellNameFlag;                              // 152 not used
     char*     Rank[16];                                     // 153-168  m_nameSubtext_lang
@@ -1433,7 +1439,7 @@ struct SpellEntry
 };
 
 typedef std::set<uint32> PetFamilySpellsSet;
-typedef std::map<uint32, PetFamilySpellsSet > PetFamilySpellsStore;
+typedef std::map<uint32, PetFamilySpellsSet> PetFamilySpellsStore;
 
 struct SpellCastTimesEntry
 {
@@ -1564,10 +1570,6 @@ struct SummonPropertiesEntry
     uint32  Slot;                                           // 4, 0-6
     uint32  Flags;                                          // 5
 };
-
-#define MAX_TALENT_RANK 5
-#define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
-#define MAX_TALENT_TABS 3
 
 struct TalentEntry
 {
@@ -1760,17 +1762,15 @@ struct VehicleSeatEntry
     uint32  m_flagsB;                                       // 45
                                                             // 46-57 added in 3.1, floats mostly
 
-    bool CanEnterOrExit() const
-    {
-        return ((m_flags & VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT) != 0 ||
-                //If it has anmation for enter/ride, means it can be entered/exited by logic
-                (m_flags & (VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER | VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE)) != 0);
-    }
-    bool CanSwitchFromSeat() const { return (m_flags & VEHICLE_SEAT_FLAG_CAN_SWITCH) != 0; }
-    bool IsUsableByOverride() const { return (m_flags & (VEHICLE_SEAT_FLAG_UNCONTROLLED | VEHICLE_SEAT_FLAG_UNK18)
-                                    || (m_flagsB & (VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 |
-                                        VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4))); }
-    bool IsEjectable() const { return (m_flagsB & VEHICLE_SEAT_FLAG_B_EJECTABLE) != 0; }
+    inline bool HasFlag(VehicleSeatFlags flag) const { return !!(m_flags & flag); }
+    inline bool HasFlag(VehicleSeatFlagsB flag) const { return !!(m_flagsB & flag); }
+
+    inline bool CanEnterOrExit() const { return HasFlag(VehicleSeatFlags(VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT | VEHICLE_SEAT_FLAG_CAN_CONTROL | VEHICLE_SEAT_FLAG_SHOULD_USE_VEH_SEAT_EXIT_ANIM_ON_VOLUNTARY_EXIT)); }
+    inline bool CanSwitchFromSeat() const { return HasFlag(VEHICLE_SEAT_FLAG_CAN_SWITCH); }
+    inline bool IsUsableByOverride() const { return HasFlag(VehicleSeatFlags(VEHICLE_SEAT_FLAG_UNCONTROLLED | VEHICLE_SEAT_FLAG_UNK18))
+                                    || HasFlag(VehicleSeatFlagsB(VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 |
+                                        VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4)); }
+    inline bool IsEjectable() const { return HasFlag(VEHICLE_SEAT_FLAG_B_EJECTABLE); }
 };
 
 struct WMOAreaTableEntry
@@ -1902,7 +1902,4 @@ typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
-#define TaxiMaskSize 14
-typedef uint32 TaxiMask[TaxiMaskSize];
 #endif
-

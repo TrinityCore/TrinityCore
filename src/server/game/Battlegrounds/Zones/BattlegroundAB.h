@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -152,6 +152,34 @@ enum BG_AB_BattlegroundNodes
     BG_AB_ALL_NODES_COUNT       = 7                         // all nodes (dynamic and static)
 };
 
+enum BG_AB_BroadcastTexts
+{
+    BG_AB_TEXT_ALLIANCE_NEAR_VICTORY    = 10598,
+    BG_AB_TEXT_HORDE_NEAR_VICTORY       = 10599,
+};
+
+struct ABNodeInfo
+{
+    uint32 NodeId;
+    uint32 TextAllianceAssaulted;
+    uint32 TextHordeAssaulted;
+    uint32 TextAllianceTaken;
+    uint32 TextHordeTaken;
+    uint32 TextAllianceDefended;
+    uint32 TextHordeDefended;
+    uint32 TextAllianceClaims;
+    uint32 TextHordeClaims;
+};
+
+ABNodeInfo const ABNodes[BG_AB_DYNAMIC_NODES_COUNT] =
+{
+    { BG_AB_NODE_STABLES,     10199, 10200, 10203, 10204, 10201, 10202, 10286, 10287 },
+    { BG_AB_NODE_BLACKSMITH,  10211, 10212, 10213, 10214, 10215, 10216, 10290, 10291 },
+    { BG_AB_NODE_FARM,        10217, 10218, 10219, 10220, 10221, 10222, 10288, 10289 },
+    { BG_AB_NODE_LUMBER_MILL, 10224, 10225, 10226, 10227, 10228, 10229, 10284, 10285 },
+    { BG_AB_NODE_GOLD_MINE,   10230, 10231, 10232, 10233, 10234, 10235, 10282, 10283 }
+};
+
 enum BG_AB_NodeStatus
 {
     BG_AB_NODE_TYPE_NEUTRAL             = 0,
@@ -212,11 +240,11 @@ const uint32 BG_AB_GraveyardIds[BG_AB_ALL_NODES_COUNT] = {895, 894, 893, 897, 89
 // x, y, z, o
 const float BG_AB_BuffPositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
 {
-    {1185.71f, 1185.24f, -56.36f, 2.56f},                   // stables
-    {990.75f, 1008.18f, -42.60f, 2.43f},                    // blacksmith
-    {817.66f, 843.34f, -56.54f, 3.01f},                     // farm
-    {807.46f, 1189.16f, 11.92f, 5.44f},                     // lumber mill
-    {1146.62f, 816.94f, -98.49f, 6.14f}                     // gold mine
+    {1185.566f, 1184.629f, -56.36329f, 2.303831f},         // stables
+    {990.1131f, 1008.73f,  -42.60328f, 0.8203033f},         // blacksmith
+    {818.0089f, 842.3543f, -56.54062f, 3.176533f},         // farm
+    {808.8463f, 1185.417f,  11.92161f, 5.619962f},         // lumber mill
+    {1147.091f, 816.8362f, -98.39896f, 6.056293f}          // gold mine
 };
 
 Position const BG_AB_SpiritGuidePos[BG_AB_ALL_NODES_COUNT] =
@@ -260,12 +288,7 @@ struct BattlegroundABScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override
-        {
-            data << uint32(2);
-            data << uint32(BasesAssaulted);
-            data << uint32(BasesDefended);
-        }
+        void BuildObjectivesBlock(WorldPacket& data) final override;
 
         uint32 GetAttr1() const final override { return BasesAssaulted; }
         uint32 GetAttr2() const final override { return BasesDefended; }
@@ -288,7 +311,7 @@ class BattlegroundAB : public Battleground
         bool SetupBattleground() override;
         void Reset() override;
         void EndBattleground(uint32 winner) override;
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
 
         /* Scorekeeping */
         bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
@@ -314,8 +337,6 @@ class BattlegroundAB : public Battleground
         /// @todo working, scripted peons spawning
         void _NodeOccupied(uint8 node, Team team);
         void _NodeDeOccupied(uint8 node);
-
-        int32 _GetNodeNameId(uint8 node);
 
         /* Nodes info:
             0: neutral

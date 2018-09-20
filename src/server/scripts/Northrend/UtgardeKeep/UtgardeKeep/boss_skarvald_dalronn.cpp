@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,8 @@ SDCategory: Utgarde Keep
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "utgarde_keep.h"
 
@@ -102,16 +104,16 @@ struct generic_boss_controllerAI : public BossAI
         if (IsInGhostForm)
         {
             // Call this here since ghosts aren't set in combat as they spawn.
-            DoZoneInCombat(me, 50.0f);
+            DoZoneInCombat(me);
         }
         else
             _Reset();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         if (!IsInGhostForm)
-            _EnterCombat();
+            _JustEngagedWith();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -139,7 +141,7 @@ struct generic_boss_controllerAI : public BossAI
         switch (actionId)
         {
             case ACTION_OTHER_JUST_DIED:
-                events.ScheduleEvent(EVENT_DEATH_RESPONSE, 2000);
+                events.ScheduleEvent(EVENT_DEATH_RESPONSE, 2s);
                 break;
             case ACTION_DESPAWN_SUMMONS:
                 summons.DespawnAll();
@@ -185,15 +187,15 @@ class boss_skarvald_the_constructor : public CreatureScript
                 generic_boss_controllerAI::Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                generic_boss_controllerAI::EnterCombat(who);
+                generic_boss_controllerAI::JustEngagedWith(who);
 
                 if (!IsInGhostForm)
                     Talk(SAY_AGGRO);
 
-                events.ScheduleEvent(EVENT_SKARVALD_CHARGE, 5000);
-                events.ScheduleEvent(EVENT_STONE_STRIKE, 10000);
+                events.ScheduleEvent(EVENT_SKARVALD_CHARGE, 5s);
+                events.ScheduleEvent(EVENT_STONE_STRIKE, 10s);
             }
 
             void ExecuteEvent(uint32 eventId) override
@@ -203,11 +205,11 @@ class boss_skarvald_the_constructor : public CreatureScript
                     case EVENT_SKARVALD_CHARGE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SkarvaldChargePredicate(me)))
                             DoCast(target, SPELL_CHARGE);
-                        events.ScheduleEvent(EVENT_CHARGE, urand(5000, 10000));
+                        events.ScheduleEvent(EVENT_CHARGE, 5s, 10s);
                         break;
                     case EVENT_STONE_STRIKE:
                         DoCastVictim(SPELL_STONE_STRIKE);
-                        events.ScheduleEvent(EVENT_STONE_STRIKE, urand(5000, 10000));
+                        events.ScheduleEvent(EVENT_STONE_STRIKE, 5s, 10s);
                         break;
                     default:
                         generic_boss_controllerAI::ExecuteEvent(eventId);
@@ -245,18 +247,18 @@ class boss_dalronn_the_controller : public CreatureScript
                 OtherBossData = DATA_SKARVALD;
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                generic_boss_controllerAI::EnterCombat(who);
+                generic_boss_controllerAI::JustEngagedWith(who);
 
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 1000);
-                events.ScheduleEvent(EVENT_DEBILITATE, 5000);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 1s);
+                events.ScheduleEvent(EVENT_DEBILITATE, 5s);
 
                 if (!IsInGhostForm)
-                    events.ScheduleEvent(EVENT_DELAYED_AGGRO_SAY, 5000);
+                    events.ScheduleEvent(EVENT_DELAYED_AGGRO_SAY, 5s);
 
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 10000);
+                    events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 10s);
             }
 
             void ExecuteEvent(uint32 eventId) override
@@ -266,16 +268,16 @@ class boss_dalronn_the_controller : public CreatureScript
                     case EVENT_SHADOW_BOLT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                             DoCast(target, SPELL_SHADOW_BOLT);
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 2100); //give a 100ms pause to try cast other spells
+                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 2100ms); //give a 100ms pause to try cast other spells
                         break;
                     case EVENT_DEBILITATE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                             DoCast(target, SPELL_DEBILITATE);
-                        events.ScheduleEvent(EVENT_DEBILITATE, urand(5000, 10000));
+                        events.ScheduleEvent(EVENT_DEBILITATE, 5s, 10s);
                         break;
                     case EVENT_SUMMON_SKELETONS:
                         DoCast(me, SPELL_SUMMON_SKELETONS);
-                        events.ScheduleEvent(EVENT_SUMMON_SKELETONS, urand(10000, 30000));
+                        events.ScheduleEvent(EVENT_SUMMON_SKELETONS, 10s, 30s);
                         break;
                     case EVENT_DELAYED_AGGRO_SAY:
                         Talk(SAY_AGGRO);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,9 +20,9 @@
 #define _BYTEBUFFER_H
 
 #include "Define.h"
-#include "Errors.h"
 #include "ByteConverter.h"
-#include "Util.h"
+#include <string>
+#include <vector>
 #include <cstring>
 
 class MessageBuffer;
@@ -74,11 +74,13 @@ class TC_SHARED_API ByteBuffer
             _storage.reserve(reserve);
         }
 
-        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _storage(std::move(buf._storage)) { }
+        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos), _storage(std::move(buf._storage))
+        {
+            buf._rpos = 0;
+            buf._wpos = 0;
+        }
 
-        ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
-            _storage(right._storage) { }
+        ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos), _storage(right._storage) { }
 
         ByteBuffer(MessageBuffer&& buffer);
 
@@ -89,6 +91,20 @@ class TC_SHARED_API ByteBuffer
                 _rpos = right._rpos;
                 _wpos = right._wpos;
                 _storage = right._storage;
+            }
+
+            return *this;
+        }
+
+        ByteBuffer& operator=(ByteBuffer&& right)
+        {
+            if (this != &right)
+            {
+                _rpos = right._rpos;
+                right._rpos = 0;
+                _wpos = right._wpos;
+                right._wpos = 0;
+                _storage = std::move(right._storage);
             }
 
             return *this;
@@ -109,7 +125,8 @@ class TC_SHARED_API ByteBuffer
             append((uint8 *)&value, sizeof(value));
         }
 
-        template <typename T> void put(size_t pos, T value)
+        template <typename T>
+        void put(std::size_t pos, T value)
         {
             static_assert(std::is_fundamental<T>::value, "append(compound)");
             EndianConvert(value);
@@ -249,21 +266,8 @@ class TC_SHARED_API ByteBuffer
             return *this;
         }
 
-        ByteBuffer &operator>>(float &value)
-        {
-            value = read<float>();
-            if (!std::isfinite(value))
-                throw ByteBufferException();
-            return *this;
-        }
-
-        ByteBuffer &operator>>(double &value)
-        {
-            value = read<double>();
-            if (!std::isfinite(value))
-                throw ByteBufferException();
-            return *this;
-        }
+        ByteBuffer &operator>>(float &value);
+        ByteBuffer &operator>>(double &value);
 
         ByteBuffer &operator>>(std::string& value)
         {
@@ -371,20 +375,7 @@ class TC_SHARED_API ByteBuffer
             }
         }
 
-        uint32 ReadPackedTime()
-        {
-            uint32 packedDate = read<uint32>();
-            tm lt = tm();
-
-            lt.tm_min = packedDate & 0x3F;
-            lt.tm_hour = (packedDate >> 6) & 0x1F;
-            //lt.tm_wday = (packedDate >> 11) & 7;
-            lt.tm_mday = ((packedDate >> 14) & 0x3F) + 1;
-            lt.tm_mon = (packedDate >> 20) & 0xF;
-            lt.tm_year = ((packedDate >> 24) & 0x1F) + 100;
-
-            return uint32(mktime(&lt));
-        }
+        uint32 ReadPackedTime();
 
         ByteBuffer& ReadPackedTime(uint32& time)
         {
@@ -422,6 +413,11 @@ class TC_SHARED_API ByteBuffer
                 _storage.reserve(ressize);
         }
 
+        void shrink_to_fit()
+        {
+            _storage.shrink_to_fit();
+        }
+
         void append(const char *src, size_t cnt)
         {
             return append((const uint8 *)src, cnt);
@@ -432,23 +428,9 @@ class TC_SHARED_API ByteBuffer
             return append((const uint8 *)src, cnt * sizeof(T));
         }
 
-        void append(const uint8 *src, size_t cnt)
-        {
-            if (!cnt)
-                throw ByteBufferSourceException(_wpos, size(), cnt);
+        void append(uint8 const* src, size_t cnt);
 
-            if (!src)
-                throw ByteBufferSourceException(_wpos, size(), cnt);
-
-            ASSERT(size() < 10000000);
-
-            if (_storage.size() < _wpos + cnt)
-                _storage.resize(_wpos + cnt);
-            std::memcpy(&_storage[_wpos], src, cnt);
-            _wpos += cnt;
-        }
-
-        void append(const ByteBuffer& buffer)
+        void append(ByteBuffer const& buffer)
         {
             if (buffer.wpos())
                 append(buffer.contents(), buffer.wpos());
@@ -483,23 +465,9 @@ class TC_SHARED_API ByteBuffer
             append(packGUID, size);
         }
 
-        void AppendPackedTime(time_t time)
-        {
-            tm lt;
-            localtime_r(&time, &lt);
-            append<uint32>((lt.tm_year - 100) << 24 | lt.tm_mon  << 20 | (lt.tm_mday - 1) << 14 | lt.tm_wday << 11 | lt.tm_hour << 6 | lt.tm_min);
-        }
+        void AppendPackedTime(time_t time);
 
-        void put(size_t pos, const uint8 *src, size_t cnt)
-        {
-            if (pos + cnt > size())
-                throw ByteBufferPositionException(true, pos, cnt, size());
-
-            if (!src)
-                throw ByteBufferSourceException(_wpos, size(), cnt);
-
-            std::memcpy(&_storage[pos], src, cnt);
-        }
+        void put(size_t pos, const uint8 *src, size_t cnt);
 
         void print_storage() const;
 
@@ -511,85 +479,6 @@ class TC_SHARED_API ByteBuffer
         size_t _rpos, _wpos;
         std::vector<uint8> _storage;
 };
-
-template <typename T>
-inline ByteBuffer &operator<<(ByteBuffer &b, std::vector<T> v)
-{
-    b << (uint32)v.size();
-    for (typename std::vector<T>::iterator i = v.begin(); i != v.end(); ++i)
-    {
-        b << *i;
-    }
-    return b;
-}
-
-template <typename T>
-inline ByteBuffer &operator>>(ByteBuffer &b, std::vector<T> &v)
-{
-    uint32 vsize;
-    b >> vsize;
-    v.clear();
-    while (vsize--)
-    {
-        T t;
-        b >> t;
-        v.push_back(t);
-    }
-    return b;
-}
-
-template <typename T>
-inline ByteBuffer &operator<<(ByteBuffer &b, std::list<T> v)
-{
-    b << (uint32)v.size();
-    for (typename std::list<T>::iterator i = v.begin(); i != v.end(); ++i)
-    {
-        b << *i;
-    }
-    return b;
-}
-
-template <typename T>
-inline ByteBuffer &operator>>(ByteBuffer &b, std::list<T> &v)
-{
-    uint32 vsize;
-    b >> vsize;
-    v.clear();
-    while (vsize--)
-    {
-        T t;
-        b >> t;
-        v.push_back(t);
-    }
-    return b;
-}
-
-template <typename K, typename V>
-inline ByteBuffer &operator<<(ByteBuffer &b, std::map<K, V> &m)
-{
-    b << (uint32)m.size();
-    for (typename std::map<K, V>::iterator i = m.begin(); i != m.end(); ++i)
-    {
-        b << i->first << i->second;
-    }
-    return b;
-}
-
-template <typename K, typename V>
-inline ByteBuffer &operator>>(ByteBuffer &b, std::map<K, V> &m)
-{
-    uint32 msize;
-    b >> msize;
-    m.clear();
-    while (msize--)
-    {
-        K k;
-        V v;
-        b >> k >> v;
-        m.insert(make_pair(k, v));
-    }
-    return b;
-}
 
 /// @todo Make a ByteBuffer.cpp and move all this inlining to it.
 template<> inline std::string ByteBuffer::read<std::string>()

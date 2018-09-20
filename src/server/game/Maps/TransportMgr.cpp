@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,20 +16,18 @@
  */
 
 #include "TransportMgr.h"
-#include "Transport.h"
+#include "DatabaseEnv.h"
 #include "InstanceScript.h"
-#include "MoveSpline.h"
+#include "Log.h"
 #include "MapManager.h"
+#include "MoveSplineInitArgs.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Spline.h"
+#include "Transport.h"
 
 TransportTemplate::~TransportTemplate()
 {
-    // Collect shared pointers into a set to avoid deleting the same memory more than once
-    std::set<TransportSpline*> splines;
-    for (size_t i = 0; i < keyFrames.size(); ++i)
-        splines.insert(keyFrames[i].Spline);
-
-    for (std::set<TransportSpline*>::iterator itr = splines.begin(); itr != splines.end(); ++itr)
-        delete *itr;
 }
 
 TransportMgr::TransportMgr() { }
@@ -66,7 +64,7 @@ void TransportMgr::LoadTransportTemplates()
         Field* fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
         GameObjectTemplate const* goInfo = sObjectMgr->GetGameObjectTemplate(entry);
-        if (goInfo == NULL)
+        if (goInfo == nullptr)
         {
             TC_LOG_ERROR("sql.sql", "Transport %u has no associated GameObjectTemplate from `gameobject_template` , skipped.", entry);
             continue;
@@ -91,6 +89,17 @@ void TransportMgr::LoadTransportTemplates()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u transport templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void TransportMgr::LoadTransportAnimationAndRotation()
+{
+    for (uint32 i = 0; i < sTransportAnimationStore.GetNumRows(); ++i)
+        if (TransportAnimationEntry const* anim = sTransportAnimationStore.LookupEntry(i))
+            AddPathNodeToTransport(anim->TransportEntry, anim->TimeSeg, anim);
+
+    for (uint32 i = 0; i < sTransportRotationStore.GetNumRows(); ++i)
+        if (TransportRotationEntry const* rot = sTransportRotationStore.LookupEntry(i))
+            AddPathRotationToTransport(rot->TransportEntry, rot->TimeSeg, rot);
 }
 
 class SplineRawInitializer
@@ -213,7 +222,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         if (keyFrames[i - 1].Teleport || i + 1 == keyFrames.size())
         {
             size_t extra = !keyFrames[i - 1].Teleport ? 1 : 0;
-            TransportSpline* spline = new TransportSpline();
+            std::shared_ptr<TransportSpline> spline = std::make_shared<TransportSpline>();
             spline->init_spline(&splinePath[start], i - start + extra, Movement::SplineBase::ModeCatmullrom);
             spline->initLengths();
             for (size_t j = start; j < i + extra; ++j)
@@ -354,7 +363,7 @@ void TransportMgr::AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg,
     animNode.Path[timeSeg] = node;
 }
 
-Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid /*= 0*/, Map* map /*= NULL*/)
+Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid /*= 0*/, Map* map /*= nullptr*/)
 {
     // instance case, execute GetGameObjectEntry hook
     if (map)
@@ -365,14 +374,14 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
                 entry = instance->GetGameObjectEntry(0, entry);
 
         if (!entry)
-            return NULL;
+            return nullptr;
     }
 
     TransportTemplate const* tInfo = GetTransportTemplate(entry);
     if (!tInfo)
     {
         TC_LOG_ERROR("sql.sql", "Transport %u will not be loaded, `transport_template` missing", entry);
-        return NULL;
+        return nullptr;
     }
 
     // create transport...
@@ -392,7 +401,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
     if (!trans->Create(guidLow, entry, mapId, x, y, z, o, 255))
     {
         delete trans;
-        return NULL;
+        return nullptr;
     }
 
     if (MapEntry const* mapEntry = sMapStore.LookupEntry(mapId))
@@ -401,12 +410,12 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
         {
             TC_LOG_ERROR("entities.transport", "Transport %u (name: %s) attempted creation in instance map (id: %u) but it is not an instanced transport!", entry, trans->GetName().c_str(), mapId);
             delete trans;
-            return NULL;
+            return nullptr;
         }
     }
 
     // use preset map for instances (need to know which instance)
-    trans->SetMap(map ? map : sMapMgr->CreateMap(mapId, NULL));
+    trans->SetMap(map ? map : sMapMgr->CreateMap(mapId, nullptr));
     if (map && map->IsDungeon())
         trans->m_zoneScript = map->ToInstanceMap()->GetInstanceScript();
 
@@ -460,30 +469,18 @@ void TransportMgr::CreateInstanceTransports(Map* map)
 
 TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) const
 {
-    if (Path.empty())
-        return NULL;
+    auto itr = Path.lower_bound(time);
+    if (itr != Path.end())
+        return itr->second;
 
-    for (TransportPathContainer::const_reverse_iterator itr2 = Path.rbegin(); itr2 != Path.rend(); ++itr2)
-        if (time >= itr2->first)
-            return itr2->second;
-
-    return Path.begin()->second;
+    return nullptr;
 }
 
-G3D::Quat TransportAnimation::GetAnimRotation(uint32 time) const
+TransportRotationEntry const* TransportAnimation::GetAnimRotation(uint32 time) const
 {
-    if (Rotations.empty())
-        return G3D::Quat(0.0f, 0.0f, 0.0f, 1.0f);
+    auto itr = Rotations.lower_bound(time);
+    if (itr != Rotations.end())
+        return itr->second;
 
-    TransportRotationEntry const* rot = Rotations.begin()->second;
-    for (TransportPathRotationContainer::const_reverse_iterator itr2 = Rotations.rbegin(); itr2 != Rotations.rend(); ++itr2)
-    {
-        if (time >= itr2->first)
-        {
-            rot = itr2->second;
-            break;
-        }
-    }
-
-    return G3D::Quat(rot->X, rot->Y, rot->Z, rot->W);
+    return nullptr;
 }

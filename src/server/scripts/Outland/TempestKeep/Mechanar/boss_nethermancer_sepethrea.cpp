@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,10 @@ SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "mechanar.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -67,14 +69,14 @@ class boss_nethermancer_sepethrea : public CreatureScript
         {
             boss_nethermancer_sepethreaAI(Creature* creature) : BossAI(creature, DATA_NETHERMANCER_SEPRETHREA) { }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_FROST_ATTACK, urand(7000, 10000));
-                events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(12000, 18000));
-                events.ScheduleEvent(EVENT_DRAGONS_BREATH, urand(18000, 22000));
-                events.ScheduleEvent(EVENT_KNOCKBACK, urand(22000, 28000));
-                events.ScheduleEvent(EVENT_SOLARBURN, 30000);
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_FROST_ATTACK, 7s, 10s);
+                events.ScheduleEvent(EVENT_ARCANE_BLAST, 12s, 18s);
+                events.ScheduleEvent(EVENT_DRAGONS_BREATH, 18s, 22s);
+                events.ScheduleEvent(EVENT_KNOCKBACK, 22s, 28s);
+                events.ScheduleEvent(EVENT_SOLARBURN, 30s);
                 Talk(SAY_AGGRO);
                 DoCast(who, SPELL_SUMMON_RAGIN_FLAMES);
                 Talk(SAY_SUMMON);
@@ -107,7 +109,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                     {
                         case EVENT_FROST_ATTACK:
                             DoCastVictim(SPELL_FROST_ATTACK, true);
-                            events.ScheduleEvent(EVENT_FROST_ATTACK, urand(7000, 10000));
+                            events.ScheduleEvent(EVENT_FROST_ATTACK, 7s, 10s);
                             break;
                         case EVENT_ARCANE_BLAST:
                             DoCastVictim(SPELL_ARCANE_BLAST, true);
@@ -115,17 +117,17 @@ class boss_nethermancer_sepethrea : public CreatureScript
                             break;
                         case EVENT_DRAGONS_BREATH:
                             DoCastVictim(SPELL_DRAGONS_BREATH, true);
-                            events.ScheduleEvent(EVENT_DRAGONS_BREATH, urand(12000, 22000));
+                            events.ScheduleEvent(EVENT_DRAGONS_BREATH, 12s, 22s);
                             if (roll_chance_i(50))
                                 Talk(SAY_DRAGONS_BREATH);
                             break;
                         case EVENT_KNOCKBACK:
                             DoCastVictim(SPELL_KNOCKBACK, true);
-                            events.ScheduleEvent(EVENT_KNOCKBACK, urand(15000, 25000));
+                            events.ScheduleEvent(EVENT_KNOCKBACK, 15s, 25s);
                             break;
                         case EVENT_SOLARBURN:
                             DoCastVictim(SPELL_SOLARBURN, true);
-                            events.ScheduleEvent(EVENT_SOLARBURN, 30000);
+                            events.ScheduleEvent(EVENT_SOLARBURN, 30s);
                             break;
                         default:
                             break;
@@ -141,7 +143,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_nethermancer_sepethreaAI(creature);
+            return GetMechanarAI<boss_nethermancer_sepethreaAI>(creature);
         }
 };
 
@@ -182,7 +184,7 @@ class npc_ragin_flames : public CreatureScript
                     me->SetSpeedRate(MOVE_RUN, DUNGEON_MODE(0.5f, 0.7f));
                 }
 
-                void EnterCombat(Unit* /*who*/) override
+                void JustEngagedWith(Unit* /*who*/) override
                 {
                 }
 
@@ -194,8 +196,8 @@ class npc_ragin_flames : public CreatureScript
                         if (instance->GetData(DATA_NETHERMANCER_SEPRETHREA) != IN_PROGRESS)
                         {
                             //remove
-                            me->setDeathState(JUST_DIED);
-                            me->RemoveCorpse();
+                            me->DespawnOrUnsummon();
+                            return;
                         }
                         Check_Timer = 1000;
                     } else Check_Timer -= diff;
@@ -213,7 +215,6 @@ class npc_ragin_flames : public CreatureScript
                     if (inferno_Timer <= diff)
                     {
                         DoCastVictim(SPELL_INFERNO);
-                        me->TauntApply(me->GetVictim());
                         inferno_Timer = 10000;
                     } else inferno_Timer -= diff;
 
@@ -229,7 +230,7 @@ class npc_ragin_flames : public CreatureScript
             };
             CreatureAI* GetAI(Creature* creature) const override
             {
-                return GetInstanceAI<npc_ragin_flamesAI>(creature);
+                return GetMechanarAI<npc_ragin_flamesAI>(creature);
             }
 };
 

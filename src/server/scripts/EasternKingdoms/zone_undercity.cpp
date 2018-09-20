@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,9 +30,11 @@ npc_parqual_fintallas
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 
 /*######
 ## npc_lady_sylvanas_windrunner
@@ -80,6 +82,11 @@ enum Sylvanas
     GUID_EVENT_INVOKER              = 1,
 };
 
+enum Sounds
+{
+    SOUND_AGGRO                     = 5886
+};
+
 float HighborneLoc[4][3]=
 {
     {1285.41f, 312.47f, 0.51f},
@@ -95,14 +102,6 @@ class npc_lady_sylvanas_windrunner : public CreatureScript
 {
 public:
     npc_lady_sylvanas_windrunner() : CreatureScript("npc_lady_sylvanas_windrunner") { }
-
-    bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 /*slot*/) override
-    {
-        if (_Quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
-            creature->AI()->SetGUID(player->GetGUID(), GUID_EVENT_INVOKER);
-
-        return true;
-    }
 
     struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
     {
@@ -124,18 +123,19 @@ public:
             _events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _events.ScheduleEvent(EVENT_FADE, 30000);
-            _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 20000);
+            DoPlaySoundToSet(me, SOUND_AGGRO);
+            _events.ScheduleEvent(EVENT_FADE, 30s);
+            _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 20s);
             _events.ScheduleEvent(EVENT_BLACK_ARROW, 15000);
-            _events.ScheduleEvent(EVENT_SHOOT, 8000);
-            _events.ScheduleEvent(EVENT_MULTI_SHOT, 10000);
+            _events.ScheduleEvent(EVENT_SHOOT, 8s);
+            _events.ScheduleEvent(EVENT_MULTI_SHOT, 10s);
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            if (type == GUID_EVENT_INVOKER)
+            if (id == GUID_EVENT_INVOKER)
             {
                 Talk(EMOTE_LAMENT);
                 DoPlaySoundToSet(me, SOUND_CREDIT);
@@ -146,8 +146,8 @@ public:
                 for (uint8 i = 0; i < 4; ++i)
                     me->SummonCreature(NPC_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000);
 
-                _events.ScheduleEvent(EVENT_LAMENT_OF_THE_HIGHBORN, 2000);
-                _events.ScheduleEvent(EVENT_SUNSORROW_WHISPER, 10000);
+                _events.ScheduleEvent(EVENT_LAMENT_OF_THE_HIGHBORN, 2s);
+                _events.ScheduleEvent(EVENT_SUNSORROW_WHISPER, 10s);
             }
         }
 
@@ -158,7 +158,7 @@ public:
                 if (Creature* target = ObjectAccessor::GetCreature(*summoned, targetGUID))
                 {
                     target->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ() + 15.0f, me->GetOrientation(), 0);
-                    target->SetPosition(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
+                    target->UpdatePosition(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
                     summoned->CastSpell(target, SPELL_RIBBON_OF_SOULS, false);
                 }
 
@@ -189,26 +189,26 @@ public:
                         if (Unit* victim = me->GetVictim())
                             if (me->GetDistance(victim) > 10.0f)
                                 DoCast(victim, SPELL_MULTI_SHOT);
-                        _events.ScheduleEvent(EVENT_FADE, urand(30000, 35000));
+                        _events.ScheduleEvent(EVENT_FADE, 30s, 35s);
                         break;
                     case EVENT_SUMMON_SKELETON:
                         DoCast(me, SPELL_SUMMON_SKELETON);
-                        _events.ScheduleEvent(EVENT_SUMMON_SKELETON, urand(20000, 30000));
+                        _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 20s, 30s);
                         break;
                     case EVENT_BLACK_ARROW:
                         if (Unit* victim = me->GetVictim())
                             DoCast(victim, SPELL_BLACK_ARROW);
-                        _events.ScheduleEvent(EVENT_BLACK_ARROW, urand(15000, 20000));
+                        _events.ScheduleEvent(EVENT_BLACK_ARROW, 15s, 20s);
                         break;
                     case EVENT_SHOOT:
                         if (Unit* victim = me->GetVictim())
                             DoCast(victim, SPELL_SHOT);
-                        _events.ScheduleEvent(EVENT_SHOOT, urand(8000, 10000));
+                        _events.ScheduleEvent(EVENT_SHOOT, 8s, 10s);
                         break;
                     case EVENT_MULTI_SHOT:
                         if (Unit* victim = me->GetVictim())
                             DoCast(victim, SPELL_MULTI_SHOT);
-                        _events.ScheduleEvent(EVENT_MULTI_SHOT, urand(10000, 13000));
+                        _events.ScheduleEvent(EVENT_MULTI_SHOT, 10s, 13s);
                         break;
                     case EVENT_LAMENT_OF_THE_HIGHBORN:
                         if (!me->HasAura(SPELL_SYLVANAS_CAST))
@@ -222,7 +222,7 @@ public:
                         else
                         {
                             DoSummon(NPC_HIGHBORNE_BUNNY, me, 10.0f, 3000, TEMPSUMMON_TIMED_DESPAWN);
-                            _events.ScheduleEvent(EVENT_LAMENT_OF_THE_HIGHBORN, 2000);
+                            _events.ScheduleEvent(EVENT_LAMENT_OF_THE_HIGHBORN, 2s);
                         }
                         break;
                     case EVENT_SUNSORROW_WHISPER:
@@ -236,6 +236,12 @@ public:
             }
 
             DoMeleeAttackIfReady();
+        }
+
+        void QuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+        {
+            if (quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
+                SetGUID(player->GetGUID(), GUID_EVENT_INVOKER);
         }
 
     private:
@@ -290,7 +296,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -300,7 +306,7 @@ public:
                 {
                     me->SetDisableGravity(true);
                     me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetDistance(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW) / (5000 * 0.001f));
-                    me->SetPosition(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetOrientation());
+                    me->UpdatePosition(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetOrientation());
                     EventMove = false;
                 } else EventMoveTimer -= diff;
             }

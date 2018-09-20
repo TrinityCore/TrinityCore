@@ -1,26 +1,26 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 #define TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 
 #include "MoveSplineFlag.h"
-#include <G3D/Vector3.h>
+#include <vector>
 
 class Unit;
 
@@ -43,12 +43,9 @@ namespace Movement
 
     struct MoveSplineInitArgs
     {
-        MoveSplineInitArgs(size_t path_capacity = 16) : path_Idx_offset(0), velocity(0.f),
-            parabolic_amplitude(0.f), time_perc(0.f), splineId(0), initialOrientation(0.f),
-            HasVelocity(false), TransformForTransport(true)
-        {
-            path.reserve(path_capacity);
-        }
+        MoveSplineInitArgs(size_t path_capacity = 16);
+        MoveSplineInitArgs(MoveSplineInitArgs&& args);
+        ~MoveSplineInitArgs();
 
         PointsArray path;
         FacingInfo facing;
@@ -59,6 +56,7 @@ namespace Movement
         float time_perc;
         uint32 splineId;
         float initialOrientation;
+        bool walk;
         bool HasVelocity;
         bool TransformForTransport;
 

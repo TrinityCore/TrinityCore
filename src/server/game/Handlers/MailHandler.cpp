@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,19 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseEnv.h"
-#include "Mail.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "Player.h"
-#include "Language.h"
-#include "DBCStores.h"
-#include "Item.h"
 #include "AccountMgr.h"
+#include "CharacterCache.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "GameTime.h"
+#include "Item.h"
+#include "Language.h"
+#include "Log.h"
+#include "Mail.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 bool WorldSession::CanOpenMailBox(ObjectGuid guid)
 {
@@ -104,7 +107,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     ObjectGuid receiverGuid;
     if (normalizePlayerName(receiverName))
-        receiverGuid = sObjectMgr->GetPlayerGUIDByName(receiverName);
+        receiverGuid = sCharacterCache->GetCharacterGuidByName(receiverName);
 
     if (!receiverGuid)
     {
@@ -160,7 +163,12 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     }
     else
     {
-        receiverTeam = sObjectMgr->GetPlayerTeamByGUID(receiverGuid);
+        if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(receiverGuid))
+        {
+            receiverTeam = Player::TeamForRace(characterInfo->Race);
+            receiverLevel = characterInfo->Level;
+            receiverAccountId = characterInfo->AccountId;
+        }
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT);
         stmt->setUInt32(0, receiverGuid.GetCounter());
@@ -171,18 +179,6 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
             Field* fields = result->Fetch();
             mailsCount = fields[0].GetUInt64();
         }
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
-        stmt->setUInt32(0, receiverGuid.GetCounter());
-
-        result = CharacterDatabase.Query(stmt);
-        if (result)
-        {
-            Field* fields = result->Fetch();
-            receiverLevel = fields[0].GetUInt8();
-        }
-
-        receiverAccountId = sObjectMgr->GetPlayerAccountIdByGUID(receiverGuid);
     }
 
     // do not allow to have more than 100 mails in mailbox.. mails count is in opcode uint8!!! - so max can be 255..
@@ -303,6 +299,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
                 item->DeleteFromInventoryDB(trans);     // deletes item from character's inventory
                 item->SetOwnerGUID(receiverGuid);
+                item->SetState(ITEM_CHANGED);
                 item->SaveToDB(trans);                  // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
                 draft.AddItem(item);
@@ -401,7 +398,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
 
     Player* player = _player;
     Mail* m = player->GetMail(mailId);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
+    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > GameTime::GetGameTime())
     {
         player->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -467,7 +464,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
     Player* player = _player;
 
     Mail* m = player->GetMail(mailId);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
+    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > GameTime::GetGameTime())
     {
         player->SendMailResult(mailId, MAIL_ITEM_TAKEN, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -515,16 +512,16 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                 else
                 {
                     // can be calculated early
-                    sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
+                    sender_accId = sCharacterCache->GetCharacterAccountIdByGuid(sender_guid);
 
-                    if (!sObjectMgr->GetPlayerNameByGUID(sender_guid, sender_name))
+                    if (!sCharacterCache->GetCharacterNameByGuid(sender_guid, sender_name))
                         sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
                 }
                 sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: %u to player: %s (Account: %u)",
                     GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->Name1.c_str(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receiver)
-                sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
+                sender_accId = sCharacterCache->GetCharacterAccountIdByGuid(sender_guid);
 
             // check player existence
             if (receiver || sender_accId)
@@ -568,7 +565,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
     Player* player = _player;
 
     Mail* m = player->GetMail(mailId);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
+    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > GameTime::GetGameTime())
     {
         player->SendMailResult(mailId, MAIL_MONEY_TAKEN, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -617,7 +614,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
     WorldPacket data(SMSG_MAIL_LIST_RESULT, (200));         // guess size
     data << uint32(0);                                      // real mail's count
     data << uint8(0);                                       // mail's count
-    time_t cur_time = time(NULL);
+    time_t cur_time = GameTime::GetGameTime();
 
     for (PlayerMails::iterator itr = player->GetMailBegin(); itr != player->GetMailEnd(); ++itr)
     {
@@ -664,7 +661,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
         data << uint32((*itr)->stationery);                  // stationery (Stationery.dbc)
         data << uint32((*itr)->money);                       // Gold
         data << uint32((*itr)->checked);                     // flags
-        data << float(float((*itr)->expire_time-time(NULL))/DAY); // Time
+        data << float(float((*itr)->expire_time - GameTime::GetGameTime())/DAY); // Time
         data << uint32((*itr)->mailTemplateId);              // mail template (MailTemplate.dbc)
         data << (*itr)->subject;                             // Subject string - once 00, when mail type = 3, max 256
         data << (*itr)->body;                                // message? max 8000
@@ -698,7 +695,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
             // durability
             data << uint32((item ? item->GetUInt32Value(ITEM_FIELD_DURABILITY) : 0));
             // unknown wotlk
-            data << uint8(0);
+            data << uint8((item && !item->IsLocked() ? 1 : 0));
         }
 
         ++realCount;
@@ -728,7 +725,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     Player* player = _player;
 
     Mail* m = player->GetMail(mailId);
-    if (!m || (m->body.empty() && !m->mailTemplateId) || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL) || (m->checked & MAIL_CHECK_MASK_COPIED))
+    if (!m || (m->body.empty() && !m->mailTemplateId) || m->state == MAIL_STATE_DELETED || m->deliver_time > GameTime::GetGameTime() || (m->checked & MAIL_CHECK_MASK_COPIED))
     {
         player->SendMailResult(mailId, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -745,12 +742,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     if (m->mailTemplateId)
     {
         MailTemplateEntry const* mailTemplateEntry = sMailTemplateStore.LookupEntry(m->mailTemplateId);
-        if (!mailTemplateEntry)
-        {
-            player->SendMailResult(mailId, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
-            return;
-        }
-
+        ASSERT(mailTemplateEntry);
         bodyItem->SetText(mailTemplateEntry->content[GetSessionDbcLocale()]);
     }
     else
@@ -795,7 +787,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
         data << uint32(0);                                 // count
 
         uint32 count = 0;
-        time_t now = time(NULL);
+        time_t now = GameTime::GetGameTime();
         std::set<uint32> sentSenders;
         for (PlayerMails::iterator itr = _player->GetMailBegin(); itr != _player->GetMailEnd(); ++itr)
         {

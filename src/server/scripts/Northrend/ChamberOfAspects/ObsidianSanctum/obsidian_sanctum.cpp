@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
 #include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "obsidian_sanctum.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Enums
 {
@@ -182,13 +184,13 @@ struct dummy_dragonAI : public ScriptedAI
         Initialize();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(SAY_AGGRO);
         DoZoneInCombat();
 
-        events.ScheduleEvent(EVENT_SHADOW_FISSURE, 5000);
-        events.ScheduleEvent(EVENT_SHADOW_BREATH, 20000);
+        events.ScheduleEvent(EVENT_SHADOW_FISSURE, 5s);
+        events.ScheduleEvent(EVENT_SHADOW_BREATH, 20s);
     }
 
     void SetData(uint32 type, uint32 value) override
@@ -215,10 +217,10 @@ struct dummy_dragonAI : public ScriptedAI
         if (pointId == POINT_ID_LAND)
         {
             me->GetMotionMaster()->Clear();
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
             {
-                me->AddThreat(target, 1.0f);
+                AddThreat(target, 1.0f);
                 me->Attack(target, true);
                 me->GetMotionMaster()->MoveChase(target);
             }
@@ -239,7 +241,7 @@ struct dummy_dragonAI : public ScriptedAI
             waypointId = 0;
         }
 
-        events.ScheduleEvent(EVENT_FREE_MOVEMENT, 500);
+        events.ScheduleEvent(EVENT_FREE_MOVEMENT, 500ms);
     }
 
     // "opens" the portal and does the "opening" whisper
@@ -322,7 +324,7 @@ struct dummy_dragonAI : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         if (!_canLoot)
-            me->SetLootRecipient(NULL);
+            me->SetLootRecipient(nullptr);
 
         uint32 spellId = 0;
 
@@ -424,11 +426,11 @@ public:
             dummy_dragonAI::Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            dummy_dragonAI::EnterCombat(who);
+            dummy_dragonAI::JustEngagedWith(who);
 
-            events.ScheduleEvent(EVENT_HATCH_EGGS, 30000);
+            events.ScheduleEvent(EVENT_HATCH_EGGS, 30s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -448,7 +450,7 @@ public:
                 {
                     case EVENT_HATCH_EGGS:
                         OpenPortal();
-                        events.ScheduleEvent(EVENT_HATCH_EGGS, 30000);
+                        events.ScheduleEvent(EVENT_HATCH_EGGS, 30s);
                         break;
                     default:
                         dummy_dragonAI::ExecuteEvent(eventId);
@@ -492,11 +494,11 @@ public:
             instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            dummy_dragonAI::EnterCombat(who);
+            dummy_dragonAI::JustEngagedWith(who);
 
-            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60000);
+            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 1min);
         }
 
         void UpdateAI(uint32 diff) override
@@ -516,7 +518,7 @@ public:
                 {
                     case EVENT_ACOLYTE_SHADRON:
                         if (instance->GetBossState(DATA_PORTAL_OPEN) == NOT_STARTED)
-                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 10000);
+                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 10s);
                         else
                         {
                             if (me->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
@@ -526,7 +528,7 @@ public:
 
                             instance->SetBossState(DATA_PORTAL_OPEN, IN_PROGRESS);
 
-                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, urand(60000, 65000));
+                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60s, 65s);
                         }
                         break;
                     default:
@@ -563,11 +565,11 @@ public:
             dummy_dragonAI::Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            dummy_dragonAI::EnterCombat(who);
+            dummy_dragonAI::JustEngagedWith(who);
 
-            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60000);
+            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 1min);
         }
 
         void UpdateAI(uint32 diff) override
@@ -587,12 +589,12 @@ public:
                 {
                     case EVENT_ACOLYTE_VESPERON:
                         if (instance->GetBossState(DATA_PORTAL_OPEN) == IN_PROGRESS)
-                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 10000);
+                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 10s);
                         else
                         {
                             OpenPortal();
                             DoCastVictim(SPELL_TWILIGHT_TORMENT_VESP);
-                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, urand(60000, 70000));
+                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60s, 70s);
                         }
                         break;
                     default:
@@ -736,7 +738,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
                         vesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
                 }
 
-                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
 
                 if (PlayerList.isEmpty())
                     return;
@@ -803,7 +805,7 @@ public:
         {
             me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
 
-            events.ScheduleEvent(EVENT_TWILIGHT_EGGS, 20000);
+            events.ScheduleEvent(EVENT_TWILIGHT_EGGS, 20s);
         }
 
         void SpawnWhelps()
@@ -814,12 +816,12 @@ public:
                 me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             else
                 me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-            me->DealDamage(me, me->GetHealth());
+            me->KillSelf();
         }
 
         void JustSummoned(Creature* who) override
         {
-            who->SetInCombatWithZone();
+            DoZoneInCombat(who);
         }
 
         void UpdateAI(uint32 diff) override
@@ -872,8 +874,8 @@ public:
         void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
-            events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 100);
-            events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1000);
+            events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 100ms);
+            events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1s);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -887,12 +889,12 @@ public:
                 {
                     case EVENT_TSUNAMI_TIMER:
                         DoCast(me, SPELL_FLAME_TSUNAMI_DMG_AURA);
-                        events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 500);
+                        events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 500ms);
                         break;
                     case EVENT_TSUNAMI_BUFF:
                         if (Unit* lavaBlaze = GetClosestCreatureWithEntry(me, NPC_LAVA_BLAZE, 10.0f, true))
                             lavaBlaze->CastSpell(lavaBlaze, SPELL_FLAME_TSUNAMI_BUFF, true);
-                        events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1000);
+                        events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1s);
                         break;
                 }
             }
@@ -904,7 +906,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_flame_tsunamiAI(creature);
+        return GetObsidianSanctumAI<npc_flame_tsunamiAI>(creature);
     }
 };
 
@@ -934,7 +936,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->AddAura(46265, me); // Wrong, can't find proper visual
             me->AddAura(69422, me);
-            events.ScheduleEvent(EVENT_VOID_BLAST, 5000);
+            events.ScheduleEvent(EVENT_VOID_BLAST, 5s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -958,7 +960,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_twilight_fissureAI(creature);
+        return GetObsidianSanctumAI<npc_twilight_fissureAI>(creature);
     }
 };
 
@@ -980,14 +982,13 @@ public:
     {
         npc_twilight_whelpAI(Creature* creature) : ScriptedAI(creature)
         {
-            Reset();
         }
 
         void Reset() override
         {
             me->RemoveAllAuras();
-            me->SetInCombatWithZone();
-            events.ScheduleEvent(EVENT_FADE_ARMOR, 1000);
+            DoZoneInCombat();
+            events.ScheduleEvent(EVENT_FADE_ARMOR, 1s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1001,7 +1002,7 @@ public:
             if (events.ExecuteEvent() == EVENT_FADE_ARMOR)
             {
                 DoCastVictim(SPELL_FADE_ARMOR);
-                events.ScheduleEvent(EVENT_FADE_ARMOR, urand(5000, 10000));
+                events.ScheduleEvent(EVENT_FADE_ARMOR, 5s, 10s);
             }
 
             DoMeleeAttackIfReady();
@@ -1013,7 +1014,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_twilight_whelpAI(creature);
+        return GetObsidianSanctumAI<npc_twilight_whelpAI>(creature);
     }
 };
 
@@ -1065,4 +1066,3 @@ void AddSC_obsidian_sanctum()
     new achievement_twilight_duo();
     new achievement_twilight_zone();
 }
-

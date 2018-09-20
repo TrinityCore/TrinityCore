@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,10 +18,9 @@
 #ifndef _LOGINDATABASE_H
 #define _LOGINDATABASE_H
 
-#include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-enum LoginDatabaseStatements
+enum LoginDatabaseStatements : uint32
 {
     /*  Naming standard for defines:
         {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
@@ -42,7 +41,6 @@ enum LoginDatabaseStatements
     LOGIN_UPD_LOGONPROOF,
     LOGIN_SEL_LOGONCHALLENGE,
     LOGIN_SEL_RECONNECTCHALLENGE,
-    LOGIN_SEL_LOGON_COUNTRY,
     LOGIN_UPD_FAILEDLOGINS,
     LOGIN_SEL_ACCOUNT_ID_BY_NAME,
     LOGIN_SEL_ACCOUNT_LIST_BY_NAME,
@@ -65,7 +63,7 @@ enum LoginDatabaseStatements
     LOGIN_INS_REALM_CHARACTERS_INIT,
     LOGIN_UPD_EXPANSION,
     LOGIN_UPD_ACCOUNT_LOCK,
-    LOGIN_UPD_ACCOUNT_LOCK_CONTRY,
+    LOGIN_UPD_ACCOUNT_LOCK_COUNTRY,
     LOGIN_INS_LOG,
     LOGIN_UPD_USERNAME,
     LOGIN_UPD_PASSWORD,
@@ -96,7 +94,6 @@ enum LoginDatabaseStatements
     LOGIN_SEL_ACCOUNT_WHOIS,
     LOGIN_SEL_REALMLIST_SECURITY_LEVEL,
     LOGIN_DEL_ACCOUNT,
-    LOGIN_SEL_IP2NATION_COUNTRY,
     LOGIN_SEL_AUTOBROADCAST,
     LOGIN_SEL_LAST_ATTEMPT_IP,
     LOGIN_SEL_LAST_IP,
@@ -123,13 +120,12 @@ public:
     typedef LoginDatabaseStatements Statements;
 
     //- Constructors for sync and async connections
-    LoginDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-    LoginDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+    LoginDatabaseConnection(MySQLConnectionInfo& connInfo);
+    LoginDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    ~LoginDatabaseConnection();
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;
 };
-
-typedef DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabaseWorkerPool;
 
 #endif

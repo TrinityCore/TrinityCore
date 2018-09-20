@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,10 +23,13 @@ SDCategory: Trial of the Champion
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "trial_of_the_champion.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedEscortAI.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "trial_of_the_champion.h"
 /*
 enum Yells
 {
@@ -192,7 +195,7 @@ public:
             {
                 damage = 0;
                 EnterEvadeMode();
-                me->setFaction(35);
+                me->SetFaction(FACTION_FRIENDLY);
                 bDone = true;
             }
         }
@@ -224,7 +227,7 @@ public:
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
                 {
-                    if (target && target->IsAlive())
+                    if (target->IsAlive())
                     {
                         DoCast(target, SPELL_HAMMER_JUSTICE);
                         DoCast(target, SPELL_HAMMER_RIGHTEOUS);
@@ -253,7 +256,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_eadricAI>(creature);
+        return GetTrialOfTheChampionAI<boss_eadricAI>(creature);
     }
 };
 
@@ -320,7 +323,7 @@ public:
             {
                 damage = 0;
                 EnterEvadeMode();
-                me->setFaction(35);
+                me->SetFaction(FACTION_FRIENDLY);
                 bDone = true;
             }
         }
@@ -350,7 +353,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
                 {
-                    if (target && target->IsAlive())
+                    if (target->IsAlive())
                         DoCast(target, SPELL_HOLY_FIRE);
                 }
                  if (me->HasAura(SPELL_SHIELD))
@@ -363,7 +366,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
                 {
-                    if (target && target->IsAlive())
+                    if (target->IsAlive())
                         DoCast(target, SPELL_SMITE);
                 }
                 if (me->HasAura(SPELL_SHIELD))
@@ -415,7 +418,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_paletressAI>(creature);
+        return GetTrialOfTheChampionAI<boss_paletressAI>(creature);
     }
 };
 
@@ -456,7 +459,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (target && target->IsAlive())
+                    if (target->IsAlive())
                         DoCast(target, SPELL_OLD_WOUNDS);
                 }
                 uiOldWoundsTimer = 12000;
@@ -472,7 +475,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                 {
-                    if (target && target->IsAlive())
+                    if (target->IsAlive())
                         DoCast(target, SPELL_SHADOWS_PAST);
                 }
                 uiShadowPastTimer = 5000;
@@ -492,7 +495,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_memoryAI(creature);
+        return GetTrialOfTheChampionAI<npc_memoryAI>(creature);
     }
 };
 
@@ -502,9 +505,9 @@ public:
     npc_argent_soldier() : CreatureScript("npc_argent_soldier") { }
 
     // THIS AI NEEDS MORE IMPROVEMENTS
-    struct npc_argent_soldierAI : public npc_escortAI
+    struct npc_argent_soldierAI : public EscortAI
     {
-        npc_argent_soldierAI(Creature* creature) : npc_escortAI(creature)
+        npc_argent_soldierAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
             me->SetReactState(REACT_DEFENSIVE);
@@ -516,7 +519,7 @@ public:
 
         uint8 uiWaypoint;
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 0)
             {
@@ -589,7 +592,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim())
                 return;
@@ -605,7 +608,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_argent_soldierAI>(creature);
+        return GetTrialOfTheChampionAI<npc_argent_soldierAI>(creature);
     }
 };
 
@@ -650,10 +653,7 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                for (uint8 i = 0; i < 25; ++i)
-                    if (!sSpellMgr->GetSpellInfo(memorySpellId[i]))
-                        return false;
-                return true;
+                return ValidateSpellInfo(memorySpellId);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -668,7 +668,7 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->CastSpell(GetHitUnit(), memorySpellId[urand(0, 24)], true, NULL, NULL, GetCaster()->GetGUID());
+                GetHitUnit()->CastSpell(GetHitUnit(), memorySpellId[urand(0, 24)], GetCaster()->GetGUID());
             }
 
             void Register() override

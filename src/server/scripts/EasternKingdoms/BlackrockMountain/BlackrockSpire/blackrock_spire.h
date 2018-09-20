@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef DEF_BLACKROCK_SPIRE_H
 #define DEF_BLACKROCK_SPIRE_H
 
+#include "CreatureAIImpl.h"
+
 uint32 const EncounterCount         = 23;
 
 #define BRSScriptName "instance_blackrock_spire"
 #define DataHeader    "BRS"
 
-enum DataTypes
+enum BRSDataTypes
 {
     DATA_HIGHLORD_OMOKK             = 0,
     DATA_SHADOW_HUNTER_VOSHGAJIN    = 1,
@@ -52,7 +54,7 @@ enum DataTypes
     DATA_SCARSHIELD_INFILTRATOR     = 23
 };
 
-enum CreaturesIds
+enum BRSCreaturesIds
 {
     NPC_HIGHLORD_OMOKK              = 9196,
     NPC_SHADOW_HUNTER_VOSHGAJIN     = 9236,
@@ -73,20 +75,22 @@ enum CreaturesIds
     NPC_BLACKHAND_VETERAN           = 9819,
     NPC_BLACKHAND_INCARCERATOR      = 10316,
     NPC_LORD_VICTOR_NEFARIUS        = 10162,
-    NPC_SCARSHIELD_INFILTRATOR      = 10299
+    NPC_SCARSHIELD_INFILTRATOR      = 10299,
+    NPC_FINKLE_EINHORN              = 10776
 };
 
-enum AdditionalData
+enum BRSAdditionalData
 {
     SPELL_SUMMON_ROOKERY_WHELP      = 15745,
     EVENT_UROK_DOOMHOWL             = 4845,
     EVENT_PYROGUARD_EMBERSEER       = 4884,
     AREATRIGGER                     = 1,
     AREATRIGGER_DRAGONSPIRE_HALL    = 2046,
-    AREATRIGGER_BLACKROCK_STADIUM   = 2026
+    AREATRIGGER_BLACKROCK_STADIUM   = 2026,
+    SAY_FINKLE_GANG                 = 0
 };
 
-enum GameObjectsIds
+enum BRSGameObjectsIds
 {
     GO_WHELP_SPAWNER                = 175622, // trap spawned by go id 175124
     // Doors
@@ -119,5 +123,13 @@ enum GameObjectsIds
     GO_PORTCULLIS_ACTIVE            = 164726,
     GO_PORTCULLIS_TOBOSSROOMS       = 175186
 };
+
+template <class AI, class T>
+inline AI* GetBlackrockSpireAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, BRSScriptName);
+}
+
+#define RegisterBlackrockSpireCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBlackrockSpireAI)
 
 #endif

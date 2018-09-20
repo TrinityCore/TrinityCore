@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,11 @@ SDCategory: Gruul's Lair
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "gruuls_lair.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Yells
 {
@@ -103,9 +105,9 @@ class boss_gruul : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
             }
 
@@ -121,7 +123,7 @@ class boss_gruul : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* pSpell) override
+            void SpellHitTarget(Unit* target, SpellInfo const* pSpell) override
             {
                 //This to emulate effect1 (77) of SPELL_GROUND_SLAM, knock back to any direction
                 //It's initially wrong, since this will cause fall damage, which is by comments, not intended.
@@ -132,11 +134,11 @@ class boss_gruul : public CreatureScript
                         switch (urand(0, 1))
                         {
                             case 0:
-                                target->CastSpell(target, SPELL_MAGNETIC_PULL, true, NULL, NULL, me->GetGUID());
+                                target->CastSpell(target, SPELL_MAGNETIC_PULL, me->GetGUID());
                                 break;
 
                             case 1:
-                                target->CastSpell(target, SPELL_KNOCK_BACK, true, NULL, NULL, me->GetGUID());
+                                target->CastSpell(target, SPELL_KNOCK_BACK, me->GetGUID());
                                 break;
                         }
                     }
@@ -204,7 +206,7 @@ class boss_gruul : public CreatureScript
                     // Hurtful Strike
                     if (m_uiHurtfulStrike_Timer <= diff)
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
+                        Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 1);
 
                         if (target && me->IsWithinMeleeRange(me->GetVictim()))
                             DoCast(target, SPELL_HURTFUL_STRIKE);
@@ -234,7 +236,7 @@ class boss_gruul : public CreatureScript
                         if (m_uiCaveIn_StaticTimer >= 4000)
                             m_uiCaveIn_StaticTimer -= 2000;
 
-                            m_uiCaveIn_Timer = m_uiCaveIn_StaticTimer;
+                        m_uiCaveIn_Timer = m_uiCaveIn_StaticTimer;
                     }
                     else
                         m_uiCaveIn_Timer -= diff;
@@ -275,11 +277,7 @@ class spell_gruul_shatter : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_STONED))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHATTER_EFFECT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_STONED, SPELL_SHATTER_EFFECT });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -287,7 +285,7 @@ class spell_gruul_shatter : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                 {
                     target->RemoveAurasDueToSpell(SPELL_STONED);
-                    target->CastSpell((Unit*)NULL, SPELL_SHATTER_EFFECT, true);
+                    target->CastSpell(nullptr, SPELL_SHATTER_EFFECT, true);
                 }
             }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef AHNKAHET_H_
 #define AHNKAHET_H_
 
+#include "CreatureAIImpl.h"
+
 #define AhnKahetScriptName "instance_ahnkahet"
 #define DataHeader         "AK"
 
 uint32 const EncounterCount = 5;
 
-enum DataTypes
+enum AKDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_ELDER_NADOX                = 0,
@@ -35,16 +37,10 @@ enum DataTypes
     // Additional Data
     DATA_SPHERE_1                   = 5,
     DATA_SPHERE_2                   = 6,
-    DATA_PRINCE_TALDARAM_PLATFORM   = 7,
-    DATA_PL_JEDOGA_TARGET           = 8,
-    DATA_ADD_JEDOGA_OPFER           = 9,
-    DATA_ADD_JEDOGA_INITIAND        = 10,
-    DATA_JEDOGA_TRIGGER_SWITCH      = 11,
-    DATA_JEDOGA_RESET_INITIANDS     = 12,
-    DATA_ALL_INITIAND_DEAD          = 13
+    DATA_PRINCE_TALDARAM_PLATFORM   = 7
 };
 
-enum CreatureIds
+enum AKCreatureIds
 {
     NPC_ELDER_NADOX                 = 29309,
     NPC_PRINCE_TALDARAM             = 29308,
@@ -57,7 +53,9 @@ enum CreatureIds
     NPC_AHNKAHAR_SWARMER            = 30178,
 
     // Jedoga Shadowseeker
-    NPC_INITIAND                    = 30114,
+    NPC_TWILIGHT_INITIATE           = 30114,
+    NPC_TWILIGHT_VOLUNTEER          = 30385,
+    NPC_TWILIGHT_WORSHIPPER         = 30111,
     NPC_JEDOGA_CONTROLLER           = 30181,
 
     // Amanitar
@@ -72,7 +70,7 @@ enum CreatureIds
     NPC_TWISTED_VISAGE              = 30625
 };
 
-enum GameObjectIds
+enum AKGameObjectIds
 {
     GO_PRINCE_TALDARAM_GATE         = 192236,
     GO_PRINCE_TALDARAM_PLATFORM     = 193564,
@@ -80,10 +78,12 @@ enum GameObjectIds
     GO_SPHERE_2                     = 193094
 };
 
-template<class AI>
-AI* GetAhnKahetAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetAhnKahetAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, AhnKahetScriptName);
+    return GetInstanceAI<AI>(obj, AhnKahetScriptName);
 }
+
+#define RegisterAhnKahetCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetAhnKahetAI)
 
 #endif // AHNKAHET_H_

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,10 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include "WorldPacket.h"
+#include <vector>
+
+class ObjectMgr;
 
 enum ItemModType
 {
@@ -253,7 +257,7 @@ enum SocketColor
 
 #define SOCKET_COLOR_ALL (SOCKET_COLOR_META | SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 
-enum InventoryType
+enum InventoryType : uint8
 {
     INVTYPE_NON_EQUIP                           = 0,
     INVTYPE_HEAD                                = 1,
@@ -288,7 +292,7 @@ enum InventoryType
 
 #define MAX_INVTYPE                               29
 
-enum ItemClass
+enum ItemClass : uint8
 {
     ITEM_CLASS_CONSUMABLE                       = 0,
     ITEM_CLASS_CONTAINER                        = 1,
@@ -606,6 +610,8 @@ struct _Socket
 
 struct ItemTemplate
 {
+    friend class ObjectMgr;
+
     uint32 ItemId;
     uint32 Class;                                           // id from ItemClass.dbc
     uint32 SubClass;                                        // id from ItemSubClass.dbc
@@ -681,6 +687,7 @@ struct ItemTemplate
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
+    WorldPacket QueryData[TOTAL_LOCALES];
 
     // helpers
     bool CanChangeEquipStateInCombat() const;
@@ -695,6 +702,7 @@ struct ItemTemplate
     float getDPS() const;
 
     int32 getFeralBonus(int32 extraDPS = 0) const;
+    int32 GetTotalAPBonus() const { return _totalAP; }
 
     float GetItemLevelIncludingQuality() const;
 
@@ -704,15 +712,22 @@ struct ItemTemplate
     bool IsWeaponVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }
     bool IsArmorVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAG_CONJURED); }
-};
 
-// Benchmarked: Faster than std::map (insert/find)
-typedef std::unordered_map<uint32, ItemTemplate> ItemTemplateContainer;
+    void InitializeQueryData();
+    WorldPacket BuildQueryData(LocaleConstant loc) const;
+
+private:
+    // Cached info
+    int32 _totalAP;
+
+    // Loading Helpers
+    void _LoadTotalAP();
+};
 
 struct ItemLocale
 {
-    StringVector Name;
-    StringVector Description;
+    std::vector<std::string> Name;
+    std::vector<std::string> Description;
 };
 
 struct ItemSetNameEntry
@@ -723,7 +738,7 @@ struct ItemSetNameEntry
 
 struct ItemSetNameLocale
 {
-    StringVector Name;
+    std::vector<std::string> Name;
 };
 
 #endif

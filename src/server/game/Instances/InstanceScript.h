@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,11 +19,11 @@
 #ifndef TRINITY_INSTANCE_DATA_H
 #define TRINITY_INSTANCE_DATA_H
 
-#include <set>
 #include "ZoneScript.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "CreatureAI.h"
+#include "Common.h"
+#include <map>
+#include <memory>
+#include <set>
 
 #define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_SAVE_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
@@ -31,12 +31,18 @@
 #define OUT_LOAD_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_LOAD_INST_DATA_FAIL        TC_LOG_ERROR("scripts", "Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 
-class Map;
-class Unit;
-class Player;
-class GameObject;
+class AreaBoundary;
 class Creature;
+class GameObject;
+struct InstanceSpawnGroupInfo;
+class Map;
 class ModuleReference;
+class Player;
+class Unit;
+class WorldPacket;
+enum AchievementCriteriaTypes : uint8;
+enum AchievementCriteriaTimedTypes : uint8;
+enum EncounterCreditType : uint8;
 
 enum EncounterFrameType
 {
@@ -105,6 +111,8 @@ struct ObjectData
     uint32 type;
 };
 
+typedef std::vector<AreaBoundary const*> CreatureBoundary;
+
 struct BossInfo
 {
     BossInfo() : state(TO_BE_DECIDED) { }
@@ -149,7 +157,10 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // KEEPING THIS METHOD ONLY FOR BACKWARD COMPATIBILITY !!!
         virtual void Initialize() { }
 
-        // On load
+        // On instance load, exactly ONE of these methods will ALWAYS be called:
+        // if we're starting without any saved instance data
+        virtual void Create();
+        // if we're loading existing instance save data
         virtual void Load(char const* data);
 
         // When save is needed, this function generates the data
@@ -174,21 +185,15 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectGuid GetObjectGuid(uint32 type) const;
         virtual ObjectGuid GetGuidData(uint32 type) const override;
 
-        inline Creature* GetCreature(uint32 type)
-        {
-            return instance->GetCreature(GetObjectGuid(type));
-        }
-        inline GameObject* GetGameObject(uint32 type)
-        {
-            return instance->GetGameObject(GetObjectGuid(type));
-        }
+        Creature* GetCreature(uint32 type);
+        GameObject* GetGameObject(uint32 type);
 
         // Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* /*player*/) { }
 
         // Handle open / close objects
         // * use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
-        // * use HandleGameObject(GUID, boolen, NULL); in any other script
+        // * use HandleGameObject(GUID, boolen, nullptr); in any other script
         void HandleGameObject(ObjectGuid guid, bool open, GameObject* go = nullptr);
 
         // Change active state of doors or buttons
@@ -205,7 +210,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoSendNotifyToInstance(char const* format, ...);
 
         // Update Achievement Criteria for all players in instance
-        void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL);
+        void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
 
         // Start/Stop Timed Achievement Criteria for all players in instance
         void DoStartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
@@ -218,22 +223,23 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoCastSpellOnPlayers(uint32 spell);
 
         // Return wether server allow two side groups or not
-        bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
+        static bool ServerAllowsTwoSideGroups();
 
         virtual bool SetBossState(uint32 id, EncounterState state);
         EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }
-        static std::string GetBossStateName(uint8 state);
-        CreatureBoundary const* GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : NULL; }
+        static char const* GetBossStateName(uint8 state);
+        CreatureBoundary const* GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : nullptr; }
 
         // Achievement criteria additional requirements check
         // NOTE: not use this if same can be checked existed requirement types from AchievementCriteriaRequirementType
-        virtual bool CheckAchievementCriteriaMeet(uint32 /*criteria_id*/, Player const* /*source*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
+        virtual bool CheckAchievementCriteriaMeet(uint32 /*criteria_id*/, Player const* /*source*/, Unit const* /*target*/ = nullptr, uint32 /*miscvalue1*/ = 0);
 
         // Checks boss requirements (one boss required to kill other)
         virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = nullptr) const { return true; }
 
         // Checks encounter state at kill/spellcast
-        void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
+        void UpdateEncounterStateForKilledCreature(uint32 creatureId, Unit* source);
+        void UpdateEncounterStateForSpellCast(uint32 spellId, Unit* source);
 
         // Used only during loading
         void SetCompletedEncountersMask(uint32 newMask) { completedEncounters = newMask; }
@@ -241,11 +247,16 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
-        void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 param1 = 0, uint8 param2 = 0);
+        void SendEncounterUnit(uint32 type, Unit* unit = nullptr, uint8 param1 = 0, uint8 param2 = 0);
 
         virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
 
         uint32 GetEncounterCount() const { return bosses.size(); }
+
+        // Only used by areatriggers that inherit from OnlyOnceAreaTriggerScript
+        void MarkAreaTriggerDone(uint32 id) { _activatedAreaTriggers.insert(id); }
+        void ResetAreaTriggerDone(uint32 id) { _activatedAreaTriggers.erase(id); }
+        bool IsAreaTriggerDone(uint32 id) const { return _activatedAreaTriggers.find(id) != _activatedAreaTriggers.end(); }
 
     protected:
         void SetHeaders(std::string const& dataHeaders);
@@ -265,6 +276,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
         virtual void UpdateDoorState(GameObject* door);
         void UpdateMinionState(Creature* minion, EncounterState state);
 
+        void UpdateSpawnGroups();
+
         // Exposes private data that should never be modified unless exceptional cases.
         // Pay very much attention at how the returned BossInfo data is modified to avoid issues.
         BossInfo* GetBossInfo(uint32 id);
@@ -281,6 +294,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
     private:
         static void LoadObjectData(ObjectData const* creatureData, ObjectInfoMap& objectInfo);
+        void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
 
         std::vector<char> headers;
         std::vector<BossInfo> bosses;
@@ -290,32 +304,15 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
+        std::vector<InstanceSpawnGroupInfo> const* const _instanceSpawnGroups;
+        std::unordered_set<uint32> _activatedAreaTriggers;
 
     #ifdef TRINITY_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module
         std::shared_ptr<ModuleReference> module_reference;
     #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
+
+        friend class debug_commandscript;
 };
-
-template<class AI, class T>
-AI* GetInstanceAI(T* obj, char const* scriptName)
-{
-    if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(scriptName))
-                return new AI(obj);
-
-    return NULL;
-}
-
-template<class AI, class T>
-AI* GetInstanceAI(T* obj)
-{
-    if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            return new AI(obj);
-
-    return NULL;
-}
 
 #endif // TRINITY_INSTANCE_DATA_H

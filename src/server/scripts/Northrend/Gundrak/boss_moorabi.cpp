@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,45 +18,54 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "gundrak.h"
-
-/// @todo: implement mojo frenzy
 
 enum Spells
 {
-    SPELL_DETERMINED_GORE       = 55102,
-    SPELL_DETERMINED_STAB       = 55104,
-    SPELL_GROUND_TREMOR         = 55142,
-    SPELL_NUMBING_SHOUT         = 55106,
-    SPELL_QUAKE                 = 55101,
-    SPELL_NUMBING_ROAR          = 55100,
-    SPELL_MOJO_FRENZY           = 55163,
-    SPELL_TRANSFORMATION        = 55098, // Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
+    SPELL_SUMMON_PHANTOM           = 55205,
+    SPELL_SUMMON_PHANTOM_TRANSFORM = 55097,
+    SPELL_DETERMINED_GORE          = 55102,
+    SPELL_DETERMINED_STAB          = 55104,
+    SPELL_GROUND_TREMOR            = 55142,
+    SPELL_NUMBING_SHOUT            = 55106,
+    SPELL_QUAKE                    = 55101,
+    SPELL_NUMBING_ROAR             = 55100,
+    SPELL_MOJO_FRENZY              = 55163,
+    SPELL_MOJO_FRENZY_CAST_SPEED   = 55096,
+    SPELL_TRANSFORMATION           = 55098 // Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
 };
 
 enum Says
 {
-    SAY_AGGRO                   = 0,
-    SAY_SLAY                    = 1,
-    SAY_DEATH                   = 2,
-    SAY_TRANSFORM               = 3,
-    SAY_QUAKE                   = 4,
-    EMOTE_BEGIN_TRANSFORM       = 5,
-    EMOTE_TRANSFORMED           = 6,
-    EMOTE_ACTIVATE_ALTAR        = 7
+    SAY_AGGRO                      = 0,
+    SAY_SLAY                       = 1,
+    SAY_DEATH                      = 2,
+    SAY_TRANSFORM                  = 3,
+    SAY_QUAKE                      = 4,
+    EMOTE_BEGIN_TRANSFORM          = 5,
+    EMOTE_TRANSFORMED              = 6,
+    EMOTE_ACTIVATE_ALTAR           = 7
 };
 
 enum Events
 {
-    EVENT_GROUND_TREMOR         = 1,
+    EVENT_GROUND_TREMOR            = 1,
     EVENT_NUMBLING_SHOUT,
     EVENT_DETERMINED_STAB,
-    EVENT_TRANFORMATION
+    EVENT_TRANFORMATION,
+    EVENT_PHANTOM
 };
 
 enum Misc
 {
-    DATA_LESS_RABI              = 1
+    DATA_LESS_RABI                 = 1
+};
+
+enum Phases
+{
+    PHASE_INTRO                    = 1,
+    PHASE_COMBAT
 };
 
 class boss_moorabi : public CreatureScript
@@ -66,33 +75,35 @@ class boss_moorabi : public CreatureScript
 
         struct boss_moorabiAI : public BossAI
         {
-            boss_moorabiAI(Creature* creature) : BossAI(creature, DATA_MOORABI)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _transformed = false;
-            }
+            boss_moorabiAI(Creature* creature) : BossAI(creature, DATA_MOORABI), _transformed(false) { }
 
             void Reset() override
             {
-                Initialize();
                 _Reset();
+                _transformed = false;
+                events.SetPhase(PHASE_INTRO);
+                events.ScheduleEvent(EVENT_PHANTOM, Seconds(21), 0, PHASE_INTRO);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
-                DoCast(me, SPELL_MOJO_FRENZY, true);
+                DoCastSelf(SPELL_MOJO_FRENZY, true);
 
-                events.ScheduleEvent(EVENT_GROUND_TREMOR, 18 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, 10 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_DETERMINED_STAB, 20 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_TRANFORMATION, 12 * IN_MILLISECONDS);
+                events.SetPhase(PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_GROUND_TREMOR, 18s);
+                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, 10s);
+                events.ScheduleEvent(EVENT_DETERMINED_STAB, 20s);
+                events.ScheduleEvent(EVENT_TRANFORMATION, 12s);
             }
+
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                _DespawnAtEvade();
+            }
+
+            void JustSummoned(Creature* /*summon*/) override {}
 
             uint32 GetData(uint32 type) const override
             {
@@ -125,41 +136,53 @@ class boss_moorabi : public CreatureScript
                 }
             }
 
-            void ExecuteEvent(uint32 eventId) override
+            void UpdateAI(uint32 diff) override
             {
-                switch (eventId)
+                if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
+                    return;
+
+                events.Update(diff);
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    case EVENT_GROUND_TREMOR:
-                        Talk(SAY_QUAKE);
-                        if (_transformed)
-                            DoCastAOE(SPELL_QUAKE);
-                        else
-                            DoCastAOE(SPELL_GROUND_TREMOR);
-                        events.ScheduleEvent(eventId, 10 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_NUMBLING_SHOUT:
-                        if (_transformed)
-                            DoCastAOE(SPELL_NUMBING_ROAR);
-                        else
-                            DoCastAOE(SPELL_NUMBING_SHOUT);
-                        events.ScheduleEvent(eventId, 10 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_DETERMINED_STAB:
-                        if (_transformed)
-                            DoCastVictim(SPELL_DETERMINED_GORE);
-                        else
-                            DoCastVictim(SPELL_DETERMINED_STAB);
-                        events.ScheduleEvent(eventId, 8 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_TRANFORMATION:
-                        Talk(EMOTE_BEGIN_TRANSFORM);
-                        Talk(SAY_TRANSFORM);
-                        DoCast(me, SPELL_TRANSFORMATION);
-                        events.ScheduleEvent(eventId, 10 * IN_MILLISECONDS);
-                        break;
-                    default:
-                        break;
+                    switch (eventId)
+                    {
+                        case EVENT_GROUND_TREMOR:
+                            if (roll_chance_i(50))
+                                Talk(SAY_QUAKE);
+                            DoCastAOE(_transformed ? SPELL_QUAKE : SPELL_GROUND_TREMOR);
+                            events.Repeat(Seconds(10));
+                            break;
+                        case EVENT_NUMBLING_SHOUT:
+                            DoCastAOE(_transformed ? SPELL_NUMBING_ROAR : SPELL_NUMBING_SHOUT);
+                            events.Repeat(Seconds(10));
+                            break;
+                        case EVENT_DETERMINED_STAB:
+                            DoCastAOE(_transformed ? SPELL_DETERMINED_GORE : SPELL_DETERMINED_STAB);
+                            events.Repeat(Seconds(8));
+                            break;
+                        case EVENT_TRANFORMATION:
+                            Talk(EMOTE_BEGIN_TRANSFORM);
+                            Talk(SAY_TRANSFORM);
+                            DoCastSelf(SPELL_TRANSFORMATION);
+                            DoCastSelf(SPELL_SUMMON_PHANTOM_TRANSFORM, true);
+                            events.Repeat(Seconds(10));
+                            break;
+                        case EVENT_PHANTOM:
+                            DoCastSelf(SPELL_SUMMON_PHANTOM, true);
+                            events.Repeat(Seconds(20), Seconds(25));
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if(me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
+
+                DoMeleeAttackIfReady();
             }
 
         private:
@@ -190,8 +213,47 @@ class achievement_less_rabi : public AchievementCriteriaScript
         }
 };
 
+// 55163 - Mojo Frenzy
+class spell_moorabi_mojo_frenzy : public SpellScriptLoader
+{
+    public:
+        spell_moorabi_mojo_frenzy() : SpellScriptLoader("spell_moorabi_mojo_frenzy") { }
+
+        class spell_moorabi_mojo_frenzy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_moorabi_mojo_frenzy_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                return ValidateSpellInfo({ SPELL_MOJO_FRENZY_CAST_SPEED });
+            }
+
+            void HandlePeriodic(AuraEffect const* /*aurEff*/)
+            {
+                PreventDefaultAction();
+
+                Unit* owner = GetUnitOwner();
+                int32 castSpeedBonus = (100.0f - owner->GetHealthPct()) * 4; // between 0% and 400% cast speed bonus
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.AddSpellBP0(castSpeedBonus);
+                owner->CastSpell(owner, SPELL_MOJO_FRENZY_CAST_SPEED, args);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_moorabi_mojo_frenzy_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_moorabi_mojo_frenzy_AuraScript();
+        }
+};
+
 void AddSC_boss_moorabi()
 {
     new boss_moorabi();
     new achievement_less_rabi();
+    new spell_moorabi_mojo_frenzy();
 }

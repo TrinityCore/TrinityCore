@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +16,15 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "pit_of_saron.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "pit_of_saron.h"
-#include "PassiveAI.h"
 #include "Vehicle.h"
-#include "Player.h"
 
 enum Spells
 {
@@ -40,6 +42,19 @@ enum Events
     EVENT_TACTICAL_BLINK        = 2,
 };
 
+bool ScheduledIcicleSummons::Execute(uint64 /*time*/, uint32 /*diff*/)
+{
+    if (roll_chance_i(12))
+    {
+        _trigger->CastSpell(_trigger, SPELL_ICICLE_SUMMON, true);
+        _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(urand(20000, 35000)));
+    }
+    else
+        _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(urand(1000, 20000)));
+
+    return true;
+}
+
 class npc_ymirjar_flamebearer : public CreatureScript
 {
     public:
@@ -56,10 +71,10 @@ class npc_ymirjar_flamebearer : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_FIREBALL, 4000);
-                _events.ScheduleEvent(EVENT_TACTICAL_BLINK, 15000);
+                _events.ScheduleEvent(EVENT_FIREBALL, 4s);
+                _events.ScheduleEvent(EVENT_TACTICAL_BLINK, 15s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -101,7 +116,7 @@ class npc_ymirjar_flamebearer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_ymirjar_flamebearerAI(creature);
+            return GetPitOfSaronAI<npc_ymirjar_flamebearerAI>(creature);
         }
 };
 
@@ -127,7 +142,7 @@ class npc_iceborn_protodrake : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Vehicle* _vehicle = me->GetVehicleKit())
                     _vehicle->RemoveAllPassengers();
@@ -155,7 +170,7 @@ class npc_iceborn_protodrake : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_iceborn_protodrakeAI(creature);
+            return GetPitOfSaronAI<npc_iceborn_protodrakeAI>(creature);
         }
 };
 
@@ -181,7 +196,7 @@ class npc_geist_ambusher : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (who->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -214,37 +229,7 @@ class npc_geist_ambusher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_geist_ambusherAI(creature);
-        }
-};
-
-class spell_trash_npc_glacial_strike : public SpellScriptLoader
-{
-    public:
-        spell_trash_npc_glacial_strike() : SpellScriptLoader("spell_trash_npc_glacial_strike") { }
-
-        class spell_trash_npc_glacial_strike_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_trash_npc_glacial_strike_AuraScript);
-
-            void PeriodicTick(AuraEffect const* /*aurEff*/)
-            {
-                if (GetTarget()->IsFullHealth())
-                {
-                    GetTarget()->RemoveAura(GetId(), ObjectGuid::Empty, 0, AURA_REMOVE_BY_ENEMY_SPELL);
-                    PreventDefaultAction();
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_trash_npc_glacial_strike_AuraScript::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_trash_npc_glacial_strike_AuraScript();
+            return GetPitOfSaronAI<npc_geist_ambusherAI>(creature);
         }
 };
 
@@ -303,12 +288,7 @@ class spell_pos_ice_shards : public SpellScriptLoader
             bool Load() override
             {
                 // This script should execute only in Pit of Saron
-                if (InstanceMap* instance = GetCaster()->GetMap()->ToInstanceMap())
-                    if (instance->GetInstanceScript())
-                        if (instance->GetScriptId() == sObjectMgr->GetScriptId(PoSScriptName))
-                            return true;
-
-                return false;
+                return InstanceHasScript(GetCaster(), PoSScriptName);
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -380,7 +360,6 @@ void AddSC_pit_of_saron()
     new npc_iceborn_protodrake();
     new npc_geist_ambusher();
     new npc_pit_of_saron_icicle();
-    new spell_trash_npc_glacial_strike();
     new spell_pos_ice_shards();
     new at_pit_cavern_entrance();
     new at_pit_cavern_end();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,25 +16,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "Common.h"
-#include "Log.h"
 #include "Corpse.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "Group.h"
+#include "Item.h"
+#include "Log.h"
+#include "LootItemStorage.h"
 #include "LootMgr.h"
-#include "ObjectAccessor.h"
+#include "Map.h"
 #include "Object.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
     ObjectGuid lguid = player->GetLootGUID();
-    Loot* loot = NULL;
+    Loot* loot = nullptr;
     uint8 lootSlot = 0;
 
     recvData >> lootSlot;
@@ -105,7 +108,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
     if (!guid)
         return;
 
-    Loot* loot = NULL;
+    Loot* loot = nullptr;
     bool shareMoney = true;
 
     switch (guid.GetHigh())
@@ -168,7 +171,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             Group* group = player->GetGroup();
 
             std::vector<Player*> playersNear;
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
             {
                 Player* member = itr->GetSource();
                 if (!member)
@@ -188,7 +191,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
                 data << uint32(goldPerPlayer);
                 data << uint8(playersNear.size() <= 1); // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
-                (*i)->GetSession()->SendPacket(&data);
+                (*i)->SendDirectMessage(&data);
             }
         }
         else
@@ -206,7 +209,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
         // Delete the money loot record from the DB
         if (loot->containerID > 0)
-            loot->DeleteLootMoneyFromContainerItemDB();
+            sLootItemStorage->RemoveStoredMoneyForContainer(loot->containerID);
 
         // Delete container if empty
         if (loot->isLooted() && guid.IsItem())
@@ -370,7 +373,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                 loot->roundRobinPlayer.Clear();
 
                 if (Group* group = player->GetGroup())
-                    group->SendLooter(creature, NULL);
+                    group->SendLooter(creature, nullptr);
             }
             // force dynflag update to update looter and lootable info
             creature->ForceValuesUpdateAtIndex(UNIT_DYNAMIC_FLAGS);
@@ -394,7 +397,8 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         return;
     }
 
-    Player* target = ObjectAccessor::FindPlayer(target_playerguid);
+    // player on other map
+    Player* target = ObjectAccessor::GetPlayer(*_player, target_playerguid);
     if (!target)
     {
         _player->SendLootError(lootguid, LOOT_ERROR_PLAYER_NOT_FOUND);
@@ -416,7 +420,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         return;
     }
 
-    Loot* loot = NULL;
+    Loot* loot = nullptr;
 
     if (GetPlayer()->GetLootGUID().IsCreatureOrVehicle())
     {
@@ -460,12 +464,12 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         else
             _player->SendLootError(lootguid, LOOT_ERROR_MASTER_OTHER);
 
-        target->SendEquipError(msg, NULL, NULL, item.itemid);
+        target->SendEquipError(msg, nullptr, nullptr, item.itemid);
         return;
     }
 
     // list of players allowed to receive this item in trade
-    AllowedLooterSet looters = item.GetAllowedLooters();
+    GuidSet looters = item.GetAllowedLooters();
 
     // now move item from loot to target inventory
     Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, looters);

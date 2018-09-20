@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,9 +32,9 @@ public:
         return instance;
     }
 
-    bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount = 1) override
+    bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount = 1) override
     {
-        if (!BaseSocketMgr::StartNetwork(service, bindIp, port, threadCount))
+        if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
             return false;
 
         _acceptor->AsyncAcceptWithCallback<&AuthSocketMgr::OnSocketAccept>();

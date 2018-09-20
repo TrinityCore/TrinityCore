@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,11 @@ Category: Auchindoun, Auchenai Crypts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "auchenai_crypts.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -55,7 +58,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_shirrak_the_dead_watcherAI(creature);
+        return GetAuchenaiCryptsAI<boss_shirrak_the_dead_watcherAI>(creature);
     }
 
     struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
@@ -86,7 +89,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         { }
 
         void JustSummoned(Creature* summoned) override
@@ -94,7 +97,7 @@ public:
             if (summoned && summoned->GetEntry() == NPC_FOCUS_FIRE)
             {
                 summoned->CastSpell(summoned, SPELL_FOCUS_FIRE_VISUAL, false);
-                summoned->setFaction(me->getFaction());
+                summoned->SetFaction(me->GetFaction());
                 summoned->SetLevel(me->getLevel());
                 summoned->AddUnitState(UNIT_STATE_ROOT);
 
@@ -109,7 +112,7 @@ public:
             if (Inhibitmagic_Timer <= diff)
             {
                 float dist;
-                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     if (Player* i_pl = i->GetSource())
                         if (i_pl->IsAlive() && (dist = i_pl->GetDistance(me)) < 45)
@@ -172,7 +175,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_focus_fireAI(creature);
+        return GetAuchenaiCryptsAI<npc_focus_fireAI>(creature);
     }
 
     struct npc_focus_fireAI : public ScriptedAI
@@ -196,7 +199,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         { }
 
         void UpdateAI(uint32 diff) override

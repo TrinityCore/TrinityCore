@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,9 +17,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ruins_of_ahnqiraj.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -135,15 +138,15 @@ class boss_ayamiss : public CreatureScript
                 BossAI::EnterEvadeMode(why);
             }
 
-            void EnterCombat(Unit* attacker) override
+            void JustEngagedWith(Unit* attacker) override
             {
-                BossAI::EnterCombat(attacker);
+                BossAI::JustEngagedWith(attacker);
 
-                events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(20000, 30000));
-                events.ScheduleEvent(EVENT_POISON_STINGER, 5000);
-                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
-                events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60000);
-                events.ScheduleEvent(EVENT_PARALYZE, 15000);
+                events.ScheduleEvent(EVENT_STINGER_SPRAY, 20s, 30s);
+                events.ScheduleEvent(EVENT_POISON_STINGER, 5s);
+                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
+                events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min);
+                events.ScheduleEvent(EVENT_PARALYZE, 15s);
 
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
@@ -167,9 +170,9 @@ class boss_ayamiss : public CreatureScript
                         Position VictimPos = me->EnsureVictim()->GetPosition();
                         me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
                     }
-                    DoResetThreat();
-                    events.ScheduleEvent(EVENT_LASH, urand(5000, 8000));
-                    events.ScheduleEvent(EVENT_TRASH, urand(3000, 6000));
+                    ResetThreatList();
+                    events.ScheduleEvent(EVENT_LASH, 5s, 8s);
+                    events.ScheduleEvent(EVENT_TRASH, 3s, 6s);
                     events.CancelEvent(EVENT_POISON_STINGER);
                 }
                 else
@@ -190,11 +193,11 @@ class boss_ayamiss : public CreatureScript
                     {
                         case EVENT_STINGER_SPRAY:
                             DoCast(me, SPELL_STINGER_SPRAY);
-                            events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_STINGER_SPRAY, 15s, 20s);
                             break;
                         case EVENT_POISON_STINGER:
                             DoCastVictim(SPELL_POISON_STINGER);
-                            events.ScheduleEvent(EVENT_POISON_STINGER, urand(2000, 3000));
+                            events.ScheduleEvent(EVENT_POISON_STINGER, 2s, 3s);
                             break;
                         case EVENT_PARALYZE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
@@ -204,31 +207,31 @@ class boss_ayamiss : public CreatureScript
                                 uint8 Index = urand(0, 1);
                                 me->SummonCreature(NPC_LARVA, LarvaPos[Index], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                             }
-                            events.ScheduleEvent(EVENT_PARALYZE, 15000);
+                            events.ScheduleEvent(EVENT_PARALYZE, 15s);
                             break;
                         case EVENT_SWARMER_ATTACK:
                             for (GuidList::iterator i = _swarmers.begin(); i != _swarmers.end(); ++i)
-                                if (Creature* swarmer = me->GetMap()->GetCreature(*i))
+                                if (Creature* swarmer = ObjectAccessor::GetCreature(*me, *i))
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                         swarmer->AI()->AttackStart(target);
 
                             _swarmers.clear();
-                            events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60000);
+                            events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min);
                             break;
                         case EVENT_SUMMON_SWARMER:
                         {
                             Position Pos = me->GetRandomPoint(SwarmerPos, 80.0f);
                             me->SummonCreature(NPC_SWARMER, Pos);
-                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
+                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
                             break;
                         }
                         case EVENT_TRASH:
                             DoCastVictim(SPELL_TRASH);
-                            events.ScheduleEvent(EVENT_TRASH, urand(5000, 7000));
+                            events.ScheduleEvent(EVENT_TRASH, 5s, 7s);
                             break;
                         case EVENT_LASH:
                             DoCastVictim(SPELL_LASH);
-                            events.ScheduleEvent(EVENT_LASH, urand(8000, 15000));
+                            events.ScheduleEvent(EVENT_LASH, 8s, 15s);
                             break;
                     }
                 }
@@ -241,7 +244,7 @@ class boss_ayamiss : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_ayamissAI>(creature);
+            return GetAQ20AI<boss_ayamissAI>(creature);
         }
 };
 
@@ -295,7 +298,7 @@ class npc_hive_zara_larva : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_hive_zara_larvaAI>(creature);
+            return GetAQ20AI<npc_hive_zara_larvaAI>(creature);
         }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
 #include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "obsidian_sanctum.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Enums
 {
@@ -161,21 +163,21 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_SARTHARION_AGGRO);
-            _EnterCombat();
+            _JustEngagedWith();
             DoZoneInCombat();
 
             FetchDragons();
 
-            events.ScheduleEvent(EVENT_LAVA_STRIKE, 5000);
-            events.ScheduleEvent(EVENT_CLEAVE_ATTACK, 7000);
-            events.ScheduleEvent(EVENT_FLAME_BREATH, 20000);
-            events.ScheduleEvent(EVENT_TAIL_SWEEP, 20000);
-            events.ScheduleEvent(EVENT_FLAME_TSUNAMI, 30000);
-            events.ScheduleEvent(EVENT_CALL_TENEBRON, 30000);
-            events.ScheduleEvent(EVENT_CALL_SHADRON, 75000);
+            events.ScheduleEvent(EVENT_LAVA_STRIKE, 5s);
+            events.ScheduleEvent(EVENT_CLEAVE_ATTACK, 7s);
+            events.ScheduleEvent(EVENT_FLAME_BREATH, 20s);
+            events.ScheduleEvent(EVENT_TAIL_SWEEP, 20s);
+            events.ScheduleEvent(EVENT_FLAME_TSUNAMI, 30s);
+            events.ScheduleEvent(EVENT_CALL_TENEBRON, 30s);
+            events.ScheduleEvent(EVENT_CALL_SHADRON, 75s);
             events.ScheduleEvent(EVENT_CALL_VESPERON, 120000);
         }
 
@@ -324,7 +326,7 @@ public:
 
             if (Creature* fetchVesp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
             {
-                if (fetchVesp && fetchVesp->IsAlive() && !fetchVesp->GetVictim())
+                if (fetchVesp->IsAlive() && !fetchVesp->GetVictim())
                 {
                     _canUseWill = true;
                     if (!fetchVesp->IsInCombat())
@@ -396,7 +398,7 @@ public:
             std::list<Creature*> fireCyclonesList;
             Trinity::AllCreaturesOfEntryInRange checker(me, NPC_FIRE_CYCLONE, 200.0f);
             Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, fireCyclonesList, checker);
-            me->VisitNearbyObject(200.0f, searcher);
+            Cell::VisitAllObjects(me, searcher, 200.0f);
 
             if (fireCyclonesList.empty())
                 return;
@@ -445,20 +447,20 @@ public:
                                 break;
                             }
                         }
-                        events.ScheduleEvent(EVENT_FLAME_TSUNAMI, 30000);
+                        events.ScheduleEvent(EVENT_FLAME_TSUNAMI, 30s);
                         break;
                     case EVENT_FLAME_BREATH:
                         Talk(SAY_SARTHARION_BREATH);
                         DoCastVictim(SPELL_FLAME_BREATH);
-                        events.ScheduleEvent(EVENT_FLAME_BREATH, urand(25000, 35000));
+                        events.ScheduleEvent(EVENT_FLAME_BREATH, 25s, 35s);
                         break;
                     case EVENT_TAIL_SWEEP:
                         DoCastVictim(SPELL_TAIL_LASH);
-                        events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
+                        events.ScheduleEvent(EVENT_TAIL_SWEEP, 15s, 20s);
                         break;
                     case EVENT_CLEAVE_ATTACK:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE_ATTACK, urand(7000, 10000));
+                        events.ScheduleEvent(EVENT_CLEAVE_ATTACK, 7s, 10s);
                         break;
                     case EVENT_LAVA_STRIKE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))

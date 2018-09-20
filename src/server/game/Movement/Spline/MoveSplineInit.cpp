@@ -1,28 +1,29 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "MovementPacketBuilder.h"
 #include "Unit.h"
+#include "PathGenerator.h"
 #include "Transport.h"
-#include "WorldPacket.h"
 #include "Opcodes.h"
+#include "WorldPacket.h"
 
 namespace Movement
 {
@@ -91,7 +92,12 @@ namespace Movement
         move_spline.onTransport = transport;
 
         uint32 moveFlags = unit->m_movementInfo.GetMovementFlags();
-        moveFlags |= (MOVEMENTFLAG_SPLINE_ENABLED|MOVEMENTFLAG_FORWARD);
+        moveFlags |= MOVEMENTFLAG_SPLINE_ENABLED;
+
+        if (!args.flags.backward)
+            moveFlags = (moveFlags & ~(MOVEMENTFLAG_BACKWARD)) | MOVEMENTFLAG_FORWARD;
+        else
+            moveFlags = (moveFlags & ~(MOVEMENTFLAG_FORWARD)) | MOVEMENTFLAG_BACKWARD;
 
         if (moveFlags & MOVEMENTFLAG_ROOT)
             moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
@@ -101,7 +107,7 @@ namespace Movement
             // If spline is initialized with SetWalk method it only means we need to select
             // walk move speed for it but not add walk flag to unit
             uint32 moveFlagsForSpeed = moveFlags;
-            if (args.flags.walkmode)
+            if (args.walk)
                 moveFlagsForSpeed |= MOVEMENTFLAG_WALKING;
             else
                 moveFlagsForSpeed &= ~MOVEMENTFLAG_WALKING;
@@ -180,11 +186,24 @@ namespace Movement
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
         args.TransformForTransport = unit->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && unit->GetTransGUID();
         // mix existing state into new
-        args.flags.walkmode = unit->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);
-        args.flags.flying = unit->m_movementInfo.HasMovementFlag((MovementFlags)(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));
+        args.flags.canswim = unit->CanSwim();
+        args.walk = unit->HasUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        args.flags.flying = unit->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY);
     }
 
-    void MoveSplineInit::SetFacing(const Unit* target)
+    MoveSplineInit::~MoveSplineInit() = default;
+
+    void MoveSplineInit::SetFacing(Vector3 const& spot)
+    {
+        TransportPathTransform transform(unit, args.TransformForTransport);
+        Vector3 finalSpot = transform(spot);
+        args.facing.f.x = finalSpot.x;
+        args.facing.f.y = finalSpot.y;
+        args.facing.f.z = finalSpot.z;
+        args.flags.EnableFacingPoint();
+    }
+
+    void MoveSplineInit::SetFacing(Unit const* target)
     {
         args.flags.EnableFacingTarget();
         args.facing.target = target->GetGUID().GetRawValue();
@@ -204,7 +223,19 @@ namespace Movement
         args.flags.EnableFacingAngle();
     }
 
-    void MoveSplineInit::MoveTo(const Vector3& dest, bool generatePath, bool forceDestination)
+    void MoveSplineInit::MovebyPath(PointsArray const& controls, int32 path_offset)
+    {
+        args.path_Idx_offset = path_offset;
+        args.path.resize(controls.size());
+        std::transform(controls.begin(), controls.end(), args.path.begin(), TransportPathTransform(unit, args.TransformForTransport));
+    }
+
+    void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
+    {
+        MoveTo(G3D::Vector3(x, y, z), generatePath, forceDestination);
+    }
+
+    void MoveSplineInit::MoveTo(Vector3 const& dest, bool generatePath, bool forceDestination)
     {
         if (generatePath)
         {

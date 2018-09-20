@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef MANA_TOMBS_H_
 #define MANA_TOMBS_H_
 
+#include "CreatureAIImpl.h"
+
 #define MTScriptName "instance_mana_tombs"
 #define DataHeader "MT"
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum MTDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_PANDEMONIUS            = 0,
@@ -32,18 +34,10 @@ enum DataTypes
     DATA_YOR                    = 3
 };
 
-enum CreatureIds
+template <class AI, class T>
+inline AI* GetManaTombsAI(T* obj)
 {
-};
-
-enum GameObjectIds
-{
-};
-
-template<class AI>
-AI* GetManaTombsAI(Creature* creature)
-{
-    return GetInstanceAI<AI>(creature, MTScriptName);
+    return GetInstanceAI<AI>(obj, MTScriptName);
 }
 
 #endif // MANA_TOMBS_H_

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -90,7 +90,7 @@ inline void KillRewarder::_InitGroupData()
         // 2. In case when player is in group, initialize variables necessary for group calculations:
         for (GroupReference* itr = _group->GetFirstMember(); itr != nullptr; itr = itr->next())
             if (Player* member = itr->GetSource())
-                if (member->IsAlive() && member->IsAtGroupRewardDistance(_victim))
+                if (_killer == member || (member->IsAtGroupRewardDistance(_victim) && member->IsAlive()))
                 {
                     const uint8 lvl = member->getLevel();
                     // 2.1. _count - number of alive group members within reward distance;
@@ -151,8 +151,7 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
     if (xp)
     {
         // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT).
-        for (auto const& aura : player->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT))
-            AddPct(xp, aura->GetAmount());
+        xp *= player->GetTotalAuraMultiplier(SPELL_AURA_MOD_XP_PCT);
 
         // 4.2.3. Give XP to player.
         player->GiveXP(xp, _victim, _groupRate);
@@ -236,7 +235,8 @@ void KillRewarder::_RewardGroup()
             {
                 if (Player* member = itr->GetSource())
                 {
-                    if (member->IsAtGroupRewardDistance(_victim))
+                    // Killer may not be at reward distance, check directly
+                    if (_killer == member || member->IsAtGroupRewardDistance(_victim))
                     {
                         _RewardPlayer(member, isDungeon);
                         member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, _victim);
@@ -270,5 +270,5 @@ void KillRewarder::Reward()
     if (Creature* victim = _victim->ToCreature())
         if (victim->IsDungeonBoss())
             if (InstanceScript* instance = _victim->GetInstanceScript())
-                instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, _victim->GetEntry(), _victim);
+                instance->UpdateEncounterStateForKilledCreature(_victim->GetEntry(), _victim);
 }

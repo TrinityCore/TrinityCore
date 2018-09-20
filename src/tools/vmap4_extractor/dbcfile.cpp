@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,7 @@
 #include <cstdio>
 
 DBCFile::DBCFile(const std::string& filename):
-    filename(filename), recordSize(0), recordCount(0), fieldCount(0), stringSize(0), data(NULL), stringTable(NULL)
+    filename(filename), recordSize(0), recordCount(0), fieldCount(0), stringSize(0), data(nullptr), stringTable(nullptr)
 {
 
 }
@@ -46,7 +46,7 @@ bool DBCFile::open()
     if (header[0]!='W' || header[1]!='D' || header[2]!='B' || header[3] != 'C')
     {
         f.close();
-        data = NULL;
+        data = nullptr;
         printf("Critical Error: An error occured while trying to read the DBCFile %s.", filename.c_str());
         return false;
     }

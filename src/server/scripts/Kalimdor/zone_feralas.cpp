@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,11 +29,12 @@ spell_gordunni_trap
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "Player.h"
 #include "WorldSession.h"
 
 /*######
@@ -54,9 +55,7 @@ enum OOX
     NPC_WOODPAW_ALPHA       = 5258,
     NPC_WOODPAW_MYSTIC      = 5254,
 
-    QUEST_RESCUE_OOX22FE    = 2767,
-    FACTION_ESCORTEE_A      = 774,
-    FACTION_ESCORTEE_H      = 775
+    QUEST_RESCUE_OOX22FE    = 2767
 };
 
 class npc_oox22fe : public CreatureScript
@@ -64,37 +63,11 @@ class npc_oox22fe : public CreatureScript
 public:
     npc_oox22fe() : CreatureScript("npc_oox22fe") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
+    struct npc_oox22feAI : public EscortAI
     {
-        if (quest->GetQuestId() == QUEST_RESCUE_OOX22FE)
-        {
-            creature->AI()->Talk(SAY_OOX_START);
-            //change that the npc is not lying dead on the ground
-            creature->SetStandState(UNIT_STAND_STATE_STAND);
+        npc_oox22feAI(Creature* creature) : EscortAI(creature) { }
 
-            if (player->GetTeam() == ALLIANCE)
-                creature->setFaction(FACTION_ESCORTEE_A);
-
-            if (player->GetTeam() == HORDE)
-                creature->setFaction(FACTION_ESCORTEE_H);
-
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_oox22fe::npc_oox22feAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
-
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_oox22feAI(creature);
-    }
-
-    struct npc_oox22feAI : public npc_escortAI
-    {
-        npc_oox22feAI(Creature* creature) : npc_escortAI(creature) { }
-
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -135,7 +108,7 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             //For an small probability the npc says something when he get aggro
             if (urand(0, 9) > 7)
@@ -146,8 +119,30 @@ public:
         {
             summoned->AI()->AttackStart(me);
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_RESCUE_OOX22FE)
+            {
+                Talk(SAY_OOX_START);
+                //change that the npc is not lying dead on the ground
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+
+                if (player->GetTeam() == ALLIANCE)
+                    me->SetFaction(FACTION_ESCORTEE_A_PASSIVE);
+
+                if (player->GetTeam() == HORDE)
+                    me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
+
+                Start(true, false, player->GetGUID());
+            }
+        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_oox22feAI(creature);
+    }
 };
 
 /*######
@@ -171,12 +166,9 @@ class spell_gordunni_trap : public SpellScriptLoader
 
             void HandleDummy()
             {
-                Unit* caster = GetCaster();
-                if (GameObject* chest = caster->SummonGameObject(urand(0, 1) ? GO_GORDUNNI_DIRT_MOUND_1 : GO_GORDUNNI_DIRT_MOUND_2, *caster, G3D::Quat(), 0))
-                {
+                GameObject* caster = GetGObjCaster();
+                if (GameObject* chest = caster->SummonGameObject(urand(0, 1) ? GO_GORDUNNI_DIRT_MOUND_1 : GO_GORDUNNI_DIRT_MOUND_2, *caster, QuaternionData(), 0))
                     chest->SetSpellId(GetSpellInfo()->Id);
-                    caster->RemoveGameObject(chest, false);
-                }
             }
 
             void Register() override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,11 +19,14 @@
 #ifndef DEF_THE_EYE_H
 #define DEF_THE_EYE_H
 
+#include "CreatureAIImpl.h"
+
+#define TheEyeScriptName "instance_the_eye"
 #define DataHeader "TE"
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum TEDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_KAELTHAS                       = 0,
@@ -43,7 +46,7 @@ enum DataTypes
     DATA_TEMPEST_BRIDGE_WINDOW          = 11
 };
 
-enum CreatureIds
+enum TECreatureIds
 {
     NPC_SANGUINAR                       = 20060,
     NPC_CAPERNIAN                       = 20062,
@@ -54,7 +57,7 @@ enum CreatureIds
     NPC_ALAR                            = 19514
 };
 
-enum GameObjectIds
+enum TEGameObjectIds
 {
     GO_TEMPEST_BRIDDGE_WINDOW           = 184069,
     GO_KAEL_STATUE_RIGHT                = 184596,
@@ -62,5 +65,11 @@ enum GameObjectIds
     GO_ARCANE_DOOR_LEFT                 = 184324,
     GO_ARCANE_DOOR_RIGHT                = 184325
 };
+
+template <class AI, class T>
+inline AI* GetTheEyeAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, TheEyeScriptName);
+}
 
 #endif

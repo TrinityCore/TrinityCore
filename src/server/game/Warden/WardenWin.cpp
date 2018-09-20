@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,12 +25,14 @@
 #include "Opcodes.h"
 #include "ByteBuffer.h"
 #include "Database/DatabaseEnv.h"
+#include "GameTime.h"
 #include "World.h"
 #include "Player.h"
 #include "Util.h"
 #include "WardenWin.h"
 #include "WardenModuleWin.h"
 #include "WardenCheckMgr.h"
+#include "Random.h"
 #include <openssl/md5.h>
 
 WardenWin::WardenWin() : Warden(), _serverTicks(0) {}
@@ -166,7 +168,7 @@ void WardenWin::HandleHashResult(ByteBuffer &buff)
 
     _initialized = true;
 
-    _previousTimestamp = getMSTime();
+    _previousTimestamp = GameTime::GetGameTimeMS();
 }
 
 void WardenWin::RequestData()
@@ -180,7 +182,7 @@ void WardenWin::RequestData()
     if (_otherChecksTodo.empty())
         _otherChecksTodo.assign(sWardenCheckMgr->OtherChecksIdPool.begin(), sWardenCheckMgr->OtherChecksIdPool.end());
 
-    _serverTicks = getMSTime();
+    _serverTicks = GameTime::GetGameTimeMS();
 
     uint16 id;
     uint8 type;
@@ -354,7 +356,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
         uint32 newClientTicks;
         buff >> newClientTicks;
 
-        uint32 ticksNow = getMSTime();
+        uint32 ticksNow = GameTime::GetGameTimeMS();
         uint32 ourTicks = newClientTicks + (ticksNow - _serverTicks);
 
         TC_LOG_DEBUG("warden", "ServerTicks %u", ticksNow);         // Now

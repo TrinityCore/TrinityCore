@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,12 +21,14 @@
 */
 
 #include "Weather.h"
-#include "WorldPacket.h"
-#include "Player.h"
-#include "World.h"
+#include "GameTime.h"
 #include "Log.h"
-#include "Util.h"
+#include "Player.h"
+#include "Random.h"
 #include "ScriptMgr.h"
+#include "Util.h"
+#include "World.h"
+#include "WorldPacket.h"
 #include "WorldSession.h"
 
 /// Create the Weather object
@@ -91,7 +93,7 @@ bool Weather::ReGenerate()
 
     //78 days between January 1st and March 20nd; 365/4=91 days by season
     // season source http://aa.usno.navy.mil/data/docs/EarthSeasons.html
-    time_t gtime = sWorld->GetGameTime();
+    time_t gtime = GameTime::GetGameTime();
     struct tm ltime;
     localtime_r(&gtime, &ltime);
     uint32 season = ((ltime.tm_yday - 78 + 365)/91)%4;
@@ -196,7 +198,7 @@ void Weather::SendWeatherUpdateToPlayer(Player* player)
     data << uint32(GetWeatherState());
     data << (float)m_grade;
     data << uint8(0);
-    player->GetSession()->SendPacket(&data);
+    player->SendDirectMessage(&data);
 }
 
 /// Send the new weather to all players in the zone
@@ -319,4 +321,3 @@ WeatherState Weather::GetWeatherState() const
             return WEATHER_STATE_FINE;
     }
 }
-

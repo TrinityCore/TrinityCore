@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,13 +16,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "ByteBuffer.h"
-#include "WorldPacket.h"
 #include "UpdateData.h"
+#include "Errors.h"
+#include "Log.h"
 #include "Opcodes.h"
 #include "World.h"
-#include "zlib.h"
+#include "WorldPacket.h"
+#include <zlib.h>
 
 UpdateData::UpdateData() : m_blockCount(0) { }
 
@@ -36,7 +36,7 @@ void UpdateData::AddOutOfRangeGUID(ObjectGuid guid)
     m_outOfRangeGUIDs.insert(guid);
 }
 
-void UpdateData::AddUpdateBlock(const ByteBuffer &block)
+void UpdateData::AddUpdateBlock(ByteBuffer const& block)
 {
     m_data.append(block);
     ++m_blockCount;
@@ -147,4 +147,3 @@ void UpdateData::Clear()
     m_outOfRangeGUIDs.clear();
     m_blockCount = 0;
 }
-

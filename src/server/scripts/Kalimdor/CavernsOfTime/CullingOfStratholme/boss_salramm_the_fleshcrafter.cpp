@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -60,14 +60,14 @@ class boss_salramm : public CreatureScript
                 Talk(SAY_SPAWN);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
-                events.ScheduleEvent(EVENT_CURSE_FLESH, 30000);
-                events.ScheduleEvent(EVENT_SUMMON_GHOULS, urand(19000, 24000));
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(8000, 12000));
+                events.ScheduleEvent(EVENT_CURSE_FLESH, 30s);
+                events.ScheduleEvent(EVENT_SUMMON_GHOULS, 19s, 24s);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 8s, 12s);
                 events.ScheduleEvent(EVENT_STEAL_FLESH, 12345); /// @todo: adjust timer
             }
 
@@ -77,18 +77,18 @@ class boss_salramm : public CreatureScript
                 {
                     case EVENT_CURSE_FLESH:
                         DoCastVictim(SPELL_CURSE_OF_TWISTED_FLESH);
-                        events.ScheduleEvent(EVENT_CURSE_FLESH, 37000);
+                        events.ScheduleEvent(EVENT_CURSE_FLESH, 35s);
                         break;
                     case EVENT_SUMMON_GHOULS:
                         Talk(SAY_SUMMON_GHOULS);
                         DoCast(me, SPELL_SUMMON_GHOULS);
-                        events.ScheduleEvent(EVENT_SUMMON_GHOULS, 10000);
-                        events.ScheduleEvent(EVENT_EXPLODE_GHOUL, 6000);
+                        events.ScheduleEvent(EVENT_SUMMON_GHOULS, 10s);
+                        events.ScheduleEvent(EVENT_EXPLODE_GHOUL, 6s);
                         break;
                     case EVENT_SHADOW_BOLT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                             DoCast(target, SPELL_SHADOW_BOLT);
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(8000, 12000));
+                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 8s, 12s);
                         break;
                     case EVENT_STEAL_FLESH:
                         Talk(SAY_STEAL_FLESH);
@@ -120,7 +120,7 @@ class boss_salramm : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_salrammAI>(creature);
+            return GetCullingOfStratholmeAI<boss_salrammAI>(creature);
         }
 };
 

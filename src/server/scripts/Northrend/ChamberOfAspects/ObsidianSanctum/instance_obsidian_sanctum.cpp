@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "obsidian_sanctum.h"
 
 /* Obsidian Sanctum encounters:
@@ -54,14 +57,17 @@ public:
                 case NPC_TENEBRON:
                     tenebronGUID = creature->GetGUID();
                     creature->setActive(true);
+                    creature->SetFarVisible(true);
                     break;
                 case NPC_SHADRON:
                     shadronGUID = creature->GetGUID();
                     creature->setActive(true);
+                    creature->SetFarVisible(true);
                     break;
                 case NPC_VESPERON:
                     vesperonGUID = creature->GetGUID();
                     creature->setActive(true);
+                    creature->SetFarVisible(true);
                     break;
             }
         }

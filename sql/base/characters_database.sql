@@ -182,6 +182,29 @@ LOCK TABLES `arena_team_member` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `auctionbidders`
+--
+
+DROP TABLE IF EXISTS `auctionbidders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auctionbidders` (
+  `id` int(10) unsigned NOT NULL DEFAULT '0',
+  `bidderguid` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`,`bidderguid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auctionbidders`
+--
+
+LOCK TABLES `auctionbidders` WRITE;
+/*!40000 ALTER TABLE `auctionbidders` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auctionbidders` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `auctionhouse`
 --
 
@@ -481,9 +504,9 @@ DROP TABLE IF EXISTS `character_arena_stats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_arena_stats` (
-  `guid` int(10) NOT NULL,
-  `slot` tinyint(3) NOT NULL,
-  `matchMakerRating` smallint(5) NOT NULL,
+  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `matchMakerRating` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`slot`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -520,6 +543,8 @@ CREATE TABLE `character_aura` (
   `maxDuration` int(11) NOT NULL DEFAULT '0',
   `remainTime` int(11) NOT NULL DEFAULT '0',
   `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `critChance` float NOT NULL DEFAULT '0',
+  `applyResilience` tinyint(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -649,8 +674,8 @@ DROP TABLE IF EXISTS `character_equipmentsets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_equipmentsets` (
-  `guid` int(10) NOT NULL DEFAULT '0',
-  `setguid` bigint(20) NOT NULL AUTO_INCREMENT,
+  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `setguid` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `setindex` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `name` varchar(31) NOT NULL,
   `iconname` varchar(100) NOT NULL,
@@ -937,6 +962,8 @@ CREATE TABLE `character_queststatus` (
   `itemcount2` smallint(5) unsigned NOT NULL DEFAULT '0',
   `itemcount3` smallint(5) unsigned NOT NULL DEFAULT '0',
   `itemcount4` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `itemcount5` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `itemcount6` smallint(5) unsigned NOT NULL DEFAULT '0',
   `playercount` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`quest`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
@@ -1427,7 +1454,7 @@ DROP TABLE IF EXISTS `creature_respawn`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_respawn` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `respawnTime` int(10) unsigned NOT NULL DEFAULT '0',
+  `respawnTime` bigint(20) unsigned NOT NULL DEFAULT '0',
   `mapId` smallint(10) unsigned NOT NULL DEFAULT '0',
   `instanceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
   PRIMARY KEY (`guid`,`instanceId`),
@@ -1501,7 +1528,7 @@ DROP TABLE IF EXISTS `gameobject_respawn`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gameobject_respawn` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `respawnTime` int(10) unsigned NOT NULL DEFAULT '0',
+  `respawnTime` bigint(20) unsigned NOT NULL DEFAULT '0',
   `mapId` smallint(10) unsigned NOT NULL DEFAULT '0',
   `instanceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
   PRIMARY KEY (`guid`,`instanceId`),
@@ -1972,7 +1999,7 @@ DROP TABLE IF EXISTS `instance`;
 CREATE TABLE `instance` (
   `id` int(10) unsigned NOT NULL DEFAULT '0',
   `map` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `resettime` int(10) unsigned NOT NULL DEFAULT '0',
+  `resettime` bigint(20) unsigned NOT NULL DEFAULT '0',
   `difficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `completedEncounters` int(10) unsigned NOT NULL DEFAULT '0',
   `data` tinytext NOT NULL,
@@ -2002,7 +2029,7 @@ DROP TABLE IF EXISTS `instance_reset`;
 CREATE TABLE `instance_reset` (
   `mapid` smallint(5) unsigned NOT NULL DEFAULT '0',
   `difficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `resettime` int(10) unsigned NOT NULL DEFAULT '0',
+  `resettime` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`mapid`,`difficulty`),
   KEY `difficulty` (`difficulty`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2092,8 +2119,9 @@ DROP TABLE IF EXISTS `item_loot_money`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_loot_money` (
-  `container_id` int(10) NOT NULL DEFAULT '0' COMMENT 'guid of container (item_instance.guid)',
-  `money` int(10) NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)'
+  `container_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'guid of container (item_instance.guid)',
+  `money` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)',
+  PRIMARY KEY (`container_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2293,6 +2321,8 @@ CREATE TABLE `pet_aura` (
   `maxDuration` int(11) NOT NULL DEFAULT '0',
   `remainTime` int(11) NOT NULL DEFAULT '0',
   `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `critChance` float NOT NULL DEFAULT '0',
+  `applyResilience` tinyint(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2567,7 +2597,36 @@ CREATE TABLE `updates` (
 
 LOCK TABLES `updates` WRITE;
 /*!40000 ALTER TABLE `updates` DISABLE KEYS */;
-INSERT INTO `updates` VALUES ('2015_03_20_00_characters.sql','B761760804EA73BD297F296C5C1919687DF7191C','ARCHIVED','2015-03-21 21:44:15',0),('2015_03_20_01_characters.sql','894F08B70449A5481FFAF394EE5571D7FC4D8A3A','ARCHIVED','2015-03-21 21:44:15',0),('2015_03_20_02_characters.sql','97D7BE0CAADC79F3F11B9FD296B8C6CD40FE593B','ARCHIVED','2015-03-21 21:44:51',0),('2015_06_26_00_characters_335.sql','C2CC6E50AFA1ACCBEBF77CC519AAEB09F3BBAEBC','ARCHIVED','2015-07-13 23:49:22',0),('2015_09_28_00_characters_335.sql','F8682A431D50E54BDC4AC0E7DBED21AE8AAB6AD4','ARCHIVED','2015-09-28 21:00:00',0),('2015_08_26_00_characters_335.sql','C7D6A3A00FECA3EBFF1E71744CA40D3076582374','ARCHIVED','2015-08-26 21:00:00',0),('2015_10_06_00_characters.sql','16842FDD7E8547F2260D3312F53EFF8761EFAB35','ARCHIVED','2015-10-06 16:06:38',0),('2015_10_07_00_characters.sql','E15AB463CEBE321001D7BFDEA4B662FF618728FD','ARCHIVED','2015-10-07 23:32:00',0),('2015_10_12_00_characters.sql','D6F9927BDED72AD0A81D6EC2C6500CBC34A39FA2','ARCHIVED','2015-10-12 15:35:47',0),('2015_10_28_00_characters.sql','622A9CA8FCE690429EBE23BA071A37C7A007BF8B','ARCHIVED','2015-10-19 14:32:22',0),('2015_10_29_00_characters_335.sql','4555A7F35C107E54C13D74D20F141039ED42943E','ARCHIVED','2015-10-29 17:05:43',0),('2015_11_03_00_characters.sql','CC045717B8FDD9733351E52A5302560CD08AAD57','ARCHIVED','2015-10-12 15:23:33',0),('2015_11_07_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-04-11 00:42:36',94),('2016_02_10_00_characters.sql','F1B4DA202819CABC7319A4470A2D224A34609E97','ARCHIVED','2016-02-10 00:00:00',0),('2016_03_13_2016_01_05_00_characters.sql','0EAD24977F40DE2476B4567DA2B477867CC0DA1A','ARCHIVED','2016-03-13 20:03:56',0),('2016_04_11_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-04-11 03:18:17',0),('2016_09_13_00_characters.sql','27A04615B11B2CFC3A26778F52F74C071E4F9C54','ARCHIVED','2016-07-06 18:55:18',0),('2016_10_16_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','RELEASED','2016-10-16 14:02:49',35),('2016_10_30_00_characters.sql','7E2D5B226907B5A9AF320797F46E86DC27B7EC90','RELEASED','2016-10-30 00:00:00',0);
+INSERT INTO `updates` VALUES
+('2015_03_20_00_characters.sql','B761760804EA73BD297F296C5C1919687DF7191C','ARCHIVED','2015-03-21 21:44:15',0),
+('2015_03_20_01_characters.sql','894F08B70449A5481FFAF394EE5571D7FC4D8A3A','ARCHIVED','2015-03-21 21:44:15',0),
+('2015_03_20_02_characters.sql','97D7BE0CAADC79F3F11B9FD296B8C6CD40FE593B','ARCHIVED','2015-03-21 21:44:51',0),
+('2015_06_26_00_characters_335.sql','C2CC6E50AFA1ACCBEBF77CC519AAEB09F3BBAEBC','ARCHIVED','2015-07-13 23:49:22',0),
+('2015_09_28_00_characters_335.sql','F8682A431D50E54BDC4AC0E7DBED21AE8AAB6AD4','ARCHIVED','2015-09-28 21:00:00',0),
+('2015_08_26_00_characters_335.sql','C7D6A3A00FECA3EBFF1E71744CA40D3076582374','ARCHIVED','2015-08-26 21:00:00',0),
+('2015_10_06_00_characters.sql','16842FDD7E8547F2260D3312F53EFF8761EFAB35','ARCHIVED','2015-10-06 16:06:38',0),
+('2015_10_07_00_characters.sql','E15AB463CEBE321001D7BFDEA4B662FF618728FD','ARCHIVED','2015-10-07 23:32:00',0),
+('2015_10_12_00_characters.sql','D6F9927BDED72AD0A81D6EC2C6500CBC34A39FA2','ARCHIVED','2015-10-12 15:35:47',0),
+('2015_10_28_00_characters.sql','622A9CA8FCE690429EBE23BA071A37C7A007BF8B','ARCHIVED','2015-10-19 14:32:22',0),
+('2015_10_29_00_characters_335.sql','4555A7F35C107E54C13D74D20F141039ED42943E','ARCHIVED','2015-10-29 17:05:43',0),
+('2015_11_03_00_characters.sql','CC045717B8FDD9733351E52A5302560CD08AAD57','ARCHIVED','2015-10-12 15:23:33',0),
+('2015_11_07_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-04-11 00:42:36',94),
+('2016_02_10_00_characters.sql','F1B4DA202819CABC7319A4470A2D224A34609E97','ARCHIVED','2016-02-10 00:00:00',0),
+('2016_03_13_2016_01_05_00_characters.sql','0EAD24977F40DE2476B4567DA2B477867CC0DA1A','ARCHIVED','2016-03-13 20:03:56',0),
+('2016_04_11_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-04-11 03:18:17',0),
+('2016_09_13_00_characters.sql','27A04615B11B2CFC3A26778F52F74C071E4F9C54','ARCHIVED','2016-07-06 18:55:18',0),
+('2016_10_16_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-10-16 14:02:49',35),
+('2016_10_30_00_characters.sql','7E2D5B226907B5A9AF320797F46E86DC27B7EC90','ARCHIVED','2016-10-30 00:00:00',0),
+('2017_04_03_00_characters.sql','CB072C56692C9FBF170C4036F15773DD86D368B5','ARCHIVED','2017-04-03 00:00:00',0),
+('2017_04_12_00_characters.sql','4FE3C6866A6DCD4926D451F6009464D290C2EF1F','ARCHIVED','2017-04-12 00:00:00',0),
+('2017_04_12_01_characters.sql','5A8A1215E3A2356722F52CD7A64BBE03D21FBEA3','ARCHIVED','2017-04-12 00:00:00',0),
+('2017_04_19_00_characters.sql','CE06FA9005C8A8EE4BDD925520278A5D83E87485','ARCHIVED','2017-04-19 00:07:40',25),
+('2017_10_29_00_characters.sql','8CFC473E7E87E58C317A72016BF69E9050D3BC83','ARCHIVED','2017-04-19 00:07:40',25),
+('2017_11_27_00_characters.sql','6FF1F84B8985ADFC7FF97F0BF8E53403CF13C320','ARCHIVED','2017-11-27 22:08:42',0),
+('2018_01_13_00_characters.sql','E3C0DA9995BA71ED5A267294470CD03DC51862DD','ARCHIVED','2018-01-13 00:00:00',0),
+('2018_02_19_00_characters.sql','FE5C5F9B88F0791549DDE680942493781E2269E6','RELEASED','2018-02-18 19:49:38',0),
+('2018_04_24_00_characters.sql','77264AB7BEF421C0A4BB81EEAFD0D8C1CBCA840F','RELEASED','2018-04-20 09:38:10',0),
+('2018_07_09_00_characters.sql','6F3EA22DD5E4CD9F9C60C4332B147E3DBF2E8A44','RELEASED','2018-07-09 18:19:18',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2591,7 +2650,10 @@ CREATE TABLE `updates_include` (
 
 LOCK TABLES `updates_include` WRITE;
 /*!40000 ALTER TABLE `updates_include` DISABLE KEYS */;
-INSERT INTO `updates_include` VALUES ('$/sql/updates/characters','RELEASED'),('$/sql/custom/characters','RELEASED'),('$/sql/old/3.3.5a/characters','ARCHIVED');
+INSERT INTO `updates_include` VALUES
+('$/sql/updates/characters','RELEASED'),
+('$/sql/custom/characters','RELEASED'),
+('$/sql/old/3.3.5a/characters','ARCHIVED');
 /*!40000 ALTER TABLE `updates_include` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2639,7 +2701,85 @@ CREATE TABLE `worldstates` (
 
 LOCK TABLES `worldstates` WRITE;
 /*!40000 ALTER TABLE `worldstates` DISABLE KEYS */;
-INSERT INTO `worldstates` VALUES (1,0,NULL),(2,0,NULL),(3,0,NULL),(4,0,NULL),(5,0,NULL),(6,0,NULL),(7,0,NULL),(8,0,NULL),(9,0,NULL),(10,0,NULL),(11,0,NULL),(12,0,NULL),(13,0,NULL),(14,1476626581,NULL),(15,1476626581,NULL),(16,0,NULL),(17,0,NULL),(18,1476626581,NULL),(19,0,NULL),(20,0,NULL),(21,0,NULL),(22,0,NULL),(23,0,NULL),(24,0,NULL),(25,0,NULL),(26,0,NULL),(27,1476626581,NULL),(28,0,NULL),(29,0,NULL),(30,0,NULL),(31,0,NULL),(32,0,NULL),(33,0,NULL),(34,1476626581,NULL),(35,0,NULL),(36,0,NULL),(37,0,NULL),(38,0,NULL),(39,0,NULL),(40,0,NULL),(41,0,NULL),(42,0,NULL),(43,0,NULL),(44,0,NULL),(45,0,NULL),(46,0,NULL),(47,0,NULL),(48,0,NULL),(49,0,NULL),(50,0,NULL),(51,0,NULL),(52,0,NULL),(53,0,NULL),(54,0,NULL),(55,0,NULL),(56,0,NULL),(57,0,NULL),(58,0,NULL),(59,0,NULL),(60,1476626581,NULL),(61,0,NULL),(62,1476626581,NULL),(63,0,NULL),(64,0,NULL),(65,0,NULL),(66,0,NULL),(67,0,NULL),(68,0,NULL),(69,0,NULL),(3781,9000000,NULL),(3801,0,NULL),(3802,1,NULL),(20001,0,'NextArenaPointDistributionTime'),(20002,1477230266,'NextWeeklyQuestResetTime'),(20003,1476680400,'NextBGRandomDailyResetTime'),(20004,0,'cleaning_flags'),(20006,1476680400,NULL),(20007,1477954800,NULL);
+INSERT INTO `worldstates` VALUES
+(1,0,NULL),
+(2,0,NULL),
+(3,0,NULL),
+(4,0,NULL),
+(5,0,NULL),
+(6,0,NULL),
+(7,0,NULL),
+(8,0,NULL),
+(9,0,NULL),
+(10,0,NULL),
+(11,0,NULL),
+(12,0,NULL),
+(13,0,NULL),
+(14,1476626581,NULL),
+(15,1476626581,NULL),
+(16,0,NULL),
+(17,0,NULL),
+(18,1476626581,NULL),
+(19,0,NULL),
+(20,0,NULL),
+(21,0,NULL),
+(22,0,NULL),
+(23,0,NULL),
+(24,0,NULL),
+(25,0,NULL),
+(26,0,NULL),
+(27,1476626581,NULL),
+(28,0,NULL),
+(29,0,NULL),
+(30,0,NULL),
+(31,0,NULL),
+(32,0,NULL),
+(33,0,NULL),
+(34,1476626581,NULL),
+(35,0,NULL),
+(36,0,NULL),
+(37,0,NULL),
+(38,0,NULL),
+(39,0,NULL),
+(40,0,NULL),
+(41,0,NULL),
+(42,0,NULL),
+(43,0,NULL),
+(44,0,NULL),
+(45,0,NULL),
+(46,0,NULL),
+(47,0,NULL),
+(48,0,NULL),
+(49,0,NULL),
+(50,0,NULL),
+(51,0,NULL),
+(52,0,NULL),
+(53,0,NULL),
+(54,0,NULL),
+(55,0,NULL),
+(56,0,NULL),
+(57,0,NULL),
+(58,0,NULL),
+(59,0,NULL),
+(60,1476626581,NULL),
+(61,0,NULL),
+(62,1476626581,NULL),
+(63,0,NULL),
+(64,0,NULL),
+(65,0,NULL),
+(66,0,NULL),
+(67,0,NULL),
+(68,0,NULL),
+(69,0,NULL),
+(3781,9000000,NULL),
+(3801,0,NULL),
+(3802,1,NULL),
+(20001,0,'NextArenaPointDistributionTime'),
+(20002,1477230266,'NextWeeklyQuestResetTime'),
+(20003,1476680400,'NextBGRandomDailyResetTime'),
+(20004,0,'cleaning_flags'),
+(20006,1476680400,NULL),
+(20007,1477954800,NULL);
 /*!40000 ALTER TABLE `worldstates` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -2652,4 +2792,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-10-16 15:05:25
+-- Dump completed on 2018-02-18 19:49:38

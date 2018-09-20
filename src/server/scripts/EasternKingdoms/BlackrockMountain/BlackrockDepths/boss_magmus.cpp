@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_depths.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -51,10 +52,10 @@ class boss_magmus : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.SetPhase(PHASE_ONE);
-                _events.ScheduleEvent(EVENT_FIERY_BURST, 5000);
+                _events.ScheduleEvent(EVENT_FIERY_BURST, 5s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -79,11 +80,11 @@ class boss_magmus : public CreatureScript
                     {
                         case EVENT_FIERY_BURST:
                             DoCastVictim(SPELL_FIERYBURST);
-                            _events.ScheduleEvent(EVENT_FIERY_BURST, 6000);
+                            _events.ScheduleEvent(EVENT_FIERY_BURST, 6s);
                             break;
                         case EVENT_WARSTOMP:
                             DoCastVictim(SPELL_WARSTOMP);
-                            _events.ScheduleEvent(EVENT_WARSTOMP, 8000, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_WARSTOMP, 8s, 0, PHASE_TWO);
                             break;
                         default:
                             break;
@@ -105,7 +106,7 @@ class boss_magmus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_magmusAI(creature);
+            return GetBlackrockDepthsAI<boss_magmusAI>(creature);
         }
 };
 

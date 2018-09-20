@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,13 +61,13 @@ class boss_quagmirran : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_ACID_SPRAY, 25000);
-                events.ScheduleEvent(EVENT_CLEAVE, 9000);
-                events.ScheduleEvent(EVENT_UPPERCUT, 20000);
-                events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, 31000);
+                events.ScheduleEvent(EVENT_CLEAVE, 9s);
+                events.ScheduleEvent(EVENT_UPPERCUT, 20s);
+                events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, 31s);
             }
 
             void KilledUnit(Unit* /*victim*/) override { }
@@ -88,20 +88,20 @@ class boss_quagmirran : public CreatureScript
                     {
                         case EVENT_ACID_SPRAY:
                             DoCastAOE(SPELL_ACID_SPRAY);
-                            events.ScheduleEvent(EVENT_ACID_SPRAY, urand(20000, 25000));
+                            events.ScheduleEvent(EVENT_ACID_SPRAY, 20s, 25s);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE, true);
-                            events.ScheduleEvent(EVENT_CLEAVE, urand(18000, 34000));
+                            events.ScheduleEvent(EVENT_CLEAVE, 18s, 34s);
                             break;
                         case EVENT_UPPERCUT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 10.0f, true))
                             DoCast(target, SPELL_UPPERCUT);
-                            events.ScheduleEvent(EVENT_UPPERCUT, 22000);
+                            events.ScheduleEvent(EVENT_UPPERCUT, 22s);
                             break;
                         case EVENT_POISON_BOLT_VOLLEY:
                             DoCast(me, SPELL_POISON_BOLT_VOLLEY);
-                            events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, 24000);
+                            events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, 24s);
                             break;
                         default:
                             break;
@@ -117,7 +117,7 @@ class boss_quagmirran : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_quagmirranAI(creature);
+            return GetSlavePensAI<boss_quagmirranAI>(creature);
         }
 };
 

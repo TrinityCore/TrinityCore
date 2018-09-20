@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,27 +16,20 @@
  */
 
 #include "StartProcess.h"
-
-#include <atomic>
-#include <thread>
-#include <functional>
+#include "Errors.h"
+#include "Log.h"
+#include "Optional.h"
 
 #include <boost/algorithm/string/join.hpp>
-#include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/concepts.hpp>
-#include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/process.hpp>
-#include <boost/system/system_error.hpp>
-
-#include "Common.h"
-#include "Log.h"
 
 using namespace boost::process;
 using namespace boost::process::initializers;
 using namespace boost::iostreams;
 
-namespace Trinity {
+namespace Trinity
+{
 
 template<typename T>
 class TCLogSink
@@ -51,7 +44,7 @@ public:
     TCLogSink(T callback)
         : callback_(std::move(callback)) { }
 
-    std::streamsize write(const char* str, std::streamsize size)
+    std::streamsize write(char const* str, std::streamsize size)
     {
         callback_(std::string(str, size));
         return size;
@@ -250,19 +243,15 @@ std::shared_ptr<AsyncProcessResult>
     return handle;
 }
 
-Optional<std::string> SearchExecutableInPath(std::string const& filename)
+std::string SearchExecutableInPath(std::string const& filename)
 {
     try
     {
-        auto result = search_path(filename);
-        if (result.empty())
-            return boost::none;
-        else
-            return result;
+        return search_path(filename);
     }
     catch (...)
     {
-        return boost::none;
+        return "";
     }
 }
 

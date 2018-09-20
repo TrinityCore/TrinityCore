@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "nexus.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -51,16 +51,16 @@ class boss_nexus_commanders : public CreatureScript
         {
             boss_nexus_commandersAI(Creature* creature) : BossAI(creature, DATA_COMMANDER) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
                 DoCast(me, SPELL_BATTLE_SHOUT);
 
-                events.ScheduleEvent(EVENT_CHARGE_COMMANDER, urand(3000, 4000));
-                events.ScheduleEvent(EVENT_WHIRLWIND, urand(6000, 8000));
-                events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, urand(13000, 15000));
+                events.ScheduleEvent(EVENT_CHARGE_COMMANDER, 3s, 4s);
+                events.ScheduleEvent(EVENT_WHIRLWIND, 6s, 8s);
+                events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, 13s, 15s);
             }
 
             void ExecuteEvent(uint32 eventId) override
@@ -70,7 +70,7 @@ class boss_nexus_commanders : public CreatureScript
                     case EVENT_CHARGE_COMMANDER:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             DoCast(target, SPELL_CHARGE);
-                        events.ScheduleEvent(EVENT_CHARGE_COMMANDER, urand(11000, 15000));
+                        events.ScheduleEvent(EVENT_CHARGE_COMMANDER, 11s, 15s);
                         break;
                     case EVENT_WHIRLWIND:
                         DoCast(me, SPELL_WHIRLWIND);
@@ -78,7 +78,7 @@ class boss_nexus_commanders : public CreatureScript
                         break;
                     case EVENT_FRIGHTENING_SHOUT:
                         DoCastAOE(SPELL_FRIGHTENING_SHOUT);
-                        events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, urand(45000, 55000));
+                        events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, 45s, 55s);
                         break;
                     default:
                         break;
@@ -100,7 +100,7 @@ class boss_nexus_commanders : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_nexus_commandersAI>(creature);
+            return GetNexusAI<boss_nexus_commandersAI>(creature);
         }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "mechanar.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -75,17 +76,17 @@ class boss_mechano_lord_capacitus : public CreatureScript
         {
             boss_mechano_lord_capacitusAI(Creature* creature) : BossAI(creature, DATA_MECHANOLORD_CAPACITUS) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(YELL_AGGRO);
-                events.ScheduleEvent(EVENT_HEADCRACK, 10 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 15 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, 10 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_BERSERK, 3 * MINUTE * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_HEADCRACK, 10s);
+                events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 15s);
+                events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, 10s);
+                events.ScheduleEvent(EVENT_BERSERK, 3min);
 
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_POSITIVE_SHIFT, 15 * IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_POSITIVE_SHIFT, 15s);
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -93,7 +94,7 @@ class boss_mechano_lord_capacitus : public CreatureScript
                 Talk(YELL_KILL);
             }
 
-            void JustDied(Unit* /*victim*/) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(YELL_DEATH);
@@ -115,27 +116,27 @@ class boss_mechano_lord_capacitus : public CreatureScript
                     {
                         case EVENT_HEADCRACK:
                             DoCastVictim(SPELL_HEADCRACK);
-                            events.ScheduleEvent(EVENT_HEADCRACK, 10 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_HEADCRACK, 10s);
                             break;
                         case EVENT_REFLECTIVE_DAMAGE_SHIELD:
                             Talk(YELL_REFLECTIVE_DAMAGE_SHIELD);
                             DoCast(me, SPELL_REFLECTIVE_DAMAGE_SHIELD);
-                            events.ScheduleEvent(EVENT_REFLECTIVE_MAGIE_SHIELD, 30 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_REFLECTIVE_MAGIE_SHIELD, 30s);
                             break;
                         case EVENT_REFLECTIVE_MAGIE_SHIELD:
                             Talk(YELL_REFLECTIVE_MAGIC_SHIELD);
                             DoCast(me, SPELL_REFLECTIVE_MAGIC_SHIELD);
-                            events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 30 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 30s);
                             break;
                         case EVENT_POSITIVE_SHIFT:
                             DoCastAOE(SPELL_POLARITY_SHIFT);
-                            events.ScheduleEvent(EVENT_POSITIVE_SHIFT, urand(45, 60) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_POSITIVE_SHIFT, 45s, 60s);
                             break;
                         case EVENT_SUMMON_NETHER_CHARGE:
                         {
                             Position pos = me->GetRandomNearPosition(5.0f);
                             me->SummonCreature(NPC_NETHER_CHARGE, pos, TEMPSUMMON_TIMED_DESPAWN, 18000);
-                            events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, 10 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, 10s);
                             break;
                         }
                         case EVENT_BERSERK:
@@ -155,7 +156,7 @@ class boss_mechano_lord_capacitus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_mechano_lord_capacitusAI(creature);
+            return GetMechanarAI<boss_mechano_lord_capacitusAI>(creature);
         }
 };
 
@@ -170,15 +171,13 @@ class spell_capacitus_polarity_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_STACK))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_STACK))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_POSITIVE_CHARGE,
+                    SPELL_POSITIVE_CHARGE_STACK,
+                    SPELL_NEGATIVE_CHARGE,
+                    SPELL_NEGATIVE_CHARGE_STACK
+                });
             }
 
             void HandleTargets(std::list<WorldObject*>& targetList)
@@ -211,7 +210,7 @@ class spell_capacitus_polarity_charge : public SpellScriptLoader
                 Unit* target = GetHitUnit();
 
                 if (target->HasAura(GetTriggeringSpell()->Id))
-                    SetHitDamage(0);
+                    PreventHitDamage();
             }
 
             void Register() override
@@ -238,9 +237,7 @@ class spell_capacitus_polarity_shift : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_POLARITY) || !sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_POLARITY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_POSITIVE_POLARITY, SPELL_NEGATIVE_POLARITY });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -248,7 +245,7 @@ class spell_capacitus_polarity_shift : public SpellScriptLoader
                 Unit* target = GetHitUnit();
                 Unit* caster = GetCaster();
 
-                target->CastSpell(target, roll_chance_i(50) ? SPELL_POSITIVE_POLARITY : SPELL_NEGATIVE_POLARITY, true, NULL, NULL, caster->GetGUID());
+                target->CastSpell(target, roll_chance_i(50) ? SPELL_POSITIVE_POLARITY : SPELL_NEGATIVE_POLARITY, caster->GetGUID());
             }
 
             void Register() override

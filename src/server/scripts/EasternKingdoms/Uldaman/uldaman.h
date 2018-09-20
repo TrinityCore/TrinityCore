@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,11 +19,14 @@
 #ifndef DEF_ULDAMAN_H
 #define DEF_ULDAMAN_H
 
+#include "CreatureAIImpl.h"
+
+#define UldamanScriptName "instance_uldaman"
 #define DataHeader "UD"
 
 #define MAX_ENCOUNTER                   3
 
-enum DataTypes
+enum UDDataTypes
 {
     DATA_ALTAR_DOORS                    = 1,
     DATA_ANCIENT_DOOR                   = 2,
@@ -33,7 +36,7 @@ enum DataTypes
     DATA_IRONAYA_SEAL                   = 6,
 };
 
-enum GameObjectIds
+enum UDGameObjectIds
 {
     GO_ARCHAEDAS_TEMPLE_DOOR            = 141869,
     GO_ALTAR_OF_THE_KEEPER_TEMPLE_DOOR  = 124367,
@@ -41,5 +44,11 @@ enum GameObjectIds
     GO_IRONAYA_SEAL_DOOR                = 124372,
     GO_KEYSTONE                         = 124371,
 };
+
+template <class AI, class T>
+inline AI* GetUldamanAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, UldamanScriptName);
+}
 
 #endif

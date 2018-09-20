@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 
-int TotemAI::Permissible(Creature const* creature)
+int32 TotemAI::Permissible(Creature const* creature)
 {
     if (creature->IsTotem())
         return PERMIT_BASE_PROACTIVE;
@@ -64,17 +64,17 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
     // SPELLMOD_RANGE not applied in this place just because not existence range mods for attacking totems
 
     // pointer to appropriate target if found any
-    Unit* victim = i_victimGuid ? ObjectAccessor::GetUnit(*me, i_victimGuid) : NULL;
+    Unit* victim = i_victimGuid ? ObjectAccessor::GetUnit(*me, i_victimGuid) : nullptr;
 
     // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
     if (!victim ||
         !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) ||
         me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
     {
-        victim = NULL;
-        Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me, max_range);
+        victim = nullptr;
+        Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), max_range);
         Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
-        me->VisitNearbyObject(max_range, checker);
+        Cell::VisitAllObjects(me, checker, max_range);
     }
 
     // If have target
@@ -84,8 +84,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
         i_victimGuid = victim->GetGUID();
 
         // attack
-        me->SetInFront(victim);                         // client change orientation by self
-        me->CastSpell(victim, me->ToTotem()->GetSpell(), false);
+        me->CastSpell(victim, me->ToTotem()->GetSpell());
     }
     else
         i_victimGuid.Clear();

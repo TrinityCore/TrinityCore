@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,14 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Log.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ObjectAccessor.h"
+#include "Common.h"
 #include "CreatureAI.h"
-#include "Vehicle.h"
+#include "DBCStructure.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "Vehicle.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
 {
@@ -37,7 +38,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
     if (!pEnemy)
     {
         // stop attack state at client
-        SendAttackStop(NULL);
+        SendAttackStop(nullptr);
         return;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,8 +18,12 @@
 #ifndef _WORKERTHREAD_H
 #define _WORKERTHREAD_H
 
+#include "Define.h"
+#include <atomic>
 #include <thread>
-#include "ProducerConsumerQueue.h"
+
+template <typename T>
+class ProducerConsumerQueue;
 
 class MySQLConnection;
 class SQLOperation;
@@ -37,7 +41,7 @@ class TC_DATABASE_API DatabaseWorker
         void WorkerThread();
         std::thread _workerThread;
 
-        std::atomic_bool _cancelationToken;
+        std::atomic<bool> _cancelationToken;
 
         DatabaseWorker(DatabaseWorker const& right) = delete;
         DatabaseWorker& operator=(DatabaseWorker const& right) = delete;

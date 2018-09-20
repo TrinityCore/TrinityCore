@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,12 +68,12 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_AMNENNARSWRATH, 8000);
-            events.ScheduleEvent(EVENT_FROSTBOLT, 1000);
-            events.ScheduleEvent(EVENT_FROST_NOVA, urand(10000, 15000));
+            _JustEngagedWith();
+            events.ScheduleEvent(EVENT_AMNENNARSWRATH, 8s);
+            events.ScheduleEvent(EVENT_FROSTBOLT, 1s);
+            events.ScheduleEvent(EVENT_FROST_NOVA, 10s, 15s);
             Talk(SAY_AGGRO);
         }
 
@@ -104,15 +104,15 @@ public:
                 {
                     case EVENT_AMNENNARSWRATH:
                         DoCastVictim(SPELL_AMNENNARSWRATH);
-                        events.ScheduleEvent(EVENT_AMNENNARSWRATH, 12000);
+                        events.ScheduleEvent(EVENT_AMNENNARSWRATH, 12s);
                         break;
                     case EVENT_FROSTBOLT:
                         DoCastVictim(SPELL_FROSTBOLT);
-                        events.ScheduleEvent(EVENT_FROSTBOLT, 8000);
+                        events.ScheduleEvent(EVENT_FROSTBOLT, 8s);
                         break;
                     case EVENT_FROST_NOVA:
                         DoCast(me, SPELL_FROST_NOVA);
-                        events.ScheduleEvent(EVENT_FROST_NOVA, 15000);
+                        events.ScheduleEvent(EVENT_FROST_NOVA, 15s);
                         break;
                 }
 
@@ -151,7 +151,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_amnennar_the_coldbringerAI(creature);
+        return GetRazorfenDownsAI<boss_amnennar_the_coldbringerAI>(creature);
     }
 };
 

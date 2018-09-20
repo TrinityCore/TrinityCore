@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@ SDCategory: Maraudon
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "maraudon.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -39,7 +40,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_noxxionAI(creature);
+        return GetMaraudonAI<boss_noxxionAI>(creature);
     }
 
     struct boss_noxxionAI : public ScriptedAI
@@ -69,7 +70,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SummonAdds(Unit* victim)
         {
@@ -82,7 +83,7 @@ public:
             if (Invisible && InvisibleTimer <= diff)
             {
                 //Become visible again
-                me->setFaction(14);
+                me->SetFaction(FACTION_MONSTER);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 //Noxxion model
                 me->SetDisplayId(11172);
@@ -122,7 +123,7 @@ public:
                 //Interrupt any spell casting
                 //me->m_canMove = true;
                 me->InterruptNonMeleeSpells(false);
-                me->setFaction(35);
+                me->SetFaction(FACTION_FRIENDLY);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 // Invisible Model
                 me->SetDisplayId(11686);

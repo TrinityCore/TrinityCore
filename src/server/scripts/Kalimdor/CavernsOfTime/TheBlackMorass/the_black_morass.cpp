@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,11 +17,15 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "the_black_morass.h"
-#include "Player.h"
 #include "SpellInfo.h"
+#include "the_black_morass.h"
 
 enum MedivhBm
 {
@@ -57,7 +61,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_medivh_bmAI>(creature);
+        return GetBlackMorassAI<npc_medivh_bmAI>(creature);
     }
 
     struct npc_medivh_bmAI : public ScriptedAI
@@ -137,9 +141,9 @@ public:
             //ScriptedAI::AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (SpellCorrupt_Timer)
                 return;
@@ -203,8 +207,7 @@ public:
                     //if we reach this it means event was running but at some point reset.
                     if (instance->GetData(TYPE_MEDIVH) == NOT_STARTED)
                     {
-                        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        me->RemoveCorpse();
+                        me->DespawnOrUnsummon();
                         me->Respawn();
                         return;
                     }
@@ -251,7 +254,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_time_riftAI>(creature);
+        return GetBlackMorassAI<npc_time_riftAI>(creature);
     }
 
     struct npc_time_riftAI : public ScriptedAI
@@ -288,7 +291,7 @@ public:
             else mWaveId = 1;
 
         }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DoSummonAtRift(uint32 creature_entry)
         {
@@ -309,7 +312,7 @@ public:
 
             if (Unit* Summon = DoSummon(creature_entry, pos, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
                 if (Unit* temp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_MEDIVH)))
-                    Summon->AddThreat(temp, 0.0f);
+                    AddThreat(temp, 0.0f, Summon);
         }
 
         void DoSelectSummon()

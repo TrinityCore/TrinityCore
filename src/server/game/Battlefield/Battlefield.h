@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,8 +18,10 @@
 #ifndef BATTLEFIELD_H_
 #define BATTLEFIELD_H_
 
+#include "Position.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
+#include <map>
 
 enum BattlefieldTypes
 {
@@ -55,14 +57,17 @@ enum BattlefieldTimers
 };
 
 // some class predefs
-class Player;
-class GameObject;
-class WorldPacket;
-class Creature;
-class Unit;
-
 class Battlefield;
 class BfGraveyard;
+class Creature;
+class GameObject;
+class Group;
+class Map;
+class Player;
+class Unit;
+class WorldPacket;
+struct QuaternionData;
+struct WorldSafeLocsEntry;
 
 typedef std::vector<BfGraveyard*> GraveyardVect;
 typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
@@ -272,7 +277,7 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         // Graveyard methods
         // Find which graveyard the player must be teleported to to be resurrected by spiritguide
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player);
 
         virtual void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
         void RemovePlayerFromResurrectQueue(ObjectGuid player_guid);
@@ -281,7 +286,7 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         // Misc methods
         Creature* SpawnCreature(uint32 entry, Position const& pos);
-        GameObject* SpawnGameObject(uint32 entry, Position const& pos, G3D::Quat const& rot);
+        GameObject* SpawnGameObject(uint32 entry, Position const& pos, QuaternionData const& rot);
 
         Creature* GetCreature(ObjectGuid guid);
         GameObject* GetGameObject(ObjectGuid guid);
@@ -405,7 +410,7 @@ class TC_GAME_API Battlefield : public ZoneScript
             Battlefield::BfCapturePointMap::const_iterator itr = m_capturePoints.find(lowguid);
             if (itr != m_capturePoints.end())
                 return itr->second;
-            return NULL;
+            return nullptr;
         }
 
         void RegisterZone(uint32 zoneid);

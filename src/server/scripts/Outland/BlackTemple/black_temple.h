@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,14 +18,16 @@
 #ifndef BLACK_TEMPLE_H_
 #define BLACK_TEMPLE_H_
 
+#include "CreatureAIImpl.h"
+
 #define BTScriptName "instance_black_temple"
 #define DataHeader   "BT"
 
 uint32 const EncounterCount         = 9;
 
-enum DataTypes
+enum BTDataTypes
 {
-    // Encounter States/Boss GUIDs
+    // Encounter States
     DATA_HIGH_WARLORD_NAJENTUS      = 0,
     DATA_SUPREMUS                   = 1,
     DATA_SHADE_OF_AKAMA             = 2,
@@ -39,17 +41,30 @@ enum DataTypes
     // Additional Data
     DATA_AKAMA_SHADE                = 9,
     DATA_AKAMA                      = 10,
-
-    DATA_GATHIOS_THE_SHATTERER      = 11,
-    DATA_HIGH_NETHERMANCER_ZEREVOR  = 12,
-    DATA_LADY_MALANDE               = 13,
-    DATA_VERAS_DARKSHADOW           = 14,
-    DATA_BLOOD_ELF_COUNCIL_VOICE    = 15,
-
-    DATA_GO_ILLIDAN_GATE            = 16,
+    DATA_MAIEV                      = 11,
+    DATA_GO_ILLIDAN_GATE            = 12,
+    DATA_BLACK_TEMPLE_TRIGGER       = 13,
+    DATA_GATHIOS_THE_SHATTERER      = 14,
+    DATA_HIGH_NETHERMANCER_ZEREVOR  = 15,
+    DATA_LADY_MALANDE               = 16,
+    DATA_VERAS_DARKSHADOW           = 17,
+    DATA_BLOOD_ELF_COUNCIL_VOICE    = 18,
+    DATA_GO_DEN_OF_MORTAL_DOOR      = 19,
+    DATA_ESSENCE_OF_SUFFERING       = 20,
+    DATA_ESSENCE_OF_DESIRE          = 21,
+    DATA_ESSENCE_OF_ANGER           = 22,
+    DATA_ILLIDAN_MUSIC_CONTROLLER   = 23,
+    DATA_TERON_GOREFIEND_INTRO      = 24,
+    DATA_AKAMA_ILLIDAN_INTRO        = 25
 };
 
-enum CreatureIds
+enum TriggerEmotes
+{
+    EMOTE_HIGH_WARLORD_NAJENTUS_DIED = 0,
+    EMOTE_DEN_OF_MORTAL_DOOR_OPEN    = 1
+};
+
+enum BTCreatureIds
 {
     //Bosses
     NPC_HIGH_WARLORD_NAJENTUS       = 22887,
@@ -70,10 +85,33 @@ enum CreatureIds
     NPC_BLOOD_ELF_COUNCIL_VOICE     = 23499,
     NPC_AKAMA                       = 23089, // This is the Akama that starts the Illidan encounter.
     NPC_AKAMA_SHADE                 = 23191, // This is the Akama that starts the Shade of Akama encounter.
-    NPC_SUPREMUS_VOLCANO            = 23085
+    NPC_SUPREMUS_VOLCANO            = 23085,
+    NPC_BLACK_TEMPLE_TRIGGER        = 22984,
+    NPC_RELIQUARY_WORLD_TRIGGER     = 23472,
+    NPC_ENSLAVED_SOUL               = 23469,
+    NPC_ASHTONGUE_STALKER           = 23374,
+    NPC_ASHTONGUE_BATTLELORD        = 22844,
+    NPC_ASHTONGUE_MYSTIC            = 22845,
+    NPC_ASHTONGUE_PRIMALIST         = 22847,
+    NPC_ASHTONGUE_STORMCALLER       = 22846,
+    NPC_ASHTONGUE_FERAL_SPIRIT      = 22849,
+    NPC_STORM_FURY                  = 22848,
+    NPC_SPIRIT_OF_UDALO             = 23410,
+    NPC_SPIRIT_OF_OLUM              = 23411,
+    NPC_FLAME_OF_AZZINOTH           = 22997,
+    NPC_BLADE_OF_AZZINOTH           = 22996,
+    NPC_MAIEV_SHADOWSONG            = 23197,
+    NPC_ILLIDAN_DB_TARGET           = 23070,
+    NPC_ILLIDARI_ELITE              = 23226,
+    NPC_GLAIVE_TARGET               = 23448,
+    NPC_GLAIVE_WORLD_TRIGGER        = 22515,
+    NPC_DEMON_FIRE                  = 23069,
+    NPC_PARASITIC_SHADOWFIEND       = 23498,
+    NPC_BLAZE                       = 23259,
+    NPC_FLAME_CRASH                 = 23336
 };
 
-enum GameObjectIds
+enum BTGameObjectIds
 {
     GO_NAJENTUS_GATE                = 185483,
     GO_NAJENTUS_SPINE               = 185584,
@@ -82,19 +120,32 @@ enum GameObjectIds
     GO_TERON_DOOR_1                 = 185480,
     GO_TERON_DOOR_2                 = 186153,
     GO_GURTOGG_DOOR                 = 185892,
-    GO_TEMPLE_DOOR                  = 185479,
+    GO_DEN_OF_MORTAL_DOOR           = 185479,
     GO_MOTHER_SHAHRAZ_DOOR          = 185482,
     GO_COUNCIL_DOOR_1               = 185481,
     GO_COUNCIL_DOOR_2               = 186152,
     GO_ILLIDAN_GATE                 = 185905,
     GO_ILLIDAN_DOOR_R               = 186261,
-    GO_ILLIDAN_DOOR_L               = 186262
+    GO_ILLIDAN_DOOR_L               = 186262,
+    GO_ILLIDAN_CAGE_TRAP            = 185916,
+    GO_ILLIDAN_MUSIC_CONTROLLER     = 185966
 };
 
-template<class AI>
-AI* GetBlackTempleAI(Creature* creature)
+enum BlackTempleMisc
 {
-    return GetInstanceAI<AI>(creature, BTScriptName);
+    AKAMA_FACTION_COMBAT            = 1868,
+    AKAMA_INTRO                     = 1,
+    AKAMA_FIGHT                     = 2,
+    ACTION_ACTIVE_AKAMA_INTRO       = 3,
+    ACTION_OPEN_DOOR                = 4
+};
+
+template <class AI, class T>
+inline AI* GetBlackTempleAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, BTScriptName);
 }
+
+#define RegisterBlackTempleCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBlackTempleAI)
 
 #endif // BLACK_TEMPLE_H_
