@@ -220,7 +220,7 @@ struct boss_shade_of_akama : public BossAI
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
         me->SetWalk(true);
-        events.ScheduleEvent(EVENT_INITIALIZE_SPAWNERS, Seconds(1));
+        events.ScheduleEvent(EVENT_INITIALIZE_SPAWNERS, 1s);
         me->SummonCreatureGroup(SUMMON_GROUP_RESET);
     }
 
@@ -240,9 +240,9 @@ struct boss_shade_of_akama : public BossAI
     {
         if (spell->Id == SPELL_AKAMA_SOUL_CHANNEL)
         {
-            events.ScheduleEvent(EVENT_START_CHANNELERS_AND_SPAWNERS, Seconds(1));
+            events.ScheduleEvent(EVENT_START_CHANNELERS_AND_SPAWNERS, 1s);
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
-            events.ScheduleEvent(EVENT_EVADE_CHECK, Seconds(10));
+            events.ScheduleEvent(EVENT_EVADE_CHECK, 10s);
             if (Creature* akama = instance->GetCreature(DATA_AKAMA_SHADE))
                 AttackStart(akama);
         }
@@ -392,8 +392,8 @@ struct npc_akama_shade : public ScriptedAI
             {
                 shade->RemoveAurasDueToSpell(SPELL_AKAMA_SOUL_CHANNEL);
                 AttackStart(shade);
-                _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, Seconds(2));
-                _events.ScheduleEvent(EVENT_DESTRUCTIVE_POISON, Seconds(5));
+                _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 2s);
+                _events.ScheduleEvent(EVENT_DESTRUCTIVE_POISON, 5s);
             }
         }
     }
@@ -426,12 +426,12 @@ struct npc_akama_shade : public ScriptedAI
             return;
 
         if (pointId == AKAMA_CHANNEL_WAYPOINT)
-            _events.ScheduleEvent(EVENT_SHADE_CHANNEL, Seconds(1));
+            _events.ScheduleEvent(EVENT_SHADE_CHANNEL, 1s);
 
         else if (pointId == AKAMA_INTRO_WAYPOINT)
         {
             me->SetWalk(false);
-            _events.ScheduleEvent(EVENT_START_SOUL_RETRIEVE, Seconds(1));
+            _events.ScheduleEvent(EVENT_START_SOUL_RETRIEVE, 1s);
         }
     }
 
@@ -468,7 +468,7 @@ struct npc_akama_shade : public ScriptedAI
                     me->SetFacingTo(FACE_THE_PLATFORM);
                     DoCastSelf(SPELL_AKAMA_SOUL_CHANNEL);
                     me->SetFaction(FACTION_MONSTER_SPAR_BUDDY);
-                    _events.ScheduleEvent(EVENT_FIXATE, Seconds(5));
+                    _events.ScheduleEvent(EVENT_FIXATE, 5s);
                     break;
                 case EVENT_FIXATE:
                     DoCast(SPELL_FIXATE);
@@ -484,7 +484,7 @@ struct npc_akama_shade : public ScriptedAI
                 case EVENT_START_SOUL_RETRIEVE:
                     me->SetFacingTo(FACE_THE_DOOR);
                     DoCast(SPELL_AKAMA_SOUL_RETRIEVE);
-                    _events.ScheduleEvent(EVENT_START_BROKEN_FREE, Seconds(15));
+                    _events.ScheduleEvent(EVENT_START_BROKEN_FREE, 15s);
                     break;
                 case EVENT_START_BROKEN_FREE:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
@@ -623,12 +623,12 @@ struct npc_creature_generator_akama : public ScriptedAI
                 if (_leftSide)
                 {
                     _events.ScheduleEvent(EVENT_SPAWN_WAVE_B, Milliseconds(100));
-                    _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_SORCERER, Seconds(2), Seconds(5));
+                    _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_SORCERER, 2s, 5s);
                 }
                 else
                 {
-                    _events.ScheduleEvent(EVENT_SPAWN_WAVE_B, Seconds(10));
-                    _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_DEFENDER, Seconds(2), Seconds(5));
+                    _events.ScheduleEvent(EVENT_SPAWN_WAVE_B, 10s);
+                    _events.ScheduleEvent(EVENT_SUMMON_ASHTONGUE_DEFENDER, 2s, 5s);
                 }
                 break;
             case ACTION_STOP_SPAWNING:
@@ -789,10 +789,10 @@ struct npc_ashtongue_defender : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_HEROIC_STRIKE, Seconds(5));
-        _events.ScheduleEvent(EVENT_SHIELD_BASH, Seconds(10), Seconds(16));
-        _events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, Seconds(10), Seconds(16));
-        _events.ScheduleEvent(EVENT_WINDFURY, Seconds(8), Seconds(12));
+        _events.ScheduleEvent(EVENT_HEROIC_STRIKE, 5s);
+        _events.ScheduleEvent(EVENT_SHIELD_BASH, 10s, 16s);
+        _events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, 10s, 16s);
+        _events.ScheduleEvent(EVENT_WINDFURY, 8s, 12s);
     }
 
 
@@ -857,7 +857,7 @@ struct npc_ashtongue_rogue : public ScriptedAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_DEBILITATING_POISON, Milliseconds(500), Seconds(2));
-        _events.ScheduleEvent(EVENT_EVISCERATE, Seconds(2), Seconds(5));
+        _events.ScheduleEvent(EVENT_EVISCERATE, 2s, 5s);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override { }
@@ -914,8 +914,8 @@ struct npc_ashtongue_elementalist : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_RAIN_OF_FIRE, Seconds(18));
-        _events.ScheduleEvent(EVENT_LIGHTNING_BOLT, Seconds(6));
+        _events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 18s);
+        _events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 6s);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override { }
@@ -981,7 +981,7 @@ struct npc_ashtongue_spiritbinder : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_SPIRIT_HEAL, Seconds(5), Seconds(6));
+        _events.ScheduleEvent(EVENT_SPIRIT_HEAL, 5s, 6s);
     }
 
     void DamageTaken(Unit* /*who*/, uint32& /*damage*/) override
@@ -991,7 +991,7 @@ struct npc_ashtongue_spiritbinder : public ScriptedAI
             {
                 DoCastSelf(SPELL_SPIRIT_MEND);
                 _spiritMend = true;
-                _events.ScheduleEvent(EVENT_SPIRIT_MEND_RESET, Seconds(10), Seconds(15));
+                _events.ScheduleEvent(EVENT_SPIRIT_MEND_RESET, 10s, 15s);
             }
 
         if (!_chainHeal)
@@ -999,7 +999,7 @@ struct npc_ashtongue_spiritbinder : public ScriptedAI
             {
                 DoCastSelf(SPELL_CHAIN_HEAL);
                 _chainHeal = true;
-                _events.ScheduleEvent(EVENT_CHAIN_HEAL_RESET, Seconds(10), Seconds(15));
+                _events.ScheduleEvent(EVENT_CHAIN_HEAL_RESET, 10s, 15s);
             }
 
     }

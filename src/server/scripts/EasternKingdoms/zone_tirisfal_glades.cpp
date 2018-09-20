@@ -78,7 +78,7 @@ public:
                 damage = 0;
                 me->CombatStop(true);
                 EnterEvadeMode();
-                _events.ScheduleEvent(EVENT_EMOTE_RUDE, Seconds(3));
+                _events.ScheduleEvent(EVENT_EMOTE_RUDE, 3s);
             }
         }
 
@@ -92,22 +92,22 @@ public:
                 {
                     case EVENT_EMOTE_RUDE:
                         me->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
-                        _events.ScheduleEvent(EVENT_TALK, Seconds(2));
+                        _events.ScheduleEvent(EVENT_TALK, 2s);
                         break;
                     case EVENT_TALK:
                         Talk(SAY_COMPLETE);
-                        _events.ScheduleEvent(EVENT_DRINK, Seconds(5));
+                        _events.ScheduleEvent(EVENT_DRINK, 5s);
                         break;
                     case EVENT_DRINK:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             player->AreaExploredOrEventHappens(QUEST_590);
                         _playerGUID.Clear();
                         DoCastSelf(SPELL_DRINK);
-                        _events.ScheduleEvent(EVENT_SET_QUESTGIVER_FLAG, Seconds(12));
+                        _events.ScheduleEvent(EVENT_SET_QUESTGIVER_FLAG, 12s);
                         break;
                     case EVENT_SET_QUESTGIVER_FLAG:
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                        _events.ScheduleEvent(EVENT_STAND, Seconds(3));
+                        _events.ScheduleEvent(EVENT_STAND, 3s);
                         break;
                     case EVENT_STAND:
                         me->SetStandState(UNIT_STAND_STATE_STAND);

@@ -463,11 +463,11 @@ public:
                 {
                     case EVENT_BLAST:
                         DoCast(me, SPELL_BLAST_WAVE);
-                        events.ScheduleEvent(EVENT_BLAST, 20 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_BLAST, 20s);
                         break;
                     case EVENT_IMMOLATION:
                         DoCastVictim(SPELL_IMMOLATION_STRIKE);
-                        events.ScheduleEvent(EVENT_BLAST, 5 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_BLAST, 5s);
                         break;
                     default:
                         break;

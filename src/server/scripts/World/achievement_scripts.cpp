@@ -237,7 +237,7 @@ class achievement_tilted : public AchievementCriteriaScript
                                 player->GetAreaId() == AREA_RING_OF_HORDE_VALIANTS ||
                                 player->GetAreaId() == AREA_RING_OF_CHAMPIONS;
 
-            return checkArea && player->duel && player->duel->isMounted;
+            return checkArea && player->duel && player->duel->IsMounted;
         }
 };
 

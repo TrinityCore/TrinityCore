@@ -97,9 +97,9 @@ class boss_festergut : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                events.ScheduleEvent(EVENT_BERSERK, 300000);
-                events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(25000, 30000));
-                events.ScheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
+                events.ScheduleEvent(EVENT_BERSERK, 5min);
+                events.ScheduleEvent(EVENT_INHALE_BLIGHT, 25s, 30s);
+                events.ScheduleEvent(EVENT_GAS_SPORE, 20s, 25s);
                 events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(12500, 15000));
                 _maxInoculatedStack = 0;
                 _inhaleCounter = 0;
@@ -230,14 +230,14 @@ class boss_festergut : public CreatureScript
                                     DoCast(*itr, SPELL_VILE_GAS);
                             }
 
-                            events.ScheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
+                            events.ScheduleEvent(EVENT_VILE_GAS, 28s, 35s);
                             break;
                         }
                         case EVENT_GAS_SPORE:
                             Talk(EMOTE_WARN_GAS_SPORE);
                             Talk(EMOTE_GAS_SPORE);
                             me->CastSpell(me, SPELL_GAS_SPORE, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 3, 2, 3)));
-                            events.ScheduleEvent(EVENT_GAS_SPORE, urand(40000, 45000));
+                            events.ScheduleEvent(EVENT_GAS_SPORE, 40s, 45s);
                             events.RescheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
                             break;
                         case EVENT_GASTRIC_BLOAT:
@@ -310,8 +310,8 @@ class npc_stinky_icc : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
+                _events.ScheduleEvent(EVENT_DECIMATE, 20s, 25s);
+                _events.ScheduleEvent(EVENT_MORTAL_WOUND, 3s, 7s);
             }
 
             void JustEngagedWith(Unit* /*target*/) override
@@ -335,7 +335,7 @@ class npc_stinky_icc : public CreatureScript
                     {
                         case EVENT_DECIMATE:
                             DoCastVictim(SPELL_DECIMATE);
-                            _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_DECIMATE, 20s, 25s);
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);

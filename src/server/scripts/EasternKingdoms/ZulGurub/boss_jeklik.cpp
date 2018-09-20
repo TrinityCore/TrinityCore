@@ -102,10 +102,10 @@ class boss_jeklik : public CreatureScript
                 Talk(SAY_AGGRO);
                 events.SetPhase(PHASE_ONE);
 
-                events.ScheduleEvent(EVENT_CHARGE_JEKLIK, 20000, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_SONIC_BURST, 8000, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_SCREECH, 13000, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_SPAWN_BATS, 60000, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_CHARGE_JEKLIK, 20s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_SONIC_BURST, 8s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_SCREECH, 13s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_SPAWN_BATS, 60s, 0, PHASE_ONE);
 
                 me->SetCanFly(true);
                 DoCast(me, SPELL_BAT_FORM);
@@ -119,11 +119,11 @@ class boss_jeklik : public CreatureScript
                     me->SetCanFly(false);
                     ResetThreatList();
                     events.SetPhase(PHASE_TWO);
-                    events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 6000, 0, PHASE_TWO);
-                    events.ScheduleEvent(EVENT_MIND_FLAY, 11000, 0, PHASE_TWO);
-                    events.ScheduleEvent(EVENT_CHAIN_MIND_FLAY, 26000, 0, PHASE_TWO);
-                    events.ScheduleEvent(EVENT_GREATER_HEAL, 50000, 0, PHASE_TWO);
-                    events.ScheduleEvent(EVENT_SPAWN_FLYING_BATS, 10000, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 6s, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_MIND_FLAY, 11s, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_CHAIN_MIND_FLAY, 26s, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_GREATER_HEAL, 50s, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_SPAWN_FLYING_BATS, 10s, 0, PHASE_TWO);
                     return;
                 }
             }
@@ -163,7 +163,7 @@ class boss_jeklik : public CreatureScript
                                 for (uint8 i = 0; i < 6; ++i)
                                     if (Creature* bat = me->SummonCreature(NPC_BLOODSEEKER_BAT, SpawnBat[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
                                         bat->AI()->AttackStart(target);
-                            events.ScheduleEvent(EVENT_SPAWN_BATS, 60000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_SPAWN_BATS, 1min, 0, PHASE_ONE);
                             break;
                         case EVENT_SHADOW_WORD_PAIN:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -172,7 +172,7 @@ class boss_jeklik : public CreatureScript
                             break;
                         case EVENT_MIND_FLAY:
                             DoCastVictim(SPELL_MIND_FLAY);
-                            events.ScheduleEvent(EVENT_MIND_FLAY, 16000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_MIND_FLAY, 16s, 0, PHASE_TWO);
                             break;
                         case EVENT_CHAIN_MIND_FLAY:
                             me->InterruptNonMeleeSpells(false);

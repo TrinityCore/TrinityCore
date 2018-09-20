@@ -1876,9 +1876,10 @@ Respawn.DynamicMinimumGameObject = 10
 # CHAT SETTINGS
 #
 #    ChatFakeMessagePreventing
-#        Description: Chat protection from creating fake messages using a lot spaces or other
-#                     invisible symbols. Not applied to the addon language, but may break old
-#                     addons that use normal languages for sending data to other clients.
+#        Description: Additional protection from creating fake chat messages using spaces.
+#                     Collapses multiple subsequent whitespaces into a single whitespace.
+#                     Not applied to the addon language, but may break old addons that use
+#                     "normal" chat messages for sending data to other clients.
 #        Default:     1 - (Enabled, Blizzlike)
 #                     0 - (Disabled)
 
@@ -1898,7 +1899,7 @@ ChatStrictLinkChecking.Severity = 0
 #    ChatStrictLinkChecking.Kick
 #        Description: Defines what should be done if a message containing invalid control characters
 #                     is received.
-#        Default:     0 - (Process sanitized message normally)
+#        Default:     0 - (Silently ignore message)
 #                     1 - (Ignore message and kick player)
 
 ChatStrictLinkChecking.Kick = 0

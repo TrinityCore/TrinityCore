@@ -56,9 +56,9 @@ class boss_doctor_theolen_krastinov : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_REND, 8000);
-                events.ScheduleEvent(EVENT_BACKHAND, 9000);
-                events.ScheduleEvent(EVENT_FRENZY, 1000);
+                events.ScheduleEvent(EVENT_REND, 8s);
+                events.ScheduleEvent(EVENT_BACKHAND, 9s);
+                events.ScheduleEvent(EVENT_FRENZY, 1s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -77,11 +77,11 @@ class boss_doctor_theolen_krastinov : public CreatureScript
                     {
                         case EVENT_REND:
                             DoCastVictim(SPELL_REND, true);
-                            events.ScheduleEvent(EVENT_REND, 10000);
+                            events.ScheduleEvent(EVENT_REND, 10s);
                             break;
                         case EVENT_BACKHAND:
                             DoCastVictim(SPELL_BACKHAND, true);
-                            events.ScheduleEvent(EVENT_BACKHAND, 10000);
+                            events.ScheduleEvent(EVENT_BACKHAND, 10s);
                             break;
                         case EVENT_FRENZY:
                             DoCast(me, SPELL_FRENZY, true);

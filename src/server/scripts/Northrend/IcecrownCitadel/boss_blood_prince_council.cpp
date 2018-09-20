@@ -631,9 +631,9 @@ class boss_prince_keleseth_icc : public CreatureScript
 
             void ScheduleEvents() override
             {
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-                events.ScheduleEvent(EVENT_SHADOW_RESONANCE, Seconds(10), Seconds(15));
-                events.ScheduleEvent(EVENT_SHADOW_LANCE, Seconds(2));
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
+                events.ScheduleEvent(EVENT_SHADOW_RESONANCE, 10s, 15s);
+                events.ScheduleEvent(EVENT_SHADOW_LANCE, 2s);
 
                 if (IsHeroic())
                 {
@@ -709,9 +709,9 @@ class boss_prince_taldaram_icc : public CreatureScript
 
             void ScheduleEvents() override
             {
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-                events.ScheduleEvent(EVENT_GLITTERING_SPARKS, Seconds(12), Seconds(15));
-                events.ScheduleEvent(EVENT_CONJURE_FLAME, Seconds(20));
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
+                events.ScheduleEvent(EVENT_GLITTERING_SPARKS, 12s, 15s);
+                events.ScheduleEvent(EVENT_CONJURE_FLAME, 20s);
                 if (IsHeroic())
                     DoCastSelf(SPELL_SHADOW_PRISON, true);
             }
@@ -794,9 +794,9 @@ class boss_prince_valanar_icc : public CreatureScript
 
             void ScheduleEvents() override
             {
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-                events.ScheduleEvent(EVENT_KINETIC_BOMB, Seconds(18), Seconds(24));
-                events.ScheduleEvent(EVENT_SHOCK_VORTEX, Seconds(15), Seconds(20));
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
+                events.ScheduleEvent(EVENT_KINETIC_BOMB, 18s, 24s);
+                events.ScheduleEvent(EVENT_SHOCK_VORTEX, 15s, 20s);
                 if (IsHeroic())
                     DoCastSelf(SPELL_SHADOW_PRISON, true);
             }
@@ -1061,7 +1061,7 @@ class npc_kinetic_bomb : public CreatureScript
             void DoAction(int32 action) override
             {
                 if (action == SPELL_KINETIC_BOMB_EXPLOSION)
-                    _events.ScheduleEvent(EVENT_BOMB_DESPAWN, Seconds(1));
+                    _events.ScheduleEvent(EVENT_BOMB_DESPAWN, 1s);
 
                 else if (action == ACTION_KINETIC_BOMB_JUMP)
                 {

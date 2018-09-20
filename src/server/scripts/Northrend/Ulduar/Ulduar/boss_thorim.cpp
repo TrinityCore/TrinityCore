@@ -924,7 +924,7 @@ class boss_thorim : public CreatureScript
                 {
                     Talk(SAY_JUMPDOWN);
                     events.SetPhase(PHASE_2);
-                    events.ScheduleEvent(EVENT_JUMPDOWN, 8000);
+                    events.ScheduleEvent(EVENT_JUMPDOWN, 8s);
                     events.ScheduleEvent(EVENT_ACTIVATE_LIGHTNING_FIELD, 15000);
                     events.RescheduleEvent(EVENT_BERSERK, 300000, 0, PHASE_2);
 
@@ -1147,11 +1147,11 @@ class npc_thorim_pre_phase : public CreatureScript
             {
                 _events.Reset();
                 if (_info->PrimaryAbility)
-                    _events.ScheduleEvent(EVENT_PRIMARY_ABILITY, urand(3000, 6000));
+                    _events.ScheduleEvent(EVENT_PRIMARY_ABILITY, 3s, 6s);
                 if (_info->SecondaryAbility)
                     _events.ScheduleEvent(EVENT_SECONDARY_ABILITY, _info->SecondaryAbility == SPELL_SHOOT ? 2000 : urand(12000, 15000));
                 if (_info->ThirdAbility)
-                    _events.ScheduleEvent(EVENT_THIRD_ABILITY, urand(6000, 8000));
+                    _events.ScheduleEvent(EVENT_THIRD_ABILITY, 6s, 8s);
                 if (_info->Type == MERCENARY_SOLDIER)
                     SetCombatMovement(false);
             }
@@ -1182,19 +1182,19 @@ class npc_thorim_pre_phase : public CreatureScript
                         if (UseAbility(_info->PrimaryAbility))
                             _events.ScheduleEvent(eventId, urand(15000, 20000));
                         else
-                            _events.ScheduleEvent(eventId, 1000);
+                            _events.ScheduleEvent(eventId, 1s);
                         break;
                     case EVENT_SECONDARY_ABILITY:
                         if (UseAbility(_info->SecondaryAbility))
                             _events.ScheduleEvent(eventId, _info->SecondaryAbility == SPELL_SHOOT ? 2000 : urand(4000, 8000));
                         else
-                            _events.ScheduleEvent(eventId, 1000);
+                            _events.ScheduleEvent(eventId, 1s);
                         break;
                     case EVENT_THIRD_ABILITY:
                         if (UseAbility(_info->ThirdAbility))
-                            _events.ScheduleEvent(eventId, urand(6000, 8000));
+                            _events.ScheduleEvent(eventId, 6s, 8s);
                         else
-                            _events.ScheduleEvent(eventId, 1000);
+                            _events.ScheduleEvent(eventId, 1s);
                         break;
                     default:
                         break;
@@ -1250,13 +1250,13 @@ class npc_thorim_arena_phase : public CreatureScript
             {
                 _events.Reset();
                 if (_info->PrimaryAbility)
-                    _events.ScheduleEvent(EVENT_PRIMARY_ABILITY, urand(3000, 6000));
+                    _events.ScheduleEvent(EVENT_PRIMARY_ABILITY, 3s, 6s);
                 if (_info->SecondaryAbility)
-                    _events.ScheduleEvent(EVENT_SECONDARY_ABILITY, urand(7000, 9000));
+                    _events.ScheduleEvent(EVENT_SECONDARY_ABILITY, 7s, 9s);
                 if (_info->ThirdAbility)
-                    _events.ScheduleEvent(EVENT_THIRD_ABILITY, urand(6000, 8000));
+                    _events.ScheduleEvent(EVENT_THIRD_ABILITY, 6s, 8s);
                 if (_info->Type == DARK_RUNE_CHAMPION)
-                    _events.ScheduleEvent(EVENT_ABILITY_CHARGE, 8000);
+                    _events.ScheduleEvent(EVENT_ABILITY_CHARGE, 8s);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -1307,7 +1307,7 @@ class npc_thorim_arena_phase : public CreatureScript
                         Unit* referer = me;
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, [referer](Unit* unit){ return unit->GetTypeId() == TYPEID_PLAYER && unit->IsInRange(referer, 8.0f, 25.0f); }))
                             DoCast(target, SPELL_CHARGE);
-                        _events.ScheduleEvent(eventId, 12000);
+                        _events.ScheduleEvent(eventId, 12s);
                         break;
                     }
                     default:
@@ -1411,7 +1411,7 @@ class npc_runic_colossus : public CreatureScript
                 if (action == ACTION_ACTIVATE_RUNIC_SMASH)
                 {
                     _runicActive = true;
-                    _events.ScheduleEvent(EVENT_RUNIC_SMASH, 7000);
+                    _events.ScheduleEvent(EVENT_RUNIC_SMASH, 7s);
                 }
             }
 
@@ -1434,9 +1434,9 @@ class npc_runic_colossus : public CreatureScript
             {
                 DoZoneInCombat();
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_RUNIC_BARRIER, urand(12000, 15000));
-                _events.ScheduleEvent(EVENT_SMASH, urand(15000, 18000));
-                _events.ScheduleEvent(EVENT_RUNIC_CHARGE, urand(20000, 24000));
+                _events.ScheduleEvent(EVENT_RUNIC_BARRIER, 12s, 15s);
+                _events.ScheduleEvent(EVENT_SMASH, 15s, 18s);
+                _events.ScheduleEvent(EVENT_RUNIC_CHARGE, 20s, 24s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1522,7 +1522,7 @@ class npc_ancient_rune_giant : public CreatureScript
                 DoZoneInCombat();
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_RUNIC_FORTIFICATION, 1);
-                _events.ScheduleEvent(EVENT_STOMP, urand(10000, 12000));
+                _events.ScheduleEvent(EVENT_STOMP, 10s, 12s);
                 _events.ScheduleEvent(EVENT_RUNE_DETONATION, 25000);
             }
 
@@ -1613,10 +1613,10 @@ class npc_sif : public CreatureScript
                     DoZoneInCombat(me);
                     Talk(SAY_SIF_EVENT);
                     _events.Reset();
-                    _events.ScheduleEvent(EVENT_FROSTBOLT, 2000);
+                    _events.ScheduleEvent(EVENT_FROSTBOLT, 2s);
                     _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 15000);
-                    _events.ScheduleEvent(EVENT_BLINK, urand(20000, 25000));
-                    _events.ScheduleEvent(EVENT_BLIZZARD, 30000);
+                    _events.ScheduleEvent(EVENT_BLINK, 20s, 25s);
+                    _events.ScheduleEvent(EVENT_BLIZZARD, 30s);
                 }
             }
 

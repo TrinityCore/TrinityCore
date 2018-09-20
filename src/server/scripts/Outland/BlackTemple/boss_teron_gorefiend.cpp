@@ -126,11 +126,11 @@ struct boss_teron_gorefiend : public BossAI
         _JustEngagedWith();
         Talk(SAY_AGGRO);
         events.SetPhase(PHASE_COMBAT);
-        events.ScheduleEvent(EVENT_ENRAGE, Minutes(10));
-        events.ScheduleEvent(EVENT_INCINERATE, Seconds(12));
-        events.ScheduleEvent(EVENT_SUMMON_DOOM_BLOSSOM, Seconds(8));
-        events.ScheduleEvent(EVENT_SHADOW_DEATH, Seconds(8));
-        events.ScheduleEvent(EVENT_CRUSHING_SHADOWS, Seconds(18));
+        events.ScheduleEvent(EVENT_ENRAGE, 10min);
+        events.ScheduleEvent(EVENT_INCINERATE, 12s);
+        events.ScheduleEvent(EVENT_SUMMON_DOOM_BLOSSOM, 8s);
+        events.ScheduleEvent(EVENT_SHADOW_DEATH, 8s);
+        events.ScheduleEvent(EVENT_CRUSHING_SHADOWS, 18s);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -147,7 +147,7 @@ struct boss_teron_gorefiend : public BossAI
             instance->SetData(DATA_TERON_GOREFIEND_INTRO, 0);
             Talk(SAY_INTRO);
             events.SetPhase(PHASE_INTRO);
-            events.ScheduleEvent(EVENT_FINISH_INTRO, Seconds(20));
+            events.ScheduleEvent(EVENT_FINISH_INTRO, 20s);
         }
     }
 

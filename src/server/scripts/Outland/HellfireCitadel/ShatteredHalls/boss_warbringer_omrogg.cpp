@@ -423,7 +423,7 @@ class npc_omrogg_heads : public CreatureScript
             {
                 if (data == SETDATA_DATA && value == SETDATA_YELL)
                 {
-                    events.ScheduleEvent(EVENT_DEATH_YELL, 4000);
+                    events.ScheduleEvent(EVENT_DEATH_YELL, 4s);
                 }
             }
 

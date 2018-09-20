@@ -121,6 +121,13 @@ namespace LinkTags {
             catch (...) { return false; }
             return true;
         }
+
+        static bool StoreTo(ObjectGuid& val, char const* pos, size_t len)
+        {
+            try { val.Set(std::stoul(std::string(pos, len), nullptr, 16)); }
+            catch (...) { return false; }
+            return true;
+        }
     };
 
 #define make_base_tag(ltag, type) struct ltag : public base_tag { using value_type = type; static constexpr char const* tag() { return #ltag; } }
@@ -227,7 +234,7 @@ struct HyperlinkInfo
     std::pair<char const*, size_t> const text;
 };
 HyperlinkInfo TC_GAME_API ParseHyperlink(char const* pos);
-bool TC_GAME_API ValidateLinks(std::string&);
+bool TC_GAME_API CheckAllLinks(std::string const&);
 
 }
 }

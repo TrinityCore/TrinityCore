@@ -91,9 +91,9 @@ class boss_buru : public CreatureScript
                 Talk(EMOTE_TARGET, who);
                 DoCast(me, SPELL_THORNS);
 
-                events.ScheduleEvent(EVENT_DISMEMBER, 5000);
-                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9000);
-                events.ScheduleEvent(EVENT_FULL_SPEED, 60000);
+                events.ScheduleEvent(EVENT_DISMEMBER, 5s);
+                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
+                events.ScheduleEvent(EVENT_FULL_SPEED, 1min);
 
                 _phase = PHASE_EGG;
             }
@@ -118,8 +118,8 @@ class boss_buru : public CreatureScript
 
                 me->RemoveAurasDueToSpell(SPELL_FULL_SPEED);
                 me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
-                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9000);
-                events.ScheduleEvent(EVENT_FULL_SPEED, 60000);
+                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
+                events.ScheduleEvent(EVENT_FULL_SPEED, 1min);
 
                 if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                 {
@@ -149,18 +149,18 @@ class boss_buru : public CreatureScript
                     {
                         case EVENT_DISMEMBER:
                             DoCastVictim(SPELL_DISMEMBER);
-                            events.ScheduleEvent(EVENT_DISMEMBER, 5000);
+                            events.ScheduleEvent(EVENT_DISMEMBER, 5s);
                             break;
                         case EVENT_GATHERING_SPEED:
                             DoCast(me, SPELL_GATHERING_SPEED);
-                            events.ScheduleEvent(EVENT_GATHERING_SPEED, 9000);
+                            events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
                             break;
                         case EVENT_FULL_SPEED:
                             DoCast(me, SPELL_FULL_SPEED);
                             break;
                         case EVENT_CREEPING_PLAGUE:
                             DoCast(me, SPELL_CREEPING_PLAGUE);
-                            events.ScheduleEvent(EVENT_CREEPING_PLAGUE, 6000);
+                            events.ScheduleEvent(EVENT_CREEPING_PLAGUE, 6s);
                             break;
                         case EVENT_RESPAWN_EGG:
                             if (Creature* egg = ObjectAccessor::GetCreature(*me, Eggs.front()))

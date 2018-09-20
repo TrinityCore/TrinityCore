@@ -107,11 +107,11 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             _JustEngagedWith();
-            events.ScheduleEvent(EVENT_WRAP, Seconds(20));
-            events.ScheduleEvent(EVENT_SPRAY, Seconds(40));
+            events.ScheduleEvent(EVENT_WRAP, 20s);
+            events.ScheduleEvent(EVENT_SPRAY, 40s);
             events.ScheduleEvent(EVENT_SHOCK, randtime(Seconds(5), Seconds(10)));
             events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
-            events.ScheduleEvent(EVENT_SUMMON, Seconds(30));
+            events.ScheduleEvent(EVENT_SUMMON, 30s);
         }
 
         void Reset() override
