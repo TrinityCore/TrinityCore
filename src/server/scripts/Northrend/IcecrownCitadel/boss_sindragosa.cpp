@@ -1160,8 +1160,8 @@ class spell_sindragosa_unchained_magic : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        std::list<WorldObject*> healers;
-        std::list<WorldObject*> casters;
+        std::vector<WorldObject*> healers;
+        std::vector<WorldObject*> casters;
         for (WorldObject* target : targets)
         {
             Player* player = target->ToPlayer();
