@@ -313,10 +313,11 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.target.raw.param1 = fields[22].GetUInt32();
         temp.target.raw.param2 = fields[23].GetUInt32();
         temp.target.raw.param3 = fields[24].GetUInt32();
-        temp.target.x = fields[25].GetFloat();
-        temp.target.y = fields[26].GetFloat();
-        temp.target.z = fields[27].GetFloat();
-        temp.target.o = fields[28].GetFloat();
+        temp.target.raw.param4 = fields[25].GetUInt32();
+        temp.target.x = fields[26].GetFloat();
+        temp.target.y = fields[27].GetFloat();
+        temp.target.z = fields[28].GetFloat();
+        temp.target.o = fields[29].GetFloat();
 
         //check target
         if (!IsTargetValid(temp))
