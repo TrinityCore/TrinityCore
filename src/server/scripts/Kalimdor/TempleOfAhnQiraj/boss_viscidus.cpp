@@ -274,9 +274,9 @@ class npc_glob_of_viscidus : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                InstanceScript* Instance = me->GetInstanceScript();
+                InstanceScript* instance = me->GetInstanceScript();
 
-                if (Creature* Viscidus = ObjectAccessor::GetCreature(*me, Instance->GetGuidData(DATA_VISCIDUS)))
+                if (Creature* Viscidus = instance->GetCreature(DATA_VISCIDUS))
                 {
                     if (BossAI* ViscidusAI = dynamic_cast<BossAI*>(Viscidus->GetAI()))
                         ViscidusAI->SummonedCreatureDespawn(me);
