@@ -15,15 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "GridNotifiers.h"
 #include "icecrown_citadel.h"
+#include "CommonHelpers.h"
+#include "Containers.h"
+#include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
@@ -1152,46 +1154,74 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
         }
 };
 
-class UnchainedMagicTargetSelector
+class spell_sindragosa_unchained_magic : public SpellScript
 {
-    public:
-        UnchainedMagicTargetSelector() { }
+    PrepareSpellScript(spell_sindragosa_unchained_magic);
 
-        bool operator()(WorldObject* object) const
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        std::vector<WorldObject*> healers;
+        std::vector<WorldObject*> casters;
+        for (WorldObject* target : targets)
         {
-            if (Unit* unit = object->ToUnit())
-                return unit->GetPowerType() != POWER_MANA;
-            return true;
-        }
-};
+            Player* player = target->ToPlayer();
+            if (!player || player->GetPowerType() != POWER_MANA)
+                continue;
 
-class spell_sindragosa_unchained_magic : public SpellScriptLoader
-{
-    public:
-        spell_sindragosa_unchained_magic() : SpellScriptLoader("spell_sindragosa_unchained_magic") { }
-
-        class spell_sindragosa_unchained_magic_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sindragosa_unchained_magic_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            if (Trinity::Helpers::Entity::IsPlayerHealer(player))
             {
-                unitList.remove_if(UnchainedMagicTargetSelector());
-                uint32 maxSize = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 6 : 2);
-                if (unitList.size() > maxSize)
-                    Trinity::Containers::RandomResize(unitList, maxSize);
+                healers.push_back(target);
+                continue;
             }
 
-            void Register() override
+            switch (player->getClass())
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_unchained_magic_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                case CLASS_PRIEST:
+                case CLASS_MAGE:
+                case CLASS_WARLOCK:
+                    casters.push_back(target);
+                    break;
+                case CLASS_SHAMAN:
+                    if (Trinity::Helpers::Entity::GetPlayerSpecialization(player) != SPEC_SHAMAN_ENHANCEMENT)
+                        casters.push_back(target);
+                    break;
+                case CLASS_DRUID:
+                    if (Trinity::Helpers::Entity::GetPlayerSpecialization(player) != SPEC_DRUID_FERAL)
+                        casters.push_back(target);
+                    break;
+                default:
+                    break;
             }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_sindragosa_unchained_magic_SpellScript();
         }
+
+        targets.clear();
+
+        bool const is25ManRaid = GetCaster()->GetMap()->Is25ManRaid();
+        if (!healers.empty())
+        {
+            Trinity::Containers::RandomResize(healers, size_t(is25ManRaid ? 3 : 1));
+            while (!healers.empty())
+            {
+                targets.push_back(healers.back());
+                healers.pop_back();
+            }
+        }
+        if (!casters.empty())
+        {
+            Trinity::Containers::RandomShuffle(casters);
+            size_t const maxSize = is25ManRaid ? 6 : 2;
+            while (!casters.empty() && targets.size() < maxSize)
+            {
+                targets.push_back(casters.back());
+                casters.pop_back();
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_unchained_magic::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
 };
 
 class spell_sindragosa_frost_breath : public SpellScriptLoader
@@ -1685,7 +1715,7 @@ void AddSC_boss_sindragosa()
     new npc_rimefang();
     new npc_sindragosa_trash();
     new spell_sindragosa_s_fury();
-    new spell_sindragosa_unchained_magic();
+    RegisterSpellScript(spell_sindragosa_unchained_magic);
     new spell_sindragosa_frost_breath();
     new spell_sindragosa_instability();
     new spell_sindragosa_frost_beacon();
