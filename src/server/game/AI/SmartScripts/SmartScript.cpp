@@ -2544,6 +2544,9 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 if ((!e.target.unitRange.creature || unit->ToCreature()->GetEntry() == e.target.unitRange.creature) && baseObject->IsInRange(unit, float(e.target.unitRange.minDist), float(e.target.unitRange.maxDist)))
                     targets.push_back(unit);
             }
+
+            if (e.target.unitRange.maxSize)
+                Trinity::Containers::RandomResize(targets, e.target.unitRange.maxSize);
             break;
         }
         case SMART_TARGET_CREATURE_DISTANCE:
@@ -2562,6 +2565,9 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 if (!e.target.unitDistance.creature || unit->ToCreature()->GetEntry() == e.target.unitDistance.creature)
                     targets.push_back(unit);
             }
+
+            if (e.target.unitDistance.maxSize)
+                Trinity::Containers::RandomResize(targets, e.target.unitDistance.maxSize);
             break;
         }
         case SMART_TARGET_GAMEOBJECT_DISTANCE:
@@ -2580,6 +2586,9 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 if (!e.target.goDistance.entry || unit->ToGameObject()->GetEntry() == e.target.goDistance.entry)
                     targets.push_back(unit);
             }
+
+            if (e.target.goDistance.maxSize)
+                Trinity::Containers::RandomResize(targets, e.target.goDistance.maxSize);
             break;
         }
         case SMART_TARGET_GAMEOBJECT_RANGE:
@@ -2598,6 +2607,9 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 if ((!e.target.goRange.entry && unit->ToGameObject()->GetEntry() == e.target.goRange.entry) && baseObject->IsInRange(unit, float(e.target.goRange.minDist), float(e.target.goRange.maxDist)))
                     targets.push_back(unit);
             }
+
+            if (e.target.goRange.maxSize)
+                Trinity::Containers::RandomResize(targets, e.target.goRange.maxSize);
             break;
         }
         case SMART_TARGET_CREATURE_GUID:
