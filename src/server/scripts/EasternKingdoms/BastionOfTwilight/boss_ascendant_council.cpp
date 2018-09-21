@@ -2369,6 +2369,19 @@ class AttackerVictimCheck
         Unit* attacker;
 };
 
+class AttackerNonVictimCheck
+{
+    public:
+        AttackerNonVictimCheck(Unit* _attacker) : attacker(_attacker)  { }
+
+        bool operator()(WorldObject* object)
+        {
+            return (attacker->GetVictim() && attacker->GetVictim() != object->ToUnit());
+        }
+    private:
+        Unit* attacker;
+};
+
 class spell_arion_lightning_blast : public SpellScript
 {
     PrepareSpellScript(spell_arion_lightning_blast);
@@ -2378,7 +2391,7 @@ class spell_arion_lightning_blast : public SpellScript
         if (targets.empty())
             return;
 
-        targets.remove_if(AttackerVictimCheck(GetCaster()));
+        targets.remove_if(AttackerNonVictimCheck(GetCaster()));
     }
 
     void Register() override
