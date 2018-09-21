@@ -121,12 +121,17 @@ class boss_skeram : public CreatureScript
 
                 creature->SetMaxHealth(me->GetMaxHealth() * ImageHealthPct);
                 creature->SetHealth(creature->GetMaxHealth() * (me->GetHealthPct() / 100.0f));
+
+                summons.Summon(creature);
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* killer) override
             {
                 if (!me->IsSummon())
+                {
                     Talk(SAY_DEATH);
+                    BossAI::JustDied(killer);
+                }
                 else
                     me->DespawnOrUnsummon();
             }
@@ -179,7 +184,7 @@ class boss_skeram : public CreatureScript
 
                 if (!me->IsSummon() && me->GetHealthPct() < _hpct)
                 {
-                    DoCast(me, SPELL_SUMMON_IMAGES);
+                    DoCastAOE(SPELL_SUMMON_IMAGES, true);
                     Talk(SAY_SPLIT);
                     _hpct -= 25.0f;
                     me->SetVisible(false);
