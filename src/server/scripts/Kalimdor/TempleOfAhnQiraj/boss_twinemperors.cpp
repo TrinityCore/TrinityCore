@@ -114,7 +114,7 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     Creature* GetOtherBoss()
     {
-        return ObjectAccessor::GetCreature(*me, instance->GetGuidData(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
+        return instance->GetCreature(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR);
     }
 
     void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
