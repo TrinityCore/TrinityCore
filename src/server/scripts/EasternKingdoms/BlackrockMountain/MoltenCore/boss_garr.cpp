@@ -31,13 +31,14 @@ EndScriptData */
 enum Spells
 {
     // Garr
-    SPELL_ANTIMAGIC_PULSE   = 19492,
-    SPELL_MAGMA_SHACKLES    = 19496,
-    SPELL_ENRAGE            = 19516,
+    SPELL_ANTIMAGIC_PULSE    = 19492,
+    SPELL_MAGMA_SHACKLES     = 19496,
+    SPELL_ENRAGE             = 19516,
+    SPELL_SEPARATION_ANXIETY = 23492,
 
     // Adds
     SPELL_ERUPTION          = 19497,
-    SPELL_IMMOLATE          = 20294,
+    SPELL_IMMOLATE          = 15732,
 };
 
 enum Events
@@ -111,21 +112,40 @@ class npc_firesworn : public CreatureScript
 
         struct npc_fireswornAI : public ScriptedAI
         {
-            npc_fireswornAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
+            npc_fireswornAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Initialize()
+            void ScheduleTasks()
             {
-                immolateTimer = 4000;                              //These times are probably wrong
-            }
+                // Timers for this are probably wrong
+                _scheduler.Schedule(4s, [this](TaskContext context)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_IMMOLATE);
 
-            uint32 immolateTimer;
+                    context.Repeat(5s, 10s);
+                });
+
+                // Separation Anxiety - Periodically check if Garr is nearby
+                // ...and enrage if he is not.
+                _scheduler.Schedule(3s, [this](TaskContext context)
+                {
+                    if (!me->FindNearestCreature(NPC_GARR, 20.0f))
+                        DoCastSelf(SPELL_SEPARATION_ANXIETY);
+                    else if (me->HasAura(SPELL_SEPARATION_ANXIETY))
+                        me->RemoveAurasDueToSpell(SPELL_SEPARATION_ANXIETY);
+
+                    context.Repeat();
+                });
+            }
 
             void Reset() override
             {
-                Initialize();
+                _scheduler.CancelAll();
+            }
+
+            void JustEngagedWith(Unit* /*who*/) override
+            {
+                ScheduleTasks();
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -145,17 +165,12 @@ class npc_firesworn : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (immolateTimer <= diff)
-                {
-                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_IMMOLATE);
-                    immolateTimer = urand(5000, 10000);
-                }
-                else
-                    immolateTimer -= diff;
-
-                DoMeleeAttackIfReady();
+                _scheduler.Update(diff,
+                    std::bind(&ScriptedAI::DoMeleeAttackIfReady, this));
             }
+
+        private:
+            TaskScheduler _scheduler;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
