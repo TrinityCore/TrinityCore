@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,12 @@
  */
 
 #include "Scenario.h"
+#include "InstanceSaveMgr.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScenarioMgr.h"
-#include "InstanceSaveMgr.h"
-#include "ObjectMgr.h"
 #include "ScenarioPackets.h"
 
 Scenario::Scenario(ScenarioData const* scenarioData) : _data(scenarioData), _currentstep(nullptr)
@@ -52,7 +54,7 @@ void Scenario::Reset()
 
 void Scenario::CompleteStep(ScenarioStepEntry const* step)
 {
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(step->QuestRewardID))
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(step->RewardQuestID))
         for (ObjectGuid guid : _players)
             if (Player* player = ObjectAccessor::FindPlayer(guid))
                 player->RewardQuest(quest, 0, nullptr, false);
@@ -61,7 +63,7 @@ void Scenario::CompleteStep(ScenarioStepEntry const* step)
         return;
 
     ScenarioStepEntry const* newStep = nullptr;
-    for (auto _step : _data->Steps)
+    for (auto const& _step : _data->Steps)
     {
         if (_step.second->IsBonusObjective())
             continue;
@@ -69,7 +71,7 @@ void Scenario::CompleteStep(ScenarioStepEntry const* step)
         if (GetStepState(_step.second) == SCENARIO_STEP_DONE)
             continue;
 
-        if (!newStep || _step.second->Step < newStep->Step)
+        if (!newStep || _step.second->OrderIndex < newStep->OrderIndex)
             newStep = _step.second;
     }
 
@@ -244,7 +246,7 @@ ScenarioStepEntry const* Scenario::GetFirstStep() const
         if (scenarioStep.second->IsBonusObjective())
             continue;
 
-        if (!firstStep || scenarioStep.second->Step < firstStep->Step)
+        if (!firstStep || scenarioStep.second->OrderIndex < firstStep->OrderIndex)
             firstStep = scenarioStep.second;
     }
 
@@ -266,7 +268,7 @@ std::vector<WorldPackets::Scenario::BonusObjectiveData> Scenario::GetBonusObject
         if (!itr->second->IsBonusObjective())
             continue;
 
-        if (sCriteriaMgr->GetCriteriaTree(itr->second->CriteriaTreeID))
+        if (sCriteriaMgr->GetCriteriaTree(itr->second->Criteriatreeid))
         {
             WorldPackets::Scenario::BonusObjectiveData bonusObjectiveData;
             bonusObjectiveData.BonusObjectiveID = itr->second->ID;

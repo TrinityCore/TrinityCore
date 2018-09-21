@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,14 +19,19 @@
 #define AuctionHousePackets_h__
 
 #include "Packet.h"
+#include "DBCEnums.h"
+#include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
-#include "ItemPackets.h"
-#include "MailPackets.h"
 
 struct AuctionEntry;
 
 namespace WorldPackets
 {
+    namespace Mail
+    {
+        struct MailListEntry;
+    }
+
     namespace AuctionHouse
     {
         struct AuctionItem
@@ -133,7 +138,7 @@ namespace WorldPackets
             ObjectGuid Auctioneer;
             uint64 MinBid = 0;
             uint32 RunTime = 0;
-            std::vector<AuctionItemForSale> Items;
+            Array<AuctionItemForSale, 32> Items;
         };
 
         class AuctionPlaceBid final : public ClientPacket
@@ -273,7 +278,7 @@ namespace WorldPackets
             int32 Quality = 0;
             uint8 SortCount = 0;
             Array<uint8, BATTLE_PET_SPECIES_MAX_ID / 8 + 1> KnownPets;
-            int8 MaxPetLevel;
+            int8 MaxPetLevel = 0;
             std::string Name;
             Array<ClassFilter, 7> ClassFilters;
             bool ExactMatch = true;
@@ -284,7 +289,8 @@ namespace WorldPackets
         class AuctionListPendingSalesResult final : public ServerPacket
         {
         public:
-            AuctionListPendingSalesResult() : ServerPacket(SMSG_AUCTION_LIST_PENDING_SALES_RESULT, 140) { }
+            AuctionListPendingSalesResult();
+            ~AuctionListPendingSalesResult();
 
             WorldPacket const* Write() override;
 

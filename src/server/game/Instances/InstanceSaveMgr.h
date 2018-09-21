@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@
 #include <unordered_map>
 
 #include "Define.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
 #include "ObjectDefines.h"
 
@@ -199,12 +199,7 @@ class TC_GAME_API InstanceSaveManager
         }
 
         // Use this only when updating existing reset times
-        void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
-        {
-            ResetTimeByMapDifficultyMap::iterator itr = m_resetTimeByMapDifficulty.find(MAKE_PAIR64(mapid, d));
-            ASSERT(itr != m_resetTimeByMapDifficulty.end());
-            itr->second = t;
-        }
+        void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t);
 
         ResetTimeByMapDifficultyMap const& GetResetTimeMap() const
         {

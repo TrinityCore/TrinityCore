@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,31 +19,29 @@
 #define ReputationPackets_h__
 
 #include "Packet.h"
+#include <array>
 
 namespace WorldPackets
 {
     namespace Reputation
     {
-        static uint16 const FactionCount = 256;
+        static uint16 const FactionCount = 300;
 
         class InitializeFactions final : public ServerPacket
         {
         public:
             InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, 1312)
             {
-                for (uint16 i = 0; i < FactionCount; ++i)
-                {
-                    FactionStandings[i] = 0;
-                    FactionHasBonus[i] = false;
-                    FactionFlags[i] = 0;
-                }
+                FactionStandings.fill(0);
+                FactionHasBonus.fill(false);
+                FactionFlags.fill(0);
             }
 
             WorldPacket const* Write() override;
 
-            int32 FactionStandings[FactionCount];
-            bool FactionHasBonus[FactionCount]; ///< @todo: implement faction bonus
-            uint8 FactionFlags[FactionCount]; ///< @see enum FactionFlags
+            std::array<int32, FactionCount> FactionStandings;
+            std::array<bool, FactionCount> FactionHasBonus; ///< @todo: implement faction bonus
+            std::array<uint8, FactionCount> FactionFlags; ///< @see enum FactionFlags
         };
 
         class RequestForcedReactions final : public ClientPacket

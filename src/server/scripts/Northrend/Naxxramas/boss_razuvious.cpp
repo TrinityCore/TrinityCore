@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "naxxramas.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "naxxramas.h"
 
 enum Yells
 {
@@ -60,7 +63,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_razuviousAI(creature);
+        return GetNaxxramasAI<boss_razuviousAI>(creature);
     }
 
     struct boss_razuviousAI : public BossAI
@@ -240,7 +243,7 @@ class npc_dk_understudy : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_dk_understudyAI>(creature);
+            return GetNaxxramasAI<npc_dk_understudyAI>(creature);
         }
 };
 

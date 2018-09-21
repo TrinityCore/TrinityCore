@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,18 +16,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "ObjectMgr.h"
-#include "Player.h"
-#include "Item.h"
-#include "DB2Stores.h"
-#include "NPCPackets.h"
-#include "ItemPackets.h"
 #include "BattlePetMgr.h"
+#include "Common.h"
+#include "Creature.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Item.h"
+#include "ItemPackets.h"
+#include "Log.h"
+#include "NPCPackets.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
 {
@@ -301,6 +303,11 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
         }
 
         _player->AutoUnequipOffhandIfNeed();
+
+        // if inventory item was moved, check if we can remove dependent auras, because they were not removed in Player::RemoveItem (update was set to false)
+        // do this after swaps are done, we pass nullptr because both weapons could be swapped and none of them should be ignored
+        if ((autoEquipItem.PackSlot == INVENTORY_SLOT_BAG_0 && autoEquipItem.Slot < INVENTORY_SLOT_BAG_END) || (dstbag == INVENTORY_SLOT_BAG_0 && dstslot < INVENTORY_SLOT_BAG_END))
+            _player->ApplyItemDependentAuras((Item*)nullptr, false);
     }
 }
 
@@ -443,6 +450,16 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
         {
             if (pProto->GetSellPrice() > 0)
             {
+                uint64 money = uint64(pProto->GetSellPrice()) * packet.Amount;
+
+                if (!_player->ModifyMoney(money)) // ensure player doesn't exceed gold limit
+                {
+                    _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
+                    return;
+                }
+
+                _player->UpdateCriteria(CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
+
                 if (packet.Amount < pItem->GetCount())               // need split items
                 {
                     Item* pNewItem = pItem->CloneItem(packet.Amount, _player);
@@ -467,13 +484,9 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
                 {
                     _player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
                     _player->RemoveItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
-                    pItem->RemoveFromUpdateQueueOf(_player);
+                    RemoveItemFromUpdateQueueOf(pItem, _player);
                     _player->AddItemToBuyBackSlot(pItem);
                 }
-
-                uint32 money = pProto->GetSellPrice() * packet.Amount;
-                _player->ModifyMoney(money);
-                _player->UpdateCriteria(CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
             }
             else
                 _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
@@ -609,6 +622,10 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
 
         WorldPackets::NPC::VendorItem& item = packet.Items[count];
 
+        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(vendorItem->PlayerConditionId))
+            if (!ConditionMgr::IsPlayerMeetingCondition(_player, playerCondition))
+                item.PlayerConditionFailed = playerCondition->ID;
+
         if (vendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
         {
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
@@ -650,8 +667,14 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
             item.Quantity = leftInStock;
             item.StackCount = itemTemplate->GetBuyCount();
             item.Price = price;
+            item.DoNotFilterOnVendor = vendorItem->IgnoreFiltering;
 
             item.Item.ItemID = vendorItem->item;
+            if (!vendorItem->BonusListIDs.empty())
+            {
+                item.Item.ItemBonus = boost::in_place();
+                item.Item.ItemBonus->BonusListIDs = vendorItem->BonusListIDs;
+            }
         }
         else if (vendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
         {
@@ -667,6 +690,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
             item.Item.ItemID = vendorItem->item;
             item.Type = vendorItem->Type;
             item.StackCount = vendorItem->maxcount;
+            item.DoNotFilterOnVendor = vendorItem->IgnoreFiltering;
         }
         else
             continue;
@@ -876,7 +900,7 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
     if (item->GetState() == ITEM_NEW) // save new item, to have alway for `character_gifts` record in `item_instance`
     {
         // after save it will be impossible to remove the item from the queue
-        item->RemoveFromUpdateQueueOf(_player);
+        RemoveItemFromUpdateQueueOf(item, _player);
         item->SaveToDB(trans); // item gave inventory record unchanged and can be save standalone
     }
     CharacterDatabase.CommitTransaction(trans);
@@ -1052,10 +1076,14 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
     {
         if (gems[i])
         {
-            itemTarget->SetGem(i, &gemData[i]);
+            uint32 gemScalingLevel = _player->getLevel();
+            if (uint32 fixedLevel = gems[i]->GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL))
+                gemScalingLevel = fixedLevel;
 
-            if (gemProperties[i] && gemProperties[i]->EnchantID)
-                itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i), gemProperties[i]->EnchantID, 0, 0, _player->GetGUID());
+            itemTarget->SetGem(i, &gemData[i], gemScalingLevel);
+
+            if (gemProperties[i] && gemProperties[i]->EnchantId)
+                itemTarget->SetEnchantment(EnchantmentSlot(SOCK_ENCHANTMENT_SLOT + i), gemProperties[i]->EnchantId, 0, 0, _player->GetGUID());
 
             uint32 gemCount = 1;
             _player->DestroyItemCount(gems[i], gemCount, true);
@@ -1166,7 +1194,7 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     if (item->GetTemplate()->Effects.size() < 2)
         return;
 
-    uint32 spellToLearn = item->GetTemplate()->Effects[1]->SpellID;
+    int32 spellToLearn = item->GetTemplate()->Effects[1]->SpellID;
     for (BattlePetSpeciesEntry const* entry : sBattlePetSpeciesStore)
     {
         if (entry->SummonSpellID == spellToLearn)
@@ -1210,16 +1238,16 @@ void WorldSession::HandleUpgradeItem(WorldPackets::Item::UpgradeItem& upgradeIte
     }
 
     // Check if player has enough currency
-    if (!_player->HasCurrency(itemUpgradeEntry->CurrencyID, itemUpgradeEntry->CurrencyCost))
+    if (!_player->HasCurrency(itemUpgradeEntry->CurrencyType, itemUpgradeEntry->CurrencyAmount))
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - Player has not enougth currency (ID: %u, Cost: %u) not found.", itemUpgradeEntry->CurrencyID, itemUpgradeEntry->CurrencyCost);
+        TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - Player has not enougth currency (ID: %u, Cost: %u) not found.", itemUpgradeEntry->CurrencyType, itemUpgradeEntry->CurrencyAmount);
         itemUpgradeResult.Success = false;
         SendPacket(itemUpgradeResult.Write());
         return;
     }
 
     uint32 currentUpgradeId = item->GetModifier(ITEM_MODIFIER_UPGRADE_ID);
-    if (currentUpgradeId != itemUpgradeEntry->PrevItemUpgradeID)
+    if (currentUpgradeId != itemUpgradeEntry->PrerequisiteID)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleUpgradeItems - ItemUpgradeEntry (%u) is not related to this ItemUpgradePath (%u).", itemUpgradeEntry->ID, currentUpgradeId);
         itemUpgradeResult.Success = false;
@@ -1239,5 +1267,42 @@ void WorldSession::HandleUpgradeItem(WorldPackets::Item::UpgradeItem& upgradeIte
         _player->_ApplyItemBonuses(item, item->GetSlot(), true);
 
     item->SetState(ITEM_CHANGED, _player);
-    _player->ModifyCurrency(itemUpgradeEntry->CurrencyID, -int32(itemUpgradeEntry->CurrencyCost));
+    _player->ModifyCurrency(itemUpgradeEntry->CurrencyType, -int32(itemUpgradeEntry->CurrencyAmount));
+}
+
+void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
+{
+    // TODO: Implement sorting
+    // Placeholder to prevent completely locking out bags clientside
+    SendPacket(WorldPackets::Item::SortBagsResult().Write());
+}
+
+void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBankBags*/)
+{
+    // TODO: Implement sorting
+    // Placeholder to prevent completely locking out bags clientside
+    SendPacket(WorldPackets::Item::SortBagsResult().Write());
+}
+
+void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBankBags& /*sortReagentBankBags*/)
+{
+    // TODO: Implement sorting
+    // Placeholder to prevent completely locking out bags clientside
+    SendPacket(WorldPackets::Item::SortBagsResult().Write());
+}
+
+void WorldSession::HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& removeNewItem)
+{
+    Item* item = _player->GetItemByGuid(removeNewItem.ItemGuid);
+    if (!item)
+    {
+        TC_LOG_DEBUG("network", "WorldSession::HandleRemoveNewItem: Item (%s) not found for %s!", removeNewItem.ItemGuid.ToString().c_str(), GetPlayerInfo().c_str());
+        return;
+    }
+
+    if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_NEW_ITEM))
+    {
+        item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_NEW_ITEM);
+        item->SetState(ITEM_CHANGED, _player);
+    }
 }

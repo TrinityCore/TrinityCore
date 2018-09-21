@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "Group.h"
+#include "Optional.h"
 
 namespace WorldPackets
 {
@@ -613,6 +614,14 @@ namespace WorldPackets
 
             ObjectGuid Player;
             ObjectGuid Victim;
+        };
+
+        class GroupDestroyed final : public ServerPacket
+        {
+        public:
+            GroupDestroyed() : ServerPacket(SMSG_GROUP_DESTROYED, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
     }
 }

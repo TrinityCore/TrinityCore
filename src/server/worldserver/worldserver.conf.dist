@@ -792,33 +792,15 @@ CharactersPerAccount = 50
 #
 #    CharactersPerRealm
 #        Description: Limit number of characters per account on this realm.
-#        Range:       1-12
-#        Default:     12 - (Client limitation)
+#        Range:       1-16
+#        Default:     16 - (Client limitation)
 
-CharactersPerRealm = 12
-
-#
-#    HeroicCharactersPerRealm
-#        Description: Limit number of heroic class characters per account on this realm.
-#        Range:       1-12
-#        Default:     1
-
-HeroicCharactersPerRealm = 1
-
-#
-#    CharacterCreating.MinLevelForHeroicCharacter
-#        Description: Limit creating heroic characters only for account with another
-#                     character of specific level (ignored for GM accounts).
-#        Default:     55 - (Enabled, Requires at least another level 55 character)
-#                     0  - (Disabled)
-#                     1  - (Enabled, Requires at least another level 1 character)
-
-CharacterCreating.MinLevelForHeroicCharacter = 55
+CharactersPerRealm = 16
 
 #
 #    DemonHuntersPerRealm
 #        Description: Limit number of demon hunter characters per account on this realm.
-#        Range:       1-12
+#        Range:       1-16
 #        Default:     1
 
 DemonHuntersPerRealm = 1
@@ -846,11 +828,11 @@ SkipCinematics = 0
 #
 #    MaxPlayerLevel
 #        Description: Maximum level that can be reached by players.
-#        Important:   Levels beyond 100 are not recommended at all.
+#        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     100
+#        Default:     110
 
-MaxPlayerLevel = 100
+MaxPlayerLevel = 110
 
 #
 #    MinDualSpecLevel
@@ -868,12 +850,12 @@ MinDualSpecLevel = 30
 StartPlayerLevel = 1
 
 #
-#    StartHeroicPlayerLevel
-#        Description: Staring level for heroic class characters after creation.
+#    StartDeathKnightPlayerLevel
+#        Description: Staring level for death knights after creation.
 #        Range:       1-MaxPlayerLevel
 #        Default:     55
 
-StartHeroicPlayerLevel = 55
+StartDeathKnightPlayerLevel = 55
 
 #
 #    StartDemonHunterPlayerLevel
@@ -1047,6 +1029,15 @@ Quests.IgnoreAutoAccept = 0
 Quests.IgnoreAutoComplete = 0
 
 #
+#    Quests.DailyResetTime
+#        Description: Hour of the day when daily quest reset occurs.
+#        Range:       0-23
+#        Default:     3 - (3:00 AM, Blizzlike)
+#
+
+Quests.DailyResetTime = 3
+
+#
 #    Guild.EventLogRecordsCount
 #        Description: Number of log entries for guild events that are stored per guild. Old entries
 #                     will be overwritten if the number of log entries exceed the configured value.
@@ -1154,6 +1145,14 @@ OffhandCheckAtSpellUnlearn = 1
 #        Default:     0 - (Use DB value from world DB version.cache_id field)
 
 ClientCacheVersion = 0
+
+#
+#    HotfixCacheVersion
+#        Description: Hotfix cache version for hotfix cache data reset. Use any value different
+#                     from DB and not recently been used to trigger client side cache reset.
+#        Default:     0 - (Use DB value from world DB version.hotfix_id field)
+
+HotfixCacheVersion = 0
 
 #
 #    Event.Announce
@@ -1715,6 +1714,14 @@ ListenRange.Yell = 300
 
 Creature.MovingStopTimeForPlayer = 180000
 
+#    MonsterSight
+#        Description: The maximum distance in yards that a "monster" creature can see
+#                     regardless of level difference (through CreatureAI::IsVisible).
+#                     Increases CONFIG_SIGHT_MONSTER to 50 yards. Used to be 20 yards.
+#        Default:     50.000000
+
+MonsterSight = 50.000000
+
 #
 ###################################################################################################
 
@@ -1725,10 +1732,10 @@ Creature.MovingStopTimeForPlayer = 180000
 #        Description: Chat protection from creating fake messages using a lot spaces or other
 #                     invisible symbols. Not applied to the addon language, but may break old
 #                     addons that use normal languages for sending data to other clients.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
+#        Default:     1 - (Enabled, Blizzlike)
+#                     0 - (Disabled)
 
-ChatFakeMessagePreventing = 0
+ChatFakeMessagePreventing = 1
 
 #
 #    ChatStrictLinkChecking.Severity
@@ -1784,24 +1791,27 @@ Channel.RestrictedLfg = 1
 
 #
 #    ChatLevelReq.Channel
-#        Description: Level requirement for characters to be able to write in chat channels.
+#    ChatLevelReq.Whisper
+#    ChatLevelReq.Emote
+#    ChatLevelReq.Say
+#    ChatLevelReq.Yell
+#        Description: Level requirement for characters to be able to use chats.
 #        Default:     1
 
 ChatLevelReq.Channel = 1
-
-#
-#    ChatLevelReq.Whisper
-#        Description: Level requirement for characters to be able to whisper other characters.
-#        Default:     1
-
 ChatLevelReq.Whisper = 1
+ChatLevelReq.Emote = 1
+ChatLevelReq.Say = 1
+ChatLevelReq.Yell = 1
 
 #
-#    ChatLevelReq.Say
-#        Description: Level requirement for characters to be able to use say/yell/emote.
+#    PartyLevelReq
+#        Description: Minimum level at which players can invite to group, even if they aren't on
+#                     the invitee friends list. (Players who are on that friend list can always
+#                     invite despite having lower level)
 #        Default:     1
 
-ChatLevelReq.Say = 1
+PartyLevelReq = 1
 
 #
 #    PreserveCustomChannels
@@ -2512,6 +2522,14 @@ Battleground.RewardLoserHonorFirst      = 4500
 Battleground.RewardLoserHonorLast       = 3500
 
 #
+#    Battleground.ReportAFK
+#        Description: Number of reports needed to kick someone AFK from Battleground.
+#        Range:       1-9
+#        Default:     3
+
+Battleground.ReportAFK = 3
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -2878,12 +2896,20 @@ CharDelete.Method = 0
 CharDelete.MinLevel = 0
 
 #
-#    CharDelete.Heroic.MinLevel
-#        Description: Required level to use the unlinking method if enabled for heroic classes.
+#    CharDelete.DeathKnight.MinLevel
+#        Description: Required level to use the unlinking method if enabled for death knights.
 #        Default:     0  - (Same method for every level)
 #                     1+ - (Only characters with the specified level will use the unlinking method)
 
-CharDelete.Heroic.MinLevel = 0
+CharDelete.DeathKnight.MinLevel = 0
+
+#
+#    CharDelete.DemonHunter.MinLevel
+#        Description: Required level to use the unlinking method if enabled for demon hunters.
+#        Default:     0  - (Same method for every level)
+#                     1+ - (Only characters with the specified level will use the unlinking method)
+
+CharDelete.DemonHunter.MinLevel = 0
 
 #
 #    CharDelete.KeepDays
@@ -3146,6 +3172,16 @@ NoGrayAggro.Above = 0
 NoGrayAggro.Below = 0
 
 #
+#    PreventRenameCharacterOnCustomization
+#        Description: If option is set to 1, player can not rename the character in character customization.
+#                     Applies to all character customization commands.
+#        Default:     0 - (Disabled, character can be renamed in Character Customization)
+#                     1 - (Enabled, character can not be renamed in Character Customization)
+#
+
+PreventRenameCharacterOnCustomization = 0
+
+#
 #     Creature.CheckInvalidPosition
 #        Description: Check possible invalid position for creatures at startup (WARNING: SLOW WORLD SERVER STARTUP)
 #        Default:     0  - (Do not show)
@@ -3164,6 +3200,15 @@ GameObject.CheckInvalidPosition = 0
 
 ###################################################################################################
 # AUCTION HOUSE BOT SETTINGS
+#
+#    AuctionHouseBot.Account
+#       Description: Account ID for AHBot characters. If non-zero, all auctions and bids associated
+#                    with the AHBot will randomly be assigned one of this account's characters.
+#       Default:     0
+#
+
+AuctionHouseBot.Account = 0
+
 #
 #    AuctionHouseBot.Update.Interval
 #       Description: Interval in seconds for AHBot to get updated
@@ -3308,6 +3353,15 @@ AuctionHouseBot.ItemsPerCycle.Normal = 20
 #                    0 - (use BuyPrice)
 
 AuctionHouseBot.BuyPrice.Seller = 1
+
+#
+#    AuctionHouseBot.BidPrice.*
+#       Description: These values determine the range that the Bid Price will fall into, as a percentage of the Buy Price
+#       Default:     0.6 - (Min)
+#                    0.9 - (Max)
+
+AuctionHouseBot.BidPrice.Min = 0.6
+AuctionHouseBot.BidPrice.Max = 0.9
 
 #
 #    AuctionHouseBot.Alliance.Price.Ratio
@@ -3770,6 +3824,7 @@ Logger.mmaps=3,Server
 #Logger.bg.arena=3,Console Server
 #Logger.bg.battlefield=3,Console Server
 #Logger.bg.battleground=3,Console Server
+#Logger.bg.reportpvpafk=3,Console Server
 #Logger.chat.log=3,Console Server
 #Logger.calendar=3,Console Server
 #Logger.chat.system=3,Console Server
@@ -3778,6 +3833,7 @@ Logger.mmaps=3,Server
 #Logger.condition=3,Console Server
 #Logger.criteria=3,Console Server
 #Logger.criteria.achievement=3,Console Server
+#Logger.entities.areatrigger=3,Console Server
 #Logger.entities.pet=3,Console Server
 #Logger.entities.player.character=3,Console Server
 #Logger.entities.player.dump=3,Console Server

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,11 +23,15 @@ SDComment: Some visual effects are not implemented.
 Script Data End */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "gnomeregan.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
-#include "gnomeregan.h"
+#include "TemporarySummon.h"
 
 enum BlastmasterEmi
 {
@@ -86,7 +90,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_blastmaster_emi_shortfuseAI>(creature);
+        return GetGnomereganAI<npc_blastmaster_emi_shortfuseAI>(creature);
     }
 
     struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
@@ -305,7 +309,7 @@ public:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
                 case 2:
-                    if (GameObject* go = me->SummonGameObject(183410, -533.140f, -105.322f, -156.016f, 0, 0, 0, 0, 0, 1))
+                    if (GameObject* go = me->SummonGameObject(183410, -533.140f, -105.322f, -156.016f, 0.f, QuaternionData(), 1))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
@@ -320,7 +324,7 @@ public:
                     Talk(SAY_BLASTMASTER_7);
                     break;
                 case 4:
-                    if (GameObject* go = me->SummonGameObject(183410, -542.199f, -96.854f, -155.790f, 0, 0, 0, 0, 0, 1))
+                    if (GameObject* go = me->SummonGameObject(183410, -542.199f, -96.854f, -155.790f, 0.f, QuaternionData(), 1))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -334,7 +338,7 @@ public:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[14], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
                 case 6:
-                    if (GameObject* go = me->SummonGameObject(183410, -507.820f, -103.333f, -151.353f, 0, 0, 0, 0, 0, 1))
+                    if (GameObject* go = me->SummonGameObject(183410, -507.820f, -103.333f, -151.353f, 0.f, QuaternionData(), 1))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
@@ -342,7 +346,7 @@ public:
                     }
                     break;
                 case 7:
-                    if (GameObject* go = me->SummonGameObject(183410, -511.829f, -86.249f, -151.431f, 0, 0, 0, 0, 0, 1))
+                    if (GameObject* go = me->SummonGameObject(183410, -511.829f, -86.249f, -151.431f, 0.f, QuaternionData(), 1))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
@@ -354,9 +358,9 @@ public:
                     me->SummonCreature(NPC_CHOMPER, SpawnPosition[16], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
                 case 9:
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17].GetPositionX(), SpawnPosition[17].GetPositionY(), SpawnPosition[17].GetPositionZ(), SpawnPosition[17].GetOrientation(), 0, 0, 0, 0, 7200);
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[18].GetPositionX(), SpawnPosition[18].GetPositionY(), SpawnPosition[18].GetPositionZ(), SpawnPosition[18].GetOrientation(), 0, 0, 0, 0, 7200);
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[19].GetPositionX(), SpawnPosition[19].GetPositionY(), SpawnPosition[19].GetPositionZ(), SpawnPosition[19].GetOrientation(), 0, 0, 0, 0, 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17], QuaternionData(), 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[18], QuaternionData(), 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[19], QuaternionData(), 7200);
                     break;
             }
         }
@@ -504,7 +508,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_grubbisAI(creature);
+        return GetGnomereganAI<boss_grubbisAI>(creature);
     }
 
     struct boss_grubbisAI : public ScriptedAI

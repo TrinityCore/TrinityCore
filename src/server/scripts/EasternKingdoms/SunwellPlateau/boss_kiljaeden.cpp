@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,10 +25,16 @@ EndScriptData */
 /// @todo rewrite Armageddon
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
-#include <math.h>
-#include "Player.h"
+#include "TemporarySummon.h"
+#include <cmath>
 
 /*** Speech and sounds***/
 enum Yells
@@ -232,7 +238,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_kalecgos_kjAI>(creature);
+        return GetSunwellPlateauAI<boss_kalecgos_kjAI>(creature);
     }
 
     struct boss_kalecgos_kjAI : public ScriptedAI
@@ -388,7 +394,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kiljaeden_controllerAI>(creature);
+        return GetSunwellPlateauAI<npc_kiljaeden_controllerAI>(creature);
     }
 
     struct npc_kiljaeden_controllerAI : public ScriptedAI
@@ -1004,7 +1010,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_felfire_portalAI(creature);
+        return GetSunwellPlateauAI<npc_felfire_portalAI>(creature);
     }
 
     struct npc_felfire_portalAI : public ScriptedAI
@@ -1057,7 +1063,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_volatile_felfire_fiendAI(creature);
+        return GetSunwellPlateauAI<npc_volatile_felfire_fiendAI>(creature);
     }
 
     struct npc_volatile_felfire_fiendAI : public ScriptedAI
@@ -1122,7 +1128,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_armageddonAI(creature);
+        return GetSunwellPlateauAI<npc_armageddonAI>(creature);
     }
 
     struct npc_armageddonAI : public ScriptedAI
@@ -1185,7 +1191,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_shield_orbAI>(creature);
+        return GetSunwellPlateauAI<npc_shield_orbAI>(creature);
     }
 
     struct npc_shield_orbAI : public ScriptedAI
@@ -1280,7 +1286,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_sinster_reflectionAI(creature);
+        return GetSunwellPlateauAI<npc_sinster_reflectionAI>(creature);
     }
 
     struct npc_sinster_reflectionAI : public ScriptedAI

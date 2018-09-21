@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,15 @@
 #ifndef DatabaseLoader_h__
 #define DatabaseLoader_h__
 
-#include "DatabaseWorkerPool.h"
-#include "DBUpdater.h"
+#include "Define.h"
 
 #include <functional>
-#include <stack>
 #include <queue>
+#include <stack>
+#include <string>
+
+template<class T>
+class DatabaseWorkerPool;
 
 // A helper class to initiate all database worker pools,
 // handles updating, delays preparing of statements and cleans up on failure.

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,12 @@
 #ifndef SupportMgr_h__
 #define SupportMgr_h__
 
-#include "ObjectMgr.h"
-#include "Player.h"
 #include "TicketPackets.h"
+#include <map>
 
 class ChatHandler;
+class Field;
+class Player;
 
 // from blizzard lua
 enum GMTicketSystemStatus
@@ -65,36 +66,23 @@ public:
 
     uint32 GetId() const { return _id; }
     ObjectGuid GetPlayerGuid() const { return _playerGuid; }
-    Player* GetPlayer() const { return ObjectAccessor::FindConnectedPlayer(_playerGuid); }
-    std::string GetPlayerName() const
-    {
-        std::string name;
-        if (!_playerGuid.IsEmpty())
-            ObjectMgr::GetPlayerNameByGUID(_playerGuid, name);
-
-        return name;
-    }
-    Player* GetAssignedPlayer() const { return ObjectAccessor::FindConnectedPlayer(_assignedTo); }
+    Player* GetPlayer() const;
+    std::string GetPlayerName() const;
+    Player* GetAssignedPlayer() const;
     ObjectGuid GetAssignedToGUID() const { return _assignedTo; }
-    std::string GetAssignedToName() const
-    {
-        std::string name;
-        if (!_assignedTo.IsEmpty())
-            ObjectMgr::GetPlayerNameByGUID(_assignedTo, name);
-
-        return name;
-    }
+    std::string GetAssignedToName() const;
     std::string const& GetComment() const { return _comment; }
 
     virtual void SetAssignedTo(ObjectGuid guid, bool /*isAdmin*/ = false) { _assignedTo = guid; }
     virtual void SetUnassigned() { _assignedTo.Clear(); }
     void SetClosedBy(ObjectGuid value) { _closedBy = value; }
     void SetComment(std::string const& comment) { _comment = comment; }
-    void SetPosition(uint32 mapId, G3D::Vector3& pos)
+    void SetPosition(uint32 mapId, Position const& pos)
     {
         _mapId = mapId;
         _pos = pos;
     }
+    void SetFacing(float facing) { _pos.SetOrientation(facing); }
 
     virtual void LoadFromDB(Field* fields) = 0;
     virtual void SaveToDB() const = 0;
@@ -109,7 +97,7 @@ protected:
     uint32 _id;
     ObjectGuid _playerGuid;
     uint16 _mapId;
-    G3D::Vector3 _pos;
+    Position _pos;
     uint64 _createTime;
     ObjectGuid _closedBy; // 0 = Open, -1 = Console, playerGuid = player abandoned ticket, other = GM who closed it.
     ObjectGuid _assignedTo;
@@ -125,7 +113,6 @@ public:
 
     std::string const& GetNote() const { return _note; }
 
-    void SetFacing(float facing) { _facing = facing; }
     void SetNote(std::string const& note) { _note = note; }
 
     void LoadFromDB(Field* fields) override;
@@ -136,7 +123,6 @@ public:
     std::string FormatViewMessageString(ChatHandler& handler, bool detailed = false) const override;
 
 private:
-    float _facing;
     std::string _note;
 };
 
@@ -151,7 +137,6 @@ public:
     GMSupportComplaintType GetComplaintType() const { return _complaintType; }
     std::string const& GetNote() const { return _note; }
 
-    void SetFacing(float facing) { _facing = facing; }
     void SetTargetCharacterGuid(ObjectGuid targetCharacterGuid)
     {
         _targetCharacterGuid = targetCharacterGuid;
@@ -169,7 +154,6 @@ public:
     std::string FormatViewMessageString(ChatHandler& handler, bool detailed = false) const override;
 
 private:
-    float _facing;
     ObjectGuid _targetCharacterGuid;
     GMSupportComplaintType _complaintType;
     ChatLog _chatLog;
@@ -186,8 +170,6 @@ public:
     std::string const& GetNote() const { return _note; }
     void SetNote(std::string const& note) { _note = note; }
 
-    void SetFacing(float facing) { _facing = facing; }
-
     void LoadFromDB(Field* fields) override;
     void SaveToDB() const override;
     void DeleteFromDB() override;
@@ -196,7 +178,6 @@ public:
     std::string FormatViewMessageString(ChatHandler& handler, bool detailed = false) const override;
 
 private:
-    float _facing;
     std::string _note;
 };
 
@@ -216,15 +197,7 @@ public:
     template<typename T>
     T* GetTicket(uint32 ticketId);
 
-    ComplaintTicketList GetComplaintsByPlayerGuid(ObjectGuid playerGuid) const
-    {
-        ComplaintTicketList ret;
-        for (auto const& c : _complaintTicketList)
-            if (c.second->GetPlayerGuid() == playerGuid)
-                ret.insert(c);
-
-        return ret;
-    }
+    ComplaintTicketList GetComplaintsByPlayerGuid(ObjectGuid playerGuid) const;
 
     void Initialize();
 
@@ -269,7 +242,7 @@ public:
     template<typename T>
     void ShowClosedList(ChatHandler& handler) const;
 
-    void UpdateLastChange() { _lastChange = uint64(time(nullptr)); }
+    void UpdateLastChange();
 
     uint32 GenerateBugId() { return ++_lastBugId; }
     uint32 GenerateComplaintId() { return ++_lastComplaintId; }

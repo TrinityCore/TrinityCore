@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "the_eye.h"
 
@@ -153,6 +154,9 @@ class boss_void_reaver : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -164,7 +168,7 @@ class boss_void_reaver : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_void_reaverAI>(creature);
+            return GetTheEyeAI<boss_void_reaverAI>(creature);
         }
 };
 
@@ -172,4 +176,3 @@ void AddSC_boss_void_reaver()
 {
     new boss_void_reaver();
 }
-

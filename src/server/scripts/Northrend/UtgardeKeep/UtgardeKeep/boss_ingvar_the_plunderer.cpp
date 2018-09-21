@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,9 +23,14 @@ SDCategory: Utgarde Keep
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 #include "utgarde_keep.h"
 
 enum Yells
@@ -259,6 +264,9 @@ class boss_ingvar_the_plunderer : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (!events.IsInPhase(PHASE_EVENT))
@@ -403,7 +411,7 @@ class npc_ingvar_throw_dummy : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_ingvar_throw_dummyAI(creature);
+            return GetUtgardeKeepAI<npc_ingvar_throw_dummyAI>(creature);
         }
 };
 
@@ -446,14 +454,16 @@ class spell_ingvar_woe_strike : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WOE_STRIKE_EFFECT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WOE_STRIKE_EFFECT });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return eventInfo.GetHealInfo()->GetHeal() != 0;
+                HealInfo* healInfo = eventInfo.GetHealInfo();
+                if (!healInfo || !healInfo->GetHeal())
+                    return false;
+
+                return true;
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

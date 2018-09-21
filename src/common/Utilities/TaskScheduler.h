@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,9 @@
 #ifndef _TASK_SCHEDULER_H_
 #define _TASK_SCHEDULER_H_
 
+#include "Duration.h"
+#include "Optional.h"
+#include "Random.h"
 #include <algorithm>
 #include <chrono>
 #include <vector>
@@ -25,11 +28,6 @@
 #include <memory>
 #include <utility>
 #include <set>
-
-#include <boost/optional.hpp>
-
-#include "Util.h"
-#include "Duration.h"
 
 class TaskContext;
 
@@ -73,13 +71,13 @@ class TC_COMMON_API TaskScheduler
 
         timepoint_t _end;
         duration_t _duration;
-        boost::optional<group_t> _group;
+        Optional<group_t> _group;
         repeated_t _repeated;
         task_handler_t _task;
 
     public:
         // All Argument construct
-        Task(timepoint_t const& end, duration_t const& duration, boost::optional<group_t> const& group,
+        Task(timepoint_t const& end, duration_t const& duration, Optional<group_t> const& group,
             repeated_t const repeated, task_handler_t const& task)
                 : _end(end), _duration(duration), _group(group), _repeated(repeated), _task(task) { }
 

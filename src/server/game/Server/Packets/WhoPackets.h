@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,7 +66,7 @@ namespace WorldPackets
             std::string VirtualRealmName;
             std::string Guild;
             std::string GuildVirtualRealmName;
-            int32 RaceFilter = -1;
+            int64 RaceFilter = SI64LIT(0);
             int32 ClassFilter = -1;
             std::vector<WhoWord> Words;
             bool ShowEnemies = false;

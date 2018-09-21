@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,10 +19,8 @@
 #ifndef _WARDENCHECKMGR_H
 #define _WARDENCHECKMGR_H
 
-#include <map>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
 #include "Cryptography/BigNumber.h"
+#include <map>
 
 enum WardenActions
 {
@@ -30,6 +28,11 @@ enum WardenActions
     WARDEN_ACTION_KICK,
     WARDEN_ACTION_BAN
 };
+
+namespace boost
+{
+    class shared_mutex;
+}
 
 struct WardenCheck
 {
@@ -70,7 +73,7 @@ class TC_GAME_API WardenCheckMgr
         void LoadWardenChecks();
         void LoadWardenOverrides();
 
-        boost::shared_mutex _checkStoreLock;
+        boost::shared_mutex* _checkStoreLock;
 
     private:
         CheckContainer CheckStore;

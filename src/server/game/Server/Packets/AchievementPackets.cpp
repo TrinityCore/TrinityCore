@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -177,6 +177,30 @@ WorldPacket const* WorldPackets::Achievement::AllGuildAchievements::Write()
 
     for (EarnedAchievement const& earned : Earned)
         _worldPacket << earned;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Achievement::GuildGetAchievementMembers::Read()
+{
+    _worldPacket >> PlayerGUID;
+    _worldPacket >> GuildGUID;
+    _worldPacket >> AchievementID;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::GuildAchievementMember const& guildAchievementMember)
+{
+    data << guildAchievementMember.MemberGUID;
+    return data;
+}
+
+WorldPacket const* WorldPackets::Achievement::GuildAchievementMembers::Write()
+{
+    _worldPacket << GuildGUID;
+    _worldPacket << int32(AchievementID);
+    _worldPacket << uint32(Member.size());
+    for (GuildAchievementMember const& member : Member)
+        _worldPacket << member;
 
     return &_worldPacket;
 }

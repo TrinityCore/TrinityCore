@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "InstanceScenario.h"
+#include "Log.h"
 #include "Map.h"
 #include "ScenarioPackets.h"
 
@@ -116,8 +117,8 @@ void ScenarioMgr::LoadDB2Data()
 
     for (ScenarioStepEntry const* step : sScenarioStepStore)
     {
-        scenarioSteps[step->ScenarioID][step->Step] = step;
-        if (CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(step->CriteriaTreeID))
+        scenarioSteps[step->ScenarioID][step->OrderIndex] = step;
+        if (CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(step->Criteriatreeid))
         {
             uint32 criteriaTreeSize = 0;
             CriteriaMgr::WalkCriteriaTree(tree, [&criteriaTreeSize](CriteriaTree const* /*tree*/)

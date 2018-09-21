@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef DEF_NEXUS_H
 #define DEF_NEXUS_H
 
+#include "CreatureAIImpl.h"
+
 #define NexusScriptName "instance_nexus"
 #define DataHeader "NEX"
 
 uint32 const EncounterCount = 5;
 
-enum DataTypes
+enum NEXDataTypes
 {
     DATA_COMMANDER                    = 0,
     DATA_MAGUS_TELESTRA               = 1,
@@ -36,7 +38,7 @@ enum DataTypes
     TELESTRAS_CONTAINMET_SPHERE       = 7
 };
 
-enum CreatureIds
+enum NEXCreatureIds
 {
     NPC_ANOMALUS                      = 26763,
     NPC_KERISTRASZA                   = 26723,
@@ -56,11 +58,17 @@ enum CreatureIds
     NPC_COMMANDER_KOLURG              = 26798
 };
 
-enum GameObjectIds
+enum NEXGameObjectIds
 {
     GO_ANOMALUS_CONTAINMET_SPHERE     = 188527,
     GO_ORMOROKS_CONTAINMET_SPHERE     = 188528,
     GO_TELESTRAS_CONTAINMET_SPHERE    = 188526
 };
+
+template<typename AI>
+inline AI* GetNexusAI(Creature* obj)
+{
+    return GetInstanceAI<AI>(obj, NexusScriptName);
+}
 
 #endif

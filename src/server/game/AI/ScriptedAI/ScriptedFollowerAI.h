@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,10 @@
 #ifndef SC_FOLLOWERAI_H
 #define SC_FOLLOWERAI_H
 
+#include "ScriptedCreature.h"
 #include "ScriptSystem.h"
+
+class Quest;
 
 enum eFollowState
 {
@@ -69,7 +72,7 @@ class TC_GAME_API FollowerAI : public ScriptedAI
         void AddFollowState(uint32 uiFollowState) { m_uiFollowState |= uiFollowState; }
         void RemoveFollowState(uint32 uiFollowState) { m_uiFollowState &= ~uiFollowState; }
 
-        bool AssistPlayerInCombat(Unit* who);
+        bool AssistPlayerInCombatAgainst(Unit* who);
 
         ObjectGuid m_uiLeaderGUID;
         uint32 m_uiUpdateFollowTimer;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,16 +18,19 @@
 #ifndef DEF_GNOMEREGAN_H
 #define DEF_GNOMEREGAN_H
 
+#include "CreatureAIImpl.h"
+
+#define GNOScriptName "instance_gnomeregan"
 #define DataHeader "GNO"
 
-enum GameObjectIds
+enum GNOGameObjectIds
 {
     GO_CAVE_IN_LEFT     = 146085,
     GO_CAVE_IN_RIGHT    = 146086,
     GO_RED_ROCKET       = 103820
 };
 
-enum CreatureIds
+enum GNOCreatureIds
 {
     NPC_BLASTMASTER_EMI_SHORTFUSE   = 7998,
     NPC_CAVERNDEEP_AMBUSHER         = 6207,
@@ -35,16 +38,22 @@ enum CreatureIds
     NPC_CHOMPER                     = 6215
 };
 
-enum Data
+enum GNOData
 {
     TYPE_EVENT = 1
 };
 
-enum Data64
+enum GNOData64
 {
     DATA_GO_CAVE_IN_LEFT,
     DATA_GO_CAVE_IN_RIGHT,
     DATA_NPC_BASTMASTER_EMI_SHORTFUSE
 };
+
+template<typename AI>
+inline AI* GetGnomereganAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, GNOScriptName);
+}
 
 #endif

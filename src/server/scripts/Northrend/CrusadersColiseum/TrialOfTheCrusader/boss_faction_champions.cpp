@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,17 @@
  */
 
 #include "ScriptMgr.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
-#include "Player.h"
-#include "GridNotifiers.h"
 
 enum Yells
 {
@@ -339,6 +344,32 @@ enum Events
     EVENT_SPELL_LOCK                = 2
 };
 
+const Position FactionChampionLoc[] =
+{
+    { 514.231f, 105.569f, 418.234f, 0 },               //  0 - Horde Initial Pos 0
+    { 508.334f, 115.377f, 418.234f, 0 },               //  1 - Horde Initial Pos 1
+    { 506.454f, 126.291f, 418.234f, 0 },               //  2 - Horde Initial Pos 2
+    { 506.243f, 106.596f, 421.592f, 0 },               //  3 - Horde Initial Pos 3
+    { 499.885f, 117.717f, 421.557f, 0 },               //  4 - Horde Initial Pos 4
+
+    { 613.127f, 100.443f, 419.74f, 0 },                //  5 - Ally Initial Pos 0
+    { 621.126f, 128.042f, 418.231f, 0 },               //  6 - Ally Initial Pos 1
+    { 618.829f, 113.606f, 418.232f, 0 },               //  7 - Ally Initial Pos 2
+    { 625.845f, 112.914f, 421.575f, 0 },               //  8 - Ally Initial Pos 3
+    { 615.566f, 109.653f, 418.234f, 0 },               //  9 - Ally Initial Pos 4
+
+    { 535.469f, 113.012f, 394.66f, 0 },                // 10 - Horde Final Pos 0
+    { 526.417f, 137.465f, 394.749f, 0 },               // 11 - Horde Final Pos 1
+    { 528.108f, 111.057f, 395.289f, 0 },               // 12 - Horde Final Pos 2
+    { 519.92f, 134.285f, 395.289f, 0 },                // 13 - Horde Final Pos 3
+    { 533.648f, 119.148f, 394.646f, 0 },               // 14 - Horde Final Pos 4
+    { 531.399f, 125.63f, 394.708f, 0 },                // 15 - Horde Final Pos 5
+    { 528.958f, 131.47f, 394.73f, 0 },                 // 16 - Horde Final Pos 6
+    { 526.309f, 116.667f, 394.833f, 0 },               // 17 - Horde Final Pos 7
+    { 524.238f, 122.411f, 394.819f, 0 },               // 18 - Horde Final Pos 8
+    { 521.901f, 128.488f, 394.832f, 0 }                // 19 - Horde Final Pos 9
+};
+
 class boss_toc_champion_controller : public CreatureScript
 {
     public:
@@ -384,7 +415,7 @@ class boss_toc_champion_controller : public CreatureScript
                 vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARRIOR : NPC_ALLIANCE_WARRIOR);
 
                 uint8 healersSubtracted = 2;
-                if (_instance->instance->GetSpawnMode() == DIFFICULTY_25_N || _instance->instance->GetSpawnMode() == DIFFICULTY_25_HC)
+                if (Is25ManRaid())
                     healersSubtracted = 1;
                 for (uint8 i = 0; i < healersSubtracted; ++i)
                 {
@@ -421,7 +452,7 @@ class boss_toc_champion_controller : public CreatureScript
                     vHealersEntries.erase(vHealersEntries.begin() + pos);
                 }
 
-                if (_instance->instance->GetSpawnMode() == DIFFICULTY_10_N || _instance->instance->GetSpawnMode() == DIFFICULTY_10_HC)
+                if (!Is25ManRaid())
                     for (uint8 i = 0; i < 4; ++i)
                         vOtherEntries.erase(vOtherEntries.begin() + urand(0, vOtherEntries.size() - 1));
 
@@ -453,22 +484,22 @@ class boss_toc_champion_controller : public CreatureScript
                 for (uint8 i = 0; i < vChampionEntries.size(); ++i)
                 {
                     uint8 pos = urand(0, vChampionJumpTarget.size()-1);
-                    if (Creature* temp = me->SummonCreature(vChampionEntries[i], vChampionJumpOrigin[urand(0, vChampionJumpOrigin.size()-1)], TEMPSUMMON_MANUAL_DESPAWN))
+                    if (Creature* champion = me->SummonCreature(vChampionEntries[i], vChampionJumpOrigin[urand(0, vChampionJumpOrigin.size()-1)], TEMPSUMMON_MANUAL_DESPAWN))
                     {
-                        _summons.Summon(temp);
-                        temp->SetReactState(REACT_PASSIVE);
-                        temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        _summons.Summon(champion);
+                        champion->SetReactState(REACT_PASSIVE);
+                        champion->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                         if (playerTeam == ALLIANCE)
                         {
-                            temp->SetHomePosition(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 0);
-                            temp->GetMotionMaster()->MoveJump(vChampionJumpTarget[pos], 20.0f, 20.0f);
-                            temp->SetOrientation(0);
+                            champion->SetHomePosition(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 0);
+                            champion->GetMotionMaster()->MoveJump(vChampionJumpTarget[pos], 20.0f, 20.0f);
+                            champion->SetOrientation(0);
                         }
                         else
                         {
-                            temp->SetHomePosition((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 3);
-                            temp->GetMotionMaster()->MoveJump((ToCCommonLoc[1].GetPositionX() * 2) - vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), vChampionJumpTarget[pos].GetOrientation(), 20.0f, 20.0f);
-                            temp->SetOrientation(3);
+                            champion->SetHomePosition((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 3);
+                            champion->GetMotionMaster()->MoveJump((ToCCommonLoc[1].GetPositionX() * 2) - vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), vChampionJumpTarget[pos].GetOrientation(), 20.0f, 20.0f);
+                            champion->SetOrientation(3);
                         }
                     }
                     vChampionJumpTarget.erase(vChampionJumpTarget.begin()+pos);
@@ -485,10 +516,10 @@ class boss_toc_champion_controller : public CreatureScript
                     case 1:
                         for (SummonList::iterator i = _summons.begin(); i != _summons.end(); ++i)
                         {
-                            if (Creature* temp = ObjectAccessor::GetCreature(*me, *i))
+                            if (Creature* summon = ObjectAccessor::GetCreature(*me, *i))
                             {
-                                temp->SetReactState(REACT_AGGRESSIVE);
-                                temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                                summon->SetReactState(REACT_AGGRESSIVE);
+                                summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                             }
                         }
                         break;
@@ -545,7 +576,7 @@ class boss_toc_champion_controller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_toc_champion_controllerAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_toc_champion_controllerAI>(creature);
         }
 };
 
@@ -598,7 +629,7 @@ struct boss_faction_championsAI : public BossAI
 
     void UpdatePower()
     {
-        if (me->getPowerType() == POWER_MANA)
+        if (me->GetPowerType() == POWER_MANA)
             me->ModifyPower(POWER_MANA, me->GetMaxPower(POWER_MANA) / 3);
     }
 
@@ -640,12 +671,12 @@ struct boss_faction_championsAI : public BossAI
 
             if (TeamInInstance == ALLIANCE)
             {
-                if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_VARIAN)))
-                    temp->AI()->Talk(SAY_KILL_PLAYER);
+                if (Creature* varian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_VARIAN)))
+                    varian->AI()->Talk(SAY_KILL_PLAYER);
             }
             else
-                if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GARROSH)))
-                    temp->AI()->Talk(SAY_KILL_PLAYER);
+                if (Creature* garrosh = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GARROSH)))
+                    garrosh->AI()->Talk(SAY_KILL_PLAYER);
 
         }
     }
@@ -667,7 +698,7 @@ struct boss_faction_championsAI : public BossAI
         for (iter = tList.begin(); iter!=tList.end(); ++iter)
         {
             Unit* target = ObjectAccessor::GetUnit(*me, (*iter)->getUnitGuid());
-            if (target && target->getPowerType() == POWER_MANA)
+            if (target && target->GetPowerType() == POWER_MANA)
                 return target;
         }
         return NULL;
@@ -835,7 +866,7 @@ class npc_toc_druid : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_druidAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_druidAI>(creature);
         }
 };
 
@@ -928,7 +959,7 @@ class npc_toc_shaman : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_shamanAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_shamanAI>(creature);
         }
 };
 
@@ -1032,7 +1063,7 @@ class npc_toc_paladin : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_paladinAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_paladinAI>(creature);
         }
 };
 
@@ -1117,7 +1148,7 @@ class npc_toc_priest : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_priestAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_priestAI>(creature);
         }
 };
 
@@ -1215,7 +1246,7 @@ class npc_toc_shadow_priest : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_shadow_priestAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_shadow_priestAI>(creature);
         }
 };
 
@@ -1306,7 +1337,7 @@ class npc_toc_warlock : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_warlockAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_warlockAI>(creature);
         }
 };
 
@@ -1400,7 +1431,7 @@ class npc_toc_mage : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_mageAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_mageAI>(creature);
         }
 };
 
@@ -1502,7 +1533,7 @@ class npc_toc_hunter : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_hunterAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_hunterAI>(creature);
         }
 };
 
@@ -1594,7 +1625,7 @@ class npc_toc_boomkin : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_boomkinAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_boomkinAI>(creature);
         }
 };
 
@@ -1698,7 +1729,7 @@ class npc_toc_warrior : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_warriorAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_warriorAI>(creature);
         }
 };
 
@@ -1794,7 +1825,7 @@ class npc_toc_dk : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_dkAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_dkAI>(creature);
         }
 };
 
@@ -1819,7 +1850,7 @@ class npc_toc_rogue : public CreatureScript
                 events.ScheduleEvent(EVENT_EVISCERATE, urand(20*IN_MILLISECONDS, 40*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_WOUND_POISON, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 SetEquipmentSlots(false, 47422, 49982, EQUIP_NO_CHANGE);
-                me->setPowerType(POWER_ENERGY);
+                me->SetPowerType(POWER_ENERGY);
                 me->SetMaxPower(POWER_ENERGY, 100);
             }
 
@@ -1899,7 +1930,7 @@ class npc_toc_rogue : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_rogueAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_rogueAI>(creature);
         }
 };
 
@@ -2033,7 +2064,7 @@ class npc_toc_enh_shaman : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_enh_shamanAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_enh_shamanAI>(creature);
         }
 };
 
@@ -2139,7 +2170,7 @@ class npc_toc_retro_paladin : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_retro_paladinAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_retro_paladinAI>(creature);
         }
 };
 
@@ -2191,7 +2222,7 @@ class npc_toc_pet_warlock : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_pet_warlockAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_pet_warlockAI>(creature);
         }
 };
 
@@ -2239,7 +2270,7 @@ class npc_toc_pet_hunter : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_toc_pet_hunterAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_toc_pet_hunterAI>(creature);
         }
 };
 
@@ -2254,9 +2285,7 @@ class spell_faction_champion_warl_unstable_affliction : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_UNSTABLE_AFFLICTION_DISPEL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_UNSTABLE_AFFLICTION_DISPEL });
             }
 
             void HandleDispel(DispelInfo* dispelInfo)
@@ -2288,18 +2317,12 @@ class spell_faction_champion_death_grip : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DEATH_GRIP_PULL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DEATH_GRIP_PULL });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetHitUnit())
-                {
-                    if (Unit* caster = GetCaster())
-                        target->CastSpell(caster, SPELL_DEATH_GRIP_PULL);
-                }
+                GetHitUnit()->CastSpell(GetCaster(), SPELL_DEATH_GRIP_PULL);
             }
 
             void Register() override
@@ -2326,9 +2349,7 @@ class spell_toc_bloodlust : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(AURA_SATED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ AURA_SATED });
             }
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
@@ -2367,9 +2388,7 @@ class spell_toc_heroism : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(AURA_EXHAUSTION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ AURA_EXHAUSTION });
             }
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)

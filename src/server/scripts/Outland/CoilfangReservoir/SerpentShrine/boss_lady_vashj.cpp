@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,11 +24,16 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "serpent_shrine.h"
-#include "Spell.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-#include "WorldSession.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "serpent_shrine.h"
+#include "TemporarySummon.h"
 
 enum LadyVashj
 {
@@ -69,11 +74,6 @@ enum LadyVashj
 #define SPOREBAT_Y                  -925.297761f
 #define SPOREBAT_Z                  77.176567f
 #define SPOREBAT_O                  5.223932f
-
-
-
-#define TEXT_NOT_INITIALIZED          "Instance script not initialized"
-#define TEXT_ALREADY_DEACTIVATED      "Already deactivated"
 
 float ElementPos[8][4] =
 {
@@ -140,7 +140,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lady_vashjAI>(creature);
+        return GetSerpentshrineCavernAI<boss_lady_vashjAI>(creature);
     }
 
     struct boss_lady_vashjAI : public ScriptedAI
@@ -555,7 +555,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_enchanted_elementalAI>(creature);
+        return GetSerpentshrineCavernAI<npc_enchanted_elementalAI>(creature);
     }
 
     struct npc_enchanted_elementalAI : public ScriptedAI
@@ -650,7 +650,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_tainted_elementalAI>(creature);
+        return GetSerpentshrineCavernAI<npc_tainted_elementalAI>(creature);
     }
 
     struct npc_tainted_elementalAI : public ScriptedAI
@@ -724,7 +724,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_toxic_sporebatAI>(creature);
+        return GetSerpentshrineCavernAI<npc_toxic_sporebatAI>(creature);
     }
 
     struct npc_toxic_sporebatAI : public ScriptedAI
@@ -826,7 +826,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_shield_generator_channelAI>(creature);
+        return GetSerpentshrineCavernAI<npc_shield_generator_channelAI>(creature);
     }
 
     struct npc_shield_generator_channelAI : public ScriptedAI
@@ -889,10 +889,7 @@ public:
     {
         InstanceScript* instance = player->GetInstanceScript();
         if (!instance)
-        {
-            player->GetSession()->SendNotification(TEXT_NOT_INITIALIZED);
             return true;
-        }
 
         Creature* vashj = ObjectAccessor::GetCreature((*player), instance->GetGuidData(DATA_LADYVASHJ));
         if (vashj && (ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase == 2))
@@ -924,10 +921,7 @@ public:
                 }
 
                 if (instance->GetData(identifier))
-                {
-                    player->GetSession()->SendNotification(TEXT_ALREADY_DEACTIVATED);
                     return true;
-                }
 
                 // get and remove channel
                 if (Unit* channel = ObjectAccessor::GetCreature(*vashj, ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->ShieldGeneratorChannel[channelIdentifier]))

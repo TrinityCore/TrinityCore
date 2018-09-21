@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,9 +19,14 @@
 #define TRINITY_CALENDARMGR_H
 
 #include "Common.h"
-#include "DatabaseEnv.h"
-#include "WorldPacket.h"
+#include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
+#include <deque>
+#include <map>
+#include <set>
+#include <vector>
+
+class WorldPacket;
 
 enum CalendarMailAnswers
 {

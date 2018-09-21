@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 #ifndef MODELHEADERS_H
 #define MODELHEADERS_H
 
-#include "mpqfile.h"    // integer typedefs
+#include "cascfile.h"    // integer typedefs
 
 #pragma pack(push,1)
 

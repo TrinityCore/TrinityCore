@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,11 +16,21 @@
  */
 
 #include "BlackMarketMgr.h"
+#include "AccountMgr.h"
 #include "BlackMarketPackets.h"
 #include "Containers.h"
+#include "DatabaseEnv.h"
+#include "Item.h"
+#include "Language.h"
+#include "Log.h"
+#include "Mail.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "Language.h"
+#include "Realm.h"
+#include "World.h"
+#include "WorldSession.h"
+#include <sstream>
 
 BlackMarketMgr::BlackMarketMgr()
 {
@@ -182,7 +192,7 @@ void BlackMarketMgr::RefreshAuctions()
         templates.push_back(pair.second);
     }
 
-    Trinity::Containers::RandomResizeList(templates, sWorld->getIntConfig(CONFIG_BLACKMARKET_MAXAUCTIONS));
+    Trinity::Containers::RandomResize(templates, sWorld->getIntConfig(CONFIG_BLACKMARKET_MAXAUCTIONS));
 
     for (BlackMarketTemplate const* templat : templates)
     {
@@ -208,8 +218,30 @@ void BlackMarketMgr::BuildItemsResponse(WorldPackets::BlackMarket::BlackMarketRe
     packet.Items.reserve(_auctions.size());
     for (auto itr = _auctions.begin(); itr != _auctions.end(); ++itr)
     {
+        BlackMarketTemplate const* templ = itr->second->GetTemplate();
+
         WorldPackets::BlackMarket::BlackMarketItem item;
-        item.Initialize(itr->second, player);
+        item.MarketID = itr->second->GetMarketId();
+        item.SellerNPC = templ->SellerNPC;
+        item.Item = templ->Item;
+        item.Quantity = templ->Quantity;
+
+        // No bids yet
+        if (!itr->second->GetNumBids())
+        {
+            item.MinBid = templ->MinBid;
+            item.MinIncrement = 1;
+        }
+        else
+        {
+            item.MinIncrement = itr->second->GetMinIncrement(); // 5% increment minimum
+            item.MinBid = itr->second->GetCurrentBid() + item.MinIncrement;
+        }
+
+        item.CurrentBid = itr->second->GetCurrentBid();
+        item.SecondsRemaining = itr->second->GetSecondsRemaining();
+        item.HighBid = (itr->second->GetBidder() == player->GetGUID().GetCounter());
+        item.NumBids = itr->second->GetNumBids();
 
         packet.Items.push_back(item);
     }

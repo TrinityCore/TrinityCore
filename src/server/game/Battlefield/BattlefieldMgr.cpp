@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
 #include "BattlefieldTB.h"
+#include "Log.h"
 #include "Player.h"
 
 BattlefieldMgr::BattlefieldMgr()
@@ -107,11 +108,11 @@ Battlefield* BattlefieldMgr::GetBattlefieldToZoneId(uint32 zoneId)
     if (itr == _battlefieldMap.end())
     {
         // no handle for this zone, return
-        return NULL;
+        return nullptr;
     }
 
     if (!itr->second->IsEnabled())
-        return NULL;
+        return nullptr;
 
     return itr->second;
 }
@@ -123,7 +124,7 @@ Battlefield* BattlefieldMgr::GetBattlefieldByBattleId(uint32 battleId)
         if ((*itr)->GetBattleId() == battleId)
             return *itr;
     }
-    return NULL;
+    return nullptr;
 }
 
 Battlefield* BattlefieldMgr::GetBattlefieldByQueueId(uint64 queueId)
@@ -141,7 +142,7 @@ ZoneScript* BattlefieldMgr::GetZoneScript(uint32 zoneId)
     if (itr != _battlefieldMap.end())
         return itr->second;
 
-    return NULL;
+    return nullptr;
 }
 
 void BattlefieldMgr::Update(uint32 diff)

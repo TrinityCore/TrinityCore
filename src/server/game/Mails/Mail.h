@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -94,6 +94,7 @@ class TC_GAME_API MailSender
         MailSender(AuctionEntry* sender);
         MailSender(BlackMarketEntry* sender);
         MailSender(Player* sender);
+        MailSender(uint32 senderEntry);
     public:                                                 // Accessors
         MailMessageType GetMailMessageType() const { return m_messageType; }
         ObjectGuid::LowType GetSenderId() const { return m_senderId; }

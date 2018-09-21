@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "pit_of_saron.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "pit_of_saron.h"
 #include "Vehicle.h"
 
 enum Spells
@@ -37,6 +41,19 @@ enum Events
     EVENT_FIREBALL              = 1,
     EVENT_TACTICAL_BLINK        = 2,
 };
+
+bool ScheduledIcicleSummons::Execute(uint64 /*time*/, uint32 /*diff*/)
+{
+    if (roll_chance_i(12))
+    {
+        _trigger->CastSpell(_trigger, SPELL_ICICLE_SUMMON, true);
+        _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(urand(20000, 35000)));
+    }
+    else
+        _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(urand(1000, 20000)));
+
+    return true;
+}
 
 class npc_ymirjar_flamebearer : public CreatureScript
 {
@@ -246,10 +263,141 @@ class spell_trash_npc_glacial_strike : public SpellScriptLoader
         }
 };
 
+class npc_pit_of_saron_icicle : public CreatureScript
+{
+    public:
+        npc_pit_of_saron_icicle() : CreatureScript("npc_pit_of_saron_icicle") { }
+
+        struct npc_pit_of_saron_icicleAI : public PassiveAI
+        {
+            npc_pit_of_saron_icicleAI(Creature* creature) : PassiveAI(creature)
+            {
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+            }
+
+            void IsSummonedBy(Unit* summoner) override
+            {
+                _summonerGUID = summoner->GetGUID();
+
+                _scheduler.Schedule(Milliseconds(3650), [this](TaskContext /*context*/)
+                {
+                    DoCastSelf(SPELL_ICICLE_FALL_TRIGGER, true);
+                    DoCastSelf(SPELL_ICICLE_FALL_VISUAL);
+
+                    if (Unit* caster = ObjectAccessor::GetUnit(*me, _summonerGUID))
+                        caster->RemoveDynObject(SPELL_ICICLE_SUMMON);
+                });
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                _scheduler.Update(diff);
+            }
+
+        private:
+            TaskScheduler _scheduler;
+            ObjectGuid _summonerGUID;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetPitOfSaronAI<npc_pit_of_saron_icicleAI>(creature);
+        }
+};
+
+
+class spell_pos_ice_shards : public SpellScriptLoader
+{
+    public:
+        spell_pos_ice_shards() : SpellScriptLoader("spell_pos_ice_shards") { }
+
+        class spell_pos_ice_shards_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pos_ice_shards_SpellScript);
+
+            bool Load() override
+            {
+                // This script should execute only in Pit of Saron
+                return InstanceHasScript(GetCaster(), PoSScriptName);
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                if (GetHitPlayer())
+                    GetCaster()->GetInstanceScript()->SetData(DATA_ICE_SHARDS_HIT, 1);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pos_ice_shards_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pos_ice_shards_SpellScript();
+        }
+};
+
+enum TyrannusEventCavernEmote
+{
+    SAY_TYRANNUS_CAVERN_ENTRANCE = 3
+};
+
+class at_pit_cavern_entrance : public AreaTriggerScript
+{
+    public:
+        at_pit_cavern_entrance() : AreaTriggerScript("at_pit_cavern_entrance") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+        {
+            if (!entered)
+                return true;
+
+            if (InstanceScript* instance = player->GetInstanceScript())
+            {
+                if (instance->GetData(DATA_CAVERN_ACTIVE))
+                    return true;
+
+                instance->SetData(DATA_CAVERN_ACTIVE, 1);
+
+                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_TYRANNUS_EVENT)))
+                    tyrannus->AI()->Talk(SAY_TYRANNUS_CAVERN_ENTRANCE);
+            }
+            return true;
+        }
+};
+
+class at_pit_cavern_end : public AreaTriggerScript
+{
+public:
+    at_pit_cavern_end() : AreaTriggerScript("at_pit_cavern_end") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+    {
+        if (!entered)
+            return true;
+
+        if (InstanceScript* instance = player->GetInstanceScript())
+        {
+            instance->SetData(DATA_CAVERN_ACTIVE, 0);
+
+            if (!instance->GetData(DATA_ICE_SHARDS_HIT))
+                instance->DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DONT_LOOK_UP_ACHIEV_CREDIT, 0, player);
+        }
+
+        return true;
+    }
+};
+
 void AddSC_pit_of_saron()
 {
     new npc_ymirjar_flamebearer();
     new npc_iceborn_protodrake();
     new npc_geist_ambusher();
+    new npc_pit_of_saron_icicle();
     new spell_trash_npc_glacial_strike();
+    new spell_pos_ice_shards();
+    new at_pit_cavern_entrance();
+    new at_pit_cavern_end();
 }

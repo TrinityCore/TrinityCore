@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "pit_of_saron.h"
 #include "Player.h"
 
@@ -45,6 +48,8 @@ class instance_pit_of_saron : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(Doors);
                 _teamInInstance = 0;
+                _cavernActive = 0;
+                _shardsHit = 0;
             }
 
             void OnPlayerEnter(Player* player) override
@@ -153,6 +158,9 @@ class instance_pit_of_saron : public InstanceMapScript
                         if (_teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_MARTIN_VICTUS_2);
                         break;
+                    case NPC_CAVERN_EVENT_TRIGGER:
+                        _cavernstriggersVector.push_back(creature->GetGUID());
+                        break;
                     default:
                         break;
                 }
@@ -224,11 +232,36 @@ class instance_pit_of_saron : public InstanceMapScript
                 {
                     case DATA_TEAM_IN_INSTANCE:
                         return _teamInInstance;
+                    case DATA_ICE_SHARDS_HIT:
+                        return _shardsHit;
+                    case DATA_CAVERN_ACTIVE:
+                        return _cavernActive;
                     default:
                         break;
                 }
 
                 return 0;
+            }
+
+            void SetData(uint32 type, uint32 data) override
+            {
+                switch (type)
+                {
+                    case DATA_ICE_SHARDS_HIT:
+                        _shardsHit = data;
+                        break;
+                    case DATA_CAVERN_ACTIVE:
+                        if (data)
+                        {
+                            _cavernActive = data;
+                            HandleCavernEventTrigger(true);
+                        }
+                        else
+                            HandleCavernEventTrigger(false);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             ObjectGuid GetGuidData(uint32 type) const override
@@ -258,6 +291,18 @@ class instance_pit_of_saron : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
+            void HandleCavernEventTrigger(bool activate)
+            {
+                for (ObjectGuid guid : _cavernstriggersVector)
+                    if (Creature* trigger = instance->GetCreature(guid))
+                    {
+                        if (activate)
+                            trigger->m_Events.AddEvent(new ScheduledIcicleSummons(trigger), trigger->m_Events.CalculateTime(1000));
+                        else
+                            trigger->m_Events.KillAllEvents(false);
+                    }
+            }
+
         private:
             ObjectGuid _garfrostGUID;
             ObjectGuid _krickGUID;
@@ -268,8 +313,11 @@ class instance_pit_of_saron : public InstanceMapScript
             ObjectGuid _tyrannusEventGUID;
             ObjectGuid _jainaOrSylvanas1GUID;
             ObjectGuid _jainaOrSylvanas2GUID;
+            GuidVector _cavernstriggersVector;
 
             uint32 _teamInInstance;
+            uint8 _shardsHit;
+            uint8 _cavernActive;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

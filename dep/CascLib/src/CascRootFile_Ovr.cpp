@@ -58,7 +58,7 @@ static int InsertFileEntry(
     // Fill the file entry
     pFileEntry->EncodingKey  = *(PENCODING_KEY)pbEncodingKey;
     pFileEntry->FileNameHash = CalcFileNameHash(szFileName);
-    pFileEntry->dwFileName   = Array_IndexOf(&pRootHandler->FileNames, szFileName);
+    pFileEntry->dwFileName   = (DWORD)Array_IndexOf(&pRootHandler->FileNames, szFileName);
 
     // Insert the file entry to the map
     assert(Map_FindObject(pRootHandler->pRootMap, &pFileEntry->FileNameHash, NULL) == NULL);
@@ -77,7 +77,7 @@ static int OvrHandler_Insert(
     return InsertFileEntry(pRootHandler, szFileName, pbEncodingKey);
 }
 
-static LPBYTE OvrHandler_Search(TRootHandler_Ovr * pRootHandler, TCascSearch * pSearch, PDWORD /* PtrFileSize */, PDWORD /* PtrLocaleFlags */)
+static LPBYTE OvrHandler_Search(TRootHandler_Ovr * pRootHandler, TCascSearch * pSearch, PDWORD /* PtrFileSize */, PDWORD /* PtrLocaleFlags */, PDWORD /* PtrFileDataId */)
 {
     PCASC_FILE_ENTRY pFileEntry;
 
@@ -107,6 +107,12 @@ static LPBYTE OvrHandler_GetKey(TRootHandler_Ovr * pRootHandler, const char * sz
     ULONGLONG FileNameHash = CalcFileNameHash(szFileName);
 
     return (LPBYTE)Map_FindObject(pRootHandler->pRootMap, &FileNameHash, NULL);
+}
+
+static DWORD OvrHandler_GetFileId(TRootHandler_Ovr * /* pRootHandler */, const char * /* szFileName */)
+{
+  // Not implemented for Overwatch
+  return 0;
 }
 
 static void OvrHandler_Close(TRootHandler_Ovr * pRootHandler)
@@ -139,7 +145,7 @@ int RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRo
     size_t nLength;
     char szOneLine[0x200];
     char szFileName[MAX_PATH+1];
-    DWORD dwFileCountMax = hs->pEncodingMap->TableSize;
+    DWORD dwFileCountMax = (DWORD)hs->pEncodingMap->TableSize;
     int nFileNameIndex;
     int nError = ERROR_SUCCESS;
 
@@ -155,6 +161,7 @@ int RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRo
     pRootHandler->EndSearch   = (ROOT_ENDSEARCH)OvrHandler_EndSearch;
     pRootHandler->GetKey      = (ROOT_GETKEY)OvrHandler_GetKey;
     pRootHandler->Close       = (ROOT_CLOSE)OvrHandler_Close;
+    pRootHandler->GetFileId   = (ROOT_GETFILEID)OvrHandler_GetFileId;
 
     // Fill-in the flags
     pRootHandler->dwRootFlags |= ROOT_FLAG_HAS_NAMES;

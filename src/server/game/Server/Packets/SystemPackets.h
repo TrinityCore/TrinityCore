@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #define SystemPackets_h__
 
 #include "Packet.h"
+#include "Optional.h"
 
 namespace WorldPackets
 {
@@ -96,10 +97,12 @@ namespace WorldPackets
             uint32 CfgRealmID                            = 0;
             uint8 ComplaintStatus                        = 0;
             int32 CfgRealmRecID                          = 0;
-            int32 TwitterPostThrottleLimit               = 0; ///< Number of twitter posts the client can send before they start being throttled
-            int32 TwitterPostThrottleCooldown            = 0; ///< Time in seconds the client has to wait before posting again after hitting post limit
-            int32 TokenPollTimeSeconds                   = 0;
-            int32 TokenRedeemIndex                       = 0;
+            uint32 TwitterPostThrottleLimit              = 0; ///< Number of twitter posts the client can send before they start being throttled
+            uint32 TwitterPostThrottleCooldown           = 0; ///< Time in seconds the client has to wait before posting again after hitting post limit
+            uint32 TokenPollTimeSeconds                  = 0;
+            uint32 TokenRedeemIndex                      = 0;
+            int64 TokenBalanceAmount                     = 0;
+            uint32 BpayStoreProductDeliveryDelay         = 0;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
@@ -113,6 +116,7 @@ namespace WorldPackets
             bool NPETutorialsEnabled                 = false;
             bool KioskModeEnabled                    = false;
             bool CompetitiveModeEnabled              = false;
+            bool TokenBalanceEnabled                 = false;
 
             Optional<std::vector<uint8>> RaceClassExpansionLevels;
             SocialQueueConfig QuickJoinConfig;
@@ -136,8 +140,14 @@ namespace WorldPackets
             bool KioskModeEnabled                    = false; // NYI
             bool CompetitiveModeEnabled              = false; // NYI
             bool TrialBoostEnabled                   = false; // NYI
+            bool TokenBalanceEnabled                 = false; // NYI
+            bool LiveRegionCharacterListEnabled      = false; // NYI
+            bool LiveRegionCharacterCopyEnabled      = false; // NYI
+            bool LiveRegionAccountCopyEnabled        = false; // NYI
             int32 TokenPollTimeSeconds               = 0;     // NYI
             int32 TokenRedeemIndex                   = 0;     // NYI
+            int64 TokenBalanceAmount                 = 0;     // NYI
+            uint32 BpayStoreProductDeliveryDelay     = 0;     // NYI
         };
 
         class MOTD final : public ServerPacket

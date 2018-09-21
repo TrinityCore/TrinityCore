@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,17 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "trial_of_the_crusader.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
 #include "TemporarySummon.h"
+#include "trial_of_the_crusader.h"
 
-BossBoundaryData const boundaries = {
+BossBoundaryData const boundaries =
+{
     { BOSS_BEASTS, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
     { BOSS_JARAXXUS, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
     { BOSS_CRUSADERS, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
@@ -33,7 +38,7 @@ BossBoundaryData const boundaries = {
 class instance_trial_of_the_crusader : public InstanceMapScript
 {
     public:
-        instance_trial_of_the_crusader() : InstanceMapScript("instance_trial_of_the_crusader", 649) { }
+        instance_trial_of_the_crusader() : InstanceMapScript(ToCrScriptName, 649) { }
 
         struct instance_trial_of_the_crusader_InstanceMapScript : public InstanceScript
         {
@@ -79,7 +84,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 // make sure Anub'arak isnt missing
                 if (GetBossState(BOSS_LICH_KING) == DONE && TrialCounter && GetBossState(BOSS_ANUBARAK) != DONE)
-                    if (!ObjectAccessor::GetCreature(*player, GetGuidData(NPC_ANUBARAK)))
+                    if (!instance->GetCreature(AnubarakGUID))
                         player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
             }
 
@@ -314,7 +319,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                                 if (tributeChest)
                                     if (Creature* tirion =  instance->GetCreature(TirionGUID))
-                                        if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, 0, 0, 0, 0, WEEK))
+                                        if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, QuaternionData(), WEEK))
                                             chest->SetRespawnTime(chest->GetRespawnDelay());
                                 break;
                             }

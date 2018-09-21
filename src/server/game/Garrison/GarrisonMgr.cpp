@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,13 @@
 #include "GarrisonMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Garrison.h"
-#include "ObjectDefines.h"
-#include "World.h"
-#include "GameObject.h"
+#include "Log.h"
 #include "ObjectMgr.h"
+#include "Random.h"
+#include "Timer.h"
+#include "World.h"
 
 GarrisonMgr& GarrisonMgr::Instance()
 {
@@ -36,23 +38,23 @@ void GarrisonMgr::Initialize()
         _garrisonPlotInstBySiteLevel[siteLevelPlotInst->GarrSiteLevelID].push_back(siteLevelPlotInst);
 
     for (GameObjectsEntry const* gameObject : sGameObjectsStore)
-        if (gameObject->Type == GAMEOBJECT_TYPE_GARRISON_PLOT)
-            _garrisonPlots[gameObject->MapID][gameObject->Data[0]] = gameObject;
+        if (gameObject->TypeID == GAMEOBJECT_TYPE_GARRISON_PLOT)
+            _garrisonPlots[gameObject->OwnerID][gameObject->PropValue[0]] = gameObject;
 
     for (GarrPlotBuildingEntry const* plotBuilding : sGarrPlotBuildingStore)
         _garrisonBuildingsByPlot[plotBuilding->GarrPlotID].insert(plotBuilding->GarrBuildingID);
 
     for (GarrBuildingPlotInstEntry const* buildingPlotInst : sGarrBuildingPlotInstStore)
-        _garrisonBuildingPlotInstances[MAKE_PAIR64(buildingPlotInst->GarrBuildingID, buildingPlotInst->GarrSiteLevelPlotInstID)] = buildingPlotInst->ID;
+        _garrisonBuildingPlotInstances[std::make_pair(buildingPlotInst->GarrBuildingID, buildingPlotInst->GarrSiteLevelPlotInstID)] = buildingPlotInst->ID;
 
     for (GarrBuildingEntry const* building : sGarrBuildingStore)
-        _garrisonBuildingsByType[building->Type].push_back(building->ID);
+        _garrisonBuildingsByType[building->BuildingType].push_back(building->ID);
 
     for (GarrFollowerXAbilityEntry const* followerAbility : sGarrFollowerXAbilityStore)
     {
         if (GarrAbilityEntry const* ability = sGarrAbilityStore.LookupEntry(followerAbility->GarrAbilityID))
         {
-            if (ability->FollowerTypeID != FOLLOWER_TYPE_GARRISON)
+            if (ability->GarrFollowerTypeID != FOLLOWER_TYPE_GARRISON)
                 continue;
 
             if (!(ability->Flags & GARRISON_ABILITY_CANNOT_ROLL) && ability->Flags & GARRISON_ABILITY_FLAG_TRAIT)
@@ -76,7 +78,7 @@ void GarrisonMgr::Initialize()
 GarrSiteLevelEntry const* GarrisonMgr::GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const
 {
     for (GarrSiteLevelEntry const* siteLevel : sGarrSiteLevelStore)
-        if (siteLevel->SiteID == garrSiteId && siteLevel->Level == level)
+        if (siteLevel->GarrSiteID == garrSiteId && siteLevel->GarrLevel == level)
             return siteLevel;
 
     return nullptr;
@@ -115,7 +117,7 @@ bool GarrisonMgr::IsPlotMatchingBuilding(uint32 garrPlotId, uint32 garrBuildingI
 
 uint32 GarrisonMgr::GetGarrBuildingPlotInst(uint32 garrBuildingId, uint32 garrSiteLevelPlotInstId) const
 {
-    auto itr = _garrisonBuildingPlotInstances.find(MAKE_PAIR64(garrBuildingId, garrSiteLevelPlotInstId));
+    auto itr = _garrisonBuildingPlotInstances.find(std::make_pair(garrBuildingId, garrSiteLevelPlotInstId));
     if (itr != _garrisonBuildingPlotInstances.end())
         return itr->second;
 
@@ -127,7 +129,7 @@ uint32 GarrisonMgr::GetPreviousLevelBuildingId(uint32 buildingType, uint32 curre
     auto itr = _garrisonBuildingsByType.find(buildingType);
     if (itr != _garrisonBuildingsByType.end())
         for (uint32 buildingId : itr->second)
-            if (sGarrBuildingStore.AssertEntry(buildingId)->Level == currentLevel - 1)
+            if (sGarrBuildingStore.AssertEntry(buildingId)->UpgradeLevel == currentLevel - 1)
                 return buildingId;
 
     return 0;
@@ -207,8 +209,8 @@ std::list<GarrAbilityEntry const*> GarrisonMgr::RollFollowerAbilities(uint32 gar
         }
     }
 
-    Trinity::Containers::RandomResizeList(abilityList, std::max<int32>(0, slots[0] - forcedAbilities.size()));
-    Trinity::Containers::RandomResizeList(traitList, std::max<int32>(0, slots[1] - forcedTraits.size()));
+    Trinity::Containers::RandomResize(abilityList, std::max<int32>(0, slots[0] - forcedAbilities.size()));
+    Trinity::Containers::RandomResize(traitList, std::max<int32>(0, slots[1] - forcedTraits.size()));
 
     // Add abilities specified in GarrFollowerXAbility.db2 before generic classspec ones on follower creation
     if (initial)
@@ -240,7 +242,7 @@ std::list<GarrAbilityEntry const*> GarrisonMgr::RollFollowerAbilities(uint32 gar
         std::set_difference(classSpecAbilities.begin(), classSpecAbilities.end(), forcedAbilities.begin(), forcedAbilities.end(), std::back_inserter(classSpecAbilitiesTemp));
         std::set_union(classSpecAbilitiesTemp.begin(), classSpecAbilitiesTemp.end(), classSpecAbilitiesTemp2.begin(), classSpecAbilitiesTemp2.end(), std::back_inserter(abilityList));
 
-        Trinity::Containers::RandomResizeList(abilityList, std::max<int32>(0, slots[0] - forcedAbilities.size()));
+        Trinity::Containers::RandomResize(abilityList, std::max<int32>(0, slots[0] - forcedAbilities.size()));
     }
 
     if (slots[1] > forcedTraits.size() + traitList.size())

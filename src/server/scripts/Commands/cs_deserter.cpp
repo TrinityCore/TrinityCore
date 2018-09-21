@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,10 +22,11 @@
 * This file contains the CommandScripts for all deserter sub-commands
 */
 
-#include "Chat.h"
-#include "Player.h"
-#include "Language.h"
 #include "ScriptMgr.h"
+#include "Chat.h"
+#include "Language.h"
+#include "Player.h"
+#include "RBAC.h"
 #include "SpellAuras.h"
 
 enum Spells

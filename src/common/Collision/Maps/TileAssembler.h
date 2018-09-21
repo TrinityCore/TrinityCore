@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,8 +52,14 @@ namespace VMAP
             void moveToBasePos(const G3D::Vector3& pBasePos) { iPos -= pBasePos; }
     };
 
+    struct TileSpawn
+    {
+        uint32 Id;
+        uint32 Flags;
+    };
+
     typedef std::map<uint32, ModelSpawn> UniqueEntryMap;
-    typedef std::multimap<uint32, uint32> TileMap;
+    typedef std::multimap<uint32, TileSpawn> TileMap;
 
     struct TC_COMMON_API MapSpawns
     {

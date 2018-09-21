@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef SETHEKK_HALLS_H_
 #define SETHEKK_HALLS_H_
 
+#include "CreatureAIImpl.h"
+
 #define SHScriptName "instance_sethekk_halls"
 #define DataHeader "SH"
 
 uint32 const EncounterCount             = 3;
 
-enum DataTypes
+enum SHDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_DARKWEAVER_SYTH                = 0,
@@ -34,20 +36,20 @@ enum DataTypes
     DATA_TALON_KING_COFFER              = 3
 };
 
-enum CreatureIds
+enum SHCreatureIds
 {
     NPC_ANZU                            = 23035,
     NPC_BROOD_OF_ANZU                   = 23132
 };
 
-enum GameObjectIds
+enum SHGameObjectIds
 {
     GO_IKISS_DOOR                       = 177203,
     GO_TALON_KING_COFFER                = 187372
 };
 
-template<class AI>
-AI* GetSethekkHallsAI(Creature* creature)
+template<typename AI>
+inline AI* GetSethekkHallsAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, SHScriptName);
 }

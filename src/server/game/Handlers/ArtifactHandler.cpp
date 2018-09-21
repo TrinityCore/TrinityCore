@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,9 @@
 #include "WorldSession.h"
 #include "ArtifactPackets.h"
 #include "ConditionMgr.h"
+#include "DB2Stores.h"
 #include "GameTables.h"
+#include "Item.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
@@ -33,11 +35,11 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
     if (!artifact)
         return;
 
-    int32 xpCost = 0;
+    uint64 xpCost = 0;
     if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(artifact->GetTotalPurchasedArtifactPowers() + 1))
-        xpCost = int32(cost->XP);
+        xpCost = uint64(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) == 1 ? cost->XP2 : cost->XP);
 
-    if (xpCost > artifact->GetInt32Value(ITEM_FIELD_ARTIFACT_XP))
+    if (xpCost > artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP))
         return;
 
     if (artifactAddPower.PowerChoices.empty())
@@ -52,7 +54,7 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
         return;
 
     if (artifactAddPower.PowerChoices[0].Rank != artifactPower->PurchasedRank + 1 ||
-        artifactAddPower.PowerChoices[0].Rank > artifactPowerEntry->MaxRank)
+        artifactAddPower.PowerChoices[0].Rank > artifactPowerEntry->MaxPurchasableRank)
         return;
 
     if (std::unordered_set<uint32> const* artifactPowerLinks = sDB2Manager.GetArtifactPowerLinks(artifactPower->ArtifactPowerId))
@@ -68,7 +70,7 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
             if (!artifactPowerLinkLearned)
                 continue;
 
-            if (artifactPowerLinkLearned->PurchasedRank >= artifactPowerLink->MaxRank)
+            if (artifactPowerLinkLearned->PurchasedRank >= artifactPowerLink->MaxPurchasableRank)
             {
                 hasAnyLink = true;
                 break;
@@ -111,7 +113,7 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
         }
     }
 
-    artifact->ApplyModInt32Value(ITEM_FIELD_ARTIFACT_XP, xpCost, false);
+    artifact->SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP) - xpCost);
     artifact->SetState(ITEM_CHANGED, _player);
 }
 
@@ -132,17 +134,17 @@ void WorldSession::HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactS
     if (!artifactAppearanceSet || artifactAppearanceSet->ArtifactID != artifact->GetTemplate()->GetArtifactID())
         return;
 
-    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(artifactAppearance->PlayerConditionID))
+    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(artifactAppearance->UnlockPlayerConditionID))
         if (!sConditionMgr->IsPlayerMeetingCondition(_player, playerCondition))
             return;
 
-    artifact->SetAppearanceModId(artifactAppearance->AppearanceModID);
+    artifact->SetAppearanceModId(artifactAppearance->ItemAppearanceModifierID);
     artifact->SetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID, artifactAppearance->ID);
     artifact->SetState(ITEM_CHANGED, _player);
     Item* childItem = _player->GetChildItemByGuid(artifact->GetChildItem());
     if (childItem)
     {
-        childItem->SetAppearanceModId(artifactAppearance->AppearanceModID);
+        childItem->SetAppearanceModId(artifactAppearance->ItemAppearanceModifierID);
         childItem->SetState(ITEM_CHANGED, _player);
     }
 
@@ -154,7 +156,7 @@ void WorldSession::HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactS
             _player->SetVisibleItemSlot(childItem->GetSlot(), childItem);
 
         // change druid form appearance
-        if (artifactAppearance->ShapeshiftDisplayID && artifactAppearance->ModifiesShapeshiftFormDisplay && _player->GetShapeshiftForm() == ShapeshiftForm(artifactAppearance->ModifiesShapeshiftFormDisplay))
+        if (artifactAppearance->OverrideShapeshiftDisplayID && artifactAppearance->OverrideShapeshiftFormID && _player->GetShapeshiftForm() == ShapeshiftForm(artifactAppearance->OverrideShapeshiftFormID))
             _player->RestoreDisplayId();
     }
 }
@@ -168,17 +170,17 @@ void WorldSession::HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmAr
     if (!artifact)
         return;
 
-    uint32 xpCost = 0;
+    uint64 xpCost = 0;
     if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(artifact->GetTotalPurchasedArtifactPowers() + 1))
-        xpCost = uint32(cost->XP);
+        xpCost = uint64(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) == 1 ? cost->XP2 : cost->XP);
 
-    if (xpCost > artifact->GetUInt32Value(ITEM_FIELD_ARTIFACT_XP))
+    if (xpCost > artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP))
         return;
 
-    uint32 newAmount = artifact->GetUInt32Value(ITEM_FIELD_ARTIFACT_XP) - xpCost;
+    uint64 newAmount = artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP) - xpCost;
     for (uint32 i = 0; i <= artifact->GetTotalPurchasedArtifactPowers(); ++i)
         if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(i))
-            newAmount += uint32(cost->XP);
+            newAmount += uint64(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) == 1 ? cost->XP2 : cost->XP);
 
     for (ItemDynamicFieldArtifactPowers const& artifactPower : artifact->GetArtifactPowers())
     {
@@ -213,6 +215,6 @@ void WorldSession::HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmAr
         _player->ApplyArtifactPowerRank(artifact, scaledArtifactPowerRank, false);
     }
 
-    artifact->SetUInt32Value(ITEM_FIELD_ARTIFACT_XP, newAmount);
+    artifact->SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, newAmount);
     artifact->SetState(ITEM_CHANGED, _player);
 }

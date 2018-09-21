@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef HALLS_OF_ORIGINATION_H
 #define HALLS_OF_ORIGINATION_H
 
+#include "CreatureAIImpl.h"
+
 #define DataHeader "HOO"
 #define HoOScriptName "instance_halls_of_origination"
 
 uint32 const EncounterCount = 12;
 
-enum Data
+enum HOOData
 {
     // Bosses
     DATA_TEMPLE_GUARDIAN_ANHUUR,
@@ -52,7 +54,7 @@ enum Data
     DATA_ANRAPHET_GUID,
 };
 
-enum Creatures
+enum HOOCreatures
 {
     BOSS_TEMPLE_GUARDIAN_ANHUUR     = 39425,
     NPC_CAVE_IN_STALKER             = 40183,
@@ -76,7 +78,7 @@ enum Creatures
     NPC_OMEGA_STANCE                = 41194,
 };
 
-enum GameObjects
+enum HOOGameObjects
 {
     GO_ANHUURS_BRIDGE               = 206506,
     GO_DOODAD_ULDUM_ELEVATOR_COL01  = 207725,
@@ -99,14 +101,14 @@ enum GameObjects
     GO_DOODAD_ULDUM_LASERBEAMS_03   = 207665, // Matches GO_DOODAD_ULDUM_LIGHTMACHINE_03
 };
 
-enum Misc
+enum HOOMisc
 {
     AREA_TOMB_OF_THE_EARTHRAGER     = 4945,
     ACHIEV_VAULT_OF_LIGHTS_EVENT    = 24212, // Faster Than The Speed Of Light
     SPELL_VAULT_OF_LIGHTS_CREDIT    = 94067, // Not in DBC
 };
 
-enum GlobalActions
+enum HOOGlobalActions
 {
     ACTION_ANRAPHET_INTRO,
     ACTION_ELEMENTAL_DIED,
@@ -114,14 +116,10 @@ enum GlobalActions
     ACTION_OMEGA_TRIGGER,
 };
 
-template<class AI>
-CreatureAI* GetHallsOfOriginationAI(Creature* creature)
+template<typename AI>
+inline AI* GetHallsOfOriginationAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(HoOScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, HoOScriptName);
 }
 
 #endif // HALLS_OF_ORIGINATION_H

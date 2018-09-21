@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,10 +20,16 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "ahnkahet.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "PhasingHandler.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -142,7 +148,7 @@ public:
                         // clone
                         player->CastSpell(summon, SPELL_CLONE_PLAYER, true);
                         // phase the summon
-                        summon->SetInPhase(spellInfo->GetEffect(EFFECT_0)->MiscValueB, true, true);
+                        PhasingHandler::AddPhase(summon, spellInfo->GetEffect(EFFECT_0)->MiscValueB, true);
                     }
                 }
                 ++insanityHandled;
@@ -168,9 +174,9 @@ public:
             instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
 
             // Visible for all players in insanity
-            me->SetInPhase(169, true, true);
             for (uint32 i = 173; i <= 177; ++i)
-                me->SetInPhase(i, true, true);
+                PhasingHandler::AddPhase(me, i, false);
+            PhasingHandler::AddPhase(me, 169, true);
 
             ResetPlayersPhase();
 
@@ -208,7 +214,7 @@ public:
                         return;
                     else
                     {
-                        nextPhase = *visage->GetPhases().begin();
+                        nextPhase = visage->GetPhaseShift().GetPhases().begin()->Id;
                         break;
                     }
                 }
@@ -285,7 +291,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_volazjAI>(creature);
+        return GetAhnKahetAI<boss_volazjAI>(creature);
     }
 };
 

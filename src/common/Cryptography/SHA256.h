@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,14 +35,14 @@ class TC_COMMON_API SHA256Hash
 
         void UpdateBigNumbers(BigNumber* bn0, ...);
 
-        void UpdateData(const uint8 *dta, int len);
-        void UpdateData(const std::string &str);
+        void UpdateData(uint8 const* data, size_t len);
+        void UpdateData(std::string const& str);
 
         void Initialize();
         void Finalize();
 
-        uint8 *GetDigest(void) { return mDigest; }
-        int GetLength(void) const { return SHA256_DIGEST_LENGTH; }
+        uint8 *GetDigest() { return mDigest; }
+        uint32 GetLength() const { return SHA256_DIGEST_LENGTH; }
 
     private:
         SHA256_CTX mC;

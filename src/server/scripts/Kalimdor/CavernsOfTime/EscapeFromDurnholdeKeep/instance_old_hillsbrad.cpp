@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,10 @@ SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
 #include "old_hillsbrad.h"
 #include "Player.h"
 
@@ -43,7 +45,7 @@ EndScriptData */
 class instance_old_hillsbrad : public InstanceMapScript
 {
 public:
-    instance_old_hillsbrad() : InstanceMapScript("instance_old_hillsbrad", 560) { }
+    instance_old_hillsbrad() : InstanceMapScript(OHScriptName, 560) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -73,14 +75,9 @@ public:
         {
             Map::PlayerList const& players = instance->GetPlayers();
 
-            if (!players.isEmpty())
-            {
-                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                {
-                    if (Player* player = itr->GetSource())
-                        return player;
-                }
-            }
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                if (Player* player = itr->GetSource())
+                    return player;
 
             TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: GetPlayerInMap, but PlayerList is empty!");
             return NULL;
@@ -90,14 +87,9 @@ public:
         {
             Map::PlayerList const& players = instance->GetPlayers();
 
-            if (!players.isEmpty())
-            {
-                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                {
-                    if (Player* player = itr->GetSource())
-                        player->KilledMonsterCredit(LODGE_QUEST_TRIGGER);
-                }
-            }
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                if (Player* player = itr->GetSource())
+                    player->KilledMonsterCredit(LODGE_QUEST_TRIGGER);
         }
 
         void OnCreatureCreate(Creature* creature) override

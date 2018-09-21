@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,9 +18,20 @@
 #ifndef GarrisonMgr_h__
 #define GarrisonMgr_h__
 
-#include "DB2Stores.h"
-#include <unordered_set>
+#include "Define.h"
+#include "Hash.h"
 #include "Position.h"
+#include <list>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+struct GameObjectsEntry;
+struct GarrAbilityEntry;
+struct GarrFollowerEntry;
+struct GarrSiteLevelEntry;
+struct GarrSiteLevelPlotInstEntry;
 
 struct FinalizeGarrisonPlotGOInfo
 {
@@ -64,7 +75,7 @@ private:
     std::unordered_map<uint32 /*garrSiteId*/, std::vector<GarrSiteLevelPlotInstEntry const*>> _garrisonPlotInstBySiteLevel;
     std::unordered_map<uint32 /*mapId*/, std::unordered_map<uint32 /*garrPlotId*/, GameObjectsEntry const*>> _garrisonPlots;
     std::unordered_map<uint32 /*garrPlotId*/, std::unordered_set<uint32/*garrBuildingId*/>> _garrisonBuildingsByPlot;
-    std::unordered_map<uint64 /*garrBuildingId | garrSiteLevelPlotInstId << 32*/, uint32 /*garrBuildingPlotInstId*/> _garrisonBuildingPlotInstances;
+    std::unordered_map<std::pair<uint32 /*garrBuildingId*/, uint32 /*garrSiteLevelPlotInstId*/>, uint32 /*garrBuildingPlotInstId*/> _garrisonBuildingPlotInstances;
     std::unordered_map<uint32 /*buildingType*/, std::vector<uint32>> _garrisonBuildingsByType;
     std::unordered_map<uint32 /*garrPlotInstanceId*/, FinalizeGarrisonPlotGOInfo> _finalizePlotGOInfo;
     std::unordered_map<uint32 /*garrFollowerId*/, GarrAbilities> _garrisonFollowerAbilities[2];

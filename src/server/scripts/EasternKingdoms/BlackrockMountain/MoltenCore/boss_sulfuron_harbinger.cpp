@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -121,6 +121,9 @@ class boss_sulfuron : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -129,7 +132,7 @@ class boss_sulfuron : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_sulfuronAI(creature);
+            return GetMoltenCoreAI<boss_sulfuronAI>(creature);
         }
 };
 
@@ -194,6 +197,9 @@ class npc_flamewaker_priest : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -205,7 +211,7 @@ class npc_flamewaker_priest : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_flamewaker_priestAI(creature);
+            return GetMoltenCoreAI<npc_flamewaker_priestAI>(creature);
         }
 };
 

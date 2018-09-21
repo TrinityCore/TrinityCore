@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,18 +22,21 @@
 #include <boost/filesystem/path.hpp>
 #include <fstream>
 
-GameTable<GtArmorMitigationByLvlEntry>      sArmorMitigationByLvlGameTable;
-GameTable<GtArtifactLevelXPEntry>           sArtifactLevelXPGameTable;
-GameTable<GtBarberShopCostBaseEntry>        sBarberShopCostBaseGameTable;
-GameTable<GtBaseMPEntry>                    sBaseMPGameTable;
-GameTable<GtCombatRatingsEntry>             sCombatRatingsGameTable;
-GameTable<GtHpPerStaEntry>                  sHpPerStaGameTable;
-GameTable<GtItemSocketCostPerLevelEntry>    sItemSocketCostPerLevelGameTable;
-GameTable<GtNpcDamageByClassEntry>          sNpcDamageByClassGameTable[MAX_EXPANSIONS];
-GameTable<GtNpcManaCostScalerEntry>         sNpcManaCostScalerGameTable;
-GameTable<GtNpcTotalHpEntry>                sNpcTotalHpGameTable[MAX_EXPANSIONS];
-GameTable<GtSpellScalingEntry>              sSpellScalingGameTable;
-GameTable<GtXpEntry>                        sXpGameTable;
+GameTable<GtArmorMitigationByLvlEntry>          sArmorMitigationByLvlGameTable;
+GameTable<GtArtifactKnowledgeMultiplierEntry>   sArtifactKnowledgeMultiplierGameTable;
+GameTable<GtArtifactLevelXPEntry>               sArtifactLevelXPGameTable;
+GameTable<GtBarberShopCostBaseEntry>            sBarberShopCostBaseGameTable;
+GameTable<GtBaseMPEntry>                        sBaseMPGameTable;
+GameTable<GtCombatRatingsEntry>                 sCombatRatingsGameTable;
+GameTable<GtCombatRatingsMultByILvl>            sCombatRatingsMultByILvlGameTable;
+GameTable<GtHonorLevelEntry>                    sHonorLevelGameTable;
+GameTable<GtHpPerStaEntry>                      sHpPerStaGameTable;
+GameTable<GtItemSocketCostPerLevelEntry>        sItemSocketCostPerLevelGameTable;
+GameTable<GtNpcDamageByClassEntry>              sNpcDamageByClassGameTable[MAX_EXPANSIONS];
+GameTable<GtNpcManaCostScalerEntry>             sNpcManaCostScalerGameTable;
+GameTable<GtNpcTotalHpEntry>                    sNpcTotalHpGameTable[MAX_EXPANSIONS];
+GameTable<GtSpellScalingEntry>                  sSpellScalingGameTable;
+GameTable<GtXpEntry>                            sXpGameTable;
 
 template<class T>
 inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& storage, boost::filesystem::path const& path)
@@ -108,11 +111,14 @@ void LoadGameTables(std::string const& dataPath)
 #define LOAD_GT(store, file) gameTableCount += LoadGameTable(bad_gt_files, store, gtPath / file); ++expectedGameTableCount;
 
     LOAD_GT(sArmorMitigationByLvlGameTable, "ArmorMitigationByLvl.txt");
-    LOAD_GT(sArtifactLevelXPGameTable, "artifactLevelXP.txt");
+    LOAD_GT(sArtifactKnowledgeMultiplierGameTable, "ArtifactKnowledgeMultiplier.txt");
+    LOAD_GT(sArtifactLevelXPGameTable, "ArtifactLevelXP.txt");
     LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
     LOAD_GT(sBaseMPGameTable, "BaseMp.txt");
     LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");
+    LOAD_GT(sCombatRatingsMultByILvlGameTable, "CombatRatingsMultByILvl.txt");
     LOAD_GT(sItemSocketCostPerLevelGameTable, "ItemSocketCostPerLevel.txt");
+    LOAD_GT(sHonorLevelGameTable, "HonorLevel.txt");
     LOAD_GT(sHpPerStaGameTable, "HpPerSta.txt");
     LOAD_GT(sNpcDamageByClassGameTable[0], "NpcDamageByClass.txt");
     LOAD_GT(sNpcDamageByClassGameTable[1], "NpcDamageByClassExp1.txt");
@@ -121,7 +127,7 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sNpcDamageByClassGameTable[4], "NpcDamageByClassExp4.txt");
     LOAD_GT(sNpcDamageByClassGameTable[5], "NpcDamageByClassExp5.txt");
     LOAD_GT(sNpcDamageByClassGameTable[6], "NpcDamageByClassExp6.txt");
-    LOAD_GT(sNpcManaCostScalerGameTable, "NpcManaCostScaler.txt");
+    LOAD_GT(sNpcManaCostScalerGameTable, "NPCManaCostScaler.txt");
     LOAD_GT(sNpcTotalHpGameTable[0], "NpcTotalHp.txt");
     LOAD_GT(sNpcTotalHpGameTable[1], "NpcTotalHpExp1.txt");
     LOAD_GT(sNpcTotalHpGameTable[2], "NpcTotalHpExp2.txt");

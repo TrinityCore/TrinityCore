@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,12 +34,6 @@ void WorldPackets::Transmogrification::TransmogrifyItems::Read()
         _worldPacket >> item;
 
     CurrentSpecOnly = _worldPacket.ReadBit();
-}
-
-void WorldPackets::Transmogrification::TransmogAppearanceSetFavorite::Read()
-{
-    _worldPacket >> ItemModifiedAppearanceID;
-    IsFavorite = _worldPacket.ReadBit();
 }
 
 WorldPacket const* WorldPackets::Transmogrification::TransmogCollectionUpdate::Write()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,8 +19,9 @@
 #define BattlenetPackets_h__
 
 #include "Packet.h"
-#include "MessageBuffer.h"
 #include "BattlenetRpcErrorCodes.h"
+#include "MessageBuffer.h"
+#include <array>
 
 namespace WorldPackets
 {
@@ -100,7 +101,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 Token = 0;
-            std::array<uint8, 32> Secret;
+            std::array<uint8, 32> Secret = { };
         };
     }
 }

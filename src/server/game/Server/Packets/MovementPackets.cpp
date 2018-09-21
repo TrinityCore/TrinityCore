@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
 #include "PacketUtilities.h"
 #include "Unit.h"
 
-ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
+ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
 {
     bool hasTransportData = !movementInfo.transport.guid.IsEmpty();
     bool hasFallDirection = movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR);
@@ -181,7 +181,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo::TransportInfo const& tran
 
 void WorldPackets::Movement::ClientPlayerMovement::Read()
 {
-    _worldPacket >> movementInfo;
+    _worldPacket >> Status;
 }
 
 ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey)
@@ -209,10 +209,10 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MonsterSplineFi
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineSpellEffectExtraData const& spellEffectExtraData)
 {
-    data << spellEffectExtraData.field_1;
-    data << uint32(spellEffectExtraData.field_2);
-    data << uint32(spellEffectExtraData.field_3);
-    data << uint32(spellEffectExtraData.field_4);
+    data << spellEffectExtraData.TargetGUID;
+    data << uint32(spellEffectExtraData.SpellVisualID);
+    data << uint32(spellEffectExtraData.ProgressCurveID);
+    data << uint32(spellEffectExtraData.ParabolicCurveID);
 
     return data;
 }
@@ -254,10 +254,10 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
             break;
     }
 
-    for (G3D::Vector3 const& pos : movementSpline.Points)
+    for (TaggedPosition<Position::XYZ> const& pos : movementSpline.Points)
         data << pos;
-    for (G3D::Vector3 const& pos : movementSpline.PackedDeltas)
-        data.appendPackXYZ(pos.x, pos.y, pos.z);
+    for (TaggedPosition<Position::PackedXYZ> const& pos : movementSpline.PackedDeltas)
+        data << pos;
 
     if (movementSpline.SpellEffectExtraData)
         data << *movementSpline.SpellEffectExtraData;
@@ -281,10 +281,13 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
 {
     data << uint32(moveSpline.GetId());                                         // ID
 
+    G3D::Vector3 dest;
     if (!moveSpline.isCyclic())                                                 // Destination
-        data << moveSpline.FinalDestination().xyz();
+        dest = moveSpline.FinalDestination();
     else
-        data << G3D::Vector3::zero();
+        dest = G3D::Vector3::zero();
+
+    data << dest.x << dest.y << dest.z;
 
     bool hasSplineMove = data.WriteBit(!moveSpline.Finalized() && !moveSpline.splineIsFacingOnly);
     data.FlushBits();
@@ -297,12 +300,12 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         data << float(1.0f);                                                    // DurationModifier
         data << float(1.0f);                                                    // NextDurationModifier
         data.WriteBits(moveSpline.facing.type, 2);                              // Face
-        bool HasJumpGravity = data.WriteBit(moveSpline.splineflags & (::Movement::MoveSplineFlag::Parabolic | ::Movement::MoveSplineFlag::Animation));                 // HasJumpGravity
-        bool HasSpecialTime = data.WriteBit((moveSpline.splineflags & ::Movement::MoveSplineFlag::Parabolic) && moveSpline.effect_start_time < moveSpline.Duration()); // HasSpecialTime
+        bool HasJumpGravity = data.WriteBit(moveSpline.splineflags.parabolic || moveSpline.splineflags.animation);                 // HasJumpGravity
+        bool HasSpecialTime = data.WriteBit(moveSpline.splineflags.parabolic && moveSpline.effect_start_time < moveSpline.Duration()); // HasSpecialTime
         data.WriteBits(moveSpline.getPath().size(), 16);
         data.WriteBits(uint8(moveSpline.spline.mode()), 2);                     // Mode
         data.WriteBit(0);                                                       // HasSplineFilter
-        data.WriteBit(0);                                                       // HasSpellEffectExtraData
+        data.WriteBit(moveSpline.spell_effect_extra.is_initialized());          // HasSpellEffectExtraData
         data.FlushBits();
 
         //if (HasSplineFilterKey)
@@ -321,8 +324,13 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         switch (moveSpline.facing.type)
         {
             case ::Movement::MONSTER_MOVE_FACING_SPOT:
-                data << moveSpline.facing.f;        // FaceSpot
+            {
+                // FaceSpot
+                data << float(moveSpline.facing.f.x);
+                data << float(moveSpline.facing.f.y);
+                data << float(moveSpline.facing.f.z);
                 break;
+            }
             case ::Movement::MONSTER_MOVE_FACING_TARGET:
                 data << moveSpline.facing.target;   // FaceGUID
                 break;
@@ -339,16 +347,22 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         if (HasSpecialTime)
             data << uint32(moveSpline.effect_start_time);                       // SpecialTime
 
-        data.append<G3D::Vector3>(&moveSpline.getPath()[0], moveSpline.getPath().size());
+        data.append(moveSpline.getPath().data(), moveSpline.getPath().size());
 
-        //if (HasSpellEffectExtraData)
-        //{
-        //    data << ObjectGuid();
-        //    data << uint32();
-        //    data << uint32();
-        //    data << uint32();
-        //}
+        if (moveSpline.spell_effect_extra)
+        {
+            data << moveSpline.spell_effect_extra->Target;
+            data << uint32(moveSpline.spell_effect_extra->SpellVisualId);
+            data << uint32(moveSpline.spell_effect_extra->ProgressCurveId);
+            data << uint32(moveSpline.spell_effect_extra->ParabolicCurveId);
+        }
     }
+}
+
+void WorldPackets::Movement::CommonMovement::WriteCreateObjectAreaTriggerSpline(::Movement::Spline<int32> const& spline, ByteBuffer& data)
+{
+    data.WriteBits(spline.getPoints().size(), 16);
+    data.append<G3D::Vector3>(spline.getPoints().data(), spline.getPoints().size());
 }
 
 void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
@@ -362,7 +376,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
     movementSpline.Face = moveSpline.facing.type;
     movementSpline.FaceDirection = moveSpline.facing.angle;
     movementSpline.FaceGUID = moveSpline.facing.target;
-    movementSpline.FaceSpot = moveSpline.facing.f;
+    movementSpline.FaceSpot = Position(moveSpline.facing.f.x, moveSpline.facing.f.y, moveSpline.facing.f.z);
 
     if (splineFlags.animation)
     {
@@ -378,8 +392,17 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
         movementSpline.SpecialTime = moveSpline.effect_start_time;
     }
 
-    if (splineFlags.unknown6)
+    if (splineFlags.fadeObject)
         movementSpline.SpecialTime = moveSpline.effect_start_time;
+
+    if (moveSpline.spell_effect_extra)
+    {
+        movementSpline.SpellEffectExtraData = boost::in_place();
+        movementSpline.SpellEffectExtraData->TargetGUID = moveSpline.spell_effect_extra->Target;
+        movementSpline.SpellEffectExtraData->SpellVisualID = moveSpline.spell_effect_extra->SpellVisualId;
+        movementSpline.SpellEffectExtraData->ProgressCurveID = moveSpline.spell_effect_extra->ProgressCurveId;
+        movementSpline.SpellEffectExtraData->ParabolicCurveID = moveSpline.spell_effect_extra->ParabolicCurveId;
+    }
 
     ::Movement::Spline<int32> const& spline = moveSpline.spline;
     std::vector<G3D::Vector3> const& array = spline.getPoints();
@@ -390,14 +413,14 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
         {
             uint32 count = spline.getPointCount() - 3;
             for (uint32 i = 0; i < count; ++i)
-                movementSpline.Points.push_back(array[i + 2]);
+                movementSpline.Points.emplace_back(array[i + 2].x, array[i + 2].y, array[i + 2].z);
         }
         else
         {
             uint32 count = spline.getPointCount() - 3;
-            movementSpline.Points.push_back(array[1]);
+            movementSpline.Points.emplace_back(array[1].x, array[1].y, array[1].z);
             for (uint32 i = 0; i < count; ++i)
-                movementSpline.Points.push_back(array[i + 1]);
+                movementSpline.Points.emplace_back(array[i + 1].x, array[i + 1].y, array[i + 1].z);
         }
     }
     else
@@ -405,7 +428,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
         uint32 lastIdx = spline.getPointCount() - 3;
         G3D::Vector3 const* realPath = &spline.getPoint(1);
 
-        movementSpline.Points.push_back(realPath[lastIdx]);
+        movementSpline.Points.emplace_back(realPath[lastIdx].x, realPath[lastIdx].y, realPath[lastIdx].z);
 
         if (lastIdx > 1)
         {
@@ -413,7 +436,10 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
 
             // first and last points already appended
             for (uint32 i = 1; i < lastIdx; ++i)
-                movementSpline.PackedDeltas.push_back(middle - realPath[i]);
+            {
+                G3D::Vector3 delta = middle - realPath[i];
+                movementSpline.PackedDeltas.emplace_back(delta.x, delta.y, delta.z);
+            }
         }
     }
 }
@@ -443,7 +469,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetSpeed::Write()
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateSpeed::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
     _worldPacket << Speed;
     return &_worldPacket;
 }
@@ -463,7 +489,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetFlag::Write()
 
 WorldPacket const* WorldPackets::Movement::MoveUpdate::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
 
     return &_worldPacket;
 }
@@ -471,6 +497,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdate::Write()
 WorldPacket const* WorldPackets::Movement::TransferPending::Write()
 {
     _worldPacket << int32(MapID);
+    _worldPacket << OldMapPosition;
     _worldPacket.WriteBit(Ship.is_initialized());
     _worldPacket.WriteBit(TransferSpellID.is_initialized());
     if (Ship)
@@ -500,9 +527,9 @@ WorldPacket const* WorldPackets::Movement::TransferAborted::Write()
 WorldPacket const* WorldPackets::Movement::NewWorld::Write()
 {
     _worldPacket << int32(MapID);
-    _worldPacket << Pos.PositionXYZOStream();
+    _worldPacket << Pos;
     _worldPacket << uint32(Reason);
-    _worldPacket << MovementOffset.PositionXYZStream();
+    _worldPacket << MovementOffset;
     return &_worldPacket;
 }
 
@@ -510,12 +537,12 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
 {
     _worldPacket << MoverGUID;
     _worldPacket << uint32(SequenceIndex);
-    _worldPacket << Pos.PositionXYZStream();
+    _worldPacket << Pos;
     _worldPacket << float(Facing);
     _worldPacket << uint8(PreloadWorld);
 
-    _worldPacket.WriteBit(Vehicle.is_initialized());
     _worldPacket.WriteBit(TransportGUID.is_initialized());
+    _worldPacket.WriteBit(Vehicle.is_initialized());
     _worldPacket.FlushBits();
 
     if (Vehicle)
@@ -537,7 +564,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce c
     data << movementForce.ID;
     data << movementForce.Origin;
     data << movementForce.Direction;
-    data << movementForce.TransportPosition;
     data << movementForce.TransportID;
     data << movementForce.Magnitude;
     data.WriteBits(movementForce.Type, 2);
@@ -548,12 +574,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce c
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
 
-    _worldPacket << int32(MovementForces.size());
-    for (WorldPackets::Movement::MovementForce const& force : MovementForces)
-        _worldPacket << force;
-
+    _worldPacket << uint32(MovementForces.size());
     _worldPacket.WriteBit(WalkSpeed.is_initialized());
     _worldPacket.WriteBit(RunSpeed.is_initialized());
     _worldPacket.WriteBit(RunBackSpeed.is_initialized());
@@ -563,8 +586,10 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
     _worldPacket.WriteBit(FlightBackSpeed.is_initialized());
     _worldPacket.WriteBit(TurnRate.is_initialized());
     _worldPacket.WriteBit(PitchRate.is_initialized());
-
     _worldPacket.FlushBits();
+
+    for (WorldPackets::Movement::MovementForce const& force : MovementForces)
+        _worldPacket << force;
 
     if (WalkSpeed)
         _worldPacket << *WalkSpeed;
@@ -605,7 +630,7 @@ void WorldPackets::Movement::MoveTeleportAck::Read()
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Movement::MovementAck& ack)
 {
-    data >> ack.movementInfo;
+    data >> ack.Status;
     data >> ack.AckIndex;
     return data;
 }
@@ -633,22 +658,48 @@ WorldPacket const* WorldPackets::Movement::MoveSetActiveMover::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveKnockBackSpeeds const& speeds)
+{
+    data << float(speeds.HorzSpeed);
+    data << float(speeds.VertSpeed);
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Movement::MoveKnockBackSpeeds& speeds)
+{
+    data >> speeds.HorzSpeed;
+    data >> speeds.VertSpeed;
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Movement::MoveKnockBack::Write()
 {
     _worldPacket << MoverGUID;
     _worldPacket << uint32(SequenceIndex);
     _worldPacket << Direction;
-    _worldPacket << float(HorzSpeed);
-    _worldPacket << float(VertSpeed);
+    _worldPacket << Speeds;
 
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateKnockBack::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
 
     return &_worldPacket;
+}
+
+void WorldPackets::Movement::MoveKnockBackAck::Read()
+{
+    _worldPacket >> Ack;
+    bool hasSpeeds = _worldPacket.ReadBit();
+    if (hasSpeeds)
+    {
+        Speeds = boost::in_place();
+        _worldPacket >> *Speeds;
+    }
 }
 
 WorldPacket const* WorldPackets::Movement::MoveSetCollisionHeight::Write()
@@ -667,7 +718,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetCollisionHeight::Write()
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
     _worldPacket << float(Height);
     _worldPacket << float(Scale);
 
@@ -676,7 +727,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
     _worldPacket << TriggerGUID;
 
     return &_worldPacket;
@@ -684,7 +735,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write(
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateApplyMovementForce::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
     _worldPacket << Force;
 
     return &_worldPacket;
@@ -721,7 +772,7 @@ WorldPacket const* WorldPackets::Movement::ControlUpdate::Write()
 
 void WorldPackets::Movement::MoveSplineDone::Read()
 {
-    _worldPacket >> movementInfo;
+    _worldPacket >> Status;
     _worldPacket >> SplineID;
 }
 
@@ -793,11 +844,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
     if (stateChange.VehicleRecID)
         data << int32(*stateChange.VehicleRecID);
 
-    if (stateChange.MovementForce_)
-        data << *stateChange.MovementForce_;
-
     if (stateChange.Unknown)
         data << *stateChange.Unknown;
+
+    if (stateChange.MovementForce_)
+        data << *stateChange.MovementForce_;
 
     return data;
 }

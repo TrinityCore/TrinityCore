@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "gundrak.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "gundrak.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -209,7 +211,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_slad_ran_constrictorAI(creature);
+        return GetGundrakAI<npc_slad_ran_constrictorAI>(creature);
     }
 
     struct npc_slad_ran_constrictorAI : public ScriptedAI
@@ -264,7 +266,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_slad_ran_viperAI(creature);
+        return GetGundrakAI<npc_slad_ran_viperAI>(creature);
     }
 
     struct npc_slad_ran_viperAI : public ScriptedAI

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,12 +19,16 @@
 #ifndef DEF_SHATTERED_H
 #define DEF_SHATTERED_H
 
+#include "CreatureAIImpl.h"
+#include "Position.h"
+
+#define SHScriptName "instance_shattered_halls"
 #define DataHeader "SH"
 
 uint32 const EncounterCount          = 4;
 uint32 const VictimCount             = 3;
 
-enum DataTypes
+enum SHDataTypes
 {
     DATA_NETHEKURSE                  = 0,
     DATA_OMROGG                      = 1,
@@ -40,7 +44,7 @@ enum DataTypes
     DATA_THIRD_PRISONER
 };
 
-enum CreatureIds
+enum SHCreatureIds
 {
     NPC_GRAND_WARLOCK_NETHEKURSE     = 16807,
     NPC_KARGATH_BLADEFIST            = 16808,
@@ -62,19 +66,19 @@ enum CreatureIds
     NPC_HORDE_VICTIM_2               = 17297
 };
 
-enum GameobjectIds
+enum SHGameobjectIds
 {
     GO_GRAND_WARLOCK_CHAMBER_DOOR_1  = 182539,
     GO_GRAND_WARLOCK_CHAMBER_DOOR_2  = 182540
 };
 
-enum QuestIds
+enum SHQuestIds
 {
     QUEST_IMPRISONED_A               = 9524,
     QUEST_IMPRISONED_H               = 9525
 };
 
-enum InstanceSpells
+enum SHInstanceSpells
 {
     SPELL_KARGATH_EXECUTIONER_1      = 39288,
     SPELL_KARGATH_EXECUTIONER_2      = 39289,
@@ -83,7 +87,7 @@ enum InstanceSpells
     SPELL_REMOVE_KARGATH_EXECUTIONER = 39291
 };
 
-enum Actions
+enum SHActions
 {
     ACTION_EXECUTIONER_TAUNT = 1
 };
@@ -98,9 +102,9 @@ struct FactionSpawnerHelper
     inline Position const& GetPos() const { return _spawnPos; }
 
 private:
-    const uint32 _allianceNPC;
-    const uint32 _hordeNPC;
-    const Position _spawnPos;
+    uint32 const _allianceNPC;
+    uint32 const _hordeNPC;
+    Position const _spawnPos;
 };
 
 const FactionSpawnerHelper executionerVictims[VictimCount] =
@@ -110,5 +114,10 @@ const FactionSpawnerHelper executionerVictims[VictimCount] =
     { NPC_ALLIANCE_VICTIM_2, NPC_HORDE_VICTIM_2,      { 151.0459f, -77.51981f, 2.021008f, 4.74729500f } }
 };
 
+template<typename AI>
+inline AI* GetShatteredHallsAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, SHScriptName);
+}
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -234,17 +234,8 @@ void DelayedUnitRelocation::Visit(PlayerMapType &m)
         if (player != viewPoint && !viewPoint->IsPositionValid())
             continue;
 
-        CellCoord pair2(Trinity::ComputeCellCoord(viewPoint->GetPositionX(), viewPoint->GetPositionY()));
-        Cell cell2(pair2);
-        //cell.SetNoCreate(); need load cells around viewPoint or player, that's why its commented
-
         PlayerRelocationNotifier relocate(*player);
-        TypeContainerVisitor<PlayerRelocationNotifier, WorldTypeMapContainer > c2world_relocation(relocate);
-        TypeContainerVisitor<PlayerRelocationNotifier, GridTypeMapContainer >  c2grid_relocation(relocate);
-
-        cell2.Visit(pair2, c2world_relocation, i_map, *viewPoint, i_radius);
-        cell2.Visit(pair2, c2grid_relocation, i_map, *viewPoint, i_radius);
-
+        Cell::VisitAllObjects(viewPoint, relocate, i_radius, false);
         relocate.SendToSelf();
     }
 }
@@ -381,4 +372,4 @@ template void ObjectUpdater::Visit<Creature>(CreatureMapType&);
 template void ObjectUpdater::Visit<GameObject>(GameObjectMapType&);
 template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType&);
 template void ObjectUpdater::Visit<AreaTrigger>(AreaTriggerMapType &);
-
+template void ObjectUpdater::Visit<Conversation>(ConversationMapType &);

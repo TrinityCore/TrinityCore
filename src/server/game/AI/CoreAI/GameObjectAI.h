@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,11 +20,11 @@
 #define TRINITY_GAMEOBJECTAI_H
 
 #include "Define.h"
-#include <list>
-#include "Object.h"
 #include "QuestDef.h"
-#include "GameObject.h"
-#include "CreatureAI.h"
+#include <list>
+
+class GameObject;
+class Unit;
 
 class TC_GAME_API GameObjectAI
 {
@@ -70,6 +70,6 @@ class TC_GAME_API NullGameObjectAI : public GameObjectAI
 
         void UpdateAI(uint32 /*diff*/) override { }
 
-        static int Permissible(GameObject const* /*go*/) { return PERMIT_BASE_IDLE; }
+        static int Permissible(GameObject const* /*go*/);
 };
 #endif

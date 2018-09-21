@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,29 +24,48 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "karazhan.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "karazhan.h"
 
-enum Midnight
+enum Texts
 {
-    SAY_MIDNIGHT_KILL           = 0,
-    SAY_APPEAR                  = 1,
-    SAY_MOUNT                   = 2,
+    SAY_KILL          = 0,
+    SAY_RANDOM        = 1,
+    SAY_DISARMED      = 2,
+    SAY_MIDNIGHT_KILL = 3,
+    SAY_APPEAR        = 4,
+    SAY_MOUNT         = 5,
 
-    SAY_KILL                    = 0,
-    SAY_DISARMED                = 1,
-    SAY_DEATH                   = 2,
-    SAY_RANDOM                  = 3,
+    SAY_DEATH         = 3,
 
-    SPELL_SHADOWCLEAVE          = 29832,
-    SPELL_INTANGIBLE_PRESENCE   = 29833,
-    SPELL_BERSERKER_CHARGE      = 26561,                   //Only when mounted
+    // Midnight
+    EMOTE_CALL_ATTUMEN = 0,
+    EMOTE_MOUNT_UP     = 1
+};
 
-    MOUNTED_DISPLAYID           = 16040,
+enum Spells
+{
+    // Attumen
+    SPELL_SHADOWCLEAVE           = 29832,
+    SPELL_INTANGIBLE_PRESENCE    = 29833,
+    SPELL_SPAWN_SMOKE            = 10389,
+    SPELL_CHARGE                 = 29847,
 
-    //Attumen (@todo Use the summoning spell instead of Creature id. It works, but is not convenient for us)
-    SUMMON_ATTUMEN              = 15550,
+    // Midnight
+    SPELL_KNOCKDOWN              = 29711,
+    SPELL_SUMMON_ATTUMEN         = 29714,
+    SPELL_MOUNT                  = 29770,
+    SPELL_SUMMON_ATTUMEN_MOUNTED = 29799
+};
+
+enum Phases
+{
+    PHASE_NONE,
+    PHASE_ATTUMEN_ENGAGES,
+    PHASE_MOUNTED
 };
 
 class boss_attumen : public CreatureScript
@@ -54,75 +73,212 @@ class boss_attumen : public CreatureScript
 public:
     boss_attumen() : CreatureScript("boss_attumen") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct boss_attumenAI : public BossAI
     {
-        return new boss_attumenAI(creature);
-    }
-
-    struct boss_attumenAI : public ScriptedAI
-    {
-        boss_attumenAI(Creature* creature) : ScriptedAI(creature)
+        boss_attumenAI(Creature* creature) : BossAI(creature, DATA_ATTUMEN)
         {
             Initialize();
-
-            Phase = 1;
-
-            CleaveTimer = urand(10000, 15000);
-            CurseTimer = 30000;
-            RandomYellTimer = urand(30000, 60000);              //Occasionally yell
-            ChargeTimer = 20000;
-         }
+        }
 
         void Initialize()
         {
-            ResetTimer = 0;
-            Midnight.Clear();
+            _midnightGUID.Clear();
+            _phase = PHASE_NONE;
         }
-
-        ObjectGuid Midnight;
-        uint8 Phase;
-        uint32 CleaveTimer;
-        uint32 CurseTimer;
-        uint32 RandomYellTimer;
-        uint32 ChargeTimer;                                     //only when mounted
-        uint32 ResetTimer;
 
         void Reset() override
         {
             Initialize();
+            BossAI::Reset();
         }
 
-        void EnterEvadeMode(EvadeReason why) override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
-            ScriptedAI::EnterEvadeMode(why);
-            ResetTimer = 2000;
+            if (Creature* midnight = ObjectAccessor::GetCreature(*me, _midnightGUID))
+                BossAI::_DespawnAtEvade(Seconds(10), midnight);
+
+            me->DespawnOrUnsummon();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void ScheduleTasks() override
+        {
+            scheduler.Schedule(Seconds(15), Seconds(25), [this](TaskContext task)
+            {
+                DoCastVictim(SPELL_SHADOWCLEAVE);
+                task.Repeat(Seconds(15), Seconds(25));
+            });
+
+            scheduler.Schedule(Seconds(25), Seconds(45), [this](TaskContext task)
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target,SPELL_INTANGIBLE_PRESENCE);
+
+                task.Repeat(Seconds(25), Seconds(45));
+            });
+
+            scheduler.Schedule(Seconds(30), Seconds(60), [this](TaskContext task)
+            {
+                Talk(SAY_RANDOM);
+                task.Repeat(Seconds(30), Seconds(60));
+            });
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+        {
+            // Attumen does not die until he mounts Midnight, let health fall to 1 and prevent further damage.
+            if (damage >= me->GetHealth() && _phase != PHASE_MOUNTED)
+                damage = me->GetHealth() - 1;
+
+            if (_phase == PHASE_ATTUMEN_ENGAGES && me->HealthBelowPctDamaged(25, damage))
+            {
+                _phase = PHASE_NONE;
+
+                if (Creature* midnight = ObjectAccessor::GetCreature(*me, _midnightGUID))
+                    midnight->AI()->DoCastAOE(SPELL_MOUNT, true);
+            }
+        }
 
         void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_KILL);
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustSummoned(Creature* summon) override
         {
-            Talk(SAY_DEATH);
-            if (Unit* midnight = ObjectAccessor::GetUnit(*me, Midnight))
-                midnight->KillSelf();
+            if (summon->GetEntry() == NPC_ATTUMEN_MOUNTED)
+                if (Creature* midnight = ObjectAccessor::GetCreature(*me, _midnightGUID))
+                {
+                    if (midnight->GetHealth() > me->GetHealth())
+                        summon->SetHealth(midnight->GetHealth());
+                    else
+                        summon->SetHealth(me->GetHealth());
 
-            if (InstanceScript* instance = me->GetInstanceScript())
-                instance->SetBossState(DATA_ATTUMEN, DONE);
+                    summon->AI()->DoZoneInCombat();
+                    summon->AI()->SetGUID(_midnightGUID, NPC_MIDNIGHT);
+                }
+
+            BossAI::JustSummoned(summon);
         }
 
-        void UpdateAI(uint32 diff) override;
+        void IsSummonedBy(Unit* summoner) override
+        {
+            if (summoner->GetEntry() == NPC_MIDNIGHT)
+                _phase = PHASE_ATTUMEN_ENGAGES;
+
+            if (summoner->GetEntry() == NPC_ATTUMEN_UNMOUNTED)
+            {
+                _phase = PHASE_MOUNTED;
+                DoCastSelf(SPELL_SPAWN_SMOKE);
+
+                scheduler.Schedule(Seconds(10), Seconds(25), [this](TaskContext task)
+                {
+                    Unit* target = nullptr;
+                    ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
+                    std::vector<Unit*> target_list;
+
+                    for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr != t_list.end(); ++itr)
+                    {
+                        target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
+                        if (target && !target->IsWithinDist(me, 8.00f, false) && target->IsWithinDist(me, 25.0f, false))
+                            target_list.push_back(target);
+
+                        target = nullptr;
+                    }
+
+                    if (!target_list.empty())
+                        target = Trinity::Containers::SelectRandomContainerElement(target_list);
+
+                    DoCast(target, SPELL_CHARGE);
+                    task.Repeat(Seconds(10), Seconds(25));
+                });
+
+                scheduler.Schedule(Seconds(25), Seconds(35), [this](TaskContext task)
+                {
+                    DoCastVictim(SPELL_KNOCKDOWN);
+                    task.Repeat(Seconds(25), Seconds(35));
+                });
+            }
+        }
+
+        void JustDied(Unit* killer) override
+        {
+            Talk(SAY_DEATH);
+            if (Unit* midnight = ObjectAccessor::GetUnit(*me, _midnightGUID))
+                midnight->KillSelf();
+
+            BossAI::JustDied(killer);
+        }
+
+        void SetGUID(ObjectGuid guid, int32 data) override
+        {
+            if (data == NPC_MIDNIGHT)
+                _midnightGUID = guid;
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim() && _phase != PHASE_NONE)
+                return;
+
+            scheduler.Update(diff,
+                std::bind(&BossAI::DoMeleeAttackIfReady, this));
+        }
 
         void SpellHit(Unit* /*source*/, const SpellInfo* spell) override
         {
             if (spell->Mechanic == MECHANIC_DISARM)
                 Talk(SAY_DISARMED);
+
+            if (spell->Id == SPELL_MOUNT)
+            {
+                if (Creature* midnight = ObjectAccessor::GetCreature(*me, _midnightGUID))
+                {
+                    _phase = PHASE_NONE;
+                    scheduler.CancelAll();
+
+                    midnight->AttackStop();
+                    midnight->RemoveAllAttackers();
+                    midnight->SetReactState(REACT_PASSIVE);
+                    midnight->GetMotionMaster()->MoveChase(me);
+                    midnight->AI()->Talk(EMOTE_MOUNT_UP);
+
+                    me->AttackStop();
+                    me->RemoveAllAttackers();
+                    me->SetReactState(REACT_PASSIVE);
+                    me->GetMotionMaster()->MoveChase(midnight);
+                    Talk(SAY_MOUNT);
+
+                    scheduler.Schedule(Seconds(3), [this](TaskContext task)
+                    {
+                        if (Creature* midnight = ObjectAccessor::GetCreature(*me, _midnightGUID))
+                        {
+                            if (me->IsWithinMeleeRange(midnight))
+                            {
+                                DoCastAOE(SPELL_SUMMON_ATTUMEN_MOUNTED);
+                                me->SetVisible(false);
+                                midnight->SetVisible(false);
+                            }
+                            else
+                            {
+                                midnight->GetMotionMaster()->MoveChase(me);
+                                me->GetMotionMaster()->MoveChase(midnight);
+                                task.Repeat(Seconds(3));
+                            }
+                        }
+                    });
+                }
+            }
         }
+
+    private:
+        ObjectGuid _midnightGUID;
+        uint8 _phase;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_attumenAI>(creature);
+    }
 };
 
 class boss_midnight : public CreatureScript
@@ -130,214 +286,102 @@ class boss_midnight : public CreatureScript
 public:
     boss_midnight() : CreatureScript("boss_midnight") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct boss_midnightAI : public BossAI
     {
-        return new boss_midnightAI(creature);
-    }
-
-    struct boss_midnightAI : public ScriptedAI
-    {
-        boss_midnightAI(Creature* creature) : ScriptedAI(creature)
+        boss_midnightAI(Creature* creature) : BossAI(creature, DATA_ATTUMEN)
         {
             Initialize();
         }
 
         void Initialize()
         {
-            Phase = 1;
-            Attumen.Clear();
-            Mount_Timer = 0;
+            _phase = PHASE_NONE;
         }
-
-        ObjectGuid Attumen;
-        uint8 Phase;
-        uint32 Mount_Timer;
 
         void Reset() override
         {
             Initialize();
-
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            BossAI::Reset();
             me->SetVisible(true);
+            me->SetReactState(REACT_DEFENSIVE);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
         {
-            if (InstanceScript* instance = me->GetInstanceScript())
-                instance->SetBossState(DATA_ATTUMEN, IN_PROGRESS);
+            // Midnight never dies, let health fall to 1 and prevent further damage.
+            if (damage >= me->GetHealth())
+                damage = me->GetHealth() - 1;
+
+            if (_phase == PHASE_NONE && me->HealthBelowPctDamaged(95, damage))
+            {
+                _phase = PHASE_ATTUMEN_ENGAGES;
+                Talk(EMOTE_CALL_ATTUMEN);
+                DoCastAOE(SPELL_SUMMON_ATTUMEN);
+            }
+            else if (_phase == PHASE_ATTUMEN_ENGAGES && me->HealthBelowPctDamaged(25, damage))
+            {
+                _phase = PHASE_MOUNTED;
+                DoCastAOE(SPELL_MOUNT, true);
+            }
+        }
+
+        void JustSummoned(Creature* summon) override
+        {
+            if (summon->GetEntry() == NPC_ATTUMEN_UNMOUNTED)
+            {
+                _attumenGUID = summon->GetGUID();
+                summon->AI()->SetGUID(me->GetGUID(), NPC_MIDNIGHT);
+                summon->AI()->AttackStart(me->GetVictim());
+                summon->AI()->Talk(SAY_APPEAR);
+            }
+
+            BossAI::JustSummoned(summon);
+        }
+
+        void EnterCombat(Unit* who) override
+        {
+            BossAI::EnterCombat(who);
+
+            scheduler.Schedule(Seconds(15), Seconds(25), [this](TaskContext task)
+            {
+                DoCastVictim(SPELL_KNOCKDOWN);
+                task.Repeat(Seconds(15), Seconds(25));
+            });
+        }
+
+        void EnterEvadeMode(EvadeReason /*why*/) override
+        {
+            BossAI::_DespawnAtEvade(Seconds(10));
         }
 
         void KilledUnit(Unit* /*victim*/) override
         {
-            if (Phase == 2)
+            if (_phase == PHASE_ATTUMEN_ENGAGES)
             {
-                if (Unit* unit = ObjectAccessor::GetUnit(*me, Attumen))
+                if (Unit* unit = ObjectAccessor::GetUnit(*me, _attumenGUID))
                     Talk(SAY_MIDNIGHT_KILL, unit);
             }
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim())
+            if (!UpdateVictim() || _phase == PHASE_MOUNTED)
                 return;
 
-            if (Phase == 1 && HealthBelowPct(95))
-            {
-                Phase = 2;
-                if (Creature* attumen = me->SummonCreature(SUMMON_ATTUMEN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000))
-                {
-                    Attumen = attumen->GetGUID();
-                    attumen->AI()->AttackStart(me->GetVictim());
-                    SetMidnight(attumen, me->GetGUID());
-                    Talk(SAY_APPEAR, attumen);
-                }
-            }
-            else if (Phase == 2 && HealthBelowPct(25))
-            {
-                if (Unit* pAttumen = ObjectAccessor::GetUnit(*me, Attumen))
-                    Mount(pAttumen);
-            }
-            else if (Phase == 3)
-            {
-                if (Mount_Timer)
-                {
-                    if (Mount_Timer <= diff)
-                    {
-                        Mount_Timer = 0;
-                        me->SetVisible(false);
-                        me->GetMotionMaster()->MoveIdle();
-                        if (Unit* pAttumen = ObjectAccessor::GetUnit(*me, Attumen))
-                        {
-                            pAttumen->SetDisplayId(MOUNTED_DISPLAYID);
-                            pAttumen->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            if (pAttumen->GetVictim())
-                            {
-                                pAttumen->GetMotionMaster()->MoveChase(pAttumen->GetVictim());
-                                pAttumen->SetTarget(pAttumen->EnsureVictim()->GetGUID());
-                            }
-                            pAttumen->SetObjectScale(1);
-                        }
-                    } else Mount_Timer -= diff;
-                }
-            }
-
-            if (Phase != 3)
-                DoMeleeAttackIfReady();
+            scheduler.Update(diff,
+                std::bind(&BossAI::DoMeleeAttackIfReady, this));
         }
 
-        void Mount(Unit* pAttumen)
-        {
-            Talk(SAY_MOUNT, pAttumen);
-            Phase = 3;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            pAttumen->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            float angle = me->GetAngle(pAttumen);
-            float distance = me->GetDistance2d(pAttumen);
-            float newX = me->GetPositionX() + std::cos(angle)*(distance/2);
-            float newY = me->GetPositionY() + std::sin(angle)*(distance/2);
-            float newZ = 50;
-            //me->Relocate(newX, newY, newZ, angle);
-            //me->SendMonsterMove(newX, newY, newZ, 0, true, 1000);
-            me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MovePoint(0, newX, newY, newZ);
-            distance += 10;
-            newX = me->GetPositionX() + std::cos(angle)*(distance/2);
-            newY = me->GetPositionY() + std::sin(angle)*(distance/2);
-            pAttumen->GetMotionMaster()->Clear();
-            pAttumen->GetMotionMaster()->MovePoint(0, newX, newY, newZ);
-            //pAttumen->Relocate(newX, newY, newZ, -angle);
-            //pAttumen->SendMonsterMove(newX, newY, newZ, 0, true, 1000);
-            Mount_Timer = 1000;
-        }
-
-        void SetMidnight(Creature* pAttumen, ObjectGuid value)
-        {
-            ENSURE_AI(boss_attumen::boss_attumenAI, pAttumen->AI())->Midnight = value;
-        }
+        private:
+            ObjectGuid _attumenGUID;
+            uint8 _phase;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_midnightAI>(creature);
+    }
 };
-
-void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
-{
-    if (ResetTimer)
-    {
-        if (ResetTimer <= diff)
-        {
-            ResetTimer = 0;
-            Unit* pMidnight = ObjectAccessor::GetUnit(*me, Midnight);
-            if (pMidnight)
-            {
-                pMidnight->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                pMidnight->SetVisible(true);
-            }
-            Midnight.Clear();
-            me->SetVisible(false);
-            me->KillSelf();
-        } else ResetTimer -= diff;
-    }
-
-    //Return since we have no target
-    if (!UpdateVictim())
-        return;
-
-    if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE))
-        return;
-
-    if (CleaveTimer <= diff)
-    {
-        DoCastVictim(SPELL_SHADOWCLEAVE);
-        CleaveTimer = urand(10000, 15000);
-    } else CleaveTimer -= diff;
-
-    if (CurseTimer <= diff)
-    {
-        DoCastVictim(SPELL_INTANGIBLE_PRESENCE);
-        CurseTimer = 30000;
-    } else CurseTimer -= diff;
-
-    if (RandomYellTimer <= diff)
-    {
-        Talk(SAY_RANDOM);
-        RandomYellTimer = urand(30000, 60000);
-    } else RandomYellTimer -= diff;
-
-    if (me->GetUInt32Value(UNIT_FIELD_DISPLAYID) == MOUNTED_DISPLAYID)
-    {
-        if (ChargeTimer <= diff)
-        {
-            Unit* target = NULL;
-            ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
-            std::vector<Unit*> target_list;
-            for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr != t_list.end(); ++itr)
-            {
-                target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
-                if (target && !target->IsWithinDist(me, ATTACK_DISTANCE, false))
-                    target_list.push_back(target);
-                target = NULL;
-            }
-            if (!target_list.empty())
-                target = *(target_list.begin() + rand32() % target_list.size());
-
-            DoCast(target, SPELL_BERSERKER_CHARGE);
-            ChargeTimer = 20000;
-        } else ChargeTimer -= diff;
-    }
-    else
-    {
-        if (HealthBelowPct(25))
-        {
-            Creature* pMidnight = ObjectAccessor::GetCreature(*me, Midnight);
-            if (pMidnight && pMidnight->GetTypeId() == TYPEID_UNIT)
-            {
-                ENSURE_AI(boss_midnight::boss_midnightAI, (pMidnight->AI()))->Mount(me);
-                me->SetHealth(pMidnight->GetHealth());
-                DoResetThreat();
-            }
-        }
-    }
-
-    DoMeleeAttackIfReady();
-}
 
 void AddSC_boss_attumen()
 {

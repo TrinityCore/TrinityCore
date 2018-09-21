@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,17 @@
 #define SceneMgr_h__
 
 #include "Common.h"
-#include "DBCEnums.h"
+#include <map>
+
+enum SceneFlags
+{
+    SCENEFLAG_UNK1           = 0x01,
+    SCENEFLAG_CANCEL_AT_END  = 0x02,
+    SCENEFLAG_NOT_CANCELABLE = 0x04,
+    SCENEFLAG_UNK8           = 0x08,
+    SCENEFLAG_UNK16          = 0x10, // 16, most common value
+    SCENEFLAG_UNK32          = 0x20,
+};
 
 class Player;
 struct Position;
@@ -52,6 +62,7 @@ public:
     bool HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId = 0) const;
 
     void AddInstanceIdToSceneMap(uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
+    void CancelSceneBySceneId(uint32 sceneId);
     void CancelSceneByPackageId(uint32 sceneScriptPackageId);
     void RemoveSceneInstanceId(uint32 sceneInstanceID);
     void RemoveAurasDueToSceneId(uint32 sceneId);

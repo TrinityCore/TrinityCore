@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
-#include "SpellPackets.h"
+#include "CombatLogPacketsCommon.h"
 
 namespace WorldPackets
 {
@@ -39,12 +39,20 @@ namespace WorldPackets
         class AttackSwingError final : public ServerPacket
         {
         public:
+            enum AttackSwingErr : uint8
+            {
+                CantAttack = 0,
+                BadFacing = 1,
+                NotInRange = 2,
+                DeadTarget = 3
+            };
+
             AttackSwingError() : ServerPacket(SMSG_ATTACK_SWING_ERROR, 4) { }
             AttackSwingError(AttackSwingErr reason) : ServerPacket(SMSG_ATTACK_SWING_ERROR, 4), Reason(reason) { }
 
             WorldPacket const* Write() override;
 
-            AttackSwingErr Reason = ATTACKSWINGERR_CANT_ATTACK;
+            AttackSwingErr Reason = CantAttack;
         };
 
         class AttackStop final : public ClientPacket
@@ -82,7 +90,7 @@ namespace WorldPackets
         struct ThreatInfo
         {
             ObjectGuid UnitGUID;
-            int32 Threat = 0;
+            int64 Threat = 0;
         };
 
         class ThreatUpdate final : public ServerPacket

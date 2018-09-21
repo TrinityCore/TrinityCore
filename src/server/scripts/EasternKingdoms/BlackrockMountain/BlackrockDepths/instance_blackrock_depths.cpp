@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,9 +17,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "InstanceScript.h"
 #include "blackrock_depths.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
 
 #define TIMER_TOMBOFTHESEVEN    15000
 #define MAX_ENCOUNTER           6
@@ -36,7 +40,8 @@ enum Creatures
     NPC_GLOOMREL            = 9037,
     NPC_DOOMREL             = 9039,
     NPC_MAGMUS              = 9938,
-    NPC_MOIRA               = 8929
+    NPC_MOIRA               = 8929,
+    NPC_COREN               = 23872
 };
 
 enum GameObjects
@@ -67,7 +72,7 @@ enum GameObjects
 class instance_blackrock_depths : public InstanceMapScript
 {
 public:
-    instance_blackrock_depths() : InstanceMapScript("instance_blackrock_depths", 230) { }
+    instance_blackrock_depths() : InstanceMapScript(BRDScriptName, 230) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -94,6 +99,7 @@ public:
         ObjectGuid PhalanxGUID;
         ObjectGuid MagmusGUID;
         ObjectGuid MoiraGUID;
+        ObjectGuid CorenGUID;
 
         ObjectGuid GoArena1GUID;
         ObjectGuid GoArena2GUID;
@@ -131,6 +137,7 @@ public:
             case NPC_EMPEROR: EmperorGUID = creature->GetGUID(); break;
             case NPC_PHALANX: PhalanxGUID = creature->GetGUID(); break;
             case NPC_MOIRA: MoiraGUID = creature->GetGUID(); break;
+            case NPC_COREN: CorenGUID = creature->GetGUID(); break;
             case NPC_DOOMREL: TombBossGUIDs[0] = creature->GetGUID(); break;
             case NPC_DOPEREL: TombBossGUIDs[1] = creature->GetGUID(); break;
             case NPC_HATEREL: TombBossGUIDs[2] = creature->GetGUID(); break;
@@ -278,6 +285,8 @@ public:
                 return PhalanxGUID;
             case DATA_MOIRA:
                 return MoiraGUID;
+            case DATA_COREN:
+                return CorenGUID;
             case DATA_ARENA1:
                 return GoArena1GUID;
             case DATA_ARENA2:

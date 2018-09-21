@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@ SDCategory: Trial of the Champion
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "ScriptedEscortAI.h"
 #include "trial_of_the_champion.h"
 
@@ -296,7 +296,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_black_knightAI>(creature);
+        return GetTrialOfTheChampionAI<boss_black_knightAI>(creature);
     }
 };
 
@@ -345,7 +345,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_risen_ghoulAI(creature);
+        return GetTrialOfTheChampionAI<npc_risen_ghoulAI>(creature);
     }
 };
 
@@ -374,7 +374,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_black_knight_skeletal_gryphonAI(creature);
+        return GetTrialOfTheChampionAI<npc_black_knight_skeletal_gryphonAI>(creature);
     }
 };
 

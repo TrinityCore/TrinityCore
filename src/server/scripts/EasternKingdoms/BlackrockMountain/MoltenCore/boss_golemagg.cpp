@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,10 +23,12 @@ SDComment: Timers need to be confirmed, Golemagg's Trust need to be checked
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "molten_core.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -110,6 +112,9 @@ class boss_golemagg : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -118,7 +123,7 @@ class boss_golemagg : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_golemaggAI(creature);
+            return GetMoltenCoreAI<boss_golemaggAI>(creature);
         }
 };
 
@@ -185,7 +190,7 @@ class npc_core_rager : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_core_ragerAI>(creature);
+            return GetMoltenCoreAI<npc_core_ragerAI>(creature);
         }
 };
 

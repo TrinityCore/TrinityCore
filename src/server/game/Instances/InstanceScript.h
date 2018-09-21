@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,12 +19,11 @@
 #ifndef TRINITY_INSTANCE_DATA_H
 #define TRINITY_INSTANCE_DATA_H
 
-#include <set>
 #include "ZoneScript.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "CreatureAI.h"
-#include "Packets/WorldStatePackets.h"
+#include "Common.h"
+#include <map>
+#include <memory>
+#include <set>
 
 #define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_SAVE_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
@@ -32,12 +31,23 @@
 #define OUT_LOAD_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_LOAD_INST_DATA_FAIL        TC_LOG_ERROR("scripts", "Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 
-class Map;
-class Unit;
-class Player;
-class GameObject;
+class AreaBoundary;
 class Creature;
+class GameObject;
+class Map;
 class ModuleReference;
+class Player;
+class Unit;
+enum CriteriaTypes : uint8;
+enum CriteriaTimedTypes : uint8;
+enum EncounterCreditType : uint8;
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
 
 enum EncounterFrameType
 {
@@ -109,6 +119,8 @@ struct ObjectData
     uint32 type;
 };
 
+typedef std::set<AreaBoundary const*> CreatureBoundary;
+
 struct BossInfo
 {
     BossInfo() : state(TO_BE_DECIDED) { }
@@ -179,14 +191,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectGuid GetObjectGuid(uint32 type) const;
         virtual ObjectGuid GetGuidData(uint32 type) const override;
 
-        inline Creature* GetCreature(uint32 type)
-        {
-            return instance->GetCreature(GetObjectGuid(type));
-        }
-        inline GameObject* GetGameObject(uint32 type)
-        {
-            return instance->GetGameObject(GetObjectGuid(type));
-        }
+        Creature* GetCreature(uint32 type);
+        GameObject* GetGameObject(uint32 type);
 
         // Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* /*player*/) { }
@@ -223,7 +229,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoCastSpellOnPlayers(uint32 spell);
 
         // Return wether server allow two side groups or not
-        bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
+        bool ServerAllowsTwoSideGroups();
 
         virtual bool SetBossState(uint32 id, EncounterState state);
         EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }
@@ -238,7 +244,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
         virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = nullptr) const { return true; }
 
         // Checks encounter state at kill/spellcast
-        void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
+        void UpdateEncounterStateForKilledCreature(uint32 creatureId, Unit* source);
+        void UpdateEncounterStateForSpellCast(uint32 spellId, Unit* source);
 
         // Used only during loading
         void SetCompletedEncountersMask(uint32 newMask) { completedEncounters = newMask; }
@@ -309,6 +316,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
     private:
         static void LoadObjectData(ObjectData const* creatureData, ObjectInfoMap& objectInfo);
+        void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
 
         std::vector<char> headers;
         std::vector<BossInfo> bosses;
@@ -329,26 +337,5 @@ class TC_GAME_API InstanceScript : public ZoneScript
         std::shared_ptr<ModuleReference> module_reference;
     #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 };
-
-template<class AI, class T>
-AI* GetInstanceAI(T* obj, char const* scriptName)
-{
-    if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(scriptName))
-                return new AI(obj);
-
-    return NULL;
-}
-
-template<class AI, class T>
-AI* GetInstanceAI(T* obj)
-{
-    if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            return new AI(obj);
-
-    return NULL;
-}
 
 #endif // TRINITY_INSTANCE_DATA_H

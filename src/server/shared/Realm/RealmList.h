@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,14 +19,11 @@
 #ifndef _REALMLIST_H
 #define _REALMLIST_H
 
-#include "Common.h"
-#include "Realm/Realm.h"
-#include <boost/asio/ip/address.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/deadline_timer.hpp>
-
-using namespace boost::asio;
+#include "Define.h"
+#include "Realm.h"
+#include <map>
+#include <vector>
+#include <unordered_set>
 
 struct RealmBuildInfo
 {
@@ -36,6 +33,16 @@ struct RealmBuildInfo
     uint32 BugfixVersion;
     uint32 HotfixVersion;
 };
+
+namespace boost
+{
+    class shared_mutex;
+
+    namespace system
+    {
+        class error_code;
+    }
+}
 
 namespace bgs
 {
@@ -60,6 +67,14 @@ namespace JSON
     }
 }
 
+namespace Trinity
+{
+    namespace Asio
+    {
+        class IoContext;
+    }
+}
+
 /// Storage object for the list of realms on the server
 class TC_SHARED_API RealmList
 {
@@ -70,14 +85,12 @@ public:
 
     ~RealmList();
 
-    void Initialize(boost::asio::io_service& ioService, uint32 updateInterval);
+    void Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInterval);
     void Close();
 
-    RealmMap const& GetRealms() const { return _realms; }
     Realm const* GetRealm(Battlenet::RealmHandle const& id) const;
 
     RealmBuildInfo const* GetBuildInfo(uint32 build) const;
-    std::unordered_set<std::string> const& GetSubRegions() const { return _subRegions; }
     void WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const;
     std::vector<uint8> GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build) const;
     std::vector<uint8> GetRealmList(uint32 build, std::string const& subRegion) const;
@@ -88,14 +101,16 @@ private:
     RealmList();
 
     void UpdateRealms(boost::system::error_code const& error);
-    void UpdateRealm(Battlenet::RealmHandle const& id, uint32 build, const std::string& name, ip::address const& address, ip::address const& localAddr,
-        ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
+    void UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
+        boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr, boost::asio::ip::address&& localSubmask,
+        uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
+    std::unique_ptr<boost::shared_mutex> _realmsMutex;
     RealmMap _realms;
     std::unordered_set<std::string> _subRegions;
     uint32 _updateInterval;
-    boost::asio::deadline_timer* _updateTimer;
-    boost::asio::ip::tcp::resolver* _resolver;
+    std::unique_ptr<boost::asio::deadline_timer> _updateTimer;
+    std::unique_ptr<boost::asio::ip::tcp_resolver> _resolver;
 };
 
 #define sRealmList RealmList::Instance()

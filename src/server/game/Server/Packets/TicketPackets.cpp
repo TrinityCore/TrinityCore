@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LFGPackets.h"
 #include "TicketPackets.h"
 #include "PacketUtilities.h"
 #include "SupportMgr.h"
-
-using namespace WorldPackets;
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketHeader& header)
 {
@@ -166,6 +163,8 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
     data >> lfgListSearchResult->LastTitleAuthorGuid;
     data >> lfgListSearchResult->LastDescriptionAuthorGuid;
     data >> lfgListSearchResult->LastVoiceChatAuthorGuid;
+    data >> lfgListSearchResult->ListingCreatorGuid;
+    data >> lfgListSearchResult->Unknown735;
 
     uint32 titleLength = data.ReadBits(8);
     uint32 descriptionLength = data.ReadBits(11);
@@ -191,8 +190,8 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
 void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
 {
     _worldPacket >> Header;
-    _worldPacket >> ChatLog;
     _worldPacket >> TargetCharacterGUID;
+    _worldPacket >> ChatLog;
     ComplaintType = _worldPacket.ReadBits(5);
 
     uint32 noteLength = _worldPacket.ReadBits(10);

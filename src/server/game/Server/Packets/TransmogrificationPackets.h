@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,17 +48,6 @@ namespace WorldPackets
             ObjectGuid Npc;
             Array<TransmogrifyItem, MAX_TRANSMOGRIFY_ITEMS> Items;
             bool CurrentSpecOnly = false;
-        };
-
-        class TransmogAppearanceSetFavorite final : public ClientPacket
-        {
-        public:
-            TransmogAppearanceSetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOG_APPEARANCE_SET_FAVORITE, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 ItemModifiedAppearanceID = 0;
-            bool IsFavorite = false;
         };
 
         class TransmogCollectionUpdate final : public ServerPacket

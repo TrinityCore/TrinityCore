@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,10 +19,11 @@
 #define SpellHistory_h__
 
 #include "SharedDefines.h"
-#include "QueryResult.h"
-#include "Transaction.h"
+#include "DatabaseEnvFwd.h"
 #include <chrono>
 #include <deque>
+#include <vector>
+#include <unordered_map>
 
 class Item;
 class Player;
@@ -100,6 +101,7 @@ public:
 
     void AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
     void ModifyCooldown(uint32 spellId, int32 cooldownModMs);
+    void ModifyCooldown(uint32 spellId, Clock::duration cooldownMod);
     void ResetCooldown(uint32 spellId, bool update = false);
     void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     template<typename Predicate>
@@ -145,7 +147,6 @@ public:
     void AddGlobalCooldown(SpellInfo const* spellInfo, uint32 duration);
     void CancelGlobalCooldown(SpellInfo const* spellInfo);
 
-    uint16 GetArenaCooldownsSize();
     void SaveCooldownStateBeforeDuel();
     void RestoreCooldownStateAfterDuel();
 

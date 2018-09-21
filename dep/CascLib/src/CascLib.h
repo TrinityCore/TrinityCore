@@ -60,7 +60,7 @@ extern "C" {
 
 #define CASC_LOCALE_BIT_ENUS        0x01
 #define CASC_LOCALE_BIT_KOKR        0x02
-#define CASC_LOCALE_DUAL_LANG       0x03
+#define CASC_LOCALE_BIT_RESERVED    0x03
 #define CASC_LOCALE_BIT_FRFR        0x04
 #define CASC_LOCALE_BIT_DEDE        0x05
 #define CASC_LOCALE_BIT_ZHCN        0x06
@@ -94,6 +94,7 @@ extern "C" {
 // Return value for CascGetFileSize and CascSetFilePointer
 #define CASC_INVALID_SIZE           0xFFFFFFFF
 #define CASC_INVALID_POS            0xFFFFFFFF
+#define CASC_INVALID_ID             0xFFFFFFFF
 
 // Flags for CascGetStorageInfo
 #define CASC_FEATURE_LISTFILE       0x00000001  // The storage supports listfile
@@ -107,6 +108,7 @@ typedef enum _CASC_STORAGE_INFO_CLASS
     CascStorageFeatures,
     CascStorageGameInfo,
     CascStorageGameBuild,
+    CascStorageInstalledLocales,
     CascStorageInfoClassMax
 
 } CASC_STORAGE_INFO_CLASS, *PCASC_STORAGE_INFO_CLASS;
@@ -125,6 +127,7 @@ typedef struct _CASC_FIND_DATA
     char * szPlainName;                         // Plain name of the found file
     BYTE   EncodingKey[MD5_HASH_SIZE];          // Encoding key
     DWORD  dwLocaleFlags;                       // Locale flags (WoW only)
+    DWORD  dwFileDataId;                        // File data ID (WoW only)
     DWORD  dwFileSize;                          // Size of the file
 
 } CASC_FIND_DATA, *PCASC_FIND_DATA;
@@ -151,6 +154,7 @@ bool  WINAPI CascOpenFileByIndexKey(HANDLE hStorage, PQUERY_KEY pIndexKey, DWORD
 bool  WINAPI CascOpenFileByEncodingKey(HANDLE hStorage, PQUERY_KEY pEncodingKey, DWORD dwFlags, HANDLE * phFile);
 bool  WINAPI CascOpenFile(HANDLE hStorage, const char * szFileName, DWORD dwLocale, DWORD dwFlags, HANDLE * phFile);
 DWORD WINAPI CascGetFileSize(HANDLE hFile, PDWORD pdwFileSizeHigh);
+DWORD WINAPI CascGetFileId(HANDLE hStorage, const char * szFileName);
 DWORD WINAPI CascSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * plFilePosHigh, DWORD dwMoveMethod);
 bool  WINAPI CascReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead, PDWORD pdwRead);
 bool  WINAPI CascCloseFile(HANDLE hFile);

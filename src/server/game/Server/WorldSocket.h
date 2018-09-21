@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,18 +20,23 @@
 #define __WORLDSOCKET_H__
 
 #include "Common.h"
-#include "WorldPacketCrypt.h"
+#include "BigNumber.h"
+#include "DatabaseEnvFwd.h"
+#include "MessageBuffer.h"
+#include "QueryCallbackProcessor.h"
 #include "Socket.h"
-#include "Util.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
+#include "WorldPacketCrypt.h"
 #include "MPSCQueue.h"
 #include <chrono>
-#include <boost/asio/ip/tcp.hpp>
+#include <functional>
+#include <mutex>
 
-using boost::asio::ip::tcp;
-struct z_stream_s;
+typedef struct z_stream_s z_stream;
 class EncryptablePacket;
+class WorldPacket;
+class WorldSession;
+enum ConnectionType : int8;
+enum OpcodeClient : uint16;
 
 namespace WorldPackets
 {
@@ -52,8 +57,8 @@ struct PacketHeader
     uint32 Size;
     uint16 Command;
 
-    bool IsValidSize() { return Size < 10240; }
-    bool IsValidOpcode() { return Command < NUM_OPCODE_HANDLERS; }
+    bool IsValidSize() { return Size < 0x10000; }
+    bool IsValidOpcode();
 };
 
 #pragma pack(pop)
@@ -71,7 +76,7 @@ class TC_GAME_API WorldSocket : public Socket<WorldSocket>
     typedef Socket<WorldSocket> BaseSocket;
 
 public:
-    WorldSocket(tcp::socket&& socket);
+    WorldSocket(boost::asio::ip::tcp::socket&& socket);
     ~WorldSocket();
 
     WorldSocket(WorldSocket const& right) = delete;
@@ -86,6 +91,7 @@ public:
 
     void SendAuthResponseError(uint32 code);
     void SetWorldSession(WorldSession* session);
+    void SetSendBufferSize(std::size_t sendBufferSize) { _sendBufferSize = sendBufferSize; }
 
 protected:
     void OnClose() override;
@@ -141,11 +147,11 @@ private:
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
     MPSCQueue<EncryptablePacket> _bufferQueue;
+    std::size_t _sendBufferSize;
 
-    z_stream_s* _compressionStream;
+    z_stream* _compressionStream;
 
-    PreparedQueryResultFuture _queryFuture;
-    std::function<void(PreparedQueryResult&&)> _queryCallback;
+    QueryCallbackProcessor _queryProcessor;
     std::string _ipCountry;
 };
 

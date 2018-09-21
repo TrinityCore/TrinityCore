@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,9 +23,10 @@ SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
-#include "steam_vault.h"
 #include "SpellInfo.h"
+#include "steam_vault.h"
 
 enum NagaDistiller
 {
@@ -50,7 +51,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_naga_distillerAI>(creature);
+        return GetSteamVaultAI<npc_naga_distillerAI>(creature);
     }
 
     struct npc_naga_distillerAI : public ScriptedAI
@@ -103,7 +104,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_warlord_kalithreshAI>(creature);
+        return GetSteamVaultAI<boss_warlord_kalithreshAI>(creature);
     }
 
     struct boss_warlord_kalithreshAI : public ScriptedAI

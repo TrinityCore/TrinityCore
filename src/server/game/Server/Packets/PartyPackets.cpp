@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +16,15 @@
  */
 
 #include "PartyPackets.h"
-
-#include "Player.h"
 #include "Pet.h"
-#include "Vehicle.h"
-#include "SpellAuras.h"
+#include "PhasingHandler.h"
+#include "Player.h"
+#include "Realm.h"
 #include "SpellAuraEffects.h"
-#include "ObjectMgr.h"
+#include "SpellAuras.h"
+#include "Vehicle.h"
+#include "World.h"
+#include "WorldSession.h"
 
 WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
 {
@@ -97,9 +99,9 @@ void WorldPackets::Party::PartyInvite::Initialize(Player* const inviter, int32 p
 
     ProposedRoles = proposedRoles;
 
-    InviterVirtualRealmAddress = GetVirtualRealmAddress();
-    InviterRealmNameActual = sObjectMgr->GetRealmName(realm.Id.Realm);
-    InviterRealmNameNormalized = sObjectMgr->GetNormalizedRealmName(realm.Id.Realm);
+    InviterVirtualRealmAddress = realm.Id.GetAddress();
+    InviterRealmNameActual = realm.Name;
+    InviterRealmNameNormalized = realm.NormalizedName;
 }
 
 void WorldPackets::Party::PartyInviteResponse::Read()
@@ -578,10 +580,10 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
     MemberStats.MaxHealth = player->GetMaxHealth();
 
     // Power
-    MemberStats.PowerType = player->getPowerType();
+    MemberStats.PowerType = player->GetPowerType();
     MemberStats.PowerDisplayID = 0;
-    MemberStats.CurrentPower = player->GetPower(player->getPowerType());
-    MemberStats.MaxPower = player->GetMaxPower(player->getPowerType());
+    MemberStats.CurrentPower = player->GetPower(player->GetPowerType());
+    MemberStats.MaxPower = player->GetMaxPower(player->GetPowerType());
 
     // Position
     MemberStats.ZoneID = player->GetZoneId();
@@ -624,16 +626,7 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
     }
 
     // Phases
-    std::set<uint32> const& phases = player->GetPhases();
-    MemberStats.Phases.PhaseShiftFlags = 0x08 | (phases.size() ? 0x10 : 0);
-    MemberStats.Phases.PersonalGUID = ObjectGuid::Empty;
-    for (uint32 phaseId : phases)
-    {
-        WorldPackets::Party::PartyMemberPhase phase;
-        phase.Id = phaseId;
-        phase.Flags = 1;
-        MemberStats.Phases.List.push_back(phase);
-    }
+    PhasingHandler::FillPartyMemberPhase(&MemberStats.Phases, player->GetPhaseShift());
 
     // Pet
     if (player->GetPet())
@@ -681,4 +674,3 @@ WorldPacket const* WorldPackets::Party::PartyKillLog::Write()
 
     return &_worldPacket;
 }
-

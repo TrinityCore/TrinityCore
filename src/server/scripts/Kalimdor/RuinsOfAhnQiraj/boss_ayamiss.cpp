@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,9 +17,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ruins_of_ahnqiraj.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -241,7 +244,7 @@ class boss_ayamiss : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_ayamissAI>(creature);
+            return GetAQ20AI<boss_ayamissAI>(creature);
         }
 };
 
@@ -259,14 +262,13 @@ class npc_hive_zara_larva : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id) override
             {
-                if (type == POINT_MOTION_TYPE)
-                    if (id == POINT_PARALYZE)
-                        if (Player* target = ObjectAccessor::GetPlayer(*me, _instance->GetGuidData(DATA_PARALYZED)))
+                if (type == POINT_MOTION_TYPE && id == POINT_PARALYZE)
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _instance->GetGuidData(DATA_PARALYZED)))
+                        if (target->GetTypeId() == TYPEID_PLAYER)
                             DoCast(target, SPELL_FEED); // Omnomnom
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
                     return;
@@ -295,7 +297,7 @@ class npc_hive_zara_larva : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_hive_zara_larvaAI>(creature);
+            return GetAQ20AI<npc_hive_zara_larvaAI>(creature);
         }
 };
 

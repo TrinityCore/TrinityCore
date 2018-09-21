@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,8 @@ SDCategory: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "hellfire_ramparts.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -175,7 +175,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_watchkeeper_gargolmarAI(creature);
+            return GetHellfireRampartsAI<boss_watchkeeper_gargolmarAI>(creature);
         }
 };
 
@@ -183,4 +183,3 @@ void AddSC_boss_watchkeeper_gargolmar()
 {
     new boss_watchkeeper_gargolmar();
 }
-

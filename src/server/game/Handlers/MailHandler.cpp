@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,21 +15,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseEnv.h"
-#include "Mail.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "Player.h"
-#include "MailPackets.h"
-#include "Language.h"
-#include "Item.h"
 #include "AccountMgr.h"
 #include "BattlenetAccountMgr.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GossipDef.h"
+#include "Guild.h"
 #include "GuildMgr.h"
+#include "Item.h"
+#include "Language.h"
+#include "Log.h"
+#include "Mail.h"
+#include "MailPackets.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 bool WorldSession::CanOpenMailBox(ObjectGuid guid)
 {
@@ -301,6 +305,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
 
                 item->DeleteFromInventoryDB(trans);     // deletes item from character's inventory
                 item->SetOwnerGUID(receiverGuid);
+                item->SetState(ITEM_CHANGED);
                 item->SaveToDB(trans);                  // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
                 draft.AddItem(item);
@@ -320,9 +325,9 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
     // If theres is an item, there is a one hour delivery delay if sent to another account's character.
     uint32 deliver_delay = needItemDelay ? sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY) : 0;
 
-    // Mail sent between guild members arrives instantly if they have the guild perk "Guild Mail"
+    // Mail sent between guild members arrives instantly
     if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
-        if (guild->GetLevel() >= 17 && guild->IsMember(receiverGuid))
+        if (guild->IsMember(receiverGuid))
             deliver_delay = 0;
 
     // don't ask for COD if there are no items
@@ -379,9 +384,8 @@ void WorldSession::HandleMailDelete(WorldPackets::Mail::MailDelete& packet)
 
 void WorldSession::HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSender& packet)
 {
-    //TODO: find a proper way to replace this check. Idea: Save Guid form MailGetList until CMSG_CLOSE_INTERACTION is sent
-    /*if (!CanOpenMailBox(mailbox))
-        return;*/
+    if (!CanOpenMailBox(_player->PlayerTalkClass->GetInteractionData().SourceGuid))
+        return;
 
     Player* player = _player;
     Mail* m = player->GetMail(packet.MailID);
@@ -453,7 +457,7 @@ void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& packet)
     }
 
     // prevent cheating with skip client money check
-    if (!player->HasEnoughMoney(uint64(m->COD)))
+    if (!player->HasEnoughMoney(m->COD))
     {
         player->SendMailResult(packet.MailID, MAIL_ITEM_TAKEN, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;
@@ -506,7 +510,7 @@ void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& packet)
                     .SendMailTo(trans, MailReceiver(receiver, m->sender), MailSender(MAIL_NORMAL, m->receiver), MAIL_CHECK_MASK_COD_PAYMENT);
             }
 
-            player->ModifyMoney(-int32(m->COD));
+            player->ModifyMoney(-int64(m->COD));
         }
         m->COD = 0;
         m->state = MAIL_STATE_CHANGED;
@@ -589,6 +593,8 @@ void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
         ++response.TotalNumRecords;
     }
 
+    player->PlayerTalkClass->GetInteractionData().Reset();
+    player->PlayerTalkClass->GetInteractionData().SourceGuid = packet.Mailbox;
     SendPacket(response.Write());
 
     // recalculate m_nextMailDelivereTime and unReadMails

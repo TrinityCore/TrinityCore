@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "naxxramas.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -107,7 +109,7 @@ class boss_grobbulus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_grobbulusAI(creature);
+            return GetNaxxramasAI<boss_grobbulusAI>(creature);
         }
 };
 
@@ -135,7 +137,7 @@ class npc_grobbulus_poison_cloud : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_grobbulus_poison_cloudAI(creature);
+            return GetNaxxramasAI<npc_grobbulus_poison_cloudAI>(creature);
         }
 };
 
@@ -151,10 +153,7 @@ class spell_grobbulus_mutating_injection : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MUTATING_EXPLOSION)
-                    || !sSpellMgr->GetSpellInfo(SPELL_POISON_CLOUD))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MUTATING_EXPLOSION, SPELL_POISON_CLOUD });
             }
 
             void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -194,9 +193,8 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->TriggerSpell))
-                    return false;
-                return true;
+                SpellEffectInfo const* effect0 = spellInfo->GetEffect(EFFECT_0);
+                return effect0 && ValidateSpellInfo({ effect0->TriggerSpell });
             }
 
             void PeriodicTick(AuraEffect const* aurEff)

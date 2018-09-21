@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,10 +24,17 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "karazhan.h"
 #include "GameObject.h"
+#include "InstanceScript.h"
+#include "Item.h"
+#include "karazhan.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 enum ShadeOfAran
 {
@@ -40,7 +47,7 @@ enum ShadeOfAran
     SAY_KILL                    = 6,
     SAY_TIMEOVER                = 7,
     SAY_DEATH                   = 8,
-//  SAY_ATIESH                  = 9, Unused
+    SAY_ATIESH                  = 9,
 
     //Spells
     SPELL_FROSTBOLT             = 29954,
@@ -79,6 +86,22 @@ enum SuperSpell
     SUPER_AE,
 };
 
+enum Items
+{
+    ITEM_ATIESH_MAGE            = 22589,
+    ITEM_ATIESH_WARLOCK         = 22630,
+    ITEM_ATIESH_PRIEST          = 22631,
+    ITEM_ATIESH_DRUID           = 22632,
+};
+
+uint32 const AtieshStaves[4] =
+{
+    ITEM_ATIESH_MAGE,
+    ITEM_ATIESH_WARLOCK,
+    ITEM_ATIESH_PRIEST,
+    ITEM_ATIESH_DRUID,
+};
+
 class boss_shade_of_aran : public CreatureScript
 {
 public:
@@ -86,12 +109,12 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_aranAI>(creature);
+        return GetKarazhanAI<boss_aranAI>(creature);
     }
 
     struct boss_aranAI : public ScriptedAI
     {
-        boss_aranAI(Creature* creature) : ScriptedAI(creature)
+        boss_aranAI(Creature* creature) : ScriptedAI(creature), SeenAtiesh(false)
         {
             Initialize();
             instance = creature->GetInstanceScript();
@@ -148,6 +171,7 @@ public:
         bool ElementalsSpawned;
         bool Drinking;
         bool DrinkInturrupted;
+        bool SeenAtiesh;
 
         void Reset() override
         {
@@ -250,7 +274,7 @@ public:
             else FrostCooldown = 0;
             }
 
-            if (!Drinking && me->GetMaxPower(POWER_MANA) && (me->GetPower(POWER_MANA)*100 / me->GetMaxPower(POWER_MANA)) < 20)
+            if (!Drinking && me->GetMaxPower(POWER_MANA) && me->GetPowerPct(POWER_MANA) < 20.f)
             {
                 Drinking = true;
                 me->InterruptNonMeleeSpells(false);
@@ -482,27 +506,60 @@ public:
                 DrinkInturrupted = true;
         }
 
-        void SpellHit(Unit* /*pAttacker*/, const SpellInfo* Spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
         {
-            //We only care about interrupt effects and only if they are durring a spell currently being cast
-            for (SpellEffectInfo const* effect : Spell->GetEffectsForDifficulty(me->GetMap()->GetDifficultyID()))
-                if (effect && effect->Effect == SPELL_EFFECT_INTERRUPT_CAST && me->IsNonMeleeSpellCast(false))
+            // We only care about interrupt effects and only if they are durring a spell currently being cast
+            if (spellInfo->HasEffect(SPELL_EFFECT_INTERRUPT_CAST) && me->IsNonMeleeSpellCast(false))
+            {
+                // Interrupt effect
+                me->InterruptNonMeleeSpells(false);
+
+                // Normally we would set the cooldown equal to the spell duration
+                // but we do not have access to the DurationStore
+
+                switch (CurrentNormalSpell)
                 {
-                    //Interrupt effect
-                    me->InterruptNonMeleeSpells(false);
-
-                    //Normally we would set the cooldown equal to the spell duration
-                    //but we do not have access to the DurationStore
-
-                    switch (CurrentNormalSpell)
-                    {
                     case SPELL_ARCMISSLE: ArcaneCooldown = 5000; break;
                     case SPELL_FIREBALL: FireCooldown = 5000; break;
                     case SPELL_FROSTBOLT: FrostCooldown = 5000; break;
-                    }
-                    return;
                 }
+            }
         }
+
+        void MoveInLineOfSight(Unit* who) override
+        {
+            ScriptedAI::MoveInLineOfSight(who);
+
+            if (SeenAtiesh || me->IsInCombat() || me->GetDistance2d(who) > me->GetAttackDistance(who) + 10.0f)
+                return;
+
+            Player* player = who->ToPlayer();
+            if (!player)
+                return;
+
+            for (uint32 id : AtieshStaves)
+            {
+                if (!PlayerHasWeaponEquipped(player, id))
+                    continue;
+
+                SeenAtiesh = true;
+                Talk(SAY_ATIESH);
+                me->SetFacingTo(me->GetAngle(player));
+                me->ClearUnitState(UNIT_STATE_MOVING);
+                me->GetMotionMaster()->MoveDistract(7 * IN_MILLISECONDS);
+                break;
+            }
+        }
+
+        private:
+            bool PlayerHasWeaponEquipped(Player* player, uint32 itemEntry)
+            {
+                Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                if (item && item->GetEntry() == itemEntry)
+                    return true;
+
+                return false;
+            }
     };
 };
 
@@ -513,7 +570,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new water_elementalAI(creature);
+        return GetKarazhanAI<water_elementalAI>(creature);
     }
 
     struct water_elementalAI : public ScriptedAI

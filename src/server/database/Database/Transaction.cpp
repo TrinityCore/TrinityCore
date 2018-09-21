@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseEnv.h"
 #include "Transaction.h"
+#include "MySQLConnection.h"
+#include "PreparedStatement.h"
 #include <mysqld_error.h>
 
 std::mutex TransactionTask::_deadlockLock;
@@ -45,9 +46,8 @@ void Transaction::Cleanup()
     if (_cleanedUp)
         return;
 
-    while (!m_queries.empty())
+    for (SQLElementData const &data : m_queries)
     {
-        SQLElementData const &data = m_queries.front();
         switch (data.type)
         {
             case SQL_ELEMENT_PREPARED:
@@ -57,10 +57,9 @@ void Transaction::Cleanup()
                 free((void*)(data.element.query));
             break;
         }
-
-        m_queries.pop_front();
     }
 
+    m_queries.clear();
     _cleanedUp = true;
 }
 

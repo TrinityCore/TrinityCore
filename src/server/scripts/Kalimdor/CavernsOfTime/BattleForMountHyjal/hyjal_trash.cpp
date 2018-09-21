@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
 #include "hyjalAI.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -523,7 +526,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_giant_infernalAI>(creature);
+        return GetHyjalAI<npc_giant_infernalAI>(creature);
     }
 };
 
@@ -534,7 +537,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_abominationAI>(creature);
+        return GetHyjalAI<npc_abominationAI>(creature);
     }
 
     struct npc_abominationAI : public hyjal_trashAI
@@ -629,7 +632,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ghoulAI>(creature);
+        return GetHyjalAI<npc_ghoulAI>(creature);
     }
 
     struct npc_ghoulAI : public hyjal_trashAI
@@ -728,7 +731,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_necromancerAI>(creature);
+        return GetHyjalAI<npc_necromancerAI>(creature);
     }
 
     struct npc_necromancerAI : public hyjal_trashAI
@@ -852,7 +855,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_bansheeAI>(creature);
+        return GetHyjalAI<npc_bansheeAI>(creature);
     }
 
     struct npc_bansheeAI : public hyjal_trashAI
@@ -952,7 +955,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_crypt_fiendAI>(creature);
+        return GetHyjalAI<npc_crypt_fiendAI>(creature);
     }
 
     struct npc_crypt_fiendAI : public hyjal_trashAI
@@ -1038,7 +1041,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_fel_stalkerAI>(creature);
+        return GetHyjalAI<npc_fel_stalkerAI>(creature);
     }
 
     struct npc_fel_stalkerAI : public hyjal_trashAI
@@ -1124,7 +1127,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_frost_wyrmAI>(creature);
+        return GetHyjalAI<npc_frost_wyrmAI>(creature);
     }
 
     struct npc_frost_wyrmAI : public hyjal_trashAI
@@ -1172,7 +1175,7 @@ public:
 
             float x, y, z;
             me->GetPosition(x, y, z);
-            z = me->GetMap()->GetHeight(me->GetPhaseMask(), x, y, z);
+            me->UpdateGroundPositionZ(x, y, z);
             me->GetMotionMaster()->MovePoint(0, x, y, z);
             me->SetPosition(x, y, z, 0);
         }
@@ -1244,7 +1247,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gargoyleAI>(creature);
+        return GetHyjalAI<npc_gargoyleAI>(creature);
     }
 
     struct npc_gargoyleAI : public hyjal_trashAI
@@ -1290,7 +1293,7 @@ public:
         {
             float x, y, z;
             me->GetPosition(x, y, z);
-            z = me->GetMap()->GetHeight(me->GetPhaseMask(), x, y, z);
+            me->UpdateGroundPositionZ(x, y, z);
             me->GetMotionMaster()->MovePoint(0, x, y, z);
             me->SetPosition(x, y, z, 0);
             hyjal_trashAI::JustDied(killer);
@@ -1382,7 +1385,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new alliance_riflemanAI(creature);
+        return GetHyjalAI<alliance_riflemanAI>(creature);
     }
 
     struct alliance_riflemanAI : public ScriptedAI

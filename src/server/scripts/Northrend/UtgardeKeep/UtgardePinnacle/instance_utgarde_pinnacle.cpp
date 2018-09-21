@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,16 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "utgarde_pinnacle.h"
 
 BossBoundaryData const boundaries =
 {
-    { DATA_KING_YMIRON, new RectangleBoundary(340.0f, 450.0f, -412.0f, -275.0f) }
+    { DATA_KING_YMIRON, new RectangleBoundary(340.0f, 443.0f, -412.0f, -275.0f) }
 };
 
 DoorData const doorData[] =
@@ -79,6 +83,9 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                         break;
                     case NPC_PALEHOOF_ORB:
                         PalehoofOrbGUID = creature->GetGUID();
+                        break;
+                    case NPC_GRAUF:
+                        GraufGUID = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -164,6 +171,8 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                         return SvalaGUID;
                     case DATA_SACRIFICED_PLAYER:
                         return SacrificedPlayerGUID;
+                    case DATA_GRAUF:
+                        return GraufGUID;
                     default:
                         break;
                 }
@@ -189,6 +198,8 @@ class instance_utgarde_pinnacle : public InstanceMapScript
 
             ObjectGuid SvalaGUID;
             ObjectGuid SacrificedPlayerGUID;
+
+            ObjectGuid GraufGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

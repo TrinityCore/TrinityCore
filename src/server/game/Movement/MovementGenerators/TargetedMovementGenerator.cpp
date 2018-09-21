@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,8 +36,14 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
         return;
 
-    if (owner->GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor(owner->ToCreature()))
+    if (owner->IsMovementPreventedByCasting())
         return;
+
+    if (owner->GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor(owner->ToCreature()))
+    {
+        owner->ToCreature()->SetCannotReachTarget(true);
+        return;
+    }
 
     if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsFocusing(nullptr, true))
         return;
@@ -67,8 +73,8 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             //   doing a "dance" while fighting
             if (owner->IsPet() && i_target->GetTypeId() == TYPEID_PLAYER)
             {
-                dist = i_target->GetCombatReach();
-                size = i_target->GetCombatReach() - i_target->GetObjectSize();
+                dist = 1.0f; //i_target->GetCombatReach();
+                size = 1.0f; //i_target->GetCombatReach() - i_target->GetObjectSize();
             }
             else
             {
@@ -102,8 +108,10 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     bool result = i_path->CalculatePath(x, y, z, forceDest);
     if (!result || (i_path->GetPathType() & PATHFIND_NOPATH))
     {
-        // Cant reach target
+        // can't reach target
         i_recalculateTravel = true;
+        if (owner->GetTypeId() == TYPEID_UNIT)
+            owner->ToCreature()->SetCannotReachTarget(true);
         return;
     }
 
@@ -111,6 +119,8 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     i_targetReached = false;
     i_recalculateTravel = false;
     owner->AddUnitState(UNIT_STATE_CHASE);
+    if (owner->GetTypeId() == TYPEID_UNIT)
+        owner->ToCreature()->SetCannotReachTarget(false);
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(i_path->GetPath());
@@ -139,7 +149,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     }
 
     // prevent movement while casting spells with cast time or channel time
-    if (owner->HasUnitState(UNIT_STATE_CASTING))
+    if (owner->IsMovementPreventedByCasting())
     {
         if (!owner->IsStopped())
             owner->StopMoving();
@@ -158,15 +168,22 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     if (i_recheckDistance.Passed())
     {
         i_recheckDistance.Reset(100);
+
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
-        float allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+        float allowed_dist = 0.0f;
+
+        if (owner->IsPet() && (owner->GetCharmerOrOwnerGUID() == i_target->GetGUID()))
+            allowed_dist = 1.0f; // pet following owner
+        else
+            allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+
         G3D::Vector3 dest = owner->movespline->FinalDestination();
         if (owner->movespline->onTransport)
             if (TransportBase* transport = owner->GetDirectTransport())
                 transport->CalculatePassengerPosition(dest.x, dest.y, dest.z);
 
         // First check distance
-        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->CanFly())
+        if (owner->GetTypeId() == TYPEID_UNIT && (owner->ToCreature()->CanFly() || owner->ToCreature()->CanSwim()))
             targetMoved = !i_target->IsWithinDist3d(dest.x, dest.y, dest.z, allowed_dist);
         else
             targetMoved = !i_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
@@ -199,8 +216,11 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
 template<class T>
 void ChaseMovementGenerator<T>::_reachTarget(T* owner)
 {
+    _clearUnitStateMove(owner);
     if (owner->IsWithinMeleeRange(this->i_target.getTarget()))
         owner->Attack(this->i_target.getTarget(), true);
+    if (owner->GetTypeId() == TYPEID_UNIT)
+        owner->ToCreature()->SetCannotReachTarget(false);
 }
 
 template<>

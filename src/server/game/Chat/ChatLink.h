@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,10 +19,11 @@
 #define TRINITYCORE_CHATLINK_H
 
 #include "SharedDefines.h"
-#include <sstream>
-#include <list>
-#include <cstring>
 #include "Common.h"
+#include <list>
+#include <sstream>
+#include <vector>
+#include <cstring>
 
 struct ItemLocale;
 struct ItemTemplate;
@@ -58,19 +59,29 @@ protected:
 class TC_GAME_API ItemChatLink : public ChatLink
 {
 public:
-    ItemChatLink() : ChatLink(), _item(NULL), _suffix(NULL), _property(NULL)
+    ItemChatLink() : ChatLink(), _item(nullptr), _enchantId(0), _randomPropertyId(0), _randomPropertySeed(0), _reporterLevel(0), _reporterSpec(0), _context(0),
+        _suffix(nullptr), _property(nullptr)
     {
-        memset(_data, 0, sizeof(_data));
+        memset(_gemItemId, 0, sizeof(_gemItemId));
     }
     virtual bool Initialize(std::istringstream& iss) override;
     virtual bool ValidateName(char* buffer, const char* context) override;
 
 protected:
     std::string FormatName(uint8 index, LocalizedString* suffixStrings) const;
+    bool HasValue(std::istringstream& iss) const;
 
     ItemTemplate const* _item;
-    int32 _data[11];
+    int32 _enchantId;
+    int32 _gemItemId[3];
+    int32 _randomPropertyId;
+    int32 _randomPropertySeed;
+    int32 _reporterLevel;
+    int32 _reporterSpec;
+    int32 _context;
     std::vector<int32> _bonusListIDs;
+    std::vector<std::pair<uint32, int32>> _modifiers;
+    std::vector<int32> _gemBonusListIDs[3];
     ItemRandomSuffixEntry const* _suffix;
     ItemRandomPropertiesEntry const* _property;
 };

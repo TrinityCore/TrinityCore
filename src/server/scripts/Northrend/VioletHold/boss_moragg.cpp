@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 #include "violet_hold.h"
 
 enum Spells
@@ -45,25 +47,10 @@ class boss_moragg : public CreatureScript
         {
             boss_moraggAI(Creature* creature) : BossAI(creature, DATA_MORAGG) { }
 
-            void Reset() override
-            {
-                BossAI::Reset();
-            }
-
-            void EnterCombat(Unit* who) override
-            {
-                BossAI::EnterCombat(who);
-            }
-
             void JustReachedHome() override
             {
                 BossAI::JustReachedHome();
                 instance->SetData(DATA_HANDLE_CELLS, DATA_MORAGG);
-            }
-
-            void JustDied(Unit* killer) override
-            {
-                BossAI::JustDied(killer);
             }
 
             void UpdateAI(uint32 diff) override
@@ -147,6 +134,16 @@ public:
     class spell_moragg_optic_link_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_moragg_optic_link_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo(
+            {
+                SPELL_OPTIC_LINK_LEVEL_3,
+                SPELL_OPTIC_LINK_LEVEL_2,
+                SPELL_OPTIC_LINK_LEVEL_1
+            });
+        }
 
         void OnPeriodic(AuraEffect const* aurEff)
         {

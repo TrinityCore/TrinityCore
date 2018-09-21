@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,10 +21,9 @@
 #ifndef _HOTFIXDATABASE_H
 #define _HOTFIXDATABASE_H
 
-#include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-enum HotfixDatabaseStatements
+enum HotfixDatabaseStatements : uint32
 {
     /*  Naming standard for defines:
         {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
@@ -61,6 +60,8 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_ARTIFACT_POWER_LINK,
 
+    HOTFIX_SEL_ARTIFACT_POWER_PICKER,
+
     HOTFIX_SEL_ARTIFACT_POWER_RANK,
 
     HOTFIX_SEL_ARTIFACT_QUEST_XP,
@@ -90,6 +91,10 @@ enum HotfixDatabaseStatements
     HOTFIX_SEL_BROADCAST_TEXT,
     HOTFIX_SEL_BROADCAST_TEXT_LOCALE,
 
+    HOTFIX_SEL_CHARACTER_FACIAL_HAIR_STYLES,
+
+    HOTFIX_SEL_CHAR_BASE_SECTION,
+
     HOTFIX_SEL_CHAR_SECTIONS,
 
     HOTFIX_SEL_CHAR_START_OUTFIT,
@@ -111,7 +116,11 @@ enum HotfixDatabaseStatements
     HOTFIX_SEL_CHR_SPECIALIZATION,
     HOTFIX_SEL_CHR_SPECIALIZATION_LOCALE,
 
+    HOTFIX_SEL_CINEMATIC_CAMERA,
+
     HOTFIX_SEL_CINEMATIC_SEQUENCES,
+
+    HOTFIX_SEL_CONVERSATION_LINE,
 
     HOTFIX_SEL_CREATURE_DISPLAY_INFO,
 
@@ -152,7 +161,6 @@ enum HotfixDatabaseStatements
     HOTFIX_SEL_EMOTES,
 
     HOTFIX_SEL_EMOTES_TEXT,
-    HOTFIX_SEL_EMOTES_TEXT_LOCALE,
 
     HOTFIX_SEL_EMOTES_TEXT_SOUND,
 
@@ -161,10 +169,10 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_FACTION_TEMPLATE,
 
+    HOTFIX_SEL_GAMEOBJECT_DISPLAY_INFO,
+
     HOTFIX_SEL_GAMEOBJECTS,
     HOTFIX_SEL_GAMEOBJECTS_LOCALE,
-
-    HOTFIX_SEL_GAMEOBJECT_DISPLAY_INFO,
 
     HOTFIX_SEL_GARR_ABILITY,
     HOTFIX_SEL_GARR_ABILITY_LOCALE,
@@ -188,7 +196,6 @@ enum HotfixDatabaseStatements
     HOTFIX_SEL_GARR_PLOT_BUILDING,
 
     HOTFIX_SEL_GARR_PLOT_INSTANCE,
-    HOTFIX_SEL_GARR_PLOT_INSTANCE_LOCALE,
 
     HOTFIX_SEL_GARR_SITE_LEVEL,
 
@@ -265,6 +272,12 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_ITEM_EXTENDED_COST,
 
+    HOTFIX_SEL_ITEM_LEVEL_SELECTOR,
+
+    HOTFIX_SEL_ITEM_LEVEL_SELECTOR_QUALITY,
+
+    HOTFIX_SEL_ITEM_LEVEL_SELECTOR_QUALITY_SET,
+
     HOTFIX_SEL_ITEM_LIMIT_CATEGORY,
     HOTFIX_SEL_ITEM_LIMIT_CATEGORY_LOCALE,
 
@@ -297,7 +310,7 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_ITEM_X_BONUS_TREE,
 
-    HOTFIX_SEL_KEY_CHAIN,
+    HOTFIX_SEL_KEYCHAIN,
 
     HOTFIX_SEL_LFG_DUNGEONS,
     HOTFIX_SEL_LFG_DUNGEONS_LOCALE,
@@ -305,7 +318,6 @@ enum HotfixDatabaseStatements
     HOTFIX_SEL_LIGHT,
 
     HOTFIX_SEL_LIQUID_TYPE,
-    HOTFIX_SEL_LIQUID_TYPE_LOCALE,
 
     HOTFIX_SEL_LOCK,
 
@@ -327,10 +339,11 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_MOUNT_TYPE_X_CAPABILITY,
 
+    HOTFIX_SEL_MOUNT_X_DISPLAY,
+
     HOTFIX_SEL_MOVIE,
 
     HOTFIX_SEL_NAME_GEN,
-    HOTFIX_SEL_NAME_GEN_LOCALE,
 
     HOTFIX_SEL_NAMES_PROFANITY,
 
@@ -351,7 +364,19 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_POWER_TYPE,
 
+    HOTFIX_SEL_PRESTIGE_LEVEL_INFO,
+    HOTFIX_SEL_PRESTIGE_LEVEL_INFO_LOCALE,
+
     HOTFIX_SEL_PVP_DIFFICULTY,
+
+    HOTFIX_SEL_PVP_ITEM,
+
+    HOTFIX_SEL_PVP_REWARD,
+
+    HOTFIX_SEL_PVP_TALENT,
+    HOTFIX_SEL_PVP_TALENT_LOCALE,
+
+    HOTFIX_SEL_PVP_TALENT_UNLOCK,
 
     HOTFIX_SEL_QUEST_FACTION_REWARD,
 
@@ -368,7 +393,13 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_RAND_PROP_POINTS,
 
+    HOTFIX_SEL_REWARD_PACK,
+
+    HOTFIX_SEL_REWARD_PACK_X_ITEM,
+
     HOTFIX_SEL_RULESET_ITEM_UPGRADE,
+
+    HOTFIX_SEL_SANDBOX_SCALING,
 
     HOTFIX_SEL_SCALING_STAT_DISTRIBUTION,
 
@@ -380,7 +411,11 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_SCENE_SCRIPT,
 
+    HOTFIX_SEL_SCENE_SCRIPT_GLOBAL_TEXT,
+
     HOTFIX_SEL_SCENE_SCRIPT_PACKAGE,
+
+    HOTFIX_SEL_SCENE_SCRIPT_TEXT,
 
     HOTFIX_SEL_SKILL_LINE,
     HOTFIX_SEL_SKILL_LINE_LOCALE,
@@ -390,7 +425,6 @@ enum HotfixDatabaseStatements
     HOTFIX_SEL_SKILL_RACE_CLASS_INFO,
 
     HOTFIX_SEL_SOUND_KIT,
-    HOTFIX_SEL_SOUND_KIT_LOCALE,
 
     HOTFIX_SEL_SPECIALIZATION_SPELLS,
     HOTFIX_SEL_SPECIALIZATION_SPELLS_LOCALE,
@@ -418,8 +452,6 @@ enum HotfixDatabaseStatements
     HOTFIX_SEL_SPELL_DURATION,
 
     HOTFIX_SEL_SPELL_EFFECT,
-
-    HOTFIX_SEL_SPELL_EFFECT_SCALING,
 
     HOTFIX_SEL_SPELL_EQUIPPED_ITEMS,
 
@@ -487,6 +519,16 @@ enum HotfixDatabaseStatements
     HOTFIX_SEL_TOY,
     HOTFIX_SEL_TOY_LOCALE,
 
+    HOTFIX_SEL_TRANSMOG_HOLIDAY,
+
+    HOTFIX_SEL_TRANSMOG_SET,
+    HOTFIX_SEL_TRANSMOG_SET_LOCALE,
+
+    HOTFIX_SEL_TRANSMOG_SET_GROUP,
+    HOTFIX_SEL_TRANSMOG_SET_GROUP_LOCALE,
+
+    HOTFIX_SEL_TRANSMOG_SET_ITEM,
+
     HOTFIX_SEL_TRANSPORT_ANIMATION,
 
     HOTFIX_SEL_TRANSPORT_ROTATION,
@@ -500,6 +542,8 @@ enum HotfixDatabaseStatements
 
     HOTFIX_SEL_WMO_AREA_TABLE,
     HOTFIX_SEL_WMO_AREA_TABLE_LOCALE,
+
+    HOTFIX_SEL_WORLD_EFFECT,
 
     HOTFIX_SEL_WORLD_MAP_AREA,
 
@@ -519,13 +563,12 @@ public:
     typedef HotfixDatabaseStatements Statements;
 
     //- Constructors for sync and async connections
-    HotfixDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-    HotfixDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+    HotfixDatabaseConnection(MySQLConnectionInfo& connInfo);
+    HotfixDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    ~HotfixDatabaseConnection();
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;
 };
-
-typedef DatabaseWorkerPool<HotfixDatabaseConnection> HotfixDatabaseWorkerPool;
 
 #endif

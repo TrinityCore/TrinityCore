@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,14 @@
  */
 
 #include "GarrisonMap.h"
+#include "DBCEnums.h"
+#include "GameObject.h"
 #include "Garrison.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
-#include "GameObject.h"
+#include "Player.h"
+#include "World.h"
 
 class GarrisonGridLoader
 {
@@ -75,7 +79,7 @@ void GarrisonGridLoader::Visit(GameObjectMapType& m)
         CellCoord cellCoord = i_cell.GetCellCoord();
         for (Garrison::Plot* plot : plots)
         {
-            Position const& spawn = plot->PacketInfo.PlotPos;
+            Position const& spawn = plot->PacketInfo.PlotPos.Pos;
             if (cellCoord != Trinity::ComputeCellCoord(spawn.GetPositionX(), spawn.GetPositionY()))
                 continue;
 

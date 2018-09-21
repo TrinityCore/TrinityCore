@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,10 +46,10 @@ uint32 const SocketColorToGemTypeMask[19] =
 
 char const* ItemTemplate::GetName(LocaleConstant locale) const
 {
-    if (!strlen(ExtendedData->Name->Str[locale]))
+    if (!strlen(ExtendedData->Display->Str[locale]))
         return GetDefaultLocaleName();
 
-    return ExtendedData->Name->Str[locale];
+    return ExtendedData->Display->Str[locale];
 }
 
 
@@ -57,19 +57,19 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
     switch (GetInventoryType())
     {
-    case INVTYPE_RELIC:
-    case INVTYPE_SHIELD:
-    case INVTYPE_HOLDABLE:
-        return true;
-    default:
-        break;
+        case INVTYPE_RELIC:
+        case INVTYPE_SHIELD:
+        case INVTYPE_HOLDABLE:
+            return true;
+        default:
+            break;
     }
 
     switch (GetClass())
     {
-    case ITEM_CLASS_WEAPON:
-    case ITEM_CLASS_PROJECTILE:
-        return true;
+        case ITEM_CLASS_WEAPON:
+        case ITEM_CLASS_PROJECTILE:
+            return true;
     }
 
     return false;
@@ -77,7 +77,7 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
 
 uint32 ItemTemplate::GetSkill() const
 {
-    const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] =
+    static uint32 const itemWeaponSkills[MAX_ITEM_SUBCLASS_WEAPON] =
     {
         SKILL_AXES,             SKILL_TWO_HANDED_AXES, SKILL_BOWS,   SKILL_GUNS,              SKILL_MACES,
         SKILL_TWO_HANDED_MACES, SKILL_POLEARMS,        SKILL_SWORDS, SKILL_TWO_HANDED_SWORDS, SKILL_WARGLAIVES,
@@ -86,7 +86,7 @@ uint32 ItemTemplate::GetSkill() const
         SKILL_FISHING
     };
 
-    const static uint32 item_armor_skills[MAX_ITEM_SUBCLASS_ARMOR] =
+    static uint32 const itemArmorSkills[MAX_ITEM_SUBCLASS_ARMOR] =
     {
         0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0
     };
@@ -94,26 +94,26 @@ uint32 ItemTemplate::GetSkill() const
 
     switch (GetClass())
     {
-    case ITEM_CLASS_WEAPON:
-        if (GetSubClass() >= MAX_ITEM_SUBCLASS_WEAPON)
-            return 0;
-        else
-            return item_weapon_skills[GetSubClass()];
+        case ITEM_CLASS_WEAPON:
+            if (GetSubClass() >= MAX_ITEM_SUBCLASS_WEAPON)
+                return 0;
+            else
+                return itemWeaponSkills[GetSubClass()];
 
-    case ITEM_CLASS_ARMOR:
-        if (GetSubClass() >= MAX_ITEM_SUBCLASS_ARMOR)
-            return 0;
-        else
-            return item_armor_skills[GetSubClass()];
+        case ITEM_CLASS_ARMOR:
+            if (GetSubClass() >= MAX_ITEM_SUBCLASS_ARMOR)
+                return 0;
+            else
+                return itemArmorSkills[GetSubClass()];
 
-    default:
-        return 0;
+        default:
+            return 0;
     }
 }
 
 char const* ItemTemplate::GetDefaultLocaleName() const
 {
-    return ExtendedData->Name->Str[sWorld->GetDefaultDbcLocale()];
+    return ExtendedData->Display->Str[sWorld->GetDefaultDbcLocale()];
 }
 
 uint32 ItemTemplate::GetArmor(uint32 itemLevel) const
@@ -141,7 +141,31 @@ uint32 ItemTemplate::GetArmor(uint32 itemLevel) const
         if (GetSubClass() < ITEM_SUBCLASS_ARMOR_CLOTH || GetSubClass() > ITEM_SUBCLASS_ARMOR_PLATE)
             return 0;
 
-        return uint32(armorQuality->QualityMod[quality] * armorTotal->Value[GetSubClass() - 1] * location->Modifier[GetSubClass() - 1] + 0.5f);
+        float total = 1.0f;
+        float locationModifier = 1.0f;
+        switch (GetSubClass())
+        {
+            case ITEM_SUBCLASS_ARMOR_CLOTH:
+                total = armorTotal->Cloth;
+                locationModifier = location->Clothmodifier;
+                break;
+            case ITEM_SUBCLASS_ARMOR_LEATHER:
+                total = armorTotal->Leather;
+                locationModifier = location->Leathermodifier;
+                break;
+            case ITEM_SUBCLASS_ARMOR_MAIL:
+                total = armorTotal->Mail;
+                locationModifier = location->Chainmodifier;
+                break;
+            case ITEM_SUBCLASS_ARMOR_PLATE:
+                total = armorTotal->Plate;
+                locationModifier = location->Platemodifier;
+                break;
+            default:
+                break;
+        }
+
+        return uint32(armorQuality->Qualitymod[quality] * total * locationModifier + 0.5f);
     }
 
     // shields
@@ -167,13 +191,13 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
     switch (GetInventoryType())
     {
         case INVTYPE_AMMO:
-            dps = sItemDamageAmmoStore.AssertEntry(itemLevel)->DPS[quality];
+            dps = sItemDamageAmmoStore.AssertEntry(itemLevel)->Quality[quality];
             break;
         case INVTYPE_2HWEAPON:
             if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
-                dps = sItemDamageTwoHandCasterStore.AssertEntry(itemLevel)->DPS[quality];
+                dps = sItemDamageTwoHandCasterStore.AssertEntry(itemLevel)->Quality[quality];
             else
-                dps = sItemDamageTwoHandStore.AssertEntry(itemLevel)->DPS[quality];
+                dps = sItemDamageTwoHandStore.AssertEntry(itemLevel)->Quality[quality];
             break;
         case INVTYPE_RANGED:
         case INVTYPE_THROWN:
@@ -181,15 +205,15 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
             switch (GetSubClass())
             {
                 case ITEM_SUBCLASS_WEAPON_WAND:
-                    dps = sItemDamageOneHandCasterStore.AssertEntry(itemLevel)->DPS[quality];
+                    dps = sItemDamageOneHandCasterStore.AssertEntry(itemLevel)->Quality[quality];
                     break;
                 case ITEM_SUBCLASS_WEAPON_BOW:
                 case ITEM_SUBCLASS_WEAPON_GUN:
                 case ITEM_SUBCLASS_WEAPON_CROSSBOW:
                     if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
-                        dps = sItemDamageTwoHandCasterStore.AssertEntry(itemLevel)->DPS[quality];
+                        dps = sItemDamageTwoHandCasterStore.AssertEntry(itemLevel)->Quality[quality];
                     else
-                        dps = sItemDamageTwoHandStore.AssertEntry(itemLevel)->DPS[quality];
+                        dps = sItemDamageTwoHandStore.AssertEntry(itemLevel)->Quality[quality];
                     break;
                 default:
                     return;
@@ -199,21 +223,24 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
             if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
-                dps = sItemDamageOneHandCasterStore.AssertEntry(itemLevel)->DPS[quality];
+                dps = sItemDamageOneHandCasterStore.AssertEntry(itemLevel)->Quality[quality];
             else
-                dps = sItemDamageOneHandStore.AssertEntry(itemLevel)->DPS[quality];
+                dps = sItemDamageOneHandStore.AssertEntry(itemLevel)->Quality[quality];
             break;
         default:
             return;
     }
 
     float avgDamage = dps * GetDelay() * 0.001f;
-    minDamage = (GetStatScalingFactor() * -0.5f + 1.0f) * avgDamage;
-    maxDamage = floor(float(avgDamage * (GetStatScalingFactor() * 0.5f + 1.0f) + 0.5f));
+    minDamage = (GetDmgVariance() * -0.5f + 1.0f) * avgDamage;
+    maxDamage = floor(float(avgDamage * (GetDmgVariance() * 0.5f + 1.0f) + 0.5f));
 }
 
-bool ItemTemplate::IsUsableByLootSpecialization(Player const* player) const
+bool ItemTemplate::IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const
 {
+    if (GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT && alwaysAllowBoundToAccount)
+        return true;
+
     uint32 spec = player->GetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID);
     if (!spec)
         spec = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);

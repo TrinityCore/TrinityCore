@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,9 +23,13 @@ SDComment:
 SDCategory:
 Script Data End */
 
-#include <algorithm>
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "utgarde_pinnacle.h"
 
 enum Spells
@@ -261,7 +265,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ravenous_furbolgAI>(creature);
+        return GetUtgardePinnacleAI<npc_ravenous_furbolgAI>(creature);
     }
 
     struct npc_ravenous_furbolgAI : public ScriptedAI
@@ -375,7 +379,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_frenzied_worgenAI>(creature);
+        return GetUtgardePinnacleAI<npc_frenzied_worgenAI>(creature);
     }
 
     struct npc_frenzied_worgenAI : public ScriptedAI
@@ -491,7 +495,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ferocious_rhinoAI>(creature);
+        return GetUtgardePinnacleAI<npc_ferocious_rhinoAI>(creature);
     }
 
     struct npc_ferocious_rhinoAI : public ScriptedAI
@@ -612,7 +616,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_massive_jormungarAI>(creature);
+        return GetUtgardePinnacleAI<npc_massive_jormungarAI>(creature);
     }
 
     struct npc_massive_jormungarAI : public ScriptedAI
@@ -719,7 +723,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_palehoof_orbAI>(creature);
+        return GetUtgardePinnacleAI<npc_palehoof_orbAI>(creature);
     }
 
     struct npc_palehoof_orbAI : public ScriptedAI
@@ -784,7 +788,6 @@ public:
                     nextBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
                     nextBoss->SetStandState(UNIT_STAND_STATE_STAND);
                     nextBoss->SetInCombatWithZone();
-                    nextBoss->Attack(nextBoss->SelectNearestTarget(100), true);
                 }
                 currentPhase = PHASE_NONE;
 

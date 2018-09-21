@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,13 +24,15 @@ SDCategory: Hellfire Citadel, Shattered Halls
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "shattered_halls.h"
-#include "Player.h"
-#include "SpellAuras.h"
+#include "Creature.h"
 #include "CreatureAI.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "Player.h"
+#include "shattered_halls.h"
+#include "SpellAuras.h"
+#include "TemporarySummon.h"
 
 DoorData const doorData[] =
 {
@@ -42,7 +44,7 @@ DoorData const doorData[] =
 class instance_shattered_halls : public InstanceMapScript
 {
     public:
-        instance_shattered_halls() : InstanceMapScript("instance_shattered_halls", 540) { }
+        instance_shattered_halls() : InstanceMapScript(SHScriptName, 540) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {

@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -25,7 +25,6 @@ list(APPEND PRIVATE_SOURCES
 
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/commonPCH.h)
-  set(PRIVATE_PCH_SOURCE PrecompiledHeaders/commonPCH.cpp)
 endif (USE_COREPCH)
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -33,7 +32,6 @@ GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DTRINITY_API_EXPORT_COMMON)
 
 add_library(common
-  ${PRIVATE_PCH_SOURCE}
   ${PRIVATE_SOURCES}
 )
 
@@ -61,9 +59,12 @@ target_include_directories(common
     ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(common
+  PRIVATE
+    process
+    trinity-core-interface
   PUBLIC
     boost
-    cppformat
+    fmt
     g3dlib
     Detour
     sfmt
@@ -71,9 +72,7 @@ target_link_libraries(common
     openssl
     valgrind
     threads
-    jemalloc
-  PRIVATE
-    process)
+    jemalloc)
 
 add_dependencies(common revision_data.h)
 
@@ -96,5 +95,5 @@ endif()
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(common ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
+  add_cxx_pch(common ${PRIVATE_PCH_HEADER})
 endif ()

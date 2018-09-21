@@ -130,9 +130,11 @@ size_t Map_EnumObjects(PCASC_MAP pMap, void **ppvArray)
                 ppvArray[nIndex++] = pMap->HashTable[i];
             }
         }
+
+        return pMap->ItemCount;
     }
 
-    return pMap->ItemCount;
+    return 0;
 }
 
 void * Map_FindObject(PCASC_MAP pMap, void * pvKey, PDWORD PtrIndex)

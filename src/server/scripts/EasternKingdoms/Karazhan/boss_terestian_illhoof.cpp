@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,12 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "karazhan.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum TerestianIllhoof
 {
@@ -70,7 +73,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kilrekAI>(creature);
+        return GetKarazhanAI<npc_kilrekAI>(creature);
     }
 
     struct npc_kilrekAI : public ScriptedAI
@@ -130,7 +133,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_demon_chainAI(creature);
+        return GetKarazhanAI<npc_demon_chainAI>(creature);
     }
 
     struct npc_demon_chainAI : public ScriptedAI
@@ -176,7 +179,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_fiendish_portalAI(creature);
+        return GetKarazhanAI<npc_fiendish_portalAI>(creature);
     }
 
     struct npc_fiendish_portalAI : public PassiveAI
@@ -210,7 +213,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_fiendish_impAI(creature);
+        return GetKarazhanAI<npc_fiendish_impAI>(creature);
     }
 
     struct npc_fiendish_impAI : public ScriptedAI
@@ -260,7 +263,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_terestianAI>(creature);
+        return GetKarazhanAI<boss_terestianAI>(creature);
     }
 
     struct boss_terestianAI : public ScriptedAI

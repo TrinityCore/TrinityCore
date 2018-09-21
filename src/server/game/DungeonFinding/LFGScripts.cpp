@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,14 +19,16 @@
  * Interaction between core and LFGScripts
  */
 
-#include "Common.h"
-#include "SharedDefines.h"
-#include "Player.h"
-#include "Group.h"
 #include "LFGScripts.h"
+#include "Common.h"
+#include "Group.h"
 #include "LFGMgr.h"
-#include "ScriptMgr.h"
+#include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "SharedDefines.h"
 #include "WorldSession.h"
 
 namespace lfg
@@ -40,10 +42,7 @@ void LFGPlayerScript::OnLogout(Player* player)
         return;
 
     if (!player->GetGroup())
-    {
-        player->GetSession()->SendLfgLfrList(false);
         sLFGMgr->LeaveLfg(player->GetGUID());
-    }
     else if (player->GetSession()->PlayerDisconnected())
         sLFGMgr->LeaveLfg(player->GetGUID(), true);
 }

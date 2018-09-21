@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,10 +18,13 @@
 #ifndef BLACK_MARKET_H
 #define BLACK_MARKET_H
 
-#include "Common.h"
+#include "SharedDefines.h"
+#include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
-#include "ItemPackets.h"
-#include "Item.h"
+#include "ItemPacketsCommon.h"
+#include <unordered_map>
+
+class Player;
 
 namespace WorldPackets
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -84,7 +84,7 @@ namespace VMAP
                 if (entry->second.flags & MOD_M2)
                 {
                     if (!calculateTransformedBound(entry->second))
-                        break;
+                        continue;
                 }
                 else if (entry->second.flags & MOD_WORLDSPAWN) // WMO maps and terrain maps use different origin, so we need to adapt :/
                 {
@@ -92,7 +92,7 @@ namespace VMAP
                     //entry->second.iPos += Vector3(533.33333f*32, 533.33333f*32, 0.f);
                     entry->second.iBound = entry->second.iBound + Vector3(533.33333f*32, 533.33333f*32, 0.f);
                 }
-                mapSpawns.push_back(&(entry->second));
+                mapSpawns.push_back(&entry->second);
                 spawnedModelFiles.insert(entry->second.name);
             }
 
@@ -110,9 +110,6 @@ namespace VMAP
             }
 
             // ===> possibly move this code to StaticMapTree class
-            std::map<uint32, uint32> modelNodeIdx;
-            for (uint32 i=0; i<mapSpawns.size(); ++i)
-                modelNodeIdx.insert(pair<uint32, uint32>(mapSpawns[i]->ID, i));
 
             // write map tree file
             std::stringstream mapfilename;
@@ -139,7 +136,17 @@ namespace VMAP
 
             for (TileMap::iterator glob=globalRange.first; glob != globalRange.second && success; ++glob)
             {
-                success = ModelSpawn::writeToFile(mapfile, map_iter->second->UniqueEntries[glob->second]);
+                success = ModelSpawn::writeToFile(mapfile, map_iter->second->UniqueEntries[glob->second.Id]);
+            }
+
+            // spawn id to index map
+            if (success && fwrite("SIDX", 4, 1, mapfile) != 1) success = false;
+            uint32 mapSpawnsSize = mapSpawns.size();
+            if (success && fwrite(&mapSpawnsSize, sizeof(uint32), 1, mapfile) != 1) success = false;
+            for (uint32 i = 0; i < mapSpawnsSize; ++i)
+            {
+                if (success && fwrite(&mapSpawns[i]->ID, sizeof(uint32), 1, mapfile) != 1) success = false;
+                if (success && fwrite(&i, sizeof(uint32), 1, mapfile) != 1) success = false;
             }
 
             fclose(mapfile);
@@ -151,8 +158,9 @@ namespace VMAP
             TileMap::iterator tile;
             for (tile = tileEntries.begin(); tile != tileEntries.end(); ++tile)
             {
-                const ModelSpawn &spawn = map_iter->second->UniqueEntries[tile->second];
-                if (spawn.flags & MOD_WORLDSPAWN) // WDT spawn, saved as tile 65/65 currently...
+                if (tile->second.Flags & MOD_WORLDSPAWN) // WDT spawn, saved as tile 65/65 currently...
+                    continue;
+                if (tile->second.Flags & MOD_PARENT_SPAWN) // tile belongs to parent map
                     continue;
                 uint32 nSpawns = tileEntries.count(tile->first);
                 std::stringstream tilefilename;
@@ -172,16 +180,12 @@ namespace VMAP
                     {
                         if (s)
                             ++tile;
-                        const ModelSpawn &spawn2 = map_iter->second->UniqueEntries[tile->second];
+                        const ModelSpawn &spawn2 = map_iter->second->UniqueEntries[tile->second.Id];
                         success = success && ModelSpawn::writeToFile(tilefile, spawn2);
-                        // MapTree nodes to update when loading tile:
-                        std::map<uint32, uint32>::iterator nIdx = modelNodeIdx.find(spawn2.ID);
-                        if (success && fwrite(&nIdx->second, sizeof(uint32), 1, tilefile) != 1) success = false;
                     }
                     fclose(tilefile);
                 }
             }
-            // break; //test, extract only first map; TODO: remvoe this line
         }
 
         // add an object models, listed in temp_gameobject_models file
@@ -223,7 +227,7 @@ namespace VMAP
         while (!feof(dirf))
         {
             check = 0;
-            // read mapID, tileX, tileY, Flags, adtID, ID, Pos, Rot, Scale, Bound_lo, Bound_hi, name
+            // read mapID, tileX, tileY, Flags, NameSet, UniqueId, Pos, Rot, Scale, Bound_lo, Bound_hi, name
             check += fread(&mapID, sizeof(uint32), 1, dirf);
             if (check == 0) // EoF...
                 break;
@@ -239,9 +243,9 @@ namespace VMAP
                 printf("spawning Map %u\n", mapID);
                 mapData[mapID] = current = new MapSpawns();
             }
-            else current = (*map_iter).second;
+            else current = map_iter->second;
             current->UniqueEntries.insert(pair<uint32, ModelSpawn>(spawn.ID, spawn));
-            current->TileEntries.insert(pair<uint32, uint32>(StaticMapTree::packTileID(tileX, tileY), spawn.ID));
+            current->TileEntries.insert(pair<uint32, TileSpawn>(StaticMapTree::packTileID(tileX, tileY), TileSpawn{ spawn.ID, spawn.flags }));
         }
         bool success = (ferror(dirf) == 0);
         fclose(dirf);
@@ -296,14 +300,16 @@ namespace VMAP
         return true;
     }
 
+#pragma pack(push, 1)
     struct WMOLiquidHeader
     {
         int xverts, yverts, xtiles, ytiles;
         float pos_x;
         float pos_y;
         float pos_z;
-        short type;
+        short material;
     };
+#pragma pack(pop)
     //=================================================================
     bool TileAssembler::convertRawFile(const std::string& pModelFilename)
     {
@@ -347,6 +353,13 @@ namespace VMAP
         if (!model_list)
             return;
 
+        char ident[8];
+        if (fread(ident, 1, 8, model_list) != 8 || memcmp(ident, VMAP::RAW_VMAP_MAGIC, 8) != 0)
+        {
+            fclose(model_list);
+            return;
+        }
+
         FILE* model_list_copy = fopen((iDestDir + "/" + GAMEOBJECT_MODELS).c_str(), "wb");
         if (!model_list_copy)
         {
@@ -354,7 +367,10 @@ namespace VMAP
             return;
         }
 
+        fwrite(VMAP::VMAP_MAGIC, 1, 8, model_list_copy);
+
         uint32 name_length, displayId;
+        uint8 isWmo;
         char buff[500];
         while (true)
         {
@@ -362,7 +378,8 @@ namespace VMAP
                 if (feof(model_list))   // EOF flag is only set after failed reading attempt
                     break;
 
-            if (fread(&name_length, sizeof(uint32), 1, model_list) != 1
+            if (fread(&isWmo, sizeof(uint8), 1, model_list) != 1
+                || fread(&name_length, sizeof(uint32), 1, model_list) != 1
                 || name_length >= sizeof(buff)
                 || fread(&buff, sizeof(char), name_length, model_list) != name_length)
             {
@@ -407,6 +424,7 @@ namespace VMAP
             }
 
             fwrite(&displayId, sizeof(uint32), 1, model_list_copy);
+            fwrite(&isWmo, sizeof(uint8), 1, model_list_copy);
             fwrite(&name_length, sizeof(uint32), 1, model_list_copy);
             fwrite(&buff, sizeof(char), name_length, model_list_copy);
             fwrite(&bounds.low(), sizeof(Vector3), 1, model_list_copy);
@@ -491,24 +509,33 @@ namespace VMAP
             delete[] vectorarray;
         }
         // ----- liquid
-        liquid = 0;
-        if (liquidflags& 1)
+        liquid = nullptr;
+        if (liquidflags & 3)
         {
-            WMOLiquidHeader hlq;
             READ_OR_RETURN(&blockId, 4);
             CMP_OR_RETURN(blockId, "LIQU");
             READ_OR_RETURN(&blocksize, sizeof(int));
-            READ_OR_RETURN(&hlq, sizeof(WMOLiquidHeader));
-            liquid = new WmoLiquid(hlq.xtiles, hlq.ytiles, Vector3(hlq.pos_x, hlq.pos_y, hlq.pos_z), hlq.type);
-            uint32 size = hlq.xverts*hlq.yverts;
-            READ_OR_RETURN(liquid->GetHeightStorage(), size*sizeof(float));
-            size = hlq.xtiles*hlq.ytiles;
-            READ_OR_RETURN(liquid->GetFlagsStorage(), size);
+            uint32 liquidType;
+            READ_OR_RETURN(&liquidType, sizeof(uint32));
+            if (liquidflags & 1)
+            {
+                WMOLiquidHeader hlq;
+                READ_OR_RETURN(&hlq, sizeof(WMOLiquidHeader));
+                liquid = new WmoLiquid(hlq.xtiles, hlq.ytiles, Vector3(hlq.pos_x, hlq.pos_y, hlq.pos_z), liquidType);
+                uint32 size = hlq.xverts * hlq.yverts;
+                READ_OR_RETURN(liquid->GetHeightStorage(), size * sizeof(float));
+                size = hlq.xtiles * hlq.ytiles;
+                READ_OR_RETURN(liquid->GetFlagsStorage(), size);
+            }
+            else
+            {
+                liquid = new WmoLiquid(0, 0, Vector3::zero(), liquidType);
+                liquid->GetHeightStorage()[0] = bounds.high().z;
+            }
         }
 
         return true;
     }
-
 
     GroupModel_Raw::~GroupModel_Raw()
     {

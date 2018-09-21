@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,35 +16,6 @@
  */
 
 #include "BlackMarketPackets.h"
-#include "BlackMarketMgr.h"
-#include "Player.h"
-
-void WorldPackets::BlackMarket::BlackMarketItem::Initialize(BlackMarketEntry *const entry, Player* player)
-{
-    BlackMarketTemplate const* templ = entry->GetTemplate();
-
-    MarketID = entry->GetMarketId();
-    SellerNPC = templ->SellerNPC;
-    Item = templ->Item;
-    Quantity = templ->Quantity;
-
-    // No bids yet
-    if (!entry->GetNumBids())
-    {
-        MinBid = templ->MinBid;
-        MinIncrement = 1;
-    }
-    else
-    {
-        MinIncrement = entry->GetMinIncrement(); // 5% increment minimum
-        MinBid = entry->GetCurrentBid() + MinIncrement;
-    }
-
-    CurrentBid = entry->GetCurrentBid();
-    SecondsRemaining = entry->GetSecondsRemaining();
-    HighBid = (entry->GetBidder() == player->GetGUID().GetCounter());
-    NumBids = entry->GetNumBids();
-}
 
 void WorldPackets::BlackMarket::BlackMarketOpen::Read()
 {
@@ -114,8 +85,8 @@ void WorldPackets::BlackMarket::BlackMarketBidOnItem::Read()
 {
     _worldPacket >> Guid;
     _worldPacket >> MarketID;
-    _worldPacket >> Item;
     _worldPacket >> BidAmount;
+    _worldPacket >> Item;
 }
 
 WorldPacket const* WorldPackets::BlackMarket::BlackMarketBidOnItemResult::Write()

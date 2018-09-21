@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
 
 struct TC_COMMON_API DB2Meta
 {
-    DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, char const* types, uint8 const* arraySizes);
+    DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, char const* types, uint8 const* arraySizes, int32 parentIndexField);
 
     bool HasIndexFieldInData() const;
 
@@ -32,10 +32,13 @@ struct TC_COMMON_API DB2Meta
     // Returns size of final loaded structure
     uint32 GetRecordSize() const;
 
+    int32 GetParentIndexFieldOffset() const;
+
     uint32 GetDbIndexField() const;
     uint32 GetDbFieldCount() const;
 
     int32 IndexField;
+    int32 ParentIndexField;
     uint32 FieldCount;
     uint32 LayoutHash;
     char const* Types;

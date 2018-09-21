@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,6 +31,7 @@ class GameObject;
 class Pet;
 class Player;
 class AreaTrigger;
+class Conversation;
 
 #define MAX_NUMBER_OF_CELLS     8
 
@@ -58,8 +59,8 @@ class AreaTrigger;
 
 // Creature used instead pet to simplify *::Visit templates (not required duplicate code for Creature->Pet case)
 typedef TYPELIST_4(Player, Creature/*pets*/, Corpse/*resurrectable*/, DynamicObject/*farsight target*/) AllWorldObjectTypes;
-typedef TYPELIST_5(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/, AreaTrigger) AllGridObjectTypes;
-typedef TYPELIST_6(Creature, GameObject, DynamicObject, Pet, Corpse, AreaTrigger) AllMapStoredObjectTypes;
+typedef TYPELIST_6(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/, AreaTrigger, Conversation) AllGridObjectTypes;
+typedef TYPELIST_7(Creature, GameObject, DynamicObject, Pet, Corpse, AreaTrigger, Conversation) AllMapStoredObjectTypes;
 
 typedef GridRefManager<Corpse>          CorpseMapType;
 typedef GridRefManager<Creature>        CreatureMapType;
@@ -67,6 +68,7 @@ typedef GridRefManager<DynamicObject>   DynamicObjectMapType;
 typedef GridRefManager<GameObject>      GameObjectMapType;
 typedef GridRefManager<Player>          PlayerMapType;
 typedef GridRefManager<AreaTrigger>     AreaTriggerMapType;
+typedef GridRefManager<Conversation>    ConversationMapType;
 
 enum GridMapTypeMask
 {
@@ -76,7 +78,8 @@ enum GridMapTypeMask
     GRID_MAP_TYPE_MASK_GAMEOBJECT       = 0x08,
     GRID_MAP_TYPE_MASK_PLAYER           = 0x10,
     GRID_MAP_TYPE_MASK_AREATRIGGER      = 0x20,
-    GRID_MAP_TYPE_MASK_ALL              = 0x3F
+    GRID_MAP_TYPE_MASK_CONVERSATION     = 0x40,
+    GRID_MAP_TYPE_MASK_ALL              = 0x7F
 };
 
 typedef Grid<Player, AllWorldObjectTypes, AllGridObjectTypes> GridType;

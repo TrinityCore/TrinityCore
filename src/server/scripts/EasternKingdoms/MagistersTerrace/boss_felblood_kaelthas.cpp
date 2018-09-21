@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,10 +24,13 @@ SDCategory: Magisters' Terrace
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
 #include "magisters_terrace.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -96,7 +99,7 @@ public:
 
     CreatureAI* GetAI(Creature* c) const override
     {
-        return GetInstanceAI<boss_felblood_kaelthasAI>(c);
+        return GetMagistersTerraceAI<boss_felblood_kaelthasAI>(c);
     }
 
     struct boss_felblood_kaelthasAI : public ScriptedAI
@@ -251,11 +254,7 @@ public:
                 {
                     // Also needs an exception in spell system.
                     unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, 0, 0, me->GetGUID());
-                    // Use packet hack
-                    WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
-                    data << unit->GetPackGUID();
-                    data << uint32(0);
-                    unit->SendMessageToSet(&data, true);
+                    unit->SetCanFly(true);
                 }
             }
         }
@@ -271,11 +270,7 @@ public:
                 {
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
-
-                    WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
-                    data << unit->GetPackGUID();
-                    data << uint32(0);
-                    unit->SendMessageToSet(&data, true);
+                    unit->SetCanFly(false);
                 }
             }
         }
@@ -438,7 +433,7 @@ public:
 
     CreatureAI* GetAI(Creature* c) const override
     {
-        return new npc_felkael_flamestrikeAI(c);
+        return GetMagistersTerraceAI<npc_felkael_flamestrikeAI>(c);
     }
 
     struct npc_felkael_flamestrikeAI : public ScriptedAI
@@ -486,7 +481,7 @@ public:
 
     CreatureAI* GetAI(Creature* c) const override
     {
-        return GetInstanceAI<npc_felkael_phoenixAI>(c);
+        return GetMagistersTerraceAI<npc_felkael_phoenixAI>(c);
     }
 
     struct npc_felkael_phoenixAI : public ScriptedAI
@@ -604,7 +599,7 @@ public:
 
     CreatureAI* GetAI(Creature* c) const override
     {
-        return new npc_felkael_phoenix_eggAI(c);
+        return GetMagistersTerraceAI<npc_felkael_phoenix_eggAI>(c);
     }
 
     struct npc_felkael_phoenix_eggAI : public ScriptedAI
@@ -648,7 +643,7 @@ public:
 
     CreatureAI* GetAI(Creature* c) const override
     {
-        return new npc_arcane_sphereAI(c);
+        return GetMagistersTerraceAI<npc_arcane_sphereAI>(c);
     }
 
     struct npc_arcane_sphereAI : public ScriptedAI

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,19 +16,19 @@
  */
 
 #include "TransportMgr.h"
-#include "Transport.h"
+#include "DatabaseEnv.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "MapManager.h"
+#include "MoveSplineInitArgs.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "PhasingHandler.h"
+#include "Spline.h"
+#include "Transport.h"
 
 TransportTemplate::~TransportTemplate()
 {
-    // Collect shared pointers into a set to avoid deleting the same memory more than once
-    std::set<TransportSpline*> splines;
-    for (size_t i = 0; i < keyFrames.size(); ++i)
-        splines.insert(keyFrames[i].Spline);
-
-    for (std::set<TransportSpline*>::iterator itr = splines.begin(); itr != splines.end(); ++itr)
-        delete *itr;
 }
 
 TransportMgr::TransportMgr() { }
@@ -95,6 +95,15 @@ void TransportMgr::LoadTransportTemplates()
     TC_LOG_INFO("server.loading", ">> Loaded %u transport templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void TransportMgr::LoadTransportAnimationAndRotation()
+{
+    for (TransportAnimationEntry const* anim : sTransportAnimationStore)
+        AddPathNodeToTransport(anim->TransportID, anim->TimeIndex, anim);
+
+    for (TransportRotationEntry const* rot : sTransportRotationStore)
+        AddPathRotationToTransport(rot->GameObjectsID, rot->TimeIndex, rot);
+}
+
 class SplineRawInitializer
 {
 public:
@@ -137,7 +146,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         if (!mapChange)
         {
             TaxiPathNodeEntry const* node_i = path[i];
-            if (i != path.size() - 1 && (node_i->Flags & TAXI_PATH_NODE_FLAG_TELEPORT || node_i->MapID != path[i + 1]->MapID))
+            if (i != path.size() - 1 && (node_i->Flags & TAXI_PATH_NODE_FLAG_TELEPORT || node_i->ContinentID != path[i + 1]->ContinentID))
             {
                 keyFrames.back().Teleport = true;
                 mapChange = true;
@@ -151,7 +160,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
 
                 keyFrames.push_back(k);
                 splinePath.push_back(G3D::Vector3(node_i->Loc.X, node_i->Loc.Y, node_i->Loc.Z));
-                transport->mapsUsed.insert(k.Node->MapID);
+                transport->mapsUsed.insert(k.Node->ContinentID);
             }
         }
         else
@@ -215,7 +224,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         if (keyFrames[i - 1].Teleport || i + 1 == keyFrames.size())
         {
             size_t extra = !keyFrames[i - 1].Teleport ? 1 : 0;
-            TransportSpline* spline = new TransportSpline();
+            std::shared_ptr<TransportSpline> spline = std::make_shared<TransportSpline>();
             spline->init_spline(&splinePath[start], i - start + extra, Movement::SplineBase::ModeCatmullrom);
             spline->initLengths();
             for (size_t j = start; j < i + extra; ++j)
@@ -356,7 +365,7 @@ void TransportMgr::AddPathNodeToTransport(uint32 transportEntry, uint32 timeSeg,
     animNode.Path[timeSeg] = node;
 }
 
-Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid /*= 0*/, Map* map /*= NULL*/, uint32 phaseid /*= 0*/, uint32 phasegroup /*= 0*/)
+Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid /*= 0*/, Map* map /*= nullptr*/, uint8 phaseUseFlags /*= 0*/, uint32 phaseId /*= 0*/, uint32 phaseGroupId /*= 0*/)
 {
     // instance case, execute GetGameObjectEntry hook
     if (map)
@@ -382,7 +391,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
 
     // ...at first waypoint
     TaxiPathNodeEntry const* startNode = tInfo->keyFrames.begin()->Node;
-    uint32 mapId = startNode->MapID;
+    uint32 mapId = startNode->ContinentID;
     float x = startNode->Loc.X;
     float y = startNode->Loc.Y;
     float z = startNode->Loc.Z;
@@ -396,12 +405,7 @@ Transport* TransportMgr::CreateTransport(uint32 entry, ObjectGuid::LowType guid 
         return NULL;
     }
 
-    if (phaseid)
-        trans->SetInPhase(phaseid, false, true);
-
-    if (phasegroup)
-        for (auto ph : sDB2Manager.GetPhasesForGroup(phasegroup))
-            trans->SetInPhase(ph, false, true);
+    PhasingHandler::InitDbPhaseShift(trans->GetPhaseShift(), phaseUseFlags, phaseId, phaseGroupId);
 
     if (MapEntry const* mapEntry = sMapStore.LookupEntry(mapId))
     {
@@ -431,7 +435,7 @@ void TransportMgr::SpawnContinentTransports()
 
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT guid, entry, phaseid, phasegroup FROM transports");
+    QueryResult result = WorldDatabase.Query("SELECT guid, entry, phaseUseFlags, phaseid, phasegroup FROM transports");
 
     uint32 count = 0;
     if (result)
@@ -441,12 +445,50 @@ void TransportMgr::SpawnContinentTransports()
             Field* fields = result->Fetch();
             ObjectGuid::LowType guid = fields[0].GetUInt64();
             uint32 entry = fields[1].GetUInt32();
-            uint32 phaseid = fields[2].GetUInt32();
-            uint32 phasegroup = fields[3].GetUInt32();
+            uint8 phaseUseFlags = fields[2].GetUInt8();
+            uint32 phaseId = fields[3].GetUInt32();
+            uint32 phaseGroupId = fields[4].GetUInt32();
+
+            if (phaseUseFlags & ~PHASE_USE_FLAGS_ALL)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with unknown `phaseUseFlags` set, removed unknown value.", guid, entry);
+                phaseUseFlags &= PHASE_USE_FLAGS_ALL;
+            }
+
+            if (phaseUseFlags & PHASE_USE_FLAGS_ALWAYS_VISIBLE && phaseUseFlags & PHASE_USE_FLAGS_INVERSE)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE,"
+                    " removing PHASE_USE_FLAGS_INVERSE.", guid, entry);
+                phaseUseFlags &= ~PHASE_USE_FLAGS_INVERSE;
+            }
+
+            if (phaseGroupId && phaseId)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, entry);
+                phaseGroupId = 0;
+            }
+
+            if (phaseId)
+            {
+                if (!sPhaseStore.LookupEntry(phaseId))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with `phaseid` %u does not exist, set to 0", guid, entry, phaseId);
+                    phaseId = 0;
+                }
+            }
+
+            if (phaseGroupId)
+            {
+                if (!sDB2Manager.GetPhasesForGroup(phaseGroupId))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `transports` have transport (GUID: " UI64FMTD " Entry: %u) with `phaseGroup` %u does not exist, set to 0", guid, entry, phaseGroupId);
+                    phaseGroupId = 0;
+                }
+            }
 
             if (TransportTemplate const* tInfo = GetTransportTemplate(entry))
                 if (!tInfo->inInstance)
-                    if (CreateTransport(entry, guid, nullptr, phaseid, phasegroup))
+                    if (CreateTransport(entry, guid, nullptr, phaseUseFlags, phaseId, phaseGroupId))
                         ++count;
 
         } while (result->NextRow());
@@ -470,30 +512,18 @@ void TransportMgr::CreateInstanceTransports(Map* map)
 
 TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) const
 {
-    if (Path.empty())
-        return NULL;
+    auto itr = Path.lower_bound(time);
+    if (itr != Path.end())
+        return itr->second;
 
-    for (TransportPathContainer::const_reverse_iterator itr2 = Path.rbegin(); itr2 != Path.rend(); ++itr2)
-        if (time >= itr2->first)
-            return itr2->second;
-
-    return Path.begin()->second;
+    return nullptr;
 }
 
-G3D::Quat TransportAnimation::GetAnimRotation(uint32 time) const
+TransportRotationEntry const* TransportAnimation::GetAnimRotation(uint32 time) const
 {
-    if (Rotations.empty())
-        return G3D::Quat(0.0f, 0.0f, 0.0f, 1.0f);
+    auto itr = Rotations.lower_bound(time);
+    if (itr != Rotations.end())
+        return itr->second;
 
-    TransportRotationEntry const* rot = Rotations.begin()->second;
-    for (TransportPathRotationContainer::const_reverse_iterator itr2 = Rotations.rbegin(); itr2 != Rotations.rend(); ++itr2)
-    {
-        if (time >= itr2->first)
-        {
-            rot = itr2->second;
-            break;
-        }
-    }
-
-    return G3D::Quat(rot->X, rot->Y, rot->Z, rot->W);
+    return nullptr;
 }

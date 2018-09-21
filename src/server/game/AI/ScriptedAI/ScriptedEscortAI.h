@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,27 +19,13 @@
 #ifndef SC_ESCORTAI_H
 #define SC_ESCORTAI_H
 
+#include "ScriptedCreature.h"
 #include "ScriptSystem.h"
+#include "WaypointDefines.h"
+
+class Quest;
 
 #define DEFAULT_MAX_PLAYER_DISTANCE 50
-
-struct Escort_Waypoint
-{
-    Escort_Waypoint(uint32 _id, float _x, float _y, float _z, uint32 _w)
-    {
-        id = _id;
-        x = _x;
-        y = _y;
-        z = _z;
-        WaitTimeMs = _w;
-    }
-
-    uint32 id;
-    float x;
-    float y;
-    float z;
-    uint32 WaitTimeMs;
-};
 
 enum eEscortState
 {
@@ -56,7 +42,6 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
         ~npc_escortAI() { }
 
         // CreatureAI functions
-        void AttackStart(Unit* who) override;
 
         void MoveInLineOfSight(Unit* who) override;
 
@@ -75,15 +60,6 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
 
         // EscortAI functions
         void AddWaypoint(uint32 id, float x, float y, float z, uint32 waitTime = 0);    // waitTime is in ms
-
-        //this will set the current position to x/y/z/o, and the current WP to pointId.
-        bool SetNextWaypoint(uint32 pointId, float x, float y, float z, float orientation);
-
-        //this will set the current position to WP start position (if setPosition == true),
-        //and the current WP to pointId
-        bool SetNextWaypoint(uint32 pointId, bool setPosition = true, bool resetWaypointsOnFail = true);
-
-        bool GetWaypointPosition(uint32 pointId, float& x, float& y, float& z);
 
         virtual void WaypointReached(uint32 pointId) = 0;
         virtual void WaypointStart(uint32 /*pointId*/) { }
@@ -104,12 +80,13 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
         bool GetAttack() const { return m_bIsActiveAttacker; }//used in EnterEvadeMode override
         void SetCanAttack(bool attack) { m_bIsActiveAttacker = attack; }
         ObjectGuid GetEventStarterGUID() const { return m_uiPlayerGUID; }
+        void SetWaitTimer(uint32 Timer) { m_uiWPWaitTimer = Timer; }
 
     protected:
-        Player* GetPlayerForEscort() { return ObjectAccessor::GetPlayer(*me, m_uiPlayerGUID); }
+        Player* GetPlayerForEscort();
 
     private:
-        bool AssistPlayerInCombat(Unit* who);
+        bool AssistPlayerInCombatAgainst(Unit* who);
         bool IsPlayerOrGroupInRange();
         void FillPointMovementListForCreature();
 
@@ -121,11 +98,11 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
         uint32 m_uiPlayerCheckTimer;
         uint32 m_uiEscortState;
         float MaxPlayerDistance;
+        uint32 LastWP;
+
+        WaypointPath _path;
 
         Quest const* m_pQuestForEscort;                     //generally passed in Start() when regular escort script.
-
-        std::list<Escort_Waypoint> WaypointList;
-        std::list<Escort_Waypoint>::iterator CurrentWP;
 
         bool m_bIsActiveAttacker;                           //obsolete, determined by faction.
         bool m_bIsRunning;                                  //all creatures are walking by default (has flag MOVEMENTFLAG_WALK)
@@ -135,5 +112,7 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
         bool DespawnAtFar;
         bool ScriptWP;
         bool HasImmuneToNPCFlags;
+        bool m_bStarted;
+        bool m_bEnded;
 };
 #endif

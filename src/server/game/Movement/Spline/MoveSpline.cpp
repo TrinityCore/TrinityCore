@@ -19,29 +19,31 @@
 #include "MoveSpline.h"
 #include "Log.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 
 #include <sstream>
 
 namespace Movement{
 
-Location MoveSpline::ComputePosition() const
+Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
 {
     ASSERT(Initialized());
 
-    float u = 1.f;
-    int32 seg_time = spline.length(point_Idx, point_Idx+1);
+    float u = 1.0f;
+    int32 seg_time = spline.length(point_index, point_index + 1);
     if (seg_time > 0)
-        u = (time_passed - spline.length(point_Idx)) / (float)seg_time;
+        u = (time_point - spline.length(point_index)) / (float)seg_time;
+
     Location c;
     c.orientation = initialOrientation;
-    spline.evaluate_percent(point_Idx, u, c);
+    spline.evaluate_percent(point_index, u, c);
 
     if (splineflags.animation)
         ;// MoveSplineFlag::Animation disables falling or parabolic movement
     else if (splineflags.parabolic)
-        computeParabolicElevation(c.z);
+        computeParabolicElevation(time_point, c.z);
     else if (splineflags.falling)
-        computeFallElevation(c.z);
+        computeFallElevation(time_point, c.z);
 
     if (splineflags.done && facing.type != MONSTER_MOVE_NORMAL)
     {
@@ -60,18 +62,44 @@ Location MoveSpline::ComputePosition() const
             c.orientation = std::atan2(hermite.y, hermite.x);
         }
 
-        if (splineflags.orientationInversed)
-            c.orientation = -c.orientation;
+        if (splineflags.backward)
+            c.orientation = c.orientation - float(M_PI);
     }
     return c;
 }
 
-void MoveSpline::computeParabolicElevation(float& el) const
+Location MoveSpline::ComputePosition() const
 {
-    if (time_passed > effect_start_time)
+    return computePosition(time_passed, point_Idx);
+}
+
+Location MoveSpline::ComputePosition(int32 time_offset) const
+{
+    int32 time_point = time_passed + time_offset;
+    if (time_point >= Duration())
+        return computePosition(Duration(), spline.last() - 1);
+    if (time_point <= 0)
+        return computePosition(0, spline.first());
+
+    // find point_index where spline.length(point_index) < time_point < spline.length(point_index + 1)
+    int32 point_index = point_Idx;
+    while (time_point >= spline.length(point_index + 1))
+        ++point_index;
+
+    while (time_point < spline.length(point_index))
+        --point_index;
+
+    return computePosition(time_point, point_index);
+}
+
+void MoveSpline::computeParabolicElevation(int32 time_point, float& el) const
+{
+    if (time_point > effect_start_time)
     {
-        float t_passedf = MSToSec(time_passed - effect_start_time);
+        float t_passedf = MSToSec(time_point - effect_start_time);
         float t_durationf = MSToSec(Duration() - effect_start_time); //client use not modified duration here
+        if (spell_effect_extra && spell_effect_extra->ParabolicCurveId)
+            t_passedf *= sDB2Manager.GetCurveValueAt(spell_effect_extra->ParabolicCurveId, float(time_point) / Duration());
 
         // -a*x*x + bx + c:
         //(dur * v3->z_acceleration * dt)/2 - (v3->z_acceleration * dt * dt)/2 + Z;
@@ -79,9 +107,9 @@ void MoveSpline::computeParabolicElevation(float& el) const
     }
 }
 
-void MoveSpline::computeFallElevation(float& el) const
+void MoveSpline::computeFallElevation(int32 time_point, float& el) const
 {
-    float z_now = spline.getPoint(spline.first()).z - Movement::computeFallElevation(MSToSec(time_passed), false);
+    float z_now = spline.getPoint(spline.first()).z - Movement::computeFallElevation(MSToSec(time_point), false);
     float final_z = FinalDestination().z;
     el = std::max(z_now, final_z);
 }
@@ -165,6 +193,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     time_passed = 0;
     vertical_acceleration = 0.f;
     effect_start_time = 0;
+    spell_effect_extra = args.spellEffectExtra;
     splineIsFacingOnly = args.path.size() == 2 && args.facing.type != MONSTER_MOVE_NORMAL && ((args.path[1] - args.path[0]).length() < 0.1f);
 
     // Check if its a stop spline
@@ -178,7 +207,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 
     // init parabolic / animation
     // spline initialized, duration known and i able to compute parabolic acceleration
-    if (args.flags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation | MoveSplineFlag::Unknown6))
+    if (args.flags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation | MoveSplineFlag::FadeObject))
     {
         effect_start_time = Duration() * args.time_perc;
         if (args.flags.parabolic && effect_start_time < Duration())
@@ -203,13 +232,18 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
 #define CHECK(exp) \
     if (!(exp))\
     {\
-        TC_LOG_ERROR("misc", "MoveSplineInitArgs::Validate: expression '%s' failed for %s Entry: %u", #exp, unit->GetGUID().ToString().c_str(), unit->GetEntry());\
+        TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for %s Entry: %u", #exp, unit->GetGUID().ToString().c_str(), unit->GetEntry());\
         return false;\
     }
     CHECK(path.size() > 1);
-    CHECK(velocity > 0.1f);
+    CHECK(velocity > 0.01f);
     CHECK(time_perc >= 0.f && time_perc <= 1.f);
     CHECK(_checkPathLengths());
+    if (spellEffectExtra)
+    {
+        CHECK(!spellEffectExtra->ProgressCurveId || sCurveStore.LookupEntry(spellEffectExtra->ProgressCurveId));
+        CHECK(!spellEffectExtra->ParabolicCurveId || sCurveStore.LookupEntry(spellEffectExtra->ParabolicCurveId));
+    }
     return true;
 #undef CHECK
 }
@@ -223,6 +257,14 @@ bool MoveSplineInitArgs::_checkPathLengths() const
                 return false;
     return true;
 }
+MoveSplineInitArgs::MoveSplineInitArgs(size_t path_capacity /*= 16*/) : path_Idx_offset(0), velocity(0.f),
+parabolic_amplitude(0.f), time_perc(0.f), splineId(0), initialOrientation(0.f),
+walk(false), HasVelocity(false), TransformForTransport(true)
+{
+    path.reserve(path_capacity);
+}
+
+MoveSplineInitArgs::~MoveSplineInitArgs() = default;
 
 /// ============================================================================================
 

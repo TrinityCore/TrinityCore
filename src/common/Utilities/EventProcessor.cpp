@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -44,7 +44,7 @@ void EventProcessor::Update(uint32 p_time)
     m_time += p_time;
 
     // main event loop
-    EventList::iterator i;
+    std::multimap<uint64, BasicEvent*>::iterator i;
     while (((i = m_events.begin()) != m_events.end()) && i->first <= m_time)
     {
         // get and remove event from queue

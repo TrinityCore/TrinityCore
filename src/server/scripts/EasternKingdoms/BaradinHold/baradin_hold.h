@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,23 +18,21 @@
 #ifndef DEF_BARADIN_HOLD_H_
 #define DEF_BARADIN_HOLD_H_
 
-#include "Map.h"
-#include "Creature.h"
-#include "ObjectMgr.h"
+#include "CreatureAIImpl.h"
 
 #define DataHeader "BH"
 #define BHScriptName "instance_baradin_hold"
 
 uint32 const EncounterCount = 3;
 
-enum DataTypes
+enum BHDataTypes
 {
     DATA_ARGALOTH           = 0,
     DATA_OCCUTHAR           = 1,
     DATA_ALIZABAL           = 2
 };
 
-enum CreatureIds
+enum BHCreatureIds
 {
     BOSS_ARGALOTH           = 47120,
     BOSS_OCCUTHAR           = 52363,
@@ -45,21 +43,17 @@ enum CreatureIds
     NPC_OCCUTHAR_EYE        = 52368
 };
 
-enum GameObjectIds
+enum BHGameObjectIds
 {
     GO_ARGALOTH_DOOR        = 207619,
     GO_OCCUTHAR_DOOR        = 208953,
     GO_ALIZABAL_DOOR        = 209849
 };
 
-template<class AI>
+template<typename AI>
 CreatureAI* GetBaradinHoldAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(BHScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, BHScriptName);
 }
 
 #endif

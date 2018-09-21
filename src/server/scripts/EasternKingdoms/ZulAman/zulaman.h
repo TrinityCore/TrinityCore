@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,13 @@
 #ifndef DEF_ZULAMAN_H
 #define DEF_ZULAMAN_H
 
+#include "CreatureAIImpl.h"
+
 uint32 const EncounterCount = 6;
 #define ZulAmanScriptName "instance_zulaman"
 #define DataHeader "ZA"
 
-enum DataTypes
+enum ZADataTypes
 {
     // BossState
     DATA_AKILZON                = 0,
@@ -42,7 +44,7 @@ enum DataTypes
     DATA_ZULAMAN_STATE
 };
 
-enum CreatureIds
+enum ZACreatureIds
 {
     NPC_AKILZON                 = 23574,
     NPC_NALORAKK                = 23576,
@@ -55,37 +57,33 @@ enum CreatureIds
     NPC_HEXLORD_TRIGGER         = 24363
 };
 
-enum GameObjectIds
+enum ZAGameObjectIds
 {
     GO_STRANGE_GONG             = 187359,
     GO_MASSIVE_GATE             = 186728,
 };
 
-enum ZulAmanEvents
+enum ZAEvents
 {
     EVENT_START_ZULAMAN         = 15897,
     EVENT_UPDATE_ZULAMAN_TIMER  = 1,
 };
 
-enum ZulAmanAction
+enum ZAAction
 {
     ACTION_START_ZULAMAN        = 1
 };
 
-enum ZulAmanWorldStates
+enum ZAWorldStates
 {
     WORLD_STATE_ZULAMAN_TIMER_ENABLED   = 3104,
     WORLD_STATE_ZULAMAN_TIMER           = 3106,
 };
 
-template<class AI>
+template<typename AI>
 CreatureAI* GetZulAmanAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(ZulAmanScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, ZulAmanScriptName);
 }
 
 #endif

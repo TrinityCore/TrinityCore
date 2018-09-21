@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,9 @@ SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "old_hillsbrad.h"
 #include "ScriptedEscortAI.h"
 
@@ -71,7 +73,7 @@ enum LieutenantDrake
     SPELL_FRIGHTENING_SHOUT = 33789
 };
 
-G3D::Vector3 const DrakeWP[]=
+Position const DrakeWP[]=
 {
     { 2125.84f, 88.2535f, 54.8830f },
     { 2111.01f, 93.8022f, 52.6356f },
@@ -101,7 +103,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_lieutenant_drakeAI(creature);
+        return GetOldHillsbradAI<boss_lieutenant_drakeAI>(creature);
     }
 
     struct boss_lieutenant_drakeAI : public ScriptedAI
@@ -155,7 +157,7 @@ public:
             /// @todo make this work
             if (CanPatrol && wpId == 0)
             {
-                me->GetMotionMaster()->MovePoint(wpId, DrakeWP[wpId].x, DrakeWP[wpId].y, DrakeWP[wpId].z);
+                me->GetMotionMaster()->MovePoint(wpId, DrakeWP[wpId]);
                 ++wpId;
             }
 

@@ -1,6 +1,6 @@
-[//]: # (***************************)
-[//]: # (** FILL IN THIS TEMPLATE **)
-[//]: # (***************************)
+<!--- (**********************************)
+      (** Fill in the following fields **)
+      (**********************************) --->
 
 **Changes proposed:**
 
@@ -24,7 +24,9 @@
 - [ ] 
 - [ ] 
 
-[//]: # (**DEPRECATION NOTICE** Instead of creating new PRs to the (old) 6.x branch, make sure the target branch is **master** instead of 6.x.)
-[//]: # (**NOTE** Enable the setting "[√] Allow edits from maintainers." when creating your pull request (if not enabled already).)
-[//]: # (**NOTE** If this PR __only__ contains SQL files, open a new issue instead and post or link the SQL there.)
-[//]: # (**SUGGESTION** When adding new SQL files, name them 9999_99_99_99_db_name.sql to reduce the chance of possible merge conflicts.)
+
+<!--- Notes
+- Enable the setting "[√] Allow edits from maintainers." when creating your pull request.
+- If this PR only contains SQL files, open a new issue instead and post or link the SQL in the issue.
+- When adding new SQL files, name them 9999_99_99_99_db_name.sql to reduce the chance of possible merge conflicts.
+--->

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,10 +18,12 @@
 #ifndef DEF_STONECORE_H
 #define DEF_STONECORE_H
 
+#include "CreatureAIImpl.h"
+
 #define SCScriptName "instance_stonecore"
 #define DataHeader "SC"
 
-enum DataTypes
+enum SCDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_CORBORUS,
@@ -44,7 +46,7 @@ enum DataTypes
     DATA_STONECORE_TELEPORTER_2,
 };
 
-enum Misc
+enum SCMisc
 {
     ACTION_CORBORUS_INTRO,
     ACTION_SLABHIDE_INTRO,
@@ -73,5 +75,11 @@ enum Misc
     CREATURE_FORMATION_MILLHOUSE_EVENT_TRASH      = 340418,
     CREATURE_FORMATION_MILLHOUSE_EVENT_LAST_GROUP = 340492,
 };
+
+template<typename AI>
+inline AI* GetStonecoreAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, SCScriptName);
+}
 
 #endif // DEF_STONECORE

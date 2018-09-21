@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectGuid.h"
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "Player.h"
 #include "stonecore.h"
 
 enum Texts
@@ -264,7 +266,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_sc_millhouse_manastormAI>(creature);
+            return GetStonecoreAI<npc_sc_millhouse_manastormAI>(creature);
         }
 };
 
@@ -343,7 +345,7 @@ class spell_sc_twilight_documents : public SpellScriptLoader
             void SpawnGameObject(SpellEffIndex /*effIndex*/)
             {
                 if (WorldLocation* loc = GetHitDest())
-                    GetCaster()->SummonGameObject(GAMEOBJECT_TWILIGHT_DOCUMENTS, loc->GetPositionX(), loc->GetPositionY(), loc->GetPositionZ(), loc->GetOrientation(), 0, 0, 0, 0, 7200);
+                    GetCaster()->SummonGameObject(GAMEOBJECT_TWILIGHT_DOCUMENTS, *loc, QuaternionData(), 7200);
             }
 
             void Register() override

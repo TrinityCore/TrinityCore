@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,12 @@ Category: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "hellfire_ramparts.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "hellfire_ramparts.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -196,7 +199,7 @@ class boss_nazan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_nazanAI(creature);
+            return GetHellfireRampartsAI<boss_nazanAI>(creature);
         }
 };
 
@@ -282,7 +285,7 @@ class boss_vazruden : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_vazrudenAI(creature);
+            return GetHellfireRampartsAI<boss_vazrudenAI>(creature);
         }
 };
 
@@ -454,7 +457,7 @@ class boss_vazruden_the_herald : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_vazruden_the_heraldAI(creature);
+            return GetHellfireRampartsAI<boss_vazruden_the_heraldAI>(creature);
         }
 };
 
@@ -511,7 +514,7 @@ class npc_hellfire_sentry : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_hellfire_sentryAI(creature);
+            return GetHellfireRampartsAI<npc_hellfire_sentryAI>(creature);
         }
 };
 void AddSC_boss_vazruden_the_herald()
@@ -521,4 +524,3 @@ void AddSC_boss_vazruden_the_herald()
     new boss_nazan();
     new npc_hellfire_sentry();
 }
-

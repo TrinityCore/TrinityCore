@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,6 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
 enum Texts
@@ -34,16 +33,17 @@ enum Texts
 
 enum Spells
 {
-    SPELL_SHADOW_VOLLEY         = 32963,
-    SPELL_CLEAVE                = 31779,
-    SPELL_THUNDERCLAP           = 36706,
-    SPELL_VOID_BOLT             = 39329,
-    SPELL_MARK_OF_KAZZAK        = 32960,
-    SPELL_MARK_OF_KAZZAK_DAMAGE = 32961,
-    SPELL_ENRAGE                = 32964,
-    SPELL_CAPTURE_SOUL          = 32966,
-    SPELL_TWISTED_REFLECTION    = 21063,
-    SPELL_BERSERK               = 32965,
+    SPELL_SHADOW_VOLLEY             = 32963,
+    SPELL_CLEAVE                    = 31779,
+    SPELL_THUNDERCLAP               = 36706,
+    SPELL_VOID_BOLT                 = 39329,
+    SPELL_MARK_OF_KAZZAK            = 32960,
+    SPELL_MARK_OF_KAZZAK_DAMAGE     = 32961,
+    SPELL_ENRAGE                    = 32964,
+    SPELL_CAPTURE_SOUL              = 32966,
+    SPELL_TWISTED_REFLECTION        = 21063,
+    SPELL_TWISTED_REFLECTION_HEAL   = 21064,
+    SPELL_BERSERK                   = 32965,
 };
 
 enum Events
@@ -186,9 +186,7 @@ class spell_mark_of_kazzak : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_KAZZAK_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MARK_OF_KAZZAK_DAMAGE });
             }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
@@ -222,8 +220,45 @@ class spell_mark_of_kazzak : public SpellScriptLoader
         }
 };
 
+class spell_twisted_reflection : public SpellScriptLoader
+{
+    public:
+        spell_twisted_reflection() : SpellScriptLoader("spell_twisted_reflection") { }
+
+        class spell_twisted_reflection_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_twisted_reflection_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_TWISTED_REFLECTION_HEAL });
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                eventInfo.GetActionTarget()->CastSpell(eventInfo.GetActor(), SPELL_TWISTED_REFLECTION_HEAL, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_twisted_reflection_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_twisted_reflection_AuraScript();
+        }
+};
+
 void AddSC_boss_doomlordkazzak()
 {
     new boss_doomlord_kazzak();
     new spell_mark_of_kazzak();
+    new spell_twisted_reflection();
 }

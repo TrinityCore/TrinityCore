@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ObjectMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "razorfen_downs.h"
-#include "Player.h"
 #include "TemporarySummon.h"
 
 Position const PosSummonTutenkash[15] =
@@ -135,13 +136,9 @@ public:
                         }
 
                         if (GameObject* go = instance->GetGameObject(goGongGUID))
-                        {
                             for (uint8 i = summonLowRange; i < summonHighRange; ++i)
-                            {
-                                Creature* creature = go->SummonCreature(summonCreature, PosSummonTutenkash[i]);
+                                if (Creature* creature = go->SummonCreature(summonCreature, PosSummonTutenkash[i]))
                                     creature->GetMotionMaster()->MovePoint(0, 2533.479f + float(irand(-5, 5)), 870.020f + float(irand(-5, 5)), 47.678f);
-                            }
-                        }
 
                         ++gongWave;
                         break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,11 @@ SDCategory: Blackfathom Deeps
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "blackfathom_deeps.h"
+#include "Creature.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 const Position LorgusPosition[4] =
 {
@@ -47,7 +50,7 @@ const Position SpawnsLocation[] =
 class instance_blackfathom_deeps : public InstanceMapScript
 {
 public:
-    instance_blackfathom_deeps() : InstanceMapScript("instance_blackfathom_deeps", 48) { }
+    instance_blackfathom_deeps() : InstanceMapScript(BFDScriptName, 48) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,8 +29,11 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "Realm.h"
 #include "ScriptMgr.h"
 #include "SupportMgr.h"
+#include "World.h"
+#include "WorldSession.h"
 
 class ticket_commandscript : public CommandScript
 {
@@ -143,7 +146,7 @@ bool ticket_commandscript::HandleTicketAssignToCommand(ChatHandler* handler, cha
     Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
     if (player && ticket->IsAssignedNotTo(player->GetGUID()))
     {
-        handler->PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->GetId(), target.c_str());
+        handler->PSendSysMessage(LANG_COMMAND_TICKETALREADYASSIGNED, ticket->GetId());
         return true;
     }
 

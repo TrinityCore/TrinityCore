@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,18 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseWorkerPool.h"
-#include "Transaction.h"
-#include "Util.h"
-#include "ProducerConsumerQueue.h"
-
 #ifndef _MYSQLCONNECTION_H
 #define _MYSQLCONNECTION_H
 
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
+#include <map>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <vector>
+
+template <typename T>
+class ProducerConsumerQueue;
+
 class DatabaseWorker;
-class PreparedStatement;
 class MySQLPreparedStatement;
-class PingOperation;
+class SQLOperation;
 
 enum ConnectionFlags
 {
@@ -37,21 +42,7 @@ enum ConnectionFlags
 
 struct TC_DATABASE_API MySQLConnectionInfo
 {
-    explicit MySQLConnectionInfo(std::string const& infoString)
-    {
-        Tokenizer tokens(infoString, ';');
-
-        if (tokens.size() != 5)
-            return;
-
-        uint8 i = 0;
-
-        host.assign(tokens[i++]);
-        port_or_socket.assign(tokens[i++]);
-        user.assign(tokens[i++]);
-        password.assign(tokens[i++]);
-        database.assign(tokens[i++]);
-    }
+    explicit MySQLConnectionInfo(std::string const& infoString);
 
     std::string user;
     std::string password;
@@ -90,24 +81,17 @@ class TC_DATABASE_API MySQLConnection
         void CommitTransaction();
         int ExecuteTransaction(SQLTransaction& transaction);
 
-        operator bool () const { return m_Mysql != NULL; }
-        void Ping() { mysql_ping(m_Mysql); }
+        void Ping();
 
-        uint32 GetLastError() { return mysql_errno(m_Mysql); }
+        uint32 GetLastError();
 
     protected:
-        bool LockIfReady()
-        {
-            /// Tries to acquire lock. If lock is acquired by another thread
-            /// the calling parent will just try another connection
-            return m_Mutex.try_lock();
-        }
+        /// Tries to acquire lock. If lock is acquired by another thread
+        /// the calling parent will just try another connection
+        bool LockIfReady();
 
-        void Unlock()
-        {
-            /// Called by parent databasepool. Will let other threads access this connection
-            m_Mutex.unlock();
-        }
+        /// Called by parent databasepool. Will let other threads access this connection
+        void Unlock();
 
         MYSQL* GetHandle()  { return m_Mysql; }
         MySQLPreparedStatement* GetPreparedStatement(uint32 index);

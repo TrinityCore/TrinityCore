@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -104,9 +104,11 @@ ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::Trade::TradeUpdated::Tr
 {
     buffer << uint8(tradeItem.Slot);
     buffer << uint32(tradeItem.StackCount);
-    buffer << tradeItem.Item;
     buffer << tradeItem.GiftCreator;
-    if (buffer.WriteBit(tradeItem.Unwrapped.is_initialized()))
+    buffer << tradeItem.Item;
+    buffer.WriteBit(tradeItem.Unwrapped.is_initialized());
+    buffer.FlushBits();
+    if (tradeItem.Unwrapped)
         buffer << *tradeItem.Unwrapped;
 
     return buffer;

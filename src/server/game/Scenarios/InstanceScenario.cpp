@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,13 @@
  */
 
 #include "InstanceScenario.h"
-#include "Player.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "InstanceSaveMgr.h"
+#include "Log.h"
+#include "Map.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 
 InstanceScenario::InstanceScenario(Map const* map, ScenarioData const* scenarioData) : Scenario(scenarioData), _map(map)
 {

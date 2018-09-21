@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,9 +31,9 @@ SHA256Hash::~SHA256Hash()
     SHA256_Init(&mC);
 }
 
-void SHA256Hash::UpdateData(const uint8 *dta, int len)
+void SHA256Hash::UpdateData(uint8 const* data, size_t len)
 {
-    SHA256_Update(&mC, dta, len);
+    SHA256_Update(&mC, data, len);
 }
 
 void SHA256Hash::UpdateData(const std::string &str)

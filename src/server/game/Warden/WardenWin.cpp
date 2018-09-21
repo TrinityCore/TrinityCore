@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,7 +32,9 @@
 #include "WardenModuleWin.h"
 #include "WardenCheckMgr.h"
 #include "SHA1.h"
-
+#include "Random.h"
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 #include <openssl/md5.h>
 
 WardenWin::WardenWin() : Warden(), _serverTicks(0) {}
@@ -207,7 +209,7 @@ void WardenWin::RequestData()
     ByteBuffer buff;
     buff << uint8(WARDEN_SMSG_CHEAT_CHECKS_REQUEST);
 
-    boost::shared_lock<boost::shared_mutex> lock(sWardenCheckMgr->_checkStoreLock);
+    boost::shared_lock<boost::shared_mutex> lock(*sWardenCheckMgr->_checkStoreLock);
 
     for (uint32 i = 0; i < sWorld->getIntConfig(CONFIG_WARDEN_NUM_OTHER_CHECKS); ++i)
     {
@@ -370,7 +372,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
     uint8 type;
     uint16 checkFailed = 0;
 
-    boost::shared_lock<boost::shared_mutex> lock(sWardenCheckMgr->_checkStoreLock);
+    boost::shared_lock<boost::shared_mutex> lock(*sWardenCheckMgr->_checkStoreLock);
 
     for (std::list<uint16>::iterator itr = _currentChecks.begin(); itr != _currentChecks.end(); ++itr)
     {

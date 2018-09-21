@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
-#include "ItemPackets.h"
+#include "ItemPacketsCommon.h"
 
 namespace WorldPackets
 {
@@ -71,7 +71,6 @@ namespace WorldPackets
             uint32 Coins         = 0;
             std::vector<LootItemData> Items;
             std::vector<LootCurrency> Currencies;
-            bool PersonalLooting = false;
             bool Acquired        = false;
             bool AELooting       = false;
         };
@@ -167,6 +166,14 @@ namespace WorldPackets
             ObjectGuid Owner;
         };
 
+        class LootReleaseAll final : public ServerPacket
+        {
+        public:
+            LootReleaseAll() : ServerPacket(SMSG_LOOT_RELEASE_ALL, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
         class LootList final : public ServerPacket
         {
         public:
@@ -175,6 +182,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Owner;
+            ObjectGuid LootObj;
             Optional<ObjectGuid> Master;
             Optional<ObjectGuid> RoundRobinWinner;
         };
@@ -187,6 +195,91 @@ namespace WorldPackets
             void Read() override;
 
             uint32 SpecID = 0;
+        };
+
+        class StartLootRoll final : public ServerPacket
+        {
+        public:
+            StartLootRoll() : ServerPacket(SMSG_START_LOOT_ROLL) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            int32 MapID = 0;
+            uint32 RollTime = 0;
+            uint8 Method = 0;
+            uint8 ValidRolls = 0;
+            LootItemData Item;
+        };
+
+        class LootRollBroadcast : public ServerPacket
+        {
+        public:
+            LootRollBroadcast() : ServerPacket(SMSG_LOOT_ROLL) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            ObjectGuid Player;
+            int32 Roll = 0;             ///< Roll value can be negative, it means that it is an "offspec" roll but only during roll selection broadcast (not when sending the result)
+            uint8 RollType = 0;
+            LootItemData Item;
+            bool Autopassed = false;    ///< Triggers message |HlootHistory:%d|h[Loot]|h: You automatically passed on: %s because you cannot loot that item.
+        };
+
+        class LootRollWon : public ServerPacket
+        {
+        public:
+            LootRollWon() : ServerPacket(SMSG_LOOT_ROLL_WON) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            ObjectGuid Winner;
+            int32 Roll = 0;
+            uint8 RollType = 0;
+            LootItemData Item;
+            bool MainSpec = false;
+        };
+
+        class LootAllPassed : public ServerPacket
+        {
+        public:
+            LootAllPassed() : ServerPacket(SMSG_LOOT_ALL_PASSED) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            LootItemData Item;
+        };
+
+        class LootRollsComplete : public ServerPacket
+        {
+        public:
+            LootRollsComplete() : ServerPacket(SMSG_LOOT_ROLLS_COMPLETE, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            uint8 LootListID = 0;
+        };
+
+        class AELootTargets : public ServerPacket
+        {
+        public:
+            AELootTargets(uint32 count) : ServerPacket(SMSG_AE_LOOT_TARGETS, 4), Count(count) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Count;
+        };
+
+        class AELootTargetsAck : public ServerPacket
+        {
+        public:
+            AELootTargetsAck() : ServerPacket(SMSG_AE_LOOT_TARGET_ACK, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
     }
 }

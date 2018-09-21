@@ -21,12 +21,20 @@
 //-----------------------------------------------------------------------------
 // Defines for Windows
 
-#if !defined(PLATFORM_DEFINED) && (defined(WIN32) || defined(WIN64))
+#if !defined(PLATFORM_DEFINED) && (defined(_WIN32) || defined(_WIN64))
 
   // In MSVC 8.0, there are some functions declared as deprecated.
   #if _MSC_VER >= 1400
-  #define _CRT_SECURE_NO_DEPRECATE
-  #define _CRT_NON_CONFORMING_SWPRINTFS
+    #ifndef _CRT_SECURE_NO_DEPRECATE
+      #define _CRT_SECURE_NO_DEPRECATE
+    #endif
+    #ifndef _CRT_NON_CONFORMING_SWPRINTFS
+      #define _CRT_NON_CONFORMING_SWPRINTFS
+    #endif
+  #endif
+
+  #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
   #endif
 
   #include <tchar.h>
@@ -38,7 +46,7 @@
   #include <sys/types.h>
   #define PLATFORM_LITTLE_ENDIAN
 
-  #ifdef WIN64
+  #ifdef _WIN64
     #define PLATFORM_64BIT
   #else
     #define PLATFORM_32BIT
@@ -150,6 +158,7 @@
   typedef LONG         * PLONG;
   typedef DWORD        * PDWORD;
   typedef BYTE         * LPBYTE;
+  typedef char         * LPSTR;
 
   #ifdef PLATFORM_32BIT
     #define _LZMA_UINT32_IS_ULONG

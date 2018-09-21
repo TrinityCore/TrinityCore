@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,40 +20,36 @@
     \ingroup u2w
 */
 
-#include "WorldSocket.h"
-#include "Config.h"
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "AccountMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Player.h"
-#include "Vehicle.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "Group.h"
-#include "Guild.h"
-#include "World.h"
-#include "ObjectAccessor.h"
-#include "BattlegroundMgr.h"
-#include "OutdoorPvPMgr.h"
-#include "SocialMgr.h"
-#include "ScriptMgr.h"
-#include "WardenWin.h"
+#include "QueryHolder.h"
+#include "AccountMgr.h"
 #include "AuthenticationPackets.h"
+#include "BattlePetMgr.h"
+#include "BattlegroundMgr.h"
 #include "BattlenetPackets.h"
 #include "CharacterPackets.h"
-#include "ClientConfigPackets.h"
-#include "MiscPackets.h"
 #include "ChatPackets.h"
-#include "BattlePetMgr.h"
-#include "PacketUtilities.h"
-#include "CollectionMgr.h"
+#include "DatabaseEnv.h"
+#include "Group.h"
+#include "Guild.h"
+#include "GuildMgr.h"
+#include "IpAddress.h"
+#include "Map.h"
 #include "Metric.h"
-
-#include <zlib.h>
+#include "MiscPackets.h"
+#include "ObjectMgr.h"
+#include "OutdoorPvPMgr.h"
+#include "PacketUtilities.h"
+#include "Player.h"
+#include "QueryHolder.h"
+#include "Random.h"
+#include "RBAC.h"
+#include "Realm.h"
+#include "ScriptMgr.h"
+#include "SocialMgr.h"
+#include "WardenWin.h"
+#include "World.h"
+#include "WorldSocket.h"
 
 namespace {
 
@@ -116,7 +112,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     _accountId(id),
     _accountName(std::move(name)),
     _battlenetAccountId(battlenetAccountId),
-    m_expansion(expansion),
+    m_accountExpansion(expansion),
+    m_expansion(std::min<uint8>(expansion, sWorld->getIntConfig(CONFIG_EXPANSION))),
     _os(os),
     _battlenetRequestToken(0),
     _warden(NULL),
@@ -151,8 +148,6 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
 
     m_Socket[CONNECTION_TYPE_REALM] = sock;
     _instanceConnectKey.Raw = UI64LIT(0);
-
-    InitializeQueryCallbackParameters();
 }
 
 /// WorldSession destructor
@@ -510,9 +505,8 @@ void WorldSession::LogoutPlayer(bool save)
 
     if (_player)
     {
-        ObjectGuid lguid = _player->GetLootGUID();
-        if (!lguid.IsEmpty())
-            DoLootRelease(lguid);
+        if (!_player->GetLootGUID().IsEmpty())
+            DoLootReleaseAll();
 
         ///- If the player just died before logging out, make him appear as a ghost
         if (_player->GetDeathTimer())
@@ -697,6 +691,11 @@ char const* WorldSession::GetTrinityString(uint32 entry) const
     return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
 }
 
+void WorldSession::ResetTimeOutTime()
+{
+    m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
+}
+
 void WorldSession::Handle_NULL(WorldPackets::Null& null)
 {
     TC_LOG_ERROR("network.opcode", "Received unhandled opcode %s from %s", GetOpcodeNameForLogging(null.GetOpcode()).c_str(), GetPlayerInfo().c_str());
@@ -711,8 +710,7 @@ void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial)
 {
     boost::system::error_code ignored_error;
-    boost::asio::ip::tcp::endpoint instanceAddress = realm.GetAddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
-    instanceAddress.port(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
+    boost::asio::ip::address instanceAddress = realm.GetAddressForClient(Trinity::Net::make_address(GetRemoteAddress(), ignored_error));
 
     _instanceConnectKey.Fields.AccountId = GetAccountId();
     _instanceConnectKey.Fields.ConnectionType = CONNECTION_TYPE_INSTANCE;
@@ -721,7 +719,17 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
     WorldPackets::Auth::ConnectTo connectTo;
     connectTo.Key = _instanceConnectKey.Raw;
     connectTo.Serial = serial;
-    connectTo.Payload.Where = instanceAddress;
+    connectTo.Payload.Port = sWorld->getIntConfig(CONFIG_PORT_INSTANCE);
+    if (instanceAddress.is_v4())
+    {
+        memcpy(connectTo.Payload.Where.data(), instanceAddress.to_v4().to_bytes().data(), 4);
+        connectTo.Payload.Type = WorldPackets::Auth::ConnectTo::IPv4;
+    }
+    else
+    {
+        memcpy(connectTo.Payload.Where.data(), instanceAddress.to_v6().to_bytes().data(), 16);
+        connectTo.Payload.Type = WorldPackets::Auth::ConnectTo::IPv6;
+    }
     connectTo.Con = CONNECTION_TYPE_INSTANCE;
 
     SendPacket(connectTo.Write());
@@ -864,135 +872,17 @@ void WorldSession::SetPlayer(Player* player)
         m_GUIDLow = _player->GetGUID().GetCounter();
 }
 
-void WorldSession::InitializeQueryCallbackParameters()
-{
-    // Callback parameters that have pointers in them should be properly
-    // initialized to nullptr here.
-}
-
 void WorldSession::ProcessQueryCallbacks()
 {
-    PreparedQueryResult result;
+    _queryProcessor.ProcessReadyQueries();
 
     if (_realmAccountLoginCallback.valid() && _realmAccountLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready &&
         _accountLoginCallback.valid() && _accountLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
         InitializeSessionCallback(_realmAccountLoginCallback.get(), _accountLoginCallback.get());
 
-    //! HandleCharEnumOpcode and HandleCharUndeleteEnumOpcode
-    if (_charEnumCallback.IsReady())
-    {
-        _charEnumCallback.GetResult(result);
-
-        if (_charEnumCallback.GetParam())
-            HandleCharUndeleteEnum(result);
-        else
-            HandleCharEnum(result);
-
-        _charEnumCallback.FreeResult();
-    }
-
-    //! HandleCharCreateOpcode
-    if (_charCreateCallback.IsReady())
-    {
-        _charCreateCallback.GetResult(result);
-        HandleCharCreateCallback(result, _charCreateCallback.GetParam().get());
-    }
-
-    //! HandleCharCustomizeOpcode
-    if (_charCustomizeCallback.IsReady())
-    {
-        _charCustomizeCallback.GetResult(result);
-        HandleCharCustomizeCallback(result, _charCustomizeCallback.GetParam().get());
-        _charCustomizeCallback.Reset();
-    }
-
-    //! HandleCharRaceOrFactionChangeOpcode
-    if (_charFactionChangeCallback.IsReady())
-    {
-        _charFactionChangeCallback.GetResult(result);
-        HandleCharRaceOrFactionChangeCallback(result, _charFactionChangeCallback.GetParam().get());
-        _charFactionChangeCallback.Reset();
-    }
-
     //! HandlePlayerLoginOpcode
     if (_charLoginCallback.valid() && _charLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-    {
-        SQLQueryHolder* param = _charLoginCallback.get();
-        HandlePlayerLogin((LoginQueryHolder*)param);
-    }
-
-    //! HandleAddFriendOpcode
-    if (_addFriendCallback.IsReady())
-    {
-        std::string param = _addFriendCallback.GetParam();
-        _addFriendCallback.GetResult(result);
-        HandleAddFriendOpcodeCallBack(result, param);
-        _addFriendCallback.FreeResult();
-    }
-
-    //- HandleCharRenameOpcode
-    if (_charRenameCallback.IsReady())
-    {
-        _charRenameCallback.GetResult(result);
-        HandleCharRenameCallBack(result, _charRenameCallback.GetParam().get());
-        _charRenameCallback.Reset();
-    }
-
-    /// HandleUndeleteCooldownStatusOpcode
-    /// wait until no char undelete is in progress
-    if (!_charUndeleteCallback.GetStage() && _undeleteCooldownStatusCallback.IsReady())
-    {
-        _undeleteCooldownStatusCallback.GetResult(result);
-        HandleUndeleteCooldownStatusCallback(result);
-    }
-
-    /// HandleCharUndeleteOpcode
-    if (_charUndeleteCallback.IsReady())
-    {
-        _charUndeleteCallback.GetResult(result);
-        HandleCharUndeleteCallback(result, _charUndeleteCallback.GetParam().get());
-    }
-
-    //- HandleCharAddIgnoreOpcode
-    if (_addIgnoreCallback.valid() && _addIgnoreCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-    {
-        result = _addIgnoreCallback.get();
-        HandleAddIgnoreOpcodeCallBack(result);
-    }
-
-    //- SendStabledPet
-    if (_sendStabledPetCallback.IsReady())
-    {
-        ObjectGuid param = _sendStabledPetCallback.GetParam();
-        _sendStabledPetCallback.GetResult(result);
-        SendStablePetCallback(result, param);
-        _sendStabledPetCallback.FreeResult();
-    }
-
-    //- HandleStablePet
-    if (_stablePetCallback.valid() && _stablePetCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-    {
-        result = _stablePetCallback.get();
-        HandleStablePetCallback(result);
-    }
-
-    //- HandleUnstablePet
-    if (_unstablePetCallback.IsReady())
-    {
-        uint32 param = _unstablePetCallback.GetParam();
-        _unstablePetCallback.GetResult(result);
-        HandleUnstablePetCallback(result, param);
-        _unstablePetCallback.FreeResult();
-    }
-
-    //- HandleStableSwapPet
-    if (_stableSwapCallback.IsReady())
-    {
-        uint32 param = _stableSwapCallback.GetParam();
-        _stableSwapCallback.GetResult(result);
-        HandleStableSwapPetCallback(result, param);
-        _stableSwapCallback.FreeResult();
-    }
+        HandlePlayerLogin(reinterpret_cast<LoginQueryHolder*>(_charLoginCallback.get()));
 }
 
 void WorldSession::InitWarden(BigNumber* k)
@@ -1024,7 +914,7 @@ void WorldSession::LoadPermissions()
     _RBACData->LoadFromDB();
 }
 
-PreparedQueryResultFuture WorldSession::LoadPermissionsAsync()
+QueryCallback WorldSession::LoadPermissionsAsync()
 {
     uint32 id = GetAccountId();
     uint8 secLevel = GetSecurity();
@@ -1167,6 +1057,7 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
     SendSetTimeZoneInformation();
     SendFeatureSystemStatusGlueScreen();
     SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
+    SendAvailableHotfixes(int32(sWorld->getIntConfig(CONFIG_HOTFIX_CACHE_VERSION)));
     SendTutorialsData();
 
     if (PreparedQueryResult characterCountsResult = holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_REALM_CHARACTER_COUNTS))
@@ -1494,4 +1385,8 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
     }
 
     return maxPacketCounterAllowed;
+}
+
+WorldSession::DosProtection::DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY))
+{
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,14 +22,17 @@ Comment: All disable related commands
 Category: commandscripts
 EndScriptData */
 
-#include "DisableMgr.h"
-#include "CriteriaHandler.h"
+#include "ScriptMgr.h"
 #include "Chat.h"
+#include "CriteriaHandler.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "DisableMgr.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 #include "SpellMgr.h"
 
 class disable_commandscript : public CommandScript
@@ -87,7 +90,7 @@ public:
             return false;
 
         std::string disableComment = commentStr;
-        uint32 entry = uint32(atoi(entryStr));
+        uint32 entry = atoul(entryStr);
 
         char const* disableTypeStr = "";
 
@@ -185,8 +188,7 @@ public:
                 break;
         }
 
-        PreparedStatement* stmt = NULL;
-        stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
         stmt->setUInt32(0, entry);
         stmt->setUInt8(1, disableType);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -311,8 +313,7 @@ public:
                 break;
         }
 
-        PreparedStatement* stmt = NULL;
-        stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
         stmt->setUInt32(0, entry);
         stmt->setUInt8(1, disableType);
         PreparedQueryResult result = WorldDatabase.Query(stmt);

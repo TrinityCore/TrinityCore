@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,10 @@ SDCategory: Tempest Keep, The Botanica
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "the_botanica.h"
 
 enum Says
@@ -125,7 +128,7 @@ class npc_warp_splinter_treant : public CreatureScript
         };
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_warp_splinter_treantAI(creature);
+            return GetBotanicaAI<npc_warp_splinter_treantAI>(creature);
         }
 };
 
@@ -239,7 +242,7 @@ class boss_warp_splinter : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_warp_splinterAI(creature);
+            return GetBotanicaAI<boss_warp_splinterAI>(creature);
         }
 };
 
@@ -248,4 +251,3 @@ void AddSC_boss_warp_splinter()
     new boss_warp_splinter();
     new npc_warp_splinter_treant();
 }
-

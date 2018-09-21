@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,18 +35,20 @@ Copied events should probably have a new owner
 
 */
 
+#include "WorldSession.h"
+#include "CalendarMgr.h"
+#include "CalendarPackets.h"
+#include "DatabaseEnv.h"
+#include "Guild.h"
+#include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "SocialMgr.h"
-#include "CalendarMgr.h"
-#include "ObjectMgr.h"
-#include "ObjectAccessor.h"
-#include "DatabaseEnv.h"
-#include "GuildMgr.h"
-#include "WorldSession.h"
-#include "CalendarPackets.h"
+#include "World.h"
 
 void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGetCalendar& /*calendarGetCalendar*/)
 {

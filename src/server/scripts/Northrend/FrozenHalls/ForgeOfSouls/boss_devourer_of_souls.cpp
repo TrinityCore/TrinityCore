@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
-#include "SpellInfo.h"
-#include "SpellAuraEffects.h"
-#include "SpellScript.h"
 #include "forge_of_souls.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 /*
  * @todo
@@ -144,7 +147,7 @@ class boss_devourer_of_souls : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->SetControlled(false, UNIT_STATE_ROOT);
                 me->SetDisplayId(DISPLAY_ANGER);
                 me->SetReactState(REACT_AGGRESSIVE);
 
@@ -157,7 +160,7 @@ class boss_devourer_of_souls : public CreatureScript
                 Talk(SAY_FACE_AGGRO);
 
                 if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn
-                    instance->instance->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
+                    me->GetMap()->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
                 events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
                 events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8000);
                 events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30000);
@@ -297,7 +300,7 @@ class boss_devourer_of_souls : public CreatureScript
                             me->SetTarget(ObjectGuid::Empty);
 
                             me->GetMotionMaster()->Clear();
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                            me->SetControlled(true, UNIT_STATE_ROOT);
 
                             wailingSoulTick = 15;
                             events.DelayEvents(18000); // no other events during wailing souls
@@ -306,7 +309,7 @@ class boss_devourer_of_souls : public CreatureScript
 
                         case EVENT_WAILING_SOULS_TICK:
                             beamAngle += beamAngleDiff;
-                            me->SetFacingTo(beamAngle);
+                            me->SetFacingTo(beamAngle, true);
                             me->StopMoving();
 
                             DoCast(me, SPELL_WAILING_SOULS);
@@ -317,12 +320,15 @@ class boss_devourer_of_souls : public CreatureScript
                             {
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 me->SetDisplayId(DISPLAY_ANGER);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                                me->SetControlled(false, UNIT_STATE_ROOT);
                                 me->GetMotionMaster()->MoveChase(me->GetVictim());
                                 events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
                             }
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -339,7 +345,7 @@ class boss_devourer_of_souls : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_devourer_of_soulsAI>(creature, FoSScriptName);
+            return GetForgeOfSoulsAI<boss_devourer_of_soulsAI>(creature);
         }
 };
 
@@ -355,9 +361,7 @@ class spell_devourer_of_souls_mirrored_soul : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MIRRORED_SOUL_PROC_AURA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_PROC_AURA });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -390,9 +394,7 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MIRRORED_SOUL_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_DAMAGE });
             }
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -403,7 +405,11 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), 45));
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                int32 damage = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), 45);
                 GetTarget()->CastCustomSpell(SPELL_MIRRORED_SOUL_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetCaster(), true);
             }
 
@@ -432,9 +438,7 @@ class spell_devourer_of_souls_mirrored_soul_target_selector : public SpellScript
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MIRRORED_SOUL_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_BUFF });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

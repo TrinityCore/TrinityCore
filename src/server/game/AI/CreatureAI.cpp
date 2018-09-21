@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,34 +17,48 @@
  */
 
 #include "CreatureAI.h"
-#include "CreatureAIImpl.h"
+#include "AreaBoundary.h"
 #include "Creature.h"
-#include "World.h"
-#include "SpellMgr.h"
-#include "Vehicle.h"
-#include "Log.h"
-#include "MapReference.h"
-#include "Player.h"
+#include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
 #include "Language.h"
+#include "Log.h"
+#include "Map.h"
+#include "MapReference.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
+#include "World.h"
 
 //Disable CreatureAI when charmed
-void CreatureAI::OnCharmed(bool /*apply*/)
+void CreatureAI::OnCharmed(bool apply)
 {
-    //me->IsAIEnabled = !apply;*/
-    me->NeedChangeAI = true;
-    me->IsAIEnabled = false;
+    if (apply)
+    {
+        me->NeedChangeAI = true;
+        me->IsAIEnabled = false;
+    }
 }
 
 AISpellInfoType* UnitAI::AISpellInfo;
-AISpellInfoType* GetAISpellInfo(uint32 i) { return &CreatureAI::AISpellInfo[i]; }
+AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
+
+CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), m_MoveInLineOfSight_locked(false)
+{
+}
+
+CreatureAI::~CreatureAI()
+{
+}
 
 void CreatureAI::Talk(uint8 id, WorldObject const* whisperTarget /*= nullptr*/)
 {
     sCreatureTextMgr->SendChat(me, id, whisperTarget);
 }
 
-void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToNearestTarget /* = 50.0f*/)
+void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRangeToNearestTarget /* = 250.0f*/)
 {
     if (!creature)
         creature = me;
@@ -80,7 +94,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
     // If it can't find a suitable attack target then we should error out.
     if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
     {
-        TC_LOG_ERROR("misc", "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
+        TC_LOG_ERROR("misc.dozoneincombat", "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
         return;
     }
 
@@ -160,7 +174,7 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     me->SendAIReaction(AI_REACTION_ALERT);
 
     // Face the unit (stealthed player) and set distracted state for 5 seconds
-    me->SetFacingTo(me->GetAngle(who->GetPositionX(), who->GetPositionY()));
+    me->SetFacingTo(me->GetAngle(who->GetPositionX(), who->GetPositionY()), true);
     me->StopMoving();
     me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS);
 }
@@ -262,10 +276,10 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     // sometimes bosses stuck in combat?
     me->DeleteThreatList();
     me->CombatStop(true);
-    me->LoadCreaturesAddon();
-    me->SetLootRecipient(NULL);
+    me->SetLootRecipient(nullptr);
     me->ResetPlayerDamageReq();
     me->SetLastDamagedTime(0);
+    me->SetCannotReachTarget(false);
 
     if (me->IsInEvadeMode())
         return false;
@@ -273,11 +287,11 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     return true;
 }
 
-#define BOUNDARY_VISUALIZE_CREATURE 15425
-#define BOUNDARY_VISUALIZE_CREATURE_SCALE 0.25f
-#define BOUNDARY_VISUALIZE_STEP_SIZE 1
-#define BOUNDARY_VISUALIZE_FAILSAFE_LIMIT 750
-#define BOUNDARY_VISUALIZE_SPAWN_HEIGHT 5
+const uint32 BOUNDARY_VISUALIZE_CREATURE = 15425;
+const float BOUNDARY_VISUALIZE_CREATURE_SCALE = 0.25f;
+const int8 BOUNDARY_VISUALIZE_STEP_SIZE = 1;
+const int32 BOUNDARY_VISUALIZE_FAILSAFE_LIMIT = 750;
+const float BOUNDARY_VISUALIZE_SPAWN_HEIGHT = 5.0f;
 int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) const
 {
     typedef std::pair<int32, int32> coordinate;
@@ -293,13 +307,13 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
     std::unordered_set<coordinate> outOfBounds;
 
     Position startPosition = owner->GetPosition();
-    if (!CheckBoundary(&startPosition)) // fall back to creature position
-    {
+    if (!CheckBoundary(&startPosition))
+    { // fall back to creature position
         startPosition = me->GetPosition();
         if (!CheckBoundary(&startPosition))
-        {
+        { // fall back to creature home position
             startPosition = me->GetHomePosition();
-            if (!CheckBoundary(&startPosition)) // fall back to creature home position
+            if (!CheckBoundary(&startPosition))
                 return LANG_CREATURE_NO_INTERIOR_POINT_FOUND;
         }
     }
@@ -354,11 +368,17 @@ bool CreatureAI::CheckBoundary(Position const* who) const
         who = me;
 
     if (_boundary)
-        for (CreatureBoundary::const_iterator it = _boundary->begin(); it != _boundary->end(); ++it)
-            if (!(*it)->IsWithinBoundary(who))
+        for (AreaBoundary const* boundary : *_boundary)
+            if (!boundary->IsWithinBoundary(who))
                 return false;
 
     return true;
+}
+
+void CreatureAI::SetBoundary(CreatureBoundary const* boundary)
+{
+    _boundary = boundary;
+    me->DoImmediateBoundaryCheck();
 }
 
 bool CreatureAI::CheckInRoom()

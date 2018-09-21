@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,10 +17,17 @@
  */
 
 #include "WorldSession.h"
+#include "AccountMgr.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "RBAC.h"
+#include "Realm.h"
 #include "SocialMgr.h"
 #include "SocialPackets.h"
-#include "ObjectMgr.h"
+#include "World.h"
 
 void WorldSession::HandleContactListOpcode(WorldPackets::Social::SendContactList& packet)
 {
@@ -39,11 +46,11 @@ void WorldSession::HandleAddFriendOpcode(WorldPackets::Social::AddFriend& packet
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
     stmt->setString(0, packet.Name);
 
-    _addFriendCallback.SetParam(std::move(packet.Notes));
-    _addFriendCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
+    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
+        .WithPreparedCallback(std::bind(&WorldSession::HandleAddFriendOpcodeCallBack, this, std::move(packet.Notes), std::placeholders::_1)));
 }
 
-void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std::string const& friendNote)
+void WorldSession::HandleAddFriendOpcodeCallBack(std::string const& friendNote, PreparedQueryResult result)
 {
     if (!GetPlayer())
         return;
@@ -110,7 +117,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPackets::Social::AddIgnore& packet
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
     stmt->setString(0, packet.Name);
 
-    _addIgnoreCallback = CharacterDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleAddIgnoreOpcodeCallBack, this, std::placeholders::_1)));
 }
 
 void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,9 +24,14 @@ EndScriptData */
 
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
+#include "IpAddress.h"
 #include "Language.h"
+#include "Log.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "World.h"
+#include "WorldSession.h"
 
 class account_commandscript : public CommandScript
 {
@@ -141,7 +146,11 @@ public:
                 }
                 break;
             case AccountOpResult::AOR_NAME_TOO_LONG:
-                handler->SendSysMessage(LANG_ACCOUNT_TOO_LONG);
+                handler->SendSysMessage(LANG_ACCOUNT_NAME_TOO_LONG);
+                handler->SetSentErrorMessage(true);
+                return false;
+            case AccountOpResult::AOR_PASS_TOO_LONG:
+                handler->SendSysMessage(LANG_ACCOUNT_PASS_TOO_LONG);
                 handler->SetSentErrorMessage(true);
                 return false;
             case AccountOpResult::AOR_NAME_ALREADY_EXIST:
@@ -282,7 +291,7 @@ public:
             if (param == "on")
             {
                 PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGON_COUNTRY);
-                uint32 ip = inet_addr(handler->GetSession()->GetRemoteAddress().c_str());
+                uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(handler->GetSession()->GetRemoteAddress()));
                 EndianConvertReverse(ip);
                 stmt->setUInt32(0, ip);
                 PreparedQueryResult result = LoginDatabase.Query(stmt);
@@ -536,7 +545,7 @@ public:
     {
         // GM Level
         AccountTypes gmLevel = handler->GetSession()->GetSecurity();
-        handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(gmLevel));
+        handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, int32(gmLevel));
 
         // Security level required
         bool hasRBAC = (handler->HasPermission(rbac::RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE) ? true : false);
@@ -620,8 +629,8 @@ public:
             handler->HasLowerSecurityAccount(NULL, accountId, true))
             return false;
 
-        int expansion = atoi(exp); //get int anyway (0 if error)
-        if (expansion < 0 || uint8(expansion) > sWorld->getIntConfig(CONFIG_EXPANSION))
+        uint8 expansion = static_cast<uint8>(atoul(exp));
+        if (expansion > sWorld->getIntConfig(CONFIG_EXPANSION))
             return false;
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);

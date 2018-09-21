@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,17 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 #include "ulduar.h"
 #include "Vehicle.h"
-#include "Player.h"
 
 /* ScriptData
 SDName: boss_kologarn
@@ -104,7 +109,7 @@ class boss_kologarn : public CreatureScript
                 left(false), right(false)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->SetControlled(true, UNIT_STATE_ROOT);
 
                 DoCast(SPELL_KOLOGARN_REDUCE_PARRY);
                 SetCombatMovement(false);
@@ -309,6 +314,9 @@ class boss_kologarn : public CreatureScript
                             events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, urand(15, 35) * IN_MILLISECONDS);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -486,7 +494,7 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
 
             void HandleInstaKill(SpellEffIndex /*effIndex*/)
             {
-                if (!GetHitPlayer() || !GetHitPlayer()->GetVehicle())
+                if (GetHitUnit()->GetTypeId() != TYPEID_PLAYER || !GetHitUnit()->GetVehicle())
                     return;
 
                 //! Proper exit position does not work currently,
@@ -496,9 +504,9 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
                 pos.m_positionY = -8.3f + irand(-3, 3);
                 pos.m_positionZ = 448.8f;
                 pos.SetOrientation(float(M_PI));
-                GetHitPlayer()->DestroyForNearbyPlayers();
-                GetHitPlayer()->ExitVehicle(&pos);
-                GetHitPlayer()->UpdateObjectVisibility(false);
+                GetHitUnit()->DestroyForNearbyPlayers();
+                GetHitUnit()->ExitVehicle(&pos);
+                GetHitUnit()->UpdateObjectVisibility(false);
             }
 
             void Register() override
@@ -529,7 +537,7 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
                     return;
 
-                if (!GetOwner()->ToCreature())
+                if (GetOwner()->GetTypeId() != TYPEID_UNIT)
                     return;
 
                 uint32 rubbleStalkerEntry = (GetOwner()->GetMap()->GetDifficultyID() == DIFFICULTY_NORMAL ? 33809 : 33942);
@@ -561,8 +569,7 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
 
             void OnRemoveStun(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* owner = GetOwner()->ToPlayer())
-                    owner->RemoveAurasDueToSpell(aurEff->GetAmount());
+                GetUnitOwner()->RemoveAurasDueToSpell(aurEff->GetAmount());
             }
 
             void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -614,7 +621,10 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
-                unitList.remove_if(PlayerOrPetCheck());
+                unitList.remove_if([](WorldObject* target)
+                {
+                    return target->GetTypeId() != TYPEID_PLAYER && (target->GetTypeId() != TYPEID_UNIT || !target->ToUnit()->IsPet());
+                });
             }
 
             void Register() override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,8 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
-#include "WorldPacket.h"
+#include <map>
+#include <unordered_set>
 
 class Player;
 
@@ -196,7 +197,7 @@ class TC_GAME_API Channel
         AreaTableEntry const* GetZoneEntry() const { return _zoneEntry; }
 
         void JoinChannel(Player* player, std::string const& pass);
-        void LeaveChannel(Player* player, bool send = true);
+        void LeaveChannel(Player* player, bool send = true, bool suspend = false);
 
         void KickOrBan(Player const* player, std::string const& badname, bool ban);
         void Kick(Player const* player, std::string const& badname) { KickOrBan(player, badname, false); }
@@ -217,16 +218,13 @@ class TC_GAME_API Channel
         void SetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, true); }
         void UnsetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, false); }
         void SilenceAll(Player const* player, std::string const& name);
-        void SilenceVoice(Player const* player, std::string const& name);
         void UnsilenceAll(Player const* player, std::string const& name);
-        void UnsilenceVoice(Player const* player, std::string const& name);
         void List(Player const* player);
         void Announce(Player const* player);
         void Say(ObjectGuid const& guid, std::string const& what, uint32 lang) const;
+        void AddonSay(ObjectGuid const& guid, std::string const& prefix, std::string const& what) const;
         void DeclineInvite(Player const* player);
         void Invite(Player const* player, std::string const& newp);
-        void Voice(Player const* player);
-        void DeVoice(Player const* player);
         void JoinNotify(Player const* player);
         void LeaveNotify(Player const* player);
         void SetOwnership(bool ownership) { _ownershipEnabled = ownership; }
@@ -241,6 +239,9 @@ class TC_GAME_API Channel
 
         template <class Builder>
         void SendToOne(Builder& builder, ObjectGuid const& who) const;
+
+        template <class Builder>
+        void SendToAllWithAddon(Builder& builder, std::string const& addonPrefix, ObjectGuid const& guid = ObjectGuid::Empty) const;
 
         bool IsOn(ObjectGuid const& who) const { return _playersStore.count(who) != 0; }
         bool IsBanned(ObjectGuid const& guid) const { return _bannedStore.count(guid) != 0; }

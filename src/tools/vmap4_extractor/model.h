@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,9 @@
 #include "modelheaders.h"
 #include <vector>
 
-class MPQFile;
+class CASCFile;
+struct ADTOutputCache;
+namespace ADT { struct MDDF; }
 
 Vec3D fixCoordSystem(Vec3D v);
 
@@ -50,17 +52,9 @@ public:
     ~Model() { _unload(); }
 };
 
-class ModelInstance
+namespace Doodad
 {
-public:
-    uint32 id;
-    Vec3D pos, rot;
-    uint16 scale, flags;
-    float sc;
-
-    ModelInstance() : id(0), scale(0), flags(0), sc(0.0f) {}
-    ModelInstance(MPQFile& f, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
-
-};
+    void Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
+}
 
 #endif

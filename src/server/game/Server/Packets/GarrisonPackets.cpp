@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,7 +37,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonDeleteResult::Write()
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonPlotInfo& plotInfo)
 {
     data << uint32(plotInfo.GarrPlotInstanceID);
-    data << plotInfo.PlotPos.PositionXYZOStream();
+    data << plotInfo.PlotPos;
     data << uint32(plotInfo.PlotType);
 
     return data;
@@ -149,14 +149,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo co
     data << int32(garrison.NumFollowerActivationsRemaining);
     data << uint32(garrison.NumMissionsStartedToday);
 
-    for (WorldPackets::Garrison::GarrisonBuildingInfo const* building : garrison.Buildings)
-        data << *building;
-
     for (WorldPackets::Garrison::GarrisonPlotInfo* plot : garrison.Plots)
         data << *plot;
-
-    for (WorldPackets::Garrison::GarrisonFollower const* follower : garrison.Followers)
-        data << *follower;
 
     for (WorldPackets::Garrison::GarrisonMission const* mission : garrison.Missions)
         data << *mission;
@@ -184,11 +178,24 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo co
     if (!garrison.ArchivedMissions.empty())
         data.append(garrison.ArchivedMissions.data(), garrison.ArchivedMissions.size());
 
+    for (WorldPackets::Garrison::GarrisonBuildingInfo const* building : garrison.Buildings)
+        data << *building;
+
     for (bool canStartMission : garrison.CanStartMission)
         data.WriteBit(canStartMission);
 
     data.FlushBits();
 
+    for (WorldPackets::Garrison::GarrisonFollower const* follower : garrison.Followers)
+        data << *follower;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::FollowerSoftCapInfo const& followerSoftCapInfo)
+{
+    data << int32(followerSoftCapInfo.GarrFollowerTypeID);
+    data << uint32(followerSoftCapInfo.Count);
     return data;
 }
 
@@ -196,6 +203,10 @@ WorldPacket const* WorldPackets::Garrison::GetGarrisonInfoResult::Write()
 {
     _worldPacket << int32(FactionIndex);
     _worldPacket << uint32(Garrisons.size());
+    _worldPacket << uint32(FollowerSoftCaps.size());
+    for (FollowerSoftCapInfo const& followerSoftCapInfo : FollowerSoftCaps)
+        _worldPacket << followerSoftCapInfo;
+
     for (GarrisonInfo const& garrison : Garrisons)
         _worldPacket << garrison;
 
@@ -300,7 +311,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializa
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonBuildingLandmark& landmark)
 {
     data << uint32(landmark.GarrBuildingPlotInstID);
-    data << landmark.Pos.PositionXYZStream();
+    data << landmark.Pos;
 
     return data;
 }

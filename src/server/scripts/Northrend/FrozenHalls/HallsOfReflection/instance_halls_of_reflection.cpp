@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,18 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "InstanceScript.h"
-#include "Player.h"
-#include "Transport.h"
-#include "WorldPacket.h"
+#include "Containers.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
 #include "halls_of_reflection.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "PhasingHandler.h"
+#include "Player.h"
+#include "TemporarySummon.h"
+#include "Transport.h"
+#include "WorldStatePackets.h"
 
 Position const JainaSpawnPos           = { 5236.659f, 1929.894f, 707.7781f, 0.8726646f }; // Jaina Spawn Position
 Position const SylvanasSpawnPos        = { 5236.667f, 1929.906f, 707.7781f, 0.8377581f }; // Sylvanas Spawn Position (sniffed)
@@ -138,8 +144,10 @@ class instance_halls_of_reflection : public InstanceMapScript
                         break;
                     case NPC_FROSTSWORN_GENERAL:
                         FrostswornGeneralGUID = creature->GetGUID();
-                        if (GetBossState(DATA_MARWYN) == DONE)
-                            creature->SetPhaseMask(1, true);
+                        if (GetBossState(DATA_MARWYN) != DONE)
+                            PhasingHandler::AddPhase(creature, 170, true);
+                        else
+                            PhasingHandler::RemovePhase(creature, 170, true);
                         break;
                     case NPC_JAINA_ESCAPE:
                     case NPC_SYLVANAS_ESCAPE:
@@ -321,7 +329,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                             HandleGameObject(ImpenetrableDoorGUID, true);
                             DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 0);
                             if (Creature* general = instance->GetCreature(FrostswornGeneralGUID))
-                                general->SetPhaseMask(1, true);
+                                PhasingHandler::RemovePhase(general, 170, true);
 
                             SpawnGunship();
                             SpawnEscapeEvent();
@@ -554,9 +562,9 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 ObjectGuid bossGuid = i <= 3 ? FalricGUID : MarwynGUID;
 
                                 if (!i)
-                                    Trinity::Containers::RandomResizeList(tempList, 3);
+                                    Trinity::Containers::RandomResize(tempList, 3);
                                 else if (i < 6 && i != 3)
-                                    Trinity::Containers::RandomResizeList(tempList, 4);
+                                    Trinity::Containers::RandomResize(tempList, 4);
 
                                 for (uint32 entry : tempList)
                                 {

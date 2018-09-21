@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,11 +22,7 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "Player.h"
-
-#ifdef MAP_BASED_RAND_GEN
-#define rand_norm() unit.rand_norm()
-#define urand(a, b) unit.urand(a, b)
-#endif
+#include "Random.h"
 
 template<class T>
 void ConfusedMovementGenerator<T>::DoInitialize(T* unit)

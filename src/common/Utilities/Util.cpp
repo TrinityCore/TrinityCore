@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,13 +18,14 @@
 
 #include "Util.h"
 #include "Common.h"
-#include "CompilerDefs.h"
-#include "utf8.h"
-#include "Errors.h" // for ASSERT
-#include <stdarg.h>
-#include <boost/algorithm/string/case_conv.hpp>
+#include "IpAddress.h"
+#include <utf8.h>
+#include <algorithm>
+#include <sstream>
+#include <cstdarg>
+#include <ctime>
 
-#if COMPILER == COMPILER_GNU
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
   #include <sys/socket.h>
   #include <netinet/in.h>
   #include <arpa/inet.h>
@@ -149,7 +150,7 @@ int64 MoneyStringToMoney(const std::string& moneyString)
         if (gCount + sCount + cCount != 1)
             return 0;
 
-        uint64 amount = atoull(*itr);
+        uint64 amount = strtoull(*itr, nullptr, 10);
         if (gCount == 1)
             money += amount * 100 * 100;
         else if (sCount == 1)
@@ -171,8 +172,8 @@ uint32 TimeStringToSecs(const std::string& timestring)
     {
         if (isdigit(*itr))
         {
-            buffer*=10;
-            buffer+= (*itr)-'0';
+            buffer *= 10;
+            buffer += *itr - '0';
         }
         else
         {
@@ -184,9 +185,9 @@ uint32 TimeStringToSecs(const std::string& timestring)
                 case 's': multiplier = 1;       break;
                 default : return 0;                         //bad format
             }
-            buffer*=multiplier;
-            secs+=buffer;
-            buffer=0;
+            buffer *= multiplier;
+            secs += buffer;
+            buffer = 0;
         }
     }
 
@@ -214,9 +215,9 @@ bool IsIPAddress(char const* ipaddress)
     if (!ipaddress)
         return false;
 
-    // Let the big boys do it.
-    // Drawback: all valid ip address formats are recognized e.g.: 12.23, 121234, 0xABCD)
-    return inet_addr(ipaddress) != INADDR_NONE;
+    boost::system::error_code error;
+    Trinity::Net::make_address(ipaddress, error);
+    return !error;
 }
 
 /// create PID file
@@ -374,6 +375,16 @@ bool WStrToUtf8(std::wstring const& wstr, std::string& utf8str)
 
 typedef wchar_t const* const* wstrlist;
 
+void wstrToUpper(std::wstring& str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), wcharToUpper);
+}
+
+void wstrToLower(std::wstring& str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), wcharToLower);
+}
+
 std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
 {
     // supported only Cyrillic cases
@@ -421,7 +432,7 @@ std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
 
 bool utf8ToConsole(const std::string& utf8str, std::string& conStr)
 {
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     std::wstring wstr;
     if (!Utf8toWStr(utf8str, wstr))
         return false;
@@ -438,7 +449,7 @@ bool utf8ToConsole(const std::string& utf8str, std::string& conStr)
 
 bool consoleToUtf8(const std::string& conStr, std::string& utf8str)
 {
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     std::wstring wstr;
     wstr.resize(conStr.size());
     OemToCharBuffW(&conStr[0], &wstr[0], uint32(conStr.size()));
@@ -477,7 +488,7 @@ void utf8printf(FILE* out, const char *str, ...)
 
 void vutf8printf(FILE* out, const char *str, va_list* ap)
 {
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     char temp_buf[32 * 1024];
     wchar_t wtemp_buf[32 * 1024];
 
@@ -558,6 +569,12 @@ void HexStrToByteArray(std::string const& str, uint8* out, bool reverse /*= fals
 
 bool StringToBool(std::string const& str)
 {
-    std::string lowerStr = boost::algorithm::to_lower_copy(str);
+    std::string lowerStr = str;
+    std::transform(str.begin(), str.end(), lowerStr.begin(), [](char c) { return char(::tolower(c)); });
     return lowerStr == "1" || lowerStr == "true" || lowerStr == "yes";
+}
+
+float DegToRad(float degrees)
+{
+    return degrees * (2.f * float(M_PI) / 360.f);
 }

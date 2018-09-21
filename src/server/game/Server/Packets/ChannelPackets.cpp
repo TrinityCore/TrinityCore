@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,8 @@
  */
 
 #include "ChannelPackets.h"
+#include "Channel.h"
+#include "Errors.h"
 
 WorldPacket const* WorldPackets::Channel::ChannelListResponse::Write()
 {
@@ -118,7 +120,29 @@ WorldPacket const* WorldPackets::Channel::UserlistUpdate::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Channel::ChannelPlayerCommand::Read()
+WorldPackets::Channel::ChannelCommand::ChannelCommand(WorldPacket&& packet) : ClientPacket(std::move(packet))
+{
+    switch (packet.GetOpcode())
+    {
+        case CMSG_CHAT_CHANNEL_ANNOUNCEMENTS:
+        case CMSG_CHAT_CHANNEL_DECLINE_INVITE:
+        case CMSG_CHAT_CHANNEL_DISPLAY_LIST:
+        case CMSG_CHAT_CHANNEL_LIST:
+        case CMSG_CHAT_CHANNEL_MODERATE:
+        case CMSG_CHAT_CHANNEL_OWNER:
+            break;
+        default:
+            ABORT();
+            break;
+    }
+}
+
+void WorldPackets::Channel::ChannelCommand::Read()
+{
+    ChannelName = _worldPacket.ReadString(_worldPacket.ReadBits(7));
+}
+
+WorldPackets::Channel::ChannelPlayerCommand::ChannelPlayerCommand(WorldPacket&& packet) : ClientPacket(std::move(packet))
 {
     switch (GetOpcode())
     {
@@ -129,42 +153,31 @@ void WorldPackets::Channel::ChannelPlayerCommand::Read()
         case CMSG_CHAT_CHANNEL_MUTE:
         case CMSG_CHAT_CHANNEL_SET_OWNER:
         case CMSG_CHAT_CHANNEL_SILENCE_ALL:
-        case CMSG_CHAT_CHANNEL_SILENCE_VOICE:
         case CMSG_CHAT_CHANNEL_UNBAN:
         case CMSG_CHAT_CHANNEL_UNMODERATOR:
         case CMSG_CHAT_CHANNEL_UNMUTE:
         case CMSG_CHAT_CHANNEL_UNSILENCE_ALL:
-        case CMSG_CHAT_CHANNEL_UNSILENCE_VOICE:
-        {
-            uint32 channelNameLength = _worldPacket.ReadBits(7);
-            uint32 nameLength = _worldPacket.ReadBits(9);
-            ChannelName = _worldPacket.ReadString(channelNameLength);
-            Name = _worldPacket.ReadString(nameLength);
             break;
-        }
-        case CMSG_CHAT_CHANNEL_ANNOUNCEMENTS:
-        case CMSG_CHAT_CHANNEL_DECLINE_INVITE:
-        case CMSG_CHAT_CHANNEL_DISPLAY_LIST:
-        case CMSG_CHAT_CHANNEL_LIST:
-        case CMSG_CHAT_CHANNEL_MODERATE:
-        case CMSG_CHAT_CHANNEL_OWNER:
-        case CMSG_CHAT_CHANNEL_VOICE_OFF:
-        case CMSG_CHAT_CHANNEL_VOICE_ON:
-        {
-            ChannelName = _worldPacket.ReadString(_worldPacket.ReadBits(7));
-            break;
-        }
-        case CMSG_CHAT_CHANNEL_PASSWORD:
-        {
-            uint32 channelNameLength = _worldPacket.ReadBits(7);
-            uint32 nameLength = _worldPacket.ReadBits(7);
-            ChannelName = _worldPacket.ReadString(channelNameLength);
-            Name = _worldPacket.ReadString(nameLength);
-            break;
-        }
         default:
+            ABORT();
             break;
     }
+}
+
+void WorldPackets::Channel::ChannelPlayerCommand::Read()
+{
+    uint32 channelNameLength = _worldPacket.ReadBits(7);
+    uint32 nameLength = _worldPacket.ReadBits(9);
+    ChannelName = _worldPacket.ReadString(channelNameLength);
+    Name = _worldPacket.ReadString(nameLength);
+}
+
+void WorldPackets::Channel::ChannelPassword::Read()
+{
+    uint32 channelNameLength = _worldPacket.ReadBits(7);
+    uint32 passwordLength = _worldPacket.ReadBits(7);
+    ChannelName = _worldPacket.ReadString(channelNameLength);
+    Password = _worldPacket.ReadString(passwordLength);
 }
 
 void WorldPackets::Channel::JoinChannel::Read()

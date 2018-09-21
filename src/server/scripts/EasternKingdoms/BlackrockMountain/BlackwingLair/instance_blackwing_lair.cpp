@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,10 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "blackwing_lair.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 DoorData const doorData[] =
 {
@@ -63,7 +68,7 @@ uint32 const Entry[5] = {12422, 12458, 12416, 12420, 12459};
 class instance_blackwing_lair : public InstanceMapScript
 {
 public:
-    instance_blackwing_lair() : InstanceMapScript(BRLScriptName, 469) { }
+    instance_blackwing_lair() : InstanceMapScript(BWLScriptName, 469) { }
 
     struct instance_blackwing_lair_InstanceMapScript : public InstanceScript
     {
@@ -97,17 +102,19 @@ public:
             }
         }
 
+        uint32 GetGameObjectEntry(ObjectGuid::LowType /*spawnId*/, uint32 entry) override
+        {
+            if (entry == GO_BLACK_DRAGON_EGG && GetBossState(DATA_FIREMAW) == DONE)
+                return 0;
+            return entry;
+        }
+
         void OnGameObjectCreate(GameObject* go) override
         {
             InstanceScript::OnGameObjectCreate(go);
 
             if (go->GetEntry() == GO_BLACK_DRAGON_EGG)
-            {
-                if (GetBossState(DATA_FIREMAW) == DONE)
-                    go->SetPhaseMask(2, true);
-                else
-                    EggList.push_back(go->GetGUID());
-            }
+                EggList.push_back(go->GetGUID());
         }
 
         void OnGameObjectRemove(GameObject* go) override
@@ -250,7 +257,6 @@ public:
                     case EVENT_RESPAWN_NEFARIUS:
                         if (Creature* nefarius = GetCreature(DATA_LORD_VICTOR_NEFARIUS))
                         {
-                            nefarius->SetPhaseMask(1, true);
                             nefarius->setActive(true);
                             nefarius->Respawn();
                             nefarius->GetMotionMaster()->MoveTargetedHome();

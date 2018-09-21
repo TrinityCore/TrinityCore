@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,8 @@
 #ifndef SessionKeyGeneration_h__
 #define SessionKeyGeneration_h__
 
-#include "Common.h"
+#include "Define.h"
+#include <cstring>
 
 template<class Hash>
 class SessionKeyGenerator

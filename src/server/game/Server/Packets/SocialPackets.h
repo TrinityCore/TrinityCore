@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -138,26 +138,6 @@ namespace WorldPackets
         {
         public:
             DelIgnore(WorldPacket&& packet) : ClientPacket(CMSG_DEL_IGNORE, std::move(packet)) { }
-
-            void Read() override;
-
-            QualifiedGUID Player;
-        };
-
-        class VoiceAddIgnore final : public ClientPacket
-        {
-        public:
-            VoiceAddIgnore(WorldPacket&& packet) : ClientPacket(CMSG_VOICE_ADD_IGNORE, std::move(packet)) { }
-
-            void Read() override;
-
-            std::string OffenderName;
-        };
-
-        class VoiceDelIgnore final : public ClientPacket
-        {
-        public:
-            VoiceDelIgnore(WorldPacket&& packet) : ClientPacket(CMSG_VOICE_DEL_IGNORE, std::move(packet)) { }
 
             void Read() override;
 

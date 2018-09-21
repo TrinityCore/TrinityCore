@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "TemporarySummon.h"
 #include "blackrock_caverns.h"
-#include "SpellScript.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
 #include "SpellAuras.h"
-#include "Player.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 /*#####
 # npc_fire_cyclone
@@ -722,15 +722,13 @@ class spell_chains_of_woe_1 : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CHAINS_OF_WOE_1))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CHAINS_OF_WOE_1 });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                if (Player* playerTarget = GetHitPlayer())
-                    playerTarget->CastSpell(GetCaster(), SPELL_CHAINS_OF_WOE_3, true);
+                if (GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
+                    GetHitUnit()->CastSpell(GetCaster(), SPELL_CHAINS_OF_WOE_3, true);
             }
 
             void Register() override
@@ -759,15 +757,13 @@ class spell_chains_of_woe_4 : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CHAINS_OF_WOE_4))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CHAINS_OF_WOE_4 });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                if (Player* playerTarget = GetHitPlayer())
-                    playerTarget->CastSpell(playerTarget, SPELL_CHAINS_OF_WOE_5, true);
+                if (GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
+                    GetHitUnit()->CastSpell(GetHitUnit(), SPELL_CHAINS_OF_WOE_5, true);
             }
 
             void Register() override
@@ -804,11 +800,12 @@ class spell_nether_dragon_essence_1 : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NETHER_DRAGON_ESSENCE_2)
-                    || !sSpellMgr->GetSpellInfo(SPELL_NETHER_DRAGON_ESSENCE_3)
-                    || !sSpellMgr->GetSpellInfo(SPELL_NETHER_DRAGON_ESSENCE_4))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_NETHER_DRAGON_ESSENCE_2,
+                    SPELL_NETHER_DRAGON_ESSENCE_3,
+                    SPELL_NETHER_DRAGON_ESSENCE_4
+                });
             }
 
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)

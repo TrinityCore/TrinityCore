@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,9 +31,13 @@ item_only_for_flight                Items which should only useable while flying
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "Item.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
-#include "Player.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 /*#####
 # item_only_for_flight
@@ -159,7 +163,7 @@ public:
         ItemPosCountVec dest;
         uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 39883, 1); // Cracked Egg
         if (msg == EQUIP_ERR_OK)
-            player->StoreNewItem(dest, 39883, true, Item::GenerateItemRandomPropertyId(39883));
+            player->StoreNewItem(dest, 39883, true, GenerateItemRandomPropertyId(39883));
 
         return true;
     }
@@ -179,7 +183,7 @@ public:
         ItemPosCountVec dest;
         uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 44718, 1); // Ripe Disgusting Jar
         if (msg == EQUIP_ERR_OK)
-            player->StoreNewItem(dest, 44718, true, Item::GenerateItemRandomPropertyId(44718));
+            player->StoreNewItem(dest, 44718, true, GenerateItemRandomPropertyId(44718));
 
         return true;
     }
@@ -241,7 +245,7 @@ public:
 
         float x, y, z;
         go->GetClosePoint(x, y, z, go->GetObjectSize() / 3, 7.0f);
-        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 0, 0, 0, 0, 1);
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, *go, QuaternionData(), 1);
         if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
             summon->SetVisible(false);
@@ -275,7 +279,7 @@ public:
 
         if (!player->GetTransport() || player->GetAreaId() != AREA_ID_SHATTERED_STRAITS)
         {
-            if (const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
                 Spell::SendCastResult(player, spellInfo, 0, castId, SPELL_FAILED_NOT_HERE);
 
             return true;

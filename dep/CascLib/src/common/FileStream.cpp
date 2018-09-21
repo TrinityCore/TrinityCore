@@ -74,6 +74,7 @@ static bool BaseFile_Create(TFileStream * pStream)
         handle = open(pStream->szFileName, O_RDWR | O_CREAT | O_TRUNC | O_LARGEFILE, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if(handle == -1)
         {
+            pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
             SetLastError(errno);
             return false;
         }
@@ -123,6 +124,7 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         intptr_t handle;
 
         // Open the file
+        pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
         handle = open(szFileName, oflag | O_LARGEFILE);
         if(handle == -1)
         {
@@ -134,6 +136,7 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         if(fstat64(handle, &fileinfo) == -1)
         {
             SetLastError(errno);
+            close(handle);
             return false;
         }
 
@@ -192,7 +195,11 @@ static bool BaseFile_Read(
         // we have to update the file position
         if(ByteOffset != pStream->Base.File.FilePos)
         {
-            lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET);
+            if(lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET) == (off64_t)-1)
+            {
+                SetLastError(errno);
+                return false;
+            }
             pStream->Base.File.FilePos = ByteOffset;
         }
 
@@ -263,7 +270,11 @@ static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const
         // we have to update the file position
         if(ByteOffset != pStream->Base.File.FilePos)
         {
-            lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET);
+            if(lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET) == (off64_t)-1)
+            {
+                SetLastError(errno);
+                return false;
+            }
             pStream->Base.File.FilePos = ByteOffset;
         }
 

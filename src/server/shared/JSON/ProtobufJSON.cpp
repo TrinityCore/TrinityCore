@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,10 @@
  */
 
 #include "ProtobufJSON.h"
-#include "StringFormat.h"
-#include "Common.h"
+#include "Errors.h"
 #include "Log.h"
+#include "StringFormat.h"
+#include <google/protobuf/message.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/reader.h>
 #include <rapidjson/stringbuffer.h>
@@ -185,7 +186,7 @@ void Serializer::WriteRepeatedMessageField(google::protobuf::Message const& valu
 class Deserializer : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, Deserializer>
 {
 public:
-    bool ReadMessage(std::string json, google::protobuf::Message* message);
+    bool ReadMessage(std::string const& json, google::protobuf::Message* message);
 
     bool Key(const Ch* str, rapidjson::SizeType length, bool copy);
     bool Null();
@@ -212,7 +213,7 @@ private:
     std::vector<std::string> _errors;
 };
 
-bool Deserializer::ReadMessage(std::string json, google::protobuf::Message* message)
+bool Deserializer::ReadMessage(std::string const& json, google::protobuf::Message* message)
 {
     rapidjson::StringStream ss(json.c_str());
 
@@ -324,7 +325,7 @@ bool Deserializer::Double(double d)
     switch (field->cpp_type())
     {
         case google::protobuf::FieldDescriptor::CPPTYPE_FLOAT:
-            SET_FIELD(message, field, Float, d);
+            SET_FIELD(message, field, Float, float(d));
             break;
         case google::protobuf::FieldDescriptor::CPPTYPE_DOUBLE:
             SET_FIELD(message, field, Double, d);
@@ -442,10 +443,10 @@ std::string JSON::Serialize(google::protobuf::Message const& message)
     return serializer.GetString();
 }
 
-bool JSON::Deserialize(std::string json, google::protobuf::Message* message)
+bool JSON::Deserialize(std::string const& json, google::protobuf::Message* message)
 {
     Deserializer deserializer;
-    if (!deserializer.ReadMessage(std::forward<std::string>(json), message))
+    if (!deserializer.ReadMessage(json, message))
     {
         for (std::size_t i = 0; i < deserializer.GetErrors().size(); ++i)
             TC_LOG_ERROR("json", "%s", deserializer.GetErrors()[i].c_str());

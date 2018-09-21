@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,8 +17,15 @@
  */
 
 #include "GuardAI.h"
+#include "Creature.h"
 #include "Errors.h"
+#include "Log.h"
+#include "MotionMaster.h"
 #include "Player.h"
+
+GuardAI::GuardAI(Creature* creature) : ScriptedAI(creature)
+{
+}
 
 int GuardAI::Permissible(Creature const* creature)
 {
@@ -28,7 +35,13 @@ int GuardAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-GuardAI::GuardAI(Creature* creature) : ScriptedAI(creature) { }
+void GuardAI::UpdateAI(uint32 /*diff*/)
+{
+    if (!UpdateVictim())
+        return;
+
+    DoMeleeAttackIfReady();
+}
 
 bool GuardAI::CanSeeAlways(WorldObject const* obj)
 {

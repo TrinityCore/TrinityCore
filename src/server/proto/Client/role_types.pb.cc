@@ -18,11 +18,6 @@
 #include "Log.h"
 // @@protoc_insertion_point(includes)
 
-// Fix stupid windows.h included from Log.h->Common.h
-#ifdef SendMessage
-#undef SendMessage
-#endif
-
 namespace bgs {
 namespace protocol {
 
@@ -154,9 +149,12 @@ void Role::SharedCtor() {
   _cached_size_ = 0;
   id_ = 0u;
   name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  _assignable_role_cached_byte_size_ = 0;
   required_ = false;
   unique_ = false;
   relegation_role_ = 0u;
+  _kickable_role_cached_byte_size_ = 0;
+  _removable_role_cached_byte_size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 

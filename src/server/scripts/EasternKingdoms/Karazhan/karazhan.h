@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,11 +19,14 @@
 #ifndef DEF_KARAZHAN_H
 #define DEF_KARAZHAN_H
 
+#include "CreatureAIImpl.h"
+
+#define KZScriptName "instance_karazhan"
 #define DataHeader "KZ"
 
 uint32 const EncounterCount = 12;
 
-enum DataTypes
+enum KZDataTypes
 {
     DATA_ATTUMEN                    = 0,
     DATA_MOROES                     = 1,
@@ -56,20 +59,23 @@ enum DataTypes
     DATA_GO_SIDE_ENTRANCE_DOOR      = 29
 };
 
-enum OperaEvents
+enum KZOperaEvents
 {
     EVENT_OZ                        = 1,
     EVENT_HOOD                      = 2,
     EVENT_RAJ                       = 3
 };
 
-enum MiscCreatures
+enum KZMiscCreatures
 {
     NPC_HYAKISS_THE_LURKER          = 16179,
     NPC_ROKAD_THE_RAVAGER           = 16181,
     NPC_SHADIKITH_THE_GLIDER        = 16180,
     NPC_TERESTIAN_ILLHOOF           = 15688,
     NPC_MOROES                      = 15687,
+    NPC_ATTUMEN_UNMOUNTED           = 15550,
+    NPC_ATTUMEN_MOUNTED             = 16152,
+    NPC_MIDNIGHT                    = 16151,
 
     // Trash
     NPC_COLDMIST_WIDOW              = 16171,
@@ -83,7 +89,7 @@ enum MiscCreatures
     NPC_KILREK                      = 17229
 };
 
-enum GameObjectIds
+enum KZGameObjectIds
 {
     GO_STAGE_CURTAIN                = 183932,
     GO_STAGE_DOOR_LEFT              = 184278,
@@ -99,9 +105,15 @@ enum GameObjectIds
     GO_DUST_COVERED_CHEST           = 185119
 };
 
-enum Misc
+enum KZMisc
 {
     OPTIONAL_BOSS_REQUIRED_DEATH_COUNT = 50
 };
+
+template<typename AI>
+inline AI* GetKarazhanAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, KZScriptName);
+}
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,10 +18,8 @@
 #ifndef _SQLOPERATION_H
 #define _SQLOPERATION_H
 
-#include "QueryResult.h"
-
-//- Forward declare (don't include header to prevent circular includes)
-class PreparedStatement;
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 
 //- Union that holds element data
 union SQLElementUnion

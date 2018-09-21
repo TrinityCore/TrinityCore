@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,9 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Chat.h"
-#include "Language.h"
 #include "SupportMgr.h"
+#include "Chat.h"
+#include "DatabaseEnv.h"
+#include "Language.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "Timer.h"
+#include "World.h"
+#include <sstream>
 
 inline time_t GetAge(uint64 t) { return (time(nullptr) - t) / DAY; }
 
@@ -30,9 +38,37 @@ Ticket::Ticket(Player* player) : _id(0), _mapId(0), _createTime(time(nullptr))
 
 Ticket::~Ticket() { }
 
+Player* Ticket::GetPlayer() const
+{
+    return ObjectAccessor::FindConnectedPlayer(_playerGuid);
+}
+
+std::string Ticket::GetPlayerName() const
+{
+    std::string name;
+    if (!_playerGuid.IsEmpty())
+        ObjectMgr::GetPlayerNameByGUID(_playerGuid, name);
+
+    return name;
+}
+
+Player* Ticket::GetAssignedPlayer() const
+{
+    return ObjectAccessor::FindConnectedPlayer(_assignedTo);
+}
+
+std::string Ticket::GetAssignedToName() const
+{
+    std::string name;
+    if (!_assignedTo.IsEmpty())
+        ObjectMgr::GetPlayerNameByGUID(_assignedTo, name);
+
+    return name;
+}
+
 void Ticket::TeleportTo(Player* player) const
 {
-    player->TeleportTo(_mapId, _pos.x, _pos.y, _pos.z, 0.0f, 0);
+    player->TeleportTo(_mapId, _pos.GetPositionX(), _pos.GetPositionY(), _pos.GetPositionZ(), 0.0f, 0);
 }
 
 std::string Ticket::FormatViewMessageString(ChatHandler& handler, char const* closedName, char const* assignedToName, char const* unassignedName, char const* deletedName) const
@@ -51,9 +87,9 @@ std::string Ticket::FormatViewMessageString(ChatHandler& handler, char const* cl
     return ss.str();
 }
 
-BugTicket::BugTicket() : _facing(0.0f) { }
+BugTicket::BugTicket() { }
 
-BugTicket::BugTicket(Player* player) : Ticket(player), _facing(0.0f)
+BugTicket::BugTicket(Player* player) : Ticket(player)
 {
     _id = sSupportMgr->GenerateBugId();
 }
@@ -68,10 +104,10 @@ void BugTicket::LoadFromDB(Field* fields)
     _note               = fields[++idx].GetString();
     _createTime         = fields[++idx].GetUInt32();
     _mapId              = fields[++idx].GetUInt16();
-    _pos.x              = fields[++idx].GetFloat();
-    _pos.y              = fields[++idx].GetFloat();
-    _pos.z              = fields[++idx].GetFloat();
-    _facing             = fields[++idx].GetFloat();
+    _pos.m_positionX    = fields[++idx].GetFloat();
+    _pos.m_positionY    = fields[++idx].GetFloat();
+    _pos.m_positionZ    = fields[++idx].GetFloat();
+    _pos.SetOrientation(fields[++idx].GetFloat());
 
     int64 closedBy      = fields[++idx].GetInt64();
     if (closedBy == 0)
@@ -98,10 +134,10 @@ void BugTicket::SaveToDB() const
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
     stmt->setUInt16(++idx, _mapId);
-    stmt->setFloat(++idx, _pos.x);
-    stmt->setFloat(++idx, _pos.y);
-    stmt->setFloat(++idx, _pos.z);
-    stmt->setFloat(++idx, _facing);
+    stmt->setFloat(++idx, _pos.GetPositionX());
+    stmt->setFloat(++idx, _pos.GetPositionY());
+    stmt->setFloat(++idx, _pos.GetPositionZ());
+    stmt->setFloat(++idx, _pos.GetOrientation());
     stmt->setInt64(++idx, _closedBy.GetCounter());
     stmt->setUInt64(++idx, _assignedTo.GetCounter());
     stmt->setString(++idx, _comment);
@@ -137,9 +173,9 @@ std::string BugTicket::FormatViewMessageString(ChatHandler& handler, bool detail
     return ss.str();
 }
 
-ComplaintTicket::ComplaintTicket() : _facing(0.0f), _complaintType(GMTICKET_SUPPORT_COMPLAINT_TYPE_NONE) { }
+ComplaintTicket::ComplaintTicket() : _complaintType(GMTICKET_SUPPORT_COMPLAINT_TYPE_NONE) { }
 
-ComplaintTicket::ComplaintTicket(Player* player) : Ticket(player), _facing(0.0f), _complaintType(GMTICKET_SUPPORT_COMPLAINT_TYPE_NONE)
+ComplaintTicket::ComplaintTicket(Player* player) : Ticket(player), _complaintType(GMTICKET_SUPPORT_COMPLAINT_TYPE_NONE)
 {
     _id = sSupportMgr->GenerateComplaintId();
 }
@@ -154,10 +190,10 @@ void ComplaintTicket::LoadFromDB(Field* fields)
     _note                   = fields[++idx].GetString();
     _createTime             = fields[++idx].GetUInt32();
     _mapId                  = fields[++idx].GetUInt16();
-    _pos.x                  = fields[++idx].GetFloat();
-    _pos.y                  = fields[++idx].GetFloat();
-    _pos.z                  = fields[++idx].GetFloat();
-    _facing                 = fields[++idx].GetFloat();
+    _pos.m_positionX        = fields[++idx].GetFloat();
+    _pos.m_positionY        = fields[++idx].GetFloat();
+    _pos.m_positionZ        = fields[++idx].GetFloat();
+    _pos.SetOrientation(fields[++idx].GetFloat());
     _targetCharacterGuid    = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
     _complaintType          = GMSupportComplaintType(fields[++idx].GetUInt8());
     int32 reportLineIndex = fields[++idx].GetInt32();
@@ -196,10 +232,10 @@ void ComplaintTicket::SaveToDB() const
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
     stmt->setUInt16(++idx, _mapId);
-    stmt->setFloat(++idx, _pos.x);
-    stmt->setFloat(++idx, _pos.y);
-    stmt->setFloat(++idx, _pos.z);
-    stmt->setFloat(++idx, _facing);
+    stmt->setFloat(++idx, _pos.GetPositionX());
+    stmt->setFloat(++idx, _pos.GetPositionY());
+    stmt->setFloat(++idx, _pos.GetPositionZ());
+    stmt->setFloat(++idx, _pos.GetOrientation());
     stmt->setUInt64(++idx, _targetCharacterGuid.GetCounter());
     stmt->setUInt8(++idx, _complaintType);
     if (_chatLog.ReportLineIndex)
@@ -260,9 +296,9 @@ std::string ComplaintTicket::FormatViewMessageString(ChatHandler& handler, bool 
     return ss.str();
 }
 
-SuggestionTicket::SuggestionTicket() : _facing(0.0f) { }
+SuggestionTicket::SuggestionTicket() { }
 
-SuggestionTicket::SuggestionTicket(Player* player) : Ticket(player), _facing(0.0f)
+SuggestionTicket::SuggestionTicket(Player* player) : Ticket(player)
 {
     _id = sSupportMgr->GenerateSuggestionId();
 }
@@ -277,10 +313,10 @@ void SuggestionTicket::LoadFromDB(Field* fields)
     _note               = fields[++idx].GetString();
     _createTime         = fields[++idx].GetUInt32();
     _mapId              = fields[++idx].GetUInt16();
-    _pos.x              = fields[++idx].GetFloat();
-    _pos.y              = fields[++idx].GetFloat();
-    _pos.z              = fields[++idx].GetFloat();
-    _facing             = fields[++idx].GetFloat();
+    _pos.m_positionX    = fields[++idx].GetFloat();
+    _pos.m_positionY    = fields[++idx].GetFloat();
+    _pos.m_positionZ    = fields[++idx].GetFloat();
+    _pos.SetOrientation(fields[++idx].GetFloat());
 
     int64 closedBy = fields[++idx].GetInt64();
     if (closedBy == 0)
@@ -307,10 +343,10 @@ void SuggestionTicket::SaveToDB() const
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
     stmt->setUInt16(++idx, _mapId);
-    stmt->setFloat(++idx, _pos.x);
-    stmt->setFloat(++idx, _pos.y);
-    stmt->setFloat(++idx, _pos.z);
-    stmt->setFloat(++idx, _facing);
+    stmt->setFloat(++idx, _pos.GetPositionX());
+    stmt->setFloat(++idx, _pos.GetPositionY());
+    stmt->setFloat(++idx, _pos.GetPositionZ());
+    stmt->setFloat(++idx, _pos.GetOrientation());
     stmt->setInt64(++idx, _closedBy.GetCounter());
     stmt->setUInt64(++idx, _assignedTo.GetCounter());
     stmt->setString(++idx, _comment);
@@ -368,17 +404,8 @@ SupportMgr* SupportMgr::instance()
     return &instance;
 }
 
-void SupportMgr::Initialize()
-{
-    SetSupportSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_ENABLED));
-    SetTicketSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED));
-    SetBugSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_BUGS_ENABLED));
-    SetComplaintSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_COMPLAINTS_ENABLED));
-    SetSuggestionSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED));
-}
-
 template<>
-BugTicket* SupportMgr::GetTicket<BugTicket>(uint32 bugId)
+TC_GAME_API BugTicket* SupportMgr::GetTicket<BugTicket>(uint32 bugId)
 {
     BugTicketList::const_iterator itr = _bugTicketList.find(bugId);
     if (itr != _bugTicketList.end())
@@ -389,7 +416,7 @@ BugTicket* SupportMgr::GetTicket<BugTicket>(uint32 bugId)
 }
 
 template<>
-ComplaintTicket* SupportMgr::GetTicket<ComplaintTicket>(uint32 complaintId)
+TC_GAME_API ComplaintTicket* SupportMgr::GetTicket<ComplaintTicket>(uint32 complaintId)
 {
     ComplaintTicketList::const_iterator itr = _complaintTicketList.find(complaintId);
     if (itr != _complaintTicketList.end())
@@ -399,7 +426,7 @@ ComplaintTicket* SupportMgr::GetTicket<ComplaintTicket>(uint32 complaintId)
 }
 
 template<>
-SuggestionTicket* SupportMgr::GetTicket<SuggestionTicket>(uint32 suggestionId)
+TC_GAME_API SuggestionTicket* SupportMgr::GetTicket<SuggestionTicket>(uint32 suggestionId)
 {
     SuggestionTicketList::const_iterator itr = _suggestionTicketList.find(suggestionId);
     if (itr != _suggestionTicketList.end())
@@ -409,22 +436,33 @@ SuggestionTicket* SupportMgr::GetTicket<SuggestionTicket>(uint32 suggestionId)
 
 }
 
-template TC_GAME_API BugTicket* SupportMgr::GetTicket<BugTicket>(uint32);
-template TC_GAME_API ComplaintTicket* SupportMgr::GetTicket<ComplaintTicket>(uint32);
-template TC_GAME_API SuggestionTicket* SupportMgr::GetTicket<SuggestionTicket>(uint32);
+ComplaintTicketList SupportMgr::GetComplaintsByPlayerGuid(ObjectGuid playerGuid) const
+{
+    ComplaintTicketList ret;
+    for (auto const& c : _complaintTicketList)
+        if (c.second->GetPlayerGuid() == playerGuid)
+            ret.insert(c);
+
+    return ret;
+}
+
+void SupportMgr::Initialize()
+{
+    SetSupportSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_ENABLED));
+    SetTicketSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED));
+    SetBugSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_BUGS_ENABLED));
+    SetComplaintSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_COMPLAINTS_ENABLED));
+    SetSuggestionSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED));
+}
 
 template<>
-uint32 SupportMgr::GetOpenTicketCount<BugTicket>() const { return _openBugTicketCount; }
+TC_GAME_API uint32 SupportMgr::GetOpenTicketCount<BugTicket>() const { return _openBugTicketCount; }
 
 template<>
-uint32 SupportMgr::GetOpenTicketCount<ComplaintTicket>() const { return _openComplaintTicketCount; }
+TC_GAME_API uint32 SupportMgr::GetOpenTicketCount<ComplaintTicket>() const { return _openComplaintTicketCount; }
 
 template<>
-uint32 SupportMgr::GetOpenTicketCount<SuggestionTicket>() const { return _openSuggestionTicketCount; }
-
-template TC_GAME_API uint32 SupportMgr::GetOpenTicketCount<BugTicket>() const;
-template TC_GAME_API uint32 SupportMgr::GetOpenTicketCount<ComplaintTicket>() const;
-template TC_GAME_API uint32 SupportMgr::GetOpenTicketCount<SuggestionTicket>() const;
+TC_GAME_API uint32 SupportMgr::GetOpenTicketCount<SuggestionTicket>() const { return _openSuggestionTicketCount; }
 
 void SupportMgr::LoadBugTickets()
 {
@@ -589,7 +627,7 @@ void SupportMgr::AddTicket(SuggestionTicket* ticket)
 }
 
 template<>
-void SupportMgr::RemoveTicket<BugTicket>(uint32 ticketId)
+TC_GAME_API void SupportMgr::RemoveTicket<BugTicket>(uint32 ticketId)
 {
     if (BugTicket* ticket = GetTicket<BugTicket>(ticketId))
     {
@@ -600,7 +638,7 @@ void SupportMgr::RemoveTicket<BugTicket>(uint32 ticketId)
 }
 
 template<>
-void SupportMgr::RemoveTicket<ComplaintTicket>(uint32 ticketId)
+TC_GAME_API void SupportMgr::RemoveTicket<ComplaintTicket>(uint32 ticketId)
 {
     if (ComplaintTicket* ticket = GetTicket<ComplaintTicket>(ticketId))
     {
@@ -611,7 +649,7 @@ void SupportMgr::RemoveTicket<ComplaintTicket>(uint32 ticketId)
 }
 
 template<>
-void SupportMgr::RemoveTicket<SuggestionTicket>(uint32 ticketId)
+TC_GAME_API void SupportMgr::RemoveTicket<SuggestionTicket>(uint32 ticketId)
 {
     if (SuggestionTicket* ticket = GetTicket<SuggestionTicket>(ticketId))
     {
@@ -621,12 +659,8 @@ void SupportMgr::RemoveTicket<SuggestionTicket>(uint32 ticketId)
     }
 }
 
-template TC_GAME_API void SupportMgr::RemoveTicket<BugTicket>(uint32);
-template TC_GAME_API void SupportMgr::RemoveTicket<ComplaintTicket>(uint32);
-template TC_GAME_API void SupportMgr::RemoveTicket<SuggestionTicket>(uint32);
-
 template<>
-void SupportMgr::CloseTicket<BugTicket>(uint32 ticketId, ObjectGuid closedBy)
+TC_GAME_API void SupportMgr::CloseTicket<BugTicket>(uint32 ticketId, ObjectGuid closedBy)
 {
     if (BugTicket* ticket = GetTicket<BugTicket>(ticketId))
     {
@@ -638,7 +672,7 @@ void SupportMgr::CloseTicket<BugTicket>(uint32 ticketId, ObjectGuid closedBy)
 }
 
 template<>
-void SupportMgr::CloseTicket<ComplaintTicket>(uint32 ticketId, ObjectGuid closedBy)
+TC_GAME_API void SupportMgr::CloseTicket<ComplaintTicket>(uint32 ticketId, ObjectGuid closedBy)
 {
     if (ComplaintTicket* ticket = GetTicket<ComplaintTicket>(ticketId))
     {
@@ -650,7 +684,7 @@ void SupportMgr::CloseTicket<ComplaintTicket>(uint32 ticketId, ObjectGuid closed
 }
 
 template<>
-void SupportMgr::CloseTicket<SuggestionTicket>(uint32 ticketId, ObjectGuid closedBy)
+TC_GAME_API void SupportMgr::CloseTicket<SuggestionTicket>(uint32 ticketId, ObjectGuid closedBy)
 {
     if (SuggestionTicket* ticket = GetTicket<SuggestionTicket>(ticketId))
     {
@@ -661,12 +695,8 @@ void SupportMgr::CloseTicket<SuggestionTicket>(uint32 ticketId, ObjectGuid close
     }
 }
 
-template TC_GAME_API void SupportMgr::CloseTicket<BugTicket>(uint32, ObjectGuid);
-template TC_GAME_API void SupportMgr::CloseTicket<ComplaintTicket>(uint32, ObjectGuid);
-template TC_GAME_API void SupportMgr::CloseTicket<SuggestionTicket>(uint32, ObjectGuid);
-
 template<>
-void SupportMgr::ResetTickets<BugTicket>()
+TC_GAME_API void SupportMgr::ResetTickets<BugTicket>()
 {
     for (auto const& c : _bugTicketList)
         delete c.second;
@@ -679,7 +709,7 @@ void SupportMgr::ResetTickets<BugTicket>()
 }
 
 template<>
-void SupportMgr::ResetTickets<ComplaintTicket>()
+TC_GAME_API void SupportMgr::ResetTickets<ComplaintTicket>()
 {
     for (auto const& c : _complaintTicketList)
         delete c.second;
@@ -694,7 +724,7 @@ void SupportMgr::ResetTickets<ComplaintTicket>()
 }
 
 template<>
-void SupportMgr::ResetTickets<SuggestionTicket>()
+TC_GAME_API void SupportMgr::ResetTickets<SuggestionTicket>()
 {
     for (auto const& c : _suggestionTicketList)
         delete c.second;
@@ -706,12 +736,8 @@ void SupportMgr::ResetTickets<SuggestionTicket>()
     CharacterDatabase.Execute(stmt);
 }
 
-template TC_GAME_API void SupportMgr::ResetTickets<BugTicket>();
-template TC_GAME_API void SupportMgr::ResetTickets<ComplaintTicket>();
-template TC_GAME_API void SupportMgr::ResetTickets<SuggestionTicket>();
-
 template<>
-void SupportMgr::ShowList<BugTicket>(ChatHandler& handler) const
+TC_GAME_API void SupportMgr::ShowList<BugTicket>(ChatHandler& handler) const
 {
     handler.SendSysMessage(LANG_COMMAND_TICKETSHOWLIST);
     for (BugTicketList::const_iterator itr = _bugTicketList.begin(); itr != _bugTicketList.end(); ++itr)
@@ -720,7 +746,7 @@ void SupportMgr::ShowList<BugTicket>(ChatHandler& handler) const
 }
 
 template<>
-void SupportMgr::ShowList<ComplaintTicket>(ChatHandler& handler) const
+TC_GAME_API void SupportMgr::ShowList<ComplaintTicket>(ChatHandler& handler) const
 {
     handler.SendSysMessage(LANG_COMMAND_TICKETSHOWLIST);
     for (ComplaintTicketList::const_iterator itr = _complaintTicketList.begin(); itr != _complaintTicketList.end(); ++itr)
@@ -729,7 +755,7 @@ void SupportMgr::ShowList<ComplaintTicket>(ChatHandler& handler) const
 }
 
 template<>
-void SupportMgr::ShowList<SuggestionTicket>(ChatHandler& handler) const
+TC_GAME_API void SupportMgr::ShowList<SuggestionTicket>(ChatHandler& handler) const
 {
     handler.SendSysMessage(LANG_COMMAND_TICKETSHOWLIST);
     for (SuggestionTicketList::const_iterator itr = _suggestionTicketList.begin(); itr != _suggestionTicketList.end(); ++itr)
@@ -737,12 +763,8 @@ void SupportMgr::ShowList<SuggestionTicket>(ChatHandler& handler) const
             handler.SendSysMessage(itr->second->FormatViewMessageString(handler).c_str());
 }
 
-template TC_GAME_API void SupportMgr::ShowList<BugTicket>(ChatHandler&) const;
-template TC_GAME_API void SupportMgr::ShowList<ComplaintTicket>(ChatHandler&) const;
-template TC_GAME_API void SupportMgr::ShowList<SuggestionTicket>(ChatHandler&) const;
-
 template<>
-void SupportMgr::ShowClosedList<BugTicket>(ChatHandler& handler) const
+TC_GAME_API void SupportMgr::ShowClosedList<BugTicket>(ChatHandler& handler) const
 {
     handler.SendSysMessage(LANG_COMMAND_TICKETSHOWCLOSEDLIST);
     for (BugTicketList::const_iterator itr = _bugTicketList.begin(); itr != _bugTicketList.end(); ++itr)
@@ -751,7 +773,7 @@ void SupportMgr::ShowClosedList<BugTicket>(ChatHandler& handler) const
 }
 
 template<>
-void SupportMgr::ShowClosedList<ComplaintTicket>(ChatHandler& handler) const
+TC_GAME_API void SupportMgr::ShowClosedList<ComplaintTicket>(ChatHandler& handler) const
 {
     handler.SendSysMessage(LANG_COMMAND_TICKETSHOWCLOSEDLIST);
     for (ComplaintTicketList::const_iterator itr = _complaintTicketList.begin(); itr != _complaintTicketList.end(); ++itr)
@@ -760,7 +782,7 @@ void SupportMgr::ShowClosedList<ComplaintTicket>(ChatHandler& handler) const
 }
 
 template<>
-void SupportMgr::ShowClosedList<SuggestionTicket>(ChatHandler& handler) const
+TC_GAME_API void SupportMgr::ShowClosedList<SuggestionTicket>(ChatHandler& handler) const
 {
     handler.SendSysMessage(LANG_COMMAND_TICKETSHOWCLOSEDLIST);
     for (SuggestionTicketList::const_iterator itr = _suggestionTicketList.begin(); itr != _suggestionTicketList.end(); ++itr)
@@ -768,6 +790,7 @@ void SupportMgr::ShowClosedList<SuggestionTicket>(ChatHandler& handler) const
             handler.SendSysMessage(itr->second->FormatViewMessageString(handler).c_str());
 }
 
-template TC_GAME_API void SupportMgr::ShowClosedList<BugTicket>(ChatHandler&) const;
-template TC_GAME_API void SupportMgr::ShowClosedList<ComplaintTicket>(ChatHandler&) const;
-template TC_GAME_API void SupportMgr::ShowClosedList<SuggestionTicket>(ChatHandler&) const;
+void SupportMgr::UpdateLastChange()
+{
+    _lastChange = uint64(time(nullptr));
+}

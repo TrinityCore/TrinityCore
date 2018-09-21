@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,18 +16,21 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "SpellScript.h"
 
 enum Spells
 {
-    SPELL_CARRION_SWARM     = 31306,
-    SPELL_SLEEP             = 31298,
-    SPELL_VAMPIRIC_AURA     = 38196,
-    SPELL_INFERNO           = 31299,
-    SPELL_IMMOLATION        = 31303,
-    SPELL_INFERNO_EFFECT    = 31302,
+    SPELL_CARRION_SWARM         = 31306,
+    SPELL_SLEEP                 = 31298,
+    SPELL_VAMPIRIC_AURA         = 38196,
+    SPELL_VAMPIRIC_AURA_HEAL    = 31285,
+    SPELL_INFERNO               = 31299,
+    SPELL_IMMOLATION            = 31303,
+    SPELL_INFERNO_EFFECT        = 31302
 };
 
 enum Texts
@@ -47,7 +50,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_anetheronAI>(creature);
+        return GetHyjalAI<boss_anetheronAI>(creature);
     }
 
     struct boss_anetheronAI : public hyjal_trashAI
@@ -184,7 +187,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_towering_infernalAI>(creature);
+        return GetHyjalAI<npc_towering_infernalAI>(creature);
     }
 
     struct npc_towering_infernalAI : public ScriptedAI
@@ -261,8 +264,46 @@ public:
 
 };
 
+class spell_anetheron_vampiric_aura : public SpellScriptLoader
+{
+    public:
+        spell_anetheron_vampiric_aura() : SpellScriptLoader("spell_anetheron_vampiric_aura") { }
+
+        class spell_anetheron_vampiric_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_anetheron_vampiric_aura_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_VAMPIRIC_AURA_HEAL });
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                int32 bp = damageInfo->GetDamage() * 3;
+                eventInfo.GetActor()->CastCustomSpell(SPELL_VAMPIRIC_AURA_HEAL, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetActor(), true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_anetheron_vampiric_aura_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_anetheron_vampiric_aura_AuraScript();
+        }
+};
+
 void AddSC_boss_anetheron()
 {
     new boss_anetheron();
     new npc_towering_infernal();
+    new spell_anetheron_vampiric_aura();
 }

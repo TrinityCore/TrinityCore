@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,16 +16,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <memory>
-#include <boost/asio/write.hpp>
-#include <boost/asio/read_until.hpp>
-#include <boost/array.hpp>
 #include "RASession.h"
 #include "AccountMgr.h"
-#include "Log.h"
-#include "DatabaseEnv.h"
-#include "World.h"
 #include "Config.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "Util.h"
+#include "World.h"
+#include <boost/asio/buffer.hpp>
+#include <boost/asio/read_until.hpp>
+#include <memory>
 
 using boost::asio::ip::tcp;
 
@@ -39,7 +39,8 @@ void RASession::Start()
     if (_socket.available() > 0)
     {
         // Handle subnegotiation
-        boost::array<char, 1024> buf;
+        char buf[1024];
+        memset(buf, 0, sizeof(buf));
         _socket.read_some(boost::asio::buffer(buf));
 
         // Send the end-of-negotiation packet
@@ -137,7 +138,7 @@ bool RASession::CheckAccessLevel(const std::string& user)
 
     Field* fields = result->Fetch();
 
-    if (fields[1].GetUInt8() < sConfigMgr->GetIntDefault("RA.MinLevel", 3))
+    if (fields[1].GetUInt8() < sConfigMgr->GetIntDefault("Ra.MinLevel", SEC_ADMINISTRATOR))
     {
         TC_LOG_INFO("commands.ra", "User %s has no privilege to login", user.c_str());
         return false;

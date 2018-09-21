@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,16 +16,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
+#include "AchievementPackets.h"
+#include "Common.h"
 #include "Guild.h"
+#include "GuildMgr.h"
 #include "GuildPackets.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& query)
 {
@@ -425,4 +427,9 @@ void WorldSession::HandleGuildSetAchievementTracking(WorldPackets::Guild::GuildS
 {
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleSetAchievementTracking(this, packet.AchievementIDs);
+}
+void WorldSession::HandleGuildGetAchievementMembers(WorldPackets::Achievement::GuildGetAchievementMembers& getAchievementMembers)
+{
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->HandleGetAchievementMembers(this, uint32(getAchievementMembers.AchievementID));
 }

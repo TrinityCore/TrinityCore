@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,16 +20,9 @@
 #define LOAD_LIB_H
 
 #include "Define.h"
-#ifdef PLATFORM_WINDOWS
-#undef PLATFORM_WINDOWS
-#endif
-#include "CascLib.h"
+#include "CascHandles.h"
 #include <map>
 #include <string>
-
-#ifndef _WIN32
-int GetLastError();
-#endif
 
 #define FILE_FORMAT_VERSION    18
 
@@ -89,7 +82,7 @@ public:
     ChunkedFile();
     virtual ~ChunkedFile();
     bool prepareLoadedData();
-    bool loadFile(HANDLE mpq, std::string const& fileName, bool log = true);
+    bool loadFile(CASC::StorageHandle const& mpq, std::string const& fileName, bool log = true);
     void free();
 
     void parseChunks();

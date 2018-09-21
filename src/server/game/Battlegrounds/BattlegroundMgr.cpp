@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,33 +16,42 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "ObjectMgr.h"
-#include "World.h"
-#include "WorldPacket.h"
-
 #include "BattlegroundMgr.h"
-#include "BattlegroundAV.h"
 #include "BattlegroundAB.h"
-#include "BattlegroundEY.h"
-#include "BattlegroundWS.h"
-#include "BattlegroundNA.h"
+#include "BattlegroundAV.h"
 #include "BattlegroundBE.h"
-#include "BattlegroundRL.h"
-#include "BattlegroundSA.h"
-#include "BattlegroundDS.h"
-#include "BattlegroundRV.h"
-#include "BattlegroundIC.h"
-#include "BattlegroundTP.h"
 #include "BattlegroundBFG.h"
+#include "BattlegroundDS.h"
+#include "BattlegroundEY.h"
+#include "BattlegroundIC.h"
+#include "BattlegroundNA.h"
+#include "BattlegroundPackets.h"
+#include "BattlegroundRL.h"
+#include "BattlegroundRV.h"
+#include "BattlegroundSA.h"
+#include "BattlegroundTP.h"
+#include "BattlegroundWS.h"
+#include "Common.h"
+#include "Containers.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "DisableMgr.h"
+#include "GameEventMgr.h"
+#include "Language.h"
+#include "Log.h"
 #include "Map.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
-#include "Player.h"
-#include "GameEventMgr.h"
-#include "SharedDefines.h"
-#include "DisableMgr.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
+#include "Player.h"
+#include "SharedDefines.h"
+#include "World.h"
+
+bool BattlegroundTemplate::IsArena() const
+{
+    return BattlemasterEntry->InstanceType == MAP_ARENA;
+}
 
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/
@@ -50,7 +59,7 @@
 
 BattlegroundMgr::BattlegroundMgr() :
     m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
-    m_ArenaTesting(false), m_Testing(false)
+    m_UpdateTimer(0), m_ArenaTesting(false), m_Testing(false)
 { }
 
 BattlegroundMgr::~BattlegroundMgr()
@@ -84,28 +93,34 @@ BattlegroundMgr* BattlegroundMgr::instance()
 // used to update running battlegrounds, and delete finished ones
 void BattlegroundMgr::Update(uint32 diff)
 {
-    for (BattlegroundDataContainer::iterator itr1 = bgDataStore.begin(); itr1 != bgDataStore.end(); ++itr1)
+    m_UpdateTimer += diff;
+    if (m_UpdateTimer > BATTLEGROUND_OBJECTIVE_UPDATE_INTERVAL)
     {
-        BattlegroundContainer& bgs = itr1->second.m_Battlegrounds;
-        BattlegroundContainer::iterator itrDelete = bgs.begin();
-        // first one is template and should not be deleted
-        for (BattlegroundContainer::iterator itr = ++itrDelete; itr != bgs.end();)
+        for (BattlegroundDataContainer::iterator itr1 = bgDataStore.begin(); itr1 != bgDataStore.end(); ++itr1)
         {
-            itrDelete = itr++;
-            Battleground* bg = itrDelete->second;
-
-            bg->Update(diff);
-            if (bg->ToBeDeleted())
+            BattlegroundContainer& bgs = itr1->second.m_Battlegrounds;
+            BattlegroundContainer::iterator itrDelete = bgs.begin();
+            // first one is template and should not be deleted
+            for (BattlegroundContainer::iterator itr = ++itrDelete; itr != bgs.end();)
             {
-                itrDelete->second = NULL;
-                bgs.erase(itrDelete);
-                BattlegroundClientIdsContainer& clients = itr1->second.m_ClientBattlegroundIds[bg->GetBracketId()];
-                if (!clients.empty())
-                     clients.erase(bg->GetClientInstanceID());
+                itrDelete = itr++;
+                Battleground* bg = itrDelete->second;
 
-                delete bg;
+                bg->Update(m_UpdateTimer);
+                if (bg->ToBeDeleted())
+                {
+                    itrDelete->second = nullptr;
+                    bgs.erase(itrDelete);
+                    BattlegroundClientIdsContainer& clients = itr1->second.m_ClientBattlegroundIds[bg->GetBracketId()];
+                    if (!clients.empty())
+                        clients.erase(bg->GetClientInstanceID());
+
+                    delete bg;
+                }
             }
         }
+
+        m_UpdateTimer = 0;
     }
 
     // update events timer
@@ -154,7 +169,7 @@ void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::
 {
     header->Ticket.RequesterGuid = player->GetGUID();
     header->Ticket.Id = ticketId;
-    header->Ticket.Type = bg->isArena() ? arenaType : 1;
+    header->Ticket.Type = WorldPackets::LFG::RideType::Battlegrounds;
     header->Ticket.Time = joinTime;
     header->QueueID = bg->GetQueueId();
     header->RangeMin = bg->GetMinLevel();
@@ -165,11 +180,11 @@ void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::
     header->TournamentRules = false;
 }
 
-void BattlegroundMgr::BuildBattlegroundStatusNone(WorldPackets::Battleground::BattlefieldStatusNone* battlefieldStatus, Player* player, uint32 ticketId, uint32 joinTime, uint32 arenaType)
+void BattlegroundMgr::BuildBattlegroundStatusNone(WorldPackets::Battleground::BattlefieldStatusNone* battlefieldStatus, Player* player, uint32 ticketId, uint32 joinTime)
 {
     battlefieldStatus->Ticket.RequesterGuid = player->GetGUID();
     battlefieldStatus->Ticket.Id = ticketId;
-    battlefieldStatus->Ticket.Type = arenaType;
+    battlefieldStatus->Ticket.Type = WorldPackets::LFG::RideType::Battlegrounds;
     battlefieldStatus->Ticket.Time = joinTime;
 }
 
@@ -205,7 +220,7 @@ void BattlegroundMgr::BuildBattlegroundStatusFailed(WorldPackets::Battleground::
 {
     battlefieldStatus->Ticket.RequesterGuid = pPlayer->GetGUID();
     battlefieldStatus->Ticket.Id = ticketId;
-    battlefieldStatus->Ticket.Type = arenaType;
+    battlefieldStatus->Ticket.Type = WorldPackets::LFG::RideType::Battlegrounds;
     battlefieldStatus->Ticket.Time = pPlayer->GetBattlegroundQueueJoinTime(BGQueueTypeId(bg->GetTypeID(), arenaType));
     battlefieldStatus->QueueID = bg->GetQueueId();
     battlefieldStatus->Reason = result;
@@ -281,7 +296,7 @@ uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeI
 }
 
 // create a new battleground that will really be used to play
-Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PvpDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
+Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PVPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
 {
     BattlegroundTypeId bgTypeId = GetRandomBG(originalBgTypeId);
 
@@ -605,7 +620,7 @@ void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battlegrou
     WorldPackets::Battleground::AreaSpiritHealerTime areaSpiritHealerTime;
     areaSpiritHealerTime.HealerGuid = guid;
     areaSpiritHealerTime.TimeLeft = time_;
-    player->GetSession()->SendPacket(areaSpiritHealerTime.Write());
+    player->SendDirectMessage(areaSpiritHealerTime.Write());
 }
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
@@ -732,7 +747,7 @@ void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 ar
 {
     //This method must be atomic, @todo add mutex
     //we will use only 1 number created of bgTypeId and bracket_id
-    uint64 const scheduleId = ((uint64)arenaMatchmakerRating << 32) | (uint32(arenaType) << 24) | (bgQueueTypeId << 16) | (bgTypeId << 8) | bracket_id;
+    uint64 const scheduleId = ((uint64)arenaMatchmakerRating << 32) | ((uint64)arenaType << 24) | ((uint64)bgQueueTypeId << 16) | ((uint64)bgTypeId << 8) | (uint64)bracket_id;
     if (std::find(m_QueueUpdateScheduler.begin(), m_QueueUpdateScheduler.end(), scheduleId) == m_QueueUpdateScheduler.end())
         m_QueueUpdateScheduler.push_back(scheduleId);
 }
@@ -860,9 +875,10 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 {
     if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
     {
-        uint32 weight = 0;
-        BattlegroundSelectionWeightMap selectionWeights;
-
+        std::vector<BattlegroundTypeId> ids;
+        ids.reserve(16);
+        std::vector<double> weights;
+        weights.reserve(16);
         for (int32 mapId : bgTemplate->BattlemasterEntry->MapID)
         {
             if (mapId == -1)
@@ -870,28 +886,12 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 
             if (BattlegroundTemplate const* bg = GetBattlegroundTemplateByMapId(mapId))
             {
-                weight += bg->Weight;
-                selectionWeights[bg->Id] = bg->Weight;
+                ids.push_back(bg->Id);
+                weights.push_back(bg->Weight);
             }
         }
 
-        // there is only one bg to select
-        if (selectionWeights.size() == 1)
-            return selectionWeights.begin()->first;
-
-        if (weight)
-        {
-            // Select a random value
-            uint32 selectedWeight = urand(0, weight - 1);
-            // Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
-            weight = 0;
-            for (auto it : selectionWeights)
-            {
-                weight += it.second;
-                if (selectedWeight < weight)
-                    return it.first;
-            }
-        }
+        return *Trinity::Containers::SelectRandomWeightedContainerElement(ids, weights);
     }
 
     return BATTLEGROUND_TYPE_NONE;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +23,7 @@
 #include "ObjectAccessor.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "VMapFactory.h"
 
@@ -38,6 +39,12 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
         return;
 
+    if (owner->IsMovementPreventedByCasting())
+    {
+        owner->CastStop();
+        return;
+    }
+
     owner->AddUnitState(UNIT_STATE_FLEEING_MOVE);
 
     float x, y, z;
@@ -45,11 +52,9 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
 
     // Add LOS check for target point
     Position mypos = owner->GetPosition();
-    bool isInLOS = VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(owner->GetMapId(),
-                                                                                mypos.m_positionX,
-                                                                                mypos.m_positionY,
-                                                                                mypos.m_positionZ + 2.0f,
-                                                                                x, y, z + 2.0f);
+    bool isInLOS = VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(
+        PhasingHandler::GetTerrainMapId(owner->GetPhaseShift(), owner->GetMap(), mypos.m_positionX, mypos.m_positionY),
+        mypos.m_positionX, mypos.m_positionY, mypos.m_positionZ + 2.0f, x, y, z + 2.0f);
     if (!isInLOS)
     {
         i_nextCheckTime.Reset(200);

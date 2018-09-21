@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,10 +24,14 @@ SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-
+#include "TemporarySummon.h"
 #include "the_eye.h"
 
 enum Yells
@@ -410,7 +414,7 @@ class boss_high_astromancer_solarian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_high_astromancer_solarianAI>(creature);
+            return GetTheEyeAI<boss_high_astromancer_solarianAI>(creature);
         }
 };
 
@@ -497,7 +501,7 @@ class npc_solarium_priest : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_solarium_priestAI>(creature);
+            return GetTheEyeAI<npc_solarium_priestAI>(creature);
         }
 };
 
@@ -512,9 +516,7 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WRATH_OF_THE_ASTROMANCER_DOT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WRATH_OF_THE_ASTROMANCER_DOT });
             }
 
             void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -545,4 +547,3 @@ void AddSC_boss_high_astromancer_solarian()
     new npc_solarium_priest();
     new spell_astromancer_wrath_of_the_astromancer();
 }
-

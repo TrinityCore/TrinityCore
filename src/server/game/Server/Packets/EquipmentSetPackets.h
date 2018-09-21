@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,8 +18,8 @@
 #pragma once
 
 #include "Packet.h"
-#include "Player.h"
-#include "ItemPackets.h"
+#include "EquipementSet.h"
+#include "ItemPacketsCommon.h"
 
 namespace WorldPackets
 {
@@ -82,7 +82,8 @@ namespace WorldPackets
             };
 
             WorldPackets::Item::InvUpdate Inv;
-            EquipmentSetItem Items[EQUIPMENT_SLOT_END];
+            EquipmentSetItem Items[EQUIPEMENT_SET_SLOTS];
+            uint64 GUID = 0; ///< Set Identifier
         };
 
         class UseEquipmentSetResult final : public ServerPacket
@@ -92,6 +93,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            uint64 GUID = 0; ///< Set Identifier
             uint8 Reason = 0;
         };
     }

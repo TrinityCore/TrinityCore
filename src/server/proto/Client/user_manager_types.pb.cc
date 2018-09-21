@@ -18,11 +18,6 @@
 #include "Log.h"
 // @@protoc_insertion_point(includes)
 
-// Fix stupid windows.h included from Log.h->Common.h
-#ifdef SendMessage
-#undef SendMessage
-#endif
-
 namespace bgs {
 namespace protocol {
 namespace user_manager {
@@ -635,6 +630,7 @@ void BlockedPlayer::SharedCtor() {
   _cached_size_ = 0;
   account_id_ = NULL;
   name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  _role_cached_byte_size_ = 0;
   privileges_ = GOOGLE_ULONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }

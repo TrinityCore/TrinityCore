@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "zulaman.h"
 
 enum Says
@@ -100,7 +100,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_hex_lord_malacrassAI>(creature);
+            return GetZulAmanAI<boss_hex_lord_malacrassAI>(creature);
         }
 };
 
@@ -115,9 +115,7 @@ class spell_hexlord_unstable_affliction : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WL_UNSTABLE_AFFL_DISPEL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WL_UNSTABLE_AFFL_DISPEL });
             }
 
             void HandleDispel(DispelInfo* dispelInfo)

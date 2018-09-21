@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,8 +24,8 @@ SDCategory: CrystalsongForest
 Script Data End */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "Player.h"
 
 /*******************************************************
  * npc_warmage_violetstand
@@ -68,9 +68,9 @@ public:
             if (me->IsNonMeleeSpellCast(false))
                 return;
 
-            if (me->GetEntry() == NPC_WARMAGE_SARINA)
+            if (!targetGUID)
             {
-                if (!targetGUID)
+                if (me->GetEntry() == NPC_WARMAGE_SARINA)
                 {
                     std::list<Creature*> orbList;
                     GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
@@ -86,18 +86,12 @@ public:
                         }
                     }
                 }
-            }
-            else
-            {
-                if (!targetGUID)
-                    if (Creature* pOrb = GetClosestCreatureWithEntry(me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f))
-                        targetGUID = pOrb->GetGUID();
-
+                else if (Creature* pOrb = GetClosestCreatureWithEntry(me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f))
+                    targetGUID = pOrb->GetGUID();
             }
 
             if (Creature* pOrb = ObjectAccessor::GetCreature(*me, targetGUID))
                 DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
-
         }
     };
 
@@ -109,5 +103,5 @@ public:
 
 void AddSC_crystalsong_forest()
 {
-    new npc_warmage_violetstand;
+    new npc_warmage_violetstand();
 }

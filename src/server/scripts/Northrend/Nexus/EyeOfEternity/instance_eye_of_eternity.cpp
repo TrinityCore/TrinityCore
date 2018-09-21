@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "InstanceScript.h"
+#include "AreaBoundary.h"
+#include "Creature.h"
+#include "CreatureAI.h"
 #include "eye_of_eternity.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "Player.h"
 
 BossBoundaryData const boundaries =
@@ -29,7 +33,7 @@ BossBoundaryData const boundaries =
 class instance_eye_of_eternity : public InstanceMapScript
 {
 public:
-    instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity", 616) { }
+    instance_eye_of_eternity() : InstanceMapScript(EoEScriptName, 616) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -60,9 +64,9 @@ public:
             {
                 if (state == FAIL)
                 {
-                    for (GuidList::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
+                    for (ObjectGuid const& portalTriggerGuid : portalTriggers)
                     {
-                        if (Creature* trigger = instance->GetCreature(*itr_trigger))
+                        if (Creature* trigger = instance->GetCreature(portalTriggerGuid))
                         {
                             // just in case
                             trigger->RemoveAllAuras();
@@ -85,14 +89,8 @@ public:
         // There is no other way afaik...
         void SpawnGameObject(uint32 entry, Position const& pos)
         {
-            GameObject* go = new GameObject();
-            if (!go->Create(entry, instance, PHASEMASK_NORMAL, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
-                0, 0, 0, 0, 120, GO_STATE_READY))
-            {
-                delete go;
-                return;
-            }
-            instance->AddToMap(go);
+            if (GameObject* go = GameObject::CreateGameObject(entry, instance, pos, QuaternionData(), 255, GO_STATE_READY))
+                instance->AddToMap(go);
         }
 
         void OnGameObjectCreate(GameObject* go) override

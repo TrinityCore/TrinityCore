@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,11 +20,12 @@
 
 #include "Packet.h"
 #include "Object.h"
-
-#include <G3D/Vector3.h>
+#include "Optional.h"
 
 namespace Movement
 {
+    template<class index_type>
+    class Spline;
     class MoveSpline;
 }
 
@@ -39,7 +40,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            MovementInfo movementInfo;
+            MovementInfo Status;
         };
 
         class TC_GAME_API MoveUpdate final : public ServerPacket
@@ -49,7 +50,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
         };
 
         struct MonsterSplineFilterKey
@@ -70,10 +71,10 @@ namespace WorldPackets
 
         struct MonsterSplineSpellEffectExtraData
         {
-            ObjectGuid field_1;
-            uint32 field_2;
-            uint32 field_3;
-            uint32 field_4;
+            ObjectGuid TargetGUID;
+            uint32 SpellVisualID = 0;
+            uint32 ProgressCurveID = 0;
+            uint32 ParabolicCurveID = 0;
         };
 
         struct MovementSpline
@@ -86,23 +87,23 @@ namespace WorldPackets
             uint32 MoveTime             = 0;
             float JumpGravity           = 0.0f;
             uint32 SpecialTime          = 0;
-            std::vector<G3D::Vector3> Points;   // Spline path
+            std::vector<TaggedPosition<Position::XYZ>> Points;   // Spline path
             uint8 Mode                  = 0;    // Spline mode - actually always 0 in this packet - Catmullrom mode appears only in SMSG_UPDATE_OBJECT. In this packet it is determined by flags
             uint8 VehicleExitVoluntary  = 0;
             ObjectGuid TransportGUID;
             int8 VehicleSeat            = -1;
-            std::vector<G3D::Vector3> PackedDeltas;
+            std::vector<TaggedPosition<Position::PackedXYZ>> PackedDeltas;
             Optional<MonsterSplineFilter> SplineFilter;
             Optional<MonsterSplineSpellEffectExtraData> SpellEffectExtraData;
             float FaceDirection         = 0.0f;
             ObjectGuid FaceGUID;
-            G3D::Vector3 FaceSpot;
+            TaggedPosition<Position::XYZ> FaceSpot;
         };
 
         struct MovementMonsterSpline
         {
             uint32 ID = 0;
-            G3D::Vector3 Destination;
+            TaggedPosition<Position::XYZ> Destination;
             bool CrzTeleport = false;
             uint8 StopDistanceTolerance = 0;    // Determines how far from spline destination the mover is allowed to stop in place 0, 0, 3.0, 2.76, numeric_limits<float>::max, 1.1, float(INT_MAX); default before this field existed was distance 3.0 (index 2)
             MovementSpline Move;
@@ -112,6 +113,7 @@ namespace WorldPackets
         {
         public:
             static void WriteCreateObjectSplineDataBlock(::Movement::MoveSpline const& moveSpline, ByteBuffer& data);
+            static void WriteCreateObjectAreaTriggerSpline(::Movement::Spline<int32> const& spline, ByteBuffer& data);
         };
 
         class MonsterMove final : public ServerPacket
@@ -125,7 +127,7 @@ namespace WorldPackets
 
             MovementMonsterSpline SplineData;
             ObjectGuid MoverGUID;
-            G3D::Vector3 Pos;
+            TaggedPosition<Position::XYZ> Pos;
         };
 
         class MoveSplineSetSpeed : public ServerPacket
@@ -158,7 +160,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             float Speed = 1.0f;
         };
 
@@ -197,6 +199,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 MapID = -1;
+            TaggedPosition<Position::XYZ> OldMapPosition;
             Optional<ShipTransferPending> Ship;
             Optional<int32> TransferSpellID;
         };
@@ -210,7 +213,7 @@ namespace WorldPackets
 
             uint32 MapID = 0;
             uint8 Arg = 0;
-            int32 MapDifficultyXConditionID;
+            int32 MapDifficultyXConditionID = 0;
             uint32 TransfertAbort = 0;
         };
 
@@ -223,8 +226,8 @@ namespace WorldPackets
 
             int32 MapID = 0;
             uint32 Reason = 0;
-            Position Pos;
-            Position MovementOffset;    // Adjusts all pending movement events by this offset
+            TaggedPosition<Position::XYZO> Pos;
+            TaggedPosition<Position::XYZ> MovementOffset;    // Adjusts all pending movement events by this offset
         };
 
         class WorldPortResponse final : public ClientPacket
@@ -249,7 +252,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Position Pos;
+            TaggedPosition<Position::XYZ> Pos;
             Optional<VehicleTeleport> Vehicle;
             uint32 SequenceIndex = 0;
             ObjectGuid MoverGUID;
@@ -261,9 +264,8 @@ namespace WorldPackets
         struct MovementForce
         {
             ObjectGuid ID;
-            G3D::Vector3 Origin;
-            G3D::Vector3 Direction;
-            G3D::Vector3 TransportPosition;
+            TaggedPosition<Position::XYZ> Origin;
+            TaggedPosition<Position::XYZ> Direction;
             uint32 TransportID  = 0;
             float Magnitude     = 0;
             uint8 Type          = 0;
@@ -276,7 +278,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             std::vector<MovementForce> MovementForces;
             Optional<float> SwimBackSpeed;
             Optional<float> FlightSpeed;
@@ -296,7 +298,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             MovementForce Force;
         };
 
@@ -307,7 +309,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             ObjectGuid TriggerGUID;
         };
 
@@ -325,7 +327,7 @@ namespace WorldPackets
 
         struct MovementAck
         {
-            MovementInfo movementInfo;
+            MovementInfo Status;
             int32 AckIndex = 0;
         };
 
@@ -370,6 +372,12 @@ namespace WorldPackets
             ObjectGuid MoverGUID;
         };
 
+        struct MoveKnockBackSpeeds
+        {
+            float HorzSpeed = 0.0f;
+            float VertSpeed = 0.0f;
+        };
+
         class MoveKnockBack final : public ServerPacket
         {
         public:
@@ -378,10 +386,9 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid MoverGUID;
-            G3D::Vector2 Direction;
-            float HorzSpeed = 0.0f;
+            TaggedPosition<Position::XY> Direction;
+            MoveKnockBackSpeeds Speeds;
             uint32 SequenceIndex = 0;
-            float VertSpeed = 0.0f;
         };
 
         class MoveUpdateKnockBack final : public ServerPacket
@@ -391,7 +398,18 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
+        };
+
+        class MoveKnockBackAck final : public ClientPacket
+        {
+        public:
+            MoveKnockBackAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_KNOCK_BACK_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Ack;
+            Optional<MoveKnockBackSpeeds> Speeds;
         };
 
         enum UpdateCollisionHeightReason : uint8
@@ -424,7 +442,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             float Scale = 1.0f;
             float Height = 1.0f;
         };
@@ -482,7 +500,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            MovementInfo movementInfo;
+            MovementInfo Status;
             int32 SplineID = 0;
         };
 
@@ -551,7 +569,7 @@ namespace WorldPackets
             struct KnockBackInfo
             {
                 float HorzSpeed = 0.0f;
-                G3D::Vector2 Direction;
+                TaggedPosition<Position::XY> Direction;
                 float InitVertSpeed = 0.0f;
             };
 
@@ -585,7 +603,7 @@ namespace WorldPackets
 }
 
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo);
-ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo);
+ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo);
 
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo::TransportInfo& transportInfo);
 ByteBuffer& operator<<(ByteBuffer& data, MovementInfo::TransportInfo const& transportInfo);

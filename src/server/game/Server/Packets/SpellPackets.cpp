@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SpellPackets.h"
 #include "MovementPackets.h"
+#include "SpellPackets.h"
 
 void WorldPackets::Spells::CancelAura::Read()
 {
@@ -69,9 +69,7 @@ WorldPacket const* WorldPackets::Spells::SendKnownSpells::Write()
 
 WorldPacket const* WorldPackets::Spells::UpdateActionButtons::Write()
 {
-    for (uint32 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        _worldPacket << ActionButtons[i];
-
+    _worldPacket.append(ActionButtons.data(), ActionButtons.size());
     _worldPacket << Reason;
 
     return &_worldPacket;
@@ -92,63 +90,6 @@ WorldPacket const* WorldPackets::Spells::SendUnlearnSpells::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Spells::SpellCastLogData::Initialize(Unit const* unit)
-{
-    Health = unit->GetHealth();
-    AttackPower = unit->GetTotalAttackPowerValue(unit->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
-    SpellPower = unit->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-    PowerData.emplace_back(int32(unit->getPowerType()), unit->GetPower(unit->getPowerType()), int32(0));
-}
-
-void WorldPackets::Spells::SpellCastLogData::Initialize(Spell const* spell)
-{
-    Health = spell->GetCaster()->GetHealth();
-    AttackPower = spell->GetCaster()->GetTotalAttackPowerValue(spell->GetCaster()->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
-    SpellPower = spell->GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-    Powers primaryPowerType = spell->GetCaster()->getPowerType();
-    bool primaryPowerAdded = false;
-    for (SpellInfo::CostData const& cost : spell->GetPowerCost())
-    {
-        PowerData.emplace_back(int32(cost.Power), spell->GetCaster()->GetPower(Powers(cost.Power)), int32(cost.Amount));
-        if (cost.Power == primaryPowerType)
-            primaryPowerAdded = true;
-    }
-
-    if (!primaryPowerAdded)
-        PowerData.insert(PowerData.begin(), SpellLogPowerData(int32(primaryPowerType), spell->GetCaster()->GetPower(primaryPowerType), 0));
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData)
-{
-    data << int64(spellCastLogData.Health);
-    data << int32(spellCastLogData.AttackPower);
-    data << int32(spellCastLogData.SpellPower);
-    data.WriteBits(spellCastLogData.PowerData.size(), 9);
-    data.FlushBits();
-
-    for (WorldPackets::Spells::SpellLogPowerData const& powerData : spellCastLogData.PowerData)
-    {
-        data << int32(powerData.PowerType);
-        data << int32(powerData.Amount);
-        data << int32(powerData.Cost);
-    }
-
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SandboxScalingData const& sandboxScalingData)
-{
-    data.WriteBits(sandboxScalingData.Type, 3);
-    data << int16(sandboxScalingData.PlayerLevelDelta);
-    data << uint8(sandboxScalingData.TargetLevel);
-    data << uint8(sandboxScalingData.Expansion);
-    data << uint8(sandboxScalingData.Class);
-    data << uint8(sandboxScalingData.TargetMinScalingLevel);
-    data << uint8(sandboxScalingData.TargetMaxScalingLevel);
-    data << int8(sandboxScalingData.TargetScalingLevelDelta);
-    return data;
-}
-
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::AuraDataInfo const& auraData)
 {
     data << auraData.CastID;
@@ -165,6 +106,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::AuraDataInfo cons
     data.WriteBits(auraData.Points.size(), 6);
     data.WriteBits(auraData.EstimatedPoints.size(), 6);
     data.WriteBit(auraData.SandboxScaling.is_initialized());
+
+    if (auraData.SandboxScaling)
+        data << *auraData.SandboxScaling;
 
     if (auraData.CastUnit)
         data << *auraData.CastUnit;
@@ -183,9 +127,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::AuraDataInfo cons
 
     if (!auraData.EstimatedPoints.empty())
         data.append(auraData.EstimatedPoints.data(), auraData.EstimatedPoints.size());
-
-    if (auraData.SandboxScaling)
-        data << *auraData.SandboxScaling;
 
     return data;
 }
@@ -431,7 +372,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     data << uint8(spellCastData.DestLocSpellCastIndex);
     data << spellCastData.Immunities;
     data << spellCastData.Predict;
-    data.WriteBits(spellCastData.CastFlagsEx, 22);
+    data.WriteBits(spellCastData.CastFlagsEx, 23);
     data.WriteBits(spellCastData.HitTargets.size(), 16);
     data.WriteBits(spellCastData.MissTargets.size(), 16);
     data.WriteBits(spellCastData.MissStatus.size(), 16);
@@ -521,7 +462,7 @@ WorldPacket const* WorldPackets::Spells::SpellFailure::Write()
     _worldPacket << CasterUnit;
     _worldPacket << CastID;
     _worldPacket << int32(SpellID);
-    _worldPacket << uint32(SpelXSpellVisualID);
+    _worldPacket << uint32(SpellXSpellVisualID);
     _worldPacket << uint16(Reason);
 
     return &_worldPacket;
@@ -532,7 +473,7 @@ WorldPacket const* WorldPackets::Spells::SpellFailedOther::Write()
     _worldPacket << CasterUnit;
     _worldPacket << CastID;
     _worldPacket << uint32(SpellID);
-    _worldPacket << uint32(SpelXSpellVisualID);
+    _worldPacket << uint32(SpellXSpellVisualID);
     _worldPacket << uint8(Reason);
 
     return &_worldPacket;
@@ -758,6 +699,45 @@ WorldPacket const* WorldPackets::Spells::CancelSpellVisual::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Spells::CancelSpellVisualKit::Write()
+{
+    _worldPacket << Source;
+    _worldPacket << int32(SpellVisualKitID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::PlayOrphanSpellVisual::Write()
+{
+    _worldPacket << SourceLocation;
+    _worldPacket << SourceRotation;
+    _worldPacket << TargetLocation;
+    _worldPacket << Target;
+    _worldPacket << int32(SpellVisualID);
+    _worldPacket << float(TravelSpeed);
+    _worldPacket << float(UnkZero);
+    _worldPacket.WriteBit(SpeedAsTime);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::PlaySpellVisual::Write()
+{
+    _worldPacket << Source;
+    _worldPacket << Target;
+    _worldPacket << TargetPosition;
+    _worldPacket << SpellVisualID;
+    _worldPacket << TravelSpeed;
+    _worldPacket << MissReason;
+    _worldPacket << ReflectStatus;
+    _worldPacket << Orientation;
+    _worldPacket.WriteBit(SpeedAsTime);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Spells::PlaySpellVisualKit::Write()
 {
     _worldPacket << Unit;
@@ -798,6 +778,7 @@ WorldPacket const* WorldPackets::Spells::SpellChannelStart::Write()
 {
     _worldPacket << CasterGUID;
     _worldPacket << int32(SpellID);
+    _worldPacket << int32(SpellXSpellVisualID);
     _worldPacket << uint32(ChannelDuration);
     _worldPacket.WriteBit(InterruptImmunities.is_initialized());
     _worldPacket.WriteBit(HealPrediction.is_initialized());
@@ -838,6 +819,11 @@ WorldPacket const* WorldPackets::Spells::ResurrectRequest::Write()
 void WorldPackets::Spells::UnlearnSkill::Read()
 {
     _worldPacket >> SkillLine;
+}
+
+void WorldPackets::Spells::SelfRes::Read()
+{
+    _worldPacket >> SpellID;
 }
 
 void WorldPackets::Spells::GetMirrorImageData::Read()
@@ -942,5 +928,12 @@ WorldPacket const* WorldPackets::Spells::DispelFailed::Write()
     if (!FailedSpells.empty())
         _worldPacket.append(FailedSpells.data(), FailedSpells.size());
 
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::CustomLoadScreen::Write()
+{
+    _worldPacket << uint32(TeleportSpellID);
+    _worldPacket << uint32(LoadingScreenID);
     return &_worldPacket;
 }

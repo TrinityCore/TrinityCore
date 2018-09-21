@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,210 +19,93 @@
 /* ScriptData
 SDName: Silithus
 SD%Complete: 100
-SDComment: Quest support: 7785, 8304.
 SDCategory: Silithus
 EndScriptData */
 
 /* ContentData
-npcs_rutgar_and_frankal
-go_wind_stone
-EndContentData */
-
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "Group.h"
-#include "Player.h"
-
-/*###
-## npcs_rutgar_and_frankal
-###*/
-
-//gossip item text best guess
-#define GOSSIP_ITEM1 "I seek information about Natalia"
-
-#define GOSSIP_ITEM2 "That sounds dangerous!"
-#define GOSSIP_ITEM3 "What did you do?"
-#define GOSSIP_ITEM4 "Who?"
-#define GOSSIP_ITEM5 "Women do that. What did she demand?"
-#define GOSSIP_ITEM6 "What do you mean?"
-#define GOSSIP_ITEM7 "What happened next?"
-
-#define GOSSIP_ITEM11 "Yes, please continue"
-#define GOSSIP_ITEM12 "What language?"
-#define GOSSIP_ITEM13 "The Priestess attacked you?!"
-#define GOSSIP_ITEM14 "I should ask the monkey about this"
-#define GOSSIP_ITEM15 "Then what..."
-
-enum RutgarAndFrankal //trigger creatures to kill
-{
-    TRIGGER_FRANKAL     = 15221,
-    TRIGGER_RUTGAR      = 15222
-};
-
-class npcs_rutgar_and_frankal : public CreatureScript
-{
-public:
-    npcs_rutgar_and_frankal() : CreatureScript("npcs_rutgar_and_frankal") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                player->SEND_GOSSIP_MENU(7755, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(7756, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                player->SEND_GOSSIP_MENU(7757, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                player->SEND_GOSSIP_MENU(7758, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                player->SEND_GOSSIP_MENU(7759, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 5:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-                player->SEND_GOSSIP_MENU(7760, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 6:
-                player->SEND_GOSSIP_MENU(7761, creature->GetGUID());
-                                                                //'kill' our trigger to update quest status
-                player->KilledMonsterCredit(TRIGGER_RUTGAR);
-                break;
-
-            case GOSSIP_ACTION_INFO_DEF + 9:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM11, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-                player->SEND_GOSSIP_MENU(7762, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 10:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM12, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-                player->SEND_GOSSIP_MENU(7763, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 11:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM13, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
-                player->SEND_GOSSIP_MENU(7764, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 12:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM14, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
-                player->SEND_GOSSIP_MENU(7765, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 13:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM15, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
-                player->SEND_GOSSIP_MENU(7766, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 14:
-                player->SEND_GOSSIP_MENU(7767, creature->GetGUID());
-                                                                //'kill' our trigger to update quest status
-                player->KilledMonsterCredit(TRIGGER_FRANKAL);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(8304) == QUEST_STATUS_INCOMPLETE &&
-            creature->GetEntry() == 15170 &&
-            !player->GetReqKillOrCastCurrentCount(8304, TRIGGER_RUTGAR))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        if (player->GetQuestStatus(8304) == QUEST_STATUS_INCOMPLETE &&
-            creature->GetEntry() == 15171 &&
-            player->GetReqKillOrCastCurrentCount(8304, TRIGGER_RUTGAR))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+9);
-
-        player->SEND_GOSSIP_MENU(7754, creature->GetGUID());
-
-        return true;
-    }
-
-};
-
-/*####
-# quest_a_pawn_on_the_eternal_board (Defines)
-####*/
-enum EternalBoard
-{
-    QUEST_A_PAWN_ON_THE_ETERNAL_BOARD   = 8519,
-
-    FACTION_HOSTILE                     = 14,
-    FACTION_FRIENDLY                    = 35,
-
-    C_ANACHRONOS                        = 15381,
-    C_FANDRAL_STAGHELM                  = 15382,
-    C_ARYGOS                            = 15380,
-    C_MERITHRA                          = 15378,
-    C_CAELESTRASZ                       = 15379,
-
-    ANACHRONOS_SAY_1                    = 0,
-    ANACHRONOS_SAY_2                    = 1,
-    ANACHRONOS_SAY_3                    = 2,
-    ANACHRONOS_SAY_4                    = 3,
-    ANACHRONOS_SAY_5                    = 4,
-    ANACHRONOS_SAY_6                    = 5,
-    ANACHRONOS_SAY_7                    = 6,
-    ANACHRONOS_SAY_8                    = 7,
-    ANACHRONOS_SAY_9                    = 8,
-    ANACHRONOS_SAY_10                   = 9,
-    ANACHRONOS_EMOTE_1                  = 10,
-    ANACHRONOS_EMOTE_2                  = 11,
-    ANACHRONOS_EMOTE_3                  = 12,
-
-    FANDRAL_SAY_1                       = 0,
-    FANDRAL_SAY_2                       = 1,
-    FANDRAL_SAY_3                       = 2,
-    FANDRAL_SAY_4                       = 3,
-    FANDRAL_SAY_5                       = 4,
-    FANDRAL_SAY_6                       = 5,
-    FANDRAL_EMOTE_1                     = 6,
-    FANDRAL_EMOTE_2                     = 7,
-
-    CAELESTRASZ_SAY_1                   = 0,
-    CAELESTRASZ_SAY_2                   = 1,
-    CAELESTRASZ_YELL_1                  = 2,
-
-    ARYGOS_SAY_1                        = 0,
-    ARYGOS_YELL_1                       = 1,
-    ARYGOS_EMOTE_1                      = 2,
-
-    MERITHRA_SAY_1                      = 0,
-    MERITHRA_SAY_2                      = 1,
-    MERITHRA_YELL_1                     = 2,
-    MERITHRA_EMOTE_1                    = 3,
-
-    GO_GATE_OF_AHN_QIRAJ                = 176146,
-    GO_GLYPH_OF_AHN_QIRAJ               = 176148,
-    GO_ROOTS_OF_AHN_QIRAJ               = 176147
-};
-/*#####
-# Quest: A Pawn on the Eternal Board
-#####*/
-
-/* ContentData
 A Pawn on the Eternal Board - creatures, gameobjects and defines
+quest_a_pawn_on_the_eternal_board
 npc_qiraj_war_spawn : Adds that are summoned in the Qiraj gates battle.
 npc_anachronos_the_ancient : Creature that controls the event.
 npc_anachronos_quest_trigger: controls the spawning of the BG War mobs.
 go_crystalline_tear : GameObject that begins the event and hands out quest
 TO DO: get correct spell IDs and timings for spells cast upon dragon transformations
-TO DO: Dragons should use the HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF) after transformation, but for some unknown reason it doesnt work.
+TO DO: Dragons should use the HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF) after transformation,
+       but for some unknown reason it doesn't work.
+go_wind_stone
 EndContentData */
 
-#define EVENT_AREA_RADIUS 65 //65yds
-#define EVENT_COOLDOWN 500000 //in ms. appear after event completed or failed (should be = Adds despawn time)
+#include "ScriptMgr.h"
+#include "CreatureAIImpl.h"
+#include "GameObject.h"
+#include "Group.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "TemporarySummon.h"
+
+/*#####
+# Quest: A Pawn on the Eternal Board
+#####*/
+
+enum EternalBoard
+{
+    QUEST_A_PAWN_ON_THE_ETERNAL_BOARD = 8519,
+
+    FACTION_HOSTILE                   = 14,
+    FACTION_FRIENDLY                  = 35,
+
+    EVENT_AREA_RADIUS                 = 65,     // 65yds
+    EVENT_COOLDOWN                    = 500000, // in ms. appears after event completed or failed (should be = Adds despawn time)
+
+    NPC_ANACHRONOS                    = 15381,
+    NPC_FANDRAL_STAGHELM              = 15382,
+    NPC_ARYGOS                        = 15380,
+    NPC_MERITHRA_OF_THE_DREAM         = 15378,
+    NPC_CAELESTRASZ                   = 15379,
+
+    ANACHRONOS_SAY_1                  = 0,
+    ANACHRONOS_SAY_2                  = 1,
+    ANACHRONOS_SAY_3                  = 2,
+    ANACHRONOS_SAY_4                  = 3,
+    ANACHRONOS_SAY_5                  = 4,
+    ANACHRONOS_SAY_6                  = 5,
+    ANACHRONOS_SAY_7                  = 6,
+    ANACHRONOS_SAY_8                  = 7,
+    ANACHRONOS_SAY_9                  = 8,
+    ANACHRONOS_SAY_10                 = 9,
+    ANACHRONOS_EMOTE_1                = 10,
+    ANACHRONOS_EMOTE_2                = 11,
+    ANACHRONOS_EMOTE_3                = 12,
+
+    FANDRAL_SAY_1                     = 0,
+    FANDRAL_SAY_2                     = 1,
+    FANDRAL_SAY_3                     = 2,
+    FANDRAL_SAY_4                     = 3,
+    FANDRAL_SAY_5                     = 4,
+    FANDRAL_SAY_6                     = 5,
+    FANDRAL_EMOTE_1                   = 6,
+    FANDRAL_EMOTE_2                   = 7,
+
+    CAELESTRASZ_SAY_1                 = 0,
+    CAELESTRASZ_SAY_2                 = 1,
+    CAELESTRASZ_YELL_1                = 2,
+
+    ARYGOS_SAY_1                      = 0,
+    ARYGOS_YELL_1                     = 1,
+    ARYGOS_EMOTE_1                    = 2,
+
+    MERITHRA_SAY_1                    = 0,
+    MERITHRA_SAY_2                    = 1,
+    MERITHRA_YELL_1                   = 2,
+    MERITHRA_EMOTE_1                  = 3,
+
+    GO_GATE_OF_AHN_QIRAJ              = 176146,
+    GO_GLYPH_OF_AHN_QIRAJ             = 176148,
+    GO_ROOTS_OF_AHN_QIRAJ             = 176147
+};
 
 struct QuestCinematic
 {
@@ -233,59 +116,59 @@ struct QuestCinematic
 // Creature 0 - Anachronos, 1 - Fandral, 2 - Arygos, 3 - Merithra, 4 - Caelestrasz
 static QuestCinematic EventAnim[]=
 {
-    {ANACHRONOS_SAY_1, 0, 2000},
-    {FANDRAL_SAY_1, 1, 4000},
-    {MERITHRA_EMOTE_1, 3, 500},
-    {MERITHRA_SAY_1, 3, 500},
-    {ARYGOS_EMOTE_1, 2, 2000},
+    {ANACHRONOS_SAY_1,  0, 2000},
+    {FANDRAL_SAY_1,     1, 4000},
+    {MERITHRA_EMOTE_1,  3, 500},
+    {MERITHRA_SAY_1,    3, 500},
+    {ARYGOS_EMOTE_1,    2, 2000},
     {CAELESTRASZ_SAY_1, 4, 8000},
-    {MERITHRA_SAY_2, 3, 6000},
+    {MERITHRA_SAY_2,    3, 6000},
     {0, 3, 2000},
-    {MERITHRA_YELL_1, 3, 2500},
-    {0, 3, 3000}, //Morph
-    {0, 3, 4000}, //EmoteLiftoff
-    {0, 3, 4000}, // spell
-    {0, 3, 1250}, //fly
-    {0, 3, 250}, //remove flags
+    {MERITHRA_YELL_1,   3, 2500},
+    {0, 3, 3000},                   //Morph
+    {0, 3, 4000},                   //EmoteLiftoff
+    {0, 3, 4000},                   // spell
+    {0, 3, 1250},                   //fly
+    {0, 3, 250},                    //remove flags
     {ARYGOS_SAY_1, 2, 3000},
     {0, 3, 2000},
     {ARYGOS_YELL_1, 2, 3000},
-    {0, 3, 3000}, //Morph
-    {0, 3, 4000}, //EmoteLiftoff
-    {0, 3, 4000}, // spell
-    {0, 3, 1000}, //fly
-    {0, 3, 1000}, //remove flags
+    {0, 3, 3000},                   //Morph
+    {0, 3, 4000},                   //EmoteLiftoff
+    {0, 3, 4000},                   // spell
+    {0, 3, 1000},                   //fly
+    {0, 3, 1000},                   //remove flags
     {CAELESTRASZ_SAY_2, 4, 5000},
     {0, 3, 3000},
     {CAELESTRASZ_YELL_1, 4, 3000},
-    {0, 3, 3000}, //Morph
-    {0, 3, 4000}, //EmoteLiftoff
-    {0, 3, 2500}, // spell
+    {0, 3, 3000},                   //Morph
+    {0, 3, 4000},                   //EmoteLiftoff
+    {0, 3, 2500},                   // spell
     {ANACHRONOS_SAY_2, 0, 2000},
-    {0, 3, 250}, //fly
-    {0, 3, 25}, //remove flags
+    {0, 3, 250},                    //fly
+    {0, 3, 25},                     //remove flags
     {FANDRAL_SAY_2, 1, 3000},
-    {ANACHRONOS_SAY_3, 0, 10000}, //Both run through the armies
-    {0, 3, 2000}, // Sands will stop
-    {0, 3, 8000}, // Summon Gate
+    {ANACHRONOS_SAY_3, 0, 10000},   //Both run through the armies
+    {0, 3, 2000},                   // Sands will stop
+    {0, 3, 8000},                   // Summon Gate
     {ANACHRONOS_SAY_4, 0, 4000},
-    {0, 0, 2000}, //spell 1-> Arcane cosmetic (Mobs freeze)
-    {0, 0, 5000}, //Spell 2-> Arcane long cosmetic (barrier appears) (Barrier -> Glyphs)
-    {0, 0, 7000}, //BarrieR
-    {0, 0, 4000}, //Glyphs
+    {0, 0, 2000},                   //spell 1-> Arcane cosmetic (Mobs freeze)
+    {0, 0, 5000},                   //Spell 2-> Arcane long cosmetic (barrier appears) (Barrier -> Glyphs)
+    {0, 0, 7000},                   //BarrieR
+    {0, 0, 4000},                   //Glyphs
     {ANACHRONOS_SAY_5, 0, 2000},
-    {0, 0, 4000}, // Roots
-    {FANDRAL_SAY_3, 1, 3000}, //Root Text
-    {FANDRAL_EMOTE_1, 1, 3000}, //falls knee
+    {0, 0, 4000},                   // Roots
+    {FANDRAL_SAY_3, 1, 3000},       //Root Text
+    {FANDRAL_EMOTE_1, 1, 3000},     //falls knee
     {ANACHRONOS_SAY_6, 0, 3000},
     {ANACHRONOS_SAY_7, 0, 3000},
     {ANACHRONOS_SAY_8, 0, 8000},
-    {ANACHRONOS_EMOTE_1, 0, 1000}, //Give Scepter
+    {ANACHRONOS_EMOTE_1, 0, 1000},  //Give Scepter
     {FANDRAL_SAY_4, 1, 3000},
-    {FANDRAL_SAY_5, 1, 3000}, //->Equip hammer~Scepter, throw it at door
-    {FANDRAL_EMOTE_2, 1, 3000}, //Throw hammer at door.
+    {FANDRAL_SAY_5, 1, 3000},       //->Equip hammer~Scepter, throw it at door
+    {FANDRAL_EMOTE_2, 1, 3000},     //Throw hammer at door.
     {ANACHRONOS_SAY_9, 0, 3000},
-    {FANDRAL_SAY_6, 1, 3000}, //fandral goes away
+    {FANDRAL_SAY_6, 1, 3000},       //fandral goes away
     {ANACHRONOS_EMOTE_2, 0, 3000},
     {ANACHRONOS_EMOTE_3, 0, 3000},
     {0, 0, 2000},
@@ -348,30 +231,30 @@ Position const SpawnLocation[] =
     {-8078.0f, 1518.0f, 2.61f, 3.141592f}, //Kaldorei Infantry
     {-8082.0f, 1516.0f, 2.61f, 3.141592f}, //Kaldorei Infantry
 
-    {-8088.0f, 1510.0f, 2.61f, 0.0f}, //Anubisath Conqueror
-    {-8084.0f, 1520.0f, 2.61f, 0.0f}, //Anubisath Conqueror
-    {-8088.0f, 1530.0f, 2.61f, 0.0f}, //Anubisath Conqueror
+    {-8088.0f, 1510.0f, 2.61f, 0.0f},      //Anubisath Conqueror
+    {-8084.0f, 1520.0f, 2.61f, 0.0f},      //Anubisath Conqueror
+    {-8088.0f, 1530.0f, 2.61f, 0.0f},      //Anubisath Conqueror
 
-    {-8080.0f, 1513.0f, 2.61f, 0.0f}, //Qiraj Wasp
-    {-8082.0f, 1523.0f, 2.61f, 0.0f}, //Qiraj Wasp
-    {-8085.0f, 1518.0f, 2.61f, 0.0f}, //Qiraj Wasp
-    {-8082.0f, 1516.0f, 2.61f, 0.0f}, //Qiraj Wasp
-    {-8085.0f, 1520.0f, 2.61f, 0.0f}, //Qiraj Wasp
-    {-8080.0f, 1528.0f, 2.61f, 0.0f}, //Qiraj Wasp
+    {-8080.0f, 1513.0f, 2.61f, 0.0f},      //Qiraj Wasp
+    {-8082.0f, 1523.0f, 2.61f, 0.0f},      //Qiraj Wasp
+    {-8085.0f, 1518.0f, 2.61f, 0.0f},      //Qiraj Wasp
+    {-8082.0f, 1516.0f, 2.61f, 0.0f},      //Qiraj Wasp
+    {-8085.0f, 1520.0f, 2.61f, 0.0f},      //Qiraj Wasp
+    {-8080.0f, 1528.0f, 2.61f, 0.0f},      //Qiraj Wasp
 
-    {-8082.0f, 1513.0f, 2.61f, 0.0f}, //Qiraj Wasp
-    {-8079.0f, 1523.0f, 2.61f, 0.0f}, //Qiraj Wasp
-    {-8080.0f, 1531.0f, 2.61f, 0.0f}, //Qiraj Wasp
-    {-8079.0f, 1516.0f, 2.61f, 0.0f}, //Qiraj Wasp
-    {-8082.0f, 1520.0f, 2.61f, 0.0f}, //Qiraj Wasp
-    {-8080.0f, 1518.0f, 2.61f, 0.0f}, //Qiraj Wasp
+    {-8082.0f, 1513.0f, 2.61f, 0.0f},      //Qiraj Wasp
+    {-8079.0f, 1523.0f, 2.61f, 0.0f},      //Qiraj Wasp
+    {-8080.0f, 1531.0f, 2.61f, 0.0f},      //Qiraj Wasp
+    {-8079.0f, 1516.0f, 2.61f, 0.0f},      //Qiraj Wasp
+    {-8082.0f, 1520.0f, 2.61f, 0.0f},      //Qiraj Wasp
+    {-8080.0f, 1518.0f, 2.61f, 0.0f},      //Qiraj Wasp
 
-    {-8081.0f, 1514.0f, 2.61f, 0.0f}, //Qiraj Tank
-    {-8081.0f, 1520.0f, 2.61f, 0.0f}, //Qiraj Tank
-    {-8081.0f, 1526.0f, 2.61f, 0.0f}, //Qiraj Tank
-    {-8081.0f, 1512.0f, 2.61f, 0.0f}, //Qiraj Tank
-    {-8082.0f, 1520.0f, 2.61f, 0.0f}, //Qiraj Tank
-    {-8081.0f, 1528.0f, 2.61f, 0.0f}, //Qiraj Tank
+    {-8081.0f, 1514.0f, 2.61f, 0.0f},      //Qiraj Tank
+    {-8081.0f, 1520.0f, 2.61f, 0.0f},      //Qiraj Tank
+    {-8081.0f, 1526.0f, 2.61f, 0.0f},      //Qiraj Tank
+    {-8081.0f, 1512.0f, 2.61f, 0.0f},      //Qiraj Tank
+    {-8082.0f, 1520.0f, 2.61f, 0.0f},      //Qiraj Tank
+    {-8081.0f, 1528.0f, 2.61f, 0.0f},      //Qiraj Tank
 
     {-8082.0f, 1513.0f, 2.61f, 3.141592f}, //Anubisath Conqueror
     {-8082.0f, 1520.0f, 2.61f, 3.141592f}, //Anubisath Conqueror
@@ -402,14 +285,36 @@ struct SpawnSpells
 
 static SpawnSpells SpawnCast[4] =
 {
-    {100000, 2000, 33652},   // Stop Time
+    {100000, 2000, 33652},   // Stoned
     {38500, 300000, 28528},  // Poison Cloud
     {58000, 300000, 35871},  // Frost Debuff (need correct spell)
     {80950, 300000, 42075},  // Fire Explosion (need correct spell however this one looks cool)
 };
+
 /*#####
 # npc_anachronos_the_ancient
 ######*/
+
+enum AnachronosTheAncient
+{
+    NPC_QIRAJI_WASP                  = 15414,
+    NPC_QIRAJI_TANK                  = 15422,
+    NPC_KALDOREI_INFANTRY            = 15423,
+    NPC_ANUBISATH_CONQUEROR          = 15424,
+    SPELL_ARCANE_CHANNELING          = 23017,
+    SPELL_NOXIOUS_BREATH             = 24818,
+    SPELL_GREEN_DRAGON_TRANSFORM_DND = 25105,
+    SPELL_RED_DRAGON_TRANSFORM_DND   = 25106,
+    SPELL_BLUE_DRAGON_TRANSFORM_DND  = 25107,
+    SPELL_TIME_STOP                  = 25158,
+    SPELL_CALL_PRISMATIC_BARRIER     = 25159,
+    SPELL_CALL_GLYPHS_OF_WARDING     = 25166,
+    SPELL_CALL_ANCIENTS              = 25167,
+    SPELL_THROW_HAMMER               = 33806,
+    SPELL_FROST_BREATH               = 50505,
+    SPELL_FLAME_BREATH               = 54293
+};
+
 class npc_anachronos_the_ancient : public CreatureScript
 {
 public:
@@ -464,10 +369,10 @@ public:
             if (!player)
                 return;
 
-            Creature* Fandral = player->FindNearestCreature(C_FANDRAL_STAGHELM, 100.0f);
-            Creature* Arygos = player->FindNearestCreature(C_ARYGOS, 100.0f);
-            Creature* Caelestrasz = player->FindNearestCreature(C_CAELESTRASZ, 100.0f);
-            Creature* Merithra = player->FindNearestCreature(C_MERITHRA, 100.0f);
+            Creature* Fandral = player->FindNearestCreature(NPC_FANDRAL_STAGHELM, 100.0f);
+            Creature* Arygos = player->FindNearestCreature(NPC_ARYGOS, 100.0f);
+            Creature* Caelestrasz = player->FindNearestCreature(NPC_CAELESTRASZ, 100.0f);
+            Creature* Merithra = player->FindNearestCreature(NPC_MERITHRA_OF_THE_DREAM, 100.0f);
 
             if (!Fandral || !Arygos || !Caelestrasz || !Merithra)
                 return;
@@ -509,7 +414,7 @@ public:
                         Merithra->AI()->Talk(MERITHRA_YELL_1);
                         break;
                     case 9:
-                        Merithra->CastSpell(Merithra, 25105, true);
+                        Merithra->CastSpell(Merithra, SPELL_GREEN_DRAGON_TRANSFORM_DND, true);
                         break;
                     case 10:
                         Merithra->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
@@ -517,7 +422,7 @@ public:
                         Merithra->GetMotionMaster()->MoveCharge(-8065, 1530, 6.61f, 3);
                         break;
                     case 11:
-                        Merithra->CastSpell(Merithra, 24818, false);
+                        Merithra->CastSpell(Merithra, SPELL_NOXIOUS_BREATH, false);
                         break;
                     case 12:
                         Merithra->GetMotionMaster()->MoveCharge(-8100, 1530, 50, 42);
@@ -536,7 +441,7 @@ public:
                         Arygos->AI()->Talk(ARYGOS_YELL_1);
                         break;
                     case 17:
-                        Arygos->CastSpell(Arygos, 25107, true);
+                        Arygos->CastSpell(Arygos, SPELL_BLUE_DRAGON_TRANSFORM_DND, true);
                         break;
                     case 18:
                         Arygos->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
@@ -544,7 +449,7 @@ public:
                         Arygos->GetMotionMaster()->MoveCharge(-8065, 1530, 6.61f, 42);
                         break;
                     case 19:
-                        Arygos->CastSpell(Arygos, 50505, false);
+                        Arygos->CastSpell(Arygos, SPELL_FROST_BREATH, false);
                         break;
                     case 20:
                         Arygos->GetMotionMaster()->MoveCharge(-8095, 1530, 50, 42);
@@ -563,15 +468,15 @@ public:
                         Caelestrasz->AI()->Talk(CAELESTRASZ_YELL_1);
                         break;
                     case 25:
-                        Caelestrasz->CastSpell(Caelestrasz, 25106, true);
+                        Caelestrasz->CastSpell(Caelestrasz, SPELL_RED_DRAGON_TRANSFORM_DND, true);
                         break;
                     case 26:
-                        Caelestrasz->HandleEmoteCommand(254);
+                        Caelestrasz->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                         Caelestrasz->SetDisableGravity(true);
                         Caelestrasz->GetMotionMaster()->MoveCharge(-8065, 1530, 7.61f, 4);
                         break;
                     case 27:
-                        Caelestrasz->CastSpell(Caelestrasz, 54293, false);
+                        Caelestrasz->CastSpell(Caelestrasz, SPELL_FLAME_BREATH, false);
                         break;
                     case 28:
                         Talk(ANACHRONOS_SAY_2, Fandral);
@@ -596,29 +501,29 @@ public:
                         Caelestrasz->GetMotionMaster()->MoveCharge(-8050, 1473, 65, 15);
                         break; //Text: sands will stop
                     case 34:
-                        DoCast(player, 23017, true);//Arcane Channeling
+                        DoCast(player, SPELL_ARCANE_CHANNELING, true);//Arcane Channeling
                         break;
                     case 35:
-                        me->CastSpell(-8088, 1520.43f, 2.67f, 25158, true);
+                        me->CastSpell(-8088, 1520.43f, 2.67f, SPELL_TIME_STOP, true);
                         break;
                     case 36:
-                        DoCast(player, 25159, true);
+                        DoCast(player, SPELL_CALL_PRISMATIC_BARRIER, true);
                         break;
                     case 37:
-                        me->SummonGameObject(GO_GATE_OF_AHN_QIRAJ, -8130, 1525, 17.5f, 0, 0, 0, 0, 0, 0);
+                        me->SummonGameObject(GO_GATE_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), 0);
                         break;
                     case 38:
-                        DoCast(player, 25166, true);
-                        me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ, -8130, 1525, 17.5f, 0, 0, 0, 0, 0, 0);
+                        DoCast(player, SPELL_CALL_GLYPHS_OF_WARDING, true);
+                        me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), 0);
                         break;
                     case 39:
                         Talk(ANACHRONOS_SAY_5, Fandral);
                         break;
                     case 40:
-                        Fandral->CastSpell(me, 25167, true);
+                        Fandral->CastSpell(me, SPELL_CALL_ANCIENTS, true);
                         break;
                     case 41:
-                        Fandral->SummonGameObject(GO_ROOTS_OF_AHN_QIRAJ, -8130, 1525, 17.5f, 0, 0, 0, 0, 0, 0);
+                        Fandral->SummonGameObject(GO_ROOTS_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), 0);
                         Fandral->AI()->Talk(FANDRAL_SAY_3);
                         break;
                     case 42:
@@ -649,11 +554,11 @@ public:
                         break;
                     case 50:
                         Fandral->AI()->Talk(FANDRAL_EMOTE_2);
-                        Fandral->CastSpell(-8127, 1525, 17.5f, 33806, true);
+                        Fandral->CastSpell(-8127, 1525, 17.5f, SPELL_THROW_HAMMER, true);
                         break;
                     case 51:
                     {
-                        uint32 entries[4] = { 15423, 15424, 15414, 15422 };
+                        uint32 entries[4] = { NPC_KALDOREI_INFANTRY, NPC_ANUBISATH_CONQUEROR, NPC_QIRAJI_WASP, NPC_QIRAJI_TANK };
                         Unit* mob = NULL;
                         for (uint8 i = 0; i < 4; ++i)
                         {
@@ -661,7 +566,7 @@ public:
                             while (mob)
                             {
                                 mob->RemoveFromWorld();
-                                mob = player->FindNearestCreature(15423, 50);
+                                mob = player->FindNearestCreature(NPC_KALDOREI_INFANTRY, 50);
                             }
                         }
                         break;
@@ -693,8 +598,7 @@ public:
                         me->GetMotionMaster()->MoveCharge(-8117.99f, 1532.24f, 3.94f, 4);
                         break;
                     case 60:
-                        if (player)
-                            Talk(ANACHRONOS_SAY_10, player);
+                        Talk(ANACHRONOS_SAY_10, player);
                         me->GetMotionMaster()->MoveCharge(-8113.46f, 1524.16f, 2.89f, 4);
                         break;
                     case 61:
@@ -706,7 +610,7 @@ public:
                         me->SetDisplayId(15500);
                         break;
                     case 63:
-                        me->HandleEmoteCommand(254);
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                         me->SetDisableGravity(true);
                         break;
                     case 64:
@@ -745,6 +649,13 @@ public:
 /*######
 # npc_qiraj_war_spawn
 ######*/
+
+enum QirajWarSpawn
+{
+    SPELL_STONED_CHANNEL_CAST_VISUAL = 15533,
+    SPELL_SUMMON_POISON_CLOUD        = 24319,
+    SPELL_STONED                     = 33652
+};
 
 class npc_qiraj_war_spawn : public CreatureScript
 {
@@ -793,22 +704,22 @@ public:
         {
             if (!Timers)
             {
-                if (me->GetEntry() == 15424 || me->GetEntry() == 15422 || me->GetEntry() == 15414) //all but Kaldorei Soldiers
+                if (me->GetEntry() == NPC_ANUBISATH_CONQUEROR || me->GetEntry() == NPC_QIRAJI_TANK || me->GetEntry() == NPC_QIRAJI_WASP) //all but Kaldorei Soldiers
                 {
                     SpellTimer1 = SpawnCast[1].Timer1;
                     SpellTimer2 = SpawnCast[2].Timer1;
                     SpellTimer3 = SpawnCast[3].Timer1;
                 }
-                if (me->GetEntry() == 15423 || me->GetEntry() == 15424 || me->GetEntry() == 15422 || me->GetEntry() == 15414)
+                if (me->GetEntry() == NPC_KALDOREI_INFANTRY || me->GetEntry() == NPC_ANUBISATH_CONQUEROR || me->GetEntry() == NPC_QIRAJI_TANK || me->GetEntry() == NPC_QIRAJI_WASP)
                     SpellTimer4 = SpawnCast[0].Timer1;
                 Timers = true;
             }
-            if (me->GetEntry() == 15424 || me->GetEntry() == 15422|| me->GetEntry() == 15414)
+            if (me->GetEntry() == NPC_ANUBISATH_CONQUEROR || me->GetEntry() == NPC_QIRAJI_TANK || me->GetEntry() == NPC_QIRAJI_WASP)
             {
                 if (SpellTimer1 <= diff)
                 {
                     DoCast(me, SpawnCast[1].SpellId);
-                    DoCast(me, 24319);
+                    DoCast(me, SPELL_SUMMON_POISON_CLOUD);
                     SpellTimer1 = SpawnCast[1].Timer2;
                 } else SpellTimer1 -= diff;
                 if (SpellTimer2 <= diff)
@@ -822,38 +733,38 @@ public:
                     SpellTimer3 = SpawnCast[3].Timer2;
                 } else SpellTimer3 -= diff;
             }
-            if (me->GetEntry() == 15423 || me->GetEntry() == 15424 || me->GetEntry() == 15422 || me->GetEntry() == 15414)
+            if (me->GetEntry() == NPC_KALDOREI_INFANTRY || me->GetEntry() == NPC_ANUBISATH_CONQUEROR || me->GetEntry() == NPC_QIRAJI_TANK || me->GetEntry() == NPC_QIRAJI_WASP)
             {
                 if (SpellTimer4 <= diff)
                 {
                     me->RemoveAllAttackers();
                     me->AttackStop();
-                    DoCast(me, 15533);
+                    DoCast(me, SPELL_STONED_CHANNEL_CAST_VISUAL);
                     SpellTimer4 = SpawnCast[0].Timer2;
                 } else SpellTimer4 -= diff;
             }
             if (!hasTarget)
             {
                 Unit* target = NULL;
-                if (me->GetEntry() == 15424 || me->GetEntry() == 15422 || me->GetEntry() == 15414)
-                    target = me->FindNearestCreature(15423, 20, true);
-                if (me->GetEntry() == 15423)
+                if (me->GetEntry() == NPC_ANUBISATH_CONQUEROR || me->GetEntry() == NPC_QIRAJI_TANK || me->GetEntry() == NPC_QIRAJI_WASP)
+                    target = me->FindNearestCreature(NPC_KALDOREI_INFANTRY, 20, true);
+                if (me->GetEntry() == NPC_KALDOREI_INFANTRY)
                 {
                     uint8 tar = urand(0, 2);
 
                     if (tar == 0)
-                        target = me->FindNearestCreature(15422, 20, true);
+                        target = me->FindNearestCreature(NPC_QIRAJI_TANK, 20, true);
                     else if (tar == 1)
-                        target = me->FindNearestCreature(15424, 20, true);
+                        target = me->FindNearestCreature(NPC_ANUBISATH_CONQUEROR, 20, true);
                     else if (tar == 2)
-                        target = me->FindNearestCreature(15414, 20, true);
+                        target = me->FindNearestCreature(NPC_QIRAJI_WASP, 20, true);
                 }
                 hasTarget = true;
                 if (target)
                     AttackStart(target);
             }
-            if (!(me->FindNearestCreature(15379, 60)))
-                DoCast(me, 33652);
+            if (!(me->FindNearestCreature(NPC_CAELESTRASZ, 60)))
+                DoCast(me, SPELL_STONED);
 
             if (!UpdateVictim())
             {
@@ -932,7 +843,7 @@ public:
 
                 if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer))
                 {
-                    if (spawn->GetEntry() == 15423)
+                    if (spawn->GetEntry() == NPC_KALDOREI_INFANTRY)
                         spawn->SetUInt32Value(UNIT_FIELD_DISPLAYID, 15427 + rand32() % 4);
                     if (i >= 30) WaveCount = 1;
                     if (i >= 33) WaveCount = 2;
@@ -1040,6 +951,14 @@ void npc_qiraj_war_spawn::npc_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
 # go_crystalline_tear
 ######*/
 
+enum CrystallineTear
+{
+    ARYGOS_GNOME_FORM                  = 15418,
+    CAELESTRASZ_NIGHT_ELF_FORM         = 15419,
+    MERITHRA_NIGHT_ELF_FORM            = 15420,
+    ANACHRONOS_QUEST_TRIGGER_INVISIBLE = 15454
+};
+
 class go_crystalline_tear : public GameObjectScript
 {
 public:
@@ -1049,35 +968,35 @@ public:
     {
         if (quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
         {
-            if (Creature* trigger = go->FindNearestCreature(15454, 100))
+            if (Creature* trigger = go->FindNearestCreature(ANACHRONOS_QUEST_TRIGGER_INVISIBLE, 100))
             {
-                Unit* Merithra = trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit* Caelestrasz = trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit* Arygos = trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                /* Unit* Fandral = */ trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Creature* Anachronos = trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Merithra = trigger->SummonCreature(NPC_MERITHRA_OF_THE_DREAM, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Caelestrasz = trigger->SummonCreature(NPC_CAELESTRASZ, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Arygos = trigger->SummonCreature(NPC_ARYGOS, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                /* Unit* Fandral = */ trigger->SummonCreature(NPC_FANDRAL_STAGHELM, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Creature* Anachronos = trigger->SummonCreature(NPC_ANACHRONOS, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
 
                 if (Merithra)
                 {
-                    Merithra->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+                    Merithra->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
                     Merithra->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                    Merithra->SetUInt32Value(UNIT_FIELD_DISPLAYID, 15420);
+                    Merithra->SetUInt32Value(UNIT_FIELD_DISPLAYID, MERITHRA_NIGHT_ELF_FORM);
                     Merithra->setFaction(35);
                 }
 
                 if (Caelestrasz)
                 {
-                    Caelestrasz->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+                    Caelestrasz->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
                     Caelestrasz->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                    Caelestrasz->SetUInt32Value(UNIT_FIELD_DISPLAYID, 15419);
+                    Caelestrasz->SetUInt32Value(UNIT_FIELD_DISPLAYID, CAELESTRASZ_NIGHT_ELF_FORM);
                     Caelestrasz->setFaction(35);
                 }
 
                 if (Arygos)
                 {
-                    Arygos->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+                    Arygos->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
                     Arygos->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                    Arygos->SetUInt32Value(UNIT_FIELD_DISPLAYID, 15418);
+                    Arygos->SetUInt32Value(UNIT_FIELD_DISPLAYID, ARYGOS_GNOME_FORM);
                     Arygos->setFaction(35);
                 }
 
@@ -1107,111 +1026,106 @@ public:
 
 enum WSSpells
 {
-    SPELL_PUNISHMENT = 24803,
-    SPELL_SPAWN_IN = 25035,
+    AURA_TWILIGHT_SET      = 24746,
+    AURA_MEDALLION         = 24748,
+    AURA_RING              = 24782,
 
-    AURA_TWILIGHT_SET = 24746,
-    AURA_MEDALLION = 24748,
-    AURA_RING = 24782,
+    SPELL_TEMPLAR_RANDOM   = 24745,
+    SPELL_TEMPLAR_FIRE     = 24747,
+    SPELL_TEMPLAR_AIR      = 24757,
+    SPELL_TEMPLAR_EARTH    = 24759,
+    SPELL_TEMPLAR_WATER    = 24761,
 
-    SPELL_TEMPLAR_RANDOM = 24745,
-    SPELL_TEMPLAR_FIRE = 24747,
-    SPELL_TEMPLAR_AIR = 24757,
-    SPELL_TEMPLAR_EARTH = 24759,
-    SPELL_TEMPLAR_WATER = 24761,
+    SPELL_DUKE_RANDOM      = 24762,
+    SPELL_DUKE_FIRE        = 24766,
+    SPELL_DUKE_AIR         = 24769,
+    SPELL_DUKE_EARTH       = 24771,
+    SPELL_DUKE_WATER       = 24773,
 
-    SPELL_DUKE_RANDOM = 24762,
-    SPELL_DUKE_FIRE = 24766,
-    SPELL_DUKE_AIR = 24769,
-    SPELL_DUKE_EARTH = 24771,
-    SPELL_DUKE_WATER = 24773,
+    SPELL_ROYAL_RANDOM     = 24785,
+    SPELL_ROYAL_FIRE       = 24787,
+    SPELL_ROYAL_AIR        = 24791,
+    SPELL_ROYAL_EARTH      = 24792,
+    SPELL_ROYAL_WATER      = 24793,
 
-    SPELL_ROYAL_RANDOM = 24785,
-    SPELL_ROYAL_FIRE = 24787,
-    SPELL_ROYAL_AIR = 24791,
-    SPELL_ROYAL_EARTH = 24792,
-    SPELL_ROYAL_WATER = 24793
+    SPELL_PUNISHMENT       = 24803,
+    SPELL_SPAWN_IN         = 25035
 };
 
 enum WSGossip
 {
-    GOSSIPID_LESSER_WS = 6540,
-    GOSSIPID_WS = 6542,
-    GOSSIPID_GREATER_WS = 6543
+    OPTION_ID_WS_RANDOM    = 0,
+    OPTION_ID_1_CRIMSON    = 1,
+    OPTION_ID_2_AZURE      = 2,
+    OPTION_ID_3_EARTHEN    = 3,
+    OPTION_ID_4_HOARY      = 4,
+    OPTION_ID_1_CYNDERS    = 1,
+    OPTION_ID_2_FATHOMS    = 2,
+    OPTION_ID_3_SHARDS     = 3,
+    OPTION_ID_4_ZEPHYRS    = 4,
+    OPTION_ID_1_SKALDRENOX = 1,
+    OPTION_ID_2_SKWOL      = 2,
+    OPTION_ID_3_KAZUM      = 3,
+    OPTION_ID_4_WHIRLAXIS  = 4,
+    GOSSIP_ID_LESSER_WS    = 6540,
+    GOSSIP_ID_WIND_STONE   = 6542,
+    GOSSIP_ID_GREATER_WS   = 6543
 };
 
 enum WSCreatures
 {
-    NPC_TEMPLAR_FIRE = 15209,
-    NPC_TEMPLAR_WATER = 15211,
-    NPC_TEMPLAR_AIR = 15212,
-    NPC_TEMPLAR_EARTH = 15307,
+    NPC_TEMPLAR_FIRE       = 15209,
+    NPC_TEMPLAR_WATER      = 15211,
+    NPC_TEMPLAR_AIR        = 15212,
+    NPC_TEMPLAR_EARTH      = 15307,
 
-    NPC_DUKE_FIRE = 15206,
-    NPC_DUKE_WATER = 15207,
-    NPC_DUKE_EARTH = 15208,
-    NPC_DUKE_AIR = 15220,
+    NPC_DUKE_FIRE          = 15206,
+    NPC_DUKE_WATER         = 15207,
+    NPC_DUKE_EARTH         = 15208,
+    NPC_DUKE_AIR           = 15220,
 
-    NPC_ROYAL_FIRE = 15203,
-    NPC_ROYAL_AIR = 15204,
-    NPC_ROYAL_EARTH = 15205,
-    NPC_ROYAL_WATER = 15305
+    NPC_ROYAL_FIRE         = 15203,
+    NPC_ROYAL_AIR          = 15204,
+    NPC_ROYAL_EARTH        = 15205,
+    NPC_ROYAL_WATER        = 15305
 };
 
 enum WSItems
 {
-    ITEM_TEMPLAR_FIRE = 20416,
-    ITEM_TEMPLAR_EARTH =  20419,
-    ITEM_TEMPLAR_WATER = 20420,
-    ITEM_TEMPLAR_AIR = 20418,
+    ITEM_TEMPLAR_FIRE      = 20416,
+    ITEM_TEMPLAR_AIR       = 20418,
+    ITEM_TEMPLAR_EARTH     = 20419,
+    ITEM_TEMPLAR_WATER     = 20420,
 
-    ITEM_DUKE_FIRE = 20432,
-    ITEM_DUKE_EARTH =  20435,
-    ITEM_DUKE_WATER = 20436,
-    ITEM_DUKE_AIR = 20433,
+    ITEM_DUKE_FIRE         = 20432,
+    ITEM_DUKE_AIR          = 20433,
+    ITEM_DUKE_EARTH        = 20435,
+    ITEM_DUKE_WATER        = 20436,
 
-    ITEM_ROYAL_FIRE = 20447,
-    ITEM_ROYAL_EARTH =  20449,
-    ITEM_ROYAL_WATER = 20450,
-    ITEM_ROYAL_AIR = 20448,
+    ITEM_ROYAL_FIRE        = 20447,
+    ITEM_ROYAL_AIR         = 20448,
+    ITEM_ROYAL_EARTH       = 20449,
+    ITEM_ROYAL_WATER       = 20450
 };
 
 enum WS
 {
-    TEMPLAR = 0,
-    DUKE = 1,
-    ROYAL = 2,
+    TEMPLAR                = 0,
+    DUKE                   = 1,
+    ROYAL                  = 2,
 
-    FIRE = 0x1,
-    WATER = 0x2,
-    EARTH = 0x4,
-    AIR = 0x8
+    FIRE                   = 0x1,
+    WATER                  = 0x2,
+    EARTH                  = 0x4,
+    AIR                    = 0x8
 };
 
 enum WSTexts
 {
-    SAY_TEMPLAR_AGGRO = 0,
-    SAY_DUKE_AGGRO = 0,
-    YELL_ROYAL_AGGRO = 0
+    SAY_TEMPLAR_AGGRO      = 0,
+    SAY_DUKE_AGGRO         = 0,
+    YELL_ROYAL_AGGRO       = 0
 };
-
-#define GOSSIP_TEMPLAR_RANDOM "I am no cultist, you monster! Come to me and face your destruction!"
-#define GOSSIP_TEMPLAR_FIRE "Crimson Templar! I hold your signet! Heed my call!"
-#define GOSSIP_TEMPLAR_EARTH "Earthen Templar! I hold your signet! Heed my call!"
-#define GOSSIP_TEMPLAR_AIR "Hoary Templar! I hold your signet! Heed my call!"
-#define GOSSIP_TEMPLAR_WATER "Azure Templar! I hold your signet! Heed my call!"
-
-#define GOSSIP_DUKE_RANDOM "You will listen to this, vile duke! I am not your Twilight's Hammer lapdog! I am here to challenge you! Come! Come, and meet your death..."
-#define GOSSIP_DUKE_FIRE "Duke of Cynders! I hold your signet! Heed my call!"
-#define GOSSIP_DUKE_EARTH "The Duke of Shards! I hold your signet! Heed my call!"
-#define GOSSIP_DUKE_AIR "The Duke of Zephyrs! I hold your signet! Heed my call!"
-#define GOSSIP_DUKE_WATER "The Duke of Fathoms! I hold your signet! Heed my call!"
-
-#define GOSSIP_ROYAL_RANDOM "The day of the judgement has come, fiend! I challenge you to battle!"
-#define GOSSIP_ROYAL_FIRE "Prince Skaldrenox! I hold your signet! Heed my call!"
-#define GOSSIP_ROYAL_EARTH "Baron Kazum! I hold your signet! Heed my call!"
-#define GOSSIP_ROYAL_AIR "High Marshal Whirlaxis! I hold your signet! Heed my call!"
-#define GOSSIP_ROYAL_WATER "Lord Skwol! I hold your signet! Heed my call!"
 
 class go_wind_stone : public GameObjectScript
 {
@@ -1294,7 +1208,7 @@ class go_wind_stone : public GameObjectScript
                 case NPC_TEMPLAR_WATER:
                 case NPC_TEMPLAR_AIR:
                 case NPC_TEMPLAR_EARTH:
-                    summons->AI()->Talk(SAY_TEMPLAR_AGGRO);
+                    summons->AI()->Talk(SAY_TEMPLAR_AGGRO, player);
                     break;
 
                 case NPC_DUKE_FIRE:
@@ -1323,10 +1237,10 @@ class go_wind_stone : public GameObjectScript
             uint32 gossipId = go->GetGOInfo()->GetGossipMenuId();
             switch (gossipId)
             {
-                case GOSSIPID_LESSER_WS:
+                case GOSSIP_ID_LESSER_WS:
                 {
                     if (rank >= 1) // 1 or 2 or 3
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEMPLAR_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        AddGossipItemFor(player, GOSSIP_ID_LESSER_WS, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                     else
                     {
                         go->CastSpell(player, SPELL_PUNISHMENT);
@@ -1335,19 +1249,19 @@ class go_wind_stone : public GameObjectScript
 
                     uint8 item = GetItems(player, TEMPLAR);
                     if (item & FIRE)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEMPLAR_FIRE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        AddGossipItemFor(player, GOSSIP_ID_LESSER_WS, OPTION_ID_1_CRIMSON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                     if (item & WATER)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEMPLAR_WATER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                        AddGossipItemFor(player, GOSSIP_ID_LESSER_WS, OPTION_ID_2_AZURE,   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                     if (item & EARTH)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEMPLAR_EARTH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                        AddGossipItemFor(player, GOSSIP_ID_LESSER_WS, OPTION_ID_3_EARTHEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
                     if (item & AIR)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEMPLAR_AIR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                        AddGossipItemFor(player, GOSSIP_ID_LESSER_WS, OPTION_ID_4_HOARY,   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
                     break;
                 }
-                case GOSSIPID_WS:
+                case GOSSIP_ID_WIND_STONE:
                 {
                     if (rank >= 2) // 2 or 3
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DUKE_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                        AddGossipItemFor(player, GOSSIP_ID_WIND_STONE, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
                     else
                     {
                         go->CastSpell(player, SPELL_PUNISHMENT);
@@ -1356,19 +1270,19 @@ class go_wind_stone : public GameObjectScript
 
                     uint8 item = GetItems(player, DUKE);
                     if (item & FIRE)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DUKE_FIRE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+                        AddGossipItemFor(player, GOSSIP_ID_WIND_STONE, OPTION_ID_1_CYNDERS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
                     if (item & WATER)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DUKE_WATER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
+                        AddGossipItemFor(player, GOSSIP_ID_WIND_STONE, OPTION_ID_2_FATHOMS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
                     if (item & EARTH)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DUKE_EARTH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
+                        AddGossipItemFor(player, GOSSIP_ID_WIND_STONE, OPTION_ID_3_SHARDS,  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
                     if (item & AIR)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DUKE_AIR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
+                        AddGossipItemFor(player, GOSSIP_ID_WIND_STONE, OPTION_ID_4_ZEPHYRS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
                     break;
                 }
-                case GOSSIPID_GREATER_WS:
+                case GOSSIP_ID_GREATER_WS:
                 {
                     if (rank == 3) // 3
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ROYAL_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
+                        AddGossipItemFor(player, GOSSIP_ID_GREATER_WS, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
                     else
                     {
                         go->CastSpell(player, SPELL_PUNISHMENT);
@@ -1377,26 +1291,26 @@ class go_wind_stone : public GameObjectScript
 
                     uint8 item = GetItems(player, ROYAL);
                     if (item & FIRE)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ROYAL_FIRE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
+                        AddGossipItemFor(player, GOSSIP_ID_GREATER_WS, OPTION_ID_1_SKALDRENOX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
                     if (item & WATER)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ROYAL_WATER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
+                        AddGossipItemFor(player, GOSSIP_ID_GREATER_WS, OPTION_ID_2_SKWOL,      GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
                     if (item & EARTH)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ROYAL_EARTH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
+                        AddGossipItemFor(player, GOSSIP_ID_GREATER_WS, OPTION_ID_3_KAZUM,      GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
                     if (item & AIR)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ROYAL_AIR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
+                        AddGossipItemFor(player, GOSSIP_ID_GREATER_WS, OPTION_ID_4_WHIRLAXIS,  GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 15);
                     break;
                 }
                 default:
                     break;
             }
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(gossipId, go), go->GetGUID());
+            SendGossipMenuFor(player, player->GetGossipTextId(gossipId, go), go->GetGUID());
             return true;
         }
 
         bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 action) override
         {
-            player->PlayerTalkClass->ClearMenus();
+            ClearGossipMenuFor(player);
             player->PlayerTalkClass->SendCloseGossip();
 
             switch (action)
@@ -1462,6 +1376,5 @@ void AddSC_silithus()
     new npc_anachronos_quest_trigger();
     new npc_anachronos_the_ancient();
     new npc_qiraj_war_spawn();
-    new npcs_rutgar_and_frankal();
     new go_wind_stone();
 }

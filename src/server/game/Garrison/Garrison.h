@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,8 +18,16 @@
 #ifndef Garrison_h__
 #define Garrison_h__
 
-#include "Player.h"
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 #include "GarrisonPackets.h"
+#include "Optional.h"
+#include <unordered_map>
+
+class GameObject;
+class Map;
+class Player;
+struct GarrSiteLevelEntry;
 
 enum GarrisonType
 {
@@ -165,9 +173,6 @@ enum GarrisonFollowerStatus
     FOLLOWER_STATUS_TROOP       = 0x08,
     FOLLOWER_STATUS_NO_XP_GAIN  = 0x10
 };
-
-class GameObject;
-class Map;
 
 class TC_GAME_API Garrison
 {

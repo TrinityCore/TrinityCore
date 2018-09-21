@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,20 +16,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
-#include "ObjectAccessor.h"
-#include "Log.h"
-#include "Player.h"
-#include "Item.h"
-#include "Spell.h"
-#include "SocialMgr.h"
-#include "Language.h"
 #include "AccountMgr.h"
-#include "TradePackets.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
+#include "Item.h"
+#include "Language.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "SocialMgr.h"
+#include "Spell.h"
+#include "SpellMgr.h"
 #include "TradeData.h"
+#include "TradePackets.h"
+#include "World.h"
 
 void WorldSession::SendTradeStatus(WorldPackets::Trade::TradeStatus& info)
 {
@@ -79,17 +80,17 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
                 tradeItem.Unwrapped->MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
                 tradeItem.Unwrapped->Durability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
 
-                uint8 i = 0;
+                uint8 g = 0;
                 for (ItemDynamicFieldGems const& gemData : item->GetGems())
                 {
                     if (gemData.ItemId)
                     {
                         WorldPackets::Item::ItemGemData gem;
-                        gem.Slot = i;
+                        gem.Slot = g;
                         gem.Item.Initialize(&gemData);
                         tradeItem.Unwrapped->Gems.push_back(gem);
                     }
-                    ++i;
+                    ++g;
                 }
             }
 
@@ -284,7 +285,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
         return;
     }
 
-    if (_player->GetMoney() >= uint64(MAX_MONEY_AMOUNT) - his_trade->GetMoney())
+    if (_player->GetMoney() > MAX_MONEY_AMOUNT - his_trade->GetMoney())
     {
         info.Status = TRADE_STATUS_FAILED;
         info.BagResult = EQUIP_ERR_TOO_MUCH_GOLD;
@@ -293,7 +294,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
         return;
     }
 
-    if (trader->GetMoney() >= uint64(MAX_MONEY_AMOUNT) - my_trade->GetMoney())
+    if (trader->GetMoney() > MAX_MONEY_AMOUNT - my_trade->GetMoney())
     {
         info.Status = TRADE_STATUS_FAILED;
         info.BagResult = EQUIP_ERR_TOO_MUCH_GOLD;

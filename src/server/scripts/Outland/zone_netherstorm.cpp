@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Netherstorm
 SD%Complete: 80
-SDComment: Quest support: 10337, 10438, 10652 (special flight paths),  10198, 10191
+SDComment: Quest support: 10337, 10652 (special flight paths), 10198, 10191
 SDCategory: Netherstorm
 EndScriptData */
 
@@ -31,10 +31,13 @@ go_captain_tyralius_prison
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "QuestDef.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## npc_commander_dawnforge
@@ -331,56 +334,6 @@ public:
                 return true;
         }
         return false;
-    }
-};
-
-/*######
-## npc_professor_dabiri
-######*/
-enum ProfessorDabiriData
-{
-    SPELL_PHASE_DISTRUPTOR  = 35780,
-
-  //WHISPER_DABIRI          = 0, not existing in database
-
-    QUEST_DIMENSIUS         = 10439,
-    QUEST_ON_NETHERY_WINGS  = 10438,
-};
-
-#define GOSSIP_ITEM "I need a new phase distruptor, Professor"
-
-class npc_professor_dabiri : public CreatureScript
-{
-public:
-    npc_professor_dabiri() : CreatureScript("npc_professor_dabiri") { }
-
-    //OnQuestAccept:
-    //if (quest->GetQuestId() == QUEST_DIMENSIUS)
-        //creature->AI()->Talk(WHISPER_DABIRI, player);
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            creature->CastSpell(player, SPELL_PHASE_DISTRUPTOR, false);
-            player->CLOSE_GOSSIP_MENU();
-        }
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_ON_NETHERY_WINGS) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(29778))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
     }
 };
 
@@ -752,7 +705,6 @@ void AddSC_netherstorm()
 {
     new npc_commander_dawnforge();
     new at_commander_dawnforge();
-    new npc_professor_dabiri();
     new npc_phase_hunter();
     new npc_bessy();
     new npc_maxx_a_million_escort();

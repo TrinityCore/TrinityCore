@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,15 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
-#include "Player.h"
-#include "ObjectAccessor.h"
 #include "halls_of_origination.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -289,7 +291,7 @@ class npc_omega_stance : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_omega_stanceAI(creature);
+            return GetHallsOfOriginationAI<npc_omega_stanceAI>(creature);
         }
 };
 
@@ -494,6 +496,7 @@ public:
     }
 };
 
+// 77106 - Omega Stance (Summon)
 class spell_anraphet_omega_stance_summon : public SpellScriptLoader
 {
 public:
@@ -503,16 +506,14 @@ public:
     {
         PrepareSpellScript(spell_anraphet_omega_stance_summon_SpellScript);
 
-        void ModDestHeight(SpellEffIndex /*effIndex*/)
+        void SetDest(SpellDestination& dest)
         {
-            Position offset = {0.0f, 0.0f, 30.0f, 0.0f};
-            const_cast<WorldLocation*>(GetExplTargetDest())->RelocateOffset(offset);
-            GetHitDest()->RelocateOffset(offset);
+            dest.RelocateOffset({ 0.0f, 0.0f, 30.0f, 0.0f });
         }
 
         void Register() override
         {
-            OnEffectLaunch += SpellEffectFn(spell_anraphet_omega_stance_summon_SpellScript::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
+            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_anraphet_omega_stance_summon_SpellScript::SetDest, EFFECT_0, TARGET_DEST_DEST);
         }
     };
 
@@ -522,40 +523,41 @@ public:
     }
 };
 
-class spell_omega_stance_spider_effect : public SpellScriptLoader
+// 77127 Omega Stance Spider Effect
+class spell_anraphet_omega_stance_spider_effect : public SpellScriptLoader
 {
 public:
-    spell_omega_stance_spider_effect() : SpellScriptLoader("spell_omega_stance_spider_effect") { }
+    spell_anraphet_omega_stance_spider_effect() : SpellScriptLoader("spell_anraphet_omega_stance_spider_effect") { }
 
-    class spell_omega_stance_spider_effect_SpellScript : public SpellScript
+    class spell_anraphet_omega_stance_spider_effect_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_omega_stance_spider_effect_SpellScript);
+        PrepareSpellScript(spell_anraphet_omega_stance_spider_effect_SpellScript);
 
-        void SetDestPosition(SpellEffIndex effIndex)
+        void SetDest(SpellDestination& dest)
         {
             // Do our own calculations for the destination position.
             /// TODO: Remove this once we find a general rule for WorldObject::MovePosition (this spell shouldn't take the Z change into consideration)
             Unit* caster = GetCaster();
             float angle = float(rand_norm()) * static_cast<float>(2 * M_PI);
-            uint32 dist = caster->GetObjectSize() + GetSpellInfo()->GetEffect(effIndex)->CalcRadius(GetCaster()) * (float)rand_norm();
+            uint32 dist = caster->GetObjectSize() + GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(caster) * (float)rand_norm();
 
             float x = caster->GetPositionX() + dist * std::cos(angle);
             float y = caster->GetPositionY() + dist * std::sin(angle);
-            float z = caster->GetMap()->GetHeight(x, y, caster->GetPositionZ());
+            float z = caster->GetMap()->GetHeight(caster->GetPhaseShift(), x, y, caster->GetPositionZ());
+            float o = dest._position.GetOrientation();
 
-            const_cast<WorldLocation*>(GetExplTargetDest())->Relocate(x, y, z);
-            GetHitDest()->Relocate(x, y, z);
+            dest.Relocate({ x, y, z, o });
         }
 
         void Register() override
         {
-            OnEffectLaunch += SpellEffectFn(spell_omega_stance_spider_effect_SpellScript::SetDestPosition, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_anraphet_omega_stance_spider_effect_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
         }
     };
 
     SpellScript* GetSpellScript() const override
     {
-        return new spell_omega_stance_spider_effect_SpellScript();
+        return new spell_anraphet_omega_stance_spider_effect_SpellScript();
     }
 };
 
@@ -566,6 +568,6 @@ void AddSC_boss_anraphet()
     new npc_brann_bronzebeard_anraphet();
     new npc_alpha_beam();
     new spell_anraphet_omega_stance_summon();
-    new spell_omega_stance_spider_effect();
+    new spell_anraphet_omega_stance_spider_effect();
     new npc_omega_stance();
 }

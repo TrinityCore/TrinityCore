@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,17 +16,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/filesystem.hpp>
-
-#include "PathCommon.h"
-#include "MapBuilder.h"
-#include "Timer.h"
 #include "Banner.h"
+#include "DB2FileLoader.h"
+#include "DB2FileSystemSource.h"
+#include "ExtractorDB2LoadInfo.h"
+#include "MapBuilder.h"
+#include "PathCommon.h"
+#include "Timer.h"
+#include "VMapFactory.h"
+#include "VMapManager2.h"
+#include <boost/filesystem/operations.hpp>
+#include <unordered_map>
+#include <vector>
 
 using namespace MMAP;
 
-bool checkDirectories(bool debugOutput)
+bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
 {
+    if (getDirContents(dbcLocales, "dbc") == LISTFILE_DIRECTORY_NOT_FOUND || dbcLocales.empty())
+    {
+        printf("'dbc' directory is empty or does not exist\n");
+        return false;
+    }
+
     std::vector<std::string> dirFiles;
 
     if (getDirContents(dirFiles, "maps") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
@@ -44,15 +56,24 @@ bool checkDirectories(bool debugOutput)
 
     dirFiles.clear();
     if (getDirContents(dirFiles, "mmaps") == LISTFILE_DIRECTORY_NOT_FOUND)
-        return boost::filesystem::create_directory("mmaps");
+    {
+        if (!boost::filesystem::create_directory("mmaps"))
+        {
+            printf("'mmaps' directory does not exist and failed to create it\n");
+            return false;
+        }
+    }
 
     dirFiles.clear();
     if (debugOutput)
     {
         if (getDirContents(dirFiles, "meshes") == LISTFILE_DIRECTORY_NOT_FOUND)
         {
-            printf("'meshes' directory does not exist (no place to put debugOutput files)\n");
-            return false;
+            if (!boost::filesystem::create_directory("meshes"))
+            {
+                printf("'meshes' directory does not exist and failed to create it (no place to put debugOutput files)\n");
+                return false;
+            }
         }
     }
 
@@ -73,7 +94,7 @@ bool handleArgs(int argc, char** argv,
                bool &bigBaseUnit,
                char* &offMeshInputPath,
                char* &file,
-               int& threads)
+               unsigned int& threads)
 {
     char* param = NULL;
     for (int i = 1; i < argc; ++i)
@@ -95,8 +116,7 @@ bool handleArgs(int argc, char** argv,
             param = argv[++i];
             if (!param)
                 return false;
-            threads = atoi(param);
-            printf("Using %i threads to extract mmaps\n", threads);
+            threads = static_cast<unsigned int>(std::max(0, atoi(param)));
         }
         else if (strcmp(argv[i], "--file") == 0)
         {
@@ -244,7 +264,8 @@ int main(int argc, char** argv)
 {
     Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);
 
-    int threads = 3, mapnum = -1;
+    unsigned int threads = std::thread::hardware_concurrency();
+    int mapnum = -1;
     float maxAngle = 70.0f;
     int tileX = -1, tileY = -1;
     bool skipLiquid = false,
@@ -277,11 +298,32 @@ int main(int argc, char** argv)
             return 0;
     }
 
-    if (!checkDirectories(debugOutput))
+    std::vector<std::string> dbcLocales;
+    if (!checkDirectories(debugOutput, dbcLocales))
         return silent ? -3 : finish("Press ENTER to close...", -3);
 
+    DB2FileLoader mapDb2;
+    std::unordered_map<uint32, std::vector<uint32>> mapData;
+    {
+        DB2FileSystemSource mapSource((boost::filesystem::path("dbc") / dbcLocales[0] / "Map.db2").string());
+        if (!mapDb2.Load(&mapSource, MapLoadInfo::Instance()))
+            return silent ? -4 : finish("Failed to load Map.db2", -4);
+
+        for (uint32 x = 0; x < mapDb2.GetRecordCount(); ++x)
+        {
+            DB2Record record = mapDb2.GetRecord(x);
+
+            mapData.emplace(std::piecewise_construct, std::forward_as_tuple(record.GetId()), std::forward_as_tuple());
+            int16 parentMapId = int16(record.GetUInt16("ParentMapID"));
+            if (parentMapId != -1)
+                mapData[parentMapId].push_back(record.GetId());
+        }
+
+        static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->InitializeThreadUnsafe(mapData);
+    }
+
     MapBuilder builder(maxAngle, skipLiquid, skipContinents, skipJunkMaps,
-                       skipBattlegrounds, debugOutput, bigBaseUnit, offMeshInputPath);
+                       skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath);
 
     uint32 start = getMSTime();
     if (file)
@@ -292,6 +334,8 @@ int main(int argc, char** argv)
         builder.buildMap(uint32(mapnum));
     else
         builder.buildAllMaps(threads);
+
+    VMAP::VMapFactory::clear();
 
     if (!silent)
         printf("Finished. MMAPS were built in %u ms!\n", GetMSTimeDiffToNow(start));

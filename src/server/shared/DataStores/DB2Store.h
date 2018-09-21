@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,41 +19,30 @@
 #define DB2STORE_H
 
 #include "Common.h"
-#include "DB2Meta.h"
-#include "DB2StorageLoader.h"
+#include "Errors.h"
 #include "DBStorageIterator.h"
-#include "ByteBuffer.h"
+#include <vector>
+
+class ByteBuffer;
+struct DB2LoadInfo;
 
 /// Interface class for common access
-class DB2StorageBase
+class TC_SHARED_API DB2StorageBase
 {
 public:
-    DB2StorageBase(char const* fileName, DB2LoadInfo&& loadInfo)
-        : _tableHash(0), _layoutHash(0), _fileName(fileName), _fieldCount(0), _loadInfo(std::move(loadInfo)), _dataTable(nullptr), _dataTableEx(nullptr) { }
-
-    virtual ~DB2StorageBase()
-    {
-        delete[] reinterpret_cast<char*>(_dataTable);
-        delete[] reinterpret_cast<char*>(_dataTableEx);
-        for (char* strings : _stringPool)
-            delete[] strings;
-    }
+    DB2StorageBase(char const* fileName, DB2LoadInfo const* loadInfo);
+    virtual ~DB2StorageBase();
 
     uint32 GetTableHash() const { return _tableHash; }
-
     uint32 GetLayoutHash() const { return _layoutHash; }
 
     virtual bool HasRecord(uint32 id) const = 0;
-
     virtual void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const = 0;
-
     virtual void EraseRecord(uint32 id) = 0;
 
     std::string const& GetFileName() const { return _fileName; }
-
     uint32 GetFieldCount() const { return _fieldCount; }
-
-    DB2LoadInfo const* GetLoadInfo() const { return &_loadInfo; }
+    DB2LoadInfo const* GetLoadInfo() const { return _loadInfo; }
 
     virtual bool Load(std::string const& path, uint32 locale) = 0;
     virtual bool LoadStringsFrom(std::string const& path, uint32 locale) = 0;
@@ -61,62 +50,21 @@ public:
     virtual void LoadStringsFromDB(uint32 locale) = 0;
 
 protected:
-    void WriteRecordData(char const* entry, uint32 locale, ByteBuffer& buffer) const
-    {
-        if (!_loadInfo.Meta->HasIndexFieldInData())
-            entry += 4;
-
-        for (uint32 i = 0; i < _loadInfo.Meta->FieldCount; ++i)
-        {
-            for (uint32 a = 0; a < _loadInfo.Meta->ArraySizes[i]; ++a)
-            {
-                switch (_loadInfo.Meta->Types[i])
-                {
-                    case FT_INT:
-                        buffer << *(uint32*)entry;
-                        entry += 4;
-                        break;
-                    case FT_FLOAT:
-                        buffer << *(float*)entry;
-                        entry += 4;
-                        break;
-                    case FT_BYTE:
-                        buffer << *(uint8*)entry;
-                        entry += 1;
-                        break;
-                    case FT_SHORT:
-                        buffer << *(uint16*)entry;
-                        entry += 2;
-                        break;
-                    case FT_STRING:
-                    {
-                        LocalizedString* locStr = *(LocalizedString**)entry;
-                        if (locStr->Str[locale][0] == '\0')
-                            locale = 0;
-
-                        buffer << locStr->Str[locale];
-                        entry += sizeof(LocalizedString*);
-                        break;
-                    }
-                    case FT_STRING_NOT_LOCALIZED:
-                    {
-                        buffer << *(char const**)entry;
-                        entry += sizeof(char const*);
-                        break;
-                    }
-                }
-            }
-        }
-    }
+    void WriteRecordData(char const* entry, uint32 locale, ByteBuffer& buffer) const;
+    bool Load(std::string const& path, uint32 locale, char**& indexTable);
+    bool LoadStringsFrom(std::string const& path, uint32 locale, char** indexTable);
+    void LoadFromDB(char**& indexTable);
+    void LoadStringsFromDB(uint32 locale, char** indexTable);
 
     uint32 _tableHash;
     uint32 _layoutHash;
     std::string _fileName;
     uint32 _fieldCount;
-    DB2LoadInfo _loadInfo;
+    DB2LoadInfo const* _loadInfo;
     char* _dataTable;
     char* _dataTableEx;
     std::vector<char*> _stringPool;
+    uint32 _indexTableSize;
 };
 
 template<class T>
@@ -127,10 +75,9 @@ class DB2Storage : public DB2StorageBase
 public:
     typedef DBStorageIterator<T> iterator;
 
-    DB2Storage(char const* fileName, DB2LoadInfo&& loadInfo) : DB2StorageBase(fileName, std::move(loadInfo)),
-        _indexTableSize(0)
+    DB2Storage(char const* fileName, DB2LoadInfo const* loadInfo) : DB2StorageBase(fileName, loadInfo)
     {
-        _indexTable.AsT = NULL;
+        _indexTable.AsT = nullptr;
     }
 
     ~DB2Storage()
@@ -148,65 +95,27 @@ public:
 
     T const* LookupEntry(uint32 id) const { return (id >= _indexTableSize) ? nullptr : _indexTable.AsT[id]; }
     T const* AssertEntry(uint32 id) const { return ASSERT_NOTNULL(LookupEntry(id)); }
+    T const* operator[](uint32 id) const { return LookupEntry(id); }
 
     uint32 GetNumRows() const { return _indexTableSize; }
     bool Load(std::string const& path, uint32 locale) override
     {
-        DB2FileLoader db2;
-        // Check if load was successful, only then continue
-        if (!db2.Load((path + _fileName).c_str(), &_loadInfo))
-            return false;
-
-        _fieldCount = db2.GetCols();
-        _tableHash = db2.GetTableHash();
-        _layoutHash = db2.GetLayoutHash();
-
-        // load raw non-string data
-        _dataTable = db2.AutoProduceData(_indexTableSize, _indexTable.AsChar, _stringPool);
-
-        // load strings from db2 data
-        if (!_stringPool.empty())
-            if (char* stringBlock = db2.AutoProduceStrings(_dataTable, locale))
-                _stringPool.push_back(stringBlock);
-
-        db2.AutoProduceRecordCopies(_indexTableSize, _indexTable.AsChar, _dataTable);
-
-        // error in db2 file at loading if NULL
-        return _indexTable.AsT != NULL;
+        return DB2StorageBase::Load(path, locale, _indexTable.AsChar);
     }
 
     bool LoadStringsFrom(std::string const& path, uint32 locale) override
     {
-        // DB2 must be already loaded using Load
-        if (!_indexTable.AsT)
-            return false;
-
-        DB2FileLoader db2;
-        // Check if load was successful, only then continue
-        if (!db2.Load((path + _fileName).c_str(), &_loadInfo))
-            return false;
-
-        // load strings from another locale db2 data
-        if (_loadInfo.GetStringFieldCount(true))
-            if (char* stringBlock = db2.AutoProduceStrings(_dataTable, locale))
-                _stringPool.push_back(stringBlock);
-        return true;
+        return DB2StorageBase::LoadStringsFrom(path, locale, _indexTable.AsChar);
     }
 
     void LoadFromDB() override
     {
-        char* extraStringHolders = nullptr;
-        _dataTableEx = DB2DatabaseLoader(_fileName, &_loadInfo).Load(_indexTableSize, _indexTable.AsChar, extraStringHolders, _stringPool);
-        if (extraStringHolders)
-            _stringPool.push_back(extraStringHolders);
+        DB2StorageBase::LoadFromDB(_indexTable.AsChar);
     }
 
     void LoadStringsFromDB(uint32 locale) override
     {
-        if (!_loadInfo.GetStringFieldCount(true))
-            return;
-
-        DB2DatabaseLoader(_fileName, &_loadInfo).LoadStrings(locale, _indexTableSize, _indexTable.AsChar, _stringPool);
+        DB2StorageBase::LoadStringsFromDB(locale, _indexTable.AsChar);
     }
 
     iterator begin() { return iterator(_indexTable.AsT, _indexTableSize); }
@@ -218,7 +127,6 @@ private:
         T** AsT;
         char** AsChar;
     } _indexTable;
-    uint32 _indexTableSize;
 };
 
 #endif

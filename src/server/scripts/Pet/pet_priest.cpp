@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,14 +21,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "PassiveAI.h"
 #include "PetAI.h"
+#include "ScriptedCreature.h"
 
 enum PriestSpells
 {
     SPELL_PRIEST_GLYPH_OF_SHADOWFIEND       = 58228,
-    SPELL_PRIEST_GLYPH_OF_SHADOWFIEND_MANA  = 58227,
+    SPELL_PRIEST_SHADOWFIEND_DEATH          = 57989,
     SPELL_PRIEST_LIGHTWELL_CHARGES          = 59907
 };
 
@@ -70,12 +70,10 @@ class npc_pet_pri_shadowfiend : public CreatureScript
         {
             npc_pet_pri_shadowfiendAI(Creature* creature) : PetAI(creature) { }
 
-            void JustDied(Unit* /*killer*/) override
+            void IsSummonedBy(Unit* summoner) override
             {
-                if (me->IsSummon())
-                    if (Unit* owner = me->ToTempSummon()->GetSummoner())
-                        if (owner->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND))
-                            owner->CastSpell(owner, SPELL_PRIEST_GLYPH_OF_SHADOWFIEND_MANA, true);
+                if (summoner->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND))
+                    DoCastAOE(SPELL_PRIEST_SHADOWFIEND_DEATH);
             }
         };
 

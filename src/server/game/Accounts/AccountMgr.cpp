@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,11 +19,14 @@
 #include "AccountMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "Realm.h"
 #include "ScriptMgr.h"
-#include "Util.h"
 #include "SHA1.h"
+#include "Util.h"
+#include "World.h"
 #include "WorldSession.h"
 
 AccountMgr::AccountMgr() { }
@@ -43,6 +46,9 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;                           // username's too long
+
+    if (utf8length(password) > MAX_PASS_STR)
+        return AccountOpResult::AOR_PASS_TOO_LONG;                           // password's too long
 
     Utf8ToUpperOnlyLatin(username);
     Utf8ToUpperOnlyLatin(password);
@@ -498,7 +504,7 @@ void AccountMgr::LoadRBAC()
 
 void AccountMgr::UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId)
 {
-    if (rbac && securityLevel == rbac->GetSecurityLevel())
+    if (rbac && securityLevel != rbac->GetSecurityLevel())
         rbac->SetSecurityLevel(securityLevel);
 
     SQLTransaction trans = LoginDatabase.BeginTransaction();

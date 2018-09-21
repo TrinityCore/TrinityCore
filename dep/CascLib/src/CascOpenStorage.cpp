@@ -121,6 +121,29 @@ static bool IsIndexFileName_V2(const TCHAR * szFileName)
             _tcsicmp(szFileName + 0x0A, _T(".idx")) == 0);
 }
 
+static bool IsRootFile_Starcraft1(LPBYTE pbFileData, DWORD cbFileData)
+{
+    LPBYTE pbFileEnd = pbFileData + cbFileData;
+    LPBYTE pbHashName;
+    LPBYTE pbHashEnd;
+
+    // Skip the file name
+    while(pbFileData < pbFileEnd && pbFileData[0] != '|')
+        pbFileData++;
+    if(pbFileData[0] != '|')
+        return false;
+
+    // Then, a MD5 must follow
+    pbHashName = pbHashEnd = pbFileData + 1;
+    while(pbHashEnd < pbFileEnd && pbHashEnd[0] != 0x0A)
+        pbHashEnd++;
+    if(pbHashEnd[0] != 0x0A)
+        return false;
+
+    // The length must be exactly 32 characters
+    return ((pbHashEnd - pbHashName) == 32);
+}
+
 static bool IsCascIndexHeader_V1(LPBYTE pbFileData, DWORD cbFileData)
 {
     PFILE_INDEX_HEADER_V1 pIndexHeader = (PFILE_INDEX_HEADER_V1)pbFileData;
@@ -166,13 +189,26 @@ static bool CutLastPathPart(TCHAR * szWorkPath)
 {
     size_t nLength = _tcslen(szWorkPath);
 
-    for(nLength = _tcslen(szWorkPath); nLength > 0; nLength--)
+    // Go one character back
+    if(nLength > 0)
+        nLength--;
+
+    // Cut ending (back)slashes, if any
+    while(nLength > 0 && (szWorkPath[nLength] == _T('\\') || szWorkPath[nLength] == _T('/')))
+        nLength--;
+
+    // Cut the last path part
+    while(nLength > 0)
     {
-        if(szWorkPath[nLength] == '\\' || szWorkPath[nLength] == '/')
+        // End of path?
+        if(szWorkPath[nLength] == _T('\\') || szWorkPath[nLength] == _T('/'))
         {
             szWorkPath[nLength] = 0;
             return true;
         }
+
+        // Go one character back
+        nLength--;
     }
 
     return false;
@@ -900,7 +936,10 @@ static int LoadRootFile(TCascStorage * hs, DWORD dwLocaleMask)
                 break;
 
             default:
-                nError = RootHandler_CreateWoW6(hs, pbRootFile, cbRootFile, dwLocaleMask);
+                if(IsRootFile_Starcraft1(pbRootFile, cbRootFile))
+                    nError = RootHandler_CreateSC1(hs, pbRootFile, cbRootFile);
+                else
+                    nError = RootHandler_CreateWoW6(hs, pbRootFile, cbRootFile, dwLocaleMask);
                 break;
         }
     }
@@ -1108,6 +1147,10 @@ bool WINAPI CascGetStorageInfo(
 
         case CascStorageGameBuild:
             dwInfoValue = hs->dwBuildNumber;
+            break;
+
+        case CascStorageInstalledLocales:
+            dwInfoValue = hs->dwDefaultLocale;
             break;
 
         default:

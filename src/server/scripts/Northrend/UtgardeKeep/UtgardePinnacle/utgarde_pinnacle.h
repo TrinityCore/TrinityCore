@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef UTGARDE_PINNACLE_H_
 #define UTGARDE_PINNACLE_H_
 
+#include "CreatureAIImpl.h"
+
 #define UPScriptName "instance_utgarde_pinnacle"
 #define DataHeader "UP"
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum UPDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_SVALA_SORROWGRAVE          = 0,
@@ -41,10 +43,11 @@ enum DataTypes
     DATA_MASSIVE_JORMUNGAR          = 9,
     DATA_FEROCIOUS_RHINO            = 10,
     DATA_GORTOK_ORB                 = 11,
-    DATA_GORTOK_PALEHOOF_SPHERE     = 12
+    DATA_GORTOK_PALEHOOF_SPHERE     = 12,
+    DATA_GRAUF                      = 13
 };
 
-enum CreatureIds
+enum UPCreatureIds
 {
     NPC_SVALA_SORROWGRAVE           = 26668,
     NPC_GORTOK_PALEHOOF             = 26687,
@@ -61,6 +64,16 @@ enum CreatureIds
     NPC_FEROCIOUS_RHINO             = 26686,
     NPC_PALEHOOF_ORB                = 26688,
 
+    // Skadi
+    NPC_GRAUF                       = 26893,
+    NPC_YMIRJAR_WARRIOR             = 26690,
+    NPC_YMIRJAR_WITCH_DOCTOR        = 26691,
+    NPC_YMIRJAR_HARPOONER           = 26692,
+    NPC_TRIGGER_RESET               = 23472,
+    NPC_TRIGGER2                    = 19871,
+    NPC_WORLD_TRIGGER               = 22515,
+    NPC_COMBAT_TRIGGER              = 38667,
+
     // Ymiron
     NPC_BJORN                       = 27303,
     NPC_BJORN_VISUAL                = 27304,
@@ -74,7 +87,7 @@ enum CreatureIds
     NPC_AVENGING_SPIRIT             = 27386
 };
 
-enum GameObjectIds
+enum UPGameObjectIds
 {
     GO_GORTOK_PALEHOOF_SPHERE       = 188593,
     GO_UTGARDE_MIRROR               = 191745,
@@ -82,8 +95,8 @@ enum GameObjectIds
     GO_KING_YMIRON_DOOR             = 192174
 };
 
-template<class AI>
-AI* GetUtgardePinnacleAI(Creature* creature)
+template<typename AI>
+inline AI* GetUtgardePinnacleAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, UPScriptName);
 }

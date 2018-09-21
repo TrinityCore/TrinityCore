@@ -25,6 +25,7 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
+#include "client/v1/channel_id.pb.h"  // IWYU pragma: export
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
 #include "invitation_types.pb.h"
@@ -42,12 +43,12 @@ void TC_PROTO_API protobuf_AddDesc_channel_5ftypes_2eproto();
 void protobuf_AssignDesc_channel_5ftypes_2eproto();
 void protobuf_ShutdownFile_channel_5ftypes_2eproto();
 
-class ChannelId;
 class Message;
 class ListChannelsOptions;
 class ChannelDescription;
 class ChannelInfo;
 class ChannelState;
+class MemberAccountInfo;
 class MemberState;
 class Member;
 
@@ -73,107 +74,6 @@ inline bool ChannelState_PrivacyLevel_Parse(
     ChannelState_PrivacyLevel_descriptor(), name, value);
 }
 // ===================================================================
-
-class TC_PROTO_API ChannelId : public ::google::protobuf::Message {
- public:
-  ChannelId();
-  virtual ~ChannelId();
-
-  ChannelId(const ChannelId& from);
-
-  inline ChannelId& operator=(const ChannelId& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const ChannelId& default_instance();
-
-  void Swap(ChannelId* other);
-
-  // implements Message ----------------------------------------------
-
-  ChannelId* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ChannelId& from);
-  void MergeFrom(const ChannelId& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // optional uint32 type = 1;
-  inline bool has_type() const;
-  inline void clear_type();
-  static const int kTypeFieldNumber = 1;
-  inline ::google::protobuf::uint32 type() const;
-  inline void set_type(::google::protobuf::uint32 value);
-
-  // optional .bgs.protocol.ProcessId host = 2;
-  inline bool has_host() const;
-  inline void clear_host();
-  static const int kHostFieldNumber = 2;
-  inline const ::bgs::protocol::ProcessId& host() const;
-  inline ::bgs::protocol::ProcessId* mutable_host();
-  inline ::bgs::protocol::ProcessId* release_host();
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host);
-
-  // optional fixed32 id = 3;
-  inline bool has_id() const;
-  inline void clear_id();
-  static const int kIdFieldNumber = 3;
-  inline ::google::protobuf::uint32 id() const;
-  inline void set_id(::google::protobuf::uint32 value);
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.channel.v1.ChannelId)
- private:
-  inline void set_has_type();
-  inline void clear_has_type();
-  inline void set_has_host();
-  inline void clear_has_host();
-  inline void set_has_id();
-  inline void clear_has_id();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::bgs::protocol::ProcessId* host_;
-  ::google::protobuf::uint32 type_;
-  ::google::protobuf::uint32 id_;
-  friend void TC_PROTO_API protobuf_AddDesc_channel_5ftypes_2eproto();
-  friend void protobuf_AssignDesc_channel_5ftypes_2eproto();
-  friend void protobuf_ShutdownFile_channel_5ftypes_2eproto();
-
-  void InitAsDefaultInstance();
-  static ChannelId* default_instance_;
-};
-// -------------------------------------------------------------------
 
 class TC_PROTO_API Message : public ::google::protobuf::Message {
  public:
@@ -240,18 +140,9 @@ class TC_PROTO_API Message : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >*
       mutable_attribute();
 
-  // optional uint32 role = 2;
-  inline bool has_role() const;
-  inline void clear_role();
-  static const int kRoleFieldNumber = 2;
-  inline ::google::protobuf::uint32 role() const;
-  inline void set_role(::google::protobuf::uint32 value);
-
   GOOGLE_PROTOBUF_EXTENSION_ACCESSORS(Message)
   // @@protoc_insertion_point(class_scope:bgs.protocol.channel.v1.Message)
  private:
-  inline void set_has_role();
-  inline void clear_has_role();
 
   ::google::protobuf::internal::ExtensionSet _extensions_;
 
@@ -260,7 +151,6 @@ class TC_PROTO_API Message : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
-  ::google::protobuf::uint32 role_;
   friend void TC_PROTO_API protobuf_AddDesc_channel_5ftypes_2eproto();
   friend void protobuf_AssignDesc_channel_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_channel_5ftypes_2eproto();
@@ -391,7 +281,6 @@ class TC_PROTO_API ListChannelsOptions : public ::google::protobuf::Message {
   inline ::std::string* release_channel_type();
   inline void set_allocated_channel_type(::std::string* channel_type);
 
-  GOOGLE_PROTOBUF_EXTENSION_ACCESSORS(ListChannelsOptions)
   // @@protoc_insertion_point(class_scope:bgs.protocol.channel.v1.ListChannelsOptions)
  private:
   inline void set_has_start_index();
@@ -410,8 +299,6 @@ class TC_PROTO_API ListChannelsOptions : public ::google::protobuf::Message {
   inline void clear_has_attribute_filter();
   inline void set_has_channel_type();
   inline void clear_has_channel_type();
-
-  ::google::protobuf::internal::ExtensionSet _extensions_;
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -611,13 +498,10 @@ class TC_PROTO_API ChannelInfo : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::channel::v1::Member >*
       mutable_member();
 
-  GOOGLE_PROTOBUF_EXTENSION_ACCESSORS(ChannelInfo)
   // @@protoc_insertion_point(class_scope:bgs.protocol.channel.v1.ChannelInfo)
  private:
   inline void set_has_description();
   inline void clear_has_description();
-
-  ::google::protobuf::internal::ExtensionSet _extensions_;
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -751,13 +635,6 @@ class TC_PROTO_API ChannelState : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation >*
       mutable_invitation();
 
-  // optional uint32 max_invitations = 5;
-  inline bool has_max_invitations() const;
-  inline void clear_max_invitations();
-  static const int kMaxInvitationsFieldNumber = 5;
-  inline ::google::protobuf::uint32 max_invitations() const;
-  inline void set_max_invitations(::google::protobuf::uint32 value);
-
   // optional uint32 reason = 6;
   inline bool has_reason() const;
   inline void clear_reason();
@@ -784,18 +661,6 @@ class TC_PROTO_API ChannelState : public ::google::protobuf::Message {
   inline ::std::string* release_name();
   inline void set_allocated_name(::std::string* name);
 
-  // optional string delegate_name = 9;
-  inline bool has_delegate_name() const;
-  inline void clear_delegate_name();
-  static const int kDelegateNameFieldNumber = 9;
-  inline const ::std::string& delegate_name() const;
-  inline void set_delegate_name(const ::std::string& value);
-  inline void set_delegate_name(const char* value);
-  inline void set_delegate_name(const char* value, size_t size);
-  inline ::std::string* mutable_delegate_name();
-  inline ::std::string* release_delegate_name();
-  inline void set_allocated_delegate_name(::std::string* delegate_name);
-
   // optional string channel_type = 10 [default = "default"];
   inline bool has_channel_type() const;
   inline void clear_channel_type();
@@ -815,26 +680,12 @@ class TC_PROTO_API ChannelState : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 program() const;
   inline void set_program(::google::protobuf::uint32 value);
 
-  // optional bool allow_offline_members = 12 [default = false];
-  inline bool has_allow_offline_members() const;
-  inline void clear_allow_offline_members();
-  static const int kAllowOfflineMembersFieldNumber = 12;
-  inline bool allow_offline_members() const;
-  inline void set_allow_offline_members(bool value);
-
   // optional bool subscribe_to_presence = 13 [default = true];
   inline bool has_subscribe_to_presence() const;
   inline void clear_subscribe_to_presence();
   static const int kSubscribeToPresenceFieldNumber = 13;
   inline bool subscribe_to_presence() const;
   inline void set_subscribe_to_presence(bool value);
-
-  // optional bool destroy_on_founder_leave = 14 [default = false];
-  inline bool has_destroy_on_founder_leave() const;
-  inline void clear_destroy_on_founder_leave();
-  static const int kDestroyOnFounderLeaveFieldNumber = 14;
-  inline bool destroy_on_founder_leave() const;
-  inline void set_destroy_on_founder_leave(bool value);
 
   GOOGLE_PROTOBUF_EXTENSION_ACCESSORS(ChannelState)
   // @@protoc_insertion_point(class_scope:bgs.protocol.channel.v1.ChannelState)
@@ -843,26 +694,18 @@ class TC_PROTO_API ChannelState : public ::google::protobuf::Message {
   inline void clear_has_max_members();
   inline void set_has_min_members();
   inline void clear_has_min_members();
-  inline void set_has_max_invitations();
-  inline void clear_has_max_invitations();
   inline void set_has_reason();
   inline void clear_has_reason();
   inline void set_has_privacy_level();
   inline void clear_has_privacy_level();
   inline void set_has_name();
   inline void clear_has_name();
-  inline void set_has_delegate_name();
-  inline void clear_has_delegate_name();
   inline void set_has_channel_type();
   inline void clear_has_channel_type();
   inline void set_has_program();
   inline void clear_has_program();
-  inline void set_has_allow_offline_members();
-  inline void clear_has_allow_offline_members();
   inline void set_has_subscribe_to_presence();
   inline void clear_has_subscribe_to_presence();
-  inline void set_has_destroy_on_founder_leave();
-  inline void clear_has_destroy_on_founder_leave();
 
   ::google::protobuf::internal::ExtensionSet _extensions_;
 
@@ -874,23 +717,103 @@ class TC_PROTO_API ChannelState : public ::google::protobuf::Message {
   ::google::protobuf::uint32 min_members_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Invitation > invitation_;
-  ::google::protobuf::uint32 max_invitations_;
   ::google::protobuf::uint32 reason_;
-  ::std::string* name_;
-  ::std::string* delegate_name_;
   int privacy_level_;
-  ::google::protobuf::uint32 program_;
+  ::std::string* name_;
   static ::std::string* _default_channel_type_;
   ::std::string* channel_type_;
-  bool allow_offline_members_;
+  ::google::protobuf::uint32 program_;
   bool subscribe_to_presence_;
-  bool destroy_on_founder_leave_;
   friend void TC_PROTO_API protobuf_AddDesc_channel_5ftypes_2eproto();
   friend void protobuf_AssignDesc_channel_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_channel_5ftypes_2eproto();
 
   void InitAsDefaultInstance();
   static ChannelState* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API MemberAccountInfo : public ::google::protobuf::Message {
+ public:
+  MemberAccountInfo();
+  virtual ~MemberAccountInfo();
+
+  MemberAccountInfo(const MemberAccountInfo& from);
+
+  inline MemberAccountInfo& operator=(const MemberAccountInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MemberAccountInfo& default_instance();
+
+  void Swap(MemberAccountInfo* other);
+
+  // implements Message ----------------------------------------------
+
+  MemberAccountInfo* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const MemberAccountInfo& from);
+  void MergeFrom(const MemberAccountInfo& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string battle_tag = 3;
+  inline bool has_battle_tag() const;
+  inline void clear_battle_tag();
+  static const int kBattleTagFieldNumber = 3;
+  inline const ::std::string& battle_tag() const;
+  inline void set_battle_tag(const ::std::string& value);
+  inline void set_battle_tag(const char* value);
+  inline void set_battle_tag(const char* value, size_t size);
+  inline ::std::string* mutable_battle_tag();
+  inline ::std::string* release_battle_tag();
+  inline void set_allocated_battle_tag(::std::string* battle_tag);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.channel.v1.MemberAccountInfo)
+ private:
+  inline void set_has_battle_tag();
+  inline void clear_has_battle_tag();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* battle_tag_;
+  friend void TC_PROTO_API protobuf_AddDesc_channel_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_channel_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_channel_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static MemberAccountInfo* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -978,33 +901,21 @@ class TC_PROTO_API MemberState : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 privileges() const;
   inline void set_privileges(::google::protobuf::uint64 value);
 
-  // optional .bgs.protocol.AccountInfo info = 4;
+  // optional .bgs.protocol.channel.v1.MemberAccountInfo info = 4;
   inline bool has_info() const;
   inline void clear_info();
   static const int kInfoFieldNumber = 4;
-  inline const ::bgs::protocol::AccountInfo& info() const;
-  inline ::bgs::protocol::AccountInfo* mutable_info();
-  inline ::bgs::protocol::AccountInfo* release_info();
-  inline void set_allocated_info(::bgs::protocol::AccountInfo* info);
+  inline const ::bgs::protocol::channel::v1::MemberAccountInfo& info() const;
+  inline ::bgs::protocol::channel::v1::MemberAccountInfo* mutable_info();
+  inline ::bgs::protocol::channel::v1::MemberAccountInfo* release_info();
+  inline void set_allocated_info(::bgs::protocol::channel::v1::MemberAccountInfo* info);
 
-  // optional bool DEPRECATED_hidden = 5 [default = false, deprecated = true];
-  inline bool has_deprecated_hidden() const PROTOBUF_DEPRECATED;
-  inline void clear_deprecated_hidden() PROTOBUF_DEPRECATED;
-  static const int kDEPRECATEDHiddenFieldNumber = 5;
-  inline bool deprecated_hidden() const PROTOBUF_DEPRECATED;
-  inline void set_deprecated_hidden(bool value) PROTOBUF_DEPRECATED;
-
-  GOOGLE_PROTOBUF_EXTENSION_ACCESSORS(MemberState)
   // @@protoc_insertion_point(class_scope:bgs.protocol.channel.v1.MemberState)
  private:
   inline void set_has_privileges();
   inline void clear_has_privileges();
   inline void set_has_info();
   inline void clear_has_info();
-  inline void set_has_deprecated_hidden();
-  inline void clear_has_deprecated_hidden();
-
-  ::google::protobuf::internal::ExtensionSet _extensions_;
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1014,8 +925,7 @@ class TC_PROTO_API MemberState : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > role_;
   mutable int _role_cached_byte_size_;
   ::google::protobuf::uint64 privileges_;
-  ::bgs::protocol::AccountInfo* info_;
-  bool deprecated_hidden_;
+  ::bgs::protocol::channel::v1::MemberAccountInfo* info_;
   friend void TC_PROTO_API protobuf_AddDesc_channel_5ftypes_2eproto();
   friend void protobuf_AssignDesc_channel_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_channel_5ftypes_2eproto();
@@ -1124,99 +1034,6 @@ class TC_PROTO_API Member : public ::google::protobuf::Message {
 
 // ===================================================================
 
-// ChannelId
-
-// optional uint32 type = 1;
-inline bool ChannelId::has_type() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void ChannelId::set_has_type() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void ChannelId::clear_has_type() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void ChannelId::clear_type() {
-  type_ = 0u;
-  clear_has_type();
-}
-inline ::google::protobuf::uint32 ChannelId::type() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.ChannelId.type)
-  return type_;
-}
-inline void ChannelId::set_type(::google::protobuf::uint32 value) {
-  set_has_type();
-  type_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.ChannelId.type)
-}
-
-// optional .bgs.protocol.ProcessId host = 2;
-inline bool ChannelId::has_host() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void ChannelId::set_has_host() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void ChannelId::clear_has_host() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void ChannelId::clear_host() {
-  if (host_ != NULL) host_->::bgs::protocol::ProcessId::Clear();
-  clear_has_host();
-}
-inline const ::bgs::protocol::ProcessId& ChannelId::host() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.ChannelId.host)
-  return host_ != NULL ? *host_ : *default_instance_->host_;
-}
-inline ::bgs::protocol::ProcessId* ChannelId::mutable_host() {
-  set_has_host();
-  if (host_ == NULL) host_ = new ::bgs::protocol::ProcessId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.ChannelId.host)
-  return host_;
-}
-inline ::bgs::protocol::ProcessId* ChannelId::release_host() {
-  clear_has_host();
-  ::bgs::protocol::ProcessId* temp = host_;
-  host_ = NULL;
-  return temp;
-}
-inline void ChannelId::set_allocated_host(::bgs::protocol::ProcessId* host) {
-  delete host_;
-  host_ = host;
-  if (host) {
-    set_has_host();
-  } else {
-    clear_has_host();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.ChannelId.host)
-}
-
-// optional fixed32 id = 3;
-inline bool ChannelId::has_id() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void ChannelId::set_has_id() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void ChannelId::clear_has_id() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void ChannelId::clear_id() {
-  id_ = 0u;
-  clear_has_id();
-}
-inline ::google::protobuf::uint32 ChannelId::id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.ChannelId.id)
-  return id_;
-}
-inline void ChannelId::set_id(::google::protobuf::uint32 value) {
-  set_has_id();
-  id_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.ChannelId.id)
-}
-
-// -------------------------------------------------------------------
-
 // Message
 
 // repeated .bgs.protocol.Attribute attribute = 1;
@@ -1247,30 +1064,6 @@ inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >*
 Message::mutable_attribute() {
   // @@protoc_insertion_point(field_mutable_list:bgs.protocol.channel.v1.Message.attribute)
   return &attribute_;
-}
-
-// optional uint32 role = 2;
-inline bool Message::has_role() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void Message::set_has_role() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void Message::clear_has_role() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void Message::clear_role() {
-  role_ = 0u;
-  clear_has_role();
-}
-inline ::google::protobuf::uint32 Message::role() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.Message.role)
-  return role_;
-}
-inline void Message::set_role(::google::protobuf::uint32 value) {
-  set_has_role();
-  role_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.Message.role)
 }
 
 // -------------------------------------------------------------------
@@ -1887,39 +1680,15 @@ ChannelState::mutable_invitation() {
   return &invitation_;
 }
 
-// optional uint32 max_invitations = 5;
-inline bool ChannelState::has_max_invitations() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
-}
-inline void ChannelState::set_has_max_invitations() {
-  _has_bits_[0] |= 0x00000010u;
-}
-inline void ChannelState::clear_has_max_invitations() {
-  _has_bits_[0] &= ~0x00000010u;
-}
-inline void ChannelState::clear_max_invitations() {
-  max_invitations_ = 0u;
-  clear_has_max_invitations();
-}
-inline ::google::protobuf::uint32 ChannelState::max_invitations() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.ChannelState.max_invitations)
-  return max_invitations_;
-}
-inline void ChannelState::set_max_invitations(::google::protobuf::uint32 value) {
-  set_has_max_invitations();
-  max_invitations_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.ChannelState.max_invitations)
-}
-
 // optional uint32 reason = 6;
 inline bool ChannelState::has_reason() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline void ChannelState::set_has_reason() {
-  _has_bits_[0] |= 0x00000020u;
+  _has_bits_[0] |= 0x00000010u;
 }
 inline void ChannelState::clear_has_reason() {
-  _has_bits_[0] &= ~0x00000020u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline void ChannelState::clear_reason() {
   reason_ = 0u;
@@ -1937,13 +1706,13 @@ inline void ChannelState::set_reason(::google::protobuf::uint32 value) {
 
 // optional .bgs.protocol.channel.v1.ChannelState.PrivacyLevel privacy_level = 7 [default = PRIVACY_LEVEL_OPEN];
 inline bool ChannelState::has_privacy_level() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
+  return (_has_bits_[0] & 0x00000020u) != 0;
 }
 inline void ChannelState::set_has_privacy_level() {
-  _has_bits_[0] |= 0x00000040u;
+  _has_bits_[0] |= 0x00000020u;
 }
 inline void ChannelState::clear_has_privacy_level() {
-  _has_bits_[0] &= ~0x00000040u;
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline void ChannelState::clear_privacy_level() {
   privacy_level_ = 1;
@@ -1962,13 +1731,13 @@ inline void ChannelState::set_privacy_level(::bgs::protocol::channel::v1::Channe
 
 // optional string name = 8;
 inline bool ChannelState::has_name() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
+  return (_has_bits_[0] & 0x00000040u) != 0;
 }
 inline void ChannelState::set_has_name() {
-  _has_bits_[0] |= 0x00000080u;
+  _has_bits_[0] |= 0x00000040u;
 }
 inline void ChannelState::clear_has_name() {
-  _has_bits_[0] &= ~0x00000080u;
+  _has_bits_[0] &= ~0x00000040u;
 }
 inline void ChannelState::clear_name() {
   if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -2036,91 +1805,15 @@ inline void ChannelState::set_allocated_name(::std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.ChannelState.name)
 }
 
-// optional string delegate_name = 9;
-inline bool ChannelState::has_delegate_name() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
-}
-inline void ChannelState::set_has_delegate_name() {
-  _has_bits_[0] |= 0x00000100u;
-}
-inline void ChannelState::clear_has_delegate_name() {
-  _has_bits_[0] &= ~0x00000100u;
-}
-inline void ChannelState::clear_delegate_name() {
-  if (delegate_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delegate_name_->clear();
-  }
-  clear_has_delegate_name();
-}
-inline const ::std::string& ChannelState::delegate_name() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.ChannelState.delegate_name)
-  return *delegate_name_;
-}
-inline void ChannelState::set_delegate_name(const ::std::string& value) {
-  set_has_delegate_name();
-  if (delegate_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delegate_name_ = new ::std::string;
-  }
-  delegate_name_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.ChannelState.delegate_name)
-}
-inline void ChannelState::set_delegate_name(const char* value) {
-  set_has_delegate_name();
-  if (delegate_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delegate_name_ = new ::std::string;
-  }
-  delegate_name_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.channel.v1.ChannelState.delegate_name)
-}
-inline void ChannelState::set_delegate_name(const char* value, size_t size) {
-  set_has_delegate_name();
-  if (delegate_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delegate_name_ = new ::std::string;
-  }
-  delegate_name_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.channel.v1.ChannelState.delegate_name)
-}
-inline ::std::string* ChannelState::mutable_delegate_name() {
-  set_has_delegate_name();
-  if (delegate_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delegate_name_ = new ::std::string;
-  }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.ChannelState.delegate_name)
-  return delegate_name_;
-}
-inline ::std::string* ChannelState::release_delegate_name() {
-  clear_has_delegate_name();
-  if (delegate_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    return NULL;
-  } else {
-    ::std::string* temp = delegate_name_;
-    delegate_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    return temp;
-  }
-}
-inline void ChannelState::set_allocated_delegate_name(::std::string* delegate_name) {
-  if (delegate_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete delegate_name_;
-  }
-  if (delegate_name) {
-    set_has_delegate_name();
-    delegate_name_ = delegate_name;
-  } else {
-    clear_has_delegate_name();
-    delegate_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.ChannelState.delegate_name)
-}
-
 // optional string channel_type = 10 [default = "default"];
 inline bool ChannelState::has_channel_type() const {
-  return (_has_bits_[0] & 0x00000200u) != 0;
+  return (_has_bits_[0] & 0x00000080u) != 0;
 }
 inline void ChannelState::set_has_channel_type() {
-  _has_bits_[0] |= 0x00000200u;
+  _has_bits_[0] |= 0x00000080u;
 }
 inline void ChannelState::clear_has_channel_type() {
-  _has_bits_[0] &= ~0x00000200u;
+  _has_bits_[0] &= ~0x00000080u;
 }
 inline void ChannelState::clear_channel_type() {
   if (channel_type_ != _default_channel_type_) {
@@ -2190,13 +1883,13 @@ inline void ChannelState::set_allocated_channel_type(::std::string* channel_type
 
 // optional fixed32 program = 11 [default = 0];
 inline bool ChannelState::has_program() const {
-  return (_has_bits_[0] & 0x00000400u) != 0;
+  return (_has_bits_[0] & 0x00000100u) != 0;
 }
 inline void ChannelState::set_has_program() {
-  _has_bits_[0] |= 0x00000400u;
+  _has_bits_[0] |= 0x00000100u;
 }
 inline void ChannelState::clear_has_program() {
-  _has_bits_[0] &= ~0x00000400u;
+  _has_bits_[0] &= ~0x00000100u;
 }
 inline void ChannelState::clear_program() {
   program_ = 0u;
@@ -2212,39 +1905,15 @@ inline void ChannelState::set_program(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.ChannelState.program)
 }
 
-// optional bool allow_offline_members = 12 [default = false];
-inline bool ChannelState::has_allow_offline_members() const {
-  return (_has_bits_[0] & 0x00000800u) != 0;
-}
-inline void ChannelState::set_has_allow_offline_members() {
-  _has_bits_[0] |= 0x00000800u;
-}
-inline void ChannelState::clear_has_allow_offline_members() {
-  _has_bits_[0] &= ~0x00000800u;
-}
-inline void ChannelState::clear_allow_offline_members() {
-  allow_offline_members_ = false;
-  clear_has_allow_offline_members();
-}
-inline bool ChannelState::allow_offline_members() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.ChannelState.allow_offline_members)
-  return allow_offline_members_;
-}
-inline void ChannelState::set_allow_offline_members(bool value) {
-  set_has_allow_offline_members();
-  allow_offline_members_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.ChannelState.allow_offline_members)
-}
-
 // optional bool subscribe_to_presence = 13 [default = true];
 inline bool ChannelState::has_subscribe_to_presence() const {
-  return (_has_bits_[0] & 0x00001000u) != 0;
+  return (_has_bits_[0] & 0x00000200u) != 0;
 }
 inline void ChannelState::set_has_subscribe_to_presence() {
-  _has_bits_[0] |= 0x00001000u;
+  _has_bits_[0] |= 0x00000200u;
 }
 inline void ChannelState::clear_has_subscribe_to_presence() {
-  _has_bits_[0] &= ~0x00001000u;
+  _has_bits_[0] &= ~0x00000200u;
 }
 inline void ChannelState::clear_subscribe_to_presence() {
   subscribe_to_presence_ = true;
@@ -2260,28 +1929,84 @@ inline void ChannelState::set_subscribe_to_presence(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.ChannelState.subscribe_to_presence)
 }
 
-// optional bool destroy_on_founder_leave = 14 [default = false];
-inline bool ChannelState::has_destroy_on_founder_leave() const {
-  return (_has_bits_[0] & 0x00002000u) != 0;
+// -------------------------------------------------------------------
+
+// MemberAccountInfo
+
+// optional string battle_tag = 3;
+inline bool MemberAccountInfo::has_battle_tag() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void ChannelState::set_has_destroy_on_founder_leave() {
-  _has_bits_[0] |= 0x00002000u;
+inline void MemberAccountInfo::set_has_battle_tag() {
+  _has_bits_[0] |= 0x00000001u;
 }
-inline void ChannelState::clear_has_destroy_on_founder_leave() {
-  _has_bits_[0] &= ~0x00002000u;
+inline void MemberAccountInfo::clear_has_battle_tag() {
+  _has_bits_[0] &= ~0x00000001u;
 }
-inline void ChannelState::clear_destroy_on_founder_leave() {
-  destroy_on_founder_leave_ = false;
-  clear_has_destroy_on_founder_leave();
+inline void MemberAccountInfo::clear_battle_tag() {
+  if (battle_tag_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_->clear();
+  }
+  clear_has_battle_tag();
 }
-inline bool ChannelState::destroy_on_founder_leave() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.ChannelState.destroy_on_founder_leave)
-  return destroy_on_founder_leave_;
+inline const ::std::string& MemberAccountInfo::battle_tag() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.MemberAccountInfo.battle_tag)
+  return *battle_tag_;
 }
-inline void ChannelState::set_destroy_on_founder_leave(bool value) {
-  set_has_destroy_on_founder_leave();
-  destroy_on_founder_leave_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.ChannelState.destroy_on_founder_leave)
+inline void MemberAccountInfo::set_battle_tag(const ::std::string& value) {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
+  }
+  battle_tag_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.MemberAccountInfo.battle_tag)
+}
+inline void MemberAccountInfo::set_battle_tag(const char* value) {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
+  }
+  battle_tag_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.channel.v1.MemberAccountInfo.battle_tag)
+}
+inline void MemberAccountInfo::set_battle_tag(const char* value, size_t size) {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
+  }
+  battle_tag_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.channel.v1.MemberAccountInfo.battle_tag)
+}
+inline ::std::string* MemberAccountInfo::mutable_battle_tag() {
+  set_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    battle_tag_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.MemberAccountInfo.battle_tag)
+  return battle_tag_;
+}
+inline ::std::string* MemberAccountInfo::release_battle_tag() {
+  clear_has_battle_tag();
+  if (battle_tag_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = battle_tag_;
+    battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void MemberAccountInfo::set_allocated_battle_tag(::std::string* battle_tag) {
+  if (battle_tag_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete battle_tag_;
+  }
+  if (battle_tag) {
+    set_has_battle_tag();
+    battle_tag_ = battle_tag;
+  } else {
+    clear_has_battle_tag();
+    battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.MemberAccountInfo.battle_tag)
 }
 
 // -------------------------------------------------------------------
@@ -2372,7 +2097,7 @@ inline void MemberState::set_privileges(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.MemberState.privileges)
 }
 
-// optional .bgs.protocol.AccountInfo info = 4;
+// optional .bgs.protocol.channel.v1.MemberAccountInfo info = 4;
 inline bool MemberState::has_info() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
@@ -2383,26 +2108,26 @@ inline void MemberState::clear_has_info() {
   _has_bits_[0] &= ~0x00000008u;
 }
 inline void MemberState::clear_info() {
-  if (info_ != NULL) info_->::bgs::protocol::AccountInfo::Clear();
+  if (info_ != NULL) info_->::bgs::protocol::channel::v1::MemberAccountInfo::Clear();
   clear_has_info();
 }
-inline const ::bgs::protocol::AccountInfo& MemberState::info() const {
+inline const ::bgs::protocol::channel::v1::MemberAccountInfo& MemberState::info() const {
   // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.MemberState.info)
   return info_ != NULL ? *info_ : *default_instance_->info_;
 }
-inline ::bgs::protocol::AccountInfo* MemberState::mutable_info() {
+inline ::bgs::protocol::channel::v1::MemberAccountInfo* MemberState::mutable_info() {
   set_has_info();
-  if (info_ == NULL) info_ = new ::bgs::protocol::AccountInfo;
+  if (info_ == NULL) info_ = new ::bgs::protocol::channel::v1::MemberAccountInfo;
   // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.MemberState.info)
   return info_;
 }
-inline ::bgs::protocol::AccountInfo* MemberState::release_info() {
+inline ::bgs::protocol::channel::v1::MemberAccountInfo* MemberState::release_info() {
   clear_has_info();
-  ::bgs::protocol::AccountInfo* temp = info_;
+  ::bgs::protocol::channel::v1::MemberAccountInfo* temp = info_;
   info_ = NULL;
   return temp;
 }
-inline void MemberState::set_allocated_info(::bgs::protocol::AccountInfo* info) {
+inline void MemberState::set_allocated_info(::bgs::protocol::channel::v1::MemberAccountInfo* info) {
   delete info_;
   info_ = info;
   if (info) {
@@ -2411,30 +2136,6 @@ inline void MemberState::set_allocated_info(::bgs::protocol::AccountInfo* info) 
     clear_has_info();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.MemberState.info)
-}
-
-// optional bool DEPRECATED_hidden = 5 [default = false, deprecated = true];
-inline bool MemberState::has_deprecated_hidden() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
-}
-inline void MemberState::set_has_deprecated_hidden() {
-  _has_bits_[0] |= 0x00000010u;
-}
-inline void MemberState::clear_has_deprecated_hidden() {
-  _has_bits_[0] &= ~0x00000010u;
-}
-inline void MemberState::clear_deprecated_hidden() {
-  deprecated_hidden_ = false;
-  clear_has_deprecated_hidden();
-}
-inline bool MemberState::deprecated_hidden() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.MemberState.DEPRECATED_hidden)
-  return deprecated_hidden_;
-}
-inline void MemberState::set_deprecated_hidden(bool value) {
-  set_has_deprecated_hidden();
-  deprecated_hidden_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.MemberState.DEPRECATED_hidden)
 }
 
 // -------------------------------------------------------------------

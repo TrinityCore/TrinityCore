@@ -5,8 +5,10 @@
 //==========================================
 #include "CompilerDefs.h"
 
-#if PLATFORM == PLATFORM_WINDOWS && !defined(__MINGW32__)
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS && !defined(__MINGW32__)
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #pragma warning(disable:4996)
 #pragma warning(disable:4312)
 #pragma warning(disable:4311)
@@ -21,6 +23,7 @@
 
 #include "Common.h"
 #include "GitRevision.h"
+#include <algorithm>
 
 #define CrashFolder _T("Crashes")
 #pragma comment(linker, "/DEFAULTLIB:dbghelp.lib")
@@ -50,11 +53,15 @@ inline LPTSTR ErrorMessage(DWORD dw)
 //============================== Global Variables =============================
 
 //
-// Declare the static variables of the WheatyExceptionReport class
+// Declare the static variables of the WheatyExceptionReport class and force their initialization before any other static in the program
 //
+#pragma warning(push)
+#pragma warning(disable: 4073) // C4073: initializers put in library initialization area
+#pragma init_seg(lib)
 TCHAR WheatyExceptionReport::m_szLogFileName[MAX_PATH];
 TCHAR WheatyExceptionReport::m_szDumpFileName[MAX_PATH];
 LPTOP_LEVEL_EXCEPTION_FILTER WheatyExceptionReport::m_previousFilter;
+_invalid_parameter_handler WheatyExceptionReport::m_previousCrtHandler;
 HANDLE WheatyExceptionReport::m_hReportFile;
 HANDLE WheatyExceptionReport::m_hDumpFile;
 HANDLE WheatyExceptionReport::m_hProcess;
@@ -65,9 +72,9 @@ bool WheatyExceptionReport::alreadyCrashed;
 std::mutex WheatyExceptionReport::alreadyCrashedLock;
 WheatyExceptionReport::pRtlGetVersion WheatyExceptionReport::RtlGetVersion;
 
-
 // Declare global instance of class
 WheatyExceptionReport g_WheatyExceptionReport;
+#pragma warning(pop)
 
 //============================== Class Methods =============================
 
@@ -75,6 +82,7 @@ WheatyExceptionReport::WheatyExceptionReport()             // Constructor
 {
     // Install the unhandled exception filter function
     m_previousFilter = SetUnhandledExceptionFilter(WheatyUnhandledExceptionFilter);
+    m_previousCrtHandler = _set_invalid_parameter_handler(WheatyCrtHandler);
     m_hProcess = GetCurrentProcess();
     stackOverflowException = false;
     alreadyCrashed = false;
@@ -95,6 +103,8 @@ WheatyExceptionReport::~WheatyExceptionReport()
 {
     if (m_previousFilter)
         SetUnhandledExceptionFilter(m_previousFilter);
+    if (m_previousCrtHandler)
+        _set_invalid_parameter_handler(m_previousCrtHandler);
     ClearSymbols();
 }
 
@@ -123,7 +133,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
     ++pos;
 
     TCHAR crash_folder_path[MAX_PATH];
-    sprintf(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
+    sprintf_s(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
     if (!CreateDirectory(crash_folder_path, NULL))
     {
         if (GetLastError() != ERROR_ALREADY_EXISTS)
@@ -181,6 +191,11 @@ PEXCEPTION_POINTERS pExceptionInfo)
         return m_previousFilter(pExceptionInfo);
     else
         return EXCEPTION_EXECUTE_HANDLER/*EXCEPTION_CONTINUE_SEARCH*/;
+}
+
+void __cdecl WheatyExceptionReport::WheatyCrtHandler(wchar_t const* /*expression*/, wchar_t const* /*function*/, wchar_t const* /*file*/, unsigned int /*line*/, uintptr_t /*pReserved*/)
+{
+    RaiseException(EXCEPTION_ACCESS_VIOLATION, 0, 0, nullptr);
 }
 
 BOOL WheatyExceptionReport::_GetProcessorName(TCHAR* sProcessorName, DWORD maxcount)
@@ -1404,12 +1419,15 @@ int __cdecl WheatyExceptionReport::stackprintf(const TCHAR * format, va_list arg
 
 int __cdecl WheatyExceptionReport::heapprintf(const TCHAR * format, va_list argptr)
 {
-    int retValue;
+    int retValue = 0;
     DWORD cbWritten;
     TCHAR* szBuff = (TCHAR*)malloc(sizeof(TCHAR) * WER_LARGE_BUFFER_SIZE);
-    retValue = vsprintf(szBuff, format, argptr);
-    WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0);
-    free(szBuff);
+    if (szBuff != nullptr)
+    {
+        retValue = vsprintf(szBuff, format, argptr);
+        WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0);
+        free(szBuff);
+    }
 
     return retValue;
 }

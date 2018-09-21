@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,18 +20,29 @@
 #define _FORMATIONS_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include <unordered_map>
 #include <map>
 
+enum GroupAIFlags
+{
+    FLAG_AGGRO_NONE            = 0,                                                         // No creature group behavior
+    FLAG_MEMBERS_ASSIST_LEADER = 0x00000001,                                                // The member aggroes if the leader aggroes
+    FLAG_LEADER_ASSISTS_MEMBER = 0x00000002,                                                // The leader aggroes if the member aggroes
+    FLAG_MEMBERS_ASSIST_MEMBER = (FLAG_MEMBERS_ASSIST_LEADER | FLAG_LEADER_ASSISTS_MEMBER), // every member will assist if any member is attacked
+    FLAG_IDLE_IN_FORMATION     = 0x00000200,                                                // The member will follow the leader when pathing idly
+};
+
 class Creature;
 class CreatureGroup;
+class Unit;
 
 struct FormationInfo
 {
     ObjectGuid::LowType leaderGUID;
     float follow_dist;
     float follow_angle;
-    uint8 groupAI;
+    uint32 groupAI;
     uint32 point_1;
     uint32 point_2;
 };

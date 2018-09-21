@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,10 +24,14 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
+#include "EventMap.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "stratholme.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
+#include "stratholme.h"
 
 enum Misc
 {
@@ -43,7 +47,7 @@ enum InstanceEvents
 class instance_stratholme : public InstanceMapScript
 {
     public:
-        instance_stratholme() : InstanceMapScript("instance_stratholme", 329) { }
+        instance_stratholme() : InstanceMapScript(StratholmeScriptName, 329) { }
 
         struct instance_stratholme_InstanceMapScript : public InstanceScript
         {

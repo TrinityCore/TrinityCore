@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,14 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
-#include "Item.h"
-#include "World.h"
-#include "Config.h"
-#include "AuctionHouseMgr.h"
 #include "AuctionHouseBot.h"
 #include "AuctionHouseBotBuyer.h"
 #include "AuctionHouseBotSeller.h"
+#include "Config.h"
+#include "Containers.h"
+#include "DatabaseEnv.h"
+#include "Item.h"
+#include "Log.h"
+#include "World.h"
 
 AuctionBotConfig* AuctionBotConfig::instance()
 {
@@ -55,6 +56,24 @@ bool AuctionBotConfig::Initialize()
 
     _itemsPerCycleBoost = GetConfig(CONFIG_AHBOT_ITEMS_PER_CYCLE_BOOST);
     _itemsPerCycleNormal = GetConfig(CONFIG_AHBOT_ITEMS_PER_CYCLE_NORMAL);
+
+    if (uint32 ahBotAccId = GetConfig(CONFIG_AHBOT_ACCOUNT_ID))
+    {
+        // find account guids associated with ahbot account
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARS_BY_ACCOUNT_ID);
+        stmt->setUInt32(0, ahBotAccId);
+        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        {
+            do
+            {
+                _AHBotCharacters.push_back((*result)[0].GetUInt64());
+            } while (result->NextRow());
+
+            TC_LOG_DEBUG("ahbot", "AuctionHouseBot found " UI64FMTD " characters", result->GetRowCount());
+        }
+        else
+            TC_LOG_WARN("ahbot", "AuctionHouseBot Account ID %u has no associated characters.", ahBotAccId);
+    }
 
     return true;
 }
@@ -111,6 +130,8 @@ void AuctionBotConfig::SetConfig(AuctionBotConfigFloatValues index, char const* 
 //Get AuctionHousebot configuration file
 void AuctionBotConfig::GetConfigFromFile()
 {
+    SetConfig(CONFIG_AHBOT_ACCOUNT_ID, "AuctionHouseBot.Account", 0);
+
     SetConfigMax(CONFIG_AHBOT_ALLIANCE_ITEM_AMOUNT_RATIO, "AuctionHouseBot.Alliance.Items.Amount.Ratio", 100, 10000);
     SetConfigMax(CONFIG_AHBOT_HORDE_ITEM_AMOUNT_RATIO, "AuctionHouseBot.Horde.Items.Amount.Ratio", 100, 10000);
     SetConfigMax(CONFIG_AHBOT_NEUTRAL_ITEM_AMOUNT_RATIO, "AuctionHouseBot.Neutral.Items.Amount.Ratio", 100, 10000);
@@ -264,12 +285,49 @@ void AuctionBotConfig::GetConfigFromFile()
     SetConfig(CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_KEY, "AuctionHouseBot.Class.RandomStackRatio.Key", 100);
     SetConfig(CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_MISC, "AuctionHouseBot.Class.RandomStackRatio.Misc", 100);
     SetConfig(CONFIG_AHBOT_CLASS_RANDOMSTACKRATIO_GLYPH, "AuctionHouseBot.Class.RandomStackRatio.Glyph", 0);
+
+    SetConfig(CONFIG_AHBOT_BIDPRICE_MIN, "AuctionHouseBot.BidPrice.Min", 0.6f);
+    SetConfig(CONFIG_AHBOT_BIDPRICE_MAX, "AuctionHouseBot.BidPrice.Max", 0.9f);
 }
 
 char const* AuctionBotConfig::GetHouseTypeName(AuctionHouseType houseType)
 {
     static char const* names[MAX_AUCTION_HOUSE_TYPE] = { "Neutral", "Alliance", "Horde" };
     return names[houseType];
+}
+
+// Picks a random character from the list of AHBot chars
+ObjectGuid::LowType AuctionBotConfig::GetRandChar() const
+{
+    if (_AHBotCharacters.empty())
+        return ObjectGuid::LowType(0);
+
+    return Trinity::Containers::SelectRandomContainerElement(_AHBotCharacters);
+}
+
+// Picks a random AHBot character, but excludes a specific one. This is used
+// to have another character than the auction owner place bids
+ObjectGuid::LowType AuctionBotConfig::GetRandCharExclude(ObjectGuid::LowType exclude) const
+{
+    if (_AHBotCharacters.empty())
+        return ObjectGuid::LowType(0);
+
+    std::vector<uint32> filteredCharacters;
+    filteredCharacters.reserve(_AHBotCharacters.size() - 1);
+
+    for (uint32 charId : _AHBotCharacters)
+        if (charId != exclude)
+            filteredCharacters.push_back(charId);
+
+    if (filteredCharacters.empty())
+        return ObjectGuid::LowType(0);
+
+    return Trinity::Containers::SelectRandomContainerElement(filteredCharacters);
+}
+
+bool AuctionBotConfig::IsBotChar(ObjectGuid::LowType characterID) const
+{
+    return !characterID || std::find(_AHBotCharacters.begin(), _AHBotCharacters.end(), characterID) != _AHBotCharacters.end();
 }
 
 uint32 AuctionBotConfig::GetConfigItemAmountRatio(AuctionHouseType houseType) const
@@ -408,7 +466,7 @@ void AuctionHouseBot::PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo)
             if (Item* item = sAuctionMgr->GetAItem(auctionEntry->itemGUIDLow))
             {
                 ItemTemplate const* prototype = item->GetTemplate();
-                if (!auctionEntry->owner)                         // Add only ahbot items
+                if (!auctionEntry->owner || sAuctionBotConfig->IsBotChar(auctionEntry->owner)) // Add only ahbot items
                 {
                     if (prototype->GetQuality() < MAX_AUCTION_QUALITY)
                         ++statusInfo[i].QualityInfo[prototype->GetQuality()];
@@ -426,7 +484,7 @@ void AuctionHouseBot::Rebuild(bool all)
     {
         AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(AuctionHouseType(i));
         for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
-            if (!itr->second->owner)                        // ahbot auction
+            if (!itr->second->owner || sAuctionBotConfig->IsBotChar(itr->second->owner)) // ahbot auction
                 if (all || itr->second->bid == 0)           // expire now auction if no bid or forced
                     itr->second->expire_time = sWorld->GetGameTime();
     }

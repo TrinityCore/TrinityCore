@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,13 +23,18 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ObjectMgr.h"
-#include "MapManager.h"
-#include "SupportMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "Language.h"
+#include "MapManager.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
+#include "RBAC.h"
+#include "SupportMgr.h"
 #include "Transport.h"
+#include "WorldSession.h"
 
 class go_commandscript : public CommandScript
 {
@@ -52,7 +57,7 @@ public:
             { "bugticket",          rbac::RBAC_PERM_COMMAND_GO_BUG_TICKET,          false, &HandleGoTicketCommand<BugTicket>,           "" },
             { "complaintticket",    rbac::RBAC_PERM_COMMAND_GO_COMPLAINT_TICKET,    false, &HandleGoTicketCommand<ComplaintTicket>,     "" },
             { "suggestionticket",   rbac::RBAC_PERM_COMMAND_GO_SUGGESTION_TICKET,   false, &HandleGoTicketCommand<SuggestionTicket>,    "" },
-            { "",                   rbac::RBAC_PERM_COMMAND_GO,                     false, &HandleGoXYZCommand,                         "" },
+            { "offset",             rbac::RBAC_PERM_COMMAND_GO_OFFSET,              false, &HandleGoOffsetCommand,                      "" },
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -99,7 +104,7 @@ public:
             if (!id)
                 return false;
 
-            int32 entry = atoi(id);
+            uint32 entry = atoul(id);
             if (!entry)
                 return false;
 
@@ -107,17 +112,17 @@ public:
         }
         else
         {
-            int32 guid = atoi(param1);
+            ObjectGuid::LowType guidLow = atoull(param1);
 
             // Number is invalid - maybe the user specified the mob's name
-            if (!guid)
+            if (!guidLow)
             {
                 std::string name = param1;
                 WorldDatabase.EscapeString(name);
-                whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name " _LIKE_" '" << name << '\'';
+                whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name LIKE '" << name << '\'';
             }
             else
-                whereClause <<  "WHERE guid = '" << guid << '\'';
+                whereClause <<  "WHERE guid = '" << guidLow << '\'';
         }
 
         QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map FROM creature %s", whereClause.str().c_str());
@@ -170,7 +175,7 @@ public:
         if (!gyId)
             return false;
 
-        int32 graveyardId = atoi(gyId);
+        uint32 graveyardId = atoul(gyId);
 
         if (!graveyardId)
             return false;
@@ -219,7 +224,7 @@ public:
         if (!gridX || !gridY)
             return false;
 
-        uint32 mapId = id ? (uint32)atoi(id) : player->GetMapId();
+        uint32 mapId = id ? atoul(id) : player->GetMapId();
 
         // center of grid
         float x = ((float)atof(gridX) - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
@@ -243,7 +248,7 @@ public:
             player->SaveRecallPosition();
 
         Map const* map = sMapMgr->CreateBaseMap(mapId);
-        float z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+        float z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
 
         player->TeleportTo(mapId, x, y, z, player->GetOrientation());
         return true;
@@ -262,15 +267,15 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guid = strtoull(id, nullptr, 10);
-        if (!guid)
+        ObjectGuid::LowType guidLow = atoull(id);
+        if (!guidLow)
             return false;
 
         float x, y, z, o;
         uint32 mapId;
 
         // by DB guid
-        if (GameObjectData const* goData = sObjectMgr->GetGOData(guid))
+        if (GameObjectData const* goData = sObjectMgr->GetGOData(guidLow))
         {
             x = goData->posX;
             y = goData->posY;
@@ -317,7 +322,7 @@ public:
         if (!id)
             return false;
 
-        uint32 questID = atoi(id);
+        uint32 questID = atoul(id);
         if (!questID)
             return false;
 
@@ -365,7 +370,7 @@ public:
             player->SaveRecallPosition();
 
         Map const* map = sMapMgr->CreateBaseMap(mapId);
-        z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+        z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
 
         player->TeleportTo(mapId, x, y, z, 0.0f);
         return true;
@@ -382,7 +387,7 @@ public:
         if (!id)
             return false;
 
-        int32 nodeId = atoi(id);
+        uint32 nodeId = atoul(id);
         if (!nodeId)
             return false;
 
@@ -395,9 +400,9 @@ public:
         }
 
         if ((node->Pos.X == 0.0f && node->Pos.Y == 0.0f && node->Pos.Z == 0.0f) ||
-            !MapManager::IsValidMapCoord(node->MapID, node->Pos.X, node->Pos.Y, node->Pos.Z))
+            !MapManager::IsValidMapCoord(node->ContinentID, node->Pos.X, node->Pos.Y, node->Pos.Z))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, node->Pos.X, node->Pos.Y, node->MapID);
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, node->Pos.X, node->Pos.Y, uint32(node->ContinentID));
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -412,7 +417,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        player->TeleportTo(node->MapID, node->Pos.X, node->Pos.Y, node->Pos.Z, player->GetOrientation());
+        player->TeleportTo(node->ContinentID, node->Pos.X, node->Pos.Y, node->Pos.Z, player->GetOrientation());
         return true;
     }
 
@@ -427,7 +432,7 @@ public:
         if (!id)
             return false;
 
-        int32 areaTriggerId = atoi(id);
+        uint32 areaTriggerId = atoul(id);
 
         if (!areaTriggerId)
             return false;
@@ -440,9 +445,9 @@ public:
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(at->MapID, at->Pos.X, at->Pos.Y, at->Pos.Z))
+        if (!MapManager::IsValidMapCoord(at->ContinentID, at->Pos.X, at->Pos.Y, at->Pos.Z))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, at->Pos.X, at->Pos.Y, at->MapID);
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, at->Pos.X, at->Pos.Y, uint32(at->ContinentID));
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -457,7 +462,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        player->TeleportTo(at->MapID, at->Pos.X, at->Pos.Y, at->Pos.Z, player->GetOrientation());
+        player->TeleportTo(at->ContinentID, at->Pos.X, at->Pos.Y, at->Pos.Z, player->GetOrientation());
         return true;
     }
 
@@ -485,7 +490,7 @@ public:
         if ((x == 0.0f && *zoneX != '0') || (y == 0.0f && *zoneY != '0'))
             return false;
 
-        uint32 areaId = id ? (uint32)atoi(id) : player->GetZoneId();
+        uint32 areaId = id ? atoul(id) : player->GetZoneId();
 
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
@@ -500,7 +505,7 @@ public:
         AreaTableEntry const* zoneEntry = areaEntry->ParentAreaID ? sAreaTableStore.LookupEntry(areaEntry->ParentAreaID) : areaEntry;
         ASSERT(zoneEntry);
 
-        Map const* map = sMapMgr->CreateBaseMap(zoneEntry->MapID);
+        Map const* map = sMapMgr->CreateBaseMap(zoneEntry->ContinentID);
 
         if (map->Instanceable())
         {
@@ -511,9 +516,9 @@ public:
 
         sDB2Manager.Zone2MapCoordinates(areaEntry->ParentAreaID ? uint32(areaEntry->ParentAreaID) : areaId, x, y);
 
-        if (!MapManager::IsValidMapCoord(zoneEntry->MapID, x, y))
+        if (!MapManager::IsValidMapCoord(zoneEntry->ContinentID, x, y))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, zoneEntry->MapID);
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, uint32(zoneEntry->ContinentID));
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -528,9 +533,9 @@ public:
         else
             player->SaveRecallPosition();
 
-        float z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+        float z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
 
-        player->TeleportTo(zoneEntry->MapID, x, y, z, player->GetOrientation());
+        player->TeleportTo(zoneEntry->ContinentID, x, y, z, player->GetOrientation());
         return true;
     }
 
@@ -555,7 +560,7 @@ public:
         float y = (float)atof(goY);
         float z;
         float ort = port ? (float)atof(port) : player->GetOrientation();
-        uint32 mapId = id ? (uint32)atoi(id) : player->GetMapId();
+        uint32 mapId = id ? atoul(id) : player->GetMapId();
 
         if (goZ)
         {
@@ -576,7 +581,7 @@ public:
                 return false;
             }
             Map const* map = sMapMgr->CreateBaseMap(mapId);
-            z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+            z = std::max(map->GetStaticHeight(PhasingHandler::GetEmptyPhaseShift(), x, y, MAX_HEIGHT), map->GetWaterLevel(PhasingHandler::GetEmptyPhaseShift(), x, y));
         }
 
         // stop flight if need
@@ -603,7 +608,7 @@ public:
         if (!id)
             return false;
 
-        uint32 ticketId = atoi(id);
+        uint32 ticketId = atoul(id);
         if (!ticketId)
             return false;
 
@@ -624,6 +629,50 @@ public:
             player->SaveRecallPosition();
 
         ticket->TeleportTo(player);
+        return true;
+    }
+
+    static bool HandleGoOffsetCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        char* goX = strtok((char*)args, " ");
+        char* goY = strtok(NULL, " ");
+        char* goZ = strtok(NULL, " ");
+        char* port = strtok(NULL, " ");
+
+        float x, y, z, o;
+        player->GetPosition(x, y, z, o);
+        if (goX)
+            x += atof(goX);
+        if (goY)
+            y += atof(goY);
+        if (goZ)
+            z += atof(goZ);
+        if (port)
+            o += atof(port);
+
+        if (!Trinity::IsValidMapCoord(x, y, z, o))
+        {
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, player->GetMapId());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // stop flight if need
+        if (player->IsInFlight())
+        {
+            player->GetMotionMaster()->MovementExpired();
+            player->CleanupAfterTaxiFlight();
+        }
+        // save only in non-flight case
+        else
+            player->SaveRecallPosition();
+
+        player->TeleportTo(player->GetMapId(), x, y, z, o);
         return true;
     }
 };

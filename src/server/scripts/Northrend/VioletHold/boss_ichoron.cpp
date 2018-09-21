@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "violet_hold.h"
 
@@ -344,9 +347,7 @@ class spell_ichoron_merge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHRINK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHRINK });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -419,14 +420,15 @@ class spell_ichoron_splatter : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_2)
-                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_3)
-                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_4)
-                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_5)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHRINK))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_WATER_GLOBULE_SUMMON_1,
+                    SPELL_WATER_GLOBULE_SUMMON_2,
+                    SPELL_WATER_GLOBULE_SUMMON_3,
+                    SPELL_WATER_GLOBULE_SUMMON_4,
+                    SPELL_WATER_GLOBULE_SUMMON_5,
+                    SPELL_SHRINK
+                });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)

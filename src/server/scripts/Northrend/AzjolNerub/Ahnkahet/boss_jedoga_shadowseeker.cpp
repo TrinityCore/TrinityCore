@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +16,17 @@
  */
 
 /*
- * Comment: Complete - BUT THE TRIGGER NEEDS DATA WHETHER THE PRISON OF TALDARAM IS OFFLINE !
+ * Comment: Visuals missing, de-germanize code, wow 3.3.5a-ize
+ * Patch 3.3.2 (2010-01-02): Jedoga Shadowseeker now only ascends once during the encounter.
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "ahnkahet.h"
-
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -325,7 +329,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_jedoga_shadowseekerAI>(creature);
+        return GetAhnKahetAI<boss_jedoga_shadowseekerAI>(creature);
     }
 };
 
@@ -428,7 +432,7 @@ public:
             {
                 case 1:
                     {
-                        Creature* boss = me->GetMap()->GetCreature(instance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER));
+                        Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER));
                         if (boss)
                         {
                             ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok = true;
@@ -494,7 +498,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_jedoga_initiandAI>(creature);
+        return GetAhnKahetAI<npc_jedoga_initiandAI>(creature);
     }
 };
 
@@ -577,7 +581,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_jedogas_aufseher_triggerAI>(creature);
+        return GetAhnKahetAI<npc_jedogas_aufseher_triggerAI>(creature);
     }
 };
 

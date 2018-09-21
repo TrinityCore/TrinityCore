@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,9 +19,9 @@
 #define GuildPackets_h__
 
 #include "Packet.h"
-#include "ObjectGuid.h"
+#include "ItemPacketsCommon.h"
 #include "Guild.h"
-#include "ItemPackets.h"
+#include "ObjectGuid.h"
 
 namespace WorldPackets
 {
@@ -212,7 +212,7 @@ namespace WorldPackets
 
             ObjectGuid GuildGUID;
             ObjectGuid OldGuildGUID;
-            int32 Level = 0;
+            int32 AchievementPoints = 0;
             uint32 EmblemColor = 0;
             uint32 EmblemStyle = 0;
             uint32 BorderStyle = 0;
@@ -673,7 +673,7 @@ namespace WorldPackets
             uint32 ItemID = 0;
             uint32 Unk4 = 0;
             std::vector<uint32> AchievementsRequired;
-            uint32 RaceMask = 0;
+            uint64 RaceMask = 0;
             int32 MinGuildLevel = 0;
             int32 MinGuildRep = 0;
             uint64 Cost = 0;
@@ -1009,6 +1009,17 @@ namespace WorldPackets
             void Read() override;
 
             std::set<uint32> AchievementIDs;
+        };
+
+        class GuildNameChanged final : ServerPacket
+        {
+        public:
+            GuildNameChanged() : ServerPacket(SMSG_GUILD_NAME_CHANGED, 40) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GuildGUID;
+            std::string GuildName;
         };
     }
 }

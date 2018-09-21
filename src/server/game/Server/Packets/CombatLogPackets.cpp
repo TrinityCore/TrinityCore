@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,7 @@
  */
 
 #include "CombatLogPackets.h"
-#include "SpellPackets.h"
+#include "UnitDefines.h"
 
 WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
 {
@@ -24,12 +24,13 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
     *this << CasterGUID;
     *this << CastID;
     *this << int32(SpellID);
+    *this << int32(SpellXSpellVisualID);
     *this << int32(Damage);
     *this << int32(Overkill);
     *this << uint8(SchoolMask);
-    *this << int32(ShieldBlock);
-    *this << int32(Resisted);
     *this << int32(Absorbed);
+    *this << int32(Resisted);
+    *this << int32(ShieldBlock);
     WriteBit(Periodic);
     WriteBits(Flags, 7);
     WriteBit(false); // Debug info
@@ -127,13 +128,13 @@ WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
     WriteBit(SandboxScaling.is_initialized());
     FlushBits();
 
+    WriteLogData();
+
     if (CritRollMade)
         *this << *CritRollMade;
 
     if (CritRollNeeded)
         *this << *CritRollNeeded;
-
-    WriteLogData();
 
     if (SandboxScaling)
         *this << *SandboxScaling;
@@ -147,6 +148,8 @@ WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
     *this << CasterGUID;
     *this << int32(SpellID);
     *this << uint32(Effects.size());
+    WriteLogDataBit();
+    FlushBits();
 
     for (SpellLogEffect const& effect : Effects)
     {
@@ -172,8 +175,6 @@ WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
 
     }
 
-    WriteLogDataBit();
-    FlushBits();
     WriteLogData();
 
     return &_worldPacket;
@@ -191,12 +192,13 @@ WorldPacket const* WorldPackets::CombatLog::SpellInterruptLog::Write()
 
 WorldPacket const* WorldPackets::CombatLog::SpellEnergizeLog::Write()
 {
-    *this << CasterGUID;
     *this << TargetGUID;
+    *this << CasterGUID;
 
     *this << int32(SpellID);
     *this << int32(Type);
     *this << int32(Amount);
+    *this << int32(OverEnergize);
 
     WriteLogDataBit();
     FlushBits();
@@ -344,6 +346,7 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     attackRoundInfo << uint8(SandboxScaling.TargetMaxScalingLevel);
     attackRoundInfo << int16(SandboxScaling.PlayerLevelDelta);
     attackRoundInfo << int8(SandboxScaling.TargetScalingLevelDelta);
+    attackRoundInfo << uint16(SandboxScaling.PlayerItemLevel);
 
     WriteLogDataBit();
     FlushBits();

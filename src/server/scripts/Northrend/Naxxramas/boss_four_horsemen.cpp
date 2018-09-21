@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Horseman
 {
@@ -74,7 +79,7 @@ enum Actions
 
 enum HorsemenData
 {
-    DATA_HORSEMEN_IS_TIMED_KILL = Data::DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT, // inherit from naxxramas.h - this needs to be the first entry to ensure that there are no conflicts
+    DATA_HORSEMEN_IS_TIMED_KILL = NAXData::DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT, // inherit from naxxramas.h - this needs to be the first entry to ensure that there are no conflicts
     DATA_MOVEMENT_FINISHED,
     DATA_DEATH_TIME
 };
@@ -461,7 +466,7 @@ class boss_four_horsemen_baron : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_four_horsemen_baronAI>(creature);
+            return GetNaxxramasAI<boss_four_horsemen_baronAI>(creature);
         }
 };
 
@@ -543,7 +548,7 @@ class boss_four_horsemen_thane : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_four_horsemen_thaneAI>(creature);
+            return GetNaxxramasAI<boss_four_horsemen_thaneAI>(creature);
         }
 };
 
@@ -613,7 +618,7 @@ class boss_four_horsemen_lady : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_four_horsemen_ladyAI>(creature);
+            return GetNaxxramasAI<boss_four_horsemen_ladyAI>(creature);
         }
 };
 
@@ -695,7 +700,7 @@ class boss_four_horsemen_sir : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_four_horsemen_sirAI>(creature);
+            return GetNaxxramasAI<boss_four_horsemen_sirAI>(creature);
         }
 };
 

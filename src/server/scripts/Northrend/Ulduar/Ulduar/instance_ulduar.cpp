@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,14 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "Vehicle.h"
+#include "Item.h"
+#include "Map.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptMgr.h"
+#include "Spell.h"
 #include "SpellScript.h"
-#include "WorldPacket.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
+#include "Vehicle.h"
+#include "WorldStatePackets.h"
 
 static BossBoundaryData const boundaries =
 {
@@ -68,7 +74,7 @@ MinionData const minionData[] =
     { NPC_STEELBREAKER,   BOSS_ASSEMBLY_OF_IRON },
     { NPC_MOLGEIM,        BOSS_ASSEMBLY_OF_IRON },
     { NPC_BRUNDIR,        BOSS_ASSEMBLY_OF_IRON },
-    { 0,                  0,                    }
+    { 0,                  0                     } // END
 };
 
 ObjectData const creatureData[] =

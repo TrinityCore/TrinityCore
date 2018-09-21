@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,18 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
-#include "PassiveAI.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "SpellAuraEffects.h"
-#include "SmartAI.h"
 #include "icecrown_citadel.h"
+#include "CellImpl.h"
+#include "GameObject.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "PetDefines.h"
+#include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "SmartAI.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "VehicleDefines.h"
 
 // Weekly quest support
 // * Deprogramming                (DONE)
@@ -35,7 +40,7 @@
 // * Blood Quickening             (DONE)
 // * Respite for a Tormented Soul
 
-enum Texts
+enum ICCTexts
 {
     // Highlord Tirion Fordring (at Light's Hammer)
     SAY_TIRION_INTRO_1              = 0,
@@ -100,7 +105,7 @@ enum Texts
     SAY_CROK_DEATH                  = 8,
 };
 
-enum Spells
+enum ICCSpells
 {
     // Rotting Frost Giant
     SPELL_DEATH_PLAGUE              = 72879,
@@ -175,7 +180,7 @@ enum Spells
 #define SPELL_MACHINE_GUN       (IsUndead ? SPELL_MACHINE_GUN_UNDEAD : SPELL_MACHINE_GUN_NORMAL)
 #define SPELL_ROCKET_LAUNCH     (IsUndead ? SPELL_ROCKET_LAUNCH_UNDEAD : SPELL_ROCKET_LAUNCH_NORMAL)
 
-enum EventTypes
+enum ICCEventTypes
 {
     // Highlord Tirion Fordring (at Light's Hammer)
     // The Lich King (at Light's Hammer)
@@ -257,12 +262,12 @@ enum EventTypes
     EVENT_SOUL_MISSILE                  = 55,
 };
 
-enum DataTypesICC
+enum ICCDataTypes
 {
     DATA_DAMNED_KILLS       = 1,
 };
 
-enum Actions
+enum ICCActions
 {
     // Sister Svalna
     ACTION_KILL_CAPTAIN         = 1,
@@ -272,7 +277,7 @@ enum Actions
     ACTION_RESET_EVENT          = 5,
 };
 
-enum EventIds
+enum ICCEventIds
 {
     EVENT_AWAKEN_WARD_1 = 22900,
     EVENT_AWAKEN_WARD_2 = 22907,
@@ -280,7 +285,7 @@ enum EventIds
     EVENT_AWAKEN_WARD_4 = 22909,
 };
 
-enum MovementPoints
+enum ICCMovementPoints
 {
     POINT_LAND  = 1,
 };
@@ -919,6 +924,9 @@ class boss_sister_svalna : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1080,7 +1088,7 @@ class npc_crok_scourgebane : public CreatureScript
                         std::list<Creature*> temp;
                         FrostwingVrykulSearcher check(me, 80.0f);
                         Trinity::CreatureListSearcher<FrostwingVrykulSearcher> searcher(me, temp, check);
-                        me->VisitNearbyGridObject(80.0f, searcher);
+                        Cell::VisitGridObjects(me, searcher, 80.0f);
 
                         _aliveTrash.clear();
                         for (std::list<Creature*>::iterator itr = temp.begin(); itr != temp.end(); ++itr)
@@ -1107,7 +1115,7 @@ class npc_crok_scourgebane : public CreatureScript
                     Player* player = NULL;
                     Trinity::AnyPlayerInObjectRangeCheck check(me, 60.0f);
                     Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
-                    me->VisitNearbyWorldObject(60.0f, searcher);
+                    Cell::VisitWorldObjects(me, searcher, 60.0f);
                     // wipe
                     if (!player)
                     {
@@ -1116,7 +1124,7 @@ class npc_crok_scourgebane : public CreatureScript
                         {
                             FrostwingGauntletRespawner respawner;
                             Trinity::CreatureWorker<FrostwingGauntletRespawner> worker(me, respawner);
-                            me->VisitNearbyGridObject(333.0f, worker);
+                            Cell::VisitGridObjects(me, worker, 333.0f);
                             Talk(SAY_CROK_DEATH);
                         }
                         return;
@@ -1186,7 +1194,8 @@ class npc_crok_scourgebane : public CreatureScript
                             }
                             else
                             {
-                                me->DealHeal(me, me->CountPctFromMaxHealth(5));
+                                // looks totally hacky to me
+                                me->ModifyHealth(me->CountPctFromMaxHealth(5));
                                 _events.ScheduleEvent(EVENT_HEALTH_CHECK, 1000);
                             }
                             break;
@@ -1406,6 +1415,9 @@ class npc_captain_arnath : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1417,7 +1429,7 @@ class npc_captain_arnath : public CreatureScript
                 Creature* target = NULL;
                 Trinity::MostHPMissingInRange u_check(me, 60.0f, 0);
                 Trinity::CreatureLastSearcher<Trinity::MostHPMissingInRange> searcher(me, target, u_check);
-                me->VisitNearbyGridObject(60.0f, searcher);
+                Cell::VisitGridObjects(me, searcher, 60.0f);
                 return target;
             }
         };
@@ -1484,6 +1496,9 @@ class npc_captain_brandon : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1551,6 +1566,9 @@ class npc_captain_grondel : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1614,6 +1632,9 @@ class npc_captain_rupert : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1990,7 +2011,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
             void RemoveAliveTarget(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(AliveCheck());
-                Trinity::Containers::RandomResizeList(targets, 2);
+                Trinity::Containers::RandomResize(targets, 2);
             }
 
             void Land(SpellEffIndex /*effIndex*/)
@@ -2000,7 +2021,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
                     return;
 
                 Position pos = caster->GetNearPosition(5.0f, 0.0f);
-                //pos.m_positionZ = caster->GetBaseMap()->GetHeight(caster->GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), caster->GetPositionZ(), true, 50.0f);
+                //pos.m_positionZ = caster->GetBaseMap()->GetHeight(caster->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), caster->GetPositionZ(), true, 50.0f);
                 //pos.m_positionZ += 0.05f;
                 caster->SetHomePosition(pos);
                 caster->GetMotionMaster()->MoveLand(POINT_LAND, pos);
@@ -2078,6 +2099,48 @@ class spell_icc_soul_missile : public SpellScriptLoader
             return new spell_icc_soul_missile_SpellScript();
         }
 };
+
+class spell_trigger_spell_from_caster_SpellScript : public SpellScript
+{
+    PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
+
+public:
+    spell_trigger_spell_from_caster_SpellScript(uint32 triggerId, TriggerCastFlags triggerFlags)
+        : SpellScript(), _triggerId(triggerId), _triggerFlags(triggerFlags) { }
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ _triggerId });
+    }
+
+    void HandleTrigger()
+    {
+        GetCaster()->CastSpell(GetHitUnit(), _triggerId, _triggerFlags);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
+    }
+
+    uint32 _triggerId;
+    TriggerCastFlags _triggerFlags;
+};
+
+spell_trigger_spell_from_caster::spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId)
+    : SpellScriptLoader(scriptName), _triggerId(triggerId), _triggerFlags(TRIGGERED_FULL_MASK)
+{
+}
+
+spell_trigger_spell_from_caster::spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags)
+    : SpellScriptLoader(scriptName), _triggerId(triggerId), _triggerFlags(triggerFlags)
+{
+}
+
+SpellScript* spell_trigger_spell_from_caster::GetSpellScript() const
+{
+    return new spell_trigger_spell_from_caster_SpellScript(_triggerId, _triggerFlags);
+}
 
 class at_icc_saurfang_portal : public AreaTriggerScript
 {

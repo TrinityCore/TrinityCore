@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,12 @@
 #ifndef _TRANSACTION_H
 #define _TRANSACTION_H
 
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 #include "SQLOperation.h"
 #include "StringFormat.h"
-
-//- Forward declare (don't include header to prevent circular includes)
-class PreparedStatement;
+#include <mutex>
+#include <vector>
 
 /*! Transactions, high level class. */
 class TC_DATABASE_API Transaction
@@ -45,17 +46,16 @@ class TC_DATABASE_API Transaction
             Append(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
         }
 
-        size_t GetSize() const { return m_queries.size(); }
+        std::size_t GetSize() const { return m_queries.size(); }
 
     protected:
         void Cleanup();
-        std::list<SQLElementData> m_queries;
+        std::vector<SQLElementData> m_queries;
 
     private:
         bool _cleanedUp;
 
 };
-typedef std::shared_ptr<Transaction> SQLTransaction;
 
 /*! Low level class*/
 class TC_DATABASE_API TransactionTask : public SQLOperation

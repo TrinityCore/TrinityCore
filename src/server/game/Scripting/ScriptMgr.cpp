@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,26 +17,36 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptReloadMgr.h"
-#include "Config.h"
-#include "DatabaseEnv.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "Chat.h"
+#include "Conversation.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "CreatureAIImpl.h"
+#include "Errors.h"
+#include "GameObject.h"
+#include "GossipDef.h"
+#include "Item.h"
+#include "LFGScripts.h"
+#include "Log.h"
+#include "Map.h"
+#include "MapManager.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
+#include "Player.h"
+#include "ScriptReloadMgr.h"
 #include "ScriptSystem.h"
-#include "Transport.h"
-#include "Vehicle.h"
 #include "SmartAI.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
-#include "GossipDef.h"
-#include "CreatureAIImpl.h"
-#include "Player.h"
+#include "Timer.h"
+#include "Transport.h"
+#include "Vehicle.h"
+#include "Weather.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Chat.h"
-#include "MapManager.h"
-#include "LFGScripts.h"
-#include "InstanceScript.h"
+#include <unordered_map>
 
 // Trait which indicates whether this script type
 // must be assigned in the database.
@@ -97,7 +107,19 @@ struct is_script_database_bound<AchievementCriteriaScript>
     : std::true_type { };
 
 template<>
+struct is_script_database_bound<AreaTriggerEntityScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<ConversationScript>
+    : std::true_type { };
+
+template<>
 struct is_script_database_bound<SceneScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<QuestScript>
     : std::true_type { };
 
 enum Spells
@@ -315,7 +337,6 @@ class ScriptRegistrySwapHooks
 {
 };
 
-/// This hook is responsible for swapping OutdoorPvP's
 template<typename Base>
 class UnsupportedScriptRegistrySwapHooks
     : public ScriptRegistrySwapHookBase
@@ -328,9 +349,9 @@ public:
     }
 };
 
-/// This hook is responsible for swapping Creature and GameObject AI's
+/// This hook is responsible for swapping Creature, GameObject and AreaTrigger AI's
 template<typename ObjectType, typename ScriptType, typename Base>
-class CreatureGameObjectScriptRegistrySwapHooks
+class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks
     : public ScriptRegistrySwapHookBase
 {
     template<typename W>
@@ -409,6 +430,20 @@ class CreatureGameObjectScriptRegistrySwapHooks
                "The AI should be null here!");
     }
 
+    // Hook which is called before a areatrigger is swapped
+    static void UnloadResetScript(AreaTrigger* at)
+    {
+        at->AI()->OnRemove();
+    }
+
+    static void UnloadDestroyScript(AreaTrigger* at)
+    {
+        at->AI_Destroy();
+
+        ASSERT(!at->AI(),
+            "The AI should be null here!");
+    }
+
     // Hook which is called after a creature was swapped
     static void LoadInitializeScript(Creature* creature)
     {
@@ -418,7 +453,7 @@ class CreatureGameObjectScriptRegistrySwapHooks
         if (creature->IsAlive())
             creature->ClearUnitState(UNIT_STATE_EVADE);
 
-        bool const created = creature->AIM_Initialize();
+        bool const created = creature->AIM_Create();
         ASSERT(created,
                "Creating the AI should never fail here!");
         (void)created;
@@ -429,6 +464,7 @@ class CreatureGameObjectScriptRegistrySwapHooks
         if (!creature->IsAlive())
             return;
 
+        creature->AI_InitializeAndEnable();
         creature->AI()->EnterEvadeMode();
 
         // Cast a dummy visual spell asynchronously here to signal
@@ -451,6 +487,20 @@ class CreatureGameObjectScriptRegistrySwapHooks
         gameobject->AI()->Reset();
     }
 
+    // Hook which is called after a areatrigger was swapped
+    static void LoadInitializeScript(AreaTrigger* at)
+    {
+        ASSERT(!at->AI(),
+            "The AI should be null here!");
+
+        at->AI_Initialize();
+    }
+
+    static void LoadResetScript(AreaTrigger* at)
+    {
+        at->AI()->OnCreate();
+    }
+
     static Creature* GetEntityFromMap(std::common_type<Creature>, Map* map, ObjectGuid const& guid)
     {
         return map->GetCreature(guid);
@@ -459,6 +509,11 @@ class CreatureGameObjectScriptRegistrySwapHooks
     static GameObject* GetEntityFromMap(std::common_type<GameObject>, Map* map, ObjectGuid const& guid)
     {
         return map->GetGameObject(guid);
+    }
+
+    static AreaTrigger* GetEntityFromMap(std::common_type<AreaTrigger>, Map* map, ObjectGuid const& guid)
+    {
+        return map->GetAreaTrigger(guid);
     }
 
     template<typename T>
@@ -579,16 +634,23 @@ private:
 // This hook is responsible for swapping CreatureAI's
 template<typename Base>
 class ScriptRegistrySwapHooks<CreatureScript, Base>
-    : public CreatureGameObjectScriptRegistrySwapHooks<
+    : public CreatureGameObjectAreaTriggerScriptRegistrySwapHooks<
         Creature, CreatureScript, Base
       > { };
 
 // This hook is responsible for swapping GameObjectAI's
 template<typename Base>
 class ScriptRegistrySwapHooks<GameObjectScript, Base>
-    : public CreatureGameObjectScriptRegistrySwapHooks<
+    : public CreatureGameObjectAreaTriggerScriptRegistrySwapHooks<
         GameObject, GameObjectScript, Base
       > { };
+
+// This hook is responsible for swapping AreaTriggerAI's
+template<typename Base>
+class ScriptRegistrySwapHooks<AreaTriggerEntityScript, Base>
+    : public CreatureGameObjectAreaTriggerScriptRegistrySwapHooks<
+    AreaTrigger, AreaTriggerEntityScript, Base
+    > { };
 
 /// This hook is responsible for swapping BattlegroundScript's
 template<typename Base>
@@ -662,6 +724,64 @@ private:
     bool swapped;
 };
 
+/// This hook is responsible for swapping SceneScript's
+template<typename Base>
+class ScriptRegistrySwapHooks<SceneScript, Base>
+    : public ScriptRegistrySwapHookBase
+{
+public:
+    ScriptRegistrySwapHooks() : swapped(false) { }
+
+    void BeforeReleaseContext(std::string const& context) final override
+    {
+        auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
+        if (bounds.first != bounds.second)
+            swapped = true;
+    }
+
+    void BeforeSwapContext(bool /*initialize*/) override
+    {
+        swapped = false;
+    }
+
+    void BeforeUnload() final override
+    {
+        ASSERT(!swapped);
+    }
+
+private:
+    bool swapped;
+};
+
+/// This hook is responsible for swapping QuestScript's
+template<typename Base>
+class ScriptRegistrySwapHooks<QuestScript, Base>
+    : public ScriptRegistrySwapHookBase
+{
+public:
+    ScriptRegistrySwapHooks() : swapped(false) { }
+
+    void BeforeReleaseContext(std::string const& context) final override
+    {
+        auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
+        if (bounds.first != bounds.second)
+            swapped = true;
+    }
+
+    void BeforeSwapContext(bool /*initialize*/) override
+    {
+        swapped = false;
+    }
+
+    void BeforeUnload() final override
+    {
+        ASSERT(!swapped);
+    }
+
+private:
+    bool swapped;
+};
+
 /// This hook is responsible for swapping SpellScriptLoader's
 template<typename Base>
 class ScriptRegistrySwapHooks<SpellScriptLoader, Base>
@@ -709,7 +829,7 @@ class SpecializedScriptRegistry<ScriptType, true>
     friend class ScriptRegistrySwapHooks;
 
     template<typename, typename, typename>
-    friend class CreatureGameObjectScriptRegistrySwapHooks;
+    friend class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks;
 
 public:
     SpecializedScriptRegistry() { }
@@ -1115,6 +1235,7 @@ void ScriptMgr::Unload()
 void ScriptMgr::LoadDatabase()
 {
     sScriptSystemMgr->LoadScriptWaypoints();
+    sScriptSystemMgr->LoadScriptSplineChains();
 }
 
 void ScriptMgr::FillSpellSummary()
@@ -1207,12 +1328,11 @@ void ScriptMgr::FillSpellSummary()
     }
 }
 
-template<typename T, typename F>
-void CreateSpellOrAuraScripts(uint32 spellId, std::list<T*>& scriptVector, F&& extractor)
+template<typename T, typename F, typename O>
+void CreateSpellOrAuraScripts(uint32 spellId, std::vector<T*>& scriptVector, F&& extractor, O* objectInvoker)
 {
     SpellScriptsBounds bounds = sObjectMgr->GetSpellScriptsBounds(spellId);
-
-    for (SpellScriptsContainer::iterator itr = bounds.first; itr != bounds.second; ++itr)
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
     {
         // When the script is disabled continue with the next one
         if (!itr->second.second)
@@ -1223,24 +1343,28 @@ void CreateSpellOrAuraScripts(uint32 spellId, std::list<T*>& scriptVector, F&& e
             continue;
 
         T* script = (*tmpscript.*extractor)();
-
         if (!script)
             continue;
 
         script->_Init(&tmpscript->GetName(), spellId);
+        if (!script->_Load(objectInvoker))
+        {
+            delete script;
+            continue;
+        }
 
         scriptVector.push_back(script);
     }
 }
 
-void ScriptMgr::CreateSpellScripts(uint32 spellId, std::list<SpellScript*>& scriptVector)
+void ScriptMgr::CreateSpellScripts(uint32 spellId, std::vector<SpellScript*>& scriptVector, Spell* invoker) const
 {
-    CreateSpellOrAuraScripts(spellId, scriptVector, &SpellScriptLoader::GetSpellScript);
+    CreateSpellOrAuraScripts(spellId, scriptVector, &SpellScriptLoader::GetSpellScript, invoker);
 }
 
-void ScriptMgr::CreateAuraScripts(uint32 spellId, std::list<AuraScript*>& scriptVector)
+void ScriptMgr::CreateAuraScripts(uint32 spellId, std::vector<AuraScript*>& scriptVector, Aura* invoker) const
 {
-    CreateSpellOrAuraScripts(spellId, scriptVector, &SpellScriptLoader::GetAuraScript);
+    CreateSpellOrAuraScripts(spellId, scriptVector, &SpellScriptLoader::GetAuraScript, invoker);
 }
 
 SpellScriptLoader* ScriptMgr::GetSpellScriptLoader(uint32 scriptId)
@@ -1641,6 +1765,17 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
     return tmpscript->GetDialogStatus(player, creature);
 }
 
+bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemplate const* actTemplate, CreatureData const* cData, Map const* map)
+{
+    ASSERT(actTemplate);
+
+    CreatureTemplate const* baseTemplate = sObjectMgr->GetCreatureTemplate(entry);
+    if (!baseTemplate)
+        baseTemplate = actTemplate;
+    GET_SCRIPT_RET(CreatureScript, (cData ? cData->ScriptId : baseTemplate->ScriptID), tmpscript, true);
+    return tmpscript->CanSpawn(spawnId, entry, baseTemplate, actTemplate, cData, map);
+}
+
 CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
@@ -1655,6 +1790,14 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
 
     GET_SCRIPT_RET(GameObjectScript, gameobject->GetScriptId(), tmpscript, NULL);
     return tmpscript->GetAI(gameobject);
+}
+
+AreaTriggerAI* ScriptMgr::GetAreaTriggerAI(AreaTrigger* areatrigger)
+{
+    ASSERT(areatrigger);
+
+    GET_SCRIPT_RET(AreaTriggerEntityScript, areatrigger->GetScriptId(), tmpscript, NULL);
+    return tmpscript->GetAI(areatrigger);
 }
 
 void ScriptMgr::OnCreatureUpdate(Creature* creature, uint32 diff)
@@ -2145,9 +2288,19 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newAre
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
 }
 
-void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status)
+void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId, status);
+    FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId);
+}
+
+void ScriptMgr::OnMovieComplete(Player* player, uint32 movieId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMovieComplete(player, movieId);
+}
+
+void ScriptMgr::OnPlayerChoiceResponse(Player* player, uint32 choiceId, uint32 responseId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPlayerChoiceResponse(player, choiceId, responseId);
 }
 
 // Account
@@ -2300,6 +2453,15 @@ void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& dama
     FOREACH_SCRIPT(PlayerScript)->ModifySpellDamageTaken(target, attacker, damage);
 }
 
+// Conversation
+void ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
+{
+    ASSERT(conversation);
+
+    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
+    tmpscript->OnConversationCreate(conversation, creator);
+}
+
 // Scene
 void ScriptMgr::OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate)
 {
@@ -2337,6 +2499,24 @@ void ScriptMgr::OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTem
     tmpscript->OnSceneComplete(player, sceneInstanceID, sceneTemplate);
 }
 
+void ScriptMgr::OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus)
+{
+    ASSERT(player);
+    ASSERT(quest);
+
+    GET_SCRIPT(QuestScript, quest->GetScriptId(), tmpscript);
+    tmpscript->OnQuestStatusChange(player, quest, oldStatus, newStatus);
+}
+
+void ScriptMgr::OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 oldAmount, int32 newAmount)
+{
+    ASSERT(player);
+    ASSERT(quest);
+
+    GET_SCRIPT(QuestScript, quest->GetScriptId(), tmpscript);
+    tmpscript->OnQuestObjectiveChange(player, quest, objective, oldAmount, newAmount);
+}
+
 SpellScriptLoader::SpellScriptLoader(const char* name)
     : ScriptObject(name)
 {
@@ -2369,8 +2549,11 @@ UnitScript::UnitScript(const char* name, bool addToScripts)
 }
 
 WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
-    : ScriptObject(name), MapScript<Map>(mapId)
+    : ScriptObject(name), MapScript<Map>(sMapStore.LookupEntry(mapId))
 {
+    if (!GetEntry())
+        TC_LOG_ERROR("scripts", "Invalid WorldMapScript for %u; no such map ID.", mapId);
+
     if (GetEntry() && !GetEntry()->IsWorldMap())
         TC_LOG_ERROR("scripts", "WorldMapScript for map %u is invalid.", mapId);
 
@@ -2378,8 +2561,11 @@ WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
 }
 
 InstanceMapScript::InstanceMapScript(const char* name, uint32 mapId)
-    : ScriptObject(name), MapScript<InstanceMap>(mapId)
+    : ScriptObject(name), MapScript<InstanceMap>(sMapStore.LookupEntry(mapId))
 {
+    if (!GetEntry())
+        TC_LOG_ERROR("scripts", "Invalid InstanceMapScript for %u; no such map ID.", mapId);
+
     if (GetEntry() && !GetEntry()->IsDungeon())
         TC_LOG_ERROR("scripts", "InstanceMapScript for map %u is invalid.", mapId);
 
@@ -2387,8 +2573,11 @@ InstanceMapScript::InstanceMapScript(const char* name, uint32 mapId)
 }
 
 BattlegroundMapScript::BattlegroundMapScript(const char* name, uint32 mapId)
-    : ScriptObject(name), MapScript<BattlegroundMap>(mapId)
+    : ScriptObject(name), MapScript<BattlegroundMap>(sMapStore.LookupEntry(mapId))
 {
+    if (!GetEntry())
+        TC_LOG_ERROR("scripts", "Invalid BattlegroundMapScript for %u; no such map ID.", mapId);
+
     if (GetEntry() && !GetEntry()->IsBattleground())
         TC_LOG_ERROR("scripts", "BattlegroundMapScript for map %u is invalid.", mapId);
 
@@ -2407,10 +2596,20 @@ CreatureScript::CreatureScript(const char* name)
     ScriptRegistry<CreatureScript>::Instance()->AddScript(this);
 }
 
+uint32 CreatureScript::GetDialogStatus(Player* /*player*/, Creature* /*creature*/)
+{
+    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
+}
+
 GameObjectScript::GameObjectScript(const char* name)
     : ScriptObject(name)
 {
     ScriptRegistry<GameObjectScript>::Instance()->AddScript(this);
+}
+
+uint32 GameObjectScript::GetDialogStatus(Player* /*player*/, GameObject* /*go*/)
+{
+    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
 }
 
 AreaTriggerScript::AreaTriggerScript(const char* name)
@@ -2497,6 +2696,12 @@ SceneScript::SceneScript(const char* name)
     ScriptRegistry<SceneScript>::Instance()->AddScript(this);
 }
 
+QuestScript::QuestScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<QuestScript>::Instance()->AddScript(this);
+}
+
 GuildScript::GuildScript(const char* name)
     : ScriptObject(name)
 {
@@ -2507,6 +2712,18 @@ GroupScript::GroupScript(const char* name)
     : ScriptObject(name)
 {
     ScriptRegistry<GroupScript>::Instance()->AddScript(this);
+}
+
+AreaTriggerEntityScript::AreaTriggerEntityScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<AreaTriggerEntityScript>::Instance()->AddScript(this);
+}
+
+ConversationScript::ConversationScript(char const* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<ConversationScript>::Instance()->AddScript(this);
 }
 
 // Specialize for each script type class like so:
@@ -2536,4 +2753,7 @@ template class TC_GAME_API ScriptRegistry<GuildScript>;
 template class TC_GAME_API ScriptRegistry<GroupScript>;
 template class TC_GAME_API ScriptRegistry<UnitScript>;
 template class TC_GAME_API ScriptRegistry<AccountScript>;
+template class TC_GAME_API ScriptRegistry<AreaTriggerEntityScript>;
+template class TC_GAME_API ScriptRegistry<ConversationScript>;
 template class TC_GAME_API ScriptRegistry<SceneScript>;
+template class TC_GAME_API ScriptRegistry<QuestScript>;

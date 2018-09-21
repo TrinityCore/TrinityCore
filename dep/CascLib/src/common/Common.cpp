@@ -168,7 +168,7 @@ TCHAR * CombinePath(const TCHAR * szDirectory, const TCHAR * szSubDir)
         nLength1 = _tcslen(szDirectory);
 
         // Cut all ending backslashes
-        while(nLength1 > 0 && szDirectory[nLength1 - 1] == _T(PATH_SEPARATOR))
+        while(nLength1 > 0 && (szDirectory[nLength1 - 1] == _T('\\') || szDirectory[nLength1 - 1] == _T('/')))
             nLength1--;
     }
 

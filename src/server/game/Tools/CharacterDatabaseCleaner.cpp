@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,10 +20,12 @@
 #include "CriteriaHandler.h"
 #include "CharacterDatabaseCleaner.h"
 #include "DB2Stores.h"
+#include "Log.h"
 #include "World.h"
 #include "Database/DatabaseEnv.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
+#include <sstream>
 
 void CharacterDatabaseCleaner::CleanDatabase()
 {
@@ -149,12 +151,11 @@ bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
 
 void CharacterDatabaseCleaner::CleanCharacterTalent()
 {
-    CharacterDatabase.DirectPExecute("DELETE FROM character_talent WHERE spec > %u", MAX_SPECIALIZATIONS);
-    CheckUnique("spell", "character_talent", &TalentCheck);
+    CharacterDatabase.DirectPExecute("DELETE FROM character_talent WHERE talentGroup > %u", MAX_SPECIALIZATIONS);
+    CheckUnique("talentId", "character_talent", &TalentCheck);
 }
 
 void CharacterDatabaseCleaner::CleanCharacterQuestStatus()
 {
     CharacterDatabase.DirectExecute("DELETE FROM character_queststatus WHERE status = 0");
 }
-

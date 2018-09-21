@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,7 @@
  */
 
 #include "MiscPackets.h"
-#include "PacketUtilities.h"
+#include "Common.h"
 
 WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
 {
@@ -176,13 +176,6 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
     _worldPacket.FlushBits();
 
     return &_worldPacket;
-}
-
-void WorldPackets::Misc::AreaTrigger::Read()
-{
-    _worldPacket >> AreaTriggerID;
-    Entered = _worldPacket.ReadBit();
-    FromClient = _worldPacket.ReadBit();
 }
 
 void WorldPackets::Misc::SetDungeonDifficulty::Read()
@@ -383,29 +376,39 @@ WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Misc::PhaseShift::Write()
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Misc::PhaseShiftDataPhase const& phaseShiftDataPhase)
 {
-    _worldPacket << ClientGUID;                                 // CLientGUID
-    _worldPacket << uint32(PhaseShifts.size() ? 0 : 8);         // PhaseShiftFlags
-    _worldPacket << uint32(PhaseShifts.size());                 // PhaseShiftCount
-    _worldPacket << PersonalGUID;                               // PersonalGUID
-    for (uint32 phase : PhaseShifts)
-    {
-        _worldPacket << uint16(1);                              // PhaseFlags
-        _worldPacket << uint16(phase);                          // PhaseID
-    }
+    data << uint16(phaseShiftDataPhase.PhaseFlags);
+    data << uint16(phaseShiftDataPhase.Id);
+    return data;
+}
 
-    _worldPacket << uint32(VisibleMapIDs.size() * 2);           // Active terrain swaps size
-    for (uint32 map : VisibleMapIDs)
-        _worldPacket << uint16(map);                            // Active terrain swap map id
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Misc::PhaseShiftData const& phaseShiftData)
+{
+    data << uint32(phaseShiftData.PhaseShiftFlags);
+    data << uint32(phaseShiftData.Phases.size());
+    data << phaseShiftData.PersonalGUID;
+    for (WorldPackets::Misc::PhaseShiftDataPhase const& phaseShiftDataPhase : phaseShiftData.Phases)
+        data << phaseShiftDataPhase;
 
-    _worldPacket << uint32(PreloadMapIDs.size() * 2);           // Inactive terrain swaps size
-    for (uint32 map : PreloadMapIDs)
-        _worldPacket << uint16(map);                            // Inactive terrain swap map id
+    return data;
+}
 
-    _worldPacket << uint32(UiWorldMapAreaIDSwaps.size() * 2);   // UI map swaps size
-    for (uint32 map : UiWorldMapAreaIDSwaps)
-        _worldPacket << uint16(map);                            // UI map id, WorldMapArea.dbc, controls map display
+WorldPacket const* WorldPackets::Misc::PhaseShiftChange::Write()
+{
+    _worldPacket << Client;
+    _worldPacket << Phaseshift;
+    _worldPacket << uint32(VisibleMapIDs.size() * 2);           // size in bytes
+    for (uint16 visibleMapId : VisibleMapIDs)
+        _worldPacket << uint16(visibleMapId);                   // Active terrain swap map id
+
+    _worldPacket << uint32(PreloadMapIDs.size() * 2);           // size in bytes
+    for (uint16 preloadMapId : PreloadMapIDs)
+        _worldPacket << uint16(preloadMapId);                            // Inactive terrain swap map id
+
+    _worldPacket << uint32(UiWorldMapAreaIDSwaps.size() * 2);   // size in bytes
+    for (uint16 uiWorldMapAreaIDSwap : UiWorldMapAreaIDSwaps)
+        _worldPacket << uint16(uiWorldMapAreaIDSwap);          // UI map id, WorldMapArea.db2, controls map display
 
     return &_worldPacket;
 }
@@ -434,10 +437,28 @@ void WorldPackets::Misc::ObjectUpdateRescued::Read()
     _worldPacket >> ObjectGUID;
 }
 
+WorldPacket const* WorldPackets::Misc::PlayObjectSound::Write()
+{
+    _worldPacket << int32(SoundKitID);
+    _worldPacket << SourceObjectGUID;
+    _worldPacket << TargetObjectGUID;
+    _worldPacket << Position;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::PlaySound::Write()
 {
     _worldPacket << int32(SoundKitID);
     _worldPacket << SourceObjectGuid;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlaySpeakerbotSound::Write()
+{
+    _worldPacket << SourceObjectGUID;
+    _worldPacket << int32(SoundKitID);
 
     return &_worldPacket;
 }
@@ -456,12 +477,10 @@ WorldPacket const* WorldPackets::Misc::Dismount::Write()
 
 void WorldPackets::Misc::SaveCUFProfiles::Read()
 {
-    uint32 count;
-    _worldPacket >> count;
-
-    for (uint8 i = 0; i < count && i < MAX_CUF_PROFILES; i++)
+    CUFProfiles.resize(_worldPacket.read<uint32>());
+    for (std::unique_ptr<CUFProfile>& cufProfile : CUFProfiles)
     {
-        std::unique_ptr<CUFProfile> cufProfile = Trinity::make_unique<CUFProfile>();
+        cufProfile = Trinity::make_unique<CUFProfile>();
 
         uint8 strLen = _worldPacket.ReadBits(7);
 
@@ -485,8 +504,6 @@ void WorldPackets::Misc::SaveCUFProfiles::Read()
         _worldPacket >> cufProfile->LeftOffset;
 
         cufProfile->ProfileName = _worldPacket.ReadString(strLen);
-
-        CUFProfiles.push_back(std::move(cufProfile));
     }
 }
 
@@ -567,15 +584,6 @@ WorldPacket const* WorldPackets::Misc::SetPlayHoverAnim::Write()
 void WorldPackets::Misc::SetPvP::Read()
 {
     EnablePVP = _worldPacket.ReadBit();
-}
-
-void WorldPackets::Misc::WorldTeleport::Read()
-{
-    _worldPacket >> MapID;
-    _worldPacket >> TransportGUID;
-    _worldPacket >> Pos;
-    _worldPacket >> Facing;
-    _worldPacket >> LfgDungeonID;
 }
 
 WorldPacket const* WorldPackets::Misc::AccountHeirloomUpdate::Write()
@@ -663,4 +671,9 @@ void WorldPackets::Misc::MountSetFavorite::Read()
 {
     _worldPacket >> MountSpellID;
     IsFavorite = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Misc::CloseInteraction::Read()
+{
+    _worldPacket >> SourceGuid;
 }

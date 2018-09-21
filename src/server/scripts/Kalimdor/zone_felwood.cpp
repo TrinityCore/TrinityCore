@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "MotionMaster.h"
 #include "Player.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 
 /*######
@@ -240,7 +236,7 @@ public: spell_ruumbos_silly_dance() : SpellScriptLoader("spell_ruumbos_silly_dan
                 {
                     player->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
 
-                    if (player->GetMap()->GetId() == MAP_KALIMDOR)
+                    if (player->GetMapId() == MAP_KALIMDOR)
                     {
                         player->SummonCreature(NPC_DRIZZLE, DrizzleSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 20000);
                         player->SummonCreature(NPC_FERLI, FerliSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 20000);

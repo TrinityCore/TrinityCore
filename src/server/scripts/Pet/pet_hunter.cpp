@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "CreatureAIImpl.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum HunterSpells
 {
@@ -66,7 +68,7 @@ class npc_pet_hunter_snake_trap : public CreatureScript
                 me->SetMaxHealth(uint32(107 * (me->getLevel() - 40) * 0.025f));
                 // Add delta to make them not all hit the same time
                 uint32 delta = (rand32() % 7) * 100;
-                me->SetAttackTime(BASE_ATTACK, Info->BaseAttackTime + delta);
+                me->SetBaseAttackTime(BASE_ATTACK, Info->BaseAttackTime + delta);
                 //me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER, float(Info->attackpower));
 
                 // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target

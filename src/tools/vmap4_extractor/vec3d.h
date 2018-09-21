@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -137,6 +137,12 @@ public:
     }
 };
 
+class AaBox3D
+{
+public:
+    Vec3D min;
+    Vec3D max;
+};
 
 class Vec2D
 {
