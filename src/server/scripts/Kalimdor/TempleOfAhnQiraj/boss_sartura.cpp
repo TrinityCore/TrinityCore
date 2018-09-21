@@ -23,8 +23,10 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
+#include "Player.h"
 
 enum Sartura
 {
@@ -36,7 +38,7 @@ enum Sartura
     SPELL_ENRAGE        = 28747,            //Not sure if right ID.
     SPELL_ENRAGEHARD    = 28798,
 
-//Guard Spell
+    //Guard Spell
     SPELL_WHIRLWINDADD  = 26038,
     SPELL_KNOCKBACK     = 26027
 };
@@ -310,8 +312,28 @@ public:
 
 };
 
+// 4052
+class at_aq_battleguard_sartura : public AreaTriggerScript
+{
+public:
+    at_aq_battleguard_sartura() : AreaTriggerScript("at_aq_battleguard_sartura") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+    {
+        if (!entered)
+            return false;
+
+        if (InstanceScript* instance = player->GetInstanceScript())
+            if (Creature* sartura = instance->GetCreature(DATA_SARTURA))
+                sartura->AI()->AttackStart(player);
+
+        return true;
+    }
+};
+
 void AddSC_boss_sartura()
 {
     new boss_sartura();
     new npc_sartura_royal_guard();
+    new at_aq_battleguard_sartura();
 }
