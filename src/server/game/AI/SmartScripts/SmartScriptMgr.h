@@ -1273,6 +1273,7 @@ struct SmartTarget
             uint32 creature;
             uint32 minDist;
             uint32 maxDist;
+            uint32 maxSize;
         } unitRange;
 
         struct
@@ -1285,6 +1286,7 @@ struct SmartTarget
         {
             uint32 creature;
             uint32 dist;
+            uint32 maxSize;
         } unitDistance;
 
         struct
@@ -1308,6 +1310,7 @@ struct SmartTarget
             uint32 entry;
             uint32 minDist;
             uint32 maxDist;
+            uint32 maxSize;
         } goRange;
 
         struct
@@ -1320,6 +1323,7 @@ struct SmartTarget
         {
             uint32 entry;
             uint32 dist;
+            uint32 maxSize;
         } goDistance;
 
         struct
