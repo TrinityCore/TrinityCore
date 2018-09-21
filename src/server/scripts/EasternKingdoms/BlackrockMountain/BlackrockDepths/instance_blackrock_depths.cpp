@@ -27,47 +27,14 @@
 #include "MotionMaster.h"
 
 #define TIMER_TOMBOFTHESEVEN    15000
-#define MAX_ENCOUNTER           6
 
-enum Creatures
+ObjectData const gameObjectData[] =
 {
-    NPC_EMPEROR             = 9019,
-    NPC_PHALANX             = 9502,
-    NPC_ANGERREL            = 9035,
-    NPC_DOPEREL             = 9040,
-    NPC_HATEREL             = 9034,
-    NPC_VILEREL             = 9036,
-    NPC_SEETHREL            = 9038,
-    NPC_GLOOMREL            = 9037,
-    NPC_DOOMREL             = 9039,
-    NPC_MAGMUS              = 9938,
-    NPC_MOIRA               = 8929,
-    NPC_COREN               = 23872
-};
-
-enum GameObjects
-{
-    GO_ARENA1               = 161525,
-    GO_ARENA2               = 161522,
-    GO_ARENA3               = 161524,
-    GO_ARENA4               = 161523,
-    GO_SHADOW_LOCK          = 161460,
-    GO_SHADOW_MECHANISM     = 161461,
-    GO_SHADOW_GIANT_DOOR    = 157923,
-    GO_SHADOW_DUMMY         = 161516,
-    GO_BAR_KEG_SHOT         = 170607,
-    GO_BAR_KEG_TRAP         = 171941,
-    GO_BAR_DOOR             = 170571,
-    GO_TOMB_ENTER           = 170576,
-    GO_TOMB_EXIT            = 170577,
-    GO_LYCEUM               = 170558,
-    GO_SF_N                 = 174745, // Shadowforge Brazier North
-    GO_SF_S                 = 174744, // Shadowforge Brazier South
-    GO_GOLEM_ROOM_N         = 170573, // Magmus door North
-    GO_GOLEM_ROOM_S         = 170574, // Magmus door Soutsh
-    GO_THRONE_ROOM          = 170575, // Throne door
-    GO_SPECTRAL_CHALICE     = 164869,
-    GO_CHEST_SEVEN          = 169243
+    { GO_SF_BRAZIER_N,   DATA_SF_BRAZIER_N },
+    { GO_SF_BRAZIER_S,   DATA_SF_BRAZIER_S },
+    { GO_GOLEM_ROOM_N,   DATA_GOLEM_DOOR_N },
+    { GO_GOLEM_ROOM_S,   DATA_GOLEM_DOOR_S },
+    { 0,                                 0 } // END
 };
 
 class instance_blackrock_depths : public InstanceMapScript
@@ -86,6 +53,7 @@ public:
         {
             SetHeaders(DataHeader);
             memset(&encounter, 0, sizeof(encounter));
+            LoadObjectData(nullptr, gameObjectData);
 
             BarAleCount = 0;
             GhostKillCount = 0;
@@ -116,10 +84,6 @@ public:
         ObjectGuid GoTombEnterGUID;
         ObjectGuid GoTombExitGUID;
         ObjectGuid GoLyceumGUID;
-        ObjectGuid GoSFSGUID;
-        ObjectGuid GoSFNGUID;
-        ObjectGuid GoGolemNGUID;
-        ObjectGuid GoGolemSGUID;
         ObjectGuid GoThroneGUID;
         ObjectGuid GoChestGUID;
         ObjectGuid GoSpectralChaliceGUID;
@@ -156,6 +120,8 @@ public:
 
         void OnGameObjectCreate(GameObject* go) override
         {
+            InstanceScript::OnGameObjectCreate(go);
+
             switch (go->GetEntry())
             {
                 case GO_ARENA1: GoArena1GUID = go->GetGUID(); break;
@@ -178,10 +144,6 @@ public:
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_LYCEUM: GoLyceumGUID = go->GetGUID(); break;
-                case GO_SF_S: GoSFSGUID = go->GetGUID(); break;
-                case GO_SF_N: GoSFNGUID = go->GetGUID(); break;
-                case GO_GOLEM_ROOM_N: GoGolemNGUID = go->GetGUID(); break;
-                case GO_GOLEM_ROOM_S: GoGolemSGUID = go->GetGUID(); break;
                 case GO_THRONE_ROOM: GoThroneGUID = go->GetGUID(); break;
                 case GO_CHEST_SEVEN: GoChestGUID = go->GetGUID(); break;
                 case GO_SPECTRAL_CHALICE: GoSpectralChaliceGUID = go->GetGUID(); break;
@@ -225,11 +187,8 @@ public:
                 case TYPE_TOMB_OF_SEVEN:
                     encounter[3] = data;
                     break;
-                case TYPE_LYCEUM:
-                    encounter[4] = data;
-                    break;
                 case TYPE_IRON_HALL:
-                    encounter[5] = data;
+                    encounter[4] = data;
                     break;
                 case DATA_GHOSTKILL:
                     GhostKillCount += data;
@@ -242,7 +201,7 @@ public:
 
                 std::ostringstream saveStream;
                 saveStream << encounter[0] << ' ' << encounter[1] << ' ' << encounter[2] << ' '
-                    << encounter[3] << ' ' << encounter[4] << ' ' << encounter[5] << ' ' << GhostKillCount;
+                    << encounter[3] << ' ' << encounter[4] << ' ' << GhostKillCount;
 
                 str_data = saveStream.str();
 
@@ -266,10 +225,8 @@ public:
                         return encounter[2];
                 case TYPE_TOMB_OF_SEVEN:
                     return encounter[3];
-                case TYPE_LYCEUM:
-                    return encounter[4];
                 case TYPE_IRON_HALL:
-                    return encounter[5];
+                    return encounter[4];
                 case DATA_GHOSTKILL:
                     return GhostKillCount;
             }
@@ -304,16 +261,8 @@ public:
                     return GoBarDoorGUID;
                 case DATA_EVENSTARTER:
                     return TombEventStarterGUID;
-                case DATA_SF_BRAZIER_N:
-                    return GoSFNGUID;
-                case DATA_SF_BRAZIER_S:
-                    return GoSFSGUID;
                 case DATA_THRONE_DOOR:
                     return GoThroneGUID;
-                case DATA_GOLEM_DOOR_N:
-                    return GoGolemNGUID;
-                case DATA_GOLEM_DOOR_S:
-                    return GoGolemSGUID;
                 case DATA_GO_CHALICE:
                     return GoSpectralChaliceGUID;
             }
@@ -337,7 +286,7 @@ public:
 
             std::istringstream loadStream(in);
             loadStream >> encounter[0] >> encounter[1] >> encounter[2] >> encounter[3]
-            >> encounter[4] >> encounter[5] >> GhostKillCount;
+            >> encounter[4] >> GhostKillCount;
 
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (encounter[i] == IN_PROGRESS)
