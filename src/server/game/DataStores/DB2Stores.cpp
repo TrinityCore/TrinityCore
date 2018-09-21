@@ -1562,7 +1562,7 @@ float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int3
     if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId))
     {
         mods[0] = sExpectedStatModStore.LookupEntry(contentTuning->ExpectedStatModID);
-        mods[1] = sExpectedStatModStore.LookupEntry(contentTuning->ExpectedStatModID2);
+        mods[1] = sExpectedStatModStore.LookupEntry(contentTuning->DifficultyESMID);
     }
 
     switch (unitClass)
