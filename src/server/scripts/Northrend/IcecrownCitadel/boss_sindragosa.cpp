@@ -1165,7 +1165,7 @@ class spell_sindragosa_unchained_magic : public SpellScript
         for (WorldObject* target : targets)
         {
             Player* player = target->ToPlayer();
-            if (!player || player->GetPowerType() != POWER_MANA)
+            if (!player)
                 continue;
 
             if (Trinity::Helpers::Entity::IsPlayerHealer(player))
