@@ -39,7 +39,8 @@ enum AQTDataTypes
     DATA_VEKNILASH_DEATH    = 11,
     DATA_BUG_TRIO_DEATH     = 14,
     DATA_CTHUN_PHASE        = 20,
-    DATA_VISCIDUS           = 21
+    DATA_VISCIDUS           = 21,
+    DATA_SARTURA            = 22
 };
 
 enum AQTCreatures
@@ -62,7 +63,8 @@ enum AQTCreatures
     NPC_VEM                 = 15544,
     NPC_KRI                 = 15511,
     NPC_VEKLOR              = 15276,
-    NPC_VEKNILASH           = 15275
+    NPC_VEKNILASH           = 15275,
+    NPC_SARTURA             = 15516
 };
 
 template <class AI, class T>
