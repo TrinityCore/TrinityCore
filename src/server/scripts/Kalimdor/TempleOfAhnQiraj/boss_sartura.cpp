@@ -311,8 +311,25 @@ public:
 
 };
 
+// 4052
+class at_aq_battleguard_sartura : public AreaTriggerScript
+{
+public:
+    at_aq_battleguard_sartura() : AreaTriggerScript("at_aq_battleguard_sartura") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (InstanceScript* instance = player->GetInstanceScript())
+            if (Creature* sartura = instance->GetCreature(DATA_SARTURA))
+                sartura->AI()->AttackStart(player);
+
+        return true;
+    }
+};
+
 void AddSC_boss_sartura()
 {
     new boss_sartura();
     new npc_sartura_royal_guard();
+    new at_aq_battleguard_sartura();
 }

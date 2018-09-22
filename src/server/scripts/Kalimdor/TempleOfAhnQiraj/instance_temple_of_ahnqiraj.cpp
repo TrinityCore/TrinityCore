@@ -29,6 +29,17 @@ EndScriptData */
 #include "Map.h"
 #include "temple_of_ahnqiraj.h"
 
+ObjectData const creatureData[] =
+{
+    { NPC_VEM,       DATA_VEM       },
+    { NPC_KRI,       DATA_KRI       },
+    { NPC_VEKLOR,    DATA_VEKLOR    },
+    { NPC_VEKNILASH, DATA_VEKNILASH },
+    { NPC_VISCIDUS,  DATA_VISCIDUS  },
+    { NPC_SARTURA,   DATA_SARTURA   },
+    { 0,             0              } // END
+};
+
 class instance_temple_of_ahnqiraj : public InstanceMapScript
 {
     public:
@@ -44,6 +55,8 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
             instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
+                LoadObjectData(creatureData, nullptr);
+
                 IsBossDied[0] = false;
                 IsBossDied[1] = false;
                 IsBossDied[2] = false;
@@ -56,42 +69,9 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
             //If Vem is dead...
             bool IsBossDied[3];
 
-            //Storing Skeram, Vem and Kri.
-            ObjectGuid SkeramGUID;
-            ObjectGuid VemGUID;
-            ObjectGuid KriGUID;
-            ObjectGuid VeklorGUID;
-            ObjectGuid VeknilashGUID;
-            ObjectGuid ViscidusGUID;
-
             uint32 BugTrioDeathCount;
 
             uint32 CthunPhase;
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_SKERAM:
-                        SkeramGUID = creature->GetGUID();
-                        break;
-                    case NPC_VEM:
-                        VemGUID = creature->GetGUID();
-                        break;
-                    case NPC_KRI:
-                        KriGUID = creature->GetGUID();
-                        break;
-                    case NPC_VEKLOR:
-                        VeklorGUID = creature->GetGUID();
-                        break;
-                    case NPC_VEKNILASH:
-                        VeknilashGUID = creature->GetGUID();
-                        break;
-                    case NPC_VISCIDUS:
-                        ViscidusGUID = creature->GetGUID();
-                        break;
-                }
-            }
 
             bool IsEncounterInProgress() const override
             {
@@ -126,26 +106,6 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 }
                 return 0;
             }
-
-            ObjectGuid GetGuidData(uint32 identifier) const override
-            {
-                switch (identifier)
-                {
-                    case DATA_SKERAM:
-                        return SkeramGUID;
-                    case DATA_VEM:
-                        return VemGUID;
-                    case DATA_KRI:
-                        return KriGUID;
-                    case DATA_VEKLOR:
-                        return VeklorGUID;
-                    case DATA_VEKNILASH:
-                        return VeknilashGUID;
-                    case DATA_VISCIDUS:
-                        return ViscidusGUID;
-                }
-                return ObjectGuid::Empty;
-            }                                                       // end GetGuidData
 
             void SetData(uint32 type, uint32 data) override
             {
