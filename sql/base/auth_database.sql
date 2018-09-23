@@ -932,6 +932,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,840),
 (196,841),
 (196,843),
+(196,852),
 (196,866),
 (196,867),
 (196,872),
@@ -1799,6 +1800,8 @@ INSERT INTO `rbac_permissions` VALUES
 (839,'Command: server shutdown force'),
 (840,'Command: server restart force'),
 (841,'Command: debug neargraveyard'),
+(843,'Command: reload quest_greeting'),
+(852,'Command: debug dummy'),
 (845,'Command: go offset'),
 (855,'Command: debug play music'),
 (856,'Command: npc spawngroup'),
@@ -1961,7 +1964,8 @@ INSERT INTO `updates` VALUES
 ('2018_08_17_00_auth.sql','0C9921DCEF92D0C66524299A2F0B86EBB1B7020E','ARCHIVED','2018-08-17 01:40:04',0),
 ('2018_09_02_00_auth_from_335_was_2018_08_30_00_auth.sql','7E6ABD3FF59FC6CC82B227CE074E8E91DE4D1DB2','ARCHIVED','2018-08-17 01:40:04',0),
 ('2018_09_09_00_auth_from_335_was_2018_09_06_00_auth.sql','309D21E0DF82ED8921F77EAFDE741F38AC32BB13','ARCHIVED','2018-09-06 00:00:00',0),
-('2018_09_15_00_auth.sql','941C5BEF44A004C32746509EA7E1651DB2943BDA','ARCHIVED','2018-09-15 01:40:04',0);
+('2018_09_15_00_auth.sql','941C5BEF44A004C32746509EA7E1651DB2943BDA','ARCHIVED','2018-09-15 01:40:04',0),
+('2018_09_17_00_auth.sql','4DB671F0A4FA1A93AF28FB6426AF13DE72C7DA3D','ARCHIVED','2018-09-17 01:40:04',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
