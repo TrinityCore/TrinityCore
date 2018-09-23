@@ -4681,12 +4681,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 1;
     });
 
-    // Evolution
-    ApplySpellFix({ 75697 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
-    });
-
     // Bound Flames
     ApplySpellFix({ 93499 }, [](SpellInfo* spellInfo)
     {
