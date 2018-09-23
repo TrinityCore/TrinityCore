@@ -1,6 +1,6 @@
 -- Quest: Springing the Trap (11969)
 
-SET @CGUID             := 86530; 
+SET @CGUID             := 86530;
 SET @SOLDIER           := 24769;
 SET @KERISTRASZA       := 26237;
 SET @SARAGOSA          := 26299;
@@ -14,11 +14,13 @@ UPDATE `creature_template` SET `speed_walk`=3.6, `speed_run`=2.857143, `unit_fla
 UPDATE `creature_template` SET `speed_walk`=2, `speed_run`=1.714286, `unit_flags`=768 WHERE `entry`=@SARAGOSA;
 UPDATE `creature_template` SET `speed_walk`=8, `speed_run`=4.714286, `unit_flags`=832 WHERE `entry`=@MALYGOS;
 
+/*
 DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (@SOLDIER,@KERISTRASZA,@MALYGOS);
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`) VALUES
 (@SOLDIER,0,0,1,0),
 (@KERISTRASZA,1,0,2,0),
 (@MALYGOS,0,0,1,0);
+*/
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (@KERISTRASZA,@SARAGOSA,@MALYGOS,@SOLDIER);
 INSERT INTO `creature_template_addon` (`entry`,`bytes1`,`bytes2`,`auras`) VALUES
