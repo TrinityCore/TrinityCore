@@ -92,20 +92,23 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
 
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
     {
-        Player::BoundInstancesMap boundInstances = _player->GetBoundInstances(Difficulty(i));
-        for (auto const& boundInstance : boundInstances)
+        auto boundInstances = _player->GetBoundInstances(Difficulty(i));
+        if (boundInstances != _player->m_boundInstances.end())
         {
-            if (boundInstance.second.perm)
+            for (auto const& boundInstance : boundInstances->second)
             {
-                WorldPackets::Calendar::CalendarSendCalendarRaidLockoutInfo lockoutInfo;
+                if (boundInstance.second.perm)
+                {
+                    WorldPackets::Calendar::CalendarSendCalendarRaidLockoutInfo lockoutInfo;
 
-                InstanceSave const* save = boundInstance.second.save;
-                lockoutInfo.MapID = save->GetMapId();
-                lockoutInfo.DifficultyID = save->GetDifficultyID();
-                lockoutInfo.ExpireTime = save->GetResetTime() - currTime;
-                lockoutInfo.InstanceID = save->GetInstanceId(); // instance save id as unique instance copy id
+                    InstanceSave const* save = boundInstance.second.save;
+                    lockoutInfo.MapID = save->GetMapId();
+                    lockoutInfo.DifficultyID = save->GetDifficultyID();
+                    lockoutInfo.ExpireTime = save->GetResetTime() - currTime;
+                    lockoutInfo.InstanceID = save->GetInstanceId(); // instance save id as unique instance copy id
 
-                packet.RaidLockouts.push_back(lockoutInfo);
+                    packet.RaidLockouts.push_back(lockoutInfo);
+                }
             }
         }
     }

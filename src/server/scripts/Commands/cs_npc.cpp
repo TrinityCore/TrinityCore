@@ -302,7 +302,7 @@ public:
 
             Creature* creature = trans->CreateNPCPassenger(guid, &data);
 
-            creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, UI64LIT(1) << map->GetSpawnMode());
+            creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, { map->GetDifficultyID() });
 
             sObjectMgr->AddCreatureToGrid(guid, &data);
             return true;
@@ -313,7 +313,7 @@ public:
             return false;
 
         PhasingHandler::InheritPhaseShift(creature, chr);
-        creature->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
+        creature->SaveToDB(map->GetId(), { map->GetDifficultyID() });
 
         ObjectGuid::LowType db_guid = creature->GetSpawnId();
 

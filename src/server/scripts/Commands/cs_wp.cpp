@@ -674,7 +674,7 @@ public:
             }
 
             PhasingHandler::InheritPhaseShift(wpCreature, chr);
-            wpCreature->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
+            wpCreature->SaveToDB(map->GetId(), { map->GetDifficultyID() });
 
             ObjectGuid::LowType dbGuid = wpCreature->GetSpawnId();
 
@@ -892,7 +892,7 @@ public:
                 }
 
                 PhasingHandler::InheritPhaseShift(wpCreature, chr);
-                wpCreature->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
+                wpCreature->SaveToDB(map->GetId(), { map->GetDifficultyID() });
 
                 ObjectGuid::LowType dbGuid = wpCreature->GetSpawnId();
 
@@ -961,7 +961,7 @@ public:
             }
 
             PhasingHandler::InheritPhaseShift(creature, chr);
-            creature->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
+            creature->SaveToDB(map->GetId(), { map->GetDifficultyID() });
 
             ObjectGuid::LowType dbGuid = creature->GetSpawnId();
 
@@ -1018,7 +1018,7 @@ public:
             }
 
             PhasingHandler::InheritPhaseShift(creature, chr);
-            creature->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
+            creature->SaveToDB(map->GetId(), { map->GetDifficultyID() });
 
             ObjectGuid::LowType dbGuid = creature->GetSpawnId();
 
