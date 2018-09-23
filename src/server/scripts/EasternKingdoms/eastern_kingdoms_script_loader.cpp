@@ -204,7 +204,7 @@ void AddSC_zulaman();
 void AddSC_boss_grilek();                   // Zul'Gurub
 void AddSC_boss_hazzarah();
 void AddSC_boss_jindo_the_godbreaker();
-void AddSC_boss_kilnara();
+void AddSC_boss_high_priestess_kilnara();
 void AddSC_boss_mandokir();
 void AddSC_boss_renataki();
 void AddSC_boss_high_priest_venoxis();
@@ -425,7 +425,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_grilek();                    // Zul'Gurub
     AddSC_boss_hazzarah();
     AddSC_boss_jindo_the_godbreaker();
-    AddSC_boss_kilnara();
+    AddSC_boss_high_priestess_kilnara();
     AddSC_boss_mandokir();
     AddSC_boss_renataki();
     AddSC_boss_high_priest_venoxis();

@@ -26,7 +26,7 @@ ObjectData const creatureData[] =
 {
     { BOSS_HIGH_PRIEST_VENOXIS,         DATA_HIGH_PRIEST_VENOXIS    },
     { BOSS_BLOODLORD_MANDOKIR,          DATA_BLOODLORD_MANDOKIR     },
-    { BOSS_KILNARA,                     DATA_KILNARA                },
+    { BOSS_HIGH_PRIESTESS_KILNARA,      DATA_HIGH_PRIESTESS_KILNARA },
     { BOSS_ZANZIL,                      DATA_ZANZIL                 },
     { BOSS_JINDO_THE_GODBREAKER,        DATA_JINDO_THE_GODBREAKER   },
     { NPC_OHGAN,                        DATA_OHGAN                  }
@@ -34,12 +34,12 @@ ObjectData const creatureData[] =
 
 DoorData const doorData[] =
 {
-    { GO_VENOXIS_COIL,                  DATA_HIGH_PRIEST_VENOXIS,   DOOR_TYPE_ROOM },
-    { GO_ARENA_DOOR_1,                  DATA_BLOODLORD_MANDOKIR,    DOOR_TYPE_ROOM },
-    { GO_FORCEFIELD,                    DATA_KILNARA,               DOOR_TYPE_ROOM },
-    { GO_ZANZIL_DOOR,                   DATA_ZANZIL,                DOOR_TYPE_ROOM },
-    //{ GO_THE_CACHE_OF_MADNESS_DOOR,     DATA_xxxxxxx,   DOOR_TYPE_ROOM },
-    { 0,                                0,                          DOOR_TYPE_ROOM }  // END
+    { GO_VENOXIS_COIL,                  DATA_HIGH_PRIEST_VENOXIS,       DOOR_TYPE_ROOM },
+    { GO_ARENA_DOOR_1,                  DATA_BLOODLORD_MANDOKIR,        DOOR_TYPE_ROOM },
+    { GO_FORCEFIELD,                    DATA_HIGH_PRIESTESS_KILNARA,    DOOR_TYPE_ROOM },
+    { GO_ZANZIL_DOOR,                   DATA_ZANZIL,                    DOOR_TYPE_ROOM },
+    //{ GO_THE_CACHE_OF_MADNESS_DOOR,     DATA_xxxxxxx,                     DOOR_TYPE_ROOM },
+    { 0,                                0,                              DOOR_TYPE_ROOM }  // END
 };
 
 class instance_zulgurub : public InstanceMapScript
@@ -72,6 +72,9 @@ class instance_zulgurub : public InstanceMapScript
                         if (Creature* mandokir = GetCreature(DATA_BLOODLORD_MANDOKIR))
                             mandokir->AI()->JustSummoned(creature);
                         break;
+                    case NPC_CAVE_IN_STALKER:
+                        _caveInStalkerGUIDs.push_back(creature->GetGUID());
+                        break;
                     default:
                         break;
                 }
@@ -90,14 +93,21 @@ class instance_zulgurub : public InstanceMapScript
                 return true;
             }
 
-            /*
             void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
+                    case DATA_CAST_CAVE_IN_VISUAL:
+                        for (ObjectGuid guid : _caveInStalkerGUIDs)
+                            if (Creature* stalker = instance->GetCreature(guid))
+                                stalker->CastSpell(stalker, SPELL_CAVE_IN_VISUAL, false);
+                        break;
+                    default:
+                        break;
                 }
             }
 
+            /*
             uint32 GetData(uint32 type) const override
             {
                 switch (type)
@@ -107,6 +117,8 @@ class instance_zulgurub : public InstanceMapScript
                 return 0;
             }
             */
+        private:
+            GuidVector _caveInStalkerGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

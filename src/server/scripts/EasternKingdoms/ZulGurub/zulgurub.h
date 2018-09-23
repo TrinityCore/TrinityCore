@@ -31,7 +31,7 @@ enum ZGDataTypes
     // Bosses
     DATA_HIGH_PRIEST_VENOXIS        = 0,
     DATA_BLOODLORD_MANDOKIR         = 1,
-    DATA_KILNARA                    = 2,
+    DATA_HIGH_PRIESTESS_KILNARA     = 2,
     DATA_ZANZIL                     = 3,
     DATA_JINDO_THE_GODBREAKER       = 4,
 
@@ -44,6 +44,9 @@ enum ZGDataTypes
     // Bloodlord Mandokir
     DATA_OHGAN                      = 9,
 
+    // High Priestess Kilnara
+    DATA_CAST_CAVE_IN_VISUAL        = 10,
+
     // Jin'do the Godbreaker
     DATA_JINDOR_TRIGGER
 };
@@ -53,7 +56,7 @@ enum ZGCreatureIds
     // Bosses
     BOSS_HIGH_PRIEST_VENOXIS        = 52155,
     BOSS_BLOODLORD_MANDOKIR         = 52151,
-    BOSS_KILNARA                    = 52059,
+    BOSS_HIGH_PRIESTESS_KILNARA     = 52059,
     BOSS_ZANZIL                     = 52053,
     BOSS_JINDO_THE_GODBREAKER       = 52148,
 
@@ -74,6 +77,12 @@ enum ZGCreatureIds
     NPC_CHAINED_SPIRIT              = 52156,
     NPC_OHGAN                       = 52157,
     NPC_DEVASTATING_SLAM            = 52324,
+
+    // High Priestess Kilnara
+    NPC_WAVE_OF_AGONY_1             = 52160,
+    NPC_WAVE_OF_AGONY_2             = 52147,
+    NPC_PRIDE_OF_BETHEKK            = 52061,
+    NPC_CAVE_IN_STALKER             = 52387,
 
     // Jin'do the Godbreaker
     NPC_JINDO_TRIGGER               = 52150,
@@ -101,6 +110,11 @@ enum ZGGameObjectIds
 
     // Cache of Madness
     GO_THE_CACHE_OF_MADNESS_DOOR    = 208843
+};
+
+enum ZGSpells
+{
+    SPELL_CAVE_IN_VISUAL = 96935
 };
 
 template <class AI, class T>

@@ -4745,6 +4745,47 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // ENDOF GILNEAS SPELLS
 
+    //
+    // ZUL'GURUB SPELLS
+    //
+
+    // Tears of Blood
+    ApplySpellFix({
+        96422,
+        96957,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_12_YARDS);
+    });
+
+    // Wave of Agony
+    ApplySpellFix({ 96461 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_2_YARDS);
+    });  
+
+    // Wave of Agony (Damage)
+    ApplySpellFix({ 96460 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
+    });
+
+    // Gaping Wound
+    ApplySpellFix({ 97355 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_40_YARDS);
+        spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+    });
+
+    // Cave In
+    ApplySpellFix({ 97380 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
+    });
+
+    // ENDOF ZUL'GURUB SPELLS
+
     // Disenchant
     ApplySpellFix({ 13262 }, [](SpellInfo* spellInfo)
     {
