@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `gameobject` WHERE `guid` IN (5449,5456,5457,5460,5462,5478,5480,5481,5505,5545,5548,5563,5568,5570,5582,5584,5589,5597,5604,5626,5633,5640,5643,5655,5660,5661,5671,5684,5758,5760,5763,5767,5772);
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
@@ -64,3 +65,4 @@ INSERT INTO `game_event_gameobject` (`guid`,`eventEntry`) VALUES
 (31434,70),(31428,70),(31418,70);
 
 UPDATE `game_event` SET `description`="Brewfest Building" WHERE `eventEntry`=70;
+*/
