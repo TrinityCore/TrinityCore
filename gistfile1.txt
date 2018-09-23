@@ -1,0 +1,209 @@
+From 3a1d24c7f5323641a7779d0e64975996ec127c4e Mon Sep 17 00:00:00 2001
+From: Ovahlord <dreadkiller@gmx.de>
+Date: Mon, 17 Sep 2018 21:50:43 +0200
+Subject: [PATCH] Core/Movement: implement support for EnterCycle spline flag 
+*original autor: xvwyh
+
+---
+ src/server/game/Entities/Unit/Unit.cpp             | 22 ++++++++---
+ src/server/game/Entities/Unit/Unit.h               |  2 +-
+ src/server/game/Movement/Spline/MoveSpline.cpp     | 45 ++++++++++++++++++++--
+ src/server/game/Movement/Spline/MoveSplineInit.cpp |  1 +
+ .../game/Movement/Spline/MovementPacketBuilder.cpp | 14 ++++---
+ .../game/Movement/Spline/MovementPacketBuilder.h   |  1 +
+ 6 files changed, 68 insertions(+), 17 deletions(-)
+
+diff --git a/src/server/game/Entities/Unit/Unit.cpp b/src/server/game/Entities/Unit/Unit.cpp
+index 8ccd27b1f3..aa9b65a907 100644
+--- a/src/server/game/Entities/Unit/Unit.cpp
++++ b/src/server/game/Entities/Unit/Unit.cpp
+@@ -41,6 +41,7 @@
+ #include "LootMgr.h"
+ #include "MotionMaster.h"
+ #include "MovementGenerator.h"
++#include "MovementPacketBuilder.h"
+ #include "MovementStructures.h"
+ #include "MoveSpline.h"
+ #include "MoveSplineInit.h"
+@@ -511,19 +512,28 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
+     movespline->updateState(t_diff);
+     bool arrived = movespline->Finalized();
+ 
++    if (movespline->isCyclic())
++    {
++        m_splineSyncTimer.Update(t_diff);
++        if (m_splineSyncTimer.Passed())
++        {
++            m_splineSyncTimer.Reset(5000); // Retail value, do not change
++
++            WorldPacket data(SMSG_FLIGHT_SPLINE_SYNC, 4 + GetPackGUID().size());
++            Movement::PacketBuilder::WriteSplineSync(*movespline, data);
++            data.appendPackGUID(GetGUID());
++            SendMessageToSet(&data, true);
++        }
++    }
++
+     if (arrived)
+         DisableSpline();
+ 
+-    m_movesplineTimer.Update(t_diff);
+-    if (m_movesplineTimer.Passed() || arrived)
+-        UpdateSplinePosition();
++    UpdateSplinePosition();
+ }
+ 
+ void Unit::UpdateSplinePosition()
+ {
+-    static uint32 const positionUpdateDelay = 400;
+-
+-    m_movesplineTimer.Reset(positionUpdateDelay);
+     Movement::Location loc = movespline->ComputePosition();
+ 
+     if (movespline->onTransport)
+diff --git a/src/server/game/Entities/Unit/Unit.h b/src/server/game/Entities/Unit/Unit.h
+index 65032ea00a..2ce3e433f1 100644
+--- a/src/server/game/Entities/Unit/Unit.h
++++ b/src/server/game/Entities/Unit/Unit.h
+@@ -2004,7 +2004,7 @@ class TC_GAME_API Unit : public WorldObject
+ 
+         uint32 m_state;                                     // Even derived shouldn't modify
+         uint32 m_CombatTimer;
+-        TimeTrackerSmall m_movesplineTimer;
++        TimeTrackerSmall m_splineSyncTimer;
+ 
+         DiminishingReturn m_Diminishing[DIMINISHING_MAX];
+         // Manage all Units that are threatened by us
+diff --git a/src/server/game/Movement/Spline/MoveSpline.cpp b/src/server/game/Movement/Spline/MoveSpline.cpp
+index edda63fa15..1d0901c788 100644
+--- a/src/server/game/Movement/Spline/MoveSpline.cpp
++++ b/src/server/game/Movement/Spline/MoveSpline.cpp
+@@ -123,9 +123,8 @@ void MoveSpline::init_spline(MoveSplineInitArgs const& args)
+     if (args.flags.cyclic)
+     {
+         uint32 cyclic_point = 0;
+-        // MoveSplineFlag::Enter_Cycle support dropped
+-        //if (splineflags & SPLINEFLAG_ENTER_CYCLE)
+-        //cyclic_point = 1;   // shouldn't be modified, came from client
++        if (splineflags.enter_cycle)
++            cyclic_point = 1;   // shouldn't be modified, came from client
+         spline.init_cyclic_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()], cyclic_point);
+     }
+     else
+@@ -209,7 +208,10 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
+ #define CHECK(exp) \
+     if (!(exp))\
+     {\
+-        TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for GUID: %u Entry: %u", #exp, unit->GetTypeId() == TYPEID_PLAYER ? unit->GetGUID().GetCounter() : unit->ToCreature()->GetSpawnId(), unit->GetEntry());\
++        if (unit)\
++            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for GUID: %u Entry: %u", #exp, unit->GetTypeId() == TYPEID_PLAYER ? unit->GetGUID().GetCounter() : unit->ToCreature()->GetSpawnId(), unit->GetEntry());\
++        else\
++            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for cyclic spline continuation", #exp); \
+         return false;\
+     }
+     CHECK(path.size() > 1);
+@@ -275,6 +277,41 @@ MoveSpline::UpdateResult MoveSpline::_updateState(int32& ms_time_diff)
+                 point_Idx = spline.first();
+                 time_passed = time_passed % Duration();
+                 result = Result_NextCycle;
++
++                // Remove first point from the path after one full cycle.
++                // That point was the position of the unit prior to entering the cycle and it shouldn't be repeated with continuous cycles.
++                if (splineflags.enter_cycle)
++                {
++                    splineflags.enter_cycle = false;
++
++                    MoveSplineInitArgs args{ (size_t)spline.getPointCount() };
++                    args.path.assign(spline.getPoints().begin() + spline.first() + 1, spline.getPoints().begin() + spline.last());
++                    args.facing = facing;
++                    args.flags = splineflags;
++                    args.path_Idx_offset = point_Idx_offset;
++                    // MoveSplineFlag::Parabolic | MoveSplineFlag::Animation not supported currently
++                        //args.parabolic_amplitude = ?;
++                        //args.time_perc = ?;
++                    args.splineId = m_Id;
++                    args.initialOrientation = initialOrientation;
++                    args.velocity = 1.0f; // Calculated below
++                    args.HasVelocity = true;
++                    args.TransformForTransport = onTransport;
++                    if (args.Validate(nullptr))
++                    {
++                        // New cycle should preserve previous cycle's duration for some weird reason, even though
++                        // the path is really different now. Blizzard is weird. Or this was just a simple oversight.
++                        // Since our splines precalculate length with velocity in mind, if we want to find the desired
++                        // velocity, we have to make a fake spline, calculate its duration and then compare it to the
++                        // desired duration, thus finding out how much the velocity has to be increased for them to match.
++                        MoveSpline tempSpline;
++                        tempSpline.Initialize(args);
++                        args.velocity = (float)tempSpline.Duration() / Duration();
++
++                        if (args.Validate(nullptr))
++                            init_spline(args);
++                    }
++                }
+             }
+             else
+             {
+diff --git a/src/server/game/Movement/Spline/MoveSplineInit.cpp b/src/server/game/Movement/Spline/MoveSplineInit.cpp
+index 9fab0ce851..c41a214b66 100644
+--- a/src/server/game/Movement/Spline/MoveSplineInit.cpp
++++ b/src/server/game/Movement/Spline/MoveSplineInit.cpp
+@@ -88,6 +88,7 @@ namespace Movement
+         // correct first vertex
+         args.path[0] = real_position;
+         args.initialOrientation = real_position.orientation;
++        args.flags.enter_cycle = args.flags.cyclic;
+         move_spline.onTransport = (unit->GetTransGUID() != 0);
+ 
+         uint32 moveFlags = unit->m_movementInfo.GetMovementFlags();
+diff --git a/src/server/game/Movement/Spline/MovementPacketBuilder.cpp b/src/server/game/Movement/Spline/MovementPacketBuilder.cpp
+index 381b41026f..90aee795dd 100644
+--- a/src/server/game/Movement/Spline/MovementPacketBuilder.cpp
++++ b/src/server/game/Movement/Spline/MovementPacketBuilder.cpp
+@@ -70,8 +70,6 @@ namespace Movement
+                 break;
+         }
+ 
+-        // add fake Enter_Cycle flag - needed for client-side cyclic movement (client will erase first spline vertex after first cycle done)
+-        splineflags.enter_cycle = move_spline.isCyclic();
+         data << uint32(splineflags & uint32(~MoveSplineFlag::Mask_No_Monster_Move));
+ 
+         if (splineflags.animation)
+@@ -126,10 +124,9 @@ namespace Movement
+ 
+     void WriteUncompressedCyclicPath(Spline<int32> const& spline, ByteBuffer& data)
+     {
+-        uint32 count = spline.getPointCount() - 3;
+-        data << uint32(count + 1);
+-        data << spline.getPoint(1); // fake point, client will erase it from the spline after first cycle done
+-        data.append<Vector3>(&spline.getPoint(1), count);
++        uint32 count = spline.getPointCount() - 4;
++        data << count;
++        data.append<Vector3>(&spline.getPoint(2), count);
+     }
+ 
+     void PacketBuilder::WriteMonsterMove(const MoveSpline& move_spline, WorldPacket& data)
+@@ -245,4 +242,9 @@ namespace Movement
+ 
+         data << moveSpline.GetId();
+     }
++
++    void PacketBuilder::WriteSplineSync(MoveSpline const& moveSpline, ByteBuffer& data)
++    {
++        data << float(moveSpline.timePassed() / moveSpline.Duration());
++    }
+ }
+diff --git a/src/server/game/Movement/Spline/MovementPacketBuilder.h b/src/server/game/Movement/Spline/MovementPacketBuilder.h
+index ec3ff91b6c..75c7551fdc 100644
+--- a/src/server/game/Movement/Spline/MovementPacketBuilder.h
++++ b/src/server/game/Movement/Spline/MovementPacketBuilder.h
+@@ -39,6 +39,7 @@ namespace Movement
+         static void WriteStopMovement(Vector3 const& loc, uint32 splineId, ByteBuffer& data);
+         static void WriteCreateBits(MoveSpline const& moveSpline, ByteBuffer& data);
+         static void WriteCreateData(MoveSpline const& moveSpline, ByteBuffer& data);
++        static void WriteSplineSync(MoveSpline const& moveSpline, ByteBuffer& data);
+     };
+ }
+ #endif // TRINITYSERVER_PACKET_BUILDER_H
+-- 
+2.13.2.windows.1
+

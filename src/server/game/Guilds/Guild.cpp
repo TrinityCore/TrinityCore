@@ -659,6 +659,7 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId
     m_zoneId(0),
     m_level(0),
     m_class(0),
+    m_gender(0),
     m_flags(GUILDMEMBER_STATUS_NONE),
     m_logoutTime(::time(nullptr)),
     m_accountId(0),
@@ -677,16 +678,18 @@ void Guild::Member::SetStats(Player* player)
     m_name      = player->GetName();
     m_level     = player->getLevel();
     m_class     = player->getClass();
+    m_gender    = player->getGender();
     m_zoneId    = player->GetZoneId();
     m_accountId = player->GetSession()->GetAccountId();
     m_achievementPoints = player->GetAchievementPoints();
 }
 
-void Guild::Member::SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId, uint32 reputation)
+void Guild::Member::SetStats(std::string const& name, uint8 level, uint8 _class, uint8 gender, uint32 zoneId, uint32 accountId, uint32 reputation)
 {
     m_name      = name;
     m_level     = level;
     m_class     = _class;
+    m_gender    = gender;
     m_zoneId    = zoneId;
     m_accountId = accountId;
     m_totalReputation = reputation;
@@ -757,10 +760,11 @@ bool Guild::Member::LoadFromDB(Field* fields)
     SetStats(fields[14].GetString(),
              fields[15].GetUInt8(),                         // characters.level
              fields[16].GetUInt8(),                         // characters.class
-             fields[17].GetUInt16(),                        // characters.zone
-             fields[18].GetUInt32(),                        // characters.account
+             fields[17].GetUInt8(),                         // characters.gender
+             fields[18].GetUInt16(),                        // characters.zone
+             fields[19].GetUInt32(),                        // characters.account
              0);
-    m_logoutTime = fields[19].GetUInt32();                  // characters.logout_time
+    m_logoutTime = fields[20].GetUInt32();                  // characters.logout_time
     m_totalActivity = 0;
     m_weekActivity = 0;
     m_weekReputation = 0;
@@ -2862,8 +2866,9 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
                 name,
                 fields[1].GetUInt8(),
                 fields[2].GetUInt8(),
-                fields[3].GetUInt16(),
-                fields[4].GetUInt32(),
+                fields[3].GetUInt8(),
+                fields[4].GetUInt16(),
+                fields[5].GetUInt32(),
                 0);
 
             ok = member->CheckStats();
