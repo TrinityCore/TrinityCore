@@ -84,7 +84,10 @@ struct boss_ascendant_lord_obsidius : public BossAI
         _achievementEnligible = true;
 
         if (instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_OBSIDIUS)
+        {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_STUNNED);
+            me->RemoveAurasDueToSpell(SPELL_SHADOWY_CORRUPTION);
+        }
 
         for (uint8 i = 0; i < (IsHeroic() ? 3 : 2); i++)
         {
@@ -159,6 +162,7 @@ struct boss_ascendant_lord_obsidius : public BossAI
                 if (_deadElementalWardenCount == 7)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_STUNNED);
+                    me->RemoveAurasDueToSpell(SPELL_SHADOWY_CORRUPTION);
 
                     for (ObjectGuid guid : summons)
                     {
