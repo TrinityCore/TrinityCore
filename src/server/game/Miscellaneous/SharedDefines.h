@@ -2320,6 +2320,7 @@ enum Targets
     TARGET_UNK_147                     = 147,
     TARGET_UNK_148                     = 148,
     TARGET_UNK_149                     = 149,
+    TARGET_UNIT_OWN_CRITTER            = 150, // own battle pet from UNIT_FIELD_CRITTER
     TOTAL_SPELL_TARGETS
 };
 
