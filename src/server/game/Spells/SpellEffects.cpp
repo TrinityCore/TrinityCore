@@ -3607,9 +3607,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
 
-                    if (roll_chance_i(50))                  // chance unknown, using 50
-                        return;
-
                     static uint32 const spellPlayer[5] =
                     {
                         45674,                            // Bigger!

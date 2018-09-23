@@ -1927,52 +1927,6 @@ public:
 };
 
 /*######
-## Quest 11653: Hah... You're Not So Big Now!
-######*/
-
-enum NotSoBig
-{
-    QUEST_YOU_RE_NOT_SO_BIG_NOW                   = 11653,
-    SPELL_AURA_NOTSOBIG_1                         = 45672,
-    SPELL_AURA_NOTSOBIG_2                         = 45673,
-    SPELL_AURA_NOTSOBIG_3                         = 45677,
-    SPELL_AURA_NOTSOBIG_4                         = 45681
-};
-
-class npc_magmoth_crusher : public CreatureScript
-{
-public:
-    npc_magmoth_crusher() : CreatureScript("npc_magmoth_crusher") { }
-
-    struct npc_magmoth_crusherAI : public ScriptedAI
-    {
-        npc_magmoth_crusherAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void JustDied(Unit* killer) override
-        {
-            if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Player* player = killer->ToPlayer();
-
-            if (player->GetQuestStatus(QUEST_YOU_RE_NOT_SO_BIG_NOW) == QUEST_STATUS_INCOMPLETE &&
-                (me->HasAura(SPELL_AURA_NOTSOBIG_1) || me->HasAura(SPELL_AURA_NOTSOBIG_2) ||
-                me->HasAura(SPELL_AURA_NOTSOBIG_3) || me->HasAura(SPELL_AURA_NOTSOBIG_4)))
-            {
-                Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
-                if (qInfo)
-                    player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0]);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_magmoth_crusherAI(creature);
-    }
-};
-
-/*######
 ## Help Those That Cannot Help Themselves, Quest 11876
 ######*/
 
@@ -2516,7 +2470,6 @@ void AddSC_borean_tundra()
     new npc_mootoo_the_younger();
     new npc_bonker_togglevolt();
     new npc_trapped_mammoth_calf();
-    new npc_magmoth_crusher();
     new npc_valiance_keep_cannoneer();
     new npc_warmage_coldarra();
     new npc_hidden_cultist();
