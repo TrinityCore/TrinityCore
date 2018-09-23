@@ -34,6 +34,7 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
 endforeach()
 
 option(TOOLS            "Build map/vmap/mmap extraction/assembler tools"              1)
+option(DBEDIT           "Build GUI-based DB editor"                                   0)
 option(USE_SCRIPTPCH    "Use precompiled headers when compiling scripts"              1)
 option(USE_COREPCH      "Use precompiled headers when compiling servers"              1)
 option(WITH_DYNAMIC_LINKING "Enable dynamic library linking."                         0)

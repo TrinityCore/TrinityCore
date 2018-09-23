@@ -52,11 +52,18 @@ DBCDatabaseLoader::DBCDatabaseLoader(char const* tableName, char const* dbFormat
     ASSERT(*fmt == FT_SQL_PRESENT, "Index column not present in format string for '%s'", tableName);
 }
 
-static char const* nullStr = "";
-
-char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
+template <typename T>
+void WriteField(void*& ptr, T val)
 {
-    std::string query = Trinity::StringFormat("SELECT * FROM %s ORDER BY %s DESC;", _sqlTableName, _indexName);
+    T* coerced = static_cast<T*>(ptr);
+    *coerced = val;
+    ptr = static_cast<void*>(coerced + 1);
+}
+char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable, Optional<uint32> onlyIndex)
+{
+    std::string query = onlyIndex ?
+        Trinity::StringFormat("SELECT * FROM %s WHERE %s = %u;", _sqlTableName, _indexName, *onlyIndex) :
+        Trinity::StringFormat("SELECT * FROM %s ORDER BY %s DESC;", _sqlTableName, _indexName);
 
     // no error if empty set
     QueryResult result = WorldDatabase.Query(query.c_str());
@@ -93,11 +100,12 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
 
         uint32 indexValue = fields[_sqlIndexPos].GetUInt32();
 
-        char* dataValue = indexTable[indexValue];
-        if (!dataValue)
+        void* data = indexTable[indexValue];
+        if (!data)
         {
             newIndexes[newRecords] = indexValue;
-            dataValue = &dataTable[newRecords++ * _recordSize];
+            data = &dataTable[newRecords * _recordSize];
+            ++newRecords;
         }
         else
         {
@@ -106,7 +114,6 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
             return nullptr;
         }
 
-        uint32 dataOffset = 0;
         uint32 sqlColumnNumber = 0;
         char const* dbcFormat = _dbcFormat;
         char const* sqlFormat = _formatString;
@@ -117,29 +124,23 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
                 ASSERT(false, "DB and DBC format strings do not have the same length for '%s'", _sqlTableName);
                 return nullptr;
             }
-            if (!*dbcFormat)
-                break;
             switch (*sqlFormat)
             {
                 case FT_SQL_PRESENT:
                     switch (*dbcFormat)
                     {
                         case FT_FLOAT:
-                            *reinterpret_cast<float*>(&dataValue[dataOffset]) = fields[sqlColumnNumber].GetFloat();
-                            dataOffset += sizeof(float);
+                            WriteField(data, fields[sqlColumnNumber].GetFloat());
                             break;
                         case FT_IND:
                         case FT_INT:
-                            *reinterpret_cast<uint32*>(&dataValue[dataOffset]) = fields[sqlColumnNumber].GetUInt32();
-                            dataOffset += sizeof(uint32);
+                            WriteField(data, fields[sqlColumnNumber].GetUInt32());
                             break;
                         case FT_BYTE:
-                            *reinterpret_cast<uint8*>(&dataValue[dataOffset]) = fields[sqlColumnNumber].GetUInt8();
-                            dataOffset += sizeof(uint8);
+                            WriteField(data, fields[sqlColumnNumber].GetUInt8());
                             break;
                         case FT_STRING:
-                            *reinterpret_cast<char**>(&dataValue[dataOffset]) = CloneStringToPool(fields[sqlColumnNumber].GetString());
-                            dataOffset += sizeof(char*);
+                            WriteField(data, CloneStringToPool(fields[sqlColumnNumber].GetString()));
                             break;
                         case FT_SORT:
                             break;
@@ -153,31 +154,26 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
                     switch (*dbcFormat)
                     {
                         case FT_FLOAT:
-                            *reinterpret_cast<float*>(&dataValue[dataOffset]) = 0.0f;
-                            dataOffset += sizeof(float);
+                            WriteField(data, 0.0f);
                             break;
                         case FT_IND:
                         case FT_INT:
-                            *reinterpret_cast<uint32*>(&dataValue[dataOffset]) = uint32(0);
-                            dataOffset += sizeof(uint32);
+                            WriteField(data, uint32(0));
                             break;
                         case FT_BYTE:
-                            *reinterpret_cast<uint8*>(&dataValue[dataOffset]) = uint8(0);
-                            dataOffset += sizeof(uint8);
+                            WriteField(data, uint8(0));
                             break;
                         case FT_STRING:
-                            *reinterpret_cast<char**>(&dataValue[dataOffset]) = const_cast<char*>(nullStr);
-                            dataOffset += sizeof(char*);
+                            WriteField(data, "");
                             break;
                     }
                     break;
                 default:
                     ASSERT(false, "Invalid DB format string for '%s'", _sqlTableName);
-                    return nullptr;
+                    break;
             }
         }
         ASSERT(sqlColumnNumber == result->GetFieldCount(), "SQL format string does not match database for table: '%s'", _sqlTableName);
-        ASSERT(dataOffset == _recordSize);
     } while (result->NextRow());
 
     ASSERT(newRecords == result->GetRowCount());
@@ -189,6 +185,85 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
     records = indexTableSize;
 
     return dataTable.release();
+}
+
+template <typename T>
+T ReadField(void*& ptr)
+{
+    T* coerced = reinterpret_cast<T*>(ptr);
+    T value = *coerced;
+    ptr = reinterpret_cast<void*>(coerced + 1);
+    return value;
+}
+bool DBCDatabaseLoader::Save(uint32 indexValue, void* entry)
+{
+    SQLTransaction trans = WorldDatabase.BeginTransaction();
+    trans->PAppend("DELETE FROM %s WHERE %s = %u", _sqlTableName, _indexName, indexValue);
+
+    std::ostringstream insertQuery;
+    insertQuery << Trinity::StringFormat("INSERT INTO %s VALUES (", _sqlTableName);
+    char const* dbcFormat = _dbcFormat;
+    char const* sqlFormat = _formatString;
+    for (; (*dbcFormat || *sqlFormat); ++dbcFormat, ++sqlFormat)
+    {
+        if (!*dbcFormat || !*sqlFormat)
+        {
+            ASSERT(false, "DB and DBC format strings do not have the same length for '%s'", _sqlTableName);
+            return nullptr;
+        }
+        bool doAppend = (*sqlFormat == FT_SQL_PRESENT);
+        switch (*dbcFormat)
+        {
+            case FT_FLOAT:
+                if (doAppend)
+                    insertQuery << ReadField<float>(entry);
+                else
+                    ReadField<float>(entry);
+                break;
+            case FT_IND:
+            case FT_INT:
+                if (doAppend)
+                    insertQuery << ReadField<uint32>(entry);
+                else
+                    ReadField<uint32>(entry);
+                break;
+            case FT_BYTE:
+                if (doAppend)
+                    insertQuery << ReadField<uint8>(entry);
+                else
+                    ReadField<uint8>(entry);
+                break;
+            case FT_STRING:
+            {
+                if (doAppend)
+                {
+                    std::string s(ReadField<char*>(entry));
+                    WorldDatabase.EscapeString(s);
+                    insertQuery << "\"" << s << "\"";
+                }
+                else
+                    ReadField<char*>(entry);
+                break;
+            }
+            case FT_SORT:
+                break;
+            default:
+                ASSERT(!doAppend, "Unsupported data type '%c' marked present in table '%s'", *dbcFormat, _sqlTableName);
+                break;
+        }
+        if (doAppend)
+            insertQuery << ",";
+    }
+
+    insertQuery.seekp(-1, std::ios_base::end); // overwrite superfluous comma
+    insertQuery << ")";
+
+    printf("Write query:\n%s\n", insertQuery.str().c_str());
+
+    trans->Append(insertQuery.str().c_str());
+
+    WorldDatabase.DirectCommitTransaction(trans);
+    return true;
 }
 
 char* DBCDatabaseLoader::CloneStringToPool(std::string const& str)

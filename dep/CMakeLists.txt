@@ -10,7 +10,7 @@
 
 add_subdirectory(threads)
 
-if (SERVERS OR TOOLS)
+if (SERVERS OR TOOLS OR DBEDIT)
   add_subdirectory(boost)
   add_subdirectory(process)
   add_subdirectory(zlib)
@@ -34,4 +34,11 @@ endif()
 if (TOOLS)
   add_subdirectory(bzip2)
   add_subdirectory(libmpq)
+endif()
+
+if (DBEDIT)
+  if(NOT SERVERS)
+    add_subdirectory(mysql)
+  endif()
+  add_subdirectory(qt)
 endif()

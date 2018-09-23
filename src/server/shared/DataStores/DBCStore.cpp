@@ -73,3 +73,17 @@ void DBCStorageBase::LoadFromDB(char const* table, char const* format, char cons
 {
     _stringPool.push_back(DBCDatabaseLoader(table, format, index, _fileFormat, _stringPool).Load(_indexTableSize, indexTable));
 }
+
+bool DBCStorageBase::SaveToDB(char const* table, char const* format, char const* indexName, char**& indexTable, uint32 indexValue, void* entry)
+{
+    ASSERT(indexValue < _indexTableSize);
+    DBCDatabaseLoader loader(table, format, indexName, _fileFormat, _stringPool);
+    bool success = loader.Save(indexValue, entry);
+    if (success)
+    {
+        _stringPool.push_back(loader.Load(_indexTableSize, indexTable, indexValue));
+        return true;
+    }
+    else
+        return false;
+}

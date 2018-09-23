@@ -36,11 +36,13 @@ class TC_SHARED_API DBCStorageBase
         virtual bool Load(char const* path) = 0;
         virtual bool LoadStringsFrom(char const* path) = 0;
         virtual void LoadFromDB(char const* table, char const* format, char const* index) = 0;
+        virtual bool SaveToDB(char const* table, char const* format, char const* indexName, uint32 indexValue, void* entry) = 0;
 
     protected:
         bool Load(char const* path, char**& indexTable);
         bool LoadStringsFrom(char const* path, char** indexTable);
         void LoadFromDB(char const* table, char const* format, char const* index, char**& indexTable);
+        bool SaveToDB(char const* table, char const* format, char const* indexName, char**& indexTable, uint32 indexValue, void* entry);
 
         uint32 _fieldCount;
         char const* _fileFormat;
@@ -83,6 +85,11 @@ class DBCStorage : public DBCStorageBase
         void LoadFromDB(char const* table, char const* format, char const* index) override
         {
             DBCStorageBase::LoadFromDB(table, format, index, _indexTable.AsChar);
+        }
+
+        bool SaveToDB(char const* table, char const* format, char const* indexName, uint32 indexValue, void* entry) override
+        {
+            return DBCStorageBase::SaveToDB(table, format, indexName, _indexTable.AsChar, indexValue, entry);
         }
 
         iterator begin() { return iterator(_indexTable.AsT, _indexTableSize); }

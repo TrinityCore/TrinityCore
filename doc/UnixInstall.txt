@@ -35,6 +35,7 @@ CMakeLists.txt in the main folder and take a look at some of the flags like
     SERVERS                 Build worldserver and authserver
     SCRIPTS                 Build core with scripts included
     TOOLS                   Build maps/mmaps/vmaps extraction/assembler tools
+    DBEDIT                  Build GUI-based database editor
     USE_SCRIPTPCH           Use precompiled headers when compiling scripts
     USE_COREPCH             Use precompiled headers when compiling servers
     WITH_WARNINGS           Show all warnings during compile

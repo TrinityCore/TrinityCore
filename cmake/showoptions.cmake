@@ -36,6 +36,12 @@ else()
   message("* Build map/vmap tools   : No")
 endif()
 
+if ( DBEDIT )
+  message("* Build DBEdit           : Yes")
+else()
+  message("* Build DBEdit           : No (default)")
+endif()
+
 if( USE_COREPCH )
   message("* Build core w/PCH       : Yes (default)")
 else()

@@ -19,6 +19,7 @@
 #define DBCDatabaseLoader_h__
 
 #include "DBCFileLoader.h"
+#include "Optional.h"
 #include <string>
 #include <vector>
 
@@ -26,7 +27,8 @@ struct TC_SHARED_API DBCDatabaseLoader
 {
     DBCDatabaseLoader(char const* dbTable, char const* dbFormatString, char const* index, char const* dbcFormatString, std::vector<char*>& stringPool);
 
-    char* Load(uint32& records, char**& indexTable);
+    char* Load(uint32& records, char**& indexTable, Optional<uint32> onlyIndex = {});
+    bool Save(uint32 indexValue, void* entry);
 
 private:
     char const* _sqlTableName;

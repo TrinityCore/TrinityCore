@@ -1,0 +1,109 @@
+base info:
+- Id
+- SpellName
+- Rank
+- SpellFamilyName
+- SpellFamilyFlags
+
+Spell attributes:
+- Attributes
+- AttributesEx
+- AttributesEx2
+- AttributesEx3
+- AttributesEx4
+- AttributesEx5
+- AttributesEx6
+- AttributesEx7
+
+
+Caster properties:
+- Stances
+- StancesNot
+- RequiresSpellFocus
+- FacingCasterFlags
+- CasterAuraState
+- CasterAuraStateNot
+- casterAuraSpell
+- excludeCasterAuraSpell
+- Totem
+- EquippedItemClass
+- EquippedItemSubClassMask
+- EquippedItemInventoryTypeMask
+
+Target properties:
+- Targets
+- rangeIndex
+- MaxAffectedTargets
+- TargetCreatureType
+- TargetAuraState
+- TargetAuraStateNot
+- targetAuraSpell
+- excludeTargetAuraSpell
+- MaxTargetLevel
+
+Spell properties:
+- powerType
+- manaCost
+- manaCostPerLevel (unused)
+- ManaCostPercentage
+- manaPerSecond
+- manaPerSecondPerLevel (these two are channel costs)
+- runeCostID
+- CastingTimeIndex
+- RecoveryTime                   | self cooldown
+- Category                       \ shared cooldown
+- CategoryRecoveryTime           / (spell category)
+- StartRecoveryTime              \ global cooldown
+- StartRecoveryCategory          / (GCD category, not spell category!)
+- DmgClass
+- SchoolMask
+- PreventionType
+- InterruptFlags
+- ChannelInterruptFlags
+
+Per-effect properties (tabbed)
+- Effect
+- EffectMiscValue
+- EffectMiscValueB
+- EffectApplyAuraName
+- EffectTriggerSpell
+- EffectImplicitTargetA
+- EffectImplicitTargetB
+- EffectBasePoints
+- EffectRealPointsPerLevel
+- EffectAmplitude
+- EffectValueMultiplier
+- EffectPointsPerComboPoint
+- EffectSpellClassMask
+- EffectRadiusIndex
+- EffectMechanic
+- EffectDieSides
+- EffectChainTarget
+- EffectItemType
+- EffectDamageMultipler
+- EffectBonusMultiplier
+
+Aura properties:
+- DurationIndex
+- StackAmount
+- AuraInterruptFlags
+- procFlags
+- procChancel
+- procCharges
+
+Misc casting properties (in tabbed thing at bottom maybe?)
+- speed (<- this is travel speed of projectile, i think)
+- Reagent (there are a bunch of these)
+- ReagentCount
+- SpellVisual
+- SpellIconID
+- activeIconID
+
+
+TBD:
+- maxLevel
+- baseLevel
+- spellLevel
+(are these aura or spell related?)
+- SpellPriority (what is this?)
+- AreaGroupId (what is this?)
