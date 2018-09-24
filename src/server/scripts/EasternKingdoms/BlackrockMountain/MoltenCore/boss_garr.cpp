@@ -31,13 +31,14 @@ EndScriptData */
 enum Spells
 {
     // Garr
-    SPELL_ANTIMAGIC_PULSE   = 19492,
-    SPELL_MAGMA_SHACKLES    = 19496,
-    SPELL_ENRAGE            = 19516,
+    SPELL_ANTIMAGIC_PULSE    = 19492,
+    SPELL_MAGMA_SHACKLES     = 19496,
+    SPELL_ENRAGE             = 19516,
+    SPELL_SEPARATION_ANXIETY = 23492,
 
     // Adds
     SPELL_ERUPTION          = 19497,
-    SPELL_IMMOLATE          = 20294,
+    SPELL_IMMOLATE          = 15732,
 };
 
 enum Events
@@ -46,126 +47,116 @@ enum Events
     EVENT_MAGMA_SHACKLES     = 2,
 };
 
-class boss_garr : public CreatureScript
+struct boss_garr : public BossAI
 {
-    public:
-        boss_garr() : CreatureScript("boss_garr") { }
+    boss_garr(Creature* creature) : BossAI(creature, BOSS_GARR) { }
 
-        struct boss_garrAI : public BossAI
+    void JustEngagedWith(Unit* victim) override
+    {
+        BossAI::JustEngagedWith(victim);
+        events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, 25s);
+        events.ScheduleEvent(EVENT_MAGMA_SHACKLES, 15s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_garrAI(Creature* creature) : BossAI(creature, BOSS_GARR)
+            switch (eventId)
             {
+            case EVENT_ANTIMAGIC_PULSE:
+                DoCast(me, SPELL_ANTIMAGIC_PULSE);
+                events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, 10s, 15s);
+                break;
+            case EVENT_MAGMA_SHACKLES:
+                DoCast(me, SPELL_MAGMA_SHACKLES);
+                events.ScheduleEvent(EVENT_MAGMA_SHACKLES, 8s, 12s);
+                break;
+            default:
+                break;
             }
 
-            void JustEngagedWith(Unit* victim) override
-            {
-                BossAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, 25s);
-                events.ScheduleEvent(EVENT_MAGMA_SHACKLES, 15s);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_ANTIMAGIC_PULSE:
-                            DoCast(me, SPELL_ANTIMAGIC_PULSE);
-                            events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, 10s, 15s);
-                            break;
-                        case EVENT_MAGMA_SHACKLES:
-                            DoCast(me, SPELL_MAGMA_SHACKLES);
-                            events.ScheduleEvent(EVENT_MAGMA_SHACKLES, 8s, 12s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetMoltenCoreAI<boss_garrAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
-class npc_firesworn : public CreatureScript
+struct npc_firesworn : public ScriptedAI
 {
-    public:
-        npc_firesworn() : CreatureScript("npc_firesworn") { }
+    npc_firesworn(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_fireswornAI : public ScriptedAI
+    void ScheduleTasks()
+    {
+        // Timers for this are probably wrong
+        _scheduler.Schedule(4s, [this](TaskContext context)
         {
-            npc_fireswornAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                DoCast(target, SPELL_IMMOLATE);
 
-            void Initialize()
-            {
-                immolateTimer = 4000;                              //These times are probably wrong
-            }
+            context.Repeat(5s, 10s);
+        });
 
-            uint32 immolateTimer;
-
-            void Reset() override
-            {
-                Initialize();
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-            {
-                uint32 const health10pct = me->CountPctFromMaxHealth(10);
-                uint32 health = me->GetHealth();
-                if (int32(health) - int32(damage) < int32(health10pct))
-                {
-                    damage = 0;
-                    DoCastVictim(SPELL_ERUPTION);
-                    me->DespawnOrUnsummon();
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (immolateTimer <= diff)
-                {
-                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_IMMOLATE);
-                    immolateTimer = urand(5000, 10000);
-                }
-                else
-                    immolateTimer -= diff;
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
+        // Separation Anxiety - Periodically check if Garr is nearby
+        // ...and enrage if he is not.
+        _scheduler.Schedule(3s, [this](TaskContext context)
         {
-            return GetMoltenCoreAI<npc_fireswornAI>(creature);
+            if (!me->FindNearestCreature(NPC_GARR, 20.0f))
+                DoCastSelf(SPELL_SEPARATION_ANXIETY);
+            else if (me->HasAura(SPELL_SEPARATION_ANXIETY))
+                me->RemoveAurasDueToSpell(SPELL_SEPARATION_ANXIETY);
+
+            context.Repeat();
+        });
+    }
+
+    void Reset() override
+    {
+        _scheduler.CancelAll();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        ScheduleTasks();
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        uint32 const health10pct = me->CountPctFromMaxHealth(10);
+        uint32 health = me->GetHealth();
+        if (int32(health) - int32(damage) < int32(health10pct))
+        {
+            damage = 0;
+            DoCastVictim(SPELL_ERUPTION);
+            me->DespawnOrUnsummon();
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _scheduler.Update(diff,
+            std::bind(&ScriptedAI::DoMeleeAttackIfReady, this));
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 void AddSC_boss_garr()
 {
-    new boss_garr();
-    new npc_firesworn();
+    RegisterMoltenCoreCreatureAI(boss_garr);
+    RegisterMoltenCoreCreatureAI(npc_firesworn);
 }
