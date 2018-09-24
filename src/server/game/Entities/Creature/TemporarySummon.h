@@ -26,28 +26,36 @@ struct SummonPropertiesEntry;
 enum PetEntries
 {
     // Warlock Pet/Minions
-    ENTRY_IMP               = 416,
-    ENTRY_VOIDWALKER        = 1860,
-    ENTRY_SUCCUBUS          = 1863,
-    ENTRY_FELHUNTER         = 417,
-    ENTRY_FELGUARD          = 17252,
+    ENTRY_IMP                       = 416,
+    ENTRY_VOIDWALKER                = 1860,
+    ENTRY_SUCCUBUS                  = 1863,
+    ENTRY_FELHUNTER                 = 417,
+    ENTRY_FELGUARD                  = 17252,
+    ENTRY_INFERNAL                  = 89,
+    ENTRY_EBON_IMP                  = 50675,
 
     // Mage Pet
-    ENTRY_WATER_ELEMENTAL   = 510,
+    ENTRY_WATER_ELEMENTAL           = 510,
 
     // Druid Minion
-    ENTRY_TREANT            = 1964,
+    ENTRY_TREANT                    = 1964,
 
     // Shaman Minions
-    ENTRY_FIRE_ELEMENTAL    = 15438,
-    ENTRY_SPIRIT_WOLF       = 29264,
+    ENTRY_EARTH_ELEMENTAL           = 15352,
+    ENTRY_FIRE_ELEMENTAL            = 15438,
+    ENTRY_SPIRIT_WOLF               = 29264,
 
     // Death Knight Pet/Minions
-    ENTRY_GHOUL             = 26125,
-    ENTRY_BLOODWORM         = 28017,
-    ENTRY_RUNIC_WEAPON      = 27893,
-    ENTRY_GARGOYLE          = 27829,
-    ENTRY_SHADOWFIEND       = 19668
+    ENTRY_GHOUL                     = 26125,
+    ENTRY_BLOODWORM                 = 28017,
+    ENTRY_RUNIC_WEAPON              = 27893,
+    ENTRY_GARGOYLE                  = 27829,
+    ENTRY_SHADOWFIEND               = 19668,
+    ENTRY_ARMY_OF_THE_DEAD_GHOUL    = 24207,
+
+    // Hunter Trap Adds
+    ENTRY_VENOMOUS_SNAKE            = 19833,
+    ENTRY_VIPER                     = 19921
 };
 
 class TC_GAME_API TempSummon : public Creature

@@ -3309,14 +3309,8 @@ void AuraEffect::HandleAuraModBaseResistancePCT(AuraApplication const* aurApp, u
 
     Unit* target = aurApp->GetTarget();
 
-    // only players have base stats
-    if (target->GetTypeId() != TYPEID_PLAYER)
-    {
-        //pets only have base armor
-        if (target->IsPet() && (GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL))
-            target->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, float(GetAmount()), apply);
-    }
-    else
+    // only players and pets have base stats
+    if (target->GetTypeId() == TYPEID_PLAYER || target->IsPet())
     {
         for (int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; x++)
         {
@@ -3366,14 +3360,8 @@ void AuraEffect::HandleModBaseResistance(AuraApplication const* aurApp, uint8 mo
 
     Unit* target = aurApp->GetTarget();
 
-    // only players have base stats
-    if (target->GetTypeId() != TYPEID_PLAYER)
-    {
-        //only pets have base stats
-        if (target->IsPet() && (GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL))
-            target->HandleStatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(GetAmount()), apply);
-    }
-    else
+    // only players and pets have base stats
+    if (target->GetTypeId() == TYPEID_PLAYER || target->IsPet())
     {
         for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; i++)
             if (GetMiscValue() & (1<<i))
@@ -3452,8 +3440,8 @@ void AuraEffect::HandleModPercentStat(AuraApplication const* aurApp, uint8 mode,
         return;
     }
 
-    // only players have base stats
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    // only players and pets have base stats
+    if (target->GetTypeId() != TYPEID_PLAYER && !target->IsPet())
         return;
 
     for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
@@ -4191,6 +4179,11 @@ void AuraEffect::HandleModDamageDone(AuraApplication const* aurApp, uint8 mode, 
 
         if (Guardian* pet = target->ToPlayer()->GetGuardianPet())
             pet->UpdateAttackPowerAndDamage();
+    }
+    else if (target->IsPet())
+    {
+        if (Unit* owner = target->GetOwner())
+            owner->ApplyModUInt32Value(PLAYER_PET_SPELL_POWER, GetAmount(), apply);
     }
 }
 

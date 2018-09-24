@@ -27912,8 +27912,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
                 pet->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, CLASS_MAGE);
                 pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
                 pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
-                pet->SetFullHealth();
-                pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
                 pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped in this case
                 break;
             default:
@@ -27933,6 +27931,11 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             default:
                 break;
         }
+
+        // Update all stats after we have applied pet scaling auras to make sure we have all fields initialized properly
+        pet->UpdateAllStats();
+        pet->SetFullHealth();
+        pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
     }
 
     PhasingHandler::InheritPhaseShift(pet, this);

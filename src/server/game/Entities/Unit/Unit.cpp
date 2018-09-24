@@ -6538,7 +6538,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     if (spellProto->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
         return pdamage;
 
-    // For totems get damage bonus from owner
+    // For totems and pets use owner's bonus data
     if (GetTypeId() == TYPEID_UNIT && IsTotem())
         if (Unit* owner = GetOwner())
             return owner->SpellDamageBonusDone(victim, spellProto, pdamage, damagetype, effIndex);
@@ -6591,9 +6591,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                         case 49635:
                         case 49636:
                         case 49638:
-                            if (SpellInfo const* proto = sSpellMgr->GetSpellInfo(itr->first))
-                                AddPct(ApCoeffMod, proto->Effects[EFFECT_0].CalcValue());
-                            break;
+                        if (SpellInfo const* proto = sSpellMgr->GetSpellInfo(itr->first))
+                            AddPct(ApCoeffMod, proto->Effects[EFFECT_0].CalcValue());
+                        break;
                     }
                 }
             }
@@ -6602,10 +6602,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
 
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit  = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
-    // Pets just add their bonus damage to their spell damage
-    // note that their spell damage is just gain of their own auras
-    if (HasUnitTypeMask(UNIT_MASK_GUARDIAN))
-        DoneAdvertisedBenefit += static_cast<Guardian const*>(this)->GetBonusDamage();
 
     // Check for table values
     float coeff = spellProto->Effects[effIndex].BonusMultiplier;
@@ -9776,6 +9772,10 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
             break;
     }
 
+    // Do not update pet stats one by one. We will update all stats in one big chunk after updating all scaling auras
+    if (IsPet())
+        return false;
+
     if (!CanModifyStats())
         return false;
 
@@ -9785,35 +9785,53 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         case UNIT_MOD_STAT_AGILITY:
         case UNIT_MOD_STAT_STAMINA:
         case UNIT_MOD_STAT_INTELLECT:
-        case UNIT_MOD_STAT_SPIRIT:         UpdateStats(GetStatByAuraGroup(unitMod));  break;
-
-        case UNIT_MOD_ARMOR:               UpdateArmor();           break;
-        case UNIT_MOD_HEALTH:              UpdateMaxHealth();       break;
-
+        case UNIT_MOD_STAT_SPIRIT:
+            UpdateStats(GetStatByAuraGroup(unitMod));
+            break;
+        case UNIT_MOD_ARMOR:
+            UpdateArmor();
+            break;
+        case UNIT_MOD_HEALTH:
+            UpdateMaxHealth();
+            break;
         case UNIT_MOD_MANA:
         case UNIT_MOD_RAGE:
         case UNIT_MOD_FOCUS:
         case UNIT_MOD_ENERGY:
         case UNIT_MOD_RUNE:
-        case UNIT_MOD_RUNIC_POWER:          UpdateMaxPower(GetPowerTypeByAuraGroup(unitMod));          break;
-
+        case UNIT_MOD_RUNIC_POWER:
+            UpdateMaxPower(GetPowerTypeByAuraGroup(unitMod));
+            break;
         case UNIT_MOD_RESISTANCE_HOLY:
         case UNIT_MOD_RESISTANCE_FIRE:
         case UNIT_MOD_RESISTANCE_NATURE:
         case UNIT_MOD_RESISTANCE_FROST:
         case UNIT_MOD_RESISTANCE_SHADOW:
-        case UNIT_MOD_RESISTANCE_ARCANE:   UpdateResistances(GetSpellSchoolByAuraGroup(unitMod));      break;
-
-        case UNIT_MOD_ATTACK_POWER:        UpdateAttackPowerAndDamage();         break;
-        case UNIT_MOD_ATTACK_POWER_RANGED: UpdateAttackPowerAndDamage(true);     break;
-
-        case UNIT_MOD_DAMAGE_MAINHAND:     UpdateDamagePhysical(BASE_ATTACK);    break;
-        case UNIT_MOD_DAMAGE_OFFHAND:      UpdateDamagePhysical(OFF_ATTACK);     break;
-        case UNIT_MOD_DAMAGE_RANGED:       UpdateDamagePhysical(RANGED_ATTACK);  break;
-
+        case UNIT_MOD_RESISTANCE_ARCANE:
+            UpdateResistances(GetSpellSchoolByAuraGroup(unitMod));
+            break;
+        case UNIT_MOD_ATTACK_POWER:
+            UpdateAttackPowerAndDamage();
+            break;
+        case UNIT_MOD_ATTACK_POWER_RANGED:
+            UpdateAttackPowerAndDamage(true);
+            break;
+        case UNIT_MOD_DAMAGE_MAINHAND:
+            UpdateDamagePhysical(BASE_ATTACK);
+            break;
+        case UNIT_MOD_DAMAGE_OFFHAND:
+            UpdateDamagePhysical(OFF_ATTACK);
+            break;
+        case UNIT_MOD_DAMAGE_RANGED:
+            UpdateDamagePhysical(RANGED_ATTACK);
+            break;
         default:
             break;
     }
+
+    if (Player* player = ToPlayer())
+        if (Pet* pet = player->GetPet())
+            pet->UpdatePetScalingAuras();
 
     return true;
 }
@@ -11528,7 +11546,9 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     // this enables pet details window (Shift+P)
     pet->InitPetCreateSpells();
     //pet->InitLevelupSpellsForLevel();
+    pet->UpdateAllStats();
     pet->SetFullHealth();
+    pet->CastSpell(pet, 99289, true); // Energize
     pet->SetReactState(REACT_ASSIST);
     return true;
 }

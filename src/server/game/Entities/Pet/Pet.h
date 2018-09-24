@@ -50,6 +50,7 @@ struct PetSpell
 
 typedef std::unordered_map<uint32, PetSpell> PetSpellMap;
 typedef std::vector<uint32> AutoSpellList;
+typedef std::vector<uint32> PetScalingAuraList;
 
 class Player;
 class PetAura;
@@ -118,6 +119,7 @@ class TC_GAME_API Pet : public Guardian
         bool HasSpell(uint32 spell) const override;
 
         void LearnPetPassives();
+        void CastPetScalingAuras();
         void CastPetAuras(bool current);
         void CastPetAura(PetAura const* aura);
         bool IsPetAura(Aura const* aura);
@@ -137,8 +139,9 @@ class TC_GAME_API Pet : public Guardian
         void CleanupActionBar();
         std::string GenerateActionBarData() const;
 
-        PetSpellMap     m_spells;
-        AutoSpellList   m_autospells;
+        PetSpellMap         m_spells;
+        AutoSpellList       m_autospells;
+        PetScalingAuraList  m_petScalingAuras;
 
         void InitPetCreateSpells();
 
@@ -164,6 +167,8 @@ class TC_GAME_API Pet : public Guardian
 
         uint32 GetSlot() { return m_petSlot; }
         void SetSlot(uint32 newPetSlot) { m_petSlot = newPetSlot; } // use only together with DB update
+
+        void UpdatePetScalingAuras();
 
     protected:
         PetType m_petType;

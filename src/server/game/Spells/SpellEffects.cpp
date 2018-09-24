@@ -431,12 +431,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             damage += damage / 6;
                     }
                 }
-
-                // Warlock Pets deal 50% of the coefficient's spell power bonus as bonus damage
-                if (m_caster->IsPet())
-					if (Unit* owner = m_caster->GetCharmerOrOwner())
-						damage += CalculatePct(owner->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE, effIndex), 50);
-
                 break;
             }
             case SPELLFAMILY_PRIEST:
@@ -2682,7 +2676,6 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     m_caster->SetMinion(pet, true);
 
     pet->InitTalentForLevel();
-
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         pet->SavePetToDB(PET_SAVE_NEW_PET);
@@ -2697,7 +2690,7 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
             return;
         }
     }
-     // "kill" original creature if everything worked
+     // despawn tame target
     creatureTarget->DespawnOrUnsummon();
 
     // visual effect for levelup
@@ -2717,10 +2710,11 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             owner = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself();
     }
     // SUMMON_PET SummonPet's entries are at MiscValue, HunterPetSlot at BasePoints
-    uint32 petentry = (m_spellInfo->Effects[effIndex].MiscValue == 0 && m_spellInfo->Effects[effIndex].BasePoints <= PET_SLOT_LAST_ACTIVE_SLOT) ? m_spellInfo->Effects[effIndex].BasePoints : m_spellInfo->Effects[effIndex].MiscValue;
+    uint32 petentry = (m_spellInfo->Effects[effIndex].MiscValue == 0 && m_spellInfo->Effects[effIndex].BasePoints <= PET_SLOT_LAST_ACTIVE_SLOT) ?
+        m_spellInfo->Effects[effIndex].BasePoints : m_spellInfo->Effects[effIndex].MiscValue;
 
-    PetType petType = (m_spellInfo->Effects[effIndex].MiscValue == 0 && m_spellInfo->Effects[effIndex].BasePoints <= PET_SLOT_LAST_ACTIVE_SLOT) ? HUNTER_PET : SUMMON_PET;
-
+    PetType petType = (m_spellInfo->Effects[effIndex].MiscValue == 0 && m_spellInfo->Effects[effIndex].BasePoints <= PET_SLOT_LAST_ACTIVE_SLOT) ?
+        HUNTER_PET : SUMMON_PET;
 
     if (!owner)
     {
@@ -2982,6 +2976,23 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                         AddPct(totalDamagePercentMod, mercilessCombat->GetAmount());
             break;
         }
+        case SPELLFAMILY_WARLOCK:
+        {
+            // Felstorm and Legion Strike
+            if (m_spellInfo->Id == 89753)
+            {
+                if (m_caster->IsPet())
+                    if (Unit* owner = m_caster->GetOwner())
+                        m_damage += ((owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW) * 0.5f) * 2) * 0.231f;
+            }
+            else if (m_spellInfo->Id == 30213)
+            {
+                if (m_caster->IsPet())
+                    if (Unit* owner = m_caster->GetOwner())
+                        m_damage += ((owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW) * 0.5f) * 2) * 0.264f;
+            }
+            break;
+        }
     }
 
     bool normalized = false;
@@ -3074,6 +3085,21 @@ void Spell::EffectThreat(SpellEffIndex /*effIndex*/)
 
     if (!unitTarget->CanHaveThreatList())
         return;
+
+    switch (m_spellInfo->SpellFamilyName)
+    {
+        case SPELLFAMILY_HUNTER:
+            // Growl should benefit from pet owner's attack power
+            if (m_spellInfo->SpellFamilyFlags[1] & 0x10000000)
+            {
+                if (m_caster->IsHunterPet())
+                    if (Player* owner = m_caster->ToPet()->GetOwner())
+                        damage += uint32(owner->GetTotalAttackPowerValue(BASE_ATTACK));
+            }
+            break;
+        default:
+            break;
+    }
 
     unitTarget->AddThreat(m_caster, float(damage));
 }
