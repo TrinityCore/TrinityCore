@@ -585,11 +585,6 @@ void MotionMaster::MoveFollow(Unit* target, float dist, ChaseAngle angle, Moveme
     Add(new FollowMovementGenerator(target, dist, angle), slot);
 }
 
-void MotionMaster::MoveChase(Unit* target, float dist, float angle /*= 0.0f*/)
-{
-    MoveChase(target, Optional<ChaseRange>(dist), angle ? Optional<ChaseAngle>(angle) : Optional<ChaseAngle>());
-}
-
 void MotionMaster::MoveChase(Unit* target, Optional<ChaseRange> dist, Optional<ChaseAngle> angle)
 {
     // Ignore movement request if target not exist
@@ -598,6 +593,16 @@ void MotionMaster::MoveChase(Unit* target, Optional<ChaseRange> dist, Optional<C
 
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveChase: '%s', starts chasing '%s'", _owner->GetGUID().ToString().c_str(), target->GetGUID().ToString().c_str());
     Add(new ChaseMovementGenerator(target, dist, angle));
+}
+
+void MotionMaster::MoveChase(Unit* target, float dist, float angle)
+{
+    MoveChase(target, Optional<ChaseRange>(dist), Optional<ChaseAngle>(angle));
+}
+
+void MotionMaster::MoveChase(Unit* target, float dist)
+{
+    MoveChase(target, Optional<ChaseRange>(dist));
 }
 
 void MotionMaster::MoveConfused()
