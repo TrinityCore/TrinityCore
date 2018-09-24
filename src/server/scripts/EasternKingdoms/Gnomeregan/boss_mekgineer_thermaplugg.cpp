@@ -58,19 +58,14 @@ enum Spells
     SPELL_BOMB_EFFECT           = 11504
 };
 
-enum Actions
-{
-    ACTION_ACTIVATE = 0,
-};
-
 uint32 const GnomeFaces[MAX_GNOME_FACES] =
 {
-    GO_GNOME_FACE_01,
-    GO_GNOME_FACE_02,
-    GO_GNOME_FACE_03,
-    GO_GNOME_FACE_04,
-    GO_GNOME_FACE_05,
-    GO_GNOME_FACE_06
+    DATA_FACE_01,
+    DATA_FACE_02,
+    DATA_FACE_03,
+    DATA_FACE_04,
+    DATA_FACE_05,
+    DATA_FACE_06
 };
 
 Position BombPositions[MAX_GNOME_FACES] =
@@ -94,12 +89,12 @@ public:
 
         void AddFaceAvailable(uint32 entry)
         {
-            _availableFacesList.insert(entry);
+            _availableFaces.insert(entry);
         }
 
         void RemoveFaceAvailable(uint32 entry)
         {
-            _availableFacesList.erase(entry);
+            _availableFaces.erase(entry);
         }
 
         void DespawnBombs()
@@ -110,22 +105,36 @@ public:
                 bomb->DespawnOrUnsummon();
         }
 
+        void UnlockDoor()
+        {
+            if (GameObject* door = instance->GetGameObject(DATA_THE_FINAL_CHAMBER))
+            {
+                door->SetGoState(GO_STATE_ACTIVE);
+                door->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            }
+        }
+        void LockDoor()
+        {
+            if (GameObject* door = instance->GetGameObject(DATA_THE_FINAL_CHAMBER))
+            {
+                door->SetGoState(GO_STATE_READY);
+                door->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            }
+        }
+
+        void ResetFaces()
+        {
+            for (uint32 face_id : GnomeFaces)
+                if (GameObject* face = instance->GetGameObject(face_id))
+                    face->AI()->Reset();
+        }
+
         void Reset() override
         {
             events.Reset();
-
-            for (uint32 face_id : GnomeFaces)
-                if (GameObject* face = me->FindNearestGameObject(face_id, 130.0f))
-                    face->AI()->Reset();
-            _availableFacesList.clear();
-            for (uint32 face_id : GnomeFaces)
-                if (GameObject* face = me->FindNearestGameObject(face_id, 130.0f))
-                    AddFaceAvailable(face_id);
-
+            ResetFaces();
             DespawnBombs();
-
-            if (GameObject* door = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_THE_FINAL_CHAMBER)))
-                door->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
+            UnlockDoor();
         }
 
         void KilledUnit(Unit* who) override
@@ -137,21 +146,24 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
-            Reset();
+
+            events.Reset();
+            ResetFaces();
+            UnlockDoor();
         }
 
         void JustEnteredCombat(Unit* /*who*/) override
         {
+            for (uint32 face_id : GnomeFaces)
+                if (GameObject* face = instance->GetGameObject(face_id))
+                    AddFaceAvailable(face_id);
+
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_POUND, 6s);
             events.ScheduleEvent(EVENT_ACTIVATE_BOMBS, 8s);
             events.ScheduleEvent(EVENT_WELDING_BEAM, 14s);
 
-            if (GameObject* door = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_THE_FINAL_CHAMBER)))
-            {
-                door->ResetDoorOrButton();
-                door->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
-            }
+            LockDoor();
         }
 
         void UpdateAI(uint32 diff) override
@@ -159,7 +171,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->HasUnitState(UNIT_STATE_CASTING) )
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             events.Update(diff);
@@ -177,10 +189,10 @@ public:
                         DoCastVictim(SPELL_STEAM_BLAST);
                         break;
                     case EVENT_ACTIVATE_BOMBS:
-                        if (!_availableFacesList.empty())
+                        if (!_availableFaces.empty())
                         {
-                            uint32 faceEntry = Trinity::Containers::SelectRandomContainerElement(_availableFacesList);
-                            if (GameObject* face = me->FindNearestGameObject(faceEntry, 125.0f))
+                            uint32 face_id = Trinity::Containers::SelectRandomContainerElement(_availableFaces);
+                            if (GameObject* face = instance->GetGameObject(face_id))
                             {
                                 Talk(SAY_EXPLOSIONS);
                                 face->SetGoState(GO_STATE_ACTIVE);
@@ -204,7 +216,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        std::set<uint32> _availableFacesList;
+        std::set<uint32> _availableFaces;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -241,8 +253,9 @@ public:
         void KilledUnit(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
-                if (Creature* boss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THERMAPLUGG)))
-                    boss->AI()->Talk(SAY_DEAD);
+                if (Creature* boss = _instance->GetCreature(DATA_THERMAPLUGG))
+                    if(boss->IsAlive())
+                       boss->AI()->Talk(SAY_DEAD);
         }
 
         void UpdateAI(uint32 diff) override
@@ -263,6 +276,8 @@ public:
                         AttackStart(player);
                         AddThreat(player, 10000);
                     }
+                    else
+                        me->DespawnOrUnsummon();
                     break;
                 default:
                     break;
@@ -289,11 +304,11 @@ public:
 
     struct go_buttonAI : public GameObjectAI
     {
-        go_buttonAI(GameObject* go) : GameObjectAI(go) {};
+        go_buttonAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()), _face_id(GetFace()) {};
 
         bool GossipHello(Player* /*player*/) override
         {
-            if (GameObject* gnomeFace = me->FindNearestGameObject(GetFace(me->GetEntry()), 20.0f))
+            if (GameObject* gnomeFace = _instance->GetGameObject(_face_id))
             {
                 gnomeFace->SetGoState(GO_STATE_READY);
             }
@@ -301,22 +316,25 @@ public:
         }
 
     private:
-        uint32 GetFace(uint32 uiType)
+        InstanceScript* _instance;
+        uint32 _face_id;
+
+        uint32 GetFace()
         {
-            switch (uiType)
+            switch (me->GetEntry())
             {
             case GO_BUTTON_01:
-                return GO_GNOME_FACE_01;
+                return DATA_FACE_01;
             case GO_BUTTON_02:
-                return GO_GNOME_FACE_02;
+                return DATA_FACE_02;
             case GO_BUTTON_03:
-                return GO_GNOME_FACE_03;
+                return DATA_FACE_03;
             case GO_BUTTON_04:
-                return GO_GNOME_FACE_04;
+                return DATA_FACE_04;
             case GO_BUTTON_05:
-                return GO_GNOME_FACE_05;
+                return DATA_FACE_05;
             case GO_BUTTON_06:
-                return GO_GNOME_FACE_06;
+                return DATA_FACE_06;
             default:
                 break;
             }
@@ -337,23 +355,23 @@ public:
 
     struct go_gnome_faceAI : public GameObjectAI
     {
-        go_gnome_faceAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()), _isActive(false) { }
+        go_gnome_faceAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()), _isActive(false), _face_id(GetFace()), _bomb_position(GetBombPosition()) { }
 
         void OnStateChanged(uint32 state) override
         {
             switch (state)
             {
             case GO_STATE_ACTIVE:
-                if (Creature* boss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THERMAPLUGG)))
-                    CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->RemoveFaceAvailable(me->GetEntry());
+                if (Creature* boss = _instance->GetCreature(DATA_THERMAPLUGG))
+                    CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->RemoveFaceAvailable(_face_id);
 
                 _isActive = true;
                 events.RescheduleEvent(EVENT_SUMMON_BOMB, 2s);
                 break;
             case GO_STATE_READY:
                 if (_isActive)
-                    if (Creature* boss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THERMAPLUGG)))
-                        CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->AddFaceAvailable(me->GetEntry());
+                    if (Creature* boss = _instance->GetCreature(DATA_THERMAPLUGG))
+                        CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->AddFaceAvailable(_face_id);
 
                 _isActive = false;
                 events.CancelEvent(EVENT_SUMMON_BOMB);
@@ -367,6 +385,38 @@ public:
         {
             me->SetGoState(GO_STATE_READY);
         }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!_isActive)
+                return;
+
+            events.Update(diff);
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_SUMMON_BOMB:
+                    if (Creature* bomb = me->SummonCreature(NPC_WALKING_BOMB, _bomb_position))
+                    {
+                        bomb->SetCorpseDelay(5);
+                        bomb->GetMotionMaster()->MoveFall();
+                    }
+
+                    events.Repeat(10s);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+
+    private:
+        InstanceScript* _instance;
+        EventMap events;
+        bool _isActive;
+        uint32 _face_id;
+        Position _bomb_position;
 
         Position GetBombPosition()
         {
@@ -390,35 +440,28 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        uint32 GetFace()
         {
-            if (!_isActive)
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (me->GetEntry())
             {
-                switch (eventId)
-                {
-                case EVENT_SUMMON_BOMB:
-                    if (Creature* bomb = me->SummonCreature(NPC_WALKING_BOMB, GetBombPosition()))
-                    {
-                        bomb->SetCorpseDelay(5);
-                        bomb->GetMotionMaster()->MoveFall();
-                    }
-
-                    events.Repeat(10s);
-                    break;
-                default:
-                    break;
-                }
+            case GO_GNOME_FACE_01:
+                return DATA_FACE_01;
+            case GO_GNOME_FACE_02:
+                return DATA_FACE_02;
+            case GO_GNOME_FACE_03:
+                return DATA_FACE_03;
+            case GO_GNOME_FACE_04:
+                return DATA_FACE_04;
+            case GO_GNOME_FACE_05:
+                return DATA_FACE_05;
+            case GO_GNOME_FACE_06:
+                return DATA_FACE_06;
+            default:
+                break;
             }
+            return 0;
         }
 
-        InstanceScript* _instance;
-        EventMap events;
-        bool _isActive;
     };
 
     GameObjectAI* GetAI(GameObject* go) const override
