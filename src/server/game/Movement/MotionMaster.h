@@ -141,8 +141,8 @@ class TC_GAME_API MotionMaster
         void MoveRandom(float spawndist = 0.0f);
         void MoveFollow(Unit* target, float dist, ChaseAngle angle, MovementSlot slot = MOTION_SLOT_ACTIVE);
         void MoveChase(Unit* target, Optional<ChaseRange> dist = {}, Optional<ChaseAngle> angle = {});
-        void MoveChase(Unit* target, float dist, float angle);
-        void MoveChase(Unit* target, float dist);
+        inline void MoveChase(Unit* target, float dist, float angle) { MoveChase(target, Optional<ChaseRange>(dist), Optional<ChaseAngle>(angle)); }
+        inline void MoveChase(Unit* target, float dist) { MoveChase(target, Optional<ChaseRange>(dist)); }
         void MoveConfused();
         void MoveFleeing(Unit* enemy, uint32 time = 0);
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {});

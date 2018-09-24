@@ -595,16 +595,6 @@ void MotionMaster::MoveChase(Unit* target, Optional<ChaseRange> dist, Optional<C
     Add(new ChaseMovementGenerator(target, dist, angle));
 }
 
-void MotionMaster::MoveChase(Unit* target, float dist, float angle)
-{
-    MoveChase(target, Optional<ChaseRange>(dist), Optional<ChaseAngle>(angle));
-}
-
-void MotionMaster::MoveChase(Unit* target, float dist)
-{
-    MoveChase(target, Optional<ChaseRange>(dist));
-}
-
 void MotionMaster::MoveConfused()
 {
     if (_owner->GetTypeId() == TYPEID_PLAYER)
