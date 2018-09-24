@@ -2622,9 +2622,9 @@ struct WorldMapAreaEntry
     int32   virtual_map_id;                                 // 8 -1 (map_id have correct map) other: virtual map where zone show (map_id - where zone in fact internally)
     // int32   dungeonMap_id;                               // 9 pointer to DungeonMap.dbc (owerride x1, x2, y1, y2 coordinates)
     // uint32  parentMapID;                                 // 10
-
+    // uint32  flags                                        // 11
     // uint32  minRecommendedLevel;                         // 12 Minimum recommended level displayed on world map
-    // uint32  maxRecommendedLevel;                         // 13 Maximum recommended level displayed on world map
+    uint32  maxRecommendedLevel;                            // 13 Maximum recommended level displayed on world map
 };
 
 #define MAX_WORLD_MAP_OVERLAY_AREA_IDX 4

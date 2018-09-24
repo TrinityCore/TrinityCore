@@ -5745,13 +5745,12 @@ void Player::GiveXpForGather(uint32 const& skillId, uint32 const& reqSkillValue)
     if (skillId != SKILL_HERBALISM && skillId != SKILL_MINING && skillId != SKILL_ARCHAEOLOGY)
         return;
 
-    uint32 areaId = GetMap()->GetAreaId(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ());
-    AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
-
+    uint32 zoneId = GetZoneId();
+    WorldMapAreaEntry const* areaEntry = sWorldMapAreaStore.LookupEntry(zoneId);
     if (!areaEntry)
         return;
 
-    uint8 const levelDiff = abs(areaEntry->area_level - getLevel());
+    uint8 levelDiff = std::abs(int32(areaEntry->maxRecommendedLevel - getLevel()));
     uint8 level = 0;
 
     if (levelDiff >= 10 && levelDiff < 20)
@@ -5761,7 +5760,7 @@ void Player::GiveXpForGather(uint32 const& skillId, uint32 const& reqSkillValue)
     else
         level = getLevel() + 3;
 
-    uint32 xp = Trinity::XP::BaseGain(level, areaEntry->area_level, GetContentLevelsForMapAndZone(GetMapId(), GetZoneId())) * 2;
+    uint32 xp = Trinity::XP::BaseGain(level, areaEntry->maxRecommendedLevel, GetContentLevelsForMapAndZone(GetMapId(), zoneId)) * 2;
 
     if (!xp || levelDiff >= 20)
         return;
