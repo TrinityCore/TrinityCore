@@ -1,4 +1,4 @@
-DELETE FROM `phase_area` WHERE `AreaId` IN (4989, 5022, 5013, 5014, 5016, 5018, 5019);
+DELETE FROM `phase_area` WHERE `AreaId` IN (4989, 5022, 5013, 4861, 5016, 5018, 5019);
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 (4989, 194, 'Mount Hyjal - Grove of Aessina - Phase 194'),
 (5022, 194, 'Mount Hyjal - Rim of the World - Phase 194'),
