@@ -652,6 +652,12 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
             relic->RemoveFromWorld();
     m_titansRelicGUID.Clear();
 
+    // change collision wall state closed
+    for (BfWGGameObjectBuilding* building : BuildingsInZone)
+    {
+        building->RebuildGate();
+    }
+
     // successful defense
     if (endByTimer)
         UpdateData(GetDefenderTeam() == TEAM_HORDE ? BATTLEFIELD_WG_DATA_DEF_H : BATTLEFIELD_WG_DATA_DEF_A, 1);
@@ -1429,7 +1435,7 @@ void BfWGGameObjectBuilding::Rebuild()
             build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, nullptr, true);
             if (build->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
                 if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 50.0f))
-                    go->SetGoState(GO_STATE_READY);
+                    go->SetGoState(GO_STATE_ACTIVE);
 
             // Update worldstate
             _state = WintergraspGameObjectState(BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT - (_teamControl * 3));
@@ -1437,6 +1443,18 @@ void BfWGGameObjectBuilding::Rebuild()
         }
         UpdateCreatureAndGo();
         build->SetFaction(WintergraspFaction[_teamControl]);
+    }
+}
+
+void BfWGGameObjectBuilding::RebuildGate()
+{
+    if (GameObject* build = _wg->GetGameObject(_buildGUID))
+    {
+        if (build->IsDestructibleBuilding() && build->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
+        {
+            if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 50.0f))
+                go->SetGoState(GO_STATE_READY); //not GO_STATE_ACTIVE
+        }
     }
 }
 
