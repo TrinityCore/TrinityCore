@@ -282,18 +282,18 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_ATTACK_START:
-                    DoZoneInCombat();
-                    if (Player* player = me->SelectNearestPlayer(125.0f))
-                    {
-                        AttackStart(player);
-                        AddThreat(player, 10000);
-                    }
-                    else
-                        me->DespawnOrUnsummon();
-                    break;
-                default:
-                    break;
+                    case EVENT_ATTACK_START:
+                        DoZoneInCombat();
+                        if (Player* player = me->SelectNearestPlayer(125.0f))
+                        {
+                            AttackStart(player);
+                            AddThreat(player, 10000);
+                        }
+                        else
+                            me->DespawnOrUnsummon();
+                        break;
+                    default:
+                        break;
                 }
             }
             DoMeleeAttackIfReady();
@@ -336,20 +336,20 @@ public:
         {
             switch (me->GetEntry())
             {
-            case GO_BUTTON_01:
-                return DATA_FACE_01;
-            case GO_BUTTON_02:
-                return DATA_FACE_02;
-            case GO_BUTTON_03:
-                return DATA_FACE_03;
-            case GO_BUTTON_04:
-                return DATA_FACE_04;
-            case GO_BUTTON_05:
-                return DATA_FACE_05;
-            case GO_BUTTON_06:
-                return DATA_FACE_06;
-            default:
-                break;
+                case GO_BUTTON_01:
+                    return DATA_FACE_01;
+                case GO_BUTTON_02:
+                    return DATA_FACE_02;
+                case GO_BUTTON_03:
+                    return DATA_FACE_03;
+                case GO_BUTTON_04:
+                    return DATA_FACE_04;
+                case GO_BUTTON_05:
+                    return DATA_FACE_05;
+                case GO_BUTTON_06:
+                    return DATA_FACE_06;
+                default:
+                    break;
             }
             return 0;
         }
@@ -374,23 +374,23 @@ public:
         {
             switch (state)
             {
-            case GO_STATE_ACTIVE:
-                if (Creature* boss = _instance->GetCreature(DATA_THERMAPLUGG))
-                    CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->RemoveFaceAvailable(_face_id);
-
-                _isActive = true;
-                events.RescheduleEvent(EVENT_SUMMON_BOMB, 2s);
-                break;
-            case GO_STATE_READY:
-                if (_isActive)
+                case GO_STATE_ACTIVE:
                     if (Creature* boss = _instance->GetCreature(DATA_THERMAPLUGG))
-                        CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->AddFaceAvailable(_face_id);
+                        CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->RemoveFaceAvailable(_face_id);
 
-                _isActive = false;
-                events.CancelEvent(EVENT_SUMMON_BOMB);
-                break;
-            default:
-                break;
+                    _isActive = true;
+                    events.RescheduleEvent(EVENT_SUMMON_BOMB, 2s);
+                    break;
+                case GO_STATE_READY:
+                    if (_isActive)
+                        if (Creature* boss = _instance->GetCreature(DATA_THERMAPLUGG))
+                            CAST_AI(boss_mekgineer_thermaplugg::boss_mekgineer_thermapluggAI, boss->AI())->AddFaceAvailable(_face_id);
+
+                    _isActive = false;
+                    events.CancelEvent(EVENT_SUMMON_BOMB);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -409,17 +409,17 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_SUMMON_BOMB:
-                    if (Creature* bomb = me->SummonCreature(NPC_WALKING_BOMB, _bomb_position))
-                    {
-                        bomb->SetCorpseDelay(5);
-                        bomb->GetMotionMaster()->MoveFall();
-                    }
+                    case EVENT_SUMMON_BOMB:
+                        if (Creature* bomb = me->SummonCreature(NPC_WALKING_BOMB, _bomb_position))
+                        {
+                            bomb->SetCorpseDelay(5);
+                            bomb->GetMotionMaster()->MoveFall();
+                        }
 
-                    events.Repeat(10s);
-                    break;
-                default:
-                    break;
+                        events.Repeat(10s);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -435,21 +435,21 @@ public:
         {
             switch (me->GetEntry())
             {
-            case GO_GNOME_FACE_01:
-                return BombPositions[0];
-            case GO_GNOME_FACE_02:
-                return BombPositions[1];
-            case GO_GNOME_FACE_03:
-                return BombPositions[2];
-            case GO_GNOME_FACE_04:
-                return BombPositions[3];
-            case GO_GNOME_FACE_05:
-                return BombPositions[4];
-            case GO_GNOME_FACE_06:
-                return BombPositions[5];
-            default:
-                return BombPositions[0];
-                break;
+                case GO_GNOME_FACE_01:
+                    return BombPositions[0];
+                case GO_GNOME_FACE_02:
+                    return BombPositions[1];
+                case GO_GNOME_FACE_03:
+                    return BombPositions[2];
+                case GO_GNOME_FACE_04:
+                    return BombPositions[3];
+                case GO_GNOME_FACE_05:
+                    return BombPositions[4];
+                case GO_GNOME_FACE_06:
+                    return BombPositions[5];
+                default:
+                    return BombPositions[0];
+                    break;
             }
         }
 
@@ -457,20 +457,20 @@ public:
         {
             switch (me->GetEntry())
             {
-            case GO_GNOME_FACE_01:
-                return DATA_FACE_01;
-            case GO_GNOME_FACE_02:
-                return DATA_FACE_02;
-            case GO_GNOME_FACE_03:
-                return DATA_FACE_03;
-            case GO_GNOME_FACE_04:
-                return DATA_FACE_04;
-            case GO_GNOME_FACE_05:
-                return DATA_FACE_05;
-            case GO_GNOME_FACE_06:
-                return DATA_FACE_06;
-            default:
-                break;
+                case GO_GNOME_FACE_01:
+                    return DATA_FACE_01;
+                case GO_GNOME_FACE_02:
+                    return DATA_FACE_02;
+                case GO_GNOME_FACE_03:
+                    return DATA_FACE_03;
+                case GO_GNOME_FACE_04:
+                    return DATA_FACE_04;
+                case GO_GNOME_FACE_05:
+                    return DATA_FACE_05;
+                case GO_GNOME_FACE_06:
+                    return DATA_FACE_06;
+                default:
+                    break;
             }
             return 0;
         }
