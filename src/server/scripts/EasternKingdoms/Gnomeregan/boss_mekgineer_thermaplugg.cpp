@@ -38,24 +38,20 @@ enum Yells
 
 enum Events
 {
-    EVENT_POUND          = 1,
-    EVENT_STEAM_BLAST    = 2,
-    EVENT_KNOCK_AWAY     = 3,
-    EVENT_ACTIVATE_BOMBS = 4,
-    EVENT_WELDING_BEAM   = 5,
+    EVENT_KNOCK_AWAY = 1,
+    EVENT_ACTIVATE_BOMBS,
 
-    EVENT_SUMMON_BOMB    = 6,
-    EVENT_ATTACK_START   = 7,
+    EVENT_SUMMON_BOMB,
+    EVENT_ATTACK_START
 };
 
 enum Spells
 {
-    SPELL_POUND                 = 35049,
-    SPELL_STEAM_BLAST           = 50375,
-    SPELL_WELDING_BEAM          = 35919,
-    SPELL_ACTIVATE_BOMB_VISUAL  = 11511,
-    SPELL_ACTIVATE_BOMB         = 11518,
-    SPELL_BOMB_EFFECT           = 11504
+    SPELL_KNOCK_AWAY       = 10101,
+    SPELL_KNOCK_AWAY_AOE   = 11130,
+    SPELL_ACTIVATE_BOMB_A  = 11511,
+    SPELL_ACTIVATE_BOMB_B  = 11795,
+    SPELL_BOMB_EFFECT      = 11504
 };
 
 uint32 const GnomeFaces[MAX_GNOME_FACES] =
@@ -85,7 +81,7 @@ public:
 
     struct boss_mekgineer_thermapluggAI : public BossAI
     {
-        boss_mekgineer_thermapluggAI(Creature* creature) : BossAI(creature, DATA_THERMAPLUGG) { }
+        boss_mekgineer_thermapluggAI(Creature* creature) : BossAI(creature, DATA_THERMAPLUGG), phase_two(false) { }
 
         void AddFaceAvailable(uint32 entry)
         {
@@ -108,10 +104,11 @@ public:
         void UnlockDoor()
         {
             if (GameObject* door = instance->GetGameObject(DATA_THE_FINAL_CHAMBER))
-            {
-                door->SetGoState(GO_STATE_ACTIVE);
-                door->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            }
+                if(door->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE))
+                {
+                    door->SetGoState(GO_STATE_ACTIVE);
+                    door->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                }
         }
         void LockDoor()
         {
@@ -159,9 +156,9 @@ public:
                     AddFaceAvailable(face_id);
 
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_POUND, 6s);
-            events.ScheduleEvent(EVENT_ACTIVATE_BOMBS, 8s);
-            events.ScheduleEvent(EVENT_WELDING_BEAM, 14s);
+            events.ScheduleEvent(EVENT_KNOCK_AWAY, 17s, 20s);
+            events.ScheduleEvent(EVENT_ACTIVATE_BOMBS, 1s);
+            phase_two = false;
 
             LockDoor();
         }
@@ -174,20 +171,17 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
+            if (!phase_two && me->HealthBelowPct(50))
+            {
+                phase_two = true;
+                Talk(SAY_MACHINES);
+            }
+
             events.Update(diff);
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
-                    case EVENT_POUND:
-                        DoCastVictim(SPELL_POUND);
-                        events.Repeat(10s);
-                        events.ScheduleEvent(EVENT_STEAM_BLAST, 4s);
-                        break;
-                    case EVENT_STEAM_BLAST:
-                        Talk(SAY_MACHINES);
-                        DoCastVictim(SPELL_STEAM_BLAST);
-                        break;
                     case EVENT_ACTIVATE_BOMBS:
                         if (!_availableFaces.empty())
                         {
@@ -196,14 +190,27 @@ public:
                             {
                                 Talk(SAY_EXPLOSIONS);
                                 face->SetGoState(GO_STATE_ACTIVE);
-                                DoCast(SPELL_ACTIVATE_BOMB_VISUAL);
+                                DoCast(phase_two ? SPELL_ACTIVATE_BOMB_B : SPELL_ACTIVATE_BOMB_A);
                             }
                         }
-                        events.Repeat(10s, 18s);
+
+                        if (phase_two)
+                            events.Repeat(10s, 18s);
+                        else
+                            events.Repeat(6s, 12s);
+
                         break;
-                    case EVENT_WELDING_BEAM:
-                        DoCastVictim(SPELL_WELDING_BEAM, true);
-                        events.Repeat(10s, 15s);
+                    case EVENT_KNOCK_AWAY:
+                        if (phase_two)
+                        {
+                            DoCastVictim(SPELL_KNOCK_AWAY_AOE, true);
+                            events.Repeat(12s);
+                        }
+                        else
+                        {
+                            DoCastVictim(SPELL_KNOCK_AWAY, true);
+                            events.Repeat(17s, 20s);
+                        }
                         break;
                     default:
                         break;
@@ -216,7 +223,9 @@ public:
             DoMeleeAttackIfReady();
         }
 
+    private:
         std::set<uint32> _availableFaces;
+        bool phase_two;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

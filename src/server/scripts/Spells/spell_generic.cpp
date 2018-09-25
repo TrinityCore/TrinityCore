@@ -4047,6 +4047,26 @@ class spell_gen_pony_mount_check : public AuraScript
     }
 };
 
+class spell_10101_knock_back : public SpellScript
+{
+    PrepareSpellScript(spell_10101_knock_back);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player *player = GetHitUnit()->ToPlayer())
+        {
+            ThreatManager &tm = GetCaster()->GetThreatManager();
+            if(tm.GetThreat(player))
+                tm.ModifyThreatByPercent(player, -50);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_10101_knock_back::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterAuraScript(spell_gen_absorb0_hitlimit1);
@@ -4165,4 +4185,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_landmine_knockback_achievement);
     RegisterSpellScript(spell_gen_clear_debuffs);
     RegisterAuraScript(spell_gen_pony_mount_check);
+    RegisterSpellScript(spell_10101_knock_back);
 }
