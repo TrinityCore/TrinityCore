@@ -1450,13 +1450,11 @@ void BfWGGameObjectBuilding::RebuildGate()
 {
     if (GameObject* build = _wg->GetGameObject(_buildGUID))
     {
-        if (build->IsDestructibleBuilding())
+        if (build->IsDestructibleBuilding() && build->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
         {
-            if (build->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
-                if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 50.0f))
-                    go->SetGoState(GO_STATE_READY); //not GO_STATE_ACTIVE
+            if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 50.0f))
+                go->SetGoState(GO_STATE_READY); //not GO_STATE_ACTIVE
         }
-
     }
 }
 
