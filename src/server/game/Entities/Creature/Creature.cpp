@@ -1954,7 +1954,6 @@ void Creature::setDeathState(DeathState s)
     if (s == JUST_DIED)
     {
         m_respawnTime = respawnTime();
-        printf("Respawn time = %u \n", (unsigned int)m_respawnTime);
 
         // always save boss respawn time at death to prevent crash cheating
         if (sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
