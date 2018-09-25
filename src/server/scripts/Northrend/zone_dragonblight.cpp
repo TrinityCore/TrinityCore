@@ -472,6 +472,7 @@ enum WyrmDefenderEnum
     // Quest data
     QUEST_DEFENDING_WYRMREST_TEMPLE          = 12372,
     GOSSIP_TEXTID_DEF1                       = 12899,
+    GOSSIP_OPTION_DEF1                       =  9568,
 
     // Gossip data
     GOSSIP_TEXTID_DEF2                       = 12900,
@@ -486,8 +487,6 @@ enum WyrmDefenderEnum
     WHISPER_MOUNTED                        = 0,
     BOSS_EMOTE_ON_LOW_HEALTH               = 2
 };
-
-#define GOSSIP_ITEM_1      "We need to get into the fight. Are you ready?"
 
 class npc_wyrmrest_defender : public CreatureScript
 {
@@ -570,7 +569,7 @@ class npc_wyrmrest_defender : public CreatureScript
             {
                 if (player->GetQuestStatus(QUEST_DEFENDING_WYRMREST_TEMPLE) == QUEST_STATUS_INCOMPLETE)
                 {
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_DEF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                     SendGossipMenuFor(player, GOSSIP_TEXTID_DEF1, me->GetGUID());
                 }
                 else
