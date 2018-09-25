@@ -64,7 +64,6 @@ public:
         ObjectGuid uiCaveInLeftGUID;
         ObjectGuid uiCaveInRightGUID;
         ObjectGuid uiBlastmasterEmiShortfuseGUID;
-        ObjectGuid uiMekgineerThermapluggGUID;
 
         void OnCreatureCreate(Creature* creature) override
         {
@@ -74,9 +73,6 @@ public:
             {
                 case NPC_BLASTMASTER_EMI_SHORTFUSE: 
                     uiBlastmasterEmiShortfuseGUID = creature->GetGUID(); 
-                    break;
-                case NPC_MEKGINEER_THERMAPLUGG:
-                    uiMekgineerThermapluggGUID = creature->GetGUID();
                     break;
             }
         }
@@ -121,7 +117,6 @@ public:
                 case DATA_GO_CAVE_IN_LEFT:               return uiCaveInLeftGUID;
                 case DATA_GO_CAVE_IN_RIGHT:              return uiCaveInRightGUID;
                 case DATA_NPC_BLASTMASTER_EMI_SHORTFUSE: return uiBlastmasterEmiShortfuseGUID;
-                case DATA_THERMAPLUGG:                   return uiMekgineerThermapluggGUID;
             }
 
             return ObjectGuid::Empty;

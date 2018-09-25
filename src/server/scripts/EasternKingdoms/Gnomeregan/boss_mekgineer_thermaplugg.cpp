@@ -155,9 +155,13 @@ public:
                 if (GameObject* face = instance->GetGameObject(face_id))
                     AddFaceAvailable(face_id);
 
+            uint32 face_id = Trinity::Containers::SelectRandomContainerElement(_availableFaces);
+            if (GameObject* face = instance->GetGameObject(face_id))
+                face->SetGoState(GO_STATE_ACTIVE);
+
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_KNOCK_AWAY, 17s, 20s);
-            events.ScheduleEvent(EVENT_ACTIVATE_BOMBS, 1s);
+            events.ScheduleEvent(EVENT_ACTIVATE_BOMBS, 10s, 15s);
             phase_two = false;
 
             LockDoor();
