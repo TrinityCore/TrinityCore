@@ -655,7 +655,7 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
     // change collision wall state closed
     for (BfWGGameObjectBuilding* building : BuildingsInZone)
     {
-        building->Rebuildgate();
+        building->RebuildGate();
     }
 
     // successful defense
@@ -1446,7 +1446,7 @@ void BfWGGameObjectBuilding::Rebuild()
     }
 }
 
-void BfWGGameObjectBuilding::Rebuildgate()
+void BfWGGameObjectBuilding::RebuildGate()
 {
     if (GameObject* build = _wg->GetGameObject(_buildGUID))
     {
