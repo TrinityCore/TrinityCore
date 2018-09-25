@@ -263,14 +263,16 @@ DB2Storage<TransmogSetGroupEntry>               sTransmogSetGroupStore("Transmog
 DB2Storage<TransmogSetItemEntry>                sTransmogSetItemStore("TransmogSetItem.db2", TransmogSetItemLoadInfo::Instance());
 DB2Storage<TransportAnimationEntry>             sTransportAnimationStore("TransportAnimation.db2", TransportAnimationLoadInfo::Instance());
 DB2Storage<TransportRotationEntry>              sTransportRotationStore("TransportRotation.db2", TransportRotationLoadInfo::Instance());
+DB2Storage<UiMapEntry>                          sUiMapStore("UiMap.db2", UiMapLoadInfo::Instance());
+DB2Storage<UiMapAssignmentEntry>                sUiMapAssignmentStore("UiMapAssignment.db2", UiMapAssignmentLoadInfo::Instance());
+DB2Storage<UiMapLinkEntry>                      sUiMapLinkStore("UiMapLink.db2", UiMapLinkLoadInfo::Instance());
+DB2Storage<UiMapXMapArtEntry>                   sUiMapXMapArtStore("UiMapXMapArt.db2", UiMapXMapArtLoadInfo::Instance());
 DB2Storage<UnitPowerBarEntry>                   sUnitPowerBarStore("UnitPowerBar.db2", UnitPowerBarLoadInfo::Instance());
 DB2Storage<VehicleEntry>                        sVehicleStore("Vehicle.db2", VehicleLoadInfo::Instance());
 DB2Storage<VehicleSeatEntry>                    sVehicleSeatStore("VehicleSeat.db2", VehicleSeatLoadInfo::Instance());
 DB2Storage<WMOAreaTableEntry>                   sWMOAreaTableStore("WMOAreaTable.db2", WmoAreaTableLoadInfo::Instance());
 DB2Storage<WorldEffectEntry>                    sWorldEffectStore("WorldEffect.db2", WorldEffectLoadInfo::Instance());
-DB2Storage<WorldMapAreaEntry>                   sWorldMapAreaStore("WorldMapArea.db2", WorldMapAreaLoadInfo::Instance());
 DB2Storage<WorldMapOverlayEntry>                sWorldMapOverlayStore("WorldMapOverlay.db2", WorldMapOverlayLoadInfo::Instance());
-DB2Storage<WorldMapTransformsEntry>             sWorldMapTransformsStore("WorldMapTransforms.db2", WorldMapTransformsLoadInfo::Instance());
 DB2Storage<WorldSafeLocsEntry>                  sWorldSafeLocsStore("WorldSafeLocs.db2", WorldSafeLocsLoadInfo::Instance());
 
 TaxiMask                                        sTaxiNodesMask;
@@ -331,10 +333,17 @@ typedef std::vector<TalentEntry const*> TalentsByPosition[MAX_CLASSES][MAX_TALEN
 typedef std::unordered_set<uint32> ToyItemIdsContainer;
 typedef std::tuple<uint16, uint8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaTableLookupContainer;
-typedef std::unordered_map<uint32, WorldMapAreaEntry const*> WorldMapAreaByAreaIDContainer;
 
 namespace
 {
+    struct UiMapBounds
+    {
+        // these coords are mixed when calculated and used... its a mess
+        float Bounds[4];
+        bool IsUiAssignment;
+        bool IsUiLink;
+    };
+
     StorageMap _stores;
     std::map<uint64, int32> _hotfixData;
 
@@ -391,8 +400,13 @@ namespace
     ToyItemIdsContainer _toys;
     std::unordered_map<uint32, std::vector<TransmogSetEntry const*>> _transmogSetsByItemModifiedAppearance;
     std::unordered_map<uint32, std::vector<TransmogSetItemEntry const*>> _transmogSetItemsByTransmogSet;
+    std::unordered_map<int32, UiMapBounds> _uiMapBounds;
+    std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByMap[MAX_UI_MAP_SYSTEM];
+    std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByArea[MAX_UI_MAP_SYSTEM];
+    std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByWmoDoodadPlacement[MAX_UI_MAP_SYSTEM];
+    std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByWmoGroup[MAX_UI_MAP_SYSTEM];
+    std::unordered_set<int32> _uiMapPhases;
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
-    WorldMapAreaByAreaIDContainer _worldMapAreaByAreaID;
 }
 
 template<class T, template<class> class DB2>
@@ -421,7 +435,7 @@ inline void LoadDB2(uint32& availableDb2Locales, std::vector<std::string>& errli
 
     if (storage->Load(db2Path + localeNames[defaultLocale] + '/', defaultLocale))
     {
-        storage->LoadFromDB();
+       storage->LoadFromDB();
         // LoadFromDB() always loads strings into enUS locale, other locales are expected to have data in corresponding _locale tables
         // so we need to make additional call to load that data in case said locale is set as default by worldserver.conf (and we do not want to load all this data from .db2 file again)
         if (defaultLocale != LOCALE_enUS)
@@ -629,7 +643,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sPrestigeLevelInfoStore);
     LOAD_DB2(sPVPDifficultyStore);
     LOAD_DB2(sPVPItemStore);
-    //LOAD_DB2(sPvpRewardStore);
     LOAD_DB2(sPvpTalentStore);
     LOAD_DB2(sPvpTalentCategoryStore);
     LOAD_DB2(sPvpTalentSlotUnlockStore);
@@ -702,14 +715,16 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sTransmogSetItemStore);
     LOAD_DB2(sTransportAnimationStore);
     LOAD_DB2(sTransportRotationStore);
+    LOAD_DB2(sUiMapStore);
+    LOAD_DB2(sUiMapAssignmentStore);
+    LOAD_DB2(sUiMapLinkStore);
+    LOAD_DB2(sUiMapXMapArtStore);
     LOAD_DB2(sUnitPowerBarStore);
     LOAD_DB2(sVehicleStore);
     LOAD_DB2(sVehicleSeatStore);
     LOAD_DB2(sWMOAreaTableStore);
     LOAD_DB2(sWorldEffectStore);
-    LOAD_DB2(sWorldMapAreaStore);
     LOAD_DB2(sWorldMapOverlayStore);
-    LOAD_DB2(sWorldMapTransformsStore);
     LOAD_DB2(sWorldSafeLocsStore);
 
 #undef LOAD_DB2
@@ -1067,6 +1082,118 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (TaxiPathNodeEntry const* entry : sTaxiPathNodeStore)
         sTaxiPathNodesByPath[entry->PathID][entry->NodeIndex] = entry;
 
+    for (ToyEntry const* toy : sToyStore)
+        _toys.insert(toy->ItemID);
+
+    for (TransmogSetItemEntry const* transmogSetItem : sTransmogSetItemStore)
+    {
+        TransmogSetEntry const* set = sTransmogSetStore.LookupEntry(transmogSetItem->TransmogSetID);
+        if (!set)
+            continue;
+
+        _transmogSetsByItemModifiedAppearance[transmogSetItem->ItemModifiedAppearanceID].push_back(set);
+        _transmogSetItemsByTransmogSet[transmogSetItem->TransmogSetID].push_back(transmogSetItem);
+    }
+
+    std::unordered_multimap<int32, UiMapAssignmentEntry const*> uiMapAssignmentByUiMap;
+    for (UiMapAssignmentEntry const* uiMapAssignment : sUiMapAssignmentStore)
+    {
+        uiMapAssignmentByUiMap.emplace(uiMapAssignment->UiMapID, uiMapAssignment);
+        if (UiMapEntry const* uiMap = sUiMapStore.LookupEntry(uiMapAssignment->UiMapID))
+        {
+            ASSERT(uiMap->System < MAX_UI_MAP_SYSTEM, "MAX_TALENT_TIERS must be at least %u", uiMap->System + 1);
+            if (uiMapAssignment->MapID >= 0)
+                _uiMapAssignmentByMap[uiMap->System].emplace(uiMapAssignment->MapID, uiMapAssignment);
+            if (uiMapAssignment->AreaID)
+                _uiMapAssignmentByArea[uiMap->System].emplace(uiMapAssignment->AreaID, uiMapAssignment);
+            if (uiMapAssignment->WmoDoodadPlacementID)
+                _uiMapAssignmentByWmoDoodadPlacement[uiMap->System].emplace(uiMapAssignment->WmoDoodadPlacementID, uiMapAssignment);
+            if (uiMapAssignment->WmoGroupID)
+                _uiMapAssignmentByWmoGroup[uiMap->System].emplace(uiMapAssignment->WmoGroupID, uiMapAssignment);
+        }
+    }
+
+    std::unordered_map<std::pair<int32, uint32>, UiMapLinkEntry const*> uiMapLinks;
+    for (UiMapLinkEntry const* uiMapLink : sUiMapLinkStore)
+        uiMapLinks[std::make_pair(uiMapLink->ParentUiMapID, uint32(uiMapLink->ChildUiMapID))] = uiMapLink;
+
+    for (UiMapEntry const* uiMap : sUiMapStore)
+    {
+        UiMapBounds& bounds = _uiMapBounds[uiMap->ID];
+        memset(&bounds, 0, sizeof(bounds));
+        if (UiMapEntry const* parentUiMap = sUiMapStore.LookupEntry(uiMap->ParentUiMapID))
+        {
+            if (parentUiMap->Flags & 0x80)
+                continue;
+
+            UiMapAssignmentEntry const* uiMapAssignment = nullptr;
+            UiMapAssignmentEntry const* parentUiMapAssignment = nullptr;
+            for (auto uiMapAssignmentForMap : Trinity::Containers::MapEqualRange(uiMapAssignmentByUiMap, uiMap->ID))
+            {
+                if (uiMapAssignmentForMap.second->MapID >= 0 &&
+                    uiMapAssignmentForMap.second->Region[1].X - uiMapAssignmentForMap.second->Region[0].X > 0 &&
+                    uiMapAssignmentForMap.second->Region[1].Y - uiMapAssignmentForMap.second->Region[0].Y > 0)
+                {
+                    uiMapAssignment = uiMapAssignmentForMap.second;
+                    break;
+                }
+            }
+
+            if (!uiMapAssignment)
+                continue;
+
+            for (auto uiMapAssignmentForMap : Trinity::Containers::MapEqualRange(uiMapAssignmentByUiMap, uiMap->ParentUiMapID))
+            {
+                if (uiMapAssignmentForMap.second->MapID == uiMapAssignment->MapID &&
+                    uiMapAssignmentForMap.second->Region[1].X - uiMapAssignmentForMap.second->Region[0].X > 0 &&
+                    uiMapAssignmentForMap.second->Region[1].Y - uiMapAssignmentForMap.second->Region[0].Y > 0)
+                {
+                    parentUiMapAssignment = uiMapAssignmentForMap.second;
+                    break;
+                }
+            }
+
+            if (!parentUiMapAssignment)
+                continue;
+
+            float parentXsize = parentUiMapAssignment->Region[1].X - parentUiMapAssignment->Region[0].X;
+            float parentYsize = parentUiMapAssignment->Region[1].Y - parentUiMapAssignment->Region[0].Y;
+            float bound0scale = (uiMapAssignment->Region[1].X - parentUiMapAssignment->Region[0].X) / parentXsize;
+            float bound0 = ((1.0f - bound0scale) * parentUiMapAssignment->UiMax.Y) + (bound0scale * parentUiMapAssignment->UiMin.Y);
+            float bound2scale = (uiMapAssignment->Region[0].X - parentUiMapAssignment->Region[0].X) / parentXsize;
+            float bound2 = ((1.0f - bound2scale) * parentUiMapAssignment->UiMax.Y) + (bound2scale * parentUiMapAssignment->UiMin.Y);
+            float bound1scale = (uiMapAssignment->Region[1].Y - parentUiMapAssignment->Region[0].Y) / parentYsize;
+            float bound1 = ((1.0f - bound1scale) * parentUiMapAssignment->UiMax.X) + (bound1scale * parentUiMapAssignment->UiMin.X);
+            float bound3scale = (uiMapAssignment->Region[0].Y - parentUiMapAssignment->Region[0].Y) / parentYsize;
+            float bound3 = ((1.0f - bound3scale) * parentUiMapAssignment->UiMax.X) + (bound3scale * parentUiMapAssignment->UiMin.X);
+            if ((bound3 - bound1) > 0.0f || (bound2 - bound0) > 0.0f)
+            {
+                bounds.Bounds[0] = bound0;
+                bounds.Bounds[1] = bound1;
+                bounds.Bounds[2] = bound2;
+                bounds.Bounds[3] = bound3;
+                bounds.IsUiAssignment = true;
+            }
+        }
+
+        if (UiMapLinkEntry const* uiMapLink = Trinity::Containers::MapGetValuePtr(uiMapLinks, std::make_pair(uiMap->ParentUiMapID, uiMap->ID)))
+        {
+            bounds.IsUiAssignment = false;
+            bounds.IsUiLink = true;
+            bounds.Bounds[0] = uiMapLink->UiMin.Y;
+            bounds.Bounds[1] = uiMapLink->UiMin.X;
+            bounds.Bounds[2] = uiMapLink->UiMax.Y;
+            bounds.Bounds[3] = uiMapLink->UiMax.X;
+        }
+    }
+
+    for (UiMapXMapArtEntry const* uiMapArt : sUiMapXMapArtStore)
+        if (uiMapArt->PhaseID)
+            _uiMapPhases.insert(uiMapArt->PhaseID);
+
+    for (WMOAreaTableEntry const* entry : sWMOAreaTableStore)
+        _wmoAreaTableLookup[WMOAreaTableKey(entry->WmoID, entry->NameSetID, entry->WmoGroupID)] = entry;
+
     // Initialize global taxinodes mask
     // include existed nodes that have at least single not spell base (scripted) path
     {
@@ -1096,31 +1223,19 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
             if (node->Flags & TAXI_NODE_FLAG_ALLIANCE)
                 sAllianceTaxiNodesMask[field] |= submask;
 
-            uint32 nodeMap;
-            DeterminaAlternateMapPosition(node->ContinentID, node->Pos.X, node->Pos.Y, node->Pos.Z, &nodeMap);
-            if (nodeMap < 2)
+            int32 uiMapId = -1;
+            if (!GetUiMapPosition(node->Pos.X, node->Pos.Y, node->Pos.Z, node->ContinentID, 0, 0, 0, UI_MAP_SYSTEM_ADVENTURE, false, &uiMapId))
+                GetUiMapPosition(node->Pos.X, node->Pos.Y, node->Pos.Z, node->ContinentID, 0, 0, 0, UI_MAP_SYSTEM_TAXI, false, &uiMapId);
+
+            if (uiMapId != -1)
+            {
+                TC_LOG_INFO(LOGGER_ROOT, "%s %d %f %f %f %d", node->Name->Str[0], node->ConditionID, node->Pos.X, node->Pos.Y, node->Pos.Z, uiMapId);
+            }
+
+            if (uiMapId == 985 || uiMapId == 986)
                 sOldContinentsNodesMask[field] |= submask;
         }
     }
-
-    for (ToyEntry const* toy : sToyStore)
-        _toys.insert(toy->ItemID);
-
-    for (TransmogSetItemEntry const* transmogSetItem : sTransmogSetItemStore)
-    {
-        TransmogSetEntry const* set = sTransmogSetStore.LookupEntry(transmogSetItem->TransmogSetID);
-        if (!set)
-            continue;
-
-        _transmogSetsByItemModifiedAppearance[transmogSetItem->ItemModifiedAppearanceID].push_back(set);
-        _transmogSetItemsByTransmogSet[transmogSetItem->TransmogSetID].push_back(transmogSetItem);
-    }
-
-    for (WMOAreaTableEntry const* entry : sWMOAreaTableStore)
-        _wmoAreaTableLookup[WMOAreaTableKey(entry->WmoID, entry->NameSetID, entry->WmoGroupID)] = entry;
-
-    for (WorldMapAreaEntry const* worldMapArea : sWorldMapAreaStore)
-        _worldMapAreaByAreaID[worldMapArea->AreaID] = worldMapArea;
 
     // error checks
     if (bad_db2_files.size() == _stores.size())
@@ -2253,99 +2368,355 @@ std::vector<TransmogSetItemEntry const*> const* DB2Manager::GetTransmogSetItems(
     return Trinity::Containers::MapGetValuePtr(_transmogSetItemsByTransmogSet, transmogSetId);
 }
 
-WMOAreaTableEntry const* DB2Manager::GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const
+struct UiMapAssignmentStatus
 {
-    auto i = _wmoAreaTableLookup.find(WMOAreaTableKey(int16(rootId), int8(adtId), groupId));
-    if (i != _wmoAreaTableLookup.end())
-        return i->second;
+    UiMapAssignmentEntry const* UiMapAssignment = nullptr;
+    // distances if inside
+    struct
+    {
+        float DistanceToRegionCenterSquared = std::numeric_limits<float>::max();
+        float DistanceToRegionBottom = std::numeric_limits<float>::max();
+    } Inside;
 
-    return nullptr;
+    // distances if outside
+    struct
+    {
+        float DistanceToRegionEdgeSquared = std::numeric_limits<float>::max();
+        float DistanceToRegionTop = std::numeric_limits<float>::max();
+        float DistanceToRegionBottom = std::numeric_limits<float>::max();
+    } Outside;
+
+    int8 MapPriority = 3;
+    int8 AreaPriority = -1;
+    int8 WmoPriority = 3;
+
+    bool IsInside() const
+    {
+        return Outside.DistanceToRegionEdgeSquared < std::numeric_limits<float>::epsilon() &&
+            std::abs(Outside.DistanceToRegionTop) < std::numeric_limits<float>::epsilon() &&
+            std::abs(Outside.DistanceToRegionBottom) < std::numeric_limits<float>::epsilon();
+    }
+};
+
+static bool operator<(UiMapAssignmentStatus const& left, UiMapAssignmentStatus const& right)
+{
+    bool leftInside = left.IsInside();
+    bool rightInside = right.IsInside();
+    if (leftInside != rightInside)
+        return leftInside;
+
+    if (left.UiMapAssignment && right.UiMapAssignment &&
+        left.UiMapAssignment->UiMapID == right.UiMapAssignment->UiMapID &&
+        left.UiMapAssignment->OrderIndex != right.UiMapAssignment->OrderIndex)
+        return left.UiMapAssignment->OrderIndex < right.UiMapAssignment->OrderIndex;
+
+    if (left.WmoPriority != right.WmoPriority)
+        return left.WmoPriority < right.WmoPriority;
+
+    if (left.AreaPriority != right.AreaPriority)
+        return left.AreaPriority < right.AreaPriority;
+
+    if (left.MapPriority != right.MapPriority)
+        return left.MapPriority < right.MapPriority;
+
+    if (leftInside)
+    {
+        if (left.Inside.DistanceToRegionBottom != right.Inside.DistanceToRegionBottom)
+            return left.Inside.DistanceToRegionBottom < right.Inside.DistanceToRegionBottom;
+
+        float leftUiSizeX = left.UiMapAssignment ? (left.UiMapAssignment->UiMax.X - left.UiMapAssignment->UiMin.X) : 0.0f;
+        float rightUiSizeX = right.UiMapAssignment ? (right.UiMapAssignment->UiMax.X - right.UiMapAssignment->UiMin.X) : 0.0f;
+
+        if (leftUiSizeX > std::numeric_limits<float>::epsilon() && rightUiSizeX > std::numeric_limits<float>::epsilon())
+        {
+            float leftScale = (left.UiMapAssignment->Region[1].X - left.UiMapAssignment->Region[0].X) / leftUiSizeX;
+            float rightScale = (right.UiMapAssignment->Region[1].X - right.UiMapAssignment->Region[0].X) / rightUiSizeX;
+            if (leftScale != rightScale)
+                return leftScale < rightScale;
+        }
+
+        if (left.Inside.DistanceToRegionCenterSquared != right.Inside.DistanceToRegionCenterSquared)
+            return left.Inside.DistanceToRegionCenterSquared < right.Inside.DistanceToRegionCenterSquared;
+    }
+    else
+    {
+        if (left.Outside.DistanceToRegionTop != right.Outside.DistanceToRegionTop)
+            return left.Outside.DistanceToRegionTop < right.Outside.DistanceToRegionTop;
+
+        if (left.Outside.DistanceToRegionBottom != right.Outside.DistanceToRegionBottom)
+            return left.Outside.DistanceToRegionBottom < right.Outside.DistanceToRegionBottom;
+
+        if (left.Outside.DistanceToRegionEdgeSquared != right.Outside.DistanceToRegionEdgeSquared)
+            return left.Outside.DistanceToRegionEdgeSquared < right.Outside.DistanceToRegionEdgeSquared;
+    }
+
+    return true;
 }
 
-uint32 DB2Manager::GetVirtualMapForMapAndZone(uint32 mapId, uint32 zoneId) const
+static bool CheckUiMapAssignmentStatus(float x, float y, float z, int32 mapId, int32 areaId, int32 wmoDoodadPlacementId, int32 wmoGroupId,
+    UiMapAssignmentEntry const* uiMapAssignment, UiMapAssignmentStatus* status)
 {
-    if (mapId != 530 && mapId != 571 && mapId != 732)   // speed for most cases
-        return mapId;
+    status->UiMapAssignment = uiMapAssignment;
+    // x,y not in region
+    if (x < uiMapAssignment->Region[0].X || x > uiMapAssignment->Region[1].X || y < uiMapAssignment->Region[0].Y || y > uiMapAssignment->Region[1].Y)
+    {
+        float xDiff, yDiff;
+        if (x >= uiMapAssignment->Region[0].X)
+        {
+            xDiff = 0.0f;
+            if (x > uiMapAssignment->Region[1].X)
+                xDiff = x - uiMapAssignment->Region[0].X;
+        }
+        else
+            xDiff = uiMapAssignment->Region[0].X - x;
 
-    auto itr = _worldMapAreaByAreaID.find(zoneId);
-    if (itr != _worldMapAreaByAreaID.end())
-        return itr->second->DisplayMapID >= 0 ? itr->second->DisplayMapID : itr->second->MapID;
+        if (y >= uiMapAssignment->Region[0].Y)
+        {
+            yDiff = 0.0f;
+            if (y > uiMapAssignment->Region[1].Y)
+                yDiff = y - uiMapAssignment->Region[0].Y;
+        }
+        else
+            yDiff = uiMapAssignment->Region[0].Y - y;
 
-    return mapId;
+        status->Outside.DistanceToRegionEdgeSquared = xDiff * xDiff + yDiff * yDiff;
+    }
+    else
+    {
+        status->Inside.DistanceToRegionCenterSquared =
+            (x - (uiMapAssignment->Region[0].X + uiMapAssignment->Region[1].X) * 0.5f) * (x - (uiMapAssignment->Region[0].X + uiMapAssignment->Region[1].X) * 0.5f)
+            + (y - (uiMapAssignment->Region[0].Y + uiMapAssignment->Region[1].Y) * 0.5f) * (y - (uiMapAssignment->Region[0].Y + uiMapAssignment->Region[1].Y) * 0.5f);
+        status->Outside.DistanceToRegionEdgeSquared = 0.0f;
+    }
+
+    // z not in region
+    if (z < uiMapAssignment->Region[0].Z || z > uiMapAssignment->Region[1].Z)
+    {
+        if (z < uiMapAssignment->Region[1].Z)
+        {
+            if (z < uiMapAssignment->Region[0].Z)
+                status->Outside.DistanceToRegionBottom = std::min(uiMapAssignment->Region[0].Z - z, 10000.0f);
+        }
+        else
+            status->Outside.DistanceToRegionTop = std::min(z - uiMapAssignment->Region[1].Z, 10000.0f);
+    }
+    else
+    {
+        status->Outside.DistanceToRegionTop = 0.0f;
+        status->Outside.DistanceToRegionBottom = 0.0f;
+        status->Inside.DistanceToRegionBottom = std::min(uiMapAssignment->Region[0].Z - z, 10000.0f);
+    }
+
+    if (areaId && uiMapAssignment->AreaID)
+    {
+        int8 areaPriority = 0;
+        if (areaId)
+        {
+            while (areaId != uiMapAssignment->AreaID)
+            {
+                if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId))
+                {
+                    areaId = areaEntry->ParentAreaID;
+                    ++areaPriority;
+                }
+                else
+                    return false;
+            }
+        }
+        else
+            return false;
+
+        status->AreaPriority = areaPriority;
+    }
+
+    if (mapId >= 0 && uiMapAssignment->MapID >= 0)
+    {
+        if (mapId != uiMapAssignment->MapID)
+        {
+            if (MapEntry const* mapEntry = sMapStore.LookupEntry(mapId))
+            {
+                if (mapEntry->ParentMapID == uiMapAssignment->MapID)
+                    status->MapPriority = 1;
+                else if (mapEntry->CosmeticParentMapID == uiMapAssignment->MapID)
+                    status->MapPriority = 2;
+                else
+                    return false;
+            }
+            else
+                return false;
+        }
+        else
+            status->MapPriority = 0;
+    }
+
+    if (wmoGroupId || wmoDoodadPlacementId)
+    {
+        if (uiMapAssignment->WmoGroupID || uiMapAssignment->WmoDoodadPlacementID)
+        {
+            bool hasDoodadPlacement = false;
+            if (wmoDoodadPlacementId && uiMapAssignment->WmoDoodadPlacementID)
+            {
+                if (wmoDoodadPlacementId != uiMapAssignment->WmoDoodadPlacementID)
+                    return false;
+
+                hasDoodadPlacement = true;
+            }
+
+            if (wmoGroupId && uiMapAssignment->WmoGroupID)
+            {
+                if (wmoGroupId != uiMapAssignment->WmoGroupID)
+                    return false;
+
+                if (hasDoodadPlacement)
+                    status->WmoPriority = 0;
+                else
+                    status->WmoPriority = 2;
+            }
+            else if (hasDoodadPlacement)
+                status->WmoPriority = 1;
+        }
+    }
+
+    return true;
+}
+
+static UiMapAssignmentEntry const* FindNearestMapAssignment(float x, float y, float z, int32 mapId, int32 areaId, int32 wmoDoodadPlacementId, int32 wmoGroupId, UiMapSystem system)
+{
+    UiMapAssignmentStatus nearestMapAssignment;
+    auto iterateUiMapAssignments = [&](std::unordered_multimap<int32, UiMapAssignmentEntry const*> const& assignments, int32 id)
+    {
+        for (auto assignment : Trinity::Containers::MapEqualRange(assignments, id))
+        {
+            UiMapAssignmentStatus status;
+            if (CheckUiMapAssignmentStatus(x, y, z, mapId, areaId, wmoDoodadPlacementId, wmoGroupId, assignment.second, &status))
+                if (status < nearestMapAssignment)
+                    nearestMapAssignment = status;
+        }
+    };
+
+    iterateUiMapAssignments(_uiMapAssignmentByWmoGroup[system], wmoGroupId);
+    iterateUiMapAssignments(_uiMapAssignmentByWmoDoodadPlacement[system], wmoDoodadPlacementId);
+
+    AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
+    while (areaEntry)
+    {
+        iterateUiMapAssignments(_uiMapAssignmentByArea[system], areaEntry->ID);
+        areaEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID);
+    }
+
+    if (MapEntry const* mapEntry = sMapStore.LookupEntry(mapId))
+    {
+        iterateUiMapAssignments(_uiMapAssignmentByMap[system], mapEntry->ID);
+        if (mapEntry->ParentMapID >= 0)
+            iterateUiMapAssignments(_uiMapAssignmentByMap[system], mapEntry->ParentMapID);
+        if (mapEntry->CosmeticParentMapID >= 0)
+            iterateUiMapAssignments(_uiMapAssignmentByMap[system], mapEntry->CosmeticParentMapID);
+    }
+
+    return nearestMapAssignment.UiMapAssignment;
+}
+
+static DBCPosition2D CalculateGlobalUiMapPosition(int32 uiMapID, DBCPosition2D uiPosition)
+{
+    UiMapEntry const* uiMap = sUiMapStore.LookupEntry(uiMapID);
+    while (uiMap)
+    {
+        if (uiMap->Type <= UI_MAP_TYPE_CONTINENT)
+            break;
+
+        UiMapBounds const* bounds = Trinity::Containers::MapGetValuePtr(_uiMapBounds, uiMap->ID);
+        if (!bounds || !bounds->IsUiAssignment)
+            break;
+
+        uiPosition.X = ((1.0 - uiPosition.X) * bounds->Bounds[1]) + (bounds->Bounds[3] * uiPosition.X);
+        uiPosition.Y = ((1.0 - uiPosition.Y) * bounds->Bounds[0]) + (bounds->Bounds[2] * uiPosition.Y);
+
+        uiMap = sUiMapStore.LookupEntry(uiMap->ParentUiMapID);
+    }
+
+    return uiPosition;
+}
+
+bool DB2Manager::GetUiMapPosition(float x, float y, float z, int32 mapId, int32 areaId, int32 wmoDoodadPlacementId, int32 wmoGroupId, UiMapSystem system, bool local,
+    int32* uiMapId /*= nullptr*/, DBCPosition2D* newPos /*= nullptr*/)
+{
+    if (uiMapId)
+        *uiMapId = -1;
+
+    if (newPos)
+    {
+        newPos->X = 0.0f;
+        newPos->Y = 0.0f;
+    }
+
+    UiMapAssignmentEntry const* uiMapAssignment = FindNearestMapAssignment(x, y, z, mapId, areaId, wmoDoodadPlacementId, wmoGroupId, system);
+    if (!uiMapAssignment)
+        return false;
+
+    if (uiMapId)
+        *uiMapId = uiMapAssignment->UiMapID;
+
+    DBCPosition2D relativePosition{ 0.5f, 0.5f };
+    DBCPosition2D regionSize{ uiMapAssignment->Region[1].X - uiMapAssignment->Region[0].X, uiMapAssignment->Region[1].Y - uiMapAssignment->Region[0].Y };
+    if (regionSize.X > 0.0f)
+        relativePosition.X = (x - uiMapAssignment->Region[0].X) / regionSize.X;
+    if (regionSize.Y > 0.0f)
+        relativePosition.Y = (y - uiMapAssignment->Region[0].Y) / regionSize.Y;
+
+    DBCPosition2D uiPosition
+    {
+        // x any y are swapped
+        ((1.0f - (1.0f - relativePosition.Y)) * uiMapAssignment->UiMin.X) + ((1.0f - relativePosition.Y) * uiMapAssignment->UiMax.X),
+        ((1.0f - (1.0f - relativePosition.X)) * uiMapAssignment->UiMin.Y) + ((1.0f - relativePosition.X) * uiMapAssignment->UiMax.Y)
+    };
+
+    if (!local)
+        uiPosition = CalculateGlobalUiMapPosition(uiMapAssignment->UiMapID, uiPosition);
+
+    if (newPos)
+        *newPos = uiPosition;
+
+    return true;
 }
 
 void DB2Manager::Zone2MapCoordinates(uint32 areaId, float& x, float& y) const
 {
-    auto itr = _worldMapAreaByAreaID.find(areaId);
-    if (itr == _worldMapAreaByAreaID.end())
+    AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
+    if (!areaEntry)
         return;
 
-    std::swap(x, y);                                         // at client map coords swapped
-    x = x*((itr->second->LocBottom - itr->second->LocTop) / 100) + itr->second->LocTop;
-    y = y*((itr->second->LocRight - itr->second->LocLeft) / 100) + itr->second->LocLeft;        // client y coord from top to down
+    int32 uiMapId = -1;
+    for (auto assignment : Trinity::Containers::MapEqualRange(_uiMapAssignmentByArea[UI_MAP_SYSTEM_WORLD], areaId))
+    {
+        if (assignment.second->MapID >= 0 && assignment.second->MapID != areaEntry->ContinentID)
+            continue;
+
+        float tmpY = 1.0 - ((y - assignment.second->UiMin.Y) / (assignment.second->UiMax.Y - assignment.second->UiMin.Y));
+        float tmpX = 1.0 - ((x - assignment.second->UiMin.X) / (assignment.second->UiMax.X - assignment.second->UiMin.X));
+        y = ((1.0 - tmpY) * assignment.second->Region[0].X) + (tmpY * assignment.second->Region[1].X);
+        x = ((1.0 - tmpX) * assignment.second->Region[0].Y) + (tmpX * assignment.second->Region[1].Y);
+        break;
+    }
 }
 
 void DB2Manager::Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const
 {
-    auto itr = _worldMapAreaByAreaID.find(areaId);
-    if (itr == _worldMapAreaByAreaID.end())
+    DBCPosition2D zoneCoords;
+    if (!GetUiMapPosition(x, y, 0.0f, -1, areaId, 0, 0, UI_MAP_SYSTEM_WORLD, true, nullptr, &zoneCoords))
         return;
 
-    x = (x - itr->second->LocTop) / ((itr->second->LocBottom - itr->second->LocTop) / 100);
-    y = (y - itr->second->LocLeft) / ((itr->second->LocRight - itr->second->LocLeft) / 100);    // client y coord from top to down
-    std::swap(x, y);                                         // client have map coords swapped
+    x = zoneCoords.Y * 100.0f;
+    y = zoneCoords.X * 100.0f;
 }
 
-void DB2Manager::DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId /*= nullptr*/, DBCPosition2D* newPos /*= nullptr*/)
+bool DB2Manager::IsUiMapPhase(uint32 phaseId) const
 {
-    ASSERT(newMapId || newPos);
-    WorldMapTransformsEntry const* transformation = nullptr;
-    for (WorldMapTransformsEntry const* transform : sWorldMapTransformsStore)
-    {
-        if (transform->MapID != mapId)
-            continue;
-        if (transform->AreaID)
-            continue;
-        if (transform->Flags & WORLD_MAP_TRANSFORMS_FLAG_DUNGEON)
-            continue;
-        if (transform->RegionMin.X > x || transform->RegionMax.X < x)
-            continue;
-        if (transform->RegionMin.Y > y || transform->RegionMax.Y < y)
-            continue;
-        if (transform->RegionMin.Z > z || transform->RegionMax.Z < z)
-            continue;
+    return _uiMapPhases.find(phaseId) != _uiMapPhases.end();
+}
 
-        if (!transformation || transformation->Priority < transform->Priority)
-            transformation = transform;
-    }
-
-    if (!transformation)
-    {
-        if (newMapId)
-            *newMapId = mapId;
-
-        if (newPos)
-        {
-            newPos->X = x;
-            newPos->Y = y;
-        }
-        return;
-    }
-
-    if (newMapId)
-        *newMapId = transformation->NewMapID;
-
-    if (!newPos)
-        return;
-
-    if (std::abs(transformation->RegionScale - 1.0f) > 0.001f)
-    {
-        x = (x - transformation->RegionMin.X) * transformation->RegionScale + transformation->RegionMin.X;
-        y = (y - transformation->RegionMin.Y) * transformation->RegionScale + transformation->RegionMin.Y;
-    }
-
-    newPos->X = x + transformation->RegionOffset.X;
-    newPos->Y = y + transformation->RegionOffset.Y;
+WMOAreaTableEntry const* DB2Manager::GetWMOAreaTable(int32 rootId, int32 adtId, int32 groupId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_wmoAreaTableLookup, WMOAreaTableKey(int16(rootId), int8(adtId), groupId));
 }
 
 bool ChrClassesXPowerTypesEntryComparator::Compare(ChrClassesXPowerTypesEntry const* left, ChrClassesXPowerTypesEntry const* right)

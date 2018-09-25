@@ -76,6 +76,12 @@ std::size_t TaxiPathGraph::GetVertexCount()
     return std::max(boost::num_vertices(m_graph), m_vertices.size());
 }
 
+void GetTaxiMapPosition(DBCPosition3D const& position, int32 mapId, DBCPosition2D* uiMapPosition, int32* uiMapId)
+{
+    if (!DB2Manager::GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UI_MAP_SYSTEM_ADVENTURE, false, uiMapId, uiMapPosition))
+        DB2Manager::GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UI_MAP_SYSTEM_TAXI, false, uiMapId, uiMapPosition);
+}
+
 void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, TaxiNodesEntry const* to, uint32 pathId, std::vector<std::pair<edge, EdgeCost>>& edges)
 {
     if (from != to)
@@ -104,22 +110,21 @@ void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, Ta
             if (nodes[i - 1]->Flags & TAXI_PATH_NODE_FLAG_TELEPORT)
                 continue;
 
-            uint32 map1, map2;
+            int32 uiMap1, uiMap2;
             DBCPosition2D pos1, pos2;
 
-            DB2Manager::DeterminaAlternateMapPosition(nodes[i - 1]->ContinentID, nodes[i - 1]->Loc.X, nodes[i - 1]->Loc.Y, nodes[i - 1]->Loc.Z, &map1, &pos1);
-            DB2Manager::DeterminaAlternateMapPosition(nodes[i]->ContinentID, nodes[i]->Loc.X, nodes[i]->Loc.Y, nodes[i]->Loc.Z, &map2, &pos2);
+            GetTaxiMapPosition(nodes[i - 1]->Loc, nodes[i - 1]->ContinentID, &pos1, &uiMap1);
+            GetTaxiMapPosition(nodes[i]->Loc, nodes[i]->ContinentID, &pos2, &uiMap2);
 
-            if (map1 != map2)
+            if (uiMap1 != uiMap2)
                 continue;
 
             totalDist += std::sqrt(
                 std::pow(pos2.X - pos1.X, 2) +
-                std::pow(pos2.Y - pos1.Y, 2) +
-                std::pow(nodes[i]->Loc.Z - nodes[i - 1]->Loc.Z, 2));
+                std::pow(pos2.Y - pos1.Y, 2));
         }
 
-        uint32 dist = uint32(totalDist);
+        uint32 dist = uint32(totalDist * 32767.0f);
         if (dist > 0xFFFF)
             dist = 0xFFFF;
 

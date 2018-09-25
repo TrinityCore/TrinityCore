@@ -2992,6 +2992,55 @@ struct TransportRotationEntry
     int32 GameObjectsID;
 };
 
+struct UiMapEntry
+{
+    LocalizedString* Name;
+    uint32 ID;
+    int32 ParentUiMapID;
+    int32 Flags;
+    int32 System;
+    int32 Type;
+    uint32 LevelRangeMin;
+    uint32 LevelRangeMax;
+    int32 BountySetID;
+    uint32 BountyDisplayLocation;
+    int32 VisibilityPlayerConditionID;
+    int8 HelpTextPosition;
+    int32 BkgAtlasID;
+};
+
+struct UiMapAssignmentEntry
+{
+    DBCPosition2D UiMin;
+    DBCPosition2D UiMax;
+    DBCPosition3D Region[2];
+    uint32 ID;
+    int32 UiMapID;
+    int32 OrderIndex;
+    int32 MapID;
+    int32 AreaID;
+    int32 WmoDoodadPlacementID;
+    int32 WmoGroupID;
+};
+
+struct UiMapLinkEntry
+{
+    DBCPosition2D UiMin;
+    DBCPosition2D UiMax;
+    uint32 ID;
+    int32 ParentUiMapID;
+    int32 OrderIndex;
+    int32 ChildUiMapID;
+};
+
+struct UiMapXMapArtEntry
+{
+    uint32 ID;
+    int32 PhaseID;
+    int32 UiMapArtID;
+    int32 UiMapID;
+};
+
 struct UnitPowerBarEntry
 {
     uint32 ID;

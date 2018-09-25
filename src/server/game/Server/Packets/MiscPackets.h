@@ -551,7 +551,7 @@ namespace WorldPackets
             ObjectGuid Client;
             PhaseShiftData Phaseshift;
             std::vector<uint16> PreloadMapIDs;
-            std::vector<uint16> UiWorldMapAreaIDSwaps;
+            std::vector<uint16> UiMapPhaseIDs;
             std::vector<uint16> VisibleMapIDs;
         };
 

@@ -1879,10 +1879,31 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // continent limitation (virtual continent)
     if (HasAttribute(SPELL_ATTR4_CAST_ONLY_IN_OUTLAND))
     {
-        uint32 v_map = sDB2Manager.GetVirtualMapForMapAndZone(map_id, zone_id);
-        MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
-        if (!mapEntry || mapEntry->ExpansionID < 1 || !mapEntry->IsContinent())
+        uint32 mountFlags = 0;
+        if (player && player->HasAuraType(SPELL_AURA_MOUNT_RESTRICTIONS))
+        {
+            for (AuraEffect const* auraEffect : player->GetAuraEffectsByType(SPELL_AURA_MOUNT_RESTRICTIONS))
+                mountFlags |= auraEffect->GetMiscValue();
+        }
+        else if (AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(area_id))
+            mountFlags = areaTable->MountFlags;
+
+        if (!(mountFlags & AREA_MOUNT_FLAG_FLYING_ALLOWED))
             return SPELL_FAILED_INCORRECT_AREA;
+
+        if (player)
+        {
+            uint32 mapToCheck = map_id;
+            if (MapEntry const* mapEntry = sMapStore.LookupEntry(map_id))
+                mapToCheck = mapEntry->CosmeticParentMapID;
+
+            if ((mapToCheck == 1116 || mapToCheck == 1464) && !player->HasSpell(191645)) // Draenor Pathfinder
+                return SPELL_FAILED_INCORRECT_AREA;
+            else if (mapToCheck == 1220 && !player->HasSpell(233368)) // Broken Isles Pathfinder
+                return SPELL_FAILED_INCORRECT_AREA;
+            else if ((mapToCheck == 1642 || mapToCheck == 1643) && !player->HasSpell(278833)) // Battle for Azeroth Pathfinder
+                return SPELL_FAILED_INCORRECT_AREA;
+        }
     }
 
     // raid instance limitation

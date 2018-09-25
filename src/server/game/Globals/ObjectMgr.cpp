@@ -9581,7 +9581,7 @@ void ObjectMgr::LoadTerrainWorldMaps()
     uint32 oldMSTime = getMSTime();
 
     //                                               0               1
-    QueryResult result = WorldDatabase.Query("SELECT TerrainSwapMap, WorldMapArea FROM `terrain_worldmap`");
+    QueryResult result = WorldDatabase.Query("SELECT TerrainSwapMap, UiMapPhaseId FROM `terrain_worldmap`");
 
     if (!result)
     {
@@ -9595,7 +9595,7 @@ void ObjectMgr::LoadTerrainWorldMaps()
         Field* fields = result->Fetch();
 
         uint32 mapId = fields[0].GetUInt32();
-        uint32 worldMapArea = fields[1].GetUInt32();
+        uint32 uiMapPhaseId = fields[1].GetUInt32();
 
         if (!sMapStore.LookupEntry(mapId))
         {
@@ -9603,15 +9603,15 @@ void ObjectMgr::LoadTerrainWorldMaps()
             continue;
         }
 
-        if (!sWorldMapAreaStore.LookupEntry(worldMapArea))
+        if (!sDB2Manager.IsUiMapPhase(uiMapPhaseId))
         {
-            TC_LOG_ERROR("sql.sql", "WorldMapArea %u defined in `terrain_worldmap` does not exist, skipped.", worldMapArea);
+            TC_LOG_ERROR("sql.sql", "Phase %u defined in `terrain_worldmap` is not a valid terrain swap phase, skipped.", uiMapPhaseId);
             continue;
         }
 
         TerrainSwapInfo* terrainSwapInfo = &_terrainSwapInfoById[mapId];
         terrainSwapInfo->Id = mapId;
-        terrainSwapInfo->UiWorldMapAreaIDSwaps.push_back(worldMapArea);
+        terrainSwapInfo->UiMapPhaseIDs.push_back(uiMapPhaseId);
 
         ++count;
     } while (result->NextRow());
@@ -9756,11 +9756,6 @@ std::vector<PhaseAreaInfo> const* ObjectMgr::GetPhasesForArea(uint32 areaId) con
 TerrainSwapInfo const* ObjectMgr::GetTerrainSwapInfo(uint32 terrainSwapId) const
 {
     return Trinity::Containers::MapGetValuePtr(_terrainSwapInfoById, terrainSwapId);
-}
-
-std::vector<TerrainSwapInfo*> const* ObjectMgr::GetTerrainSwapsForMap(uint32 mapId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_terrainSwapInfoByMap, mapId);
 }
 
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry) const

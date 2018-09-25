@@ -58,7 +58,7 @@ enum LevelLimit
 enum BattlegroundBracketId                                  // bracketId for level ranges
 {
     BG_BRACKET_ID_FIRST          = 0,
-    BG_BRACKET_ID_LAST           = 11,
+    BG_BRACKET_ID_LAST           = 12,
 
     // must be max value in PvPDificulty slot + 1
     MAX_BATTLEGROUND_BRACKETS
@@ -166,7 +166,7 @@ enum ArtifactPowerFlag : uint8
 
 #define MAX_ARTIFACT_TIER 1
 
-#define BATTLE_PET_SPECIES_MAX_ID 2164
+#define BATTLE_PET_SPECIES_MAX_ID 2480
 
 enum ChrSpecializationFlag
 {
@@ -608,6 +608,11 @@ enum Difficulty : uint8
     DIFFICULTY_WORLD_PVP_SCENARIO_2 = 32,
     DIFFICULTY_TIMEWALKING_RAID     = 33,
     DIFFICULTY_PVP                  = 34,
+    DIFFICULTY_NORMAL_ISLAND        = 38,
+    DIFFICULTY_HEROIC_ISLAND        = 39,
+    DIFFICULTY_MYTHIC_ISLAND        = 40,
+    DIFFICULTY_PVP_ISLAND           = 45,
+    DIFFICULTY_NORMAL_WARFRONT      = 147,
 
     MAX_DIFFICULTY
 };
@@ -993,7 +998,7 @@ enum SpellShapeshiftFormFlags
     SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
 };
 
-#define TaxiMaskSize 258
+#define TaxiMaskSize 286
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
@@ -1078,6 +1083,25 @@ enum TaxiPathNodeFlags
 {
     TAXI_PATH_NODE_FLAG_TELEPORT    = 0x1,
     TAXI_PATH_NODE_FLAG_STOP        = 0x2
+};
+
+enum UiMapSystem : int8
+{
+    UI_MAP_SYSTEM_WORLD     = 0,
+    UI_MAP_SYSTEM_TAXI      = 1,
+    UI_MAP_SYSTEM_ADVENTURE = 2,
+    MAX_UI_MAP_SYSTEM       = 3
+};
+
+enum UiMapType : int8
+{
+    UI_MAP_TYPE_COSMIC      = 0,
+    UI_MAP_TYPE_WORLD       = 1,
+    UI_MAP_TYPE_CONTINENT   = 2,
+    UI_MAP_TYPE_ZONE        = 3,
+    UI_MAP_TYPE_DUNGEON     = 4,
+    UI_MAP_TYPE_MICRO       = 5,
+    UI_MAP_TYPE_ORPHAN      = 6,
 };
 
 enum VehicleSeatFlags
