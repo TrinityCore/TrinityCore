@@ -471,10 +471,8 @@ enum WyrmDefenderEnum
 {
     // Quest data
     QUEST_DEFENDING_WYRMREST_TEMPLE          = 12372,
-    GOSSIP_TEXTID_DEF1                       = 12899,
-
-    // Gossip data
-    GOSSIP_TEXTID_DEF2                       = 12900,
+    GOSSIP_OPTION_ID                         = 0,
+    MENU_ID                                  = 9568,
 
     // Spells data
     SPELL_CHARACTER_SCRIPT                   = 49213,
@@ -486,8 +484,6 @@ enum WyrmDefenderEnum
     WHISPER_MOUNTED                        = 0,
     BOSS_EMOTE_ON_LOW_HEALTH               = 2
 };
-
-#define GOSSIP_ITEM_1      "We need to get into the fight. Are you ready?"
 
 class npc_wyrmrest_defender : public CreatureScript
 {
@@ -566,32 +562,18 @@ class npc_wyrmrest_defender : public CreatureScript
                 }
             }
 
-            bool GossipHello(Player* player) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
-                if (player->GetQuestStatus(QUEST_DEFENDING_WYRMREST_TEMPLE) == QUEST_STATUS_INCOMPLETE)
-                {
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    SendGossipMenuFor(player, GOSSIP_TEXTID_DEF1, me->GetGUID());
-                }
-                else
-                    SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
-
-                return true;
-            }
-
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-            {
-                uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-                ClearGossipMenuFor(player);
-                if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                {
-                    SendGossipMenuFor(player, GOSSIP_TEXTID_DEF2, me->GetGUID());
+                if (menuId == MENU_ID && gossipListId == GOSSIP_OPTION_ID)
                     // Makes player cast trigger spell for 49207 on self
                     player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
-                    // The gossip should not auto close
-                }
-
+                    CloseGossipMenuFor(player);
                 return true;
+            }
+            
+            void OnCharmed(bool /*apply*/) override
+            {
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
         };
 
