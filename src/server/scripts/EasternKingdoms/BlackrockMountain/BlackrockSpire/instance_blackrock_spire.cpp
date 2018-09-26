@@ -95,12 +95,12 @@ public:
                 case NPC_PYROGAURD_EMBERSEER:
                     PyroguardEmberseer = creature->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        creature->DisappearAndDie();
+                        creature->DespawnOrUnsummon(0, 24h * 7);
                     break;
                 case NPC_WARCHIEF_REND_BLACKHAND:
                     WarchiefRendBlackhand = creature->GetGUID();
                     if (GetBossState(DATA_GYTH) == DONE)
-                        creature->DisappearAndDie();
+                        creature->DespawnOrUnsummon(0, 24h * 7);
                     break;
                 case NPC_GYTH:
                     Gyth = creature->GetGUID();
@@ -114,7 +114,7 @@ public:
                 case NPC_LORD_VICTOR_NEFARIUS:
                     LordVictorNefarius = creature->GetGUID();
                     if (GetBossState(DATA_GYTH) == DONE)
-                        creature->DisappearAndDie();
+                        creature->DespawnOrUnsummon(0, 24h * 7);
                     break;
                 case NPC_SCARSHIELD_INFILTRATOR:
                     ScarshieldInfiltrator = creature->GetGUID();

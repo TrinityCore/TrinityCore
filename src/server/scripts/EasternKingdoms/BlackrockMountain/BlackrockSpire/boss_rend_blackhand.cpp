@@ -235,7 +235,7 @@ public:
                     case 11:
                         if (Creature* gyth = me->FindNearestCreature(NPC_GYTH, 10.0f, true))
                             gyth->AI()->SetData(1, 1);
-                        me->DespawnOrUnsummon(1000);
+                        me->DespawnOrUnsummon(1000, 24h * 7);
                         break;
                 }
             }
