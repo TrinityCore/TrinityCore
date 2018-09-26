@@ -216,6 +216,7 @@ class TC_GAME_API Aura
 
         bool IsProcOnCooldown(std::chrono::steady_clock::time_point now) const;
         void AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd);
+        void ResetProcCooldown();
         bool IsUsingCharges() const { return m_isUsingCharges; }
         void SetUsingCharges(bool val) { m_isUsingCharges = val; }
         void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now);

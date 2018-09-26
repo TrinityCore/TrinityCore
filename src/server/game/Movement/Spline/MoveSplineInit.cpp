@@ -115,6 +115,9 @@ namespace Movement
             args.velocity = unit->GetSpeed(SelectSpeedType(moveFlagsForSpeed));
         }
 
+        // limit the speed in the same way the client does
+        args.velocity = std::min(args.velocity, args.flags.catmullrom || args.flags.flying ? 50.0f : std::max(28.0f, unit->GetSpeed(MOVE_RUN) * 4.0f));
+
         if (!args.Validate(unit))
             return 0;
 

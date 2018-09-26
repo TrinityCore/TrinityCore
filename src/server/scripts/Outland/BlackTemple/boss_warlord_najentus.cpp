@@ -105,11 +105,11 @@ struct boss_najentus : public BossAI
     {
         _JustEngagedWith();
         Talk(SAY_AGGRO);
-        events.ScheduleEvent(EVENT_NEEDLE, Seconds(2));
-        events.ScheduleEvent(EVENT_SHIELD, Seconds(60));
-        events.ScheduleEvent(EVENT_SPINE, Seconds(30));
-        events.ScheduleEvent(EVENT_BERSERK, Seconds(480));
-        events.ScheduleEvent(EVENT_YELL, Seconds(45), Seconds(100));
+        events.ScheduleEvent(EVENT_NEEDLE, 2s);
+        events.ScheduleEvent(EVENT_SHIELD, 1min);
+        events.ScheduleEvent(EVENT_SPINE, 30s);
+        events.ScheduleEvent(EVENT_BERSERK, 480s);
+        events.ScheduleEvent(EVENT_YELL, 45s, 100s);
     }
 
     uint32 GetData(uint32 data) const override

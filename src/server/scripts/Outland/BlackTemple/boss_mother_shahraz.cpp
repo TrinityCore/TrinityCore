@@ -121,12 +121,12 @@ struct boss_mother_shahraz : public BossAI
     {
         _JustEngagedWith();
         Talk(SAY_AGGRO);
-        events.ScheduleEvent(EVENT_SILENCING_SHRIEK, Seconds(22));
-        events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, Seconds(15));
-        events.ScheduleEvent(EVENT_FATAL_ATTRACTION, Seconds(35));
-        events.ScheduleEvent(EVENT_RANDOM_BEAM, Seconds(6));
-        events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-        events.ScheduleEvent(EVENT_TAUNT, Seconds(35));
+        events.ScheduleEvent(EVENT_SILENCING_SHRIEK, 22s);
+        events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, 15s);
+        events.ScheduleEvent(EVENT_FATAL_ATTRACTION, 35s);
+        events.ScheduleEvent(EVENT_RANDOM_BEAM, 6s);
+        events.ScheduleEvent(EVENT_BERSERK, 10min);
+        events.ScheduleEvent(EVENT_TAUNT, 35s);
     }
 
     void KilledUnit(Unit* victim) override

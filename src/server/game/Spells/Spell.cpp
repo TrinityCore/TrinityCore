@@ -1931,7 +1931,7 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
                 if (Unit* unit = (*itr)->ToUnit())
                 {
                     uint32 deficit = unit->GetMaxHealth() - unit->GetHealth();
-                    if ((deficit > maxHPDeficit || foundItr == tempTargets.end()) && target->IsWithinDist(unit, jumpRadius) && target->IsWithinLOSInMap(unit, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                    if (deficit > maxHPDeficit && target->IsWithinDist(unit, jumpRadius) && target->IsWithinLOSInMap(unit, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
                     {
                         foundItr = itr;
                         maxHPDeficit = deficit;
@@ -2541,18 +2541,16 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
     if (_spellHitTarget)
     {
         //AI functions
-        if (_spellHitTarget->GetTypeId() == TYPEID_UNIT)
-        {
-            if (_spellHitTarget->ToCreature()->IsAIEnabled)
+        if (Creature* cHitTarget = _spellHitTarget->ToCreature())
+            if (CreatureAI* hitTargetAI = cHitTarget->AI())
             {
                 if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT)
-                    _spellHitTarget->ToCreature()->AI()->SpellHit(spell->m_caster->ToGameObject(), spell->m_spellInfo);
+                    hitTargetAI->SpellHit(spell->m_caster->ToGameObject(), spell->m_spellInfo);
                 else
-                    _spellHitTarget->ToCreature()->AI()->SpellHit(spell->m_caster->ToUnit(), spell->m_spellInfo);
+                    hitTargetAI->SpellHit(spell->m_caster->ToUnit(), spell->m_spellInfo);
             }
-        }
 
-        if (spell->m_caster->GetTypeId() == TYPEID_UNIT && spell->m_caster->ToCreature()->IsAIEnabled)
+        if (spell->m_caster->GetTypeId() == TYPEID_UNIT && spell->m_caster->ToCreature()->IsAIEnabled())
             spell->m_caster->ToCreature()->AI()->SpellHitTarget(_spellHitTarget, spell->m_spellInfo);
         else if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT && spell->m_caster->ToGameObject()->AI())
             spell->m_caster->ToGameObject()->AI()->SpellHitTarget(_spellHitTarget, spell->m_spellInfo);
@@ -2601,7 +2599,7 @@ void Spell::GOTargetInfo::DoTargetSpellHit(Spell* spell, uint8 effIndex)
             go->AI()->SpellHit(spell->m_caster->ToUnit(), spell->m_spellInfo);
     }
 
-    if (spell->m_caster->GetTypeId() == TYPEID_UNIT && spell->m_caster->ToCreature()->IsAIEnabled)
+    if (spell->m_caster->GetTypeId() == TYPEID_UNIT && spell->m_caster->ToCreature()->IsAIEnabled())
         spell->m_caster->ToCreature()->AI()->SpellHitTarget(go, spell->m_spellInfo);
     else if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT && spell->m_caster->ToGameObject()->AI())
         spell->m_caster->ToGameObject()->AI()->SpellHitTarget(go, spell->m_spellInfo);
@@ -3222,8 +3220,8 @@ void Spell::_cast(bool skipCheck)
             if (Unit* target = m_targets.GetUnitTarget())
                 for (Unit* controlled : playerCaster->m_Controlled)
                     if (Creature* cControlled = controlled->ToCreature())
-                        if (cControlled->IsAIEnabled)
-                            cControlled->AI()->OwnerAttacked(target);
+                        if (CreatureAI* controlledAI = cControlled->AI())
+                                controlledAI->OwnerAttacked(target);
     }
 
     SetExecutedCurrently(true);
@@ -3791,7 +3789,7 @@ void Spell::finish(bool ok)
     // Unsummon summon as possessed creatures on spell cancel
     if (m_spellInfo->IsChanneled() && unitCaster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (Unit* charm = unitCaster->GetCharm())
+        if (Unit* charm = unitCaster->GetCharmed())
             if (charm->GetTypeId() == TYPEID_UNIT
                 && charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_PUPPET)
                 && charm->GetUInt32Value(UNIT_CREATED_BY_SPELL) == m_spellInfo->Id)
@@ -5344,7 +5342,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     {
                         // fix for duels
                         Player* player = unitCaster->ToPlayer();
-                        if (!player || !player->duel || target != player->duel->opponent)
+                        if (!player || !player->duel || target != player->duel->Opponent)
                             return SPELL_FAILED_NOTHING_TO_DISPEL;
                     }
                 }
@@ -5618,7 +5616,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                             return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                         // intentional missing break, check both GetPetGUID() and GetCharmGUID for SUMMON_CATEGORY_PET
                     case SUMMON_CATEGORY_PUPPET:
-                        if (unitCaster->GetCharmGUID())
+                        if (unitCaster->GetCharmedGUID())
                             return SPELL_FAILED_ALREADY_HAVE_CHARM;
                         break;
                 }
@@ -5653,7 +5651,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                 }
 
-                if (unitCaster->GetCharmGUID())
+                if (unitCaster->GetCharmedGUID())
                     return SPELL_FAILED_ALREADY_HAVE_CHARM;
                 break;
             }
@@ -5819,7 +5817,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     if (!m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET) && unitCaster->GetPetGUID())
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
 
-                    if (unitCaster->GetCharmGUID())
+                    if (unitCaster->GetCharmedGUID())
                         return SPELL_FAILED_ALREADY_HAVE_CHARM;
                 }
 

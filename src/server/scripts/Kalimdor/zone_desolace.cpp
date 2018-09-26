@@ -162,80 +162,8 @@ class go_iruxos : public GameObjectScript
         }
 };
 
-/*######
-## npc_dalinda_malem. Quest 1440
-######*/
-
-enum Dalinda
-{
-    QUEST_RETURN_TO_VAHLARRIEL      = 1440
-};
-
-class npc_dalinda : public CreatureScript
-{
-public:
-    npc_dalinda() : CreatureScript("npc_dalinda") { }
-
-    struct npc_dalindaAI : public EscortAI
-    {
-        npc_dalindaAI(Creature* creature) : EscortAI(creature) { }
-
-        void Reset() override { }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Player* player = GetPlayerForEscort())
-                player->FailQuest(QUEST_RETURN_TO_VAHLARRIEL);
-            return;
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-
-            switch (waypointId)
-            {
-                case 1:
-                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                    break;
-                case 15:
-                    if (player)
-                        player->GroupEventHappens(QUEST_RETURN_TO_VAHLARRIEL, me);
-                    break;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            EscortAI::UpdateAI(diff);
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_RETURN_TO_VAHLARRIEL)
-            {
-                Start(true, false, player->GetGUID());
-                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_dalindaAI(creature);
-    }
-};
-
 void AddSC_desolace()
 {
     new npc_aged_dying_ancient_kodo();
     new go_iruxos();
-    new npc_dalinda();
 }

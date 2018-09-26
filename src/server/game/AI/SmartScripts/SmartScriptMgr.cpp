@@ -271,10 +271,11 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.target.raw.param1 = fields[21].GetUInt32();
         temp.target.raw.param2 = fields[22].GetUInt32();
         temp.target.raw.param3 = fields[23].GetUInt32();
-        temp.target.x = fields[24].GetFloat();
-        temp.target.y = fields[25].GetFloat();
-        temp.target.z = fields[26].GetFloat();
-        temp.target.o = fields[27].GetFloat();
+        temp.target.raw.param4 = fields[24].GetUInt32();
+        temp.target.x = fields[25].GetFloat();
+        temp.target.y = fields[26].GetFloat();
+        temp.target.z = fields[27].GetFloat();
+        temp.target.o = fields[28].GetFloat();
 
         //check target
         if (!IsTargetValid(temp))
@@ -517,9 +518,8 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_INVOKER_PARTY:
             if (e.GetScriptType() != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST && e.GetEventType() != SMART_EVENT_LINK && !EventHasInvoker(e.event.type))
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has invoker target, but action does not provide any invoker!", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
-                // allow this to load for now
-                // return false;
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has invoker target, but event does not provide any invoker!", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
+                return false;
             }
             break;
         case SMART_TARGET_PLAYER_RANGE:
@@ -1182,8 +1182,15 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         }
-        case SMART_ACTION_ADD_AURA:
         case SMART_ACTION_INVOKER_CAST:
+            if (e.GetScriptType() != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST && e.GetEventType() != SMART_EVENT_LINK && !EventHasInvoker(e.event.type))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has invoker cast action, but event does not provide any invoker!", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
+                return false;
+            }
+            // no break
+        case SMART_ACTION_SELF_CAST:
+        case SMART_ACTION_ADD_AURA:
             if (!IsSpellValid(e, e.action.cast.spell))
                 return false;
             break;

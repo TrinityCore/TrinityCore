@@ -174,7 +174,7 @@ void AddSC_boss_renataki();
 void AddSC_boss_wushoolay();
 void AddSC_instance_zulgurub();
 //void AddSC_alterac_mountains();
-void AddSC_arathi_highlands();
+//void AddSC_arathi_highlands();
 void AddSC_blasted_lands();
 void AddSC_duskwood();
 //void AddSC_eastern_plaguelands();
@@ -188,7 +188,6 @@ void AddSC_swamp_of_sorrows();
 void AddSC_tirisfal_glades();
 void AddSC_undercity();
 void AddSC_western_plaguelands();
-void AddSC_wetlands();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -352,7 +351,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_wushoolay();
     AddSC_instance_zulgurub();
     //AddSC_alterac_mountains();
-    AddSC_arathi_highlands();
+    //AddSC_arathi_highlands();
     AddSC_blasted_lands();
     AddSC_duskwood();
     //AddSC_eastern_plaguelands();
@@ -366,5 +365,4 @@ void AddEasternKingdomsScripts()
     AddSC_tirisfal_glades();
     AddSC_undercity();
     AddSC_western_plaguelands();
-    AddSC_wetlands();
 }

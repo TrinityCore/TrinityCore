@@ -484,7 +484,7 @@ public:
             {
                 _playerGUID.Clear();
                 _getingredienttry = 0;
-                _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(15000, 26000));
+                _events.ScheduleEvent(EVENT_TURN_TO_POT, 15s, 26s);
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -521,12 +521,12 @@ public:
                         case EVENT_TURN_TO_POT:
                             me->SetFacingTo(6.230825f);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING_NO_SHEATHE);
-                            _events.ScheduleEvent(EVENT_TURN_BACK, 11000);
+                            _events.ScheduleEvent(EVENT_TURN_BACK, 11s);
                             break;
                         case EVENT_TURN_BACK:
                             me->SetFacingTo(4.886922f);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
-                            _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(25000, 41000));
+                            _events.ScheduleEvent(EVENT_TURN_TO_POT, 25s, 41s);
                             break;
                         case EVENT_EASY_123:
                             if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))

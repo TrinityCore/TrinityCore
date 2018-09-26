@@ -58,8 +58,8 @@ class boss_lord_alexei_barov : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_IMMOLATE, 7000);
-                events.ScheduleEvent(EVENT_VEILOFSHADOW, 15000);
+                events.ScheduleEvent(EVENT_IMMOLATE, 7s);
+                events.ScheduleEvent(EVENT_VEILOFSHADOW, 15s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -78,11 +78,11 @@ class boss_lord_alexei_barov : public CreatureScript
                     {
                         case EVENT_IMMOLATE:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_IMMOLATE, true);
-                            events.ScheduleEvent(EVENT_IMMOLATE, 12000);
+                            events.ScheduleEvent(EVENT_IMMOLATE, 12s);
                             break;
                         case EVENT_VEILOFSHADOW:
                             DoCastVictim(SPELL_VEILOFSHADOW, true);
-                            events.ScheduleEvent(EVENT_VEILOFSHADOW, 20000);
+                            events.ScheduleEvent(EVENT_VEILOFSHADOW, 20s);
                             break;
                         default:
                             break;

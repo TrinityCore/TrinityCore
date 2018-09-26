@@ -143,7 +143,7 @@ public:
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
 
             events.SetPhase(PHASE_EMERGE);
-            events.ScheduleEvent(EVENT_CLOSE_DOOR, Seconds(5));
+            events.ScheduleEvent(EVENT_CLOSE_DOOR, 5s);
             events.ScheduleEvent(EVENT_POUND, randtime(Seconds(2), Seconds(4)), 0, PHASE_EMERGE);
             events.ScheduleEvent(EVENT_LEECHING_SWARM, randtime(Seconds(5), Seconds(7)), 0, PHASE_EMERGE);
             events.ScheduleEvent(EVENT_CARRION_BEETLES, randtime(Seconds(14), Seconds(17)), 0, PHASE_EMERGE);
@@ -315,7 +315,7 @@ public:
                 }
                 case GUID_TYPE_IMPALE:
                     _impaleTarget = guid;
-                    events.ScheduleEvent(EVENT_IMPALE, Seconds(4));
+                    events.ScheduleEvent(EVENT_IMPALE, 4s);
                     break;
             }
         }
@@ -386,12 +386,12 @@ public:
                         _assassinCount = 6;
                         _guardianCount = 2;
                         _venomancerCount = 2;
-                        events.ScheduleEvent(EVENT_DARTER, Seconds(0), 0, PHASE_SUBMERGE);
+                        events.ScheduleEvent(EVENT_DARTER, 0s, 0, PHASE_SUBMERGE);
                         break;
                 }
                 _petCount = _guardianCount + _venomancerCount;
                 if (_assassinCount)
-                    events.ScheduleEvent(EVENT_ASSASSIN, Seconds(0), 0, PHASE_SUBMERGE);
+                    events.ScheduleEvent(EVENT_ASSASSIN, 0s, 0, PHASE_SUBMERGE);
                 if (_guardianCount)
                     events.ScheduleEvent(EVENT_GUARDIAN, Seconds(4), 0, PHASE_SUBMERGE);
                 if (_venomancerCount)

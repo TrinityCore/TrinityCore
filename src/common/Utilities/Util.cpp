@@ -22,6 +22,8 @@
 #include <utf8.h>
 #include <algorithm>
 #include <sstream>
+#include <string>
+#include <cctype>
 #include <cstdarg>
 #include <ctime>
 
@@ -64,40 +66,6 @@ Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserv
 
         ++posnew;
     }
-}
-
-void stripLineInvisibleChars(std::string &str)
-{
-    static std::string const invChars = " \t\7\n";
-
-    size_t wpos = 0;
-
-    bool space = false;
-    for (size_t pos = 0; pos < str.size(); ++pos)
-    {
-        if (invChars.find(str[pos])!=std::string::npos)
-        {
-            if (!space)
-            {
-                str[wpos++] = ' ';
-                space = true;
-            }
-        }
-        else
-        {
-            if (wpos!=pos)
-                str[wpos++] = str[pos];
-            else
-                ++wpos;
-            space = false;
-        }
-    }
-
-    if (wpos < str.size())
-        str.erase(wpos, str.size());
-    if (str.find("|TInterface")!=std::string::npos)
-        str.clear();
-
 }
 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
@@ -572,4 +540,10 @@ bool StringToBool(std::string const& str)
     std::string lowerStr = str;
     std::transform(str.begin(), str.end(), lowerStr.begin(), ::tolower);
     return lowerStr == "1" || lowerStr == "true" || lowerStr == "yes";
+}
+
+bool StringContainsStringI(std::string const& haystack, std::string const& needle)
+{
+    return haystack.end() !=
+        std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), [](char c1, char c2) { return std::toupper(c1) == std::toupper(c2); });
 }

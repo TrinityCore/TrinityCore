@@ -995,10 +995,10 @@ Quests.EnableQuestTracker = 0
 #        Description: Level difference between player and quest level at which quests are
 #                     considered low-level and are not shown via exclamation mark (!) at quest
 #                     givers.
-#        Default:     4  - (Enabled, Hide quests that have 4 levels less than the character)
+#        Default:     10  - (Enabled, Hide quests that have 10 levels less than the character)
 #                     -1 - (Disabled, Show all available quest marks)
 
-Quests.LowLevelHideDiff = 4
+Quests.LowLevelHideDiff = 10
 
 #
 #    Quests.HighLevelHideDiff
@@ -1876,9 +1876,10 @@ Respawn.DynamicMinimumGameObject = 10
 # CHAT SETTINGS
 #
 #    ChatFakeMessagePreventing
-#        Description: Chat protection from creating fake messages using a lot spaces or other
-#                     invisible symbols. Not applied to the addon language, but may break old
-#                     addons that use normal languages for sending data to other clients.
+#        Description: Additional protection from creating fake chat messages using spaces.
+#                     Collapses multiple subsequent whitespaces into a single whitespace.
+#                     Not applied to the addon language, but may break old addons that use
+#                     "normal" chat messages for sending data to other clients.
 #        Default:     1 - (Enabled, Blizzlike)
 #                     0 - (Disabled)
 
@@ -1887,11 +1888,8 @@ ChatFakeMessagePreventing = 1
 #
 #    ChatStrictLinkChecking.Severity
 #        Description: Check chat messages for ingame links to spells, items, quests, etc.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled, Check if only valid pipe commands are used, Prevents posting
-#                         pictures.)
-#                     2 - (Enabled, Verify that pipe commands are used in a correct order)
-#                     3 - (Check if color, entry and name don't contradict each other. For this to
+#        Default:     0 - (Only verify that link format looks valid without checking the text)
+#                     1 - (Check if color, entry and name don't contradict each other. For this to
 #                         work correctly, please assure that you have extracted locale DBCs of
 #                         every language specific client playing on this server)
 
@@ -1899,10 +1897,10 @@ ChatStrictLinkChecking.Severity = 0
 
 #
 #    ChatStrictLinkChecking.Kick
-#        Description: Defines what should be done if a message is considered to contain invalid
-#                     pipe commands.
+#        Description: Defines what should be done if a message containing invalid control characters
+#                     is received.
 #        Default:     0 - (Silently ignore message)
-#                     1 - (Disconnect players who sent malformed messages)
+#                     1 - (Ignore message and kick player)
 
 ChatStrictLinkChecking.Kick = 0
 

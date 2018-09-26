@@ -366,7 +366,7 @@ struct advisorbase_ai : public ScriptedAI
             _hasRessurrected = true;
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            events.ScheduleEvent(EVENT_DELAYED_RESSURECTION, 2000);
+            events.ScheduleEvent(EVENT_DELAYED_RESSURECTION, 2s);
         }
     }
 
@@ -494,7 +494,7 @@ class boss_kaelthas : public CreatureScript
 
                         _phase = PHASE_INTRO;
                         instance->SetBossState(DATA_KAELTHAS, IN_PROGRESS);
-                        events.ScheduleEvent(EVENT_START_ENCOUNTER, 23000);
+                        events.ScheduleEvent(EVENT_START_ENCOUNTER, 23s);
                         break;
                     case ACTION_PREPARE_ADVISORS:
                         for (uint8 i = 0; i < MAX_ADVISORS; ++i)
@@ -516,7 +516,7 @@ class boss_kaelthas : public CreatureScript
                         {
                             case ADVISOR_THALADRED:
                                 Talk(SAY_INTRO_THALADRED);
-                                events.ScheduleEvent(EVENT_ACTIVE_ADVISOR, 7000);
+                                events.ScheduleEvent(EVENT_ACTIVE_ADVISOR, 7s);
                                 break;
                             case ADVISOR_SANGUINAR:
                                 Talk(SAY_INTRO_SANGUINAR);
@@ -524,20 +524,20 @@ class boss_kaelthas : public CreatureScript
                                 break;
                             case ADVISOR_CAPERNIAN:
                                 Talk(SAY_INTRO_CAPERNIAN);
-                                events.ScheduleEvent(EVENT_ACTIVE_ADVISOR, 7000);
+                                events.ScheduleEvent(EVENT_ACTIVE_ADVISOR, 7s);
                                 break;
                             case ADVISOR_TELONICUS:
                                 Talk(SAY_INTRO_TELONICUS);
-                                events.ScheduleEvent(EVENT_ACTIVE_ADVISOR, 8400);
+                                events.ScheduleEvent(EVENT_ACTIVE_ADVISOR, 8400ms);
                                 break;
                             case MAX_DEFEATED_ADVISORS:
                                 // Every advisor defeated - Phase 2 starts.
                                 Talk(SAY_PHASE2_WEAPON);
-                                events.ScheduleEvent(EVENT_SUMMON_WEAPONS, 3500);
+                                events.ScheduleEvent(EVENT_SUMMON_WEAPONS, 3500ms);
                                 break;
                             case MAX_KILLED_ADVISORS:
                                 // Every advisor killed - Phase 3 starts.
-                                events.ScheduleEvent(EVENT_ENGAGE_COMBAT, 5000);
+                                events.ScheduleEvent(EVENT_ENGAGE_COMBAT, 5s);
                                 break;
                             default:
                                 break;
@@ -608,14 +608,14 @@ class boss_kaelthas : public CreatureScript
                         me->SetDisableGravity(true);
                         //me->SetHover(true); -- Set in sniffs, but breaks his visual.
                         events.ScheduleEvent(EVENT_TRANSITION_2, 2000);
-                        events.ScheduleEvent(EVENT_SIZE_INCREASE, 5000);
+                        events.ScheduleEvent(EVENT_SIZE_INCREASE, 5s);
                         break;
                     case POINT_TRANSITION_HALFWAY_ASCENDING:
                         DoCast(me, SPELL_NETHER_BEAM_VISUAL3, true);
                         events.ScheduleEvent(EVENT_TRANSITION_3, 1000);
                         break;
                     case POINT_TRANSITION_TOP:
-                        events.ScheduleEvent(EVENT_EXPLODE, 10000);
+                        events.ScheduleEvent(EVENT_EXPLODE, 10s);
                         break;
                     case POINT_TRANSITION_HALFWAY_DESCENDING:
                         events.ScheduleEvent(EVENT_TRANSITION_5, 2000);
@@ -761,7 +761,7 @@ class boss_kaelthas : public CreatureScript
                             if (_pyrosCast < 3)
                             {
                                 DoCastVictim(SPELL_PYROBLAST);
-                                events.ScheduleEvent(EVENT_PYROBLAST_CAST, 3000);
+                                events.ScheduleEvent(EVENT_PYROBLAST_CAST, 3s);
                                 _pyrosCast++;
                             }
                             else
@@ -783,7 +783,7 @@ class boss_kaelthas : public CreatureScript
                                     DoCast(unit, SPELL_NETHER_BEAM);
 
                                 _netherbeamsCast++;
-                                events.ScheduleEvent(EVENT_NETHER_BEAM, 3000);
+                                events.ScheduleEvent(EVENT_NETHER_BEAM, 3s);
                             }
                             else
                                 _netherbeamsCast = 0;
@@ -823,22 +823,22 @@ class boss_kaelthas : public CreatureScript
                             if (GameObject* window = instance->GetGameObject(DATA_TEMPEST_BRIDGE_WINDOW))
                                 window->UseDoorOrButton();
 
-                            events.ScheduleEvent(EVENT_END_TRANSITION, 10000);
+                            events.ScheduleEvent(EVENT_END_TRANSITION, 10s);
                             break;
                         case EVENT_SIZE_INCREASE:
                             switch (_scaleStage)
                             {
                                 case 0:
                                     me->SetObjectScale(1.4f);
-                                    events.ScheduleEvent(EVENT_SIZE_INCREASE, 5000);
+                                    events.ScheduleEvent(EVENT_SIZE_INCREASE, 5s);
                                     break;
                                 case 1:
                                     me->SetObjectScale(1.8f);
-                                    events.ScheduleEvent(EVENT_SIZE_INCREASE, 3000);
+                                    events.ScheduleEvent(EVENT_SIZE_INCREASE, 3s);
                                     break;
                                 case 2:
                                     me->SetObjectScale(2.0f);
-                                    events.ScheduleEvent(EVENT_SIZE_INCREASE, 1000);
+                                    events.ScheduleEvent(EVENT_SIZE_INCREASE, 1s);
                                     break;
                                 case 3:
                                     me->SetObjectScale(2.2f);

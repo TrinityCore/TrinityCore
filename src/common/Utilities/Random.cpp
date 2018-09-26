@@ -62,7 +62,7 @@ float frand(float min, float max)
     return float(GetRng()->Random() * (max - min) + min);
 }
 
-Milliseconds randtime(Milliseconds const& min, Milliseconds const& max)
+Milliseconds randtime(Milliseconds min, Milliseconds max)
 {
     long long diff = max.count() - min.count();
     ASSERT(diff >= 0);

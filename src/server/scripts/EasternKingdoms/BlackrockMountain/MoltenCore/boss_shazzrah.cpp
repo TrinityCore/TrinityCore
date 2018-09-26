@@ -52,11 +52,11 @@ class boss_shazzrah : public CreatureScript
             void JustEngagedWith(Unit* target) override
             {
                 BossAI::JustEngagedWith(target);
-                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 6000);
-                events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, 10000);
-                events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 24000);
-                events.ScheduleEvent(EVENT_COUNTERSPELL, 15000);
-                events.ScheduleEvent(EVENT_SHAZZRAH_GATE, 45000);
+                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 6s);
+                events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, 10s);
+                events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 24s);
+                events.ScheduleEvent(EVENT_COUNTERSPELL, 15s);
+                events.ScheduleEvent(EVENT_SHAZZRAH_GATE, 45s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -75,7 +75,7 @@ class boss_shazzrah : public CreatureScript
                     {
                         case EVENT_ARCANE_EXPLOSION:
                             DoCastVictim(SPELL_ARCANE_EXPLOSION);
-                            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(4000, 7000));
+                            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 4s, 7s);
                             break;
                         // Triggered subsequent to using "Gate of Shazzrah".
                         case EVENT_ARCANE_EXPLOSION_TRIGGERED:
@@ -84,22 +84,22 @@ class boss_shazzrah : public CreatureScript
                         case EVENT_SHAZZRAH_CURSE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_SHAZZRAH_CURSE))
                                 DoCast(target, SPELL_SHAZZRAH_CURSE);
-                            events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, urand(25000, 30000));
+                            events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, 25s, 30s);
                             break;
                         case EVENT_MAGIC_GROUNDING:
                             DoCast(me, SPELL_MAGIC_GROUNDING);
-                            events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 35000);
+                            events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 35s);
                             break;
                         case EVENT_COUNTERSPELL:
                             DoCastVictim(SPELL_COUNTERSPELL);
-                            events.ScheduleEvent(EVENT_COUNTERSPELL, urand(16000, 20000));
+                            events.ScheduleEvent(EVENT_COUNTERSPELL, 16s, 20s);
                             break;
                         case EVENT_SHAZZRAH_GATE:
                             ResetThreatList();
                             DoCastAOE(SPELL_SHAZZRAH_GATE_DUMMY);
-                            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_TRIGGERED, 2000);
-                            events.RescheduleEvent(EVENT_ARCANE_EXPLOSION, urand(3000, 6000));
-                            events.ScheduleEvent(EVENT_SHAZZRAH_GATE, 45000);
+                            events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_TRIGGERED, 2s);
+                            events.RescheduleEvent(EVENT_ARCANE_EXPLOSION, 3s, 6s);
+                            events.ScheduleEvent(EVENT_SHAZZRAH_GATE, 45s);
                             break;
                         default:
                             break;

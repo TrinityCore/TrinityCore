@@ -64,10 +64,10 @@ class boss_koralon : public CreatureScript
             {
                 DoCast(me, SPELL_BURNING_FURY);
 
-                events.ScheduleEvent(EVENT_BURNING_FURY, 20000);    /// @todo check timer
-                events.ScheduleEvent(EVENT_BURNING_BREATH, 15000);  // 1st after 15sec, then every 45sec
-                events.ScheduleEvent(EVENT_METEOR_FISTS, 75000);    // 1st after 75sec, then every 45sec
-                events.ScheduleEvent(EVENT_FLAME_CINDER, 30000);    /// @todo check timer
+                events.ScheduleEvent(EVENT_BURNING_FURY, 20s);    /// @todo check timer
+                events.ScheduleEvent(EVENT_BURNING_BREATH, 15s);  // 1st after 15sec, then every 45sec
+                events.ScheduleEvent(EVENT_METEOR_FISTS, 75s);    // 1st after 75sec, then every 45sec
+                events.ScheduleEvent(EVENT_FLAME_CINDER, 30s);    /// @todo check timer
 
                 _JustEngagedWith();
             }
@@ -88,19 +88,19 @@ class boss_koralon : public CreatureScript
                     {
                         case EVENT_BURNING_FURY:
                             DoCast(me, SPELL_BURNING_FURY);
-                            events.ScheduleEvent(EVENT_BURNING_FURY, 20000);
+                            events.ScheduleEvent(EVENT_BURNING_FURY, 20s);
                             break;
                         case EVENT_BURNING_BREATH:
                             DoCast(me, SPELL_BURNING_BREATH);
-                            events.ScheduleEvent(EVENT_BURNING_BREATH, 45000);
+                            events.ScheduleEvent(EVENT_BURNING_BREATH, 45s);
                             break;
                         case EVENT_METEOR_FISTS:
                             DoCast(me, SPELL_METEOR_FISTS);
-                            events.ScheduleEvent(EVENT_METEOR_FISTS, 45000);
+                            events.ScheduleEvent(EVENT_METEOR_FISTS, 45s);
                             break;
                         case EVENT_FLAME_CINDER:
                             DoCast(me, SPELL_FLAME_CINDER_A);
-                            events.ScheduleEvent(EVENT_FLAME_CINDER, 30000);
+                            events.ScheduleEvent(EVENT_FLAME_CINDER, 30s);
                             break;
                         default:
                             break;
@@ -143,8 +143,8 @@ class npc_flame_warder : public CreatureScript
             {
                 DoZoneInCombat();
 
-                events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 5000);
-                events.ScheduleEvent(EVENT_FW_METEOR_FISTS, 10000);
+                events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 5s);
+                events.ScheduleEvent(EVENT_FW_METEOR_FISTS, 10s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -160,11 +160,11 @@ class npc_flame_warder : public CreatureScript
                     {
                         case EVENT_FW_LAVA_BIRST:
                             DoCastVictim(SPELL_FW_LAVA_BIRST);
-                            events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 15000);
+                            events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 15s);
                             break;
                         case EVENT_FW_METEOR_FISTS:
                             DoCast(me, SPELL_FW_METEOR_FISTS);
-                            events.ScheduleEvent(EVENT_FW_METEOR_FISTS, 20000);
+                            events.ScheduleEvent(EVENT_FW_METEOR_FISTS, 20s);
                             break;
                         default:
                             break;

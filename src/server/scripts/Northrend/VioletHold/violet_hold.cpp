@@ -585,7 +585,7 @@ class npc_azure_saboteur : public CreatureScript
             {
                 if (type == EFFECT_MOTION_TYPE && pointId == POINT_INTRO)
                 {
-                    _scheduler.Schedule(Seconds(0), [this](TaskContext task)
+                    _scheduler.Schedule(0s, [this](TaskContext task)
                     {
                         me->CastSpell(me, SPELL_SHIELD_DISRUPTION, false);
 
@@ -1367,8 +1367,8 @@ class spell_violet_hold_portal_periodic : public SpellScriptLoader
             void PeriodicTick(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                if (GetTarget()->IsAIEnabled)
-                    GetTarget()->GetAI()->SetData(DATA_PORTAL_PERIODIC_TICK, aurEff->GetTickNumber());
+                if (UnitAI* targetAI = GetTarget()->GetAI())
+                    targetAI->SetData(DATA_PORTAL_PERIODIC_TICK, aurEff->GetTickNumber());
             }
 
             void Register() override

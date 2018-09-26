@@ -89,11 +89,11 @@ public:
         {
             _JustEngagedWith();
 
-            events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12000);
-            events.ScheduleEvent(EVENT_TRAMPLE, 10000);
-            events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30000);
+            events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12s);
+            events.ScheduleEvent(EVENT_TRAMPLE, 10s);
+            events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30s);
             if (IsHeroic())
-                events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 17000);
+                events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 15s);
 
             Talk(SAY_AGGRO);
         }
@@ -136,22 +136,22 @@ public:
                 {
                     case EVENT_TRAMPLE:
                         DoCast(me, SPELL_TRAMPLE);
-                        events.ScheduleEvent(EVENT_TRAMPLE, 10000);
+                        events.ScheduleEvent(EVENT_TRAMPLE, 10s);
                         break;
                     case EVENT_SPELL_REFLECTION:
                         Talk(SAY_REFLECT);
                         DoCast(me, SPELL_SPELL_REFLECTION);
-                        events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30000);
+                        events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30s);
                         break;
                     case EVENT_CRYSTAL_SPIKES:
                         Talk(SAY_CRYSTAL_SPIKES);
                         DoCast(SPELL_CRYSTAL_SPIKES);
-                        events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12000);
+                        events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12s);
                         break;
                     case EVENT_CRYSTALLINE_TANGLER:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, OrmorokTanglerPredicate(me)))
                             DoCast(target, SPELL_SUMMON_CRYSTALLINE_TANGLER);
-                        events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 17000);
+                        events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 15s);
                         break;
                     default:
                         break;

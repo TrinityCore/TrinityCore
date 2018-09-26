@@ -112,7 +112,7 @@ class boss_grandmaster_vorpil : public CreatureScript
                     if (Creature* portal = me->SummonCreature(NPC_VOID_PORTAL, VoidPortalCoords[i][0], VoidPortalCoords[i][1], VoidPortalCoords[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 3000000))
                         portal->CastSpell(portal, SPELL_VOID_PORTAL_VISUAL, true);
 
-                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5000);
+                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5s);
             }
 
             void spawnVoidTraveler()
@@ -141,11 +141,11 @@ class boss_grandmaster_vorpil : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, urand(7000, 14000));
+                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 7s, 14s);
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_BANISH, 17000);
+                    events.ScheduleEvent(EVENT_BANISH, 15s);
                 events.ScheduleEvent(EVENT_DRAW_SHADOWS, 45000);
-                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 90000);
+                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 90s);
 
                 Talk(SAY_AGGRO);
                 SummonPortals();
@@ -178,12 +178,12 @@ class boss_grandmaster_vorpil : public CreatureScript
                     {
                         case EVENT_SHADOWBOLT_VOLLEY:
                             DoCast(me, SPELL_SHADOWBOLT_VOLLEY);
-                            events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, urand(15000, 30000));
+                            events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 15s, 30s);
                             break;
                         case EVENT_BANISH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, false))
                                  DoCast(target, SPELL_BANISH);
-                            events.ScheduleEvent(EVENT_BANISH, 16000);
+                            events.ScheduleEvent(EVENT_BANISH, 15s);
                             break;
                         case EVENT_DRAW_SHADOWS:
                             {
@@ -196,16 +196,16 @@ class boss_grandmaster_vorpil : public CreatureScript
                                 me->UpdatePosition(VorpilPosition);
                                 DoCast(me, SPELL_DRAW_SHADOWS, true);
                                 DoCast(me, SPELL_RAIN_OF_FIRE);
-                                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 6000);
-                                events.ScheduleEvent(EVENT_DRAW_SHADOWS, 30000);
+                                events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 6s);
+                                events.ScheduleEvent(EVENT_DRAW_SHADOWS, 30s);
                                 break;
                             }
                         case EVENT_SUMMON_TRAVELER:
                             spawnVoidTraveler();
-                            events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 10000);
+                            events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 10s);
                             // enrage at 20%
                             if (HealthBelowPct(20))
-                                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5000);
+                                events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5s);
                             break;
                     }
 

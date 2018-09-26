@@ -116,8 +116,8 @@ public:
                 Talk(SAY_WATCH_OUT, who);
             else
             {
-                events.ScheduleEvent(EVENT_FIREBALL, 1000);
-                events.ScheduleEvent(EVENT_FROST_NOVA, urand(8000, 12000));
+                events.ScheduleEvent(EVENT_FIREBALL, 1s);
+                events.ScheduleEvent(EVENT_FROST_NOVA, 8s, 12s);
                 if (urand(0, 100) > 40)
                     Talk(SAY_AGGRO, who);
             }
@@ -146,7 +146,7 @@ public:
             if (type == WAYPOINT_MOTION_TYPE && id == POINT_REACH_IDOL)
             {
                 channeling = true;
-                events.ScheduleEvent(EVENT_CHANNEL, 2000);
+                events.ScheduleEvent(EVENT_CHANNEL, 2s);
             }
         }
 
@@ -164,14 +164,14 @@ public:
                     case EVENT_CHANNEL:
                         Talk(SAY_EVENT_START);
                         DoCast(me, SPELL_IDOL_SHUTDOWN_VISUAL);
-                        events.ScheduleEvent(EVENT_IDOL_ROOM_SPAWNER, 100);
+                        events.ScheduleEvent(EVENT_IDOL_ROOM_SPAWNER, 100ms);
                         events.ScheduleEvent(EVENT_PROGRESS, 120000);
                         break;
                     case EVENT_IDOL_ROOM_SPAWNER:
                         if (Creature* creature = me->SummonCreature(NPC_IDOL_ROOM_SPAWNER, PosSummonSpawner[urand(0,2)], TEMPSUMMON_TIMED_DESPAWN, 4000))
                             creature->AI()->SetData(0,spawnerCount);
                         if (++spawnerCount < 8)
-                            events.ScheduleEvent(EVENT_IDOL_ROOM_SPAWNER, 35000);
+                            events.ScheduleEvent(EVENT_IDOL_ROOM_SPAWNER, 35s);
                         break;
                     case EVENT_PROGRESS:
                     {
@@ -180,23 +180,23 @@ public:
                             case 0:
                                 Talk(SAY_EVENT_THREE_MIN_LEFT);
                                 ++eventProgress;
-                                 events.ScheduleEvent(EVENT_PROGRESS, 60000);
+                                 events.ScheduleEvent(EVENT_PROGRESS, 1min);
                                  break;
                             case 1:
                                 Talk(SAY_EVENT_TWO_MIN_LEFT);
                                 ++eventProgress;
-                                events.ScheduleEvent(EVENT_PROGRESS, 60000);
+                                events.ScheduleEvent(EVENT_PROGRESS, 1min);
                                 break;
                             case 2:
                                 Talk(SAY_EVENT_ONE_MIN_LEFT);
                                 ++eventProgress;
-                                events.ScheduleEvent(EVENT_PROGRESS, 60000);
+                                events.ScheduleEvent(EVENT_PROGRESS, 1min);
                                 break;
                             case 3:
                                 events.CancelEvent(EVENT_IDOL_ROOM_SPAWNER);
                                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                                 Talk(SAY_EVENT_END);
-                                events.ScheduleEvent(EVENT_COMPLETE, 3000);
+                                events.ScheduleEvent(EVENT_COMPLETE, 3s);
                                 break;
                         }
                           break;
@@ -230,13 +230,13 @@ public:
                         if (me->HasUnitState(UNIT_STATE_CASTING) || !UpdateVictim())
                             return;
                         DoCastVictim(SPELL_FIREBALL);
-                        events.ScheduleEvent(EVENT_FIREBALL, 8000);
+                        events.ScheduleEvent(EVENT_FIREBALL, 8s);
                         break;
                     case EVENT_FROST_NOVA:
                         if (me->HasUnitState(UNIT_STATE_CASTING) || !UpdateVictim())
                             return;
                         DoCast(me, SPELL_FROST_NOVA);
-                        events.ScheduleEvent(EVENT_FROST_NOVA, 15000);
+                        events.ScheduleEvent(EVENT_FROST_NOVA, 15s);
                         break;
                 }
             }
@@ -333,7 +333,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_WEB, urand(5000, 8000));
+            events.ScheduleEvent(EVENT_WEB, 5s, 8s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -349,7 +349,7 @@ public:
                 {
                     case EVENT_WEB:
                         DoCastVictim(SPELL_WEB);
-                        events.ScheduleEvent(EVENT_WEB, urand(7000, 16000));
+                        events.ScheduleEvent(EVENT_WEB, 7s, 16s);
                         break;
                 }
             }

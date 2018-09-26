@@ -47,6 +47,12 @@ void UnitAI::InitializeAI()
         Reset();
 }
 
+void UnitAI::OnCharmed(bool isNew)
+{
+    if (!isNew)
+        me->ScheduleAIChange();
+}
+
 void UnitAI::AttackStartCaster(Unit* victim, float dist)
 {
     if (victim && me->Attack(victim, false))

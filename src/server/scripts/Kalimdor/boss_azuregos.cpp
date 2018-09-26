@@ -73,13 +73,13 @@ class boss_azuregos : public CreatureScript
                 DoCast(me, SPELL_MARK_OF_FROST_AURA, true);
                 _enraged = false;
 
-                events.ScheduleEvent(EVENT_MARK_OF_FROST, 35000);
-                events.ScheduleEvent(EVENT_MANA_STORM, urand(5000, 17000));
-                events.ScheduleEvent(EVENT_CHILL, urand(10000, 30000));
-                events.ScheduleEvent(EVENT_BREATH, urand(2000, 8000));
-                events.ScheduleEvent(EVENT_TELEPORT, 30000);
-                events.ScheduleEvent(EVENT_REFLECT, urand(15000, 30000));
-                events.ScheduleEvent(EVENT_CLEAVE, 7000);
+                events.ScheduleEvent(EVENT_MARK_OF_FROST, 35s);
+                events.ScheduleEvent(EVENT_MANA_STORM, 5s, 17s);
+                events.ScheduleEvent(EVENT_CHILL, 10s, 30s);
+                events.ScheduleEvent(EVENT_BREATH, 2s, 8s);
+                events.ScheduleEvent(EVENT_TELEPORT, 30s);
+                events.ScheduleEvent(EVENT_REFLECT, 15s, 30s);
+                events.ScheduleEvent(EVENT_CLEAVE, 7s);
             }
 
             void KilledUnit(Unit* who) override
@@ -109,11 +109,11 @@ class boss_azuregos : public CreatureScript
                             break;
                         case EVENT_CHILL:
                             DoCastVictim(SPELL_CHILL);
-                            events.ScheduleEvent(EVENT_CHILL, urand(13000, 25000));
+                            events.ScheduleEvent(EVENT_CHILL, 13s, 25s);
                             break;
                         case EVENT_BREATH:
                             DoCastVictim(SPELL_FROST_BREATH);
-                            events.ScheduleEvent(EVENT_BREATH, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_BREATH, 10s, 15s);
                             break;
                         case EVENT_TELEPORT:
                         {
@@ -123,16 +123,16 @@ class boss_azuregos : public CreatureScript
                                     DoTeleportPlayer(player, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+3, player->GetOrientation());
 
                             ResetThreatList();
-                            events.ScheduleEvent(EVENT_TELEPORT, 30000);
+                            events.ScheduleEvent(EVENT_TELEPORT, 30s);
                             break;
                         }
                         case EVENT_REFLECT:
                             DoCast(me, SPELL_REFLECT);
-                            events.ScheduleEvent(EVENT_REFLECT, urand(20000, 35000));
+                            events.ScheduleEvent(EVENT_REFLECT, 20s, 35s);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            events.ScheduleEvent(EVENT_CLEAVE, 7000);
+                            events.ScheduleEvent(EVENT_CLEAVE, 7s);
                             break;
                         default:
                             break;

@@ -111,10 +111,10 @@ class boss_emalon : public CreatureScript
                     }
                 }
 
-                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5000);
-                events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40000);
-                events.ScheduleEvent(EVENT_BERSERK, 360000);
-                events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
+                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5s);
+                events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40s);
+                events.ScheduleEvent(EVENT_BERSERK, 6min);
+                events.ScheduleEvent(EVENT_OVERCHARGE, 45s);
 
                 _JustEngagedWith();
             }
@@ -136,11 +136,11 @@ class boss_emalon : public CreatureScript
                         case EVENT_CHAIN_LIGHTNING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
+                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25s);
                             break;
                         case EVENT_LIGHTNING_NOVA:
                             DoCastAOE(SPELL_LIGHTNING_NOVA);
-                            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40000);
+                            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40s);
                             break;
                         case EVENT_OVERCHARGE:
                             if (!summons.empty())
@@ -151,7 +151,7 @@ class boss_emalon : public CreatureScript
                                     minion->CastSpell(me, SPELL_OVERCHARGED, true);
                                     minion->SetFullHealth();
                                     Talk(EMOTE_OVERCHARGE);
-                                    events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
+                                    events.ScheduleEvent(EVENT_OVERCHARGE, 45s);
                                 }
                             }
                             break;
@@ -219,7 +219,7 @@ class npc_tempest_minion : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 DoZoneInCombat();
-                events.ScheduleEvent(EVENT_SHOCK, 20000);
+                events.ScheduleEvent(EVENT_SHOCK, 20s);
 
                 if (Creature* pEmalon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EMALON)))
                 {
@@ -246,7 +246,7 @@ class npc_tempest_minion : public CreatureScript
                         if (OverchargedTimer <= diff)
                         {
                             DoCast(me, SPELL_OVERCHARGED);
-                            OverchargedTimer = 2000;
+                            OverchargedTimer = 2000; // ms
                         }
                         else
                             OverchargedTimer -= diff;
@@ -265,7 +265,7 @@ class npc_tempest_minion : public CreatureScript
                 if (events.ExecuteEvent() == EVENT_SHOCK)
                 {
                     DoCastVictim(SPELL_SHOCK);
-                    events.ScheduleEvent(EVENT_SHOCK, 20000);
+                    events.ScheduleEvent(EVENT_SHOCK, 20s);
                 }
 
                 DoMeleeAttackIfReady();

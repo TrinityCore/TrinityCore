@@ -35,7 +35,7 @@ TC_COMMON_API uint32 urandms(uint32 min, uint32 max);
 TC_COMMON_API uint32 rand32();
 
 /* Return a random time in the range min..max (up to millisecond precision). Only works for values where millisecond difference is a valid uint32. */
-TC_COMMON_API Milliseconds randtime(Milliseconds const& min, Milliseconds const& max);
+TC_COMMON_API Milliseconds randtime(Milliseconds min, Milliseconds max);
 
 /* Return a random number in the range min..max */
 TC_COMMON_API float frand(float min, float max);

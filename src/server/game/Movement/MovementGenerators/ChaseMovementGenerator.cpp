@@ -52,9 +52,8 @@ static void DoMovementInform(Unit* owner, Unit* target)
     if (owner->GetTypeId() != TYPEID_UNIT)
         return;
 
-    Creature* creatureOwner = owner->ToCreature();
-    if (creatureOwner->IsAIEnabled && creatureOwner->AI())
-        creatureOwner->AI()->MovementInform(CHASE_MOTION_TYPE, target->GetGUID().GetCounter());
+    if (CreatureAI* AI = owner->ToCreature()->AI())
+        AI->MovementInform(CHASE_MOTION_TYPE, target->GetGUID().GetCounter());
 }
 
 ChaseMovementGenerator::ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range, Optional<ChaseAngle> angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle)
@@ -73,7 +72,7 @@ void ChaseMovementGenerator::Initialize(Unit* owner)
 
     owner->SetWalk(false);
     _path = nullptr;
-    _lastTargetPosition.Relocate(0.0f, 0.0f, 0.0f);
+    _lastTargetPosition.reset();
 }
 
 void ChaseMovementGenerator::Reset(Unit* owner)
@@ -102,6 +101,9 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         owner->StopMoving();
+        _lastTargetPosition.reset();
+        if (Creature* cOwner = owner->ToCreature())
+            cOwner->SetCannotReachTarget(false);
         return true;
     }
 
@@ -136,13 +138,15 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) && owner->movespline->Finalized())
     {
         _path = nullptr;
+        if (Creature* cOwner = owner->ToCreature())
+            cOwner->SetCannotReachTarget(false);
         owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
         owner->SetInFront(target);
         DoMovementInform(owner, target);
     }
 
     // if the target moved, we have to consider whether to adjust
-    if (_lastTargetPosition != target->GetPosition() || mutualChase != _mutualChase)
+    if (!_lastTargetPosition || target->GetPosition() != _lastTargetPosition.get() || mutualChase != _mutualChase)
     {
         _lastTargetPosition = target->GetPosition();
         _mutualChase = mutualChase;
@@ -218,6 +222,8 @@ void ChaseMovementGenerator::Deactivate(Unit* owner)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
+    if (Creature* cOwner = owner->ToCreature())
+        cOwner->SetCannotReachTarget(false);
 }
 
 void ChaseMovementGenerator::Finalize(Unit* owner, bool active, bool/* movementInform*/)

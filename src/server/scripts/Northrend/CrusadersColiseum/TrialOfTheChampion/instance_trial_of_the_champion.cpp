@@ -52,6 +52,7 @@ public:
             uiMovementDone = 0;
             uiGrandChampionsDeaths = 0;
             uiArgentSoldierDeaths = 0;
+            teamInInstance = 0;
 
             bDone = false;
 
@@ -60,6 +61,7 @@ public:
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
+        uint32 teamInInstance;
         uint16 uiMovementDone;
         uint16 uiGrandChampionsDeaths;
         uint8 uiArgentSoldierDeaths;
@@ -92,46 +94,16 @@ public:
             return false;
         }
 
+        void OnPlayerEnter(Player* player) override
+        {
+            if (!teamInInstance)
+                teamInInstance = player->GetTeam();
+        }
+
         void OnCreatureCreate(Creature* creature) override
         {
-            Map::PlayerList const& players = instance->GetPlayers();
-            uint32 TeamInInstance = 0;
-
-            if (!players.isEmpty())
-            {
-                if (Player* player = players.begin()->GetSource())
-                    TeamInInstance = player->GetTeam();
-            }
-
             switch (creature->GetEntry())
             {
-                // Champions
-                case VEHICLE_MOKRA_SKILLCRUSHER_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT);
-                    break;
-                case VEHICLE_ERESSEA_DAWNSINGER_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_AMBROSE_BOLTSPARK_MOUNT);
-                    break;
-                case VEHICLE_RUNOK_WILDMANE_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_COLOSOS_MOUNT);
-                    break;
-                case VEHICLE_ZUL_TORE_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_EVENSONG_MOUNT);
-                    break;
-                case VEHICLE_DEATHSTALKER_VESCERI_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_LANA_STOUTHAMMER_MOUNT);
-                    break;
-                // Coliseum Announcer || Just NPC_JAEREN must be spawned.
-                case NPC_JAEREN:
-                    uiAnnouncerGUID = creature->GetGUID();
-                    if (TeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(NPC_ARELAS);
-                    break;
                 case VEHICLE_ARGENT_WARHORSE:
                 case VEHICLE_ARGENT_BATTLEWORG:
                     VehicleList.push_back(creature->GetGUID());
@@ -140,6 +112,42 @@ public:
                 case NPC_PALETRESS:
                     uiArgentChampionGUID = creature->GetGUID();
                     break;
+                case NPC_JAEREN:
+                case NPC_ARELAS:
+                    uiAnnouncerGUID = creature->GetGUID();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
+        {
+            if (!teamInInstance)
+            {
+                Map::PlayerList const& players = instance->GetPlayers();
+                if (!players.isEmpty())
+                    if (Player* player = players.begin()->GetSource())
+                        teamInInstance = player->GetTeam();
+            }
+
+            uint32 entry = data->id;
+            switch (entry)
+            {
+                case VEHICLE_MOKRA_SKILLCRUSHER_MOUNT:
+                    return teamInInstance == HORDE ? VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT : VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
+                case VEHICLE_ERESSEA_DAWNSINGER_MOUNT:
+                    return teamInInstance == HORDE ? VEHICLE_AMBROSE_BOLTSPARK_MOUNT : VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
+                case VEHICLE_RUNOK_WILDMANE_MOUNT:
+                    return teamInInstance == HORDE ? VEHICLE_COLOSOS_MOUNT : VEHICLE_RUNOK_WILDMANE_MOUNT;
+                case VEHICLE_ZUL_TORE_MOUNT:
+                    return teamInInstance == HORDE ? VEHICLE_EVENSONG_MOUNT : VEHICLE_ZUL_TORE_MOUNT;
+                case VEHICLE_DEATHSTALKER_VESCERI_MOUNT:
+                    return teamInInstance == HORDE ? VEHICLE_LANA_STOUTHAMMER_MOUNT : VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
+                case NPC_JAEREN:
+                    return teamInInstance == HORDE ? NPC_ARELAS : NPC_JAEREN;
+                default:
+                    return entry;
             }
         }
 
