@@ -518,7 +518,7 @@ class npc_wyrmrest_defender : public CreatureScript
                 return true;
             }
 
-            void OnCharmed(bool apply) override
+            void OnCharmed(bool /*apply*/) override
             {
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
