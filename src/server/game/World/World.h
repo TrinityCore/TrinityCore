@@ -237,7 +237,6 @@ enum WorldIntConfigs
     CONFIG_MIN_CHARTER_NAME,
     CONFIG_MIN_PET_NAME,
     CONFIG_CHARACTER_CREATING_DISABLED,
-    CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK,
     CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK,
     CONFIG_CHARACTERS_PER_ACCOUNT,
     CONFIG_CHARACTERS_PER_REALM,
@@ -404,6 +403,12 @@ enum WorldIntConfigs
     CONFIG_BLACKMARKET_MAXAUCTIONS,
     CONFIG_BLACKMARKET_UPDATE_PERIOD,
     INT_CONFIG_VALUE_COUNT
+};
+
+enum WorldInt64Configs
+{
+    CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK,
+    INT64_CONFIT_VALUE_COUNT
 };
 
 /// Server rates
@@ -743,6 +748,11 @@ class TC_GAME_API World
             return index < INT_CONFIG_VALUE_COUNT ? m_int_configs[index] : 0;
         }
 
+        uint64 GetUInt64Config(WorldInt64Configs index) const
+        {
+            return index < INT64_CONFIT_VALUE_COUNT ? m_int64_configs[index] : 0;
+        }
+
         void setWorldState(uint32 index, uint32 value);
         uint32 getWorldState(uint32 index) const;
         void LoadWorldStates();
@@ -856,6 +866,7 @@ class TC_GAME_API World
 
         float rate_values[MAX_RATES];
         uint32 m_int_configs[INT_CONFIG_VALUE_COUNT];
+        uint64 m_int64_configs[INT64_CONFIT_VALUE_COUNT];
         bool m_bool_configs[BOOL_CONFIG_VALUE_COUNT];
         float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
         typedef std::map<uint32, uint32> WorldStatesMap;

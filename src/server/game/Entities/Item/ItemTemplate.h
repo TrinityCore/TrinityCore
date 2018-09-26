@@ -337,7 +337,7 @@ enum SocketColor
     SOCKET_COLOR_RELIC_HOLY                     = 0x10000
 };
 
-extern uint32 const SocketColorToGemTypeMask[19];
+extern int32 const SocketColorToGemTypeMask[19];
 
 #define SOCKET_COLOR_STANDARD (SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 

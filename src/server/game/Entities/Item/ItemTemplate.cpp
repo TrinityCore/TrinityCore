@@ -21,7 +21,7 @@
 #include "ItemTemplate.h"
 #include "Player.h"
 
-uint32 const SocketColorToGemTypeMask[19] =
+int32 const SocketColorToGemTypeMask[19] =
 {
     0,
     SOCKET_COLOR_META,

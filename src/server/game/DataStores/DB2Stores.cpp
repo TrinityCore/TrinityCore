@@ -2685,7 +2685,6 @@ void DB2Manager::Zone2MapCoordinates(uint32 areaId, float& x, float& y) const
     if (!areaEntry)
         return;
 
-    int32 uiMapId = -1;
     for (auto assignment : Trinity::Containers::MapEqualRange(_uiMapAssignmentByArea[UI_MAP_SYSTEM_WORLD], areaId))
     {
         if (assignment.second->MapID >= 0 && assignment.second->MapID != areaEntry->ContinentID)

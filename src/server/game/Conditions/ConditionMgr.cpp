@@ -2002,7 +2002,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_CLASS:
         {
-            if (!(cond->ConditionValue1 & CLASSMASK_ALL_PLAYABLE))
+            if (cond->ConditionValue1 & ~CLASSMASK_ALL_PLAYABLE)
             {
                 TC_LOG_ERROR("sql.sql", "%s has non existing classmask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~CLASSMASK_ALL_PLAYABLE);
                 return false;
@@ -2011,9 +2011,9 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_RACE:
         {
-            if (!(cond->ConditionValue1 & RACEMASK_ALL_PLAYABLE))
+            if (cond->ConditionValue1 & ~RACEMASK_ALL_PLAYABLE)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing racemask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~RACEMASK_ALL_PLAYABLE);
+                TC_LOG_ERROR("sql.sql", "%s has non existing racemask (" UI64FMTD "), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~RACEMASK_ALL_PLAYABLE);
                 return false;
             }
             break;

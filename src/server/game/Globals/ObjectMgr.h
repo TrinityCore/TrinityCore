@@ -609,9 +609,9 @@ struct PetLevelInfo
 struct MailLevelReward
 {
     MailLevelReward() : raceMask(0), mailTemplateId(0), senderEntry(0) { }
-    MailLevelReward(uint32 _raceMask, uint32 _mailTemplateId, uint32 _senderEntry) : raceMask(_raceMask), mailTemplateId(_mailTemplateId), senderEntry(_senderEntry) { }
+    MailLevelReward(uint64 _raceMask, uint32 _mailTemplateId, uint32 _senderEntry) : raceMask(_raceMask), mailTemplateId(_mailTemplateId), senderEntry(_senderEntry) { }
 
-    uint32 raceMask;
+    uint64 raceMask;
     uint32 mailTemplateId;
     uint32 senderEntry;
 };
@@ -1308,7 +1308,7 @@ class TC_GAME_API ObjectMgr
 
         ExclusiveQuestGroups mExclusiveQuestGroups;
 
-        MailLevelReward const* GetMailLevelReward(uint8 level, uint32 raceMask)
+        MailLevelReward const* GetMailLevelReward(uint8 level, uint64 raceMask)
         {
             MailLevelRewardContainer::const_iterator map_itr = _mailLevelRewardStore.find(level);
             if (map_itr == _mailLevelRewardStore.end())
