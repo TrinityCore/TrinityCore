@@ -494,8 +494,8 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
 
             if (canEffectScale)
             {
-                GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(_spellInfo->SpellLevel - 1);
-                GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(casterUnit->getLevel() - 1);
+                gtNPCManaCostScalerEntry const* spellScaler = sgtNPCManaCostScalerStore.LookupEntry(_spellInfo->SpellLevel - 1);
+                gtNPCManaCostScalerEntry const* casterScaler = sgtNPCManaCostScalerStore.LookupEntry(casterUnit->getLevel() - 1);
                 if (spellScaler && casterScaler)
                     value *= casterScaler->ratio / spellScaler->ratio;
             }
@@ -3220,8 +3220,8 @@ int32 SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask school
     {
         if (HasAttribute(SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION))
         {
-            GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(SpellLevel - 1);
-            GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(unitCaster->getLevel() - 1);
+            gtNPCManaCostScalerEntry const* spellScaler = sgtNPCManaCostScalerStore.LookupEntry(SpellLevel - 1);
+            gtNPCManaCostScalerEntry const* casterScaler = sgtNPCManaCostScalerStore.LookupEntry(unitCaster->getLevel() - 1);
             if (spellScaler && casterScaler)
                 powerCost *= casterScaler->ratio / spellScaler->ratio;
         }
