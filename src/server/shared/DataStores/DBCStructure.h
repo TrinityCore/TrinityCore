@@ -738,62 +738,62 @@ struct GlyphSlotEntry
 // gtOCTClassCombatRatingScalar.dbc stores data for 32 ratings, look at MAX_COMBAT_RATING for real used amount
 #define GT_MAX_RATING   32
 
-struct GtBarberShopCostBaseEntry
+struct gtBarberShopCostBaseEntry
 {
     float   cost;
 };
 
-struct GtCombatRatingsEntry
+struct gtCombatRatingsEntry
 {
     float    ratio;
 };
 
-struct GtChanceToMeleeCritBaseEntry
+struct gtChanceToMeleeCritBaseEntry
 {
     float    base;
 };
 
-struct GtChanceToMeleeCritEntry
+struct gtChanceToMeleeCritEntry
 {
     float    ratio;
 };
 
-struct GtChanceToSpellCritBaseEntry
+struct gtChanceToSpellCritBaseEntry
 {
     float    base;
 };
 
-struct GtNPCManaCostScalerEntry
+struct gtNPCManaCostScalerEntry
 {
     float    ratio;
 };
 
-struct GtChanceToSpellCritEntry
+struct gtChanceToSpellCritEntry
 {
     float    ratio;
 };
 
-struct GtOCTClassCombatRatingScalarEntry
+struct gtOCTClassCombatRatingScalarEntry
 {
     float    ratio;
 };
 
-struct GtOCTRegenHPEntry
+struct gtOCTRegenHPEntry
 {
     float    ratio;
 };
 
-//struct GtOCTRegenMPEntry
+//struct gtOCTRegenMPEntry
 //{
 //    float    ratio;
 //};
 
-struct GtRegenHPPerSptEntry
+struct gtRegenHPPerSptEntry
 {
     float    ratio;
 };
 
-struct GtRegenMPPerSptEntry
+struct gtRegenMPPerSptEntry
 {
     float    ratio;
 };
@@ -941,7 +941,7 @@ struct ItemSetEntry
     uint32    required_skill_value;                         // 52       m_requiredSkillRank
 };
 
-struct LFGDungeonEntry
+struct LFGDungeonsEntry
 {
     uint32  ID;                                             // 0
     char*   name[16];                                       // 1-17 Name lang
@@ -1157,7 +1157,7 @@ struct QuestXPEntry
   uint32      Exp[10];
 };
 
-struct QuestFactionRewEntry
+struct QuestFactionRewardEntry
 {
   uint32      id;
   int32       QuestRewFactionValue[10];
