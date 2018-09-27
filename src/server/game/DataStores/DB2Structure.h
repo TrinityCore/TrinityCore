@@ -798,6 +798,12 @@ struct CriteriaEntry
 
         // CRITERIA_TYPE_RELIC_TALENT_UNLOCKED = 211
         int32 ArtifactPowerID;
+
+        // CRITERIA_TYPE_REACH_ACCOUNT_HONOR_LEVEL = 213
+        int32 AccountHonorLevel;
+
+        // CRITERIA_TREE_HEART_OF_AZEROTH_LEVEL_REACHED = 215
+        int32 HeartOfAzerothLevel;
     } Asset;
     uint32 ModifierTreeId;
     uint8 StartEvent;
