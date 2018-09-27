@@ -1330,7 +1330,13 @@ enum SpellEffectName
     SPELL_EFFECT_GIVE_HONOR                         = 253,
     SPELL_EFFECT_254                                = 254,
     SPELL_EFFECT_LEARN_TRANSMOG_SET                 = 255,
-    TOTAL_SPELL_EFFECTS                             = 256,
+    SPELL_EFFECT_UNK256                             = 256,
+    SPELL_EFFECT_UNK257                             = 257,
+    SPELL_EFFECT_UNK258                             = 258,
+    SPELL_EFFECT_UNK259                             = 259,
+    SPELL_EFFECT_UNK260                             = 260,
+    SPELL_EFFECT_UNK261                             = 261,
+    TOTAL_SPELL_EFFECTS                             = 262
 };
 
 enum SpellCastResult

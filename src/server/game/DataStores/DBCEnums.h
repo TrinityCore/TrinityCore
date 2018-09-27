@@ -505,7 +505,7 @@ enum CriteriaTypes : uint8
     CRITERIA_TYPE_RELIC_TALENT_UNLOCKED                 = 211
 };
 
-#define CRITERIA_TYPE_TOTAL 213
+#define CRITERIA_TYPE_TOTAL 216
 
 enum CriteriaTreeFlags : uint16
 {
