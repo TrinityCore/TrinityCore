@@ -5281,8 +5281,8 @@ float Player::GetMeleeCritFromAgility() const
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
 
-    gtChanceToMeleeCritBaseEntry const* critBase  = sgtChanceToMeleeCritBaseStore.LookupEntry(pclass-1);
-    gtChanceToMeleeCritEntry     const* critRatio = sgtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtChanceToMeleeCritBaseEntry const* critBase  = sGtChanceToMeleeCritBaseStore.LookupEntry(pclass-1);
+    GtChanceToMeleeCritEntry     const* critRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
     if (critBase == nullptr || critRatio == nullptr)
         return 0.0f;
 
@@ -5330,7 +5330,7 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing) cons
         level = GT_MAX_LEVEL;
 
     // Dodge per agility is proportional to crit per agility, which is available from DBC files
-    gtChanceToMeleeCritEntry  const* dodgeRatio = sgtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtChanceToMeleeCritEntry  const* dodgeRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
     if (dodgeRatio == nullptr || pclass > MAX_CLASSES)
         return;
 
@@ -5351,8 +5351,8 @@ float Player::GetSpellCritFromIntellect() const
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
 
-    gtChanceToSpellCritBaseEntry const* critBase  = sgtChanceToSpellCritBaseStore.LookupEntry(pclass-1);
-    gtChanceToSpellCritEntry     const* critRatio = sgtChanceToSpellCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtChanceToSpellCritBaseEntry const* critBase  = sGtChanceToSpellCritBaseStore.LookupEntry(pclass-1);
+    GtChanceToSpellCritEntry     const* critRatio = sGtChanceToSpellCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
     if (critBase == nullptr || critRatio == nullptr)
         return 0.0f;
 
@@ -5367,9 +5367,9 @@ float Player::GetRatingMultiplier(CombatRating cr) const
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
 
-    gtCombatRatingsEntry const* Rating = sgtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
+    GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
     // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
-    gtOCTClassCombatRatingScalarEntry const* classRating = sgtOCTClassCombatRatingScalarStore.LookupEntry((getClass()-1)*GT_MAX_RATING+cr+1);
+    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass()-1)*GT_MAX_RATING+cr+1);
     if (!Rating || !classRating)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
@@ -5403,8 +5403,8 @@ float Player::OCTRegenHPPerSpirit() const
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
 
-    gtOCTRegenHPEntry     const* baseRatio = sgtOCTRegenHPStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    gtRegenHPPerSptEntry  const* moreRatio = sgtRegenHPPerSptStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtOCTRegenHPEntry     const* baseRatio = sGtOCTRegenHPStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtRegenHPPerSptEntry  const* moreRatio = sGtRegenHPPerSptStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
     if (baseRatio == nullptr || moreRatio == nullptr)
         return 0.0f;
 
@@ -5426,8 +5426,8 @@ float Player::OCTRegenMPPerSpirit() const
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
 
-//    gtOCTRegenMPEntry     const* baseRatio = sgtOCTRegenMPStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    gtRegenMPPerSptEntry  const* moreRatio = sgtRegenMPPerSptStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+//    GtOCTRegenMPEntry     const* baseRatio = sGtOCTRegenMPStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtRegenMPPerSptEntry  const* moreRatio = sGtRegenMPPerSptStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
     if (moreRatio == nullptr)
         return 0.0f;
 
@@ -6591,7 +6591,7 @@ void Player::RewardReputation(Unit* victim, float rate)
         // support for: Championing - http://www.wowwiki.com/Championing
         Map const* map = GetMap();
         if (map->IsNonRaidDungeon())
-            if (LFGDungeonsEntry const* dungeon = GetLFGDungeon(map->GetId(), map->GetDifficulty()))
+            if (LFGDungeonEntry const* dungeon = GetLFGDungeon(map->GetId(), map->GetDifficulty()))
                 if (dungeon->reclevel == 80)
                     ChampioningFaction = GetChampioningFaction();
     }
@@ -6640,10 +6640,10 @@ void Player::RewardReputation(Quest const* quest)
         else
         {
             uint32 row = ((quest->RewardFactionValueId[i] < 0) ? 1 : 0) + 1;
-            if (QuestFactionRewardEntry const* questFactionRewardEntry = sQuestFactionRewardStore.LookupEntry(row))
+            if (QuestFactionRewEntry const* questFactionRewEntry = sQuestFactionRewardStore.LookupEntry(row))
             {
                 uint32 field = abs(quest->RewardFactionValueId[i]);
-                rep = questFactionRewardEntry->QuestRewFactionValue[field];
+                rep = questFactionRewEntry->QuestRewFactionValue[field];
             }
         }
 
@@ -24244,7 +24244,7 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
     if ((hairstyle == newhairstyle) && (haircolor == newhaircolor) && (facialhair == newfacialhair) && (!newSkin || (newSkin->hair_id == skincolor)))
         return 0;
 
-    gtBarberShopCostBaseEntry const* bsc = sgtBarberShopCostBaseStore.LookupEntry(level - 1);
+    GtBarberShopCostBaseEntry const* bsc = sGtBarberShopCostBaseStore.LookupEntry(level - 1);
 
     if (!bsc)                                                // shouldn't happen
         return 0xFFFFFFFF;
