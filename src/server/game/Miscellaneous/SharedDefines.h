@@ -1330,7 +1330,13 @@ enum SpellEffectName
     SPELL_EFFECT_GIVE_HONOR                         = 253,
     SPELL_EFFECT_254                                = 254,
     SPELL_EFFECT_LEARN_TRANSMOG_SET                 = 255,
-    TOTAL_SPELL_EFFECTS                             = 256,
+    SPELL_EFFECT_256                                = 256,
+    SPELL_EFFECT_257                                = 257,
+    SPELL_EFFECT_MODIFY_KEYSTONE                    = 258,
+    SPELL_EFFECT_RESPEC_AZERITE_EMPOWERED_ITEM      = 259,
+    SPELL_EFFECT_SUMMON_STABLED_PET                 = 260,
+    SPELL_EFFECT_SCRAP_ITEM                         = 261,
+    TOTAL_SPELL_EFFECTS
 };
 
 enum SpellCastResult
