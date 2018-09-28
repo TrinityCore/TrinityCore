@@ -48,7 +48,7 @@ LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0),
 {
 }
 
-LFGDungeonData::LFGDungeonData(LFGDungeonsEntry const* dbc) : id(dbc->ID), name(dbc->name[0]), map(dbc->map),
+LFGDungeonData::LFGDungeonData(LFGDungeonEntry const* dbc) : id(dbc->ID), name(dbc->name[0]), map(dbc->map),
     type(dbc->type), expansion(uint8(dbc->expansion)), group(uint8(dbc->grouptype)),
     minlevel(uint8(dbc->minlevel)), maxlevel(uint8(dbc->maxlevel)), difficulty(Difficulty(dbc->difficulty)),
     seasonal((dbc->flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
@@ -192,9 +192,9 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     LfgDungeonStore.clear();
 
     // Initialize Dungeon map with data from dbcs
-    for (uint32 i = 0; i < sLFGDungeonsStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
     {
-        LFGDungeonsEntry const* dungeon = sLFGDungeonsStore.LookupEntry(i);
+        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i);
         if (!dungeon)
             continue;
 
@@ -962,7 +962,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
         if (!dungeons.empty())
         {
             uint32 rDungeonId = (*dungeons.begin());
-            LFGDungeonsEntry const* dungeon = sLFGDungeonsStore.LookupEntry(rDungeonId);
+            LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(rDungeonId);
             if (dungeon && dungeon->type == LFG_TYPE_RANDOM)
                 player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
         }
@@ -1633,7 +1633,7 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
     for (LfgDungeonSet::const_iterator it = dungeons.begin(); it != dungeons.end(); ++it)
     {
         LFGDungeonData const* dungeon = GetLFGDungeon(*it);
-        if (!dungeon) // should never happen - We provide a list from sLFGDungeonsStore
+        if (!dungeon) // should never happen - We provide a list from sLFGDungeonStore
             continue;
 
         uint32 lockData = 0;

@@ -30,7 +30,7 @@ class Group;
 class Player;
 class Quest;
 class Map;
-struct LFGDungeonsEntry;
+struct LFGDungeonEntry;
 enum Difficulty : uint8;
 
 namespace lfg
@@ -269,7 +269,7 @@ struct LfgPlayerBoot
 struct LFGDungeonData
 {
     LFGDungeonData();
-    LFGDungeonData(LFGDungeonsEntry const* dbc);
+    LFGDungeonData(LFGDungeonEntry const* dbc);
 
     uint32 id;
     std::string name;
