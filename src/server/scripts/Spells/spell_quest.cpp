@@ -2112,10 +2112,14 @@ public:
 
         void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-/*            if (Unit* target = GetTarget())
+            if (Unit* target = GetTarget())
+            {
+                target->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+
                 if (Creature* creature = target->ToCreature())
-                    //play death animation here
-                    */
+                    creature->SetReactState(REACT_PASSIVE);
+            }
         }
 
         void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
