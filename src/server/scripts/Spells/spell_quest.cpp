@@ -1972,12 +1972,19 @@ enum BurstAtTheSeams
     SPELL_BURST_AT_THE_SEAMS_BONE         = 52516,
     SPELL_EXPLODE_ABOMINATION_MEAT        = 52520,
     SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT = 52523,
+    SPELL_TROLL_EXPLOSION                 = 52565,
+    SPELL_EXPLODE_TROLL_MEAT              = 52578,
+    SPELL_EXPLODE_TROLL_BLOODY_MEAT       = 52580,
 
     SPELL_BURST_AT_THE_SEAMS_59576        = 59576, //script/knockback, That's Abominable
     SPELL_BURST_AT_THE_SEAMS_59579        = 59579, //dummy
     SPELL_BURST_AT_THE_SEAMS_52510        = 52510, //script/knockback, Fuel for the Fire
     SPELL_BURST_AT_THE_SEAMS_52508        = 52508, //damage 20000
     SPELL_BURST_AT_THE_SEAMS_59580        = 59580, //damage 50000
+
+    SPELL_ASSIGN_GHOUL_KILL_CREDIT_TO_MASTER = 59590,
+    SPELL_ASSIGN_GEIST_KILL_CREDIT_TO_MASTER = 60041,
+    SPELL_ASSIGN_SKELETON_KILL_CREDIT_TO_MASTER = 60039,
 
     SPELL_DRAKKARI_SKULLCRUSHER_CREDIT    = 52590,
     SPELL_SUMMON_DRAKKARI_CHIEFTAIN       = 52616,
@@ -2018,7 +2025,6 @@ class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576 : public SpellS
                     creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
                     creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
                     creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
-                    creature->KillSelf();
                 }
             }
 
@@ -2033,6 +2039,100 @@ class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576 : public SpellS
             return new spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576_SpellScript();
         }
 };
+
+class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579 : public SpellScriptLoader
+{
+    public:
+        spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579() : SpellScriptLoader("spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579") { }
+
+        class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579_AuraScript);
+
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    target->CastSpell(target, SPELL_TROLL_EXPLOSION, true);
+                    target->CastSpell(target, SPELL_EXPLODE_ABOMINATION_MEAT, true);
+                    target->CastSpell(target, SPELL_EXPLODE_TROLL_MEAT, true);
+                    target->CastSpell(target, SPELL_EXPLODE_TROLL_MEAT, true);
+                    target->CastSpell(target, SPELL_EXPLODE_TROLL_BLOODY_MEAT, true);
+                    target->CastSpell(target, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+                }
+            }
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (Unit* caster = GetCaster())
+                    {
+                        switch (target->GetEntry())
+                        {
+                            case NPC_ICY_GHOUL:
+                                target->CastSpell(caster, SPELL_ASSIGN_GHOUL_KILL_CREDIT_TO_MASTER, true);
+                                break;
+                            case NPC_VICIOUS_GEIST:
+                                target->CastSpell(caster, SPELL_ASSIGN_GEIST_KILL_CREDIT_TO_MASTER, true);
+                                break;
+                            case NPC_RISEN_ALLIANCE_SOLDIERS:
+                                target->CastSpell(caster, SPELL_ASSIGN_SKELETON_KILL_CREDIT_TO_MASTER, true);
+                                break;
+                        }
+                    }
+                    target->CastSpell(target, SPELL_BURST_AT_THE_SEAMS_59580, true);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectApplyFn(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579_AuraScript();
+        }
+};
+
+class spell_q13264_q13276_q13288_q13289_bloated_abomination_feign_death : public SpellScriptLoader
+{
+public:
+    spell_q13264_q13276_q13288_q13289_bloated_abomination_feign_death() : SpellScriptLoader("spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death") { }
+
+    class spell_q13264_q13276_q13288_q13289_bloated_abomination_feign_death_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_q13264_q13276_q13288_q13289_bloated_abomination_feign_death_AuraScript);
+
+        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+/*            if (Unit* target = GetTarget())
+                if (Creature* creature = target->ToCreature())
+                    //play death animation here
+                    */
+        }
+        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (Creature* creature = target->ToCreature())
+                    creature->DespawnOrUnsummon();
+        }
+
+        void Register() override
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_q13264_q13276_q13288_q13289_bloated_abomination_feign_death_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectApplyFn(spell_q13264_q13276_q13288_q13289_bloated_abomination_feign_death_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_q13264_q13276_q13288_q13289_bloated_abomination_feign_death_AuraScript();
+    }
+};
+
 
 class spell_q12690_burst_at_the_seams_52510 : public SpellScriptLoader
 {
@@ -2811,6 +2911,8 @@ void AddSC_quest_spell_scripts()
     new spell_q13011_bear_flank_master();
     new spell_q13086_cannons_target();
     new spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576();
+    new spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579();
+    new spell_q13264_q13276_q13288_q13289_bloated_abomination_feign_death();
     new spell_q12690_burst_at_the_seams_52510();
     new spell_q12308_escape_from_silverbrook_summon_worgen();
     new spell_q12308_escape_from_silverbrook();
