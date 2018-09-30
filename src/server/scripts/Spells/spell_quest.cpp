@@ -1958,123 +1958,101 @@ class spell_q13086_cannons_target : public SpellScriptLoader
         }
 };
 
-enum ThatsAbominable
+enum BurstAtTheSeams
 {
+    NPC_DRAKKARI_CHIEFTAINK = 29099,
     NPC_ICY_GHOUL                         = 31142,
-    NPC_RISEN_ALLIANCE_SOLDIERS           = 31205,
     NPC_VICIOUS_GEIST                     = 31147,
+    NPC_RISEN_ALLIANCE_SOLDIERS           = 31205,
     NPC_RENIMATED_ABOMINATION             = 31692,
 
-    SPELL_ICY_GHOUL_CREDIT                = 59591, // Credit for Icy Ghoul
-    SPELL_VICIOUS_GEISTS_CREDIT           = 60042, // Credit for Vicious Geists
-    SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT  = 60040, // Credit for Risen Alliance Soldiers
+    QUEST_FUEL_FOR_THE_FIRE               = 12690,
+
+    SPELL_BLOATED_ABOMINATION_FEIGN_DEATH = 52593,
+    SPELL_BURST_AT_THE_SEAMS_BONE         = 52516,
+    SPELL_EXPLODE_ABOMINATION_MEAT        = 52520,
+    SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT = 52523,
+
+    SPELL_BURST_AT_THE_SEAMS_59576        = 59576, //script/knockback, That's Abominable
+    SPELL_BURST_AT_THE_SEAMS_59579        = 59579, //dummy
+    SPELL_BURST_AT_THE_SEAMS_52510        = 52510, //script/knockback, Fuel for the Fire
+    SPELL_BURST_AT_THE_SEAMS_52508        = 52508, //damage 20000
+    SPELL_BURST_AT_THE_SEAMS_59580        = 59580, //damage 50000
+
+    SPELL_DRAKKARI_SKULLCRUSHER_CREDIT    = 52590,
+    SPELL_SUMMON_DRAKKARI_CHIEFTAIN       = 52616,
+    SPELL_DRAKKARI_CHIEFTAINK_KILL_CREDIT = 52620
 };
 
-class spell_q13264_q13276_q13288_q13289_burst_at_the_seams : public SpellScriptLoader
+class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576 : public SpellScriptLoader
 {
     public:
-        spell_q13264_q13276_q13288_q13289_burst_at_the_seams() : SpellScriptLoader("spell_q13264_q13276_q13288_q13289_burst_at_the_seams") { }
+        spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576() : SpellScriptLoader("spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576") { }
 
-        class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_SpellScript : public SpellScript
+        class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_SpellScript);
+            PrepareSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
                 {
-                    SPELL_ICY_GHOUL_CREDIT,
-                    SPELL_VICIOUS_GEISTS_CREDIT,
-                    SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT,
+                    SPELL_BURST_AT_THE_SEAMS_59576,
+                    SPELL_BLOATED_ABOMINATION_FEIGN_DEATH,
+                    SPELL_BURST_AT_THE_SEAMS_59579,
+                    SPELL_BURST_AT_THE_SEAMS_BONE,
+                    SPELL_EXPLODE_ABOMINATION_MEAT,
+                    SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT
                 });
-            }
-
-            void HandleKnockBack(SpellEffIndex /*effIndex*/)
-            {
-                if (Creature* creature = GetHitCreature())
-                    if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
-                        if (Player* player = charmer->ToPlayer())
-                            if (GiveCreditIfValid(player, creature))
-                                creature->KillSelf();
-            }
-
-            bool GiveCreditIfValid(Player* player, Creature* creature)
-            {
-                uint32 entry = creature->GetEntry();
-
-                switch(entry)
-                {
-                    case NPC_ICY_GHOUL:
-                        player->CastSpell(player, SPELL_ICY_GHOUL_CREDIT, true);
-                        return true;
-                    case NPC_VICIOUS_GEIST:
-                        player->CastSpell(player, SPELL_VICIOUS_GEISTS_CREDIT, true);
-                        return true;
-                    case NPC_RISEN_ALLIANCE_SOLDIERS:
-                        player->CastSpell(player, SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT, true);
-                        return true;
-                }
-
-                return false;
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Creature* creature = GetCaster()->ToCreature()) {
+                    creature->CastSpell(creature, SPELL_BLOATED_ABOMINATION_FEIGN_DEATH, true);
+                    creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_59579, true);
+                    creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+                    creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+                    creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+                    creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_MEAT, true);
+                    creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
+                    creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
+                    creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
                     creature->KillSelf();
-                    creature->DespawnOrUnsummon();
                 }
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_SpellScript::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
-                OnEffectHitTarget += SpellEffectFn(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_q13264_q13276_q13288_q13289_burst_at_the_seams_SpellScript();
+            return new spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576_SpellScript();
         }
 };
 
-enum BurstAtTheSeams
-{
-    NPC_DRAKKARI_CHIEFTAINK                 = 29099,
-
-    QUEST_BURST_AT_THE_SEAMS                = 12690,
-
-    SPELL_BURST_AT_THE_SEAMS                = 52510, // Burst at the Seams
-    SPELL_BURST_AT_THE_SEAMS_DMG            = 52508, // Damage spell
-    SPELL_BURST_AT_THE_SEAMS_DMG_2          = 59580, // Abomination self damage spell
-    SPELL_BURST_AT_THE_SEAMS_BONE           = 52516, // Burst at the Seams:Bone
-    SPELL_BURST_AT_THE_SEAMS_MEAT           = 52520, // Explode Abomination:Meat
-    SPELL_BURST_AT_THE_SEAMS_BMEAT          = 52523, // Explode Abomination:Bloody Meat
-    SPELL_DRAKKARI_SKULLCRUSHER_CREDIT      = 52590, // Credit for Drakkari Skullcrusher
-    SPELL_SUMMON_DRAKKARI_CHIEFTAIN         = 52616, // Summon Drakkari Chieftain
-    SPELL_DRAKKARI_CHIEFTAINK_KILL_CREDIT   = 52620  // Drakkari Chieftain Kill Credit
-};
-
-class spell_q12690_burst_at_the_seams : public SpellScriptLoader
+class spell_q12690_burst_at_the_seams_52510 : public SpellScriptLoader
 {
     public:
-        spell_q12690_burst_at_the_seams() : SpellScriptLoader("spell_q12690_burst_at_the_seams") { }
+        spell_q12690_burst_at_the_seams_52510() : SpellScriptLoader("spell_q12690_burst_at_the_seams_52510") { }
 
-        class spell_q12690_burst_at_the_seams_SpellScript : public SpellScript
+        class spell_q12690_burst_at_the_seams_52510_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_q12690_burst_at_the_seams_SpellScript);
+            PrepareSpellScript(spell_q12690_burst_at_the_seams_52510_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
                 {
-                    SPELL_BURST_AT_THE_SEAMS,
-                    SPELL_BURST_AT_THE_SEAMS_DMG,
-                    SPELL_BURST_AT_THE_SEAMS_DMG_2,
+                    SPELL_BURST_AT_THE_SEAMS_52510,
+                    SPELL_BURST_AT_THE_SEAMS_52508,
+                    SPELL_BURST_AT_THE_SEAMS_59580,
                     SPELL_BURST_AT_THE_SEAMS_BONE,
-                    SPELL_BURST_AT_THE_SEAMS_MEAT,
-                    SPELL_BURST_AT_THE_SEAMS_BMEAT
+                    SPELL_EXPLODE_ABOMINATION_MEAT,
+                    SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT
                 });
             }
 
@@ -2091,16 +2069,16 @@ class spell_q12690_burst_at_the_seams : public SpellScriptLoader
                     {
                         if (Player* player = charmer->ToPlayer())
                         {
-                            if (player->GetQuestStatus(QUEST_BURST_AT_THE_SEAMS) == QUEST_STATUS_INCOMPLETE)
+                            if (player->GetQuestStatus(QUEST_FUEL_FOR_THE_FIRE) == QUEST_STATUS_INCOMPLETE)
                             {
                                 creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
-                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_MEAT, true);
-                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BMEAT, true);
-                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_DMG, true);
-                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_DMG_2, true);
+                                creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_MEAT, true);
+                                creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
+                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_52508, true);
+                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_59580, true);
 
                                 player->CastSpell(player, SPELL_DRAKKARI_SKULLCRUSHER_CREDIT, true);
-                                uint16 count = player->GetReqKillOrCastCurrentCount(QUEST_BURST_AT_THE_SEAMS, NPC_DRAKKARI_CHIEFTAINK);
+                                uint16 count = player->GetReqKillOrCastCurrentCount(QUEST_FUEL_FOR_THE_FIRE, NPC_DRAKKARI_CHIEFTAINK);
                                 if ((count % 20) == 0)
                                     player->CastSpell(player, SPELL_SUMMON_DRAKKARI_CHIEFTAIN, true);
                             }
@@ -2116,14 +2094,14 @@ class spell_q12690_burst_at_the_seams : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_q12690_burst_at_the_seams_SpellScript::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
-                OnEffectHitTarget += SpellEffectFn(spell_q12690_burst_at_the_seams_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_q12690_burst_at_the_seams_52510_SpellScript::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
+                OnEffectHitTarget += SpellEffectFn(spell_q12690_burst_at_the_seams_52510_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_q12690_burst_at_the_seams_SpellScript();
+            return new spell_q12690_burst_at_the_seams_52510_SpellScript();
         }
 };
 
@@ -2832,8 +2810,8 @@ void AddSC_quest_spell_scripts()
     new spell_q12847_summon_soul_moveto_bunny();
     new spell_q13011_bear_flank_master();
     new spell_q13086_cannons_target();
-    new spell_q13264_q13276_q13288_q13289_burst_at_the_seams();
-    new spell_q12690_burst_at_the_seams();
+    new spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576();
+    new spell_q12690_burst_at_the_seams_52510();
     new spell_q12308_escape_from_silverbrook_summon_worgen();
     new spell_q12308_escape_from_silverbrook();
     new spell_q12641_death_comes_from_on_high();
