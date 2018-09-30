@@ -1,10 +1,11 @@
 UPDATE `spell_script_names` SET `ScriptName`='spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576' WHERE `spell_id` = 59576;
 UPDATE `spell_script_names` SET `ScriptName`='spell_q12690_burst_at_the_seams_52510' WHERE `spell_id` = 52510;
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (52593, 59579);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (52593, 59579, 76245);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (52593, 'spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death'),
-(59579, 'spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579');
+(59579, 'spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579'),
+(76245, 'spell_q13264_q13276_q13288_q13289_area_restrict_abom');
 
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (31692);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (31692) AND `source_type`=0;

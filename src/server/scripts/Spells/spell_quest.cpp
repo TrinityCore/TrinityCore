@@ -1960,7 +1960,10 @@ class spell_q13086_cannons_target : public SpellScriptLoader
 
 enum BurstAtTheSeams
 {
-    NPC_DRAKKARI_CHIEFTAINK = 29099,
+    AREA_THE_BROKEN_FRONT                 = 4507,
+    AREA_MORD_RETHAR_THE_DEATH_GATE       = 4508,
+
+    NPC_DRAKKARI_CHIEFTAINK               = 29099,
     NPC_ICY_GHOUL                         = 31142,
     NPC_VICIOUS_GEIST                     = 31147,
     NPC_RISEN_ALLIANCE_SOLDIERS           = 31205,
@@ -2061,6 +2064,7 @@ class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579 : public SpellS
                     target->CastSpell(target, SPELL_BURST_AT_THE_SEAMS_BONE, true);
                 }
             }
+
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
@@ -2113,6 +2117,7 @@ public:
                     //play death animation here
                     */
         }
+
         void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* target = GetTarget())
@@ -2133,6 +2138,35 @@ public:
     }
 };
 
+class spell_q13264_q13276_q13288_q13289_area_restrict_abom : public SpellScriptLoader
+{
+    public:
+        spell_q13264_q13276_q13288_q13289_area_restrict_abom() : SpellScriptLoader("spell_q13264_q13276_q13288_q13289_area_restrict_abom") { }
+
+        class spell_q13264_q13276_q13288_q13289_area_restrict_abom_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13264_q13276_q13288_q13289_area_restrict_abom_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Creature* creature = GetCaster()->ToCreature()) {
+                    uint32 area = creature->GetAreaId();
+                    if (area != AREA_THE_BROKEN_FRONT && area != AREA_MORD_RETHAR_THE_DEATH_GATE)
+                        creature->DespawnOrUnsummon();
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q13264_q13276_q13288_q13289_area_restrict_abom_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q13264_q13276_q13288_q13289_area_restrict_abom_SpellScript();
+        }
+};
 
 class spell_q12690_burst_at_the_seams_52510 : public SpellScriptLoader
 {
@@ -2913,6 +2947,7 @@ void AddSC_quest_spell_scripts()
     new spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576();
     new spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579();
     new spell_q13264_q13276_q13288_q13289_bloated_abomination_feign_death();
+    new spell_q13264_q13276_q13288_q13289_area_restrict_abom();
     new spell_q12690_burst_at_the_seams_52510();
     new spell_q12308_escape_from_silverbrook_summon_worgen();
     new spell_q12308_escape_from_silverbrook();
