@@ -143,6 +143,12 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket << int64(TokenBalanceAmount);
     _worldPacket << uint32(BpayStoreProductDeliveryDelay);
 
+    _worldPacket << int32(Unk801_1);
+    _worldPacket << uint32(ActiveCharacterUpgradeBoostType);
+    _worldPacket << uint32(ActiveClassTrialBoostType);
+    _worldPacket << uint32(NumExpansions);
+    _worldPacket << uint32(MaximumExpansionLevel);
+
     return &_worldPacket;
 }
 

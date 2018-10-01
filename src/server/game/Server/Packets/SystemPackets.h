@@ -129,11 +129,11 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            bool BpayStoreEnabled                    = false; // NYI
             bool BpayStoreAvailable                  = false; // NYI
             bool BpayStoreDisabledByParentalControls = false; // NYI
             bool CharUndeleteEnabled                 = false;
-            bool BpayStoreEnabled                    = false; // NYI
-            bool CommerceSystemEnabled               = false; // NYI
+            bool CommerceSystemEnabled               = false; // NYI 
             bool Unk14                               = false; // NYI
             bool WillKickFromWorld                   = false; // NYI
             bool IsExpansionPreorderInStore          = false; // NYI
@@ -144,10 +144,16 @@ namespace WorldPackets
             bool LiveRegionCharacterListEnabled      = false; // NYI
             bool LiveRegionCharacterCopyEnabled      = false; // NYI
             bool LiveRegionAccountCopyEnabled        = false; // NYI
+
             int32 TokenPollTimeSeconds               = 0;     // NYI
             int32 TokenRedeemIndex                   = 0;     // NYI
             int64 TokenBalanceAmount                 = 0;     // NYI
             uint32 BpayStoreProductDeliveryDelay     = 0;     // NYI
+            int32 Unk801_1                           = 0; // HasPurchaseInProgress related
+            uint32 ActiveCharacterUpgradeBoostType   = 0;
+            uint32 ActiveClassTrialBoostType         = 0;
+            uint32 NumExpansions                     = 0;
+            uint32 MaximumExpansionLevel             = 0;
         };
 
         class MOTD final : public ServerPacket
