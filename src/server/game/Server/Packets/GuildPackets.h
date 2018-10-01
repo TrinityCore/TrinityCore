@@ -813,10 +813,11 @@ namespace WorldPackets
             bool FullUpdate = false;
         };
 
+        // TODO: research new guild bank opcodes
         class GuildBankSwapItems final : public ClientPacket
         {
         public:
-            GuildBankSwapItems(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_SWAP_ITEMS, std::move(packet)) { }
+            GuildBankSwapItems(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override;
 

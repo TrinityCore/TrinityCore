@@ -49,7 +49,7 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
             break;
         case REST_TYPE_HONOR:
             // Reset restBonus (Honor only) for players with max honor level.
-            if (_player->IsMaxHonorLevelAndPrestige())
+            if (_player->IsMaxHonorLevel())
                 restBonus = 0;
 
             rest_rested_offset = REST_RESTED_HONOR;

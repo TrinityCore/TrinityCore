@@ -3948,14 +3948,6 @@ Currency.StartJusticePoints = 0
 Currency.MaxJusticePoints = 4000
 
 #
-#    Currency.StartArtifactKnowledge
-#        Amount artifact knowledge that new players will start with
-#        Default: 55 (max)
-#
-
-Currency.StartArtifactKnowledge = 55
-
-#
 ###################################################################################################
 
 ###################################################################################################

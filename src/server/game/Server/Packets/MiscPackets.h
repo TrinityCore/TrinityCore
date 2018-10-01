@@ -878,14 +878,6 @@ namespace WorldPackets
             bool IsFavorite = false;
         };
 
-        class PvpPrestigeRankUp final : public ClientPacket
-        {
-        public:
-            PvpPrestigeRankUp(WorldPacket&& packet) : ClientPacket(CMSG_PVP_PRESTIGE_RANK_UP, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
         class CloseInteraction final : public ClientPacket
         {
         public:

@@ -1152,12 +1152,6 @@ void WorldSession::HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& 
     _collectionMgr->MountSetFavorite(mountSetFavorite.MountSpellID, mountSetFavorite.IsFavorite);
 }
 
-void WorldSession::HandlePvpPrestigeRankUp(WorldPackets::Misc::PvpPrestigeRankUp& /*pvpPrestigeRankUp*/)
-{
-    if (_player->CanPrestige())
-        _player->Prestige();
-}
-
 void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction)
 {
     if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)

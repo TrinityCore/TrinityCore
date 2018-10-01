@@ -6434,8 +6434,6 @@ void Player::_InitHonorLevelOnLoadFromDB(uint32 honor, uint32 honorLevel, uint32
     UpdateHonorNextLevel();
 
     AddHonorXP(honor);
-    if (CanPrestige())
-        Prestige();
 }
 
 void Player::RewardPlayerWithRewardPack(uint32 rewardPackID)
@@ -6469,7 +6467,7 @@ void Player::AddHonorXP(uint32 xp)
     uint32 newHonorXP = currentHonorXP + xp;
     uint32 honorLevel = GetHonorLevel();
 
-    if (xp < 1 || getLevel() < PLAYER_LEVEL_MIN_HONOR || IsMaxHonorLevelAndPrestige())
+    if (xp < 1 || getLevel() < PLAYER_LEVEL_MIN_HONOR || IsMaxHonorLevel())
         return;
 
     while (newHonorXP >= nextHonorLevelXP)
@@ -6483,7 +6481,7 @@ void Player::AddHonorXP(uint32 xp)
         nextHonorLevelXP = GetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL);
     }
 
-    SetUInt32Value(PLAYER_FIELD_HONOR, IsMaxHonorLevelAndPrestige() ? 0 : newHonorXP);
+    SetUInt32Value(PLAYER_FIELD_HONOR, IsMaxHonorLevel() ? 0 : newHonorXP);
 }
 
 void Player::SetHonorLevel(uint8 level)
@@ -6496,34 +6494,14 @@ void Player::SetHonorLevel(uint8 level)
     UpdateHonorNextLevel();
 
     UpdateCriteria(CRITERIA_TYPE_HONOR_LEVEL_REACHED);
-
-    if (CanPrestige())
-        Prestige();
-}
-
-void Player::Prestige()
-{
-    SetUInt32Value(PLAYER_FIELD_PRESTIGE, GetPrestigeLevel() + 1);
-    SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, 1);
-    UpdateHonorNextLevel();
-
-    UpdateCriteria(CRITERIA_TYPE_PRESTIGE_REACHED);
-}
-
-bool Player::CanPrestige() const
-{
-    return false;
-}
-
-bool Player::IsMaxPrestige() const
-{
-    return true;
 }
 
 void Player::UpdateHonorNextLevel()
 {
-    uint32 prestige = std::min(static_cast<uint32>(PRESTIGE_COLUMN_COUNT - 1), GetPrestigeLevel());
-    SetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL, sHonorLevelGameTable.GetRow(GetHonorLevel())->Prestige[prestige]);
+    // 5500 at honor level 1
+    // no idea what between here
+    // 8800 at honor level ~14 (never goes above 8800)
+    SetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL, 8800);
 }
 
 void Player::_LoadCurrency(PreparedQueryResult result)

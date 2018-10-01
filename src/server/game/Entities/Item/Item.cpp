@@ -316,14 +316,8 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
 
     for (std::size_t i = 0; i < itemProto->Effects.size(); ++i)
-    {
         if (i < 5)
             SetSpellCharges(i, itemProto->Effects[i]->Charges);
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemProto->Effects[i]->SpellID))
-            if (owner && spellInfo->HasEffect(SPELL_EFFECT_GIVE_ARTIFACT_POWER))
-                if (uint32 artifactKnowledgeLevel = sWorld->getIntConfig(CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE))
-                    SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, artifactKnowledgeLevel + 1);
-    }
 
     SetUInt32Value(ITEM_FIELD_DURATION, itemProto->GetDuration());
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
@@ -2565,8 +2559,6 @@ void Item::GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCatego
         uint32 artifactKnowledgeLevel = 1;
         if (sourceItem && sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL))
             artifactKnowledgeLevel = sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL);
-        else if (artifactCategoryId == ARTIFACT_CATEGORY_PRIMARY)
-            artifactKnowledgeLevel = sWorld->getIntConfig(CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE) + 1;
 
         if (GtArtifactKnowledgeMultiplierEntry const* artifactKnowledge = sArtifactKnowledgeMultiplierGameTable.GetRow(artifactKnowledgeLevel))
             amount = uint64(amount * artifactKnowledge->Multiplier);

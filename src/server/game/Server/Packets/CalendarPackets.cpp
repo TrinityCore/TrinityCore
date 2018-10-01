@@ -80,7 +80,7 @@ void WorldPackets::Calendar::CalendarGetEvent::Read()
     _worldPacket >> EventID;
 }
 
-void WorldPackets::Calendar::CalendarGuildFilter::Read()
+void WorldPackets::Calendar::CalendarCommunityFilter::Read()
 {
     _worldPacket >> MinLevel;
     _worldPacket >> MaxLevel;

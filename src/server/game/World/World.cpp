@@ -957,13 +957,6 @@ void World::LoadConfigSettings(bool reload)
     }
     m_int_configs[CONFIG_CURRENCY_MAX_JUSTICE_POINTS] *= 100;     //precision mod
 
-    m_int_configs[CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE] = sConfigMgr->GetIntDefault("Currency.StartArtifactKnowledge", 55);
-    if (int32(m_int_configs[CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE]) < 0)
-    {
-        TC_LOG_ERROR("server.loading", "Currency.StartArtifactKnowledge (%i) must be >= 0, set to default 0.", m_int_configs[CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE]);
-        m_int_configs[CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE] = 0;
-    }
-
     m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("RecruitAFriend.MaxLevel", 85);
     if (m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
     {

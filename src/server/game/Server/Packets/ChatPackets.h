@@ -75,46 +75,35 @@ namespace WorldPackets
             std::string Target;
         };
 
-        // CMSG_CHAT_ADDON_MESSAGE_GUILD
-        // CMSG_CHAT_ADDON_MESSAGE_OFFICER
-        // CMSG_CHAT_ADDON_MESSAGE_PARTY
-        // CMSG_CHAT_ADDON_MESSAGE_RAID
-        // CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT
+        struct ChatAddonMessageParams
+        {
+            std::string Prefix;
+            std::string Text;
+            ChatMsg Type = CHAT_MSG_PARTY;
+            bool IsLogged = false;
+        };
+
+        // CMSG_CHAT_ADDON_MESSAGE
         class ChatAddonMessage final : public ClientPacket
         {
         public:
-            ChatAddonMessage(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            ChatAddonMessage(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE, std::move(packet)) { }
 
             void Read() override;
 
-            std::string Prefix;
-            std::string Text;
-        };
-
-        // CMSG_CHAT_ADDON_MESSAGE_WHISPER
-        class ChatAddonMessageWhisper final : public ClientPacket
-        {
-        public:
-            ChatAddonMessageWhisper(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE_WHISPER, std::move(packet)) { }
-
-            void Read() override;
-
-            std::string Prefix;
-            std::string Target;
-            std::string Text;
+            ChatAddonMessageParams Params;
         };
 
         // CMSG_CHAT_ADDON_MESSAGE_CHANNEL
-        class ChatAddonMessageChannel final : public ClientPacket
+        class ChatAddonMessageTargeted final : public ClientPacket
         {
         public:
-            ChatAddonMessageChannel(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE_CHANNEL, std::move(packet)) { }
+            ChatAddonMessageTargeted(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE_TARGETED, std::move(packet)) { }
 
             void Read() override;
 
-            std::string Text;
             std::string Target;
-            std::string Prefix;
+            ChatAddonMessageParams Params;
         };
 
         class ChatMessageDND final : public ClientPacket
