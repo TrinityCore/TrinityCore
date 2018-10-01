@@ -341,12 +341,12 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     attackRoundInfo << uint8(SandboxScaling.Type);
     attackRoundInfo << uint8(SandboxScaling.TargetLevel);
     attackRoundInfo << uint8(SandboxScaling.Expansion);
-    attackRoundInfo << uint8(SandboxScaling.Class);
     attackRoundInfo << uint8(SandboxScaling.TargetMinScalingLevel);
     attackRoundInfo << uint8(SandboxScaling.TargetMaxScalingLevel);
     attackRoundInfo << int16(SandboxScaling.PlayerLevelDelta);
     attackRoundInfo << int8(SandboxScaling.TargetScalingLevelDelta);
     attackRoundInfo << uint16(SandboxScaling.PlayerItemLevel);
+    attackRoundInfo << uint8(SandboxScaling.Flags);
 
     WriteLogDataBit();
     FlushBits();

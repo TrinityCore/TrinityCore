@@ -33,7 +33,10 @@ WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
             _worldPacket << uint16(talentID);
 
         for (uint16 talentID : talentGroupInfo.PvPTalentIDs)
+        {
             _worldPacket << uint16(talentID);
+            _worldPacket << uint8(0); // slot?
+        }
     }
 
     return &_worldPacket;

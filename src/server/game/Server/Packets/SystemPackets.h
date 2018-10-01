@@ -103,6 +103,7 @@ namespace WorldPackets
             uint32 TokenRedeemIndex                      = 0;
             int64 TokenBalanceAmount                     = 0;
             uint32 BpayStoreProductDeliveryDelay         = 0;
+            uint32 UnkInt32                              = 0;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
@@ -117,6 +118,16 @@ namespace WorldPackets
             bool KioskModeEnabled                    = false;
             bool CompetitiveModeEnabled              = false;
             bool TokenBalanceEnabled                 = false;
+            bool UnkBit23                            = false;
+            bool UnkBit24                            = false;
+            bool UnkBit25                            = false;
+            bool UnkBit26                            = false;
+            bool UnkBit27                            = false;
+            bool UnkBit28                            = false;
+
+            uint8 unkByte                            = 0;
+            ObjectGuid UnkGUID                       = ObjectGuid::Empty;
+            ObjectGuid UnkGUID2                      = ObjectGuid::Empty;
 
             Optional<std::vector<uint8>> RaceClassExpansionLevels;
             SocialQueueConfig QuickJoinConfig;

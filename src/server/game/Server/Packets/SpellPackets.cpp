@@ -99,6 +99,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::AuraDataInfo cons
     data << uint32(auraData.ActiveFlags);
     data << uint16(auraData.CastLevel);
     data << uint8(auraData.Applications);
+    data << uint32(auraData.Unk810);
+
     data.WriteBit(auraData.CastUnit.is_initialized());
     data.WriteBit(auraData.Duration.is_initialized());
     data.WriteBit(auraData.Remaining.is_initialized());

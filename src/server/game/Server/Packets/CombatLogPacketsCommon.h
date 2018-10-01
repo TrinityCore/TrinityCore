@@ -60,9 +60,10 @@ namespace WorldPackets
             uint32 Type = 0;
             int16 PlayerLevelDelta = 0;
             uint16 PlayerItemLevel = 0;
+            uint16 Unk801 = 0;
             uint8 TargetLevel = 0;
             uint8 Expansion = 0;
-            uint8 Class = 0;
+            uint8 Flags = 0;
             uint8 TargetMinScalingLevel = 0;
             uint8 TargetMaxScalingLevel = 0;
             int8 TargetScalingLevelDelta = 0;

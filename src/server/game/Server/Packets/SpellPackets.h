@@ -177,6 +177,7 @@ namespace WorldPackets
             uint32 ActiveFlags = 0;
             uint16 CastLevel = 1;
             uint8 Applications = 1;
+            uint32 Unk810 = 0;
             Optional<SandboxScalingData> SandboxScaling;
             Optional<ObjectGuid> CastUnit;
             Optional<int32> Duration;
