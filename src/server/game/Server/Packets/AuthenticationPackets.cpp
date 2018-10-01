@@ -84,8 +84,6 @@ void WorldPackets::Auth::AuthSession::Read()
     uint32 realmJoinTicketSize;
 
     _worldPacket >> DosResponse;
-    _worldPacket >> Build;
-    _worldPacket >> BuildType;
     _worldPacket >> RegionID;
     _worldPacket >> BattlegroupID;
     _worldPacket >> RealmID;
