@@ -140,6 +140,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharacters
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharactersResult::CharacterInfo const& charInfo)
 {
     data << charInfo.Guid;
+    data << charInfo.CommunityDbID;
     data << uint8(charInfo.ListPosition);
     data << uint8(charInfo.Race);
     data << uint8(charInfo.Class);

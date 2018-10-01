@@ -121,6 +121,7 @@ namespace WorldPackets
                 CharacterInfo(Field* fields);
 
                 ObjectGuid Guid;
+                uint64 CommunityDbID     = 0;
                 std::string Name;
                 uint8 ListPosition       = 0; ///< Order of the characters in list
                 uint8 Race               = 0;
