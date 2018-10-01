@@ -82,18 +82,15 @@ namespace WorldPackets
                 LocalChallenge.fill(0);
                 Digest.fill(0);
             }
-
-            uint16 Build = 0;
-            int8 BuildType = 0;
+            uint64 DosResponse = 0;
             uint32 RegionID = 0;
             uint32 BattlegroupID = 0;
             uint32 RealmID = 0;
             std::array<uint8, 16> LocalChallenge;
             std::array<uint8, DigestLength> Digest;
-            uint64 DosResponse = 0;
-            std::string RealmJoinTicket;
             bool UseIPv6 = false;
-
+            std::string RealmJoinTicket;
+            
         private:
             void Read() override;
         };
