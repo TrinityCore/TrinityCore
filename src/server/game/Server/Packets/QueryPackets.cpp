@@ -162,6 +162,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupDa
     data << lookupData.AccountID;
     data << lookupData.BnetAccountID;
     data << lookupData.GuidActual;
+    data << uint64(lookupData.CommunityDbID);
     data << uint32(lookupData.VirtualRealmAddress);
     data << uint8(lookupData.Race);
     data << uint8(lookupData.Sex);
