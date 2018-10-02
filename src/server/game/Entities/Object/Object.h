@@ -130,6 +130,7 @@ class TC_GAME_API Object
         virtual void SetObjectScale(float scale) { SetFloatValue(OBJECT_FIELD_SCALE_X, scale); }
 
         TypeID GetTypeId() const { return m_objectTypeId; }
+        TypeID GetTypeIdForTarget(Object const* target) const { return (m_objectTypeId == TYPEID_PLAYER ? (target == this ? TYPEID_ACTIVE_PLAYER : TYPEID_PLAYER) : m_objectTypeId);} const
         bool isType(uint16 mask) const { return (mask & m_objectType) != 0; }
 
         virtual void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;

@@ -4893,6 +4893,7 @@ uint32 UnitDynamicUpdateFieldFlags[PLAYER_DYNAMIC_END] =
     UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS
     UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_DYNAMIC_FIELD_WORLD_EFFECTS
     UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS
+    UF_FLAG_PUBLIC,                                         // PLAYER_DYNAMIC_FIELD_ARENA_COOLDOWNS
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_RESERACH_SITE
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_DAILY_QUESTS
@@ -4905,8 +4906,7 @@ uint32 UnitDynamicUpdateFieldFlags[PLAYER_DYNAMIC_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_CHARACTER_RESTRICTIONS
     UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_SPELL_PCT_MOD_BY_LABEL
-    UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_SPELL_FLAT_MOD_BY_LABEL
-    UF_FLAG_PUBLIC,                                         // PLAYER_DYNAMIC_FIELD_ARENA_COOLDOWNS
+    UF_FLAG_PRIVATE,                                        // PLAYER_DYNAMIC_FIELD_SPELL_FLAT_MOD_BY_LABEL   
 };
 
 uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END] =

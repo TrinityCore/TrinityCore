@@ -243,7 +243,8 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     ByteBuffer buf(0x400);
     buf << uint8(updateType);
     buf << GetGUID();
-    buf << uint8(m_objectTypeId);
+    buf << uint8(GetTypeIdForTarget(target));
+    buf << uint32(0); // HeirFlags
 
     BuildMovementUpdate(&buf, flags);
     BuildValuesUpdate(updateType, &buf, target);
@@ -371,6 +372,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     data->WriteBit(NoBirthAnim);
     data->WriteBit(EnablePortals);
     data->WriteBit(PlayHoverAnim);
+
     data->WriteBit(HasMovementUpdate);
     data->WriteBit(HasMovementTransport);
     data->WriteBit(Stationary);
@@ -382,7 +384,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     data->WriteBit(HasAreaTrigger);
     data->WriteBit(HasGameObject);
     data->WriteBit(SmoothPhasing);
+
     data->WriteBit(ThisIsYou);
+
     data->WriteBit(SceneObjCreate);
     data->WriteBit(PlayerCreateData);
     data->FlushBits();
@@ -938,6 +942,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             break;
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
+        case TYPEID_ACTIVE_PLAYER:
         {
             Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
             flags = UnitUpdateFieldFlags;
