@@ -33,17 +33,21 @@ enum TypeID
     TYPEID_OBJECT        = 0,
     TYPEID_ITEM          = 1,
     TYPEID_CONTAINER     = 2,
-    TYPEID_UNIT          = 3,
-    TYPEID_PLAYER        = 4,
-    TYPEID_GAMEOBJECT    = 5,
-    TYPEID_DYNAMICOBJECT = 6,
-    TYPEID_CORPSE        = 7,
-    TYPEID_AREATRIGGER   = 8,
-    TYPEID_SCENEOBJECT   = 9,
-    TYPEID_CONVERSATION  = 10
+    TYPEID_AZERITE_EMPOWERED_ITEM = 3,
+    TYPEID_AZERITE_ITEM  = 4,
+    TYPEID_UNIT          = 5,
+    TYPEID_PLAYER        = 6,
+    TYPEID_ACTIVE_PLAYER = 7,
+    TYPEID_GAMEOBJECT    = 8,
+    TYPEID_DYNAMICOBJECT = 9,
+    TYPEID_CORPSE        = 10,
+    TYPEID_AREATRIGGER   = 11,
+    TYPEID_SCENEOBJECT   = 12,
+    TYPEID_CONVERSATION  = 13,
+    TYPEID_MAP           = 14,
 };
 
-#define NUM_CLIENT_OBJECT_TYPES             11
+#define NUM_CLIENT_OBJECT_TYPES             14
 
 enum TypeMask
 {
