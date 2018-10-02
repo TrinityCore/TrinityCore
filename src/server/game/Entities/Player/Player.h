@@ -1034,7 +1034,7 @@ struct PlayerDynamicFieldSpellModByLabel
 };
 #pragma pack(pop)
 
-uint8 constexpr PLAYER_MAX_HONOR_LEVEL = 50;
+uint32 constexpr PLAYER_MAX_HONOR_LEVEL = 500;
 uint8 constexpr PLAYER_LEVEL_MIN_HONOR = 110;
 uint32 constexpr SPELL_PVP_RULES_ENABLED = 134735;
 
@@ -1990,11 +1990,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetHonorLevel() const { return GetUInt32Value(PLAYER_FIELD_HONOR_LEVEL); }
         void AddHonorXP(uint32 xp);
         void SetHonorLevel(uint8 honorLevel);
-        void Prestige();
-        bool CanPrestige() const;
-        bool IsMaxPrestige() const;
-        bool IsMaxHonorLevelAndPrestige() const { return IsMaxPrestige() && GetHonorLevel() == PLAYER_MAX_HONOR_LEVEL; }
-        // Updates PLAYER_FIELD_HONOR_NEXT_LEVEL based on PLAYER_FIELD_HONOR_LEVEL and the smallest value of PLAYER_FIELD_PRESTIGE and (PRESTIGE_COLUMN_COUNT - 1)
+        bool IsMaxHonorLevel() const { return GetHonorLevel() == PLAYER_MAX_HONOR_LEVEL; }
+        // Updates PLAYER_FIELD_HONOR_NEXT_LEVEL based on PLAYER_FIELD_HONOR_LEVEL
         void UpdateHonorNextLevel();
         //End of PvP System
 

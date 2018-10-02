@@ -45,10 +45,10 @@ namespace WorldPackets
             uint64 EventID = 0;
         };
 
-        class CalendarGuildFilter final : public ClientPacket
+        class CalendarCommunityFilter final : public ClientPacket
         {
         public:
-            CalendarGuildFilter(WorldPacket&& packet) : ClientPacket(CMSG_CALENDAR_GUILD_FILTER, std::move(packet)) { }
+            CalendarCommunityFilter(WorldPacket&& packet) : ClientPacket(CMSG_CALENDAR_COMMUNITY_FILTER, std::move(packet)) { }
 
             void Read() override;
 

@@ -124,10 +124,10 @@ void WorldSession::HandleCalendarGetEvent(WorldPackets::Calendar::CalendarGetEve
         sCalendarMgr->SendCalendarCommandResult(_player->GetGUID(), CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarGuildFilter(WorldPackets::Calendar::CalendarGuildFilter& calendarGuildFilter)
+void WorldSession::HandleCalendarCommunityFilter(WorldPackets::Calendar::CalendarCommunityFilter& calendarCommunityFilter)
 {
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
-        guild->MassInviteToEvent(this, calendarGuildFilter.MinLevel, calendarGuildFilter.MaxLevel, calendarGuildFilter.MaxRankOrder);
+        guild->MassInviteToEvent(this, calendarCommunityFilter.MinLevel, calendarCommunityFilter.MaxLevel, calendarCommunityFilter.MaxRankOrder);
 }
 
 void WorldSession::HandleCalendarAddEvent(WorldPackets::Calendar::CalendarAddEvent& calendarAddEvent)

@@ -4517,9 +4517,9 @@ enum WeatherType
 
 #define MAX_WEATHER_TYPE 4
 
-enum ChatMsg
+enum ChatMsg : int32
 {
-    CHAT_MSG_ADDON                              = 0xFFFFFFFF, // -1
+    CHAT_MSG_ADDON                              = -1,
     CHAT_MSG_SYSTEM                             = 0x00,
     CHAT_MSG_SAY                                = 0x01,
     CHAT_MSG_PARTY                              = 0x02,

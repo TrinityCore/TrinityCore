@@ -125,10 +125,10 @@ namespace WorldPackets
             ObjectGuid Sender;
         };
 
-        class ServerFirstAchievement final : public ServerPacket
+        class BroadcastAchievement final : public ServerPacket
         {
         public:
-            ServerFirstAchievement() : ServerPacket(SMSG_SERVER_FIRST_ACHIEVEMENT) { }
+            BroadcastAchievement() : ServerPacket(SMSG_BROADCAST_ACHIEVEMENT) { }
 
             WorldPacket const* Write() override;
 
