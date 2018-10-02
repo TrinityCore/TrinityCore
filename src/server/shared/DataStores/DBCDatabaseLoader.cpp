@@ -23,8 +23,8 @@
 #include "StringFormat.h"
 #include <sstream>
 
-DBCDatabaseLoader::DBCDatabaseLoader(char const* tableName, char const* dbFormatString, char const* primaryKey, char const* dbcFormatString)
-    : _sqlTableName(tableName), _formatString(dbFormatString), _indexName(primaryKey), _dbcFormat(dbcFormatString), _sqlIndexPos(0), _recordSize(0)
+DBCDatabaseLoader::DBCDatabaseLoader(char const* tableName, char const* dbFormatString, char const* primaryKey, char const* dbcFormatString, std::vector<char*>& stringPool)
+    : _sqlTableName(tableName), _formatString(dbFormatString), _indexName(primaryKey), _dbcFormat(dbcFormatString), _sqlIndexPos(0), _recordSize(0), _stringPool(stringPool)
 {
     // Get sql index position
     int32 indexPos = -1;
@@ -53,28 +53,6 @@ DBCDatabaseLoader::DBCDatabaseLoader(char const* tableName, char const* dbFormat
 }
 
 static char const* nullStr = "";
-
-struct CleanupStruct
-{
-    static char* Clone(std::string const& str)
-    {
-        char* ptr = new char[str.size() + 1];
-        memcpy(ptr, str.c_str(), str.size() + 1);
-        _instance()._managed.push_back(ptr);
-        return ptr;
-    }
-
-    ~CleanupStruct()
-    {
-        for (char* ptr : _managed)
-            delete[] ptr;
-        _managed.clear();
-    }
-
-    private:
-        static CleanupStruct& _instance() { static CleanupStruct c; return c; }
-        std::vector<char*> _managed;
-};
 
 char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
 {
@@ -160,8 +138,9 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
                             dataOffset += sizeof(uint8);
                             break;
                         case FT_STRING:
-                            *reinterpret_cast<char**>(&dataValue[dataOffset]) = CleanupStruct::Clone(fields[sqlColumnNumber].GetString());
+                            *reinterpret_cast<char**>(&dataValue[dataOffset]) = CloneStringToPool(fields[sqlColumnNumber].GetString());
                             dataOffset += sizeof(char*);
+                            break;
                         case FT_SORT:
                             break;
                         default:
@@ -175,16 +154,16 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
                     {
                         case FT_FLOAT:
                             *reinterpret_cast<float*>(&dataValue[dataOffset]) = 0.0f;
-                            dataOffset += 4;
+                            dataOffset += sizeof(float);
                             break;
                         case FT_IND:
                         case FT_INT:
                             *reinterpret_cast<uint32*>(&dataValue[dataOffset]) = uint32(0);
-                            dataOffset += 4;
+                            dataOffset += sizeof(uint32);
                             break;
                         case FT_BYTE:
                             *reinterpret_cast<uint8*>(&dataValue[dataOffset]) = uint8(0);
-                            dataOffset += 1;
+                            dataOffset += sizeof(uint8);
                             break;
                         case FT_STRING:
                             *reinterpret_cast<char**>(&dataValue[dataOffset]) = const_cast<char*>(nullStr);
@@ -210,4 +189,12 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
     records = indexTableSize;
 
     return dataTable.release();
+}
+
+char* DBCDatabaseLoader::CloneStringToPool(std::string const& str)
+{
+    char* buf = new char[str.size() + 1];
+    memcpy(buf, str.c_str(), str.size() + 1);
+    _stringPool.push_back(buf);
+    return buf;
 }
