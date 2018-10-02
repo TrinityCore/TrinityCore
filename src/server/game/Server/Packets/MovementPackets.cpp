@@ -300,12 +300,13 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         data << float(1.0f);                                                    // DurationModifier
         data << float(1.0f);                                                    // NextDurationModifier
         data.WriteBits(moveSpline.facing.type, 2);                              // Face
-        bool HasJumpGravity = data.WriteBit(moveSpline.splineflags.parabolic || moveSpline.splineflags.animation);                 // HasJumpGravity
+        //bool HasJumpGravity = data.WriteBit(moveSpline.splineflags.parabolic || moveSpline.splineflags.animation);                 // HasJumpGravity
         bool HasSpecialTime = data.WriteBit(moveSpline.splineflags.parabolic && moveSpline.effect_start_time < moveSpline.Duration()); // HasSpecialTime
         data.WriteBits(moveSpline.getPath().size(), 16);
         data.WriteBits(uint8(moveSpline.spline.mode()), 2);                     // Mode
         data.WriteBit(0);                                                       // HasSplineFilter
         data.WriteBit(moveSpline.spell_effect_extra.is_initialized());          // HasSpellEffectExtraData
+        data.WriteBit(0);                                                       // unk801, HasJumpGravity ?
         data.FlushBits();
 
         //if (HasSplineFilterKey)
@@ -341,8 +342,8 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
                 break;
         }
 
-        if (HasJumpGravity)
-            data << float(moveSpline.vertical_acceleration);                    // JumpGravity
+        //if (HasJumpGravity)
+        //    data << float(moveSpline.vertical_acceleration);                    // JumpGravity
 
         if (HasSpecialTime)
             data << uint32(moveSpline.effect_start_time);                       // SpecialTime
@@ -355,7 +356,15 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
             data << uint32(moveSpline.spell_effect_extra->SpellVisualId);
             data << uint32(moveSpline.spell_effect_extra->ProgressCurveId);
             data << uint32(moveSpline.spell_effect_extra->ParabolicCurveId);
+            data << float(0.0f); // JumpGravity
         }
+
+        //if (unk801)
+        //{
+        //    data << float(0.0f); // JumpGravity
+        //    data << uint32(0.0f); // JumpGravity
+        //    data << uint32(0.0f); // JumpGravity
+        //}
     }
 }
 

@@ -543,6 +543,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool hasUnk2                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK2);
         bool hasUnk3                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK3);
         bool hasUnk4                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK4);
+        bool hasUnk801              = false;
         bool hasAreaTriggerSphere   = areaTriggerTemplate->IsSphere();
         bool hasAreaTriggerBox      = areaTriggerTemplate->IsBox();
         bool hasAreaTriggerPolygon  = areaTriggerTemplate->IsPolygon();
@@ -603,6 +604,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             *data << int32(0);
 
         if (hasUnk4)
+            *data << uint32(0);
+
+        if (hasUnk801)
             *data << uint32(0);
 
         if (hasAreaTriggerSphere)
