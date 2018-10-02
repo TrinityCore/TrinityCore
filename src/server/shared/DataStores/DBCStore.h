@@ -33,14 +33,14 @@ class TC_SHARED_API DBCStorageBase
         char const* GetFormat() const { return _fileFormat; }
         uint32 GetFieldCount() const { return _fieldCount; }
 
-        virtual bool Load(std::string const& path) = 0;
-        virtual bool LoadStringsFrom(std::string const& path) = 0;
-        virtual void LoadFromDB(std::string const& path, std::string const& dbFormat, std::string const& primaryKey) = 0;
+        virtual bool Load(char const* path) = 0;
+        virtual bool LoadStringsFrom(char const* path) = 0;
+        virtual void LoadFromDB(char const* table, char const* format, char const* index) = 0;
 
     protected:
-        bool Load(std::string const& path, char**& indexTable);
-        bool LoadStringsFrom(std::string const& path, char** indexTable);
-        void LoadFromDB(std::string const& path, std::string const& dbFormat, std::string const& primaryKey, char**& indexTable);
+        bool Load(char const* path, char**& indexTable);
+        bool LoadStringsFrom(char const* path, char** indexTable);
+        void LoadFromDB(char const* table, char const* format, char const* index, char**& indexTable);
 
         uint32 _fieldCount;
         char const* _fileFormat;
@@ -71,19 +71,19 @@ class DBCStorage : public DBCStorageBase
 
         uint32 GetNumRows() const { return _indexTableSize; }
 
-        bool Load(std::string const& path) override
+        bool Load(char const* path) override
         {
             return DBCStorageBase::Load(path, _indexTable.AsChar);
         }
 
-        bool LoadStringsFrom(std::string const& path) override
+        bool LoadStringsFrom(char const* path) override
         {
             return DBCStorageBase::LoadStringsFrom(path, _indexTable.AsChar);
         }
 
-        void LoadFromDB(std::string const& path, std::string const& dbFormat, std::string const& primaryKey) override
+        void LoadFromDB(char const* table, char const* format, char const* index) override
         {
-            DBCStorageBase::LoadFromDB(path, dbFormat, primaryKey, _indexTable.AsChar);
+            DBCStorageBase::LoadFromDB(table, format, index, _indexTable.AsChar);
         }
 
         iterator begin() { return iterator(_indexTable.AsT, _indexTableSize); }
