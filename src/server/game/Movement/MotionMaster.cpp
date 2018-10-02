@@ -950,7 +950,8 @@ void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
             TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTaxiFlight: '%s', taxi to path Id: %u (node %u)", _owner->GetGUID().ToString().c_str(), path, pathnode);
 
             // Only one FLIGHT_MOTION_TYPE is allowed
-            Remove(FLIGHT_MOTION_TYPE);
+            bool hasExisting = HasMovementGenerator([](MovementGenerator const* gen) { return gen->GetMovementGeneratorType() == FLIGHT_MOTION_TYPE; });
+            ASSERT(!hasExisting, "Duplicate flight path movement generator");
 
             FlightPathMovementGenerator* movement = new FlightPathMovementGenerator(pathnode);
             movement->LoadPath(_owner->ToPlayer());
