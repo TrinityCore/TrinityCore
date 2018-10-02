@@ -257,7 +257,6 @@ uint32 ItemDynamicUpdateFieldFlags[CONTAINER_DYNAMIC_END] =
     UF_FLAG_OWNER | UF_FLAG_0x100,                          // ITEM_DYNAMIC_FIELD_BONUSLIST_IDS
     UF_FLAG_OWNER,                                          // ITEM_DYNAMIC_FIELD_ARTIFACT_POWERS
     UF_FLAG_OWNER,                                          // ITEM_DYNAMIC_FIELD_GEMS
-    UF_FLAG_OWNER,                                          // ITEM_DYNAMIC_FIELD_RELIC_TALENT_DATA
 };
 
 uint32 UnitUpdateFieldFlags[PLAYER_END] =
@@ -2136,18 +2135,18 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_SUMMONED_BATTLE_PET_ID+1
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_SUMMONED_BATTLE_PET_ID+2
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_SUMMONED_BATTLE_PET_ID+3
-    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES
-    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES+1
-    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES+2
-    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES+3
-    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES+4
-    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES+5
-    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES+6
-    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES+7
-    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES+8
-    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES+9
-    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES+10
-    UF_FLAG_PRIVATE,                                        // PLAYER__FIELD_KNOWN_TITLES+11
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES+1
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES+2
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES+3
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES+4
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES+5
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES+6
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES+7
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES+8
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES+9
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES+10
+    UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_KNOWN_TITLES+11
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_COINAGE
     UF_FLAG_PRIVATE,                                        // PLAYER_FIELD_COINAGE+1
     UF_FLAG_PRIVATE,                                        // PLAYER_XP

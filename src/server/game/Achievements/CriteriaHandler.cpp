@@ -1786,10 +1786,6 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
             if (!referencePlayer || referencePlayer->GetHonorLevel() != reqValue)
                 return false;
             break;
-        case CRITERIA_ADDITIONAL_CONDITION_PRESTIGE_LEVEL: // 194
-            if (!referencePlayer || referencePlayer->GetPrestigeLevel() != reqValue)
-                return false;
-            break;
         default:
             break;
     }
