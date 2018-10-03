@@ -23,11 +23,6 @@ uint32 ItemUpdateFieldFlags[CONTAINER_END] =
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+1
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+2
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+3
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+1
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+2
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+3
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_TYPE
     UF_FLAG_DYNAMIC,                                        // OBJECT_FIELD_ENTRY
     UF_FLAG_DYNAMIC | UF_FLAG_URGENT,                       // OBJECT_DYNAMIC_FLAGS
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_SCALE_X
@@ -4957,11 +4952,6 @@ uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END] =
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+1
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+2
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+3
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+1
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+2
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+3
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_TYPE
     UF_FLAG_DYNAMIC,                                        // OBJECT_FIELD_ENTRY
     UF_FLAG_DYNAMIC | UF_FLAG_URGENT,                       // OBJECT_DYNAMIC_FLAGS
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_SCALE_X
@@ -4986,7 +4976,6 @@ uint32 CorpseUpdateFieldFlags[CORPSE_END] =
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+1
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+2
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+3
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_TYPE
     UF_FLAG_DYNAMIC,                                        // OBJECT_FIELD_ENTRY
     UF_FLAG_DYNAMIC | UF_FLAG_URGENT,                       // OBJECT_DYNAMIC_FLAGS
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_SCALE_X
@@ -5032,11 +5021,6 @@ uint32 AreaTriggerUpdateFieldFlags[AREATRIGGER_END] =
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+1
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+2
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+3
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+1
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+2
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+3
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_TYPE
     UF_FLAG_DYNAMIC,                                        // OBJECT_FIELD_ENTRY
     UF_FLAG_DYNAMIC | UF_FLAG_URGENT,                       // OBJECT_DYNAMIC_FLAGS
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_SCALE_X
@@ -5079,11 +5063,6 @@ uint32 SceneObjectUpdateFieldFlags[SCENEOBJECT_END] =
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+1
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+2
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+3
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+1
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+2
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+3
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_TYPE
     UF_FLAG_DYNAMIC,                                        // OBJECT_FIELD_ENTRY
     UF_FLAG_DYNAMIC | UF_FLAG_URGENT,                       // OBJECT_DYNAMIC_FLAGS
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_SCALE_X
@@ -5102,11 +5081,6 @@ uint32 ConversationUpdateFieldFlags[CONVERSATION_END] =
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+1
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+2
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_GUID+3
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+1
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+2
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_DATA+3
-    UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_TYPE
     UF_FLAG_DYNAMIC,                                        // OBJECT_FIELD_ENTRY
     UF_FLAG_DYNAMIC | UF_FLAG_URGENT,                       // OBJECT_DYNAMIC_FLAGS
     UF_FLAG_PUBLIC,                                         // OBJECT_FIELD_SCALE_X

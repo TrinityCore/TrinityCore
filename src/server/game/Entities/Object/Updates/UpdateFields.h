@@ -24,12 +24,10 @@
 enum ObjectFields
 {
     OBJECT_FIELD_GUID                                      = 0x000, // Size: 4, Flags: PUBLIC
-    OBJECT_FIELD_DATA                                      = 0x004, // Size: 4, Flags: PUBLIC
-    OBJECT_FIELD_TYPE                                      = 0x008, // Size: 1, Flags: PUBLIC
-    OBJECT_FIELD_ENTRY                                     = 0x009, // Size: 1, Flags: DYNAMIC
-    OBJECT_DYNAMIC_FLAGS                                   = 0x00A, // Size: 1, Flags: DYNAMIC, URGENT
-    OBJECT_FIELD_SCALE_X                                   = 0x00B, // Size: 1, Flags: PUBLIC
-    OBJECT_END                                             = 0x00C,
+    OBJECT_FIELD_ENTRY                                     = 0x004, // Size: 1, Flags: DYNAMIC
+    OBJECT_DYNAMIC_FLAGS                                   = 0x005, // Size: 1, Flags: DYNAMIC, URGENT
+    OBJECT_FIELD_SCALE_X                                   = 0x006, // Size: 1, Flags: PUBLIC
+    OBJECT_END                                             = 0x007,
 };
 
 enum ObjectDynamicFields

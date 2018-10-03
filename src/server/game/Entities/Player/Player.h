@@ -1757,7 +1757,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetGuildLevel(uint32 level) { SetUInt32Value(PLAYER_GUILDLEVEL, level); }
         uint32 GetGuildLevel() const { return GetUInt32Value(PLAYER_GUILDLEVEL); }
         void SetGuildIdInvited(ObjectGuid::LowType GuildId) { m_GuildIdInvited = GuildId; }
-        ObjectGuid::LowType GetGuildId() const { return GetUInt64Value(OBJECT_FIELD_DATA); /* return only lower part */ }
+        ObjectGuid::LowType GetGuildId() const { return GetUInt64Value(UNIT_FIELD_GUILD_GUID); /* return only lower part */ }
         Guild* GetGuild();
         Guild const* GetGuild() const;
         static ObjectGuid::LowType GetGuildIdFromDB(ObjectGuid guid);

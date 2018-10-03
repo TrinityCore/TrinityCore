@@ -483,7 +483,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetByteValue(PLAYER_BYTES_4, PLAYER_BYTES_4_OFFSET_ARENA_FACTION, 0);
     SetInventorySlotCount(INVENTORY_DEFAULT_SIZE);
 
-    SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Empty);
+    SetGuidValue(UNIT_FIELD_GUILD_GUID, ObjectGuid::Empty);
     SetUInt32Value(PLAYER_GUILDRANK, 0);
     SetGuildLevel(0);
     SetUInt32Value(PLAYER_GUILD_TIMESTAMP, 0);
@@ -6838,12 +6838,12 @@ uint32 Player::GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const
 void Player::SetInGuild(ObjectGuid::LowType guildId)
 {
     if (guildId)
-        SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Create<HighGuid::Guild>(guildId));
+        SetGuidValue(UNIT_FIELD_GUILD_GUID, ObjectGuid::Create<HighGuid::Guild>(guildId));
     else
-        SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Empty);
+        SetGuidValue(UNIT_FIELD_GUILD_GUID, ObjectGuid::Empty);
 
     ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_GUILD_LEVEL_ENABLED, guildId != 0);
-    SetUInt16Value(OBJECT_FIELD_TYPE, 1, guildId != 0);
+    SetUInt16Value(UNIT_FIELD_GUILD_GUID, 1, guildId != 0);
 }
 
 ObjectGuid::LowType Player::GetGuildIdFromDB(ObjectGuid guid)

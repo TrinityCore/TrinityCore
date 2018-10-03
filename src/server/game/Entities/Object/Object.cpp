@@ -130,7 +130,7 @@ void Object::_Create(ObjectGuid const& guid)
     if (!m_uint32Values) _InitValues();
 
     SetGuidValue(OBJECT_FIELD_GUID, guid);
-    SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
+    //SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
 }
 
 std::string Object::_ConcatFields(uint16 startIndex, uint16 size) const
