@@ -152,6 +152,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData 
     data << int64(spellCastLogData.Health);
     data << int32(spellCastLogData.AttackPower);
     data << int32(spellCastLogData.SpellPower);
+    data << int32(spellCastLogData.UnkInt32_801);
     data.WriteBits(spellCastLogData.PowerData.size(), 9);
     data.FlushBits();
 

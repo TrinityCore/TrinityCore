@@ -41,6 +41,7 @@ namespace WorldPackets
             int64 Health = 0;
             int32 AttackPower = 0;
             int32 SpellPower = 0;
+            int32 UnkInt32_801 = 0;
             std::vector<SpellLogPowerData> PowerData;
 
             void Initialize(Unit const* unit);
