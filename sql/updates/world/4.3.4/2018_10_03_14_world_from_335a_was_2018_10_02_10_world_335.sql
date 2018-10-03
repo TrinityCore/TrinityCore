@@ -1,3 +1,4 @@
+/*
 -- Warlord Goretooth
 UPDATE `creature_template` SET `gossip_menu_id`=2884, `AIName`="SmartAI" WHERE `entry`=9077;
 
@@ -35,3 +36,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (9077,0,1,0,62,0,100,0,2889,0,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0,"Warlord Goretooth - On Gossip Option Selected - Close Gossip");
 
 DELETE FROM `creature_queststarter` WHERE `quest`=4903;
+*/

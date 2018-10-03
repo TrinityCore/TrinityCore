@@ -1,3 +1,4 @@
+/*
 -- Quest "Ripple Recovery"
 DELETE FROM `quest_details` WHERE `ID`=649;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
@@ -436,3 +437,4 @@ DELETE FROM `quest_details` WHERE `ID`=8182;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
 (8182,1,1,0,0,0,0,0,0,0);
 UPDATE `quest_offer_reward` SET `Emote1`=6, `Emote2`=1 WHERE `ID`=8182;
+*/

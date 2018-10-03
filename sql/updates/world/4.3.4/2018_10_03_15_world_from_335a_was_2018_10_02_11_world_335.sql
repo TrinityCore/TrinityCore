@@ -1,3 +1,4 @@
+/*
 -- Eitrigg
 DELETE FROM `gossip_menu` WHERE `MenuID` IN (21313,21314,21315,21316,21317,21318,21319);
 
@@ -27,3 +28,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=3144 AND `source_type`=0 AND `id`=2;
 UPDATE `smart_scripts` SET `event_param1`=2908 WHERE `entryorguid`=3144 AND `source_type`=0 AND `id`=0;
+*/
