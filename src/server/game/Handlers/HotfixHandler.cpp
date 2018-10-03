@@ -25,7 +25,6 @@
 
 void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)
 {
-    return; 
     DB2StorageBase const* store = sDB2Manager.GetStorage(dbQuery.TableHash);
     if (!store)
     {
