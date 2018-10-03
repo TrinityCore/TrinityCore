@@ -365,16 +365,20 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     data << spellCastData.CasterUnit;
     data << spellCastData.CastID;
     data << spellCastData.OriginalCastID;
+
     data << int32(spellCastData.SpellID);
     data << uint32(spellCastData.SpellXSpellVisualID);
+
     data << uint32(spellCastData.CastFlags);
+    data << uint32(spellCastData.CastFlagsEx);
     data << uint32(spellCastData.CastTime);
+
     data << spellCastData.MissileTrajectory;
     data << int32(spellCastData.Ammo.DisplayID);
     data << uint8(spellCastData.DestLocSpellCastIndex);
     data << spellCastData.Immunities;
     data << spellCastData.Predict;
-    data.WriteBits(spellCastData.CastFlagsEx, 23);
+
     data.WriteBits(spellCastData.HitTargets.size(), 16);
     data.WriteBits(spellCastData.MissTargets.size(), 16);
     data.WriteBits(spellCastData.MissStatus.size(), 16);
