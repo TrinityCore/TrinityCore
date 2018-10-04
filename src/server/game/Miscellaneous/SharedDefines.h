@@ -4774,8 +4774,8 @@ enum ResponseCodes
     CHAR_CREATE_LEVEL_REQUIREMENT_DEMON_HUNTER             = 51,
 
     CHAR_DELETE_IN_PROGRESS                                = 52,
-    CHAR_DELETE_SUCCESS                                    = 53,
-    CHAR_DELETE_FAILED                                     = 54,
+    CHAR_DELETE_FAILED                                     = 53,
+    CHAR_DELETE_SUCCESS                                    = 54,
     CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 55,
     CHAR_DELETE_FAILED_GUILD_LEADER                        = 56,
     CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 57,
