@@ -258,7 +258,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 DifficultyID = 0;
+            uint32 DifficultyID = 0;
         };
 
         class SetRaidDifficulty final : public ClientPacket

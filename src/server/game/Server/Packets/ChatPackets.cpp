@@ -70,6 +70,7 @@ void WorldPackets::Chat::ChatAddonMessageTargeted::Read()
     _worldPacket.ResetBitPos();
 
     _worldPacket >> Params;
+    Target = _worldPacket.ReadString(targetLen);
 }
 
 void WorldPackets::Chat::ChatMessageDND::Read()

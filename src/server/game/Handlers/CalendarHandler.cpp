@@ -79,8 +79,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
         WorldPackets::Calendar::CalendarSendCalendarEventInfo eventInfo;
         eventInfo.EventID = event->GetEventId();
         eventInfo.Date = event->GetDate();
-        Guild* guild = sGuildMgr->GetGuildById(event->GetGuildId());
-        eventInfo.EventGuildID = guild ? guild->GetGUID() : ObjectGuid::Empty;
+        eventInfo.EventClubID = event->GetGuildId();
         eventInfo.EventName = event->GetTitle();
         eventInfo.EventType = event->GetType();
         eventInfo.Flags = event->GetFlags();

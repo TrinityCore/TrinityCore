@@ -83,8 +83,6 @@ namespace WorldPackets
                 Digest.fill(0);
             }
 
-            uint16 Build = 0;
-            int8 BuildType = 0;
             uint32 RegionID = 0;
             uint32 BattlegroupID = 0;
             uint32 RealmID = 0;

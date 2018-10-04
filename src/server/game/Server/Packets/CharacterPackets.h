@@ -56,6 +56,7 @@ namespace WorldPackets
             std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay = { };
             uint8 OutfitId        = 0;
             Optional<int32> TemplateSet;
+            bool IsTrialBoost     = false;
             std::string Name;
 
             /// Server side data
