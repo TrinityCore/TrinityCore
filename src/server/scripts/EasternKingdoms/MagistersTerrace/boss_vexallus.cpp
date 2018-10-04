@@ -203,7 +203,7 @@ class npc_pure_energy : public CreatureScript
         {
             npc_pure_energyAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetDisplayFromModel(1);
             }
 
             void JustDied(Unit* killer) override
