@@ -57,6 +57,9 @@ enum STRCreatureIds
     NPC_BLACK_GUARD                     = 10394,
     NPC_YSIDA                           = 16031,
 
+    // Skeleton (Baron Rivendare)
+    NPC_SKELETON                        = 11197,
+
     // Scarlet side creatures
     NPC_CRIMSON_GUARDSMAN               = 10418,
     NPC_CRIMSON_CONJUROR                = 10419,
