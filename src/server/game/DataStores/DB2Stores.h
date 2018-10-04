@@ -301,12 +301,13 @@ public:
     MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty = nullptr) const;
     MapDifficultyEntry const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty) const;
     MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty) const;
-    std::string GetNameGenEntry(uint8 race, uint8 gender) const;
     MountEntry const* GetMount(uint32 spellId) const;
     MountEntry const* GetMountById(uint32 id) const;
     MountTypeXCapabilitySet const* GetMountCapabilities(uint32 mountType) const;
     MountXDisplayContainer const* GetMountDisplays(uint32 mountId) const;
+    std::string GetNameGenEntry(uint8 race, uint8 gender) const;
     ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale) const;
+    static int32 GetNumTalentsAtLevel(uint32 level, Classes playerClass);
     std::vector<uint32> const* GetPhasesForGroup(uint32 group) const;
     PowerTypeEntry const* GetPowerTypeEntry(Powers power) const;
     PowerTypeEntry const* GetPowerTypeByName(std::string const& name) const;
@@ -314,6 +315,7 @@ public:
     static PVPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
     static PVPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
     uint32 GetRequiredLevelForPvpTalentSlot(uint8 slot, Classes class_) const;
+    int32 GetPvpTalentNumSlotsAtLevel(uint32 level, Classes class_) const;
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItemsFallback(uint32 questPackageID) const;
     uint32 GetQuestUniqueBitFlag(uint32 questId);

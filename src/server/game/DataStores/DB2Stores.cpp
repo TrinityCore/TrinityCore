@@ -182,6 +182,7 @@ DB2Storage<NameGenEntry>                        sNameGenStore("NameGen.db2", Nam
 DB2Storage<NamesProfanityEntry>                 sNamesProfanityStore("NamesProfanity.db2", NamesProfanityLoadInfo::Instance());
 DB2Storage<NamesReservedEntry>                  sNamesReservedStore("NamesReserved.db2", NamesReservedLoadInfo::Instance());
 DB2Storage<NamesReservedLocaleEntry>            sNamesReservedLocaleStore("NamesReservedLocale.db2", NamesReservedLocaleLoadInfo::Instance());
+DB2Storage<NumTalentsAtLevelEntry>              sNumTalentsAtLevelStore("NumTalentsAtLevel.db2", NumTalentsAtLevelLoadInfo::Instance());
 DB2Storage<OverrideSpellDataEntry>              sOverrideSpellDataStore("OverrideSpellData.db2", OverrideSpellDataLoadInfo::Instance());
 DB2Storage<PhaseEntry>                          sPhaseStore("Phase.db2", PhaseLoadInfo::Instance());
 DB2Storage<PhaseXPhaseGroupEntry>               sPhaseXPhaseGroupStore("PhaseXPhaseGroup.db2", PhaseXPhaseGroupLoadInfo::Instance());
@@ -634,6 +635,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sNamesProfanityStore);
     LOAD_DB2(sNamesReservedStore);
     LOAD_DB2(sNamesReservedLocaleStore);
+    LOAD_DB2(sNumTalentsAtLevelStore);
     LOAD_DB2(sOverrideSpellDataStore);
     LOAD_DB2(sPhaseStore);
     LOAD_DB2(sPhaseXPhaseGroupStore);
@@ -2102,6 +2104,28 @@ ResponseCodes DB2Manager::ValidateName(std::wstring const& name, LocaleConstant 
     return CHAR_NAME_SUCCESS;
 }
 
+int32 DB2Manager::GetNumTalentsAtLevel(uint32 level, Classes playerClass)
+{
+    NumTalentsAtLevelEntry const* numTalentsAtLevel = sNumTalentsAtLevelStore.LookupEntry(level);
+    if (!numTalentsAtLevel)
+        numTalentsAtLevel = sNumTalentsAtLevelStore.LookupEntry(sNumTalentsAtLevelStore.GetNumRows() - 1);
+
+    if (numTalentsAtLevel)
+    {
+        switch (playerClass)
+        {
+            case CLASS_DEATH_KNIGHT:
+                return numTalentsAtLevel->NumTalentsDeathKnight;
+            case CLASS_DEMON_HUNTER:
+                return numTalentsAtLevel->NumTalentsDemonHunter;
+            default:
+                return numTalentsAtLevel->NumTalents;
+        }
+    }
+
+    return 0;
+}
+
 PVPDifficultyEntry const* DB2Manager::GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
 {
     PVPDifficultyEntry const* maxEntry = nullptr;           // used for level > max listed level case
@@ -2150,6 +2174,16 @@ uint32 DB2Manager::GetRequiredLevelForPvpTalentSlot(uint8 slot, Classes class_) 
     }
 
     return 0;
+}
+
+int32 DB2Manager::GetPvpTalentNumSlotsAtLevel(uint32 level, Classes class_) const
+{
+    int32 slots = 0;
+    for (uint8 slot = 0; slot < MAX_PVP_TALENT_SLOTS; ++slot)
+        if (level >= GetRequiredLevelForPvpTalentSlot(slot, class_))
+            ++slots;
+
+    return slots;
 }
 
 std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItems(uint32 questPackageID) const

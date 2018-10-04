@@ -576,6 +576,7 @@ class TC_GAME_API DamageInfo
         Unit* const m_attacker;
         Unit* const m_victim;
         uint32 m_damage;
+        uint32 const m_originalDamage;
         SpellInfo const* const m_spellInfo;
         SpellSchoolMask const m_schoolMask;
         DamageEffectType const m_damageType;
@@ -601,6 +602,7 @@ class TC_GAME_API DamageInfo
         DamageEffectType GetDamageType() const { return m_damageType; }
         WeaponAttackType GetAttackType() const { return m_attackType; }
         uint32 GetDamage() const { return m_damage; }
+        uint32 GetOriginalDamage() const { return m_originalDamage; }
         uint32 GetAbsorb() const { return m_absorb; }
         uint32 GetResist() const { return m_resist; }
         uint32 GetBlock() const { return m_block; }
@@ -614,6 +616,7 @@ class TC_GAME_API HealInfo
         Unit* const _healer;
         Unit* const _target;
         uint32 _heal;
+        uint32 const _originalHeal;
         uint32 _effectiveHeal;
         uint32 _absorb;
         SpellInfo const* const _spellInfo;
@@ -629,6 +632,7 @@ class TC_GAME_API HealInfo
         Unit* GetHealer() const { return _healer; }
         Unit* GetTarget() const { return _target; }
         uint32 GetHeal() const { return _heal; }
+        uint32 GetOriginalHeal() const { return _originalHeal; }
         uint32 GetEffectiveHeal() const { return _effectiveHeal; }
         uint32 GetAbsorb() const { return _absorb; }
         SpellInfo const* GetSpellInfo() const { return _spellInfo; };
@@ -682,6 +686,7 @@ struct CalcDamageInfo
     Unit  *target;               // Target for damage
     uint32 damageSchoolMask;
     uint32 damage;
+    uint32 originalDamage;
     uint32 absorb;
     uint32 resist;
     uint32 blocked_amount;
@@ -706,6 +711,7 @@ struct TC_GAME_API SpellNonMeleeDamage
     uint32 SpellID;
     uint32 SpellXSpellVisualID;
     uint32 damage;
+    uint32 originalDamage;
     uint32 schoolMask;
     uint32 absorb;
     uint32 resist;
@@ -720,11 +726,12 @@ struct TC_GAME_API SpellNonMeleeDamage
 
 struct SpellPeriodicAuraLogInfo
 {
-    SpellPeriodicAuraLogInfo(AuraEffect const* _auraEff, uint32 _damage, uint32 _overDamage, uint32 _absorb, uint32 _resist, float _multiplier, bool _critical)
-        : auraEff(_auraEff), damage(_damage), overDamage(_overDamage), absorb(_absorb), resist(_resist), multiplier(_multiplier), critical(_critical){ }
+    SpellPeriodicAuraLogInfo(AuraEffect const* _auraEff, uint32 _damage, uint32 _originalDamage, uint32 _overDamage, uint32 _absorb, uint32 _resist, float _multiplier, bool _critical)
+        : auraEff(_auraEff), damage(_damage), originalDamage(_originalDamage), overDamage(_overDamage), absorb(_absorb), resist(_resist), multiplier(_multiplier), critical(_critical){ }
 
     AuraEffect const* auraEff;
     uint32 damage;
+    uint32 originalDamage;
     uint32 overDamage;                                      // overkill/overheal
     uint32 absorb;
     uint32 resist;

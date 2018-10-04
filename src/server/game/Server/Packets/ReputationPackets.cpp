@@ -46,8 +46,6 @@ WorldPacket const* WorldPackets::Reputation::SetForcedReactions::Write()
     for (ForcedReaction const& reaction : Reactions)
         _worldPacket << reaction;
 
-    _worldPacket.FlushBits();
-
     return &_worldPacket;
 }
 

@@ -171,30 +171,37 @@ ExtendedPlayerName ExtractExtendedPlayerName(std::string const& name)
 
 LanguageDesc lang_description[LANGUAGES_COUNT] =
 {
-    { LANG_ADDON,           0, 0                       },
-    { LANG_UNIVERSAL,       0, 0                       },
-    { LANG_ORCISH,        669, SKILL_LANG_ORCISH       },
-    { LANG_DARNASSIAN,    671, SKILL_LANG_DARNASSIAN   },
-    { LANG_TAURAHE,       670, SKILL_LANG_TAURAHE      },
-    { LANG_DWARVISH,      672, SKILL_LANG_DWARVEN      },
-    { LANG_COMMON,        668, SKILL_LANG_COMMON       },
-    { LANG_DEMONIC,       815, SKILL_LANG_DEMON_TONGUE },
-    { LANG_TITAN,         816, SKILL_LANG_TITAN        },
-    { LANG_THALASSIAN,    813, SKILL_LANG_THALASSIAN   },
-    { LANG_DRACONIC,      814, SKILL_LANG_DRACONIC     },
-    { LANG_KALIMAG,       817, SKILL_LANG_OLD_TONGUE   },
-    { LANG_GNOMISH,      7340, SKILL_LANG_GNOMISH      },
-    { LANG_TROLL,        7341, SKILL_LANG_TROLL        },
-    { LANG_GUTTERSPEAK, 17737, SKILL_LANG_FORSAKEN     },
-    { LANG_DRAENEI,     29932, SKILL_LANG_DRAENEI      },
-    { LANG_ZOMBIE,          0, 0                       },
-    { LANG_GNOMISH_BINARY,  0, 0                       },
-    { LANG_GOBLIN_BINARY,   0, 0                       },
-    { LANG_WORGEN,      69270, SKILL_LANG_GILNEAN      },
-    { LANG_GOBLIN,      69269, SKILL_LANG_GOBLIN       },
-    { LANG_PANDAREN_NEUTRAL,  108127, SKILL_LANG_PANDAREN_NEUTRAL  },
-    { LANG_PANDAREN_ALLIANCE, 108130, SKILL_LANG_PANDAREN_ALLIANCE },
-    { LANG_PANDAREN_HORDE,    108131, SKILL_LANG_PANDAREN_HORDE    }
+    { LANG_ADDON,                  0, 0                               },
+    { LANG_ADDON_LOGGED,           0, 0                               },
+    { LANG_UNIVERSAL,              0, 0                               },
+    { LANG_ORCISH,               669, SKILL_LANGUAGE_ORCISH           },
+    { LANG_DARNASSIAN,           671, SKILL_LANGUAGE_DARNASSIAN       },
+    { LANG_TAURAHE,              670, SKILL_LANGUAGE_TAURAHE          },
+    { LANG_DWARVISH,             672, SKILL_LANGUAGE_DWARVEN          },
+    { LANG_COMMON,               668, SKILL_LANGUAGE_COMMON           },
+    { LANG_DEMONIC,              815, SKILL_LANGUAGE_DEMON_TONGUE     },
+    { LANG_TITAN,                816, SKILL_LANGUAGE_TITAN            },
+    { LANG_THALASSIAN,           813, SKILL_LANGUAGE_THALASSIAN       },
+    { LANG_DRACONIC,             814, SKILL_LANGUAGE_DRACONIC         },
+    { LANG_KALIMAG,           265462, SKILL_LANGUAGE_OLD_TONGUE       },
+    { LANG_GNOMISH,             7340, SKILL_LANGUAGE_GNOMISH          },
+    { LANG_TROLL,               7341, SKILL_LANGUAGE_TROLL            },
+    { LANG_GUTTERSPEAK,        17737, SKILL_LANGUAGE_FORSAKEN         },
+    { LANG_DRAENEI,            29932, SKILL_LANGUAGE_DRAENEI          },
+    { LANG_ZOMBIE,            265467, 0                               },
+    { LANG_GNOMISH_BINARY,    265460, 0                               },
+    { LANG_GOBLIN_BINARY,     265461, 0                               },
+    { LANG_WORGEN,             69270, SKILL_LANGUAGE_GILNEAN          },
+    { LANG_GOBLIN,             69269, SKILL_LANGUAGE_GOBLIN           },
+    { LANG_PANDAREN_NEUTRAL,  108127, SKILL_LANGUAGE_PANDAREN_NEUTRAL },
+    { LANG_PANDAREN_ALLIANCE, 108130, 0                               },
+    { LANG_PANDAREN_HORDE,    108131, 0                               },
+    { LANG_SPRITE,            265466, 0                               },
+    { LANG_SHATH_YAR,         265465, 0                               },
+    { LANG_NERGLISH,          265464, 0                               },
+    { LANG_MOONKIN,           265463, 0                               },
+    { LANG_SHALASSIAN,        262439, SKILL_LANGUAGE_SHALASSIAN       },
+    { LANG_THALASSIAN_2,      262454, SKILL_LANGUAGE_THALASSIAN_2     }
 };
 
 LanguageDesc const* GetLanguageDescByID(uint32 lang)
@@ -3924,35 +3931,35 @@ void ObjectMgr::LoadQuests()
     mExclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
-        //0  1          2           3                4               5         6            7            8                  9                10                  11
-        "ID, QuestType, QuestLevel, MaxScalingLevel, QuestPackageID, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RewardXPMultiplier, "
-        //12          13                     14                     15                16                   17                   18                   19           20           21               22
+        //0  1          2           3                    4                5               6         7            8            9                  10               11                  12
+        "ID, QuestType, QuestLevel, ScalingFactionGroup, MaxScalingLevel, QuestPackageID, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RewardXPMultiplier, "
+        //13          14                     15                     16                17                   18                   19                   20           21           22               23
         "RewardMoney, RewardMoneyDifficulty, RewardMoneyMultiplier, RewardBonusMoney, RewardDisplaySpell1, RewardDisplaySpell2, RewardDisplaySpell3, RewardSpell, RewardHonor, RewardKillHonor, StartItem, "
-        //23                         24                          25                        26     27
-        "RewardArtifactXPDifficulty, RewardArtifactXPMultiplier, RewardArtifactCategoryID, Flags, FlagsEx, "
-        //28          29             30         31                 32           33             34         35
+        //24                         25                          26                        27     28       29
+        "RewardArtifactXPDifficulty, RewardArtifactXPMultiplier, RewardArtifactCategoryID, Flags, FlagsEx, FlagsEx2, "
+        //30          31             32           33               34           35             36         37
         "RewardItem1, RewardAmount1, ItemDrop1, ItemDropQuantity1, RewardItem2, RewardAmount2, ItemDrop2, ItemDropQuantity2, "
-        //36          37             38         39                 40             41           42         43
+        //38           39            40         41                42            43             44         45
         "RewardItem3, RewardAmount3, ItemDrop3, ItemDropQuantity3, RewardItem4, RewardAmount4, ItemDrop4, ItemDropQuantity4, "
-        //44                  45                         46                          47                   48                         49
+        //46                  47                         48                          49                   50                         51
         "RewardChoiceItemID1, RewardChoiceItemQuantity1, RewardChoiceItemDisplayID1, RewardChoiceItemID2, RewardChoiceItemQuantity2, RewardChoiceItemDisplayID2, "
-        //50                  51                         52                          53                   54                         55
+        //52                  53                         54                          55                   56                         57
         "RewardChoiceItemID3, RewardChoiceItemQuantity3, RewardChoiceItemDisplayID3, RewardChoiceItemID4, RewardChoiceItemQuantity4, RewardChoiceItemDisplayID4, "
-        //56                  57                         58                          59                   60                         61
+        //58                  59                         60                          61                   62                         63
         "RewardChoiceItemID5, RewardChoiceItemQuantity5, RewardChoiceItemDisplayID5, RewardChoiceItemID6, RewardChoiceItemQuantity6, RewardChoiceItemDisplayID6, "
-        //62           63    64    65           66           67                 68                 69                 70             71
-        "POIContinent, POIx, POIy, POIPriority, RewardTitle, RewardArenaPoints, RewardSkillLineID, RewardNumSkillUps, PortraitGiver, PortraitTurnIn, "
-        //72               73                   74                      75                   76                77                   78                      79
+        //64           65    66    67           68           69                 70                 71                 72             73                  74
+        "POIContinent, POIx, POIy, POIPriority, RewardTitle, RewardArenaPoints, RewardSkillLineID, RewardNumSkillUps, PortraitGiver, PortraitGiverMount, PortraitTurnIn, "
+        //75               76                   77                      78                   79                80                   81                      82
         "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionCapIn1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, RewardFactionCapIn2, "
-        //80               81                   82                      83                   84                85                   86                      87
+        //83               84                   85                      86                   87                88                   89                      90
         "RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionCapIn3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, RewardFactionCapIn4, "
-        //88               89                   90                      91                   92
+        //91               92                   93                      94                   95
         "RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, RewardFactionCapIn5, RewardFactionFlags, "
-        //93                94                  95                 96                 97                  98                  99                 100
+        //96                97                  98                 99                  100                101                 102                103
         "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
-        //101                102                 103          104          105             106            107
-        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, QuestRewardID, Expansion, "
-        //108      109             110               111              112                113                114                 115                 116
+        //104                105                 106          107          108             109               110
+        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, TreasurePickerID, Expansion, "
+        //111      112             113               114              115                116                117                 118                 119
         "LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog"
         " FROM quest_template");
     if (!result)
@@ -7027,8 +7034,8 @@ void ObjectMgr::LoadGameObjectTemplate()
                                              "Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, "
     //                                        21      22      23      24      25      26      27      28      29      30      31      32      33      34      35      36
                                              "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, Data24, Data25, Data26, Data27, Data28, "
-    //                                        37      38       39     40      41             42      43
-                                             "Data29, Data30, Data31, Data32, RequiredLevel, AIName, ScriptName "
+    //                                        37      38       39     40      41      42             43      44
+                                             "Data29, Data30, Data31, Data32, Data33, RequiredLevel, AIName, ScriptName "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -7058,9 +7065,9 @@ void ObjectMgr::LoadGameObjectTemplate()
         for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
             got.raw.data[i] = fields[8 + i].GetUInt32();
 
-        got.RequiredLevel = fields[41].GetInt32();
-        got.AIName = fields[42].GetString();
-        got.ScriptId = GetScriptId(fields[43].GetString());
+        got.RequiredLevel = fields[42].GetInt32();
+        got.AIName = fields[43].GetString();
+        got.ScriptId = GetScriptId(fields[44].GetString());
 
         // Checks
 
@@ -7696,8 +7703,8 @@ void ObjectMgr::LoadQuestPOI()
 
     uint32 count = 0;
 
-    //                                                   0        1        2            3           4                 5           6         7            8       9       10         11              12             13               14
-    QueryResult result = WorldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1, AlwaysAllowMergingBlobs FROM quest_poi order by QuestID, Idx1");
+    //                                               0        1          2     3               4                 5              6      7        8         9      10             11                 12               13
+    QueryResult result = WorldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID, SpawnTrackingID, AlwaysAllowMergingBlobs FROM quest_poi order by QuestID, Idx1");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
@@ -7737,33 +7744,32 @@ void ObjectMgr::LoadQuestPOI()
     {
         Field* fields = result->Fetch();
 
-        int32 QuestID               = fields[0].GetInt32();
-        int32 BlobIndex             = fields[1].GetInt32();
-        int32 Idx1                  = fields[2].GetInt32();
-        int32 ObjectiveIndex        = fields[3].GetInt32();
-        int32 QuestObjectiveID      = fields[4].GetInt32();
-        int32 QuestObjectID         = fields[5].GetInt32();
-        int32 MapID                 = fields[6].GetInt32();
-        int32 WorldMapAreaId        = fields[7].GetInt32();
-        int32 Floor                 = fields[8].GetInt32();
-        int32 Priority              = fields[9].GetInt32();
-        int32 Flags                 = fields[10].GetInt32();
-        int32 WorldEffectID         = fields[11].GetInt32();
-        int32 PlayerConditionID     = fields[12].GetInt32();
-        int32 WoDUnk1               = fields[13].GetInt32();
-        bool AlwaysAllowMergingBlobs = fields[14].GetBool();
+        int32 questID               = fields[0].GetInt32();
+        int32 blobIndex             = fields[1].GetInt32();
+        int32 idx1                  = fields[2].GetInt32();
+        int32 objectiveIndex        = fields[3].GetInt32();
+        int32 questObjectiveID      = fields[4].GetInt32();
+        int32 questObjectID         = fields[5].GetInt32();
+        int32 mapID                 = fields[6].GetInt32();
+        int32 uiMapID               = fields[7].GetInt32();
+        int32 priority              = fields[8].GetInt32();
+        int32 flags                 = fields[9].GetInt32();
+        int32 worldEffectID         = fields[10].GetInt32();
+        int32 playerConditionID     = fields[11].GetInt32();
+        int32 spawnTrackingID       = fields[12].GetInt32();
+        bool alwaysAllowMergingBlobs = fields[13].GetBool();
 
-        if (!sObjectMgr->GetQuestTemplate(QuestID))
-            TC_LOG_ERROR("sql.sql", "`quest_poi` quest id (%u) Idx1 (%u) does not exist in `quest_template`", QuestID, Idx1);
+        if (!sObjectMgr->GetQuestTemplate(questID))
+            TC_LOG_ERROR("sql.sql", "`quest_poi` quest id (%u) Idx1 (%u) does not exist in `quest_template`", questID, idx1);
 
-        QuestPOI POI(BlobIndex, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1, AlwaysAllowMergingBlobs);
-        if (QuestID < int32(POIs.size()) && Idx1 < int32(POIs[QuestID].size()))
+        QuestPOI POI(blobIndex, objectiveIndex, questObjectiveID, questObjectID, mapID, uiMapID, priority, flags, worldEffectID, playerConditionID, spawnTrackingID, alwaysAllowMergingBlobs);
+        if (questID < int32(POIs.size()) && idx1 < int32(POIs[questID].size()))
         {
-            POI.points = POIs[QuestID][Idx1];
-            _questPOIStore[QuestID].push_back(POI);
+            POI.points = POIs[questID][idx1];
+            _questPOIStore[questID].push_back(POI);
         }
         else
-            TC_LOG_ERROR("sql.sql", "Table quest_poi references unknown quest points for quest %i POI id %i", QuestID, BlobIndex);
+            TC_LOG_ERROR("sql.sql", "Table quest_poi references unknown quest points for quest %i POI id %i", questID, blobIndex);
 
         ++count;
     } while (result->NextRow());
@@ -10099,7 +10105,7 @@ void ObjectMgr::LoadPlayerChoices()
     uint32 oldMSTime = getMSTime();
     _playerChoices.clear();
 
-    QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, UiTextureKitId, Question, HideWarboardHeader FROM playerchoice");
+    QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, UiTextureKitId, Question, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
 
     if (!choices)
     {
@@ -10124,10 +10130,11 @@ void ObjectMgr::LoadPlayerChoices()
         choice.UiTextureKitId = fields[1].GetInt32();
         choice.Question = fields[2].GetString();
         choice.HideWarboardHeader = fields[3].GetBool();
+        choice.KeepOpenAfterChoice = fields[4].GetBool();
 
     } while (choices->NextRow());
 
-    if (QueryResult responses = WorldDatabase.Query("SELECT ChoiceId, ResponseId, ChoiceArtFileId, Header, Answer, Description, Confirmation FROM playerchoice_response ORDER BY `Index` ASC"))
+    if (QueryResult responses = WorldDatabase.Query("SELECT ChoiceId, ResponseId, ChoiceArtFileId, Flags, WidgetSetID, GroupID, Header, Answer, Description, Confirmation FROM playerchoice_response ORDER BY `Index` ASC"))
     {
         do
         {
@@ -10148,10 +10155,13 @@ void ObjectMgr::LoadPlayerChoices()
             PlayerChoiceResponse& response = choice->Responses.back();
             response.ResponseId         = responseId;
             response.ChoiceArtFileId    = fields[2].GetInt32();
-            response.Header             = fields[3].GetString();
-            response.Answer             = fields[4].GetString();
-            response.Description        = fields[5].GetString();
-            response.Confirmation       = fields[6].GetString();
+            response.Flags              = fields[3].GetInt32();
+            response.WidgetSetID        = fields[4].GetUInt32();
+            response.GroupID            = fields[5].GetUInt8();
+            response.Header             = fields[6].GetString();
+            response.Answer             = fields[7].GetString();
+            response.Description        = fields[8].GetString();
+            response.Confirmation       = fields[9].GetString();
             ++responseCount;
 
         } while (responses->NextRow());

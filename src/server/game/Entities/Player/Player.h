@@ -399,7 +399,7 @@ enum PlayerFlags
     PLAYER_FLAGS_GM                     = 0x00000008,
     PLAYER_FLAGS_GHOST                  = 0x00000010,
     PLAYER_FLAGS_RESTING                = 0x00000020,
-    PLAYER_FLAGS_UNK6                   = 0x00000040,
+    PLAYER_FLAGS_VOICE_CHAT             = 0x00000040,
     PLAYER_FLAGS_UNK7                   = 0x00000080,       // pre-3.0.3 PLAYER_FLAGS_FFA_PVP flag for FFA PVP state
     PLAYER_FLAGS_CONTESTED_PVP          = 0x00000100,       // Player has been involved in a PvP combat and will be attacked by contested guards
     PLAYER_FLAGS_IN_PVP                 = 0x00000200,
@@ -430,7 +430,8 @@ enum PlayerFlags
 enum PlayerFlagsEx
 {
     PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED   = 0x0001,
-    PLAYER_FLAGS_EX_MERCENARY_MODE          = 0x0002
+    PLAYER_FLAGS_EX_MERCENARY_MODE          = 0x0002,
+    PLAYER_FLAGS_EX_ARTIFACT_FORGE_CHEAT    = 0x0004
 };
 
 enum PlayerLocalFlags
@@ -1009,10 +1010,6 @@ enum TalentLearnResult
     TALENT_FAILED_REST_AREA                             = 8
 };
 
-static uint32 const DefaultTalentRowLevels[MAX_TALENT_TIERS] = { 15, 30, 45, 60, 75, 90, 100 };
-static uint32 const DKTalentRowLevels[MAX_TALENT_TIERS] = { 57, 58, 59, 60, 75, 90, 100 };
-static uint32 const DHTalentRowLevels[MAX_TALENT_TIERS] = { 99, 100, 102, 104, 106, 108, 110 };
-
 struct TC_GAME_API SpecializationInfo
 {
     SpecializationInfo() : ResetTalentsCost(0), ResetTalentsTime(0), PrimarySpecialization(0), ActiveGroup(0)
@@ -1357,13 +1354,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /***                    QUEST SYSTEM                   ***/
         /*********************************************************/
 
-        int32 GetQuestLevel(Quest const* quest) const
-        {
-            if (!quest)
-                return getLevel();
-            return quest->GetQuestLevel() > 0 ? quest->GetQuestLevel() : std::min<int32>(getLevel(), quest->GetQuestMaxScalingLevel());
-        }
-
+        int32 GetQuestMinLevel(Quest const* quest) const;
+        int32 GetQuestLevel(Quest const* quest) const;
         void PrepareQuestMenu(ObjectGuid guid);
         void SendPreparedQuest(WorldObject* source);
         bool IsActiveQuest(uint32 quest_id) const;
@@ -1653,7 +1645,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
         void RemoveTalent(TalentEntry const* talent);
-        uint32 CalculateTalentsTiers() const;
         void ResetTalentSpecialization();
 
         TalentLearnResult LearnPvpTalent(uint32 talentID, uint8 slot, int32* spellOnCooldown);
@@ -1993,7 +1984,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RestoreHealthAfterDuel() { SetHealth(healthBeforeDuel); }
         void RestoreManaAfterDuel() { SetPower(POWER_MANA, manaBeforeDuel); }
 
-        uint32 GetPrestigeLevel() const { return 0; }
         uint32 GetHonorLevel() const { return GetUInt32Value(PLAYER_FIELD_HONOR_LEVEL); }
         void AddHonorXP(uint32 xp);
         void SetHonorLevel(uint8 honorLevel);

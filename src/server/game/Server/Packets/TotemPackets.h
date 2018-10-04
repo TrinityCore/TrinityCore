@@ -46,7 +46,7 @@ namespace WorldPackets
             ObjectGuid Totem;
             int32 SpellID = 0;
             int32 Duration = 0;
-            int8 Slot = 0;
+            uint8 Slot = 0;
             float TimeMod = 1.0f;
             bool CannotDismiss = false;
         };

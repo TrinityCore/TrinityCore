@@ -101,7 +101,7 @@ namespace WorldPackets
         class AchievementDeleted final : public ServerPacket
         {
         public:
-            AchievementDeleted() : ServerPacket(SMSG_ACHIEVEMENT_DELETED, 4) { }
+            AchievementDeleted() : ServerPacket(SMSG_ACHIEVEMENT_DELETED, 8) { }
 
             WorldPacket const* Write() override;
 

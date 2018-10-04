@@ -2052,6 +2052,14 @@ struct NamesReservedLocaleEntry
     uint8 LocaleMask;
 };
 
+struct NumTalentsAtLevelEntry
+{
+    uint32 ID;
+    int32 NumTalents;
+    int32 NumTalentsDeathKnight;
+    int32 NumTalentsDemonHunter;
+};
+
 #define MAX_OVERRIDE_SPELL 10
 
 struct OverrideSpellDataEntry

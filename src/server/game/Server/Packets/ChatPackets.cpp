@@ -70,6 +70,7 @@ void WorldPackets::Chat::ChatAddonMessageTargeted::Read()
     _worldPacket.ResetBitPos();
 
     _worldPacket >> Params;
+    Target = _worldPacket.ReadString(targetLen);
 }
 
 void WorldPackets::Chat::ChatMessageDND::Read()
@@ -159,17 +160,17 @@ void WorldPackets::Chat::Chat::SetReceiver(WorldObject const* receiver, LocaleCo
 
 WorldPacket const* WorldPackets::Chat::Chat::Write()
 {
-    _worldPacket << SlashCmd;
-    _worldPacket << _Language;
+    _worldPacket << uint8(SlashCmd);
+    _worldPacket << uint32(_Language);
     _worldPacket << SenderGUID;
     _worldPacket << SenderGuildGUID;
     _worldPacket << SenderAccountGUID;
     _worldPacket << TargetGUID;
-    _worldPacket << TargetVirtualAddress;
-    _worldPacket << SenderVirtualAddress;
+    _worldPacket << uint32(TargetVirtualAddress);
+    _worldPacket << uint32(SenderVirtualAddress);
     _worldPacket << PartyGUID;
-    _worldPacket << AchievementID;
-    _worldPacket << DisplayTime;
+    _worldPacket << uint32(AchievementID);
+    _worldPacket << float(DisplayTime);
     _worldPacket.WriteBits(SenderName.length(), 11);
     _worldPacket.WriteBits(TargetName.length(), 11);
     _worldPacket.WriteBits(Prefix.length(), 5);
@@ -178,6 +179,7 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteBits(_ChatFlags, 11);
     _worldPacket.WriteBit(HideChatLog);
     _worldPacket.WriteBit(FakeSenderName);
+    _worldPacket.WriteBit(Unused_801.is_initialized());
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(SenderName);
@@ -185,6 +187,9 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteString(Prefix);
     _worldPacket.WriteString(_Channel);
     _worldPacket.WriteString(ChatText);
+
+    if (Unused_801)
+        _worldPacket << uint32(*Unused_801);
 
     return &_worldPacket;
 }

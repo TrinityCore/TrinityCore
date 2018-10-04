@@ -3384,6 +3384,22 @@ struct NamesReservedLocaleLoadInfo
     }
 };
 
+struct NumTalentsAtLevelLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "NumTalents" },
+            { true, FT_INT, "NumTalentsDeathKnight" },
+            { true, FT_INT, "NumTalentsDemonHunter" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, NumTalentsAtLevelMeta::Instance(), HOTFIX_SEL_NUM_TALENTS_AT_LEVEL);
+        return &loadInfo;
+    }
+};
+
 struct OverrideSpellDataLoadInfo
 {
     static DB2LoadInfo const* Instance()

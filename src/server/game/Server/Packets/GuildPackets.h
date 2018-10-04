@@ -432,11 +432,11 @@ namespace WorldPackets
 
             int32 RankID = 0;
             int32 RankOrder = 0;
-            int32 WithdrawGoldLimit = 0;
+            uint32 WithdrawGoldLimit = 0;
             uint32 Flags = 0;
             uint32 OldFlags = 0;
-            int32 TabFlags[GUILD_BANK_MAX_TABS];
-            int32 TabWithdrawItemLimit[GUILD_BANK_MAX_TABS];
+            uint32 TabFlags[GUILD_BANK_MAX_TABS];
+            uint32 TabWithdrawItemLimit[GUILD_BANK_MAX_TABS];
             std::string RankName;
         };
 
@@ -687,7 +687,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<GuildRewardItem> RewardItems;
-            uint32 Version = 0;
+            int32 Version = 0;
         };
 
         class GuildBankActivate final : public ClientPacket
@@ -918,9 +918,9 @@ namespace WorldPackets
             uint32 CompletedDate = 0;
             int32 Type = 0;
             int32 Flags = 0;
-            int32 Data[2];
+            std::array<int32, 2> Data;
             ObjectGuid MemberGuid;
-            GuidList MemberList;
+            std::vector<ObjectGuid> MemberList;
             Optional<Item::ItemInstance> Item;
         };
 
