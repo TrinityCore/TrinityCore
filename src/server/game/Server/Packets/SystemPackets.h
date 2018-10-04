@@ -160,7 +160,7 @@ namespace WorldPackets
             int32 TokenRedeemIndex                   = 0;     // NYI
             int64 TokenBalanceAmount                 = 130000;     // NYI
             uint32 BpayStoreProductDeliveryDelay     = 18;     // NYI
-            int32 Unk801_1                           = 0;     // HasPurchaseInProgress related
+            int32 Unk801_1                           = 180;     // HasPurchaseInProgress related and effect on Create New Character button
             uint32 ActiveCharacterUpgradeBoostType   = 3;
             uint32 ActiveClassTrialBoostType         = 3;
             uint32 NumExpansions                     = 6;
