@@ -45,6 +45,15 @@ struct AchievementEntry
     int16 SharesCriteria;                                           // referenced achievement (counting of all completed criterias)
 };
 
+struct AnimationDataEntry
+{
+    uint32 ID;
+    uint16 Fallback;
+    uint8 BehaviorTier;
+    int32 BehaviorID;
+    int32 Flags[2];
+};
+
 struct AnimKitEntry
 {
     uint32 ID;
@@ -2050,6 +2059,14 @@ struct NamesReservedLocaleEntry
     uint32 ID;
     char const* Name;
     uint8 LocaleMask;
+};
+
+struct NumTalentsAtLevelEntry
+{
+    uint32 ID;
+    int32 NumTalents;
+    int32 NumTalentsDeathKnight;
+    int32 NumTalentsDemonHunter;
 };
 
 #define MAX_OVERRIDE_SPELL 10

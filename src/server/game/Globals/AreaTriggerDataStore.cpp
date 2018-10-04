@@ -147,8 +147,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         while (templates->NextRow());
     }
 
-    //                                                                  0            1              2            3             4             5              6                  7             8
-    if (QueryResult areatriggerSpellMiscs = WorldDatabase.Query("SELECT SpellMiscId, AreaTriggerId, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, DecalPropertiesId, TimeToTarget, TimeToTargetScale FROM `spell_areatrigger`"))
+    //                                                                  0            1              2            3             4             5              6       7          8                  9             10
+    if (QueryResult areatriggerSpellMiscs = WorldDatabase.Query("SELECT SpellMiscId, AreaTriggerId, MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, TimeToTarget, TimeToTargetScale FROM `spell_areatrigger`"))
     {
         do
         {
@@ -182,10 +182,13 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
 #undef VALIDATE_AND_SET_CURVE
 
-            miscTemplate.DecalPropertiesId = areatriggerSpellMiscFields[6].GetUInt32();
+            miscTemplate.AnimId = areatriggerSpellMiscFields[6].GetInt32();
+            miscTemplate.AnimKitId = areatriggerSpellMiscFields[7].GetInt32();
 
-            miscTemplate.TimeToTarget       = areatriggerSpellMiscFields[7].GetUInt32();
-            miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[8].GetUInt32();
+            miscTemplate.DecalPropertiesId = areatriggerSpellMiscFields[8].GetUInt32();
+
+            miscTemplate.TimeToTarget       = areatriggerSpellMiscFields[9].GetUInt32();
+            miscTemplate.TimeToTargetScale  = areatriggerSpellMiscFields[10].GetUInt32();
 
             miscTemplate.SplinePoints = std::move(splinesBySpellMisc[miscTemplate.MiscId]);
 

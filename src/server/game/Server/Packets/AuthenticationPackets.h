@@ -83,8 +83,6 @@ namespace WorldPackets
                 Digest.fill(0);
             }
 
-            uint16 Build = 0;
-            int8 BuildType = 0;
             uint32 RegionID = 0;
             uint32 BattlegroupID = 0;
             uint32 RealmID = 0;
@@ -159,6 +157,7 @@ namespace WorldPackets
                 bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
                 Optional<uint16> NumPlayersHorde; ///< number of horde players in this realm. @todo implement
                 Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
+                Optional<int32> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
             };
 
             AuthResponse();

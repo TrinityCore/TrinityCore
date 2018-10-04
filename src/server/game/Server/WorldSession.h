@@ -1127,7 +1127,7 @@ class TC_GAME_API WorldSession
         void HandleUndeleteCooldownStatusCallback(PreparedQueryResult result);
         void HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCharacter& undeleteInfo);
 
-        void SendCharCreate(ResponseCodes result);
+        void SendCharCreate(ResponseCodes result, ObjectGuid const& guid = ObjectGuid::Empty);
         void SendCharDelete(ResponseCodes result);
         void SendCharRename(ResponseCodes result, WorldPackets::Character::CharacterRenameInfo const* renameInfo);
         void SendCharCustomize(ResponseCodes result, WorldPackets::Character::CharCustomizeInfo const* customizeInfo);

@@ -36,6 +36,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Points, Flags, UiOrder, IconFileID, CriteriaTree, SharesCriteria FROM achievement ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ACHIEVEMENT, "SELECT ID, Description_lang, Title_lang, Reward_lang FROM achievement_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // AnimationData.db2
+    PrepareStatement(HOTFIX_SEL_ANIMATION_DATA, "SELECT ID, Fallback, BehaviorTier, BehaviorID, Flags1, Flags2 FROM animation_data ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // AnimKit.db2
     PrepareStatement(HOTFIX_SEL_ANIM_KIT, "SELECT ID, OneShotDuration, OneShotStopAnimKitID, LowDefAnimKitID FROM anim_kit ORDER BY ID DESC", CONNECTION_SYNCH);
 
@@ -683,6 +686,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // NamesReservedLocale.db2
     PrepareStatement(HOTFIX_SEL_NAMES_RESERVED_LOCALE, "SELECT ID, Name, LocaleMask FROM names_reserved_locale ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // NumTalentsAtLevel.db2
+    PrepareStatement(HOTFIX_SEL_NUM_TALENTS_AT_LEVEL, "SELECT ID, NumTalents, NumTalentsDeathKnight, NumTalentsDemonHunter FROM num_talents_at_level"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // OverrideSpellData.db2
     PrepareStatement(HOTFIX_SEL_OVERRIDE_SPELL_DATA, "SELECT ID, Spells1, Spells2, Spells3, Spells4, Spells5, Spells6, Spells7, Spells8, Spells9, "

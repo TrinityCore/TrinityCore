@@ -96,7 +96,7 @@ WorldPacket const* WorldPackets::Combat::AIReaction::Write()
 
 WorldPacket const* WorldPackets::Combat::AttackSwingError::Write()
 {
-    _worldPacket.WriteBits(Reason, 2);
+    _worldPacket.WriteBits(Reason, 3);
     _worldPacket.FlushBits();
     return &_worldPacket;
 }
@@ -107,8 +107,8 @@ WorldPacket const* WorldPackets::Combat::PowerUpdate::Write()
     _worldPacket << uint32(Powers.size());
     for (PowerUpdatePower const& power : Powers)
     {
-        _worldPacket << power.Power;
-        _worldPacket << power.PowerType;
+        _worldPacket << int32(power.Power);
+        _worldPacket << uint8(power.PowerType);
     }
 
     return &_worldPacket;

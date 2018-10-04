@@ -2419,9 +2419,8 @@ void Player::GiveLevel(uint8 level)
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         packet.StatDelta[i] = int32(info.stats[i]) - GetCreateStat(Stats(i));
 
-    uint32 const* rowLevels = (getClass() != CLASS_DEATH_KNIGHT) ? DefaultTalentRowLevels : DKTalentRowLevels;
-
-    packet.Cp = std::find(rowLevels, rowLevels + MAX_TALENT_TIERS, level) != (rowLevels + MAX_TALENT_TIERS);
+    packet.NumNewTalents = DB2Manager::GetNumTalentsAtLevel(level, Classes(getClass())) - DB2Manager::GetNumTalentsAtLevel(oldLevel, Classes(getClass()));
+    packet.NumNewPvpTalentSlots = sDB2Manager.GetPvpTalentNumSlotsAtLevel(level, Classes(getClass())) - sDB2Manager.GetPvpTalentNumSlotsAtLevel(oldLevel, Classes(getClass()));
 
     GetSession()->SendPacket(packet.Write());
 
@@ -2505,7 +2504,7 @@ void Player::InitTalentForLevel()
     if (level < MIN_SPECIALIZATION_LEVEL)
         ResetTalentSpecialization();
 
-    uint32 talentTiers = CalculateTalentsTiers();
+    uint32 talentTiers = DB2Manager::GetNumTalentsAtLevel(level, Classes(getClass()));
     if (level < 15)
     {
         // Remove all talent points
@@ -14570,6 +14569,38 @@ uint32 Player::GetDefaultGossipMenuForSource(WorldObject* source)
 /***                    QUEST SYSTEM                   ***/
 /*********************************************************/
 
+int32 Player::GetQuestMinLevel(Quest const* quest) const
+{
+    if (quest->GetQuestLevel() == -1 && quest->GetQuestScalingFactionGroup())
+    {
+        ChrRacesEntry const* race = sChrRacesStore.AssertEntry(getRace());
+        FactionTemplateEntry const* raceFaction = sFactionTemplateStore.LookupEntry(race->FactionID);
+        if (!raceFaction || raceFaction->FactionGroup != quest->GetQuestScalingFactionGroup())
+            return quest->GetQuestMaxScalingLevel();
+    }
+
+    return quest->GetMinLevel();
+}
+
+int32 Player::GetQuestLevel(Quest const* quest) const
+{
+    if (!quest)
+        return 0;
+
+    if (quest->GetQuestLevel() == -1)
+    {
+        int32 minLevel = GetQuestMinLevel(quest);
+        int32 maxLevel = quest->GetQuestMaxScalingLevel();
+        int32 level = getLevel();
+        if (level >= minLevel)
+            return std::min(level, maxLevel);
+
+        return minLevel;
+    }
+
+    return quest->GetQuestLevel();
+}
+
 void Player::PrepareQuestMenu(ObjectGuid guid)
 {
     QuestRelationBounds objectQR;
@@ -14737,7 +14768,7 @@ bool Player::CanSeeStartQuest(Quest const* quest)
         SatisfyQuestPrevChain(quest, false) && SatisfyQuestDay(quest, false) && SatisfyQuestWeek(quest, false) &&
         SatisfyQuestMonth(quest, false) && SatisfyQuestSeasonal(quest, false))
     {
-        return int32(getLevel() + sWorld->getIntConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF)) >= quest->GetMinLevel();
+        return int32(getLevel() + sWorld->getIntConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF)) >= GetQuestMinLevel(quest);
     }
 
     return false;
@@ -15163,7 +15194,7 @@ void Player::IncompleteQuest(uint32 quest_id)
 
 uint32 Player::GetQuestMoneyReward(Quest const* quest) const
 {
-    return quest->MoneyValue(getLevel()) * sWorld->getRate(RATE_MONEY_QUEST);
+    return quest->MoneyValue(this) * sWorld->getRate(RATE_MONEY_QUEST);
 }
 
 uint32 Player::GetQuestXPReward(Quest const* quest)
@@ -15174,7 +15205,7 @@ uint32 Player::GetQuestXPReward(Quest const* quest)
     if (rewarded && !quest->IsDFQuest())
         return 0;
 
-    uint32 XP = quest->XPValue(getLevel()) * sWorld->getRate(RATE_XP_QUEST);
+    uint32 XP = quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST);
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
@@ -15570,7 +15601,7 @@ bool Player::SatisfyQuestSkill(Quest const* qInfo, bool msg) const
 
 bool Player::SatisfyQuestLevel(Quest const* qInfo, bool msg) const
 {
-    if (getLevel() < qInfo->GetMinLevel())
+    if (getLevel() < GetQuestMinLevel(qInfo))
     {
         if (msg)
         {
@@ -19625,7 +19656,7 @@ void Player::SendRaidInfo()
             {
                 InstanceSave* save = itr->second.save;
 
-                WorldPackets::Instance::InstanceLockInfos lockInfos;
+                WorldPackets::Instance::InstanceLock lockInfos;
 
                 lockInfos.InstanceID = save->GetInstanceId();
                 lockInfos.MapID = save->GetMapId();
@@ -22328,6 +22359,8 @@ void Player::InitDisplayIds()
         default:
             TC_LOG_ERROR("entities.player", "Player::InitDisplayIds: Player '%s' (%s) has invalid gender %u", GetName().c_str(), GetGUID().ToString().c_str(), gender);
     }
+
+    SetUInt32Value(UNIT_FIELD_STATE_ANIM_ID, sAnimationDataStore.GetNumRows());
 }
 
 inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore)
@@ -23999,19 +24032,15 @@ void Player::LearnDefaultSkill(SkillRaceClassInfoEntry const* rcInfo)
             break;
         case SKILL_RANGE_RANK:
         {
-            uint16 rank = 1;
-            if (getClass() == CLASS_DEATH_KNIGHT && skillId == SKILL_FIRST_AID)
-                rank = 4;
-
             SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcInfo->SkillTierID);
-            uint16 maxValue = tier->Value[std::max<int32>(rank - 1, 0)];
+            uint16 maxValue = tier->Value[0];
             uint16 skillValue = 1;
             if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
                 skillValue = maxValue;
             else if (getClass() == CLASS_DEATH_KNIGHT)
                 skillValue = std::min(std::max(uint16(1), uint16((getLevel() - 1) * 5)), maxValue);
 
-            SetSkill(skillId, rank, skillValue, maxValue);
+            SetSkill(skillId, 1, skillValue, maxValue);
             break;
         }
         default:
@@ -26496,7 +26525,10 @@ void Player::SendTalentsInfoData()
                 continue;
             }
 
-            groupInfoPkt.PvPTalentIDs.push_back(uint16(pvpTalents[slot]));
+            groupInfoPkt.PvPTalents.emplace_back();
+            WorldPackets::Talent::PvPTalent& pvpTalent = groupInfoPkt.PvPTalents.back();
+            pvpTalent.PvPTalentID = pvpTalents[slot];
+            pvpTalent.Slot = slot;
         }
 
         packet.Info.TalentGroups.push_back(groupInfoPkt);
@@ -27517,6 +27549,7 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
     displayPlayerChoice.Responses.resize(playerChoice->Responses.size());
     displayPlayerChoice.CloseChoiceFrame = false;
     displayPlayerChoice.HideWarboardHeader = playerChoice->HideWarboardHeader;
+    displayPlayerChoice.KeepOpenAfterChoice = playerChoice->KeepOpenAfterChoice;
 
     for (std::size_t i = 0; i < playerChoice->Responses.size(); ++i)
     {
@@ -27524,6 +27557,9 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
         WorldPackets::Quest::PlayerChoiceResponse& playerChoiceResponse = displayPlayerChoice.Responses[i];
         playerChoiceResponse.ResponseID = playerChoiceResponseTemplate.ResponseId;
         playerChoiceResponse.ChoiceArtFileID = playerChoiceResponseTemplate.ChoiceArtFileId;
+        playerChoiceResponse.Flags = playerChoiceResponseTemplate.Flags;
+        playerChoiceResponse.WidgetSetID = playerChoiceResponseTemplate.WidgetSetID;
+        playerChoiceResponse.GroupID = playerChoiceResponseTemplate.GroupID;
         playerChoiceResponse.Answer = playerChoiceResponseTemplate.Answer;
         playerChoiceResponse.Header = playerChoiceResponseTemplate.Header;
         playerChoiceResponse.Description = playerChoiceResponseTemplate.Description;
@@ -27846,29 +27882,6 @@ void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const
     supercededSpells.SpellID.push_back(newSpell);
     supercededSpells.Superceded.push_back(oldSpell);
     GetSession()->SendPacket(supercededSpells.Write());
-}
-
-uint32 Player::CalculateTalentsTiers() const
-{
-    uint32 const* rowLevels;
-    switch (getClass())
-    {
-        case CLASS_DEATH_KNIGHT:
-            rowLevels = DKTalentRowLevels;
-            break;
-        case CLASS_DEMON_HUNTER:
-            rowLevels = DHTalentRowLevels;
-            break;
-        default:
-            rowLevels = DefaultTalentRowLevels;
-            break;
-    }
-
-    for (uint32 i = MAX_TALENT_TIERS; i; --i)
-        if (getLevel() >= rowLevels[i - 1])
-            return i;
-
-    return 0;
 }
 
 Difficulty Player::GetDifficultyID(MapEntry const* mapEntry) const

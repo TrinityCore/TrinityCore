@@ -51,6 +51,24 @@ struct AchievementLoadInfo
     }
 };
 
+struct AnimationDataLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "Fallback" },
+            { false, FT_BYTE, "BehaviorTier" },
+            { true, FT_INT, "BehaviorID" },
+            { true, FT_INT, "Flags1" },
+            { true, FT_INT, "Flags2" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AnimationDataMeta::Instance(), HOTFIX_SEL_ANIMATION_DATA);
+        return &loadInfo;
+    }
+};
+
 struct AnimKitLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -3380,6 +3398,22 @@ struct NamesReservedLocaleLoadInfo
             { false, FT_BYTE, "LocaleMask" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, NamesReservedLocaleMeta::Instance(), HOTFIX_SEL_NAMES_RESERVED);
+        return &loadInfo;
+    }
+};
+
+struct NumTalentsAtLevelLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "NumTalents" },
+            { true, FT_INT, "NumTalentsDeathKnight" },
+            { true, FT_INT, "NumTalentsDemonHunter" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, NumTalentsAtLevelMeta::Instance(), HOTFIX_SEL_NUM_TALENTS_AT_LEVEL);
         return &loadInfo;
     }
 };
