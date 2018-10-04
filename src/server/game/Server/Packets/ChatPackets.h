@@ -150,7 +150,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 SlashCmd = 0;     ///< @see enum ChatMsg
-            uint8 _Language = LANG_UNIVERSAL;
+            uint32 _Language = LANG_UNIVERSAL;
             ObjectGuid SenderGUID;
             ObjectGuid SenderGuildGUID;
             ObjectGuid SenderAccountGUID;
