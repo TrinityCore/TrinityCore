@@ -205,13 +205,13 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
     _worldPacket.WriteBit(IsDemonHunterCreationAllowed);
     _worldPacket.WriteBit(HasDemonHunterOnRealm);
     _worldPacket.WriteBit(Unknown7x);
-    _worldPacket.WriteBit(DisabledClassesMask.is_initialized());
+    _worldPacket.WriteBit(DisabledClassesMask.is_initialized() && uint32(*DisabledClassesMask) > 0);
     _worldPacket.WriteBit(IsAlliedRacesCreationAllowed);
     _worldPacket << uint32(Characters.size());
     _worldPacket << int32(MaxCharacterLevel);
     _worldPacket << uint32(RaceUnlockData.size());
 
-    if (DisabledClassesMask)
+    if (DisabledClassesMask && uint32(*DisabledClassesMask) > 0)
         _worldPacket << uint32(*DisabledClassesMask);
 
     for (CharacterInfo const& charInfo : Characters)

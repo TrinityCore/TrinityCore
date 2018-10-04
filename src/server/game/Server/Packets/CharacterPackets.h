@@ -173,8 +173,8 @@ namespace WorldPackets
             {
                 int32 RaceID;
                 bool HasExpansion;
-                bool HasAchievement;
-                bool HasHeritageArmor;
+                bool HasAchievement = false;
+                bool HasHeritageArmor = false;
             };
 
             EnumCharactersResult() : ServerPacket(SMSG_ENUM_CHARACTERS_RESULT) { }

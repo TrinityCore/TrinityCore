@@ -145,7 +145,7 @@ namespace WorldPackets
             bool BpayStoreDisabledByParentalControls = false; // NYI
             bool CharUndeleteEnabled                 = false;
             bool CommerceSystemEnabled               = false; // NYI 
-            bool Unk14                               = false; // NYI
+            bool Unk14                               = true; // NYI
             bool WillKickFromWorld                   = false; // NYI
             bool IsExpansionPreorderInStore          = false; // NYI
             bool KioskModeEnabled                    = false; // NYI
@@ -160,11 +160,11 @@ namespace WorldPackets
             int32 TokenRedeemIndex                   = 0;     // NYI
             int64 TokenBalanceAmount                 = 0;     // NYI
             uint32 BpayStoreProductDeliveryDelay     = 0;     // NYI
-            int32 Unk801_1                           = 0; // HasPurchaseInProgress related
+            int32 Unk801_1                           = 0;     // HasPurchaseInProgress related
             uint32 ActiveCharacterUpgradeBoostType   = 0;
             uint32 ActiveClassTrialBoostType         = 0;
-            uint32 NumExpansions                     = 0;
-            uint32 MaximumExpansionLevel             = 0;
+            uint32 NumExpansions                     = 6;
+            uint32 MaximumExpansionLevel             = 7;
         };
 
         class MOTD final : public ServerPacket
