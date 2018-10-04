@@ -150,19 +150,19 @@ namespace WorldPackets
             bool IsExpansionPreorderInStore          = false; // NYI
             bool KioskModeEnabled                    = false; // NYI
             bool CompetitiveModeEnabled              = false; // NYI
-            bool TrialBoostEnabled                   = false; // NYI
-            bool TokenBalanceEnabled                 = false; // NYI
+            bool TrialBoostEnabled                   = true; // NYI
+            bool TokenBalanceEnabled                 = true; // NYI
             bool LiveRegionCharacterListEnabled      = false; // NYI
             bool LiveRegionCharacterCopyEnabled      = false; // NYI
             bool LiveRegionAccountCopyEnabled        = false; // NYI
 
-            int32 TokenPollTimeSeconds               = 0;     // NYI
+            int32 TokenPollTimeSeconds               = 300;     // NYI
             int32 TokenRedeemIndex                   = 0;     // NYI
-            int64 TokenBalanceAmount                 = 0;     // NYI
-            uint32 BpayStoreProductDeliveryDelay     = 0;     // NYI
+            int64 TokenBalanceAmount                 = 130000;     // NYI
+            uint32 BpayStoreProductDeliveryDelay     = 18;     // NYI
             int32 Unk801_1                           = 0;     // HasPurchaseInProgress related
-            uint32 ActiveCharacterUpgradeBoostType   = 0;
-            uint32 ActiveClassTrialBoostType         = 0;
+            uint32 ActiveCharacterUpgradeBoostType   = 3;
+            uint32 ActiveClassTrialBoostType         = 3;
             uint32 NumExpansions                     = 6;
             uint32 MaximumExpansionLevel             = 7;
         };
