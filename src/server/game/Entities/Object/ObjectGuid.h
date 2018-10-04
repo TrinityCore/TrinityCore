@@ -51,17 +51,21 @@ enum TypeID
 
 enum TypeMask
 {
-    TYPEMASK_OBJECT         = 0x0001,
-    TYPEMASK_ITEM           = 0x0002,
-    TYPEMASK_CONTAINER      = 0x0004,
-    TYPEMASK_UNIT           = 0x0008,
-    TYPEMASK_PLAYER         = 0x0010,
-    TYPEMASK_GAMEOBJECT     = 0x0020,
-    TYPEMASK_DYNAMICOBJECT  = 0x0040,
-    TYPEMASK_CORPSE         = 0x0080,
-    TYPEMASK_AREATRIGGER    = 0x0100,
-    TYPEMASK_SCENEOBJECT    = 0x0200,
-    TYPEMASK_CONVERSATION   = 0x0400,
+    TYPEMASK_OBJECT                 = 0x0001,
+    TYPEMASK_ITEM                   = 0x0002,
+    TYPEMASK_AZERITE_EMPOWERED_ITEM = 0x0004,
+    TYPEMASK_AZERITE_ITEM           = 0x0008,
+    TYPEMASK_CONTAINER              = 0x0010,
+    TYPEMASK_UNIT                   = 0x0020,
+    TYPEMASK_PLAYER                 = 0x0040,
+    TYPEMASK_ACTIVE_PLAYER          = 0x0080,
+    TYPEMASK_GAMEOBJECT             = 0x0100,
+    TYPEMASK_DYNAMICOBJECT          = 0x0200,
+    TYPEMASK_CORPSE                 = 0x0400,
+    TYPEMASK_AREATRIGGER            = 0x0800,
+    TYPEMASK_SCENEOBJECT            = 0x1000,
+    TYPEMASK_CONVERSATION           = 0x2000,
+    TYPEMASK_MAP                    = 0x4000,
     TYPEMASK_SEER           = TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
 };
 

@@ -244,7 +244,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << uint8(updateType);
     buf << GetGUID();
     buf << uint8(GetTypeIdForTarget(target));
-    buf << uint32(0); // HeirFlags
+    buf << uint32(GetTypeMaskForTarget(target)); // HeirFlags
 
     BuildMovementUpdate(&buf, flags);
     BuildValuesUpdate(updateType, &buf, target);

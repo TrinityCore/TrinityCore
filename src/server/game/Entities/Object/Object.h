@@ -130,8 +130,12 @@ class TC_GAME_API Object
         virtual void SetObjectScale(float scale) { SetFloatValue(OBJECT_FIELD_SCALE_X, scale); }
 
         TypeID GetTypeId() const { return m_objectTypeId; }
-        TypeID GetTypeIdForTarget(Object const* target) const { return (m_objectTypeId == TYPEID_PLAYER ? (target == this ? TYPEID_ACTIVE_PLAYER : TYPEID_PLAYER) : m_objectTypeId);} const
-        bool isType(uint16 mask) const { return (mask & m_objectType) != 0; }
+        TypeID GetTypeIdForTarget(Object const* target) const { return (m_objectTypeId == TYPEID_PLAYER ? (target == this ? TYPEID_ACTIVE_PLAYER : TYPEID_PLAYER) : m_objectTypeId);}
+        bool isType(uint32 mask) const { return (mask & m_objectType) != 0; }
+        uint32 GetTypeMaskForTarget(Object const* target) const
+        {
+            return (m_objectTypeId == TYPEID_PLAYER ? (target == this ? (m_objectType | TYPEMASK_ACTIVE_PLAYER) : m_objectType) : m_objectType);
+        }
 
         virtual void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
         void SendUpdateToPlayer(Player* player);
@@ -303,7 +307,7 @@ class TC_GAME_API Object
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
         virtual void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
 
-        uint16 m_objectType;
+        uint32 m_objectType;
 
         TypeID m_objectTypeId;
         uint32 m_updateFlag;
