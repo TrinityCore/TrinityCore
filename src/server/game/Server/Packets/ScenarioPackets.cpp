@@ -109,8 +109,7 @@ WorldPacket const* WorldPackets::Scenario::ScenarioPOIs::Write()
         {
             _worldPacket << int32(scenarioPOI.BlobIndex);
             _worldPacket << int32(scenarioPOI.MapID);
-            _worldPacket << int32(scenarioPOI.WorldMapAreaID);
-            _worldPacket << int32(scenarioPOI.Floor);
+            _worldPacket << int32(scenarioPOI.UiMapID);
             _worldPacket << int32(scenarioPOI.Priority);
             _worldPacket << int32(scenarioPOI.Flags);
             _worldPacket << int32(scenarioPOI.WorldEffectID);

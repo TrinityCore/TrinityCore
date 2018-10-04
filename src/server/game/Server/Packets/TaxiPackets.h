@@ -110,7 +110,7 @@ namespace WorldPackets
         class ActivateTaxiReply final : public ServerPacket
         {
         public:
-            ActivateTaxiReply() : ServerPacket(SMSG_ACTIVATE_TAXI_REPLY, 4) { }
+            ActivateTaxiReply() : ServerPacket(SMSG_ACTIVATE_TAXI_REPLY, 1) { }
 
             WorldPacket const* Write() override;
 

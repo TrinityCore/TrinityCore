@@ -258,7 +258,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 DifficultyID = 0;
+            uint32 DifficultyID = 0;
         };
 
         class SetRaidDifficulty final : public ClientPacket
@@ -480,7 +480,8 @@ namespace WorldPackets
             int32 HealthDelta = 0;
             std::array<int32, 6> PowerDelta = { };
             std::array<int32, MAX_STATS> StatDelta = { };
-            int32 Cp = 0;
+            int32 NumNewTalents = 0;
+            int32 NumNewPvpTalentSlots = 0;
         };
 
         class PlayMusic final : public ServerPacket

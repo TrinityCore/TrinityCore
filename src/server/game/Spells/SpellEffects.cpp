@@ -410,7 +410,8 @@ void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
         m_caster->CalcAbsorbResist(damageInfo);
 
         SpellNonMeleeDamage log(m_caster, unitTarget, m_spellInfo->Id, m_SpellVisual, m_spellInfo->GetSchoolMask(), m_castId);
-        log.damage = damage;
+        log.damage = damageInfo.GetDamage();
+        log.originalDamage = damage;
         log.absorb = damageInfo.GetAbsorb();
         log.resist = damageInfo.GetResist();
 

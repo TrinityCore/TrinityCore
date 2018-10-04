@@ -30,7 +30,7 @@ namespace WorldPackets
         class InitializeFactions final : public ServerPacket
         {
         public:
-            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, 1312)
+            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, FactionCount * (4 + 1) + FactionCount / 8)
             {
                 FactionStandings.fill(0);
                 FactionHasBonus.fill(false);

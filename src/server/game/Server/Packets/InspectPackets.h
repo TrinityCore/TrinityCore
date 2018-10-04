@@ -56,6 +56,7 @@ namespace WorldPackets
             bool Usable = false;
             std::vector<InspectEnchantData> Enchants;
             std::vector<Item::ItemGemData> Gems;
+            std::vector<int32> AzeritePowers;
         };
 
         struct InspectGuildData
@@ -81,6 +82,7 @@ namespace WorldPackets
             int32 GenderID = GENDER_NONE;
             Optional<InspectGuildData> GuildData;
             int32 SpecializationID = 0;
+            Optional<int32> AzeriteLevel;
         };
 
         class RequestHonorStats final : public ClientPacket
@@ -128,7 +130,9 @@ namespace WorldPackets
             int32 SeasonWon        = 0;
             int32 WeeklyBestRating = 0;
             int32 Unk710           = 0;
+            int32 Unk801_1         = 0;
             uint8 Bracket          = 0;
+            bool Unk801_2          = false;
         };
 
         class InspectPVPResponse final : public ServerPacket

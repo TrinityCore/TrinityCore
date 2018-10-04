@@ -108,7 +108,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::GuildFinder::GuildPostDat
     data << int32(post.Availability);
     data << int32(post.ClassRoles);
     data << int32(post.LevelRange);
-    data << uint32(post.SecondsRemaining);
+    data << int32(post.SecondsRemaining);
     data.WriteString(post.Comment);
     return data;
 }

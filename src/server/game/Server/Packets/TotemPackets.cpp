@@ -25,7 +25,7 @@ void WorldPackets::Totem::TotemDestroyed::Read()
 
 WorldPacket const* WorldPackets::Totem::TotemCreated::Write()
 {
-    _worldPacket << Slot;
+    _worldPacket << uint8(Slot);
     _worldPacket << Totem;
     _worldPacket << int32(Duration);
     _worldPacket << int32(SpellID);

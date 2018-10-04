@@ -41,9 +41,9 @@ namespace WorldPackets
         public:
             enum AttackSwingErr : uint8
             {
-                CantAttack = 0,
+                NotInRange = 0,
                 BadFacing = 1,
-                NotInRange = 2,
+                CantAttack = 2,
                 DeadTarget = 3
             };
 

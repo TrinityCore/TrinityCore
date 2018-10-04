@@ -117,8 +117,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Who::WhoResponse const& r
     data.WriteBits(response.Entries.size(), 6);
     data.FlushBits();
 
-    for (size_t i = 0; i < response.Entries.size(); ++i)
-        data << response.Entries[i];
+    for (WorldPackets::Who::WhoEntry const& whoEntry : response.Entries)
+        data << whoEntry;
 
     return data;
 }

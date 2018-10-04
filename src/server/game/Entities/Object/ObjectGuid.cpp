@@ -87,6 +87,7 @@ namespace
         SET_GUID_NAME(CommerceObj);
         SET_GUID_NAME(ClientSession);
         SET_GUID_NAME(Cast);
+        SET_GUID_NAME(ClientConnection);
 
 #undef SET_GUID_NAME
     }

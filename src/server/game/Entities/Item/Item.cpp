@@ -275,8 +275,6 @@ Item::Item()
     m_objectType |= TYPEMASK_ITEM;
     m_objectTypeId = TYPEID_ITEM;
 
-    m_updateFlag = 0;
-
     m_valuesCount = ITEM_END;
     _dynamicValuesCount = ITEM_DYNAMIC_END;
     m_slot = 0;

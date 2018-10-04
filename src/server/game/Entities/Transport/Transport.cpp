@@ -38,7 +38,9 @@ Transport::Transport() : GameObject(),
     _triggeredArrivalEvent(false), _triggeredDepartureEvent(false),
     _passengerTeleportItr(_passengers.begin()), _delayedAddModel(false), _delayedTeleport(false)
 {
-    m_updateFlag = UPDATEFLAG_TRANSPORT | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION;
+    m_updateFlag.ServerTime = true;
+    m_updateFlag.Stationary = true;
+    m_updateFlag.Rotation = true;
 }
 
 Transport::~Transport()

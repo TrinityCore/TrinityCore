@@ -53,7 +53,7 @@ namespace WorldPackets
         class ChatMessageWhisper final : public ClientPacket
         {
         public:
-            ChatMessageWhisper(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            ChatMessageWhisper(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_WHISPER, std::move(packet)) { }
 
             void Read() override;
 
@@ -66,7 +66,7 @@ namespace WorldPackets
         class ChatMessageChannel final : public ClientPacket
         {
         public:
-            ChatMessageChannel(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            ChatMessageChannel(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_CHANNEL, std::move(packet)) { }
 
             void Read() override;
 
@@ -150,7 +150,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 SlashCmd = 0;     ///< @see enum ChatMsg
-            uint8 _Language = LANG_UNIVERSAL;
+            uint32 _Language = LANG_UNIVERSAL;
             ObjectGuid SenderGUID;
             ObjectGuid SenderGuildGUID;
             ObjectGuid SenderAccountGUID;
@@ -166,6 +166,7 @@ namespace WorldPackets
             uint32 AchievementID = 0;
             uint8 _ChatFlags = 0;   ///< @see enum ChatFlags
             float DisplayTime = 0.0f;
+            Optional<uint32> Unused_801;
             bool HideChatLog = false;
             bool FakeSenderName = false;
         };

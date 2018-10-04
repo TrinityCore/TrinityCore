@@ -157,7 +157,7 @@ namespace WorldPackets
             int32 Availability = 0;
             int32 ClassRoles = 0;
             int32 LevelRange = 0;
-            time_t SecondsRemaining = time_t(0);
+            int32 SecondsRemaining = 0;
             std::string Comment;
         };
 
