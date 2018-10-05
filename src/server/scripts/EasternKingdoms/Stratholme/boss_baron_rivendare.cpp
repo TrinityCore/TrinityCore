@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "stratholme.h"
 
 enum Texts
@@ -31,8 +32,10 @@ enum Spells
     SPELL_SHADOWBOLT    = 17393,
     SPELL_CLEAVE        = 15284,
     SPELL_MORTALSTRIKE  = 15708,
-    SPELL_DEATH_PACT    = 17471,
-    SPELL_RAISE_DEAD    = 17473,
+    SPELL_DEATH_PACT_1  = 17698, // Heal Rivendare and damage skeleton
+    SPELL_DEATH_PACT_2  = 17471, // Visual effect
+    SPELL_DEATH_PACT_3  = 17472, // Instant kill self only
+    SPELL_RAISE_DEAD    = 17473, // Inits. 17698 and 17471
     SPELL_UNHOLY_AURA   = 17467
 };
 
@@ -51,7 +54,6 @@ uint32 const RaiseDeadSpells[6] =
     17478, 17479, 17480
 };
 
-
 struct boss_baron_rivendare : public BossAI
 {
 public:
@@ -59,7 +61,8 @@ public:
 
     void Reset() override
     {
-        DoCastSelf(SPELL_UNHOLY_AURA, true);
+        // DoCastSelf doesn't add aura after reset
+        me->AddAura(SPELL_UNHOLY_AURA, me);
 
         // needed until re-write of instance scripts is done
         if (instance->GetData(TYPE_RAMSTEIN) == DONE)
@@ -149,7 +152,20 @@ private:
     bool RaiseDead;
 };
 
+// Death Pact 3 (17472) needs to be casted by the skeletons
+struct npc_summoned_skeleton : public ScriptedAI
+{
+    npc_summoned_skeleton(Creature* creature) : ScriptedAI(creature) { }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_DEATH_PACT_2)
+            DoCastSelf(SPELL_DEATH_PACT_3, true);
+    }
+};
+
 void AddSC_boss_baron_rivendare()
 {
     RegisterStratholmeCreatureAI(boss_baron_rivendare);
+    RegisterStratholmeCreatureAI(npc_summoned_skeleton);
 }
