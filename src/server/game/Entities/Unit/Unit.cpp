@@ -6981,6 +6981,9 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
     if (!isPeriodic && !spellInfo->HasAttribute(SPELL_ATTR0_CU_CAN_CRIT))
         return 0.0f;
 
+    if (spellInfo->HasEffect(SPELL_EFFECT_HEALTH_LEECH))
+        return 0.0f;
+
     float crit_chance = doneChance;
     switch (spellInfo->DmgClass)
     {
