@@ -26,4 +26,4 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `comment`) VA
 (17698, 17471, 'Baron Rivendare (Stratholme) - Link to serverside Death Pact');
 
 -- Baron Rivendare (Stratholme) - Skeletons should die after beeing affected by Death Pact
-UPDATE `creature_template` SET `ScriptName` = 'npc_summoned_skeleton1' WHERE `entry` = 11197;
+UPDATE `creature_template` SET `ScriptName` = 'npc_summoned_skeleton' WHERE `entry` = 11197;
