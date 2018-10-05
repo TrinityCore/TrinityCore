@@ -216,4 +216,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 DELETE FROM `creature_text` WHERE `CreatureID`=2817 AND `GroupID`=1;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(2817,1,0,"Ow.  Spicy.",12,0,100,33,0,0,934,0,"Rigglefuzz");v
+(2817,1,0,"Ow.  Spicy.",12,0,100,33,0,0,934,0,"Rigglefuzz");
