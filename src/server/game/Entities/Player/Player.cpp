@@ -1376,7 +1376,11 @@ void Player::Update(uint32 p_time)
     if (m_petScalingSynchTimer.Passed())
     {
         if (pet)
+        {
             pet->UpdatePetScalingAuras();
+            pet->UpdateAllStats();
+        }
+
         m_petScalingSynchTimer.Reset(1000);
     }
 

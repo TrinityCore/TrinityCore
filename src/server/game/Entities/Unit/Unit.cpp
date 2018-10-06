@@ -9772,6 +9772,9 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
             break;
     }
 
+    if (IsPet())
+        return false;
+
     if (!CanModifyStats())
         return false;
 
