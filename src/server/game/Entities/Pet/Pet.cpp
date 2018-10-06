@@ -1962,6 +1962,4 @@ void Pet::UpdatePetScalingAuras()
         if (Aura* aura = GetAura(spellId))
             aura->RecalculateAmountOfEffects();
     }
-
-    UpdateAllStats();
 }

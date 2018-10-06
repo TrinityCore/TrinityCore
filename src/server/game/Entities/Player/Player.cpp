@@ -413,6 +413,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_reputationMgr = new ReputationMgr(this);
     _hasValidLFGLeavePoint = false;
     _archaeology = new Archaeology(this);
+    m_petScalingSynchTimer.Reset(1000);
 }
 
 Player::~Player()
@@ -1370,6 +1371,14 @@ void Player::Update(uint32 p_time)
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
     //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
         RemovePet(pet, PET_SAVE_DISMISS, true);
+
+    m_petScalingSynchTimer.Update(p_time);
+    if (m_petScalingSynchTimer.Passed())
+    {
+        if (pet)
+            pet->UpdatePetScalingAuras();
+        m_petScalingSynchTimer.Reset(1000);
+    }
 
     if (IsAlive())
     {

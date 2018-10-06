@@ -9772,10 +9772,6 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
             break;
     }
 
-    // Do not update pet stats one by one. We will update all stats in one big chunk after updating all scaling auras
-    if (IsPet())
-        return false;
-
     if (!CanModifyStats())
         return false;
 
@@ -9828,10 +9824,6 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         default:
             break;
     }
-
-    if (Player* player = ToPlayer())
-        if (Pet* pet = player->GetPet())
-            pet->UpdatePetScalingAuras();
 
     return true;
 }

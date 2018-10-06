@@ -2751,6 +2751,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Archaeology* _archaeology;
 
         std::vector<PlayerPetData*> PlayerPetDataStore;
+
+        TimeTrackerSmall m_petScalingSynchTimer;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

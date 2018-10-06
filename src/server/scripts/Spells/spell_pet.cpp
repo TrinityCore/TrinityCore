@@ -514,7 +514,7 @@ class spell_hun_pet_scaling_01 : public AuraScript
             if (Player* owner = pet->GetOwner())
             {
                 // Base Health value for all pets at level 85 is 32,474
-                int32 bonus = int32(owner->GetCreateHealth() * 0.79743633f);
+                int32 bonus = int32(owner->GetCreateHealth() * 0.831877f);
 
                 // Apply health scaling bonuses based on pet type
                 float mod = 0.0f;
