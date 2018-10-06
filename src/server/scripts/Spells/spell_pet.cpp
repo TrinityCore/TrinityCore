@@ -601,9 +601,37 @@ class spell_hun_pet_scaling_03 : public AuraScript
                 amount = uint32(owner->GetResistance(SpellSchoolMask(resistanceSchool)) * 0.4);
     }
 
+    void CalculateArmorAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = true;
+        int32 resistanceSchool = GetSpellInfo()->Effects[aurEff->GetEffIndex()].MiscValue;
+
+        if (Pet* pet = GetUnitOwner()->ToPet())
+        {
+            if (Player* owner = pet->GetOwner())
+            {
+                int32 bonus = int32(owner->GetCreateHealth() * 0.286005f);
+
+                // Apply armor scaling bonuses based on pet type
+                float mod = 0.0f;
+                if (pet->HasAura(SPELL_HUNTER_PET_FEROCITY_MARKER))
+                    mod = 0.50f;
+                else if (pet->HasAura(SPELL_HUNTER_PET_TENACITY_MARKER))
+                    mod = 0.70f;
+                else if (pet->HasAura(SPELL_HUNTER_PET_CUNNING_MARKER))
+                    mod = 0.60f;
+
+                bonus += int32(owner->GetArmor() * mod);
+                amount = bonus;
+            }
+        }
+    }
+
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_pet_scaling_03::CalculateResistanceAmount, EFFECT_ALL, SPELL_AURA_MOD_RESISTANCE);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_pet_scaling_03::CalculateResistanceAmount, EFFECT_0, SPELL_AURA_MOD_RESISTANCE);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_pet_scaling_03::CalculateResistanceAmount, EFFECT_1, SPELL_AURA_MOD_RESISTANCE);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_pet_scaling_03::CalculateArmorAmount, EFFECT_2, SPELL_AURA_MOD_RESISTANCE);
     }
 };
 
