@@ -610,7 +610,8 @@ class spell_hun_pet_scaling_03 : public AuraScript
         {
             if (Player* owner = pet->GetOwner())
             {
-                int32 bonus = int32(owner->GetCreateHealth() * 0.286005f);
+                // 11,647 armor baseline at level 85
+                int32 bonus = int32(owner->GetCreateHealth() * 0.2983579f);
 
                 // Apply armor scaling bonuses based on pet type
                 float mod = 0.0f;
