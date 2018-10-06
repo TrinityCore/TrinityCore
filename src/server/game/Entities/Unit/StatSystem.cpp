@@ -1039,7 +1039,7 @@ void Guardian::UpdateMaxHealth()
             break;
     }
 
-    float value = GetModifierValue(unitMod, BASE_VALUE);
+    float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
     value *= GetModifierValue(unitMod, BASE_PCT);
     value += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
     value *= GetModifierValue(unitMod, TOTAL_PCT);
