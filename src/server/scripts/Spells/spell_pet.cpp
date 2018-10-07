@@ -96,7 +96,7 @@ class spell_warl_pet_scaling_01 : public AuraScript
         {
             if (Player* owner = pet->GetOwner())
             {
-                float stamina = owner->GetStat(STAT_STAMINA);
+                float stamina = owner->GetStat(STAT_STAMINA) * 0.75f;
                 float healthBonus = 0.0f;
                 switch (pet->GetEntry())
                 {
@@ -117,8 +117,7 @@ class spell_warl_pet_scaling_01 : public AuraScript
                         break;
                 }
 
-                float ownerHealth = owner->CountPctFromMaxHealth(75);
-                amount = int32(ownerHealth + healthBonus);
+                amount = int32(healthBonus);
             }
         }
     }
@@ -148,7 +147,7 @@ class spell_warl_pet_scaling_01 : public AuraScript
                 int32 fire = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE);
                 int32 shadow = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW);
 
-                amount = std::max(fire, shadow) * 0.5f;
+                amount = std::max(fire, shadow) * 0.15f;
             }
         }
     }
@@ -534,28 +533,19 @@ class spell_hun_pet_scaling_01 : public AuraScript
     void CalculateAttackPowerAmount(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
+        // All pets gain 22% from owner's ranged attack power
         if (Pet* pet = GetUnitOwner()->ToPet())
-        {
             if (Player* owner = pet->GetOwner())
-            {
-                float agility = std::max(0.0f, owner->GetCreateStat(STAT_AGILITY) - 20.0f);
-                // Base attack power value at level 85 is 932
-                int32 bonus = int32(agility* 4.8541f);
-
-                // All pets gain 42.5% from owners attack power
-                bonus += owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.425f;
-                amount = bonus;
-            }
-        }
+                amount = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f;
     }
 
     void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
     {
-        // Formular: Owner ranged attack power * 0.4
+        // Pets deal 12.87% of owner's ranged attack power as spell bonus damage
         canBeRecalculated = true;
         if (Pet* pet = GetUnitOwner()->ToPet())
             if (Player* owner = pet->GetOwner())
-                amount = uint32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.4f);
+                amount = uint32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f);
     }
 
     void Register() override

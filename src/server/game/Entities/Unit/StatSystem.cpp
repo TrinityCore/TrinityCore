@@ -1079,9 +1079,18 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     if (ranged)
         return;
 
-    float ap_per_strength = 2.0f;
-    float val = GetStat(STAT_STRENGTH);
-    val *= ap_per_strength;
+    float ap_per_agility = 2.0f;
+    float val = 0.0f;
+
+    if (IsHunterPet())
+    {
+        if (Unit* owner = GetOwner())
+        {
+            // Base attack power value at level 85 is 932
+            float agility = std::max(0.0f, owner->GetCreateStat(STAT_AGILITY) - 20.0f);
+            val += (agility * ap_per_agility) * 2.478f;
+        }
+    }
 
     UnitMods unitMod = UNIT_MOD_ATTACK_POWER;
 
