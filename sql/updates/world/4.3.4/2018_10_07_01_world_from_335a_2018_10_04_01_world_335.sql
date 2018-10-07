@@ -1,3 +1,4 @@
+/*
 -- Lexlort
 UPDATE `creature_template` SET `gossip_menu_id`=5762, `AIName`="SmartAI" WHERE `entry`=9080;
 
@@ -38,3 +39,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=9520 AND `GroupID` IN (0,1);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (9520,0,0,"You have come to play? Then let us play!",12,0,100,0,0,0,4927,0,"Grark Lorkrub"),
 (9520,1,0,"%s submits.",16,0,100,0,0,0,4918,0,"Grark Lorkrub");
+*/

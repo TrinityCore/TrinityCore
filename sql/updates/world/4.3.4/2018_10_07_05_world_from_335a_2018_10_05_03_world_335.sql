@@ -1,3 +1,4 @@
+/*
 -- Grark Lorkrub
 DELETE FROM `smart_scripts` WHERE `entryorguid`=9520 AND `source_type`=0 AND `id` IN (10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (952000,952001,952002,952003,952004) AND `source_type`=9;
@@ -169,3 +170,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (953800,9,2,0,0,0,100,0,5000,5000,0,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,4.08835,"High Executioner Nuzrak - On Script - Set Orientation"),
 (953800,9,3,0,0,0,100,0,0,0,0,0,0,17,375,0,0,0,0,0,1,0,0,0,0,0,0,0,"High Executioner Nuzrak - On Script - Set Emote State 'Ready 2H'"),
 (953800,9,4,0,0,0,100,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"High Executioner Nuzrak - On Script - Say Line 0");
+*/

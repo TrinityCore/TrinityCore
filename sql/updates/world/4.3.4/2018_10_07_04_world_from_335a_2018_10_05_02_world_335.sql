@@ -1,3 +1,4 @@
+/*
 -- Quest "Freedom for All Creatures"
 UPDATE `smart_scripts` SET `action_param1`=2 WHERE `entryorguid`=7956 AND `source_type`=0 AND `id`=6;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=7956 AND `source_type`=0 AND `id` IN (13,14);
@@ -217,3 +218,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `creature_text` WHERE `CreatureID`=2817 AND `GroupID`=1;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (2817,1,0,"Ow.  Spicy.",12,0,100,33,0,0,934,0,"Rigglefuzz");
+*/

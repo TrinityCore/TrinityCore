@@ -1,3 +1,4 @@
+/*
 -- Commander Gor'shak
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9020;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=9020 AND `source_type`=0;
@@ -42,3 +43,4 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (8912,2,384.623,-204.055,-68.6992,""),
 (8912,3,377.427,-195.647,-70.2208,""),
 (8912,4,373.97,-184.192,-70.108,"");
+*/
