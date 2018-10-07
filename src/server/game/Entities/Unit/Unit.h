@@ -1189,10 +1189,10 @@ class TC_GAME_API Unit : public WorldObject
         SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo);
         SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect = false);
 
-        float GetUnitDodgeChance() const;
-        float GetUnitParryChance() const;
+        float GetUnitDodgeChance(Unit const* attacker) const;
+        float GetUnitParryChance(Unit const* attacker) const;
         float GetUnitBlockChance() const;
-        float GetUnitMissChance(WeaponAttackType attType) const;
+        float GetUnitMissChance(WeaponAttackType attType, Unit const* victim) const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim) const;
         int32 GetMechanicResistChance(SpellInfo const* spellInfo) const;
         bool CanUseAttackType(uint8 attacktype) const;

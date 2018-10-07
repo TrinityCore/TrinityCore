@@ -100,6 +100,41 @@ float playerBaseMoveSpeed[MAX_MOVE_TYPE] =
     3.14f                  // MOVE_PITCH_RATE
 };
 
+// Data taken from PaperDollFrame.lua 4.3.4
+#define MAX_LEVEL_DIFFERENCE 4
+
+float MissChancePhysical[MAX_LEVEL_DIFFERENCE] =
+{
+    5.0f,
+    5.5f,
+    6.0f,
+    8.0f
+};
+
+float MissChanceSpell[MAX_LEVEL_DIFFERENCE] =
+{
+    4.0f,
+    5.0f,
+    6.0f,
+    17.0f
+};
+
+float EnemyDodgeChance[MAX_LEVEL_DIFFERENCE] =
+{
+    5.0f,
+    5.5f,
+    6.0f,
+    6.5f
+};
+
+float EnemyParryChance[MAX_LEVEL_DIFFERENCE] =
+{
+    5.0f,
+    5.5f,
+    6.0f,
+    14.0f
+};
+
 DamageInfo::DamageInfo(Unit* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType)
     : m_attacker(attacker), m_victim(victim), m_damage(damage), m_spellInfo(spellInfo), m_schoolMask(schoolMask), m_damageType(damageType), m_attackType(attackType),
     m_absorb(0), m_resist(0), m_block(0), m_hitMask(0)
@@ -2161,9 +2196,9 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackTy
     float crit_chance = GetUnitCriticalChance(attType, victim);
 
     // stunned target cannot dodge and this is check in GetUnitDodgeChance() (returned 0 in this case)
-    float dodge_chance = victim->GetUnitDodgeChance();
+    float dodge_chance = victim->GetUnitDodgeChance(this);
     float block_chance = victim->GetUnitBlockChance();
-    float parry_chance = victim->GetUnitParryChance();
+    float parry_chance = victim->GetUnitParryChance(this);
 
     // Useful if want to specify crit & miss chances for melee, else it could be removed
     TC_LOG_DEBUG("entities.unit", "MELEE OUTCOME: miss %f crit %f dodge %f parry %f block %f", miss_chance, crit_chance, dodge_chance, parry_chance, block_chance);
@@ -2561,7 +2596,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     if (canDodge)
     {
         // Roll dodge
-        int32 dodgeChance = int32(victim->GetUnitDodgeChance() * 100.0f);
+        int32 dodgeChance = int32(victim->GetUnitDodgeChance(this) * 100.0f);
         // Reduce enemy dodge chance by SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
         dodgeChance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE) * 100;
         dodgeChance = int32(float(dodgeChance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
@@ -2580,7 +2615,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     if (canParry)
     {
         // Roll parry
-        int32 parryChance = int32(victim->GetUnitParryChance() * 100.0f);
+        int32 parryChance = int32(victim->GetUnitParryChance(this) * 100.0f);
         // Reduce parry chance by attacker expertise rating
         if (GetTypeId() == TYPEID_PLAYER)
             parryChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
@@ -2616,19 +2651,27 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         return SPELL_MISS_NONE;
 
     SpellSchoolMask schoolMask = spellInfo->GetSchoolMask();
-    // PvP - PvE spell misschances per leveldif > 2
-    int32 lchance = victim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
-    int32 thisLevel = getLevelForTarget(victim);
+    int32 thisLevel = getLevel();
     if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsTrigger())
         thisLevel = std::max<int32>(thisLevel, spellInfo->SpellLevel);
-    int32 leveldif = int32(victim->getLevelForTarget(this)) - thisLevel;
 
     // Base hit chance from attacker and victim levels
-    int32 modHitChance;
-    if (leveldif < 3)
-        modHitChance = 96 - leveldif;
-    else
-        modHitChance = 94 - (leveldif - 2) * lchance;
+    float modHitChance = 100.0f;
+    uint8 lchance = victim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
+
+    int8 levelDifference = victim->getLevel() - thisLevel;
+    if (levelDifference >= 0 && levelDifference <= 3)
+        modHitChance -= MissChanceSpell[levelDifference];
+    else if (levelDifference < 0)
+    {
+        modHitChance -= MissChanceSpell[0];
+        modHitChance += 1.0f * levelDifference;
+    }
+    else if (levelDifference > 3)
+        modHitChance -= MissChanceSpell[3] + lchance * (levelDifference - 3);
+
+    // Normalize chance
+    modHitChance = std::max(0.0f, modHitChance);
 
     // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
     if (Player* modOwner = GetSpellModOwner())
@@ -2641,33 +2684,22 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         modHitChance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, schoolMask);
     }
 
-    int32 HitChance = modHitChance * 100;
+    float HitChance = modHitChance + m_modSpellHitChance;
     // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
-    HitChance += int32(m_modSpellHitChance * 100.0f);
 
-    RoundToInterval(HitChance, 100, 10000);
-
-    int32 tmp = 10000 - HitChance;
-
-    int32 rand = irand(0, 10000);
-
-    if (rand < tmp)
+    if (!roll_chance_f(HitChance))
         return SPELL_MISS_MISS;
 
     // Chance resist mechanic (select max value from every mechanic spell effect)
-    int32 resist_chance = victim->GetMechanicResistChance(spellInfo) * 100;
-    tmp += resist_chance;
-
-    // Roll chance
-    if (rand < tmp)
+    int32 resist_chance = victim->GetMechanicResistChance(spellInfo);
+    if (roll_chance_i(resist_chance))
         return SPELL_MISS_RESIST;
 
     // cast by caster in front of victim
     if (victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
     {
-        int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
-        tmp += deflect_chance;
-        if (rand < tmp)
+        int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS);
+        if (roll_chance_i(deflect_chance))
             return SPELL_MISS_DEFLECT;
     }
 
@@ -2739,7 +2771,7 @@ uint32 Unit::GetUnitMeleeSkill(Unit const* target) const
     return (target ? getLevelForTarget(target) : getLevel()) * 5;
 }
 
-float Unit::GetUnitDodgeChance() const
+float Unit::GetUnitDodgeChance(Unit const* attacker) const
 {
     if (IsNonMeleeSpellCast(false) || HasUnitState(UNIT_STATE_CONTROLLED))
         return 0.0f;
@@ -2752,14 +2784,20 @@ float Unit::GetUnitDodgeChance() const
             return 0.0f;
         else
         {
-            float dodge = 5.0f;
+            float dodge = 0.0f;
+            int8 levelDifference = getLevel() - attacker->getLevel();
+            if (levelDifference >= 0 && levelDifference <= 3)
+                dodge += EnemyDodgeChance[levelDifference];
+            else if (levelDifference > 3)
+                dodge += EnemyDodgeChance[3];
+
             dodge += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
-            return dodge > 0.0f ? dodge : 0.0f;
+            return dodge;
         }
     }
 }
 
-float Unit::GetUnitParryChance() const
+float Unit::GetUnitParryChance(Unit const* attacker) const
 {
     if (IsNonMeleeSpellCast(false) || HasUnitState(UNIT_STATE_CONTROLLED))
         return 0.0f;
@@ -2782,7 +2820,13 @@ float Unit::GetUnitParryChance() const
     {
         if (GetCreatureType() == CREATURE_TYPE_HUMANOID)
         {
-            chance = 5.0f;
+            float chance = 0.0f;
+            int8 levelDifference = getLevel() - attacker->getLevel();
+            if (levelDifference >= 0 && levelDifference <= 3)
+                chance += EnemyParryChance[levelDifference];
+            else if (levelDifference > 3)
+                chance += EnemyParryChance[3];
+
             chance += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
         }
     }
@@ -2790,9 +2834,17 @@ float Unit::GetUnitParryChance() const
     return chance > 0.0f ? chance : 0.0f;
 }
 
-float Unit::GetUnitMissChance(WeaponAttackType attType) const
+float Unit::GetUnitMissChance(WeaponAttackType attType, Unit const* attacker) const
 {
-    float miss_chance = 5.00f;
+    float miss_chance = 0.0f;
+    int8 levelDifference = getLevel() - attacker->getLevel();
+    if (levelDifference >= 0 && levelDifference <= 3)
+        miss_chance += MissChancePhysical[levelDifference];
+    else if (levelDifference > 3)
+        miss_chance += MissChancePhysical[3] + 2.0f * (levelDifference - 3);
+
+    // Normalize chance
+    miss_chance = std::min(100.0f, miss_chance);
 
     if (attType == RANGED_ATTACK)
         miss_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE);
@@ -12635,10 +12687,10 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage) const
 
 // Melee based spells can be miss, parry or dodge on this step
 // Crit or block - determined on damage calculation phase! (and can be both in some time)
-float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, uint32 spellId) const
+float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, uint32 spellId) const
 {
     //calculate miss chance
-    float missChance = victim->GetUnitMissChance(attType);
+    float missChance = victim->GetUnitMissChance(attType, this);
 
     if (!spellId && haveOffhandWeapon())
         missChance += 19;
