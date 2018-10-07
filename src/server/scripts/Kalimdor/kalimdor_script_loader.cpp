@@ -104,9 +104,9 @@ void AddSC_halls_of_origination();
 void AddSC_boss_temple_guardian_anhuur();
 void AddSC_boss_earthrager_ptah();
 void AddSC_boss_anraphet();
-void AddSC_boss_ammunae();
-void AddSC_boss_isiset();
-void AddSC_boss_setesh();
+//void AddSC_boss_ammunae();
+//void AddSC_boss_isiset();
+//void AddSC_boss_setesh();
 void AddSC_boss_rajh();
 void AddSC_vortex_pinnacle();                //Vortex Pinnacle
 void AddSC_instance_vortex_pinnacle();
@@ -115,7 +115,7 @@ void AddSC_boss_altairus();
 void AddSC_boss_asaad();
 void AddSC_instance_throne_of_the_four_winds(); // Throne of the Four Winds
 void AddSC_throne_of_the_four_winds();
-void AddSC_boss_conclave_of_wind();
+//void AddSC_boss_conclave_of_wind();
 void AddSC_instance_firelands();             //Firelands
 void AddSC_boss_alysrazor();
 void AddSC_boss_baleroc();
@@ -228,9 +228,9 @@ void AddKalimdorScripts()
     AddSC_boss_temple_guardian_anhuur();
     AddSC_boss_earthrager_ptah();
     AddSC_boss_anraphet();
-    AddSC_boss_ammunae();
-    AddSC_boss_isiset();
-    AddSC_boss_setesh();
+    //AddSC_boss_ammunae();
+    //AddSC_boss_isiset();
+    //AddSC_boss_setesh();
     AddSC_boss_rajh();
     AddSC_vortex_pinnacle();                // Vortex Pinnacle
     AddSC_instance_vortex_pinnacle();
@@ -239,7 +239,7 @@ void AddKalimdorScripts()
     AddSC_boss_asaad();
     AddSC_instance_throne_of_the_four_winds(); // Throne of the Four Winds
     AddSC_throne_of_the_four_winds();
-    AddSC_boss_conclave_of_wind();
+    //AddSC_boss_conclave_of_wind();
     AddSC_instance_firelands();             //Firelands
     AddSC_boss_alysrazor();
     AddSC_boss_baleroc();
