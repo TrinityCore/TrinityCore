@@ -126,10 +126,10 @@ void MoveSpline::init_spline(MoveSplineInitArgs const& args)
         // MoveSplineFlag::Enter_Cycle support dropped
         //if (splineflags & SPLINEFLAG_ENTER_CYCLE)
         //cyclic_point = 1;   // shouldn't be modified, came from client
-        spline.init_cyclic_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()], cyclic_point);
+        spline.init_cyclic_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()], cyclic_point, args.initialOrientation);
     }
     else
-        spline.init_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()]);
+        spline.init_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()], args.initialOrientation);
 
     // init spline timestamps
     if (splineflags.falling)
