@@ -538,8 +538,9 @@ class spell_hun_pet_scaling_01 : public AuraScript
         {
             if (Player* owner = pet->GetOwner())
             {
+                float agility = std::max(0.0f, owner->GetCreateStat(STAT_AGILITY) - 20.0f);
                 // Base attack power value at level 85 is 932
-                int32 bonus = int32((owner->GetCreateStat(STAT_AGILITY) * 2) * 2.24038f) + 1;
+                int32 bonus = int32(agility* 4.8541f);
 
                 // All pets gain 42.5% from owners attack power
                 bonus += owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.425f;
