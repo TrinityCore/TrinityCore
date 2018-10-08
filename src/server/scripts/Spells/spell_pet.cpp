@@ -96,7 +96,8 @@ class spell_warl_pet_scaling_01 : public AuraScript
         {
             if (Player* owner = pet->GetOwner())
             {
-                float stamina = owner->GetStat(STAT_STAMINA) * 0.3;
+                float stamina = std::min(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA));
+                stamina *= 0.3f;
 
                 float healthBonus = 0.0f;
                 switch (pet->GetEntry())
@@ -517,8 +518,16 @@ class spell_hun_pet_scaling_01 : public AuraScript
                 if (gtOCTHpPerStaminaEntry const* hpBase = sGtOCTHpPerStaminaStore.LookupEntry((CLASS_HUNTER - 1) * GT_MAX_LEVEL + pet->getLevel() - 1))
                     ratio = hpBase->ratio;
 
-                float stamina = owner->GetStat(STAT_STAMINA);
-                uint32 bonus = (stamina * 0.45) * ratio;
+                float mod = 0.0f;
+                if (pet->HasAura(SPELL_HUNTER_PET_FEROCITY_MARKER))
+                    mod = 0.67f;
+                else if (pet->HasAura(SPELL_HUNTER_PET_TENACITY_MARKER))
+                    mod = 0.78f;
+                else if (pet->HasAura(SPELL_HUNTER_PET_CUNNING_MARKER))
+                    mod = 0.725f;
+
+                float stamina = std::max(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA));
+                uint32 bonus = (stamina * mod) * ratio;
                 amount = bonus;
             }
         }
@@ -527,10 +536,9 @@ class spell_hun_pet_scaling_01 : public AuraScript
     void CalculateAttackPowerAmount(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
-        // All pets gain 22% from owner's ranged attack power
         if (Pet* pet = GetUnitOwner()->ToPet())
             if (Player* owner = pet->GetOwner())
-                amount = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f;
+                amount = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.425f;
     }
 
     void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
@@ -592,8 +600,20 @@ class spell_hun_pet_scaling_03 : public AuraScript
         int32 resistanceSchool = GetSpellInfo()->Effects[aurEff->GetEffIndex()].MiscValue;
 
         if (Pet* pet = GetUnitOwner()->ToPet())
+        {
             if (Player* owner = pet->GetOwner())
-                amount = owner->GetArmor() * 0.7f;
+            {
+                float mod = 0.0f;
+                if (pet->HasAura(SPELL_HUNTER_PET_FEROCITY_MARKER))
+                    mod = 0.5f;
+                else if (pet->HasAura(SPELL_HUNTER_PET_TENACITY_MARKER))
+                    mod = 0.6f;
+                else if (pet->HasAura(SPELL_HUNTER_PET_CUNNING_MARKER))
+                    mod = 0.7f;
+
+                amount = owner->GetArmor() * mod;
+            }
+        }
     }
 
     void Register() override
@@ -1081,7 +1101,7 @@ class spell_mage_water_elemental_scaling_01 : public AuraScript
         canBeRecalculated = true;
         if (Pet* pet = GetUnitOwner()->ToPet())
             if (Player* owner = pet->GetOwner())
-                amount = int32(CalculatePct(owner->GetStat(STAT_STAMINA), 30));
+                amount = CalculatePct(std::max(0.0f, (owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA))), 30);
     }
 
     void Register() override
