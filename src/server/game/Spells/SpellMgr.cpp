@@ -3184,6 +3184,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Stances = UI64LIT(1) << (FORM_BEAR - 1);
     });
 
+    // Tree of Life passives
+
+    ApplySpellFix({
+        5420,
+        81097 
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Stances = 1 << (FORM_TREE - 1);
+    });
+
     // Elemental Oath
     ApplySpellFix({
         51466, // (Rank 1)
@@ -4648,12 +4658,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 24314 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
-    });
-
-    // Tree of Life (Passive)
-    ApplySpellFix({ 5420 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Stances = UI64LIT(1) << (FORM_TREE - 1);
     });
 
     // Feral Charge (Cat Form
