@@ -291,6 +291,12 @@ public:
                 me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
             }
         }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            if (Player* player = GetPlayerForEscort())
+                player->FailQuest(QUEST_ABSENT_MINDED_PT2);
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
