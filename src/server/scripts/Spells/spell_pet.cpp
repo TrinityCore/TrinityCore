@@ -21,7 +21,6 @@
  * Scriptnames of files in this file should be prefixed with "spell_dk_".
  */
 
-#include "DBCStores.h"
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
@@ -514,10 +513,6 @@ class spell_hun_pet_scaling_01 : public AuraScript
         {
             if (Player* owner = pet->GetOwner())
             {
-                float ratio = 10.0f;
-                if (gtOCTHpPerStaminaEntry const* hpBase = sGtOCTHpPerStaminaStore.LookupEntry((CLASS_HUNTER - 1) * GT_MAX_LEVEL + pet->getLevel() - 1))
-                    ratio = hpBase->ratio;
-
                 float mod = 0.0f;
                 if (pet->HasAura(SPELL_HUNTER_PET_FEROCITY_MARKER))
                     mod = 0.67f;
@@ -527,7 +522,7 @@ class spell_hun_pet_scaling_01 : public AuraScript
                     mod = 0.725f;
 
                 float stamina = std::max(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA));
-                uint32 bonus = (stamina * mod) * ratio;
+                uint32 bonus = (stamina * mod) * 14.0f;
                 amount = bonus;
             }
         }
