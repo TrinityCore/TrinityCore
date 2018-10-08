@@ -3978,7 +3978,7 @@ enum CreatureFamily
     CREATURE_FAMILY_RYLAK               = 149,
     CREATURE_FAMILY_RIVERBEAST          = 150,
     CREATURE_FAMILY_STAG                = 151,
-    CREATURE_FAMILY_MECHANICAL          =154,
+    CREATURE_FAMILY_MECHANICAL          = 154,
     CREATURE_FAMILY_ABONIATION          = 155,
     CREATURE_FAMILY_SCALEHIDE           = 156,
     CREATURE_FAMILY_OXEN                = 157,

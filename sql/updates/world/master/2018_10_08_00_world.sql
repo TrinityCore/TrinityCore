@@ -1,1 +1,1 @@
-ALTER TABLE `creature_template` CHANGE `family` `family` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `creature_template` CHANGE `family` `family` smallint(6) UNSIGNED NOT NULL DEFAULT '0';
