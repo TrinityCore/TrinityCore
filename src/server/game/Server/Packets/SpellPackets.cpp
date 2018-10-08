@@ -33,6 +33,7 @@ void WorldPackets::Spells::PetCancelAura::Read()
 void WorldPackets::Spells::CancelChannelling::Read()
 {
     _worldPacket >> ChannelSpell;
+    _worldPacket >> Reason;
 }
 
 WorldPacket const* WorldPackets::Spells::CategoryCooldown::Write()

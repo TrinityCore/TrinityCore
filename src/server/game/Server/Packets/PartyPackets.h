@@ -48,8 +48,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
-            int32 ProposedRoles = 0;
+            uint8 PartyIndex = 0;
+            uint32 ProposedRoles = 0;
             std::string TargetName;
             std::string TargetRealm;
             ObjectGuid TargetGUID;
@@ -97,9 +97,9 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             bool Accept = false;
-            Optional<int32> RolesDesired;
+            Optional<uint32> RolesDesired;
         };
 
         class PartyUninvite final : public ClientPacket
@@ -109,7 +109,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             ObjectGuid TargetGUID;
             std::string Reason;
         };
@@ -359,7 +359,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Target;
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             bool Apply = false;
         };
 
@@ -405,7 +405,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             bool IsReady = false;
         };
 
@@ -554,7 +554,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             bool EveryoneIsAssistant = false;
         };
 

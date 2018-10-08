@@ -298,7 +298,7 @@ namespace WorldPackets
             void Read() override;
 
             int32 MissingQuestCount = 0;
-            int32 MissingQuestPOIs[50];
+            std::array<int32, 100> MissingQuestPOIs;
         };
 
         struct QuestPOIBlobPoint

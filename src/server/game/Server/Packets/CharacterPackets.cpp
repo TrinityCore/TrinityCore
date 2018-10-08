@@ -228,6 +228,7 @@ void WorldPackets::Character::CreateCharacter::Read()
     CreateInfo.reset(new CharacterCreateInfo());
     uint32 nameLength = _worldPacket.ReadBits(6);
     bool const hasTemplateSet = _worldPacket.ReadBit();
+    CreateInfo->IsTrialBoost = _worldPacket.ReadBit();
 
     _worldPacket >> CreateInfo->Race;
     _worldPacket >> CreateInfo->Class;
