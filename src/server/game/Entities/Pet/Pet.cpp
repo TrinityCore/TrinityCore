@@ -854,6 +854,37 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
             SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(cinfo->resistance[i]));
 
+    // Health, mana, armor and resistance
+    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(creature_ID, petlevel);
+    if (pInfo)                                      // exist in DB
+    {
+        SetCreateHealth(pInfo->health);
+        if (petType != HUNTER_PET) //hunter pet use focus
+            SetCreateMana(pInfo->mana);
+
+        if (pInfo->armor > 0)
+            SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(pInfo->armor));
+
+        for (uint8 stat = 0; stat < MAX_STATS; ++stat)
+            SetCreateStat(Stats(stat), float(pInfo->stats[stat]));
+    }
+    else                                            // not exist in DB, use some default fake data
+    {
+        // remove elite bonuses included in DB values
+        CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(petlevel, cinfo->unit_class);
+        SetCreateHealth(stats->BaseHealth[cinfo->expansion]);
+        SetCreateMana(stats->BaseMana);
+
+        SetCreateStat(STAT_STRENGTH, 22);
+        SetCreateStat(STAT_AGILITY, 22);
+        SetCreateStat(STAT_STAMINA, 25);
+        SetCreateStat(STAT_INTELLECT, 28);
+        SetCreateStat(STAT_SPIRIT, 27);
+
+        SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
+        SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+    }
+
     SetBonusDamage(0);
     switch (petType)
     {

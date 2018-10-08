@@ -1026,12 +1026,15 @@ void Guardian::UpdateArmor()
 void Guardian::UpdateMaxHealth()
 {
     UnitMods unitMod = UNIT_MOD_HEALTH;
-    float stamina = GetStat(STAT_STAMINA);
+    float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
     float multiplicator = 10.0f;
     uint32 healthDamage = GetMaxHealth() - GetHealth();
 
     switch (GetEntry())
     {
+        case ENTRY_BLOODWORM:
+            multiplicator = 1.0f;
+            break;
         case ENTRY_WATER_ELEMENTAL:
             multiplicator = 7.5f;
             break;
@@ -1079,18 +1082,10 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     if (ranged)
         return;
 
-    float ap_per_agility = 2.0f;
-    float val = 0.0f;
+    float ap_per_strength = 2.0f;
+    float val = GetStat(STAT_STRENGTH) - 20.0f;
 
-    if (IsHunterPet())
-    {
-        if (Unit* owner = GetOwner())
-        {
-            // Base attack power value at level 85 is 932
-            float agility = std::max(0.0f, owner->GetCreateStat(STAT_AGILITY) - 20.0f);
-            val += (agility * ap_per_agility) * 2.478f;
-        }
-    }
+    val *= ap_per_strength;
 
     UnitMods unitMod = UNIT_MOD_ATTACK_POWER;
 

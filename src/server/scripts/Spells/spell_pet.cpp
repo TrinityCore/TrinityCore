@@ -96,7 +96,9 @@ class spell_warl_pet_scaling_01 : public AuraScript
         {
             if (Player* owner = pet->GetOwner())
             {
-                float stamina = owner->GetStat(STAT_STAMINA) * 0.75f;
+                float stamina = std::min(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA));
+                stamina *= 0.3f;
+
                 float healthBonus = 0.0f;
                 switch (pet->GetEntry())
                 {
@@ -505,26 +507,19 @@ class spell_hun_pet_scaling_01 : public AuraScript
             });
     }
 
-    void CalculateHealthAmount(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
+    void CalculateHealthAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
         if (Pet* pet = GetUnitOwner()->ToPet())
         {
             if (Player* owner = pet->GetOwner())
             {
-                // Base Health value for all pets at level 85 is 32,474
-                int32 bonus = int32(owner->GetCreateHealth() * 0.831877f);
+                float ratio = 10.0f;
+                if (gtOCTHpPerStaminaEntry const* hpBase = sGtOCTHpPerStaminaStore.LookupEntry((CLASS_HUNTER - 1) * GT_MAX_LEVEL + pet->getLevel() - 1))
+                    ratio = hpBase->ratio;
 
-                // Apply health scaling bonuses based on pet type
-                float mod = 0.0f;
-                if (pet->HasAura(SPELL_HUNTER_PET_FEROCITY_MARKER))
-                    mod = 0.67f;
-                else if (pet->HasAura(SPELL_HUNTER_PET_TENACITY_MARKER))
-                    mod = 0.78f;
-                else if (pet->HasAura(SPELL_HUNTER_PET_CUNNING_MARKER))
-                    mod = 0.725f;
-
-                bonus += int32(owner->GetMaxHealth() * mod);
+                float stamina = std::max(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA));
+                uint32 bonus = (stamina * 0.45) * ratio;
                 amount = bonus;
             }
         }
@@ -598,25 +593,8 @@ class spell_hun_pet_scaling_03 : public AuraScript
         int32 resistanceSchool = GetSpellInfo()->Effects[aurEff->GetEffIndex()].MiscValue;
 
         if (Pet* pet = GetUnitOwner()->ToPet())
-        {
             if (Player* owner = pet->GetOwner())
-            {
-                // 11,647 armor baseline at level 85
-                int32 bonus = int32(owner->GetCreateHealth() * 0.2983579f);
-
-                // Apply armor scaling bonuses based on pet type
-                float mod = 0.0f;
-                if (pet->HasAura(SPELL_HUNTER_PET_FEROCITY_MARKER))
-                    mod = 0.50f;
-                else if (pet->HasAura(SPELL_HUNTER_PET_TENACITY_MARKER))
-                    mod = 0.70f;
-                else if (pet->HasAura(SPELL_HUNTER_PET_CUNNING_MARKER))
-                    mod = 0.60f;
-
-                bonus += int32(owner->GetArmor() * mod);
-                amount = bonus;
-            }
-        }
+                amount = owner->GetArmor() * 0.7f;
     }
 
     void Register() override
@@ -1104,7 +1082,7 @@ class spell_mage_water_elemental_scaling_01 : public AuraScript
         canBeRecalculated = true;
         if (Pet* pet = GetUnitOwner()->ToPet())
             if (Player* owner = pet->GetOwner())
-                amount = int32(CalculatePct(owner->GetStat(STAT_STAMINA), 30));
+                amount = int32(CalculatePct(std::max(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA)), 30));
     }
 
     void Register() override
