@@ -224,8 +224,8 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     data << uint32(movementSpline.TierTransStartTime);
     data << int32(movementSpline.Elapsed);
     data << uint32(movementSpline.MoveTime);
-    data << float(movementSpline.JumpGravity);
     data << uint32(movementSpline.SpecialTime);
+
     data << uint8(movementSpline.Mode);
     data << uint8(movementSpline.VehicleExitVoluntary);
     data << movementSpline.TransportGUID;
@@ -266,7 +266,7 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
 
     if (false /*unk801*/)
     {
-        data << float(0.0);
+        data << float(movementSpline.JumpGravity);
         data << uint32(0);
         data << uint32(0);
     }
@@ -280,6 +280,7 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementMonster
     data << movementMonsterSpline.Destination;
     data.WriteBit(movementMonsterSpline.CrzTeleport);
     data.WriteBits(movementMonsterSpline.StopDistanceTolerance, 3);
+    data.FlushBits();
 
     data << movementMonsterSpline.Move;
 
