@@ -96,8 +96,7 @@ class spell_warl_pet_scaling_01 : public AuraScript
         {
             if (Player* owner = pet->GetOwner())
             {
-                float stamina = std::min(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA));
-                stamina *= 0.3f;
+                float stamina = owner->GetStat(STAT_STAMINA) * 0.3;
 
                 float healthBonus = 0.0f;
                 switch (pet->GetEntry())
@@ -518,7 +517,7 @@ class spell_hun_pet_scaling_01 : public AuraScript
                 if (gtOCTHpPerStaminaEntry const* hpBase = sGtOCTHpPerStaminaStore.LookupEntry((CLASS_HUNTER - 1) * GT_MAX_LEVEL + pet->getLevel() - 1))
                     ratio = hpBase->ratio;
 
-                float stamina = std::max(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA));
+                float stamina = owner->GetStat(STAT_STAMINA);
                 uint32 bonus = (stamina * 0.45) * ratio;
                 amount = bonus;
             }
@@ -1082,7 +1081,7 @@ class spell_mage_water_elemental_scaling_01 : public AuraScript
         canBeRecalculated = true;
         if (Pet* pet = GetUnitOwner()->ToPet())
             if (Player* owner = pet->GetOwner())
-                amount = int32(CalculatePct(std::max(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA)), 30));
+                amount = int32(CalculatePct(owner->GetStat(STAT_STAMINA), 30));
     }
 
     void Register() override
