@@ -47,7 +47,7 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, Fligh
         uint32 GetPathAtMapEnd() const;
         bool HasArrived() const { return _currentNode >= _path.size(); }
 
-        void LoadPath(Player* owner);
+        void LoadPath(Player* owner); // called from MotionMaster
         void SetCurrentNodeAfterTeleport();
         void SkipCurrentNode() { ++_currentNode; }
         void DoEventIfAny(Player* owner, TaxiPathNodeEntry const* node, bool departure);
