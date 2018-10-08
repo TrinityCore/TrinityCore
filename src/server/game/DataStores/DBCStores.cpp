@@ -221,7 +221,8 @@ static bool LoadDBC_assert_print(uint32 fsize, uint32 rsize, const std::string& 
 }
 
 template<class T>
-inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCStorage<T>& storage, std::string const& dbcPath, std::string const& filename, std::string const& customFormat = std::string(), std::string const& customIndexName = std::string())
+inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCStorage<T>& storage, std::string const& dbcPath, std::string const& filename,
+                    char const* dbTable = nullptr, char const* dbFormat = nullptr, char const* dbIndexName = nullptr)
 {
     // compatibility format and C++ structure sizes
     ASSERT(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDBC_assert_print(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T), filename));
@@ -229,7 +230,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
     ++DBCFileCount;
     std::string dbcFilename = dbcPath + filename;
 
-    if (storage.Load(dbcFilename))
+    if (storage.Load(dbcFilename.c_str()))
     {
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
@@ -241,12 +242,12 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
             localizedName.push_back('/');
             localizedName.append(filename);
 
-            if (!storage.LoadStringsFrom(localizedName))
+            if (!storage.LoadStringsFrom(localizedName.c_str()))
                 availableDbcLocales &= ~(1 << i);             // mark as not available for speedup next checks
         }
 
-        if (!customFormat.empty())
-            storage.LoadFromDB(filename, customFormat, customIndexName);
+        if (dbTable)
+            storage.LoadFromDB(dbTable, dbFormat, dbIndexName);
     }
     else
     {
@@ -390,11 +391,11 @@ void LoadDBCStores(const std::string& dataPath)
 
 #undef LOAD_DBC
 
-#define LOAD_DBC_EXT(store, file, dbformat, dbpk) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, dbformat, dbpk)
+#define LOAD_DBC_EXT(store, file, dbtable, dbformat, dbpk) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, dbtable, dbformat, dbpk)
 
-    LOAD_DBC_EXT(sAchievementStore,     "Achievement.dbc",     CustomAchievementfmt,     CustomAchievementIndex);
-    LOAD_DBC_EXT(sSpellStore,           "Spell.dbc",           CustomSpellEntryfmt,      CustomSpellEntryIndex);
-    LOAD_DBC_EXT(sSpellDifficultyStore, "SpellDifficulty.dbc", CustomSpellDifficultyfmt, CustomSpellDifficultyIndex);
+    LOAD_DBC_EXT(sAchievementStore,     "Achievement.dbc",      "achievement_dbc",      CustomAchievementfmt,     CustomAchievementIndex);
+    LOAD_DBC_EXT(sSpellStore,           "Spell.dbc",            "spell_dbc",            CustomSpellEntryfmt,      CustomSpellEntryIndex);
+    LOAD_DBC_EXT(sSpellDifficultyStore, "SpellDifficulty.dbc",  "spelldifficulty_dbc",  CustomSpellDifficultyfmt, CustomSpellDifficultyIndex);
 
 #undef LOAD_DBC_EXT
 
