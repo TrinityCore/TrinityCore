@@ -29,6 +29,7 @@
 
 void WorldSession::HandleGMTicketGetCaseStatusOpcode(WorldPackets::Ticket::GMTicketGetCaseStatus& /*packet*/)
 {
+    return;
     // TODO: Implement GmCase and handle this packet properly
     WorldPackets::Ticket::GMTicketCaseStatus status;
     SendPacket(status.Write());

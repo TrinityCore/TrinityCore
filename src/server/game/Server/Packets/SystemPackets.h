@@ -103,6 +103,7 @@ namespace WorldPackets
             uint32 TokenRedeemIndex                      = 0;
             int64 TokenBalanceAmount                     = 0;
             uint32 BpayStoreProductDeliveryDelay         = 0;
+            uint32 UnkInt32                              = 0;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
@@ -117,6 +118,16 @@ namespace WorldPackets
             bool KioskModeEnabled                    = false;
             bool CompetitiveModeEnabled              = false;
             bool TokenBalanceEnabled                 = false;
+            bool UnkBit23                            = false;
+            bool UnkBit24                            = false;
+            bool UnkBit25                            = false;
+            bool UnkBit26                            = false;
+            bool UnkBit27                            = false;
+            bool UnkBit28                            = false;
+
+            uint8 unkByte                            = 0;
+            ObjectGuid UnkGUID                       = ObjectGuid::Empty;
+            ObjectGuid UnkGUID2                      = ObjectGuid::Empty;
 
             Optional<std::vector<uint8>> RaceClassExpansionLevels;
             SocialQueueConfig QuickJoinConfig;
@@ -129,25 +140,31 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            bool BpayStoreEnabled                    = false; // NYI
             bool BpayStoreAvailable                  = false; // NYI
             bool BpayStoreDisabledByParentalControls = false; // NYI
             bool CharUndeleteEnabled                 = false;
-            bool BpayStoreEnabled                    = false; // NYI
-            bool CommerceSystemEnabled               = false; // NYI
-            bool Unk14                               = false; // NYI
+            bool CommerceSystemEnabled               = false; // NYI 
+            bool Unk14                               = true; // NYI
             bool WillKickFromWorld                   = false; // NYI
             bool IsExpansionPreorderInStore          = false; // NYI
             bool KioskModeEnabled                    = false; // NYI
             bool CompetitiveModeEnabled              = false; // NYI
-            bool TrialBoostEnabled                   = false; // NYI
-            bool TokenBalanceEnabled                 = false; // NYI
+            bool TrialBoostEnabled                   = true; // NYI
+            bool TokenBalanceEnabled                 = true; // NYI
             bool LiveRegionCharacterListEnabled      = false; // NYI
             bool LiveRegionCharacterCopyEnabled      = false; // NYI
             bool LiveRegionAccountCopyEnabled        = false; // NYI
-            int32 TokenPollTimeSeconds               = 0;     // NYI
+
+            int32 TokenPollTimeSeconds               = 300;     // NYI
             int32 TokenRedeemIndex                   = 0;     // NYI
-            int64 TokenBalanceAmount                 = 0;     // NYI
-            uint32 BpayStoreProductDeliveryDelay     = 0;     // NYI
+            int64 TokenBalanceAmount                 = 130000;     // NYI
+            uint32 BpayStoreProductDeliveryDelay     = 18;     // NYI
+            int32 Unk801_1                           = 180;     // HasPurchaseInProgress related and effect on Create New Character button
+            uint32 ActiveCharacterUpgradeBoostType   = 3;
+            uint32 ActiveClassTrialBoostType         = 3;
+            uint32 NumExpansions                     = 6;
+            uint32 MaximumExpansionLevel             = 7;
         };
 
         class MOTD final : public ServerPacket

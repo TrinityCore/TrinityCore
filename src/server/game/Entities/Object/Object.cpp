@@ -130,7 +130,7 @@ void Object::_Create(ObjectGuid const& guid)
     if (!m_uint32Values) _InitValues();
 
     SetGuidValue(OBJECT_FIELD_GUID, guid);
-    SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
+    //SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
 }
 
 std::string Object::_ConcatFields(uint16 startIndex, uint16 size) const
@@ -243,7 +243,8 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     ByteBuffer buf(0x400);
     buf << uint8(updateType);
     buf << GetGUID();
-    buf << uint8(m_objectTypeId);
+    buf << uint8(GetTypeIdForTarget(target));
+    buf << uint32(GetTypeMaskForTarget(target)); // HeirFlags
 
     BuildMovementUpdate(&buf, flags);
     BuildValuesUpdate(updateType, &buf, target);
@@ -371,6 +372,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     data->WriteBit(NoBirthAnim);
     data->WriteBit(EnablePortals);
     data->WriteBit(PlayHoverAnim);
+
     data->WriteBit(HasMovementUpdate);
     data->WriteBit(HasMovementTransport);
     data->WriteBit(Stationary);
@@ -382,7 +384,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     data->WriteBit(HasAreaTrigger);
     data->WriteBit(HasGameObject);
     data->WriteBit(SmoothPhasing);
+
     data->WriteBit(ThisIsYou);
+
     data->WriteBit(SceneObjCreate);
     data->WriteBit(PlayerCreateData);
     data->FlushBits();
@@ -543,6 +547,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool hasUnk2                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK2);
         bool hasUnk3                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK3);
         bool hasUnk4                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK4);
+        bool hasUnk801              = false;
         bool hasAreaTriggerSphere   = areaTriggerTemplate->IsSphere();
         bool hasAreaTriggerBox      = areaTriggerTemplate->IsBox();
         bool hasAreaTriggerPolygon  = areaTriggerTemplate->IsPolygon();
@@ -603,6 +608,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             *data << int32(0);
 
         if (hasUnk4)
+            *data << uint32(0);
+
+        if (hasUnk801)
             *data << uint32(0);
 
         if (hasAreaTriggerSphere)
@@ -934,6 +942,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             break;
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
+        case TYPEID_ACTIVE_PLAYER:
         {
             Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
             flags = UnitUpdateFieldFlags;

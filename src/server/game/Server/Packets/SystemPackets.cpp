@@ -36,6 +36,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket << int64(TokenBalanceAmount);
 
     _worldPacket << uint32(BpayStoreProductDeliveryDelay);
+    _worldPacket << uint32(UnkInt32);
 
     _worldPacket.WriteBit(VoiceEnabled);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
@@ -59,6 +60,12 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(CompetitiveModeEnabled);
     _worldPacket.WriteBit(RaceClassExpansionLevels.is_initialized());
     _worldPacket.WriteBit(TokenBalanceEnabled);
+    _worldPacket.WriteBit(UnkBit23);
+    _worldPacket.WriteBit(UnkBit24);
+    _worldPacket.WriteBit(UnkBit25);
+    _worldPacket.WriteBit(UnkBit26);
+    _worldPacket.WriteBit(UnkBit27);
+    _worldPacket.WriteBit(UnkBit28);
 
     _worldPacket.FlushBits();
 
@@ -102,6 +109,10 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
             _worldPacket.append(RaceClassExpansionLevels->data(), RaceClassExpansionLevels->size());
     }
 
+    _worldPacket << uint8(unkByte);
+    _worldPacket << UnkGUID;
+    _worldPacket << UnkGUID2;
+
     if (EuropaTicketSystemStatus)
     {
         _worldPacket.WriteBit(EuropaTicketSystemStatus->TicketsEnabled);
@@ -142,6 +153,12 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket << int32(TokenRedeemIndex);
     _worldPacket << int64(TokenBalanceAmount);
     _worldPacket << uint32(BpayStoreProductDeliveryDelay);
+
+    _worldPacket << int32(Unk801_1);
+    _worldPacket << uint32(ActiveCharacterUpgradeBoostType);
+    _worldPacket << uint32(ActiveClassTrialBoostType);
+    _worldPacket << uint32(NumExpansions);
+    _worldPacket << uint32(MaximumExpansionLevel);
 
     return &_worldPacket;
 }

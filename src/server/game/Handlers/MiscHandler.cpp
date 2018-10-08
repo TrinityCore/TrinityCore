@@ -689,6 +689,8 @@ void WorldSession::HandleRequestAccountData(WorldPackets::ClientConfig::RequestA
     if (request.DataType >= NUM_ACCOUNT_DATA_TYPES)
         return;
 
+    return;
+
     AccountData const* adata = GetAccountData(AccountDataType(request.DataType));
 
     WorldPackets::ClientConfig::UpdateAccountData data;

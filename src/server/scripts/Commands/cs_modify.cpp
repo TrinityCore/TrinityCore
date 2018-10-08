@@ -89,6 +89,10 @@ public:
     template<typename... Args>
     static void NotifyModification(ChatHandler* handler, Unit* target, TrinityStrings resourceMessage, TrinityStrings resourceReportMessage, Args&&... args)
     {
+        return;
+        if (!handler || !target)
+            return;
+
         if (Player* player = target->ToPlayer())
         {
             handler->PSendSysMessage(resourceMessage, handler->GetNameLink(player).c_str(), args...);
@@ -419,7 +423,7 @@ public:
         Player* target = handler->getSelectedPlayerOrSelf();
         if (CheckModifySpeed(handler, args, target, allSpeed, 0.1f, 50.0f))
         {
-            NotifyModification(handler, target, LANG_YOU_CHANGE_ASPEED, LANG_YOURS_ASPEED_CHANGED, allSpeed);
+            //NotifyModification(handler, target, LANG_YOU_CHANGE_ASPEED, LANG_YOURS_ASPEED_CHANGED, allSpeed);
             target->SetSpeedRate(MOVE_WALK, allSpeed);
             target->SetSpeedRate(MOVE_RUN, allSpeed);
             target->SetSpeedRate(MOVE_SWIM, allSpeed);

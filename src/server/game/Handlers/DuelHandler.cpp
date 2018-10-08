@@ -49,7 +49,7 @@ void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
 
 void WorldSession::HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse)
 {
-    if (duelResponse.Accepted && !duelResponse.Forfeited)
+    if (duelResponse.Accepted)
         HandleDuelAccepted();
     else
         HandleDuelCancelled();

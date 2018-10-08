@@ -68,7 +68,7 @@ namespace WorldPackets
             PlayerItemLevel = target->GetAverageItemLevel();
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
-            Class = creatureTemplate->unit_class;
+            //Class = creatureTemplate->unit_class;
             TargetMinScalingLevel = uint8(creatureTemplate->levelScaling->MinLevel);
             TargetMaxScalingLevel = uint8(creatureTemplate->levelScaling->MaxLevel);
             TargetScalingLevelDelta = int8(attacker->GetInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA));
@@ -85,7 +85,7 @@ namespace WorldPackets
             PlayerItemLevel = attacker->GetAverageItemLevel();
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
-            Class = creatureTemplate->unit_class;
+            //Class = creatureTemplate->unit_class;
             TargetMinScalingLevel = uint8(creatureTemplate->levelScaling->MinLevel);
             TargetMaxScalingLevel = uint8(creatureTemplate->levelScaling->MaxLevel);
             TargetScalingLevelDelta = int8(target->GetInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA));
@@ -103,7 +103,7 @@ namespace WorldPackets
             PlayerItemLevel = 0;
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
-            Class = creatureTemplate->unit_class;
+            //Class = creatureTemplate->unit_class;
             TargetMinScalingLevel = uint8(creatureTemplate->levelScaling->MinLevel);
             TargetMaxScalingLevel = uint8(creatureTemplate->levelScaling->MaxLevel);
             TargetScalingLevelDelta = int8(accessor->GetInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA));
@@ -152,6 +152,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData 
     data << int64(spellCastLogData.Health);
     data << int32(spellCastLogData.AttackPower);
     data << int32(spellCastLogData.SpellPower);
+    data << int32(spellCastLogData.UnkInt32_801);
     data.WriteBits(spellCastLogData.PowerData.size(), 9);
     data.FlushBits();
 
@@ -170,11 +171,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SandboxScalingDat
     data.WriteBits(sandboxScalingData.Type, 4);
     data << int16(sandboxScalingData.PlayerLevelDelta);
     data << uint16(sandboxScalingData.PlayerItemLevel);
+    data << uint16(sandboxScalingData.Unk801);
     data << uint8(sandboxScalingData.TargetLevel);
-    data << uint8(sandboxScalingData.Expansion);
-    data << uint8(sandboxScalingData.Class);
+    data << uint8(sandboxScalingData.Expansion); 
     data << uint8(sandboxScalingData.TargetMinScalingLevel);
     data << uint8(sandboxScalingData.TargetMaxScalingLevel);
     data << int8(sandboxScalingData.TargetScalingLevelDelta);
+    data << uint8(sandboxScalingData.Flags);
     return data;
 }

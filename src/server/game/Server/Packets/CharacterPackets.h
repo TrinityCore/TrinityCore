@@ -56,7 +56,6 @@ namespace WorldPackets
             std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay = { };
             uint8 OutfitId        = 0;
             Optional<int32> TemplateSet;
-            bool IsTrialBoost     = false;
             std::string Name;
 
             /// Server side data
@@ -122,6 +121,7 @@ namespace WorldPackets
                 CharacterInfo(Field* fields);
 
                 ObjectGuid Guid;
+                uint64 CommunityDbID     = 0;
                 std::string Name;
                 uint8 ListPosition       = 0; ///< Order of the characters in list
                 uint8 Race               = 0;
@@ -173,8 +173,8 @@ namespace WorldPackets
             {
                 int32 RaceID;
                 bool HasExpansion;
-                bool HasAchievement;
-                bool HasHeritageArmor;
+                bool HasAchievement = false;
+                bool HasHeritageArmor = false;
             };
 
             EnumCharactersResult() : ServerPacket(SMSG_ENUM_CHARACTERS_RESULT) { }
@@ -185,7 +185,7 @@ namespace WorldPackets
             bool IsDeletedCharacters    = false; ///< used for character undelete list
             bool IsDemonHunterCreationAllowed = false; ///< used for demon hunter early access
             bool HasDemonHunterOnRealm  = false;
-            bool Unknown7x              = false;
+            bool Unknown7x              = true;
             bool IsAlliedRacesCreationAllowed = false;
 
             int32 MaxCharacterLevel     = 1;

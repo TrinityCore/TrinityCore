@@ -55,14 +55,14 @@ void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTal
 {
     WorldPackets::Talent::LearnPvpTalentsFailed learnPvpTalentsFailed;
     bool anythingLearned = false;
-    for (WorldPackets::Talent::PvPTalent pvpTalent : packet.Talents)
+    for (uint32 talentId : packet.Talents)
     {
-        if (TalentLearnResult result = _player->LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, &learnPvpTalentsFailed.SpellID))
+        if (TalentLearnResult result = _player->LearnPvpTalent(talentId, 0, &learnPvpTalentsFailed.SpellID))
         {
             if (!learnPvpTalentsFailed.Reason)
                 learnPvpTalentsFailed.Reason = result;
 
-            learnPvpTalentsFailed.Talents.push_back(pvpTalent);
+            learnPvpTalentsFailed.Talents.push_back(talentId);
         }
         else
             anythingLearned = true;

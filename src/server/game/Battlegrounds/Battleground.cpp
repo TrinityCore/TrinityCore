@@ -1291,7 +1291,6 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
             playerData.PrimaryTalentTree = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
             playerData.PrimaryTalentTreeNameIndex = 0;
             playerData.Race = player->getRace();
-            playerData.Prestige = player->GetPrestigeLevel();
         }
 
         pvpLogData.Players.push_back(playerData);

@@ -61,7 +61,17 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket << int32(Stats.CreatureFamily);
         _worldPacket << int32(Stats.Classification);
         _worldPacket.append(Stats.ProxyCreatureID.data(), Stats.ProxyCreatureID.size());
-        _worldPacket.append(Stats.CreatureDisplayID.data(), Stats.CreatureDisplayID.size());
+
+        _worldPacket << uint32(Stats.CreatureDisplayID.size());
+        _worldPacket << float(0.0f); // unk801_1
+
+        for (uint32 dispID : Stats.CreatureDisplayID)
+        {
+            _worldPacket << uint32(dispID);
+            _worldPacket << float(1.0f / Stats.CreatureDisplayID.size());
+            _worldPacket << float(1.0f);
+        }
+        //_worldPacket.append(Stats.CreatureDisplayID.data(), Stats.CreatureDisplayID.size());
         _worldPacket << float(Stats.HpMulti);
         _worldPacket << float(Stats.EnergyMulti);
         _worldPacket << uint32(Stats.QuestItems.size());
@@ -69,6 +79,7 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket << int32(Stats.HealthScalingExpansion);
         _worldPacket << int32(Stats.RequiredExpansion);
         _worldPacket << int32(Stats.VignetteID);
+        _worldPacket << int32(0); // unk801_2
 
         if (!Stats.Title.empty())
             _worldPacket << Stats.Title;
@@ -162,6 +173,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupDa
     data << lookupData.AccountID;
     data << lookupData.BnetAccountID;
     data << lookupData.GuidActual;
+    data << uint64(lookupData.CommunityDbID);
     data << uint32(lookupData.VirtualRealmAddress);
     data << uint8(lookupData.Race);
     data << uint8(lookupData.Sex);
@@ -334,7 +346,7 @@ void WorldPackets::Query::QuestPOIQuery::Read()
 {
     _worldPacket >> MissingQuestCount;
 
-    for (std::size_t i = 0; i < MissingQuestPOIs.size(); ++i)
+    for (uint8 i = 0; i < 50; ++i)
         _worldPacket >> MissingQuestPOIs[i];
 }
 

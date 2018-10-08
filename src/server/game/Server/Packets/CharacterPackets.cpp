@@ -140,6 +140,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharacters
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharactersResult::CharacterInfo const& charInfo)
 {
     data << charInfo.Guid;
+    data << charInfo.CommunityDbID;
     data << uint8(charInfo.ListPosition);
     data << uint8(charInfo.Race);
     data << uint8(charInfo.Class);
@@ -204,13 +205,13 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
     _worldPacket.WriteBit(IsDemonHunterCreationAllowed);
     _worldPacket.WriteBit(HasDemonHunterOnRealm);
     _worldPacket.WriteBit(Unknown7x);
-    _worldPacket.WriteBit(DisabledClassesMask.is_initialized());
+    _worldPacket.WriteBit(DisabledClassesMask.is_initialized() && uint32(*DisabledClassesMask) > 0);
     _worldPacket.WriteBit(IsAlliedRacesCreationAllowed);
     _worldPacket << uint32(Characters.size());
     _worldPacket << int32(MaxCharacterLevel);
     _worldPacket << uint32(RaceUnlockData.size());
 
-    if (DisabledClassesMask)
+    if (DisabledClassesMask && uint32(*DisabledClassesMask) > 0)
         _worldPacket << uint32(*DisabledClassesMask);
 
     for (CharacterInfo const& charInfo : Characters)
@@ -227,7 +228,6 @@ void WorldPackets::Character::CreateCharacter::Read()
     CreateInfo.reset(new CharacterCreateInfo());
     uint32 nameLength = _worldPacket.ReadBits(6);
     bool const hasTemplateSet = _worldPacket.ReadBit();
-    CreateInfo->IsTrialBoost = _worldPacket.ReadBit();
 
     _worldPacket >> CreateInfo->Race;
     _worldPacket >> CreateInfo->Class;

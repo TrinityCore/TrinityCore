@@ -224,17 +224,19 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     data << uint32(movementSpline.TierTransStartTime);
     data << int32(movementSpline.Elapsed);
     data << uint32(movementSpline.MoveTime);
-    data << float(movementSpline.JumpGravity);
     data << uint32(movementSpline.SpecialTime);
+
     data << uint8(movementSpline.Mode);
     data << uint8(movementSpline.VehicleExitVoluntary);
     data << movementSpline.TransportGUID;
     data << int8(movementSpline.VehicleSeat);
+
     data.WriteBits(movementSpline.Face, 2);
     data.WriteBits(movementSpline.Points.size(), 16);
     data.WriteBits(movementSpline.PackedDeltas.size(), 16);
     data.WriteBit(movementSpline.SplineFilter.is_initialized());
     data.WriteBit(movementSpline.SpellEffectExtraData.is_initialized());
+    data.WriteBit(0); // unk801
     data.FlushBits();
 
     if (movementSpline.SplineFilter)
@@ -262,6 +264,13 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     if (movementSpline.SpellEffectExtraData)
         data << *movementSpline.SpellEffectExtraData;
 
+    if (false /*unk801*/)
+    {
+        data << float(movementSpline.JumpGravity);
+        data << uint32(0);
+        data << uint32(0);
+    }
+
     return data;
 }
 
@@ -271,6 +280,7 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementMonster
     data << movementMonsterSpline.Destination;
     data.WriteBit(movementMonsterSpline.CrzTeleport);
     data.WriteBits(movementMonsterSpline.StopDistanceTolerance, 3);
+    data.FlushBits();
 
     data << movementMonsterSpline.Move;
 
@@ -300,12 +310,13 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         data << float(1.0f);                                                    // DurationModifier
         data << float(1.0f);                                                    // NextDurationModifier
         data.WriteBits(moveSpline.facing.type, 2);                              // Face
-        bool HasJumpGravity = data.WriteBit(moveSpline.splineflags.parabolic || moveSpline.splineflags.animation);                 // HasJumpGravity
+        //bool HasJumpGravity = data.WriteBit(moveSpline.splineflags.parabolic || moveSpline.splineflags.animation);                 // HasJumpGravity
         bool HasSpecialTime = data.WriteBit(moveSpline.splineflags.parabolic && moveSpline.effect_start_time < moveSpline.Duration()); // HasSpecialTime
         data.WriteBits(moveSpline.getPath().size(), 16);
         data.WriteBits(uint8(moveSpline.spline.mode()), 2);                     // Mode
         data.WriteBit(0);                                                       // HasSplineFilter
         data.WriteBit(moveSpline.spell_effect_extra.is_initialized());          // HasSpellEffectExtraData
+        data.WriteBit(0);                                                       // unk801, HasJumpGravity ?
         data.FlushBits();
 
         //if (HasSplineFilterKey)
@@ -341,8 +352,8 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
                 break;
         }
 
-        if (HasJumpGravity)
-            data << float(moveSpline.vertical_acceleration);                    // JumpGravity
+        //if (HasJumpGravity)
+        //    data << float(moveSpline.vertical_acceleration);                    // JumpGravity
 
         if (HasSpecialTime)
             data << uint32(moveSpline.effect_start_time);                       // SpecialTime
@@ -355,7 +366,15 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
             data << uint32(moveSpline.spell_effect_extra->SpellVisualId);
             data << uint32(moveSpline.spell_effect_extra->ProgressCurveId);
             data << uint32(moveSpline.spell_effect_extra->ParabolicCurveId);
+            data << float(0.0f); // JumpGravity
         }
+
+        //if (unk801)
+        //{
+        //    data << float(0.0f); // JumpGravity
+        //    data << uint32(0.0f); // JumpGravity
+        //    data << uint32(0.0f); // JumpGravity
+        //}
     }
 }
 

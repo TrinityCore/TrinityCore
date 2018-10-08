@@ -179,6 +179,7 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteBits(_ChatFlags, 11);
     _worldPacket.WriteBit(HideChatLog);
     _worldPacket.WriteBit(FakeSenderName);
+    _worldPacket.WriteBit(0); // unk801
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(SenderName);
@@ -186,6 +187,9 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteString(Prefix);
     _worldPacket.WriteString(_Channel);
     _worldPacket.WriteString(ChatText);
+
+    if (false) // unk801
+        _worldPacket << uint32(0);
 
     return &_worldPacket;
 }

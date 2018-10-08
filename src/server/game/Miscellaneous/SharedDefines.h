@@ -2430,7 +2430,7 @@ enum GameobjectTypes : uint8
 };
 
 #define MAX_GAMEOBJECT_TYPE                  52             // sending to client this or greater value can crash client.
-#define MAX_GAMEOBJECT_DATA                  33             // Max number of uint32 vars in gameobject_template data field
+#define MAX_GAMEOBJECT_DATA                  34             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags
 {
@@ -4774,8 +4774,8 @@ enum ResponseCodes
     CHAR_CREATE_LEVEL_REQUIREMENT_DEMON_HUNTER             = 51,
 
     CHAR_DELETE_IN_PROGRESS                                = 52,
-    CHAR_DELETE_SUCCESS                                    = 53,
-    CHAR_DELETE_FAILED                                     = 54,
+    CHAR_DELETE_FAILED                                     = 53,
+    CHAR_DELETE_SUCCESS                                    = 54,
     CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 55,
     CHAR_DELETE_FAILED_GUILD_LEADER                        = 56,
     CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 57,

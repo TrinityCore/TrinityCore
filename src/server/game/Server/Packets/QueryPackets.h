@@ -110,6 +110,7 @@ namespace WorldPackets
             ObjectGuid BnetAccountID;
             ObjectGuid GuidActual;
             std::string Name;
+            uint64 CommunityDbID = 0;
             uint32 VirtualRealmAddress = 0;
             uint8 Race = RACE_NONE;
             uint8 Sex = GENDER_NONE;
@@ -297,7 +298,7 @@ namespace WorldPackets
             void Read() override;
 
             int32 MissingQuestCount = 0;
-            std::array<int32, 100> MissingQuestPOIs;
+            int32 MissingQuestPOIs[50];
         };
 
         struct QuestPOIBlobPoint
