@@ -2665,13 +2665,14 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     else if (levelDifference < 0)
     {
         modHitChance -= MissChanceSpell[0];
-        modHitChance += 1.0f * levelDifference;
+        modHitChance += 1.0f * std::abs(levelDifference);
     }
     else if (levelDifference > 3)
         modHitChance -= MissChanceSpell[3] + lchance * (levelDifference - 3);
 
     // Normalize chance
     modHitChance = std::max(0.0f, modHitChance);
+    modHitChance = std::min(modHitChance, 100.0f);
 
     // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
     if (Player* modOwner = GetSpellModOwner())
