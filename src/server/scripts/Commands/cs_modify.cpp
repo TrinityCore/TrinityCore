@@ -89,6 +89,10 @@ public:
     template<typename... Args>
     static void NotifyModification(ChatHandler* handler, Unit* target, TrinityStrings resourceMessage, TrinityStrings resourceReportMessage, Args&&... args)
     {
+        return;
+        if (!handler || !target)
+            return;
+
         if (Player* player = target->ToPlayer())
         {
             handler->PSendSysMessage(resourceMessage, handler->GetNameLink(player).c_str(), args...);
