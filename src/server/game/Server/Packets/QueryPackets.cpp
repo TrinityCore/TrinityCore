@@ -61,7 +61,17 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket << int32(Stats.CreatureFamily);
         _worldPacket << int32(Stats.Classification);
         _worldPacket.append(Stats.ProxyCreatureID.data(), Stats.ProxyCreatureID.size());
-        _worldPacket.append(Stats.CreatureDisplayID.data(), Stats.CreatureDisplayID.size());
+
+        _worldPacket << uint32(Stats.CreatureDisplayID.size());
+        _worldPacket << float(0.0f); // unk801_1
+
+        for (uint32 dispID : Stats.CreatureDisplayID)
+        {
+            _worldPacket << uint32(dispID);
+            _worldPacket << float(1.0f / Stats.CreatureDisplayID.size());
+            _worldPacket << float(1.0f);
+        }
+        //_worldPacket.append(Stats.CreatureDisplayID.data(), Stats.CreatureDisplayID.size());
         _worldPacket << float(Stats.HpMulti);
         _worldPacket << float(Stats.EnergyMulti);
         _worldPacket << uint32(Stats.QuestItems.size());
@@ -69,6 +79,7 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket << int32(Stats.HealthScalingExpansion);
         _worldPacket << int32(Stats.RequiredExpansion);
         _worldPacket << int32(Stats.VignetteID);
+        _worldPacket << int32(0); // unk801_2
 
         if (!Stats.Title.empty())
             _worldPacket << Stats.Title;
