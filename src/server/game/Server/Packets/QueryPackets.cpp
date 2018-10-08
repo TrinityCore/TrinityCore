@@ -346,7 +346,7 @@ void WorldPackets::Query::QuestPOIQuery::Read()
 {
     _worldPacket >> MissingQuestCount;
 
-    for (std::size_t i = 0; i < MissingQuestPOIs.size(); ++i)
+    for (uint8 i = 0; i < 50; ++i)
         _worldPacket >> MissingQuestPOIs[i];
 }
 

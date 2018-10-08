@@ -27,12 +27,6 @@ namespace WorldPackets
 {
     namespace Talent
     {
-        struct PvPTalent
-        {
-            uint16 PvPTalentID = 0;
-            uint8 Slot = 0;
-        };
-
         struct TalentGroupInfo
         {
             uint32 SpecID = 0;
@@ -127,7 +121,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            Array<PvPTalent, 4> Talents;
+            Array<uint16, 6> Talents;
         };
 
         class LearnPvpTalentsFailed final : public ServerPacket
@@ -139,7 +133,7 @@ namespace WorldPackets
 
             uint32 Reason = 0;
             int32 SpellID = 0;
-            std::vector<PvPTalent> Talents;
+            std::vector<uint16> Talents;
         };
     }
 }

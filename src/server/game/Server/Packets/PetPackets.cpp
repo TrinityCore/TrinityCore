@@ -121,7 +121,8 @@ void WorldPackets::Pet::PetRename::Read()
     _worldPacket >> RenameData.PetGUID;
     _worldPacket >> RenameData.PetNumber;
 
-    uint8 nameLen = _worldPacket.ReadBits(8);
+    int8 nameLen = 0;
+    _worldPacket >> nameLen;
 
     if (_worldPacket.ReadBit())
     {

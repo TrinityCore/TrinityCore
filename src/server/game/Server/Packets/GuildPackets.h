@@ -432,11 +432,11 @@ namespace WorldPackets
 
             int32 RankID = 0;
             int32 RankOrder = 0;
-            uint32 WithdrawGoldLimit = 0;
+            int32 WithdrawGoldLimit = 0;
             uint32 Flags = 0;
             uint32 OldFlags = 0;
-            uint32 TabFlags[GUILD_BANK_MAX_TABS];
-            uint32 TabWithdrawItemLimit[GUILD_BANK_MAX_TABS];
+            int32 TabFlags[GUILD_BANK_MAX_TABS];
+            int32 TabWithdrawItemLimit[GUILD_BANK_MAX_TABS];
             std::string RankName;
         };
 

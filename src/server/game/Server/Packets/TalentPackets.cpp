@@ -17,20 +17,6 @@
 
 #include "TalentPackets.h"
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Talent::PvPTalent& pvpTalent)
-{
-    data >> pvpTalent.PvPTalentID;
-    data >> pvpTalent.Slot;
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::PvPTalent const& pvpTalent)
-{
-    data << uint16(pvpTalent.PvPTalentID);
-    data << uint8(pvpTalent.Slot);
-    return data;
-}
-
 WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 {
     _worldPacket << uint8(Info.ActiveGroup);
@@ -109,7 +95,7 @@ WorldPacket const* WorldPackets::Talent::ActiveGlyphs::Write()
 
 void WorldPackets::Talent::LearnPvpTalents::Read()
 {
-    Talents.resize(_worldPacket.read<uint32>());
+    Talents.resize(_worldPacket.ReadBits(6));
     for (uint32 i = 0; i < Talents.size(); ++i)
         _worldPacket >> Talents[i];
 }
@@ -119,8 +105,8 @@ WorldPacket const* WorldPackets::Talent::LearnPvpTalentsFailed::Write()
     _worldPacket.WriteBits(Reason, 4);
     _worldPacket << int32(SpellID);
     _worldPacket << uint32(Talents.size());
-    for (PvPTalent pvpTalent : Talents)
-        _worldPacket << pvpTalent;
+    if (!Talents.empty())
+        _worldPacket.append(Talents.data(), Talents.size());
 
     return &_worldPacket;
 }
