@@ -230,11 +230,13 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     data << uint8(movementSpline.VehicleExitVoluntary);
     data << movementSpline.TransportGUID;
     data << int8(movementSpline.VehicleSeat);
+
     data.WriteBits(movementSpline.Face, 2);
     data.WriteBits(movementSpline.Points.size(), 16);
     data.WriteBits(movementSpline.PackedDeltas.size(), 16);
     data.WriteBit(movementSpline.SplineFilter.is_initialized());
     data.WriteBit(movementSpline.SpellEffectExtraData.is_initialized());
+    data.WriteBit(0); // unk801
     data.FlushBits();
 
     if (movementSpline.SplineFilter)
@@ -261,6 +263,13 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
 
     if (movementSpline.SpellEffectExtraData)
         data << *movementSpline.SpellEffectExtraData;
+
+    if (false /*unk801*/)
+    {
+        data << float(0.0);
+        data << uint32(0);
+        data << uint32(0);
+    }
 
     return data;
 }
