@@ -1,3 +1,4 @@
+/*
 -- Theldurin the Lost
 DELETE FROM `creature_text` WHERE `CreatureID`=2785 AND `GroupID` IN (5,6,7);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -17,3 +18,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (278502,9,5,0,0,0,100,0,0,0,0,0,1,6,0,0,0,0,0,1,0,0,0,0,0,0,0,"Theldurin the Lost - On Script - Say Line 6"),
 (278502,9,6,0,0,0,100,0,3000,3000,0,0,1,7,0,0,0,0,0,1,0,0,0,0,0,0,0,"Theldurin the Lost - On Script - Say Line 7"),
 (278502,9,7,0,0,0,100,0,0,0,0,0,82,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Theldurin the Lost - On Script - Add Npc Flag Questgiver");
+*/

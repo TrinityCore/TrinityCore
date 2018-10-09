@@ -1,3 +1,4 @@
+/*
 -- Pathing for Magregan Deepshadow
 UPDATE `creature` SET `MovementType`=2 WHERE `guid`=8194;
 
@@ -45,3 +46,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (81940,36,-6212.34,-3045.44,217.516,0,0,0,0,100,0),
 (81940,37,-6205.64,-3044.31,218.456,0,0,0,0,100,0),
 (81940,38,-6199.71,-3044.42,220.47,0,0,0,0,100,0);
+*/

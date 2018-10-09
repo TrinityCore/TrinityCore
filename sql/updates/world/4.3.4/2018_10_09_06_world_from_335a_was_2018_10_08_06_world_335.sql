@@ -1,3 +1,4 @@
+/*
 -- Prospector Remtravel
 DELETE FROM `creature_text` WHERE `CreatureID`=2917;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -40,3 +41,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (2160,0,0,0,23,0,100,0,12544,0,3000,5000,0,11,12544,0,0,0,0,0,1,0,0,0,0,0,0,0,"Gravelflint Geomancer - On Has No Aura 'Frost Armor' - Cast 'Frost Armor'"),
 (2160,0,1,0,0,0,100,0,0,0,3000,5000,0,11,19816,64,0,0,0,0,2,0,0,0,0,0,0,0,"Gravelflint Geomancer - In Combat - Cast 'Fireball'"),
 (2160,0,2,0,2,0,100,1,0,15,0,0,0,25,1,0,0,0,0,0,0,0,0,0,0,0,0,0,"Gravelflint Geomancer - Between 0-15% Health - Flee For Assist (No Repeat)");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Cyrus Therepentous
 UPDATE `creature_template` SET `gossip_menu_id`=1842 WHERE `entry`=9459;
 
@@ -32,3 +33,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (19,0,4023,0,0,2,0,10575,1,1,1,0,0,"","Quest 'A Taste of Flame (2)' can only be taken if player does not have item 'Black Dragonflight Molt'");
 
 UPDATE `quest_template_addon` SET `SpecialFlags`=2 WHERE `ID`=4022;
+*/

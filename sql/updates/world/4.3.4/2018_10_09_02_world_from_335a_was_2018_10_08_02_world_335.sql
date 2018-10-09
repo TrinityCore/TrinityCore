@@ -1,3 +1,4 @@
+/*
 -- Hammertoe Grez
 UPDATE `creature` SET `spawntimesecs`=90 WHERE `guid`=7723;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=2909;
@@ -13,3 +14,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=2909;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (2909,0,0,"Go with speed... <cough cough> Find... <cough> Ryedol...",12,7,100,0,0,0,957,0,"Hammertoe Grez"),
 (2909,1,0,"%s falls to the ground. His spirit is released with his last breath.",16,0,100,0,0,0,979,0,"Hammertoe Grez");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Mathredis Firestar
 UPDATE `creature_template` SET `gossip_menu_id`=2298 WHERE `entry`=9836;
 
@@ -34,3 +35,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (15,2298,2,0,0,2,0,11734,1,1,0,0,0,"","Show gossip option 2 if player have item 'Libram of Tenacity'"),
 (15,2298,3,0,0,2,0,11736,1,1,0,0,0,"","Show gossip option 3 if player have item 'Libram of Resilience'"),
 (15,2298,4,0,0,2,0,11737,1,1,0,0,0,"","Show gossip option 4 if player have item 'Libram of Voracity'");
+*/

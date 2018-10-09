@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `gameobject` WHERE `guid` IN (6548,6553,6555,6557,6559,6561,6562,6563,6565,6567,6568,6573,6580,6585,6586,6587,6589,6591,6593,6594,6595,6596,6598,6601,6612,6613,6614,6615,6616,6618,6619,6620,6621,6630,6632,6636,6637,6641,6642,6643,6644,6648,6649,6650,6651,6654);
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
@@ -69,3 +70,4 @@ INSERT INTO `game_event_gameobject` (`eventEntry`, `guid`) VALUES
 (18,6596),(18,6598),(18,6601),(18,6612),
 (18,6613),(18,6614),(18,6615),(18,6616),
 (18,6618),(18,6619),(18,6620),(18,6621);
+*/
