@@ -25,7 +25,10 @@
 
 20:25:39.343 -- jet stream cast
 20:25:41.376 -- wind pre effect warning
+
+20:25:43.394
 20:25:43.493 -- you think you outrun the wind???
+20:26:44.509 -- teleport to center west
 
 
 
@@ -48,6 +51,8 @@ UPDATE `creature_template` SET `minlevel`= 88, `maxlevel`= 88, `exp`= 3, `factio
 UPDATE `creature_template` SET `unit_flags`= 33555200, `flags_extra`= 128, `ScriptName`= 'npc_conclave_of_wind_ravenous_creeper_trigger' WHERE `entry`= 45813;
 -- Soothing Breeze
 UPDATE `creature_template` SET `unit_flags`= 33554432, `flags_extra`= 128 WHERE `entry`= 46246;
+-- North Wind
+UPDATE `creature_template` SET `unit_flags`= 33554432, `flags_extra`= 128 WHERE `entry`= 47926;
 
 -- Creature Text
 DELETE FROM `creature_text` WHERE `CreatureID` IN (21252, 45870, 45871, 45872);
@@ -93,8 +98,21 @@ INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
 -- Spells
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 ('spell_conclave_of_wind_winds_pre_effect_warning',
-'spell_conclave_of_wind_winds_distance_checker');
+'spell_conclave_of_wind_winds_distance_checker',
+'spell_conclave_of_winds_teleport_to_center');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (96508, 'spell_conclave_of_wind_winds_pre_effect_warning'),
-(85763, 'spell_conclave_of_wind_winds_distance_checker');
+(85763, 'spell_conclave_of_wind_winds_distance_checker'),
+(89843, 'spell_conclave_of_winds_teleport_to_center'),
+(89844, 'spell_conclave_of_winds_teleport_to_center');
+
+DELETE FROM `conditions` WHERE `SourceEntry` IN (89844, 89843) AND `SourceTypeOrReferenceId`= 13;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
+(13, 1, 89844, 0, 0, 31, 0, 3, 47925, 0, 0, 0, '', 'Teleport to Center (West) - Target West Wind'),
+(13, 1, 89843, 0, 0, 31, 0, 3, 47926, 0, 0, 0, '', 'Teleport to Center (North) - Target North Wind');
+
+
+
+
+

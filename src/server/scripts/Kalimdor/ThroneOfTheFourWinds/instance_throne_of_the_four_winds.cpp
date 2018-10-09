@@ -42,16 +42,6 @@ ObjectData const gameObjectData[] =
     { 0,                                0                                   } // End
 };
 
-AreaBoundary const* anshalCircle        = new CircleBoundary(Position(-47.953f, 1053.439f), MAX_HOME_POSITION_DISTANCE);
-AreaBoundary const* nezirCircle         = new CircleBoundary(Position(189.393f, 812.568f),  MAX_HOME_POSITION_DISTANCE);
-AreaBoundary const* rohashCircle        = new CircleBoundary(Position(-51.463f, 576.250f),  MAX_HOME_POSITION_DISTANCE);
-AreaBoundary const* anshalNezirBoundary = new BoundaryUnionBoundary(anshalCircle, nezirCircle);
-
-BossBoundaryData const boundaries =
-{
-    { DATA_CONCLAVE_OF_WIND,    new BoundaryUnionBoundary(anshalNezirBoundary, rohashCircle) }
-};
-
 class instance_throne_of_the_four_winds : public InstanceMapScript
 {
     public:
@@ -64,7 +54,6 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
-                LoadBossBoundaries(boundaries);
                 Initialize();
             }
 
@@ -84,6 +73,10 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                     case BOSS_ANSHAL:
                     case BOSS_NEZIR:
                     case BOSS_ROHASH:
+                        break;
+                    case NPC_RAVENOUS_CREEPER:
+                        if (Creature* anshal = GetCreature(DATA_ANSHAL))
+                            anshal->AI()->JustSummoned(creature);
                         break;
                     default:
                         break;
@@ -109,13 +102,13 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                         if (state == IN_PROGRESS)
                         {
                             if (Creature* anshal = GetCreature(DATA_ANSHAL))
-                                anshal->SetInCombatWithZone();
+                                anshal->AI()->DoZoneInCombat();
 
                             if (Creature* nezir = GetCreature(DATA_NEZIR))
-                                nezir->SetInCombatWithZone();
+                                nezir->AI()->DoZoneInCombat();
 
                             if (Creature* rohash = GetCreature(DATA_ROHASH))
-                                rohash->SetInCombatWithZone();
+                                rohash->AI()->DoZoneInCombat();
                         }
                         break;
                     default:

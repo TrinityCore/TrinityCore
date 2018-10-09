@@ -4784,6 +4784,27 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // ENDOF ZUL'GURUB SPELLS
 
+    //
+    // THRONE OF THE FOUR WINDS SPELLS
+    //
+
+    // Teleport to Center
+    ApplySpellFix({
+        89844, // West
+        89843  // North
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(135); // 100yd
+    });
+
+    // Nurture
+    ApplySpellFix({ 85425 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_2;
+    });
+
+    // ENDOF THRONE OF THE FOUR WINDS SPELLS
+
     // Disenchant
     ApplySpellFix({ 13262 }, [](SpellInfo* spellInfo)
     {

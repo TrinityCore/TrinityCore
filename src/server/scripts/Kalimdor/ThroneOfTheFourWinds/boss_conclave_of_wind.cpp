@@ -22,45 +22,57 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "Spell.h"
 #include "Player.h"
 
 enum Spells
 {
     // Conclave of Wind
-    SPELL_WINDS_PRE_EFFECT_WARNING  = 96508,
-    SPELL_POWER_DRAIN               = 89840,
+    SPELL_WINDS_PRE_EFFECT_WARNING      = 96508,
+    SPELL_POWER_DRAIN                   = 89840,
 
     // Anshal
-    SPELL_PRE_FIGHT_VISUAL_WEST     = 85537,
-    SPELL_WITHERING_WINDS           = 85576,
-    SPELL_WITHERING_WINDS_DAMAGE    = 93168,
-    SPELL_NURTURE                   = 85422,
-    SPELL_SOOTHING_BREEZE           = 86205,
-    SPELL_ZEPHYR                    = 84638,
+    SPELL_PRE_FIGHT_VISUAL_WEST         = 85537,
+    SPELL_WITHERING_WINDS_NORMAL        = 85576,
+    SPELL_WITHERING_WINDS_RESET_AURA    = 89137,
+    SPELL_WITHERING_WINDS_DAMAGE        = 93168,
+    SPELL_NURTURE                       = 85422,
+    SPELL_SOOTHING_BREEZE               = 86205,
+    SPELL_ZEPHYR                        = 84638,
+    SPELL_TELEPORT_TO_CENTER_WEST       = 89844,
 
     // Nezir
-    SPELL_PRE_FIGHT_VISUAL_NORTH    = 85532,
-    SPELL_CHILLING_WINDS            = 85578,
-    SPELL_CHILLING_WINDS_DAMAGE     = 93163,
+    SPELL_PRE_FIGHT_VISUAL_NORTH        = 85532,
+    SPELL_CHILLING_WINDS_NORMAL         = 85578,
+    SPELL_CHILLING_WINDS_DAMAGE         = 93163,
+    SPELL_TELEPORT_TO_CENTER_NORTH      = 89843,
 
     // Rohash
-    SPELL_PRE_FIGHT_VISUAL_EAST     = 85538,
-    SPELL_DEAFENING_WINDS           = 85573,
-    SPELL_DEAFENING_WINDS_DAMAGE    = 93166,
-    SPELL_SLICING_GALE              = 86182,
+    SPELL_PRE_FIGHT_VISUAL_EAST         = 85538,
+    SPELL_DEAFENING_WINDS_NORMAL        = 85573,
+    SPELL_DEAFENING_WINDS_DAMAGE        = 93166,
+    SPELL_SLICING_GALE                  = 86182,
 
     // World Trigger
-    SPELL_POWER_GAIN                = 89898,
+    SPELL_POWER_GAIN                    = 89898,
 
     // Ravenous Creeper Trigger
-    SPELL_NURTURE_VISUAL            = 85428,
-    SPELL_NURTURE_SUMMON            = 85429
+    SPELL_NURTURE_VISUAL                = 85428,
+    SPELL_NURTURE_SUMMON                = 85429,
+
+    // Ravenous Creeper
+    SPELL_TOXIC_SPORES                  = 86281,
 };
+
+#define SPELL_DEAFENING_WINDS   RAID_MODE<uint32>(85573, 93190, 93191, 93192)
+#define SPELL_CHILLING_WINDS    RAID_MODE<uint32>(85578, 93147, 93148, 93149)
+#define SPELL_WITHERING_WINDS   RAID_MODE<uint32>(85576, 93181, 93182, 93183)
 
 enum Events
 {
     // Conclave of Wind
     EVENT_PRE_WIND_EFFECT_WARNING = 1,
+    EVENT_TELEPORT_TO_CENTER,
 
     // Anshal
     EVENT_SOOTHING_BREEZE,
@@ -93,498 +105,441 @@ enum Texts
     SAY_ANNOUNCE_NEAR_FULL_STRENGHTH    = 0
 };
 
-class boss_anshal : public CreatureScript
+
+#define MAX_HOME_POSITION_DISTANCE 65.0f
+
+// A collection of helpers that all bosses can access
+namespace ConclaveHandler
 {
-    public:
-        boss_anshal() : CreatureScript("boss_anshal") { }
+    bool IsTargetOnPlatform(Position attackerPosition, Unit* target)
+    {
+        // Do not attack our target when he is on the fall catcher vehicle
+        if (target->GetVehicle())
+            return false;
 
-        struct boss_anshalAI : public BossAI
+        return target->GetExactDist2d(attackerPosition) < MAX_HOME_POSITION_DISTANCE;
+    }
+}
+
+struct boss_anshal : public BossAI
+{
+    boss_anshal(Creature* creature) : BossAI(creature, DATA_CONCLAVE_OF_WIND)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), who))
         {
-            boss_anshalAI(Creature* creature) : BossAI(creature, DATA_CONCLAVE_OF_WIND)
-            {
-                Initialize();
-            }
+            BossAI::AttackStart(who);
+            events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
+        }
+    }
 
-            void Initialize()
-            {
-            }
+    void JustEngagedWith(Unit* who) override
+    {
+        _JustEngagedWith();
+        me->SetReactState(REACT_AGGRESSIVE);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_WEST);
+        events.ScheduleEvent(EVENT_SOOTHING_BREEZE, 15s, 16s);
+        events.ScheduleEvent(EVENT_NURTURE, 27s, 28s);
 
-            void JustEngagedWith(Unit* who) override
-            {
-                _JustEngagedWith();
-                me->SetReactState(REACT_AGGRESSIVE);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_WEST);
-                events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, Seconds(1));
-                events.ScheduleEvent(EVENT_SOOTHING_BREEZE, Seconds(15), Seconds(16));
-                events.ScheduleEvent(EVENT_NURTURE, Seconds(27), Seconds(28));
+        if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), who))
+            Talk(SAY_AGGRO);
+        else
+            events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 1s);
+    }
 
-                if (me->GetPosition().GetExactDist2d(who) <= MAX_HOME_POSITION_DISTANCE)
+    void Reset()
+    {
+        _Reset();
+        Initialize();
+        me->SetReactState(REACT_PASSIVE);
+        me->SetPower(POWER_MANA, 0);
+        _ravenousCreeperGUIDs.clear();
+    }
+
+    void KilledUnit(Unit* killed) override
+    {
+        if (killed->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        _EnterEvadeMode();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        summons.DespawnAll();
+        _DespawnAtEvade();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_NO_NEARBY_PLAYER:
+                if (!me->HasAura(SPELL_WITHERING_WINDS))
                 {
-                    Talk(SAY_AGGRO);
-                    events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
-                }
-            }
-
-            void AttackStart(Unit* who) override
-            {
-                if (me->GetPosition().GetExactDist2d(who) <= MAX_HOME_POSITION_DISTANCE)
-                {
-                    BossAI::AttackStart(who);
-                    events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
-                }
-            }
-
-            bool CanAIAttack(Unit const* /*target*/) const override
-            {
-                return true;
-            }
-
-            void Reset()
-            {
-                _Reset();
-                Initialize();
-                me->SetReactState(REACT_PASSIVE);
-                me->SetPower(POWER_MANA, 0);
-                _ravenousCreeperGUIDs.clear();
-            }
-
-            void KilledUnit(Unit* killed) override
-            {
-                if (killed->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void EnterEvadeMode(EvadeReason why) override
-            {
-                if (why != EVADE_REASON_BOUNDARY)
-                {
-                    _EnterEvadeMode();
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                    summons.DespawnAll();
-                    _DespawnAtEvade();
-                }
-                else
-                {
+                    Talk(SAY_OUT_OF_RANGE);
+                    me->InterruptNonMeleeSpells(true);
+                    DoCastSelf(SPELL_WITHERING_WINDS);
                     me->AttackStop();
                     me->StopMoving();
+                    events.ScheduleEvent(EVENT_TELEPORT_TO_CENTER, 1s);
                 }
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_NO_NEARBY_PLAYER:
-                        if (!me->HasAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_WITHERING_WINDS, me)))
-                        {
-                            Talk(SAY_OUT_OF_RANGE);
-                            DoCastSelf(SPELL_WITHERING_WINDS);
-                            me->AttackStop();
-                            me->StopMoving();
-                        }
-                        break;
-                    case ACTION_PLAYER_LEFT_PLATFORM:
-                        events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, Seconds(2));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                summons.Summon(summon);
-
-                if (summon->GetEntry() == NPC_RAVENOUS_CREEPER)
-                    _ravenousCreeperGUIDs.insert(summon->GetGUID());
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                return 0;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                UpdateVictim();
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_PRE_WIND_EFFECT_WARNING:
-                            DoCastSelf(SPELL_WINDS_PRE_EFFECT_WARNING, true);
-                            events.Repeat(Seconds(2) + Milliseconds(500));
-                            break;
-                        case EVENT_SOOTHING_BREEZE:
-                        {
-                            Unit* target = me;
-                            // Clean expired guids from memory
-                            for (ObjectGuid guid : _ravenousCreeperGUIDs)
-                            {
-                                if (!ObjectAccessor::GetCreature(*me, guid))
-                                    _ravenousCreeperGUIDs.erase(guid);
-                            }
-
-                            if (ObjectGuid creeperGuid = Trinity::Containers::SelectRandomContainerElement(_ravenousCreeperGUIDs))
-                                if (Creature* creeper = ObjectAccessor::GetCreature(*me, creeperGuid))
-                                    target = creeper;
-
-                            DoCast(target, SPELL_SOOTHING_BREEZE);
-                            break;
-                        }
-                        case EVENT_NURTURE:
-                            DoCastSelf(SPELL_NURTURE);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            GuidSet _ravenousCreeperGUIDs;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetThroneOfTheFourWindsAI<boss_anshalAI>(creature);
+                break;
+            case ACTION_PLAYER_LEFT_PLATFORM:
+                events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 2s);
+                break;
+            default:
+                break;
         }
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summons.Summon(summon);
+
+        if (summon->GetEntry() == NPC_RAVENOUS_CREEPER)
+            _ravenousCreeperGUIDs.insert(summon->GetGUID());
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        return 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PRE_WIND_EFFECT_WARNING:
+                    DoCastSelf(SPELL_WINDS_PRE_EFFECT_WARNING, true);
+                    events.Repeat(2s + 500ms);
+                    break;
+                case EVENT_TELEPORT_TO_CENTER:
+                    DoCastSelf(SPELL_TELEPORT_TO_CENTER_WEST);
+                    break;
+                case EVENT_SOOTHING_BREEZE:
+                {
+                    Unit* target = me;
+                    // Clean expired guids from memory
+                    for (ObjectGuid guid : _ravenousCreeperGUIDs)
+                    {
+                        if (!ObjectAccessor::GetCreature(*me, guid))
+                            _ravenousCreeperGUIDs.erase(guid);
+                    }
+
+                    if (ObjectGuid creeperGuid = Trinity::Containers::SelectRandomContainerElement(_ravenousCreeperGUIDs))
+                        if (Creature* creeper = ObjectAccessor::GetCreature(*me, creeperGuid))
+                            target = creeper;
+
+                    DoCast(target, SPELL_SOOTHING_BREEZE);
+                    break;
+                }
+                case EVENT_NURTURE:
+                    DoCastSelf(SPELL_NURTURE);
+                    break;
+                default:
+                    break;
+            }
+        }
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    GuidSet _ravenousCreeperGUIDs;
 };
 
-class boss_nezir : public CreatureScript
+struct boss_nezir : public BossAI
 {
-    public:
-        boss_nezir() : CreatureScript("boss_nezir") { }
+    boss_nezir(Creature* creature) : BossAI(creature, DATA_CONCLAVE_OF_WIND)
+    {
+        Initialize();
+    }
 
-        struct boss_nezirAI : public BossAI
+    void Initialize()
+    {
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), who))
         {
-            boss_nezirAI(Creature* creature) : BossAI(creature, DATA_CONCLAVE_OF_WIND)
-            {
-                Initialize();
-            }
+            BossAI::AttackStart(who);
+            events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
+        }
+    }
 
-            void Initialize()
-            {
-            }
+    void JustEngagedWith(Unit* who) override
+    {
+        _JustEngagedWith();
+        me->SetReactState(REACT_AGGRESSIVE);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_NORTH);
 
-            void JustEngagedWith(Unit* who) override
-            {
-                _JustEngagedWith();
-                me->SetReactState(REACT_AGGRESSIVE);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_NORTH);
-                events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, Seconds(1));
+        if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), who))
+            Talk(SAY_AGGRO);
+        else
+            events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 1s);
+    }
 
-                if (me->GetPosition().GetExactDist2d(who) <= MAX_HOME_POSITION_DISTANCE)
+    void Reset()
+    {
+        _Reset();
+        Initialize();
+        me->SetReactState(REACT_PASSIVE);
+        me->SetPower(POWER_MANA, 0);
+    }
+
+    void KilledUnit(Unit* killed) override
+    {
+        if (killed->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        _EnterEvadeMode();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        summons.DespawnAll();
+        _DespawnAtEvade();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_NO_NEARBY_PLAYER:
+                if (!me->HasAura(SPELL_CHILLING_WINDS))
                 {
-                    Talk(SAY_AGGRO);
-                    events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
-                }
-            }
-
-            void AttackStart(Unit* who) override
-            {
-                if (me->GetPosition().GetExactDist2d(who) <= MAX_HOME_POSITION_DISTANCE)
-                {
-                    BossAI::AttackStart(who);
-                    events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
-                }
-            }
-
-            bool CanAIAttack(Unit const* /*target*/) const override
-            {
-                return true;
-            }
-
-            void Reset()
-            {
-                _Reset();
-                Initialize();
-                me->SetReactState(REACT_PASSIVE);
-                me->SetPower(POWER_MANA, 0);
-            }
-
-            void KilledUnit(Unit* killed) override
-            {
-                if (killed->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void EnterEvadeMode(EvadeReason why) override
-            {
-                if (why != EVADE_REASON_BOUNDARY)
-                {
-                    _EnterEvadeMode();
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                    summons.DespawnAll();
-                    _DespawnAtEvade();
-                }
-                else
-                {
+                    Talk(SAY_OUT_OF_RANGE);
+                    me->InterruptNonMeleeSpells(true);
+                    DoCastSelf(SPELL_CHILLING_WINDS);
                     me->AttackStop();
                     me->StopMoving();
+                    events.ScheduleEvent(EVENT_TELEPORT_TO_CENTER, 1s);
                 }
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_NO_NEARBY_PLAYER:
-                        if (!me->HasAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_CHILLING_WINDS, me)))
-                        {
-                            Talk(SAY_OUT_OF_RANGE);
-                            DoCastSelf(SPELL_CHILLING_WINDS);
-                            me->AttackStop();
-                            me->StopMoving();
-                        }
-                        break;
-                    case ACTION_PLAYER_LEFT_PLATFORM:
-                        events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, Seconds(2));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                summons.Summon(summon);
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                return 0;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                UpdateVictim();
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_PRE_WIND_EFFECT_WARNING:
-                            DoCastSelf(SPELL_WINDS_PRE_EFFECT_WARNING, true);
-                            events.Repeat(Seconds(2) + Milliseconds(500));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetThroneOfTheFourWindsAI<boss_nezirAI>(creature);
+                break;
+            case ACTION_PLAYER_LEFT_PLATFORM:
+                events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 2s);
+                break;
+            default:
+                break;
         }
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summons.Summon(summon);
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        return 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PRE_WIND_EFFECT_WARNING:
+                    DoCastSelf(SPELL_WINDS_PRE_EFFECT_WARNING, true);
+                    events.Repeat(2s + 500ms);
+                    break;
+                case EVENT_TELEPORT_TO_CENTER:
+                    DoCastSelf(SPELL_TELEPORT_TO_CENTER_NORTH);
+                    break;
+                default:
+                    break;
+            }
+        }
+        DoMeleeAttackIfReady();
+    }
 };
 
-class boss_rohash : public CreatureScript
+struct boss_rohash : public BossAI
 {
-    public:
-        boss_rohash() : CreatureScript("boss_rohash") { }
+    boss_rohash(Creature* creature) : BossAI(creature, DATA_CONCLAVE_OF_WIND)
+    {
+        Initialize();
+    }
 
-        struct boss_rohashAI : public BossAI
+    void Initialize()
+    {
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), who))
         {
-            boss_rohashAI(Creature* creature) : BossAI(creature, DATA_CONCLAVE_OF_WIND)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                _JustEngagedWith();
-                me->SetReactState(REACT_AGGRESSIVE);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_EAST);
-                events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, Seconds(1));
-
-                if (me->GetPosition().GetExactDist2d(who) <= MAX_HOME_POSITION_DISTANCE)
-                {
-                    Talk(SAY_AGGRO);
-                    events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
-                }
-            }
-
-            void AttackStart(Unit* who) override
-            {
-                if (me->GetPosition().GetExactDist2d(who) <= MAX_HOME_POSITION_DISTANCE)
-                {
-                    BossAI::AttackStart(who);
-                    events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
-                }
-            }
-
-            bool CanAIAttack(Unit const* /*target*/) const override
-            {
-                return true;
-            }
-
-            void Reset()
-            {
-                _Reset();
-                Initialize();
-                me->SetReactState(REACT_PASSIVE);
-                me->SetPower(POWER_MANA, 0);
-            }
-
-            void KilledUnit(Unit* killed) override
-            {
-                if (killed->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void EnterEvadeMode(EvadeReason why) override
-            {
-                if (why != EVADE_REASON_BOUNDARY)
-                {
-                    _EnterEvadeMode();
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                    summons.DespawnAll();
-                    _DespawnAtEvade();
-                }
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_NO_NEARBY_PLAYER:
-                        if (!me->HasAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_DEAFENING_WINDS, me)))
-                        {
-                            Talk(SAY_OUT_OF_RANGE);
-                            DoCastSelf(SPELL_DEAFENING_WINDS);
-                            me->AttackStop();
-                        }
-                        break;
-                    case ACTION_PLAYER_LEFT_PLATFORM:
-                        events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, Seconds(2));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                summons.Summon(summon);
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                return 0;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                UpdateVictim();
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_PRE_WIND_EFFECT_WARNING:
-                            DoCastSelf(SPELL_WINDS_PRE_EFFECT_WARNING, true);
-                            events.Repeat(Seconds(2) + Milliseconds(500));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoSpellAttackIfReady(SPELL_SLICING_GALE);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetThroneOfTheFourWindsAI<boss_rohashAI>(creature);
+            BossAI::AttackStart(who);
+            events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
         }
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        _JustEngagedWith();
+        me->SetReactState(REACT_AGGRESSIVE);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_EAST);
+
+        if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), who))
+            Talk(SAY_AGGRO);
+        else
+            events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 1s);
+    }
+
+    void Reset()
+    {
+        _Reset();
+        Initialize();
+        me->SetReactState(REACT_PASSIVE);
+        me->SetPower(POWER_MANA, 0);
+    }
+
+    void KilledUnit(Unit* killed) override
+    {
+        if (killed->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        _EnterEvadeMode();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        summons.DespawnAll();
+        _DespawnAtEvade();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_NO_NEARBY_PLAYER:
+                if (!me->HasAura(SPELL_DEAFENING_WINDS))
+                {
+                    Talk(SAY_OUT_OF_RANGE);
+                    me->InterruptNonMeleeSpells(true);
+                    DoCastSelf(SPELL_DEAFENING_WINDS);
+                    me->AttackStop();
+                }
+                break;
+            case ACTION_PLAYER_LEFT_PLATFORM:
+                events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 2s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summons.Summon(summon);
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        return 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PRE_WIND_EFFECT_WARNING:
+                    DoCastSelf(SPELL_WINDS_PRE_EFFECT_WARNING, true);
+                    events.Repeat(2s + 500ms);
+                    break;
+                default:
+                    break;
+            }
+        }
+        DoSpellAttackIfReady(SPELL_SLICING_GALE);
+    }
 };
 
-class npc_conclave_of_wind_ravenous_creeper_trigger : public CreatureScript
+struct npc_conclave_of_wind_ravenous_creeper_trigger : public ScriptedAI
 {
-    public:
-        npc_conclave_of_wind_ravenous_creeper_trigger() : CreatureScript("npc_conclave_of_wind_ravenous_creeper_trigger") { }
+    npc_conclave_of_wind_ravenous_creeper_trigger(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_conclave_of_wind_ravenous_creeper_triggerAI : public ScriptedAI
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        DoCastSelf(SPELL_NURTURE_VISUAL);
+        _events.ScheduleEvent(EVENT_SUMMON_RAVENOUS_CREEPER, 8s + 250ms);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            npc_conclave_of_wind_ravenous_creeper_triggerAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
+            switch (eventId)
             {
-                DoCastSelf(SPELL_NURTURE_VISUAL);
-                _events.ScheduleEvent(EVENT_SUMMON_RAVENOUS_CREEPER, Seconds(8) + Milliseconds(250));
+                case EVENT_SUMMON_RAVENOUS_CREEPER:
+                    DoCastSelf(SPELL_NURTURE_SUMMON, true);
+                    break;
+                default:
+                    break;
             }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SUMMON_RAVENOUS_CREEPER:
-                            DoCastSelf(SPELL_NURTURE_SUMMON, true);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetThroneOfTheFourWindsAI<npc_conclave_of_wind_ravenous_creeper_triggerAI>(creature);
         }
+    }
+
+private:
+    EventMap _events;
 };
 
 class spell_conclave_of_wind_winds_pre_effect_warning : public AuraScript
@@ -615,9 +570,9 @@ class spell_conclave_of_wind_winds_distance_checker : public SpellScript
         if (Unit* caster = GetCaster())
         {
             caster->RemoveAurasDueToSpell(SPELL_WINDS_PRE_EFFECT_WARNING);
-            caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_WITHERING_WINDS, caster));
-            caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_CHILLING_WINDS, caster));
-            caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_DEAFENING_WINDS, caster));
+            caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_WITHERING_WINDS_NORMAL, caster));
+            caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_CHILLING_WINDS_NORMAL, caster));
+            caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_DEAFENING_WINDS_NORMAL, caster));
         }
     }
 
@@ -627,13 +582,30 @@ class spell_conclave_of_wind_winds_distance_checker : public SpellScript
     }
 };
 
+class spell_conclave_of_winds_teleport_to_center : public SpellScript
+{
+    PrepareSpellScript(spell_conclave_of_winds_teleport_to_center);
+
+    void SetDest(SpellDestination& dest)
+    {
+        if (Creature* creature = GetCaster()->ToCreature())
+            dest.Relocate(creature->GetHomePosition());
+    }
+
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_conclave_of_winds_teleport_to_center::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+    }
+};
+
 void AddSC_boss_conclave_of_wind()
 {
-    new boss_anshal();
-    new boss_nezir();
-    new boss_rohash();
-    new npc_conclave_of_wind_ravenous_creeper_trigger();
+    RegisterThroneOfTheFourWindsCreatureAI(boss_anshal);
+    RegisterThroneOfTheFourWindsCreatureAI(boss_nezir);
+    RegisterThroneOfTheFourWindsCreatureAI(boss_rohash);
+    RegisterThroneOfTheFourWindsCreatureAI(npc_conclave_of_wind_ravenous_creeper_trigger);
 
     RegisterAuraScript(spell_conclave_of_wind_winds_pre_effect_warning);
     RegisterSpellScript(spell_conclave_of_wind_winds_distance_checker);
+    RegisterSpellScript(spell_conclave_of_winds_teleport_to_center);
 }

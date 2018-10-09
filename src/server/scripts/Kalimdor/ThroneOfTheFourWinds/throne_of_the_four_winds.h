@@ -65,12 +65,12 @@ enum TFWMisc
 {
 };
 
-#define MAX_HOME_POSITION_DISTANCE 65.0f
-
 template <class AI, class T>
 inline AI* GetThroneOfTheFourWindsAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, TotFWScriptName);
 }
+
+#define RegisterThroneOfTheFourWindsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetThroneOfTheFourWindsAI)
 
 #endif // THRONE_OF_THE_FOUR_WINDS_H_
