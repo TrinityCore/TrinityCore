@@ -201,6 +201,16 @@ struct QuestLocale
     std::vector<std::string> QuestTurnTargetName;
 };
 
+struct QuestRequestItemsLocale
+{
+    std::vector<std::string> CompletionText;
+};
+
+struct QuestOfferRewardLocale
+{
+    std::vector<std::string> RewardText;
+};
+
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
 // all base quest information, and any utility functions such as generating the amount of
 // xp to give

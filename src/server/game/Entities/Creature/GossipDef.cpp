@@ -633,7 +633,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const
 {
     std::string questTitle = quest->GetTitle();
-    std::string questOfferRewardText = quest->GetOfferRewardText();
+    std::string RewardText = quest->GetOfferRewardText();
     std::string questGiverTextWindow = quest->GetQuestGiverTextWindow();
     std::string questGiverTargetName = quest->GetQuestGiverTargetName();
     std::string questTurnTextWindow = quest->GetQuestTurnTextWindow();
@@ -645,12 +645,14 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
         if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
         {
             ObjectMgr::GetLocaleString(localeData->Title, localeConstant, questTitle);
-            ObjectMgr::GetLocaleString(localeData->OfferRewardText, localeConstant, questOfferRewardText);
             ObjectMgr::GetLocaleString(localeData->QuestGiverTextWindow, localeConstant, questGiverTextWindow);
             ObjectMgr::GetLocaleString(localeData->QuestGiverTargetName, localeConstant, questGiverTargetName);
             ObjectMgr::GetLocaleString(localeData->QuestTurnTextWindow, localeConstant, questTurnTextWindow);
             ObjectMgr::GetLocaleString(localeData->QuestTurnTargetName, localeConstant, questTurnTargetName);
         }
+
+        if (QuestOfferRewardLocale const* questOfferRewardLocale = sObjectMgr->GetQuestOfferRewardLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questOfferRewardLocale->RewardText, localeConstant, RewardText);
     }
 
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
@@ -660,7 +662,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint64(npcGUID);
     data << uint32(quest->GetQuestId());
     data << questTitle;
-    data << questOfferRewardText;
+    data << RewardText;
 
     data << questGiverTextWindow;
     data << questGiverTargetName;
@@ -708,8 +710,10 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
         {
             ObjectMgr::GetLocaleString(localeData->Title, localeConstant, questTitle);
-            ObjectMgr::GetLocaleString(localeData->RequestItemsText, localeConstant, requestItemsText);
         }
+
+        if (QuestRequestItemsLocale const* questRequestItemsLocale = sObjectMgr->GetQuestRequestItemsLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questRequestItemsLocale->CompletionText, localeConstant, requestItemsText);
     }
 
     if (!quest->GetReqItemsCount() && canComplete)

@@ -5032,8 +5032,8 @@ void ObjectMgr::LoadQuestLocales()
 
     _questLocaleStore.clear();                                // need for reload case
 
-    //                                               0   1       2      3        4           5                6                 7        8              9                     10                    11                   12                   13              14              15              16
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Title, Details, Objectives, OfferRewardText, RequestItemsText, EndText, CompletedText, QuestGiverTextWindow, QuestGiverTargetName, QuestTurnTextWindow, QuestTurnTargetName, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4 FROM quest_template_locale");
+    //                                               0   1       2      3        4           5                6                 7        8              9                     10                    11                   12                   13              14
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Title, Details, Objectives, EndText, CompletedText, QuestGiverTextWindow, QuestGiverTargetName, QuestTurnTextWindow, QuestTurnTargetName, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4 FROM quest_template_locale");
     if (!result)
         return;
 
@@ -5041,8 +5041,8 @@ void ObjectMgr::LoadQuestLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 id               = fields[0].GetUInt32();
-        std::string localeName  = fields[1].GetString();
+        uint32 id              = fields[0].GetUInt32();
+        std::string localeName = fields[1].GetString();
 
         QuestLocale& data = _questLocaleStore[id];
 
@@ -5051,17 +5051,15 @@ void ObjectMgr::LoadQuestLocales()
         AddLocaleString(fields[2].GetString(), locale, data.Title);
         AddLocaleString(fields[3].GetString(), locale, data.Details);
         AddLocaleString(fields[4].GetString(), locale, data.Objectives);
-        AddLocaleString(fields[5].GetString(), locale, data.OfferRewardText);
-        AddLocaleString(fields[6].GetString(), locale, data.RequestItemsText);
-        AddLocaleString(fields[7].GetString(), locale, data.AreaDescription);
-        AddLocaleString(fields[8].GetString(), locale, data.CompletedText);
-        AddLocaleString(fields[9].GetString(), locale, data.QuestGiverTextWindow);
-        AddLocaleString(fields[10].GetString(), locale, data.QuestGiverTargetName);
-        AddLocaleString(fields[11].GetString(), locale, data.QuestTurnTextWindow);
-        AddLocaleString(fields[12].GetString(), locale, data.QuestTurnTargetName);
+        AddLocaleString(fields[5].GetString(), locale, data.AreaDescription);
+        AddLocaleString(fields[6].GetString(), locale, data.CompletedText);
+        AddLocaleString(fields[7].GetString(), locale, data.QuestGiverTextWindow);
+        AddLocaleString(fields[8].GetString(), locale, data.QuestGiverTargetName);
+        AddLocaleString(fields[9].GetString(), locale, data.QuestTurnTextWindow);
+        AddLocaleString(fields[10].GetString(), locale, data.QuestTurnTargetName);
 
         for (uint8 i = 0; i < 4; ++i)
-            AddLocaleString(fields[i + 13].GetString(), locale, data.ObjectiveText[i]);
+            AddLocaleString(fields[i + 11].GetString(), locale, data.ObjectiveText[i]);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u Quest locale strings in %u ms", uint32(_questLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -6251,7 +6249,7 @@ void ObjectMgr::LoadQuestGreetings()
     TC_LOG_INFO("server.loading", ">> Loaded %u quest_greeting in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadQuestGreetingsLocales()
+void ObjectMgr::LoadQuestGreetingLocales()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -6296,6 +6294,62 @@ void ObjectMgr::LoadQuestGreetingsLocales()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u quest greeting locale strings in %u ms", uint32(_questGreetingLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadQuestOfferRewardLocale()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _questOfferRewardLocaleStore.clear(); // need for reload case
+    //                                               0     1          2
+    QueryResult result = WorldDatabase.Query("SELECT Id, locale, RewardText FROM quest_offer_reward_locale");
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id = fields[0].GetUInt32();
+        std::string localeName = fields[1].GetString();
+
+        LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
+
+        QuestOfferRewardLocale& data = _questOfferRewardLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.RewardText);
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Quest Offer Reward locale strings in %u ms", _questOfferRewardLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadQuestRequestItemsLocale()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _questRequestItemsLocaleStore.clear(); // need for reload case
+    //                                               0     1          2
+    QueryResult result = WorldDatabase.Query("SELECT Id, locale, CompletionText FROM quest_request_items_locale");
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id = fields[0].GetUInt32();
+        std::string localeName = fields[1].GetString();
+
+        LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
+
+        QuestRequestItemsLocale& data = _questRequestItemsLocaleStore[id];
+        AddLocaleString(fields[2].GetString(), locale, data.CompletionText);
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Quest Request Items locale strings in %u ms", _questRequestItemsLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadTavernAreaTriggers()
