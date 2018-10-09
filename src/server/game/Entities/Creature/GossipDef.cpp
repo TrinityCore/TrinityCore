@@ -708,9 +708,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     if (localeConstant != LOCALE_enUS)
     {
         if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
             ObjectMgr::GetLocaleString(localeData->Title, localeConstant, questTitle);
-        }
 
         if (QuestRequestItemsLocale const* questRequestItemsLocale = sObjectMgr->GetQuestRequestItemsLocale(quest->GetQuestId()))
             ObjectMgr::GetLocaleString(questRequestItemsLocale->CompletionText, localeConstant, requestItemsText);
