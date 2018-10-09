@@ -562,6 +562,8 @@ typedef std::unordered_map<uint32, ItemTemplate> ItemTemplateContainer;
 typedef std::unordered_map<uint32, ItemLocale> ItemLocaleContainer;
 typedef std::unordered_map<uint32, ItemSetNameLocale> ItemSetNameLocaleContainer;
 typedef std::unordered_map<uint32, QuestLocale> QuestLocaleContainer;
+typedef std::unordered_map<uint32, QuestOfferRewardLocale> QuestOfferRewardLocaleContainer;
+typedef std::unordered_map<uint32, QuestRequestItemsLocale> QuestRequestItemsLocaleContainer;
 typedef std::unordered_map<uint32, NpcTextLocale> NpcTextLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
 
@@ -1166,10 +1168,12 @@ class TC_GAME_API ObjectMgr
         void LoadItemSetNameLocales();
         void LoadQuestLocales();
         void LoadNpcTextLocales();
+        void LoadQuestOfferRewardLocale();
+        void LoadQuestRequestItemsLocale();
         void LoadPageTextLocales();
         void LoadGossipMenuItemsLocales();
         void LoadPointOfInterestLocales();
-        void LoadQuestGreetingsLocales();
+        void LoadQuestGreetingLocales();
         void LoadInstanceTemplate();
         void LoadInstanceEncounters();
         void LoadMailLevelRewards();
@@ -1364,6 +1368,18 @@ class TC_GAME_API ObjectMgr
         {
             QuestLocaleContainer::const_iterator itr = _questLocaleStore.find(entry);
             if (itr == _questLocaleStore.end()) return nullptr;
+            return &itr->second;
+        }
+        QuestOfferRewardLocale const* GetQuestOfferRewardLocale(uint32 entry) const
+        {
+            auto itr = _questOfferRewardLocaleStore.find(entry);
+            if (itr == _questOfferRewardLocaleStore.end()) return nullptr;
+            return &itr->second;
+        }
+        QuestRequestItemsLocale const* GetQuestRequestItemsLocale(uint32 entry) const
+        {
+            auto itr = _questRequestItemsLocaleStore.find(entry);
+            if (itr == _questRequestItemsLocaleStore.end()) return nullptr;
             return &itr->second;
         }
         NpcTextLocale const* GetNpcTextLocale(uint32 entry) const
@@ -1657,6 +1673,9 @@ class TC_GAME_API ObjectMgr
         ItemLocaleContainer _itemLocaleStore;
         ItemSetNameLocaleContainer _itemSetNameLocaleStore;
         QuestLocaleContainer _questLocaleStore;
+        QuestOfferRewardLocaleContainer _questOfferRewardLocaleStore;
+        QuestRequestItemsLocaleContainer _questRequestItemsLocaleStore;
+
         NpcTextLocaleContainer _npcTextLocaleStore;
         PageTextLocaleContainer _pageTextLocaleStore;
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
