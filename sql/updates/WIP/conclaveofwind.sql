@@ -26,7 +26,7 @@
 20:25:39.343 -- jet stream cast
 20:25:41.376 -- wind pre effect warning
 
-20:25:43.394
+20:25:43.394 -- 
 20:25:43.493 -- you think you outrun the wind???
 20:26:44.509 -- teleport to center west
 
@@ -53,6 +53,12 @@ UPDATE `creature_template` SET `unit_flags`= 33555200, `flags_extra`= 128, `Scri
 UPDATE `creature_template` SET `unit_flags`= 33554432, `flags_extra`= 128 WHERE `entry`= 46246;
 -- North Wind
 UPDATE `creature_template` SET `unit_flags`= 33554432, `flags_extra`= 128 WHERE `entry`= 47926;
+-- Ravenous Creeper
+UPDATE `creature_template` SET `ScriptName`= 'npc_conclave_of_wind_ravenous_creeper' WHERE `entry`= 45812;
+-- Tornado
+UPDATE `creature_template` SET `unit_flags`= 33554432, `flags_extra`= 128 WHERE `entry`= 46207;
+-- World Trigger World Trigger (Not Immune NPC)
+UPDATE `creature_template` SET `speed_walk`= 1, `speed_run`= 1 WHERE `entry`= 19871;
 
 -- Creature Text
 DELETE FROM `creature_text` WHERE `CreatureID` IN (21252, 45870, 45871, 45872);
@@ -91,21 +97,37 @@ UPDATE `creature_model_info` SET `BoundingRadius`= 6.987639, `CombatReach`= 12.5
 UPDATE `creature_model_info` SET `BoundingRadius`= 6.987639 WHERE `DisplayID`= 35232;
 
 -- Template Addon
-DELETE FROM `creature_template_addon` WHERE `entry` IN (46246);
+DELETE FROM `creature_template_addon` WHERE `entry` IN (46246, 46207);
 INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
-(46246, '86206 86207 86208');
+(46246, '86206 86207 86208'),
+(46207, '86134');
 
 -- Spells
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 ('spell_conclave_of_wind_winds_pre_effect_warning',
-'spell_conclave_of_wind_winds_distance_checker',
-'spell_conclave_of_winds_teleport_to_center');
+'spell_conclave_of_wind_teleport_to_center',
+'spell_conclave_of_wind_winds',
+'spell_conclave_of_wind_wind_blast');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (96508, 'spell_conclave_of_wind_winds_pre_effect_warning'),
-(85763, 'spell_conclave_of_wind_winds_distance_checker'),
-(89843, 'spell_conclave_of_winds_teleport_to_center'),
-(89844, 'spell_conclave_of_winds_teleport_to_center');
+(89843, 'spell_conclave_of_wind_teleport_to_center'),
+(89844, 'spell_conclave_of_wind_teleport_to_center'),
+(85573, 'spell_conclave_of_wind_winds'),
+(85578, 'spell_conclave_of_wind_winds'),
+(85576, 'spell_conclave_of_wind_winds'),
+(93190, 'spell_conclave_of_wind_winds'),
+(93191, 'spell_conclave_of_wind_winds'),
+(93192, 'spell_conclave_of_wind_winds'),
+(93147, 'spell_conclave_of_wind_winds'),
+(93148, 'spell_conclave_of_wind_winds'),
+(93149, 'spell_conclave_of_wind_winds'),
+(93181, 'spell_conclave_of_wind_winds'),
+(93182, 'spell_conclave_of_wind_winds'),
+(93183, 'spell_conclave_of_wind_winds'),
+(86193, 'spell_conclave_of_wind_wind_blast'),
+(85480, 'spell_conclave_of_wind_wind_blast');
+
 
 DELETE FROM `conditions` WHERE `SourceEntry` IN (89844, 89843) AND `SourceTypeOrReferenceId`= 13;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES

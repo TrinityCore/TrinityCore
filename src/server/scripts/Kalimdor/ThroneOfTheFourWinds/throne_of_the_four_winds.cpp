@@ -40,7 +40,7 @@ enum Spells
 enum Events
 {
     EVENT_EJECT_ALL_PASSENGERS      = 1,
-    EVENT_THROW_PASSENGER           = 2,
+    EVENT_THROW_PASSENGER           = 2
 };
 
 enum Actions
@@ -87,6 +87,15 @@ class at_totfw_catch_fall : public AreaTriggerScript
             if (Creature* trigger = player->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f, true))
                 trigger->CastSpell(player, SPELL_CATCH_FALL, true);
 
+            if (InstanceScript* instance = player->GetInstanceScript())
+            {
+                if (Creature* anshal = instance->GetCreature(DATA_ANSHAL))
+                    anshal->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
+                else if (Creature* nezir = instance->GetCreature(DATA_NEZIR))
+                    nezir->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
+                else if (Creature* rohash = instance->GetCreature(DATA_ROHASH))
+                    rohash->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
+            }
             return true;
         }
 };

@@ -4803,6 +4803,17 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_2;
     });
 
+    // Tornado
+    ApplySpellFix({
+        86189,
+        86190,
+        86191
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
+        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_15_YARDS);
+    });
+
     // ENDOF THRONE OF THE FOUR WINDS SPELLS
 
     // Disenchant
