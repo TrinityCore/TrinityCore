@@ -110,8 +110,6 @@ INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`) VALUES
 (59, 1, 195),
 (68, 13, 202),
 (66, 9, 200),
-(0, 1, 260),
-(0, 1, 43),
 (802, 17, 955),
 (919, 20, 1371),
 (886, 11, 1036),
@@ -133,6 +131,5 @@ INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`) VALUES
 (74, 0, 214),
 (77, 11, 41),
 (75, 17, 213),
-(0, 1, 27),
 (73, 1, 211),
 (37, 1, 25);
