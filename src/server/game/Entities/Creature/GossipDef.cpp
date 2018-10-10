@@ -523,16 +523,16 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const
 {
     std::string questTitle = quest->GetTitle();
-    std::string questOfferRewardText = quest->GetOfferRewardText();
+    std::string RewardText = quest->GetOfferRewardText();
 
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
     if (localeConstant != LOCALE_enUS)
     {
         if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
             ObjectMgr::GetLocaleString(localeData->Title,           localeConstant, questTitle);
-            ObjectMgr::GetLocaleString(localeData->OfferRewardText, localeConstant, questOfferRewardText);
-        }
+
+        if (QuestOfferRewardLocale const* questOfferRewardLocale = sObjectMgr->GetQuestOfferRewardLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questOfferRewardLocale->RewardText, localeConstant, RewardText);
     }
 
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
@@ -542,7 +542,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint64(npcGUID);
     data << uint32(quest->GetQuestId());
     data << questTitle;
-    data << questOfferRewardText;
+    data << RewardText;
 
     data << uint8(enableNext ? 1 : 0);                      // Auto Finish
     data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
@@ -626,10 +626,10 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     if (localeConstant != LOCALE_enUS)
     {
         if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
             ObjectMgr::GetLocaleString(localeData->Title,            localeConstant, questTitle);
-            ObjectMgr::GetLocaleString(localeData->RequestItemsText, localeConstant, requestItemsText);
-        }
+
+        if (QuestRequestItemsLocale const* questRequestItemsLocale = sObjectMgr->GetQuestRequestItemsLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questRequestItemsLocale->CompletionText, localeConstant, requestItemsText);
     }
 
     if (!quest->GetReqItemsCount() && canComplete)
