@@ -19,6 +19,7 @@
 #define GameObjectData_h__
 
 #include "Common.h"
+#include "DBCEnums.h"
 #include "SharedDefines.h"
 #include <string>
 #include <vector>
