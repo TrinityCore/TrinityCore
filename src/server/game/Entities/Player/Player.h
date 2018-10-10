@@ -101,16 +101,23 @@ namespace WorldPackets
 
 typedef std::deque<Mail*> PlayerMails;
 
-#define PLAYER_MAX_SKILLS                       128
-enum SkillFieldOffset
+#define PLAYER_MAX_SKILLS                       256
+
+template<typename SkillArrayType>
+constexpr std::size_t CalculateSkillFieldArraySize()
 {
-    SKILL_ID_OFFSET = 0,
-    SKILL_STEP_OFFSET = 64,
-    SKILL_RANK_OFFSET = SKILL_STEP_OFFSET + 64,
-    SUBSKILL_START_RANK_OFFSET = SKILL_RANK_OFFSET + 64,
-    SKILL_MAX_RANK_OFFSET = SUBSKILL_START_RANK_OFFSET + 64,
-    SKILL_TEMP_BONUS_OFFSET = SKILL_MAX_RANK_OFFSET + 64,
-    SKILL_PERM_BONUS_OFFSET = SKILL_TEMP_BONUS_OFFSET + 64
+    return PLAYER_MAX_SKILLS / sizeof(uint32) * sizeof(SkillArrayType);
+}
+
+enum SkillFieldOffset : uint16
+{
+    SKILL_ID_OFFSET            = 0,
+    SKILL_STEP_OFFSET          = SKILL_ID_OFFSET + CalculateSkillFieldArraySize<uint16>(),
+    SKILL_RANK_OFFSET          = SKILL_STEP_OFFSET + CalculateSkillFieldArraySize<uint16>(),
+    SUBSKILL_START_RANK_OFFSET = SKILL_RANK_OFFSET + CalculateSkillFieldArraySize<uint16>(),
+    SKILL_MAX_RANK_OFFSET      = SUBSKILL_START_RANK_OFFSET + CalculateSkillFieldArraySize<uint16>(),
+    SKILL_TEMP_BONUS_OFFSET    = SKILL_MAX_RANK_OFFSET + CalculateSkillFieldArraySize<uint16>(),
+    SKILL_PERM_BONUS_OFFSET    = SKILL_TEMP_BONUS_OFFSET + CalculateSkillFieldArraySize<uint16>()
 };
 
 #define PLAYER_EXPLORED_ZONES_SIZE  320
@@ -1189,7 +1196,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static bool IsChildEquipmentPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) const { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const;
-        uint8 GetInventorySlotCount() const { return GetByteValue(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_NUM_BACKPACK_SLOTS); }
+        uint8 GetInventorySlotCount() const { return GetByteValue(ACTIVE_PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_NUM_BACKPACK_SLOTS); }
         void SetInventorySlotCount(uint8 slots);
         uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_BANK_BAG_SLOTS); }
         void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_BANK_BAG_SLOTS, count); }
@@ -1531,7 +1538,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
 
-        uint64 GetMoney() const { return GetUInt64Value(PLAYER_FIELD_COINAGE); }
+        uint64 GetMoney() const { return GetUInt64Value(ACTIVE_PLAYER_FIELD_COINAGE); }
         bool ModifyMoney(int64 amount, bool sendError = true);
         bool HasEnoughMoney(uint64 amount) const { return (GetMoney() >= amount); }
         bool HasEnoughMoney(int64 amount) const;
@@ -1623,8 +1630,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::string GetGuildName() const;
 
         // Loot Spec
-        void SetLootSpecId(uint32 id) { SetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID, id); }
-        uint32 GetLootSpecId() const { return GetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID); }
+        void SetLootSpecId(uint32 id) { SetUInt32Value(ACTIVE_PLAYER_FIELD_LOOT_SPEC_ID, id); }
+        uint32 GetLootSpecId() const { return GetUInt32Value(ACTIVE_PLAYER_FIELD_LOOT_SPEC_ID); }
 
         // Talents
         uint32 GetTalentResetCost() const { return _specializationInfo.ResetTalentsCost; }
@@ -1671,8 +1678,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::vector<uint32>& GetGlyphs(uint8 spec) { return _specializationInfo.Glyphs[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
 
-        uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS); }
-        void SetFreePrimaryProfessions(uint16 profs) { SetUInt32Value(PLAYER_CHARACTER_POINTS, profs); }
+        uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(ACTIVE_PLAYER_FIELD_CHARACTER_POINTS); }
+        void SetFreePrimaryProfessions(uint16 profs) { SetUInt32Value(ACTIVE_PLAYER_FIELD_CHARACTER_POINTS, profs); }
         void InitPrimaryProfessions();
 
         PlayerSpellMap const& GetSpellMap() const { return m_spells; }
@@ -1757,7 +1764,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetGuildLevel(uint32 level) { SetUInt32Value(PLAYER_GUILDLEVEL, level); }
         uint32 GetGuildLevel() const { return GetUInt32Value(PLAYER_GUILDLEVEL); }
         void SetGuildIdInvited(ObjectGuid::LowType GuildId) { m_GuildIdInvited = GuildId; }
-        ObjectGuid::LowType GetGuildId() const { return GetUInt64Value(OBJECT_FIELD_DATA); /* return only lower part */ }
+        ObjectGuid::LowType GetGuildId() const { return GetUInt64Value(UNIT_FIELD_GUILD_GUID); /* return only lower part */ }
         Guild* GetGuild();
         Guild const* GetGuild() const;
         static ObjectGuid::LowType GetGuildIdFromDB(ObjectGuid guid);
@@ -1770,8 +1777,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value);
         static uint32 GetArenaTeamIdFromDB(ObjectGuid guid, uint8 slot);
         static void LeaveAllArenaTeams(ObjectGuid guid);
-        uint32 GetArenaTeamId(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_ID); }
-        uint32 GetArenaPersonalRating(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING); }
+        uint32 GetArenaTeamId(uint8 slot) const { return GetUInt32Value(ACTIVE_PLAYER_FIELD_ARENA_TEAM_INFO + (slot * ARENA_TEAM_END) + ARENA_TEAM_ID); }
+        uint32 GetArenaPersonalRating(uint8 slot) const { return GetUInt32Value(ACTIVE_PLAYER_FIELD_ARENA_TEAM_INFO + (slot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING); }
         void SetArenaTeamIdInvited(uint32 ArenaTeamId) { m_ArenaTeamIdInvited = ArenaTeamId; }
         uint32 GetArenaTeamIdInvited() const { return m_ArenaTeamIdInvited; }
         uint32 GetRBGPersonalRating() const { return 0; }
@@ -1986,7 +1993,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RestoreHealthAfterDuel() { SetHealth(healthBeforeDuel); }
         void RestoreManaAfterDuel() { SetPower(POWER_MANA, manaBeforeDuel); }
 
-        uint32 GetPrestigeLevel() const { return GetUInt32Value(PLAYER_FIELD_PRESTIGE); }
+        uint32 GetPrestigeLevel() const { return 0; }
         uint32 GetHonorLevel() const { return GetUInt32Value(PLAYER_FIELD_HONOR_LEVEL); }
         void AddHonorXP(uint32 xp);
         void SetHonorLevel(uint8 honorLevel);
@@ -2008,7 +2015,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         int32 CalculateCorpseReclaimDelay(bool load = false) const;
         void SendCorpseReclaimDelay(uint32 delay) const;
 
-        uint32 GetBlockPercent() const override { return GetUInt32Value(PLAYER_SHIELD_BLOCK); }
+        uint32 GetBlockPercent() const override { return GetUInt32Value(ACTIVE_PLAYER_FIELD_SHIELD_BLOCK); }
         bool CanParry() const { return m_canParry; }
         void SetCanParry(bool value);
         bool CanBlock() const { return m_canBlock; }
@@ -2724,7 +2731,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         std::unordered_map<ObjectGuid /*LootObject*/, ObjectGuid /*world object*/> m_AELootView;
 
-        void _InitHonorLevelOnLoadFromDB(uint32 /*honor*/, uint32 /*honorLevel*/, uint32 /*prestigeLevel*/);
+        void _InitHonorLevelOnLoadFromDB(uint32 honor, uint32 honorLevel);
         std::unique_ptr<RestMgr> _restMgr;
 
         bool _usePvpItemLevels;

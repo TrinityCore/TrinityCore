@@ -1224,7 +1224,7 @@ void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packe
 
 void WorldSession::HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWatchedFaction& packet)
 {
-    GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, packet.FactionIndex);
+    GetPlayer()->SetUInt32Value(ACTIVE_PLAYER_FIELD_WATCHED_FACTION_INDEX, packet.FactionIndex);
 }
 
 void WorldSession::HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFactionInactive& packet)
@@ -2342,7 +2342,7 @@ void WorldSession::HandleReorderCharacters(WorldPackets::Character::ReorderChara
 void WorldSession::HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& /*packet*/)
 {
     // Only players that has not yet gained any experience can use this
-    if (_player->GetUInt32Value(PLAYER_XP))
+    if (_player->GetUInt32Value(ACTIVE_PLAYER_FIELD_XP))
         return;
 
     if (ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(_player->getClass()))

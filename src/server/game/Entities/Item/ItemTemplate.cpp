@@ -241,7 +241,7 @@ bool ItemTemplate::IsUsableByLootSpecialization(Player const* player, bool alway
     if (GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT && alwaysAllowBoundToAccount)
         return true;
 
-    uint32 spec = player->GetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID);
+    uint32 spec = player->GetUInt32Value(ACTIVE_PLAYER_FIELD_LOOT_SPEC_ID);
     if (!spec)
         spec = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
     if (!spec)

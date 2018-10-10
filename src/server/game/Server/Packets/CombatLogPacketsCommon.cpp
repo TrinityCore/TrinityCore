@@ -64,7 +64,7 @@ namespace WorldPackets
             CreatureTemplate const* creatureTemplate = attacker->GetCreatureTemplate();
 
             Type = TYPE_CREATURE_TO_PLAYER_DAMAGE;
-            PlayerLevelDelta = target->GetInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
+            PlayerLevelDelta = target->GetInt32Value(ACTIVE_PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
             PlayerItemLevel = target->GetAverageItemLevel();
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
@@ -81,7 +81,7 @@ namespace WorldPackets
             CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
 
             Type = TYPE_PLAYER_TO_CREATURE_DAMAGE;
-            PlayerLevelDelta = attacker->GetInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
+            PlayerLevelDelta = attacker->GetInt32Value(ACTIVE_PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
             PlayerItemLevel = attacker->GetAverageItemLevel();
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;

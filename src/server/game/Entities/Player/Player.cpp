@@ -140,8 +140,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;
 
-    m_valuesCount = PLAYER_END;
-    _dynamicValuesCount = PLAYER_DYNAMIC_END;
+    m_valuesCount = ACTIVE_PLAYER_END;
+    _dynamicValuesCount = ACTIVE_PLAYER_DYNAMIC_END;
 
     m_session = session;
 
@@ -468,7 +468,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);            // default for players in 3.0.3
 
-    SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));  // -1 is default value
+    SetInt32Value(ACTIVE_PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));  // -1 is default value
 
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID, createInfo->Skin);
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID, createInfo->Face);
@@ -477,23 +477,23 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, createInfo->FacialHairStyle);
     for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
         SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i, createInfo->CustomDisplay[i]);
-    SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
-    SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_HONOR, REST_STATE_NOT_RAF_LINKED);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_REST_INFO + REST_STATE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_REST_INFO + REST_STATE_HONOR, REST_STATE_NOT_RAF_LINKED);
     SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER, createInfo->Sex);
     SetByteValue(PLAYER_BYTES_4, PLAYER_BYTES_4_OFFSET_ARENA_FACTION, 0);
     SetInventorySlotCount(INVENTORY_DEFAULT_SIZE);
 
-    SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Empty);
+    SetGuidValue(UNIT_FIELD_GUILD_GUID, ObjectGuid::Empty);
     SetUInt32Value(PLAYER_GUILDRANK, 0);
     SetGuildLevel(0);
     SetUInt32Value(PLAYER_GUILD_TIMESTAMP, 0);
 
     for (int i = 0; i < KNOWN_TITLES_SIZE; ++i)
-        SetUInt64Value(PLAYER__FIELD_KNOWN_TITLES + i, 0);  // 0=disabled
+        SetUInt64Value(ACTIVE_PLAYER_FIELD_KNOWN_TITLES + i, 0);  // 0=disabled
     SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
 
-    SetUInt32Value(PLAYER_FIELD_KILLS, 0);
-    SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 0);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_KILLS, 0);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 0);
 
     // set starting level
     uint32 start_level = sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL);
@@ -527,7 +527,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     InitRunes();
 
-    SetUInt64Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
+    SetUInt64Value(ACTIVE_PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
     SetCurrency(CURRENCY_TYPE_APEXIS_CRYSTALS, sWorld->getIntConfig(CONFIG_CURRENCY_START_APEXIS_CRYSTALS));
     SetCurrency(CURRENCY_TYPE_JUSTICE_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_JUSTICE_POINTS));
 
@@ -535,7 +535,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     if (sWorld->getBoolConfig(CONFIG_START_ALL_EXPLORED))
     {
         for (uint16 i=0; i<PLAYER_EXPLORED_ZONES_SIZE; i++)
-            SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0xFFFFFFFF);
+            SetFlag(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES+i, 0xFFFFFFFF);
     }
 
     //Reputations if "StartAllReputation" is enabled, -- @todo Fix this in a better way
@@ -1391,7 +1391,7 @@ void Player::setDeathState(DeathState s)
 
     if (IsAlive() && !oldIsAlive)
         //clear aura case after resurrection by another way (spells will be applied before next death)
-        ClearDynamicValue(PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS);
+        ClearDynamicValue(ACTIVE_PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS);
 }
 
 void Player::ToggleAFK()
@@ -2317,15 +2317,15 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
 
 void Player::SetXP(uint32 xp)
 {
-    SetUInt32Value(PLAYER_XP, xp);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_XP, xp);
 
     int32 playerLevelDelta = 0;
 
     // If XP < 50%, player should see scaling creature with -1 level except for level max
-    if (getLevel() < MAX_LEVEL && xp < (GetUInt32Value(PLAYER_NEXT_LEVEL_XP) / 2))
+    if (getLevel() < MAX_LEVEL && xp < (GetUInt32Value(ACTIVE_PLAYER_FIELD_NEXT_LEVEL_XP) / 2))
         playerLevelDelta = -1;
 
-    SetInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA, playerLevelDelta);
+    SetInt32Value(ACTIVE_PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA, playerLevelDelta);
 }
 
 void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
@@ -2368,8 +2368,8 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     packet.ReferAFriendBonusType = recruitAFriend ? 1 : 0;
     GetSession()->SendPacket(packet.Write());
 
-    uint32 curXP = GetUInt32Value(PLAYER_XP);
-    uint32 nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
+    uint32 curXP = GetUInt32Value(ACTIVE_PLAYER_FIELD_XP);
+    uint32 nextLvlXP = GetUInt32Value(ACTIVE_PLAYER_FIELD_NEXT_LEVEL_XP);
     uint32 newXP = curXP + xp + bonus_xp;
 
     while (newXP >= nextLvlXP && level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
@@ -2380,7 +2380,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
             GiveLevel(level + 1);
 
         level = getLevel();
-        nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
+        nextLvlXP = GetUInt32Value(ACTIVE_PLAYER_FIELD_NEXT_LEVEL_XP);
     }
 
     SetXP(newXP);
@@ -2425,7 +2425,7 @@ void Player::GiveLevel(uint8 level)
 
     GetSession()->SendPacket(packet.Write());
 
-    SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(level));
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(level));
 
     //update level, max level of skills
     m_Played_time[PLAYED_TIME_LEVEL] = 0;                   // Level Played Time reset
@@ -2489,8 +2489,8 @@ void Player::GiveLevel(uint8 level)
             {
                 ++m_grantableLevels;
 
-                if (!HasByteFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL, 0x01))
-                    SetByteFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL, 0x01);
+                if (!HasByteFlag(ACTIVE_PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL, 0x01))
+                    SetByteFlag(ACTIVE_PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL, 0x01);
             }
         }
     }
@@ -2520,7 +2520,7 @@ void Player::InitTalentForLevel()
                         RemoveTalent(talent);
     }
 
-    SetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS, talentTiers);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_MAX_TALENT_TIERS, talentTiers);
 
     if (!GetSession()->PlayerLoading())
         SendTalentsInfoData(); // update at client
@@ -2537,8 +2537,8 @@ void Player::InitStatsForLevel(bool reapplyMods)
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), getLevel(), &info);
 
-    SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
-    SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(getLevel()));
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_MAX_LEVEL, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(getLevel()));
 
     // reset before any aura state sources (health set/aura apply)
     SetUInt32Value(UNIT_FIELD_AURASTATE, 0);
@@ -2568,26 +2568,26 @@ void Player::InitStatsForLevel(bool reapplyMods)
     //set create powers
     SetCreateMana(basemana);
 
-    SetArmor(int32(m_createStats[STAT_AGILITY]*2));
+    SetArmor(int32(m_createStats[STAT_AGILITY]*2), 0);
 
     InitStatBuffMods();
 
     //reset rating fields values
-    for (uint16 index = PLAYER_FIELD_COMBAT_RATING_1; index < PLAYER_FIELD_COMBAT_RATING_1 + MAX_COMBAT_RATING; ++index)
-        SetUInt32Value(index, 0);
+    for (uint16 index = 0; index < MAX_COMBAT_RATING; ++index)
+        SetUInt32Value(ACTIVE_PLAYER_FIELD_COMBAT_RATING + index, 0);
 
-    SetUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, 0);
-    SetFloatValue(PLAYER_FIELD_MOD_HEALING_PCT, 1.0f);
-    SetFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PCT, 1.0f);
-    SetFloatValue(PLAYER_FIELD_MOD_PERIODIC_HEALING_DONE_PERCENT, 1.0f);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_MOD_HEALING_DONE_POS, 0);
+    SetFloatValue(ACTIVE_PLAYER_FIELD_MOD_HEALING_PCT, 1.0f);
+    SetFloatValue(ACTIVE_PLAYER_FIELD_MOD_HEALING_DONE_PCT, 1.0f);
+    SetFloatValue(ACTIVE_PLAYER_FIELD_MOD_PERIODIC_HEALING_DONE_PERCENT, 1.0f);
     for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
     {
-        SetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i, 0);
-        SetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, 0);
-        SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i, 1.00f);
+        SetInt32Value(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i, 0);
+        SetInt32Value(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, 0);
+        SetFloatValue(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i, 1.00f);
     }
 
-    SetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PCT, 1.0f);
+    SetFloatValue(ACTIVE_PLAYER_FIELD_MOD_SPELL_POWER_PCT, 1.0f);
 
     //reset attack power, damage and attack speed fields
     for (uint8 i = BASE_ATTACK; i < MAX_ATTACK; ++i)
@@ -2601,8 +2601,8 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, 0.0f);
     for (uint16 i = 0; i < 3; ++i)
     {
-        SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS + i, 1.0f);
-        SetFloatValue(PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS + i, 1.0f);
+        SetFloatValue(ACTIVE_PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS + i, 1.0f);
+        SetFloatValue(ACTIVE_PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS + i, 1.0f);
     }
 
     SetInt32Value(UNIT_FIELD_ATTACK_POWER,            0);
@@ -2611,44 +2611,42 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER, 0.0f);
 
     // Base crit values (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
-    SetFloatValue(PLAYER_CRIT_PERCENTAGE, 0.0f);
-    SetFloatValue(PLAYER_OFFHAND_CRIT_PERCENTAGE, 0.0f);
-    SetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE, 0.0f);
+    SetFloatValue(ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE, 0.0f);
+    SetFloatValue(ACTIVE_PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE, 0.0f);
+    SetFloatValue(ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, 0.0f);
 
     // Init spell schools (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
-    SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1, 0.0f);
+    SetFloatValue(ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1, 0.0f);
 
-    SetFloatValue(PLAYER_PARRY_PERCENTAGE, 0.0f);
-    SetFloatValue(PLAYER_BLOCK_PERCENTAGE, 0.0f);
+    SetFloatValue(ACTIVE_PLAYER_FIELD_PARRY_PERCENTAGE, 0.0f);
+    SetFloatValue(ACTIVE_PLAYER_FIELD_BLOCK_PERCENTAGE, 0.0f);
 
     // Static 30% damage blocked
-    SetUInt32Value(PLAYER_SHIELD_BLOCK, 30);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_SHIELD_BLOCK, 30);
 
     // Dodge percentage
-    SetFloatValue(PLAYER_DODGE_PERCENTAGE, 0.0f);
+    SetFloatValue(ACTIVE_PLAYER_FIELD_DODGE_PERCENTAGE, 0.0f);
 
     // set armor (resistance 0) to original value (create_agility*2)
-    SetArmor(int32(m_createStats[STAT_AGILITY]*2));
-    SetResistanceBuffMods(SPELL_SCHOOL_NORMAL, true, 0.0f);
-    SetResistanceBuffMods(SPELL_SCHOOL_NORMAL, false, 0.0f);
+    SetArmor(int32(m_createStats[STAT_AGILITY]*2), 0);
+    SetBonusResistanceMod(SPELL_SCHOOL_NORMAL, 0);
     // set other resistance to original value (0)
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
     {
         SetResistance(SpellSchools(i), 0);
-        SetResistanceBuffMods(SpellSchools(i), true, 0.0f);
-        SetResistanceBuffMods(SpellSchools(i), false, 0.0f);
+        SetBonusResistanceMod(SpellSchools(i), 0);
     }
 
-    SetUInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, 0);
-    SetUInt32Value(PLAYER_FIELD_MOD_TARGET_PHYSICAL_RESISTANCE, 0);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_MOD_TARGET_RESISTANCE, 0);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_MOD_TARGET_PHYSICAL_RESISTANCE, 0);
     for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
     {
         SetUInt32Value(UNIT_FIELD_POWER_COST_MODIFIER + i, 0);
         SetFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER + i, 0.0f);
     }
     // Reset no reagent cost field
-    for (uint8 i = 0; i < 3; ++i)
-        SetUInt32Value(PLAYER_NO_REAGENT_COST_1 + i, 0);
+    for (uint8 i = 0; i < 4; ++i)
+        SetUInt32Value(ACTIVE_PLAYER_FIELD_NO_REAGENT_COST + i, 0);
     // Init data for form but skip reapply item mods for form
     InitDataForForm(reapplyMods);
 
@@ -2680,9 +2678,9 @@ void Player::InitStatsForLevel(bool reapplyMods)
     RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP | UNIT_BYTE2_FLAG_SANCTUARY);
 
     // restore if need some important flags
-    SetByteValue(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_IGNORE_POWER_REGEN_PREDICTION_MASK, 0);
-    SetByteValue(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, 0);
-    SetByteValue(PLAYER_FIELD_BYTES2, 3, 0);
+    SetByteValue(ACTIVE_PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_IGNORE_POWER_REGEN_PREDICTION_MASK, 0);
+    SetByteValue(ACTIVE_PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, 0);
+    SetByteValue(ACTIVE_PLAYER_FIELD_BYTES2, 3, 0);
 
     if (reapplyMods)                                        // reapply stats values only on .reset stats (level) command
         _ApplyAllStatBonuses();
@@ -4299,7 +4297,7 @@ void Player::KillPlayer()
     //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_IN_PVP);
 
     SetUInt32Value(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
-    ApplyModFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_RELEASE_TIMER, !sMapStore.LookupEntry(GetMapId())->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION));
+    ApplyModFlag(ACTIVE_PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_RELEASE_TIMER, !sMapStore.LookupEntry(GetMapId())->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESURRECTION));
 
     // 6 minutes until repop at graveyard
     m_deathTimer = 6 * MINUTE * IN_MILLISECONDS;
@@ -4994,7 +4992,7 @@ float Player::GetRatingMultiplier(CombatRating cr) const
 
 float Player::GetRatingBonusValue(CombatRating cr) const
 {
-    float baseResult = float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr)) * GetRatingMultiplier(cr);
+    float baseResult = float(GetUInt32Value(ACTIVE_PLAYER_FIELD_COMBAT_RATING + cr)) * GetRatingMultiplier(cr);
     if (cr != CR_RESILIENCE_PLAYER_DAMAGE)
         return baseResult;
     return float(1.0f - pow(0.99f, baseResult)) * 100.0f;
@@ -5006,9 +5004,9 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
     switch (attType)
     {
         case BASE_ATTACK:
-            return baseExpertise + GetUInt32Value(PLAYER_EXPERTISE) / 4.0f;
+            return baseExpertise + GetUInt32Value(ACTIVE_PLAYER_FIELD_EXPERTISE) / 4.0f;
         case OFF_ATTACK:
-            return baseExpertise + GetUInt32Value(PLAYER_OFFHAND_EXPERTISE) / 4.0f;
+            return baseExpertise + GetUInt32Value(ACTIVE_PLAYER_FIELD_OFFHAND_EXPERTISE) / 4.0f;
         default:
             break;
     }
@@ -5039,8 +5037,8 @@ void Player::UpdateRating(CombatRating cr)
     if (amount < 0)
         amount = 0;
 
-    uint32 oldRating = GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr);
-    SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, uint32(amount));
+    uint32 oldRating = GetUInt32Value(ACTIVE_PLAYER_FIELD_COMBAT_RATING + cr);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_COMBAT_RATING + cr, uint32(amount));
 
     bool affectStats = CanModifyStats();
 
@@ -5188,8 +5186,8 @@ bool Player::UpdateSkill(uint32 skill_id, uint32 step)
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
 
-    uint16 value = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
-    uint16 max = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
+    uint16 value = GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
+    uint16 max = GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
 
     if (!max || !value || value >= max)
         return false;
@@ -5200,7 +5198,7 @@ bool Player::UpdateSkill(uint32 skill_id, uint32 step)
         if (new_value > max)
             new_value = max;
 
-        SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, new_value);
+        SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, new_value);
         if (itr->second.uState != SKILL_NEW)
             itr->second.uState = SKILL_CHANGED;
 
@@ -5346,8 +5344,8 @@ bool Player::UpdateSkillPro(uint16 skillId, int32 chance, uint32 step)
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
 
-    uint16 value = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
-    uint16 max = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
+    uint16 value = GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
+    uint16 max = GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
 
     if (!max || !value || value >= max)
         return false;
@@ -5363,7 +5361,7 @@ bool Player::UpdateSkillPro(uint16 skillId, int32 chance, uint32 step)
     if (new_value > max)
         new_value = max;
 
-    SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, new_value);
+    SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, new_value);
     if (itr->second.uState != SKILL_NEW)
         itr->second.uState = SKILL_CHANGED;
 
@@ -5390,7 +5388,7 @@ void Player::ModifySkillBonus(uint32 skillid, int32 val, bool talent)
     if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
         return;
 
-    uint16 field = itr->second.pos / 2 + (talent ? PLAYER_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET : PLAYER_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET);
+    uint16 field = itr->second.pos / 2 + (talent ? ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET : ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET);
     uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
 
     uint16 bonus = GetUInt16Value(field, offset);
@@ -5419,13 +5417,13 @@ void Player::UpdateSkillsForLevel()
         {
             if (!IsWeaponSkill(rcEntry->SkillID))
             {
-                uint16 max = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
+                uint16 max = GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
 
                 /// update only level dependent max skill values
                 if (max != 1)
                 {
-                    SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, maxSkill);
-                    SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, maxSkill);
+                    SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, maxSkill);
+                    SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, maxSkill);
                     if (itr->second.uState != SKILL_NEW)
                         itr->second.uState = SKILL_CHANGED;
                 }
@@ -5433,7 +5431,7 @@ void Player::UpdateSkillsForLevel()
         }
 
         // Update level dependent skillline spells
-        LearnSkillRewardedSpells(rcEntry->SkillID, GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset));
+        LearnSkillRewardedSpells(rcEntry->SkillID, GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset));
     }
 }
 
@@ -5458,11 +5456,11 @@ void Player::UpdateSkillsToMaxSkillsForLevel()
         uint16 field = itr->second.pos / 2;
         uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
 
-        uint16 max = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
+        uint16 max = GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
 
         if (max > 1)
         {
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, max);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, max);
 
             if (itr->second.uState != SKILL_NEW)
                 itr->second.uState = SKILL_CHANGED;
@@ -5485,7 +5483,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
     {
         uint16 field = itr->second.pos / 2;
         uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
-        currVal = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
+        currVal = GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
         if (newVal)
         {
             // if skill value is going down, update enchantments before setting the new value
@@ -5493,10 +5491,10 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 UpdateSkillEnchantments(id, currVal, newVal);
 
             // update step
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, step);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, step);
             // update value
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, newVal);
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, maxVal);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, newVal);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, maxVal);
 
             if (itr->second.uState != SKILL_NEW)
                 itr->second.uState = SKILL_CHANGED;
@@ -5514,12 +5512,12 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             //remove enchantments needing this skill
             UpdateSkillEnchantments(id, currVal, 0);
             // clear skill fields
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, 0);
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, 0);
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, 0);
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, 0);
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset, 0);
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset, 0);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, 0);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, 0);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, 0);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, 0);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset, 0);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset, 0);
 
             // mark as deleted or simply remove from map if not saved yet
             if (itr->second.uState != SKILL_NEW)
@@ -5534,10 +5532,10 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                         RemoveSpell(sSpellMgr->GetFirstSpellInChain(pAbility->Spell));
 
             // Clear profession lines
-            if (GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1) == id)
-                SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1, 0);
-            else if (GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + 1) == id)
-                SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + 1, 0);
+            if (GetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE) == id)
+                SetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE, 0);
+            else if (GetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE + 1) == id)
+                SetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE + 1, 0);
         }
     }
     else if (newVal)                                        //add
@@ -5548,7 +5546,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             uint16 field = i / 2;
             uint8 offset = i & 1; // i % 2
 
-            if (!GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_ID_OFFSET + field, offset))
+            if (!GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_ID_OFFSET + field, offset))
             {
                 SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(id);
                 if (!skillEntry)
@@ -5558,18 +5556,18 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                     return;
                 }
 
-                SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, id);
+                SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, id);
                 if (skillEntry->CategoryID == SKILL_CATEGORY_PROFESSION)
                 {
-                    if (!GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1))
-                        SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1, id);
-                    else if (!GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + 1))
-                        SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + 1, id);
+                    if (!GetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE))
+                        SetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE, id);
+                    else if (!GetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE + 1))
+                        SetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE + 1, id);
                 }
 
-                SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, step);
-                SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, newVal);
-                SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, maxVal);
+                SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, step);
+                SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, newVal);
+                SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, maxVal);
 
                 UpdateSkillEnchantments(id, currVal, newVal);
                 UpdateCriteria(CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
@@ -5585,8 +5583,8 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                     mSkillStatus.insert(SkillStatusMap::value_type(id, SkillStatusData(i, SKILL_NEW)));
 
                 // apply skill bonuses
-                SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset, 0);
-                SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset, 0);
+                SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset, 0);
+                SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset, 0);
                 // temporary bonuses
                 AuraEffectList const& mModSkill = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL);
                 for (AuraEffectList::const_iterator j = mModSkill.begin(); j != mModSkill.end(); ++j)
@@ -5629,7 +5627,7 @@ uint16 Player::GetSkillStep(uint16 skill) const
     if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
         return 0;
 
-    return GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_STEP_OFFSET + itr->second.pos / 2, itr->second.pos & 1);
+    return GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_STEP_OFFSET + itr->second.pos / 2, itr->second.pos & 1);
 }
 
 uint16 Player::GetSkillValue(uint32 skill) const
@@ -5644,9 +5642,9 @@ uint16 Player::GetSkillValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    int32 result = int32(GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset));
-    result += int32(GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset));
-    result += int32(GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset));
+    int32 result = int32(GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset));
+    result += int32(GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset));
+    result += int32(GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset));
     return result < 0 ? 0 : result;
 }
 
@@ -5662,9 +5660,9 @@ uint16 Player::GetMaxSkillValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    int32 result = int32(GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset));
-    result += int32(GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset));
-    result += int32(GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset));
+    int32 result = int32(GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset));
+    result += int32(GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset));
+    result += int32(GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset));
     return result < 0 ? 0 : result;
 }
 
@@ -5680,7 +5678,7 @@ uint16 Player::GetPureMaxSkillValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    return GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
+    return GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
 }
 
 uint16 Player::GetBaseSkillValue(uint32 skill) const
@@ -5695,8 +5693,8 @@ uint16 Player::GetBaseSkillValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    int32 result = int32(GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset));
-    result += int32(GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset));
+    int32 result = int32(GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset));
+    result += int32(GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset));
     return result < 0 ? 0 : result;
 }
 
@@ -5712,7 +5710,7 @@ uint16 Player::GetPureSkillValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    return GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
+    return GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
 }
 
 int16 Player::GetSkillPermBonusValue(uint32 skill) const
@@ -5727,7 +5725,7 @@ int16 Player::GetSkillPermBonusValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    return GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset);
+    return GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset);
 }
 
 int16 Player::GetSkillTempBonusValue(uint32 skill) const
@@ -5742,7 +5740,7 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    return GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset);
+    return GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset);
 }
 
 void Player::SendActionButtons(uint32 state) const
@@ -5977,11 +5975,11 @@ void Player::CheckAreaExploreAndOutdoor()
     }
 
     uint32 val = (uint32)(1 << (areaEntry->AreaBit % 32));
-    uint32 currFields = GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
+    uint32 currFields = GetUInt32Value(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + offset);
 
     if (!(currFields & val))
     {
-        SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, (uint32)(currFields | val));
+        SetUInt32Value(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + offset, (uint32)(currFields | val));
 
         UpdateCriteria(CRITERIA_TYPE_EXPLORE_AREA);
 
@@ -6256,14 +6254,14 @@ void Player::UpdateHonorFields()
         if (m_lastHonorUpdateTime >= yesterday)
         {
             // this is the first update today, reset today's contribution
-            uint16 killsToday = GetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS);
-            SetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS, 0);
-            SetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS, killsToday);
+            uint16 killsToday = GetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS, 0);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS, killsToday);
         }
         else
         {
             // no honor/kills yesterday or today, reset
-            SetUInt32Value(PLAYER_FIELD_KILLS, 0);
+            SetUInt32Value(ACTIVE_PLAYER_FIELD_KILLS, 0);
         }
     }
 
@@ -6347,9 +6345,9 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             honor_f = std::ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
 
             // count the number of playerkills in one day
-            ApplyModUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS, 1, true);
+            ApplyModUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS, 1, true);
             // and those in a lifetime
-            ApplyModUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 1, true);
+            ApplyModUInt32Value(ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 1, true);
             UpdateCriteria(CRITERIA_TYPE_EARN_HONORABLE_KILL);
             UpdateCriteria(CRITERIA_TYPE_HK_CLASS, victim->getClass());
             UpdateCriteria(CRITERIA_TYPE_HK_RACE, victim->getRace());
@@ -6427,10 +6425,9 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     return true;
 }
 
-void Player::_InitHonorLevelOnLoadFromDB(uint32 honor, uint32 honorLevel, uint32 prestigeLevel)
+void Player::_InitHonorLevelOnLoadFromDB(uint32 honor, uint32 honorLevel)
 {
     SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, honorLevel);
-    SetUInt32Value(PLAYER_FIELD_PRESTIGE, prestigeLevel);
     UpdateHonorNextLevel();
 
     AddHonorXP(honor);
@@ -6462,8 +6459,8 @@ void Player::RewardPlayerWithRewardPack(RewardPackEntry const* rewardPackEntry)
 
 void Player::AddHonorXP(uint32 xp)
 {
-    uint32 currentHonorXP = GetUInt32Value(PLAYER_FIELD_HONOR);
-    uint32 nextHonorLevelXP = GetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL);
+    uint32 currentHonorXP = GetUInt32Value(ACTIVE_PLAYER_FIELD_HONOR);
+    uint32 nextHonorLevelXP = GetUInt32Value(ACTIVE_PLAYER_FIELD_HONOR_NEXT_LEVEL);
     uint32 newHonorXP = currentHonorXP + xp;
     uint32 honorLevel = GetHonorLevel();
 
@@ -6478,10 +6475,10 @@ void Player::AddHonorXP(uint32 xp)
             SetHonorLevel(honorLevel + 1);
 
         honorLevel = GetHonorLevel();
-        nextHonorLevelXP = GetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL);
+        nextHonorLevelXP = GetUInt32Value(ACTIVE_PLAYER_FIELD_HONOR_NEXT_LEVEL);
     }
 
-    SetUInt32Value(PLAYER_FIELD_HONOR, IsMaxHonorLevel() ? 0 : newHonorXP);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_HONOR, IsMaxHonorLevel() ? 0 : newHonorXP);
 }
 
 void Player::SetHonorLevel(uint8 level)
@@ -6501,7 +6498,7 @@ void Player::UpdateHonorNextLevel()
     // 5500 at honor level 1
     // no idea what between here
     // 8800 at honor level ~14 (never goes above 8800)
-    SetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL, 8800);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_HONOR_NEXT_LEVEL, 8800);
 }
 
 void Player::_LoadCurrency(PreparedQueryResult result)
@@ -6842,12 +6839,11 @@ uint32 Player::GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const
 void Player::SetInGuild(ObjectGuid::LowType guildId)
 {
     if (guildId)
-        SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Create<HighGuid::Guild>(guildId));
+        SetGuidValue(UNIT_FIELD_GUILD_GUID, ObjectGuid::Create<HighGuid::Guild>(guildId));
     else
-        SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Empty);
+        SetGuidValue(UNIT_FIELD_GUILD_GUID, ObjectGuid::Empty);
 
     ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_GUILD_LEVEL_ENABLED, guildId != 0);
-    SetUInt16Value(OBJECT_FIELD_TYPE, 1, guildId != 0);
 }
 
 ObjectGuid::LowType Player::GetGuildIdFromDB(ObjectGuid guid)
@@ -6872,7 +6868,7 @@ uint8 Player::GetRankFromDB(ObjectGuid guid)
 
 void Player::SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value)
 {
-    SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + type, value);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_ARENA_TEAM_INFO + (slot * ARENA_TEAM_END) + type, value);
 }
 
 void Player::SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type)
@@ -7461,6 +7457,9 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
             case ITEM_MOD_MASTERY_RATING:
                 ApplyRatingMod(CR_MASTERY, int32(val * combatRatingMultiplier), apply);
                 break;
+            case ITEM_MOD_EXTRA_ARMOR:
+                HandleStatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(val), apply);
+                break;
             case ITEM_MOD_FIRE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(val), apply);
                 break;
@@ -7542,29 +7541,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
     }
 
     if (uint32 armor = item->GetArmor(this))
-    {
-        UnitModifierType modType = TOTAL_VALUE;
-        if (proto->GetClass() == ITEM_CLASS_ARMOR)
-        {
-            switch (proto->GetSubClass())
-            {
-                case ITEM_SUBCLASS_ARMOR_CLOTH:
-                case ITEM_SUBCLASS_ARMOR_LEATHER:
-                case ITEM_SUBCLASS_ARMOR_MAIL:
-                case ITEM_SUBCLASS_ARMOR_PLATE:
-                case ITEM_SUBCLASS_ARMOR_SHIELD:
-                    modType = BASE_VALUE;
-                break;
-            }
-        }
-
-        HandleStatModifier(UNIT_MOD_ARMOR, modType, float(armor), apply);
-    }
-
-    /*
-    if (proto->GetArmorDamageModifier() > 0)
-        HandleStatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(proto->GetArmorDamageModifier()), apply);
-    */
+        HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(armor), apply);
 
     WeaponAttackType attType = BASE_ATTACK;
 
@@ -9934,7 +9911,7 @@ void Player::SetInventorySlotCount(uint8 slots)
         }
     }
 
-    SetByteValue(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_NUM_BACKPACK_SLOTS, slots);
+    SetByteValue(ACTIVE_PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_NUM_BACKPACK_SLOTS, slots);
 }
 
 bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
@@ -11828,7 +11805,7 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
         if (!pBag)
         {
             m_items[slot] = pItem;
-            SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), pItem->GetGUID());
+            SetGuidValue(ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), pItem->GetGUID());
             pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetGUID());
             pItem->SetOwnerGUID(GetGUID());
 
@@ -12175,7 +12152,7 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
         GetName().c_str(), GetGUID().ToString().c_str(), slot, pItem->GetEntry());
 
     m_items[slot] = pItem;
-    SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), pItem->GetGUID());
+    SetGuidValue(ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), pItem->GetGUID());
     pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetGUID());
     pItem->SetOwnerGUID(GetGUID());
     pItem->SetSlot(slot);
@@ -12255,7 +12232,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
             }
 
             m_items[slot] = nullptr;
-            SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), ObjectGuid::Empty);
+            SetGuidValue(ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), ObjectGuid::Empty);
 
             if (slot < EQUIPMENT_SLOT_END)
             {
@@ -12357,7 +12334,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         if (bag == INVENTORY_SLOT_BAG_0)
         {
-            SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), ObjectGuid::Empty);
+            SetGuidValue(ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), ObjectGuid::Empty);
 
             // equipment and equipped bags can have applied bonuses
             if (slot < INVENTORY_SLOT_BAG_END)
@@ -13326,7 +13303,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
         // if current back slot non-empty search oldest or free
         if (m_items[slot])
         {
-            uint32 oldest_time = GetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP_1);
+            uint32 oldest_time = GetUInt32Value(ACTIVE_PLAYER_FIELD_BUYBACK_TIMESTAMP);
             uint32 oldest_slot = BUYBACK_SLOT_START;
 
             for (uint32 i = BUYBACK_SLOT_START+1; i < BUYBACK_SLOT_END; ++i)
@@ -13338,7 +13315,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
                     break;
                 }
 
-                uint32 i_time = GetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP_1 + i - BUYBACK_SLOT_START);
+                uint32 i_time = GetUInt32Value(ACTIVE_PLAYER_FIELD_BUYBACK_TIMESTAMP + i - BUYBACK_SLOT_START);
 
                 if (oldest_time > i_time)
                 {
@@ -13360,13 +13337,13 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
         uint32 etime = uint32(base - m_logintime + (30 * 3600));
         uint32 eslot = slot - BUYBACK_SLOT_START;
 
-        SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), pItem->GetGUID());
+        SetGuidValue(ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), pItem->GetGUID());
         if (ItemTemplate const* proto = pItem->GetTemplate())
-            SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, proto->GetSellPrice() * pItem->GetCount());
+            SetUInt32Value(ACTIVE_PLAYER_FIELD_BUYBACK_PRICE + eslot, proto->GetSellPrice() * pItem->GetCount());
         else
-            SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, 0);
+            SetUInt32Value(ACTIVE_PLAYER_FIELD_BUYBACK_PRICE + eslot, 0);
 
-        SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP_1 + eslot, (uint32)etime);
+        SetUInt32Value(ACTIVE_PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, (uint32)etime);
 
         // move to next (for non filled list is move most optimized choice)
         if (m_currentBuybackSlot < BUYBACK_SLOT_END - 1)
@@ -13400,9 +13377,9 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
         m_items[slot] = nullptr;
 
         uint32 eslot = slot - BUYBACK_SLOT_START;
-        SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), ObjectGuid::Empty);
-        SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, 0);
-        SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP_1 + eslot, 0);
+        SetGuidValue(ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), ObjectGuid::Empty);
+        SetUInt32Value(ACTIVE_PLAYER_FIELD_BUYBACK_PRICE + eslot, 0);
+        SetUInt32Value(ACTIVE_PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
 
         // if current backslot is filled set to now free slot
         if (m_items[m_currentBuybackSlot])
@@ -15984,7 +15961,7 @@ bool Player::SatisfyQuestDay(Quest const* qInfo, bool /*msg*/) const
         return true;
     }
 
-    std::vector<uint32> const& dailies = GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
+    std::vector<uint32> const& dailies = GetDynamicValues(ACTIVE_PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
     for (uint32 dailyQuestId : dailies)
         if (dailyQuestId == qInfo->GetQuestId())
             return false;
@@ -16418,7 +16395,7 @@ void Player::SetQuestCompletedBit(uint32 questBit, bool completed)
     if (fieldOffset >= QUESTS_COMPLETED_BITS_SIZE)
         return;
 
-    ApplyModFlag(PLAYER_FIELD_QUEST_COMPLETED + ((questBit - 1) >> 5), 1 << ((questBit - 1) & 31), completed);
+    ApplyModFlag(ACTIVE_PLAYER_FIELD_QUEST_COMPLETED + ((questBit - 1) >> 5), 1 << ((questBit - 1) & 31), completed);
 }
 
 void Player::AreaExploredOrEventHappens(uint32 questId)
@@ -17322,7 +17299,7 @@ void Player::_LoadDeclinedNames(PreparedQueryResult result)
 void Player::_LoadArenaTeamInfo(PreparedQueryResult result)
 {
     // arenateamid, played_week, played_season, personal_rating
-    memset((void*)&m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1], 0, sizeof(uint32) * MAX_ARENA_SLOT * ARENA_TEAM_END);
+    memset((void*)&m_uint32Values[ACTIVE_PLAYER_FIELD_ARENA_TEAM_INFO], 0, sizeof(uint32) * MAX_ARENA_SLOT * ARENA_TEAM_END);
 
     uint16 personalRatingCache[] = {0, 0, 0};
 
@@ -17609,8 +17586,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
     SetXP(fields[7].GetUInt32());
 
-    _LoadIntoDataField(fields[66].GetString(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE);
-    _LoadIntoDataField(fields[67].GetString(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE * 2);
+    _LoadIntoDataField(fields[66].GetString(), ACTIVE_PLAYER_FIELD_EXPLORED_ZONES, PLAYER_EXPLORED_ZONES_SIZE);
+    _LoadIntoDataField(fields[67].GetString(), ACTIVE_PLAYER_FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE * 2);
 
     SetObjectScale(1.0f);
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);
@@ -17642,7 +17619,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_INEBRIATION, fields[55].GetUInt8());
     SetUInt32Value(PLAYER_FLAGS, fields[20].GetUInt32());
     SetUInt32Value(PLAYER_FLAGS_EX, fields[21].GetUInt32());
-    SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[54].GetUInt32());
+    SetInt32Value(ACTIVE_PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[54].GetUInt32());
 
     if (!ValidateAppearance(
         fields[3].GetUInt8(), // race
@@ -17660,7 +17637,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     }
 
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
-    SetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, fields[68].GetUInt8());
+    SetByteValue(ACTIVE_PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, fields[68].GetUInt8());
 
     m_fishingSteps = fields[72].GetUInt8();
 
@@ -17669,7 +17646,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     // cleanup inventory related item value fields (it will be filled correctly in _LoadInventory)
     for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
     {
-        SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), ObjectGuid::Empty);
+        SetGuidValue(ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD + (slot * 4), ObjectGuid::Empty);
         SetVisibleItemSlot(slot, nullptr);
 
         delete m_items[slot];
@@ -17726,9 +17703,9 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     }
 
     _LoadCurrency(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CURRENCY));
-    SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, fields[50].GetUInt32());
-    SetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS, fields[51].GetUInt16());
-    SetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS, fields[52].GetUInt16());
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, fields[50].GetUInt32());
+    SetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS, fields[51].GetUInt16());
+    SetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS, fields[52].GetUInt16());
 
     _LoadBoundInstances(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BOUND_INSTANCES));
     _LoadInstanceTimeRestrictions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES));
@@ -18058,14 +18035,14 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetGuidValue(UNIT_FIELD_CHARMEDBY, ObjectGuid::Empty);
     SetGuidValue(UNIT_FIELD_CHARM, ObjectGuid::Empty);
     SetGuidValue(UNIT_FIELD_SUMMON, ObjectGuid::Empty);
-    SetGuidValue(PLAYER_FARSIGHT, ObjectGuid::Empty);
+    SetGuidValue(ACTIVE_PLAYER_FIELD_FARSIGHT, ObjectGuid::Empty);
     SetCreatorGUID(ObjectGuid::Empty);
 
     RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
 
     // reset some aura modifiers before aura apply
-    SetUInt32Value(PLAYER_TRACK_CREATURES, 0);
-    SetUInt32Value(PLAYER_TRACK_RESOURCES, 0);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_TRACK_CREATURES, 0);
+    SetUInt32Value(ACTIVE_PLAYER_FIELD_TRACK_RESOURCES, 0);
 
     // make sure the unit is considered out of combat for proper loading
     ClearInCombat();
@@ -18267,7 +18244,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         SetFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_REFER_A_FRIEND);
 
     if (m_grantableLevels > 0)
-        SetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL, 0x01);
+        SetByteValue(ACTIVE_PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL, 0x01);
 
     _LoadDeclinedNames(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DECLINED_NAMES));
 
@@ -18284,9 +18261,9 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES)))
         _garrison = std::move(garrison);
 
-    _InitHonorLevelOnLoadFromDB(fields[73].GetUInt32(), fields[74].GetUInt32(), fields[75].GetUInt32());
+    _InitHonorLevelOnLoadFromDB(fields[73].GetUInt32(), fields[74].GetUInt32());
 
-    _restMgr->LoadRestBonus(REST_TYPE_HONOR, PlayerRestState(fields[76].GetUInt8()), fields[77].GetFloat());
+    _restMgr->LoadRestBonus(REST_TYPE_HONOR, PlayerRestState(fields[75].GetUInt8()), fields[76].GetFloat());
     if (time_diff > 0)
     {
         //speed collect rest bonus in offline, in logout, far from tavern, city (section/in hour)
@@ -18527,7 +18504,7 @@ void Player::LoadCorpse(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
             _corpseLocation.WorldRelocate(fields[0].GetUInt16(), fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
-            ApplyModFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_RELEASE_TIMER, !sMapStore.LookupEntry(_corpseLocation.GetMapId())->Instanceable());
+            ApplyModFlag(ACTIVE_PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_RELEASE_TIMER, !sMapStore.LookupEntry(_corpseLocation.GetMapId())->Instanceable());
         }
         else
             ResurrectPlayer(0.5f);
@@ -19252,7 +19229,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
             if (!quest)
                 continue;
 
-            AddDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_id);
+            AddDynamicValue(ACTIVE_PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_id);
             if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
                 SetQuestCompletedBit(questBit, true);
 
@@ -19930,7 +19907,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, getClass());
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER));   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
         stmt->setUInt8(index++, getLevel());
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_XP));
+        stmt->setUInt32(index++, GetUInt32Value(ACTIVE_PLAYER_FIELD_XP));
         stmt->setUInt64(index++, GetMoney());
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID));
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID));
@@ -19941,7 +19918,7 @@ void Player::SaveToDB(bool create /*=false*/)
             stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i));
         stmt->setUInt8(index++, GetInventorySlotCount());
         stmt->setUInt8(index++, GetBankBagSlotCount());
-        stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP)));
+        stmt->setUInt8(index++, uint8(GetUInt32Value(ACTIVE_PLAYER_FIELD_REST_INFO + REST_STATE_XP)));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS_EX));
         stmt->setUInt16(index++, (uint16)GetMapId());
@@ -19986,11 +19963,11 @@ void Player::SaveToDB(bool create /*=false*/)
         ss << m_taxi.SaveTaxiDestinationsToString();
 
         stmt->setString(index++, ss.str());
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
-        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS));
-        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS));
+        stmt->setUInt32(index++, GetUInt32Value(ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
+        stmt->setUInt16(index++, GetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS));
+        stmt->setUInt16(index++, GetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_CHOSEN_TITLE));
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX));
+        stmt->setUInt32(index++, GetUInt32Value(ACTIVE_PLAYER_FIELD_WATCHED_FACTION_INDEX));
         stmt->setUInt8(index++, GetDrunkValue());
         stmt->setUInt32(index++, GetHealth());
 
@@ -20016,7 +19993,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         for (uint32 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
-            ss << GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + i) << ' ';
+            ss << GetUInt32Value(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + i) << ' ';
         stmt->setString(index++, ss.str());
 
         ss.str("");
@@ -20041,10 +20018,10 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         for (uint32 i = 0; i < KNOWN_TITLES_SIZE * 2; ++i)
-            ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << ' ';
+            ss << GetUInt32Value(ACTIVE_PLAYER_FIELD_KNOWN_TITLES + i) << ' ';
         stmt->setString(index++, ss.str());
 
-        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
+        stmt->setUInt8(index++, GetByteValue(ACTIVE_PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
         stmt->setUInt32(index++, m_grantableLevels);
         stmt->setUInt32(index++, realm.Build);
     }
@@ -20057,7 +20034,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, getClass());
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER));   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
         stmt->setUInt8(index++, getLevel());
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_XP));
+        stmt->setUInt32(index++, GetUInt32Value(ACTIVE_PLAYER_FIELD_XP));
         stmt->setUInt64(index++, GetMoney());
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID));
         stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID));
@@ -20068,7 +20045,7 @@ void Player::SaveToDB(bool create /*=false*/)
             stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i));
         stmt->setUInt8(index++, GetInventorySlotCount());
         stmt->setUInt8(index++, GetBankBagSlotCount());
-        stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP)));
+        stmt->setUInt8(index++, uint8(GetUInt32Value(ACTIVE_PLAYER_FIELD_REST_INFO + REST_STATE_XP)));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS_EX));
 
@@ -20130,11 +20107,11 @@ void Player::SaveToDB(bool create /*=false*/)
         ss << m_taxi.SaveTaxiDestinationsToString();
 
         stmt->setString(index++, ss.str());
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
-        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS));
-        stmt->setUInt16(index++, GetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS));
+        stmt->setUInt32(index++, GetUInt32Value(ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
+        stmt->setUInt16(index++, GetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS));
+        stmt->setUInt16(index++, GetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_CHOSEN_TITLE));
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX));
+        stmt->setUInt32(index++, GetUInt32Value(ACTIVE_PLAYER_FIELD_WATCHED_FACTION_INDEX));
         stmt->setUInt8(index++, GetDrunkValue());
         stmt->setUInt32(index++, GetHealth());
 
@@ -20160,7 +20137,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         for (uint32 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
-            ss << GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + i) << ' ';
+            ss << GetUInt32Value(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + i) << ' ';
         stmt->setString(index++, ss.str());
 
         ss.str("");
@@ -20185,17 +20162,16 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         for (uint32 i = 0; i < KNOWN_TITLES_SIZE*2; ++i)
-            ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << ' ';
+            ss << GetUInt32Value(ACTIVE_PLAYER_FIELD_KNOWN_TITLES + i) << ' ';
 
         stmt->setString(index++, ss.str());
-        stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
+        stmt->setUInt8(index++, GetByteValue(ACTIVE_PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
         stmt->setUInt32(index++, m_grantableLevels);
 
         stmt->setUInt8(index++, IsInWorld() && !GetSession()->PlayerLogout() ? 1 : 0);
-        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_HONOR));
+        stmt->setUInt32(index++, GetUInt32Value(ACTIVE_PLAYER_FIELD_HONOR));
         stmt->setUInt32(index++, GetHonorLevel());
-        stmt->setUInt32(index++, GetPrestigeLevel());
-        stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_HONOR)));
+        stmt->setUInt8(index++, uint8(GetUInt32Value(ACTIVE_PLAYER_FIELD_REST_INFO + REST_STATE_HONOR)));
         stmt->setFloat(index++, finiteAlways(_restMgr->GetRestBonus(REST_TYPE_HONOR)));
         stmt->setUInt32(index++, realm.Build);
 
@@ -20766,7 +20742,7 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
-    std::vector<uint32> const& dailies = GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
+    std::vector<uint32> const& dailies = GetDynamicValues(ACTIVE_PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
     for (uint32 questId : dailies)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_QUESTSTATUS_DAILY);
@@ -20890,8 +20866,8 @@ void Player::_SaveSkills(SQLTransaction& trans)
         uint16 field = itr->second.pos / 2;
         uint8 offset = itr->second.pos & 1;
 
-        uint16 value = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
-        uint16 max = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
+        uint16 value = GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
+        uint16 max = GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
 
         switch (itr->second.uState)
         {
@@ -20985,18 +20961,18 @@ void Player::_SaveStats(SQLTransaction& trans) const
         stmt->setUInt32(index++, GetStat(Stats(i)));
 
     for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        stmt->setUInt32(index++, GetResistance(SpellSchools(i)));
+        stmt->setUInt32(index++, GetResistance(SpellSchools(i)) + GetBonusResistanceMod(SpellSchools(i)));
 
-    stmt->setFloat(index++, GetFloatValue(PLAYER_BLOCK_PERCENTAGE));
-    stmt->setFloat(index++, GetFloatValue(PLAYER_DODGE_PERCENTAGE));
-    stmt->setFloat(index++, GetFloatValue(PLAYER_PARRY_PERCENTAGE));
-    stmt->setFloat(index++, GetFloatValue(PLAYER_CRIT_PERCENTAGE));
-    stmt->setFloat(index++, GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE));
-    stmt->setFloat(index++, GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1));
+    stmt->setFloat(index++, GetFloatValue(ACTIVE_PLAYER_FIELD_BLOCK_PERCENTAGE));
+    stmt->setFloat(index++, GetFloatValue(ACTIVE_PLAYER_FIELD_DODGE_PERCENTAGE));
+    stmt->setFloat(index++, GetFloatValue(ACTIVE_PLAYER_FIELD_PARRY_PERCENTAGE));
+    stmt->setFloat(index++, GetFloatValue(ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE));
+    stmt->setFloat(index++, GetFloatValue(ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE));
+    stmt->setFloat(index++, GetFloatValue(ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1));
     stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_ATTACK_POWER));
     stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER));
     stmt->setUInt32(index++, GetBaseSpellPowerBonus());
-    stmt->setUInt32(index, GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_RESILIENCE_PLAYER_DAMAGE));
+    stmt->setUInt32(index, GetUInt32Value(ACTIVE_PLAYER_FIELD_COMBAT_RATING + CR_RESILIENCE_PLAYER_DAMAGE));
 
     trans->Append(stmt);
 }
@@ -21010,10 +20986,10 @@ void Player::outDebugValues() const
     TC_LOG_DEBUG("entities.unit", "AGILITY is: \t\t%f\t\tSTRENGTH is: \t\t%f", GetStat(STAT_AGILITY), GetStat(STAT_STRENGTH));
     TC_LOG_DEBUG("entities.unit", "INTELLECT is: \t\t%f", GetStat(STAT_INTELLECT));
     TC_LOG_DEBUG("entities.unit", "STAMINA is: \t\t%f", GetStat(STAT_STAMINA));
-    TC_LOG_DEBUG("entities.unit", "Armor is: \t\t%u\t\tBlock is: \t\t%f", GetArmor(), GetFloatValue(PLAYER_BLOCK_PERCENTAGE));
-    TC_LOG_DEBUG("entities.unit", "HolyRes is: \t\t%u\t\tFireRes is: \t\t%u", GetResistance(SPELL_SCHOOL_HOLY), GetResistance(SPELL_SCHOOL_FIRE));
-    TC_LOG_DEBUG("entities.unit", "NatureRes is: \t\t%u\t\tFrostRes is: \t\t%u", GetResistance(SPELL_SCHOOL_NATURE), GetResistance(SPELL_SCHOOL_FROST));
-    TC_LOG_DEBUG("entities.unit", "ShadowRes is: \t\t%u\t\tArcaneRes is: \t\t%u", GetResistance(SPELL_SCHOOL_SHADOW), GetResistance(SPELL_SCHOOL_ARCANE));
+    TC_LOG_DEBUG("entities.unit", "Armor is: \t\t%u\t\tBlock is: \t\t%f", GetArmor(), GetFloatValue(ACTIVE_PLAYER_FIELD_BLOCK_PERCENTAGE));
+    TC_LOG_DEBUG("entities.unit", "HolyRes is: \t\t%u\t\tFireRes is: \t\t%u", GetResistance(SPELL_SCHOOL_MASK_HOLY), GetResistance(SPELL_SCHOOL_MASK_FIRE));
+    TC_LOG_DEBUG("entities.unit", "NatureRes is: \t\t%u\t\tFrostRes is: \t\t%u", GetResistance(SPELL_SCHOOL_MASK_NATURE), GetResistance(SPELL_SCHOOL_MASK_FROST));
+    TC_LOG_DEBUG("entities.unit", "ShadowRes is: \t\t%u\t\tArcaneRes is: \t\t%u", GetResistance(SPELL_SCHOOL_MASK_SHADOW), GetResistance(SPELL_SCHOOL_MASK_ARCANE));
     TC_LOG_DEBUG("entities.unit", "MIN_DAMAGE is: \t\t%f\tMAX_DAMAGE is: \t\t%f", GetFloatValue(UNIT_FIELD_MINDAMAGE), GetFloatValue(UNIT_FIELD_MAXDAMAGE));
     TC_LOG_DEBUG("entities.unit", "MIN_OFFHAND_DAMAGE is: \t%f\tMAX_OFFHAND_DAMAGE is: \t%f", GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE), GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE));
     TC_LOG_DEBUG("entities.unit", "MIN_RANGED_DAMAGE is: \t%f\tMAX_RANGED_DAMAGE is: \t%f", GetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE), GetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE));
@@ -23263,7 +23239,7 @@ bool Player::CanAlwaysSee(WorldObject const* obj) const
     if (m_unitMovedByMe == obj)
         return true;
 
-    ObjectGuid guid = GetGuidValue(PLAYER_FARSIGHT);
+    ObjectGuid guid = GetGuidValue(ACTIVE_PLAYER_FIELD_FARSIGHT);
     if (!guid.IsEmpty())
         if (obj->GetGUID() == guid)
             return true;
@@ -23535,7 +23511,7 @@ bool Player::HasEnoughMoney(int64 amount) const
 
 void Player::SetMoney(uint64 value)
 {
-    SetUInt64Value(PLAYER_FIELD_COINAGE, value);
+    SetUInt64Value(ACTIVE_PLAYER_FIELD_COINAGE, value);
     MoneyChanged(value);
     UpdateCriteria(CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED);
 }
@@ -24182,7 +24158,7 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
     {
         if (!qQuest->IsDFQuest())
         {
-            AddDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_id);
+            AddDynamicValue(ACTIVE_PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_id);
             m_lastDailyQuestTime = time(nullptr);              // last daily quest time
             m_DailyQuestChanged = true;
         }
@@ -24200,7 +24176,7 @@ bool Player::IsDailyQuestDone(uint32 quest_id)
     bool found = false;
     if (sObjectMgr->GetQuestTemplate(quest_id))
     {
-        std::vector<uint32> const& dailies = GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
+        std::vector<uint32> const& dailies = GetDynamicValues(ACTIVE_PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
         for (uint32 dailyQuestId : dailies)
         {
             if (dailyQuestId == quest_id)
@@ -24238,15 +24214,15 @@ void Player::SetMonthlyQuestStatus(uint32 quest_id)
 
 void Player::DailyReset()
 {
-    for (uint32 questId : GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS))
+    for (uint32 questId : GetDynamicValues(ACTIVE_PLAYER_DYNAMIC_FIELD_DAILY_QUESTS))
         if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
             SetQuestCompletedBit(questBit, false);
 
     WorldPackets::Quest::DailyQuestsReset dailyQuestsReset;
-    dailyQuestsReset.Count = int32(GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS).size());
+    dailyQuestsReset.Count = int32(GetDynamicValues(ACTIVE_PLAYER_DYNAMIC_FIELD_DAILY_QUESTS).size());
     SendDirectMessage(dailyQuestsReset.Write());
 
-    ClearDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
+    ClearDynamicValue(ACTIVE_PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
 
     m_DFQuests.clear(); // Dungeon Finder Quests.
 
@@ -24761,10 +24737,10 @@ bool Player::CanNoReagentCast(SpellInfo const* spellInfo) const
 
     // Check no reagent use mask
     flag128 noReagentMask;
-    noReagentMask[0] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1);
-    noReagentMask[1] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1 + 1);
-    noReagentMask[2] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1 + 2);
-    noReagentMask[3] = GetUInt32Value(PLAYER_NO_REAGENT_COST_1 + 3);
+    noReagentMask[0] = GetUInt32Value(ACTIVE_PLAYER_FIELD_NO_REAGENT_COST);
+    noReagentMask[1] = GetUInt32Value(ACTIVE_PLAYER_FIELD_NO_REAGENT_COST + 1);
+    noReagentMask[2] = GetUInt32Value(ACTIVE_PLAYER_FIELD_NO_REAGENT_COST + 2);
+    noReagentMask[3] = GetUInt32Value(ACTIVE_PLAYER_FIELD_NO_REAGENT_COST + 3);
     if (spellInfo->SpellFamilyFlags  & noReagentMask)
         return true;
 
@@ -24805,7 +24781,7 @@ void Player::RemoveItemDependentAurasAndCasts(Item* pItem)
 
 void Player::InitializeSelfResurrectionSpells()
 {
-    ClearDynamicValue(PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS);
+    ClearDynamicValue(ACTIVE_PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS);
 
     uint32 spells[3] = { };
 
@@ -24826,7 +24802,7 @@ void Player::InitializeSelfResurrectionSpells()
 
     for (uint32 selfResSpell : spells)
         if (selfResSpell)
-            AddDynamicValue(PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS, selfResSpell);
+            AddDynamicValue(ACTIVE_PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS, selfResSpell);
 }
 
 // Used in triggers for check "Only to targets that grant experience or honor" req
@@ -25399,7 +25375,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
         TC_LOG_DEBUG("maps", "Player::CreateViewpoint: Player '%s' (%s) creates seer (Entry: %u, TypeId: %u).",
             GetName().c_str(), GetGUID().ToString().c_str(), target->GetEntry(), target->GetTypeId());
 
-        if (!AddGuidValue(PLAYER_FARSIGHT, target->GetGUID()))
+        if (!AddGuidValue(ACTIVE_PLAYER_FIELD_FARSIGHT, target->GetGUID()))
         {
             TC_LOG_FATAL("entities.player", "Player::CreateViewpoint: Player '%s' (%s) cannot add new viewpoint!", GetName().c_str(), GetGUID().ToString().c_str());
             return;
@@ -25416,7 +25392,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
     {
         TC_LOG_DEBUG("maps", "Player::CreateViewpoint: Player %s removed seer", GetName().c_str());
 
-        if (!RemoveGuidValue(PLAYER_FARSIGHT, target->GetGUID()))
+        if (!RemoveGuidValue(ACTIVE_PLAYER_FIELD_FARSIGHT, target->GetGUID()))
         {
             TC_LOG_FATAL("entities.player", "Player::CreateViewpoint: Player '%s' (%s) cannot remove current viewpoint!", GetName().c_str(), GetGUID().ToString().c_str());
             return;
@@ -25435,7 +25411,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 
 WorldObject* Player::GetViewpoint() const
 {
-    ObjectGuid guid = GetGuidValue(PLAYER_FARSIGHT);
+    ObjectGuid guid = GetGuidValue(ACTIVE_PLAYER_FIELD_FARSIGHT);
     if (!guid.IsEmpty())
         return static_cast<WorldObject*>(ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_SEER));
     return nullptr;
@@ -25537,7 +25513,7 @@ bool Player::HasTitle(uint32 bitIndex) const
 
     uint32 fieldIndexOffset = bitIndex / 32;
     uint32 flag = 1 << (bitIndex % 32);
-    return HasFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
+    return HasFlag(ACTIVE_PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
 }
 
 bool Player::HasTitle(CharTitlesEntry const* title) const
@@ -25552,17 +25528,17 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
 
     if (lost)
     {
-        if (!HasFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag))
+        if (!HasFlag(ACTIVE_PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag))
             return;
 
-        RemoveFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
+        RemoveFlag(ACTIVE_PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
     }
     else
     {
-        if (HasFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag))
+        if (HasFlag(ACTIVE_PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag))
             return;
 
-        SetFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
+        SetFlag(ACTIVE_PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
     }
 
     WorldPackets::Character::TitleEarned packet(lost ? SMSG_TITLE_LOST : SMSG_TITLE_EARNED);
@@ -25841,7 +25817,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             uint16 field = count / 2;
             uint8 offset = count & 1;
 
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, skill);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, skill);
             uint16 step = 0;
 
             SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(rcEntry->SkillID);
@@ -25855,15 +25831,15 @@ void Player::_LoadSkills(PreparedQueryResult result)
                     step = max / 75;
 
                     if (professionCount < 2)
-                        SetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + professionCount++, skill);
+                        SetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE + professionCount++, skill);
                 }
             }
 
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, step);
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, value);
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, max);
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset, 0);
-            SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset, 0);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, step);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, value);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, max);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset, 0);
+            SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset, 0);
 
             mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(count, SKILL_UNCHANGED)));
             loadedSkillValues[skill] = value;
@@ -25892,12 +25868,12 @@ void Player::_LoadSkills(PreparedQueryResult result)
         uint16 field = count / 2;
         uint8 offset = count & 1;
 
-        SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, 0);
-        SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, 0);
-        SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, 0);
-        SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, 0);
-        SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset, 0);
-        SetUInt16Value(PLAYER_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset, 0);
+        SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, 0);
+        SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, 0);
+        SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, 0);
+        SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset, 0);
+        SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET + field, offset, 0);
+        SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET + field, offset, 0);
     }
 }
 
@@ -26104,7 +26080,7 @@ TalentLearnResult Player::LearnTalent(uint32 talentId, int32* spellOnCooldown)
         return TALENT_FAILED_UNKNOWN;
 
     // check if we have enough talent points
-    if (talentInfo->TierID >= GetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS))
+    if (talentInfo->TierID >= GetUInt32Value(ACTIVE_PLAYER_FIELD_MAX_TALENT_TIERS))
         return TALENT_FAILED_UNKNOWN;
 
     // TODO: prevent changing talents that are on cooldown

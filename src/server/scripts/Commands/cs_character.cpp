@@ -234,7 +234,7 @@ public:
         {
             player->GiveLevel(newLevel);
             player->InitTalentForLevel();
-            player->SetUInt32Value(PLAYER_XP, 0);
+            player->SetUInt32Value(ACTIVE_PLAYER_FIELD_XP, 0);
 
             if (handler->needReportToTarget(player))
             {

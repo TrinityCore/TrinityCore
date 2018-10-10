@@ -657,7 +657,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
                 SetCriteriaProgress(criteria, referencePlayer->GetReputationMgr().GetVisibleFactionCount(), referencePlayer);
                 break;
             case CRITERIA_TYPE_EARN_HONORABLE_KILL:
-                SetCriteriaProgress(criteria, referencePlayer->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS), referencePlayer);
+                SetCriteriaProgress(criteria, referencePlayer->GetUInt32Value(ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS), referencePlayer);
                 break;
             case CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED:
                 SetCriteriaProgress(criteria, referencePlayer->GetMoney(), referencePlayer, PROGRESS_HIGHEST);
@@ -1450,7 +1450,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                     continue;
 
                 uint32 mask = 1 << (uint32(area->AreaBit) % 32);
-                if (referencePlayer->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + playerIndexOffset) & mask)
+                if (referencePlayer->GetUInt32Value(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + playerIndexOffset) & mask)
                 {
                     matchFound = true;
                     break;

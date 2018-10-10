@@ -2573,7 +2573,7 @@ float Unit::GetUnitDodgeChance(WeaponAttackType attType, Unit const* victim) con
     float chance = 0.0f;
     float levelBonus = 0.0f;
     if (victim->GetTypeId() == TYPEID_PLAYER)
-        chance = victim->GetFloatValue(PLAYER_DODGE_PERCENTAGE);
+        chance = victim->GetFloatValue(ACTIVE_PLAYER_FIELD_DODGE_PERCENTAGE);
     else
     {
         if (!victim->IsTotem())
@@ -2617,7 +2617,7 @@ float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) con
                 tmpitem = playerVictim->GetWeaponForAttack(OFF_ATTACK, true);
 
             if (tmpitem)
-                chance = playerVictim->GetFloatValue(PLAYER_PARRY_PERCENTAGE);
+                chance = playerVictim->GetFloatValue(ACTIVE_PLAYER_FIELD_PARRY_PERCENTAGE);
         }
     }
     else
@@ -2666,7 +2666,7 @@ float Unit::GetUnitBlockChance(WeaponAttackType /*attType*/, Unit const* victim)
         {
             Item* tmpitem = playerVictim->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
             if (tmpitem && !tmpitem->IsBroken() && tmpitem->GetTemplate()->GetInventoryType() == INVTYPE_SHIELD)
-                chance = playerVictim->GetFloatValue(PLAYER_BLOCK_PERCENTAGE);
+                chance = playerVictim->GetFloatValue(ACTIVE_PLAYER_FIELD_BLOCK_PERCENTAGE);
         }
     }
     else
@@ -2693,13 +2693,13 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, Unit const* victi
         switch (attackType)
         {
             case BASE_ATTACK:
-                chance = GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+                chance = GetFloatValue(ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE);
                 break;
             case OFF_ATTACK:
-                chance = GetFloatValue(PLAYER_OFFHAND_CRIT_PERCENTAGE);
+                chance = GetFloatValue(ACTIVE_PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE);
                 break;
             case RANGED_ATTACK:
-                chance = GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
+                chance = GetFloatValue(ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE);
                 break;
                 // Just for good manner
             default:
@@ -4724,26 +4724,6 @@ int32 Unit::GetMaxNegativeAuraModifierByAffectMask(AuraType auratype, SpellInfo 
     });
 }
 
-float Unit::GetResistanceBuffMods(SpellSchools school, bool positive) const
-{
-    return GetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school);
-}
-
-void Unit::SetResistanceBuffMods(SpellSchools school, bool positive, float val)
-{
-    SetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val);
-}
-
-void Unit::ApplyResistanceBuffModsMod(SpellSchools school, bool positive, float val, bool apply)
-{
-    ApplyModSignedFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val, apply);
-}
-
-void Unit::ApplyResistanceBuffModsPercentMod(SpellSchools school, bool positive, float val, bool apply)
-{
-    ApplyPercentModFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val, apply);
-}
-
 void Unit::InitStatBuffMods()
 {
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
@@ -5899,7 +5879,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
         {
             SetCritterGUID(minion->GetGUID());
             if (GetTypeId() == TYPEID_PLAYER)
-                minion->SetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID, GetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_ID));
+                minion->SetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID, GetGuidValue(ACTIVE_PLAYER_FIELD_SUMMONED_BATTLE_PET_ID));
         }
 
         // PvP, FFAPvP
@@ -6514,7 +6494,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     {
         for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
             if (spellProto->GetSchoolMask() & (1 << i))
-                maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i));
+                maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, GetFloatValue(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i));
     }
     else
         maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, spellProto->GetSchoolMask());
@@ -6654,7 +6634,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
 {
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        float overrideSP = GetFloatValue(PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT);
+        float overrideSP = GetFloatValue(ACTIVE_PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT);
         if (overrideSP > 0.0f)
             return int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), overrideSP) + 0.5f);
     }
@@ -6734,7 +6714,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                 crit_chance = 0.0f;
             // For other schools
             else if (GetTypeId() == TYPEID_PLAYER)
-                crit_chance = GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1);
+                crit_chance = GetFloatValue(ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1);
             else
                 crit_chance = (float)m_baseSpellCritChance;
             // taken
@@ -6975,7 +6955,7 @@ float Unit::SpellHealingPctDone(Unit* /*victim*/, SpellInfo const* spellProto) c
         return 1.0f;
 
     if (IsPlayer())
-        return GetFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PCT);
+        return GetFloatValue(ACTIVE_PLAYER_FIELD_MOD_HEALING_DONE_PCT);
 
     float DoneTotalMod = 1.0f;
 
@@ -7074,7 +7054,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
 {
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        float overrideSP = GetFloatValue(PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT);
+        float overrideSP = GetFloatValue(ACTIVE_PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT);
         if (overrideSP > 0.0f)
             return int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), overrideSP) + 0.5f);
     }
@@ -7344,7 +7324,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             {
                 for (uint32 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
                     if (spellProto->GetSchoolMask() & (1 << i))
-                        maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i));
+                        maxModDamagePercentSchool = std::max(maxModDamagePercentSchool, GetFloatValue(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i));
             }
             else
                 maxModDamagePercentSchool = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, spellProto->GetSchoolMask());
@@ -9321,6 +9301,19 @@ Stats Unit::GetStatByAuraGroup(UnitMods unitMod) const
     }
 
     return stat;
+}
+
+void Unit::UpdateResistances(uint32 school)
+{
+    if (school > SPELL_SCHOOL_NORMAL)
+    {
+        UnitMods unitMod = UnitMods(UNIT_MOD_RESISTANCE_START + school);
+
+        SetResistance(SpellSchools(school), int32(m_auraModifiersGroup[unitMod][BASE_VALUE]));
+        SetBonusResistanceMod(SpellSchools(school), int32(GetTotalAuraModValue(unitMod) - GetResistance(SpellSchools(school))));
+    }
+    else
+        UpdateArmor();
 }
 
 float Unit::GetTotalAttackPowerValue(WeaponAttackType attType) const
@@ -13106,15 +13099,17 @@ void Unit::SendClearTarget()
     SendMessageToSet(breakTarget.Write(), false);
 }
 
-uint32 Unit::GetResistance(SpellSchoolMask mask) const
+int32 Unit::GetResistance(SpellSchoolMask mask) const
 {
-    int32 resist = -1;
+    Optional<int32> resist;
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
-        if (mask & (1 << i) && (resist < 0 || resist > int32(GetResistance(SpellSchools(i)))))
-            resist = int32(GetResistance(SpellSchools(i)));
+    {
+        int32 schoolResistance = GetResistance(SpellSchools(i)) + GetBonusResistanceMod(SpellSchools(i));
+        if (mask & (1 << i) && (!resist || *resist > schoolResistance))
+            resist = schoolResistance;
+    }
 
-    // resist value will never be negative here
-    return uint32(resist);
+    return resist ? *resist : 0;
 }
 
 void CharmInfo::SetIsCommandAttack(bool val)
@@ -13658,7 +13653,7 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     if (target == this)
         visibleFlag |= UF_FLAG_PRIVATE;
     else if (GetTypeId() == TYPEID_PLAYER)
-        valCount = PLAYER_FIELD_END_NOT_SELF;
+        valCount = PLAYER_END;
 
     std::size_t blockCount = UpdateMask::GetBlockCount(valCount);
 
@@ -13706,8 +13701,6 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
             // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
             // there are some float values which may be negative or can't get negative due to other checks
             else if ((index >= UNIT_FIELD_NEGSTAT && index < UNIT_FIELD_NEGSTAT + MAX_STATS) ||
-                (index >= UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE  && index < (UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + MAX_SPELL_SCHOOL)) ||
-                (index >= UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE  && index < (UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + MAX_SPELL_SCHOOL)) ||
                 (index >= UNIT_FIELD_POSSTAT && index < UNIT_FIELD_POSSTAT + MAX_STATS))
             {
                 *data << uint32(m_floatValues[index]);

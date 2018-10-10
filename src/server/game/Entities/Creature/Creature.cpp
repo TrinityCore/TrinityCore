@@ -2571,7 +2571,7 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
             uint8 targetLevelWithDelta = unitTarget->getLevel() + GetInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA);
 
             if (target->IsPlayer())
-                targetLevelWithDelta += target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
+                targetLevelWithDelta += target->GetUInt32Value(ACTIVE_PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
 
             return RoundToInterval<uint8>(targetLevelWithDelta, GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN), GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX));
         }

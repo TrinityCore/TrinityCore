@@ -572,9 +572,9 @@ void WorldSession::LogoutPlayer(bool save)
             for (int j = BUYBACK_SLOT_START; j < BUYBACK_SLOT_END; ++j)
             {
                 eslot = j - BUYBACK_SLOT_START;
-                _player->SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (j * 4), ObjectGuid::Empty);
-                _player->SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, 0);
-                _player->SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP_1 + eslot, 0);
+                _player->SetGuidValue(ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD + (j * 4), ObjectGuid::Empty);
+                _player->SetUInt32Value(ACTIVE_PLAYER_FIELD_BUYBACK_PRICE + eslot, 0);
+                _player->SetUInt32Value(ACTIVE_PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
             }
             _player->SaveToDB();
         }

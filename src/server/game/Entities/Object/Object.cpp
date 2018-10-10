@@ -130,7 +130,6 @@ void Object::_Create(ObjectGuid const& guid)
     if (!m_uint32Values) _InitValues();
 
     SetGuidValue(OBJECT_FIELD_GUID, guid);
-    SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
 }
 
 std::string Object::_ConcatFields(uint16 startIndex, uint16 size) const
@@ -928,7 +927,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
     {
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
-            flags = ItemUpdateFieldFlags;
+            flags = ContainerUpdateFieldFlags;
             if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
             break;
@@ -2975,7 +2974,7 @@ struct WorldObjectChangeAccumulator
             {
                 //Caster may be NULL if DynObj is in removelist
                 if (Player* caster = ObjectAccessor::FindPlayer(guid))
-                    if (caster->GetGuidValue(PLAYER_FARSIGHT) == source->GetGUID())
+                    if (caster->GetGuidValue(ACTIVE_PLAYER_FIELD_FARSIGHT) == source->GetGUID())
                         BuildPacket(caster);
             }
         }

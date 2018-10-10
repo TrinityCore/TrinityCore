@@ -1033,12 +1033,18 @@ class TC_GAME_API Unit : public WorldObject
 
         float GetStat(Stats stat) const { return float(GetUInt32Value(UNIT_FIELD_STAT+stat)); }
         void SetStat(Stats stat, int32 val) { SetStatInt32Value(UNIT_FIELD_STAT+stat, val); }
-        uint32 GetArmor() const { return GetResistance(SPELL_SCHOOL_NORMAL); }
-        void SetArmor(int32 val) { SetResistance(SPELL_SCHOOL_NORMAL, val); }
+        uint32 GetArmor() const { return GetResistance(SPELL_SCHOOL_NORMAL) + GetBonusResistanceMod(SPELL_SCHOOL_NORMAL); }
+        void SetArmor(int32 val, int32 bonusVal)
+        {
+            SetResistance(SPELL_SCHOOL_NORMAL, val);
+            SetBonusResistanceMod(SPELL_SCHOOL_NORMAL, bonusVal);
+        }
 
-        uint32 GetResistance(SpellSchools school) const { return GetUInt32Value(UNIT_FIELD_RESISTANCES+school); }
-        uint32 GetResistance(SpellSchoolMask mask) const;
-        void SetResistance(SpellSchools school, int32 val) { SetStatInt32Value(UNIT_FIELD_RESISTANCES+school, val); }
+        int32 GetResistance(SpellSchools school) const { return GetUInt32Value(UNIT_FIELD_RESISTANCES + school); }
+        int32 GetBonusResistanceMod(SpellSchools school) const { return GetUInt32Value(UNIT_FIELD_BONUS_RESISTANCE_MODS + school); }
+        int32 GetResistance(SpellSchoolMask mask) const;
+        void SetResistance(SpellSchools school, int32 val) { SetStatInt32Value(UNIT_FIELD_RESISTANCES + school, val); }
+        void SetBonusResistanceMod(SpellSchools school, int32 val) { SetStatInt32Value(UNIT_FIELD_BONUS_RESISTANCE_MODS + school, val); }
 
         uint64 GetHealth()    const { return GetUInt64Value(UNIT_FIELD_HEALTH); }
         uint64 GetMaxHealth() const { return GetUInt64Value(UNIT_FIELD_MAXHEALTH); }
@@ -1533,10 +1539,6 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetMaxPositiveAuraModifierByAffectMask(AuraType auratype, SpellInfo const* affectedSpell) const;
         int32 GetMaxNegativeAuraModifierByAffectMask(AuraType auratype, SpellInfo const* affectedSpell) const;
 
-        float GetResistanceBuffMods(SpellSchools school, bool positive) const;
-        void SetResistanceBuffMods(SpellSchools school, bool positive, float val);
-        void ApplyResistanceBuffModsMod(SpellSchools school, bool positive, float val, bool apply);
-        void ApplyResistanceBuffModsPercentMod(SpellSchools school, bool positive, float val, bool apply);
         void InitStatBuffMods();
         void ApplyStatBuffMod(Stats stat, float val, bool apply);
         void ApplyStatPercentBuffMod(Stats stat, float val, bool apply);
@@ -1620,7 +1622,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetCanModifyStats(bool modifyStats) { m_canModifyStats = modifyStats; }
         virtual bool UpdateStats(Stats stat) = 0;
         virtual bool UpdateAllStats() = 0;
-        virtual void UpdateResistances(uint32 school) = 0;
+        virtual void UpdateResistances(uint32 school);
         virtual void UpdateAllResistances();
         virtual void UpdateArmor() = 0;
         virtual void UpdateMaxHealth() = 0;

@@ -3925,9 +3925,9 @@ inline float CalcPPMCritMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster
     if (caster->GetTypeId() != TYPEID_PLAYER)
         return 0.0f;
 
-    float crit = caster->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
-    float rangedCrit = caster->GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
-    float spellCrit = caster->GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1);
+    float crit = caster->GetFloatValue(ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE);
+    float rangedCrit = caster->GetFloatValue(ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE);
+    float spellCrit = caster->GetFloatValue(ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1);
 
     switch (mod->Param)
     {
