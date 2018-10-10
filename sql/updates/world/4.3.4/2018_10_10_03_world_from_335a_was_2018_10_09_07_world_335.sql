@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature` WHERE `guid` BETWEEN 86814 AND 86822;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`) VALUES
@@ -10,3 +11,4 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 (86820, 119, 0, 1, 1, 0, 0, -9852.791, 692.708, 35.2851, 3.54315, 300, 5, 0, 0, 0, 1),
 (86821, 119, 0, 1, 1, 0, 0, -9987.842, 683.121, 31.7943, 5.18233, 300, 5, 0, 0, 0, 1),
 (86822, 119, 0, 1, 1, 0, 0, -9925.52, 668.817, 33.1967, 4.8634, 300, 5, 0, 0, 0, 1);
+*/

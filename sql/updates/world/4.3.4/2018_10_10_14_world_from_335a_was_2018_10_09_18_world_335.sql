@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `pool_template` WHERE entry = 1004;
 INSERT INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES
@@ -91,3 +92,4 @@ INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES
 (25,86844),
 (-25,90128),
 (-25,89879);
+*/

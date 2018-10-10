@@ -1,3 +1,4 @@
+/*
 -- Earthcaller Franzahl
 UPDATE `creature_template` SET `gossip_menu_id`=5812 WHERE `entry`=14348;
 
@@ -22,3 +23,4 @@ INSERT INTO `npc_text` (`ID`, `text0_0`, `text0_1`, `BroadcastTextID0`, `lang0`,
 (6987,"A former student of mine by the name of Krixix spent a lifetime attempting to make contact with the chained Gods of the underworld. He pursued that which would spring up from the ravaged earth... That which would form only as a result of the elements clashing in titanic conflict.$B$BElementium as it would be known to mortals.$B$BOne day, nearly a decade ago, Krixix's pursuit lead to a fissure forming in this very gorge.","",9579,0,1,0,1,0,1,0,0),
 (6988,"Aye, he had done what was thought to be impossible. Out from the fissure sprung an agent of Therazane!$B$BFrom my vantage point, I could see the goblin holding conversation with the agent of the Old God. What happened after that was terrible...","",9581,0,1,0,1,0,1,0,0),
 (6989,"The fissure closed and Krixix was gone! Swallowed whole!$B$BBe warned, $r, what you wish for could very well become that which you do not want. You play with beings and arcana that are older than time itself!$B$BShould Krixix be alive and should he have the information which you seek, you can be certain that he will not give up said information. He has faced terrors far worse than you could ever dream to perpetrate.","",9583,0,1,0,1,0,5,0,0);
+*/

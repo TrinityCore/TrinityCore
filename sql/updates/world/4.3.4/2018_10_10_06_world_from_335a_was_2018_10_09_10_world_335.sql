@@ -1,3 +1,4 @@
+/*
 -- Awbee
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10740;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=10740 AND `source_type`=0;
@@ -17,3 +18,4 @@ INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionTex
 (3066,0,0,"Continue please...",6277,1,1,3065,0,0,0,"",0,0),
 (3065,0,0,"Horrifying.",6279,1,1,3064,0,0,0,"",0,0),
 (3064,0,0,"Absolutely.",6281,1,1,0,0,0,0,"",0,0);
+*/

@@ -1,3 +1,4 @@
+/*
 -- Soft Dirt Mound
 UPDATE `gameobject_template` SET `AIName`="SmartGameObjectAI" WHERE `entry`=160840;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=160840 AND `source_type`=1;
@@ -49,3 +50,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13,3,13488,0,0,31,0,3,7033,0,0,0,0,"","Spell 'Firegut Fear Storm' can only hit Firegut Ogres"),
 (13,3,13488,0,1,31,0,3,7034,0,0,0,0,"","Spell 'Firegut Fear Storm' can only hit Firegut Ogres"),
 (13,3,13488,0,2,31,0,3,7035,0,0,0,0,"","Spell 'Firegut Fear Storm' can only hit Firegut Ogres");
+*/

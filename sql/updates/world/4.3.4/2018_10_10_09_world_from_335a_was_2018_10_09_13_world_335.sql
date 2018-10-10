@@ -1,3 +1,4 @@
+/*
 -- Quest "Divine Retribution"
 DELETE FROM `quest_details` WHERE `ID`=3441;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
@@ -942,3 +943,4 @@ INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `Emot
 (5102,1,1,1,5,0,0,0,0,0);
 UPDATE `quest_request_items` SET `EmoteOnIncomplete`=6 WHERE `ID`=5102;
 UPDATE `quest_offer_reward` SET `Emote1`=1, `Emote2`=66 WHERE `ID`=5102;
+*/
