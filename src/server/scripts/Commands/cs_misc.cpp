@@ -462,7 +462,7 @@ public:
 
             // to point to see at target with same orientation
             float x, y, z;
-            target->GetContactPoint(_player, x, y, z);
+            target->GetClosePoint(x, y, z, _player->GetCombatReach(), 1.0f);
 
             _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAbsoluteAngle(target), TELE_TO_GM_MODE);
             PhasingHandler::InheritPhaseShift(_player, target);
