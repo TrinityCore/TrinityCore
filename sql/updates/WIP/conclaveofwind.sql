@@ -51,8 +51,8 @@ UPDATE `creature_template` SET `minlevel`= 88, `maxlevel`= 88, `exp`= 3, `factio
 UPDATE `creature_template` SET `unit_flags`= 33555200, `flags_extra`= 128, `ScriptName`= 'npc_conclave_of_wind_ravenous_creeper_trigger' WHERE `entry`= 45813;
 -- Soothing Breeze
 UPDATE `creature_template` SET `unit_flags`= 33554432, `flags_extra`= 128 WHERE `entry`= 46246;
--- North Wind
-UPDATE `creature_template` SET `unit_flags`= 33554432, `flags_extra`= 128 WHERE `entry`= 47926;
+-- North Wind, East Wind and West Wind
+UPDATE `creature_template` SET `unit_flags`= 33554432, `flags_extra`= 128, `InhabitType`= 4 WHERE `entry` IN (47926, 47924, 47925);
 -- Ravenous Creeper
 UPDATE `creature_template` SET `ScriptName`= 'npc_conclave_of_wind_ravenous_creeper' WHERE `entry`= 45812;
 -- Tornado
@@ -107,7 +107,8 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 ('spell_conclave_of_wind_winds_pre_effect_warning',
 'spell_conclave_of_wind_teleport_to_center',
 'spell_conclave_of_wind_winds',
-'spell_conclave_of_wind_wind_blast');
+'spell_conclave_of_wind_wind_blast',
+'spell_conclave_of_wind_wind_blast_triggered');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (96508, 'spell_conclave_of_wind_winds_pre_effect_warning'),
@@ -126,7 +127,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (93182, 'spell_conclave_of_wind_winds'),
 (93183, 'spell_conclave_of_wind_winds'),
 (86193, 'spell_conclave_of_wind_wind_blast'),
-(85480, 'spell_conclave_of_wind_wind_blast');
+(85480, 'spell_conclave_of_wind_wind_blast_triggered');
 
 
 DELETE FROM `conditions` WHERE `SourceEntry` IN (89844, 89843) AND `SourceTypeOrReferenceId`= 13;
