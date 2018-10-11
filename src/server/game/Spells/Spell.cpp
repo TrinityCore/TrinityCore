@@ -5875,13 +5875,15 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (m_spellInfo->Effects[i].IsTargetingArea())
                     break;
 
-                if (!m_targets.GetUnitTarget())
-                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+                //if (!m_targets.GetUnitTarget())
+                //    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
                 if (m_caster->GetTypeId() != TYPEID_PLAYER || m_CastItem)
                     break;
 
-                if (m_targets.GetUnitTarget()->getPowerType() != POWER_MANA)
+                if (m_targets.GetUnitTarget() && m_targets.GetUnitTarget()->getPowerType() != POWER_MANA)
+                    return SPELL_FAILED_BAD_TARGETS;
+                else if (!m_targets.GetUnitTarget() && m_caster->getPowerType() != POWER_MANA)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 break;
