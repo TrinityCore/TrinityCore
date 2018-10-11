@@ -101,10 +101,12 @@ class TC_GAME_API SmartAI : public CreatureAI
         void MoveInLineOfSight(Unit* who) override;
 
         // Called when hit by a spell
-        void SpellHit(Unit* unit, SpellInfo const* spellInfo) override;
+        void SpellHit(Unit* caster, SpellInfo const* spellInfo) override;
+        void SpellHit(GameObject* caster, SpellInfo const* spellInfo) override;
 
         // Called when spell hits a target
         void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override;
+        void SpellHitTarget(GameObject* target, SpellInfo const* spellInfo) override;
 
         // Called at any Damage from any attacker (before damage apply)
         void DamageTaken(Unit* doneBy, uint32& damage) override;

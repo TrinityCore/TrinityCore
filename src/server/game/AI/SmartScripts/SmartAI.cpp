@@ -605,14 +605,24 @@ void SmartAI::AttackStart(Unit* who)
     }
 }
 
-void SmartAI::SpellHit(Unit* unit, SpellInfo const* spellInfo)
+void SmartAI::SpellHit(Unit* caster, SpellInfo const* spellInfo)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, unit, 0, 0, false, spellInfo);
+    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, caster, 0, 0, false, spellInfo);
+}
+
+void SmartAI::SpellHit(GameObject* /*caster*/, SpellInfo const* spellInfo)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, nullptr, 0, 0, false, spellInfo);
 }
 
 void SmartAI::SpellHitTarget(Unit* target, SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target, 0, 0, false, spellInfo);
+}
+
+void SmartAI::SpellHitTarget(GameObject* /*target*/, SpellInfo const* spellInfo)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, nullptr, 0, 0, false, spellInfo);
 }
 
 void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)

@@ -2328,7 +2328,26 @@ void Spell::TargetInfo::DoTargetSpellHit(Spell* spell, uint8 effIndex)
         return;                                             // No missinfo in that case
 
     if (_spellHitTarget)
+    {
+        // AI functions
+        if (Creature* cHitTarget = _spellHitTarget->ToCreature())
+        {
+            if (CreatureAI* hitTargetAI = cHitTarget->AI())
+            {
+                if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT)
+                    hitTargetAI->SpellHit(spell->m_caster->ToGameObject(), spell->m_spellInfo);
+                else
+                    hitTargetAI->SpellHit(spell->m_caster->ToUnit(), spell->m_spellInfo);
+            }
+        }
+
+        if (spell->m_caster->GetTypeId() == TYPEID_UNIT && spell->m_caster->ToCreature()->IsAIEnabled())
+            spell->m_caster->ToCreature()->AI()->SpellHitTarget(_spellHitTarget, spell->m_spellInfo);
+        else if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT && spell->m_caster->ToGameObject()->AI())
+            spell->m_caster->ToGameObject()->AI()->SpellHitTarget(_spellHitTarget, spell->m_spellInfo);
+
         spell->DoSpellEffectHit(_spellHitTarget, effIndex, *this);
+    }
 
     // scripts can modify damage/healing for current target, save them
     Damage = spell->m_damage;
@@ -2540,21 +2559,6 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 
     if (_spellHitTarget)
     {
-        //AI functions
-        if (Creature* cHitTarget = _spellHitTarget->ToCreature())
-            if (CreatureAI* hitTargetAI = cHitTarget->AI())
-            {
-                if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT)
-                    hitTargetAI->SpellHit(spell->m_caster->ToGameObject(), spell->m_spellInfo);
-                else
-                    hitTargetAI->SpellHit(spell->m_caster->ToUnit(), spell->m_spellInfo);
-            }
-
-        if (spell->m_caster->GetTypeId() == TYPEID_UNIT && spell->m_caster->ToCreature()->IsAIEnabled())
-            spell->m_caster->ToCreature()->AI()->SpellHitTarget(_spellHitTarget, spell->m_spellInfo);
-        else if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT && spell->m_caster->ToGameObject()->AI())
-            spell->m_caster->ToGameObject()->AI()->SpellHitTarget(_spellHitTarget, spell->m_spellInfo);
-
         if (HitAura)
         {
             if (AuraApplication* aurApp = HitAura->GetApplicationOfTarget(_spellHitTarget->GetGUID()))
