@@ -162,7 +162,7 @@ public:
         }
         else
         {
-            handler->SendSysMessage(LANG_COMMAND_QUEST_NOTFOUND);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
             return false;
         }
