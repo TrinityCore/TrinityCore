@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature` WHERE `guid` IN (87409,87410,87593,87594,87893,87894,87895,87896,87897);
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`,`spawndist`, `MovementType`) VALUES
@@ -10,3 +11,4 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 (87895, 3799, 1, 1, 1, 0, 1, 1817.07, -2652, 52.926, 2.745, 600, 5, 1),
 (87896, 3799, 1, 1, 1, 0, 1, 1859.3, -2689, 40.737, 2.663, 600, 5, 1),
 (87897, 3799, 1, 1, 1, 0, 1, 1851.064, -2618.686, 58.824, 5.4349, 600, 5, 1);
+*/

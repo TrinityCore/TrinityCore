@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature` WHERE `guid` IN (87931,87932,87933,87934,87935,87936,87937,87960,87961,87989,88013,88020,88021,88063,88064,88068,88069,88070,88071,88103,88109,88167,88206,88209,88253,88282,88369,88485,88539,88540,88541,88542,88543,88544,88545,88546,88547,88638,88639,88640,88641,88642,88643,88644,88645,88646,88647,88648,88649,88650,88651);
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`,`spawndist`, `MovementType`) VALUES
@@ -57,3 +58,4 @@ UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=4386;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=4386 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (4386,0,0,0,0,0,100,0,2000,3000,5000,8000,0,11,6016,0,0,0,0,0,2,0,0,0,0,0,0,0,"Withervine Bark Ripper - IC - Cast Pierce Armor");
+*/

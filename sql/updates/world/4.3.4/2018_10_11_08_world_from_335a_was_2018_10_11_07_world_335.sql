@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature` WHERE `guid` IN (87898,87899,87900);
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`,`spawndist`, `MovementType`) VALUES
@@ -19,3 +20,4 @@ INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALU
 (87899, 494, 0, 'Fel Steed/Shadow Charger 2'),
 (16442, 495, 0, 'Fel Steed/Shadow Charger 3'),
 (87900, 495, 0, 'Fel Steed/Shadow Charger 3');
+*/
