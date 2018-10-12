@@ -35,7 +35,11 @@ enum TFWDataTypes
     DATA_ANSHAL                         = 2,
     DATA_NEZIR                          = 3,
     DATA_ROHASH                         = 4,
-    DATA_SKYWALL_RAID_CENTER_PLATFORM   = 5
+    DATA_SKYWALL_RAID_CENTER_PLATFORM   = 5,
+    DATA_SKYWALL_DJIN_TORNADO           = 6,
+    DATA_SKYWALL_DJIN_FROST             = 7,
+    DATA_SKYWALL_DJIN_HEALING           = 8,
+    DATA_FREE_HURRICANE_VEHICLE         = 9
 };
 
 enum TFWCreatureIds
@@ -49,18 +53,40 @@ enum TFWCreatureIds
     // Creatures
     NPC_WORLD_TRIGGER               = 21252,
     NPC_FALL_CATCHER                = 45710,
+
+    // Conclave of Wind
     NPC_RAVENOUS_CREEPER            = 45812,
     NPC_TORNADO                     = 46207,
     NPC_WORLD_TRIGGER_IMMUNE_TO_PC  = 19871,
-};
-
-enum TFWGameObjectIds
-{
-    GO_SKYWALL_RAID_CENTER_PLATFORM = 207737
+    NPC_HURRICANE                   = 46419
 };
 
 enum TFWSpells
 {
+    // World Trigger
+    SPELL_POWER_GAIN                    = 89898,
+    SPELL_WIND_BLAST_SPEED_BUFF         = 93106,
+};
+
+enum TFWGameObjectIds
+{
+    GO_SKYWALL_RAID_CENTER_PLATFORM = 207737,
+    GO_SKYALL_DJIN_TORNADO          = 206701,
+    GO_SKYALL_DJIN_FROST            = 206700,
+    GO_SKYALL_DJIN_HEALING          = 206699
+};
+
+enum TFWTexts
+{
+    // World Trigger
+    SAY_ANNOUNCE_ALMOST_FULL_STRENGTH = 0
+};
+
+enum TFWActions
+{
+    ACTION_CONCLAVE_DEFEATED            = 1,
+    // 2 - Re-use
+    ACTION_CONCLAVE_AT_FULL_STRENGTH    = 3
 };
 
 enum TFWMisc

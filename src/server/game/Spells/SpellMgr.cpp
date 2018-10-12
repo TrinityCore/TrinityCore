@@ -4788,6 +4788,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // THRONE OF THE FOUR WINDS SPELLS
     //
 
+    // Conclave of Wind
     // Teleport to Center
     ApplySpellFix({
         89844, // West
@@ -4803,6 +4804,18 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_2;
     });
 
+    // Soothing Breeze
+    ApplySpellFix({ 86204 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9); // 30seconds
+    });
+
+    // Ice Patch
+    ApplySpellFix({ 86122 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9); // 30seconds
+    });
+
     // Tornado
     ApplySpellFix({
         86189,
@@ -4811,7 +4824,17 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS);
-        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_15_YARDS);
+    });
+
+    // Wind Blast
+    ApplySpellFix({
+        85483,
+        93138,
+        93139,
+        93140
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CONE_ENEMY_104);
     });
 
     // ENDOF THRONE OF THE FOUR WINDS SPELLS

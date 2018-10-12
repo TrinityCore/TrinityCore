@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "throne_of_the_four_winds.h"
 #include "AreaBoundary.h"
+#include "GameObject.h"
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -38,13 +39,19 @@ enum Spells
     SPELL_WITHERING_WINDS_DAMAGE        = 93168,
     SPELL_NURTURE                       = 85422,
     SPELL_SOOTHING_BREEZE               = 86205,
-    SPELL_ZEPHYR                        = 84638,
     SPELL_TELEPORT_TO_CENTER_WEST       = 89844,
+    SPELL_ZEPHYR                        = 84638,
+    SPELL_ZEPHYR_UNK                    = 89813, // todo: find purpose
+    SPELL_TOXIC_SPORES                  = 86290,
 
     // Nezir
     SPELL_PRE_FIGHT_VISUAL_NORTH        = 85532,
     SPELL_CHILLING_WINDS_DAMAGE         = 93163,
     SPELL_TELEPORT_TO_CENTER_NORTH      = 89843,
+    SPELL_PERMAFROST                    = 86082,
+    SPELL_ICE_PATCH                     = 86122,
+    SPELL_SLEET_STORM                   = 84644,
+    SPELL_STAY_CHILL_ACHIEVEMENT_CREDIT = 94119,
 
     // Rohash
     SPELL_PRE_FIGHT_VISUAL_EAST         = 85538,
@@ -53,9 +60,9 @@ enum Spells
     SPELL_STORM_SHIELD                  = 93059,
     SPELL_SUMMON_TORNADOS               = 86192,
     SPELL_WIND_BLAST                    = 86193,
-
-    // World Trigger
-    SPELL_POWER_GAIN                    = 89898,
+    SPELL_WIND_BLAST_TRIGGERED          = 85480,
+    SPELL_HURRICANE                     = 84643,
+    SPELL_HURRICANE_RIDE_VEHICLE        = 86481,
 
     // West Wind
     SPELL_WITHERING_WINDS_RESET_AURA    = 89137,
@@ -71,47 +78,53 @@ enum Spells
     SPELL_NURTURE_SUMMON                = 85429,
 
     // Ravenous Creeper
-    SPELL_TOXIC_SPORES                  = 86281,
-    SPELL_AI_CLEAR_TARGET               = 89020,
-
-    // World Trigger
-    SPELL_WIND_BLAST_SPEED_BUFF         = 93106,
+    SPELL_AI_CLEAR_TARGET               = 89020
 };
 
 #define SPELL_DEAFENING_WINDS   RAID_MODE<uint32>(85573, 93190, 93191, 93192)
 #define SPELL_CHILLING_WINDS    RAID_MODE<uint32>(85578, 93147, 93148, 93149)
 #define SPELL_WITHERING_WINDS   RAID_MODE<uint32>(85576, 93181, 93182, 93183)
+#define SPELL_GATHER_STRENGTH   RAID_MODE<uint32>(86307, 101444, 101445, 101446)
+#define SPELL_WIND_CHILL        RAID_MODE<uint32>(84645, 93123, 93124, 93125)
 
 enum Events
 {
     // Conclave of Wind
     EVENT_PRE_WIND_EFFECT_WARNING = 1,
     EVENT_TELEPORT_TO_CENTER,
+    EVENT_REENGAGE_PLAYERS,
 
     // Anshal
     EVENT_SOOTHING_BREEZE,
     EVENT_NURTURE,
+    EVENT_TOXIC_SPORES,
+    EVENT_ZEPHYR,
 
     // Nezir
+    EVENT_WIND_CHILL,
+    EVENT_PERMAFROST,
+    EVENT_ICE_PATCH,
+    EVENT_SLEET_STORM,
 
     // Rohash
     EVENT_SLICING_GALE,
     EVENT_STORM_SHIELD,
     EVENT_SUMMON_TORNADOS,
     EVENT_WIND_BLAST,
+    EVENT_HURRICANE,
+    EVENT_FINISH_WIND_BLAST,
 
     // Ravenous Creeper Trigger
     EVENT_SUMMON_RAVENOUS_CREEPER,
 
     // Ravenous Creeper
-    EVENT_ATTACK_PLAYERS,
-    EVENT_TOXIC_SPORES,
+    EVENT_ATTACK_PLAYERS
 };
 
 enum Actions
 {
     ACTION_NO_NEARBY_PLAYER     = 1,
-    ACTION_PLAYER_LEFT_PLATFORM = 2,
+    ACTION_PLAYER_LEFT_PLATFORM = 2
 };
 
 enum Texts
@@ -120,7 +133,7 @@ enum Texts
     SAY_AGGRO                           = 0,
     SAY_OUT_OF_RANGE                    = 1,
     SAY_GATHER_STRENGTH                 = 2,
-    SAY_ANNOUNCE_GATHER_POWER           = 3,
+    SAY_ANNOUNCE_GATHER_STRENGTH        = 3,
     SAY_SPECIAL_ABILITY                 = 4,
     SAY_SLAY                            = 5,
 
@@ -136,9 +149,10 @@ enum SpellVisualKits
     SPELL_VISUAL_STORM_SHIELD = 18812
 };
 
-enum GuidData
+enum Data
 {
-    DATA_WIND_BLAST_TRIGGER = 0
+    DATA_WIND_BLAST_TRIGGER     = 0,
+    DATA_IS_GATHERING_STRENGTH  = 1
 };
 
 #define MAX_HOME_POSITION_DISTANCE 65.0f
@@ -154,6 +168,38 @@ namespace ConclaveHandler
 
         return target->GetExactDist2d(attackerPosition) < MAX_HOME_POSITION_DISTANCE;
     }
+
+    bool KillConclaveIfAllowed(Unit* councillor)
+    {
+        if (InstanceScript* instance = councillor->GetInstanceScript())
+        {
+            uint8 weakenedCouncillorCount = 0;
+            Creature* anshal = instance->GetCreature(DATA_ANSHAL);
+            Creature* nezir = instance->GetCreature(DATA_NEZIR);
+            Creature* rohash = instance->GetCreature(DATA_ROHASH);
+            if (!anshal || !nezir || !rohash)
+                return false;
+
+            if (councillor != anshal && anshal->AI()->GetData(DATA_IS_GATHERING_STRENGTH))
+                weakenedCouncillorCount++;
+
+            if (councillor != rohash && rohash->AI()->GetData(DATA_IS_GATHERING_STRENGTH))
+                weakenedCouncillorCount++;
+
+            if (councillor != nezir &&  nezir->AI()->GetData(DATA_IS_GATHERING_STRENGTH))
+                weakenedCouncillorCount++;
+
+            if (weakenedCouncillorCount == 2)
+            {
+                anshal->KillSelf();
+                nezir->KillSelf();
+                rohash->KillSelf();
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 Position const WesternPlatformCenterPosition    = { -48.081f,   1053.930f, 199.572f  };
@@ -168,6 +214,7 @@ struct boss_anshal : public BossAI
 
     void Initialize()
     {
+        _isGatheringStrength = false;
     }
 
     void AttackStart(Unit* who) override
@@ -185,8 +232,8 @@ struct boss_anshal : public BossAI
         me->SetReactState(REACT_AGGRESSIVE);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_WEST);
-        events.ScheduleEvent(EVENT_SOOTHING_BREEZE, 15s, 16s);
-        events.ScheduleEvent(EVENT_NURTURE, 27s, 28s);
+        events.ScheduleEvent(EVENT_SOOTHING_BREEZE, 15s + 500ms);
+        events.ScheduleEvent(EVENT_NURTURE, 27s);
 
         if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), who))
             Talk(SAY_AGGRO);
@@ -199,7 +246,7 @@ struct boss_anshal : public BossAI
         _Reset();
         Initialize();
         me->SetReactState(REACT_PASSIVE);
-        me->SetPower(POWER_MANA, 0);
+        DoCastSelf(SPELL_PRE_FIGHT_VISUAL_WEST);
         _ravenousCreeperGUIDs.clear();
     }
 
@@ -221,10 +268,38 @@ struct boss_anshal : public BossAI
     {
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WIND_CHILL);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(1, damage) && !_isGatheringStrength)
+        {
+            if (ConclaveHandler::KillConclaveIfAllowed(me))
+                return;
+
+            Talk(SAY_GATHER_STRENGTH);
+            Talk(SAY_ANNOUNCE_GATHER_STRENGTH);
+            me->InterruptNonMeleeSpells(true);
+            me->AttackStop();
+            me->SetReactState(REACT_PASSIVE);
+            DoCastSelf(SPELL_GATHER_STRENGTH);
+            events.Reset();
+            _isGatheringStrength = true;
+        }
+
+        if (damage >= me->GetHealth())
+            damage = me->GetHealth() - 1;
     }
 
     void DoAction(int32 action) override
     {
+        if (action == ACTION_CONCLAVE_AT_FULL_STRENGTH && _isGatheringStrength)
+            me->SetPower(POWER_MANA, 0);
+
+        if (_isGatheringStrength)
+            return;
+
         switch (action)
         {
             case ACTION_NO_NEARBY_PLAYER:
@@ -239,9 +314,20 @@ struct boss_anshal : public BossAI
                 }
                 break;
             case ACTION_PLAYER_LEFT_PLATFORM:
-                if (!me->IsInCombat())
+                if (!me->IsInCombat() || me->HasAura(SPELL_ZEPHYR))
                     break;
                 events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 2s);
+                break;
+            case ACTION_CONCLAVE_AT_FULL_STRENGTH:
+                me->InterruptNonMeleeSpells(true);
+                me->AttackStop();
+                me->SetReactState(REACT_PASSIVE);
+                me->RemoveAurasDueToSpell(SPELL_WINDS_PRE_EFFECT_WARNING);
+                me->RemoveAurasDueToSpell(SPELL_WITHERING_WINDS);
+                Talk(SAY_SPECIAL_ABILITY);
+                DoCastSelf(SPELL_TELEPORT_TO_CENTER_WEST);
+                events.Reset();
+                events.ScheduleEvent(EVENT_ZEPHYR, 2s + 500ms);
                 break;
             default:
                 break;
@@ -252,8 +338,18 @@ struct boss_anshal : public BossAI
     {
         if (spell->Id == SPELL_WIND_DISTANCE_CHECKER)
         {
+            events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
             me->RemoveAurasDueToSpell(SPELL_WINDS_PRE_EFFECT_WARNING);
             me->RemoveAurasDueToSpell(SPELL_WITHERING_WINDS);
+        }
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_GATHER_STRENGTH)
+        {
+            _isGatheringStrength = false;
+            events.ScheduleEvent(EVENT_REENGAGE_PLAYERS, 1ms);
         }
     }
 
@@ -267,6 +363,9 @@ struct boss_anshal : public BossAI
 
     uint32 GetData(uint32 type) const override
     {
+        if (type == DATA_IS_GATHERING_STRENGTH)
+            return uint8(_isGatheringStrength);
+
         return 0;
     }
 
@@ -305,10 +404,31 @@ struct boss_anshal : public BossAI
                             target = creeper;
 
                     DoCast(target, SPELL_SOOTHING_BREEZE);
+                    events.Repeat(31s, 33s);
                     break;
                 }
                 case EVENT_NURTURE:
+                    me->StopMoving();
                     DoCastSelf(SPELL_NURTURE);
+                    events.ScheduleEvent(EVENT_TOXIC_SPORES, 20s + 500ms);
+                    break;
+                case EVENT_TOXIC_SPORES:
+                    DoCastAOE(SPELL_TOXIC_SPORES, true);
+                    events.Repeat(20s);
+                    break;
+                case EVENT_ZEPHYR:
+                    DoCastSelf(SPELL_ZEPHYR);
+                    if (GameObject* effect = instance->GetGameObject(DATA_SKYWALL_DJIN_HEALING))
+                        effect->SetGoState(GO_STATE_ACTIVE);
+                    events.ScheduleEvent(EVENT_REENGAGE_PLAYERS, 15s);
+                    break;
+                case EVENT_REENGAGE_PLAYERS:
+                    if (GameObject* effect = instance->GetGameObject(DATA_SKYWALL_DJIN_HEALING))
+                        effect->SetGoState(GO_STATE_READY);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_SOOTHING_BREEZE, 16s);
+                    events.ScheduleEvent(EVENT_NURTURE, 35s);
+                    events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 1ms);
                     break;
                 default:
                     break;
@@ -319,6 +439,7 @@ struct boss_anshal : public BossAI
 
 private:
     GuidSet _ravenousCreeperGUIDs;
+    bool _isGatheringStrength;
 };
 
 struct boss_nezir : public BossAI
@@ -330,6 +451,7 @@ struct boss_nezir : public BossAI
 
     void Initialize()
     {
+        _isGatheringStrength = false;
     }
 
     void AttackStart(Unit* who) override
@@ -347,6 +469,9 @@ struct boss_nezir : public BossAI
         me->SetReactState(REACT_AGGRESSIVE);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_NORTH);
+        events.ScheduleEvent(EVENT_WIND_CHILL, 11s);
+        events.ScheduleEvent(EVENT_PERMAFROST, 12s);
+        events.ScheduleEvent(EVENT_ICE_PATCH, 14s);
 
         if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), who))
             Talk(SAY_AGGRO);
@@ -359,7 +484,7 @@ struct boss_nezir : public BossAI
         _Reset();
         Initialize();
         me->SetReactState(REACT_PASSIVE);
-        me->SetPower(POWER_MANA, 0);
+        DoCastSelf(SPELL_PRE_FIGHT_VISUAL_NORTH);
     }
 
     void KilledUnit(Unit* killed) override
@@ -382,8 +507,35 @@ struct boss_nezir : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(1, damage) && !_isGatheringStrength)
+        {
+            if (ConclaveHandler::KillConclaveIfAllowed(me))
+                return;
+
+            Talk(SAY_GATHER_STRENGTH);
+            Talk(SAY_ANNOUNCE_GATHER_STRENGTH);
+            me->InterruptNonMeleeSpells(true);
+            me->AttackStop();
+            me->SetReactState(REACT_PASSIVE);
+            DoCastSelf(SPELL_GATHER_STRENGTH);
+            events.Reset();
+            _isGatheringStrength = true;
+        }
+
+        if (damage >= me->GetHealth())
+            damage = me->GetHealth() - 1;
+    }
+
     void DoAction(int32 action) override
     {
+        if (action == ACTION_CONCLAVE_AT_FULL_STRENGTH && _isGatheringStrength)
+            me->SetPower(POWER_MANA, 0);
+
+        if (_isGatheringStrength)
+            return;
+
         switch (action)
         {
             case ACTION_NO_NEARBY_PLAYER:
@@ -398,9 +550,20 @@ struct boss_nezir : public BossAI
                 }
                 break;
             case ACTION_PLAYER_LEFT_PLATFORM:
-                if (!me->IsInCombat())
+                if (!me->IsInCombat() || me->HasAura(SPELL_SLEET_STORM))
                     break;
                 events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 2s);
+                break;
+            case ACTION_CONCLAVE_AT_FULL_STRENGTH:
+                me->InterruptNonMeleeSpells(true);
+                me->AttackStop();
+                me->SetReactState(REACT_PASSIVE);
+                me->RemoveAurasDueToSpell(SPELL_WINDS_PRE_EFFECT_WARNING);
+                me->RemoveAurasDueToSpell(SPELL_CHILLING_WINDS);
+                Talk(SAY_SPECIAL_ABILITY);
+                DoCastSelf(SPELL_TELEPORT_TO_CENTER_NORTH);
+                events.Reset();
+                events.ScheduleEvent(EVENT_SLEET_STORM, 2s + 500ms);
                 break;
             default:
                 break;
@@ -411,8 +574,18 @@ struct boss_nezir : public BossAI
     {
         if (spell->Id == SPELL_WIND_DISTANCE_CHECKER)
         {
+            events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
             me->RemoveAurasDueToSpell(SPELL_WINDS_PRE_EFFECT_WARNING);
             me->RemoveAurasDueToSpell(SPELL_CHILLING_WINDS);
+        }
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_GATHER_STRENGTH)
+        {
+            _isGatheringStrength = false;
+            events.ScheduleEvent(EVENT_REENGAGE_PLAYERS, 1ms);
         }
     }
 
@@ -423,6 +596,9 @@ struct boss_nezir : public BossAI
 
     uint32 GetData(uint32 type) const override
     {
+        if (type == DATA_IS_GATHERING_STRENGTH)
+            return uint8(_isGatheringStrength);
+
         return 0;
     }
 
@@ -446,12 +622,50 @@ struct boss_nezir : public BossAI
                 case EVENT_TELEPORT_TO_CENTER:
                     DoCastSelf(SPELL_TELEPORT_TO_CENTER_NORTH);
                     break;
+                case EVENT_WIND_CHILL:
+                    DoCastAOE(SPELL_WIND_CHILL);
+                    events.Repeat(11s);
+                    break;
+                case EVENT_PERMAFROST:
+                    if (Unit* target = me->GetVictim())
+                    {
+                        if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), target))
+                        {
+                            me->StopMoving();
+                            DoCast(target, SPELL_PERMAFROST);
+                        }
+                    }
+                    events.Repeat(12s);
+                    break;
+                case EVENT_ICE_PATCH:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, MAX_HOME_POSITION_DISTANCE, true, 0))
+                        if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), target))
+                            DoCast(target, SPELL_ICE_PATCH);
+                    events.Repeat(14s);
+                    break;
+                case EVENT_SLEET_STORM:
+                    DoCastSelf(SPELL_SLEET_STORM);
+                    if (GameObject* effect = instance->GetGameObject(DATA_SKYWALL_DJIN_FROST))
+                        effect->SetGoState(GO_STATE_ACTIVE);
+                    events.ScheduleEvent(EVENT_REENGAGE_PLAYERS, 15s);
+                    break;
+                case EVENT_REENGAGE_PLAYERS:
+                    if (GameObject* effect = instance->GetGameObject(DATA_SKYWALL_DJIN_FROST))
+                        effect->SetGoState(GO_STATE_READY);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_WIND_CHILL, 11s);
+                    events.ScheduleEvent(EVENT_PERMAFROST, 12s);
+                    events.ScheduleEvent(EVENT_ICE_PATCH, 14s);
+                    events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 1ms);
+                    break;
                 default:
                     break;
             }
         }
         DoMeleeAttackIfReady();
     }
+private:
+    bool _isGatheringStrength;
 };
 
 struct boss_rohash : public BossAI
@@ -463,6 +677,7 @@ struct boss_rohash : public BossAI
 
     void Initialize()
     {
+        _isGatheringStrength = false;
     }
 
     void AttackStart(Unit* who) override
@@ -485,7 +700,7 @@ struct boss_rohash : public BossAI
         events.ScheduleEvent(EVENT_WIND_BLAST, 32s + 500ms);
 
         if (IsHeroic())
-            events.ScheduleEvent(EVENT_STORM_SHIELD, 30s);
+            events.ScheduleEvent(EVENT_STORM_SHIELD, 30s + 100ms);
 
         if (ConclaveHandler::IsTargetOnPlatform(me->GetHomePosition(), who))
             Talk(SAY_AGGRO);
@@ -498,7 +713,7 @@ struct boss_rohash : public BossAI
         _Reset();
         Initialize();
         me->SetReactState(REACT_PASSIVE);
-        me->SetPower(POWER_MANA, 0);
+        DoCastSelf(SPELL_PRE_FIGHT_VISUAL_EAST);
         if (Creature* dummy = DoSummon(NPC_WORLD_TRIGGER_IMMUNE_TO_PC, WindBlastTriggerPosition, 0, TEMPSUMMON_MANUAL_DESPAWN))
         {
             _windBlastTriggerGUID = dummy->GetGUID();
@@ -527,8 +742,35 @@ struct boss_rohash : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(1, damage) && !_isGatheringStrength)
+        {
+            if (ConclaveHandler::KillConclaveIfAllowed(me))
+                return;
+
+            Talk(SAY_GATHER_STRENGTH);
+            Talk(SAY_ANNOUNCE_GATHER_STRENGTH);
+            me->InterruptNonMeleeSpells(true);
+            me->AttackStop();
+            me->SetReactState(REACT_PASSIVE);
+            DoCastSelf(SPELL_GATHER_STRENGTH);
+            events.Reset();
+            _isGatheringStrength = true;
+        }
+
+        if (damage >= me->GetHealth())
+            damage = me->GetHealth() - 1;
+    }
+
     void DoAction(int32 action) override
     {
+        if (action == ACTION_CONCLAVE_AT_FULL_STRENGTH && _isGatheringStrength)
+            me->SetPower(POWER_MANA, 0);
+
+        if (_isGatheringStrength)
+            return;
+
         switch (action)
         {
             case ACTION_NO_NEARBY_PLAYER:
@@ -541,21 +783,45 @@ struct boss_rohash : public BossAI
                 }
                 break;
             case ACTION_PLAYER_LEFT_PLATFORM:
-                if (!me->IsInCombat())
+                if (!me->IsInCombat() || me->HasAura(SPELL_HURRICANE))
                     break;
                 events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 2s);
+                break;
+            case ACTION_CONCLAVE_AT_FULL_STRENGTH:
+                me->InterruptNonMeleeSpells(true);
+                me->AttackStop();
+                me->SetReactState(REACT_PASSIVE);
+                me->RemoveAurasDueToSpell(SPELL_WINDS_PRE_EFFECT_WARNING);
+                me->RemoveAurasDueToSpell(SPELL_DEAFENING_WINDS);
+                Talk(SAY_SPECIAL_ABILITY);
+                events.Reset();
+                events.ScheduleEvent(EVENT_HURRICANE, 2s + 500ms);
                 break;
             default:
                 break;
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
     {
-        if (spell->Id == SPELL_WIND_DISTANCE_CHECKER)
+        switch (spell->Id)
         {
-            me->RemoveAurasDueToSpell(SPELL_WINDS_PRE_EFFECT_WARNING);
-            me->RemoveAurasDueToSpell(SPELL_DEAFENING_WINDS);
+            case SPELL_WIND_DISTANCE_CHECKER:
+                events.CancelEvent(EVENT_PRE_WIND_EFFECT_WARNING);
+                me->RemoveAurasDueToSpell(SPELL_WINDS_PRE_EFFECT_WARNING);
+                me->RemoveAurasDueToSpell(SPELL_DEAFENING_WINDS);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_GATHER_STRENGTH)
+        {
+            _isGatheringStrength = false;
+            events.ScheduleEvent(EVENT_REENGAGE_PLAYERS, 1ms);
         }
     }
 
@@ -576,6 +842,9 @@ struct boss_rohash : public BossAI
 
     uint32 GetData(uint32 type) const override
     {
+        if (type == DATA_IS_GATHERING_STRENGTH)
+            return uint8(_isGatheringStrength);
+
         return 0;
     }
 
@@ -610,14 +879,49 @@ struct boss_rohash : public BossAI
                     events.Repeat(2s + 100ms);
                     break;
                 case EVENT_STORM_SHIELD:
-                    me->SendPlaySpellVisualKit(SPELL_VISUAL_STORM_SHIELD, 0, 0);
-                    DoCastSelf(SPELL_STORM_SHIELD);
+                    if (me->GetPower(POWER_MANA) == 30)
+                    {
+                        me->SendPlaySpellVisualKit(SPELL_VISUAL_STORM_SHIELD, 0, 0);
+                        DoCastSelf(SPELL_STORM_SHIELD);
+                    }
+                    else
+                        events.Repeat(1s);
                     break;
                 case EVENT_SUMMON_TORNADOS:
                     DoCastSelf(SPELL_SUMMON_TORNADOS);
                     break;
                 case EVENT_WIND_BLAST:
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
                     DoCastAOE(SPELL_WIND_BLAST);
+                    events.ScheduleEvent(EVENT_FINISH_WIND_BLAST, 11s);
+                    events.Repeat(60s);
+                    break;
+                case EVENT_FINISH_WIND_BLAST:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                case EVENT_HURRICANE:
+                    DoCastSelf(SPELL_HURRICANE);
+                    if (GameObject* effect = instance->GetGameObject(DATA_SKYWALL_DJIN_TORNADO))
+                        effect->SetGoState(GO_STATE_ACTIVE);
+                    events.ScheduleEvent(EVENT_REENGAGE_PLAYERS, 15s);
+
+                    for (ObjectGuid guid : summons)
+                        if (Creature* creature = ObjectAccessor::GetCreature(*me, guid))
+                            if (creature->GetEntry() == NPC_TORNADO)
+                                creature->DespawnOrUnsummon(4s + 500ms);
+                    break;
+                case EVENT_REENGAGE_PLAYERS:
+                    if (GameObject* effect = instance->GetGameObject(DATA_SKYWALL_DJIN_TORNADO))
+                        effect->SetGoState(GO_STATE_READY);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_SLICING_GALE, 1s);
+                    events.ScheduleEvent(EVENT_WIND_BLAST, 5s);
+                    events.ScheduleEvent(EVENT_SUMMON_TORNADOS, 17s);
+
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_STORM_SHIELD, 37s + 500ms);
+                    events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 1ms);
                     break;
                 default:
                     break;
@@ -626,6 +930,7 @@ struct boss_rohash : public BossAI
     }
 private:
     ObjectGuid _windBlastTriggerGUID;
+    bool _isGatheringStrength;
 };
 
 struct npc_conclave_of_wind_ravenous_creeper_trigger : public ScriptedAI
@@ -680,11 +985,6 @@ struct npc_conclave_of_wind_ravenous_creeper : public ScriptedAI
         _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 1s + 500ms);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        _events.ScheduleEvent(EVENT_TOXIC_SPORES, 5s, 6s);
-    }
-
     void AttackStart(Unit* who) override
     {
         if (ConclaveHandler::IsTargetOnPlatform(WesternPlatformCenterPosition, who))
@@ -719,9 +1019,6 @@ struct npc_conclave_of_wind_ravenous_creeper : public ScriptedAI
             {
                 case EVENT_ATTACK_PLAYERS:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    break;
-                case EVENT_TOXIC_SPORES:
-                    DoCastSelf(SPELL_TOXIC_SPORES);
                     break;
                 default:
                     break;
@@ -835,6 +1132,96 @@ class spell_conclave_of_wind_wind_blast : public SpellScript
     }
 };
 
+class spell_conclave_of_wind_wind_blast_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_conclave_of_wind_wind_blast_AuraScript);
+
+    void HandleTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_conclave_of_wind_wind_blast_AuraScript::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+class spell_conclave_of_wind_wind_blast_triggered : public SpellScript
+{
+    PrepareSpellScript(spell_conclave_of_wind_wind_blast_triggered);
+
+    void SetTarget(WorldObject*& target)
+    {
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+            if (Creature* rohash = instance->GetCreature(DATA_ROHASH))
+                if (Creature* trigger = ObjectAccessor::GetCreature(*GetCaster(), rohash->AI()->GetGUID(DATA_WIND_BLAST_TRIGGER)))
+                    target = trigger;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_conclave_of_wind_wind_blast_triggered::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+    }
+};
+
+class spell_conclave_of_wind_hurricane : public SpellScript
+{
+    PrepareSpellScript(spell_conclave_of_wind_hurricane);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HURRICANE_RIDE_VEHICLE });
+    }
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_HURRICANE_RIDE_VEHICLE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_conclave_of_wind_hurricane::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_conclave_of_wind_hurricane_ride_vehicle : public SpellScript
+{
+    PrepareSpellScript(spell_conclave_of_wind_hurricane_ride_vehicle);
+
+    void SetTarget(WorldObject*& target)
+    {
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+            if (ObjectGuid guid = instance->GetObjectGuid(DATA_FREE_HURRICANE_VEHICLE))
+                if (Creature* hurricane = ObjectAccessor::GetCreature(*GetCaster(), guid))
+                    target = hurricane;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_conclave_of_wind_hurricane_ride_vehicle::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+    }
+};
+
+class spell_conclave_of_wind_toxic_spores : public SpellScript
+{
+    PrepareSpellScript(spell_conclave_of_wind_toxic_spores);
+
+    // Handle the cast as non-triggered to inform the client and its addons properly
+    void HandleCast(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].TriggerSpell, false);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_conclave_of_wind_toxic_spores::HandleCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+    }
+};
+
 void AddSC_boss_conclave_of_wind()
 {
     RegisterThroneOfTheFourWindsCreatureAI(boss_anshal);
@@ -842,9 +1229,12 @@ void AddSC_boss_conclave_of_wind()
     RegisterThroneOfTheFourWindsCreatureAI(boss_rohash);
     RegisterThroneOfTheFourWindsCreatureAI(npc_conclave_of_wind_ravenous_creeper_trigger);
     RegisterThroneOfTheFourWindsCreatureAI(npc_conclave_of_wind_ravenous_creeper);
-
     RegisterAuraScript(spell_conclave_of_wind_winds_pre_effect_warning);
     RegisterSpellScript(spell_conclave_of_wind_teleport_to_center);
     RegisterAuraScript(spell_conclave_of_wind_winds);
-    RegisterSpellScript(spell_conclave_of_wind_wind_blast);
+    RegisterSpellAndAuraScriptPair(spell_conclave_of_wind_wind_blast, spell_conclave_of_wind_wind_blast_AuraScript);
+    RegisterSpellScript(spell_conclave_of_wind_wind_blast_triggered);
+    RegisterSpellScript(spell_conclave_of_wind_hurricane);
+    RegisterSpellScript(spell_conclave_of_wind_hurricane_ride_vehicle);
+    RegisterSpellScript(spell_conclave_of_wind_toxic_spores);
 }
