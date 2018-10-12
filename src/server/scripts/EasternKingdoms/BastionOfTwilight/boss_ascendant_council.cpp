@@ -860,6 +860,7 @@ class npc_ignacious : public CreatureScript
                             DoCastSelf(SPELL_RISING_FLAMES);
                             break;
                         case EVENT_FLAME_TORRENT:
+                            me->StopMoving();
                             DoCastSelf(SPELL_FLAME_TORRENT);
                             _events.Repeat(Seconds(12));
                             break;
