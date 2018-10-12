@@ -139,9 +139,9 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                         {
                             if (GameObject* effect1 = GetGameObject(DATA_SKYWALL_DJIN_TORNADO))
                                 effect1->SetGoState(GO_STATE_READY);
-                            if (GameObject* effect2 = GetGameObject(DATA_SKYWALL_DJIN_TORNADO))
+                            if (GameObject* effect2 = GetGameObject(DATA_SKYWALL_DJIN_FROST))
                                 effect2->SetGoState(GO_STATE_READY);
-                            if (GameObject* effect3 = GetGameObject(DATA_SKYWALL_DJIN_TORNADO))
+                            if (GameObject* effect3 = GetGameObject(DATA_SKYWALL_DJIN_HEALING))
                                 effect3->SetGoState(GO_STATE_READY);
 
                             events.CancelEvent(EVENT_ENERGIZE);

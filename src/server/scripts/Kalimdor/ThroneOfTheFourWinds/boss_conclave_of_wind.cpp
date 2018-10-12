@@ -1213,7 +1213,7 @@ class spell_conclave_of_wind_toxic_spores : public SpellScript
     void HandleCast(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].TriggerSpell, false);
+        GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].TriggerSpell);
     }
 
     void Register() override
