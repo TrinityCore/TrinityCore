@@ -98,6 +98,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                         break;
                     case NPC_HURRICANE:
                         _hurricaneGUIDs.push_back(creature->GetGUID());
+                        break;
                     default:
                         break;
                 }
