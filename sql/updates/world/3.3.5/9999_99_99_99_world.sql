@@ -18,4 +18,4 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
 (11795, 0, 90, -531.14, 670.136, -310.0, 0.0);
 
 DELETE FROM `spell_script_names` WHERE `spell_id` = 10101;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (10101, 'spell_10101_knock_back');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (10101, 'spell_gen_knock_away_w_threat_drop');

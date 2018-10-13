@@ -4047,9 +4047,9 @@ class spell_gen_pony_mount_check : public AuraScript
     }
 };
 
-class spell_10101_knock_back : public SpellScript
+class spell_gen_knock_away_w_threat_drop : public SpellScript
 {
-    PrepareSpellScript(spell_10101_knock_back);
+    PrepareSpellScript(spell_gen_knock_away_w_threat_drop);
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
@@ -4063,7 +4063,7 @@ class spell_10101_knock_back : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_10101_knock_back::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_gen_knock_away_w_threat_drop::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -4185,5 +4185,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_landmine_knockback_achievement);
     RegisterSpellScript(spell_gen_clear_debuffs);
     RegisterAuraScript(spell_gen_pony_mount_check);
-    RegisterSpellScript(spell_10101_knock_back);
+    RegisterSpellScript(spell_gen_knock_away_w_threat_drop);
 }

@@ -71,7 +71,7 @@ public:
 
             switch (creature->GetEntry())
             {
-                case NPC_BLASTMASTER_EMI_SHORTFUSE: 
+                case NPC_BLASTMASTER_EMI_SHORTFUSE:
                     uiBlastmasterEmiShortfuseGUID = creature->GetGUID(); 
                     break;
             }
@@ -121,12 +121,6 @@ public:
 
             return ObjectGuid::Empty;
         }
-
-        /*void ProcessEvent(WorldObject* obj, uint32 eventId) override
-        {
-            //Event 2721 sent by spell 11518 'Serverside - Activate Bomb 01'
-        }
-        */
     };
 };
 
