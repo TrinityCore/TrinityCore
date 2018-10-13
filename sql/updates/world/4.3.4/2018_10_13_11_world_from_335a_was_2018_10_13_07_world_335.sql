@@ -1,3 +1,4 @@
+/*
 -- 
 -- Fallen Hero of the Horde
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=840 AND `SourceEntry`=2;
@@ -14,3 +15,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `creature_text` WHERE `CreatureID`=7572;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (7572,0,0,"Per your request, Corporal Splithoof has come, $n.",12,0,100,0,0,0,3764,0,"Fallen Hero of the Horde");
+*/

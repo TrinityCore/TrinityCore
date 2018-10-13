@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry` IN (6070,6069);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (6070,6069) AND `source_type`=0;
@@ -9,3 +10,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (6069,0,1,0,0,0,100,0,1200,3800,11900,13700,0,11,11972,0,0,0,0,0,2,0,0,0,0,0,0,0,"Maraudine Khan Guard - IC - Casts Shield Bash"),
 (6069,0,2,0,0,0,100,0,5000,5000,15000,15000,0,11,11971,0,0,0,0,0,2,0,0,0,0,0,0,0,"Maraudine Khan Guard - IC - Cast Sunder Armor"),
 (6069,0,3,0,54,0,100,0,0,0,0,0,0,49,0,0,0,0,0,0,21,50,0,0,0,0,0,0,"Maraudine Khan Guard - Just summoned - start atack");
+*/

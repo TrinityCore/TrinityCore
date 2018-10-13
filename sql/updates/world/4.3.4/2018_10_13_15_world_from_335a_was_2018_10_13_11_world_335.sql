@@ -1,3 +1,4 @@
+/*
 -- Rigglefuzz
 UPDATE `creature_template` SET `faction`=121 WHERE `entry`=2817;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=281701 AND `source_type`=9;
@@ -38,3 +39,4 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 -- Ridge Huntress
 UPDATE `creature_template` SET `AIName`="" WHERE `entry`=2732;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2732 AND `source_type`=0;
+*/

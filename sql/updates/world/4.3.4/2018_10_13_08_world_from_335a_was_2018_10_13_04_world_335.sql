@@ -1,3 +1,4 @@
+/*
 -- 
 -- Kurmokk
 DELETE FROM `creature` WHERE `guid` BETWEEN 134210 AND 134219;
@@ -50,3 +51,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (491260, 36, -13800.65, -171.2549, 16.75194, 0, 0, 100, 0),
 (491260, 37, -13771.36, -194.1479, 23.58299, 0, 0, 100, 0),
 (491260, 38, -13768.64, -210.9160, 28.39240, 0, 0, 100, 0);
+*/
