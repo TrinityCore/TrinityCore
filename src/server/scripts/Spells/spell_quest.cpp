@@ -2134,7 +2134,7 @@ class spell_q13264_q13276_q13288_q13289_assign_credit_to_master : public SpellSc
         {
             if (Unit* owner = target->GetOwner())
             {
-                target->CastSpell(owner, GetSpellInfo()->Effects[EFFECT_0].BasePoints, true);
+                owner->CastSpell(owner, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), true);
             }
         }
     }
