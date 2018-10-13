@@ -744,9 +744,8 @@ class boss_four_horsemen_sir : public CreatureScript
 
      void HandleDamageCalc(SpellEffIndex /*effIndex*/)
      {
-         SetHitDamage(2750);
-         if (GetCaster()->GetMap()->IsHeroic())
-             SetHitDamage(4250);
+         uint32 damage = GetCaster()->GetMap()->IsHeroic() ? 4250 : 2750;
+         SetHitDamage(damage);
      }
 
      void Register() override
