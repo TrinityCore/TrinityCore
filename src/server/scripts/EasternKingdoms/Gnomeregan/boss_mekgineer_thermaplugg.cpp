@@ -274,7 +274,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             if (Player* player = me->SelectNearestPlayer(3.0f))
-                me->CastSpell(me, SPELL_BOMB_EFFECT, true);
+                DoCastSelf(SPELL_BOMB_EFFECT, true);
 
             events.Update(diff);
 
