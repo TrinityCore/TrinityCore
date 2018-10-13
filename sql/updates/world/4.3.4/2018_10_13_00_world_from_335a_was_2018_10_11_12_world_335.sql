@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature` WHERE `guid` IN (88735,88736,88737,88738,88739,88740,88741,88742,88743,88744,88745);
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`,`spawndist`, `MovementType`) VALUES
@@ -22,3 +23,4 @@ DELETE FROM `creature_template_addon` WHERE `entry` IN (4392,4391);
 INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
 (4391,"9460"),
 (4392,"9460");
+*/

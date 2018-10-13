@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature` WHERE `guid` IN (88746,88747,88776,88807,88808,88809,88810,88811,88813,88897,88901,88912,88913,88959,88974,88975,88990,88991,88992,88993,89125);
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`,`spawndist`, `MovementType`) VALUES
@@ -27,3 +28,4 @@ UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=4402;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=4402 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (4402,0,0,0,0,0,100,0,2000,4000,5000,7000,0,11,25645,0,0,0,0,0,2,0,0,0,0,0,0,0,"Muckshell Snapclaw - IC - Cast Poison");
+*/
