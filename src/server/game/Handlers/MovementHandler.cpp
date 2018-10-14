@@ -33,6 +33,7 @@
 #include "Transport.h"
 #include "Vehicle.h"
 #include "WaypointMovementGenerator.h"
+#include "SpellMgr.h"
 
 #define MOVEMENT_PACKET_TIME_DELAY 0
 
@@ -439,6 +440,12 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
         }
         else
             plrMover->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
+
+        if (opcode == CMSG_MOVE_JUMP)
+        {
+            plrMover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_JUMP, 605); // Mind Control
+            plrMover->ProcSkillsAndAuras(nullptr, PROC_FLAG_JUMP, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+        }
     }
 }
 
