@@ -821,7 +821,9 @@ class spell_warl_life_tap : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 int32 base = GetEffectValue();
 
-                float fmana = (float)base + caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) * 0.5f;
+                float penalty = caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
+                float fmana = (float)base + caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) * 0.5f * penalty;
+
                 // Improved Life Tap mod
                 if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))
                     AddPct(fmana, aurEff->GetAmount());
