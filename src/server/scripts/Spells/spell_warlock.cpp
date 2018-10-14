@@ -819,8 +819,7 @@ class spell_warl_life_tap : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                int32 base = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-                int32 damage = base + (int32)round(caster->GetStat(STAT_SPIRIT) * 1.5f);
+                int32 base = GetEffectValue();
 
                 float fmana = (float)base + caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) * 0.5f;
                 // Improved Life Tap mod
@@ -829,7 +828,7 @@ class spell_warl_life_tap : public SpellScriptLoader
                 int32 mana = round(fmana);
 
                 // Shouldn't Appear in Combat Log
-                caster->ModifyHealth(-damage);
+                caster->ModifyHealth(-base);
 
                 CastSpellExtraArgs args;
                 args.AddSpellBP0(mana);
@@ -851,10 +850,7 @@ class spell_warl_life_tap : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                Unit* caster = GetCaster();
-                int32 damage = GetSpellInfo()->Effects[EFFECT_0].CalcValue() + (int32)round(caster->GetStat(STAT_SPIRIT) * 1.5f);
-
-                if (int32(caster->GetHealth()) > damage)
+                if (int32(GetCaster()->GetHealth()) > int32(GetSpellInfo()->Effects[EFFECT_0].CalcValue()))
                     return SPELL_CAST_OK;
                 return SPELL_FAILED_FIZZLE;
             }
