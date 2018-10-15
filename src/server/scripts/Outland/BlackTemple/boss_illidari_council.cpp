@@ -128,7 +128,7 @@ static uint32 GetRandomBossExcept(uint32 exception)
         if (data != exception)
             bossData.emplace_back(data);
 
-    return bossData[urand(0, 2)];
+    return Trinity::Containers::SelectRandomContainerElement(bossData);
 }
 
 class boss_illidari_council : public CreatureScript
