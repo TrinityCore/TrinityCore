@@ -1,3 +1,4 @@
+/*
 -- Loramus Thalipedes
 DELETE FROM `creature_text` WHERE `CreatureID`=7783;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -64,3 +65,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 DELETE FROM `item_loot_template` WHERE  `entry`=10834 AND `Item`=10714;
 UPDATE `item_loot_template` SET `Chance`=100 WHERE  `entry`=10834;
+*/
