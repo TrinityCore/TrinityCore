@@ -48,9 +48,9 @@ script:
   - $CXX --version
   - mysql -uroot < sql/create/create_mysql.sql
   - mysql -utrinity -ptrinity auth_434 < sql/base/auth_database.sql
-  - ./contrib/check_updates.sh auth_434 4.3.4 auth
+  - ./contrib/check_updates.sh auth 4.3.4 auth
   - mysql -utrinity -ptrinity characters_434 < sql/base/characters_database.sql
-  - ./contrib/check_updates.sh characters_434 4.3.4 characters
+  - ./contrib/check_updates.sh characters 4.3.4 characters
   - mysql -utrinity -ptrinity world_434 < sql/base/dev/world_database.sql
   - cat sql/updates/world/4.3.4/*.sql | mysql -utrinity -ptrinity world_434
   - mysql -uroot < sql/create/drop_mysql.sql
