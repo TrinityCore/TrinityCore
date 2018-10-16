@@ -128,7 +128,7 @@ static uint32 GetRandomBossExcept(uint32 exception)
         if (data != exception)
             bossData.emplace_back(data);
 
-    return bossData[urand(0, 3)];
+    return Trinity::Containers::SelectRandomContainerElement(bossData);
 }
 
 struct boss_illidari_council : public BossAI
