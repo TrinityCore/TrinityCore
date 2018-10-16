@@ -1222,6 +1222,39 @@ class spell_conclave_of_wind_toxic_spores : public SpellScript
     }
 };
 
+class spell_conclave_of_wind_sleet_storm : public SpellScript
+{
+    PrepareSpellScript(spell_conclave_of_wind_sleet_storm);
+
+    bool Load() override
+    {
+        _targetCount = 0;
+        return true;
+    }
+
+    void CountTargets(std::list<WorldObject*>& targets)
+    {
+        _targetCount = targets.size();
+    }
+
+    void SplitDamage()
+    {
+        if (!_targetCount)
+            return;
+
+        SetHitDamage(GetHitDamage() / _targetCount);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_conclave_of_wind_sleet_storm::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnHit += SpellHitFn(spell_conclave_of_wind_sleet_storm::SplitDamage);
+    }
+
+private:
+    uint32 _targetCount;
+};
+
 void AddSC_boss_conclave_of_wind()
 {
     RegisterThroneOfTheFourWindsCreatureAI(boss_anshal);
@@ -1237,4 +1270,5 @@ void AddSC_boss_conclave_of_wind()
     RegisterSpellScript(spell_conclave_of_wind_hurricane);
     RegisterSpellScript(spell_conclave_of_wind_hurricane_ride_vehicle);
     RegisterSpellScript(spell_conclave_of_wind_toxic_spores);
+    RegisterSpellScript(spell_conclave_of_wind_sleet_storm);
 }

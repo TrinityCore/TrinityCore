@@ -79,7 +79,8 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 'spell_conclave_of_wind_wind_blast_triggered',
 'spell_conclave_of_wind_hurricane',
 'spell_conclave_of_wind_hurricane_ride_vehicle',
-'spell_conclave_of_wind_toxic_spores');
+'spell_conclave_of_wind_toxic_spores',
+'spell_conclave_of_wind_sleet_storm');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (96508, 'spell_conclave_of_wind_winds_pre_effect_warning'),
@@ -101,7 +102,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (85480, 'spell_conclave_of_wind_wind_blast_triggered'),
 (86498, 'spell_conclave_of_wind_hurricane'),
 (86481, 'spell_conclave_of_wind_hurricane_ride_vehicle'),
-(86290, 'spell_conclave_of_wind_toxic_spores');
+(86290, 'spell_conclave_of_wind_toxic_spores'),
+(86367, 'spell_conclave_of_wind_sleet_storm'),
+(93135, 'spell_conclave_of_wind_sleet_storm'),
+(93136, 'spell_conclave_of_wind_sleet_storm'),
+(93137, 'spell_conclave_of_wind_sleet_storm');
 
 DELETE FROM `conditions` WHERE `SourceEntry` IN (89844, 89843, 89898, 86481, 90262, 86290) AND `SourceTypeOrReferenceId`= 13;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
