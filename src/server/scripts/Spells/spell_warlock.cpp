@@ -818,41 +818,41 @@ class spell_warl_life_tap : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Player* caster = GetCaster()->ToPlayer();
-                if (Unit* target = GetHitUnit())
+                Unit* caster = GetCaster();
+                int32 base = GetEffectValue();
+
+                float penalty = caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
+                float fmana = (float)base + caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) * 0.5f * penalty;
+
+                // Improved Life Tap mod
+                if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))
+                    AddPct(fmana, aurEff->GetAmount());
+                int32 mana = round(fmana);
+
+                // Shouldn't Appear in Combat Log
+                caster->ModifyHealth(-base);
+
+                CastSpellExtraArgs args;
+                args.AddSpellBP0(mana);
+                caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, args);
+
+                // Mana Feed
+                int32 manaFeedVal = 0;
+                if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_MANA_FEED, 0))
+                    manaFeedVal = aurEff->GetAmount();
+
+                if (manaFeedVal > 0)
                 {
-                    int32 damage = GetEffectValue();
-                    int32 mana = int32(damage + (caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+SPELL_SCHOOL_SHADOW) * 0.5f));
-
-                    // Shouldn't Appear in Combat Log
-                    target->ModifyHealth(-damage);
-
-                    // Improved Life Tap mod
-                    if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))
-                        AddPct(mana, aurEff->GetAmount());
-
-                    CastSpellExtraArgs args;
-                    args.AddSpellBP0(mana);
-                    caster->CastSpell(target, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, args);
-
-                    // Mana Feed
-                    int32 manaFeedVal = 0;
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_MANA_FEED, 0))
-                        manaFeedVal = aurEff->GetAmount();
-
-                    if (manaFeedVal > 0)
-                    {
-                        ApplyPct(manaFeedVal, mana);
-                        CastSpellExtraArgs manaFeedArgs(TRIGGERED_FULL_MASK);
-                        manaFeedArgs.AddSpellBP0(manaFeedVal);
-                        caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, manaFeedArgs);
-                    }
+                    ApplyPct(manaFeedVal, mana);
+                    CastSpellExtraArgs manaFeedArgs(TRIGGERED_FULL_MASK);
+                    manaFeedArgs.AddSpellBP0(manaFeedVal);
+                    caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, manaFeedArgs);
                 }
             }
 
             SpellCastResult CheckCast()
             {
-                if ((int32(GetCaster()->GetHealth()) > int32(GetSpellInfo()->Effects[EFFECT_0].CalcValue() + (6.3875 * GetSpellInfo()->BaseLevel))))
+                if (int32(GetCaster()->GetHealth()) > int32(GetSpellInfo()->Effects[EFFECT_0].CalcValue()))
                     return SPELL_CAST_OK;
                 return SPELL_FAILED_FIZZLE;
             }
