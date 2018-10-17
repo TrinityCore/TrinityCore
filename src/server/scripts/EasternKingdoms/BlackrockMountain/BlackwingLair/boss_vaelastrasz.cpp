@@ -35,7 +35,7 @@ enum Says
 
 enum Gossip
 {
-   GOSSIP_ID                         = 21334,
+   GOSSIP_ID                         = 6101,
 };
 
 enum Spells
