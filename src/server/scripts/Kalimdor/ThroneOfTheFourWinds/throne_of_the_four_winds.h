@@ -58,14 +58,17 @@ enum TFWCreatureIds
     NPC_RAVENOUS_CREEPER            = 45812,
     NPC_TORNADO                     = 46207,
     NPC_WORLD_TRIGGER_IMMUNE_TO_PC  = 19871,
-    NPC_HURRICANE                   = 46419
+    NPC_HURRICANE                   = 46419,
+
+    // Al'Akir
+    NPC_SLIPSTREAM                  = 47066,
 };
 
 enum TFWSpells
 {
     // World Trigger
-    SPELL_POWER_GAIN                    = 89898,
-    SPELL_WIND_BLAST_SPEED_BUFF         = 93106,
+    SPELL_POWER_GAIN            = 89898,
+    SPELL_WIND_BLAST_SPEED_BUFF = 93106,
 };
 
 enum TFWGameObjectIds

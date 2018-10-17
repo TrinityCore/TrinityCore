@@ -22,6 +22,7 @@
 #include "SpellAuraEffects.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "MoveSplineInit.h"
 #include "Player.h"
 #include "Vehicle.h"
 #include "throne_of_the_four_winds.h"
@@ -35,6 +36,8 @@ enum Spells
     SPELL_CATCH_FALL_RIDE_VEHICLE   = 85282,
     SPELL_EJECT_ALL_PASSENGERS      = 68576,
     SPELL_CATCH_FALL_REMOVAL        = 85274,
+
+    SPELL_SLIPSTREAM_SAFE_FALL      = 87740,
 };
 
 enum Events
@@ -226,6 +229,62 @@ class spell_totfw_catch_fall_summon : public SpellScriptLoader
         }
 };
 
+struct npc_totfw_slipstream : public ScriptedAI
+{
+    npc_totfw_slipstream(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) { }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (!passenger)
+            return;
+
+        passenger->SetDisableGravity(apply, true);
+
+        if (!apply)
+        {
+            _guid = passenger->GetGUID();
+            _events.ScheduleEvent(EVENT_THROW_PASSENGER, Milliseconds(100));
+        }
+        else
+            DoCast(passenger, SPELL_SLIPSTREAM_SAFE_FALL);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_THROW_PASSENGER:
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _guid))
+                    {
+                        target->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 130.0f, me->GetOrientation());
+                        Position offset = Position(0.0f, 0.0f, 130.0f, 0.0f);
+                        target->RelocateOffset(offset);
+
+                        if (Creature* alakir = _instance->GetCreature(DATA_ALAKIR))
+                        {
+                            float angle = alakir->GetAngle(target);
+                            float x = alakir->GetPositionX() + cos(angle) * (alakir->GetCombatReach() + 10.0f);
+                            float y = alakir->GetPositionY() + sin(angle) * (alakir->GetCombatReach() + 10.0f);
+                            float z = alakir->GetPositionZ();
+                            target->GetMotionMaster()->MoveJump(x, y, z, 0.0f, 40.0f, 50.0f);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+    ObjectGuid _guid;
+    InstanceScript* _instance;
+};
+
 void AddSC_throne_of_the_four_winds()
 {
     new at_totfw_jet_stream();
@@ -233,4 +292,5 @@ void AddSC_throne_of_the_four_winds()
     new npc_totfw_fall_catcher();
     new spell_totfw_jet_stream();
     new spell_totfw_catch_fall_summon();
+    RegisterThroneOfTheFourWindsCreatureAI(npc_totfw_slipstream);
 }

@@ -4837,6 +4837,18 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CONE_ENEMY_104);
     });
 
+    // Al'Akir
+    // Wind Burst
+    ApplySpellFix({
+        87770,
+        93261,
+        93262,
+        93261
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+    });
+
     // ENDOF THRONE OF THE FOUR WINDS SPELLS
 
     // Disenchant

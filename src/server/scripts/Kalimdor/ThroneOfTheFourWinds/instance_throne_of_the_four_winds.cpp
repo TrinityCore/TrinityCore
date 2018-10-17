@@ -157,9 +157,13 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                             _hurricaneGUIDs.clear();
 
                             if (state == DONE)
+                            {
                                 if (Creature* alakir = GetCreature(DATA_ALAKIR))
+                                {
                                     alakir->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                                    // alakir->DoAction(ACTION_CONCLAVE_DEFEATED);
+                                    alakir->AI()->DoAction(ACTION_CONCLAVE_DEFEATED);
+                                }
+                            }
                         }
                         break;
                     default:
