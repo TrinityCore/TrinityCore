@@ -464,20 +464,20 @@ public:
 
 enum Nefarius
 {
-    SAY_CHAOS_SPELL = 9,
-    SAY_SUCCESS = 10,
-    SAY_FAILURE = 11,
+    SAY_CHAOS_SPELL          = 9,
+    SAY_SUCCESS              = 10,
+    SAY_FAILURE              = 11,
 
-    EVENT_CHAOS_1 = 20,
-    EVENT_CHAOS_2 = 21,
-    EVENT_PATH_2 = 22,
-    EVENT_PATH_3 = 23,
-    EVENT_SUCCESS_1 = 24,
-    EVENT_SUCCESS_2 = 25,
-    EVENT_SUCCESS_3 = 26,
+    EVENT_CHAOS_1            = 20,
+    EVENT_CHAOS_2            = 21,
+    EVENT_PATH_2             = 22,
+    EVENT_PATH_3             = 23,
+    EVENT_SUCCESS_1          = 24,
+    EVENT_SUCCESS_2          = 25,
+    EVENT_SUCCESS_3          = 26,
 
-    SPELL_CHROMATIC_CHAOS = 16337, // Self Cast hits 10339
-    SPELL_VAELASTRASZZ_SPAWN = 16354 // Self Cast Depawn one sec after
+    SPELL_CHROMATIC_CHAOS    = 16337, // Self Cast hits 10339
+    SPELL_VAELASTRASZZ_SPAWN = 16354  // Self Cast Depawn one sec after
 };
 
 class npc_victor_nefarius_brs : public CreatureScript
@@ -511,20 +511,18 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim())
-            {
-                events.Update(diff);
+            events.Update(diff);
 
-                while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
                 {
-                    switch (eventId)
-                    {
                     case EVENT_PATH_2:
                         me->GetMotionMaster()->MovePath(NEFARIUS_PATH_2, false);
                         events.ScheduleEvent(EVENT_CHAOS_1, 7000);
                         break;
                     case EVENT_CHAOS_1:
-                        if (Creature* gyth = me->FindNearestCreature(NPC_GYTH, 75.0f, true))
+                        if (Creature* gyth = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_GYTH)))
                         {
                             me->SetFacingToObject(gyth);
                             Talk(SAY_CHAOS_SPELL);
@@ -556,9 +554,7 @@ public:
                         break;
                     default:
                         break;
-                    }
                 }
-                return;
             }
         }
 

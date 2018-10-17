@@ -98,9 +98,6 @@ enum BRSGameObjectsIds
     GO_EMBERSEER_IN                 = 175244, // First door to Pyroguard Emberseer
     GO_DOORS                        = 175705, // Second door to Pyroguard Emberseer
     GO_EMBERSEER_OUT                = 175153, // Door after Pyroguard Emberseer event
-    GO_GYTH_ENTRY_DOOR              = 164726,
-    GO_GYTH_COMBAT_DOOR             = 175185,
-    GO_GYTH_EXIT_DOOR               = 175186,
     GO_DRAKKISATH_DOOR_1            = 175946,
     GO_DRAKKISATH_DOOR_2            = 175947,
     // Runes in dragonspire hall
