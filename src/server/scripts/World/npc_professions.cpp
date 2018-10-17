@@ -495,7 +495,7 @@ public:
                     player->GetSession()->SendListInventory(me->GetGUID());
                     break;
                 case GOSSIP_ACTION_TRAIN:
-                    player->GetSession()->SendTrainerList(me->GetGUID());
+                    player->GetSession()->SendTrainerList(me);
                     break;
                     //Learn Armor/Weapon
                 case GOSSIP_ACTION_INFO_DEF + 1:
@@ -899,7 +899,7 @@ public:
                     player->GetSession()->SendListInventory(me->GetGUID());
                     break;
                 case GOSSIP_ACTION_TRAIN:
-                    player->GetSession()->SendTrainerList(me->GetGUID());
+                    player->GetSession()->SendTrainerList(me);
                     break;
                     //Unlearn Leather
                 case GOSSIP_ACTION_INFO_DEF + 1:
@@ -1041,7 +1041,7 @@ public:
                     player->GetSession()->SendListInventory(me->GetGUID());
                     break;
                 case GOSSIP_ACTION_TRAIN:
-                    player->GetSession()->SendTrainerList(me->GetGUID());
+                    player->GetSession()->SendTrainerList(me);
                     break;
                     //Learn Tailor
                 case GOSSIP_ACTION_INFO_DEF + 1:
