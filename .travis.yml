@@ -6,7 +6,7 @@ compiler:
   - clang
 
 git:
-  depth: 100
+  depth: 1
 
 addons:
   apt:
@@ -32,12 +32,11 @@ services:
   - mysql
 
 before_install:
-  - git config user.email "rochet2@post.com" && git config user.name "Rochet2"
+  - git config user.email "travis@build.bot" && git config user.name "Travis CI"
   - git tag -a -m "Travis build" init
 
 install:
   - mysql -uroot -e 'create database test_mysql;'
-  - if [ "${TRAVIS_EVENT_TYPE}" == "cron" ]; then git pull https://github.com/TrinityCore/TrinityCore.git master; fi;
   - mkdir bin
   - cd bin
   - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
@@ -55,15 +54,9 @@ script:
   - mysql -utrinity -ptrinity hotfixes < sql/base/dev/hotfixes_database.sql
   - cat sql/updates/world/master/*.sql | mysql -utrinity -ptrinity world
   - cat sql/updates/hotfixes/master/*.sql | mysql -utrinity -ptrinity hotfixes
-  - cat sql/custom/auth/*.sql | mysql -utrinity -ptrinity auth
-  - cat sql/custom/characters/*.sql | mysql -utrinity -ptrinity characters
-  - cat sql/custom/world/*.sql | mysql -utrinity -ptrinity world
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
   - make -j 4 -k && make install
   - cd check_install/bin
   - ./bnetserver --version
   - ./worldserver --version
-
-after_success:
-  - if [ "${TRAVIS_EVENT_TYPE}" == "cron" ]; then git push https://${GITHUB_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git HEAD:${TRAVIS_BRANCH}; fi;
