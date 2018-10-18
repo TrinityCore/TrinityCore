@@ -65,7 +65,6 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
             }
             return false;
         }
-        static bool CanMove(Creature*);
 
         TimeTrackerSmall _nextMoveTime;
         uint32 _pathId;
