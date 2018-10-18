@@ -20,6 +20,7 @@
 #include "SharedDefines.h"
 #include "Transaction.h"
 #include "WorldSession.h"
+#include "World.h"
 #include <sstream>
 #include <string>
 
