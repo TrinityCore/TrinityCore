@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "DBCStructure.h"
 #include "Define.h"
 #include "Field.h"
