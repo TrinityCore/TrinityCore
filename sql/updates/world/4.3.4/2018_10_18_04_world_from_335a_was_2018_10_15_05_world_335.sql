@@ -1,3 +1,4 @@
+/*
 -- Bloodmyst Isle -- Blutmythosinsel
 
 -- 9501 - Ruf des Wassers
@@ -426,3 +427,4 @@ INSERT INTO `quest_offer_reward_locale` (`ID`, `locale`, `RewardText`, `Verified
 -- 10366 - Sucht Jägerin Kella Nachtbogen auf
 DELETE FROM `quest_offer_reward_locale` WHERE `ID` = 10366 AND `locale` = "deDE";
 INSERT INTO `quest_offer_reward_locale` (`ID`, `locale`, `RewardText`, `VerifiedBuild`) VALUES (10366, "deDE", "$N, ich habe Euch erwartet.$B$BTullas hat Lobeshymnen auf Euch gesungen, und ich bin sehr begierig darauf, Euch im Weg des Lichts zu unterweisen. Sucht mich auf, wenn Ihr bereit seid, Eure Fähigkeiten und Eure Macht verstehen zu lernen, und ich werde Euch geleiten.", 26972);
+*/

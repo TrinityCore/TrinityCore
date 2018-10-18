@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `event_scripts` WHERE `id`=3839;
 INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES
@@ -6,3 +7,4 @@ INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, 
 (3839, 0, 10, 9601, 60000, 0, 5977.6259, -1219.830, 378.8426, 0.263113),
 (3839, 0, 10, 9601, 60000, 0, 5973.6347, -1203.046, 379.7651, 0.494808),
 (3839, 0, 10, 9601, 60000, 0, 5996.5893, -1178.378, 377.9678, 0.395058);
+*/

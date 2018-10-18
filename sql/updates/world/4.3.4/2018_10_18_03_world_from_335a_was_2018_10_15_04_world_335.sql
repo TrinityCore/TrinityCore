@@ -1,3 +1,4 @@
+/*
 -- Infernal (89)
 UPDATE `creature_template` SET `spell_school_immune_mask`=`spell_school_immune_mask`|4 WHERE `entry`=89;
 
@@ -9,3 +10,4 @@ UPDATE `creature_template` SET `spell_school_immune_mask`=`spell_school_immune_m
 
 -- Greater Fire Elemental (15438)
 UPDATE `creature_template` SET `spell_school_immune_mask`=`spell_school_immune_mask`|4 WHERE `entry`=15438;
+*/

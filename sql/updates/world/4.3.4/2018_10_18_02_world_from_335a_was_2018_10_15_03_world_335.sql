@@ -1,3 +1,4 @@
+/*
 -- Azuremyst Isle -- Azurmythosinsel
 
 -- 9290 - Ausbildung zum Magier
@@ -400,3 +401,4 @@ INSERT INTO `quest_offer_reward_locale` (`ID`, `locale`, `RewardText`, `Verified
 -- 10428 - Der vermisste Fischer
 DELETE FROM `quest_offer_reward_locale` WHERE `ID` = 10428 AND `locale` = "deDE";
 INSERT INTO `quest_offer_reward_locale` (`ID`, `locale`, `RewardText`, `VerifiedBuild`) VALUES (10428, "deDE", "Meine Familie... Was habe ich getan... Was hätte ich tun sollen?$B$BWarum werde ich so bestraft?", 26972);
+*/

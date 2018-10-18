@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `gossip_menu_option` WHERE `MenuId` IN (6877,6878,6879,6880,6881, 5709,5710,5711,5712,5713);
 INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
@@ -19,3 +20,4 @@ UPDATE `smart_scripts` SET `event_param1`=5710 WHERE `entryorguid`=14354 AND `so
 UPDATE `smart_scripts` SET `event_param1`=5711 WHERE `entryorguid`=14354 AND `source_type`=0 AND `id`=8;
 UPDATE `smart_scripts` SET `event_param1`=5712 WHERE `entryorguid`=14354 AND `source_type`=0 AND `id`=9;
 UPDATE `smart_scripts` SET `event_param1`=5713 WHERE `entryorguid`=14354 AND `source_type`=0 AND `id`=10;
+*/

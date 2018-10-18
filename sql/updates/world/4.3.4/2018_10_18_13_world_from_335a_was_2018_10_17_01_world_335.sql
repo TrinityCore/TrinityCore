@@ -1,3 +1,4 @@
+/*
 -- Lorax SAI
 SET @ENTRY  := 10918;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
@@ -16,3 +17,4 @@ INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionTex
 (3046,0,0, 'What deal?',6247,1,1,3045,0,0,0, ''),
 (3045,0,0, 'So how did he break the deal?',6249,1,1,3044,0,0,0, ''),
 (3044,0,0, 'Perhaps I can be of some assistance. I will make a deal with you, Satyr. I shall recover this unforged breastplate and slay the beast. In exchange for this task, you will teach me how to create the breastplate',6251,1,1,0,0,0,0, '');
+*/

@@ -1,3 +1,4 @@
+/*
 -- Quest "Nothing But The Truth"
 DELETE FROM `quest_details` WHERE `ID`=1372;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
@@ -378,3 +379,4 @@ INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `Emot
 (7583,1,1,1,1,0,0,0,0,0);
 UPDATE `quest_request_items` SET `EmoteOnComplete`=6, `EmoteOnIncomplete`=6 WHERE `ID`=7583;
 UPDATE `quest_offer_reward` SET `Emote1`=21 WHERE `ID`=7583;
+*/

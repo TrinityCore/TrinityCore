@@ -1,3 +1,4 @@
+/*
 -- Ghostlands -- Geisterlande
 
 -- 9130 - Waren von Silbermond
@@ -347,3 +348,4 @@ INSERT INTO `quest_offer_reward_locale` (`ID`, `locale`, `RewardText`, `Verified
 -- 9877 - Ein Regenerationsgebräu
 DELETE FROM `quest_offer_reward_locale` WHERE `ID` = 9877 AND `locale` = "deDE";
 INSERT INTO `quest_offer_reward_locale` (`ID`, `locale`, `RewardText`, `VerifiedBuild`) VALUES (9877, "deDE", "Janeda schickt Euch, um die Gefangenen der Todesfestung zu retten? Sie muss eine hohe Meinung von Euch haben, $N.", 18019);
+*/

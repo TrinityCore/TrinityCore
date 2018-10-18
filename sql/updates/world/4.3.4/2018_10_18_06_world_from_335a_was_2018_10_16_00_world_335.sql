@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature` WHERE `guid` IN (90925,90926,90927,90978,90979,90980,90981,90982,91115,91116,91117,91118,91563,91564,91565,91566,91567,91568,91569,91570,91588,91589,91590,91591,91592,91616,91617,91618,91619,91620,91621,91690);
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`,`spawndist`, `MovementType`) VALUES
@@ -33,3 +34,4 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 (91620,2914,109,1,1,0,0,-586.1681,96.41691,-90.8886,2.928523,7200,10,1), -- Snake
 (91621,2914,109,1,1,0,0,-659.7747,98.07658,-90.83157,2.423705,7200,10,1), -- Snake
 (91690,4075,109,1,1,0,0,-410.339,127.792,-90.88896,5.410521,7200,5,1); -- Rat
+*/

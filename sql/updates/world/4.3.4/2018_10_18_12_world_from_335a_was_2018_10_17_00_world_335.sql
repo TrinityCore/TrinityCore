@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `gossip_menu` WHERE `MenuId`=6045 AND `TextId`=7199;
 INSERT INTO `gossip_menu` (`MenuId`, `TextId`, `VerifiedBuild`) VALUES
@@ -9,3 +10,4 @@ INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionTex
 (6021, 0, 0, "I cannot Vaelastraz! Surely something can be done to heal you!", 9847, 1, 1, 6101, 0, 0, 0, "", 0, 0),
 (6101, 0, 0, "Vaelastraz,, no!!", 10011, 1, 1, 0, 0, 0, 0, "", 0, 0);
 UPDATE `creature_template` SET `gossip_menu_id`=6021 WHERE `entry`=13020;
+*/
