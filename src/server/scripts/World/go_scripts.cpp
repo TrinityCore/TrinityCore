@@ -21,7 +21,6 @@ go_cat_figurine (the "trap" version of GO, two different exist)
 go_barov_journal
 go_ethereum_prison
 go_ethereum_stasis
-go_sacred_fire_of_life
 go_shrine_of_the_birds
 go_southfury_moonstone
 go_orb_of_command
@@ -413,39 +412,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_resonite_caskAI(go);
-    }
-};
-
-/*######
-## go_sacred_fire_of_life
-######*/
-
-enum SacredFireOfLife
-{
-    NPC_ARIKARA     = 10882
-};
-
-class go_sacred_fire_of_life : public GameObjectScript
-{
-public:
-    go_sacred_fire_of_life() : GameObjectScript("go_sacred_fire_of_life") { }
-
-    struct go_sacred_fire_of_lifeAI : public GameObjectAI
-    {
-        go_sacred_fire_of_lifeAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
-                player->SummonCreature(NPC_ARIKARA, -5008.338f, -2118.894f, 83.657f, 0.874f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_sacred_fire_of_lifeAI(go);
     }
 };
 
@@ -2052,7 +2018,6 @@ void AddSC_go_scripts()
     new go_ethereum_prison();
     new go_ethereum_stasis();
     new go_resonite_cask();
-    new go_sacred_fire_of_life();
     new go_tele_to_dalaran_crystal();
     new go_tele_to_violet_stand();
     new go_fel_crystalforge();
