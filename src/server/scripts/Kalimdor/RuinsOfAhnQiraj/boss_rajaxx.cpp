@@ -19,6 +19,7 @@
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 
 enum Yells
 {
