@@ -2968,7 +2968,7 @@ class spell_gen_replenishment : public SpellScriptLoader
                 {
                     case SPELL_REPLENISHMENT:
                     case SPELL_INFINITE_REPLENISHMENT:
-                        amount = CalculatePct(GetUnitOwner()->GetMaxPower(POWER_MANA), 1);
+                        amount = CalculatePct(GetUnitOwner()->GetMaxPower(POWER_MANA), 0.1f);
                     default:
                         break;
                 }
