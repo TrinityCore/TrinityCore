@@ -139,7 +139,7 @@ public:
 
     struct boss_victor_nefarius_bwlAI : public BossAI
     {
-        boss_victor_nefarius_bwlAI(Creature* creature) : BossAI(creature, DATA_NEFARIAN)
+        boss_victor_nefarius_bwlAI(Creature* creature) : BossAI(creature, DATA_LORD_VICTOR_NEFARIUS)
         {
             Initialize();
         }
@@ -153,7 +153,7 @@ public:
         {
             Initialize();
 
-            if (!me->FindNearestCreature(NPC_NEFARIAN, 160.0f, true))
+            if (!instance->GetCreature(DATA_NEFARIAN))
                 _Reset();
 
             me->SetVisible(true);

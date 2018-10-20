@@ -107,34 +107,21 @@ public:
 
             events.Update(diff);
 
-            if (!UpdateVictim())
-            {
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SUMMONED_1:
-                            me->AddAura(SPELL_REND_MOUNTS, me);
-                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_DR_PORTCULLIS)))
-                                portcullis->UseDoorOrButton();
-                            if (Creature* victor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LORD_VICTOR_NEFARIUS)))
-                                victor->AI()->SetData(1, 1);
-                            events.ScheduleEvent(EVENT_SUMMONED_2, 2s);
-                            break;
-                        case EVENT_SUMMONED_2:
-                            me->GetMotionMaster()->MovePath(GYTH_PATH_1, false);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                return;
-            }
-
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
+                    case EVENT_SUMMONED_1:
+                        me->AddAura(SPELL_REND_MOUNTS, me);
+                        if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_DR_PORTCULLIS)))
+                            portcullis->UseDoorOrButton();
+                        if (Creature* victor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LORD_VICTOR_NEFARIUS)))
+                            victor->AI()->SetData(1, 1);
+                        events.ScheduleEvent(EVENT_SUMMONED_2, 2s);
+                        break;
+                    case EVENT_SUMMONED_2:
+                        me->GetMotionMaster()->MovePath(GYTH_PATH_1, false);
+                        break;
                     case EVENT_BREATH:
                         if (breathCombo == 0)
                         {
@@ -142,8 +129,7 @@ public:
                             breathComboSpells[1] = SPELL_FREEZE;
                             breathComboSpells[2] = SPELL_FLAMEBREATH;
                             breathComboSpellsNum = 3;
-                            breathCombo          = 3;
-                            //breathCombo = urand(1, 3);
+                            breathCombo = urand(1, 3);
                         }
 
                         if (0 < breathComboSpellsNum && breathComboSpellsNum <= 3)
