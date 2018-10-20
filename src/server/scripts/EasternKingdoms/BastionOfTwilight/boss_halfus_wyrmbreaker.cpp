@@ -163,10 +163,14 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 if (GameObject* cage = me->SummonGameObject(GO_WHELP_CAGE, WhelpCagePos, WhelpCageRot, WEEK, GO_SUMMON_TIMED_DESPAWN))
                     _cageGUID = cage->GetGUID();
 
-                DoSummon(NPC_NETHER_SCION, NetherScionPos);
-                DoSummon(NPC_SLATE_DRAGON, SlateDragonPos);
-                DoSummon(NPC_STORM_RIDER, StormRiderPos);
-                DoSummon(NPC_TIME_WARDEN, TimeWardenPos);
+                if (Map* map = me->GetMap())
+                {
+                    map->SummonCreature(NPC_NETHER_SCION, NetherScionPos);
+                    map->SummonCreature(NPC_NETHER_SCION, NetherScionPos);
+                    map->SummonCreature(NPC_SLATE_DRAGON, SlateDragonPos);
+                    map->SummonCreature(NPC_STORM_RIDER, StormRiderPos);
+                    map->SummonCreature(NPC_TIME_WARDEN, TimeWardenPos);
+                }
 
                 for (uint8 i = 0; i < 8; i++)
                     DoSummon(NPC_ORPHANED_EMERALD_WELP, OrphanedEmeraldWhelpPositions[i]);
