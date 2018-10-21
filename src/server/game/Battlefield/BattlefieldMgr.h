@@ -33,9 +33,9 @@ class TC_GAME_API BattlefieldMgr
         void InitBattlefield();
 
         // called when a player enters an battlefield area
-        void HandlePlayerEnterZone(Player* player, uint32 zoneId);
+        void HandlePlayerEnterZone(Player* player, Area* zone);
         // called when player leaves an battlefield area
-        void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
+        void HandlePlayerLeaveZone(Player* player, Area* zone);
 
         // return assigned battlefield
         Battlefield* GetBattlefieldToZoneId(uint32 zoneId);

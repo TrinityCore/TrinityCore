@@ -112,7 +112,7 @@ bool OutdoorPvPZM::Update(uint32 diff)
     return changed;
 }
 
-void OutdoorPvPZM::HandlePlayerEnterZone(Player* player, uint32 zone)
+void OutdoorPvPZM::HandlePlayerEnterZone(Player* player, Area* zone)
 {
     if (player->GetTeam() == ALLIANCE)
     {
@@ -127,7 +127,7 @@ void OutdoorPvPZM::HandlePlayerEnterZone(Player* player, uint32 zone)
     OutdoorPvP::HandlePlayerEnterZone(player, zone);
 }
 
-void OutdoorPvPZM::HandlePlayerLeaveZone(Player* player, uint32 zone)
+void OutdoorPvPZM::HandlePlayerLeaveZone(Player* player, Area* zone)
 {
     // remove buffs
     player->RemoveAurasDueToSpell(ZM_CAPTURE_BUFF);

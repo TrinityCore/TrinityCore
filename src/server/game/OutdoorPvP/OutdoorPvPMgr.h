@@ -52,13 +52,13 @@ class TC_GAME_API OutdoorPvPMgr
         void Die();
 
         // called when a player enters an outdoor pvp area
-        void HandlePlayerEnterZone(Player* player, uint32 areaflag);
+        void HandlePlayerEnterZone(Player* player, Area* zone);
 
         // called when player leaves an outdoor pvp area
-        void HandlePlayerLeaveZone(Player* player, uint32 areaflag);
+        void HandlePlayerLeaveZone(Player* player, Area* zone);
 
         // called when player resurrects
-        void HandlePlayerResurrects(Player* player, uint32 areaflag);
+        void HandlePlayerResurrects(Player* player, Area* zone);
 
         // return assigned outdoor pvp
         OutdoorPvP* GetOutdoorPvPToZoneId(uint32 zoneid);

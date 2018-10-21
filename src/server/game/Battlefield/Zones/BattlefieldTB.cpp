@@ -391,7 +391,7 @@ void BattlefieldTB::SendInitWorldStatesToAll()
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         if (Player* player = itr->GetSource()->ToPlayer())
             if (player->GetZoneId() == 5389) // ZONE_TOL_BARAD_PENINSULA
-                player->SendInitWorldStates(5389, player->GetAreaId());
+                player->SendInitWorldStates();
 }
 
 void BattlefieldTB::OnStartGrouping()

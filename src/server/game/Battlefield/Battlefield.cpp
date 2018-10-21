@@ -74,7 +74,7 @@ Battlefield::~Battlefield()
 }
 
 // Called when a player enters the zone
-void Battlefield::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
+void Battlefield::HandlePlayerEnterZone(Player* player, Area* /*zone*/)
 {
     // If battle is started,
     // If not full of players > invite player to join the war
@@ -103,7 +103,7 @@ void Battlefield::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
 }
 
 // Called when a player leave the zone
-void Battlefield::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
+void Battlefield::HandlePlayerLeaveZone(Player* player, Area* /*zone*/)
 {
     if (IsWarTime())
     {

@@ -19,6 +19,7 @@
 #ifndef _OBJECT_H
 #define _OBJECT_H
 
+#include "Area.h"
 #include "Common.h"
 #include "GridReference.h"
 #include "GridRefManager.h"
@@ -422,8 +423,12 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         // if negative it is used as PhaseGroupId
         void SetDBPhase(int32 p) { _dbPhase = p; }
 
-        uint32 GetZoneId() const;
         uint32 GetAreaId() const;
+        uint32 GetZoneId() const;
+
+        uint32 GetAreaIdFromPosition() const;
+        uint32 GetZoneIdFromPosition() const;
+
         void GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const;
 
         InstanceScript* GetInstanceScript();
@@ -497,6 +502,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Map* GetMap() const { ASSERT(m_currMap); return m_currMap; }
         Map* FindMap() const { return m_currMap; }
         //used to check all object's GetMap() calls when object is not in world!
+
+        Area* GetArea() const { return m_area; }
+        Area* GetZone() const { return m_area ? m_area->GetZone(): nullptr; }
 
         void SetZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
@@ -577,6 +585,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         std::string m_name;
         bool m_isActive;
         const bool m_isWorldObject;
+
+        Area*       m_area;
         ZoneScript* m_zoneScript;
 
         // transports

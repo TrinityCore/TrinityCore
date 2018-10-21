@@ -71,14 +71,14 @@ bool OutdoorPvPSI::Update(uint32 /*diff*/)
     return false;
 }
 
-void OutdoorPvPSI::HandlePlayerEnterZone(Player* player, uint32 zone)
+void OutdoorPvPSI::HandlePlayerEnterZone(Player* player, Area* zone)
 {
     if (player->GetTeam() == m_LastController)
         player->CastSpell(player, SI_CENARION_FAVOR, true);
     OutdoorPvP::HandlePlayerEnterZone(player, zone);
 }
 
-void OutdoorPvPSI::HandlePlayerLeaveZone(Player* player, uint32 zone)
+void OutdoorPvPSI::HandlePlayerLeaveZone(Player* player, Area* zone)
 {
     // remove buffs
     player->RemoveAurasDueToSpell(SI_CENARION_FAVOR);

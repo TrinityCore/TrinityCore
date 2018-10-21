@@ -21,8 +21,10 @@
 #include "Define.h"
 #include "ObjectGuid.h"
 
+class Area;
 class Creature;
 class GameObject;
+class Player;
 class Unit;
 class WorldObject;
 struct CreatureData;
@@ -36,13 +38,19 @@ class TC_GAME_API ZoneScript
         virtual uint32 GetCreatureEntry(ObjectGuid::LowType /*spawnId*/, CreatureData const* data);
         virtual uint32 GetGameObjectEntry(ObjectGuid::LowType /*spawnId*/, uint32 entry) { return entry; }
 
-        virtual void OnCreatureCreate(Creature* ) { }
-        virtual void OnCreatureRemove(Creature* ) { }
+        virtual void OnCreatureCreate(Creature*) { }
+        virtual void OnCreatureRemove(Creature*) { }
 
-        virtual void OnGameObjectCreate(GameObject* ) { }
-        virtual void OnGameObjectRemove(GameObject* ) { }
+        virtual void OnGameObjectCreate(GameObject*) { }
+        virtual void OnGameObjectRemove(GameObject*) { }
 
         virtual void OnUnitDeath(Unit*) { }
+        virtual void OnPlayerDeath(Player*) { }
+
+        // Called when a player successfully enters or exit the zone.
+        virtual void OnPlayerEnter(Player* /*player*/) { }
+        virtual void OnPlayerExit(Player* /*player*/) { }
+        virtual void OnPlayerAreaUpdate(Player* /*player*/, Area* /*newAreaId*/, Area* /*oldAreaId*/) { }
 
         //All-purpose data storage ObjectGuid
         virtual ObjectGuid GetGuidData(uint32 /*DataId*/) const { return ObjectGuid::Empty; }

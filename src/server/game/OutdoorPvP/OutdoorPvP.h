@@ -286,10 +286,10 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
 
         void BroadcastPacket(WorldPacket const* data) const;
 
-        virtual void HandlePlayerEnterZone(Player* player, uint32 zone);
-        virtual void HandlePlayerLeaveZone(Player* player, uint32 zone);
+        virtual void HandlePlayerEnterZone(Player* player, Area* zone);
+        virtual void HandlePlayerLeaveZone(Player* player, Area* zone);
 
-        virtual void HandlePlayerResurrects(Player* player, uint32 zone);
+        virtual void HandlePlayerResurrects(Player* player, Area* zone);
 
         void AddCapturePoint(OPvPCapturePoint* cp);
 

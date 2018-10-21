@@ -5727,7 +5727,7 @@ void Spell::EffectUpdateZoneAurasAndPhases(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->UpdateAreaDependentAuras(unitTarget->GetAreaId());
+    unitTarget->ToPlayer()->UpdateAreaDependentAuras();
 }
 
 void Spell::EffectGiveArtifactPower(SpellEffIndex /*effIndex*/)

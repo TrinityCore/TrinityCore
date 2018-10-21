@@ -17,6 +17,7 @@
  */
 
 #include "Player.h"
+#include "Area.h"
 #include "AreaTrigger.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
@@ -159,11 +160,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_regenTimer = 0;
     m_regenTimerCount = 0;
     m_weaponChangeTimer = 0;
-
-    m_zoneUpdateId = uint32(-1);
     m_zoneUpdateTimer = 0;
 
-    m_areaUpdateId = 0;
     m_team = 0;
 
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
@@ -1233,20 +1231,9 @@ void Player::Update(uint32 p_time)
                     _restMgr->RemoveRestFlag(REST_FLAG_IN_TAVERN);
             }
 
-            uint32 newzone, newarea;
-            GetZoneAndAreaId(newzone, newarea);
-
-            if (m_zoneUpdateId != newzone)
-                UpdateZone(newzone, newarea);                // also update area
-            else
-            {
-                // use area updates as well
-                // needed for free far all arenas for example
-                if (m_areaUpdateId != newarea)
-                    UpdateArea(newarea);
-
-                m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
-            }
+            uint32 newAreaId = GetAreaIdFromPosition();
+            if (m_area->GetId() != newAreaId)
+                UpdateArea(newAreaId);
         }
         else
             m_zoneUpdateTimer -= p_time;
@@ -1739,8 +1726,8 @@ void Player::RemoveFromWorld()
         StopCastingCharm();
         StopCastingBindSight();
         UnsummonPetTemporaryIfAny();
-        sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
-        sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
+        sOutdoorPvPMgr->HandlePlayerLeaveZone(this, GetZone());
+        sBattlefieldMgr->HandlePlayerLeaveZone(this, GetZone());
     }
 
     // Remove items from world before self - player must be found in Item::RemoveFromObjectUpdate
@@ -2226,7 +2213,7 @@ void Player::SetGameMaster(bool on)
             SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP);
 
         // restore FFA PvP area state, remove not allowed for GM mounts
-        UpdateArea(m_areaUpdateId);
+        UpdateArea(GetAreaIdFromPosition());
 
         getHostileRefManager().setOnlineOfflineState(true);
         m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
@@ -4245,10 +4232,8 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     }
 
     // trigger update zone for alive state zone updates
-    uint32 newzone, newarea;
-    GetZoneAndAreaId(newzone, newarea);
-    UpdateZone(newzone, newarea);
-    sOutdoorPvPMgr->HandlePlayerResurrects(this, newzone);
+    UpdateArea(GetAreaIdFromPosition());
+    sOutdoorPvPMgr->HandlePlayerResurrects(this, GetZone());
 
     if (InBattleground())
     {
@@ -6997,27 +6982,32 @@ uint32 Player::GetLevelFromDB(ObjectGuid guid)
     return level;
 }
 
-void Player::UpdateArea(uint32 newArea)
+void Player::UpdateArea(uint32 newAreaId)
 {
+    Area* oldArea = m_area;
+
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
-    m_areaUpdateId = newArea;
+    m_area = sAreaMgr->GetArea(newAreaId);
 
-    AreaTableEntry const* area = sAreaTableStore.LookupEntry(newArea);
-    pvpInfo.IsInFFAPvPArea = area && (area->Flags[0] & AREA_FLAG_ARENA);
+    UpdateZone(oldArea ? oldArea->GetZone(): nullptr);
+    m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
+
+    AreaTableEntry const* areaEntry = m_area ? m_area->GetEntry() : nullptr;
+    pvpInfo.IsInFFAPvPArea = areaEntry && (areaEntry->Flags[0] & AREA_FLAG_ARENA);
     UpdatePvPState(true);
 
-    UpdateAreaDependentAuras(newArea);
+    UpdateAreaDependentAuras();
     PhasingHandler::OnAreaChange(this);
 
-    if (IsAreaThatActivatesPvpTalents(newArea))
+    if (IsInAreaThatActivatesPvpTalents())
         EnablePvpRules();
     else
         DisablePvpRules();
 
     // previously this was in UpdateZone (but after UpdateArea) so nothing will break
     pvpInfo.IsInNoPvPArea = false;
-    if (area && area->IsSanctuary())    // in sanctuary
+    if (areaEntry && areaEntry->IsSanctuary())    // in sanctuary
     {
         SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_SANCTUARY);
         pvpInfo.IsInNoPvPArea = true;
@@ -7028,23 +7018,33 @@ void Player::UpdateArea(uint32 newArea)
         RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_SANCTUARY);
 
     uint32 const areaRestFlag = (GetTeam() == ALLIANCE) ? AREA_FLAG_REST_ZONE_ALLIANCE : AREA_FLAG_REST_ZONE_HORDE;
-    if (area && area->Flags[0] & areaRestFlag)
+    if (areaEntry && areaEntry->Flags[0] & areaRestFlag)
         _restMgr->SetRestFlag(REST_FLAG_IN_FACTION_AREA);
     else
         _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
 }
 
-void Player::UpdateZone(uint32 newZone, uint32 newArea)
+void Player::UpdateZone(Area* oldArea)
 {
-    if (m_zoneUpdateId != newZone)
+    Area* oldZone = oldArea ? oldArea->GetZone() : nullptr;
+    Area* newZone = GetZone();
+    uint32 newZoneId = GetZoneId();
+
+    if (oldZone != newZone)
     {
-        sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
+        if (oldZone)
+        {
+            sOutdoorPvPMgr->HandlePlayerLeaveZone(this, oldZone);
+            sBattlefieldMgr->HandlePlayerLeaveZone(this, oldZone);
+        }
+
         sOutdoorPvPMgr->HandlePlayerEnterZone(this, newZone);
-        sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         sBattlefieldMgr->HandlePlayerEnterZone(this, newZone);
-        SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
+        SendInitWorldStates();              // only if really enters to new zone, not just area change, works strange...
         if (Guild* guild = GetGuild())
-            guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
+            guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZoneId);
+
+        SetZoneScript();
     }
 
     // group update
@@ -7055,36 +7055,27 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             pet->SetGroupUpdateFlag(GROUP_UPDATE_PET_FULL);
     }
 
-    m_zoneUpdateId    = newZone;
-    m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
+    sScriptMgr->OnPlayerUpdateZone(this, GetArea(), oldArea);
 
-    // zone changed, so area changed as well, update it.
-    UpdateArea(newArea);
-
-    AreaTableEntry const* zone = sAreaTableStore.LookupEntry(newZone);
-    if (!zone)
-        return;
-
+    AreaTableEntry const* zoneEntry = newZone->GetEntry();
     if (sWorld->getBoolConfig(CONFIG_WEATHER))
-        GetMap()->GetOrGenerateZoneDefaultWeather(newZone);
+        GetMap()->GetOrGenerateZoneDefaultWeather(newZoneId);
 
-    GetMap()->SendZoneDynamicInfo(newZone, this);
-
-    sScriptMgr->OnPlayerUpdateZone(this, newZone, newArea);
+    GetMap()->SendZoneDynamicInfo(newZoneId, this);
 
     // in PvP, any not controlled zone (except zone->team == 6, default case)
     // in PvE, only opposition team capital
-    switch (zone->FactionGroupMask)
+    switch (zoneEntry->FactionGroupMask)
     {
         case AREATEAM_ALLY:
-            pvpInfo.IsInHostileArea = GetTeam() != ALLIANCE && (sWorld->IsPvPRealm() || zone->Flags[0] & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetTeam() != ALLIANCE && (sWorld->IsPvPRealm() || zoneEntry->Flags[0] & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_HORDE:
-            pvpInfo.IsInHostileArea = GetTeam() != HORDE && (sWorld->IsPvPRealm() || zone->Flags[0] & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetTeam() != HORDE && (sWorld->IsPvPRealm() || zoneEntry->Flags[0] & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_NONE:
             // overwrite for battlegrounds, maybe batter some zone flags but current known not 100% fit to this
-            pvpInfo.IsInHostileArea = sWorld->IsPvPRealm() || InBattleground() || zone->Flags[0] & AREA_FLAG_WINTERGRASP;
+            pvpInfo.IsInHostileArea = sWorld->IsPvPRealm() || InBattleground() || zoneEntry->Flags[0] & AREA_FLAG_WINTERGRASP;
             break;
         default:                                            // 6 in fact
             pvpInfo.IsInHostileArea = false;
@@ -7094,9 +7085,9 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     // Treat players having a quest flagging for PvP as always in hostile area
     pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest();
 
-    if (zone->Flags[0] & AREA_FLAG_CAPITAL) // Is in a capital city
+    if (zoneEntry->Flags[0] & AREA_FLAG_CAPITAL) // Is in a capital city
     {
-        if (!pvpInfo.IsHostile || zone->IsSanctuary())
+        if (!pvpInfo.IsHostile || zoneEntry->IsSanctuary())
             _restMgr->SetRestFlag(REST_FLAG_IN_CITY);
         pvpInfo.IsInNoPvPArea = true;
     }
@@ -7108,15 +7099,13 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     // remove items with area/map limitations (delete only for alive player to allow back in ghost mode)
     // if player resurrected at teleport this will be applied in resurrect code
     if (IsAlive())
-        DestroyZoneLimitedItem(true, newZone);
+        DestroyZoneLimitedItem(true, newZoneId);
 
     // check some item equip limitations (in result lost CanTitanGrip at talent reset, for example)
     AutoUnequipOffhandIfNeed();
 
     // recent client version not send leave/join channel packets for built-in local channels
-    UpdateLocalChannels(newZone);
-
-    UpdateZoneDependentAuras(newZone);
+    UpdateLocalChannels(newZoneId);
 }
 
 //If players are too far away from the duel flag... they lose the duel
@@ -8704,19 +8693,22 @@ void Player::SendUpdateWorldState(uint32 variable, uint32 value, bool hidden /*=
     SendDirectMessage(worldstate.Write());
 }
 
-void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
+void Player::SendInitWorldStates()
 {
+    uint32 areaId = GetAreaId();
+    uint32 zoneId = GetZoneId();
+
     // data depends on zoneid/mapid...
     Battleground* bg = GetBattleground();
     uint32 mapid = GetMapId();
-    OutdoorPvP* pvp = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(zoneid);
+    OutdoorPvP* pvp = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(zoneId);
     InstanceScript* instance = GetInstanceScript();
-    Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(zoneid);
+    Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(zoneId);
 
     WorldPackets::WorldState::InitWorldStates packet;
     packet.MapID = mapid;
-    packet.AreaID = zoneid;
-    packet.SubareaID = areaid;
+    packet.AreaID = zoneId;
+    packet.SubareaID = areaId;
     packet.Worldstates.emplace_back(2264, 0);              // 1
     packet.Worldstates.emplace_back(2263, 0);              // 2
     packet.Worldstates.emplace_back(2262, 0);              // 3
@@ -8736,7 +8728,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     }
 
     // insert <field> <value>
-    switch (zoneid)
+    switch (zoneId)
     {
         case 1:                                             // Dun Morogh
         case 11:                                            // Wetlands
@@ -23779,9 +23771,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     UpdateVisibilityForPlayer();
 
     // update zone
-    uint32 newzone, newarea;
-    GetZoneAndAreaId(newzone, newarea);
-    UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
+    UpdateArea(GetAreaIdFromPosition());                    // also call SendInitWorldStates();
 
     GetSession()->SendLoadCUFProfiles();
 
@@ -25050,34 +25040,29 @@ void Player::SetMover(Unit* target)
     SendDirectMessage(packet.Write());
 }
 
-void Player::UpdateZoneDependentAuras(uint32 newZone)
+void Player::UpdateAreaDependentAuras()
 {
-    // Some spells applied at enter into zone (with subzones), aura removed in UpdateAreaDependentAuras that called always at zone->area update
-    SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAreaMapBounds(newZone);
-    for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
-        if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST && itr->second->IsFitToRequirements(this, newZone, 0))
-            if (!HasAura(itr->second->spellId))
-                CastSpell(this, itr->second->spellId, true);
-}
+    if (!GetArea())
+        return;
 
-void Player::UpdateAreaDependentAuras(uint32 newArea)
-{
-    // remove auras from spells with area limitations
-    for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
+    for (Area* area : GetArea()->GetTree())
     {
-        // use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
-        if (iter->second->GetSpellInfo()->CheckLocation(GetMapId(), m_zoneUpdateId, newArea, this) != SPELL_CAST_OK)
-            RemoveOwnedAura(iter);
-        else
-            ++iter;
-    }
+        SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAreaMapBounds(area->GetId());
+        for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+            if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST && itr->second->IsFitToRequirements(this, GetZoneId(), GetAreaId()))
+                if (!HasAura(itr->second->spellId))
+                    CastSpell(this, itr->second->spellId, true);
 
-    // some auras applied at subzone enter
-    SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAreaMapBounds(newArea);
-    for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
-        if (itr->second->flags & SPELL_AREA_FLAG_AUTOCAST && itr->second->IsFitToRequirements(this, m_zoneUpdateId, newArea))
-            if (!HasAura(itr->second->spellId))
-                CastSpell(this, itr->second->spellId, true);
+        // remove auras from spells with area limitations
+        for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
+        {
+            // use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
+            if (iter->second->GetSpellInfo()->CheckLocation(GetMapId(), GetZoneId(), GetAreaId(), this) != SPELL_CAST_OK)
+                RemoveOwnedAura(iter);
+            else
+                ++iter;
+        }
+    }
 }
 
 uint32 Player::GetCorpseReclaimDelay(bool pvp) const
@@ -26408,30 +26393,26 @@ bool Player::HasPvpRulesEnabled() const
 
 bool Player::IsInAreaThatActivatesPvpTalents() const
 {
-    return IsAreaThatActivatesPvpTalents(GetAreaId());
+    return IsAreaThatActivatesPvpTalents(GetArea()->GetEntry());
 }
 
-bool Player::IsAreaThatActivatesPvpTalents(uint32 areaID) const
+bool Player::IsAreaThatActivatesPvpTalents(AreaTableEntry const* area) const
 {
     if (InBattleground())
         return true;
 
-    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaID))
+    while (area)
     {
-        do
-        {
-            if (area->IsSanctuary())
-                return false;
+        if (area->IsSanctuary())
+            return false;
 
-            if (area->Flags[0] & AREA_FLAG_ARENA)
-                return true;
+        if (area->Flags[0] & AREA_FLAG_ARENA)
+            return true;
 
-            if (sBattlefieldMgr->GetBattlefieldToZoneId(area->ID))
-                return true;
+        if (sBattlefieldMgr->GetBattlefieldToZoneId(area->ID))
+            return true;
 
-            area = sAreaTableStore.LookupEntry(area->ParentAreaID);
-
-        } while (area);
+        area = sAreaTableStore.LookupEntry(area->ParentAreaID);
     }
 
     return false;
