@@ -160,7 +160,7 @@ enum Data
 // A collection of helpers that all creatures related to the encounter can access
 namespace ConclaveHandler
 {
-    bool IsTargetOnPlatform(Position attackerPosition, Unit* target)
+    bool IsTargetOnPlatform(Position const attackerPosition, Unit* target)
     {
         // Do not attack our target when he is on the fall catcher vehicle
         if (target->GetVehicle())
@@ -197,8 +197,14 @@ namespace ConclaveHandler
                 return true;
             }
         }
-
         return false;
+    }
+
+    void CheckVictimPlatformDistance(Creature* councillor)
+    {
+        if (Unit* victim = councillor->GetVictim())
+            if (!IsTargetOnPlatform(councillor->GetHomePosition(), victim))
+                councillor->AttackStop();
     }
 }
 
@@ -374,6 +380,8 @@ struct boss_anshal : public BossAI
         UpdateVictim();
 
         events.Update(diff);
+
+        ConclaveHandler::CheckVictimPlatformDistance(me);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
@@ -607,6 +615,8 @@ struct boss_nezir : public BossAI
         UpdateVictim();
 
         events.Update(diff);
+
+        ConclaveHandler::CheckVictimPlatformDistance(me);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
@@ -862,6 +872,8 @@ struct boss_rohash : public BossAI
 
         events.Update(diff);
 
+        ConclaveHandler::CheckVictimPlatformDistance(me);
+
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
@@ -1019,6 +1031,7 @@ struct npc_conclave_of_wind_ravenous_creeper : public ScriptedAI
             {
                 case EVENT_ATTACK_PLAYERS:
                     me->SetReactState(REACT_AGGRESSIVE);
+                    DoZoneInCombat();
                     break;
                 default:
                     break;
