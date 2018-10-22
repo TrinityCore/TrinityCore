@@ -34,7 +34,7 @@ void WorldSession::SendBattlefieldEntered(uint32 battleId)
 {
 }
 
-void WorldSession::SendBattlefieldLeaveMessage(uint32 battleId, BFLeaveReason reason /*= BF_LEAVE_REASON_EXITED*/)
+void WorldSession::SendBattlefieldLeaveMessage(uint32 battleId, BattlefieldLeaveReason reason /*= BATTLEFIELD_LEAVE_REASON_EXITED*/)
 {
 }
 
@@ -42,14 +42,14 @@ void WorldSession::SendBattlefieldEjectPending(uint32 battleId, bool remove)
 {
 }
 
-void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPacket& recvData)
+void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPackets::Battlefield::BattlefieldMgrEntryInviteResponse& entryInviteResponse)
 {
 }
 
-void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPacket& recvData)
+void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPackets::Battlefield::BattlefieldMgrQueueInviteResponse& queueInviteResponse)
 {
 }
 
-void WorldSession::HandleBattlefieldExitRequest(WorldPacket& recvData)
+void WorldSession::HandleBattlefieldExitRequest(WorldPackets::Battlefield::BattlefieldMgrExitRequest& exitRequest)
 {
 }
