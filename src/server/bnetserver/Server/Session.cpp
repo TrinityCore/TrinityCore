@@ -245,11 +245,17 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
 
 uint32 Battlenet::Session::HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* verifyWebCredentialsRequest, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation)
 {
-    return VerifyWebCredentials(verifyWebCredentialsRequest->web_credentials(), continuation);
+    if (verifyWebCredentialsRequest->has_web_credentials())
+        return VerifyWebCredentials(verifyWebCredentialsRequest->web_credentials(), continuation);
+
+    return ERROR_DENIED;
 }
 
 uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredentials, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation)
 {
+    if (webCredentials.empty())
+        return ERROR_DENIED;
+
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_INFO);
     stmt->setString(0, webCredentials);
 
