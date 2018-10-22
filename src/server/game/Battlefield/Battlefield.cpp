@@ -17,3 +17,6 @@
 
 #include "Battlefield.h"
 
+Battlefield::Battlefield(uint32 battleId) : _battleId(battleId)
+{
+}

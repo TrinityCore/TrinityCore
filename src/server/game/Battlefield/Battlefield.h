@@ -18,6 +18,23 @@
 #ifndef TRINITY_BATTLEFIELD_H_
 #define TRINITY_BATTLEFIELD_H_
 
+#include "Common.h"
+#include "ZoneScript.h"
 
+enum BattlefieldIds
+{
+    BATTLEFIELD_BATTLEID_WINTERGRASP = 1, // Wintergrasp battle
+    BATTLEFIELD_BATTLEID_MAX
+};
+
+class TC_GAME_API Battlefield : public ZoneScript
+{
+public:
+    explicit Battlefield(uint32 battleId);
+    virtual ~Battlefield() { }
+
+private:
+    uint32 _battleId;
+};
 
 #endif
