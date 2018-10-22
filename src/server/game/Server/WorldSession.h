@@ -71,7 +71,7 @@ namespace lfg
 
 namespace rbac
 {
-class RBACData;
+    class RBACData;
 }
 
 namespace WorldPackets
@@ -843,14 +843,15 @@ class TC_GAME_API WorldSession
         void HandleReportPvPAFK(WorldPacket& recvData);
 
         // Battlefield
-        void SendBfInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint32 time);
-        void SendBfInvitePlayerToQueue(uint32 battleId);
-        void SendBfQueueInviteResponse(uint32 battleId, uint32 zoneId, bool canQueue = true, bool full = false);
-        void SendBfEntered(uint32 battleId);
-        void SendBfLeaveMessage(uint32 battleId, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
-        void HandleBfQueueInviteResponse(WorldPacket& recvData);
-        void HandleBfEntryInviteResponse(WorldPacket& recvData);
-        void HandleBfExitRequest(WorldPacket& recvData);
+        void SendBattlefieldInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint32 time);
+        void SendBattlefieldInvitePlayerToQueue(uint32 battleId);
+        void SendBattlefieldQueueInviteResponse(uint32 battleId, uint32 zoneId, bool canQueue = true, bool full = false);
+        void SendBattlefieldEntered(uint32 battleId);
+        void SendBattlefieldLeaveMessage(uint32 battleId, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
+        void SendBattlefieldEjectPending(uint32 battleId, bool remove);
+        void HandleBattlefieldEntryInviteResponse(WorldPacket& recvData);
+        void HandleBattlefieldQueueInviteResponse(WorldPacket& recvData);
+        void HandleBattlefieldExitRequest(WorldPacket& recvData);
 
         void HandleWardenDataOpcode(WorldPacket& recvData);
         void HandleWorldTeleportOpcode(WorldPacket& recvData);
