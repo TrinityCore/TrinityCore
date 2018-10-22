@@ -284,6 +284,7 @@ struct npc_sanctum_sentry : public ScriptedAI
 
     void Reset() override
     {
+        _events.Reset();
         DoCastSelf(SPELL_STRENGHT_OF_THE_PACK, true);
         me->SetWalk(true);
     }
