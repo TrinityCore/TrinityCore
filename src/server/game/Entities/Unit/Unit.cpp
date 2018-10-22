@@ -10290,10 +10290,6 @@ void Unit::AddComboPoints(Unit* target, int8 count)
     if (!count)
         return;
 
-    // remove Premed-like effects
-    // (NB: this Aura removes the already-added CP when it expires from duration - now that we've added CP, this shouldn't happen anymore)
-    RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
-
     if (target && target != m_comboTarget)
     {
         if (m_comboTarget)
