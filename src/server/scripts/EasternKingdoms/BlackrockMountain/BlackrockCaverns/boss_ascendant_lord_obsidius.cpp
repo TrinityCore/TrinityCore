@@ -24,7 +24,7 @@
 enum Text
 {
     // Ascendant Lord Obsidius
-    SAY_AGGRO                    = 0,
+    SAY_AGGRO                   = 0,
     SAY_SLAY                    = 1,
     SAY_TRANSFORMATION          = 2,
     SAY_DEATH                   = 3,
@@ -246,7 +246,7 @@ class spell_obsidius_twitchy : public AuraScript
             {
                 target->SendPlaySpellVisualKit(SPELL_VISUAL_SPOTTED, 0, 0);
                 target->getThreatManager().resetAllAggro();
-                target->AddThreat(attacker, 100000000);
+                target->AddThreat(attacker, 100000000.0f);
             }
         }
     }
@@ -350,6 +350,27 @@ class spell_obsidius_crepuscular_veil : public SpellScript
     }
 };
 
+class spell_obsidius_shadow_of_obsidius : public AuraScript
+{
+    PrepareAuraScript(spell_obsidius_shadow_of_obsidius);
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        amount = -1;
+    }
+
+    void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        absorbAmount = dmgInfo.GetDamage();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_obsidius_shadow_of_obsidius::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_obsidius_shadow_of_obsidius::Absorb, EFFECT_0);
+    }
+};
+
 class achievement_ascendant_descending : public AchievementCriteriaScript
 {
     public:
@@ -375,5 +396,6 @@ void AddSC_boss_ascendant_lord_obsidius()
     RegisterAuraScript(spell_obsidius_transformation_not_selectable);
     RegisterAuraScript(spell_obsidius_transformation_scale);
     RegisterSpellScript(spell_obsidius_crepuscular_veil);
+    RegisterAuraScript(spell_obsidius_shadow_of_obsidius);
     new achievement_ascendant_descending();
 }
