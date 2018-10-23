@@ -23,6 +23,7 @@
 #include "DB2Stores.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "InstanceScript.h"
 #include "Item.h"
@@ -33,12 +34,14 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "Pet.h"
+#include "Realm.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <random>
 
 char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {
@@ -2771,7 +2774,17 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     }
 
     // TODO: time condition
-    // TODO (or not): world state expression condition
+
+    if (condition->WorldStateExpressionID)
+    {
+        WorldStateExpressionEntry const* worldStateExpression = sWorldStateExpressionStore.LookupEntry(condition->WorldStateExpressionID);
+        if (!worldStateExpression)
+            return false;
+
+        if (!IsPlayerMeetingExpression(player, worldStateExpression))
+            return false;
+    }
+
     // TODO: weather condition
 
     if (condition->Achievement[0])
@@ -2868,4 +2881,382 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         return false;
 
     return true;
+}
+
+ByteBuffer HexToBytes(const std::string& hex)
+{
+    ByteBuffer buffer;
+    buffer.resize(hex.length() / 2);
+    HexStrToByteArray(hex, buffer.contents());
+    return buffer;
+}
+
+static int32(* const WorldStateExpressionFunctions[WSE_FUNCTION_MAX])(Player const*, uint32, uint32) =
+{
+    // WSE_FUNCTION_NONE
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_RANDOM
+    [](Player const* /*player*/, uint32 arg1, uint32 arg2) -> int32
+    {
+        return irand(std::min(arg1, arg2), std::max(arg1, arg2));
+    },
+
+    // WSE_FUNCTION_MONTH
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return GameTime::GetDateAndTime()->tm_mon + 1;
+    },
+
+    // WSE_FUNCTION_DAY
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return GameTime::GetDateAndTime()->tm_mday + 1;
+    },
+
+    // WSE_FUNCTION_TIME_OF_DAY
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        tm const* localTime = GameTime::GetDateAndTime();
+        return localTime->tm_hour * MINUTE + localTime->tm_min;
+    },
+
+    // WSE_FUNCTION_REGION
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return realm.Id.Region;
+    },
+
+    // WSE_FUNCTION_CLOCK_HOUR
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        uint32 currentHour = GameTime::GetDateAndTime()->tm_hour + 1;
+        return currentHour <= 12 ? (currentHour ? currentHour : 12) : currentHour - 12;
+    },
+
+    // WSE_FUNCTION_OLD_DIFFICULTY_ID
+    [](Player const* player, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(player->GetMap()->GetDifficultyID()))
+            return difficulty->OldEnumValue;
+
+        return -1;
+    },
+
+    // WSE_FUNCTION_HOLIDAY_START
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_HOLIDAY_LEFT
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_HOLIDAY_ACTIVE
+    [](Player const* /*player*/, uint32 arg1, uint32 /*arg2*/) -> int32
+    {
+        return int32(IsHolidayActive(HolidayIds(arg1)));
+    },
+
+    // WSE_FUNCTION_TIMER_CURRENT_TIME
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return GameTime::GetGameTime();
+    },
+
+    // WSE_FUNCTION_WEEK_NUMBER
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        time_t now = GameTime::GetGameTime();
+        uint32 raidOrigin = 1135695600;
+        if (Cfg_RegionsEntry const* region = sCfgRegionsStore.LookupEntry(realm.Id.Region))
+            raidOrigin = region->Raidorigin;
+
+        return (now - raidOrigin) / WEEK;
+    },
+
+    // WSE_FUNCTION_UNK13
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK14
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_DIFFICULTY_ID
+    [](Player const* player, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return player->GetMap()->GetDifficultyID();
+    },
+
+    // WSE_FUNCTION_WAR_MODE_ACTIVE
+    [](Player const* player, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return player->HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
+    },
+
+    // WSE_FUNCTION_UNK17
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK18
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK19
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK20
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK21
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_WORLD_STATE_EXPRESSION
+    [](Player const* player, uint32 arg1, uint32 /*arg2*/) -> int32
+    {
+        if (WorldStateExpressionEntry const* worldStateExpression = sWorldStateExpressionStore.LookupEntry(arg1))
+            return ConditionMgr::IsPlayerMeetingExpression(player, worldStateExpression);
+
+        return 0;
+    },
+
+    // WSE_FUNCTION_KEYSTONE_AFFIX
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK24
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK25
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK26
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK27
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_KEYSTONE_LEVEL
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK29
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK30
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK31
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK32
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_MERSENNE_RANDOM
+    [](Player const* /*player*/, uint32 arg1, uint32 arg2) -> int32
+    {
+        if (arg1 == 1)
+            return 1;
+
+        // init with predetermined seed
+        std::mt19937 mt(arg2 ? arg2 : 1);
+        return mt() % arg1 + 1;
+    },
+
+    // WSE_FUNCTION_UNK34
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK35
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UNK36
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+    // WSE_FUNCTION_UI_WIDGET_DATA
+    [](Player const* /*player*/, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
+    {
+        return 0;
+    },
+
+};
+
+int32 EvalSingleValue(ByteBuffer& buffer, Player const* player)
+{
+    WorldStateExpressionValueType valueType = buffer.read<WorldStateExpressionValueType>();
+    int32 value = 0;
+
+    switch (valueType)
+    {
+        case WorldStateExpressionValueType::Constant:
+        {
+            value = buffer.read<int32>();
+            break;
+        }
+        case WorldStateExpressionValueType::WorldState:
+        {
+            uint32 worldStateId = buffer.read<uint32>();
+            value = sWorld->getWorldState(worldStateId);
+            break;
+        }
+        case WorldStateExpressionValueType::Function:
+        {
+            uint32 functionType = buffer.read<uint32>();
+            int32 arg1 = EvalSingleValue(buffer, player);
+            int32 arg2 = EvalSingleValue(buffer, player);
+
+            if (functionType >= WSE_FUNCTION_MAX)
+                return 0;
+
+            value = WorldStateExpressionFunctions[functionType](player, arg1, arg2);
+        }
+        default:
+            break;
+    }
+
+    return value;
+}
+
+int32 EvalValue(ByteBuffer& buffer, Player const* player)
+{
+    int32 leftValue = EvalSingleValue(buffer, player);
+
+    WorldStateExpressionOperatorType operatorType = buffer.read<WorldStateExpressionOperatorType>();
+    if (operatorType == WorldStateExpressionOperatorType::None)
+        return leftValue;
+
+    int32 rightValue = EvalSingleValue(buffer, player);
+
+    switch (operatorType)
+    {
+        case WorldStateExpressionOperatorType::Sum:             return leftValue + rightValue;
+        case WorldStateExpressionOperatorType::Substraction:    return leftValue - rightValue;
+        case WorldStateExpressionOperatorType::Multiplication:  return leftValue * rightValue;
+        case WorldStateExpressionOperatorType::Division:        return !rightValue ? 0 : leftValue / rightValue;
+        case WorldStateExpressionOperatorType::Remainder:       return !rightValue ? 0 : leftValue % rightValue;
+        default:
+            break;
+    }
+
+    return leftValue;
+}
+
+bool EvalRelOp(ByteBuffer& buffer, Player const* player)
+{
+    int32 leftValue = EvalValue(buffer, player);
+
+    WorldStateExpressionComparisonType compareLogic = buffer.read<WorldStateExpressionComparisonType>();
+    if (compareLogic == WorldStateExpressionComparisonType::None)
+        return leftValue != 0;
+
+    int32 rightValue = EvalValue(buffer, player);
+
+    switch (compareLogic)
+    {
+        case WorldStateExpressionComparisonType::Equal:             return leftValue == rightValue;
+        case WorldStateExpressionComparisonType::NotEqual:          return leftValue != rightValue;
+        case WorldStateExpressionComparisonType::Less:              return leftValue <  rightValue;
+        case WorldStateExpressionComparisonType::LessOrEqual:       return leftValue <= rightValue;
+        case WorldStateExpressionComparisonType::Greater:           return leftValue >  rightValue;
+        case WorldStateExpressionComparisonType::GreaterOrEqual:    return leftValue >= rightValue;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool ConditionMgr::IsPlayerMeetingExpression(Player const* player, WorldStateExpressionEntry const* expression)
+{
+    ByteBuffer buffer = HexToBytes(expression->Expression);
+    if (buffer.empty())
+        return false;
+
+    bool enabled = buffer.read<bool>();
+    if (!enabled)
+        return false;
+
+    bool finalResult = EvalRelOp(buffer, player);
+    WorldStateExpressionLogic resultLogic = buffer.read<WorldStateExpressionLogic>();
+
+    while (resultLogic != WorldStateExpressionLogic::None)
+    {
+        bool secondResult = EvalRelOp(buffer, player);
+
+        switch (resultLogic)
+        {
+            case WorldStateExpressionLogic::And: finalResult = finalResult && secondResult; break;
+            case WorldStateExpressionLogic::Or:  finalResult = finalResult || secondResult; break;
+            case WorldStateExpressionLogic::Xor: finalResult = finalResult != secondResult; break;
+            default:
+                break;
+        }
+
+        if (buffer.rpos() < buffer.size())
+            break;
+
+        resultLogic = buffer.read<WorldStateExpressionLogic>();
+    }
+
+    return finalResult;
 }
