@@ -18,6 +18,48 @@
 #ifndef TRINITY_BATTLEFIELD_MGR_H_
 #define TRINITY_BATTLEFIELD_MGR_H_
 
+#include "Common.h"
+#include <memory>
+#include <unordered_map>
 
+class Battlefield;
+class Player;
+class ZoneScript;
+enum BattlefieldId;
+
+class TC_GAME_API BattlefieldMgr
+{
+public:
+    static BattlefieldMgr* instance();
+
+    Battlefield* GetBattlefield(uint32 zoneId) const;
+    Battlefield* GetBattlefield(BattlefieldId battleId) const;
+    ZoneScript* GetZoneScript(uint32 zoneId) const;
+    ZoneScript* GetZoneScript(BattlefieldId battleId) const;
+    Battlefield* GetEnabledBattlefield(uint32 zoneId) const;
+    Battlefield* GetEnabledBattlefield(BattlefieldId battleId) const;
+
+    // create battlefields
+    void Initialize();
+    // called when a player enters an battlefield area
+    void HandlePlayerEnterZone(Player* player, uint32 zoneId);
+    // called when player leaves an battlefield area
+    void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
+    void Update(uint32 diff);
+
+private:
+    typedef std::unique_ptr<Battlefield> BattleFieldPointer;
+    typedef std::unordered_map<uint32/*zoneId*/, BattleFieldPointer> BattlefieldContainer;
+
+    explicit BattlefieldMgr();
+    ~BattlefieldMgr();
+
+    // contains all initiated battlefields
+    BattlefieldContainer _battlefieldContainer;
+    // update interval
+    uint32 _updateTimer;
+};
+
+#define sBattlefieldMgr BattlefieldMgr::instance()
 
 #endif
