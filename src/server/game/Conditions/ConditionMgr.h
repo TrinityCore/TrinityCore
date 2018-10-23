@@ -32,6 +32,7 @@ class WorldObject;
 class LootTemplate;
 struct Condition;
 struct PlayerConditionEntry;
+struct WorldStateExpressionEntry;
 
 /*! Documentation on implementing a new ConditionType:
     Step 1: Check for the lowest free ID. Look for CONDITION_UNUSED_XX in the enum.
@@ -286,6 +287,7 @@ class TC_GAME_API ConditionMgr
         bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const;
 
         static bool IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition);
+        static bool IsPlayerMeetingExpression(Player const* player, WorldStateExpressionEntry const* expression);
 
         struct ConditionTypeInfo
         {
