@@ -46,7 +46,7 @@ struct BattlegroundData
 struct BattlegroundTemplate
 {
     BattlegroundTypeId Id;
-    WorldSafeLocsEntry const* StartLocation[BG_TEAMS_COUNT] = { };
+    WorldSafeLocsEntry const* StartLocation[PVP_TEAMS_COUNT] = { };
     float MaxStartDistSq;
     uint8 Weight;
     uint32 ScriptId;

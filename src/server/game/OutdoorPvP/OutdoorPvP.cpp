@@ -558,7 +558,7 @@ int32 OPvPCapturePoint::HandleOpenGo(Player* /*player*/, GameObject* go)
 void OutdoorPvP::BroadcastPacket(WorldPacket const* data) const
 {
     // This is faster than sWorld->SendZoneMessage
-    for (uint32 team = 0; team < 2; ++team)
+    for (uint32 team = 0; team < PVP_TEAMS_COUNT; ++team)
         for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             if (Player* const player = ObjectAccessor::FindPlayer(*itr))
                 player->SendDirectMessage(data);
@@ -644,7 +644,7 @@ void OutdoorPvP::SendDefenseMessage(uint32 zoneId, uint32 id)
 template<class Worker>
 void OutdoorPvP::BroadcastWorker(Worker& _worker, uint32 zoneId)
 {
-    for (uint32 i = 0; i < BG_TEAMS_COUNT; ++i)
+    for (uint32 i = 0; i < PVP_TEAMS_COUNT; ++i)
         for (GuidSet::iterator itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 if (player->GetZoneId() == zoneId)

@@ -279,7 +279,7 @@ enum TolBaradEvent
     EVENT_COUNT_CAPTURED_BASE = 1,
 };
 
-const uint32 TBFactions[BG_TEAMS_COUNT] = { 1610, 1732 };
+const uint32 TBFactions[PVP_TEAMS_COUNT] = { 1610, 1732 };
 
 // Stalker
 Position const TolBaradDebugAnnouncerPos = { -1234.25f, 961.903f, 159.4913f, 0.0f };
@@ -298,7 +298,7 @@ enum TBQuestInfantryEntry
     NPC_HORDE_SHAMAN_INFANTRY = 47610,
 };
 
-uint32 const TB_QUEST_INFANTRY[BG_TEAMS_COUNT][4] =
+uint32 const TB_QUEST_INFANTRY[PVP_TEAMS_COUNT][4] =
 {
     { NPC_HORDE_DRUID_INFANTRY, NPC_HORDE_MAGE_INFANTRY, NPC_HORDE_ROGUE_INFANTRY, NPC_HORDE_SHAMAN_INFANTRY },
     { NPC_ALLIANCE_WARRIOR_INFANTRY, NPC_ALLIANCE_PALADIN_INFANTRY, NPC_ALLIANCE_HUNTER_INFANTRY, NPC_ALLIANCE_MAGE_INFANTRY },
@@ -444,7 +444,7 @@ TBQuestAreaInfo const TBQuestAreas[CELLBLOCK_MAX] =
     { AREA_D_BLOCK, SPELL_TB_D_BLOCK_TELEPORT },
     { AREA_CURSED_DEPTHS, SPELL_TB_CURSED_DEPTHS_TELEPORT },
 };
-uint32 const RandomQuestgivers[BG_TEAMS_COUNT][CELLBLOCK_MAX] =
+uint32 const RandomQuestgivers[PVP_TEAMS_COUNT][CELLBLOCK_MAX] =
 {
     { NPC_MARSHAL_FALLOWS, NPC_2ND_LIEUTENANT_WANSWORTH, NPC_COMMANDER_STEVENS },
     { NPC_DRILLMASTER_RAZGOTH, NPC_STAFF_SERGEANT_LAZGAR, NPC_PRIVATE_GARNOTH },
@@ -493,8 +493,8 @@ struct TBTowerInfo
     uint32 entry;
     uint32 textDamaged;
     uint32 textDestroyed;
-    uint32 wsIntact[BG_TEAMS_COUNT];
-    uint32 wsDamaged[BG_TEAMS_COUNT];
+    uint32 wsIntact[PVP_TEAMS_COUNT];
+    uint32 wsDamaged[PVP_TEAMS_COUNT];
     uint32 wsDestroyed;
 };
 
@@ -529,7 +529,7 @@ enum TBFactionBannerEntry
     GO_HELLSCREAM_REACH_BANNER = 207400, // Horde banner
 };
 
-uint32 const TBBannerEntry[BG_TEAMS_COUNT] = { GO_BARADINS_WARDEN_BANNER, GO_HELLSCREAM_REACH_BANNER };
+uint32 const TBBannerEntry[PVP_TEAMS_COUNT] = { GO_BARADINS_WARDEN_BANNER, GO_HELLSCREAM_REACH_BANNER };
 
 uint8 const TB_BANNER_MAX = 23;
 Position const TBBanners[TB_BANNER_MAX] =
@@ -566,7 +566,7 @@ enum TBPortalEntry
     TB_PORTAL_HORDE = 208226, // Portal to Orgrimmar
 };
 
-uint32 const TBPortalEntry[BG_TEAMS_COUNT] = { TB_PORTAL_ALLIANCE, TB_PORTAL_HORDE };
+uint32 const TBPortalEntry[PVP_TEAMS_COUNT] = { TB_PORTAL_ALLIANCE, TB_PORTAL_HORDE };
 
 uint8 const TB_PORTAL_MAX = 2;
 Position const TBPortals[TB_PORTAL_MAX] =
@@ -601,7 +601,7 @@ struct TBGraveyardInfo
     Position pos;
     uint32 phaseId;
     uint32 gyid;
-    uint32 spiritEntry[BG_TEAMS_COUNT];
+    uint32 spiritEntry[PVP_TEAMS_COUNT];
     bool defenderControls;
 };
 
