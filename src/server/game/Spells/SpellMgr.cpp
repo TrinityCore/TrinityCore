@@ -4838,6 +4838,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // Al'Akir
+
     // Wind Burst
     ApplySpellFix({
         87770,
@@ -4847,6 +4848,41 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+    });
+
+    // Lightning Strike (Force Cast)
+    ApplySpellFix({ 91327 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Lightning Strike (Visual)
+    ApplySpellFix({ 88230 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+    });
+
+    // Lightning Strike (Damage)
+    ApplySpellFix({
+        88214,
+        93255,
+        93256,
+        93257,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->ConeAngle = 60.0f;
+    });
+
+    // Lightning Strike (Periodic Aura)
+    ApplySpellFix({ 93247 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(387); // 16 seconds
+    });
+
+    // Lightning Strike (Heroic Chain-Caster Summon)
+    ApplySpellFix({ 93247 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(467); // 22 seconds
     });
 
     // ENDOF THRONE OF THE FOUR WINDS SPELLS

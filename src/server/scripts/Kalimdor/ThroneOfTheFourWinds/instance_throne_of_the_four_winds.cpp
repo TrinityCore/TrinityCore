@@ -99,6 +99,11 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                     case NPC_HURRICANE:
                         _hurricaneGUIDs.push_back(creature->GetGUID());
                         break;
+                    case NPC_LIGHTNING_STRIKE_TRIGGER_HEROIC_CHAIN_CASTER:
+                    case NPC_ICE_STORM:
+                        if (Creature* alakir = GetCreature(DATA_ALAKIR))
+                            alakir->AI()->JustSummoned(creature);
+                        break;
                     default:
                         break;
                 }

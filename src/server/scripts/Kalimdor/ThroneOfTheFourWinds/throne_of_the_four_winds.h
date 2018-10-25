@@ -45,23 +45,25 @@ enum TFWDataTypes
 enum TFWCreatureIds
 {
     // Bosses
-    BOSS_ANSHAL                     = 45870,
-    BOSS_NEZIR                      = 45871,
-    BOSS_ROHASH                     = 45872,
-    BOSS_ALAKIR                     = 46753,
+    BOSS_ANSHAL                                         = 45870,
+    BOSS_NEZIR                                          = 45871,
+    BOSS_ROHASH                                         = 45872,
+    BOSS_ALAKIR                                         = 46753,
 
     // Creatures
-    NPC_WORLD_TRIGGER               = 21252,
-    NPC_FALL_CATCHER                = 45710,
+    NPC_WORLD_TRIGGER                                   = 21252,
+    NPC_FALL_CATCHER                                    = 45710,
 
     // Conclave of Wind
-    NPC_RAVENOUS_CREEPER            = 45812,
-    NPC_TORNADO                     = 46207,
-    NPC_WORLD_TRIGGER_IMMUNE_TO_PC  = 19871,
-    NPC_HURRICANE                   = 46419,
+    NPC_RAVENOUS_CREEPER                                = 45812,
+    NPC_TORNADO                                         = 46207,
+    NPC_WORLD_TRIGGER_IMMUNE_TO_PC                      = 19871,
+    NPC_HURRICANE                                       = 46419,
 
     // Al'Akir
-    NPC_SLIPSTREAM                  = 47066,
+    NPC_SLIPSTREAM                                      = 47066,
+    NPC_LIGHTNING_STRIKE_TRIGGER_HEROIC_CHAIN_CASTER    = 50254,
+    NPC_ICE_STORM                                       = 46973,
 };
 
 enum TFWSpells
