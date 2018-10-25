@@ -16180,31 +16180,30 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
     QuestRelationBounds qr;
     QuestRelationBounds qir;
 
-    PlayerTalkClass->ClearMenus();
     switch (questgiver->GetTypeId())
     {
-    case TYPEID_GAMEOBJECT:
-    {
-        QuestGiverStatus questStatus = QuestGiverStatus(questgiver->ToGameObject()->AI()->GetDialogStatus(this));
-        if (questStatus != DIALOG_STATUS_SCRIPTED_NO_STATUS)
-            return questStatus;
-        qr = sObjectMgr->GetGOQuestRelationBounds(questgiver->GetEntry());
-        qir = sObjectMgr->GetGOQuestInvolvedRelationBounds(questgiver->GetEntry());
-        break;
-    }
-    case TYPEID_UNIT:
-    {
-        QuestGiverStatus questStatus = QuestGiverStatus(questgiver->ToCreature()->AI()->GetDialogStatus(this));
-        if (questStatus != DIALOG_STATUS_SCRIPTED_NO_STATUS)
-            return questStatus;
-        qr = sObjectMgr->GetCreatureQuestRelationBounds(questgiver->GetEntry());
-        qir = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(questgiver->GetEntry());
-        break;
-    }
-    default:
-        // it's impossible, but check
-        TC_LOG_ERROR("entities.player.quest", "GetQuestDialogStatus called for unexpected type %u", questgiver->GetTypeId());
-        return DIALOG_STATUS_NONE;
+        case TYPEID_GAMEOBJECT:
+        {
+            QuestGiverStatus questStatus = QuestGiverStatus(questgiver->ToGameObject()->AI()->GetDialogStatus(this));
+            if (questStatus != DIALOG_STATUS_SCRIPTED_NO_STATUS)
+                return questStatus;
+            qr = sObjectMgr->GetGOQuestRelationBounds(questgiver->GetEntry());
+            qir = sObjectMgr->GetGOQuestInvolvedRelationBounds(questgiver->GetEntry());
+            break;
+        }
+        case TYPEID_UNIT:
+        {
+            QuestGiverStatus questStatus = QuestGiverStatus(questgiver->ToCreature()->AI()->GetDialogStatus(this));
+            if (questStatus != DIALOG_STATUS_SCRIPTED_NO_STATUS)
+                return questStatus;
+            qr = sObjectMgr->GetCreatureQuestRelationBounds(questgiver->GetEntry());
+            qir = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(questgiver->GetEntry());
+            break;
+        }
+        default:
+            // it's impossible, but check
+            TC_LOG_ERROR("entities.player.quest", "GetQuestDialogStatus called for unexpected type %u", questgiver->GetTypeId());
+            return DIALOG_STATUS_NONE;
     }
 
     QuestGiverStatus result = DIALOG_STATUS_NONE;
