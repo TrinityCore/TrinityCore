@@ -700,6 +700,6 @@ class BattlegroundSA : public Battleground
         bool _gateDestroyed;
 
         // Achievement: Not Even a Scratch
-        bool _allVehiclesAlive[BG_TEAMS_COUNT];
+        bool _allVehiclesAlive[PVP_TEAMS_COUNT];
 };
 #endif
