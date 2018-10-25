@@ -3427,14 +3427,14 @@ enum BanReturn
     BAN_EXISTS
 };
 
-enum BattlegroundTeamId
+enum PvPTeamId
 {
-    BG_TEAM_HORDE       = 0, // Battleground: Horde,    Arena: Green
-    BG_TEAM_ALLIANCE    = 1, // Battleground: Alliance, Arena: Gold
-    BG_TEAM_NEUTRAL     = 2  // Battleground: Neutral,  Arena: None
+    PVP_TEAM_HORDE       = 0, // Battleground: Horde,    Arena: Green
+    PVP_TEAM_ALLIANCE    = 1, // Battleground: Alliance, Arena: Gold
+    PVP_TEAM_NEUTRAL     = 2  // Battleground: Neutral,  Arena: None
 };
 
-#define BG_TEAMS_COUNT  2
+uint8 constexpr PVP_TEAMS_COUNT = 2;
 
 // indexes of BattlemasterList.dbc
 enum BattlegroundTypeId : uint32
@@ -3456,6 +3456,12 @@ enum BattlegroundTypeId : uint32
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 33
+
+enum BattlefieldBattleId : uint8
+{
+    BATTLEFIELD_BATTLEID_WINTERGRASP = 1, // Wintergrasp battle
+    BATTLEFIELD_BATTLEID_MAX = 2
+};
 
 enum MailResponseType
 {
