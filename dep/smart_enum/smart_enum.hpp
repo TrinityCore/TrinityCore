@@ -407,61 +407,41 @@ namespace smart_enum
     <
         typename Enum
     >
-    class enum_iterator : public boost::iterator_facade
-    <
-        enum_iterator<Enum>, Enum, boost::random_access_traversal_tag, Enum
-    >
+    class enum_iterator
     {
     public:
-        constexpr enum_iterator()
-            : index_{ count<Enum>() }
-        {
-        }
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type = Enum;
+        using pointer = Enum*;
+        using reference = Enum&;
+        using difference_type = std::ptrdiff_t;
 
-        constexpr explicit enum_iterator(Enum value)
-            : index_{ index_of(value) }
-        {
-        }
+        constexpr enum_iterator() : index_(count<Enum>()) {}
+        constexpr explicit enum_iterator(Enum value) : index_(index_of<Enum>(value)) { }
 
-        constexpr bool operator!=(const enum_iterator& other) const
-        {
-            return other.index_ != index_;
-        }
+        constexpr bool operator==(const enum_iterator& other) const { return other.index_ == index_; }
+        constexpr bool operator!=(const enum_iterator& other) const { return !operator==(other); }
+        constexpr difference_type operator-(enum_iterator const& other) const { return index_ - other.index_; }
+        constexpr bool operator<(const enum_iterator& other) const { return index_ < other.index_; }
+        constexpr bool operator<=(const enum_iterator& other) const { return index_ <= other.index_; }
+        constexpr bool operator>(const enum_iterator& other) const { return index_ > other.index_; }
+        constexpr bool operator>=(const enum_iterator& other) const { return index_ >= other.index_; }
+
+        constexpr value_type operator[](difference_type d) const { return value_of<Enum>(index_ + d); }
+        constexpr value_type operator*() const { return operator[](0); }
+
+        constexpr enum_iterator& operator+=(difference_type d) { index_ += d; return *this; }
+        constexpr enum_iterator& operator++() { return operator+=(1); }
+        constexpr enum_iterator operator++(int) { enum_iterator i = *this; operator++(); return i; }
+        constexpr enum_iterator operator+(difference_type d) const { enum_iterator i = *this; i += d; return i; }
+
+        constexpr enum_iterator& operator-=(difference_type d) { index_ -= d; return *this; }
+        constexpr enum_iterator& operator--() { return operator-=(1); }
+        constexpr enum_iterator operator--(int) { enum_iterator i = *this; operator--(); return i; }
+        constexpr enum_iterator operator-(difference_type d) const { enum_iterator i = *this; i -= d; return i; }
 
     private:
-        std::size_t index_;
-
-        void advance(std::ptrdiff_t n)
-        {
-            index_ += n;
-        }
-
-        void decrement()
-        {
-            --index_;
-        }
-
-        constexpr Enum dereference() const
-        {
-            return value_of<Enum>(index_);
-        }
-
-        constexpr std::ptrdiff_t distance_to(const enum_iterator &other) const
-        {
-            return other.index_ - index_;
-        }
-
-        constexpr bool equal(const enum_iterator &other) const
-        {
-            return other.index_ == index_;
-        }
-
-        void increment()
-        {
-            ++index_;
-        }
-
-        friend class boost::iterator_core_access;
+        difference_type index_;
     };
 
     template
