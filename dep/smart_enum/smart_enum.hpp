@@ -192,7 +192,7 @@
             SMART_ENUM_IMPL_REPEAT_MEMBERS(PREFIX, MEMBERS, MEMBER_TO_STRING) \
         } \
         \
-        throw std::invalid_argument("value"); \
+        return nullptr; \
     }
 
 #define SMART_ENUM_IMPL_MEMBER_TO_STRING(PREFIX, NAME, MEMBER, INDEX) \
