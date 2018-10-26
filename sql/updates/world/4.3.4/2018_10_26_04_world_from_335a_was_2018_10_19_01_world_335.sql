@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature_template_addon` WHERE `entry`=10988;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
@@ -19,3 +20,4 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 (93646, 10988, 1, 1, 1, 0, 0, -1296.158, 1999.375, 51.106, 1.970108, 600, 7, 1),
 (93652, 10988, 1, 1, 1, 0, 0, -1442.202, 1792.259, 50.144, 0.843056, 600, 7, 1),
 (93695, 10988, 1, 1, 1, 0, 0, -1384.608, 1797.856, 50.337, 5.842114, 600, 7, 1);
+*/

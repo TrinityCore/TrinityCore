@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `creature` SET `MovementType` = 2 WHERE `guid` = 15139;
 DELETE FROM `creature_addon` WHERE `guid` = 15139;
@@ -339,3 +340,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (140210, 28, 612.256, -1843.677, 91.66778, 0, 0, 0, 100, 0),
 (140210, 29, 623.407, -1894.979, 92.87283, 0, 0, 0, 100, 0),
 (140210, 30, 632.329, -1936.020, 91.66797, 0, 0, 0, 100, 0);
+*/

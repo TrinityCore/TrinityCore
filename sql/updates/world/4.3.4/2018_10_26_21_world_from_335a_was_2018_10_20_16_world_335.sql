@@ -1,3 +1,4 @@
+/*
 -- Hellfire Peninsula -- Höllenfeuerhalbinsel
 -- ObjectiveText -- 3.3.5
 
@@ -99,3 +100,4 @@ UPDATE `quest_template_locale` SET `ObjectiveText1`="Nehmt den Rundblick ein", `
 
 -- 13411 - Höllenfeuerbefestigungen
 UPDATE `quest_template_locale` SET `ObjectiveText1`="Nehmt den Rundblick ein", `ObjectiveText2`="Nehmt das Stadion ein", `ObjectiveText3`="Nehmt die Trümmerbastion ein", `VerifiedBuild`=26972 WHERE `ID` = 13411 AND `locale` = "deDE";
+*/

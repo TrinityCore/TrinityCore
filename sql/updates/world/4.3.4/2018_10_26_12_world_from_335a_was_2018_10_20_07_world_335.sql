@@ -1,3 +1,4 @@
+/*
 -- Nancy Vishas
 DELETE FROM `creature_text` WHERE `CreatureID`=3984 AND `GroupID` IN (3,4);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -10,3 +11,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (3984,0,4,0,40,0,100,0,1,3984,0,0,80,398401,0,0,0,0,0,1,0,0,0,0,0,0,0,"Nancy Vishas - On Waypoint 1 Reached - Run Script"),
 (398401,9,0,0,0,0,100,0,23000,23000,0,0,1,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Nancy Vishas - On Script - Say Line 3"),
 (398401,9,1,0,0,0,100,0,4000,4000,0,0,1,4,0,0,0,0,0,1,0,0,0,0,0,0,0,"Nancy Vishas - On Script - Say Line 4");
+*/

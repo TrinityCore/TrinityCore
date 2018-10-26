@@ -1,3 +1,4 @@
+/*
 -- Myra Tyrngaarde
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=5109;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=5109 AND `source_type`=0;
@@ -9,3 +10,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (5109,0,0,"Fresh Bread! Get your oven fresh bread here!",12,7,100,0,0,0,4014,0,"Myra Tyrngaarde"),
 (5109,0,1,"Fresh bread for sale!",12,7,100,0,0,0,4013,0,"Myra Tyrngaarde"),
 (5109,0,2,"Come get yer fresh bread!",12,7,100,0,0,0,4015,0,"Myra Tyrngaarde");
+*/

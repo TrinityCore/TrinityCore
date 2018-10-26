@@ -1,3 +1,4 @@
+/*
 -- Foggy MacKreel
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=2696;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2696 AND `source_type`=0;
@@ -11,3 +12,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=2696;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (2696,0,0,"Sure does seem like it's been a long time since anyone has relieved me from my post.",12,7,100,0,0,0,790,0,"Foggy MacKreel"),
 (2696,1,0,"Well, that's what I get for oversleeping!",12,7,100,0,0,0,791,0,"Foggy MacKreel");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Farrin Daris
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=2112;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2112 AND `source_type`=0;
@@ -12,3 +13,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (2112,0,3,"Why haven't the Stormwind guards come?",12,7,100,0,0,0,964,0,"Farrin Daris"),
 (2112,0,4,"I fear something dark is coming.",12,7,100,0,0,0,965,0,"Farrin Daris"),
 (2112,0,5,"The light appears to have forsaken us.",12,7,100,0,0,0,966,0,"Farrin Daris");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Hallow's End -- Schlotternächte
 -- ObjectiveText -- BroadcastText -- 3.3.5
 
@@ -58,3 +59,4 @@ INSERT INTO `broadcast_text_locale` (`ID`, `locale`, `MaleText`, `FemaleText`, `
 
 DELETE FROM `broadcast_text_locale` WHERE `ID` = 22721 AND `locale` = "deDE";
 INSERT INTO `broadcast_text_locale` (`ID`, `locale`, `MaleText`, `FemaleText`, `VerifiedBuild`) VALUES (22721, "deDE", "Auf ewig genommen!", "Auf ewig genommen!", 18019);
+*/

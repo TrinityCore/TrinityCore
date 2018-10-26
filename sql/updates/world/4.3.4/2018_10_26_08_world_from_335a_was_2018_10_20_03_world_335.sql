@@ -1,3 +1,4 @@
+/*
 -- 
 -- Stormscale Toxicologist
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=12321;
@@ -13,3 +14,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (12321,0,0,"You've interfered with our plans for the last time, foolish $c!",12,0,100,0,0,0,7582,0,"Stormscale Toxicologist");
 
 UPDATE `event_scripts` SET `x`=6875.63, `y`=-661.278, `z`=84.2268, `o`=0.870214 WHERE `id`=6138 AND `datalong`=12321;
+*/

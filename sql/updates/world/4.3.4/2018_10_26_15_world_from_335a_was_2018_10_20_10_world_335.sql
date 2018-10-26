@@ -1,3 +1,4 @@
+/*
 -- Greishan Ironstove
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=3291;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=3291 AND `source_type`=0;
@@ -10,3 +11,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (3291,0,1,"Get'em while they are nice and fresh! Loaves of bread here!",12,6,100,0,0,0,996,0,"Greishan Ironstove"),
 (3291,0,2,"All kinds of bread here! Made fresh today. Get'em while they last!",12,6,100,0,0,0,997,0,"Greishan Ironstove"),
 (3291,0,3,"Bread here! Loaves of your favorites! Nice and fresh!",12,6,100,0,0,0,998,0,"Greishan Ironstove");
+*/

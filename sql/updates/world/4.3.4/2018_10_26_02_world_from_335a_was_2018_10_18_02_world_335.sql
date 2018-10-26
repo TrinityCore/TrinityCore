@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature` WHERE `guid` IN (91800,91801,91885,92273,92276);
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`,`spawndist`, `MovementType`) VALUES
@@ -11,3 +12,4 @@ DELETE FROM `creature_template_addon` WHERE `entry`=10603;
 INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (10603, 0, 0, 0, 0, 10, "26604");
 UPDATE `creature` SET `MovementType`=0, `spawndist`=0, `orientation`= 5.6965 WHERE `id` IN (10578);
+*/

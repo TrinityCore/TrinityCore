@@ -1,3 +1,4 @@
+/*
 -- Pozzik
 DELETE FROM `smart_scripts` WHERE `entryorguid`=4630 AND `source_type`=0 AND `id` IN (0,1,2);
 DELETE FROM `smart_scripts` WHERE `entryorguid`=463000 AND `source_type`=9;
@@ -38,3 +39,4 @@ DELETE FROM `waypoints` WHERE `entry`=4429;
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`point_comment`) VALUES
 (4429,1,-6190.84,-3962.75,-58.7498,""),
 (4429,2,-6193.59,-3963.64,-58.6251,"");
+*/

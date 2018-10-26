@@ -1,3 +1,4 @@
+/*
 -- Cleansed Timberling
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=3570;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=3570 AND `source_type`=0;
@@ -9,3 +10,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=3570;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (3570,0,0,"%s happily follows $n as $ghis:her; new seedling.",16,0,100,0,0,0,1177,0,"Cleansed Timberling"),
 (3570,1,0,"I will protect you!",12,2,100,0,0,0,1178,0,"Cleansed Timberling");
+*/
