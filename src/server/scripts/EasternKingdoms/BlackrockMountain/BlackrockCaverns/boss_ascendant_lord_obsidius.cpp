@@ -143,6 +143,9 @@ struct boss_ascendant_lord_obsidius : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
+        if (damage >= me->GetHealth())
+            return;
+
         if ((me->HealthBelowPctDamaged(69, damage) && _transformationCount == 0)
             || (me->HealthBelowPctDamaged(34, damage) && _transformationCount == 1))
         {
