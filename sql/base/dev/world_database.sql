@@ -1941,8 +1941,6 @@ CREATE TABLE `quest_template_locale` (
   `Title` text,
   `Details` text,
   `Objectives` text,
-  `OfferRewardText` text,
-  `RequestItemsText` text,
   `EndText` text,
   `CompletedText` text,
   `ObjectiveText1` text,
