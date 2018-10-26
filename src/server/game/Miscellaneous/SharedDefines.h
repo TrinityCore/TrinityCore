@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "DetourNavMesh.h"
+#include "SmartEnum.h"
 
 float const GROUND_HEIGHT_TOLERANCE = 0.05f; // Extra tolerance to z position to check if it is in air or on ground.
 
@@ -260,44 +261,46 @@ enum Stats : uint16
 
 #define MAX_STATS                        4
 
+// EnumUtils: DESCRIBE THIS
 enum Powers : int8
 {
-    POWER_MANA                          = 0,
-    POWER_RAGE                          = 1,
-    POWER_FOCUS                         = 2,
-    POWER_ENERGY                        = 3,
-    POWER_COMBO_POINTS                  = 4,
-    POWER_RUNES                         = 5,
-    POWER_RUNIC_POWER                   = 6,
-    POWER_SOUL_SHARDS                   = 7,
-    POWER_LUNAR_POWER                   = 8,
-    POWER_HOLY_POWER                    = 9,
-    POWER_ALTERNATE_POWER               = 10,           // Used in some quests
-    POWER_MAELSTROM                     = 11,
-    POWER_CHI                           = 12,
-    POWER_INSANITY                      = 13,
-    POWER_BURNING_EMBERS                = 14,
-    POWER_DEMONIC_FURY                  = 15,
-    POWER_ARCANE_CHARGES                = 16,
-    POWER_FURY                          = 17,
-    POWER_PAIN                          = 18,
-    MAX_POWERS                          = 19,
-    POWER_ALL                           = 127,          // default for class?
-    POWER_HEALTH                        = -2            // (-2 as signed value)
+    POWER_HEALTH                        = -2, // TITLE Health
+    POWER_MANA                          = 0,  // TITLE Mana
+    POWER_RAGE                          = 1,  // TITLE Rage
+    POWER_FOCUS                         = 2,  // TITLE Focus
+    POWER_ENERGY                        = 3,  // TITLE Energy
+    POWER_COMBO_POINTS                  = 4,  // TITLE Combo Points
+    POWER_RUNES                         = 5,  // TITLE Runes
+    POWER_RUNIC_POWER                   = 6,  // TITLE Runic Power
+    POWER_SOUL_SHARDS                   = 7,  // TITLE Soul Shards
+    POWER_LUNAR_POWER                   = 8,  // TITLE Lunar Power
+    POWER_HOLY_POWER                    = 9,  // TITLE Holy Power
+    POWER_ALTERNATE_POWER               = 10, // TITLE Alternate
+    POWER_MAELSTROM                     = 11, // TITLE Maelstrom
+    POWER_CHI                           = 12, // TITLE Chi
+    POWER_INSANITY                      = 13, // TITLE Insanity
+    POWER_BURNING_EMBERS                = 14, // TITLE Burning Embers (Obsolete)
+    POWER_DEMONIC_FURY                  = 15, // TITLE Demonic Fury (Obsolete)
+    POWER_ARCANE_CHARGES                = 16, // TITLE Arcane Charges
+    POWER_FURY                          = 17, // TITLE Fury
+    POWER_PAIN                          = 18, // TITLE Pain
+    MAX_POWERS                          = 19, // SKIP
+    POWER_ALL                           = 127 // SKIP
 };
 
 #define MAX_POWERS_PER_CLASS            7
 
+// EnumUtils: DESCRIBE THIS
 enum SpellSchools : uint16
 {
-    SPELL_SCHOOL_NORMAL                 = 0,
-    SPELL_SCHOOL_HOLY                   = 1,
-    SPELL_SCHOOL_FIRE                   = 2,
-    SPELL_SCHOOL_NATURE                 = 3,
-    SPELL_SCHOOL_FROST                  = 4,
-    SPELL_SCHOOL_SHADOW                 = 5,
-    SPELL_SCHOOL_ARCANE                 = 6,
-    MAX_SPELL_SCHOOL                    = 7
+    SPELL_SCHOOL_NORMAL                 = 0, // TITLE Physical
+    SPELL_SCHOOL_HOLY                   = 1, // TITLE Holy
+    SPELL_SCHOOL_FIRE                   = 2, // TITLE Fire
+    SPELL_SCHOOL_NATURE                 = 3, // TITLE Nature
+    SPELL_SCHOOL_FROST                  = 4, // TITLE Frost
+    SPELL_SCHOOL_SHADOW                 = 5, // TITLE Shadow
+    SPELL_SCHOOL_ARCANE                 = 6, // TITLE Arcane
+    MAX_SPELL_SCHOOL                    = 7  // SKIP
 };
 
 enum SpellSchoolMask : uint32
@@ -324,11 +327,16 @@ enum SpellSchoolMask : uint32
     SPELL_SCHOOL_MASK_ALL     = (SPELL_SCHOOL_MASK_NORMAL | SPELL_SCHOOL_MASK_MAGIC)
 };
 
+constexpr SpellSchoolMask GetMaskForSchool(SpellSchools school)
+{
+    return SpellSchoolMask(1 << school);
+}
+
 inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 {
-    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        if (mask & (1 << i))
-            return SpellSchools(i);
+    for (SpellSchools school : EnumUtils::Iterate<SpellSchools>())
+        if (mask & GetMaskForSchool(school))
+            return school;
 
     return SPELL_SCHOOL_NORMAL;
 }
@@ -386,6 +394,7 @@ uint32 constexpr QuestDifficultyColors[MAX_QUEST_DIFFICULTY] =
 // Spell Attributes definitions
 // ***********************************
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr0
 {
     SPELL_ATTR0_UNK0                             = 0x00000001, //  0
@@ -422,6 +431,7 @@ enum SpellAttr0
     SPELL_ATTR0_CANT_CANCEL                      = 0x80000000  // 31 positive aura can't be canceled
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr1
 {
     SPELL_ATTR1_DISMISS_PET                      = 0x00000001, //  0 for spells without this flag client doesn't allow to summon pet if caster has a pet
@@ -458,6 +468,7 @@ enum SpellAttr1
     SPELL_ATTR1_UNK31                            = 0x80000000  // 31
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr2
 {
     SPELL_ATTR2_CAN_TARGET_DEAD                  = 0x00000001, //  0 can target dead unit or corpse
@@ -494,6 +505,7 @@ enum SpellAttr2
     SPELL_ATTR2_FOOD_BUFF                        = 0x80000000  // 31 Food or Drink Buff (like Well Fed)
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr3
 {
     SPELL_ATTR3_UNK0                             = 0x00000001, //  0
@@ -530,6 +542,7 @@ enum SpellAttr3
     SPELL_ATTR3_UNK31                            = 0x80000000  // 31
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr4
 {
     SPELL_ATTR4_IGNORE_RESISTANCES               = 0x00000001, //  0 spells with this attribute will completely ignore the target's resistance (these spells can't be resisted)
@@ -566,6 +579,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK31                            = 0x80000000  // 31 Polymorph (chicken) 228 and Sonic Boom (38052, 38488)
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr5
 {
     SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING          = 0x00000001, //  0 available casting channel spell when moving
@@ -602,6 +616,7 @@ enum SpellAttr5
     SPELL_ATTR5_UNK31                            = 0x80000000  // 31 Forces all nearby enemies to focus attacks caster
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr6
 {
     SPELL_ATTR6_DONT_DISPLAY_COOLDOWN            = 0x00000001, //  0 client doesn't display cooldown in tooltip for these spells
@@ -638,6 +653,7 @@ enum SpellAttr6
     SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS    = 0x80000000  // 31 Spells with this attribute skip applying modifiers to category cooldowns
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr7
 {
     SPELL_ATTR7_UNK0                             = 0x00000001, //  0 Shaman's new spells (Call of the ...), Feign Death.
@@ -674,6 +690,7 @@ enum SpellAttr7
     SPELL_ATTR7_CLIENT_INDICATOR                 = 0x80000000
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr8
 {
     SPELL_ATTR8_CANT_MISS                        = 0x00000001, //  0
@@ -710,6 +727,7 @@ enum SpellAttr8
     SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG  = 0x80000000  // 31 Do not check UNIT_FLAG_IMMUNE_TO_PC in IsValidAttackTarget
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr9
 {
     SPELL_ATTR9_UNK0                             = 0x00000001, //  0
@@ -746,6 +764,7 @@ enum SpellAttr9
     SPELL_ATTR9_UNK31                            = 0x80000000  // 31
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr10
 {
     SPELL_ATTR10_UNK0                            = 0x00000001, //  0
@@ -782,6 +801,7 @@ enum SpellAttr10
     SPELL_ATTR10_UNK31                           = 0x80000000  // 31
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr11
 {
     SPELL_ATTR11_UNK0                            = 0x00000001, //  0
@@ -818,6 +838,7 @@ enum SpellAttr11
     SPELL_ATTR11_UNK31                           = 0x80000000  // 31
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr12
 {
     SPELL_ATTR12_UNK0                            = 0x00000001, //  0
@@ -854,6 +875,7 @@ enum SpellAttr12
     SPELL_ATTR12_UNK31                           = 0x80000000  // 31
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr13
 {
     SPELL_ATTR13_UNK0                            = 0x00000001, //  0
@@ -890,6 +912,7 @@ enum SpellAttr13
     SPELL_ATTR13_UNK31                           = 0x80000000  // 31
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr14
 {
     SPELL_ATTR14_UNK0                            = 0x00000001, //  0
@@ -2388,6 +2411,7 @@ enum AuraStateType
     (1<<(AURA_STATE_RAID_ENCOUNTER_2-1))|(1<<(AURA_STATE_ROGUE_POISONED-1)))
 
 // Spell mechanics
+// EnumUtils: DESCRIBE THIS
 enum Mechanics : uint32
 {
     MECHANIC_NONE             = 0,
@@ -2423,7 +2447,7 @@ enum Mechanics : uint32
     MECHANIC_SAPPED           = 30,
     MECHANIC_ENRAGED          = 31,
     MECHANIC_WOUNDED          = 32,
-    MAX_MECHANIC              = 33
+    MAX_MECHANIC              = 33  // SKIP
 };
 
 // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967ca6)
@@ -2653,19 +2677,22 @@ enum SpellHitType
     SPELL_HIT_TYPE_NO_ATTACKER          = 0x80, // does the same as SPELL_ATTR4_COMBAT_LOG_NO_CASTER
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellDmgClass
 {
-    SPELL_DAMAGE_CLASS_NONE     = 0,
-    SPELL_DAMAGE_CLASS_MAGIC    = 1,
-    SPELL_DAMAGE_CLASS_MELEE    = 2,
-    SPELL_DAMAGE_CLASS_RANGED   = 3
+    SPELL_DAMAGE_CLASS_NONE     = 0, // TITLE None
+    SPELL_DAMAGE_CLASS_MAGIC    = 1, // TITLE Magic
+    SPELL_DAMAGE_CLASS_MELEE    = 2, // TITLE Melee
+    SPELL_DAMAGE_CLASS_RANGED   = 3  // TITLE Ranged
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellPreventionType
 {
-    SPELL_PREVENTION_TYPE_SILENCE       = 1,
-    SPELL_PREVENTION_TYPE_PACIFY        = 2,
-    SPELL_PREVENTION_TYPE_NO_ACTIONS    = 4
+    SPELL_PREVENTION_TYPE_NONE          = 0, // TITLE None
+    SPELL_PREVENTION_TYPE_SILENCE       = 1, // TITLE Silence
+    SPELL_PREVENTION_TYPE_PACIFY        = 2, // TITLE Pacify
+    SPELL_PREVENTION_TYPE_NO_ACTIONS    = 4  // TITLE No actions
 };
 
 enum GameobjectTypes : uint8
@@ -5095,7 +5122,7 @@ enum QuestSort
     QUEST_SORT_LEGENDARY_CRAFTING               = 596
 };
 
-inline uint8 ClassByQuestSort(int32 QuestSort)
+constexpr uint8 ClassByQuestSort(int32 QuestSort)
 {
     switch (QuestSort)
     {
@@ -5452,7 +5479,7 @@ enum SkillType
     SKILL_PET_CAMEL                                 = 2807
 };
 
-inline SkillType SkillByLockType(LockType locktype)
+constexpr SkillType SkillByLockType(LockType locktype)
 {
     switch (locktype)
     {
@@ -5483,7 +5510,7 @@ inline SkillType SkillByLockType(LockType locktype)
     return SKILL_NONE;
 }
 
-inline uint32 SkillByQuestSort(int32 QuestSort)
+constexpr uint32 SkillByQuestSort(int32 QuestSort)
 {
     switch (QuestSort)
     {
@@ -6112,26 +6139,27 @@ enum MailResponseResult
     MAIL_ERR_ITEM_HAS_EXPIRED          = 21
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellFamilyNames : uint8
 {
-    SPELLFAMILY_GENERIC         = 0,
-    SPELLFAMILY_EVENTS          = 1,                            // events, holidays
+    SPELLFAMILY_GENERIC         = 0,  // TITLE Generic
+    SPELLFAMILY_UNK1            = 1,  // TITLE Unk1 (events, holidays, ...)
     // 2 - unused
-    SPELLFAMILY_MAGE            = 3,
-    SPELLFAMILY_WARRIOR         = 4,
-    SPELLFAMILY_WARLOCK         = 5,
-    SPELLFAMILY_PRIEST          = 6,
-    SPELLFAMILY_DRUID           = 7,
-    SPELLFAMILY_ROGUE           = 8,
-    SPELLFAMILY_HUNTER          = 9,
-    SPELLFAMILY_PALADIN         = 10,
-    SPELLFAMILY_SHAMAN          = 11,
-    SPELLFAMILY_UNK12           = 12,                           // 2 spells (silence resistance)
-    SPELLFAMILY_POTION          = 13,
+    SPELLFAMILY_MAGE            = 3,  // TITLE Mage
+    SPELLFAMILY_WARRIOR         = 4,  // TITLE Warrior
+    SPELLFAMILY_WARLOCK         = 5,  // TITLE Warlock
+    SPELLFAMILY_PRIEST          = 6,  // TITLE Priest
+    SPELLFAMILY_DRUID           = 7,  // TITLE Druid
+    SPELLFAMILY_ROGUE           = 8,  // TITLE Rogue
+    SPELLFAMILY_HUNTER          = 9,  // TITLE Hunter
+    SPELLFAMILY_PALADIN         = 10, // TITLE Paladin
+    SPELLFAMILY_SHAMAN          = 11, // TITLE Shaman
+    SPELLFAMILY_UNK2            = 12, // TITLE Unk2 (Silence resistance?)
+    SPELLFAMILY_POTION          = 13, // TITLE Potion
     // 14 - unused
-    SPELLFAMILY_DEATHKNIGHT     = 15,
+    SPELLFAMILY_DEATHKNIGHT     = 15, // TITLE Death Knight
     // 16 - unused
-    SPELLFAMILY_PET             = 17,
+    SPELLFAMILY_PET             = 17, // TITLE Pet
     SPELLFAMILY_TOTEMS          = 50,
     SPELLFAMILY_MONK            = 53,
     SPELLFAMILY_WARLOCK_PET     = 57,
