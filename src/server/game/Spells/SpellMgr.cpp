@@ -4703,6 +4703,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 1;
     });
 
+    // Bore
+    ApplySpellFix({ 75205 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->ChannelInterruptFlags = 0;
+        spellInfo->AuraInterruptFlags &= ~AURA_INTERRUPT_FLAG_TURNING;
+    });
+
     // ENDOF BLACKROCK CAVERNS SPELLS
 
     //
