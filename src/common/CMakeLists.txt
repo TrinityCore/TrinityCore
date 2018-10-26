@@ -72,7 +72,8 @@ target_link_libraries(common
     openssl
     valgrind
     threads
-    jemalloc)
+    jemalloc
+    smart_enum)
 
 add_dependencies(common revision_data.h)
 
