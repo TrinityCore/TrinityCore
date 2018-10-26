@@ -22,19 +22,19 @@
 
 struct EnumText
 {
-    EnumText(char const* t = nullptr, char const* d = nullptr) : Title(t), Description(d ? d : t) {}
+    constexpr EnumText(char const* t = nullptr, char const* d = nullptr) : Title(t), Description(d ? d : t) {}
     // Human-readable title of the value
     char const* const Title;
     // Human-readable description of the value
     char const* const Description;
 
     protected:
-        EnumText(char const* n, EnumText e) : Title(e.Title ? e.Title : n), Description(e.Description ? e.Description : Title) {}
+        constexpr EnumText(char const* n, EnumText e) : Title(e.Title ? e.Title : n), Description(e.Description ? e.Description : Title) {}
 };
 
 struct FullEnumText : public EnumText
 {
-    FullEnumText(char const* constant, EnumText e) : EnumText(constant, e), Constant(constant) {}
+    constexpr FullEnumText(char const* constant, EnumText e) : EnumText(constant, e), Constant(constant) {}
     // Enum constant of the value
     char const* const Constant;
 };
