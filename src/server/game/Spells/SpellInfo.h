@@ -366,7 +366,7 @@ class TC_GAME_API SpellInfo
         uint32 BaseLevel;
         uint32 SpellLevel;
         SpellDurationEntry const* DurationEntry;
-        uint32 PowerType;
+        Powers PowerType;
         uint32 ManaCost;
         uint32 ManaCostPerlevel;
         uint32 ManaPerSecond;
