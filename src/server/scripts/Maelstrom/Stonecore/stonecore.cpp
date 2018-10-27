@@ -28,7 +28,7 @@ enum Texts
 {
     // Millhouse Manastorm
     SAY_MILLHOUSE_EVENT_1           = 0,
-    SAY_MILLHOUSE_EVENT_2           = 1,
+    SAY_MILLHOUSE_EVENT_2           = 1
 };
 
 enum Spells
@@ -55,25 +55,10 @@ enum Events
     EVENT_FROSTBOLT_VOLLEY = 1,
     EVENT_SHADOWFURY,
     EVENT_FEAR,
-
-    EVENT_READY_FOR_COMBAT,
+    EVENT_SHADOW_BOLT,
     EVENT_CAST_IMPENDING_DOOM,
-    EVENT_INTERRUPT_IMPENDING_DOOM
-};
-
-enum Phase
-{
-    PHASE_NONE,
-
-    PHASE_MILLHOUSE_GROUP_1,
-    PHASE_MILLHOUSE_GROUP_2,
-    PHASE_MILLHOUSE_GROUP_3,
-    PHASE_MILLHOUSE_GROUP_4,
-
-    PHASE_MASK_MILLHOUSE_GROUP_1 = (1 << (PHASE_MILLHOUSE_GROUP_1 - 1)),
-    PHASE_MASK_MILLHOUSE_GROUP_2 = (1 << (PHASE_MILLHOUSE_GROUP_2 - 1)),
-    PHASE_MASK_MILLHOUSE_GROUP_3 = (1 << (PHASE_MILLHOUSE_GROUP_3 - 1)),
-    PHASE_MASK_MILLHOUSE_GROUP_4 = (1 << (PHASE_MILLHOUSE_GROUP_4 - 1)),
+    EVENT_INTERRUPT_IMPENDING_DOOM,
+    EVENT_RUN_AWAY
 };
 
 enum MovementPoints
@@ -90,9 +75,6 @@ Position const MillhousePointGroup2 = { 977.3045f, 895.2347f, 306.3298f };
 Position const MillhousePointGroup3 = { 1049.823f, 871.4349f, 295.006f };
 Position const MillhousePointGroup4 = { 1149.04f, 884.431f, 284.9406f };
 
-// TO-DO:
-// - Millhouse Manastorm should face and cast SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND, but he won't. :(
-
 // 43391 - Millhouse Manastorm
 class npc_sc_millhouse_manastorm : public CreatureScript
 {
@@ -101,17 +83,39 @@ class npc_sc_millhouse_manastorm : public CreatureScript
 
         struct npc_sc_millhouse_manastormAI : public ScriptedAI
         {
-            npc_sc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->GetInstanceScript())
+            npc_sc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
-                events.SetPhase(PHASE_MILLHOUSE_GROUP_1);
+                Initialize();
             }
 
-            void ScheduleEvents()
+            void Initialize()
             {
-                events.ScheduleEvent(EVENT_SHADOWFURY, 3000);
-                events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 5000);
-                events.ScheduleEvent(EVENT_FEAR, 8000);
+                _fleeCounter = 0;
+            }
+
+            void JustEngagedWith(Unit* /*who*/) override
+            {
+                events.ScheduleEvent(EVENT_SHADOWFURY, 3s);
+                events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 5s);
+                events.ScheduleEvent(EVENT_FEAR, 8s);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 1ms);
+            }
+
+            void AttackStart(Unit* who) override
+            {
+                if (me->HasAura(SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND))
+                    return;
+                else
+                    ScriptedAI::AttackStart(who);
+            }
+
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                _EnterEvadeMode();
+                me->GetMotionMaster()->MoveTargetedHome();
+
+                if (_fleeCounter != 3)
+                    DoCast(me, SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -119,45 +123,24 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                 if (damage >= me->GetHealth())
                     damage = me->GetHealth() - 1;
 
-                if (!HealthBelowPct(50) || me->HasAura(SPELL_BLUR))
-                    return;
-
-                switch (events.GetPhaseMask())
+                if (me->HealthBelowPctDamaged(50, damage))
                 {
-                    case PHASE_MASK_MILLHOUSE_GROUP_1:
-                        events.Reset();
-                        events.SetPhase(PHASE_MILLHOUSE_GROUP_2);
-                        me->SetReactState(REACT_PASSIVE);
-                        me->InterruptNonMeleeSpells(true);
-                        DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
-                        DoCast(me, SPELL_BLUR);
-                        Talk(SAY_MILLHOUSE_EVENT_1);
-                        me->GetMotionMaster()->MovePoint(POINT_MILLHOUSE_GROUP_2, MillhousePointGroup2);
-                        break;
-                    case PHASE_MASK_MILLHOUSE_GROUP_2:
-                        events.Reset();
-                        events.SetPhase(PHASE_MILLHOUSE_GROUP_3);
-                        me->SetReactState(REACT_PASSIVE);
-                        me->InterruptNonMeleeSpells(true);
-                        DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
-                        DoCast(me, SPELL_BLUR);
-                        Talk(SAY_MILLHOUSE_EVENT_1);
-                        me->GetMotionMaster()->MovePoint(POINT_MILLHOUSE_GROUP_3, MillhousePointGroup3);
-                        break;
-                    case PHASE_MASK_MILLHOUSE_GROUP_3:
-                        events.Reset();
-                        events.SetPhase(PHASE_MILLHOUSE_GROUP_4);
-                        me->SetReactState(REACT_PASSIVE);
-                        me->InterruptNonMeleeSpells(true);
-                        DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
-                        DoCast(me, SPELL_BLUR);
-                        me->GetMotionMaster()->MovePoint(POINT_MILLHOUSE_GROUP_4, MillhousePointGroup4);
-                        break;
-                    default:
-                        break;
-                }
+                    if (_fleeCounter > 3 || me->HasAura(SPELL_BLUR))
+                        return;
 
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+                    events.Reset();
+                    me->InterruptNonMeleeSpells(true);
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
+                    DoCast(me, SPELL_BLUR);
+
+                    if (_fleeCounter != 2)
+                        Talk(SAY_MILLHOUSE_EVENT_1);
+
+                    events.ScheduleEvent(EVENT_RUN_AWAY, 2s);
+                    _fleeCounter++;
+                }
             }
 
             void MovementInform(uint32 type, uint32 pointId) override
@@ -168,38 +151,30 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                 if (pointId < POINT_MILLHOUSE_GROUP_2 || pointId > POINT_MILLHOUSE_GROUP_4)
                     return;
 
-                me->RemoveAllAuras();
-                me->CombatStop(true);
-                me->DeleteThreatList();
-
                 switch (pointId)
                 {
                     case POINT_MILLHOUSE_GROUP_2:
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 200.0f))
                             me->SetFacingToObject(worldtrigger);
                         DoCast(me, SPELL_ANCHOR_HERE);
-                        DoCast(me, SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND);
-                        events.ScheduleEvent(EVENT_READY_FOR_COMBAT, 10000);
                         break;
                     case POINT_MILLHOUSE_GROUP_3:
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->SetFacingTo(5.931499f);
+                        me->SetOrientation(5.931499f);
                         DoCast(me, SPELL_ANCHOR_HERE);
-                        DoCast(me, SPELL_TIGULE_AND_FORORS_SPECIAL_BLEND);
-                        events.ScheduleEvent(EVENT_READY_FOR_COMBAT, 10000);
                         break;
                     case POINT_MILLHOUSE_GROUP_4:
-                        me->SetFacingTo(3.455752f);
+                        me->SetOrientation(3.455752f);
                         DoCast(me, SPELL_ANCHOR_HERE);
                         Talk(SAY_MILLHOUSE_EVENT_2);
-                        events.ScheduleEvent(EVENT_CAST_IMPENDING_DOOM, 1000);
+                        events.ScheduleEvent(EVENT_CAST_IMPENDING_DOOM, 1s);
                         break;
                     default:
                         break;
                 }
+
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
             }
 
             void UpdateAI(uint32 diff) override
@@ -220,45 +195,51 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                     {
                         case EVENT_FROSTBOLT_VOLLEY:
                             DoCastAOE(SPELL_FROSTBOLT_VOLLEY);
-                            events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 7000);
+                            events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 7s);
                             break;
                         case EVENT_SHADOWFURY:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_SHADOWFURY);
-                            events.ScheduleEvent(EVENT_SHADOWFURY, 7000);
+                            events.ScheduleEvent(EVENT_SHADOWFURY, 7s);
                             break;
                         case EVENT_FEAR:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_FEAR);
-                            events.ScheduleEvent(EVENT_FEAR, 18000);
+                            events.ScheduleEvent(EVENT_FEAR, 18s);
                             break;
-                        case EVENT_READY_FOR_COMBAT:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            ScheduleEvents();
+                        case EVENT_SHADOW_BOLT:
+                            DoCastVictim(SPELL_SHADOW_BOLT);
+                            events.Repeat(2s);
                             break;
                         case EVENT_CAST_IMPENDING_DOOM:
                             DoCast(me, SPELL_IMPENDING_DOOM);
                             DoCast(me, SPELL_IMPENDING_DOOM_CHANNEL);
-                            events.ScheduleEvent(EVENT_INTERRUPT_IMPENDING_DOOM, urand(15000,20000));
+                            events.ScheduleEvent(EVENT_INTERRUPT_IMPENDING_DOOM, 15s, 20s);
                             break;
                         case EVENT_INTERRUPT_IMPENDING_DOOM:
                             me->InterruptNonMeleeSpells(true);
                             me->RemoveAllAuras();
                             me->HandleEmoteCommand(EMOTE_ONESHOT_KNOCKDOWN);
-                            events.ScheduleEvent(EVENT_CAST_IMPENDING_DOOM, 3000);
+                            events.ScheduleEvent(EVENT_CAST_IMPENDING_DOOM, 3s);
+                            break;
+                        case EVENT_RUN_AWAY:
+                            if (_fleeCounter == 1)
+                                me->GetMotionMaster()->MovePoint(POINT_MILLHOUSE_GROUP_2, MillhousePointGroup2);
+                            else if (_fleeCounter == 2)
+                                me->GetMotionMaster()->MovePoint(POINT_MILLHOUSE_GROUP_3, MillhousePointGroup3);
+                            else if (_fleeCounter == 3)
+                                me->GetMotionMaster()->MovePoint(POINT_MILLHOUSE_GROUP_4, MillhousePointGroup4);
                             break;
                         default:
                             break;
                     }
                 }
-
-                DoSpellAttackIfReady(SPELL_SHADOW_BOLT);
             }
 
         private:
             InstanceScript* _instance;
             EventMap events;
+            uint8 _fleeCounter;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
