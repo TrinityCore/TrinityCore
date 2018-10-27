@@ -906,6 +906,7 @@ struct boss_rohash : public BossAI
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
                     DoCastAOE(SPELL_WIND_BLAST);
+                    events.RescheduleEvent(EVENT_SLICING_GALE, 12s);
                     events.ScheduleEvent(EVENT_FINISH_WIND_BLAST, 11s);
                     events.Repeat(60s);
                     break;
