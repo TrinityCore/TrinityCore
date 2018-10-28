@@ -951,8 +951,9 @@ public:
 
 enum ScourgeDisguise
 {
-    SPELL_SCOURGE_DISGUISE          = 51966,
-    SPELL_SCOURGE_DISGUISE_EXPIRING = 52010
+    SPELL_SCOURGE_DISGUISE             = 51966,
+    SPELL_SCOURGE_DISGUISE_INSTABILITY = 51971,
+    SPELL_SCOURGE_DISGUISE_EXPIRING    = 52010
 };
 
 class spell_scourge_disguise_instability : public AuraScript
@@ -965,10 +966,9 @@ class spell_scourge_disguise_instability : public AuraScript
         amplitude = irand(30, 240) * IN_MILLISECONDS;
     }
 
-    void HandleDummyTick(AuraEffect const* aurEff)
+    void HandleDummyTick(AuraEffect const* /*aurEff*/)
     {
         GetTarget()->CastSpell(GetTarget(), SPELL_SCOURGE_DISGUISE_EXPIRING, true);
-        GetAura()->Remove();
     }
 
     void HandleUpdatePeriodic(AuraEffect* aurEff)
@@ -993,8 +993,13 @@ class spell_scourge_disguise_expiring : public AuraScript
     {
         Player* player = GetTarget()->ToPlayer();
         if (player)
-            if (Aura* aura = GetTarget()->GetAura(SPELL_SCOURGE_DISGUISE))
+        {
+            if (Aura* aura = player->GetAura(SPELL_SCOURGE_DISGUISE_INSTABILITY))
+                aura->Remove();
+
+            if (Aura* aura = player->GetAura(SPELL_SCOURGE_DISGUISE))
                 player->Talk(scourge_disguise_expiring_warning, CHAT_MSG_RAID_BOSS_WHISPER, LANG_UNIVERSAL, 0, nullptr);
+        }
     }
 
     void Register() override
