@@ -95,6 +95,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
+                events.Reset();
                 events.ScheduleEvent(EVENT_SHADOWFURY, 3s);
                 events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 5s);
                 events.ScheduleEvent(EVENT_FEAR, 8s);
