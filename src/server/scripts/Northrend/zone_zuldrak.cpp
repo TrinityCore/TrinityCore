@@ -949,6 +949,40 @@ public:
     }
 };
 
+enum ScourgeDisguise
+{
+    SPELL_SCOURGE_DISGUISE_EXPIRING = 52010
+};
+
+class spell_scourge_disguise_instability : public AuraScript
+{
+    PrepareAuraScript(spell_scourge_disguise_instability);
+
+    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
+    {
+        isPeriodic = true;
+        amplitude = irand(30, 240) * IN_MILLISECONDS;
+    }
+
+    void HandleDummyTick(AuraEffect const* aurEff)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_SCOURGE_DISGUISE_EXPIRING, true);
+        GetAura()->Remove();
+    }
+
+    void HandleUpdatePeriodic(AuraEffect* aurEff)
+    {
+        aurEff->CalculatePeriodic(GetCaster());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_scourge_disguise_instability::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_scourge_disguise_instability::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_scourge_disguise_instability::HandleUpdatePeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_zuldrak()
 {
     new npc_drakuru_shackles();
@@ -963,4 +997,5 @@ void AddSC_zuldrak()
     new spell_pot_check();
     new spell_fetch_ingredient_aura();
     new npc_storm_cloud();
+    RegisterAuraScript(spell_scourge_disguise_instability);
 }
