@@ -552,9 +552,9 @@ class spell_warl_drain_soul : public SpellScriptLoader
                 {
                     if (roll_chance_i(20))
                     {
-                        caster->CastSpell(caster, SPELL_CREATE_SOULSHARD, this);
+                        caster->CastSpell(caster, SPELL_CREATE_SOULSHARD, aurEff);
                         // Glyph of Drain Soul - chance to create an additional Soul Shard
-                        if (AuraEffect* aur = caster->GetAuraEffect(SPELL_GLYPH_OF_DRAIN_SOUL_AURA, 0))
+                        if (AuraEffect* aur = caster->GetAuraEffect(SPELL_GLYPH_OF_DRAIN_SOUL_AURA, EFFECT_0))
                             if (roll_chance_i(aur->GetMiscValue()))
                                 caster->CastSpell(caster, SPELL_GLYPH_OF_DRAIN_SOUL_PROC, aur);
                     }
