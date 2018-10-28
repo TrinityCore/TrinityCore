@@ -92,6 +92,48 @@ enum WarlockSpellIcons
     WARLOCK_ICON_ID_DEMONIC_PACT                    = 3220
 };
 
+// -980 Curse of Agony
+class spell_warl_curse_of_agony : public AuraScript
+{
+    PrepareAuraScript(spell_warl_curse_of_agony);
+
+    void ApplyEffect(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        _tick_amount = aurEff->GetAmount();
+    }
+
+    void HandleEffectPeriodicUpdate(AuraEffect * aurEff)
+    {
+        switch (aurEff->GetTickNumber())
+        {
+            // 1..4 ticks, 1/2 from normal tick damage
+            case 1:
+                aurEff->SetAmount(_tick_amount / 2);
+                break;
+            // 5..8 ticks have normal tick damage
+            case 5:
+                aurEff->SetAmount(_tick_amount);
+                break;
+            // 9..12 ticks, 3/2 from normal tick damage
+            case 9:
+                aurEff->SetAmount((_tick_amount + 1) * 3 / 2); // +1 prevent 0.5 damage possible lost at 1..4 ticks
+                break;
+            // 13 and 14 ticks (glyphed only), twice normal tick damage
+            case 13:
+                aurEff->SetAmount(_tick_amount * 2);
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_warl_curse_of_agony::ApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_curse_of_agony::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+private:
+    uint32 _tick_amount;
+};
+
 // -710 - Banish
 class spell_warl_banish : public SpellScriptLoader
 {
@@ -1504,6 +1546,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    RegisterAuraScript(spell_warl_curse_of_agony);
     new spell_warl_banish();
     new spell_warl_create_healthstone();
     new spell_warl_curse_of_doom();
