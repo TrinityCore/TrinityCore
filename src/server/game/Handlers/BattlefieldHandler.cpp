@@ -16,29 +16,30 @@
  */
 
 #include "WorldSession.h"
+#include "SharedDefines.h"
 #include "WorldPacket.h"
 
-void WorldSession::SendBattlefieldInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint32 acceptTime)
+void WorldSession::SendBattlefieldInvitePlayerToWar(BattlefieldBattleId battleId, uint32 zoneId, uint32 acceptTime)
 {
 }
 
-void WorldSession::SendBattlefieldInvitePlayerToQueue(uint32 battleId)
+void WorldSession::SendBattlefieldInvitePlayerToQueue(BattlefieldBattleId battleId)
 {
 }
 
-void WorldSession::SendBattlefieldQueueInviteResponse(uint32 battleId, uint32 zoneId, bool canQueue, bool full)
+void WorldSession::SendBattlefieldQueueInviteResponse(BattlefieldBattleId battleId, uint32 zoneId, bool canQueue, bool full)
 {
 }
 
-void WorldSession::SendBattlefieldEntered(uint32 battleId)
+void WorldSession::SendBattlefieldEntered(BattlefieldBattleId battleId)
 {
 }
 
-void WorldSession::SendBattlefieldLeaveMessage(uint32 battleId, BattlefieldLeaveReason reason /*= BATTLEFIELD_LEAVE_REASON_EXITED*/)
+void WorldSession::SendBattlefieldLeaveMessage(BattlefieldBattleId battleId, BattlefieldLeaveReason reason /*= BATTLEFIELD_LEAVE_REASON_EXITED*/)
 {
 }
 
-void WorldSession::SendBattlefieldEjectPending(uint32 battleId, bool remove)
+void WorldSession::SendBattlefieldEjectPending(BattlefieldBattleId battleId, bool remove)
 {
 }
 

@@ -25,7 +25,7 @@
 class Battlefield;
 class Player;
 class ZoneScript;
-enum BattlefieldId;
+enum BattlefieldBattleId : uint8;
 
 class TC_GAME_API BattlefieldMgr
 {
@@ -33,11 +33,11 @@ public:
     static BattlefieldMgr* instance();
 
     Battlefield* GetBattlefield(uint32 zoneId) const;
-    Battlefield* GetBattlefield(BattlefieldId battleId) const;
+    Battlefield* GetBattlefield(BattlefieldBattleId battleId) const;
     ZoneScript* GetZoneScript(uint32 zoneId) const;
-    ZoneScript* GetZoneScript(BattlefieldId battleId) const;
+    ZoneScript* GetZoneScript(BattlefieldBattleId battleId) const;
     Battlefield* GetEnabledBattlefield(uint32 zoneId) const;
-    Battlefield* GetEnabledBattlefield(BattlefieldId battleId) const;
+    Battlefield* GetEnabledBattlefield(BattlefieldBattleId battleId) const;
 
     // create battlefields
     void Initialize();

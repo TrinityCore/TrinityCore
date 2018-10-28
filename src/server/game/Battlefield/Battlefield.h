@@ -21,20 +21,18 @@
 #include "Common.h"
 #include "ZoneScript.h"
 
-enum BattlefieldIds
-{
-    BATTLEFIELD_BATTLEID_WINTERGRASP = 1, // Wintergrasp battle
-    BATTLEFIELD_BATTLEID_MAX
-};
+enum BattlefieldBattleId : uint8;
 
 class TC_GAME_API Battlefield : public ZoneScript
 {
 public:
-    explicit Battlefield(uint32 battleId);
+    explicit Battlefield(BattlefieldBattleId battleId);
     virtual ~Battlefield() { }
 
+    BattlefieldBattleId GetId() const { return _battleId; }
+
 private:
-    uint32 _battleId;
+    BattlefieldBattleId _battleId;
 };
 
 #endif

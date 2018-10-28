@@ -18,7 +18,9 @@
 #include "BattlefieldMgr.h"
 #include "Battlefield.h"
 #include "Player.h"
+#include "SharedDefines.h"
 #include "ZoneScript.h"
+#include <algorithm>
 
 BattlefieldMgr::BattlefieldMgr() : _updateTimer(0)
 {
@@ -47,23 +49,23 @@ Battlefield* BattlefieldMgr::GetBattlefield(uint32 zoneId) const
     return itr->second.get();
 }
 
-Battlefield* BattlefieldMgr::GetBattlefield(BattlefieldId battleId) const
+Battlefield* BattlefieldMgr::GetBattlefield(BattlefieldBattleId battleId) const
 {
-    return nullptr;
+    auto itr = std::find_if(_battlefieldContainer.begin(), _battlefieldContainer.end(), [battleId](BattlefieldContainer::value_type const& a) -> bool
+    {
+        return a.second->GetId() == battleId;
+    });
+    return itr != _battlefieldContainer.end() ? itr->second.get() : nullptr;
 }
 
 ZoneScript* BattlefieldMgr::GetZoneScript(uint32 zoneId) const
 {
-    auto itr = _battlefieldContainer.find(zoneId);
-    if (itr == _battlefieldContainer.end())
-        return nullptr;
-
-    return itr->second.get();
+    return GetBattlefield(zoneId);
 }
 
-ZoneScript* BattlefieldMgr::GetZoneScript(BattlefieldId battleId) const
+ZoneScript* BattlefieldMgr::GetZoneScript(BattlefieldBattleId battleId) const
 {
-    return nullptr;
+    return GetBattlefield(battleId);
 }
 
 Battlefield* BattlefieldMgr::GetEnabledBattlefield(uint32 zoneId) const
@@ -71,7 +73,7 @@ Battlefield* BattlefieldMgr::GetEnabledBattlefield(uint32 zoneId) const
     return nullptr;
 }
 
-Battlefield* BattlefieldMgr::GetEnabledBattlefield(BattlefieldId battleId) const
+Battlefield* BattlefieldMgr::GetEnabledBattlefield(BattlefieldBattleId battleId) const
 {
     return nullptr;
 }

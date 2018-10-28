@@ -16,7 +16,8 @@
  */
 
 #include "Battlefield.h"
+#include "SharedDefines.h"
 
-Battlefield::Battlefield(uint32 battleId) : _battleId(battleId)
+Battlefield::Battlefield(BattlefieldBattleId battleId) : _battleId(battleId)
 {
 }
