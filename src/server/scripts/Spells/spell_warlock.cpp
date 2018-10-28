@@ -502,6 +502,13 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
         }
 };
 
+enum DrainSoul
+{
+    SPELL_CREATE_SOULSHARD         = 43836,
+    SPELL_GLYPH_OF_DRAIN_SOUL_AURA = 58070,
+    SPELL_GLYPH_OF_DRAIN_SOUL_PROC = 58068
+};
+
 // -1120 - Drain Soul
 class spell_warl_drain_soul : public SpellScriptLoader
 {
@@ -537,8 +544,26 @@ class spell_warl_drain_soul : public SpellScriptLoader
                 caster->CastSpell(nullptr, SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC, args);
             }
 
+            void HandleTick(AuraEffect const* aurEff)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetTarget();
+                if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
+                {
+                    if (roll_chance_i(20))
+                    {
+                        caster->CastSpell(caster, SPELL_CREATE_SOULSHARD, this);
+                        // Glyph of Drain Soul - chance to create an additional Soul Shard
+                        if (AuraEffect* aur = caster->GetAuraEffect(SPELL_GLYPH_OF_DRAIN_SOUL_AURA, 0))
+                            if (roll_chance_i(aur->GetMiscValue()))
+                                caster->CastSpell(caster, SPELL_GLYPH_OF_DRAIN_SOUL_PROC, aur);
+                    }
+                }
+            }
+
             void Register() override
             {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_soul_AuraScript::HandleTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectProc += AuraEffectProcFn(spell_warl_drain_soul_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
