@@ -349,7 +349,7 @@ class spell_stratholme_haunting_phantoms : public AuraScript
         amplitude = irand(30, 90) * IN_MILLISECONDS;
     }
 
-    void HandleDummyTick(AuraEffect const* aurEff)
+    void HandleDummyTick(AuraEffect const* /*aurEff*/)
     {
         if (irand(0, 1))
             GetTarget()->CastSpell(nullptr, SPELL_SUMMON_SPITEFUL_PHANTOM, true);
