@@ -35,6 +35,7 @@
 
 enum WarlockSpells
 {
+    SPELL_WARLOCK_CREATE_SOULSHARD                  = 43836,
     SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT              = 18662,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
@@ -46,6 +47,8 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP           = 54444,
     SPELL_WARLOCK_DEMONIC_PACT_PROC                 = 48090,
     SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
+    SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_AURA          = 58070,
+    SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_PROC          = 58068,
     SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME              = 63311,
     SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE              = 56216,
     SPELL_WARLOCK_HAUNT                             = 48181,
@@ -502,13 +505,6 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
         }
 };
 
-enum DrainSoul
-{
-    SPELL_CREATE_SOULSHARD         = 43836,
-    SPELL_GLYPH_OF_DRAIN_SOUL_AURA = 58070,
-    SPELL_GLYPH_OF_DRAIN_SOUL_PROC = 58068
-};
-
 // -1120 - Drain Soul
 class spell_warl_drain_soul : public SpellScriptLoader
 {
@@ -524,7 +520,10 @@ class spell_warl_drain_soul : public SpellScriptLoader
                 return ValidateSpellInfo(
                 {
                     SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_R1,
-                    SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC
+                    SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC,
+                    SPELL_WARLOCK_CREATE_SOULSHARD,
+                    SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_AURA,
+                    SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_PROC
                 });
             }
 
@@ -552,11 +551,11 @@ class spell_warl_drain_soul : public SpellScriptLoader
                 {
                     if (roll_chance_i(20))
                     {
-                        caster->CastSpell(caster, SPELL_CREATE_SOULSHARD, aurEff);
+                        caster->CastSpell(caster, SPELL_WARLOCK_CREATE_SOULSHARD, aurEff);
                         // Glyph of Drain Soul - chance to create an additional Soul Shard
-                        if (AuraEffect* aur = caster->GetAuraEffect(SPELL_GLYPH_OF_DRAIN_SOUL_AURA, EFFECT_0))
+                        if (AuraEffect* aur = caster->GetAuraEffect(SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_AURA, EFFECT_0))
                             if (roll_chance_i(aur->GetMiscValue()))
-                                caster->CastSpell(caster, SPELL_GLYPH_OF_DRAIN_SOUL_PROC, aur);
+                                caster->CastSpell(caster, SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_PROC, aur);
                     }
                 }
             }
