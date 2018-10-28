@@ -951,6 +951,7 @@ public:
 
 enum ScourgeDisguise
 {
+    SPELL_SCOURGE_DISGUISE          = 51966,
     SPELL_SCOURGE_DISGUISE_EXPIRING = 52010
 };
 
@@ -983,6 +984,25 @@ class spell_scourge_disguise_instability : public AuraScript
     }
 };
 
+static std::string scourge_disguise_expiring_warning = "Disguise Failing! Avoid Scourge Contact!";
+class spell_scourge_disguise_expiring : public AuraScript
+{
+    PrepareAuraScript(spell_scourge_disguise_expiring);
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = GetTarget()->ToPlayer();
+        if (player)
+            if (Aura* aura = GetTarget()->GetAura(SPELL_SCOURGE_DISGUISE))
+                player->Talk(scourge_disguise_expiring_warning, CHAT_MSG_RAID_BOSS_WHISPER, LANG_UNIVERSAL, 0, nullptr);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_scourge_disguise_expiring::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_zuldrak()
 {
     new npc_drakuru_shackles();
@@ -998,4 +1018,5 @@ void AddSC_zuldrak()
     new spell_fetch_ingredient_aura();
     new npc_storm_cloud();
     RegisterAuraScript(spell_scourge_disguise_instability);
+    RegisterAuraScript(spell_scourge_disguise_expiring);
 }
