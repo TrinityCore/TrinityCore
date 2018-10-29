@@ -953,7 +953,24 @@ enum ScourgeDisguise
 {
     SPELL_SCOURGE_DISGUISE             = 51966,
     SPELL_SCOURGE_DISGUISE_INSTABILITY = 51971,
-    SPELL_SCOURGE_DISGUISE_EXPIRING    = 52010
+    SPELL_SCOURGE_DISGUISE_EXPIRING    = 52010,
+    SPELL_DROP_DISGUISE                = 54089
+};
+
+class spell_scourge_disguise : public SpellScript
+{
+    PrepareSpellScript(spell_scourge_disguise);
+
+    void HandleHit()
+    {
+        if (Unit* target = GetHitUnit())
+            target->CastSpell(target, SPELL_SCOURGE_DISGUISE_INSTABILITY, true);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_scourge_disguise::HandleHit);
+    }
 };
 
 class spell_scourge_disguise_instability : public AuraScript
@@ -1008,6 +1025,22 @@ class spell_scourge_disguise_expiring : public AuraScript
     }
 };
 
+class spell_drop_disguise : public SpellScript
+{
+    PrepareSpellScript(spell_drop_disguise);
+
+    void HandleHit()
+    {
+        if (Unit* target = GetHitUnit())
+            target->CastSpell(target, SPELL_SCOURGE_DISGUISE_EXPIRING, true);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_drop_disguise::HandleHit);
+    }
+};
+
 void AddSC_zuldrak()
 {
     new npc_drakuru_shackles();
@@ -1022,6 +1055,8 @@ void AddSC_zuldrak()
     new spell_pot_check();
     new spell_fetch_ingredient_aura();
     new npc_storm_cloud();
+    RegisterSpellScript(spell_scourge_disguise);
     RegisterAuraScript(spell_scourge_disguise_instability);
     RegisterAuraScript(spell_scourge_disguise_expiring);
+    RegisterSpellScript(spell_drop_disguise);
 }
