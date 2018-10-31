@@ -40,6 +40,7 @@ enum RogueSpells
     SPELL_ROGUE_CHEAT_DEATH_COOLDOWN                = 31231,
     SPELL_ROGUE_CRIPPLING_POISON                    = 3409,
     SPELL_ROGUE_GLYPH_OF_PREPARATION                = 56819,
+    SPELL_ROGUE_GLYPH_HEMORRHAGE_TRIGGERED          = 89775,
     SPELL_ROGUE_KILLING_SPREE                       = 51690,
     SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
     SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
@@ -1028,53 +1029,33 @@ public:
 };
 
 // -51698 - Honor Among Thieves
-class spell_rog_honor_among_thieves : public SpellScriptLoader
+class spell_rog_honor_among_thieves : public AuraScript
 {
-    public:
-        spell_rog_honor_among_thieves() : SpellScriptLoader("spell_rog_honor_among_thieves") { }
+    PrepareAuraScript(spell_rog_honor_among_thieves);
 
-        class spell_rog_honor_among_thieves_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_honor_among_thieves_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED });
-            }
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
 
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
-            {
-                Unit* caster = GetCaster();
-                if (!caster)
-                    return false;
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-                return !caster->GetSpellHistory()->HasCooldown(SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED);
-            }
+        if (caster)
+            if (Player* player = caster->ToPlayer())
+                if (Unit* target = ObjectAccessor::GetUnit(*player, player->GetTarget()))
+                    caster->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED, true, nullptr, aurEff);
+    }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-
-                Unit* caster = GetCaster();
-                if (!caster)
-                    return;
-
-                if (Player* player = caster->ToPlayer())
-                    if (Unit* target = ObjectAccessor::GetUnit(*player, player->GetTarget()))
-                        caster->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD), nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_rog_honor_among_thieves_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_rog_honor_among_thieves_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_honor_among_thieves_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_rog_honor_among_thieves::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 76806 - Main Gauche
@@ -1121,6 +1102,37 @@ class spell_rog_main_gauche : public AuraScript
     }
 };
 
+class spell_rog_glyph_of_hemorrhage : public AuraScript
+{
+    PrepareAuraScript(spell_rog_glyph_of_hemorrhage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_GLYPH_HEMORRHAGE_TRIGGERED });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        DamageInfo* damage = eventInfo.GetDamageInfo();
+        if (!damage)
+            return;
+
+        int32 bp = CalculatePct(damage->GetDamage(), aurEff->GetAmount());
+        SpellInfo const* spell = sSpellMgr->AssertSpellInfo(SPELL_ROGUE_GLYPH_HEMORRHAGE_TRIGGERED);
+        if (uint8 ticks = spell->GetMaxTicks())
+        {
+            bp /= ticks;
+            GetTarget()->CastCustomSpell(damage->GetVictim(), SPELL_ROGUE_GLYPH_HEMORRHAGE_TRIGGERED, &bp, nullptr, nullptr, true, nullptr, aurEff);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_rog_glyph_of_hemorrhage::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -1128,6 +1140,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_crippling_poison();
     new spell_rog_cut_to_the_chase();
     new spell_rog_deadly_poison();
+    RegisterAuraScript(spell_rog_glyph_of_hemorrhage);
     new spell_rog_killing_spree();
     RegisterAuraScript(spell_rog_main_gauche);
     new spell_rog_master_of_subtlety();
@@ -1143,5 +1156,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
     new spell_rog_serrated_blades();
-    new spell_rog_honor_among_thieves();
+    RegisterAuraScript(spell_rog_honor_among_thieves);
 }
