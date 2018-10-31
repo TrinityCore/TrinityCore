@@ -1046,10 +1046,9 @@ class spell_rog_honor_among_thieves : public AuraScript
         if (!caster)
             return;
 
-        if (caster)
-            if (Player* player = caster->ToPlayer())
-                if (Unit* target = ObjectAccessor::GetUnit(*player, player->GetTarget()))
-                    caster->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED, true, nullptr, aurEff);
+        if (Player* player = caster->ToPlayer())
+            if (Unit* target = ObjectAccessor::GetUnit(*player, player->GetTarget()))
+                caster->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED, true, nullptr, aurEff);
     }
 
     void Register() override
