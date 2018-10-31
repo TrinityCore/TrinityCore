@@ -527,7 +527,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                             // Eviscerate and Envenom Bonus Damage (item set effect)
                             if (m_caster->HasAura(37169))
-                                damage += combo*40;
+                                damage += combo * 40;
                         }
                     }
                 }
@@ -2897,11 +2897,11 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             {
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
-                // 50% more damage with daggers
+                // 45% more damage with daggers
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
                         if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
-                            totalDamagePercentMod *= 1.5f;
+                            totalDamagePercentMod *= 1.45f;
             }
             break;
         }
