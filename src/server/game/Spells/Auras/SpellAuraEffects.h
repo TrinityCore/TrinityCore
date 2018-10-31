@@ -336,8 +336,8 @@ class TC_GAME_API AuraEffect
         void HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
-        // pvp talents
-        void HandleAuraPvpTalents(AuraApplication const* auraApp, uint8 mode, bool apply) const;
+        // war mode
+        void HandleAuraWarMode(AuraApplication const* auraApp, uint8 mode, bool apply) const;
 };
 
 namespace Trinity

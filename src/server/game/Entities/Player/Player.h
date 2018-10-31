@@ -404,7 +404,7 @@ enum PlayerFlags
     PLAYER_FLAGS_CONTESTED_PVP          = 0x00000100,       // Player has been involved in a PvP combat and will be attacked by contested guards
     PLAYER_FLAGS_IN_PVP                 = 0x00000200,
     PLAYER_FLAGS_HIDE_HELM              = 0x00000400,
-    PLAYER_FLAGS_HIDE_CLOAK             = 0x00000800,
+    PLAYER_FLAGS_WAR_MODE               = 0x00000800,
     PLAYER_FLAGS_PLAYED_LONG_TIME       = 0x00001000,       // played long time
     PLAYER_FLAGS_PLAYED_TOO_LONG        = 0x00002000,       // played too long time
     PLAYER_FLAGS_IS_OUT_OF_BOUNDS       = 0x00004000,
@@ -445,6 +445,7 @@ enum PlayerLocalFlags
     PLAYER_LOCAL_FLAG_USING_PARTY_GARRISON          = 0x00000100,
     PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED       = 0x00000200,
     PLAYER_LOCAL_FLAG_CAN_VISIT_PARTY_GARRISON      = 0x00000400,
+    PLAYER_LOCAL_FLAG_WAR_MODE                      = 0x00000800,
     PLAYER_LOCAL_FLAG_ACCOUNT_SECURED               = 0x00001000,   // Script_IsAccountSecured
 };
 
@@ -1666,6 +1667,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasPvpRulesEnabled() const;
         bool IsInAreaThatActivatesPvpTalents() const;
         bool IsAreaThatActivatesPvpTalents(uint32 areaID) const;
+        bool IsInWarMode() const { return HasFlag(ACTIVE_PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_WAR_MODE); }
 
         // Dual Spec
         void ActivateTalentGroup(ChrSpecializationEntry const* spec);

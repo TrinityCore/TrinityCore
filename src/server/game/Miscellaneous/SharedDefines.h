@@ -6270,4 +6270,10 @@ enum class GameError : uint32
     ERR_CLAIMED_PVP_REWARD                                  = 1009,
 };
 
+enum AreaName : uint32
+{
+    ZONE_STORMWIND_CITY = 1519,
+    ZONE_ORGRIMMAR      = 1637,
+};
+
 #endif

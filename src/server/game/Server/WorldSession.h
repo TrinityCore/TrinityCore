@@ -466,6 +466,7 @@ namespace WorldPackets
         class SetTaxiBenchmarkMode;
         class MountSetFavorite;
         class CloseInteraction;
+        class SetWarMode;
     }
 
     namespace Movement
@@ -1651,6 +1652,7 @@ class TC_GAME_API WorldSession
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
         void HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction);
+        void HandleSetWarModeOpcode(WorldPackets::Misc::SetWarMode& packet);
 
         // Toys
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);

@@ -596,7 +596,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             }
         }
 
-        bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
+        bool allowTwoSideAccounts = HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
         uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
 
         std::function<void(PreparedQueryResult)> finalizeCharacterCreation = [this, createInfo](PreparedQueryResult result)
@@ -604,7 +604,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             bool haveSameRace = false;
             uint32 demonHunterReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER);
             bool hasDemonHunterReqLevel = (demonHunterReqLevel == 0);
-            bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
+            bool allowTwoSideAccounts = HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
             bool checkDemonHunterReqs = createInfo->Class == CLASS_DEMON_HUNTER && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
 
@@ -2072,12 +2072,12 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             if (newTeamId == TEAM_ALLIANCE)
             {
                 loc.WorldRelocate(0, -8867.68f, 673.373f, 97.9034f, 0.0f);
-                zoneId = 1519;
+                zoneId = ZONE_STORMWIND_CITY;
             }
             else
             {
                 loc.WorldRelocate(1, 1633.33f, -4439.11f, 15.7588f, 0.0f);
-                zoneId = 1637;
+                zoneId = ZONE_ORGRIMMAR;
             }
 
             stmt->setUInt16(1, loc.GetMapId());

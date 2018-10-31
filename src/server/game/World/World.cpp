@@ -3467,11 +3467,6 @@ void World::LoadWorldStates()
 
 }
 
-bool World::IsPvPRealm() const
-{
-    return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP);
-}
-
 bool World::IsFFAPvPRealm() const
 {
     return getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP;

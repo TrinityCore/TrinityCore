@@ -756,8 +756,6 @@ class TC_GAME_API World
         uint32 getWorldState(uint32 index) const;
         void LoadWorldStates();
 
-        /// Are we on a "Player versus Player" server?
-        bool IsPvPRealm() const;
         bool IsFFAPvPRealm() const;
 
         void KickAll();

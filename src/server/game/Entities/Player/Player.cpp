@@ -459,11 +459,6 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, createInfo->Sex);
     SetUInt32Value(UNIT_FIELD_DISPLAY_POWER, powertype);
     InitDisplayIds();
-    if (sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP)
-    {
-        SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_PVP);
-        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-    }
 
     SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);            // default for players in 3.0.3
@@ -7032,14 +7027,14 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     switch (zone->FactionGroupMask)
     {
         case AREATEAM_ALLY:
-            pvpInfo.IsInHostileArea = GetTeam() != ALLIANCE && (sWorld->IsPvPRealm() || zone->Flags[0] & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetTeam() != ALLIANCE && (IsInWarMode() || zone->Flags[0] & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_HORDE:
-            pvpInfo.IsInHostileArea = GetTeam() != HORDE && (sWorld->IsPvPRealm() || zone->Flags[0] & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetTeam() != HORDE && (IsInWarMode() || zone->Flags[0] & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_NONE:
             // overwrite for battlegrounds, maybe batter some zone flags but current known not 100% fit to this
-            pvpInfo.IsInHostileArea = sWorld->IsPvPRealm() || InBattleground() || zone->Flags[0] & AREA_FLAG_WINTERGRASP;
+            pvpInfo.IsInHostileArea = IsInWarMode() || InBattleground() || zone->Flags[0] & AREA_FLAG_WINTERGRASP;
             break;
         default:                                            // 6 in fact
             pvpInfo.IsInHostileArea = false;
@@ -8680,7 +8675,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 38:                                            // Loch Modan
         case 40:                                            // Westfall
         case 51:                                            // Searing Gorge
-        case 1519:                                          // Stormwind City
+        case ZONE_STORMWIND_CITY:
         case 1537:                                          // Ironforge
         case 2257:                                          // Deeprun Tram
         case 3703:                                          // Shattrath City});
@@ -22857,15 +22852,15 @@ void Player::UpdatePvPState(bool onlyFFA)
     if (onlyFFA)
         return;
 
-    if (pvpInfo.IsHostile)                               // in hostile area
+    if (pvpInfo.IsHostile)                      // in hostile area
     {
         if (!IsPvP() || pvpInfo.EndTimer)
             UpdatePvP(true, true);
     }
-    else                                                    // in friendly area
+    else                                        // in friendly area
     {
         if (IsPvP() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) && !pvpInfo.EndTimer)
-            pvpInfo.EndTimer = time(nullptr);                  // start toggle-off
+            pvpInfo.EndTimer = time(nullptr);   // start toggle-off
     }
 }
 

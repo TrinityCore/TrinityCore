@@ -677,3 +677,8 @@ void WorldPackets::Misc::CloseInteraction::Read()
 {
     _worldPacket >> SourceGuid;
 }
+
+void WorldPackets::Misc::SetWarMode::Read()
+{
+    Enabled = _worldPacket.ReadBit();
+}

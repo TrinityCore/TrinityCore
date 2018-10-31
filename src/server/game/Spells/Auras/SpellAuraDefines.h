@@ -189,7 +189,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_REGEN_DURING_COMBAT                      = 116,
     SPELL_AURA_MOD_MECHANIC_RESISTANCE                      = 117,
     SPELL_AURA_MOD_HEALING_PCT                              = 118,
-    SPELL_AURA_PVP_TALENTS                                  = 119,
+    SPELL_AURA_WAR_MODE                                     = 119,
     SPELL_AURA_UNTRACKABLE                                  = 120,
     SPELL_AURA_EMPATHY                                      = 121,
     SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT                       = 122,

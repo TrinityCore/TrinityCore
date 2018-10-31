@@ -67,12 +67,6 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     if (atLoginFlags & AT_LOGIN_RESURRECT)
         playerFlags &= ~PLAYER_FLAGS_GHOST;
 
-    if (playerFlags & PLAYER_FLAGS_HIDE_HELM)
-        Flags |= CHARACTER_FLAG_HIDE_HELM;
-
-    if (playerFlags & PLAYER_FLAGS_HIDE_CLOAK)
-        Flags |= CHARACTER_FLAG_HIDE_CLOAK;
-
     if (playerFlags & PLAYER_FLAGS_GHOST)
         Flags |= CHARACTER_FLAG_GHOST;
 
