@@ -1917,11 +1917,6 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
         if (HasEffect(SPELL_EFFECT_SELF_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT_NEW))
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 
-    if (HasAttribute(SPELL_ATTR8_BATTLE_RESURRECTION))
-        if (InstanceScript* instance = caster->GetInstanceScript())
-            if (instance->GetCombatResurrectionCharges() == 0 && instance->IsEncounterInProgress())
-                return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
-
     return SPELL_CAST_OK;
 }
 
