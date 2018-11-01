@@ -645,11 +645,6 @@ class spell_rog_recuperate : public AuraScript
 {
     PrepareAuraScript(spell_rog_recuperate);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_ROGUE_ENERGETIC_RECOVERY });
-    }
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -676,19 +671,10 @@ class spell_rog_recuperate : public AuraScript
         }
     }
 
-    void CalculateEnergeticRecovery(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
-    {
-        canBeRecalculated = false;
-        if (Unit* caster = GetCaster())
-            if (AuraEffect* aura = caster->GetAuraEffectOfRankedSpell(SPELL_ROGUE_ENERGETIC_RECOVERY, EFFECT_0))
-                amount = aura->GetAmount();
-    }
-
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_recuperate::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate::CalculateBonus, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate::CalculateEnergeticRecovery, EFFECT_1, SPELL_AURA_PERIODIC_ENERGIZE);
     }
 };
 
