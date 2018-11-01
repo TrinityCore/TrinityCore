@@ -95,30 +95,35 @@ class spell_warl_pet_scaling_01 : public AuraScript
         {
             if (Player* owner = pet->GetOwner())
             {
-                float stamina = std::min(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA));
-                stamina *= 0.3f;
+                float stamina = std::max(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA));
+                stamina *= 0.75f;
 
-                float healthBonus = 0.0f;
+                float staminaBonus = 0.0f;
+                float maxHealthBonus = 0.0f;
                 switch (pet->GetEntry())
                 {
                     case ENTRY_IMP:
-                        healthBonus = uint32(stamina * 8.4f);
+                        staminaBonus = uint32(stamina * 8.4f);
+                        maxHealthBonus = owner->CountPctFromMaxHealth(30);
                         break;
                     case ENTRY_FELGUARD:
                     case ENTRY_VOIDWALKER:
-                        healthBonus = uint32(stamina * 11.0f);
+                        staminaBonus = uint32(stamina * 11.0f);
+                        maxHealthBonus = owner->CountPctFromMaxHealth(50);
                         break;
                     case ENTRY_SUCCUBUS:
-                        healthBonus = uint32(stamina * 9.1f);
+                        staminaBonus = uint32(stamina * 9.1f);
+                        maxHealthBonus = owner->CountPctFromMaxHealth(40);
                         break;
                     case ENTRY_FELHUNTER:
-                        healthBonus = uint32(stamina * 9.5f);
+                        staminaBonus = uint32(stamina * 9.5f);
+                        maxHealthBonus = owner->CountPctFromMaxHealth(40);
                         break;
                     default:
                         break;
                 }
 
-                amount = int32(healthBonus);
+                amount = int32(staminaBonus + maxHealthBonus);
             }
         }
     }
