@@ -4180,11 +4180,6 @@ void AuraEffect::HandleModDamageDone(AuraApplication const* aurApp, uint8 mode, 
         if (Guardian* pet = target->ToPlayer()->GetGuardianPet())
             pet->UpdateAttackPowerAndDamage();
     }
-    else if (target->IsPet())
-    {
-        if (Unit* owner = target->GetOwner())
-            owner->ApplyModUInt32Value(PLAYER_PET_SPELL_POWER, GetAmount(), apply);
-    }
 }
 
 void AuraEffect::HandleModDamagePercentDone(AuraApplication const* aurApp, uint8 mode, bool apply) const

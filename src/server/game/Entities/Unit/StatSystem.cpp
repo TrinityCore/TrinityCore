@@ -1028,15 +1028,11 @@ void Guardian::UpdateMaxHealth()
     UnitMods unitMod = UNIT_MOD_HEALTH;
     float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
     float multiplicator = 10.0f;
-    uint32 healthDamage = GetMaxHealth() - GetHealth();
 
     switch (GetEntry())
     {
         case ENTRY_BLOODWORM:
             multiplicator = 1.0f;
-            break;
-        case ENTRY_WATER_ELEMENTAL:
-            multiplicator = 7.5f;
             break;
         default:
             break;
@@ -1048,7 +1044,6 @@ void Guardian::UpdateMaxHealth()
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
     SetMaxHealth((uint32)value);
-    SetHealth(GetMaxHealth() - healthDamage);
 }
 
 void Guardian::UpdateMaxPower(Powers power)
@@ -1057,16 +1052,6 @@ void Guardian::UpdateMaxPower(Powers power)
 
     float addValue = (power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
     float multiplicator = 15.0f;
-    uint32 usedPower = GetMaxPower(power) - GetPower(power);
-
-    switch (GetEntry())
-    {
-        case ENTRY_WATER_ELEMENTAL:
-            multiplicator = 5.0f;
-            break;
-        default:
-            break;
-    }
 
     float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
     value *= GetModifierValue(unitMod, BASE_PCT);
@@ -1074,7 +1059,6 @@ void Guardian::UpdateMaxPower(Powers power)
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
     SetMaxPower(power, uint32(value));
-    SetPower(power, GetMaxPower(power) - usedPower);
 }
 
 void Guardian::UpdateAttackPowerAndDamage(bool ranged)
@@ -1107,6 +1091,13 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 
     // automatically update weapon damage after attack power modification
     UpdateDamagePhysical(BASE_ATTACK);
+
+    // update pet spell power
+    int32 spellDamage = 0;
+    for (auto itr : GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE))
+        spellDamage += itr->GetAmount();
+
+    SetBonusDamage(spellDamage);
 }
 
 void Guardian::UpdateDamagePhysical(WeaponAttackType attType)

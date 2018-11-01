@@ -1096,17 +1096,25 @@ class spell_mage_water_elemental_scaling_01 : public AuraScript
         }
     }
 
-    void CalculateStaminaAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateHealthAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
         if (Pet* pet = GetUnitOwner()->ToPet())
+        {
             if (Player* owner = pet->GetOwner())
-                amount = CalculatePct(std::max(0.0f, (owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA))), 30);
+            {
+                float stamina = CalculatePct(std::max(0.0f, (owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA))), 30);
+                float staminaBonus = stamina * 7.5f;
+                float maxHealthBonus = owner->CountPctFromMaxHealth(50);
+
+                amount = int32(staminaBonus + maxHealthBonus);
+            }
+        }
     }
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_water_elemental_scaling_01::CalculateStaminaAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_water_elemental_scaling_01::CalculateHealthAmount, EFFECT_0, SPELL_AURA_MOD_MAX_HEALTH);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_water_elemental_scaling_01::CalculateAttackPowerAmount, EFFECT_1, SPELL_AURA_MOD_ATTACK_POWER);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_water_elemental_scaling_01::CalculateDamageDoneAmount, EFFECT_2, SPELL_AURA_MOD_DAMAGE_DONE);
     }
@@ -1123,17 +1131,25 @@ class spell_mage_water_elemental_scaling_02 : public AuraScript
         return true;
     }
 
-    void CalculateIntellectAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateManaAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
         if (Pet* pet = GetUnitOwner()->ToPet())
+        {
             if (Player* owner = pet->GetOwner())
-                amount = int32(CalculatePct(owner->GetStat(STAT_INTELLECT), 30));
+            {
+                float intellect = CalculatePct(owner->GetStat(STAT_INTELLECT), 30);
+                float intellectBonus = intellect * 5.0f;
+                float maxManaBonus = owner->CountPctFromMaxPower(POWER_MANA, 50);
+
+                amount = int32(intellectBonus + maxManaBonus);
+            }
+        }
     }
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_water_elemental_scaling_02::CalculateIntellectAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_water_elemental_scaling_02::CalculateManaAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_ENERGY);
     }
 };
 
