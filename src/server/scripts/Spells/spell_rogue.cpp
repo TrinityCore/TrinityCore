@@ -39,6 +39,7 @@ enum RogueSpells
     SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK           = 22482,
     SPELL_ROGUE_CHEAT_DEATH_COOLDOWN                = 31231,
     SPELL_ROGUE_CRIPPLING_POISON                    = 3409,
+    SPELL_ROGUE_ENERGETIC_RECOVERY                  = 4893,
     SPELL_ROGUE_GLYPH_OF_PREPARATION                = 56819,
     SPELL_ROGUE_GLYPH_HEMORRHAGE_TRIGGERED          = 89775,
     SPELL_ROGUE_KILLING_SPREE                       = 51690,
@@ -640,52 +641,55 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
 };
 
 // 73651 - Recuperate
-class spell_rog_recuperate : public SpellScriptLoader
+class spell_rog_recuperate : public AuraScript
 {
-    public:
-        spell_rog_recuperate() : SpellScriptLoader("spell_rog_recuperate") { }
+    PrepareAuraScript(spell_rog_recuperate);
 
-        class spell_rog_recuperate_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_ENERGETIC_RECOVERY });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (AuraEffect* effect = GetAura()->GetEffect(EFFECT_0))
+                effect->RecalculateAmount(caster);
+    }
+
+    void CalculateBonus(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = false;
+        if (Unit* caster = GetCaster())
         {
-            PrepareAuraScript(spell_rog_recuperate_AuraScript);
+            int32 baseAmount = GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster) * 1000;
+            // Improved Recuperate
+            if (AuraEffect const* auraEffect = caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ICON_ROGUE_IMPROVED_RECUPERATE, EFFECT_0))
+                baseAmount += auraEffect->GetAmount();
 
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void OnPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (AuraEffect* effect = GetAura()->GetEffect(EFFECT_0))
-                        effect->RecalculateAmount(caster);
-            }
-
-            void CalculateBonus(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
-            {
-                canBeRecalculated = false;
-                if (Unit* caster = GetCaster())
-                {
-                    int32 baseAmount = GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster) * 1000;
-                    // Improved Recuperate
-                    if (AuraEffect const* auraEffect = caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ICON_ROGUE_IMPROVED_RECUPERATE, EFFECT_0))
-                        baseAmount += auraEffect->GetAmount();
-
-                    amount = CalculatePct(caster->GetMaxHealth(), float(baseAmount) / 1000.0f);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_recuperate_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate_AuraScript::CalculateBonus, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_recuperate_AuraScript();
+            amount = CalculatePct(caster->GetMaxHealth(), float(baseAmount) / 1000.0f);
         }
+    }
+
+    void CalculateEnergeticRecovery(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = false;
+        if (Unit* caster = GetCaster())
+            if (AuraEffect* aura = caster->GetAuraEffectOfRankedSpell(SPELL_ROGUE_ENERGETIC_RECOVERY, EFFECT_0))
+                amount = aura->GetAmount();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_recuperate::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate::CalculateBonus, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate::CalculateEnergeticRecovery, EFFECT_1, SPELL_AURA_PERIODIC_ENERGIZE);
+    }
 };
 
 // -1943 - Rupture
@@ -1147,7 +1151,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_overkill();
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
-    new spell_rog_recuperate();
+    RegisterAuraScript(spell_rog_recuperate);
     new spell_rog_rupture();
     new spell_rog_glyph_of_backstab_triggered();
     new spell_rog_shiv();
