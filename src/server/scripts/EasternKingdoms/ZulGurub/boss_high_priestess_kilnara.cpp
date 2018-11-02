@@ -211,6 +211,7 @@ struct boss_high_priestess_kilnara : public BossAI
                     events.Repeat(2s, 2s + 500ms);
                     break;
                 case EVENT_TEARS_OF_BLOOD:
+                    me->StopMoving();
                     DoCastSelf(SPELL_TEARS_OF_BLOOD);
                     events.Repeat(21s, 24s);
                     break;
