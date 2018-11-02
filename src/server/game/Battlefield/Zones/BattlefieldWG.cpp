@@ -16,4 +16,8 @@
  */
 
 #include "BattlefieldWG.h"
+#include "SharedDefines.h"
 
+BattlefieldWintergrasp::BattlefieldWintergrasp() : Battlefield(BATTLEFIELD_BATTLEID_WINTERGRASP, BATTLEFIELD_ZONEID_WINTERGRASP)
+{
+}

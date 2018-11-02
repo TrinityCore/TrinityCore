@@ -18,6 +18,16 @@
 #ifndef TRINITY_BATTLEFIELD_WG_
 #define TRINITY_BATTLEFIELD_WG_
 
+#include "Battlefield.h"
 
+class TC_GAME_API BattlefieldWintergrasp : public Battlefield
+{
+public:
+    explicit BattlefieldWintergrasp();
+    ~BattlefieldWintergrasp() { }
+
+private:
+    BattlefieldWintergrasp(BattlefieldWintergrasp const&) = delete;
+};
 
 #endif

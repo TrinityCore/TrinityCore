@@ -3472,6 +3472,12 @@ enum BattlefieldBattleId : uint8
     BATTLEFIELD_BATTLEID_MAX = 2
 };
 
+enum BattlefieldZoneId : uint32
+{
+    BATTLEFIELD_ZONEID_WINTERGRASP = 4197, // Wintergrasp battle
+    BATTLEFIELD_ZONEID_NONE = 0
+};
+
 enum MailResponseType
 {
     MAIL_SEND               = 0,

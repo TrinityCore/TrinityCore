@@ -27,6 +27,8 @@ class Player;
 class ZoneScript;
 enum BattlefieldBattleId : uint8;
 
+uint8 constexpr BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL = 1000;
+
 class TC_GAME_API BattlefieldMgr
 {
 public:
@@ -54,7 +56,7 @@ private:
     explicit BattlefieldMgr();
     ~BattlefieldMgr();
 
-    // contains all initiated battlefields
+    // contains all initialized battlefields
     BattlefieldContainer _battlefieldContainer;
     // update interval
     uint32 _updateTimer;

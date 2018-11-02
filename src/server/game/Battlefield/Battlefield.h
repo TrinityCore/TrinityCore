@@ -21,18 +21,31 @@
 #include "Common.h"
 #include "ZoneScript.h"
 
+class Player;
 enum BattlefieldBattleId : uint8;
+enum BattlefieldZoneId : uint32;
 
 class TC_GAME_API Battlefield : public ZoneScript
 {
 public:
-    explicit Battlefield(BattlefieldBattleId battleId);
+    explicit Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId);
     virtual ~Battlefield() { }
 
     BattlefieldBattleId GetId() const { return _battleId; }
+    uint32 GetZoneId() const { return _zoneId; }
+    bool IsEnabled() const { return _enabled; }
+
+    virtual bool Initialize(bool status);
+    virtual void Update(uint32 diff) { }
+    virtual void HandlePlayerEnterZone(Player* player, uint32 zoneId) { }
+    virtual void HandlePlayerLeaveZone(Player* player, uint32 zoneId) { }
 
 private:
+    Battlefield(Battlefield const&) = delete;
+
     BattlefieldBattleId _battleId;
+    uint32 _zoneId;
+    bool _enabled;
 };
 
 #endif

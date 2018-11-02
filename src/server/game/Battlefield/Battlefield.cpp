@@ -18,6 +18,12 @@
 #include "Battlefield.h"
 #include "SharedDefines.h"
 
-Battlefield::Battlefield(BattlefieldBattleId battleId) : _battleId(battleId)
+Battlefield::Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId) : _battleId(battleId), _zoneId(zoneId), _enabled(false)
 {
+}
+
+bool Battlefield::Initialize(bool status)
+{
+    _enabled = status;
+    return true;
 }

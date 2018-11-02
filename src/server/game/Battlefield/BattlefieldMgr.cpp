@@ -17,8 +17,11 @@
 
 #include "BattlefieldMgr.h"
 #include "Battlefield.h"
+#include "BattlefieldWG.h"
+#include "Log.h"
 #include "Player.h"
 #include "SharedDefines.h"
+#include "World.h"
 #include "ZoneScript.h"
 #include <algorithm>
 
@@ -38,6 +41,17 @@ BattlefieldMgr* BattlefieldMgr::instance()
 
 void BattlefieldMgr::Initialize()
 {
+    BattlefieldWintergrasp* wintergrasp = new BattlefieldWintergrasp();
+    if (!wintergrasp->Initialize(sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE)))
+    {
+        TC_LOG_ERROR("server.loading", ">> Wintergrasp initialization failed!");
+        delete wintergrasp;
+    }
+    else
+    {
+        _battlefieldContainer.emplace(wintergrasp->GetZoneId(), std::move(wintergrasp));
+        TC_LOG_INFO("server.loading", ">> Wintergrasp successfully initialized");
+    }
 }
 
 Battlefield* BattlefieldMgr::GetBattlefield(uint32 zoneId) const
@@ -70,22 +84,53 @@ ZoneScript* BattlefieldMgr::GetZoneScript(BattlefieldBattleId battleId) const
 
 Battlefield* BattlefieldMgr::GetEnabledBattlefield(uint32 zoneId) const
 {
+    auto itr = _battlefieldContainer.find(zoneId);
+    if (itr == _battlefieldContainer.end())
+        return nullptr;
+
+    if (itr->second->IsEnabled())
+        return itr->second.get();
+
     return nullptr;
 }
 
 Battlefield* BattlefieldMgr::GetEnabledBattlefield(BattlefieldBattleId battleId) const
 {
-    return nullptr;
+    auto itr = std::find_if(_battlefieldContainer.begin(), _battlefieldContainer.end(), [battleId](BattlefieldContainer::value_type const& a) -> bool
+    {
+        return a.second->GetId() == battleId && a.second->IsEnabled();
+    });
+    return itr != _battlefieldContainer.end() ? itr->second.get() : nullptr;
 }
 
 void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneId)
 {
+    auto itr = _battlefieldContainer.find(zoneId);
+    if (itr == _battlefieldContainer.end())
+        return;
+
+    itr->second->HandlePlayerEnterZone(player, zoneId);
 }
 
 void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneId)
 {
+    auto itr = _battlefieldContainer.find(zoneId);
+    if (itr == _battlefieldContainer.end())
+        return;
+
+    itr->second->HandlePlayerLeaveZone(player, zoneId);
 }
 
 void BattlefieldMgr::Update(uint32 diff)
 {
+    _updateTimer += diff;
+    if (_updateTimer <= BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL)
+        return;
+
+    std::for_each(_battlefieldContainer.begin(), _battlefieldContainer.end(), [this](BattlefieldContainer::value_type const& a)
+    {
+        if (a.second->IsEnabled())
+            a.second->Update(_updateTimer);
+    });
+    _updateTimer = 0;
 }
