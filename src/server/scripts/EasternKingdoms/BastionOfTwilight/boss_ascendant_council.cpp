@@ -795,7 +795,7 @@ class npc_ignacious : public CreatureScript
                                     float y = pos.GetPositionY() + sin(angle) * i;
                                     float z = pos.GetPositionZ();
                                     float floor = me->GetMap()->GetHeight(me->GetPhaseShift(), x, y, z, true);
-                                    me->CastSpell(x, y, z, SPELL_INFERNO_RUSH_SUMMON, true);
+                                    me->CastSpell(x, y, floor, SPELL_INFERNO_RUSH_SUMMON, true);
                                 }
                             }
 
@@ -844,7 +844,7 @@ class npc_ignacious : public CreatureScript
                             Talk(SAY_ENGAGE);
                             break;
                         case EVENT_AEGIS_OF_FLAME:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                            if (SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                             {
                                 me->MakeInterruptable(true);
                                 DoCastSelf(SPELL_AEGIS_OF_FLAME);
@@ -2561,7 +2561,7 @@ class spell_terrastra_eruption : public SpellScript
                 float x = caster->GetPositionX() + cos(angle + (i * steps)) * dist;
                 float y = caster->GetPositionY() + sin(angle + (i * steps)) * dist;
                 float floor = caster->GetMap()->GetHeight(caster->GetPhaseShift(), x, y, z, true);
-                caster->CastSpell(x, y, z, SPELL_ERUPTION_SUMMON, true);
+                caster->CastSpell(x, y, floor, SPELL_ERUPTION_SUMMON, true);
             }
         }
     }
