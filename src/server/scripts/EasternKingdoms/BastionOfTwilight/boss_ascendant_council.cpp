@@ -520,9 +520,8 @@ class npc_feludius : public CreatureScript
                     controller->AI()->DoAction(ACTION_START_ENCOUNTER);
 
                 Talk(SAY_ENGAGE);
-                _events.ScheduleEvent(EVENT_GLACIATE, Seconds(31) + Milliseconds(500));
                 _events.ScheduleEvent(EVENT_HEART_OF_ICE, Seconds(15) + Milliseconds(500));
-                _events.ScheduleEvent(EVENT_WATER_BOMB, Seconds(15) + Milliseconds(500));
+                _events.ScheduleEvent(EVENT_WATER_BOMB, Seconds(16) + Milliseconds(500));
                 _events.ScheduleEvent(EVENT_HYDRO_LANCE, Seconds(8) + Milliseconds(500));
             }
 
@@ -622,7 +621,6 @@ class npc_feludius : public CreatureScript
                             Talk(SAY_ABILITY);
                             Talk(SAY_ANNOUNCE_ABILITY);
                             DoCastAOE(SPELL_GLACIATE);
-                            _events.Repeat(Seconds(34));
                             break;
                         case EVENT_HEART_OF_ICE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
@@ -632,7 +630,8 @@ class npc_feludius : public CreatureScript
                         case EVENT_WATER_BOMB:
                             DoCastAOE(SPELL_WATER_BOMB_AOE, true);
                             DoCastAOE(SPELL_WATER_BOMB);
-                            _events.Repeat(Seconds(34));
+                            _events.ScheduleEvent(EVENT_GLACIATE, Seconds(25) + Milliseconds(500));
+                            _events.Repeat(Seconds(32));
                             break;
                         case EVENT_HYDRO_LANCE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
@@ -719,7 +718,6 @@ class npc_ignacious : public CreatureScript
 
                 _events.ScheduleEvent(EVENT_TALK_ENGAGE, Seconds(5));
                 _events.ScheduleEvent(EVENT_FLAME_TORRENT, Seconds(8) + Milliseconds(300));
-                _events.ScheduleEvent(EVENT_AEGIS_OF_FLAME, Seconds(31) + Milliseconds(500));
                 _events.ScheduleEvent(EVENT_BURNING_BLOOD, Seconds(30));
                 _events.ScheduleEvent(EVENT_INFERNO_LEAP, Seconds(15) + Milliseconds(500));
             }
@@ -852,7 +850,6 @@ class npc_ignacious : public CreatureScript
                                 DoCastSelf(SPELL_AEGIS_OF_FLAME);
                                 _events.ScheduleEvent(EVENT_RISING_FLAMES, Seconds(4) + Milliseconds(400));
                             }
-                            _events.Repeat(Seconds(34));
                             break;
                         case EVENT_RISING_FLAMES:
                             Talk(SAY_ANNOUNCE_ABILITY);
@@ -879,7 +876,8 @@ class npc_ignacious : public CreatureScript
                                 me->SetReactState(REACT_PASSIVE);
                                 DoCast(target, SPELL_INFERNO_LEAP);
                             }
-                            _events.Repeat(Seconds(31) + Milliseconds(500));
+                            _events.ScheduleEvent(EVENT_AEGIS_OF_FLAME, Seconds(26));
+                            _events.Repeat(Seconds(32));
                             break;
                         case EVENT_IGNITE_INFERNO_RUSH:
                             for (ObjectGuid guid : _infernoRushGUIDs)
