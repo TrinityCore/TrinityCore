@@ -617,6 +617,9 @@ public:
         if (!param1)
             return false;
 
+        GameObject* thisGO = nullptr;
+        GameObjectData const* data = nullptr;
+
         ObjectGuid::LowType spawnId = 0;
         if (strcmp(param1, "guid") == 0)
         {
@@ -625,10 +628,15 @@ public:
             if (!cValue)
                 return false;
             spawnId = atoul(cValue);
-            GameObjectData const* data = sObjectMgr->GetGameObjectData(spawnId);
+            data = sObjectMgr->GetGameObjectData(spawnId);
             if (!data)
+            {
+                handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, spawnId);
+                handler->SetSentErrorMessage(true);
                 return false;
+            }
             entry = data->id;
+            thisGO = handler->GetObjectFromPlayerMapByDbGuid(spawnId);
         }
         else
         {
@@ -636,16 +644,12 @@ public:
         }
 
         GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(entry);
-
-        GameObject* thisGO = nullptr;
-
         if (!gameObjectInfo)
+        {
+            handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, entry);
+            handler->SetSentErrorMessage(true);
             return false;
-
-        if (*args && handler->GetSession()->GetPlayer())
-            thisGO = handler->GetSession()->GetPlayer()->FindNearestGameObject(entry, 30);
-        else if (handler->getSelectedObject() && handler->getSelectedObject()->GetTypeId() == TYPEID_GAMEOBJECT)
-            thisGO = handler->getSelectedObject()->ToGameObject();
+        }
 
         type = gameObjectInfo->type;
         displayId = gameObjectInfo->displayId;
@@ -659,45 +663,35 @@ public:
         if (thisGO)
         {
             handler->PSendSysMessage(LANG_SPAWNINFO_GUIDINFO, thisGO->GetGUID().ToString().c_str());
-            handler->PSendSysMessage(LANG_SPAWNINFO_SPAWNID_LOCATION, thisGO->GetSpawnId(), thisGO->GetPositionX(), thisGO->GetPositionY(), thisGO->GetPositionZ());
-            if (Player* player = handler->GetSession()->GetPlayer())
-            {
-                Position playerPos = player->GetPosition();
-                float dist = thisGO->GetExactDist(&playerPos);
-                handler->PSendSysMessage(LANG_SPAWNINFO_DISTANCEFROMPLAYER, dist);
-            }
-        }
+            handler->PSendSysMessage(LANG_SPAWNINFO_COMPATIBILITY_MODE, thisGO->GetRespawnCompatibilityMode());
 
-        handler->PSendSysMessage(LANG_GOINFO_ENTRY, entry);
-        handler->PSendSysMessage(LANG_GOINFO_TYPE, type);
-        handler->PSendSysMessage(LANG_GOINFO_LOOTID, lootId);
-        handler->PSendSysMessage(LANG_GOINFO_DISPLAYID, displayId);
-
-        if (thisGO)
-        {
             if (thisGO->GetGameObjectData() && thisGO->GetGameObjectData()->spawnGroupData->groupId)
             {
                 SpawnGroupTemplateData const* groupData = thisGO->GetGameObjectData()->spawnGroupData;
                 handler->PSendSysMessage(LANG_SPAWNINFO_GROUP_ID, groupData->name.c_str(), groupData->groupId, groupData->flags, thisGO->GetMap()->IsSpawnGroupActive(groupData->groupId));
             }
 
-            handler->PSendSysMessage(LANG_SPAWNINFO_COMPATIBILITY_MODE, thisGO->GetRespawnCompatibilityMode());
+            GameObjectOverride const* goOverride = sObjectMgr->GetGameObjectOverride(spawnId);
+            if (!goOverride)
+                goOverride = sObjectMgr->GetGameObjectTemplateAddon(entry);
+            if (goOverride)
+                handler->PSendSysMessage(LANG_GOINFO_ADDON, goOverride->Faction, goOverride->Flags);
         }
 
+        if (data)
+        {
+            float yaw, pitch, roll;
+            data->rotation.toEulerAnglesZYX(yaw, pitch, roll);
+            handler->PSendSysMessage(LANG_SPAWNINFO_SPAWNID_LOCATION, data->spawnId, data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY(), data->spawnPoint.GetPositionZ());
+            handler->PSendSysMessage(LANG_SPAWNINFO_ROTATION, yaw, pitch, roll);
+        }
+
+        handler->PSendSysMessage(LANG_GOINFO_ENTRY, entry);
+        handler->PSendSysMessage(LANG_GOINFO_TYPE, type);
+        handler->PSendSysMessage(LANG_GOINFO_LOOTID, lootId);
+        handler->PSendSysMessage(LANG_GOINFO_DISPLAYID, displayId);
         handler->PSendSysMessage(LANG_GOINFO_NAME, name.c_str());
         handler->PSendSysMessage(LANG_GOINFO_SIZE, gameObjectInfo->size);
-
-        GameObjectOverride const* goOverride = nullptr;
-        if (spawnId)
-            if (GameObjectOverride const* ovr = sObjectMgr->GetGameObjectOverride(spawnId))
-                goOverride = ovr;
-
-        if (!goOverride)
-            goOverride = sObjectMgr->GetGameObjectTemplateAddon(entry);
-
-        if (goOverride)
-            handler->PSendSysMessage(LANG_GOINFO_ADDON, goOverride->Faction, goOverride->Flags);
-
         handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, gameObjectInfo->AIName.c_str(), sObjectMgr->GetScriptName(gameObjectInfo->ScriptId).c_str());
         if (GameObjectAI const* ai = thisGO ? thisGO->AI() : nullptr)
             handler->PSendSysMessage(LANG_OBJECTINFO_AITYPE, boost::core::demangle(typeid(*ai).name()).c_str());
