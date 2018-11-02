@@ -8341,8 +8341,6 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
                 if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_GROUND))
                     continue;
             }
-            else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER))
-                continue;
         }
         else if (isInWater)
         {
@@ -14338,14 +14336,19 @@ bool Unit::SetCanFly(bool enable, bool /*packetOnly = false */)
     {
         AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
         RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
         SetFall(false);
     }
     else
     {
         RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
         if (!IsLevitating())
             SetFall(true);
     }
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        ToPlayer()->SendMovementSetCanTransitionBetweenSwimAndFly(enable);
 
     if (enable)
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_FLYING, SMSG_MOVE_SET_CAN_FLY).Send();

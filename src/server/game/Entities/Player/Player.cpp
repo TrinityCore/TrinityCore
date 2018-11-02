@@ -27793,9 +27793,16 @@ VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
 
 void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 {
-    Movement::PacketSender(this, NULL_OPCODE, apply ?
-        SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY :
-        SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY).Send();
+    static Opcodes const swimToFlyTransOpcodeTable[2] =
+    {
+        SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY,
+        SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY
+    };
+
+    WorldPacket data(swimToFlyTransOpcodeTable[apply], 15);
+    data.appendPackGUID(GetGUID());
+    data << uint32(m_movementCounter++);
+    SendDirectMessage(&data);
 }
 
 void Player::SendMovementSetCollisionHeight(float height)
