@@ -83,6 +83,11 @@ enum MiscPetCalculate
     SPELL_PET_HEALTH_SCALING           = 61679,
 };
 
+enum WarlockSpellIconId
+{
+    SPELL_ICON_ID_GLYPH_OF_VOID_WALKER  = 217,
+};
+
 class spell_warl_pet_scaling_01 : public AuraScript
 {
     PrepareAuraScript(spell_warl_pet_scaling_01);
@@ -95,35 +100,35 @@ class spell_warl_pet_scaling_01 : public AuraScript
         {
             if (Player* owner = pet->GetOwner())
             {
-                float stamina = std::max(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA));
-                stamina *= 0.75f;
+                float stamina = owner->GetStat(STAT_STAMINA) * 0.6496f;
 
                 float staminaBonus = 0.0f;
-                float maxHealthBonus = 0.0f;
                 switch (pet->GetEntry())
                 {
                     case ENTRY_IMP:
-                        staminaBonus = uint32(stamina * 8.4f);
-                        maxHealthBonus = owner->CountPctFromMaxHealth(30);
+                        staminaBonus = stamina * 8.4f;
                         break;
                     case ENTRY_FELGUARD:
                     case ENTRY_VOIDWALKER:
-                        staminaBonus = uint32(stamina * 11.0f);
-                        maxHealthBonus = owner->CountPctFromMaxHealth(50);
+                        staminaBonus = stamina * 11.0f;
                         break;
                     case ENTRY_SUCCUBUS:
-                        staminaBonus = uint32(stamina * 9.1f);
-                        maxHealthBonus = owner->CountPctFromMaxHealth(40);
+                        staminaBonus = stamina * 9.1f;
                         break;
                     case ENTRY_FELHUNTER:
-                        staminaBonus = uint32(stamina * 9.5f);
-                        maxHealthBonus = owner->CountPctFromMaxHealth(40);
+                        staminaBonus = stamina * 9.5f;
                         break;
                     default:
                         break;
                 }
 
-                amount = int32(staminaBonus + maxHealthBonus);
+                float glyphBonus = 0.0f;
+                // Glyph of Voidwalker
+                if (pet->GetEntry() == ENTRY_VOIDWALKER)
+                    if (AuraEffect* glyphEffect = owner->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, SPELL_ICON_ID_GLYPH_OF_VOID_WALKER, EFFECT_0))
+                        glyphBonus = CalculatePct(pet->GetCreateHealth() + staminaBonus, glyphEffect->GetAmount());
+
+                amount = int32(staminaBonus + glyphBonus);
             }
         }
     }
@@ -194,8 +199,7 @@ class spell_warl_pet_scaling_02 : public AuraScript
                         break;
                 }
 
-                float ownerMana = CalculatePct(owner->GetMaxPower(POWER_MANA), 30);
-                amount = int32(ownerMana + manaBonus);
+                amount = int32(manaBonus);
             }
         }
     }
@@ -526,7 +530,7 @@ class spell_hun_pet_scaling_01 : public AuraScript
                 else if (pet->HasAura(SPELL_HUNTER_PET_CUNNING_MARKER))
                     mod = 0.725f;
 
-                float stamina = std::max(0.0f, owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA));
+                float stamina = owner->GetStat(STAT_STAMINA);
                 uint32 bonus = (stamina * mod) * 14.0f;
                 amount = bonus;
             }
@@ -1103,7 +1107,7 @@ class spell_mage_water_elemental_scaling_01 : public AuraScript
         {
             if (Player* owner = pet->GetOwner())
             {
-                float stamina = CalculatePct(std::max(0.0f, (owner->GetStat(STAT_STAMINA) - owner->GetCreateStat(STAT_STAMINA))), 30);
+                float stamina = CalculatePct(owner->GetStat(STAT_STAMINA), 30);
                 float staminaBonus = stamina * 7.5f;
                 float maxHealthBonus = owner->CountPctFromMaxHealth(50);
 
