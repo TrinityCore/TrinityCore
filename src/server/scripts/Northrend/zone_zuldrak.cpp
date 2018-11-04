@@ -954,7 +954,8 @@ enum ScourgeDisguise
     SPELL_SCOURGE_DISGUISE             = 51966,
     SPELL_SCOURGE_DISGUISE_INSTABILITY = 51971,
     SPELL_SCOURGE_DISGUISE_EXPIRING    = 52010,
-    SPELL_DROP_DISGUISE                = 54089
+    SPELL_DROP_DISGUISE                = 54089,
+    TEXT_DISGUISE_WARNING              = 28891
 };
 
 class spell_scourge_disguise : public AuraScript
@@ -1008,7 +1009,6 @@ class spell_scourge_disguise_instability : public AuraScript
     }
 };
 
-static std::string scourge_disguise_expiring_warning = "Disguise Failing! Avoid Scourge Contact!";
 class spell_scourge_disguise_expiring : public AuraScript
 {
     PrepareAuraScript(spell_scourge_disguise_expiring);
@@ -1017,7 +1017,7 @@ class spell_scourge_disguise_expiring : public AuraScript
     {
         if (Player* player = GetTarget()->ToPlayer())
             if (Aura* aura = player->GetAura(SPELL_SCOURGE_DISGUISE))
-                player->Talk(scourge_disguise_expiring_warning, CHAT_MSG_RAID_BOSS_WHISPER, LANG_UNIVERSAL, 0, nullptr);
+                player->Talk(TEXT_DISGUISE_WARNING, CHAT_MSG_RAID_BOSS_WHISPER, 0, nullptr);
     }
 
     void Register() override
