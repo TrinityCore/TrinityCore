@@ -5098,37 +5098,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
         switch (GetSpellInfo()->SpellFamilyName)
         {
-            case SPELLFAMILY_WARLOCK:
-            {
-                // Curse of Agony damage-per-tick calculation
-                if ((GetSpellInfo()->SpellFamilyFlags[0] & 0x400) && GetSpellInfo()->SpellIconID == 544)
-                {
-                    uint32 totalTicks = GetTotalTicks();
-                    // 1..4 ticks, 1/2 from normal tick damage
-                    if (_ticksDone <= totalTicks / 3)
-                        damage = damage / 2;
-                    // 9..12 ticks, 3/2 from normal tick damage
-                    else if (_ticksDone > totalTicks * 2 / 3)
-                        damage += (damage + 1) / 2;           // +1 prevent 0.5 damage possible lost at 1..4 ticks
-                    // 5..8 ticks have normal tick damage
-                }
-                // There is a Chance to make a Soul Shard when Drain soul does damage
-                else if ((GetSpellInfo()->SpellFamilyFlags[0] & 0x00004000))
-                {
-                    if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
-                    {
-                        if (roll_chance_i(20))
-                        {
-                            caster->CastSpell(caster, 43836, this);
-                            // Glyph of Drain Soul - chance to create an additional Soul Shard
-                            if (AuraEffect* aur = caster->GetAuraEffect(58070, 0))
-                                if (roll_chance_i(aur->GetMiscValue()))
-                                    caster->CastSpell(caster, 58068, aur);
-                        }
-                    }
-                }
-                break;
-            }
             case SPELLFAMILY_GENERIC:
             {
                 switch (GetId())
