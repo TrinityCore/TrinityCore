@@ -1015,12 +1015,9 @@ class spell_scourge_disguise_expiring : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Player* player = GetTarget()->ToPlayer();
-        if (player)
-        {
+        if (Player* player = GetTarget()->ToPlayer())
             if (Aura* aura = player->GetAura(SPELL_SCOURGE_DISGUISE))
                 player->Talk(scourge_disguise_expiring_warning, CHAT_MSG_RAID_BOSS_WHISPER, LANG_UNIVERSAL, 0, nullptr);
-        }
     }
 
     void Register() override
