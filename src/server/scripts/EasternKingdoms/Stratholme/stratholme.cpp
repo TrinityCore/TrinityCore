@@ -370,7 +370,6 @@ class spell_stratholme_haunting_phantoms : public AuraScript
     }
 };
 
-
 void AddSC_stratholme()
 {
     new go_gauntlet_gate();

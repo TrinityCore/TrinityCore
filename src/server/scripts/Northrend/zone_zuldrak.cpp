@@ -957,19 +957,26 @@ enum ScourgeDisguise
     SPELL_DROP_DISGUISE                = 54089
 };
 
-class spell_scourge_disguise : public SpellScript
+class spell_scourge_disguise : public AuraScript
 {
-    PrepareSpellScript(spell_scourge_disguise);
+    PrepareAuraScript(spell_scourge_disguise);
 
-    void HandleHit()
+    void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit* target = GetHitUnit())
-            target->CastSpell(target, SPELL_SCOURGE_DISGUISE_INSTABILITY, true);
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_SCOURGE_DISGUISE_INSTABILITY, true);
+    }
+
+    void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAura(SPELL_SCOURGE_DISGUISE_INSTABILITY);
     }
 
     void Register() override
     {
-        AfterHit += SpellHitFn(spell_scourge_disguise::HandleHit);
+        OnEffectRemove += AuraEffectRemoveFn(spell_scourge_disguise::RemoveEffect, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_scourge_disguise::ApplyEffect, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1011,9 +1018,6 @@ class spell_scourge_disguise_expiring : public AuraScript
         Player* player = GetTarget()->ToPlayer();
         if (player)
         {
-            if (Aura* aura = player->GetAura(SPELL_SCOURGE_DISGUISE_INSTABILITY))
-                aura->Remove();
-
             if (Aura* aura = player->GetAura(SPELL_SCOURGE_DISGUISE))
                 player->Talk(scourge_disguise_expiring_warning, CHAT_MSG_RAID_BOSS_WHISPER, LANG_UNIVERSAL, 0, nullptr);
         }
@@ -1056,7 +1060,7 @@ void AddSC_zuldrak()
     new spell_pot_check();
     new spell_fetch_ingredient_aura();
     new npc_storm_cloud();
-    RegisterSpellScript(spell_scourge_disguise);
+    RegisterAuraScript(spell_scourge_disguise);
     RegisterAuraScript(spell_scourge_disguise_instability);
     RegisterAuraScript(spell_scourge_disguise_expiring);
     RegisterSpellScript(spell_drop_disguise);
