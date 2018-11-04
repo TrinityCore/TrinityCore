@@ -1032,7 +1032,8 @@ class spell_drop_disguise : public SpellScript
     void HandleHit()
     {
         if (Unit* target = GetHitUnit())
-            target->CastSpell(target, SPELL_SCOURGE_DISGUISE_EXPIRING, true);
+            if (Aura* aura = target->GetAura(SPELL_SCOURGE_DISGUISE))
+                target->CastSpell(target, SPELL_SCOURGE_DISGUISE_EXPIRING, true);
     }
 
     void Register() override
