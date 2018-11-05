@@ -1261,6 +1261,12 @@ FeatureSystem.CharacterUndelete.Enabled = 0
 FeatureSystem.CharacterUndelete.Cooldown = 2592000
 
 #
+#   FeatureSystem.WarMode.Enabled
+#        Description: Controls Warmode and PvP talent feature in BFA.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled, Experimental)
+
+FeatureSystem.WarMode.Enabled = 0
 ###################################################################################################
 
 ###################################################################################################

@@ -1171,6 +1171,7 @@ void WorldSession::SendFeatureSystemStatus()
 
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
     features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
+    features.WarModeFeatureEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_WAR_MODE_ENABLED);
 
     SendPacket(features.Write());
 }
