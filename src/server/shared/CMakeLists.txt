@@ -8,6 +8,29 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+CollectIncludeDirectories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC_INCLUDES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+  
+execute_process(
+    COMMAND python ${PROJECT_SOURCE_DIR}/cmake/describe_enum.py ${CMAKE_CURRENT_BINARY_DIR} ${PUBLIC_INCLUDES} --list
+    OUTPUT_VARIABLE GENERATED_ENUM_INPUTS
+    ERROR_VARIABLE GENERATED_ENUM_OUTPUTS
+    RESULT_VARIABLE ENUM_GENERATION_RETURN
+)
+
+if (NOT ENUM_GENERATION_RETURN EQUAL 0)
+    message(FATAL_ERROR ${GENERATED_ENUM_OUTPUTS})
+endif()
+
+add_custom_command(
+    COMMAND python ${PROJECT_SOURCE_DIR}/cmake/describe_enum.py ${CMAKE_CURRENT_BINARY_DIR} ${PUBLIC_INCLUDES}
+    DEPENDS ${GENERATED_ENUM_INPUTS} ${PROJECT_SOURCE_DIR}/cmake/describe_enum.py
+    OUTPUT ${GENERATED_ENUM_OUTPUTS}
+)
+
 CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE_SOURCES
@@ -25,13 +48,8 @@ add_definitions(-DTRINITY_API_EXPORT_SHARED)
 add_library(shared
   ${PRIVATE_PCH_SOURCE}
   ${PRIVATE_SOURCES}
+  ${GENERATED_ENUM_OUTPUTS}
 )
-
-CollectIncludeDirectories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
 target_include_directories(shared
   PUBLIC
