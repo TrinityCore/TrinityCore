@@ -23701,6 +23701,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
 void Player::SendInitialPacketsAfterAddToMap()
 {
+    UpdatePositionData();
     UpdateVisibilityForPlayer();
 
     // update zone
@@ -23732,6 +23733,9 @@ void Player::SendInitialPacketsAfterAddToMap()
     }
 
     UpdateMountCapabilities();
+
+    if (CanFly())
+        SendMovementSetCanTransitionBetweenSwimAndFly(true);
 
     if (HasAuraType(SPELL_AURA_MOD_STUN))
         SetRooted(true);
