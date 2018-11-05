@@ -20,12 +20,17 @@
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
 #include "ConditionMgr.h"
+#include "Creature.h"
+#include "DBCStructure.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "Unit.h"
+#include "Vehicle.h"
 
 #define GOSSIP_HELLO_DEMO1  "Build catapult."
 #define GOSSIP_HELLO_DEMO2  "Build demolisher."
@@ -101,7 +106,23 @@ static uint32 constexpr vehiclesList[MAX_WINTERGRASP_VEHICLES] =
     NPC_WINTERGRASP_SIEGE_ENGINE_HORDE
 };
 
+struct npc_wg_demolisher_engineer : public ScriptedAI
+{
+    npc_wg_demolisher_engineer(Creature* creature) : ScriptedAI(creature)
+    {
+    }
 
+    void Reset() override
+    {
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+    }
+
+private:
+
+};
 
 // 58549 Tenacity
 // 59911 Tenacity
@@ -148,6 +169,30 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
     }
 };
 
+class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
+{
+    public:
+        achievement_wg_didnt_stand_a_chance() : AchievementCriteriaScript("achievement_wg_didnt_stand_a_chance") { }
+
+        bool OnCheck(Player* source, Unit* target) override
+        {
+            if (!target)
+                return false;
+
+            if (Player* victim = target->ToPlayer())
+            {
+                if (!victim->IsMounted())
+                    return false;
+
+                if (Vehicle* vehicle = source->GetVehicle())
+                    if (vehicle->GetVehicleInfo()->m_ID == 244) // Wintergrasp Tower Cannon
+                        return true;
+            }
+
+            return false;
+        }
+};
+
 class condition_is_wintergrasp_horde : public ConditionScript
 {
     public:
@@ -178,8 +223,9 @@ class condition_is_wintergrasp_alliance : public ConditionScript
 
 void AddSC_wintergrasp()
 {
-
+    RegisterCreatureAI(npc_wg_demolisher_engineer);
     RegisterAuraScript(spell_wintergrasp_tenacity_refresh);
+    new achievement_wg_didnt_stand_a_chance();
     new condition_is_wintergrasp_horde();
     new condition_is_wintergrasp_alliance();
 }
