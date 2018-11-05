@@ -24,6 +24,7 @@
 class Player;
 enum BattlefieldBattleId : uint8;
 enum BattlefieldZoneId : uint32;
+enum PvPTeamId : uint8;
 
 class TC_GAME_API Battlefield : public ZoneScript
 {
@@ -34,6 +35,8 @@ public:
     BattlefieldBattleId GetId() const { return _battleId; }
     uint32 GetZoneId() const { return _zoneId; }
     bool IsEnabled() const { return _enabled; }
+    PvPTeamId GetControllingTeam() const { return _controllingTeam; }
+    PvPTeamId GetAttackerTeam() const;
 
     virtual bool Initialize(bool status);
     virtual void Update(uint32 diff) { }
@@ -46,6 +49,7 @@ private:
     BattlefieldBattleId _battleId;
     uint32 _zoneId;
     bool _enabled;
+    PvPTeamId _controllingTeam;
 };
 
 #endif

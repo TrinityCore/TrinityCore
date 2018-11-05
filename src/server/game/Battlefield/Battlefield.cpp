@@ -18,8 +18,13 @@
 #include "Battlefield.h"
 #include "SharedDefines.h"
 
-Battlefield::Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId) : _battleId(battleId), _zoneId(zoneId), _enabled(false)
+Battlefield::Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId) : _battleId(battleId), _zoneId(zoneId), _enabled(false), _controllingTeam(PVP_TEAM_NEUTRAL)
 {
+}
+
+PvPTeamId Battlefield::GetAttackerTeam() const
+{
+    return _controllingTeam == PVP_TEAM_NEUTRAL ? PVP_TEAM_NEUTRAL : PvPTeamId(1 - _controllingTeam);
 }
 
 bool Battlefield::Initialize(bool status)
