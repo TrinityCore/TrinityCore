@@ -22,13 +22,13 @@ Battlenet::WorldserverServiceDispatcher::WorldserverServiceDispatcher()
 {
     AddService<WorldserverService<account::v1::AccountService>>();
     AddService<WorldserverService<authentication::v1::AuthenticationService>>();
-    AddService<WorldserverService<challenge::v1::ChallengeService>>();
-    AddService<WorldserverService<channel::v1::ChannelService>>();
+    AddService<WorldserverService<club::v1::membership::ClubMembershipService>>();
     AddService<WorldserverService<connection::v1::ConnectionService>>();
     AddService<WorldserverService<friends::v1::FriendsService>>();
     AddService<GameUtilitiesService>();
     AddService<WorldserverService<presence::v1::PresenceService>>();
     AddService<WorldserverService<report::v1::ReportService>>();
+    AddService<WorldserverService<report::v2::ReportService>>();
     AddService<WorldserverService<resources::v1::ResourcesService>>();
     AddService<WorldserverService<user_manager::v1::UserManagerService>>();
 }
