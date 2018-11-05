@@ -69,7 +69,10 @@ namespace WorldPackets
         class InspectResult final : public ServerPacket
         {
         public:
-            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 45) { }
+            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 45)
+            {
+                PvpTalents.fill(0);
+            }
 
             WorldPacket const* Write() override;
 
@@ -77,7 +80,7 @@ namespace WorldPackets
             std::vector<InspectItemData> Items;
             std::vector<uint16> Glyphs;
             std::vector<uint16> Talents;
-            std::vector<uint16> PvpTalents;
+            std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents;
             int32 ClassID = CLASS_NONE;
             int32 GenderID = GENDER_NONE;
             Optional<InspectGuildData> GuildData;

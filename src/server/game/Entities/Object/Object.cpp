@@ -848,7 +848,11 @@ void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player
     if (!target)
         return;
 
-    std::size_t blockCount = UpdateMask::GetBlockCount(_dynamicValuesCount);
+    std::size_t valueCount = _dynamicValuesCount;
+    if (target != this && GetTypeId() == TYPEID_PLAYER)
+        valueCount = PLAYER_DYNAMIC_END;
+
+    std::size_t blockCount = UpdateMask::GetBlockCount(valueCount);
 
     uint32* flags = nullptr;
     uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
@@ -857,7 +861,7 @@ void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player
     std::size_t maskPos = data->wpos();
     data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
 
-    for (uint16 index = 0; index < _dynamicValuesCount; ++index)
+    for (uint16 index = 0; index < valueCount; ++index)
     {
         std::vector<uint32> const& values = _dynamicValues[index];
         if (_fieldNotifyFlags & flags[index] ||
