@@ -2373,6 +2373,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void DeleteFromPlayerPetDataStore(uint32 petNumber);
         void AddToPlayerPetDataStore(PlayerPetData* playerPetData);
 
+        // Mount Capabilites
+        void UpdateMountCapabilities();
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;

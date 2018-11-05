@@ -3304,6 +3304,11 @@ void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData>
         Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
         if (curLiquid && curLiquid->SpellId && (!player || !player->IsGameMaster()))
             CastSpell(this, curLiquid->SpellId, true);
+
+        // Update mount capabilities when changing liquidstatus (enabling / disabling flight auras for example)
+        if (player)
+            player->UpdateMountCapabilities();
+
         _lastLiquid = curLiquid;
     }
 }
@@ -8341,6 +8346,8 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
                 if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_GROUND))
                     continue;
             }
+            else if (!(mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER))
+                continue;
         }
         else if (isInWater)
         {

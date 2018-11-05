@@ -18846,6 +18846,30 @@ void Player::AddToPlayerPetDataStore(PlayerPetData* playerPetData)
     PlayerPetDataStore.push_back(playerPetData);
 }
 
+void Player::UpdateMountCapabilities()
+{
+    if (HasAuraType(SPELL_AURA_MOUNTED))
+    {
+        Unit::AuraEffectList const& auraList = GetAuraEffectsByType(SPELL_AURA_MOUNTED);
+        if (!auraList.empty())
+        {
+            AuraEffect* mountEffect = auraList.front();
+            if (MountCapabilityEntry const* mountCapability = mountEffect->GetBase()->GetUnitOwner()->GetMountCapability(uint32(mountEffect->GetMiscValueB())))
+            {
+                if (mountCapability->Id != mountEffect->GetAmount())
+                {
+                    Unit* target = mountEffect->GetBase()->GetApplicationOfTarget(GetGUID())->GetTarget();
+                    if (MountCapabilityEntry const* oldMountCapability = sMountCapabilityStore.LookupEntry(mountEffect->GetAmount()))
+                        RemoveAurasDueToSpell(oldMountCapability->SpeedModSpell, target->GetGUID());
+
+                    CastSpell(target, mountCapability->SpeedModSpell, true);
+                    mountEffect->SetAmount(mountCapability->Id);
+                }
+            }
+        }
+    }
+}
+
 void Player::_LoadQuestStatus(PreparedQueryResult result)
 {
     uint16 slot = 0;
@@ -23707,26 +23731,7 @@ void Player::SendInitialPacketsAfterAddToMap()
             auraList.front()->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
     }
 
-    if (HasAuraType(SPELL_AURA_MOUNTED))
-    {
-        Unit::AuraEffectList const& auraList = GetAuraEffectsByType(SPELL_AURA_MOUNTED);
-        if (!auraList.empty())
-        {
-            AuraEffect* mountEffect = auraList.front();
-            if (MountCapabilityEntry const* mountCapability = mountEffect->GetBase()->GetUnitOwner()->GetMountCapability(uint32(mountEffect->GetMiscValueB())))
-            {
-                if (mountCapability->Id != mountEffect->GetAmount())
-                {
-                    Unit* target = mountEffect->GetBase()->GetApplicationOfTarget(GetGUID())->GetTarget();
-                    if (MountCapabilityEntry const* oldMountCapability = sMountCapabilityStore.LookupEntry(mountEffect->GetAmount()))
-                        RemoveAurasDueToSpell(oldMountCapability->SpeedModSpell, target->GetGUID());
-
-                    CastSpell(target, mountCapability->SpeedModSpell, true);
-                    mountEffect->SetAmount(mountCapability->Id);
-                }
-            }
-        }
-    }
+    UpdateMountCapabilities();
 
     if (HasAuraType(SPELL_AURA_MOD_STUN))
         SetRooted(true);
