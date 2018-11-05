@@ -51,6 +51,24 @@ struct AchievementLoadInfo
     }
 };
 
+struct AnimationDataLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "Fallback" },
+            { false, FT_BYTE, "BehaviorTier" },
+            { true, FT_INT, "BehaviorID" },
+            { true, FT_INT, "Flags1" },
+            { true, FT_INT, "Flags2" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AnimationDataMeta::Instance(), HOTFIX_SEL_ANIMATION_DATA);
+        return &loadInfo;
+    }
+};
+
 struct AnimKitLoadInfo
 {
     static DB2LoadInfo const* Instance()

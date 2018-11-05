@@ -93,13 +93,14 @@ void protobuf_AddDesc_resource_5fservice_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\026resource_service.proto\022\031bgs.protocol.r"
     "esources.v1\032\032content_handle_types.proto\032"
-    "\017rpc_types.proto\"T\n\024ContentHandleRequest"
+    "\017rpc_types.proto\"\\\n\024ContentHandleRequest"
     "\022\017\n\007program\030\001 \002(\007\022\016\n\006stream\030\002 \002(\007\022\033\n\007ver"
-    "sion\030\003 \001(\007:\n17017296192\240\001\n\020ResourcesServ"
-    "ice\022f\n\020GetContentHandle\022/.bgs.protocol.r"
-    "esources.v1.ContentHandleRequest\032\033.bgs.p"
-    "rotocol.ContentHandle\"\004\200\265\030\001\032$\312>!bnet.pro"
-    "tocol.resources.ResourcesB\005H\001\200\001\000", 352);
+    "sion\030\003 \001(\007:\n1701729619:\006\202\371+\002\010\0012\253\001\n\020Resou"
+    "rcesService\022h\n\020GetContentHandle\022/.bgs.pr"
+    "otocol.resources.v1.ContentHandleRequest"
+    "\032\033.bgs.protocol.ContentHandle\"\006\202\371+\002\010\001\032-\202"
+    "\371+#\n!bnet.protocol.resources.Resources\212\371"
+    "+\002\020\001B\005H\001\200\001\000", 371);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "resource_service.proto", &protobuf_RegisterTypes);
   ContentHandleRequest::default_instance_ = new ContentHandleRequest();

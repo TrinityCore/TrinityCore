@@ -430,6 +430,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     SetUInt32Value(OBJECT_DYNAMIC_FLAGS, dynamicFlags);
 
+    SetUInt32Value(UNIT_FIELD_STATE_ANIM_ID, sAnimationDataStore.GetNumRows());
+
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
     SetBaseAttackTime(BASE_ATTACK,   cInfo->BaseAttackTime);

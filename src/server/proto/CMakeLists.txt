@@ -30,7 +30,9 @@ CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PUBLIC_INCLUDES
   # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
+  ${CMAKE_CURRENT_SOURCE_DIR}/Client/api
+  ${CMAKE_CURRENT_SOURCE_DIR}/Client/global_extensions)
 
 target_include_directories(proto
   PUBLIC

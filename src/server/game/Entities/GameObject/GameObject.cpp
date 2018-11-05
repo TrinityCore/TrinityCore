@@ -293,6 +293,8 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     SetGoState(goState);
     SetGoArtKit(artKit);
 
+    SetUInt32Value(GAMEOBJECT_STATE_ANIM_ID, sAnimationDataStore.GetNumRows());
+
     switch (goInfo->type)
     {
         case GAMEOBJECT_TYPE_FISHINGHOLE:

@@ -45,6 +45,15 @@ struct AchievementEntry
     int16 SharesCriteria;                                           // referenced achievement (counting of all completed criterias)
 };
 
+struct AnimationDataEntry
+{
+    uint32 ID;
+    uint16 Fallback;
+    uint8 BehaviorTier;
+    int32 BehaviorID;
+    int32 Flags[2];
+};
+
 struct AnimKitEntry
 {
     uint32 ID;
