@@ -212,9 +212,9 @@ struct TC_GAME_API Condition
     uint32                  SourceId;          // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
     uint32                  ElseGroup;
     ConditionTypes          ConditionType;     //ConditionTypeOrReference
-    uint32                  ConditionValue1;
-    uint32                  ConditionValue2;
-    uint32                  ConditionValue3;
+    uint64                  ConditionValue1;
+    uint64                  ConditionValue2;
+    uint64                  ConditionValue3;
     uint32                  ErrorType;
     uint32                  ErrorTextId;
     uint32                  ReferenceId;

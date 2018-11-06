@@ -174,7 +174,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             if (Player* player = object->ToPlayer())
             {
                 if (FactionEntry const* faction = sFactionStore.LookupEntry(ConditionValue1))
-                    condMeets = (ConditionValue2 & (1 << player->GetReputationMgr().GetRank(faction))) != 0;
+                    condMeets = (uint32(ConditionValue2) & (1 << player->GetReputationMgr().GetRank(faction))) != 0;
             }
             break;
         }
@@ -291,7 +291,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_LEVEL:
         {
             if (Unit* unit = object->ToUnit())
-                condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), static_cast<uint32>(unit->getLevel()), ConditionValue1);
+                condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), static_cast<uint32>(unit->getLevel()), uint32(ConditionValue1));
             break;
         }
         case CONDITION_DRUNKENSTATE:
@@ -380,7 +380,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 Unit* toUnit = toObject->ToUnit();
                 Unit* unit = object->ToUnit();
                 if (toUnit && unit)
-                    condMeets = ((1 << unit->GetReactionTo(toUnit)) & ConditionValue2) != 0;
+                    condMeets = ((1 << unit->GetReactionTo(toUnit)) & uint32(ConditionValue2)) != 0;
             }
             break;
         }
@@ -483,7 +483,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         {
             if (Player* player = object->ToPlayer())
                 if (Pet* pet = player->GetPet())
-                    condMeets = (((1 << pet->getPetType()) & ConditionValue1) != 0);
+                    condMeets = (((1 << pet->getPetType()) & uint32(ConditionValue1)) != 0);
             break;
         }
         case CONDITION_TAXI:
@@ -1094,9 +1094,9 @@ void ConditionMgr::LoadConditions(bool isReload)
         cond->ElseGroup                 = fields[4].GetUInt32();
         int32 iConditionTypeOrReference = fields[5].GetInt32();
         cond->ConditionTarget           = fields[6].GetUInt8();
-        cond->ConditionValue1           = fields[7].GetUInt32();
-        cond->ConditionValue2           = fields[8].GetUInt32();
-        cond->ConditionValue3           = fields[9].GetUInt32();
+        cond->ConditionValue1           = fields[7].GetUInt64();
+        cond->ConditionValue2           = fields[8].GetUInt64();
+        cond->ConditionValue3           = fields[9].GetUInt64();
         cond->NegativeCondition         = fields[10].GetBool();
         cond->ErrorType                 = fields[11].GetUInt32();
         cond->ErrorTextId               = fields[12].GetUInt32();
