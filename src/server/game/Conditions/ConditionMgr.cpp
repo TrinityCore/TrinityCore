@@ -2372,7 +2372,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
 
 void ConditionMgr::LogUselessConditionValue(Condition* cond, uint8 index, uint32 value)
 {
-    TC_LOG_ERROR("sql.sql", "%s has useless data in ConditionValue%u (%lu)!", cond->ToString(true).c_str(), index, value);
+    TC_LOG_ERROR("sql.sql", "%s has useless data in ConditionValue%u (%u)!", cond->ToString(true).c_str(), index, value);
 }
 
 void ConditionMgr::Clean()
