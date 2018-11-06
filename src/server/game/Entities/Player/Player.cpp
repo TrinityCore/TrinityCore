@@ -1057,7 +1057,7 @@ void Player::Update(uint32 p_time)
 
     UpdateAfkReport(now);
 
-    AIUpdateTick(p_time);
+    Unit::AIUpdateTick(p_time);
 
     // Update items that have just a limited lifetime
     if (now > m_Last_tick)
