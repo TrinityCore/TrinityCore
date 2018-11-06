@@ -5434,6 +5434,8 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         {
             ((Guardian*)summon)->InitStatsForLevel(level);
             ((Guardian*)summon)->UpdateAllStats();
+            summon->SetPower(POWER_MANA, summon->GetMaxPower(POWER_MANA));
+            summon->SetFullHealth();
         }
 
         if (properties && properties->Category == SUMMON_CATEGORY_ALLY)
