@@ -1872,7 +1872,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sSpellMgr->GetSpellInfo(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing spell (Id: %d), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing spell (Id: %lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
 
@@ -2041,7 +2041,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sSpellMgr->GetSpellInfo(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing spell (Id: %d), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing spell (Id: %lu), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
