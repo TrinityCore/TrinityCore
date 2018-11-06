@@ -358,11 +358,23 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
         }
     }
 
+
     _player->PlayerTalkClass->ClearMenus();
     if (!unit->AI()->GossipHello(_player))
     {
 //        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
         _player->PrepareGossipMenu(unit, unit->GetCreatureTemplate()->GossipMenuId, true);
+
+        // If npc is a flightmaster who is a quest giver do not send the gossip if there is no quest
+        if (unit->IsTaxi() && (unit->IsQuestGiver() || unit->IsGossip()))
+        {
+            if (_player->PlayerTalkClass->GetQuestMenu().Empty() && _player->PlayerTalkClass->GetGossipMenu().Empty())
+            {
+                SendTaxiMenu(unit);
+                return;
+            }
+        }
+
         _player->SendPreparedGossip(unit);
     }
 }

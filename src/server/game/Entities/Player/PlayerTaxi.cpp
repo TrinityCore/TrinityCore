@@ -37,28 +37,57 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     // race specific initial known nodes: capital and taxi hub masks
     switch (race)
     {
-        case RACE_HUMAN:    SetTaximaskNode(2);  break;     // Human
-        case RACE_ORC:      SetTaximaskNode(23); break;     // Orc
-        case RACE_DWARF:    SetTaximaskNode(6);  break;     // Dwarf
-        case RACE_NIGHTELF: SetTaximaskNode(26);
-            SetTaximaskNode(27); break;     // Night Elf
-        case RACE_UNDEAD_PLAYER: SetTaximaskNode(11); break;// Undead
-        case RACE_TAUREN:   SetTaximaskNode(22); break;     // Tauren
-        case RACE_GNOME:    SetTaximaskNode(6);  break;     // Gnome
-        case RACE_TROLL:    SetTaximaskNode(23); break;     // Troll
-        case RACE_BLOODELF: SetTaximaskNode(82); break;     // Blood Elf
-        case RACE_DRAENEI:  SetTaximaskNode(94); break;     // Draenei
+        case RACE_HUMAN:
+            SetTaximaskNode(2);
+            break;
+        case RACE_ORC:
+            SetTaximaskNode(23);
+            break;
+        case RACE_DWARF:
+            SetTaximaskNode(6);
+            break;
+        case RACE_NIGHTELF:
+            SetTaximaskNode(26);
+            SetTaximaskNode(27);
+            break;
+        case RACE_UNDEAD_PLAYER:
+            SetTaximaskNode(11);
+            break;
+        case RACE_TAUREN:
+            SetTaximaskNode(22);
+            break;
+        case RACE_GNOME:
+            SetTaximaskNode(6);
+            break;
+        case RACE_TROLL:
+            SetTaximaskNode(23);
+            break;
+        case RACE_BLOODELF:
+            SetTaximaskNode(82);
+            break;
+        case RACE_DRAENEI:
+            SetTaximaskNode(94);
+            break;
     }
 
     // new continent starting masks (It will be accessible only at new map)
     switch (Player::TeamForRace(race))
     {
-        case ALLIANCE: SetTaximaskNode(100); break;
-        case HORDE:    SetTaximaskNode(99);  break;
+        case ALLIANCE:
+            SetTaximaskNode(100); // Honor Hold
+            SetTaximaskNode(245); // Valiance Keep
+            break;
+        case HORDE:
+            SetTaximaskNode(99); // Thrallmar
+            SetTaximaskNode(257); // Warsong Hold
+            break;
     }
     // level dependent taxi hubs
     if (level >= 68)
-        SetTaximaskNode(213);                               //Shattered Sun Staging Area
+        SetTaximaskNode(213); // Shattered Sun Staging Area
+
+    if (level >= 78)
+        SetTaximaskNode(310); // Dalaran
 }
 
 void PlayerTaxi::LoadTaxiMask(std::string const &data)
