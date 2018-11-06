@@ -1888,7 +1888,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(cond->ConditionValue1);
             if (!proto)
             {
-                TC_LOG_ERROR("sql.sql", "%s Item (%u) does not exist, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s Item (%lu) does not exist, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
 
@@ -1963,7 +1963,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_QUESTSTATE:
             if (cond->ConditionValue2 >= (1 << MAX_QUEST_STATUS))
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid state mask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "%s has invalid state mask (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
             // intentional missing break
