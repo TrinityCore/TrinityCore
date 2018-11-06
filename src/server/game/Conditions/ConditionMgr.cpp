@@ -1125,11 +1125,11 @@ void ConditionMgr::LoadConditions(bool isReload)
             if (cond->ConditionTarget)
                 TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in ConditionTarget (%u)!", rowType, iSourceTypeOrReferenceId, cond->ConditionTarget);
             if (cond->ConditionValue1)
-                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in value1 (%u)!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in value1 (%lu)!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue1);
             if (cond->ConditionValue2)
-                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in value2 (%u)!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in value2 (%lu)!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue2);
             if (cond->ConditionValue3)
-                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in value3 (%u)!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue3);
+                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in value3 (%lu)!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue3);
             if (cond->NegativeCondition)
                 TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in NegativeCondition (%u)!", rowType, iSourceTypeOrReferenceId, cond->NegativeCondition);
             if (cond->SourceGroup && iSourceTypeOrReferenceId < 0)
@@ -1878,7 +1878,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
 
             if (cond->ConditionValue2 > EFFECT_2)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing effect index (%u) (must be 0..2), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "%s has non existing effect index (%lu) (must be 0..2), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -1904,7 +1904,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(cond->ConditionValue1);
             if (!proto)
             {
-                TC_LOG_ERROR("sql.sql", "%s Item (%u) does not exist, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s Item (%lu) does not exist, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -1914,13 +1914,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(cond->ConditionValue1);
             if (!areaEntry)
             {
-                TC_LOG_ERROR("sql.sql", "%s Area (%u) does not exist, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s Area (%lu) does not exist, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
 
             if (areaEntry->ParentAreaID != 0)
             {
-                TC_LOG_ERROR("sql.sql", "%s requires to be in area (%u) which is a subzone but zone expected, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s requires to be in area (%lu) which is a subzone but zone expected, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -1930,7 +1930,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(cond->ConditionValue1);
             if (!factionEntry)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing faction (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing faction (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -1939,7 +1939,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 != ALLIANCE && cond->ConditionValue1 != HORDE)
             {
-                TC_LOG_ERROR("sql.sql", "%s specifies unknown team (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s specifies unknown team (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -1949,13 +1949,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(cond->ConditionValue1);
             if (!pSkill)
             {
-                TC_LOG_ERROR("sql.sql", "%s specifies non-existing skill (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s specifies non-existing skill (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
 
             if (cond->ConditionValue2 < 1 || cond->ConditionValue2 > sWorld->GetConfigMaxSkillValue())
             {
-                TC_LOG_ERROR("sql.sql", "%s specifies skill (%u) with invalid value (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1, cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "%s specifies skill (%lu) with invalid value (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1, cond->ConditionValue2);
                 return false;
             }
             break;
@@ -1975,7 +1975,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sObjectMgr->GetQuestTemplate(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s points to non-existing quest (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s points to non-existing quest (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -1985,7 +1985,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
             if (cond->ConditionValue1 >= events.size() || !events[cond->ConditionValue1].isValid())
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing event id (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing event id (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -1995,7 +1995,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             AchievementEntry const* achievement = sAchievementStore.LookupEntry(cond->ConditionValue1);
             if (!achievement)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing achivement id (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing achivement id (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2004,7 +2004,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 & ~CLASSMASK_ALL_PLAYABLE)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing classmask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~CLASSMASK_ALL_PLAYABLE);
+                TC_LOG_ERROR("sql.sql", "%s has non existing classmask (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~CLASSMASK_ALL_PLAYABLE);
                 return false;
             }
             break;
@@ -2022,7 +2022,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!Player::IsValidGender(uint8(cond->ConditionValue1)))
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid gender (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has invalid gender (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2032,7 +2032,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             MapEntry const* me = sMapStore.LookupEntry(cond->ConditionValue1);
             if (!me)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing map (%u), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing map (%lu), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2050,7 +2050,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue2 >= COMP_TYPE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2059,7 +2059,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 > DRUNKEN_SMASHED)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid state (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has invalid state (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2068,7 +2068,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sObjectMgr->GetCreatureTemplate(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing creature template entry (%u), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing creature template entry (%lu), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2077,7 +2077,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sObjectMgr->GetGameObjectTemplate(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing gameobject template entry (%u), skipped.", cond->ToString().c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing gameobject template entry (%lu), skipped.", cond->ToString().c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2089,7 +2089,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 case TYPEID_UNIT:
                     if (cond->ConditionValue2 && !sObjectMgr->GetCreatureTemplate(cond->ConditionValue2))
                     {
-                        TC_LOG_ERROR("sql.sql", "%s has non existing creature template entry (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                        TC_LOG_ERROR("sql.sql", "%s has non existing creature template entry (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                         return false;
                     }
                     if (cond->ConditionValue3)
@@ -2098,13 +2098,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                         {
                             if (cond->ConditionValue2 && creatureData->id != cond->ConditionValue2)
                             {
-                                TC_LOG_ERROR("sql.sql", "%s has guid %u set but does not match creature entry (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3, cond->ConditionValue2);
+                                TC_LOG_ERROR("sql.sql", "%s has guid %lu set but does not match creature entry (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3, cond->ConditionValue2);
                                 return false;
                             }
                         }
                         else
                         {
-                            TC_LOG_ERROR("sql.sql", "%s has non existing creature guid (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3);
+                            TC_LOG_ERROR("sql.sql", "%s has non existing creature guid (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3);
                             return false;
                         }
                     }
@@ -2112,7 +2112,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 case TYPEID_GAMEOBJECT:
                     if (cond->ConditionValue2 && !sObjectMgr->GetGameObjectTemplate(cond->ConditionValue2))
                     {
-                        TC_LOG_ERROR("sql.sql", "%s has non existing gameobject template entry (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                        TC_LOG_ERROR("sql.sql", "%s has non existing gameobject template entry (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                         return false;
                     }
                     if (cond->ConditionValue3)
@@ -2121,13 +2121,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                         {
                             if (cond->ConditionValue2 && goData->id != cond->ConditionValue2)
                             {
-                                TC_LOG_ERROR("sql.sql", "%s has guid %u set but does not match gameobject entry (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3, cond->ConditionValue2);
+                                TC_LOG_ERROR("sql.sql", "%s has guid %lu set but does not match gameobject entry (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3, cond->ConditionValue2);
                                 return false;
                             }
                         }
                         else
                         {
-                            TC_LOG_ERROR("sql.sql", "%s has non existing gameobject guid (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3);
+                            TC_LOG_ERROR("sql.sql", "%s has non existing gameobject guid (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3);
                             return false;
                         }
                     }
@@ -2140,7 +2140,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                         LogUselessConditionValue(cond, 3, cond->ConditionValue3);
                     break;
                 default:
-                    TC_LOG_ERROR("sql.sql", "%s has wrong typeid set (%u), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
+                    TC_LOG_ERROR("sql.sql", "%s has wrong typeid set (%lu), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
                     return false;
             }
             break;
@@ -2149,7 +2149,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!cond->ConditionValue1 || (cond->ConditionValue1 & ~(TYPEMASK_UNIT | TYPEMASK_PLAYER | TYPEMASK_GAMEOBJECT | TYPEMASK_CORPSE)))
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid typemask set (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "%s has invalid typemask set (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2158,17 +2158,17 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 >= cond->GetMaxAvailableConditionTargets())
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue1(ConditionTarget selection) (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue1(ConditionTarget selection) (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue1 == cond->ConditionTarget)
             {
-                TC_LOG_ERROR("sql.sql", "%s has ConditionValue1(ConditionTarget selection) set to self (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has ConditionValue1(ConditionTarget selection) set to self (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue2 >= RELATION_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue2(RelationType) (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue2(RelationType) (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2177,17 +2177,17 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 >= cond->GetMaxAvailableConditionTargets())
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue1(ConditionTarget selection) (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue1(ConditionTarget selection) (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue1 == cond->ConditionTarget)
             {
-                TC_LOG_ERROR("sql.sql", "%s has ConditionValue1(ConditionTarget selection) set to self (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has ConditionValue1(ConditionTarget selection) set to self (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             if (!cond->ConditionValue2)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue2(rankMask) (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue2(rankMask) (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2196,17 +2196,17 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 >= cond->GetMaxAvailableConditionTargets())
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue1(ConditionTarget selection) (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue1(ConditionTarget selection) (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue1 == cond->ConditionTarget)
             {
-                TC_LOG_ERROR("sql.sql", "%s has ConditionValue1(ConditionTarget selection) set to self (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has ConditionValue1(ConditionTarget selection) set to self (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue3 >= COMP_TYPE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3);
+                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3);
                 return false;
             }
             break;
@@ -2215,7 +2215,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue2 >= COMP_TYPE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2224,12 +2224,12 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 > 100)
             {
-                TC_LOG_ERROR("sql.sql", "%s has too big percent value (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has too big percent value (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue2 >= COMP_TYPE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2238,7 +2238,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sWorld->getWorldState(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing world state in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing world state in value1 (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2247,7 +2247,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sPhaseStore.LookupEntry(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has nonexistent phaseid in value1 (%u), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has nonexistent phaseid in value1 (%lu), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2257,7 +2257,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(cond->ConditionValue1);
             if (!titleEntry)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing title in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing title in value1 (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2271,7 +2271,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!(cond->ConditionValue1 & UNIT_STATE_ALL_STATE_SUPPORTED))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing UnitState in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing UnitState in value1 (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2280,7 +2280,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!cond->ConditionValue1 || cond->ConditionValue1 > CREATURE_TYPE_GAS_CLOUD)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing CreatureType in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing CreatureType in value1 (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2290,7 +2290,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             AchievementEntry const* achievement = sAchievementStore.LookupEntry(cond->ConditionValue1);
             if (!achievement)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing realm first achivement id (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing realm first achivement id (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2312,7 +2312,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             if (!valid)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non-existing stand state (%u,%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1, cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "%s has non-existing stand state (%lu,%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1, cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2322,7 +2322,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             QuestObjective const* obj = sObjectMgr->GetQuestObjective(cond->ConditionValue1);
             if (!obj)
             {
-                TC_LOG_ERROR("sql.sql", "%s points to non-existing quest objective (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s points to non-existing quest objective (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2330,7 +2330,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_PET_TYPE:
             if (cond->ConditionValue1 >= (1 << MAX_PET_TYPE))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non-existing pet type %u, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non-existing pet type %lu, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2345,7 +2345,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_DIFFICULTY_ID:
             if (!sDifficultyStore.LookupEntry(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing difficulty in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "%s has non existing difficulty in value1 (%lu), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2372,7 +2372,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
 
 void ConditionMgr::LogUselessConditionValue(Condition* cond, uint8 index, uint32 value)
 {
-    TC_LOG_ERROR("sql.sql", "%s has useless data in ConditionValue%u (%u)!", cond->ToString(true).c_str(), index, value);
+    TC_LOG_ERROR("sql.sql", "%s has useless data in ConditionValue%u (%lu)!", cond->ToString(true).c_str(), index, value);
 }
 
 void ConditionMgr::Clean()
