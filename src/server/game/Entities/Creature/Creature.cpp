@@ -254,7 +254,7 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(), m_groupLootTimer(0), lootingGroupLowGUID(0), m_PlayerDamageReq(0), m_lootRecipient(), m_lootRecipientGroup(0), _pickpocketLootRestore(0),
     m_corpseRemoveTime(0), m_respawnTime(0), m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
     m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
-    m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
+    m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
     m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), m_focusSpell(nullptr), m_focusDelay(0), m_shouldReacquireTarget(false), m_suppressedOrientation(0.0f), _lastDamagedTime(0),
     _regenerateHealth(true), _regenerateHealthLock(false)
 {
@@ -845,9 +845,7 @@ void Creature::Update(uint32 diff)
 
 
             // do not allow the AI to be changed during update
-            m_AI_locked = true;
             Unit::AIUpdateTick(diff);
-            m_AI_locked = false;
 
             // creature can be dead after UpdateAI call
             // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
@@ -1014,25 +1012,12 @@ void Creature::DoFleeToGetAssistance()
 
 bool Creature::AIM_Destroy()
 {
-    if (m_AI_locked)
-    {
-        TC_LOG_DEBUG("scripts", "AIM_Destroy: failed to destroy, locked.");
-        return false;
-    }
-
     SetAI(nullptr);
     return true;
 }
 
 bool Creature::AIM_Create(CreatureAI* ai /*= nullptr*/)
 {
-    // make sure nothing can change the AI during AI update
-    if (m_AI_locked)
-    {
-        TC_LOG_DEBUG("scripts", "AIM_Initialize: failed to init, locked.");
-        return false;
-    }
-
     Motion_Initialize();
 
     SetAI(ai ? ai : FactorySelector::SelectAI(this));

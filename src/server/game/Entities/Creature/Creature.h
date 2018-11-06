@@ -406,7 +406,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool m_AlreadySearchedAssistance;
         bool m_cannotReachTarget;
         uint32 m_cannotReachTimer;
-        bool m_AI_locked;
 
         SpellSchoolMask m_meleeDamageSchoolMask;
         uint32 m_originalEntry;
