@@ -21,6 +21,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
 #include "SpellScript.h"
 #include "stonecore.h"
 
@@ -343,10 +344,14 @@ class spell_sc_twilight_documents : public SpellScriptLoader
 class JumpCheck
 {
     public:
-        bool operator()(WorldObject* object) const
+        bool operator()(WorldObject* object)
         {
-            Player* player = object->ToPlayer();
-            return (player && (player->IsFalling() || player->HasUnitState(UNIT_STATE_JUMPING)));
+            if (Unit* target = object->ToUnit())
+                return (target->HasUnitMovementFlag(MOVEMENTFLAG_FALLING)
+                    || target->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR)
+                    || target->HasUnitMovementFlag(MOVEMENTFLAG_PITCH_UP));
+
+            return false;
         }
 };
 
@@ -374,6 +379,27 @@ class spell_sc_quake : public SpellScriptLoader
         {
             return new spell_sc_quake_SpellScript();
         }
+};
+
+class spell_sc_ring_wyrm_knockback : public SpellScript
+{
+    PrepareSpellScript(spell_sc_ring_wyrm_knockback);
+
+    void SetDest(SpellDestination& dest)
+    {
+        Unit* caster = GetCaster();
+
+        float angle = caster->GetOrientation();
+        float x = caster->GetPositionX() + cos(caster->GetOrientation() + float(M_PI)) * 100.0f;
+        float y = caster->GetPositionY() + sin(caster->GetOrientation() + float(M_PI)) * 100.0f;
+        float z = caster->GetPositionZ();
+        dest.Relocate({ x, y, z, 0.0f });
+    }
+
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_sc_ring_wyrm_knockback::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
+    }
 };
 
 class at_sc_corborus_intro : public AreaTriggerScript
@@ -411,6 +437,7 @@ void AddSC_stonecore()
     new spell_sc_anchor_here();
     new spell_sc_twilight_documents();
     new spell_sc_quake();
+    RegisterSpellScript(spell_sc_ring_wyrm_knockback);
     new at_sc_corborus_intro();
     new at_sc_slabhide_intro();
 }
