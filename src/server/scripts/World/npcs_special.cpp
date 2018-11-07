@@ -3047,6 +3047,7 @@ class npc_mage_orb : public CreatureScript
             void IsSummonedBy(Unit* summoner) override
             {
                 pos = summoner->GetPosition();
+                pos.m_positionZ += 2.0f; // increasing the height to avoid terrain hickups
                 summoner->MovePositionToFirstCollision(pos, 100.0f, 0.0f);
                 events.ScheduleEvent(EVENT_MOVE_FORWARD, Milliseconds(1));
                 events.ScheduleEvent(EVENT_APPLY_PERIODIC_EFFECT, Milliseconds(400));
