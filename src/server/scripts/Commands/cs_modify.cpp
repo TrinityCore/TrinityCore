@@ -493,7 +493,10 @@ public:
         if (CheckModifySpeed(handler, args, target, Scale, 0.1f, 10.0f, false))
         {
             NotifyModification(handler, target, LANG_YOU_CHANGE_SIZE, LANG_YOURS_SIZE_CHANGED, Scale);
-            target->SetObjectScale(Scale);
+            if (Creature* creatureTarget = target->ToCreature())
+                creatureTarget->SetFloatValue(UNIT_FIELD_DISPLAY_SCALE, Scale);
+            else
+                target->SetObjectScale(Scale);
             return true;
         }
         return false;

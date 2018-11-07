@@ -1778,9 +1778,9 @@ Player* Pet::GetOwner() const
     return Minion::GetOwner()->ToPlayer();
 }
 
-void Pet::SetDisplayId(uint32 modelId)
+void Pet::SetDisplayId(uint32 modelId, float displayScale /*= 1.f*/)
 {
-    Guardian::SetDisplayId(modelId);
+    Guardian::SetDisplayId(modelId, displayScale);
 
     if (!isControlled())
         return;

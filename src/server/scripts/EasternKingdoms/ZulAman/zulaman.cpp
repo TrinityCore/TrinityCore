@@ -91,7 +91,7 @@ class npc_voljin_zulaman : public CreatureScript
         {
             npc_voljin_zulamanAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+                me->SetDisplayFromModel(0);
                 if (_instance->GetData(DATA_ZULAMAN_STATE) == NOT_STARTED)
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }

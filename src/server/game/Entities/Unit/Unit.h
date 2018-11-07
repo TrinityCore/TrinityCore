@@ -1684,10 +1684,11 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateInterruptMask();
 
         uint32 GetDisplayId() const { return GetUInt32Value(UNIT_FIELD_DISPLAYID); }
-        virtual void SetDisplayId(uint32 modelId);
+        virtual void SetDisplayId(uint32 modelId, float displayScale = 1.f);
         uint32 GetNativeDisplayId() const { return GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID); }
+        float GetNativeDisplayScale() const { return GetFloatValue(UNIT_FIELD_NATIVE_X_DISPLAY_SCALE); }
         void RestoreDisplayId(bool ignorePositiveAurasPreventingMounting = false);
-        void SetNativeDisplayId(uint32 modelId) { SetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID, modelId); }
+        void SetNativeDisplayId(uint32 displayId, float displayScale = 1.f) { SetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID, displayId); SetFloatValue(UNIT_FIELD_NATIVE_X_DISPLAY_SCALE, displayScale); }
         void setTransForm(uint32 spellid) { m_transform = spellid;}
         uint32 getTransForm() const { return m_transform;}
 
