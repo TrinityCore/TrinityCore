@@ -69,7 +69,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void RemoveFromWorld() override;
 
         void SetObjectScale(float scale) override;
-        void SetDisplayId(uint32 modelId) override;
+        void SetDisplayId(uint32 displayId, float displayScale = 1.f) override;
+        void SetDisplayFromModel(uint32 modelIdx);
 
         void DisappearAndDie();
 

@@ -95,22 +95,12 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
             stats.ProxyCreatureID[i] = creatureInfo->KillCredit[i];
 
-        // TEMPORARY, PR #22567
-        auto addModel = [&](uint32 modelId)
+        std::transform(creatureInfo->Models.begin(), creatureInfo->Models.end(), std::back_inserter(stats.Display.CreatureDisplay),
+            [&stats](CreatureModel const& model) -> WorldPackets::Query::CreatureXDisplay
         {
-            if (modelId)
-            {
-                stats.Display.TotalProbability += 1.0f;
-                stats.Display.CreatureDisplay.emplace_back();
-                WorldPackets::Query::CreatureXDisplay& display = stats.Display.CreatureDisplay.back();
-                display.CreatureDisplayID = modelId;
-            }
-        };
-
-        addModel(creatureInfo->Modelid1);
-        addModel(creatureInfo->Modelid2);
-        addModel(creatureInfo->Modelid3);
-        addModel(creatureInfo->Modelid4);
+            stats.Display.TotalProbability += model.Probability;
+            return { model.CreatureDisplayID, model.DisplayScale, model.Probability };
+        });
 
         stats.HpMulti = creatureInfo->ModHealth;
         stats.EnergyMulti = creatureInfo->ModMana;

@@ -2587,7 +2587,7 @@ class npc_quel_delar_sword : public CreatureScript
             npc_quel_delar_swordAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = me->GetInstanceScript();
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetDisplayFromModel(1);
                 _intro = true;
             }
 

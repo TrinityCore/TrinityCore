@@ -54,6 +54,7 @@
 #include "VMapFactory.h"
 #include "World.h"
 #include <G3D/g3dmath.h>
+#include <numeric>
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
@@ -411,21 +412,21 @@ void ObjectMgr::LoadCreatureTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0      1                   2                   3                   4            5            6         7         8
-    QueryResult result = WorldDatabase.Query("SELECT entry, difficulty_entry_1, difficulty_entry_2, difficulty_entry_3, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
-    //                                        9         10    11          12       13        14        15              16        17        18                      19                 20
-                                             "modelid4, name, femaleName, subname, TitleAlt, IconName, gossip_menu_id, minlevel, maxlevel, HealthScalingExpansion, RequiredExpansion, VignetteID, "
-    //                                        21       22       23          24         25     26    27         28              29               30            31
+    //                                               0      1                   2                   3                   4            5            6     7           8
+    QueryResult result = WorldDatabase.Query("SELECT entry, difficulty_entry_1, difficulty_entry_2, difficulty_entry_3, KillCredit1, KillCredit2, name, femaleName, subname, "
+    //                                        9         10        11              12        13        14                      15                 16
+                                             "TitleAlt, IconName, gossip_menu_id, minlevel, maxlevel, HealthScalingExpansion, RequiredExpansion, VignetteID, "
+    //                                        17       18       19          20         21     22    23         24              25               26            27
                                              "faction, npcflag, speed_walk, speed_run, scale, rank, dmgschool, BaseAttackTime, RangeAttackTime, BaseVariance, RangeVariance, "
-    //                                        32          33          34           35           36            37      38             39
+    //                                        28          29          30           31           32            33      34             35
                                              "unit_class, unit_flags, unit_flags2, unit_flags3, dynamicflags, family, trainer_class, type, "
-    //                                        40          41           42      43              44        45           46           47           48           49           50
+    //                                        36          37           38      39              40        41           42           43           44           45           46
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
-    //                                        51      52      53      54      55      56      57      58      59         60       61       62      63
+    //                                        47      48      49      50      51      52      53      54      55         56       57       58      59
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                        64           65           66              67                   68            69                 70             71              72
+    //                                        60           61           62              63                   64            65                 66             67              68
                                              "InhabitType, HoverHeight, HealthModifier, HealthModifierExtra, ManaModifier, ManaModifierExtra, ArmorModifier, DamageModifier, ExperienceModifier, "
-    //                                        73            74          75           76                    77           78
+    //                                        69            70          71           72                    73           74
                                              "RacialLeader, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName FROM creature_template");
 
     if (!result)
@@ -441,6 +442,9 @@ void ObjectMgr::LoadCreatureTemplates()
         LoadCreatureTemplate(fields);
     }
     while (result->NextRow());
+
+    // We load the creature models after loading but before checking
+    LoadCreatureTemplateModels();
 
     // Checking needs to be done after loading because of the difficulty self referencing
     for (CreatureTemplateContainer::const_iterator itr = _creatureTemplateStore.begin(); itr != _creatureTemplateStore.end(); ++itr)
@@ -463,72 +467,121 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
         creatureTemplate.KillCredit[i]      = fields[4 + i].GetUInt32();
 
-    creatureTemplate.Modelid1               = fields[6].GetUInt32();
-    creatureTemplate.Modelid2               = fields[7].GetUInt32();
-    creatureTemplate.Modelid3               = fields[8].GetUInt32();
-    creatureTemplate.Modelid4               = fields[9].GetUInt32();
-    creatureTemplate.Name                   = fields[10].GetString();
-    creatureTemplate.FemaleName             = fields[11].GetString();
-    creatureTemplate.SubName                = fields[12].GetString();
-    creatureTemplate.TitleAlt               = fields[13].GetString();
-    creatureTemplate.IconName               = fields[14].GetString();
-    creatureTemplate.GossipMenuId           = fields[15].GetUInt32();
-    creatureTemplate.minlevel               = fields[16].GetInt16();
-    creatureTemplate.maxlevel               = fields[17].GetInt16();
-    creatureTemplate.HealthScalingExpansion = fields[18].GetInt32();
-    creatureTemplate.RequiredExpansion      = fields[19].GetUInt32();
-    creatureTemplate.VignetteID             = fields[20].GetUInt32();
-    creatureTemplate.faction                = fields[21].GetUInt16();
-    creatureTemplate.npcflag                = fields[22].GetUInt64();
-    creatureTemplate.speed_walk             = fields[23].GetFloat();
-    creatureTemplate.speed_run              = fields[24].GetFloat();
-    creatureTemplate.scale                  = fields[25].GetFloat();
-    creatureTemplate.rank                   = uint32(fields[26].GetUInt8());
-    creatureTemplate.dmgschool              = uint32(fields[27].GetInt8());
-    creatureTemplate.BaseAttackTime         = fields[28].GetUInt32();
-    creatureTemplate.RangeAttackTime        = fields[29].GetUInt32();
-    creatureTemplate.BaseVariance           = fields[30].GetFloat();
-    creatureTemplate.RangeVariance          = fields[31].GetFloat();
-    creatureTemplate.unit_class             = uint32(fields[32].GetUInt8());
-    creatureTemplate.unit_flags             = fields[33].GetUInt32();
-    creatureTemplate.unit_flags2            = fields[34].GetUInt32();
-    creatureTemplate.unit_flags3            = fields[35].GetUInt32();
-    creatureTemplate.dynamicflags           = fields[36].GetUInt32();
-    creatureTemplate.family                 = CreatureFamily(fields[37].GetUInt8());
-    creatureTemplate.trainer_class          = uint32(fields[38].GetUInt8());
-    creatureTemplate.type                   = uint32(fields[39].GetUInt8());
-    creatureTemplate.type_flags             = fields[40].GetUInt32();
-    creatureTemplate.type_flags2            = fields[41].GetUInt32();
-    creatureTemplate.lootid                 = fields[42].GetUInt32();
-    creatureTemplate.pickpocketLootId       = fields[43].GetUInt32();
-    creatureTemplate.SkinLootId             = fields[44].GetUInt32();
+    creatureTemplate.Name                   = fields[6].GetString();
+    creatureTemplate.FemaleName             = fields[7].GetString();
+    creatureTemplate.SubName                = fields[8].GetString();
+    creatureTemplate.TitleAlt               = fields[9].GetString();
+    creatureTemplate.IconName               = fields[10].GetString();
+    creatureTemplate.GossipMenuId           = fields[11].GetUInt32();
+    creatureTemplate.minlevel               = fields[12].GetInt16();
+    creatureTemplate.maxlevel               = fields[13].GetInt16();
+    creatureTemplate.HealthScalingExpansion = fields[14].GetInt32();
+    creatureTemplate.RequiredExpansion      = fields[15].GetUInt32();
+    creatureTemplate.VignetteID             = fields[16].GetUInt32();
+    creatureTemplate.faction                = fields[17].GetUInt16();
+    creatureTemplate.npcflag                = fields[18].GetUInt64();
+    creatureTemplate.speed_walk             = fields[19].GetFloat();
+    creatureTemplate.speed_run              = fields[20].GetFloat();
+    creatureTemplate.scale                  = fields[21].GetFloat();
+    creatureTemplate.rank                   = uint32(fields[22].GetUInt8());
+    creatureTemplate.dmgschool              = uint32(fields[23].GetInt8());
+    creatureTemplate.BaseAttackTime         = fields[24].GetUInt32();
+    creatureTemplate.RangeAttackTime        = fields[25].GetUInt32();
+    creatureTemplate.BaseVariance           = fields[26].GetFloat();
+    creatureTemplate.RangeVariance          = fields[27].GetFloat();
+    creatureTemplate.unit_class             = uint32(fields[28].GetUInt8());
+    creatureTemplate.unit_flags             = fields[29].GetUInt32();
+    creatureTemplate.unit_flags2            = fields[30].GetUInt32();
+    creatureTemplate.unit_flags3            = fields[31].GetUInt32();
+    creatureTemplate.dynamicflags           = fields[32].GetUInt32();
+    creatureTemplate.family                 = CreatureFamily(fields[33].GetUInt8());
+    creatureTemplate.trainer_class          = uint32(fields[34].GetUInt8());
+    creatureTemplate.type                   = uint32(fields[35].GetUInt8());
+    creatureTemplate.type_flags             = fields[36].GetUInt32();
+    creatureTemplate.type_flags2            = fields[37].GetUInt32();
+    creatureTemplate.lootid                 = fields[38].GetUInt32();
+    creatureTemplate.pickpocketLootId       = fields[39].GetUInt32();
+    creatureTemplate.SkinLootId             = fields[40].GetUInt32();
 
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        creatureTemplate.resistance[i]      = fields[45 + i - 1].GetInt16();
+        creatureTemplate.resistance[i]      = fields[41 + i - 1].GetInt16();
 
     for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
-        creatureTemplate.spells[i]          = fields[51 + i].GetUInt32();
+        creatureTemplate.spells[i]          = fields[47 + i].GetUInt32();
 
-    creatureTemplate.VehicleId              = fields[59].GetUInt32();
-    creatureTemplate.mingold                = fields[60].GetUInt32();
-    creatureTemplate.maxgold                = fields[61].GetUInt32();
-    creatureTemplate.AIName                 = fields[62].GetString();
-    creatureTemplate.MovementType           = uint32(fields[63].GetUInt8());
-    creatureTemplate.InhabitType            = uint32(fields[64].GetUInt8());
-    creatureTemplate.HoverHeight            = fields[65].GetFloat();
-    creatureTemplate.ModHealth              = fields[66].GetFloat();
-    creatureTemplate.ModHealthExtra         = fields[67].GetFloat();
-    creatureTemplate.ModMana                = fields[68].GetFloat();
-    creatureTemplate.ModManaExtra           = fields[69].GetFloat();
-    creatureTemplate.ModArmor               = fields[70].GetFloat();
-    creatureTemplate.ModDamage              = fields[71].GetFloat();
-    creatureTemplate.ModExperience          = fields[72].GetFloat();
-    creatureTemplate.RacialLeader           = fields[73].GetBool();
-    creatureTemplate.movementId             = fields[74].GetUInt32();
-    creatureTemplate.RegenHealth            = fields[75].GetBool();
-    creatureTemplate.MechanicImmuneMask     = fields[76].GetUInt32();
-    creatureTemplate.flags_extra            = fields[77].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[78].GetString());
+    creatureTemplate.VehicleId              = fields[55].GetUInt32();
+    creatureTemplate.mingold                = fields[56].GetUInt32();
+    creatureTemplate.maxgold                = fields[57].GetUInt32();
+    creatureTemplate.AIName                 = fields[58].GetString();
+    creatureTemplate.MovementType           = uint32(fields[59].GetUInt8());
+    creatureTemplate.InhabitType            = uint32(fields[60].GetUInt8());
+    creatureTemplate.HoverHeight            = fields[61].GetFloat();
+    creatureTemplate.ModHealth              = fields[62].GetFloat();
+    creatureTemplate.ModHealthExtra         = fields[63].GetFloat();
+    creatureTemplate.ModMana                = fields[64].GetFloat();
+    creatureTemplate.ModManaExtra           = fields[65].GetFloat();
+    creatureTemplate.ModArmor               = fields[66].GetFloat();
+    creatureTemplate.ModDamage              = fields[67].GetFloat();
+    creatureTemplate.ModExperience          = fields[68].GetFloat();
+    creatureTemplate.RacialLeader           = fields[69].GetBool();
+    creatureTemplate.movementId             = fields[70].GetUInt32();
+    creatureTemplate.RegenHealth            = fields[71].GetBool();
+    creatureTemplate.MechanicImmuneMask     = fields[72].GetUInt32();
+    creatureTemplate.flags_extra            = fields[73].GetUInt32();
+    creatureTemplate.ScriptID               = GetScriptId(fields[74].GetString());
+}
+
+void ObjectMgr::LoadCreatureTemplateModels()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0           1                  2             3
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, CreatureDisplayID, DisplayScale, Probability FROM creature_template_model ORDER BY Idx ASC");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 creature template model definitions. DB table `creature_template_model` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 creatureId = fields[0].GetUInt32();
+        uint32 creatureDisplayId = fields[1].GetUInt32();
+        float displayScale = fields[2].GetFloat();
+        float probability = fields[3].GetFloat();
+
+        CreatureTemplate const* cInfo = GetCreatureTemplate(creatureId);
+        if (!cInfo)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature template (Entry: %u) does not exist but has a record in `creature_template_model`", creatureId);
+            continue;
+        }
+
+        CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(creatureDisplayId);
+        if (!displayEntry)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) lists non-existing CreatureDisplayID id (%u), this can crash the client.", creatureId, creatureDisplayId);
+            continue;
+        }
+
+        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(creatureDisplayId);
+        if (!modelInfo)
+            TC_LOG_ERROR("sql.sql", "No model data exist for `CreatureDisplayID` = %u listed by creature (Entry: %u).", creatureDisplayId, creatureId);
+
+        if (displayScale <= 0.0f)
+            displayScale = 1.0f;
+
+        const_cast<CreatureTemplate*>(cInfo)->Models.emplace_back(creatureDisplayId, displayScale, probability);
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u creature template models in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatureTemplateAddons()
@@ -867,76 +920,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->faction = sFactionTemplateStore.AssertEntry(35)->ID; // this might seem stupid but all shit will would break if faction 35 did not exist
     }
 
-    // used later for scale
-    CreatureDisplayInfoEntry const* displayScaleEntry = nullptr;
-
-    if (cInfo->Modelid1)
-    {
-        CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->Modelid1);
-        if (!displayEntry)
-        {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) lists non-existing Modelid1 id (%u), this can crash the client.", cInfo->Entry, cInfo->Modelid1);
-            const_cast<CreatureTemplate*>(cInfo)->Modelid1 = 0;
-        }
-        else
-            displayScaleEntry = displayEntry;
-
-        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid1);
-        if (!modelInfo)
-            TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid1` = %u listed by creature (Entry: %u).", cInfo->Modelid1, cInfo->Entry);
-    }
-
-    if (cInfo->Modelid2)
-    {
-        CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->Modelid2);
-        if (!displayEntry)
-        {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) lists non-existing Modelid2 id (%u), this can crash the client.", cInfo->Entry, cInfo->Modelid2);
-            const_cast<CreatureTemplate*>(cInfo)->Modelid2 = 0;
-        }
-        else if (!displayScaleEntry)
-            displayScaleEntry = displayEntry;
-
-        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid2);
-        if (!modelInfo)
-            TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid2` = %u listed by creature (Entry: %u).", cInfo->Modelid2, cInfo->Entry);
-    }
-
-    if (cInfo->Modelid3)
-    {
-        CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->Modelid3);
-        if (!displayEntry)
-        {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) lists non-existing Modelid3 id (%u), this can crash the client.", cInfo->Entry, cInfo->Modelid3);
-            const_cast<CreatureTemplate*>(cInfo)->Modelid3 = 0;
-        }
-        else if (!displayScaleEntry)
-            displayScaleEntry = displayEntry;
-
-        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid3);
-        if (!modelInfo)
-            TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid3` = %u listed by creature (Entry: %u).", cInfo->Modelid3, cInfo->Entry);
-    }
-
-    if (cInfo->Modelid4)
-    {
-        CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->Modelid4);
-        if (!displayEntry)
-        {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) lists non-existing Modelid4 id (%u), this can crash the client.", cInfo->Entry, cInfo->Modelid4);
-            const_cast<CreatureTemplate*>(cInfo)->Modelid4 = 0;
-        }
-        else if (!displayScaleEntry)
-            displayScaleEntry = displayEntry;
-
-        CreatureModelInfo const* modelInfo = GetCreatureModelInfo(cInfo->Modelid4);
-        if (!modelInfo)
-            TC_LOG_ERROR("sql.sql", "No model data exist for `Modelid4` = %u listed by creature (Entry: %u).", cInfo->Modelid4, cInfo->Entry);
-    }
-
-    if (!displayScaleEntry)
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) does not have any existing display id in Modelid1/Modelid2/Modelid3/Modelid4.", cInfo->Entry);
-
     for (uint8 k = 0; k < MAX_KILL_CREDIT; ++k)
     {
         if (cInfo->KillCredit[k])
@@ -948,6 +931,11 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
             }
         }
     }
+
+    if (!cInfo->Models.size())
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) does not have any existing display id in creature_template_model.", cInfo->Entry);
+    else if (std::accumulate(cInfo->Models.begin(), cInfo->Models.end(), 0.0f, [](float sum, CreatureModel const& model) { return sum + model.Probability; }) <= 0.0f)
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has zero total chance for all models in creature_template_model.", cInfo->Entry);
 
     if (!cInfo->unit_class || ((1 << (cInfo->unit_class-1)) & CLASSMASK_ALL_CREATURES) == 0)
     {
@@ -1027,15 +1015,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     {
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong movement generator type (%u), ignored and set to IDLE.", cInfo->Entry, cInfo->MovementType);
         const_cast<CreatureTemplate*>(cInfo)->MovementType = IDLE_MOTION_TYPE;
-    }
-
-    /// if not set custom creature scale then load scale from CreatureDisplayInfo.dbc
-    if (cInfo->scale <= 0.0f)
-    {
-        if (displayScaleEntry)
-            const_cast<CreatureTemplate*>(cInfo)->scale = displayScaleEntry->CreatureModelScale;
-        else
-            const_cast<CreatureTemplate*>(cInfo)->scale = 1.0f;
     }
 
     if (cInfo->HealthScalingExpansion < EXPANSION_LEVEL_CURRENT || cInfo->HealthScalingExpansion > (MAX_EXPANSIONS - 1))
@@ -1409,14 +1388,16 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelInfo(uint32 modelId) const
     return nullptr;
 }
 
-uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data /*= nullptr*/)
+CreatureModel const* ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data /*= nullptr*/)
 {
     // Load creature model (display id)
     if (data && data->displayid)
-        return data->displayid;
+        if (CreatureModel const* model = cinfo->GetModelWithDisplayId(data->displayid))
+            return model;
 
     if (!(cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER))
-        return cinfo->GetRandomValidModelId();
+        if (CreatureModel const* model = cinfo->GetRandomValidModel())
+            return model;
 
     // Triggers by default receive the invisible model
     return cinfo->GetFirstInvisibleModel();
@@ -1449,9 +1430,9 @@ void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64& npcFl
     }
 }
 
-CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* displayID) const
+CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(CreatureModel* model, CreatureTemplate const* creatureTemplate) const
 {
-    CreatureModelInfo const* modelInfo = GetCreatureModelInfo(*displayID);
+    CreatureModelInfo const* modelInfo = GetCreatureModelInfo(model->CreatureDisplayID);
     if (!modelInfo)
         return nullptr;
 
@@ -1460,11 +1441,20 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* display
     {
         CreatureModelInfo const* minfo_tmp = GetCreatureModelInfo(modelInfo->displayId_other_gender);
         if (!minfo_tmp)
-            TC_LOG_ERROR("sql.sql", "Model (Entry: %u) has modelid_other_gender %u not found in table `creature_model_info`. ", *displayID, modelInfo->displayId_other_gender);
+            TC_LOG_ERROR("sql.sql", "Model (Entry: %u) has modelid_other_gender %u not found in table `creature_model_info`. ", model->CreatureDisplayID, modelInfo->displayId_other_gender);
         else
         {
             // DisplayID changed
-            *displayID = modelInfo->displayId_other_gender;
+            model->CreatureDisplayID = modelInfo->displayId_other_gender;
+            if (creatureTemplate)
+            {
+                auto itr = std::find_if(creatureTemplate->Models.begin(), creatureTemplate->Models.end(), [&](CreatureModel const& templateModel)
+                {
+                    return templateModel.CreatureDisplayID == modelInfo->displayId_other_gender;
+                });
+                if (itr != creatureTemplate->Models.end())
+                    *model = *itr;
+            }
             return minfo_tmp;
         }
     }
@@ -6234,7 +6224,8 @@ void ObjectMgr::GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uin
 
 uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt_team /* = false */)
 {
-    uint32 mount_id = 0;
+    CreatureModel mountModel;
+    CreatureTemplate const* mount_info = nullptr;
 
     // select mount creature id
     TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(id);
@@ -6254,22 +6245,23 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt
             mount_entry = team == ALLIANCE ? node->MountCreatureID[0] : node->MountCreatureID[1];
         }
 
-        CreatureTemplate const* mount_info = GetCreatureTemplate(mount_entry);
+        mount_info = GetCreatureTemplate(mount_entry);
         if (mount_info)
         {
-            mount_id = mount_info->GetRandomValidModelId();
-            if (!mount_id)
+            CreatureModel const* model = mount_info->GetRandomValidModel();
+            if (!model)
             {
                 TC_LOG_ERROR("sql.sql", "No displayid found for the taxi mount with the entry %u! Can't load it!", mount_entry);
                 return 0;
             }
+            mountModel = *model;
         }
     }
 
     // minfo is not actually used but the mount_id was updated
-    GetCreatureModelRandomGender(&mount_id);
+    GetCreatureModelRandomGender(&mountModel, mount_info);
 
-    return mount_id;
+    return mountModel.CreatureDisplayID;
 }
 
 void ObjectMgr::LoadGraveyardZones()
