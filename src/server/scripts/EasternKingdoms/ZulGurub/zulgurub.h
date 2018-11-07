@@ -87,7 +87,14 @@ enum ZGCreatureIds
     // Jin'do the Godbreaker
     NPC_JINDO_TRIGGER               = 52150,
     NPC_SPIRIT_OF_HAKKAR            = 52222,
-    NPC_SHADOW_OF_HAKKAR            = 52650
+    NPC_SHADOW_OF_HAKKAR            = 52650,
+
+    // Zanzil
+    NPC_ZANZILI_BERSERKER           = 52054,
+
+    // Generic Creatures
+    NPC_TOXIC_VENOMSPITTER          = 52332,
+    NPC_MUTATED_OVERGROWTH          = 52331
 };
 
 enum ZGGameObjectIds
@@ -114,7 +121,8 @@ enum ZGGameObjectIds
 
 enum ZGSpells
 {
-    SPELL_CAVE_IN_VISUAL = 96935
+    SPELL_CAVE_IN_VISUAL    = 96935,
+    SPELL_POISON_CLOUD      = 96729
 };
 
 template <class AI, class T>

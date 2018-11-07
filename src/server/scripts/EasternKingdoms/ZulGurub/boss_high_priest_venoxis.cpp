@@ -55,7 +55,6 @@ enum Spells
     SPELL_TOTEM_BEAM_RIGHT              = 96537,
     SPELL_VENOM_TOTEM                   = 96534,
     SPELL_SNAKE_EYES                    = 96533,
-    SPELL_POISON_CLOUD                  = 96729,
 
     // Pool of Acrid Tears
     SPELL_VENOXIS_ULT_COSMETIC_MISSILE  = 96634,

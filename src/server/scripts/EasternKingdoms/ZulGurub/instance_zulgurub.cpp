@@ -75,6 +75,12 @@ class instance_zulgurub : public InstanceMapScript
                     case NPC_CAVE_IN_STALKER:
                         _caveInStalkerGUIDs.push_back(creature->GetGUID());
                         break;
+                    case NPC_TOXIC_VENOMSPITTER:
+                    case NPC_MUTATED_OVERGROWTH:
+                        _poisonPlantGUIDs.push_back(creature->GetGUID());
+                        if (GetBossState(DATA_HIGH_PRIEST_VENOXIS) != DONE)
+                            creature->CastSpell(creature, SPELL_POISON_CLOUD);
+                        break;
                     default:
                         break;
                 }
@@ -89,6 +95,18 @@ class instance_zulgurub : public InstanceMapScript
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
+
+                switch (type)
+                {
+                    case DATA_HIGH_PRIEST_VENOXIS:
+                        if (state == DONE)
+                            for (ObjectGuid guid : _poisonPlantGUIDs)
+                                if (Creature* plant = instance->GetCreature(guid))
+                                    plant->RemoveAurasDueToSpell(SPELL_POISON_CLOUD);
+                        break;
+                    default:
+                        break;
+                }
 
                 return true;
             }
@@ -119,6 +137,7 @@ class instance_zulgurub : public InstanceMapScript
             */
         private:
             GuidVector _caveInStalkerGUIDs;
+            GuidVector _poisonPlantGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
