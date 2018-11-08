@@ -1,22 +1,11 @@
 from re import compile
 from sys import argv, stdout, stderr
-from os import listdir
+from os import walk, getcwd
 
-listFiles = False
-buildDir = argv[1]
-nArgs = len(argv)
-if argv[nArgs-1] == '--list':
-    listFiles = True
-    nArgs -= 1
-    
-FilenamePattern = compile(r'^(.+).h$')
-files = []
-for i in range(2, nArgs):
-    dir = argv[i]
-    for filename in listdir(dir):
-        result = FilenamePattern.match(filename)
-        if result is not None:
-            files.append((dir, result.group(1)))
+if not getcwd().endswith('src'):
+    print('Run this from the src directory!')
+    print('(Invoke as \'python ../contrib/describe_enum.py\')')
+    exit(1)
 
 MatchPreTag = compile(r'^ *// *ANNOTATE THIS *$') # state 0
 MatchEnumName = compile(r'^ *enum +([0-9A-Za-z]+)') # state 1
@@ -27,13 +16,6 @@ MatchEnumEnd = compile(r'^ *}; *$') # state 3
 CommentMatchFormat = compile(r'^(((TITLE +(.+?))|(DESCRIPTION +(.+?))) *){1,2}$')
 CommentSkipFormat = compile(r'^SKIP *$')
 
-def checkFile(inpath, filename):
-    input = open('%s/%s.h' % (inpath, filename),'r')
-    for line in input:
-        if MatchPreTag.match(line) is not None:
-            return True
-    return False
-    
 def strescape(str):
     res = ''
     for char in str:
@@ -43,12 +25,12 @@ def strescape(str):
             res += char
     return '"' + res + '"'
 
-def processFile(inpath, outpath, filename):
+def processFile(path, filename):
     enums = []
     state = 0
     # enum parsing
     enum = None
-    input = open('%s/%s.h' % (inpath, filename),'r')
+    input = open('%s/%s.h' % (path, filename),'r')
     if input is None:
         print('Failed to open %s.h' % filename)
         return 1
@@ -115,8 +97,9 @@ def processFile(inpath, outpath, filename):
     
     if not enums:
         return
-
-    output = open('%s/enums_%s.cpp' % (outpath, filename), 'w')
+        
+    print('Done parsing %s.h (in %s)' % (filename, path))
+    output = open('%s/enums_%s.cpp' % (path, filename), 'w')
     if output is None:
         print('Failed to create enums_%s.cpp' % filename)
         return 2
@@ -147,16 +130,10 @@ def processFile(inpath, outpath, filename):
         output.write('        default: throw std::out_of_range("index");\n')
         output.write('    }\n')
         output.write('}\n\n')
-    
-if listFiles is True:
-    input = []
-    output = []
-    for dir, name in files:
-        if checkFile(dir, name):
-            input.append('%s/%s.h' % (dir, name))
-            output.append('%s/enums_%s.cpp' % (buildDir, name))
-    stdout.write(';'.join(input))
-    stderr.write(';'.join(output))
-else:
-    for dir, name in files:
-        processFile(dir, buildDir, name)
+
+FilenamePattern = compile(r'^(.+).h$')
+for root, dirs, files in walk('.'):
+    for n in files:
+        nameMatch = FilenamePattern.match(n)
+        if nameMatch is not None:
+            processFile(root, nameMatch.group(1))
