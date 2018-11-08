@@ -858,7 +858,6 @@ class spell_gen_choking_vines : public AuraScript
     }
 };
 
-// 5138 - Drain Mana
 // 8129 - Mana Burn
 class spell_gen_clear_fear_poly : public SpellScript
 {
