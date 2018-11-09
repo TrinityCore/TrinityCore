@@ -312,20 +312,6 @@ enum SpellSchoolMask : uint32
     SPELL_SCHOOL_MASK_ALL     = (SPELL_SCHOOL_MASK_NORMAL | SPELL_SCHOOL_MASK_MAGIC)
 };
 
-inline constexpr SpellSchoolMask GetMaskForSchool(SpellSchools school)
-{
-    return SpellSchoolMask(1 << school);
-}
-
-inline constexpr SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
-{
-    for (SpellSchools school : EnumUtils::Iterate<SpellSchools>())
-        if (mask & GetMaskForSchool(school))
-            return school;
-
-    return SPELL_SCHOOL_NORMAL;
-}
-
 enum ItemQualities
 {
     ITEM_QUALITY_POOR                  = 0,                 //GREY
@@ -2840,7 +2826,7 @@ enum QuestSort
     QUEST_SORT_LOVE_IS_IN_THE_AIR  = 376
 };
 
-inline uint8 ClassByQuestSort(int32 QuestSort)
+constexpr uint8 ClassByQuestSort(int32 QuestSort)
 {
     switch (QuestSort)
     {
@@ -3016,7 +3002,7 @@ enum SkillType
 
 #define MAX_SKILL_TYPE               789
 
-inline SkillType SkillByLockType(LockType locktype)
+constexpr SkillType SkillByLockType(LockType locktype)
 {
     switch (locktype)
     {
@@ -3030,7 +3016,7 @@ inline SkillType SkillByLockType(LockType locktype)
     return SKILL_NONE;
 }
 
-inline uint32 SkillByQuestSort(int32 QuestSort)
+constexpr uint32 SkillByQuestSort(int32 QuestSort)
 {
     switch (QuestSort)
     {
@@ -3742,5 +3728,19 @@ enum LineOfSightChecks
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 #include "enuminfo_SharedDefines.h"
+
+constexpr SpellSchoolMask GetMaskForSchool(SpellSchools school)
+{
+    return SpellSchoolMask(1 << school);
+}
+
+constexpr SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
+{
+    for (SpellSchools school : EnumUtils::Iterate<SpellSchools>())
+        if (mask & GetMaskForSchool(school))
+            return school;
+
+    return SPELL_SCHOOL_NORMAL;
+}
 
 #endif
