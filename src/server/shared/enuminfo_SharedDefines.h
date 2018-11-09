@@ -12,7 +12,7 @@ namespace Trinity
         // data for enum 'Powers' auto-generated
         template <> struct EnumUtils<Powers>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<Powers>::ToString(Powers value)
+            static constexpr EnumText ToString(Powers value)
             {
                 switch(value)
                 {
@@ -27,8 +27,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<Powers>::Count() { return 8; }
-            static constexpr Powers Trinity::Impl::EnumUtils<Powers>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 8; }
+            static constexpr Powers FromIndex(size_t index)
             {
                 switch(index)
                 {
@@ -48,7 +48,7 @@ namespace Trinity
         // data for enum 'SpellSchools' auto-generated
         template <> struct EnumUtils<SpellSchools>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<SpellSchools>::ToString(SpellSchools value)
+            static constexpr EnumText ToString(SpellSchools value)
             {
                 switch(value)
                 {
@@ -62,8 +62,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<SpellSchools>::Count() { return 7; }
-            static constexpr SpellSchools Trinity::Impl::EnumUtils<SpellSchools>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 7; }
+            static constexpr SpellSchools FromIndex(size_t index)
             {
                 switch(index)
                 {
@@ -82,7 +82,7 @@ namespace Trinity
         // data for enum 'SpellAttr0' auto-generated
         template <> struct EnumUtils<SpellAttr0>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<SpellAttr0>::ToString(SpellAttr0 value)
+            static constexpr EnumText ToString(SpellAttr0 value)
             {
                 switch(value)
                 {
@@ -121,8 +121,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<SpellAttr0>::Count() { return 32; }
-            static constexpr SpellAttr0 Trinity::Impl::EnumUtils<SpellAttr0>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 32; }
+            static constexpr SpellAttr0 FromIndex(size_t index)
             {
                 switch(index)
                 {
@@ -166,7 +166,7 @@ namespace Trinity
         // data for enum 'SpellAttr1' auto-generated
         template <> struct EnumUtils<SpellAttr1>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<SpellAttr1>::ToString(SpellAttr1 value)
+            static constexpr EnumText ToString(SpellAttr1 value)
             {
                 switch(value)
                 {
@@ -205,8 +205,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<SpellAttr1>::Count() { return 32; }
-            static constexpr SpellAttr1 Trinity::Impl::EnumUtils<SpellAttr1>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 32; }
+            static constexpr SpellAttr1 FromIndex(size_t index)
             {
                 switch(index)
                 {
@@ -250,7 +250,7 @@ namespace Trinity
         // data for enum 'SpellAttr2' auto-generated
         template <> struct EnumUtils<SpellAttr2>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<SpellAttr2>::ToString(SpellAttr2 value)
+            static constexpr EnumText ToString(SpellAttr2 value)
             {
                 switch(value)
                 {
@@ -289,8 +289,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<SpellAttr2>::Count() { return 32; }
-            static constexpr SpellAttr2 Trinity::Impl::EnumUtils<SpellAttr2>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 32; }
+            static constexpr SpellAttr2 FromIndex(size_t index)
             {
                 switch(index)
                 {
@@ -334,7 +334,7 @@ namespace Trinity
         // data for enum 'SpellAttr3' auto-generated
         template <> struct EnumUtils<SpellAttr3>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<SpellAttr3>::ToString(SpellAttr3 value)
+            static constexpr EnumText ToString(SpellAttr3 value)
             {
                 switch(value)
                 {
@@ -373,8 +373,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<SpellAttr3>::Count() { return 32; }
-            static constexpr SpellAttr3 Trinity::Impl::EnumUtils<SpellAttr3>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 32; }
+            static constexpr SpellAttr3 FromIndex(size_t index)
             {
                 switch(index)
                 {
@@ -418,7 +418,7 @@ namespace Trinity
         // data for enum 'SpellAttr4' auto-generated
         template <> struct EnumUtils<SpellAttr4>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<SpellAttr4>::ToString(SpellAttr4 value)
+            static constexpr EnumText ToString(SpellAttr4 value)
             {
                 switch(value)
                 {
@@ -457,8 +457,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<SpellAttr4>::Count() { return 32; }
-            static constexpr SpellAttr4 Trinity::Impl::EnumUtils<SpellAttr4>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 32; }
+            static constexpr SpellAttr4 FromIndex(size_t index)
             {
                 switch(index)
                 {
@@ -502,7 +502,7 @@ namespace Trinity
         // data for enum 'SpellAttr5' auto-generated
         template <> struct EnumUtils<SpellAttr5>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<SpellAttr5>::ToString(SpellAttr5 value)
+            static constexpr EnumText ToString(SpellAttr5 value)
             {
                 switch(value)
                 {
@@ -541,8 +541,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<SpellAttr5>::Count() { return 32; }
-            static constexpr SpellAttr5 Trinity::Impl::EnumUtils<SpellAttr5>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 32; }
+            static constexpr SpellAttr5 FromIndex(size_t index)
             {
                 switch(index)
                 {
@@ -586,7 +586,7 @@ namespace Trinity
         // data for enum 'SpellAttr6' auto-generated
         template <> struct EnumUtils<SpellAttr6>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<SpellAttr6>::ToString(SpellAttr6 value)
+            static constexpr EnumText ToString(SpellAttr6 value)
             {
                 switch(value)
                 {
@@ -625,8 +625,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<SpellAttr6>::Count() { return 32; }
-            static constexpr SpellAttr6 Trinity::Impl::EnumUtils<SpellAttr6>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 32; }
+            static constexpr SpellAttr6 FromIndex(size_t index)
             {
                 switch(index)
                 {
@@ -670,7 +670,7 @@ namespace Trinity
         // data for enum 'SpellAttr7' auto-generated
         template <> struct EnumUtils<SpellAttr7>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<SpellAttr7>::ToString(SpellAttr7 value)
+            static constexpr EnumText ToString(SpellAttr7 value)
             {
                 switch(value)
                 {
@@ -709,8 +709,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<SpellAttr7>::Count() { return 32; }
-            static constexpr SpellAttr7 Trinity::Impl::EnumUtils<SpellAttr7>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 32; }
+            static constexpr SpellAttr7 FromIndex(size_t index)
             {
                 switch(index)
                 {
@@ -754,7 +754,7 @@ namespace Trinity
         // data for enum 'SpellDmgClass' auto-generated
         template <> struct EnumUtils<SpellDmgClass>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<SpellDmgClass>::ToString(SpellDmgClass value)
+            static constexpr EnumText ToString(SpellDmgClass value)
             {
                 switch(value)
                 {
@@ -765,8 +765,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<SpellDmgClass>::Count() { return 4; }
-            static constexpr SpellDmgClass Trinity::Impl::EnumUtils<SpellDmgClass>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 4; }
+            static constexpr SpellDmgClass FromIndex(size_t index)
             {
                 switch(index)
                 {
@@ -782,7 +782,7 @@ namespace Trinity
         // data for enum 'SpellPreventionType' auto-generated
         template <> struct EnumUtils<SpellPreventionType>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<SpellPreventionType>::ToString(SpellPreventionType value)
+            static constexpr EnumText ToString(SpellPreventionType value)
             {
                 switch(value)
                 {
@@ -792,8 +792,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<SpellPreventionType>::Count() { return 3; }
-            static constexpr SpellPreventionType Trinity::Impl::EnumUtils<SpellPreventionType>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 3; }
+            static constexpr SpellPreventionType FromIndex(size_t index)
             {
                 switch(index)
                 {
@@ -808,7 +808,7 @@ namespace Trinity
         // data for enum 'SpellFamilyNames' auto-generated
         template <> struct EnumUtils<SpellFamilyNames>
         {
-            static constexpr EnumText Trinity::Impl::EnumUtils<SpellFamilyNames>::ToString(SpellFamilyNames value)
+            static constexpr EnumText ToString(SpellFamilyNames value)
             {
                 switch(value)
                 {
@@ -830,8 +830,8 @@ namespace Trinity
                     default: throw std::out_of_range("value");
                 }
             }
-            static constexpr size_t Trinity::Impl::EnumUtils<SpellFamilyNames>::Count() { return 15; }
-            static constexpr SpellFamilyNames Trinity::Impl::EnumUtils<SpellFamilyNames>::FromIndex(size_t index)
+            static constexpr size_t Count() { return 15; }
+            static constexpr SpellFamilyNames FromIndex(size_t index)
             {
                 switch(index)
                 {
