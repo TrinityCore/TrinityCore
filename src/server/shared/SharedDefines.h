@@ -317,7 +317,7 @@ inline constexpr SpellSchoolMask GetMaskForSchool(SpellSchools school)
     return SpellSchoolMask(1 << school);
 }
 
-inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
+inline constexpr SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 {
     for (SpellSchools school : EnumUtils::Iterate<SpellSchools>())
         if (mask & GetMaskForSchool(school))
@@ -3740,5 +3740,7 @@ enum LineOfSightChecks
 };
 
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
+
+#include "enuminfo_SharedDefines.h"
 
 #endif
