@@ -228,9 +228,9 @@ class boss_ingvar_the_plunderer : public CreatureScript
                             events.ScheduleEvent(EVENT_SMASH, 12s, 16s, 0, PHASE_HUMAN);
                             break;
                         case EVENT_JUST_TRANSFORMED:
-                            ScheduleSecondPhase();
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             me->SetImmuneToPC(false);
+                            ScheduleSecondPhase();
                             if (!me->IsThreatened())
                             {
                                 EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
