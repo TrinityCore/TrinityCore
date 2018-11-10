@@ -69,20 +69,20 @@ namespace
 namespace Trinity
 {
 
-void Assert(char const* file, int line, char const* function, char const* message)
+void Assert(char const* file, int line, char const* function, std::string debugInfos, char const* message)
 {
-    std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message);
+    std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + debugInfos + '\n';
     fprintf(stderr, "%s", formattedMessage.c_str());
     fflush(stderr);
     Crash(formattedMessage.c_str());
 }
 
-void Assert(char const* file, int line, char const* function, char const* message, char const* format, ...)
+void Assert(char const* file, int line, char const* function, std::string debugInfos, char const* message, char const* format, ...)
 {
     va_list args;
     va_start(args, format);
 
-    std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n';
+    std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfos + '\n';
     va_end(args);
 
     fprintf(stderr, "%s", formattedMessage.c_str());
@@ -138,3 +138,8 @@ void AbortHandler(int sigval)
 }
 
 } // namespace Trinity
+
+std::string GetDebugInfos()
+{
+    return "";
+}
