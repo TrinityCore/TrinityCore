@@ -530,6 +530,7 @@ DROP TABLE IF EXISTS `character_aura`;
 CREATE TABLE `character_aura` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `casterGuid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Full Global Unique Identifier',
+  `itemGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `effectMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `recalculateMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -545,7 +546,7 @@ CREATE TABLE `character_aura` (
   `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `critChance` float NOT NULL DEFAULT '0',
   `applyResilience` tinyint(3) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`)
+  PRIMARY KEY (`guid`,`casterGuid`,`itemGuid`,`spell`,`effectMask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2626,7 +2627,8 @@ INSERT INTO `updates` VALUES
 ('2018_01_13_00_characters.sql','E3C0DA9995BA71ED5A267294470CD03DC51862DD','ARCHIVED','2018-01-13 00:00:00',0),
 ('2018_02_19_00_characters.sql','FE5C5F9B88F0791549DDE680942493781E2269E6','RELEASED','2018-02-18 19:49:38',0),
 ('2018_04_24_00_characters.sql','77264AB7BEF421C0A4BB81EEAFD0D8C1CBCA840F','RELEASED','2018-04-20 09:38:10',0),
-('2018_07_09_00_characters.sql','6F3EA22DD5E4CD9F9C60C4332B147E3DBF2E8A44','RELEASED','2018-07-09 18:19:18',0);
+('2018_07_09_00_characters.sql','6F3EA22DD5E4CD9F9C60C4332B147E3DBF2E8A44','RELEASED','2018-07-09 18:19:18',0),
+('2018_11_09_00_characters.sql','50429D68E6EBD1149CDA14A9EA642BC06A1FAE3D','RELEASED','2018-11-09 20:49:47',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
