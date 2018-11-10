@@ -39,7 +39,7 @@ namespace Trinity
 
 } // namespace Trinity
 
-std::string GetDebugInfos();
+TC_COMMON_API std::string GetDebugInfos();
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
 #define ASSERT_BEGIN __pragma(warning(push)) __pragma(warning(disable: 4127))
