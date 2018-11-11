@@ -18,44 +18,98 @@
 #ifndef TRINITY_SMARTENUM_H
 #define TRINITY_SMARTENUM_H
 
-#include "smart_enum.hpp"
+#include "IteratorPair.h"
 
 struct EnumText
 {
-    constexpr EnumText(char const* t = nullptr, char const* d = nullptr) : Title(t), Description(d ? d : t) {}
+    EnumText(char const* c, char const* t, char const* d) : Constant(c), Title(t), Description(d) {}
+    // Enum constant of the value
+    char const* const Constant;
     // Human-readable title of the value
     char const* const Title;
     // Human-readable description of the value
     char const* const Description;
-
-    protected:
-        constexpr EnumText(char const* n, EnumText e) : Title(e.Title ? e.Title : n), Description(e.Description ? e.Description : Title) {}
 };
 
-struct FullEnumText : public EnumText
+namespace Trinity
 {
-    constexpr FullEnumText(char const* constant, EnumText e) : EnumText(constant, e), Constant(constant) {}
-    // Enum constant of the value
-    char const* const Constant;
-};
+    namespace Impl
+    {
+        template <typename Enum>
+        struct EnumUtils
+        {
+            static size_t Count();
+            static EnumText ToString(Enum value);
+            static Enum FromIndex(size_t index);
+        };
+    }
+}
 
-template <typename E>
 class EnumUtils
 {
     public:
-        static constexpr auto Begin() { return smart_enum::begin<E>(); }
-        static constexpr auto End() { return smart_enum::end<E>(); }
-        static constexpr auto Iterate() { return smart_enum::range<E>(); }
-        static constexpr FullEnumText ToString(E value)
-        {
-            return { smart_enum::to_string<E>(value), smart_enum::data<E>(value) };
-        }
-        static constexpr char const* ToConstant(E value) { return ToString(value).Constant; }
-        static constexpr char const* ToTitle(E value) { return ToString(value).Title; }
-        static constexpr char const* ToDescription(E value) { return ToString(value).Description; }
-};
+        template <typename Enum>
+        static size_t Count() { return Trinity::Impl::EnumUtils<Enum>::Count(); }
+        template <typename Enum>
+        static EnumText ToString(Enum value) { return Trinity::Impl::EnumUtils<Enum>::ToString(value); }
+        template <typename Enum>
+        static Enum FromIndex(size_t index) { return Trinity::Impl::EnumUtils<Enum>::FromIndex(index); }
 
-#define SMART_ENUM_BOUND(type, name) static constexpr type name = type(smart_enum::value_of<type>(smart_enum::count<type>()-1)+1);
-#define SMART_ENUM_BOUND_AFTER(type, name, entry) static constexpr type name = type(entry + 1);
+        template <typename Enum>
+        class Iterator
+        {
+            public:
+                using iterator_category = std::random_access_iterator_tag;
+                using value_type = Enum;
+                using pointer = Enum*;
+                using reference = Enum&;
+                using difference_type = std::ptrdiff_t;
+
+                Iterator() : _index(EnumUtils::Count<Enum>()) {}
+                explicit Iterator(size_t index) : _index(index) { }
+
+                bool operator==(const Iterator& other) const { return other._index == _index; }
+                bool operator!=(const Iterator& other) const { return !operator==(other); }
+                difference_type operator-(Iterator const& other) const { return _index - other._index; }
+                bool operator<(const Iterator& other) const { return _index < other._index; }
+                bool operator<=(const Iterator& other) const { return _index <= other._index; }
+                bool operator>(const Iterator& other) const { return _index > other._index; }
+                bool operator>=(const Iterator& other) const { return _index >= other._index; }
+
+                value_type operator[](difference_type d) const { return FromIndex<Enum>(_index + d); }
+                value_type operator*() const { return operator[](0); }
+
+                Iterator& operator+=(difference_type d) { _index += d; return *this; }
+                Iterator& operator++() { return operator+=(1); }
+                Iterator operator++(int) { Iterator i = *this; operator++(); return i; }
+                Iterator operator+(difference_type d) const { Iterator i = *this; i += d; return i; }
+
+                Iterator& operator-=(difference_type d) { _index -= d; return *this; }
+                Iterator& operator--() { return operator-=(1); }
+                Iterator operator--(int) { Iterator i = *this; operator--(); return i; }
+                Iterator operator-(difference_type d) const { Iterator i = *this; i -= d; return i; }
+
+            private:
+                difference_type _index;
+        };
+
+        template <typename Enum>
+        static Iterator<Enum> Begin() { return Iterator<Enum>(0); }
+
+        template <typename Enum>
+        static Iterator<Enum> End() { return Iterator<Enum>(); }
+
+        template <typename Enum>
+        static Trinity::IteratorPair<Iterator<Enum>> Iterate() { return { Begin<Enum>(), End<Enum>() }; }
+
+        template <typename Enum>
+        static char const* ToConstant(Enum value) { return ToString(value).Constant; }
+
+        template <typename Enum>
+        static char const* ToTitle(Enum value) { return ToString(value).Title; }
+
+        template <typename Enum>
+        static char const* ToDescription(Enum value) { return ToString(value).Description; }
+};
 
 #endif
