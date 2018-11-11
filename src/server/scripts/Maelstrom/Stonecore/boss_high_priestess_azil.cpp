@@ -163,7 +163,7 @@ class boss_high_priestess_azil : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, Seconds(16));
                 events.ScheduleEvent(EVENT_ENERGY_SHIELD, Seconds(35), Seconds(36));
                 events.ScheduleEvent(EVENT_SUMMON_WAVE_SOUTH, Milliseconds(1));
-                events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, Seconds(40));
+                events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, Seconds(42));
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -361,7 +361,7 @@ class boss_high_priestess_azil : public CreatureScript
                         case EVENT_SUMMON_WAVE_WEST:
                             if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 150.0f))
                                 worldtrigger->CastSpell(worldtrigger, SPELL_SUMMON_WAVE_WEST);
-                            events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, Seconds(20));
+                            events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, Seconds(22));
                             break;
                         case EVENT_APPLY_IMMUNITY:
                             MakeInterruptable(false);

@@ -292,8 +292,6 @@ class npc_rock_borer : public CreatureScript
             {
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_PASSIVE);
-                _events.ScheduleEvent(EVENT_EMERGED, Seconds(1) + Milliseconds(200));
-                _events.ScheduleEvent(EVENT_ROCK_BORE, Seconds(15), Seconds(20)); // Need sniffs for this timer
             }
 
             void IsSummonedBy(Unit* summoner) override
@@ -301,7 +299,9 @@ class npc_rock_borer : public CreatureScript
                 if (Creature* corborus = _instance->GetCreature(DATA_CORBORUS))
                     corborus->AI()->JustSummoned(me);
 
-                me->SetInCombatState(false, summoner);
+                _events.ScheduleEvent(EVENT_EMERGED, 1s + 200ms);
+                _events.ScheduleEvent(EVENT_ROCK_BORE, 17s);
+                DoZoneInCombat();
                 DoCast(me, SPELL_ROCK_BORER_EMERGE);
             }
 
@@ -324,8 +324,8 @@ class npc_rock_borer : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             break;
                         case EVENT_ROCK_BORE:
-                            DoCast(me, SPELL_ROCK_BORE);
-                            _events.Repeat(Seconds(15), Seconds(20)); // Need sniffs for this timer
+                            DoCastVictim(SPELL_ROCK_BORE);
+                            _events.Repeat(17s); // Need sniffs for this timer
                             break;
                         default:
                             break;
