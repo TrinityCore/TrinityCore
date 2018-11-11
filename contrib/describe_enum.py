@@ -1,4 +1,4 @@
-from re import compile
+from re import compile, MULTILINE
 from sys import argv, stdout, stderr
 from os import walk, getcwd
 from datetime import datetime
@@ -28,7 +28,9 @@ if not getcwd().endswith('src'):
     exit(1)
 
 EnumPattern = compile(r'//\s*ANNOTATE THIS\s+enum\s+([0-9A-Za-z]+)[^\n]*\s*{([^}]+)};')
-EnumMemberPattern = compile(r'([a-zA-Z0-9_]+)\s*(=[^,]+?)?[ \t]*((,[ \t]*(//[ \t]*([^\n]*))?\n)|(\s*(//\s*([^\n]*))?\s*\Z))')
+EnumValuesPattern = compile(r'\s+[^,]+[^\n]*')
+EnumValueNamePattern = compile(r'^\s*([a-zA-Z0-9_]+)', flags=MULTILINE)
+EnumValueCommentPattern = compile(r'//[ \t]*([^\n]+)$')
 CommentMatchFormat = compile(r'^(((TITLE +(.+?))|(DESCRIPTION +(.+?))) *){1,2}$')
 CommentSkipFormat = compile(r'^SKIP *$')
 
@@ -52,15 +54,23 @@ def processFile(path, filename):
     enums = []
     for enum in EnumPattern.finditer(file):
         name = enum.group(1)
-        members = []
-        for member in EnumMemberPattern.finditer(enum.group(2)):
-            valueName = member.group(1)
+        values = []
+        for value in EnumValuesPattern.finditer(enum.group(2)):
+            valueData = value.group(0)
+            
+            valueNameMatch = EnumValueNamePattern.search(valueData)
+            if valueNameMatch is None:
+                print('Name of value not found: %s' % repr(valueData))
+                continue
+            valueName = valueNameMatch.group(1)
+                
+            valueCommentMatch = EnumValueCommentPattern.search(valueData)
+            valueComment = None
+            if valueCommentMatch:
+                valueComment = valueCommentMatch.group(1)
+            
             valueTitle = None
             valueDescription = None
-            
-            valueComment = member.group(6)
-            if valueComment is None:
-                valueComment = member.group(9)
             
             if valueComment is not None:
                 if CommentSkipFormat.match(valueComment) is not None:
@@ -77,10 +87,10 @@ def processFile(path, filename):
             if valueDescription is None:
                 valueDescription = ''
             
-            members.append((valueName, valueTitle, valueDescription))
+            values.append((valueName, valueTitle, valueDescription))
                 
-        enums.append((name, members))
-        print('%s.h: Enum %s parsed with %d members' % (filename, name, len(members)))
+        enums.append((name, values))
+        print('%s.h: Enum %s parsed with %d values' % (filename, name, len(values)))
         
     if not enums:
         return
