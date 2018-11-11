@@ -312,6 +312,20 @@ enum SpellSchoolMask : uint32
     SPELL_SCHOOL_MASK_ALL     = (SPELL_SCHOOL_MASK_NORMAL | SPELL_SCHOOL_MASK_MAGIC)
 };
 
+constexpr SpellSchoolMask GetMaskForSchool(SpellSchools school)
+{
+    return SpellSchoolMask(1 << school);
+}
+
+inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
+{
+    for (SpellSchools school : EnumUtils::Iterate<SpellSchools>())
+        if (mask & GetMaskForSchool(school))
+            return school;
+
+    return SPELL_SCHOOL_NORMAL;
+}
+
 enum ItemQualities
 {
     ITEM_QUALITY_POOR                  = 0,                 //GREY
@@ -3726,21 +3740,5 @@ enum LineOfSightChecks
 };
 
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
-
-#include "enuminfo_SharedDefines.h"
-
-constexpr SpellSchoolMask GetMaskForSchool(SpellSchools school)
-{
-    return SpellSchoolMask(1 << school);
-}
-
-constexpr SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
-{
-    for (SpellSchools school : EnumUtils::Iterate<SpellSchools>())
-        if (mask & GetMaskForSchool(school))
-            return school;
-
-    return SPELL_SCHOOL_NORMAL;
-}
 
 #endif

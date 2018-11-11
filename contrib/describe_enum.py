@@ -1,6 +1,7 @@
 from re import compile
 from sys import argv, stdout, stderr
 from os import walk, getcwd
+from datetime import datetime
 
 if not getcwd().endswith('src'):
     print('Run this from the src directory!')
@@ -8,7 +9,6 @@ if not getcwd().endswith('src'):
     exit(1)
 
 MatchPreTag = compile(r'^ *// *ANNOTATE THIS *$') # state 0
-IncludeLineTag = compile(r'^ *#include "enuminfo_([^"]+).h" *$')
 MatchEnumName = compile(r'^ *enum +([0-9A-Za-z]+)') # state 1
 MatchEnumStart = compile(r'^ *{ *$') # state 2
 MatchEnumComment = compile(r' *(//.+)?$')
@@ -25,6 +25,25 @@ def strescape(str):
         else:
             res += char
     return '"' + res + '"'
+    
+notice = '''/*
+ * Copyright (C) 2008-%d TrinityCore <https://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+'''
 
 def processFile(path, filename):
     enums = []
@@ -36,19 +55,10 @@ def processFile(path, filename):
         print('Failed to open %s.h' % filename)
         return
 
-    hadInclude = False
     for line in input:
         if state is 0:
             if MatchPreTag.match(line) is not None:
-                if hadInclude:
-                    print('#include directive must be after all tagged enums in the file!')
-                    hadInclude = False
                 state = 1
-            else:
-                includeMatch = IncludeLineTag.match(line)
-                if includeMatch is not None:
-                    if includeMatch.group(1) == filename:
-                        hadInclude = True
         elif state is 1:
             enumName = MatchEnumName.match(line)
             if enumName is not None:
@@ -106,60 +116,48 @@ def processFile(path, filename):
                     enum = None
     
     if not enums:
-        if hadInclude:
-            print('Superfluous #include directive in %s.h' % filename)
-        return
-        
-    if not hadInclude:
-        print('Missing #include directive for enuminfo_%s.h (in %s.h)' % (filename, filename))
         return
         
     print('Done parsing %s.h (in %s)' % (filename, path))
-    output = open('%s/enuminfo_%s.h' % (path, filename), 'w')
+    output = open('%s/enuminfo_%s.cpp' % (path, filename), 'w')
     if output is None:
-        print('Failed to create enuminfo_%s.h' % filename)
+        print('Failed to create enuminfo_%s.cpp' % filename)
         return
 
     # write output file
-    guardTag = ('TRINITYCORE_ENUM_AUTOGEN_%s_H' % filename)
-    output.write('#ifndef %s\n' % guardTag)
-    output.write('#define %s\n\n' % guardTag)
-    output.write('/* This file was auto-generated from "%s.h" using contrib/describe_enum.py - do not manually edit this! */\n' % filename)
+    output.write(notice % datetime.now().year)
+    output.write('#include "Define.h"\n')
     output.write('#include "SmartEnum.h"\n')
+    output.write('#include "%s.h"\n' % filename)
     output.write('#include <stdexcept>\n')
     output.write('\n')
-    output.write('namespace Trinity\n')
-    output.write('{\n')
-    output.write('    namespace Impl\n')
-    output.write('    {\n')
     for name, values in enums:
-        output.write('        // data for enum \'%s\' auto-generated\n' % name)
-        output.write('        template <> struct EnumUtils<%s>\n' % name)
-        output.write('        {\n')
-        output.write('            static constexpr EnumText ToString(%s value)\n' % name)
-        output.write('            {\n')
-        output.write('                switch(value)\n')
-        output.write('                {\n')
+        tag = ('data for enum \'%s\' in \'%s.h\' auto-generated' % (name, filename))
+        output.write('/*' + ('*'*(len(tag)+2)) + '*\\\n')
+        output.write('|* ' + tag + ' *|\n')
+        output.write('\\*' + ('*'*(len(tag)+2)) + '*/\n')
+        output.write('template <>\n')
+        output.write('TC_API_EXPORT EnumText Trinity::Impl::EnumUtils<%s>::ToString(%s value)\n' % (name, name))
+        output.write('{\n')
+        output.write('    switch (value)\n')
+        output.write('    {\n')
         for label, title, description in values:
-            output.write('                    case %s: return {%s, %s, %s};\n' % (label, strescape(label), strescape(title), strescape(description)))
-        output.write('                    default: throw std::out_of_range("value");\n')
-        output.write('                }\n')
-        output.write('            }\n')
-        output.write('            static constexpr size_t Count() { return %d; }\n' % len(values))
-        output.write('            static constexpr %s FromIndex(size_t index)\n' % name)
-        output.write('            {\n')
-        output.write('                switch(index)\n')
-        output.write('                {\n')
+            output.write('        case %s: return {%s, %s, %s};\n' % (label, strescape(label), strescape(title), strescape(description)))
+        output.write('        default: throw std::out_of_range("value");\n')
+        output.write('    }\n')
+        output.write('}\n')
+        output.write('template <>\n');
+        output.write('TC_API_EXPORT size_t Trinity::Impl::EnumUtils<%s>::Count() { return %d; }\n' % (name, len(values)))
+        output.write('template <>\n');
+        output.write('TC_API_EXPORT %s Trinity::Impl::EnumUtils<%s>::FromIndex(size_t index)\n' % (name, name))
+        output.write('{\n')
+        output.write('    switch (index)\n')
+        output.write('    {\n')
         for i in range(len(values)):
-            output.write('                    case %d: return %s;\n' % (i, values[i][0]))
-        output.write('                    default: throw std::out_of_range("index");\n')
-        output.write('                }\n')
-        output.write('            }\n')
-        output.write('        };\n')
-        output.write('\n')
-    output.write('    }\n')
-    output.write('}\n')
-    output.write('#endif')
+            output.write('        case %d: return %s;\n' % (i, values[i][0]))
+        output.write('        default: throw std::out_of_range("index");\n')
+        output.write('    }\n')
+        output.write('}\n\n')
 
 FilenamePattern = compile(r'^(.+).h$')
 for root, dirs, files in walk('.'):

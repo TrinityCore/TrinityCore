@@ -18,12 +18,11 @@
 #ifndef TRINITY_SMARTENUM_H
 #define TRINITY_SMARTENUM_H
 
-#include "advstd.h"
 #include "IteratorPair.h"
 
 struct EnumText
 {
-    constexpr EnumText(char const* c, char const* t, char const* d) : Constant(c), Title(t), Description(d) {}
+    EnumText(char const* c, char const* t, char const* d) : Constant(c), Title(t), Description(d) {}
     // Enum constant of the value
     char const* const Constant;
     // Human-readable title of the value
@@ -39,7 +38,9 @@ namespace Trinity
         template <typename Enum>
         struct EnumUtils
         {
-            static_assert(!advstd::is_same_v<Enum,Enum>, "EnumUtils instantiation for unsupported type!");
+            static size_t Count();
+            static EnumText ToString(Enum value);
+            static Enum FromIndex(size_t index);
         };
     }
 }
@@ -48,11 +49,11 @@ class EnumUtils
 {
     public:
         template <typename Enum>
-        static constexpr size_t Count() { return Trinity::Impl::EnumUtils<Enum>::Count(); }
+        static size_t Count() { return Trinity::Impl::EnumUtils<Enum>::Count(); }
         template <typename Enum>
-        static constexpr EnumText ToString(Enum value) { return Trinity::Impl::EnumUtils<Enum>::ToString(value); }
+        static EnumText ToString(Enum value) { return Trinity::Impl::EnumUtils<Enum>::ToString(value); }
         template <typename Enum>
-        static constexpr Enum FromIndex(size_t index) { return Trinity::Impl::EnumUtils<Enum>::FromIndex(index); }
+        static Enum FromIndex(size_t index) { return Trinity::Impl::EnumUtils<Enum>::FromIndex(index); }
 
         template <typename Enum>
         class Iterator
@@ -64,51 +65,51 @@ class EnumUtils
                 using reference = Enum&;
                 using difference_type = std::ptrdiff_t;
 
-                constexpr Iterator() : _index(EnumUtils::Count<Enum>()) {}
-                constexpr explicit Iterator(size_t index) : _index(index) { }
+                Iterator() : _index(EnumUtils::Count<Enum>()) {}
+                explicit Iterator(size_t index) : _index(index) { }
 
-                constexpr bool operator==(const Iterator& other) const { return other._index == _index; }
-                constexpr bool operator!=(const Iterator& other) const { return !operator==(other); }
-                constexpr difference_type operator-(Iterator const& other) const { return _index - other._index; }
-                constexpr bool operator<(const Iterator& other) const { return _index < other._index; }
-                constexpr bool operator<=(const Iterator& other) const { return _index <= other._index; }
-                constexpr bool operator>(const Iterator& other) const { return _index > other._index; }
-                constexpr bool operator>=(const Iterator& other) const { return _index >= other._index; }
+                bool operator==(const Iterator& other) const { return other._index == _index; }
+                bool operator!=(const Iterator& other) const { return !operator==(other); }
+                difference_type operator-(Iterator const& other) const { return _index - other._index; }
+                bool operator<(const Iterator& other) const { return _index < other._index; }
+                bool operator<=(const Iterator& other) const { return _index <= other._index; }
+                bool operator>(const Iterator& other) const { return _index > other._index; }
+                bool operator>=(const Iterator& other) const { return _index >= other._index; }
 
-                constexpr value_type operator[](difference_type d) const { return FromIndex<Enum>(_index + d); }
-                constexpr value_type operator*() const { return operator[](0); }
+                value_type operator[](difference_type d) const { return FromIndex<Enum>(_index + d); }
+                value_type operator*() const { return operator[](0); }
 
-                constexpr Iterator& operator+=(difference_type d) { _index += d; return *this; }
-                constexpr Iterator& operator++() { return operator+=(1); }
-                constexpr Iterator operator++(int) { Iterator i = *this; operator++(); return i; }
-                constexpr Iterator operator+(difference_type d) const { Iterator i = *this; i += d; return i; }
+                Iterator& operator+=(difference_type d) { _index += d; return *this; }
+                Iterator& operator++() { return operator+=(1); }
+                Iterator operator++(int) { Iterator i = *this; operator++(); return i; }
+                Iterator operator+(difference_type d) const { Iterator i = *this; i += d; return i; }
 
-                constexpr Iterator& operator-=(difference_type d) { _index -= d; return *this; }
-                constexpr Iterator& operator--() { return operator-=(1); }
-                constexpr Iterator operator--(int) { Iterator i = *this; operator--(); return i; }
-                constexpr Iterator operator-(difference_type d) const { Iterator i = *this; i -= d; return i; }
+                Iterator& operator-=(difference_type d) { _index -= d; return *this; }
+                Iterator& operator--() { return operator-=(1); }
+                Iterator operator--(int) { Iterator i = *this; operator--(); return i; }
+                Iterator operator-(difference_type d) const { Iterator i = *this; i -= d; return i; }
 
             private:
                 difference_type _index;
         };
 
         template <typename Enum>
-        static constexpr Iterator<Enum> Begin() { return Iterator<Enum>(0); }
+        static Iterator<Enum> Begin() { return Iterator<Enum>(0); }
 
         template <typename Enum>
-        static constexpr Iterator<Enum> End() { return Iterator<Enum>(); }
+        static Iterator<Enum> End() { return Iterator<Enum>(); }
 
         template <typename Enum>
-        static constexpr Trinity::IteratorPair<Iterator<Enum>> Iterate() { return { Begin<Enum>(), End<Enum>() }; }
+        static Trinity::IteratorPair<Iterator<Enum>> Iterate() { return { Begin<Enum>(), End<Enum>() }; }
 
         template <typename Enum>
-        static constexpr char const* ToConstant(Enum value) { return ToString(value).Constant; }
+        static char const* ToConstant(Enum value) { return ToString(value).Constant; }
 
         template <typename Enum>
-        static constexpr char const* ToTitle(Enum value) { return ToString(value).Title; }
+        static char const* ToTitle(Enum value) { return ToString(value).Title; }
 
         template <typename Enum>
-        static constexpr char const* ToDescription(Enum value) { return ToString(value).Description; }
+        static char const* ToDescription(Enum value) { return ToString(value).Description; }
 };
 
 #endif
