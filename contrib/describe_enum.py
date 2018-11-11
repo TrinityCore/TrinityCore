@@ -3,30 +3,7 @@ from sys import argv, stdout, stderr
 from os import walk, getcwd
 from datetime import datetime
 
-if not getcwd().endswith('src'):
-    print('Run this from the src directory!')
-    print('(Invoke as \'python ../contrib/describe_enum.py\')')
-    exit(1)
-
-MatchPreTag = compile(r'^ *// *ANNOTATE THIS *$') # state 0
-MatchEnumName = compile(r'^ *enum +([0-9A-Za-z]+)') # state 1
-MatchEnumStart = compile(r'^ *{ *$') # state 2
-MatchEnumComment = compile(r' *(//.+)?$')
-MatchEnumLine = compile(r'^ *([a-zA-Z0-9_]+)( *= *.+?)?,? *(// *([^\r\n]+))?$') # state 3
-MatchEnumEnd = compile(r'^ *}; *$') # state 3
-CommentMatchFormat = compile(r'^(((TITLE +(.+?))|(DESCRIPTION +(.+?))) *){1,2}$')
-CommentSkipFormat = compile(r'^SKIP *$')
-
-def strescape(str):
-    res = ''
-    for char in str:
-        if char in ('\\', '"') or not (32 <= ord(char) < 127):
-            res += ('\\%03o' % ord(char))
-        else:
-            res += char
-    return '"' + res + '"'
-    
-notice = '''/*
+notice = ('''/*
  * Copyright (C) 2008-%d TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,89 +20,79 @@ notice = '''/*
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-'''
+''' % datetime.now().year)
+
+if not getcwd().endswith('src'):
+    print('Run this from the src directory!')
+    print('(Invoke as \'python ../contrib/describe_enum.py\')')
+    exit(1)
+
+EnumPattern = compile(r'//\s*ANNOTATE THIS\s+enum\s+([0-9A-Za-z]+)[^\n]*\s*{([^}]+)};')
+EnumMemberPattern = compile(r'([a-zA-Z0-9_]+)\s*(=[^,]+?)?[ \t]*((,[ \t]*(//[ \t]*([^\n]*))?\n)|(\s*(//\s*([^\n]*))?\s*\Z))')
+CommentMatchFormat = compile(r'^(((TITLE +(.+?))|(DESCRIPTION +(.+?))) *){1,2}$')
+CommentSkipFormat = compile(r'^SKIP *$')
+
+def strescape(str):
+    res = ''
+    for char in str:
+        if char in ('\\', '"') or not (32 <= ord(char) < 127):
+            res += ('\\%03o' % ord(char))
+        else:
+            res += char
+    return '"' + res + '"'
 
 def processFile(path, filename):
-    enums = []
-    state = 0
-    # enum parsing
-    enum = None
     input = open('%s/%s.h' % (path, filename),'r')
     if input is None:
         print('Failed to open %s.h' % filename)
         return
+        
+    file = input.read()
 
-    for line in input:
-        if state is 0:
-            if MatchPreTag.match(line) is not None:
-                state = 1
-        elif state is 1:
-            enumName = MatchEnumName.match(line)
-            if enumName is not None:
-                enum = (enumName.group(1), [])
-                state = 2
-            else:
-                print('%s.h in %s - Unexpected line, expected enum name:' % (filename, path))
-                print(line)
-                state = 0
-        elif state is 2:
-            if MatchEnumStart.match(line) is not None:
-                state = 3
-            else:
-                print('%s.h in %s - Unexpected line, expected enum start:' % (filename, path))
-                print(line)
-                state = 0
-                enum = None
-        elif state is 3:
-            if MatchEnumEnd.match(line) is not None:
-                enums.append(enum)
-                print('Successfully parsed enum \'%s\' with %d elements' % (enum[0], len(enum[1])))
-                state = 0
-                enum = None
-            elif MatchEnumComment.match(line) is not None:
-                continue
-            else:
-                enumLine = MatchEnumLine.match(line)
-                if enumLine is not None:
-                    label = enumLine.group(1)
-                    comment = enumLine.group(4)
-                    
-                    # do comment processing
-                    title = None
-                    description = None
-                    if comment is not None:
-                        if CommentSkipFormat.match(comment) is not None:
-                            continue
-                        commentMatch = CommentMatchFormat.match(comment)
-                        if commentMatch is not None:
-                            title = commentMatch.group(4)
-                            description = commentMatch.group(6)
-                        else:
-                            description = comment
-                            
-                    # insert processed enum entry
-                    if title is None:
-                        title = label
-                    if description is None:
-                        description = ''
-                    enum[1].append((label, title, description))
+    enums = []
+    for enum in EnumPattern.finditer(file):
+        name = enum.group(1)
+        members = []
+        for member in EnumMemberPattern.finditer(enum.group(2)):
+            valueName = member.group(1)
+            valueTitle = None
+            valueDescription = None
+            
+            valueComment = member.group(6)
+            if valueComment is None:
+                valueComment = member.group(9)
+            
+            if valueComment is not None:
+                if CommentSkipFormat.match(valueComment) is not None:
+                    continue
+                commentMatch = CommentMatchFormat.match(valueComment)
+                if commentMatch is not None:
+                    valueTitle = commentMatch.group(4)
+                    valueDescription = commentMatch.group(6)
                 else:
-                    print('%s.h in %s - Unexpected line, expected enum line or enum end:' % (filename, path))
-                    print(line)
-                    state = 0
-                    enum = None
-    
+                    valueDescription = valueComment
+            
+            if valueTitle is None:
+                valueTitle = valueName
+            if valueDescription is None:
+                valueDescription = ''
+            
+            members.append((valueName, valueTitle, valueDescription))
+                
+        enums.append((name, members))
+        print('%s.h: Enum %s parsed with %d members' % (filename, name, len(members)))
+        
     if not enums:
         return
         
-    print('Done parsing %s.h (in %s)' % (filename, path))
+    print('Done parsing %s.h (in %s)\n' % (filename, path))
     output = open('%s/enuminfo_%s.cpp' % (path, filename), 'w')
     if output is None:
         print('Failed to create enuminfo_%s.cpp' % filename)
         return
 
     # write output file
-    output.write(notice % datetime.now().year)
+    output.write(notice)
     output.write('#include "%s.h"\n' % filename)
     output.write('#include "Define.h"\n')
     output.write('#include "SmartEnum.h"\n')

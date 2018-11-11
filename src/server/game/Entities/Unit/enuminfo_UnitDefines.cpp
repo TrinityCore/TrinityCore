@@ -60,12 +60,11 @@ TC_API_EXPORT EnumText Trinity::Impl::EnumUtils<UnitFlags>::ToString(UnitFlags v
         case UNIT_FLAG_UNK_29: return {"UNIT_FLAG_UNK_29", "UNIT_FLAG_UNK_29", "used in Feing Death spell"};
         case UNIT_FLAG_SHEATHE: return {"UNIT_FLAG_SHEATHE", "UNIT_FLAG_SHEATHE", ""};
         case UNIT_FLAG_UNK_31: return {"UNIT_FLAG_UNK_31", "UNIT_FLAG_UNK_31", ""};
-        case MAX_UNIT_FLAGS: return {"MAX_UNIT_FLAGS", "MAX_UNIT_FLAGS", ""};
         default: throw std::out_of_range("value");
     }
 }
 template <>
-TC_API_EXPORT size_t Trinity::Impl::EnumUtils<UnitFlags>::Count() { return 33; }
+TC_API_EXPORT size_t Trinity::Impl::EnumUtils<UnitFlags>::Count() { return 32; }
 template <>
 TC_API_EXPORT UnitFlags Trinity::Impl::EnumUtils<UnitFlags>::FromIndex(size_t index)
 {
@@ -103,7 +102,6 @@ TC_API_EXPORT UnitFlags Trinity::Impl::EnumUtils<UnitFlags>::FromIndex(size_t in
         case 29: return UNIT_FLAG_UNK_29;
         case 30: return UNIT_FLAG_SHEATHE;
         case 31: return UNIT_FLAG_UNK_31;
-        case 32: return MAX_UNIT_FLAGS;
         default: throw std::out_of_range("index");
     }
 }

@@ -822,12 +822,11 @@ TC_API_EXPORT EnumText Trinity::Impl::EnumUtils<Mechanics>::ToString(Mechanics v
         case MECHANIC_IMMUNE_SHIELD: return {"MECHANIC_IMMUNE_SHIELD", "MECHANIC_IMMUNE_SHIELD", "Divine (Blessing) Shield/Protection and Ice Block"};
         case MECHANIC_SAPPED: return {"MECHANIC_SAPPED", "MECHANIC_SAPPED", ""};
         case MECHANIC_ENRAGED: return {"MECHANIC_ENRAGED", "MECHANIC_ENRAGED", ""};
-        case MAX_MECHANIC: return {"MAX_MECHANIC", "MAX_MECHANIC", ""};
         default: throw std::out_of_range("value");
     }
 }
 template <>
-TC_API_EXPORT size_t Trinity::Impl::EnumUtils<Mechanics>::Count() { return 33; }
+TC_API_EXPORT size_t Trinity::Impl::EnumUtils<Mechanics>::Count() { return 32; }
 template <>
 TC_API_EXPORT Mechanics Trinity::Impl::EnumUtils<Mechanics>::FromIndex(size_t index)
 {
@@ -865,7 +864,6 @@ TC_API_EXPORT Mechanics Trinity::Impl::EnumUtils<Mechanics>::FromIndex(size_t in
         case 29: return MECHANIC_IMMUNE_SHIELD;
         case 30: return MECHANIC_SAPPED;
         case 31: return MECHANIC_ENRAGED;
-        case 32: return MAX_MECHANIC;
         default: throw std::out_of_range("index");
     }
 }
