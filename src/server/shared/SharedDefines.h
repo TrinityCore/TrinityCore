@@ -260,7 +260,7 @@ enum Stats
     MAX_STATS
 };
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum Powers : int8
 {
     POWER_HEALTH                        = -2, // TITLE Health
@@ -275,7 +275,7 @@ enum Powers : int8
     POWER_ALL                           = 127 // SKIP
 };
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum SpellSchools
 {
     SPELL_SCHOOL_NORMAL                 = 0, // TITLE Physical
@@ -376,7 +376,7 @@ uint32 constexpr QuestDifficultyColors[MAX_QUEST_DIFFICULTY] = {
 // Spell Attributes definitions
 // ***********************************
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr0
 {
     SPELL_ATTR0_UNK0                             = 0x00000001, //  0
@@ -413,7 +413,7 @@ enum SpellAttr0
     SPELL_ATTR0_CANT_CANCEL                      = 0x80000000  // 31 positive aura can't be canceled
 };
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr1
 {
     SPELL_ATTR1_DISMISS_PET                      = 0x00000001, //  0 for spells without this flag client doesn't allow to summon pet if caster has a pet
@@ -450,7 +450,7 @@ enum SpellAttr1
     SPELL_ATTR1_UNK31                            = 0x80000000  // 31
 };
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr2
 {
     SPELL_ATTR2_CAN_TARGET_DEAD                  = 0x00000001, //  0 can target dead unit or corpse
@@ -487,7 +487,7 @@ enum SpellAttr2
     SPELL_ATTR2_FOOD_BUFF                        = 0x80000000  // 31 Food or Drink Buff (like Well Fed)
 };
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr3
 {
     SPELL_ATTR3_UNK0                             = 0x00000001, //  0
@@ -524,7 +524,7 @@ enum SpellAttr3
     SPELL_ATTR3_UNK31                            = 0x80000000  // 31
 };
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr4
 {
     SPELL_ATTR4_IGNORE_RESISTANCES               = 0x00000001, //  0 spells with this attribute will completely ignore the target's resistance (these spells can't be resisted)
@@ -561,7 +561,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK31                            = 0x80000000  // 31 Polymorph (chicken) 228 and Sonic Boom (38052, 38488)
 };
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr5
 {
     SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING          = 0x00000001, //  0 available casting channel spell when moving
@@ -598,7 +598,7 @@ enum SpellAttr5
     SPELL_ATTR5_UNK31                            = 0x80000000  // 31 Forces all nearby enemies to focus attacks caster
 };
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr6
 {
     SPELL_ATTR6_DONT_DISPLAY_COOLDOWN            = 0x00000001, //  0 client doesn't display cooldown in tooltip for these spells
@@ -635,7 +635,7 @@ enum SpellAttr6
     SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS    = 0x80000000  // 31 Spells with this attribute skip applying modifiers to category cooldowns
 };
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum SpellAttr7
 {
     SPELL_ATTR7_UNK0                             = 0x00000001, //  0 Shaman's new spells (Call of the ...), Feign Death.
@@ -1319,7 +1319,7 @@ enum AuraStateType
     (1<<(AURA_STATE_CONFLAGRATE-1))|(1<<(AURA_STATE_DEADLY_POISON-1)))
 
 // Spell mechanics
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum Mechanics : uint32
 {
     MECHANIC_NONE             = 0,
@@ -1540,7 +1540,7 @@ enum SpellHitType
     SPELL_HIT_TYPE_ATTACK_TABLE_DEBUG   = 0x20
 };
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum SpellDmgClass
 {
     SPELL_DAMAGE_CLASS_NONE     = 0, // TITLE None
@@ -1549,7 +1549,7 @@ enum SpellDmgClass
     SPELL_DAMAGE_CLASS_RANGED   = 3  // TITLE Ranged
 };
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum SpellPreventionType
 {
     SPELL_PREVENTION_TYPE_NONE      = 0, // TITLE None
@@ -3509,7 +3509,7 @@ enum MailResponseResult
     MAIL_ERR_ITEM_HAS_EXPIRED          = 21
 };
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum SpellFamilyNames
 {
     SPELLFAMILY_GENERIC     = 0,  // TITLE Generic

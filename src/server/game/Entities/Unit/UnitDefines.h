@@ -118,7 +118,7 @@ enum UnitRename : uint8
 };
 
 // Value masks for UNIT_FIELD_FLAGS
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum UnitFlags : uint32
 {
     UNIT_FLAG_SERVER_CONTROLLED     = 0x00000001,           // set only when unit movement is controlled by server - by SPLINE/MONSTER_MOVE packets, together with UNIT_FLAG_STUNNED; only set to units controlled by client; client function CGUnit_C::IsClientControlled returns false when set for owner
@@ -179,7 +179,7 @@ enum UnitFlags2 : uint32
 };
 
 /// Non Player Character flags
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum NPCFlags : uint32
 {
     UNIT_NPC_FLAG_NONE                  = 0x00000000,       // SKIP

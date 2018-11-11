@@ -30,7 +30,7 @@
 
 struct ItemTemplate;
 
-// ANNOTATE THIS
+// EnumUtils: DESCRIBE THIS
 enum CreatureFlagsExtra : uint32
 {
     CREATURE_FLAG_EXTRA_INSTANCE_BIND        = 0x00000001,       // creature kill bind instance with killer and killer's group

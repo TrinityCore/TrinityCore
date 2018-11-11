@@ -24,10 +24,10 @@ notice = ('''/*
 
 if not getcwd().endswith('src'):
     print('Run this from the src directory!')
-    print('(Invoke as \'python ../contrib/describe_enum.py\')')
+    print('(Invoke as \'python ../contrib/enumutils_describe.py\')')
     exit(1)
 
-EnumPattern = compile(r'//\s*ANNOTATE THIS\s+enum\s+([0-9A-Za-z]+)[^\n]*\s*{([^}]+)};')
+EnumPattern = compile(r'//\s*EnumUtils: DESCRIBE THIS\s+enum\s+([0-9A-Za-z]+)[^\n]*\s*{([^}]+)};')
 EnumValuesPattern = compile(r'\s+[^,]+[^\n]*')
 EnumValueNamePattern = compile(r'^\s*([a-zA-Z0-9_]+)', flags=MULTILINE)
 EnumValueCommentPattern = compile(r'//[ \t]*([^\n]+)$')
