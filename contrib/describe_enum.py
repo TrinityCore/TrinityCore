@@ -65,14 +65,14 @@ def processFile(path, filename):
                 enum = (enumName.group(1), [])
                 state = 2
             else:
-                print('Unexpected line, expected enum name:')
+                print('%s.h in %s - Unexpected line, expected enum name:' % (filename, path))
                 print(line)
                 state = 0
         elif state is 2:
             if MatchEnumStart.match(line) is not None:
                 state = 3
             else:
-                print('Unexpected line, expected enum start:')
+                print('%s.h in %s - Unexpected line, expected enum start:' % (filename, path))
                 print(line)
                 state = 0
                 enum = None
@@ -110,7 +110,7 @@ def processFile(path, filename):
                         description = ''
                     enum[1].append((label, title, description))
                 else:
-                    print('Unexpected line, expected enum line or enum end:')
+                    print('%s.h in %s - Unexpected line, expected enum line or enum end:' % (filename, path))
                     print(line)
                     state = 0
                     enum = None
@@ -126,9 +126,9 @@ def processFile(path, filename):
 
     # write output file
     output.write(notice % datetime.now().year)
+    output.write('#include "%s.h"\n' % filename)
     output.write('#include "Define.h"\n')
     output.write('#include "SmartEnum.h"\n')
-    output.write('#include "%s.h"\n' % filename)
     output.write('#include <stdexcept>\n')
     output.write('\n')
     for name, values in enums:

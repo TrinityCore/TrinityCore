@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SharedDefines.h"
 #include "Define.h"
 #include "SmartEnum.h"
-#include "SharedDefines.h"
 #include <stdexcept>
 
 /**************************************************************\
@@ -778,6 +778,94 @@ TC_API_EXPORT SpellAttr7 Trinity::Impl::EnumUtils<SpellAttr7>::FromIndex(size_t 
         case 29: return SPELL_ATTR7_UNK29;
         case 30: return SPELL_ATTR7_UNK30;
         case 31: return SPELL_ATTR7_CLIENT_INDICATOR;
+        default: throw std::out_of_range("index");
+    }
+}
+
+/*****************************************************************\
+|* data for enum 'Mechanics' in 'SharedDefines.h' auto-generated *|
+\*****************************************************************/
+template <>
+TC_API_EXPORT EnumText Trinity::Impl::EnumUtils<Mechanics>::ToString(Mechanics value)
+{
+    switch (value)
+    {
+        case MECHANIC_NONE: return {"MECHANIC_NONE", "MECHANIC_NONE", ""};
+        case MECHANIC_CHARM: return {"MECHANIC_CHARM", "MECHANIC_CHARM", ""};
+        case MECHANIC_DISORIENTED: return {"MECHANIC_DISORIENTED", "MECHANIC_DISORIENTED", ""};
+        case MECHANIC_DISARM: return {"MECHANIC_DISARM", "MECHANIC_DISARM", ""};
+        case MECHANIC_DISTRACT: return {"MECHANIC_DISTRACT", "MECHANIC_DISTRACT", ""};
+        case MECHANIC_FEAR: return {"MECHANIC_FEAR", "MECHANIC_FEAR", ""};
+        case MECHANIC_GRIP: return {"MECHANIC_GRIP", "MECHANIC_GRIP", ""};
+        case MECHANIC_ROOT: return {"MECHANIC_ROOT", "MECHANIC_ROOT", ""};
+        case MECHANIC_SLOW_ATTACK: return {"MECHANIC_SLOW_ATTACK", "MECHANIC_SLOW_ATTACK", ""};
+        case MECHANIC_SILENCE: return {"MECHANIC_SILENCE", "MECHANIC_SILENCE", ""};
+        case MECHANIC_SLEEP: return {"MECHANIC_SLEEP", "MECHANIC_SLEEP", ""};
+        case MECHANIC_SNARE: return {"MECHANIC_SNARE", "MECHANIC_SNARE", ""};
+        case MECHANIC_STUN: return {"MECHANIC_STUN", "MECHANIC_STUN", ""};
+        case MECHANIC_FREEZE: return {"MECHANIC_FREEZE", "MECHANIC_FREEZE", ""};
+        case MECHANIC_KNOCKOUT: return {"MECHANIC_KNOCKOUT", "MECHANIC_KNOCKOUT", ""};
+        case MECHANIC_BLEED: return {"MECHANIC_BLEED", "MECHANIC_BLEED", ""};
+        case MECHANIC_BANDAGE: return {"MECHANIC_BANDAGE", "MECHANIC_BANDAGE", ""};
+        case MECHANIC_POLYMORPH: return {"MECHANIC_POLYMORPH", "MECHANIC_POLYMORPH", ""};
+        case MECHANIC_BANISH: return {"MECHANIC_BANISH", "MECHANIC_BANISH", ""};
+        case MECHANIC_SHIELD: return {"MECHANIC_SHIELD", "MECHANIC_SHIELD", ""};
+        case MECHANIC_SHACKLE: return {"MECHANIC_SHACKLE", "MECHANIC_SHACKLE", ""};
+        case MECHANIC_MOUNT: return {"MECHANIC_MOUNT", "MECHANIC_MOUNT", ""};
+        case MECHANIC_INFECTED: return {"MECHANIC_INFECTED", "MECHANIC_INFECTED", ""};
+        case MECHANIC_TURN: return {"MECHANIC_TURN", "MECHANIC_TURN", ""};
+        case MECHANIC_HORROR: return {"MECHANIC_HORROR", "MECHANIC_HORROR", ""};
+        case MECHANIC_INVULNERABILITY: return {"MECHANIC_INVULNERABILITY", "MECHANIC_INVULNERABILITY", ""};
+        case MECHANIC_INTERRUPT: return {"MECHANIC_INTERRUPT", "MECHANIC_INTERRUPT", ""};
+        case MECHANIC_DAZE: return {"MECHANIC_DAZE", "MECHANIC_DAZE", ""};
+        case MECHANIC_DISCOVERY: return {"MECHANIC_DISCOVERY", "MECHANIC_DISCOVERY", ""};
+        case MECHANIC_IMMUNE_SHIELD: return {"MECHANIC_IMMUNE_SHIELD", "MECHANIC_IMMUNE_SHIELD", "Divine (Blessing) Shield/Protection and Ice Block"};
+        case MECHANIC_SAPPED: return {"MECHANIC_SAPPED", "MECHANIC_SAPPED", ""};
+        case MECHANIC_ENRAGED: return {"MECHANIC_ENRAGED", "MECHANIC_ENRAGED", ""};
+        case MAX_MECHANIC: return {"MAX_MECHANIC", "MAX_MECHANIC", ""};
+        default: throw std::out_of_range("value");
+    }
+}
+template <>
+TC_API_EXPORT size_t Trinity::Impl::EnumUtils<Mechanics>::Count() { return 33; }
+template <>
+TC_API_EXPORT Mechanics Trinity::Impl::EnumUtils<Mechanics>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return MECHANIC_NONE;
+        case 1: return MECHANIC_CHARM;
+        case 2: return MECHANIC_DISORIENTED;
+        case 3: return MECHANIC_DISARM;
+        case 4: return MECHANIC_DISTRACT;
+        case 5: return MECHANIC_FEAR;
+        case 6: return MECHANIC_GRIP;
+        case 7: return MECHANIC_ROOT;
+        case 8: return MECHANIC_SLOW_ATTACK;
+        case 9: return MECHANIC_SILENCE;
+        case 10: return MECHANIC_SLEEP;
+        case 11: return MECHANIC_SNARE;
+        case 12: return MECHANIC_STUN;
+        case 13: return MECHANIC_FREEZE;
+        case 14: return MECHANIC_KNOCKOUT;
+        case 15: return MECHANIC_BLEED;
+        case 16: return MECHANIC_BANDAGE;
+        case 17: return MECHANIC_POLYMORPH;
+        case 18: return MECHANIC_BANISH;
+        case 19: return MECHANIC_SHIELD;
+        case 20: return MECHANIC_SHACKLE;
+        case 21: return MECHANIC_MOUNT;
+        case 22: return MECHANIC_INFECTED;
+        case 23: return MECHANIC_TURN;
+        case 24: return MECHANIC_HORROR;
+        case 25: return MECHANIC_INVULNERABILITY;
+        case 26: return MECHANIC_INTERRUPT;
+        case 27: return MECHANIC_DAZE;
+        case 28: return MECHANIC_DISCOVERY;
+        case 29: return MECHANIC_IMMUNE_SHIELD;
+        case 30: return MECHANIC_SAPPED;
+        case 31: return MECHANIC_ENRAGED;
+        case 32: return MAX_MECHANIC;
         default: throw std::out_of_range("index");
     }
 }

@@ -1319,6 +1319,7 @@ enum AuraStateType
     (1<<(AURA_STATE_CONFLAGRATE-1))|(1<<(AURA_STATE_DEADLY_POISON-1)))
 
 // Spell mechanics
+// ANNOTATE THIS
 enum Mechanics : uint32
 {
     MECHANIC_NONE             = 0,
