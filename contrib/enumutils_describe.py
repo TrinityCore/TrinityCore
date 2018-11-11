@@ -108,25 +108,32 @@ def processFile(path, filename):
     output.write('#include "SmartEnum.h"\n')
     output.write('#include <stdexcept>\n')
     output.write('\n')
+    output.write('namespace Trinity\n')
+    output.write('{\n')
+    output.write('namespace Impl\n')
+    output.write('{\n')
     for name, values in enums:
         tag = ('data for enum \'%s\' in \'%s.h\' auto-generated' % (name, filename))
+        output.write('\n')
         output.write('/*' + ('*'*(len(tag)+2)) + '*\\\n')
         output.write('|* ' + tag + ' *|\n')
         output.write('\\*' + ('*'*(len(tag)+2)) + '*/\n')
         output.write('template <>\n')
-        output.write('TC_API_EXPORT EnumText Trinity::Impl::EnumUtils<%s>::ToString(%s value)\n' % (name, name))
+        output.write('TC_API_EXPORT EnumText EnumUtils<%s>::ToString(%s value)\n' % (name, name))
         output.write('{\n')
         output.write('    switch (value)\n')
         output.write('    {\n')
         for label, title, description in values:
-            output.write('        case %s: return {%s, %s, %s};\n' % (label, strescape(label), strescape(title), strescape(description)))
+            output.write('        case %s: return { %s, %s, %s };\n' % (label, strescape(label), strescape(title), strescape(description)))
         output.write('        default: throw std::out_of_range("value");\n')
         output.write('    }\n')
         output.write('}\n')
+        output.write('\n')
         output.write('template <>\n');
-        output.write('TC_API_EXPORT size_t Trinity::Impl::EnumUtils<%s>::Count() { return %d; }\n' % (name, len(values)))
+        output.write('TC_API_EXPORT size_t EnumUtils<%s>::Count() { return %d; }\n' % (name, len(values)))
+        output.write('\n')
         output.write('template <>\n');
-        output.write('TC_API_EXPORT %s Trinity::Impl::EnumUtils<%s>::FromIndex(size_t index)\n' % (name, name))
+        output.write('TC_API_EXPORT %s EnumUtils<%s>::FromIndex(size_t index)\n' % (name, name))
         output.write('{\n')
         output.write('    switch (index)\n')
         output.write('    {\n')
@@ -134,7 +141,10 @@ def processFile(path, filename):
             output.write('        case %d: return %s;\n' % (i, values[i][0]))
         output.write('        default: throw std::out_of_range("index");\n')
         output.write('    }\n')
-        output.write('}\n\n')
+        output.write('}\n')
+
+    output.write('}\n')
+    output.write('}\n')
 
 FilenamePattern = compile(r'^(.+).h$')
 for root, dirs, files in walk('.'):
