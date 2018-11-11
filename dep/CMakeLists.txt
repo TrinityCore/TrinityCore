@@ -22,7 +22,6 @@ if (SERVERS OR TOOLS)
   add_subdirectory(valgrind)
   add_subdirectory(openssl)
   add_subdirectory(jemalloc)
-  add_subdirectory(smart_enum)
 endif()
 
 if (SERVERS)
