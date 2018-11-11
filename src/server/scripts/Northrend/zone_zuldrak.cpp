@@ -1017,7 +1017,7 @@ class spell_scourge_disguise_expiring : public AuraScript
     {
         if (Player* player = GetTarget()->ToPlayer())
             if (Aura* aura = player->GetAura(SPELL_SCOURGE_DISGUISE))
-                player->Whisper(TEXT_DISGUISE_WARNING, player, true);
+                player->Unit::Whisper(TEXT_DISGUISE_WARNING, player, true);
     }
 
     void Register() override
