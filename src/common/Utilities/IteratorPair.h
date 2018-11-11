@@ -40,7 +40,7 @@ namespace Trinity
         constexpr iterator end() const { return _iterators.second; }
 
     private:
-        std::pair<iterator, iterator> const _iterators;
+        std::pair<iterator, iterator> _iterators;
     };
 
     namespace Containers
