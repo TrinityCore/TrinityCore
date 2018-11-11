@@ -888,7 +888,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         {
             Player* he = duel_wasMounted ? victim->GetCharmer()->ToPlayer() : victim->ToPlayer();
 
-            ASSERT_NODEBUGINFOS(he && he->duel);
+            ASSERT_NODEBUGINFO(he && he->duel);
 
             if (duel_wasMounted) // In this case victim == mount
                 victim->SetHealth(1);

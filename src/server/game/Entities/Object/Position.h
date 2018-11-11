@@ -194,7 +194,7 @@ class WorldLocation : public Position
 
         uint32 m_mapId;
     protected:
-        std::string GetDebugInfos() const;
+        std::string GetDebugInfo() const;
 };
 
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XY> const& streamer);

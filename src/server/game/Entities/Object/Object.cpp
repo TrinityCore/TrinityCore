@@ -993,7 +993,7 @@ bool Object::PrintIndexError(uint32 index, bool set) const
     return false;
 }
 
-std::string Object::GetDebugInfos() const
+std::string Object::GetDebugInfo() const
 {
     std::stringstream sstr;
     sstr << GetGUID().ToString() + " Entry " << GetEntry();
@@ -3534,11 +3534,11 @@ float WorldObject::GetMapHeight(float x, float y, float z, bool vmap/* = true*/,
     return GetMap()->GetHeight(GetPhaseMask(), x, y, z, vmap, distanceToSearch);
 }
 
-std::string WorldObject::GetDebugInfos() const
+std::string WorldObject::GetDebugInfo() const
 {
     std::stringstream sstr;
-    sstr << WorldLocation::GetDebugInfos() << "\n"
-         << Object::GetDebugInfos() << "\n";
+    sstr << WorldLocation::GetDebugInfo() << "\n"
+         << Object::GetDebugInfo() << "\n";
     return sstr.str();
 }
 

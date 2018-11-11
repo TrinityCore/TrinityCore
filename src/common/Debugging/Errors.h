@@ -24,8 +24,8 @@
 
 namespace Trinity
 {
-    DECLSPEC_NORETURN TC_COMMON_API void Assert(char const* file, int line, char const* function, std::string debugInfos, char const* message) ATTR_NORETURN;
-    DECLSPEC_NORETURN TC_COMMON_API void Assert(char const* file, int line, char const* function, std::string debugInfos, char const* message, char const* format, ...) ATTR_NORETURN ATTR_PRINTF(6, 7);
+    DECLSPEC_NORETURN TC_COMMON_API void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message) ATTR_NORETURN;
+    DECLSPEC_NORETURN TC_COMMON_API void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message, char const* format, ...) ATTR_NORETURN ATTR_PRINTF(6, 7);
 
     DECLSPEC_NORETURN TC_COMMON_API void Fatal(char const* file, int line, char const* function, char const* message, ...) ATTR_NORETURN ATTR_PRINTF(4, 5);
 
@@ -39,7 +39,7 @@ namespace Trinity
 
 } // namespace Trinity
 
-TC_COMMON_API std::string GetDebugInfos();
+TC_COMMON_API std::string GetDebugInfo();
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
 #define ASSERT_BEGIN __pragma(warning(push)) __pragma(warning(disable: 4127))
@@ -53,8 +53,8 @@ TC_COMMON_API std::string GetDebugInfos();
 #define EXCEPTION_ASSERTION_FAILURE 0xC0000420L
 #endif
 
-#define WPAssert(cond, ...) ASSERT_BEGIN do { if (!(cond)) Trinity::Assert(__FILE__, __LINE__, __FUNCTION__, GetDebugInfos(), #cond, ##__VA_ARGS__); } while(0) ASSERT_END
-#define WPAssert_NODEBUGINFOS(cond, ...) ASSERT_BEGIN do { if (!(cond)) Trinity::Assert(__FILE__, __LINE__, __FUNCTION__, "", #cond, ##__VA_ARGS__); } while(0) ASSERT_END
+#define WPAssert(cond, ...) ASSERT_BEGIN do { if (!(cond)) Trinity::Assert(__FILE__, __LINE__, __FUNCTION__, GetDebugInfo(), #cond, ##__VA_ARGS__); } while(0) ASSERT_END
+#define WPAssert_NODEBUGINFO(cond, ...) ASSERT_BEGIN do { if (!(cond)) Trinity::Assert(__FILE__, __LINE__, __FUNCTION__, "", #cond, ##__VA_ARGS__); } while(0) ASSERT_END
 #define WPFatal(cond, ...) ASSERT_BEGIN do { if (!(cond)) Trinity::Fatal(__FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); } while(0) ASSERT_END
 #define WPError(cond, msg) ASSERT_BEGIN do { if (!(cond)) Trinity::Error(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0) ASSERT_END
 #define WPWarning(cond, msg) ASSERT_BEGIN do { if (!(cond)) Trinity::Warning(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0) ASSERT_END
@@ -62,10 +62,10 @@ TC_COMMON_API std::string GetDebugInfos();
 
 #ifdef PERFORMANCE_PROFILING
 #define ASSERT(cond, ...) ((void)0)
-#define ASSERT_NODEBUGINFOS(cond, ...) ((void)0)
+#define ASSERT_NODEBUGINFO(cond, ...) ((void)0)
 #else
 #define ASSERT WPAssert
-#define ASSERT_NODEBUGINFOS WPAssert_NODEBUGINFOS
+#define ASSERT_NODEBUGINFO WPAssert_NODEBUGINFO
 #endif
 
 #define ABORT WPAbort

@@ -210,7 +210,7 @@ class TC_GAME_API Object
 
         bool m_objectUpdated;
 
-        virtual std::string GetDebugInfos() const;
+        virtual std::string GetDebugInfo() const;
 
     private:
         bool m_inWorld;
@@ -541,7 +541,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
         virtual bool IsAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
 
-        std::string GetDebugInfos() const override;
+        std::string GetDebugInfo() const override;
     private:
         Map* m_currMap;                                   // current object's Map location
 
