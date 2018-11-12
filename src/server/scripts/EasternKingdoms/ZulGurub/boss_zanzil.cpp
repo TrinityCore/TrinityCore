@@ -208,8 +208,6 @@ struct boss_zanzil : public BossAI
                 break;
             case NPC_ZANZILS_TOXIC_GAS:
                 _toxicGasGUIDs.push_back(summon->GetGUID());
-                if (summon->GetExactDist(GreenGasStalkerPos) < 1.0f)
-                    _greenGasStalkerGUID = summon->GetGUID();
                 break;
             default:
                 break;
@@ -406,7 +404,6 @@ private:
     GuidVector _resurrectedZanziliZombieGUIDs;
     GuidVector _targetdToxicGasGUIDs;
     GuidVector _toxicGasGUIDs;
-    ObjectGuid _greenGasStalkerGUID;
 };
 
 struct npc_zanzil_zanzili_berserker : public ScriptedAI
