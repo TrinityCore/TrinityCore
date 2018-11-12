@@ -382,7 +382,7 @@ enum SpellAttr0
     SPELL_ATTR0_UNK0                             = 0x00000001,
     SPELL_ATTR0_REQ_AMMO                         = 0x00000002, // TITLE Treat as ranged attack DESCRIPTION Use ammo, ranged attack range modifiers, ranged haste, etc.
     SPELL_ATTR0_ON_NEXT_SWING                    = 0x00000004, // TITLE On next melee (type 1) DESCRIPTION Both "on next swing" attributes have identical handling in server & client
-    SPELL_ATTR0_IS_REPLENISHMENT                 = 0x00000008,
+    SPELL_ATTR0_IS_REPLENISHMENT                 = 0x00000008, // TITLE Replenishment (client only)
     SPELL_ATTR0_ABILITY                          = 0x00000010, // TITLE Treat as ability DESCRIPTION Cannot be reflected, not affected by cast speed modifiers, etc.
     SPELL_ATTR0_TRADESPELL                       = 0x00000020, // TITLE Trade skill recipe DESCRIPTION Displayed in recipe list, not affected by cast speed modifiers
     SPELL_ATTR0_PASSIVE                          = 0x00000040, // TITLE Passive spell DESCRIPTION Spell is automatically cast on self by core
@@ -416,38 +416,38 @@ enum SpellAttr0
 // EnumUtils: DESCRIBE THIS
 enum SpellAttr1
 {
-    SPELL_ATTR1_DISMISS_PET                      = 0x00000001, //  0 for spells without this flag client doesn't allow to summon pet if caster has a pet
-    SPELL_ATTR1_DRAIN_ALL_POWER                  = 0x00000002, //  1 use all power (Only paladin Lay of Hands and Bunyanize)
-    SPELL_ATTR1_CHANNELED_1                      = 0x00000004, //  2 clientside checked? cancelable?
-    SPELL_ATTR1_CANT_BE_REDIRECTED               = 0x00000008, //  3
-    SPELL_ATTR1_UNK4                             = 0x00000010, //  4 stealth and whirlwind
-    SPELL_ATTR1_NOT_BREAK_STEALTH                = 0x00000020, //  5 Not break stealth
-    SPELL_ATTR1_CHANNELED_2                      = 0x00000040, //  6
-    SPELL_ATTR1_CANT_BE_REFLECTED                = 0x00000080, //  7
-    SPELL_ATTR1_CANT_TARGET_IN_COMBAT            = 0x00000100, //  8 can target only out of combat units
-    SPELL_ATTR1_MELEE_COMBAT_START               = 0x00000200, //  9 player starts melee combat after this spell is cast
-    SPELL_ATTR1_NO_THREAT                        = 0x00000400, // 10 no generates threat on cast 100% (old NO_INITIAL_AGGRO)
-    SPELL_ATTR1_UNK11                            = 0x00000800, // 11 aura
-    SPELL_ATTR1_IS_PICKPOCKET                    = 0x00001000, // 12 Pickpocket
-    SPELL_ATTR1_FARSIGHT                         = 0x00002000, // 13 Client removes farsight on aura loss
-    SPELL_ATTR1_CHANNEL_TRACK_TARGET             = 0x00004000, // 14 Client automatically forces player to face target when channeling
-    SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY         = 0x00008000, // 15 remove auras on immunity
-    SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE      = 0x00010000, // 16 on immuniy
-    SPELL_ATTR1_UNAUTOCASTABLE_BY_PET            = 0x00020000, // 17
-    SPELL_ATTR1_UNK18                            = 0x00040000, // 18 stun, polymorph, daze, hex
-    SPELL_ATTR1_CANT_TARGET_SELF                 = 0x00080000, // 19
-    SPELL_ATTR1_REQ_COMBO_POINTS1                = 0x00100000, // 20 Req combo points on target
-    SPELL_ATTR1_UNK21                            = 0x00200000, // 21
-    SPELL_ATTR1_REQ_COMBO_POINTS2                = 0x00400000, // 22 Req combo points on target
-    SPELL_ATTR1_UNK23                            = 0x00800000, // 23
-    SPELL_ATTR1_IS_FISHING                       = 0x01000000, // 24 only fishing spells
-    SPELL_ATTR1_UNK25                            = 0x02000000, // 25
-    SPELL_ATTR1_UNK26                            = 0x04000000, // 26 works correctly with [target=focus] and [target=mouseover] macros?
-    SPELL_ATTR1_UNK27                            = 0x08000000, // 27 melee spell?
-    SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR         = 0x10000000, // 28 client doesn't display these spells in aura bar
-    SPELL_ATTR1_CHANNEL_DISPLAY_SPELL_NAME       = 0x20000000, // 29 spell name is displayed in cast bar instead of 'channeling' text
-    SPELL_ATTR1_ENABLE_AT_DODGE                  = 0x40000000, // 30 Overpower
-    SPELL_ATTR1_UNK31                            = 0x80000000  // 31
+    SPELL_ATTR1_DISMISS_PET                      = 0x00000001, // TITLE Dismiss Pet on cast DESCRIPTION Without this attribute, summoning spells will fail if caster already has a pet
+    SPELL_ATTR1_DRAIN_ALL_POWER                  = 0x00000002, // TITLE Drain all power DESCRIPTION Ignores listed power cost and drains entire pool instead
+    SPELL_ATTR1_CHANNELED_1                      = 0x00000004, // TITLE Channeled (type 1) DESCRIPTION Both "channeled" attributes have identical handling in server & client
+    SPELL_ATTR1_CANT_BE_REDIRECTED               = 0x00000008, // TITLE Ignore redirection effects DESCRIPTION Spell will not be attracted by SPELL_MAGNET auras (Grounding Totem)
+    SPELL_ATTR1_UNK4                             = 0x00000010,
+    SPELL_ATTR1_NOT_BREAK_STEALTH                = 0x00000020, // TITLE Does not break stealth
+    SPELL_ATTR1_CHANNELED_2                      = 0x00000040, // TITLE Channeled (type 2) DESCRIPTION Both "channeled" attributes have identical handling in server & client
+    SPELL_ATTR1_CANT_BE_REFLECTED                = 0x00000080, // TITLE Ignore reflection effects DESCRIPTION Spell will pierce through Spell Reflection and similar
+    SPELL_ATTR1_CANT_TARGET_IN_COMBAT            = 0x00000100, // TITLE Target cannot be in combat
+    SPELL_ATTR1_MELEE_COMBAT_START               = 0x00000200, // TITLE Starts auto-attack (client only) DESCRIPTION Caster will begin auto-attacking the target on cast
+    SPELL_ATTR1_NO_THREAT                        = 0x00000400, // TITLE Does not generate threat DESCRIPTION Also does not cause target to engage
+    SPELL_ATTR1_UNK11                            = 0x00000800,
+    SPELL_ATTR1_IS_PICKPOCKET                    = 0x00001000, // TITLE Pickpocket (client only)
+    SPELL_ATTR1_FARSIGHT                         = 0x00002000, // TITLE Farsight aura (client only)
+    SPELL_ATTR1_CHANNEL_TRACK_TARGET             = 0x00004000, // TITLE Track target while channeling DESCRIPTION While channeling, adjust facing to face target
+    SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY         = 0x00008000, // TITLE Immunity cancels preapplied auras DESCRIPTION For immunity spells, cancel all auras that this spell would make you immune to when the spell is applied
+    SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE      = 0x00010000, // TITLE Unaffected by school immunities DESCRIPTION Will not pierce Divine Shield, Ice Block and other full invulnerabilities
+    SPELL_ATTR1_UNAUTOCASTABLE_BY_PET            = 0x00020000, // TITLE Cannot be autocast by pet
+    SPELL_ATTR1_UNK18                            = 0x00040000,
+    SPELL_ATTR1_CANT_TARGET_SELF                 = 0x00080000, // TITLE Cannot be self-cast
+    SPELL_ATTR1_REQ_COMBO_POINTS1                = 0x00100000, // TITLE Requires combo points (type 1)
+    SPELL_ATTR1_UNK21                            = 0x00200000,
+    SPELL_ATTR1_REQ_COMBO_POINTS2                = 0x00400000, // TITLE Requires combo points (type 2)
+    SPELL_ATTR1_UNK23                            = 0x00800000,
+    SPELL_ATTR1_IS_FISHING                       = 0x01000000, // TITLE Fishing (client only)
+    SPELL_ATTR1_UNK25                            = 0x02000000,
+    SPELL_ATTR1_UNK26                            = 0x04000000,
+    SPELL_ATTR1_UNK27                            = 0x08000000,
+    SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR         = 0x10000000, // TITLE Hide in aura bar (client only)
+    SPELL_ATTR1_CHANNEL_DISPLAY_SPELL_NAME       = 0x20000000, // TITLE Show spell name during channel (client only)
+    SPELL_ATTR1_ENABLE_AT_DODGE                  = 0x40000000, // TITLE Enable at dodge
+    SPELL_ATTR1_UNK31                            = 0x80000000
 };
 
 // EnumUtils: DESCRIBE THIS
