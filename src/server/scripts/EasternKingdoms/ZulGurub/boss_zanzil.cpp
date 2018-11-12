@@ -95,12 +95,6 @@ enum SecretTechniques
     TECHNIQUE_GRAVEYARD_GAS
 };
 
-enum GuidReservations
-{
-    GUID_RESERVATION_ZANZILI_ZOMBIE = 0,
-    GUID_RESERVATION_TOXIC_GAS
-};
-
 enum AIAnimKitId
 {
     AI_ANIM_KIT_ID_NONE = 0
@@ -260,10 +254,7 @@ struct boss_zanzil : public BossAI
 
     void SetGUID(ObjectGuid const& guid, int32 id) override
     {
-        if (id == GUID_RESERVATION_ZANZILI_ZOMBIE)
-            _resurrectedZanziliZombieGUIDs.push_back(guid);
-        else
-            _targetdToxicGasGUIDs.push_back(guid);
+        _reservedTargetGUIDs.push_back(guid);
     }
 
     void UpdateAI(uint32 diff) override
@@ -333,7 +324,7 @@ struct boss_zanzil : public BossAI
                         }
                         case TECHNIQUE_RED_RESURRECTION_ELIXIR:
                         {
-                            _resurrectedZanziliZombieGUIDs.clear();
+                            _reservedTargetGUIDs.clear();
                             Position nearestPos = ZanziliZombieSpellDestinations[0];
                             for (uint8 i = 1; i < 4; i++)
                             {
@@ -351,7 +342,7 @@ struct boss_zanzil : public BossAI
                             break;
                         }
                         case TECHNIQUE_GRAVEYARD_GAS:
-                            _targetdToxicGasGUIDs.clear();
+                            _reservedTargetGUIDs.clear();
                             Talk(SAY_ANNOUNCE_ZANZILS_GRAVEYARD_GAS);
                             Talk(SAY_ZANZILS_GRAVEYARD_GAS);
                             DoCastSelf(SPELL_ZANZILS_GRAVEYARD_GAS);
@@ -387,12 +378,9 @@ struct boss_zanzil : public BossAI
         DoMeleeAttackIfReady();
     }
 
-    GuidVector const GetAlreadyTargetedObjectGuids(GuidReservations reservation)
+    GuidVector const GetAlreadyTargetedObjectGuids()
     {
-        if (reservation == GUID_RESERVATION_ZANZILI_ZOMBIE)
-            return _resurrectedZanziliZombieGUIDs;
-        else
-            return _toxicGasGUIDs;
+            return _reservedTargetGUIDs;
     }
 
 private:
@@ -401,8 +389,7 @@ private:
     uint8 _zombieGroupToRespawn;
     uint8 _berserkerToRespawn;
     SecretTechniques _lastSecretTechnique;
-    GuidVector _resurrectedZanziliZombieGUIDs;
-    GuidVector _targetdToxicGasGUIDs;
+    GuidVector _reservedTargetGUIDs;
     GuidVector _toxicGasGUIDs;
 };
 
@@ -569,7 +556,7 @@ class spell_zanzil_zanzils_resurrection_elixir_red_script : public SpellScript
         // This is ugly as fuck but there is no other way to get already targeted zombies
         if (Creature* creature = GetCaster()->ToCreature())
             if (creature->IsAIEnabled)
-                targets.remove_if(UnusedGuidTargetSelector(CAST_AI(boss_zanzil, creature->AI())->GetAlreadyTargetedObjectGuids(GUID_RESERVATION_ZANZILI_ZOMBIE)));
+                targets.remove_if(UnusedGuidTargetSelector(CAST_AI(boss_zanzil, creature->AI())->GetAlreadyTargetedObjectGuids()));
 
         if (targets.empty())
             targets = targetsCopy;
@@ -600,7 +587,7 @@ class spell_zanzil_zanzils_resurrection_elixir_red_script : public SpellScript
         if (Creature* caster = GetCaster()->ToCreature())
             if (caster->IsAIEnabled)
                 if (Creature* target = GetHitCreature())
-                    caster->AI()->SetGUID(target->GetGUID(), GUID_RESERVATION_ZANZILI_ZOMBIE);
+                    caster->AI()->SetGUID(target->GetGUID());
     }
 
     void Register() override
@@ -635,7 +622,7 @@ class spell_zanzil_zanzils_graveyard_gas : public SpellScript
         // This is ugly as fuck but there is no other way to get already targeted gas stalkers
         if (Creature* creature = GetCaster()->ToCreature())
             if (creature->IsAIEnabled)
-                targets.remove_if(UnusedGuidTargetSelector(CAST_AI(boss_zanzil, creature->AI())->GetAlreadyTargetedObjectGuids(GUID_RESERVATION_TOXIC_GAS)));
+                targets.remove_if(UnusedGuidTargetSelector(CAST_AI(boss_zanzil, creature->AI())->GetAlreadyTargetedObjectGuids()));
 
         if (targets.empty())
             targets = targetsCopy;
@@ -657,7 +644,7 @@ class spell_zanzil_zanzils_graveyard_gas : public SpellScript
         if (Creature* caster = GetCaster()->ToCreature())
             if (caster->IsAIEnabled)
                 if (Creature* target = GetHitCreature())
-                    caster->AI()->SetGUID(target->GetGUID(), GUID_RESERVATION_TOXIC_GAS);
+                    caster->AI()->SetGUID(target->GetGUID());
     }
 
     void Register() override
