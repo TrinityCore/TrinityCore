@@ -252,7 +252,7 @@ struct boss_zanzil : public BossAI
         }
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 id) override
+    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
     {
         _reservedTargetGUIDs.push_back(guid);
     }
