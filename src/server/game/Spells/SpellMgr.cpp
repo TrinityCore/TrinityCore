@@ -4789,6 +4789,31 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
     });
 
+    // Zanzil's Resurrection Elixir
+    ApplySpellFix({
+        96316,
+        96319
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
+        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+    });
+
+    // Zanzil's Resurrection Elixir
+    ApplySpellFix({
+        96317,
+        96470
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+    });
+
+    // Zanzili Fire
+    ApplySpellFix({ 96916 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_2_YARDS);
+    });
+
     // ENDOF ZUL'GURUB SPELLS
 
     //

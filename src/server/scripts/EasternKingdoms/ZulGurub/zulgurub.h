@@ -91,6 +91,8 @@ enum ZGCreatureIds
 
     // Zanzil
     NPC_ZANZILI_BERSERKER           = 52054,
+    NPC_ZANZILI_ZOMBIE              = 52055,
+    NPC_ZANZILS_TOXIC_GAS           = 52062,
 
     // Generic Creatures
     NPC_TOXIC_VENOMSPITTER          = 52332,
