@@ -173,6 +173,11 @@ struct boss_zanzil : public BossAI
     {
         _JustDied();
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ZANZILS_GRAVEYARD_GAS_DAMAGE);
+
+        for (ObjectGuid guid : _toxicGasGUIDs)
+            if (Creature* stalker = ObjectAccessor::GetCreature(*me, guid))
+                stalker->RemoveAllAuras();
+
         Talk(SAY_DEATH);
     }
 
@@ -181,6 +186,11 @@ struct boss_zanzil : public BossAI
         _EnterEvadeMode();
         summons.DespawnAll();
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ZANZILS_GRAVEYARD_GAS_DAMAGE);
+
+        for (ObjectGuid guid : _toxicGasGUIDs)
+            if (Creature* stalker = ObjectAccessor::GetCreature(*me, guid))
+                stalker->RemoveAllAuras();
+
         _DespawnAtEvade();
     }
 
