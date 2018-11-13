@@ -96,8 +96,6 @@ enum Data
     DATA_CURRENT_BLOSSOM = 1
 };
 
-Position const firewallPlatterPos = { -193.4054f, -441.5011f, 54.57029f, 1.833041f };
-Position const firewallPlatterSplineEndpoint = { -193.4514f, -441.0169f, 55.70924f };
 Position const leftSideDistanceCheck = { -210.840f, -443.449f, 61.179f };
 
 class boss_glubtok : public CreatureScript
@@ -126,8 +124,12 @@ public:
             _Reset();
             Initialize();
             me->SetCanDualWield(true);
-            DoSummon(NPC_GLUBTOK_FIREWALL_PLATTER, firewallPlatterSplineEndpoint, 0, TEMPSUMMON_MANUAL_DESPAWN);
             me->SetHover(false);
+        }
+
+        void JustAppeared() override
+        {
+            DoSummon(NPC_GLUBTOK_FIREWALL_PLATTER, { me->GetPositionX(), me->GetPositionY(), 54.57029f, me->GetOrientation() }, 0, TEMPSUMMON_MANUAL_DESPAWN);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -158,20 +160,16 @@ public:
             switch (summon->GetEntry())
             {
                 case NPC_GLUBTOK_FIREWALL_PLATTER:
-                {
                     summon->SetSpeed(MOVE_RUN, 0.2f);
-                    float distance = summon->GetPosition().GetExactDist2d(firewallPlatterPos);
-                    summon->GetMotionMaster()->MoveCirclePath(firewallPlatterPos.GetPositionX(), firewallPlatterPos.GetPositionY(),
-                        firewallPlatterSplineEndpoint.GetPositionZ(), distance, true, 11);
+                    summon->GetMotionMaster()->MoveCirclePath(summon->GetPositionX(), summon->GetPositionY(), 55.70924, 3.0f, true, 8);
                     break;
-                }
                 case NPC_FIREWALL_PLATTER_1A:
                 case NPC_FIREWALL_PLATTER_1B:
                 case NPC_FIREWALL_PLATTER_1C:
                 case NPC_FIREWALL_PLATTER_2A:
                 case NPC_FIREWALL_PLATTER_2B:
                 case NPC_FIREWALL_PLATTER_2C:
-                    _firewallDummyGUIDList.insert(summon->GetGUID());
+                    _firewallDummyGUIDs.push_back(summon->GetGUID());
                     break;
                 default:
                     break;
@@ -321,8 +319,8 @@ public:
                         events.ScheduleEvent(EVENT_FIRE_WALL, Seconds(1) + Milliseconds(400));
                         break;
                     case EVENT_FIRE_WALL:
-                        for (auto itr = _firewallDummyGUIDList.begin(); itr != _firewallDummyGUIDList.end(); itr++)
-                            if (Creature* firewallDummy = ObjectAccessor::GetCreature(*me, (*itr)))
+                        for (ObjectGuid guid : _firewallDummyGUIDs)
+                            if (Creature* firewallDummy = ObjectAccessor::GetCreature(*me, guid))
                                 if (firewallDummy->GetEntry() != NPC_FIREWALL_PLATTER_1A
                                     && firewallDummy->GetEntry() != NPC_FIREWALL_PLATTER_1B
                                     && firewallDummy->GetEntry() != NPC_FIREWALL_PLATTER_1C)
@@ -357,7 +355,7 @@ public:
         bool _allowKill;
         uint8 _lastFists;
         uint32 _nextBlossomBunny;
-        GuidSet _firewallDummyGUIDList;
+        GuidVector _firewallDummyGUIDs;
     };
 
     CreatureAI* GetAI(Creature *creature) const override
