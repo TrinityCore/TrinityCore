@@ -565,7 +565,7 @@ public:
                         _events.ScheduleEvent(EVENT_CHECK_HEALTH, Seconds(1));
                         break;
                     case EVENT_CHECK_HEALTH:
-                        if (me->GetHealthPct() == 100.0f && me->GetReactState() == REACT_PASSIVE)
+                        if (me->GetHealthPct() == 100.0f && _isInEgg)
                         {
                             me->RemoveAurasDueToSpell(SPELL_TRANSFORM);
                             DoCastSelf(SPELL_BIRTH, true);
