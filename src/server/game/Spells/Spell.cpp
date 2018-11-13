@@ -4703,6 +4703,13 @@ void Spell::TakePower()
 
     if (powerType == POWER_RUNE)
     {
+        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            if (ObjectGuid targetGUID = m_targets.GetUnitTargetGUID())
+                for (auto ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                    if (ihit->targetGUID == targetGUID)
+                        if (ihit->missCondition == SPELL_MISS_DODGE || ihit->missCondition == SPELL_MISS_PARRY)
+                            return;
+
         TakeRunePower(hit);
         return;
     }
