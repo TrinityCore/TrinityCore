@@ -28,8 +28,7 @@ enum Texts
 enum Events
 {
     EVENT_SMOKE_BOMB = 1,
-    EVENT_EJECT_ALL_PASSENGERS,
-    EVENT_SLIPSTREAM,
+    EVENT_EJECT_ALL_PASSENGERS
 };
 
 enum Spells
@@ -158,6 +157,22 @@ private:
     EventMap _events;
 };
 
+class SlipstreamEvent : public BasicEvent
+{
+    public:
+        SlipstreamEvent(Unit* owner, ObjectGuid windtunnelGuid) : _owner(owner), _windTunnelGUID(windtunnelGuid) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            if (Creature* windtunnel = ObjectAccessor::GetCreature(*_owner, _windTunnelGUID))
+                windtunnel->CastSpell(_owner, SPELL_SLIPSTREAM);
+            return true;
+        }
+    private:
+        Unit* _owner;
+        ObjectGuid _windTunnelGUID;
+};
+
 struct npc_lct_wind_tunnel : public ScriptedAI
 {
     npc_lct_wind_tunnel(Creature* creature) : ScriptedAI(creature) { }
@@ -170,26 +185,7 @@ struct npc_lct_wind_tunnel : public ScriptedAI
         if (apply)
         {
             who->SetDisableGravity(true, true);
-            _events.ScheduleEvent(EVENT_SLIPSTREAM, 500ms);
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_SLIPSTREAM:
-                    if (Aura* aura = me->GetAura(SPELL_RIDE_VEHICLE))
-                        if (Unit* target = aura->GetCaster())
-                            DoCast(target, SPELL_SLIPSTREAM, true);
-                    break;
-                default:
-                    break;
-            }
+            who->m_Events.AddEvent(new SlipstreamEvent(who, me->GetGUID()), who->m_Events.CalculateTime(500));
         }
     }
 
