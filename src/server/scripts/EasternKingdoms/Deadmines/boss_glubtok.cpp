@@ -161,7 +161,7 @@ public:
             {
                 case NPC_GLUBTOK_FIREWALL_PLATTER:
                     summon->SetSpeed(MOVE_RUN, 0.2f);
-                    summon->GetMotionMaster()->MoveCirclePath(summon->GetPositionX(), summon->GetPositionY(), 55.70924, 3.0f, true, 8);
+                    summon->GetMotionMaster()->MoveCirclePath(summon->GetPositionX(), summon->GetPositionY(), 55.70924f, 3.0f, true, 8);
                     break;
                 case NPC_FIREWALL_PLATTER_1A:
                 case NPC_FIREWALL_PLATTER_1B:
