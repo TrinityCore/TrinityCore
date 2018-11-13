@@ -488,6 +488,9 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
 
     Movement::MoveSplineInit init(_owner);
 
+    // add the owner's current position as starting point as it gets removed after entering the cycle
+    init.Path().push_back(G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()));
+
     for (uint8 i = 0; i < stepCount; angle += step, ++i)
     {
         G3D::Vector3 point;
