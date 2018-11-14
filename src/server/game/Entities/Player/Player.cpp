@@ -6686,7 +6686,8 @@ void Player::RewardOnKill(Unit* victim, float rate)
                 Note: retail tests have shown that burning crusade dungeons are the only kind of dungeons that grant championing and usual reputation
                 at the same time which is why we duplicate the reward and modify the 2nd
             */
-            bool secondaryReputationReward1 = GetExpansionForFaction(rewFactionEntry1->team) == EXPANSION_THE_BURNING_CRUSADE;
+            bool secondaryReputationReward1 = (GetExpansionForFaction(rewFactionEntry1->team) == EXPANSION_THE_BURNING_CRUSADE
+                || GetExpansionForFaction(Rew->RepFaction1) == EXPANSION_THE_BURNING_CRUSADE);
 
             uint32 factionId1 = (ChampioningFaction && !secondaryReputationReward1) ? ChampioningFaction : Rew->RepFaction1;
             if (rewFactionEntry1->GroupExpansion && !ChampioningFaction)
@@ -6715,7 +6716,8 @@ void Player::RewardOnKill(Unit* victim, float rate)
     {
         if (FactionEntry const* rewFactionEntry2 = sFactionStore.LookupEntry(Rew->RepFaction2))
         {
-            bool secondaryReputationReward2 = GetExpansionForFaction(rewFactionEntry2->team) == EXPANSION_THE_BURNING_CRUSADE;
+            bool secondaryReputationReward2 = (GetExpansionForFaction(rewFactionEntry2->team) == EXPANSION_THE_BURNING_CRUSADE
+                || GetExpansionForFaction(Rew->RepFaction1) == EXPANSION_THE_BURNING_CRUSADE);
 
             uint32 factionId2 = (ChampioningFaction && secondaryReputationReward2) ? ChampioningFaction : Rew->RepFaction2;
             if (rewFactionEntry2->GroupExpansion && !ChampioningFaction)
