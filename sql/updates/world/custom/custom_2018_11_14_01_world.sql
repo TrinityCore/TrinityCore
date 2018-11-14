@@ -1,4 +1,4 @@
-DELETE FROM `creature_onkill_reward` WHERE `creature_id` IN (48141, 49309, 48139, 49307, 48140, 49308, 48143, 49310, 39440, 49286, 40787, 49301, 40311, 49295, 40310, 49294, 39801, 48895, 39800, 48894, 39803, 48896, 39802, 39373, 49285, 40170, 49293, 40106, 49292, 40033, 49291, 40715, 49300, 40668, 49299, 41374, 49305, 41371, 49304, 41364, 48892, 49303, 39587, 39731, 39732, 48710, 48715, 48776, 39370);
+DELETE FROM `creature_onkill_reward` WHERE `creature_id` IN (48141, 49309, 48139, 49307, 48140, 49308, 48143, 49310, 39440, 49286, 40787, 49301, 40311, 49295, 40310, 49294, 39801, 48895, 39800, 48894, 39803, 48896, 39802, 39373, 49285, 40170, 49293, 40106, 49292, 40033, 49291, 40715, 49300, 40668, 49299, 41374, 49305, 41371, 49304, 41364, 48892, 49303, 39587, 39731, 39732, 48710, 48715, 48776, 39370, 48815, 39378);
 
 -- Normal Mode
 -- Halls of Origination
@@ -26,12 +26,12 @@ INSERT INTO `creature_onkill_reward` (`creature_id`, `RewOnKillRepFaction1`, `Ma
 (39370, 1162, 7, 0, 10, 0),
 (39587, 1162, 7, 0, 150, 0),
 (39731, 1162, 7, 0, 150, 0),
-(39732, 1162, 7, 0, 150, 0);
+(39732, 1162, 7, 0, 150, 0),
+(39378, 1162, 7, 0, 150, 0);
 
 UPDATE `creature_onkill_reward` SET `RewOnKillRepFaction1`= 1162, `MaxStanding1`= 7, `RewOnKillRepValue1`= 150 WHERE `creature_id`= 39425;
 UPDATE `creature_onkill_reward` SET `RewOnKillRepFaction1`= 1162, `MaxStanding1`= 7, `RewOnKillRepValue1`= 150 WHERE `creature_id`= 39428;
 UPDATE `creature_onkill_reward` SET `RewOnKillRepFaction1`= 1162, `MaxStanding1`= 7, `RewOnKillRepValue1`= 150 WHERE `creature_id`= 39788;
-UPDATE `creature_onkill_reward` SET `RewOnKillRepFaction1`= 1162, `MaxStanding1`= 7, `RewOnKillRepValue1`= 150 WHERE `creature_id`= 39378;
 
 -- Heroic Mode
 -- Halls of Origination
@@ -59,9 +59,9 @@ INSERT INTO `creature_onkill_reward` (`creature_id`, `RewOnKillRepFaction1`, `Ma
 (49303, 1162, 7, 0, 15, 0),
 (48710, 1162, 7, 0, 250, 0),
 (48715, 1162, 7, 0, 250, 0),
-(48776, 1162, 7, 0, 250, 0);
+(48776, 1162, 7, 0, 250, 0),
+(48815, 1162, 7, 0, 250, 0);
 
 UPDATE `creature_onkill_reward` SET `RewOnKillRepFaction1`= 1162, `MaxStanding1`= 7, `RewOnKillRepValue1`= 250 WHERE `creature_id`= 49262;
 UPDATE `creature_onkill_reward` SET `RewOnKillRepFaction1`= 1162, `MaxStanding1`= 7, `RewOnKillRepValue1`= 250 WHERE `creature_id`= 48714;
 UPDATE `creature_onkill_reward` SET `RewOnKillRepFaction1`= 1162, `MaxStanding1`= 7, `RewOnKillRepValue1`= 250 WHERE `creature_id`= 48902;
-UPDATE `creature_onkill_reward` SET `RewOnKillRepFaction1`= 1162, `MaxStanding1`= 7, `RewOnKillRepValue1`= 250 WHERE `creature_id`= 48815;
