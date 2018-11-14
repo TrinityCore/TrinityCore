@@ -6658,16 +6658,17 @@ void Player::RewardOnKill(Unit* victim, float rate)
         {
             if (LFGDungeonEntry const* dungeon = GetLFGDungeon(map->GetId(), map->GetDifficulty()))
             {
-                // WotLK and Cataclysm dungeons only grant championing reputation when in max level dungeons of their corresponding expansion
-                if (dungeon->reclevel == GetMaxLevelForExpansion(dungeon->expansion) && GetExpansionForChampioningFaction())
+                // WotLK and Cataclysm dungeons only grant championing reputation when being in max level dungeons and fighting for a expansion related faction
+                uint8 expansion = GetExpansionForFaction(GetChampioningFaction());
+                if (dungeon->reclevel == GetMaxLevelForExpansion(dungeon->expansion) && expansion)
                 {
-                    if (GetExpansionForChampioningFaction() == dungeon->expansion)
+                    if (expansion == dungeon->expansion)
                         ChampioningFaction = GetChampioningFaction();
                 }
                 else
                 {
                     // Classic Tabards (Alliance and Horde capital reputation) always convert the gained reputation
-                    if (!GetExpansionForChampioningFaction())
+                    if (!expansion)
                         ChampioningFaction = GetChampioningFaction();
                 }
             }
@@ -6680,7 +6681,14 @@ void Player::RewardOnKill(Unit* victim, float rate)
     {
         if (FactionEntry const* rewFactionEntry1 = sFactionStore.LookupEntry(Rew->RepFaction1))
         {
-            uint32 factionId1 = ChampioningFaction ? ChampioningFaction : Rew->RepFaction1;
+            // Patch 4.3: Wearing Horde or Alliance racial faction tabards now grants reputation in Burning Crusade dungeons as well.
+            /*
+                Note: retail tests have shown that burning crusade dungeons are the only kind of dungeons that grant championing and usual reputation
+                at the same time which is why we duplicate the reward and modify the 2nd
+            */
+            bool secondaryReputationReward1 = GetExpansionForFaction(rewFactionEntry1->team) == EXPANSION_THE_BURNING_CRUSADE;
+
+            uint32 factionId1 = (ChampioningFaction && !secondaryReputationReward1) ? ChampioningFaction : Rew->RepFaction1;
             if (rewFactionEntry1->GroupExpansion && !ChampioningFaction)
                 factionId1 = 0;
 
@@ -6691,6 +6699,15 @@ void Player::RewardOnKill(Unit* victim, float rate)
             uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
             if (factionEntry1)
                 GetReputationMgr().ModifyReputation(factionEntry1, donerep1, current_reputation_rank1 > Rew->ReputationMaxCap1);
+
+            if (factionEntry1 && secondaryReputationReward1 && ChampioningFaction)
+            {
+                FactionEntry const* bonusFactionEntry1 = sFactionStore.LookupEntry(ChampioningFaction);
+                uint32 current_bonus_reputation_rank1 = GetReputationMgr().GetRank(bonusFactionEntry1);
+
+                if (bonusFactionEntry1)
+                    GetReputationMgr().ModifyReputation(bonusFactionEntry1, donerep1, current_bonus_reputation_rank1 > Rew->ReputationMaxCap1);
+            }
         }
     }
 
@@ -6698,7 +6715,9 @@ void Player::RewardOnKill(Unit* victim, float rate)
     {
         if (FactionEntry const* rewFactionEntry2 = sFactionStore.LookupEntry(Rew->RepFaction2))
         {
-            uint32 factionId2 = ChampioningFaction ? ChampioningFaction : Rew->RepFaction2;
+            bool secondaryReputationReward2 = GetExpansionForFaction(rewFactionEntry2->team) == EXPANSION_THE_BURNING_CRUSADE;
+
+            uint32 factionId2 = (ChampioningFaction && secondaryReputationReward2) ? ChampioningFaction : Rew->RepFaction2;
             if (rewFactionEntry2->GroupExpansion && !ChampioningFaction)
                 factionId2 = 0;
 
@@ -6709,6 +6728,15 @@ void Player::RewardOnKill(Unit* victim, float rate)
             uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
             if (factionEntry2)
                 GetReputationMgr().ModifyReputation(factionEntry2, donerep2, current_reputation_rank2 > Rew->ReputationMaxCap2);
+
+            if (factionEntry2 && secondaryReputationReward2 && ChampioningFaction)
+            {
+                FactionEntry const* bonusFactionEntry2 = sFactionStore.LookupEntry(ChampioningFaction);
+                uint32 current_bonus_reputation_rank2 = GetReputationMgr().GetRank(bonusFactionEntry2);
+
+                if (bonusFactionEntry2)
+                    GetReputationMgr().ModifyReputation(bonusFactionEntry2, donerep2, current_bonus_reputation_rank2 > Rew->ReputationMaxCap1);
+            }
         }
     }
 
@@ -26567,16 +26595,13 @@ bool Player::CanSeeSpellClickOn(Creature const* c) const
     return false;
 }
 
-uint8 Player::GetExpansionForChampioningFaction() const
+uint8 Player::GetExpansionForFaction(uint32 faction) const
 {
-    if (!m_ChampioningFaction)
+    FactionEntry const* baseFaction = sFactionStore.LookupEntry(faction);
+    if (!baseFaction || !baseFaction->team)
         return 0;
 
-    FactionEntry const* faction = sFactionStore.LookupEntry(m_ChampioningFaction);
-    if (!faction || !faction->team)
-        return 0;
-
-    FactionEntry const* expansionFaction = sFactionStore.LookupEntry(faction->team);
+    FactionEntry const* expansionFaction = sFactionStore.LookupEntry(baseFaction->team);
     if (!expansionFaction)
         return 0;
 
