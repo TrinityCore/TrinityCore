@@ -24,6 +24,10 @@
 
 namespace Trainer
 {
+    bool Spell::IsCastable() const
+    {
+        return sSpellMgr->AssertSpellInfo(SpellId)->HasEffect(SPELL_EFFECT_LEARN_SPELL);
+    }
 
     Trainer::Trainer(uint32 id, Type type, std::string greeting, std::vector<Spell> spells) : _id(id), _type(type), _spells(std::move(spells))
     {
@@ -136,9 +140,22 @@ namespace Trainer
             return SpellState::Unavailable;
 
         // check ranks
-        if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(trainerSpell->LearnedSpellId))
-            if (!player->HasSpell(previousRankSpellId))
-                return SpellState::Unavailable;
+        bool hasLearnSpellEffect = false;
+        for (SpellEffectInfo const* spellEffect : sSpellMgr->AssertSpellInfo(trainerSpell->SpellId)->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        {
+            if (!spellEffect || !spellEffect->IsEffect(SPELL_EFFECT_LEARN_SPELL))
+                continue;
+
+            hasLearnSpellEffect = true;
+            if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(spellEffect->TriggerSpell))
+                if (!player->HasSpell(previousRankSpellId))
+                    return SpellState::Unavailable;
+        }
+
+        if (!hasLearnSpellEffect)
+            if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(trainerSpell->SpellId))
+                if (!player->HasSpell(previousRankSpellId))
+                    return SpellState::Unavailable;
 
         // check additional spell requirement
         for (auto const& requirePair : sSpellMgr->GetSpellsRequiredForSpellBounds(trainerSpell->SpellId))

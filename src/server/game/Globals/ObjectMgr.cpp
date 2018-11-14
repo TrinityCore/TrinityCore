@@ -8667,18 +8667,6 @@ void ObjectMgr::LoadTrainers()
             if (!allReqValid)
                 continue;
 
-            spell.LearnedSpellId = spell.SpellId;
-            for (SpellEffectInfo const* spellEffect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
-            {
-                if (spellEffect && spellEffect->IsEffect(SPELL_EFFECT_LEARN_SPELL))
-                {
-                    ASSERT(spell.LearnedSpellId == spell.SpellId,
-                        "Only one learned spell is currently supported - spell %u already teaches %u but it tried to overwrite it with %u",
-                        spell.SpellId, spell.LearnedSpellId, spellEffect->TriggerSpell);
-                    spell.LearnedSpellId = spellEffect->TriggerSpell;
-                }
-            }
-
             spellsByTrainer[trainerId].push_back(spell);
 
         } while (trainerSpellsResult->NextRow());
@@ -9280,8 +9268,8 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
-    //                                               0      1      2         3          4            5                  6            7            8            9            10           11
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2, damage_exp3, damage_exp4, damage_exp5 FROM creature_classlevelstats");
+    //                                               0      1      2         3          4            5
+    QueryResult result = WorldDatabase.Query("SELECT level, class, basemana, basearmor, attackpower, rangedattackpower FROM creature_classlevelstats");
 
     if (!result)
     {
