@@ -6655,33 +6655,61 @@ void Player::RewardOnKill(Unit* victim, float rate)
         // support for: Championing - http://www.wowwiki.com/Championing
         Map const* map = GetMap();
         if (map->IsNonRaidDungeon())
+        {
             if (LFGDungeonEntry const* dungeon = GetLFGDungeon(map->GetId(), map->GetDifficulty()))
-                if (dungeon->reclevel == GetMaxLevelForExpansion(dungeon->expansion))
-                    ChampioningFaction = GetChampioningFaction();
+            {
+                // WotLK and Cataclysm dungeons only grant championing reputation when in max level dungeons of their corresponding expansion
+                if (dungeon->reclevel == GetMaxLevelForExpansion(dungeon->expansion) && GetExpansionForChampioningFaction())
+                {
+                    if (GetExpansionForChampioningFaction() == dungeon->expansion)
+                        ChampioningFaction = GetChampioningFaction();
+                }
+                else
+                {
+                    // Classic Tabards (Alliance and Horde capital reputation) always convert the gained reputation
+                    if (!GetExpansionForChampioningFaction())
+                        ChampioningFaction = GetChampioningFaction();
+                }
+            }
+        }
     }
 
     uint32 team = GetTeam();
 
     if (Rew->RepFaction1 && (!Rew->TeamDependent || team == ALLIANCE))
     {
-        int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rew->RepValue1, ChampioningFaction ? ChampioningFaction : Rew->RepFaction1);
-        donerep1 = int32(donerep1 * rate);
+        if (FactionEntry const* rewFactionEntry1 = sFactionStore.LookupEntry(Rew->RepFaction1))
+        {
+            uint32 factionId1 = ChampioningFaction ? ChampioningFaction : Rew->RepFaction1;
+            if (rewFactionEntry1->GroupExpansion && !ChampioningFaction)
+                factionId1 = 0;
 
-        FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rew->RepFaction1);
-        uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
-        if (factionEntry1)
-            GetReputationMgr().ModifyReputation(factionEntry1, donerep1, current_reputation_rank1 > Rew->ReputationMaxCap1);
+            int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rew->RepValue1, factionId1);
+            donerep1 = int32(donerep1 * rate);
+
+            FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(factionId1);
+            uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
+            if (factionEntry1)
+                GetReputationMgr().ModifyReputation(factionEntry1, donerep1, current_reputation_rank1 > Rew->ReputationMaxCap1);
+        }
     }
 
     if (Rew->RepFaction2 && (!Rew->TeamDependent || team == HORDE))
     {
-        int32 donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rew->RepValue2, ChampioningFaction ? ChampioningFaction : Rew->RepFaction2);
-        donerep2 = int32(donerep2 * rate);
+        if (FactionEntry const* rewFactionEntry2 = sFactionStore.LookupEntry(Rew->RepFaction2))
+        {
+            uint32 factionId2 = ChampioningFaction ? ChampioningFaction : Rew->RepFaction2;
+            if (rewFactionEntry2->GroupExpansion && !ChampioningFaction)
+                factionId2 = 0;
 
-        FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rew->RepFaction2);
-        uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
-        if (factionEntry2)
-            GetReputationMgr().ModifyReputation(factionEntry2, donerep2, current_reputation_rank2 > Rew->ReputationMaxCap2);
+            int32 donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rew->RepValue2, factionId2);
+            donerep2 = int32(donerep2 * rate);
+
+            FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(factionId2);
+            uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
+            if (factionEntry2)
+                GetReputationMgr().ModifyReputation(factionEntry2, donerep2, current_reputation_rank2 > Rew->ReputationMaxCap2);
+        }
     }
 
     if (Rew->CurrencyId1 && Rew->CurrencyCount1)
@@ -26537,6 +26565,22 @@ bool Player::CanSeeSpellClickOn(Creature const* c) const
     }
 
     return false;
+}
+
+uint8 Player::GetExpansionForChampioningFaction() const
+{
+    if (!m_ChampioningFaction)
+        return 0;
+
+    FactionEntry const* faction = sFactionStore.LookupEntry(m_ChampioningFaction);
+    if (!faction || !faction->team)
+        return 0;
+
+    FactionEntry const* expansionFaction = sFactionStore.LookupEntry(faction->team);
+    if (!expansionFaction)
+        return 0;
+
+    return expansionFaction->GroupExpansion;
 }
 
 void Player::BuildPlayerTalentsInfoData(WorldPacket* data)

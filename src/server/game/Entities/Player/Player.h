@@ -2324,6 +2324,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 GetChampioningFaction() const { return m_ChampioningFaction; }
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
+        uint8 GetExpansionForChampioningFaction() const;
+
         Spell* m_spellModTakingSpell;
 
         float GetAverageItemLevel() const;
