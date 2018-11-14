@@ -2811,6 +2811,16 @@ Network.OutUBuff = 65536
 Network.TcpNodelay = 1
 
 #
+#
+#    Network.SO_REUSEADDR:
+#        Description: TCP Socket option to allow the Core to clean up TIME_WAIT connections from the kernel.
+#         Default:    0 - (Disabled)
+#                     1 - (Enable, experimental use only)
+#   
+
+Network.SO_REUSEADDR = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
