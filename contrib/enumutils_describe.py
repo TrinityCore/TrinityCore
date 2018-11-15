@@ -1,5 +1,4 @@
 from re import compile, MULTILINE
-from sys import argv, stdout, stderr
 from os import walk, getcwd
 from datetime import datetime
 
