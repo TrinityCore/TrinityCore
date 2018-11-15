@@ -43,7 +43,7 @@ public:
     }
 };
 
-WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _instanceAcceptor(nullptr), _socketSystemSendBufferSize(-1), _socketApplicationSendBufferSize(65536), _tcpNoDelay(true), _SO_REUSEADDR(false)
+WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _instanceAcceptor(nullptr), _socketSystemSendBufferSize(-1), _socketApplicationSendBufferSize(65536), _tcpNoDelay(true)
 {
 }
 
@@ -61,7 +61,6 @@ WorldSocketMgr& WorldSocketMgr::Instance()
 bool WorldSocketMgr::StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, uint16 instancePort, int threadCount)
 {
     _tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
-    _SO_REUSEADDR = sConfigMgr->GetBoolDefault("Network.SO_REUSEADDR", false);
 
     int const max_connections = TRINITY_MAX_LISTEN_CONNECTIONS;
     TC_LOG_DEBUG("misc", "Max allowed socket connections %d", max_connections);
@@ -144,17 +143,6 @@ void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
         if (err)
         {
             TC_LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::ip::tcp::no_delay) err = %s", err.message().c_str());
-            return;
-        }
-    }
-
-    if (_SO_REUSEADDR)
-    {
-        boost::system::error_code err;
-        sock.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), err);
-        if (err)
-        {
-            TC_LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::ip::tcp::acceptor::reuse_address) err = %s", err.message().c_str());
             return;
         }
     }

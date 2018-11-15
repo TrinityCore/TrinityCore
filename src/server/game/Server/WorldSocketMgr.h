@@ -65,7 +65,6 @@ private:
     int32 _socketSystemSendBufferSize;
     int32 _socketApplicationSendBufferSize;
     bool _tcpNoDelay;
-    bool _SO_REUSEADDR;
 };
 
 #define sWorldSocketMgr WorldSocketMgr::Instance()
