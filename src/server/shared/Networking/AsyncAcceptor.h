@@ -84,6 +84,9 @@ public:
             return false;
         }
 
+        // Opening a socket acceptor with the SO_REUSEADDR option enabled.
+        _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+
         _acceptor.bind(_endpoint, errorCode);
         if (errorCode)
         {
