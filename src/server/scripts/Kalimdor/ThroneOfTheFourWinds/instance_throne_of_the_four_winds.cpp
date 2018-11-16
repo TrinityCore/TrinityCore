@@ -106,11 +106,16 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                     case NPC_SQUALL_LINE_SW:
                     case NPC_SQUALL_LINE_SE:
                     case NPC_STORMLING:
+                    case NPC_LIGHTNING_CLOUDS_EXTRA_VISUALS:
+                    case NPC_LIGHTNING_CLOUDS_EXTRA_VISUALS_BOTTOM:
                         if (Creature* alakir = GetCreature(DATA_ALAKIR))
                             alakir->AI()->JustSummoned(creature);
                         break;
                     case NPC_RELENTLESS_STORM_INITIAL_VEHICLE:
                         _relentlessStormInitialVehicleGUIDs.push_back(creature->GetGUID());
+                        break;
+                    case NPC_RELENTLESS_STORM:
+                        _relentlessStormVehicleGUIDs.push_back(creature->GetGUID());
                         break;
                     default:
                         break;
@@ -123,6 +128,12 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
 
                 go->setActive(true);
                 go->SetFarVisible(true);
+            }
+
+            void OnPlayerEnter(Player* player) override
+            {
+                if (GetBossState(DATA_ALAKIR) == DONE)
+                    player->CastSpell(player, SPELL_SERENITY);
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -179,6 +190,9 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                             }
                         }
                         break;
+                    case DATA_ALAKIR:
+                        if (state == FAIL)
+                            _relentlessStormVehicleGUIDs.clear();
                     default:
                         break;
                 }
@@ -210,8 +224,16 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                                     return guid;
                         }
                         break;
-                    case DATA_FREE_RELENTLESS_STORM_VEHICLE:
+                    case DATA_FREE_RELENTLESS_STORM_INITIAL_VEHICLE:
                         for (ObjectGuid guid : _relentlessStormInitialVehicleGUIDs)
+                        {
+                            if (Creature* storm = instance->GetCreature(guid))
+                                if (storm->GetVehicleKit() && storm->GetVehicleKit()->GetAvailableSeatCount())
+                                    return guid;
+                        }
+                        break;
+                    case DATA_FREE_RELENTLESS_STORM_VEHICLE:
+                        for (ObjectGuid guid : _relentlessStormVehicleGUIDs)
                         {
                             if (Creature* storm = instance->GetCreature(guid))
                                 if (storm->GetVehicleKit() && storm->GetVehicleKit()->GetAvailableSeatCount())
@@ -275,6 +297,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
             ObjectGuid _engerizeWorldTriggerGUID;
             GuidVector _hurricaneGUIDs;
             GuidVector _relentlessStormInitialVehicleGUIDs;
+            GuidVector _relentlessStormVehicleGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

@@ -28,22 +28,23 @@ uint32 const EncounterCount = 2;
 enum TFWDataTypes
 {
     // Encounter States
-    DATA_CONCLAVE_OF_WIND                   = 0,
-    DATA_ALAKIR                             = 1,
+    DATA_CONCLAVE_OF_WIND                       = 0,
+    DATA_ALAKIR                                 = 1,
 
     // Additional Data
-    DATA_ANSHAL                             = 2,
-    DATA_NEZIR                              = 3,
-    DATA_ROHASH                             = 4,
-    DATA_SKYWALL_RAID_CENTER_PLATFORM       = 5,
-    DATA_SKYWALL_DJIN_TORNADO               = 6,
-    DATA_SKYWALL_DJIN_FROST                 = 7,
-    DATA_SKYWALL_DJIN_HEALING               = 8,
-    DATA_SKYWALL_WIND_DRAFT_EFFECT_CENTER   = 9,
-    DATA_FREE_HURRICANE_VEHICLE             = 10,
-    DATA_ACID_RAIN_WEATHER                  = 11,
-    DATA_FREE_RELENTLESS_STORM_VEHICLE      = 12,
-    DATA_WORLD_TRIGGER_INFINITE_AOI         = 13,
+    DATA_ANSHAL                                 = 2,
+    DATA_NEZIR                                  = 3,
+    DATA_ROHASH                                 = 4,
+    DATA_SKYWALL_RAID_CENTER_PLATFORM           = 5,
+    DATA_SKYWALL_DJIN_TORNADO                   = 6,
+    DATA_SKYWALL_DJIN_FROST                     = 7,
+    DATA_SKYWALL_DJIN_HEALING                   = 8,
+    DATA_SKYWALL_WIND_DRAFT_EFFECT_CENTER       = 9,
+    DATA_FREE_HURRICANE_VEHICLE                 = 10,
+    DATA_ACID_RAIN_WEATHER                      = 11,
+    DATA_FREE_RELENTLESS_STORM_INITIAL_VEHICLE  = 12,
+    DATA_WORLD_TRIGGER_INFINITE_AOI             = 13,
+    DATA_FREE_RELENTLESS_STORM_VEHICLE          = 14
 };
 
 enum TFWCreatureIds
@@ -76,6 +77,11 @@ enum TFWCreatureIds
     NPC_STORMLING                                       = 47175,
     NPC_RELENTLESS_STORM_INITIAL_VEHICLE                = 47806,
     NPC_WORLD_TRIGGER_INFINITE_AOI                      = 36171,
+    NPC_LIGHTNING_CLOUDS_BOTTOM                         = 51597,
+    NPC_LIGHTNING_CLOUDS_EXTRA_VISUALS_BOTTOM           = 51598,
+    NPC_LIGHTNING_CLOUDS                                = 48190,
+    NPC_LIGHTNING_CLOUDS_EXTRA_VISUALS                  = 48196,
+    NPC_RELENTLESS_STORM                                = 47807
 };
 
 enum TFWSpells
@@ -83,6 +89,9 @@ enum TFWSpells
     // World Trigger
     SPELL_POWER_GAIN            = 89898,
     SPELL_WIND_BLAST_SPEED_BUFF = 93106,
+
+    // Players
+    SPELL_SERENITY              = 89750
 };
 
 enum TFWGameObjectIds

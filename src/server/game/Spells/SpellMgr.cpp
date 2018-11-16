@@ -4939,6 +4939,83 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(245); // 50 seconds
     });
 
+    // Lightning Clouds
+    ApplySpellFix({
+        89583,
+        89592,
+        89628
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Lightning Clouds
+    ApplySpellFix({ 89583 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_80_YARDS);
+    });
+
+    // Lightning Clouds
+    ApplySpellFix({
+        89588,
+        93297,
+        93298,
+        93299
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+    });
+
+    // Lightning Clouds
+    ApplySpellFix({
+        89565,
+        89577
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(570); // 32 seconds
+    });
+
+    // Lightning Rod
+    ApplySpellFix({ 89668 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Lightning
+    ApplySpellFix({
+        89644,
+        101465,
+        101466,
+        101467
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(0);
+    });
+
+    // Lightning
+    ApplySpellFix({
+        89644,
+        101466,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Lightning
+    ApplySpellFix({
+        101465,
+        101467,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 3;
+    });
+
+    // Static Shock
+    ApplySpellFix({ 87873 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+    });
+
     // ENDOF THRONE OF THE FOUR WINDS SPELLS
 
     // Disenchant

@@ -1,6 +1,7 @@
 -- Template Updates
 -- Al'Akir
-UPDATE `creature_template` SET `ScriptName`= 'boss_alakir', `InhabitType`= 12 WHERE `entry`= 46753;
+UPDATE `creature_template` SET `difficulty_entry_1`= 50203, `difficulty_entry_2`= 50217, `difficulty_entry_3`= 50231,`ScriptName`= 'boss_alakir', `InhabitType`= 12, `DamageModifier`= 60, `mechanic_immune_mask`= 617299839 WHERE `entry`= 46753;
+UPDATE `creature_template` SET `minlevel`= 88, `maxlevel`= 88, `exp`= 3, `faction`= 16, `speed_walk`= 2.4, `speed_run`= 1.42857, `BaseAttackTime`= 1500, `unit_flags2`= 134219776, `InhabitType`= 12, `DamageModifier`= 60, `mechanic_immune_mask`= 617299839, `flags_extra`= 1 WHERE `entry` IN (50203, 50217, 50231);
 -- Slipstream
 UPDATE `creature_template` SET `InhabitType`= 4, `ScriptName`= 'npc_totfw_slipstream' WHERE `entry`= 47066;
 -- Lightning Strike Trigger
@@ -20,11 +21,26 @@ UPDATE `creature_template` SET `unit_flags`= 33554432, `flags_extra`= 128, `Vehi
 -- Ice Storm Trigger
 UPDATE `creature_template` SET `InhabitType`= 4 WHERE `entry`= 46766;
 -- Stormling Pre-Effect
-UPDATE `creature_template` SET `unit_flags`= 33555200, `flags_extra`= 2 WHERE `entry`= 47177;
+UPDATE `creature_template` SET `unit_flags`= 33555200, `flags_extra`= 2, `InhabitType`= 4 WHERE `entry`= 47177;
 -- Stormling
-UPDATE `creature_template` SET `DamageModifier`= 30, `ScriptName`= 'npc_alakir_stormling' WHERE `entry`= 47175;
+UPDATE `creature_template` SET `difficulty_entry_1`= 50216, `difficulty_entry_2`= 50230, `difficulty_entry_3`= 50244, `DamageModifier`= 30, `BaseVariance`= 0.5, `ScriptName`= 'npc_alakir_stormling', `mechanic_immune_mask`= 46344991, `InhabitType`= 5 WHERE `entry`= 47175;
+UPDATE `creature_template` SET `minlevel`= 88, `maxlevel`= 88, `exp`= 3, `faction`= 14, `DamageModifier`= 30, `BaseVariance`= 0.5, `mechanic_immune_mask`= 46344991, `InhabitType`= 5 WHERE `entry` IN (50216, 50230, 50244); 
+
+-- Achievement Reward
+DELETE FROM `achievement_reward` WHERE `ID`= 5123;
+INSERT INTO `achievement_reward` (`ID`, `TitleA`, `TitleH`) VALUES
+(5123, 226, 226);
+
 -- Relentless Storm Initial Vehicle
 UPDATE `creature_template` SET `InhabitType`= 4 WHERE `entry`= 47806;
+-- Lightning Clouds
+UPDATE `creature_template` SET `InhabitType`= 4, `flags_extra`= 2 WHERE `entry`= 51597;
+UPDATE `creature_template` SET `InhabitType`= 4, `unit_flags`= 33554432, `flags_extra`= 2 WHERE `entry`= 48190;
+-- Lightning Clouds Extra Visuals
+UPDATE `creature_template` SET `InhabitType`= 4, `unit_flags`= 33554432, `flags_extra`= 2 WHERE `entry`= 51598;
+UPDATE `creature_template` SET `InhabitType`= 4, `unit_flags`= 33554432, `flags_extra`= 2 WHERE `entry`= 48196;
+-- Relentless Storm
+UPDATE `creature_template` SET `InhabitType`= 4, `unit_flags`= 33554432, `flags_extra`= 128 WHERE `entry`= 47807;
 
 -- Model Info
 UPDATE `creature_model_info` SET `CombatReach`= 400 WHERE `DisplayId`= 36062;
@@ -38,11 +54,10 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (46753, 3, 0, 'Winds! Obey my command!', 14, 0, 100, 0, 0, 0, 50586, 3, 'Al''Akir - Squall Line'),
 (46753, 4, 0, 'Your futile persistance angers me!', 14, 0, 100, 0, 0, 0, 50584, 3, 'Al''Akir - Phase 2'),
 (46753, 5, 0, 'Storms! I summon you to my side!', 14, 0, 100, 0, 0, 0, 50587, 3, 'Al''Akir - Stormling'),
-(46753, 6, 0, 'Enough! I will no longer be contained!', 14, 0, 100, 0, 0, 0, 50585, 3, 'Al''Akir - Phase 3');
-/*
-(46753, @GROUP_ID+6, @ID+, 'Enough! I will no longer be contained!', 14, 0, 100, 0, 0, 0, UNKNOWN, 'Al''Akir'),
-(46753, @GROUP_ID+7, @ID+, 'After every storm, comes the calm...', 14, 0, 100, 0, 0, 0, UNKNOWN, 'Al''Akir to Player');
-*/
+(46753, 6, 0, 'Enough! I will no longer be contained!', 14, 0, 100, 0, 0, 0, 50585, 3, 'Al''Akir - Phase 3'),
+(46753, 7, 0, 'This little one shall vex me no longer.', 14, 0, 100, 0, 0, 0, 50573, 3, 'Al''Akir - Slay 1'),
+(46753, 7, 1, 'Like swatting insects...', 14, 0, 100, 0, 0, 0, 50569, 3, 'Al''Akir - Slay 2'),
+(46753, 8, 0, 'After every storm, comes the calm...', 14, 0, 100, 0, 0, 0, 50580, 3, 'Al''Akir - Death');
 
 -- Spells
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN
@@ -54,7 +69,15 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 'spell_alakir_squall_line_script',
 'spell_alakir_relentless_storm_initial_vehicle_ride_trigger',
 'spell_alakir_relentless_storm_initial_vehicle_ride',
-'spell_alakir_eye_of_the_storm');
+'spell_alakir_wind_burst',
+'spell_alakir_lightning_clouds_periodic',
+'spell_alakir_lightning_clouds_damage',
+'spell_alakir_lightning_clouds_targeting',
+'spell_alakir_lightning_rod_damage',
+'spell_alakir_relentless_storm',
+'spell_alakir_storm_distance_check',
+'spell_alakir_lightning_clouds_dummy',
+'spell_alakir_lightning_script');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (91326, 'spell_alakir_lightning_strike_script'),
@@ -69,15 +92,34 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (87855, 'spell_alakir_squall_line_script'),
 (89528, 'spell_alakir_relentless_storm_initial_vehicle_ride_trigger'),
 (89527, 'spell_alakir_relentless_storm_initial_vehicle_ride'),
-(82724, 'spell_alakir_eye_of_the_storm');
+(88858, 'spell_alakir_wind_burst'),
+(93286, 'spell_alakir_wind_burst'),
+(93287, 'spell_alakir_wind_burst'),
+(93288, 'spell_alakir_wind_burst'),
+(89567, 'spell_alakir_lightning_clouds_periodic'),
+(89588, 'spell_alakir_lightning_clouds_damage'),
+(93297, 'spell_alakir_lightning_clouds_damage'),
+(93298, 'spell_alakir_lightning_clouds_damage'),
+(93299, 'spell_alakir_lightning_clouds_damage'),
+(89628, 'spell_alakir_lightning_clouds_targeting'),
+(89667, 'spell_alakir_lightning_rod_damage'),
+(93293, 'spell_alakir_lightning_rod_damage'),
+(93294, 'spell_alakir_lightning_rod_damage'),
+(93295, 'spell_alakir_lightning_rod_damage'),
+(89104, 'spell_alakir_relentless_storm'),
+(88903, 'spell_alakir_storm_distance_check'),
+(89583, 'spell_alakir_lightning_clouds_dummy'),
+(89642, 'spell_alakir_lightning_script');
 
 -- Template Addons
-DELETE FROM `creature_template_addon` WHERE `entry` IN (47066, 50254, 46734, 47175);
+DELETE FROM `creature_template_addon` WHERE `entry` IN (47066, 50254, 46734, 47175, 51598, 48196);
 INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
 (47066, '87713'),
 (50254, '93247'),
 (46734, '87053'),
-(47175, '87906 87905');
+(47175, '87906 87905'),
+(51598, '89564'),
+(48196, '89564');
 
 -- Summon Groups
 DELETE FROM `creature_summon_groups` WHERE `summonerId`= 46753 AND `summonerType`= 0;
@@ -95,7 +137,7 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 (48852, 46598, 1, 1);
 
 -- Conditions
-DELETE FROM `conditions` WHERE `SourceEntry` IN (91326, 87406, 88779, 87652, 87904, 101458, 101459, 101460, 89527) AND `SourceTypeOrReferenceId`= 13;
+DELETE FROM `conditions` WHERE `SourceEntry` IN (91326, 87406, 88779, 87652, 87904, 101458, 101459, 101460, 89527, 89583, 89104) AND `SourceTypeOrReferenceId`= 13;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
 (13, 1, 91326, 0, 0, 31, 0, 3, 48977, 0, 0, 0, '', 'Lightning Strike - Target Lightning Strike Trigger'),
 (13, 1, 87406, 0, 0, 31, 0, 3, 46766, 0, 0, 0, '', 'Ice Storm - Target Ice Storm Trigger'),
@@ -106,7 +148,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 101458, 0, 0, 31, 0, 3, 46753, 0, 0, 0, '', 'Feedback - Target Al''akir'),
 (13, 1, 101459, 0, 0, 31, 0, 3, 46753, 0, 0, 0, '', 'Feedback - Target Al''akir'),
 (13, 1, 101460, 0, 0, 31, 0, 3, 46753, 0, 0, 0, '', 'Feedback - Target Al''akir'),
-(13, 1, 89527, 0, 0, 31, 0, 3, 47806, 0, 0, 0, '', 'Relentless Storm Initial Vehicle Ride - Target Relentless Storm Initial Vehicle');
+(13, 1, 89527, 0, 0, 31, 0, 3, 47806, 0, 0, 0, '', 'Relentless Storm Initial Vehicle Ride - Target Relentless Storm Initial Vehicle'),
+(13, 1, 89583, 0, 0, 31, 0, 3, 51598, 0, 0, 0, '', 'Lightning Clouds - Target Lightning Clouds Extra Visuals'),
+(13, 1, 89104, 0, 0, 31, 0, 3, 47807, 0, 0, 0, '', 'Relentless Storm - Target Relentless Storm');
 
 -- Vehicle Accessories
 DELETE FROM `vehicle_template_accessory` WHERE `entry` IN (47034, 48852);
@@ -129,6 +173,22 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 (48852, 48855, 5, 1, 'Squall Line SE', 5, 0),
 (48852, 48855, 6, 1, 'Squall Line SE', 5, 0),
 (48852, 48855, 7, 1, 'Squall Line SE', 5, 0);
+
+-- Currency Loot
+DELETE FROM `creature_onkill_reward` WHERE `creature_id` IN (46753, 50203, 50217, 50231);
+INSERT INTO `creature_onkill_reward` (`creature_id`, `CurrencyId1`, `CurrencyCount1`) VALUES
+(46753, 396, 11500),
+(50203, 396, 13500),
+(50217, 396, 11500),
+(50231, 396, 13500);
+
+-- Gold Loot
+UPDATE `gameobject_template_addon` SET `mingold`= 2200000, `maxgold`= 2400000 WHERE `entry` IN (207891, 207892);
+UPDATE `gameobject_template_addon` SET `mingold`= 4900000, `maxgold`= 5100000 WHERE `entry` IN (207893, 207894);
+-- Loot
+-- (207891, 207893, 207892, 207894)
+DELETE FROM `gameobject_loot_template` WHERE `Entry` IN (35876, 35880, 36330, 36328);
+
 
 -- Spawns
 DELETE FROM `creature` WHERE `guid` IN (340413, 340414, 340415);
