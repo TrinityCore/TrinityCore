@@ -116,7 +116,7 @@ void AddSC_boss_asaad();
 void AddSC_instance_throne_of_the_four_winds(); // Throne of the Four Winds
 void AddSC_throne_of_the_four_winds();
 void AddSC_boss_conclave_of_wind();
-//void AddSC_boss_alakir();
+void AddSC_boss_alakir();
 void AddSC_instance_firelands();             //Firelands
 void AddSC_boss_alysrazor();
 void AddSC_boss_baleroc();
@@ -241,7 +241,7 @@ void AddKalimdorScripts()
     AddSC_instance_throne_of_the_four_winds(); // Throne of the Four Winds
     AddSC_throne_of_the_four_winds();
     AddSC_boss_conclave_of_wind();
-    //AddSC_boss_alakir();
+    AddSC_boss_alakir();
     AddSC_instance_firelands();             //Firelands
     AddSC_boss_alysrazor();
     AddSC_boss_baleroc();
