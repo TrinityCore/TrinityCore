@@ -55,6 +55,12 @@ class instance_zulgurub : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, nullptr);
                 LoadDoorData(doorData);
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _defeatedBossesCount = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -81,6 +87,15 @@ class instance_zulgurub : public InstanceMapScript
                         if (GetBossState(DATA_HIGH_PRIEST_VENOXIS) != DONE)
                             creature->CastSpell(creature, SPELL_POISON_CLOUD);
                         break;
+                    case BOSS_JINDO_THE_GODBREAKER:
+                        creature->setActive(true);
+
+                        if (_defeatedBossesCount >= 2)
+                        {
+                            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                            creature->RemoveAurasDueToSpell(SPELL_COSMETIC_ALPHA_STATE_25_PCT);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -106,6 +121,17 @@ class instance_zulgurub : public InstanceMapScript
                         break;
                     default:
                         break;
+                }
+
+                if (state == DONE)
+                {
+                    _defeatedBossesCount++;
+
+                    if (_defeatedBossesCount >= 2)
+                        if (Creature* jindo = GetCreature(DATA_JINDO_THE_GODBREAKER))
+                            jindo->AI()->DoAction(ACTION_TRIGGER_JINDO_INTRO);
+
+                    SaveToDB();
                 }
 
                 return true;
@@ -135,9 +161,21 @@ class instance_zulgurub : public InstanceMapScript
                 return 0;
             }
             */
+
+            void WriteSaveDataMore(std::ostringstream& data) override
+            {
+                data << _defeatedBossesCount;
+            }
+
+            void ReadSaveDataMore(std::istringstream& data) override
+            {
+                data >> _defeatedBossesCount;
+            }
+
         private:
             GuidVector _caveInStalkerGUIDs;
             GuidVector _poisonPlantGUIDs;
+            uint8 _defeatedBossesCount;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

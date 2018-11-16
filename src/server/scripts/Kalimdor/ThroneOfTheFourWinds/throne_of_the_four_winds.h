@@ -28,18 +28,22 @@ uint32 const EncounterCount = 2;
 enum TFWDataTypes
 {
     // Encounter States
-    DATA_CONCLAVE_OF_WIND               = 0,
-    DATA_ALAKIR                         = 1,
+    DATA_CONCLAVE_OF_WIND                   = 0,
+    DATA_ALAKIR                             = 1,
 
     // Additional Data
-    DATA_ANSHAL                         = 2,
-    DATA_NEZIR                          = 3,
-    DATA_ROHASH                         = 4,
-    DATA_SKYWALL_RAID_CENTER_PLATFORM   = 5,
-    DATA_SKYWALL_DJIN_TORNADO           = 6,
-    DATA_SKYWALL_DJIN_FROST             = 7,
-    DATA_SKYWALL_DJIN_HEALING           = 8,
-    DATA_FREE_HURRICANE_VEHICLE         = 9
+    DATA_ANSHAL                             = 2,
+    DATA_NEZIR                              = 3,
+    DATA_ROHASH                             = 4,
+    DATA_SKYWALL_RAID_CENTER_PLATFORM       = 5,
+    DATA_SKYWALL_DJIN_TORNADO               = 6,
+    DATA_SKYWALL_DJIN_FROST                 = 7,
+    DATA_SKYWALL_DJIN_HEALING               = 8,
+    DATA_SKYWALL_WIND_DRAFT_EFFECT_CENTER   = 9,
+    DATA_FREE_HURRICANE_VEHICLE             = 10,
+    DATA_ACID_RAIN_WEATHER                  = 11,
+    DATA_FREE_RELENTLESS_STORM_VEHICLE      = 12,
+    DATA_WORLD_TRIGGER_INFINITE_AOI         = 13,
 };
 
 enum TFWCreatureIds
@@ -64,6 +68,14 @@ enum TFWCreatureIds
     NPC_SLIPSTREAM                                      = 47066,
     NPC_LIGHTNING_STRIKE_TRIGGER_HEROIC_CHAIN_CASTER    = 50254,
     NPC_ICE_STORM                                       = 46973,
+    NPC_SQUALL_LINE_VEHICLE_SW                          = 47034,
+    NPC_SQUALL_LINE_VEHICLE_SE                          = 48852,
+    NPC_SQUALL_LINE_SW                                  = 48854,
+    NPC_SQUALL_LINE_SE                                  = 48855,
+    NPC_STORMLING_PRE_EFFECT                            = 47177,
+    NPC_STORMLING                                       = 47175,
+    NPC_RELENTLESS_STORM_INITIAL_VEHICLE                = 47806,
+    NPC_WORLD_TRIGGER_INFINITE_AOI                      = 36171,
 };
 
 enum TFWSpells
@@ -75,10 +87,11 @@ enum TFWSpells
 
 enum TFWGameObjectIds
 {
-    GO_SKYWALL_RAID_CENTER_PLATFORM = 207737,
-    GO_SKYALL_DJIN_TORNADO          = 206701,
-    GO_SKYALL_DJIN_FROST            = 206700,
-    GO_SKYALL_DJIN_HEALING          = 206699
+    GO_SKYWALL_RAID_CENTER_PLATFORM     = 207737,
+    GO_SKYWALL_WIND_DRAFT_EFFECT_CENTER = 207922,
+    GO_SKYALL_DJIN_TORNADO              = 206701,
+    GO_SKYALL_DJIN_FROST                = 206700,
+    GO_SKYALL_DJIN_HEALING              = 206699
 };
 
 enum TFWTexts
@@ -96,6 +109,7 @@ enum TFWActions
 
 enum TFWMisc
 {
+    ZONE_ID_THRONE_OF_THE_FOUR_WINDS = 5638
 };
 
 template <class AI, class T>

@@ -30,20 +30,22 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_ANSHAL,  DATA_ANSHAL },
-    { BOSS_NEZIR,   DATA_NEZIR  },
-    { BOSS_ROHASH,  DATA_ROHASH },
-    { BOSS_ALAKIR,  DATA_ALAKIR },
-    { 0,            0           } // End
+    { BOSS_ANSHAL,                      DATA_ANSHAL                     },
+    { BOSS_NEZIR,                       DATA_NEZIR                      },
+    { BOSS_ROHASH,                      DATA_ROHASH                     },
+    { BOSS_ALAKIR,                      DATA_ALAKIR                     },
+    { NPC_WORLD_TRIGGER_INFINITE_AOI,   DATA_WORLD_TRIGGER_INFINITE_AOI },
+    { 0,                                0                               } // End
 };
 
 ObjectData const gameObjectData[] =
 {
-    { GO_SKYWALL_RAID_CENTER_PLATFORM,  DATA_SKYWALL_RAID_CENTER_PLATFORM   },
-    { GO_SKYALL_DJIN_HEALING,           DATA_SKYWALL_DJIN_HEALING           },
-    { GO_SKYALL_DJIN_FROST,             DATA_SKYWALL_DJIN_FROST             },
-    { GO_SKYALL_DJIN_TORNADO,           DATA_SKYWALL_DJIN_TORNADO           },
-    { 0,                                0                                   } // End
+    { GO_SKYWALL_RAID_CENTER_PLATFORM,      DATA_SKYWALL_RAID_CENTER_PLATFORM       },
+    { GO_SKYALL_DJIN_HEALING,               DATA_SKYWALL_DJIN_HEALING               },
+    { GO_SKYALL_DJIN_FROST,                 DATA_SKYWALL_DJIN_FROST                 },
+    { GO_SKYALL_DJIN_TORNADO,               DATA_SKYWALL_DJIN_TORNADO               },
+    { GO_SKYWALL_WIND_DRAFT_EFFECT_CENTER,  DATA_SKYWALL_WIND_DRAFT_EFFECT_CENTER   },
+    { 0,                                    0                                       } // End
 };
 
 enum Events
@@ -101,8 +103,14 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                         break;
                     case NPC_LIGHTNING_STRIKE_TRIGGER_HEROIC_CHAIN_CASTER:
                     case NPC_ICE_STORM:
+                    case NPC_SQUALL_LINE_SW:
+                    case NPC_SQUALL_LINE_SE:
+                    case NPC_STORMLING:
                         if (Creature* alakir = GetCreature(DATA_ALAKIR))
                             alakir->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_RELENTLESS_STORM_INITIAL_VEHICLE:
+                        _relentlessStormInitialVehicleGUIDs.push_back(creature->GetGUID());
                         break;
                     default:
                         break;
@@ -180,6 +188,14 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
 
             void SetData(uint32 data, uint32 value) override
             {
+                switch (data)
+                {
+                    case DATA_ACID_RAIN_WEATHER:
+                        instance->SetZoneWeather(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, WEATHER_STATE_HEAVY_RAIN, value == IN_PROGRESS ? 1.0f : 0.0f);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             ObjectGuid GetGuidData(uint32 type) const override
@@ -190,7 +206,15 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                         for (ObjectGuid guid : _hurricaneGUIDs)
                         {
                             if (Creature* hurricane = instance->GetCreature(guid))
-                                if (hurricane->GetVehicleKit()->GetAvailableSeatCount())
+                                if (hurricane->GetVehicleKit() && hurricane->GetVehicleKit()->GetAvailableSeatCount())
+                                    return guid;
+                        }
+                        break;
+                    case DATA_FREE_RELENTLESS_STORM_VEHICLE:
+                        for (ObjectGuid guid : _relentlessStormInitialVehicleGUIDs)
+                        {
+                            if (Creature* storm = instance->GetCreature(guid))
+                                if (storm->GetVehicleKit() && storm->GetVehicleKit()->GetAvailableSeatCount())
                                     return guid;
                         }
                         break;
@@ -250,6 +274,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
             EventMap events;
             ObjectGuid _engerizeWorldTriggerGUID;
             GuidVector _hurricaneGUIDs;
+            GuidVector _relentlessStormInitialVehicleGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

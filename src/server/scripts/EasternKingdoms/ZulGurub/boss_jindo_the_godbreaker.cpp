@@ -42,67 +42,105 @@ enum Yells
 
 enum Spells
 {
+    // Jin'do the Godbreaker
+    SPELL_DRAIN_SPIRIT_ESSENCE = 97321,
 };
 
 enum Events
 {
+    EVENT_TALK_INTRO = 1,
+    EVENT_DRAIN_SPIRIT_ESSENCE
 };
 
-class boss_jindo_the_godbreaker : public CreatureScript
+enum Phases
 {
-    public:
-        boss_jindo_the_godbreaker() : CreatureScript("boss_jindo_the_godbreaker") { }
+    PHASE_PRE_FIGHT = 1,
+    PHASE_COMBAT    = 2
+};
 
-        struct boss_jindo_the_godbreakerAI : public BossAI
+
+
+struct boss_jindo_the_godbreaker : public BossAI
+{
+    boss_jindo_the_godbreaker(Creature* creature) : BossAI(creature, DATA_JINDO_THE_GODBREAKER) { }
+
+    void Reset() override
+    {
+        _Reset();
+        events.SetPhase(PHASE_PRE_FIGHT);
+        events.ScheduleEvent(EVENT_DRAIN_SPIRIT_ESSENCE, 1s, 0, PHASE_PRE_FIGHT);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        Talk(SAY_AGGRO);
+        events.SetPhase(PHASE_COMBAT);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        summons.DespawnAll();
+        _EnterEvadeMode();
+        _DespawnAtEvade();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _JustDied();
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
         {
-            boss_jindo_the_godbreakerAI(Creature* creature) : BossAI(creature, DATA_JINDO_THE_GODBREAKER) { }
-
-            void Reset() override
-            {
-                _Reset();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _JustEngagedWith();
-                Talk(SAY_AGGRO);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-                /*
-                while (uint32 eventId = events.ExecuteEvent())
+            case ACTION_TRIGGER_JINDO_INTRO:
+                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                 {
-                    switch (eventId)
-                    {
-                        default:
-                            break;
-                    }
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveAurasDueToSpell(SPELL_COSMETIC_ALPHA_STATE_25_PCT);
+                    events.ScheduleEvent(EVENT_TALK_INTRO, 11s, 0, PHASE_PRE_FIGHT);
                 }
-                */
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetZulGurubAI<boss_jindo_the_godbreakerAI>(creature);
+                break;
+            default:
+                break;
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && !events.IsInPhase(PHASE_PRE_FIGHT))
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TALK_INTRO:
+                    Talk(SAY_INTRO);
+                    break;
+                case EVENT_DRAIN_SPIRIT_ESSENCE:
+                    DoCastSelf(SPELL_DRAIN_SPIRIT_ESSENCE);
+                    events.Repeat(20s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_jindo_the_godbreaker()
 {
-    new boss_jindo_the_godbreaker();
+    RegisterZulGurubCreatureAI(boss_jindo_the_godbreaker);
 }

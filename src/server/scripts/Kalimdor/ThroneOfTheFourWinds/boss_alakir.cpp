@@ -24,30 +24,76 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Spell.h"
+#include "Vehicle.h"
 
 enum Spells
 {
     // Al'Akir
-    SPELL_WIND_BURST                        = 87770,
-    SPELL_LIGHTNING_STRIKE_TARGETING        = 91327,
-    SPELL_ICE_STORM                         = 88239,
-    SPELL_ELECTROCUTE                       = 88427,
+    SPELL_WIND_BURST                                        = 87770,
+    SPELL_LIGHTNING_STRIKE_TARGETING                        = 91327,
+    SPELL_ICE_STORM                                         = 88239,
+    SPELL_ELECTROCUTE                                       = 88427,
+    SPELL_SQUALL_LINE_BACK_LEFT                             = 88781,
+    SPELL_SQUALL_LINE_BACK_RIGHT                            = 91104,
+    SPELL_SQUALL_LINE_SCRIPT                                = 91129,
+    SPELL_SQUALL_LINE_SCRIPT_2                              = 91110,
+    SPELL_ACID_RAIN                                         = 88290,
+    SPELL_STORMLING                                         = 88272,
+    SPELL_RELENTLESS_STORM_INITIAL_VEHICLE_RIDE_TRIGGER     = 89528,
+    SPELL_RELENTLESS_STORM_CHANNEL                          = 88875,
+
+    // Squall Line Vehicle
+    SPELL_SQUALL_LINE_FORCE_CAST                            = 88779,
 
     // Lightning Strike Trigger
-    SPELL_LIGHTNING_STRIKE_SUMMON           = 93250,
-    SPELL_LIGHTNING_STRIKE_PERIODIC         = 88238,
+    SPELL_LIGHTNING_STRIKE_SUMMON                           = 93250,
+    SPELL_LIGHTNING_STRIKE_PERIODIC                         = 88238,
 
     // Lightning Strike Trigger (Heroic Chain-Caster)
-    SPELL_LIGHTNING_STRIKE_DAMAGE           = 88214,
-    SPELL_LIGHTNING_STRIKE_VISUAL           = 88230,
+    SPELL_LIGHTNING_STRIKE_DAMAGE                           = 88214,
+    SPELL_LIGHTNING_STRIKE_VISUAL                           = 88230,
 
     // Ice Storm
-    SPELL_ICE_STORM_PING                    = 87406,
-    SPELL_ICE_STORM_CHARGE                  = 87103,
+    SPELL_ICE_STORM_PING                                    = 87406,
+    SPELL_ICE_STORM_CHARGE                                  = 87103,
+    SPELL_ICE_STORM_UNK                                     = 87408, // Todo: research purpose
 
     // Ice Storm (Damage)
-    SPELL_ICE_STORM_PRE_VISUAL              = 87472,
-    SPELL_ICE_STORM_AURA                    = 87469,
+    SPELL_ICE_STORM_PRE_VISUAL                              = 87472,
+    SPELL_ICE_STORM_AURA                                    = 87469,
+
+    // Stormling Pre-effect
+    SPELL_STORMLING_PRE_EFFECT_VISUAL                       = 87913,
+    SPELL_STORMLING_SUMMON                                  = 87914,
+
+    // Stormling
+    SPELL_FEEDBACK                                          = 87904,
+
+    // Relentless Storm Initial Vehicle
+    SPELL_RELENTLESS_STORM_INITIAL_VEHICLE_RIDE             = 89527,
+
+    // World Trigger (Infinite AOI)
+    SPELL_RELENTLESS_STORM_VISUAL                           = 88866,
+    SPELL_STORM_DISTANCE_CHECK                              = 88899,
+
+    // Player
+    SPELL_EYE_OF_THE_STORM                                  = 82724,
+    SPELL_RELENTLESS_STORM_INITIAL_VEHICLE_RIDE_TELEPORT    = 89661,
+    SPELL_PET_FLIGHT                                        = 90786,
+};
+
+#define SPELL_ACID_RAIN         RAID_MODE<uint32>(88290, 101451, 101452, 101453)
+#define SPELL_ACID_RAIN_DAMAGE  RAID_MODE<uint32>(88301, 93279, 93280, 93281)
+
+enum Texts
+{
+    SAY_CONCLAVE_OF_WIND_DEFEATED   = 0,
+    SAY_AGGRO                       = 1,
+    SAY_ANNOUNCE_WIND_BURST         = 2,
+    SAY_SQUALL_LINE                 = 3,
+    SAY_PHASE_TWO                   = 4,
+    SAY_SUMMON_STORMLING            = 5,
+    SAY_PHASE_THREE                 = 6,
 };
 
 enum Events
@@ -56,10 +102,16 @@ enum Events
     EVENT_WIND_BURST = 1,
     EVENT_LIGHTNING_STRIKE,
     EVENT_ICE_STORM,
+    EVENT_SQUALL_LINE,
+    EVENT_SUMMON_STORMLING,
+    EVENT_EYE_OF_THE_STORM,
 
     // Ice Storm
     EVENT_PING_ICE_STORM_TRIGGERS,
     EVENT_ICE_STORM_CHARGE,
+
+    // Stormling
+    EVENT_ATTACK_PLAYERS,
 };
 
 enum Phases
@@ -73,13 +125,6 @@ enum Actions
 {
 };
 
-enum Texts
-{
-    SAY_CONCLAVE_OF_WIND_DEFEATED   = 0,
-    SAY_AGGRO                       = 1,
-    SAY_ANNOUNCE_WIND_BURST         = 2,
-};
-
 enum Data
 {
     DATA_PRIMARY_LIGHTNING_STRIKE_TARGET = 0
@@ -90,19 +135,40 @@ enum SummonGroups
     SUMMON_GROUP_SLIPSTREAM = 0
 };
 
-class IceStormAuraEvent : public BasicEvent
+#define MAX_HOME_POSITION_DISTANCE 70.0f
+
+class DelayedSpellCastEvent : public BasicEvent
 {
     public:
-        IceStormAuraEvent(Creature* owner) :  _owner(owner) { }
+        DelayedSpellCastEvent(Creature* owner, uint32 spellId) :  _owner(owner), _spellId(spellId) { }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            _owner->CastSpell(_owner, SPELL_ICE_STORM_AURA);
+            _owner->CastSpell(_owner, _spellId);
             return true;
         }
     private:
         Creature* _owner;
+        uint32 _spellId;
 };
+
+class SquallLineImmunityRemovalEvent : public BasicEvent
+{
+    public:
+        SquallLineImmunityRemovalEvent(Unit* owner, uint32 spellId) : _owner(owner), _spellId(spellId) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            _owner->ApplySpellImmune(0, IMMUNITY_ID, _spellId, false);
+            return true;
+        }
+    private:
+        Unit* _owner;
+        uint32 _spellId;
+};
+
+Position const SquallLineDistanceReferencePos = { -13.16094f, 780.8931f, 191.1842f };
+Position const RelentlessStormTeleportReferencePosition = { -126.0f, 838.0f, 316.0f };
 
 struct boss_alakir : public BossAI
 {
@@ -114,6 +180,7 @@ struct boss_alakir : public BossAI
     void Initialize()
     {
         me->SetReactState(REACT_PASSIVE);
+        _useLeftSquallLineSpell = true;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -127,6 +194,7 @@ struct boss_alakir : public BossAI
         events.ScheduleEvent(EVENT_WIND_BURST, 23s, 0, PHASE_ONE);
         events.ScheduleEvent(EVENT_LIGHTNING_STRIKE, 9s, 0, PHASE_ONE);
         events.ScheduleEvent(EVENT_ICE_STORM, 5s, 0, PHASE_ONE);
+        events.ScheduleEvent(EVENT_SQUALL_LINE, 10s);
     }
 
     void Reset()
@@ -142,11 +210,23 @@ struct boss_alakir : public BossAI
         //    Talk(SAY_SLAY);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->SetData(DATA_ACID_RAIN_WEATHER, NOT_STARTED);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ACID_RAIN_DAMAGE);
         summons.DespawnAll();
+
+        if (GameObject* platform = instance->GetGameObject(DATA_SKYWALL_RAID_CENTER_PLATFORM))
+            platform->SetDestructibleState(GO_DESTRUCTIBLE_INTACT);
+
+        if (GameObject* draftEffect = instance->GetGameObject(DATA_SKYWALL_WIND_DRAFT_EFFECT_CENTER))
+            draftEffect->ResetDoorOrButton();
+
+        if (Creature* worldTrigger = instance->GetCreature(DATA_WORLD_TRIGGER_INFINITE_AOI))
+            worldTrigger->RemoveAllAuras();
+
         _DespawnAtEvade();
     }
 
@@ -154,10 +234,11 @@ struct boss_alakir : public BossAI
     {
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-    }
+        instance->SetData(DATA_ACID_RAIN_WEATHER, NOT_STARTED);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ACID_RAIN_DAMAGE);
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-    {
+        if (Creature* worldTrigger = instance->GetCreature(DATA_WORLD_TRIGGER_INFINITE_AOI))
+            worldTrigger->RemoveAllAuras();
     }
 
     void DoAction(int32 action) override
@@ -188,6 +269,48 @@ struct boss_alakir : public BossAI
     {
     }
 
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(80, damage) && events.IsInPhase(PHASE_ONE))
+        {
+            DoCastSelf(SPELL_ACID_RAIN);
+            instance->SetData(DATA_ACID_RAIN_WEATHER, IN_PROGRESS);
+            Talk(SAY_PHASE_TWO);
+            events.SetPhase(PHASE_TWO);
+            events.ScheduleEvent(EVENT_SUMMON_STORMLING, 10s, 11s, 0, PHASE_TWO);
+        }
+        else if (me->HealthBelowPctDamaged(25, damage) && events.IsInPhase(PHASE_TWO))
+        {
+            Talk(SAY_PHASE_THREE);
+            me->SetCanFly(true);
+            me->AttackStop();
+            me->SetReactState(REACT_PASSIVE);
+            me->SetFacingTo(3.141593f);
+            me->InterruptNonMeleeSpells(true);
+            me->RemoveAurasDueToSpell(SPELL_ACID_RAIN);
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ACID_RAIN_DAMAGE);
+            instance->SetData(DATA_ACID_RAIN_WEATHER, NOT_STARTED);
+            DoCastAOE(SPELL_RELENTLESS_STORM_INITIAL_VEHICLE_RIDE_TRIGGER);
+            DoCastAOE(SPELL_RELENTLESS_STORM_CHANNEL);
+            summons.DespawnAll();
+            events.CancelEvent(EVENT_SQUALL_LINE);
+            events.SetPhase(PHASE_THREE);
+            events.ScheduleEvent(EVENT_EYE_OF_THE_STORM, 7s, 0, PHASE_THREE);
+
+            if (GameObject* platform = instance->GetGameObject(DATA_SKYWALL_RAID_CENTER_PLATFORM))
+                platform->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
+
+            if (GameObject* draftEffect = instance->GetGameObject(DATA_SKYWALL_WIND_DRAFT_EFFECT_CENTER))
+                draftEffect->UseDoorOrButton();
+
+            if (Creature* worldTrigger = instance->GetCreature(DATA_WORLD_TRIGGER_INFINITE_AOI))
+            {
+                worldTrigger->CastSpell(worldTrigger, SPELL_RELENTLESS_STORM_VISUAL);
+                worldTrigger->CastSpell(worldTrigger, SPELL_STORM_DISTANCE_CHECK);
+            }
+        }
+    }
+
     void JustSummoned(Creature* summon) override
     {
         summons.Summon(summon);
@@ -199,7 +322,27 @@ struct boss_alakir : public BossAI
                 break;
             case NPC_ICE_STORM:
                 summon->CastSpell(summon, SPELL_ICE_STORM_PRE_VISUAL);
-                summon->m_Events.AddEvent(new IceStormAuraEvent(summon), summon->m_Events.CalculateTime(3500));
+                summon->m_Events.AddEvent(new DelayedSpellCastEvent(summon, SPELL_ICE_STORM_AURA), summon->m_Events.CalculateTime(3500));
+                break;
+            case NPC_SQUALL_LINE_VEHICLE_SW:
+                DoCastSelf(SPELL_SQUALL_LINE_SCRIPT);
+                summon->GetMotionMaster()->MoveCirclePath(me->GetPositionX(), me->GetPositionY(), SquallLineDistanceReferencePos.GetPositionZ(), me->GetExactDist(SquallLineDistanceReferencePos), true, 11);
+                // Delay the spell cast by 100ms to give the core time to place the accessories into the seats for the following spellscript to take effect
+                summon->m_Events.AddEvent(new DelayedSpellCastEvent(summon, SPELL_SQUALL_LINE_FORCE_CAST), summon->m_Events.CalculateTime(100));
+                break;
+            case NPC_SQUALL_LINE_VEHICLE_SE:
+                DoCastSelf(SPELL_SQUALL_LINE_SCRIPT);
+                summon->GetMotionMaster()->MoveCirclePath(me->GetPositionX(), me->GetPositionY(), SquallLineDistanceReferencePos.GetPositionZ(), me->GetExactDist(SquallLineDistanceReferencePos), false, 11);
+                summon->m_Events.AddEvent(new DelayedSpellCastEvent(summon, SPELL_SQUALL_LINE_FORCE_CAST), summon->m_Events.CalculateTime(100));
+                break;
+            case NPC_SQUALL_LINE_SW:
+            case NPC_SQUALL_LINE_SE:
+                // We don't use that spell. We just cast it because in sniffs they do the same
+                DoCast(summon, SPELL_SQUALL_LINE_SCRIPT_2);
+                break;
+            case NPC_STORMLING_PRE_EFFECT:
+                summon->CastSpell(summon, SPELL_STORMLING_PRE_EFFECT_VISUAL);
+                summon->m_Events.AddEvent(new DelayedSpellCastEvent(summon, SPELL_STORMLING_SUMMON), summon->m_Events.CalculateTime(3500));
                 break;
             default:
                 break;
@@ -253,15 +396,36 @@ struct boss_alakir : public BossAI
                         DoCast(target, SPELL_ICE_STORM);
                     events.Repeat(16s);
                     break;
+                case EVENT_SQUALL_LINE:
+                    if (events.IsInPhase(PHASE_ONE))
+                        Talk(SAY_SQUALL_LINE);
+
+                    DoCastSelf(_useLeftSquallLineSpell ? SPELL_SQUALL_LINE_BACK_LEFT : SPELL_SQUALL_LINE_BACK_RIGHT);
+                    _useLeftSquallLineSpell = !_useLeftSquallLineSpell;
+                    events.Repeat(31s);
+                    break;
+                case EVENT_SUMMON_STORMLING:
+                    Talk(SAY_SUMMON_STORMLING);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        DoCast(target, SPELL_STORMLING);
+                    events.Repeat(20s);
+                    break;
+                case EVENT_EYE_OF_THE_STORM:
+                    instance->DoCastSpellOnPlayers(SPELL_EYE_OF_THE_STORM);
+                    break;
                 default:
                     break;
             }
         }
-        DoMeleeAttackIfReady();
+        if (me->IsWithinMeleeRange(me->GetVictim()))
+            DoMeleeAttackIfReady();
+        else
+            DoSpellAttackIfReady(SPELL_ELECTROCUTE);
     }
 
 private:
     ObjectGuid _primaryLightningStrikeTarget;
+    bool _useLeftSquallLineSpell;
 };
 
 struct npc_alakir_ice_storm : public ScriptedAI
@@ -275,7 +439,7 @@ struct npc_alakir_ice_storm : public ScriptedAI
 
     void SpellHitTarget(Unit* target, SpellInfo const* spell) override
     {
-        if (spell->Id == SPELL_ICE_STORM_PING)
+        if (spell->Id == SPELL_ICE_STORM_PING && target->GetExactDist2d(me) > 10.0f)
             _iceStormPositions.push_back(target->GetPosition());
     }
 
@@ -303,14 +467,13 @@ struct npc_alakir_ice_storm : public ScriptedAI
                     if (!alakir)
                         break;
 
-                    Position* pos = &alakir->GetPosition();
-                    pos->SetOrientation(alakir->GetAngle(me));
-                    pos->RelocateOffset({ 0.0f, 0.0f, 0.0f, float(M_PI / 2)});
+                    Position pos = alakir->GetPosition();
+                    pos.SetOrientation(alakir->GetAngle(me) + float(M_PI / 4));
 
                     std::vector<Position> possibleDestinations;
                     for (Position destination : _iceStormPositions)
                     {
-                        if (pos->HasInArc(float(M_PI / 2), &destination, 0.0f))
+                        if (pos.HasInLine(&destination, alakir->GetCombatReach()))
                             possibleDestinations.push_back(destination);
                     }
 
@@ -330,6 +493,76 @@ private:
     EventMap _events;
     InstanceScript* _instance;
     std::vector<Position> _iceStormPositions;
+};
+
+struct npc_alakir_stormling : public ScriptedAI
+{
+    npc_alakir_stormling(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 2s + 300ms);
+        if (Creature* alakir = _instance->GetCreature(DATA_ALAKIR))
+            _alakirPos = alakir->GetHomePosition();
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (IsTargetOnPlatform(who))
+            ScriptedAI::AttackStart(who);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        DoCastAOE(SPELL_FEEDBACK, true);
+        me->DespawnOrUnsummon(4s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+        UpdatePlatformVictim();
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ATTACK_PLAYERS:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoZoneInCombat();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    Position _alakirPos;
+
+    void UpdatePlatformVictim()
+    {
+        if (Unit* victim = me->GetVictim())
+            if (victim->GetExactDist2d(_alakirPos) > MAX_HOME_POSITION_DISTANCE)
+                me->AttackStop();
+    }
+
+    bool IsTargetOnPlatform(Unit* target) const
+    {
+        return (target->GetExactDist2d(_alakirPos) < MAX_HOME_POSITION_DISTANCE);
+    }
 };
 
 class spell_alakir_lightning_strike_script : public SpellScript
@@ -424,12 +657,183 @@ class spell_alakir_lightning_strike_damage : public SpellScript
     }
 };
 
+class spell_alakir_electrocute : public AuraScript
+{
+    PrepareAuraScript(spell_alakir_electrocute);
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+
+        if (!caster || !target)
+            return;
+
+        if (caster->IsWithinMeleeRange(target))
+        {
+            Remove();
+            return;
+        }
+
+        if (AuraEffect* aurEff = GetEffect(EFFECT_0))
+        {
+            int32 basePoints = 3600;
+            basePoints += CalculatePct(basePoints * (aurEff->GetTickNumber() - 1), 50);
+            aurEff->ChangeAmount(basePoints);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_alakir_electrocute::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+class SquallLineGapTargetSelector
+{
+    public:
+        SquallLineGapTargetSelector(uint8 seatIndex) : _seatIndex(seatIndex) { }
+
+        bool operator()(WorldObject* object)
+        {
+            Unit* target = object->ToUnit();
+            if (!target)
+                return true;
+
+            if (Vehicle* vehicle = target->GetVehicle())
+                if (TempSummon* summon = vehicle->GetBase()->ToTempSummon())
+                    if (summon->GetTimer() < 49 * IN_MILLISECONDS)
+                        return true;
+
+
+            if (target->GetTransSeat() == _seatIndex || target->GetTransSeat() == _seatIndex + 2)
+                return true;
+
+            return false;
+        }
+    private:
+        uint8 _seatIndex;
+};
+
+class spell_alakir_squall_line_pre_aura : public SpellScript
+{
+    PrepareSpellScript(spell_alakir_squall_line_pre_aura);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        uint8 seatIndex = urand(0, 5);
+        targets.remove_if(SquallLineGapTargetSelector(seatIndex));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_alakir_squall_line_pre_aura::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
+class spell_alakir_squall_line_script : public SpellScript
+{
+    PrepareSpellScript(spell_alakir_squall_line_script);
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            Unit* target = GetHitUnit();
+            if (caster->GetVehicleKit() && caster->GetVehicleKit()->GetAvailableSeatCount())
+            {
+                target->CastSpell(caster, GetSpellInfo()->Effects[effIndex].BasePoints, true);
+                target->ApplySpellImmune(0, IMMUNITY_ID, GetSpellInfo()->Id, true);
+                target->m_Events.AddEvent(new SquallLineImmunityRemovalEvent(target, GetSpellInfo()->Id), target->m_Events.CalculateTime(6000));
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_alakir_squall_line_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_alakir_relentless_storm_initial_vehicle_ride_trigger : public SpellScript
+{
+    PrepareSpellScript(spell_alakir_relentless_storm_initial_vehicle_ride_trigger);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RELENTLESS_STORM_INITIAL_VEHICLE_RIDE });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_RELENTLESS_STORM_INITIAL_VEHICLE_RIDE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_alakir_relentless_storm_initial_vehicle_ride_trigger::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_alakir_relentless_storm_initial_vehicle_ride : public SpellScript
+{
+    PrepareSpellScript(spell_alakir_relentless_storm_initial_vehicle_ride);
+
+    void SetTarget(WorldObject*& target)
+    {
+        if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+            if (ObjectGuid guid = instance->GetObjectGuid(DATA_FREE_RELENTLESS_STORM_VEHICLE))
+                if (Creature* hurricane = ObjectAccessor::GetCreature(*GetCaster(), guid))
+                    target = hurricane;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_alakir_relentless_storm_initial_vehicle_ride::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+    }
+};
+
+class spell_alakir_eye_of_the_storm : public SpellScript
+{
+    PrepareSpellScript(spell_alakir_eye_of_the_storm);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RELENTLESS_STORM_INITIAL_VEHICLE_RIDE_TELEPORT });
+    }
+
+    void HandleExtraEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        float x = RelentlessStormTeleportReferencePosition.GetPositionX() + frand(-15.0f, 15.0f);
+        float y = RelentlessStormTeleportReferencePosition.GetPositionY() + frand(-15.0f, 15.0f);
+        float z = RelentlessStormTeleportReferencePosition.GetPositionZ() + frand(-15.0f, 15.0f);
+
+        target->CastSpell(x, y, z, SPELL_RELENTLESS_STORM_INITIAL_VEHICLE_RIDE_TELEPORT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_alakir_eye_of_the_storm::HandleExtraEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 void AddSC_boss_alakir()
 {
     RegisterThroneOfTheFourWindsCreatureAI(boss_alakir);
     RegisterThroneOfTheFourWindsCreatureAI(npc_alakir_ice_storm);
+    RegisterThroneOfTheFourWindsCreatureAI(npc_alakir_stormling);
 
     RegisterSpellScript(spell_alakir_lightning_strike_script);
     RegisterSpellScript(spell_alakir_lightning_strike_periodic);
     RegisterSpellScript(spell_alakir_lightning_strike_damage);
+    RegisterAuraScript(spell_alakir_electrocute);
+    RegisterSpellScript(spell_alakir_squall_line_pre_aura);
+    RegisterSpellScript(spell_alakir_squall_line_script);
+    RegisterSpellScript(spell_alakir_relentless_storm_initial_vehicle_ride_trigger);
+    RegisterSpellScript(spell_alakir_relentless_storm_initial_vehicle_ride);
+    RegisterSpellScript(spell_alakir_eye_of_the_storm);
 }

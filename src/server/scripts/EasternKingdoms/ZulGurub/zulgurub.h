@@ -121,10 +121,16 @@ enum ZGGameObjectIds
     GO_THE_CACHE_OF_MADNESS_DOOR    = 208843
 };
 
+enum ZGActions
+{
+    ACTION_TRIGGER_JINDO_INTRO = 0
+};
+
 enum ZGSpells
 {
-    SPELL_CAVE_IN_VISUAL    = 96935,
-    SPELL_POISON_CLOUD      = 96729
+    SPELL_CAVE_IN_VISUAL                = 96935,
+    SPELL_POISON_CLOUD                  = 96729,
+    SPELL_COSMETIC_ALPHA_STATE_25_PCT   = 82978
 };
 
 template <class AI, class T>

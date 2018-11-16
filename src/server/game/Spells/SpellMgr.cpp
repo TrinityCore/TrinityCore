@@ -4917,6 +4917,28 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(467); // 22 seconds
     });
 
+    // Ice Storm
+    ApplySpellFix({ 87055 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(63); // 25 seconds
+    });
+
+    // Stormling
+    ApplySpellFix({ 88272 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); // 10 seconds
+    });
+
+    // Squall Line
+    ApplySpellFix({
+        88781,
+        91104,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50_YARDS);
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(245); // 50 seconds
+    });
+
     // ENDOF THRONE OF THE FOUR WINDS SPELLS
 
     // Disenchant
