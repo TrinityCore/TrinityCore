@@ -428,9 +428,11 @@ struct boss_alakir : public BossAI
             events.SetPhase(PHASE_THREE);
             events.ScheduleEvent(EVENT_WIND_BURST_PERIODIC, 6s, 0, PHASE_THREE);
             events.ScheduleEvent(EVENT_LIGHTNING_ROD_PERIODIC, 6s, 0, PHASE_THREE);
-            events.ScheduleEvent(EVENT_LIGHTNING_PERIODIC, 6s, 0, PHASE_THREE);
             events.ScheduleEvent(EVENT_EYE_OF_THE_STORM, 7s, 0, PHASE_THREE);
             events.ScheduleEvent(EVENT_LIGHTNING_CLOUDS_PERIODIC, 26s, 0, PHASE_THREE);
+
+            if (IsHeroic())
+                events.ScheduleEvent(EVENT_LIGHTNING_PERIODIC, 6s, 0, PHASE_THREE);
 
             if (GameObject* platform = instance->GetGameObject(DATA_SKYWALL_RAID_CENTER_PLATFORM))
                 platform->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
@@ -711,6 +713,7 @@ struct npc_alakir_stormling : public ScriptedAI
                     break;
             }
         }
+        DoMeleeAttackIfReady();
     }
 
 private:

@@ -229,9 +229,42 @@ class spell_totfw_catch_fall_summon : public SpellScriptLoader
         }
 };
 
+class PassengerThrowEvent : public BasicEvent
+{
+    public:
+        PassengerThrowEvent(Unit* owner, ObjectGuid guid) :  _owner(owner), _guid(guid) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            if (Unit* target = ObjectAccessor::GetUnit(*_owner, _guid))
+            {
+                target->NearTeleportTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ() + 130.0f, _owner->GetOrientation());
+                Position offset = Position(0.0f, 0.0f, 130.0f, 0.0f);
+                target->RelocateOffset(offset);
+
+
+                if (InstanceScript* instance = _owner->GetInstanceScript())
+                {
+                    if (Creature* alakir = instance->GetCreature(DATA_ALAKIR))
+                    {
+                        float angle = alakir->GetAngle(target);
+                        float x = alakir->GetPositionX() + cos(angle) * (alakir->GetCombatReach() + 10.0f);
+                        float y = alakir->GetPositionY() + sin(angle) * (alakir->GetCombatReach() + 10.0f);
+                        float z = alakir->GetPositionZ();
+                        target->GetMotionMaster()->MoveJump(x, y, z, 0.0f, 40.0f, 50.0f);
+                    }
+                }
+            }
+            return true;
+        }
+    private:
+        Unit* _owner;
+        ObjectGuid _guid;
+};
+
 struct npc_totfw_slipstream : public ScriptedAI
 {
-    npc_totfw_slipstream(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) { }
+    npc_totfw_slipstream(Creature* creature) : ScriptedAI(creature) { }
 
     void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
     {
@@ -241,48 +274,10 @@ struct npc_totfw_slipstream : public ScriptedAI
         passenger->SetDisableGravity(apply, true);
 
         if (!apply)
-        {
-            _guid = passenger->GetGUID();
-            _events.ScheduleEvent(EVENT_THROW_PASSENGER, Milliseconds(100));
-        }
+            me->m_Events.AddEventAtOffset(new PassengerThrowEvent(me, passenger->GetGUID()), 100ms);
         else
             DoCast(passenger, SPELL_SLIPSTREAM_SAFE_FALL);
     }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_THROW_PASSENGER:
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, _guid))
-                    {
-                        target->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 130.0f, me->GetOrientation());
-                        Position offset = Position(0.0f, 0.0f, 130.0f, 0.0f);
-                        target->RelocateOffset(offset);
-
-                        if (Creature* alakir = _instance->GetCreature(DATA_ALAKIR))
-                        {
-                            float angle = alakir->GetAngle(target);
-                            float x = alakir->GetPositionX() + cos(angle) * (alakir->GetCombatReach() + 10.0f);
-                            float y = alakir->GetPositionY() + sin(angle) * (alakir->GetCombatReach() + 10.0f);
-                            float z = alakir->GetPositionZ();
-                            target->GetMotionMaster()->MoveJump(x, y, z, 0.0f, 40.0f, 50.0f);
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-private:
-    EventMap _events;
-    ObjectGuid _guid;
-    InstanceScript* _instance;
 };
 
 void AddSC_throne_of_the_four_winds()
