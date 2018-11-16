@@ -33,6 +33,7 @@ enum Spells
     SPELL_WINDS_PRE_EFFECT_WARNING      = 96508,
     SPELL_POWER_DRAIN                   = 89840,
     SPELL_WIND_DISTANCE_CHECKER         = 85763,
+    SPELL_WIND_BOSSES_ALL_DEAD          = 88835,
 
     // Anshal
     SPELL_PRE_FIGHT_VISUAL_WEST         = 85537,
@@ -512,6 +513,7 @@ struct boss_nezir : public BossAI
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
+        DoCastAOE(SPELL_WIND_BOSSES_ALL_DEAD, true);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
