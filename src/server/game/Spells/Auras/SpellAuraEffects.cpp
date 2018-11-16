@@ -2724,6 +2724,9 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
             return;
     }
 
+    if (target->GetTypeId() == TYPEID_PLAYER)
+        target->ToPlayer()->SendMovementSetCanTransitionBetweenSwimAndFly(apply);
+
     target->SetCanFly(apply);
 
     if (!apply && target->GetTypeId() == TYPEID_UNIT && !target->IsLevitating())
