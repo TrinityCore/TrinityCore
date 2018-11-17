@@ -1564,6 +1564,8 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Initialize data stores...");
     ///- Load DB2s
     sDB2Manager.LoadStores(m_dataPath, m_defaultDbcLocale);
+    TC_LOG_INFO("misc", "Loading hotfix blobs...");
+    sDB2Manager.LoadHotfixBlob();
     TC_LOG_INFO("misc", "Loading hotfix info...");
     sDB2Manager.LoadHotfixData();
     ///- Close hotfix database - it is only used during DB2 loading

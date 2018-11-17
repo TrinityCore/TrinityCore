@@ -348,6 +348,7 @@ namespace
 
     StorageMap _stores;
     std::map<uint64, int32> _hotfixData;
+    std::map<std::pair<uint32 /*tableHash*/, int32 /*recordId*/>, std::vector<uint8>> _hotfixBlob;
 
     AreaGroupMemberContainer _areaGroupMembers;
     ArtifactPowersContainer _artifactPowers;
@@ -1305,9 +1306,9 @@ void DB2Manager::LoadHotfixData()
         uint32 tableHash = fields[1].GetUInt32();
         int32 recordId = fields[2].GetInt32();
         bool deleted = fields[3].GetBool();
-        if (_stores.find(tableHash) == _stores.end())
+        if (_stores.find(tableHash) == _stores.end() && _hotfixBlob.find(std::make_pair(tableHash, recordId)) == _hotfixBlob.end())
         {
-            TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x%X in hotfix id %d", tableHash, id);
+            TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x%X and has no reference to `hotfix_blob` in hotfix id %d", tableHash, id);
             continue;
         }
 
@@ -1322,12 +1323,50 @@ void DB2Manager::LoadHotfixData()
             if (DB2StorageBase* store = Trinity::Containers::MapGetValuePtr(_stores, itr->first.first))
                 store->EraseRecord(itr->first.second);
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u hotfix records in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " hotfix records in %u ms", _hotfixData.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void DB2Manager::LoadHotfixBlob()
+{
+    uint32 oldMSTime = getMSTime();
+    _hotfixBlob.clear();
+
+    QueryResult result = HotfixDatabase.Query("SELECT TableHash, RecordId, `Blob` FROM hotfix_blob ORDER BY TableHash");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 hotfix blob entries.");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 tableHash = fields[0].GetUInt32();
+        auto storeItr = _stores.find(tableHash);
+        if (storeItr != _stores.end())
+        {
+            TC_LOG_ERROR("server.loading", "Table hash 0x%X points to a loaded DB2 store %s, fill related table instead of hotfix_blob",
+                tableHash, storeItr->second->GetFileName().c_str());
+            continue;
+        }
+
+        int32 recordId = fields[1].GetInt32();
+        _hotfixBlob[std::make_pair(tableHash, recordId)] = fields[2].GetBinary();
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " hotfix blob records in %u ms", _hotfixBlob.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 std::map<uint64, int32> const& DB2Manager::GetHotfixData() const
 {
     return _hotfixData;
+}
+
+std::vector<uint8> const* DB2Manager::GetHotfixBlobData(uint32 tableHash, int32 recordId)
+{
+    return Trinity::Containers::MapGetValuePtr(_hotfixBlob, std::make_pair(tableHash, recordId));
 }
 
 void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
