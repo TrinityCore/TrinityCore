@@ -59,8 +59,8 @@ namespace
         int32 length = vsnprintf(nullptr, 0, format, len);
         va_end(len);
 
-        formatted.resize(length + 1);
-        vsnprintf(&formatted[0], length + 1, format, args);
+        formatted.resize(length);
+        vsnprintf(&formatted[0], length, format, args);
 
         return formatted;
     }
