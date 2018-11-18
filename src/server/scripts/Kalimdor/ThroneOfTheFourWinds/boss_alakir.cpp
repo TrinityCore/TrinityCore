@@ -352,7 +352,6 @@ struct boss_alakir : public BossAI
     {
         _EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        instance->SetData(DATA_ACID_RAIN_WEATHER, NOT_STARTED);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ACID_RAIN_DAMAGE);
         summons.DespawnAll();
 
@@ -373,7 +372,6 @@ struct boss_alakir : public BossAI
         _JustDied();
         Talk(SAY_DEATH);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        instance->SetData(DATA_ACID_RAIN_WEATHER, NOT_STARTED);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ACID_RAIN_DAMAGE);
         instance->DoCastSpellOnPlayers(SPELL_SERENITY);
         DoCastSelf(SPELL_SUMMON_CHEST, true);

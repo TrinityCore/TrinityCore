@@ -118,7 +118,9 @@ enum TFWActions
 
 enum TFWMisc
 {
-    ZONE_ID_THRONE_OF_THE_FOUR_WINDS = 5638
+    ZONE_ID_THRONE_OF_THE_FOUR_WINDS = 5638,
+    LIGHT_OVERRIDE_ID_ACID_RAIN      = 2810,
+    LIGHT_OVERRIDE_ID_DEFAULT        = 2768
 };
 
 template <class AI, class T>

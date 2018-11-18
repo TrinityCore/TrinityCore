@@ -69,11 +69,6 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
-                Initialize();
-            }
-
-            void Initialize()
-            {
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -128,6 +123,20 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
 
                 go->setActive(true);
                 go->SetFarVisible(true);
+
+                switch (go->GetEntry())
+                {
+                    case GO_SKYWALL_RAID_CENTER_PLATFORM:
+                        if (GetBossState(DATA_ALAKIR) == DONE)
+                            go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
+                        break;
+                    case GO_SKYWALL_WIND_DRAFT_EFFECT_CENTER:
+                        if (GetBossState(DATA_ALAKIR) == DONE)
+                            go->UseDoorOrButton();
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void OnPlayerEnter(Player* player) override
@@ -192,7 +201,16 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                         break;
                     case DATA_ALAKIR:
                         if (state == FAIL)
+                        {
                             _relentlessStormVehicleGUIDs.clear();
+                            instance->SetZoneWeather(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, WEATHER_STATE_FINE, 1.0f);
+                            instance->SetZoneOverrideLight(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, LIGHT_OVERRIDE_ID_DEFAULT, 3000);
+                        }
+                        else if (state == DONE)
+                        {
+                            instance->SetZoneWeather(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, WEATHER_STATE_FOG, 0.0f);
+                            instance->SetZoneOverrideLight(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, LIGHT_OVERRIDE_ID_DEFAULT, 3000);
+                        }
                     default:
                         break;
                 }
@@ -205,7 +223,8 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                 switch (data)
                 {
                     case DATA_ACID_RAIN_WEATHER:
-                        instance->SetZoneWeather(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, WEATHER_STATE_HEAVY_RAIN, value == IN_PROGRESS ? 1.0f : 0.0f);
+                        instance->SetZoneWeather(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, WEATHER_STATE_HEAVY_RAIN, 1.0f);
+                        instance->SetZoneOverrideLight(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, LIGHT_OVERRIDE_ID_ACID_RAIN, 3000);
                         break;
                     default:
                         break;
