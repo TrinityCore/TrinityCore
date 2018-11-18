@@ -13462,7 +13462,7 @@ float Unit::GetCollisionHeight() const
 std::string Unit::GetDebugInfo() const
 {
     std::stringstream sstr;
-    sstr << WorldObject::GetDebugInfo();
-    // Is there any other field to log from Unit ?
+    sstr << WorldObject::GetDebugInfo() << "\n"
+        << "IsAIEnabled: " << IsAIEnabled() << " DeathState: " << getDeathState();
     return sstr.str();
 }
