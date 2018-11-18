@@ -73,6 +73,7 @@ void AddSC_boss_flamegor();
 void AddSC_boss_chromaggus();
 void AddSC_boss_nefarian();
 void AddSC_instance_blackwing_lair();
+void AddSC_instance_blackwing_descent();     //Blackwing Descent
 void AddSC_instance_deadmines();             //Deadmines
 void AddSC_boss_glubtok();
 void AddSC_boss_helix_gearbreaker();
@@ -294,6 +295,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_chromaggus();
     AddSC_boss_nefarian();
     AddSC_instance_blackwing_lair();
+    AddSC_instance_blackwing_descent();     //Blackwing Descent
     AddSC_instance_deadmines();             //Deadmines
     AddSC_boss_glubtok();
     AddSC_boss_helix_gearbreaker();
