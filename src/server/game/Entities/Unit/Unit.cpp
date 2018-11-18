@@ -13458,3 +13458,11 @@ float Unit::GetCollisionHeight() const
     float const collisionHeight = scaleMod * modelData->CollisionHeight * modelData->Scale * displayInfo->scale;
     return collisionHeight == 0.0f ? DEFAULT_COLLISION_HEIGHT : collisionHeight;
 }
+
+std::string Unit::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << WorldObject::GetDebugInfo();
+    // Is there any other field to log from Unit ?
+    return sstr.str();
+}

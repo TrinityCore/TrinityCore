@@ -1758,6 +1758,8 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtEnterCombat() { }
         virtual void AtExitCombat();
 
+        std::string GetDebugInfo() const override;
+
     private:
 
         void UpdateSplineMovement(uint32 t_diff);

@@ -3538,7 +3538,7 @@ std::string WorldObject::GetDebugInfo() const
 {
     std::stringstream sstr;
     sstr << WorldLocation::GetDebugInfo() << "\n"
-         << Object::GetDebugInfo() << "\n";
+         << Object::GetDebugInfo();
     return sstr.str();
 }
 
