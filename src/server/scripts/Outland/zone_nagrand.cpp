@@ -636,6 +636,40 @@ class go_warmaul_prison : public GameObjectScript
         }
 };
 
+// 32307 - Plant Warmaul Ogre Banner
+class spell_q9927_plant_warmaul_ogre_banner : public SpellScript
+{
+    PrepareSpellScript(spell_q9927_plant_warmaul_ogre_banner);
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* caster = GetCaster()->ToPlayer())
+            caster->RewardPlayerAndGroupAtEvent(18388, caster);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q9927_plant_warmaul_ogre_banner::HandleHit, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 32314 - Plant Kil'Sorrow Banner
+class spell_q9931_plant_kilsorrow_banner : public SpellScript
+{
+    PrepareSpellScript(spell_q9931_plant_kilsorrow_banner);
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* caster = GetCaster()->ToPlayer())
+            caster->RewardPlayerAndGroupAtEvent(18393, caster);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q9931_plant_kilsorrow_banner::HandleHit, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_nagrand()
 {
     new npc_maghar_captive();
@@ -644,4 +678,6 @@ void AddSC_nagrand()
     new go_corkis_prison();
     new npc_kurenai_captive();
     new go_warmaul_prison();
+    RegisterSpellScript(spell_q9927_plant_warmaul_ogre_banner);
+    RegisterSpellScript(spell_q9931_plant_kilsorrow_banner);
 }
