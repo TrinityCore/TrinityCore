@@ -203,7 +203,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                         if (state == FAIL)
                         {
                             _relentlessStormVehicleGUIDs.clear();
-                            instance->SetZoneWeather(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, WEATHER_STATE_FINE, 1.0f);
+                            instance->SetZoneWeather(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, WEATHER_STATE_FINE, 0.0f);
                             instance->SetZoneOverrideLight(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, LIGHT_OVERRIDE_ID_DEFAULT, 3000);
                         }
                         else if (state == DONE)
