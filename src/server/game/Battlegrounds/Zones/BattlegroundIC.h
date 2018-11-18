@@ -985,8 +985,8 @@ class BattlegroundIC : public Battleground
         BG_IC_GateState GateStatus[6];
         ICNodePoint nodePoint[7];
 
-        Transport* gunshipAlliance;
-        Transport* gunshipHorde;
+        MapTransport* gunshipAlliance;
+        MapTransport* gunshipHorde;
 
         uint32 GetNextBanner(ICNodePoint* node, uint32 team, bool returnDefinitve);
 

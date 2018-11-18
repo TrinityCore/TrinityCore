@@ -242,6 +242,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_bCanDelayTeleport = false;
     m_bHasDelayedTeleport = false;
     m_teleport_options = 0;
+    m_teleport_transport = nullptr;
 
     m_trade = nullptr;
 
@@ -414,6 +415,8 @@ Player::Player(WorldSession* session): Unit(true)
     _hasValidLFGLeavePoint = false;
     _archaeology = new Archaeology(this);
     m_petScalingSynchTimer.Reset(1000);
+
+    _transportSpawnID = 0;
 }
 
 Player::~Player()
@@ -1399,7 +1402,7 @@ void Player::Update(uint32 p_time)
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
-        TeleportTo(m_teleport_dest, m_teleport_options);
+        TeleportTo(m_teleport_dest, m_teleport_options, m_teleport_transport);
 
 }
 
@@ -1676,7 +1679,7 @@ uint8 Player::GetChatTag() const
     return tag;
 }
 
-bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
+bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options, Transport* transport)
 {
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
@@ -1755,6 +1758,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             //lets save teleport destination for player
             m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
             m_teleport_options = options;
+            m_teleport_transport = transport;
             return true;
         }
 
@@ -1771,10 +1775,12 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         // this will be used instead of the current location in SaveToDB
         m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
         SetFallInformation(0, GetPositionZ());
+        m_teleport_transport = transport;
 
         // code for finish transfer called in WorldSession::HandleMovementOpcodes()
         // at client packet CMSG_MOVE_TELEPORT_ACK
-        SetSemaphoreTeleportNear(true);
+        if (!GetTransport())
+            SetSemaphoreTeleportNear(true);
         // near teleport, triggering send CMSG_MOVE_TELEPORT_ACK from client at landing
         if (!GetSession()->PlayerLogout())
         {
@@ -1817,6 +1823,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 //lets save teleport destination for player
                 m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
                 m_teleport_options = options;
+                m_teleport_transport = transport;
                 return true;
             }
 
@@ -1883,6 +1890,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 oldmap->RemovePlayerFromMap(this, false);
 
             m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
+            m_teleport_transport = transport;
             SetFallInformation(0, GetPositionZ());
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
@@ -1910,9 +1918,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     return true;
 }
 
-bool Player::TeleportTo(WorldLocation const& loc, uint32 options /*= 0*/)
+bool Player::TeleportTo(WorldLocation const& loc, uint32 options /*= 0*/, Transport* transport /*=nullptr*/)
 {
-    return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
+    return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options, transport);
 }
 
 bool Player::TeleportToBGEntryPoint()
@@ -17336,8 +17344,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder)
     //"totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
     // 51      52      53      54      55      56      57           58         59          60             61
     //"health, power1, power2, power3, power4, power5, instance_id, speccount, activespec, exploredZones, equipmentCache, "
-    // 62           63          64               65
-    //"knownTitles, actionBars, grantableLevels, fishing_steps FROM characters WHERE guid = '%u'", guid);
+    // 62           63          64               65             66
+    //"knownTitles, actionBars, grantableLevels, fishing_steps, trans_spawn_id FROM characters WHERE guid = '%u'", guid);
 
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
     if (!result)
@@ -17479,6 +17487,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder)
 
     // init saved position, and fix it later if problematic
     ObjectGuid::LowType transLowGUID = fields[36].GetUInt32();
+    uint32 transSpawnId = fields[66].GetUInt32();
 
     Relocate(fields[17].GetFloat(), fields[18].GetFloat(), fields[19].GetFloat(), fields[21].GetFloat());
 
@@ -17593,45 +17602,119 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder)
     // currently we do not support transport in bg
     else if (transLowGUID)
     {
-        ObjectGuid transGUID(HighGuid::Mo_Transport, transLowGUID);
-
-        Transport* transport = nullptr;
-        if (Transport* go = HashMapHolder<Transport>::Find(transGUID))
-            transport = go;
-
-        if (transport)
+        // if transSpawnId presents, then search for static transport (e.g. elevator)
+        // else - needs motiontransport
+        if (transSpawnId)
         {
-            float x = fields[32].GetFloat(), y = fields[33].GetFloat(), z = fields[34].GetFloat(), o = fields[35].GetFloat();
-            m_movementInfo.transport.pos.Relocate(x, y, z, o);
-            transport->CalculatePassengerPosition(x, y, z, &o);
-
-            if (!Trinity::IsValidMapCoord(x, y, z, o) ||
-                // transport size limited
-                std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f ||
-                std::fabs(m_movementInfo.transport.pos.GetPositionY()) > 250.0f ||
-                std::fabs(m_movementInfo.transport.pos.GetPositionZ()) > 250.0f)
+            if (map = sMapMgr->CreateMap(mapId, this, instanceId))
             {
-                TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) has invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
-                    guid.ToString().c_str(), x, y, z, o);
+                auto bounds = map->GetGameObjectBySpawnIdStore().equal_range(transSpawnId);
+                if (bounds.first != bounds.second)
+                    m_transport = bounds.first->second->ToTransport();
+            }
 
-                m_movementInfo.transport.Reset();
+            if (m_transport)
+            {
+                float x = fields[32].GetFloat(), y = fields[33].GetFloat(), z = fields[34].GetFloat(), o = fields[35].GetFloat();
+                m_movementInfo.transport.pos.Relocate(x, y, z, o);
+                m_transport->CalculatePassengerPosition(x, y, z, &o);
 
-                RelocateToHomebind();
+                if (!Trinity::IsValidMapCoord(x, y, z, o) ||
+                    // transport size limited
+                    std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f ||
+                    std::fabs(m_movementInfo.transport.pos.GetPositionY()) > 250.0f ||
+                    std::fabs(m_movementInfo.transport.pos.GetPositionZ()) > 250.0f)
+                {
+                    TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) has invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
+                        guid.ToString().c_str(), x, y, z, o);
+
+                    m_transport = nullptr;
+                    m_movementInfo.transport.Reset();
+
+                    RelocateToHomebind();
+                }
+                else
+                {
+                    Relocate(x, y, z, o);
+                    mapId = m_transport->GetMapId();
+                    m_transport->AddPassenger(this);
+                }
             }
             else
             {
-                Relocate(x, y, z, o);
-                mapId = transport->GetMapId();
+                // transport not presents in world - just take go position from db
+                if (GameObjectData const* data = sObjectMgr->GetGameObjectData(transSpawnId))
+                {
+                    float dataX = data->spawnPoint.GetPositionX();
+                    float dataY = data->spawnPoint.GetPositionY();
+                    float dataZ = data->spawnPoint.GetPositionZ();
+                    float dataOrient = data->spawnPoint.GetOrientation();
 
-                transport->AddPassenger(this);
+                    float x = fields[32].GetFloat(), y = fields[33].GetFloat(), z = fields[34].GetFloat(), o = fields[35].GetFloat();
+                    m_movementInfo.transport.pos.Relocate(x, y, z, o);
+                    TransportBase::CalculatePassengerPosition(x, y, z, &o, dataX, dataY, dataZ, dataOrient);
+
+                    if (!Trinity::IsValidMapCoord(x, y, z, o) ||
+                        // transport size limited
+                        std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f ||
+                        std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f ||
+                        std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f)
+                    {
+                        TC_LOG_ERROR("entities.player", "Player (%s) have invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
+                            guid.ToString().c_str(), x, y, z, o);
+
+                        m_movementInfo.transport.Reset();
+                        RelocateToHomebind();
+                    }
+                    else
+                    {
+                        Relocate(x, y, z, o);
+                        SetTransportSpawnID(transSpawnId);
+                    }
+                }
             }
         }
         else
         {
-            TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) has problems with transport guid (%u). Teleport to bind location.",
-                guid.ToString().c_str(), transLowGUID);
+            ObjectGuid transGUID = ObjectGuid::Create<HighGuid::Transport>(transLowGUID);
 
-            RelocateToHomebind();
+            if (MapTransport* go = ObjectAccessor::GetMapTransport(transGUID))
+                m_transport = go;
+
+            if (m_transport)
+            {
+                float x = fields[32].GetFloat(), y = fields[33].GetFloat(), z = fields[34].GetFloat(), o = fields[35].GetFloat();
+                m_movementInfo.transport.pos.Relocate(x, y, z, o);
+                m_transport->CalculatePassengerPosition(x, y, z, &o);
+
+                if (!Trinity::IsValidMapCoord(x, y, z, o) ||
+                    // transport size limited
+                    std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f ||
+                    std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f ||
+                    std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f)
+                {
+                    TC_LOG_ERROR("entities.player", "Player (%s) have invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
+                        guid.ToString().c_str(), x, y, z, o);
+
+                    m_transport = nullptr;
+                    m_movementInfo.transport.Reset();
+
+                    RelocateToHomebind();
+                }
+                else
+                {
+                    Relocate(x, y, z, o);
+                    mapId = m_transport->GetMapId();
+                    m_transport->AddPassenger(this);
+                }
+            }
+            else
+            {
+                TC_LOG_ERROR("entities.player", "Player (%s) have problems with transport guid (%u). Teleport to bind location.",
+                    guid.ToString().c_str(), transLowGUID);
+
+                RelocateToHomebind();
+            }
         }
     }
     // currently we do not support taxi in instance
@@ -19830,9 +19913,14 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setFloat(index++, finiteAlways(GetTransOffsetZ()));
         stmt->setFloat(index++, finiteAlways(GetTransOffsetO()));
         ObjectGuid::LowType transLowGUID = 0;
-        if (GetTransport())
-            transLowGUID = GetTransport()->GetGUID().GetCounter();
+        uint32 transSpawnId = 0;
+        if (Transport* transport = GetTransport())
+        {
+            transLowGUID = transport->GetGUID().GetCounter();
+            transSpawnId = transport->GetSpawnId();
+        }
         stmt->setUInt32(index++, transLowGUID);
+        stmt->setUInt32(index++, transSpawnId);
 
         std::ostringstream ss;
         ss << m_taxi;
@@ -19965,9 +20053,14 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setFloat(index++, finiteAlways(GetTransOffsetZ()));
         stmt->setFloat(index++, finiteAlways(GetTransOffsetO()));
         ObjectGuid::LowType transLowGUID = 0;
-        if (GetTransport())
-            transLowGUID = GetTransport()->GetGUID().GetCounter();
+        uint32 transSpawnId = 0;
+        if (Transport* transport = GetTransport())
+        {
+            transLowGUID = transport->GetGUID().GetCounter();
+            transSpawnId = transport->GetSpawnId();
+        }
         stmt->setUInt32(index++, transLowGUID);
+        stmt->setUInt32(index++, transSpawnId);
 
         std::ostringstream ss;
         ss << m_taxi;
@@ -23342,17 +23435,6 @@ template<class T>
 inline void UpdateVisibilityOf_helper(GuidUnorderedSet& s64, T* target, std::set<Unit*>& /*v*/)
 {
     s64.insert(target->GetGUID());
-}
-
-template<>
-inline void UpdateVisibilityOf_helper(GuidUnorderedSet& s64, GameObject* target, std::set<Unit*>& /*v*/)
-{
-    // @HACK: This is to prevent objects like deeprun tram from disappearing when player moves far from its spawn point while riding it
-    // But exclude stoppable elevators from this hack - they would be teleporting from one end to another
-    // if affected transports move so far horizontally that it causes them to run out of visibility range then you are out of luck
-    // fix visibility instead of adding hacks here
-    if (!target->IsDynTransport())
-        s64.insert(target->GetGUID());
 }
 
 template<>
@@ -28003,6 +28085,17 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         pet->SetReactState(REACT_ASSIST);
 
         SetMinion(pet, true);
+
+        Transport* transport = GetTransGUID().IsEmpty() ? GetTransport() : nullptr;
+        if (transport)
+        {
+            float x, y, z, o;
+            pet->GetPosition(x, y, z, o);
+            transport->CalculatePassengerOffset(x, y, z, &o);
+            pet->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+            transport->AddPassenger(pet);
+        }
 
         switch (petType)
         {

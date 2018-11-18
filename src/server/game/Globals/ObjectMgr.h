@@ -1553,6 +1553,8 @@ class TC_GAME_API ObjectMgr
 
         void LoadMissingKeyChains();
 
+        uint32 GetGameObjectTypeByEntry(uint32 entry) const;
+
     private:
         // first free id for selected id type
         uint32 _auctionId;

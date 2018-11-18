@@ -53,7 +53,6 @@ char const* ObjectGuid::GetTypeName(HighGuid high)
         case HighGuid::Corpse:        return "Corpse";
         case HighGuid::AreaTrigger:   return "AreaTrigger";
         case HighGuid::BattleGround:  return "Battleground";
-        case HighGuid::Mo_Transport:  return "MoTransport";
         case HighGuid::Instance:      return "InstanceID";
         case HighGuid::Group:         return "Group";
         case HighGuid::Guild:         return "Guild";
@@ -133,6 +132,6 @@ GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Unit)
 GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Pet)
 GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Vehicle)
 GUID_TRAIT_INSTANTIATE_GUID(HighGuid::DynamicObject)
-GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Mo_Transport)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Transport)
 GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Instance)
 GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Group)

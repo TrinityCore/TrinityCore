@@ -67,7 +67,9 @@ namespace ObjectAccessor
     TC_GAME_API Object* GetObjectByTypeMask(WorldObject const&, ObjectGuid const&, uint32 typemask);
     TC_GAME_API Corpse* GetCorpse(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API GameObject* GetGameObject(WorldObject const& u, ObjectGuid const& guid);
-    TC_GAME_API Transport* GetTransport(WorldObject const& u, ObjectGuid const& guid);
+    TC_GAME_API Transport* GetTransportOnMap(WorldObject const& u, ObjectGuid const& guid);
+    TC_GAME_API MapTransport* GetMapTransportOnMap(WorldObject const& u, ObjectGuid const& guid);
+    TC_GAME_API MapTransport* GetMapTransport(ObjectGuid const& guid);
     TC_GAME_API DynamicObject* GetDynamicObject(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API AreaTrigger* GetAreaTrigger(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API Unit* GetUnit(WorldObject const&, ObjectGuid const& guid);

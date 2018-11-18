@@ -316,9 +316,6 @@ void Map::ScriptsProcess()
                 case HighGuid::Corpse:
                     source = GetCorpse(step.sourceGUID);
                     break;
-                case HighGuid::Mo_Transport:
-                    source = GetTransport(step.sourceGUID);
-                    break;
                 default:
                     TC_LOG_ERROR("scripts", "%s source with unsupported high guid %s.",
                         step.script->GetDebugInfo().c_str(), step.sourceGUID.ToString().c_str());
@@ -347,9 +344,6 @@ void Map::ScriptsProcess()
                     break;
                 case HighGuid::Corpse:
                     target = GetCorpse(step.targetGUID);
-                    break;
-                case HighGuid::Mo_Transport:
-                    target = GetTransport(step.targetGUID);
                     break;
                 default:
                     TC_LOG_ERROR("scripts", "%s target with unsupported high guid %s.",

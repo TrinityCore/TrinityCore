@@ -164,40 +164,12 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (!target)
         return;
 
-    uint8  updateType = UPDATETYPE_CREATE_OBJECT;
+    uint8  updateType = m_isNewObject ? UPDATETYPE_CREATE_OBJECT2 : UPDATETYPE_CREATE_OBJECT;
     uint16 flags      = m_updateFlag;
 
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_SELF;
-
-    if (m_isNewObject)
-    {
-        switch (GetGUID().GetHigh())
-        {
-            case HighGuid::Player:
-            case HighGuid::Pet:
-            case HighGuid::Corpse:
-            case HighGuid::DynamicObject:
-                updateType = UPDATETYPE_CREATE_OBJECT2;
-                break;
-            case HighGuid::Unit:
-            case HighGuid::Vehicle:
-            {
-                if (ToUnit()->IsSummon())
-                    updateType = UPDATETYPE_CREATE_OBJECT2;
-                break;
-            }
-            case HighGuid::GameObject:
-            {
-                if (ToGameObject()->GetOwnerGUID().IsPlayer())
-                    updateType = UPDATETYPE_CREATE_OBJECT2;
-                break;
-            }
-            default:
-                break;
-        }
-    }
 
     if (WorldObject const* worldObject = dynamic_cast<WorldObject const*>(this))
     {
@@ -207,29 +179,17 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
         if (worldObject->GetAIAnimKitId() || worldObject->GetMovementAnimKitId() || worldObject->GetMeleeAnimKitId())
             flags |= UPDATEFLAG_ANIMKITS;
+
+        if (!worldObject->m_movementInfo.transport.guid.IsEmpty() && (ToGameObject() || ToDynObject()))
+            flags |= UPDATEFLAG_GO_TRANSPORT_POSITION;
     }
 
     if (flags & UPDATEFLAG_STATIONARY_POSITION)
     {
-        // UPDATETYPE_CREATE_OBJECT2 dynamic objects, corpses...
-        if (isType(TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE | TYPEMASK_PLAYER))
-            updateType = UPDATETYPE_CREATE_OBJECT2;
-
-        // UPDATETYPE_CREATE_OBJECT2 for pets...
-        if (target->GetPetGUID() == GetGUID())
-            updateType = UPDATETYPE_CREATE_OBJECT2;
-
-        // UPDATETYPE_CREATE_OBJECT2 for some gameobject types...
         if (isType(TYPEMASK_GAMEOBJECT))
         {
             switch (ToGameObject()->GetGoType())
             {
-                case GAMEOBJECT_TYPE_TRAP:
-                case GAMEOBJECT_TYPE_DUEL_ARBITER:
-                case GAMEOBJECT_TYPE_FLAGSTAND:
-                case GAMEOBJECT_TYPE_FLAGDROP:
-                    updateType = UPDATETYPE_CREATE_OBJECT2;
-                    break;
                 case GAMEOBJECT_TYPE_TRANSPORT:
                     flags |= UPDATEFLAG_TRANSPORT;
                     break;
@@ -596,7 +556,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (flags & UPDATEFLAG_VEHICLE)
     {
-        *data << float(self->GetOrientation());
+        *data << float(self->GetTransport() ? self->GetTransOffsetO() : self->GetOrientation());
         *data << uint32(self->GetVehicleKit()->GetVehicleInfo()->m_ID);
     }
 
@@ -605,20 +565,20 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         WorldObject const* self = static_cast<WorldObject const*>(this);
         ObjectGuid transGuid = self->m_movementInfo.transport.guid;
 
-        data->WriteBit(transGuid[0]);
-        data->WriteBit(transGuid[5]);
+        data->WriteByteSeq(transGuid[0]);
+        data->WriteByteSeq(transGuid[5]);
         if (hasVehicleId)
             *data << uint32(self->m_movementInfo.transport.vehicleId);
 
-        data->WriteBit(transGuid[3]);
+        data->WriteByteSeq(transGuid[3]);
         *data << float(self->GetTransOffsetX());
-        data->WriteBit(transGuid[4]);
-        data->WriteBit(transGuid[6]);
-        data->WriteBit(transGuid[1]);
+        data->WriteByteSeq(transGuid[4]);
+        data->WriteByteSeq(transGuid[6]);
+        data->WriteByteSeq(transGuid[1]);
         *data << uint32(self->GetTransTime());
         *data << float(self->GetTransOffsetY());
-        data->WriteBit(transGuid[2]);
-        data->WriteBit(transGuid[7]);
+        data->WriteByteSeq(transGuid[2]);
+        data->WriteByteSeq(transGuid[7]);
         *data << float(self->GetTransOffsetZ());
         *data << int8(self->GetTransSeat());
         *data << float(self->GetTransOffsetO());
@@ -685,16 +645,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (flags & UPDATEFLAG_TRANSPORT)
     {
-        GameObject const* go = ToGameObject();
-        /** @TODO Use IsTransport() to also handle type 11 (TRANSPORT)
-            Currently grid objects are not updated if there are no nearby players,
-            this causes clients to receive different PathProgress
-            resulting in players seeing the object in a different position
-        */
-        if (go && go->ToTransport())
-            *data << uint32(go->GetGOValue()->Transport.PathProgress);
-        else
-            *data << uint32(GameTime::GetGameTimeMS());
+        if (GameObject const* go = ToGameObject())
+        {
+            if (go->IsDynTransport())
+                *data << uint32(go->ToTransport()->GetPathProgress());
+            else
+                *data << uint32(getMSTime());
+        }
     }
 }
 
@@ -2140,6 +2097,19 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         return nullptr;
     }
 
+    if (summon->GetTransGUID().IsEmpty() && summoner)
+    {
+        if (Transport* transport = summoner->GetTransport())
+        {
+            float x, y, z, o;
+            pos.GetPosition(x, y, z, o);
+            transport->CalculatePassengerOffset(x, y, z, &o);
+            summon->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+            transport->AddPassenger(summon);
+        }
+    }
+
     // Set the summon to the summoner's phase
     if (summoner)
         PhasingHandler::InheritPhaseShift(summon, summoner);
@@ -2238,11 +2208,24 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
     }
 
     Map* map = GetMap();
-    GameObject* go = new GameObject();
-    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
+    GameObject* go = nullptr;
+    if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
     {
-        delete go;
-        return nullptr;
+        go = new Transport();
+        if (!go->Create(map->GenerateLowGuid<HighGuid::Transport>(), entry, map, GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
+        {
+            delete go;
+            return nullptr;
+        }
+    }
+    else
+    {
+        go = new GameObject();
+        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
+        {
+            delete go;
+            return nullptr;
+        }
     }
 
     PhasingHandler::InheritPhaseShift(go, this);
@@ -2252,6 +2235,17 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, Qua
         ToUnit()->AddGameObject(go);
     else
         go->SetSpawnedByDefault(false);
+
+    Transport* transport = GetTransGUID().IsEmpty() ? GetTransport() : nullptr;
+    if (transport)
+    {
+        float x, y, z, o;
+        go->GetPosition(x, y, z, o);
+        transport->CalculatePassengerOffset(x, y, z, &o);
+        go->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+        transport->AddPassenger(go);
+    }
 
     map->AddToMap(go);
     return go;
@@ -2754,6 +2748,14 @@ ObjectGuid WorldObject::GetTransGUID() const
     if (GetTransport())
         return GetTransport()->GetGUID();
     return ObjectGuid::Empty;
+}
+
+MapTransport* WorldObject::GetMapTransport() const
+{
+    if (GetTransport())
+        return GetTransport()->ToMapTransport();
+
+    return nullptr;
 }
 
 float WorldObject::GetFloorZ() const

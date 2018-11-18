@@ -347,7 +347,7 @@ public:
         Player* chr = handler->GetSession()->GetPlayer();
         Map* map = chr->GetMap();
 
-        if (Transport* trans = chr->GetTransport())
+        if (MapTransport* trans = chr->GetMapTransport())
         {
             ObjectGuid::LowType guid = map->GenerateLowGuid<HighGuid::Unit>();
             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);

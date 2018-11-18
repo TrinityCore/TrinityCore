@@ -1035,8 +1035,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetObjectScale(float scale) override;
 
-        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
-        bool TeleportTo(WorldLocation const& loc, uint32 options = 0);
+        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, Transport* transport = nullptr);
+        bool TeleportTo(WorldLocation const& loc, uint32 options = 0, Transport* transport = nullptr);
         bool TeleportToBGEntryPoint();
 
         bool HasSummonPending() const;
@@ -1923,6 +1923,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue);
 
         WorldLocation& GetTeleportDest() { return m_teleport_dest; }
+        Transport* GetTeleportTransport() const { return m_teleport_transport; }
+        void ResetTeleportTransport() { m_teleport_transport = nullptr; }
         bool IsBeingTeleported() const { return mSemaphoreTeleport_Near || mSemaphoreTeleport_Far; }
         bool IsBeingTeleportedNear() const { return mSemaphoreTeleport_Near; }
         bool IsBeingTeleportedFar() const { return mSemaphoreTeleport_Far; }
@@ -2378,6 +2380,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Mount Capabilites
         void UpdateMountCapabilities();
 
+        uint32 GetTransportSpawnID() const { return _transportSpawnID; }
+        void SetTransportSpawnID(uint32 spawnId) { _transportSpawnID = spawnId; }
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2717,6 +2722,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Current teleport data
         WorldLocation m_teleport_dest;
         uint32 m_teleport_options;
+        Transport* m_teleport_transport;
         bool mSemaphoreTeleport_Near;
         bool mSemaphoreTeleport_Far;
 
@@ -2758,6 +2764,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::vector<PlayerPetData*> PlayerPetDataStore;
 
         TimeTrackerSmall m_petScalingSynchTimer;
+
+        uint32 _transportSpawnID;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

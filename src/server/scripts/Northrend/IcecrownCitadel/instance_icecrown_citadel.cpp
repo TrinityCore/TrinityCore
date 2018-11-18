@@ -508,7 +508,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_LADY_DEATHWHISPER_ELEVATOR:
                         LadyDeathwisperElevatorGUID = go->GetGUID();
                         if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
-                            go->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+                            if (Transport* transport = go->ToTransport())
+                                transport->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
                         break;
                     case GO_THE_SKYBREAKER_H:
                     case GO_ORGRIMS_HAMMER_A:
@@ -824,7 +825,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             if (GameObject* teleporter = instance->GetGameObject(TeleporterRampartsGUID))
                                 SetTeleporterState(teleporter, true);
 
-                            if (GameObject* elevator = instance->GetGameObject(LadyDeathwisperElevatorGUID))
+                            if (Transport* elevator = instance->GetTransport(LadyDeathwisperElevatorGUID))
                                 elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
 
                             SpawnGunship();
@@ -1018,7 +1019,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 {
                     SetBossState(DATA_ICECROWN_GUNSHIP_BATTLE, NOT_STARTED);
                     uint32 gunshipEntry = TeamInInstance == HORDE ? GO_ORGRIMS_HAMMER_H : GO_THE_SKYBREAKER_A;
-                    if (Transport* gunship = sTransportMgr->CreateTransport(gunshipEntry, 0, instance))
+                    if (MapTransport* gunship = sTransportMgr->CreateTransport(gunshipEntry, 0, instance))
                         GunshipGUID = gunship->GetGUID();
                 }
             }
@@ -1403,7 +1404,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case EVENT_PLAYERS_GUNSHIP_SPAWN:
                     case EVENT_PLAYERS_GUNSHIP_COMBAT:
                         if (GameObject* go = source->ToGameObject())
-                            if (Transport* transport = go->ToTransport())
+                            if (MapTransport* transport = go->ToMapTransport())
                                 transport->EnableMovement(false);
                         break;
                     case EVENT_PLAYERS_GUNSHIP_SAURFANG:
@@ -1411,7 +1412,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (Creature* captain = source->FindNearestCreature(TeamInInstance == HORDE ? NPC_IGB_HIGH_OVERLORD_SAURFANG : NPC_IGB_MURADIN_BRONZEBEARD, 100.0f))
                             captain->AI()->DoAction(ACTION_EXIT_SHIP);
                         if (GameObject* go = source->ToGameObject())
-                            if (Transport* transport = go->ToTransport())
+                            if (MapTransport* transport = go->ToMapTransport())
                                 transport->EnableMovement(false);
                         break;
                     }

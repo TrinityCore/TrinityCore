@@ -1425,7 +1425,7 @@ public:
 
     static bool HandleDebugTransportCommand(ChatHandler* handler, char const* args)
     {
-        Transport* transport = handler->GetSession()->GetPlayer()->GetTransport();
+        MapTransport* transport = handler->GetSession()->GetPlayer()->GetMapTransport();
         if (!transport)
             return false;
 

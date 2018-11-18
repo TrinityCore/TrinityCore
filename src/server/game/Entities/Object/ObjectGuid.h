@@ -64,7 +64,6 @@ enum class HighGuid
     Container      = 0x400,                       // blizz 4000
     Player         = 0x000,                       // blizz 0000
     GameObject     = 0xF11,                       // blizz F110
-    Transport      = 0xF12,                       // blizz F120 (for GAMEOBJECT_TYPE_TRANSPORT)
     Unit           = 0xF13,                       // blizz F130
     Pet            = 0xF14,                       // blizz F140
     Vehicle        = 0xF15,                       // blizz F550
@@ -72,7 +71,7 @@ enum class HighGuid
     Corpse         = 0xF101,                      // blizz F100
     AreaTrigger    = 0xF102,
     BattleGround   = 0x1F1,
-    Mo_Transport   = 0x1FC,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
+    Transport      = 0x1FC,                       // blizz 1FC0
     Instance       = 0x1F4,                       // blizz 1F40
     Group          = 0x1F5,
     Guild          = 0x1FF
@@ -99,13 +98,11 @@ struct ObjectGuidTraits
         static bool const MapSpecific = true; \
     }
 
-GUID_TRAIT_GLOBAL(HighGuid::Mo_Transport);
 GUID_TRAIT_GLOBAL(HighGuid::Group);
 GUID_TRAIT_GLOBAL(HighGuid::Instance);
 GUID_TRAIT_GLOBAL(HighGuid::BattleGround);
 GUID_TRAIT_GLOBAL(HighGuid::Player);
 GUID_TRAIT_GLOBAL(HighGuid::Item);
-GUID_TRAIT_GLOBAL(HighGuid::Transport);
 GUID_TRAIT_GLOBAL(HighGuid::Guild);
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::Unit);
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::Vehicle);
@@ -118,6 +115,18 @@ GUID_TRAIT_MAP_SPECIFIC(HighGuid::AreaTrigger);
 #undef GUID_TRAIT_GLOBAL
 #undef GUID_TRAIT_REALM_SPECIFIC
 #undef GUID_TRAIT_MAP_SPECIFIC
+
+// Special case
+// Global transports are loaded from `transports` table, Global part is used for them.
+// after worldserver finishes loading, no more global transports can be created, only the ones existing within instances that never change maps
+// here is where MapSpecific comes into play - each map takes over the responsibility to generate transport guids
+// on top of this, regular elevators (GAMEOBJECT_TYPE_TRANSPORT) must also use Transport highguid type, otherwise client will reject seeing other players on them
+template<>
+struct ObjectGuidTraits<HighGuid::Transport>
+{
+    static bool const Global = true;
+    static bool const MapSpecific = true;
+};
 
 class ObjectGuid;
 class PackedGuid;
@@ -139,8 +148,7 @@ class TC_GAME_API ObjectGuid
         static typename std::enable_if<ObjectGuidTraits<type>::Global, ObjectGuid>::type Create(LowType counter) { return Global(type, counter); }
 
         template<HighGuid type>
-        static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific, ObjectGuid>::type Create(uint32 entry, LowType counter) { return MapSpecific(type, entry, counter); }
-
+        static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific && type != HighGuid::Transport, ObjectGuid>::type Create(uint32 entry, LowType counter) { return MapSpecific(type, entry, counter); }
 
         ObjectGuid() { _data._guid = UI64LIT(0); }
         explicit ObjectGuid(uint64 guid) { _data._guid = guid; }
@@ -198,8 +206,7 @@ class TC_GAME_API ObjectGuid
         bool IsAreaTrigger()       const { return GetHigh() == HighGuid::AreaTrigger; }
         bool IsBattleground()      const { return GetHigh() == HighGuid::BattleGround; }
         bool IsTransport()         const { return GetHigh() == HighGuid::Transport; }
-        bool IsMOTransport()       const { return GetHigh() == HighGuid::Mo_Transport; }
-        bool IsAnyTypeGameObject() const { return IsGameObject() || IsTransport() || IsMOTransport(); }
+        bool IsAnyTypeGameObject() const { return IsGameObject() || IsTransport(); }
         bool IsInstance()          const { return GetHigh() == HighGuid::Instance; }
         bool IsGroup()             const { return GetHigh() == HighGuid::Group; }
         bool IsGuild()             const { return GetHigh() == HighGuid::Guild; }
@@ -217,7 +224,7 @@ class TC_GAME_API ObjectGuid
                 case HighGuid::DynamicObject: return TYPEID_DYNAMICOBJECT;
                 case HighGuid::Corpse:        return TYPEID_CORPSE;
                 case HighGuid::AreaTrigger:   return TYPEID_AREATRIGGER;
-                case HighGuid::Mo_Transport:  return TYPEID_GAMEOBJECT;
+                case HighGuid::Transport:     return TYPEID_GAMEOBJECT;
                 case HighGuid::Vehicle:       return TYPEID_UNIT;
                 // unknown
                 case HighGuid::Instance:
@@ -248,12 +255,11 @@ class TC_GAME_API ObjectGuid
                 case HighGuid::Player:
                 case HighGuid::DynamicObject:
                 case HighGuid::Corpse:
-                case HighGuid::Mo_Transport:
+                case HighGuid::Transport:
                 case HighGuid::Instance:
                 case HighGuid::Group:
                     return false;
                 case HighGuid::GameObject:
-                case HighGuid::Transport:
                 case HighGuid::Unit:
                 case HighGuid::Pet:
                 case HighGuid::Vehicle:

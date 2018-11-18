@@ -26,6 +26,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include "Transport.h"
 #include "halls_of_origination.h"
 
 enum Spells
@@ -103,11 +104,10 @@ struct go_hoo_the_makers_lift_controller : public GameObjectAI
             return true;
 
         // Handle elevator: gossip item index => stopFrame (floor index).
-        GameObject* elevator = instance->GetGameObject(DATA_LIFT_OF_THE_MAKERS);
+        Transport* elevator = ObjectAccessor::GetTransportOnMap(*me, instance->GetGuidData(DATA_LIFT_OF_THE_MAKERS));
         if (!elevator)
             return true;
 
-        elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE, action);
         elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, action);
 
         return true;

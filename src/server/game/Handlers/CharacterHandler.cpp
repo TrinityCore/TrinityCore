@@ -51,6 +51,7 @@
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "SocialMgr.h"
+#include "Transport.h"
 #include "World.h"
 #include "WorldPacket.h"
 
@@ -959,6 +960,26 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             // remove wrong guild data
             TC_LOG_ERROR("misc", "Player %s (GUID: %u) marked as member of not existing guild (id: %u), removing guild membership for player.", pCurrChar->GetName().c_str(), pCurrChar->GetGUID().GetCounter(), pCurrChar->GetGuildId());
             pCurrChar->SetInGuild(0);
+        }
+    }
+
+    // check if player is on transport and not added earlier to transport
+    // e.g. in case of loading transport on grid load
+    if (pCurrChar->GetTransportSpawnID() && !pCurrChar->GetTransport())
+    {
+        Transport* transport = nullptr;
+
+        auto bounds = pCurrChar->GetMap()->GetGameObjectBySpawnIdStore().equal_range(pCurrChar->GetTransportSpawnID());
+        if (bounds.first != bounds.second)
+            transport = bounds.first->second->ToTransport();
+
+        if (transport)
+            transport->AddPassenger(pCurrChar);
+        else
+        {
+            pCurrChar->SetTransport(nullptr);
+            pCurrChar->m_movementInfo.transport.Reset();
+            pCurrChar->SetTransportSpawnID(0);
         }
     }
 

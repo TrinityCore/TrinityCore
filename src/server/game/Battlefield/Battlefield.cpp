@@ -30,6 +30,7 @@
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Transport.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include <G3D/g3dmath.h>
@@ -802,13 +803,28 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
         return nullptr;
 
     // Create gameobject
-    GameObject* go = new GameObject;
-    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, PHASEMASK_NORMAL, pos, rot, 255, GO_STATE_READY))
+    GameObject* go = nullptr;
+    if (sObjectMgr->GetGameObjectTypeByEntry(entry) == GAMEOBJECT_TYPE_TRANSPORT)
     {
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Gameobject template %u could not be found in the database! Battlefield has not been created!", entry);
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template %u! Battlefield has not been created!", entry);
-        delete go;
-        return nullptr;
+        go = new Transport();
+        if (!go->Create(map->GenerateLowGuid<HighGuid::Transport>(), entry, map, PHASEMASK_NORMAL, pos, rot, 255, GO_STATE_READY))
+        {
+            TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Gameobject template %u could not be found in the database! Battlefield has not been created!", entry);
+            TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template %u! Battlefield has not been created!", entry);
+            delete go;
+            return nullptr;
+        }
+    }
+    else
+    {
+        go = new GameObject();
+        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, map, PHASEMASK_NORMAL, pos, rot, 255, GO_STATE_READY))
+        {
+            TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Gameobject template %u could not be found in the database! Battlefield has not been created!", entry);
+            TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template %u! Battlefield has not been created!", entry);
+            delete go;
+            return nullptr;
+        }
     }
 
     // Add to world

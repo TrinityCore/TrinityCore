@@ -27,6 +27,7 @@
 #include "GameObject.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Transport.h"
 #include "World.h"
 #include "ScriptMgr.h"
 
@@ -163,6 +164,48 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
         }
         else
             delete obj;
+    }
+}
+
+template <>
+void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<GameObject> &m, uint32 &count, Map* map)
+{
+    for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
+    {
+        uint32 guid = *i_guid;
+        GameObjectData const* data = sObjectMgr->GetGameObjectData(guid);
+
+        GameObject* obj = nullptr;
+        if (data && sObjectMgr->GetGameObjectTypeByEntry(data->id) == GAMEOBJECT_TYPE_TRANSPORT)
+            obj = new Transport();
+        else
+            obj = new GameObject();
+
+        // Don't spawn at all if there's a respawn time
+        if (obj->GetTypeId() == TYPEID_GAMEOBJECT && !map->GetGORespawnTime(*i_guid))
+        {
+            ObjectGuid::LowType guid = *i_guid;
+            if (obj->GetTypeId() == TYPEID_GAMEOBJECT)
+            {
+                // If gameobject in manual spawn group, don't spawn here, unless group is already active.
+                GameObjectData const* godata = sObjectMgr->GetGameObjectData(guid);
+                ASSERT(godata, "Tried to load gameobject with spawnId %u, but no such object exists.", guid);
+                if (!(godata->spawnGroupData->flags & SPAWNGROUP_FLAG_SYSTEM))
+                    if (!map->IsSpawnGroupActive(godata->spawnGroupData->groupId))
+                    {
+                        delete obj;
+                        continue;
+                    }
+            }
+        }
+
+        if (!obj->LoadFromDB(guid, map, false, false))
+        {
+            delete obj;
+            continue;
+        }
+
+        AddObjectHelper(cell, m, count, map, obj);
     }
 }
 

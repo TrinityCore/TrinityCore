@@ -281,13 +281,18 @@ public:
             areaId, (areaEntry ? areaEntry->area_name : unknown),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
         if (Transport* transport = object->GetTransport())
-            handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
-                transport->GetGOInfo()->moTransport.mapID, object->GetTransOffsetX(), object->GetTransOffsetY(), object->GetTransOffsetZ(), object->GetTransOffsetO(),
-                transport->GetEntry(), transport->GetName().c_str());
-        handler->PSendSysMessage(LANG_GRID_POSITION,
-            cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
-            zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap, haveMMap);
+        {
+            int32 transMapID = -1;
+            if (transport->GetGoType() == GAMEOBJECT_TYPE_MO_TRANSPORT)
+                transMapID = transport->GetGOInfo()->moTransport.mapID;
 
+            handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
+                transMapID, object->GetTransOffsetX(), object->GetTransOffsetY(), object->GetTransOffsetZ(), object->GetTransOffsetO(),
+                transport->GetEntry(), transport->GetName().c_str());
+            handler->PSendSysMessage(LANG_GRID_POSITION,
+                cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
+                zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap, haveMMap);
+        }
         LiquidData liquidStatus;
         ZLiquidStatus status = map->GetLiquidStatus(object->GetPhaseShift(), object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), MAP_ALL_LIQUIDS, &liquidStatus);
 
@@ -449,9 +454,9 @@ public:
 
             // to point to see at target with same orientation
             float x, y, z;
-            target->GetContactPoint(_player, x, y, z);
+            target->GetPosition(x, y, z);
 
-            _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAngle(target), TELE_TO_GM_MODE);
+            _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAngle(target), TELE_TO_GM_MODE, target->GetTransport());
             PhasingHandler::InheritPhaseShift(_player, target);
             _player->UpdateObjectVisibility();
         }
@@ -581,8 +586,8 @@ public:
 
             // before GM
             float x, y, z;
-            _player->GetClosePoint(x, y, z, target->GetCombatReach());
-            target->TeleportTo(_player->GetMapId(), x, y, z, target->GetOrientation());
+            _player->GetPosition(x, y, z);
+            target->TeleportTo(_player->GetMapId(), x, y, z, target->GetOrientation(), 0, _player->GetTransport());
             PhasingHandler::InheritPhaseShift(target, handler->GetSession()->GetPlayer());
             target->UpdateObjectVisibility();
         }

@@ -37,6 +37,7 @@ EndScriptData */
 #include "Player.h"
 #include "PoolMgr.h"
 #include "RBAC.h"
+#include "Transport.h"
 #include "WorldSession.h"
 
 // definitions are over in cs_npc.cpp
@@ -151,8 +152,18 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         Map* map = player->GetMap();
 
-        GameObject* object = new GameObject;
-        ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
+        GameObject* object = nullptr;
+        ObjectGuid::LowType guidLow = ObjectGuid::Empty;
+        if (objectInfo->type == GAMEOBJECT_TYPE_TRANSPORT)
+        {
+            object = new Transport();
+            ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::Transport>();
+        }
+        else
+        {
+            object = new GameObject();
+            ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
+        }
 
         if (!object->Create(guidLow, objectInfo->entry, map, 0, *player, QuaternionData(), 255, GO_STATE_READY))
         {
@@ -176,7 +187,10 @@ public:
         // this is required to avoid weird behavior and memory leaks
         delete object;
 
-        object = new GameObject();
+        if (objectInfo->type == GAMEOBJECT_TYPE_TRANSPORT)
+            object = new Transport();
+        else
+            object = new GameObject();
         // this will generate a new guid if the object is in an instance
         if (!object->LoadFromDB(guidLow, map, true))
         {

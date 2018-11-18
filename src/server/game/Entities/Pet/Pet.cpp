@@ -28,6 +28,7 @@
 #include "SpellHistory.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "Transport.h"
 #include "Unit.h"
 #include "Util.h"
 #include "Group.h"
@@ -185,6 +186,17 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
             return false;
         }
 
+        Transport* transport = GetTransGUID().IsEmpty() ? owner->GetTransport() : nullptr;
+        if (transport)
+        {
+            float x, y, z, o;
+            GetPosition(x, y, z, o);
+            transport->CalculatePassengerOffset(x, y, z, &o);
+            m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+            transport->AddPassenger(this);
+        }
+
         map->AddToMap(this->ToCreature());
         return true;
     }
@@ -271,6 +283,17 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
         data << uint32(0);
         data << uint32(getMSTime());
         owner->SendMessageToSet(&data, true);
+    }
+
+    Transport* transport = GetTransGUID().IsEmpty() ? owner->GetTransport() : nullptr;
+    if (transport)
+    {
+        float x, y, z, o;
+        GetPosition(x, y, z, o);
+        transport->CalculatePassengerOffset(x, y, z, &o);
+        m_movementInfo.transport.pos.Relocate(x, y, z, o); (x, y, z, o);
+
+        transport->AddPassenger(this);
     }
 
     owner->SetMinion(this, true);
@@ -748,6 +771,17 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     else
         SetName(creature->GetNameForLocaleIdx(sObjectMgr->GetDBCLocaleIndex()));
 
+    Transport* transport = GetTransGUID().IsEmpty() ? creature->GetTransport() : nullptr;
+    if (transport)
+    {
+        float x, y, z, o;
+        GetPosition(x, y, z, o);
+        transport->CalculatePassengerOffset(x, y, z, &o);
+        m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+        transport->AddPassenger(this);
+    }
+
     return true;
 }
 
@@ -760,6 +794,17 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
         SetName(cFamily->Name);
 
     Relocate(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation());
+
+    Transport* transport = GetTransGUID().IsEmpty() ? owner->GetTransport() : nullptr;
+    if (transport)
+    {
+        float x, y, z, o;
+        GetPosition(x, y, z, o);
+        transport->CalculatePassengerOffset(x, y, z, &o);
+        m_movementInfo.transport.pos.Relocate(x, y, z, o);
+
+        transport->AddPassenger(this);
+    }
 
     return true;
 }

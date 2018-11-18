@@ -22,6 +22,7 @@
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
+#include "Transport.h"
 
 ////////////////////////////////////////////////////////////
 // template class ActivePoolData
@@ -410,7 +411,11 @@ void PoolGroup<GameObject>::Spawn1Object(PoolObject* obj)
         // We use current coords to unspawn, not spawn coords since creature can have changed grid
         if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
         {
-            GameObject* pGameobject = new GameObject;
+            GameObject* pGameobject = nullptr;
+            if (sObjectMgr->GetGameObjectTypeByEntry(data->id) == GAMEOBJECT_TYPE_TRANSPORT)
+                pGameobject = new Transport();
+            else
+                pGameobject = new GameObject();
             //TC_LOG_DEBUG("pool", "Spawning gameobject %u", guid);
             if (!pGameobject->LoadFromDB(obj->guid, map, false))
             {

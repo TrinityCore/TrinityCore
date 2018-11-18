@@ -47,6 +47,7 @@ class InstanceMap;
 class InstanceSave;
 class InstanceScript;
 class MapInstanced;
+class MapTransport;
 class Object;
 class PhaseShift;
 class Player;
@@ -523,6 +524,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         WorldObject* GetWorldObjectBySpawnId(SpawnObjectType type, ObjectGuid::LowType spawnId) const { return (type == SPAWN_TYPE_GAMEOBJECT) ? reinterpret_cast<WorldObject*>(GetGameObjectBySpawnId(spawnId)) : reinterpret_cast<WorldObject*>(GetCreatureBySpawnId(spawnId)); }
         Pet* GetPet(ObjectGuid const& guid);
         Transport* GetTransport(ObjectGuid const& guid);
+        MapTransport* GetMapTransport(ObjectGuid const& guid);
 
         MapStoredObjectTypesContainer& GetObjectsStore() { return _objectsStore; }
 
@@ -731,7 +733,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         ActiveNonPlayers::iterator m_activeNonPlayersIter;
 
         // Objects that must update even in inactive grids without activating them
-        typedef std::set<Transport*> TransportsContainer;
+        typedef std::set<MapTransport*> TransportsContainer;
         TransportsContainer _transports;
         TransportsContainer::iterator _transportsUpdateIter;
 

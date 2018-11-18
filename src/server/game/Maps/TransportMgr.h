@@ -25,7 +25,7 @@
 struct KeyFrame;
 struct GameObjectTemplate;
 struct TransportTemplate;
-class Transport;
+class MapTransport;
 class Map;
 
 namespace Movement
@@ -94,8 +94,8 @@ struct TC_GAME_API TransportAnimation
     TransportPathRotationContainer Rotations;
     uint32 TotalTime;
 
-    TransportAnimationEntry const* GetAnimNode(uint32 time) const;
-    TransportRotationEntry const* GetAnimRotation(uint32 time) const;
+    bool GetAnimNode(uint32 time, TransportAnimationEntry const*& curr, TransportAnimationEntry const*& next, float& percPos) const;
+    void GetAnimRotation(uint32 time, QuaternionData& curr, QuaternionData& next, float& percRot) const;
 };
 
 typedef std::map<uint32, TransportAnimation> TransportAnimationContainer;
@@ -112,7 +112,7 @@ class TC_GAME_API TransportMgr
         void LoadTransportAnimationAndRotation();
 
         // Creates a transport using given GameObject template entry
-        Transport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = 0, Map* map = nullptr, uint8 phaseUseFlags = 0, uint32 phaseId = 0, uint32 phaseGroupId = 0);
+        MapTransport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = 0, Map* map = nullptr, uint8 phaseUseFlags = 0, uint32 phaseId = 0, uint32 phaseGroupId = 0);
 
         // Spawns all continent transports, used at core startup
         void SpawnContinentTransports();

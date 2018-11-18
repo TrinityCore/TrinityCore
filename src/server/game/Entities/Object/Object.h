@@ -47,6 +47,7 @@ class Map;
 class Player;
 class TempSummon;
 class Transport;
+class MapTransport;
 class Unit;
 class UpdateData;
 class WorldObject;
@@ -459,6 +460,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         int8 GetTransSeat()     const { return m_movementInfo.transport.seat; }
         virtual ObjectGuid GetTransGUID() const;
         void SetTransport(Transport* t) { m_transport = t; }
+
+        MapTransport* GetMapTransport() const;
 
         MovementInfo m_movementInfo;
 
