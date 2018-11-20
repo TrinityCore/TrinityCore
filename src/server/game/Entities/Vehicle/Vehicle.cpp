@@ -481,11 +481,11 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
         _me->SetFlag64(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
 
     // Enable gravity for passenger when he did not have it active before entering the vehicle
-    if (seat->second.SeatInfo->HasFlag(VEHICLE_SEAT_FLAG_DISABLE_GRAVITY) && !seat->second.Passenger.IsGravityDisabled)
-        unit->SetDisableGravity(false);
+    if (seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_DISABLE_GRAVITY && !seat->second.Passenger.IsGravityDisabled)
+        unit->SetDisableGravity(false, true);
 
     // Remove UNIT_FLAG_NOT_SELECTABLE if passenger did not have it before entering vehicle
-    if (seat->second.SeatInfo->HasFlag(VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE) && !seat->second.Passenger.IsUnselectable)
+    if (seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE && !seat->second.Passenger.IsUnselectable)
         unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
     seat->second.Passenger.Reset();
@@ -797,10 +797,10 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
             player->UnsummonPetTemporaryIfAny();
     }
 
-    if (veSeat->HasFlag(VEHICLE_SEAT_FLAG_DISABLE_GRAVITY))
-        Passenger->SetDisableGravity(true);
+    if (veSeat->Flags & VEHICLE_SEAT_FLAG_DISABLE_GRAVITY)
+        Passenger->SetDisableGravity(true, true);
 
-    if (Seat->second.SeatInfo->HasFlag(VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE))
+    if (Seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)
         Passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
     Passenger->m_movementInfo.transport.pos.Relocate(veSeat->AttachmentOffset.X, veSeat->AttachmentOffset.Y, veSeat->AttachmentOffset.Z);
