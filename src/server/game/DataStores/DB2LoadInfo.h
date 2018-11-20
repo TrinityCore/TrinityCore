@@ -4221,6 +4221,22 @@ struct SpecializationSpellsLoadInfo
     }
 };
 
+struct SpellLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "NameSubtext" },
+            { false, FT_STRING, "Description" },
+            { false, FT_STRING, "AuraDescription" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellMeta::Instance(), HOTFIX_SEL_SPELL);
+        return &loadInfo;
+    }
+};
+
 struct SpellAuraOptionsLoadInfo
 {
     static DB2LoadInfo const* Instance()
