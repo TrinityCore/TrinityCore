@@ -140,7 +140,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (!target)
         return;
 
-    uint8 updateType = UPDATETYPE_CREATE_OBJECT;
+    uint8 updateType = m_isNewObject ? UPDATETYPE_CREATE_OBJECT2 : UPDATETYPE_CREATE_OBJECT;
     uint8 objectType = m_objectTypeId;
     CreateObjectBits flags = m_updateFlag;
 
@@ -151,36 +151,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         objectType = TYPEID_ACTIVE_PLAYER;
     }
 
-    switch (GetGUID().GetHigh())
-    {
-        case HighGuid::Player:
-        case HighGuid::Pet:
-        case HighGuid::Corpse:
-        case HighGuid::DynamicObject:
-        case HighGuid::AreaTrigger:
-        case HighGuid::SceneObject:
-        case HighGuid::Conversation:
-            updateType = UPDATETYPE_CREATE_OBJECT2;
-            break;
-        case HighGuid::Creature:
-        case HighGuid::Vehicle:
-        {
-            if (TempSummon const* summon = ToUnit()->ToTempSummon())
-                if (summon->GetSummonerGUID().IsPlayer())
-                    updateType = UPDATETYPE_CREATE_OBJECT2;
-
-            break;
-        }
-        case HighGuid::GameObject:
-        {
-            if (ToGameObject()->GetOwnerGUID().IsPlayer())
-                updateType = UPDATETYPE_CREATE_OBJECT2;
-            break;
-        }
-        default:
-            break;
-    }
-
     if (WorldObject const* worldObject = dynamic_cast<WorldObject const*>(this))
     {
         if (!flags.MovementUpdate && !worldObject->m_movementInfo.transport.guid.IsEmpty())
@@ -188,25 +158,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
         if (worldObject->GetAIAnimKitId() || worldObject->GetMovementAnimKitId() || worldObject->GetMeleeAnimKitId())
             flags.AnimKit = true;
-    }
-
-    if (flags.Stationary)
-    {
-        // UPDATETYPE_CREATE_OBJECT2 for some gameobject types...
-        if (isType(TYPEMASK_GAMEOBJECT))
-        {
-            switch (ToGameObject()->GetGoType())
-            {
-                case GAMEOBJECT_TYPE_TRAP:
-                case GAMEOBJECT_TYPE_DUEL_ARBITER:
-                case GAMEOBJECT_TYPE_FLAGSTAND:
-                case GAMEOBJECT_TYPE_FLAGDROP:
-                    updateType = UPDATETYPE_CREATE_OBJECT2;
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 
     if (Unit const* unit = ToUnit())
