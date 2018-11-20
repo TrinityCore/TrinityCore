@@ -2491,6 +2491,14 @@ struct SpecializationSpellsEntry
     uint8 DisplayOrder;
 };
 
+struct SpellEntry
+{
+    uint32 ID;
+    LocalizedString* NameSubtext;
+    LocalizedString* Description;
+    LocalizedString* AuraDescription;
+};
+
 struct SpellAuraOptionsEntry
 {
     uint32 ID;
