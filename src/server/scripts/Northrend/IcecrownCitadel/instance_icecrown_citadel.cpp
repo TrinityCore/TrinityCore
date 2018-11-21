@@ -150,6 +150,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 BloodQuickeningMinutes = 0;
                 BloodPrinceIntro = 1;
                 SindragosaIntro = 1;
+                LadyDeathwhisperElevatorTimer = 3000;
             }
 
             // A function to help reduce the number of lines for teleporter management.
@@ -1330,6 +1331,28 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void Update(uint32 diff) override
             {
+                if (LadyDeathwhisperElevatorTimer <= diff)
+                {
+                    LadyDeathwhisperElevatorTimer = 3000;
+                    if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
+                    {
+                        if (Transport* elevator = instance->GetTransport(LadyDeathwisperElevatorGUID))
+                        {
+                            if (elevator->GetDestinationStopFrameTime() == elevator->GetCurrentTransportTime())
+                            {
+                                if (!elevator->GetCurrentTransportTime())
+                                    elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 1);
+                                else
+                                    elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 0);
+
+                                LadyDeathwhisperElevatorTimer = 20000;
+                            }
+                        }
+                    }
+                }
+                else
+                    LadyDeathwhisperElevatorTimer -= diff;
+
                 if (BloodQuickeningState != IN_PROGRESS && GetBossState(DATA_THE_LICH_KING) != IN_PROGRESS && GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != FAIL)
                     return;
 
@@ -1516,6 +1539,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint16 BloodQuickeningMinutes;
             uint8 BloodPrinceIntro;
             uint8 SindragosaIntro;
+            uint32 LadyDeathwhisperElevatorTimer;
             bool IsBonedEligible;
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;
