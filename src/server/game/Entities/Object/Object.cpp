@@ -167,72 +167,18 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (!target)
         return;
 
-    uint8  updateType = UPDATETYPE_CREATE_OBJECT;
+    uint8  updateType = m_isNewObject ? UPDATETYPE_CREATE_OBJECT2 : UPDATETYPE_CREATE_OBJECT;
     uint16 flags      = m_updateFlag;
 
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_SELF;
 
-    if (m_isNewObject)
+
+    if (isType(TYPEMASK_UNIT))
     {
-        switch (GetGUID().GetHigh())
-        {
-            case HighGuid::Player:
-            case HighGuid::Pet:
-            case HighGuid::Corpse:
-            case HighGuid::DynamicObject:
-                updateType = UPDATETYPE_CREATE_OBJECT2;
-                break;
-            case HighGuid::Unit:
-            case HighGuid::Vehicle:
-            {
-                if (ToUnit()->IsSummon())
-                    updateType = UPDATETYPE_CREATE_OBJECT2;
-                break;
-            }
-            case HighGuid::GameObject:
-            {
-                if (ToGameObject()->GetOwnerGUID().IsPlayer())
-                    updateType = UPDATETYPE_CREATE_OBJECT2;
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-    if (flags & UPDATEFLAG_STATIONARY_POSITION)
-    {
-        // UPDATETYPE_CREATE_OBJECT2 dynamic objects, corpses...
-        if (isType(TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE | TYPEMASK_PLAYER))
-            updateType = UPDATETYPE_CREATE_OBJECT2;
-
-        // UPDATETYPE_CREATE_OBJECT2 for pets...
-        if (target->GetPetGUID() == GetGUID())
-            updateType = UPDATETYPE_CREATE_OBJECT2;
-
-        // UPDATETYPE_CREATE_OBJECT2 for some gameobject types...
-        if (isType(TYPEMASK_GAMEOBJECT))
-        {
-            switch (ToGameObject()->GetGoType())
-            {
-                case GAMEOBJECT_TYPE_TRAP:
-                case GAMEOBJECT_TYPE_DUEL_ARBITER:
-                case GAMEOBJECT_TYPE_FLAGSTAND:
-                case GAMEOBJECT_TYPE_FLAGDROP:
-                    updateType = UPDATETYPE_CREATE_OBJECT2;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        if (isType(TYPEMASK_UNIT))
-        {
-            if (ToUnit()->GetVictim())
-                flags |= UPDATEFLAG_HAS_TARGET;
-        }
+        if (ToUnit()->GetVictim())
+            flags |= UPDATEFLAG_HAS_TARGET;
     }
 
     //TC_LOG_DEBUG("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updateType, m_objectTypeId, flags, flags2);
