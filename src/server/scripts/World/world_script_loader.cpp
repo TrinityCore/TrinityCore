@@ -31,6 +31,7 @@ void AddSC_npcs_special();
 void AddSC_achievement_scripts();
 void AddSC_action_ip_logger();
 void AddSC_duel_reset();
+void AddSC_world_map_scripts();
 // player
 void AddSC_chat_log();
 void AddSC_action_ip_logger();
@@ -49,6 +50,7 @@ void AddWorldScripts()
     AddSC_npc_innkeeper();
     AddSC_npcs_special();
     AddSC_achievement_scripts();
+    AddSC_world_map_scripts();
     AddSC_chat_log(); // location: scripts\World\chat_log.cpp
 
     // FIXME: This should be moved in a script validation hook.
