@@ -236,12 +236,12 @@ typedef std::unordered_map<uint32, AchievementCriteriaDataSet> AchievementCriter
 
 struct AchievementReward
 {
-    uint32 TitleID[2];
-    uint32 ItemID;
-    uint32 Sender;
+    uint32 TitleId[2];
+    uint32 ItemId;
+    uint32 SenderCreatureId;
     std::string Subject;
-    std::string Text;
-    uint32 MailTemplateID;
+    std::string Body;
+    uint32 MailTemplateId;
 };
 
 typedef std::unordered_map<uint32, AchievementReward> AchievementRewards;
