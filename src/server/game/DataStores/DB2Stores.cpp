@@ -1231,11 +1231,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
             if (!GetUiMapPosition(node->Pos.X, node->Pos.Y, node->Pos.Z, node->ContinentID, 0, 0, 0, UI_MAP_SYSTEM_ADVENTURE, false, &uiMapId))
                 GetUiMapPosition(node->Pos.X, node->Pos.Y, node->Pos.Z, node->ContinentID, 0, 0, 0, UI_MAP_SYSTEM_TAXI, false, &uiMapId);
 
-            if (uiMapId != -1)
-            {
-                TC_LOG_INFO(LOGGER_ROOT, "%s %d %f %f %f %d", node->Name->Str[0], node->ConditionID, node->Pos.X, node->Pos.Y, node->Pos.Z, uiMapId);
-            }
-
             if (uiMapId == 985 || uiMapId == 986)
                 sOldContinentsNodesMask[field] |= submask;
         }
