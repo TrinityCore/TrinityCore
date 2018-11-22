@@ -13463,6 +13463,7 @@ std::string Unit::GetDebugInfo() const
 {
     std::stringstream sstr;
     sstr << WorldObject::GetDebugInfo() << "\n"
-        << "IsAIEnabled: " << IsAIEnabled() << " DeathState: " << getDeathState();
+        << "IsAIEnabled: " << IsAIEnabled() << " DeathState: " << getDeathState()
+        << " UnitMovementFlags: " << GetUnitMovementFlags() << " ExtraUnitMovementFlags " << GetExtraUnitMovementFlags();
     return sstr.str();
 }
