@@ -143,7 +143,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
     ginfo->IsInvitedToBGInstanceGUID = 0;
     ginfo->JoinTime                  = getMSTime();
     ginfo->RemoveInviteTime          = 0;
-    ginfo->Team                      = leader->GetTeam();
+    ginfo->Team                      = leader->GetBgQueueTeam();
     ginfo->ArenaTeamRating           = ArenaRating;
     ginfo->ArenaMatchmakerRating     = MatchmakerRating;
     ginfo->OpponentsTeamRating       = 0;
@@ -182,6 +182,14 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
             pl_info.GroupInfo        = ginfo;
             // add the pinfo to ginfo's list
             ginfo->Players[member->GetGUID()]  = &pl_info;
+
+            if (ginfo->Team != member->GetTeam())
+            {
+                if (member->GetTeam() == ALLIANCE)
+                    member->CastSpell(member, SPELL_MERCENARY_CONTRACT_HORDE);
+                else
+                    member->CastSpell(member, SPELL_MERCENARY_CONTRACT_ALLIANCE);
+            }
         }
     }
     else

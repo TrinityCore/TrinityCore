@@ -6231,4 +6231,10 @@ enum class GameError : uint32
     ERR_GLYPH_TARGET_NOT_AVAILABLE                          = 987,
 };
 
+enum SpecialSpells : uint32
+{
+    SPELL_MERCENARY_CONTRACT_HORDE      = 193472,
+    SPELL_MERCENARY_CONTRACT_ALLIANCE   = 193475,
+};
+
 #endif

@@ -352,6 +352,10 @@ void WorldSession::HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& canc
     if (!spellInfo->IsPositive() || spellInfo->IsPassive())
         return;
 
+    if (spellInfo->Id == SPELL_MERCENARY_CONTRACT_HORDE || spellInfo->Id == SPELL_MERCENARY_CONTRACT_ALLIANCE)
+        if (_player->InBattlegroundQueue())
+            return;
+
     _player->RemoveOwnedAura(cancelAura.SpellID, cancelAura.CasterGUID, 0, AURA_REMOVE_BY_CANCEL);
 
     // If spell being removed is a resource tracker, see if player was tracking both (herbs / minerals) and remove the other

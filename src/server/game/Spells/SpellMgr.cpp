@@ -3380,6 +3380,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
     });
 
+    // Horde / Alliance switch (BG mercenary system)
+    ApplySpellFix({ 195838, 195843 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->Effect = SPELL_EFFECT_APPLY_AURA;
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->Effect = SPELL_EFFECT_APPLY_AURA;
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->Effect = SPELL_EFFECT_APPLY_AURA;
+    });
+
     SpellInfo* spellInfo = NULL;
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
