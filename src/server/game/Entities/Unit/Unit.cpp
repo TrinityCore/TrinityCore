@@ -14350,10 +14350,10 @@ bool Unit::SetCanFly(bool enable, bool packetOnly)
         }
         else
         {
+            if (IsFlying() && !IsLevitating())
+                SetFall(true);
             RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
             RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
-            if (!IsLevitating())
-                SetFall(true);
         }
     }
 
