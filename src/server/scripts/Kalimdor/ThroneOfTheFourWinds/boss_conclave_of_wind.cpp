@@ -1210,7 +1210,7 @@ class spell_conclave_of_wind_hurricane_ride_vehicle : public SpellScript
     void SetTarget(WorldObject*& target)
     {
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-            if (ObjectGuid guid = instance->GetObjectGuid(DATA_FREE_HURRICANE_VEHICLE))
+            if (ObjectGuid guid = instance->GetGuidData(DATA_FREE_HURRICANE_VEHICLE))
                 if (Creature* hurricane = ObjectAccessor::GetCreature(*GetCaster(), guid))
                     target = hurricane;
     }

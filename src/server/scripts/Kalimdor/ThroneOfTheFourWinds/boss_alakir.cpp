@@ -954,7 +954,7 @@ class spell_alakir_relentless_storm_initial_vehicle_ride : public SpellScript
     void SetTarget(WorldObject*& target)
     {
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-            if (ObjectGuid guid = instance->GetObjectGuid(DATA_FREE_RELENTLESS_STORM_INITIAL_VEHICLE))
+            if (ObjectGuid guid = instance->GetGuidData(DATA_FREE_RELENTLESS_STORM_INITIAL_VEHICLE))
                 if (Creature* hurricane = ObjectAccessor::GetCreature(*GetCaster(), guid))
                     target = hurricane;
     }
@@ -1118,7 +1118,7 @@ class spell_alakir_relentless_storm : public SpellScript
     void SetTarget(WorldObject*& target)
     {
         if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-            if (ObjectGuid guid = instance->GetObjectGuid(DATA_FREE_RELENTLESS_STORM_VEHICLE))
+            if (ObjectGuid guid = instance->GetGuidData(DATA_FREE_RELENTLESS_STORM_VEHICLE))
                 if (Creature* hurricane = ObjectAccessor::GetCreature(*GetCaster(), guid))
                     target = hurricane;
     }
