@@ -100,6 +100,7 @@ class npc_gilneas_horrid_abomination : public CreatureScript
             void Reset() override
             {
                 Initialize();
+                me->GetMotionMaster()->MoveRandom(6.0f);
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell) override
@@ -110,7 +111,8 @@ class npc_gilneas_horrid_abomination : public CreatureScript
                         Talk(SAY_KEG_PLACED);
                         me->AttackStop();
                         me->SetReactState(REACT_PASSIVE);
-                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovementExpired();
+                        me->StopMoving();
                         _playerGUID = caster->GetGUID();
                         _allowEvents = true;
                         _events.ScheduleEvent(EVENT_ABOMINATION_KILL_ME, Seconds(2));
