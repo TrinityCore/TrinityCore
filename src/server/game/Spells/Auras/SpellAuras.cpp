@@ -1034,6 +1034,7 @@ bool Aura::CanBeSaved() const
         case 81207: // Chakra: Sanctuary
         case 81208: // Chakra: Serenity
         case 81209: // Chakra: Chastise
+        case 68631: // Curse of the Worgen
             return false;
     }
 

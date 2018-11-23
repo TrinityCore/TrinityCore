@@ -521,17 +521,24 @@ class npc_greymanes_horse : public CreatureScript
                             break;
                         case EVENT_DISMOUNT_PLAYER:
                             if (Unit* passenger = me->GetVehicleKit()->GetPassenger(1))
+                            {
                                 if (Unit* player = me->GetVehicleKit()->GetPassenger(0))
+                                {
                                     if (Creature* krennan = passenger->ToCreature())
                                     {
-                                        me->ClearInCombat();
-                                        player->ClearInCombat();
-                                        krennan->ClearInCombat();
+                                        for (Unit* attacker : me->getAttackers())
+                                        {
+                                            if (Creature* creature = attacker->ToCreature())
+                                                if (creature->IsAIEnabled)
+                                                    creature->AI()->EnterEvadeMode();
+                                        }
                                         player->ExitVehicle();
                                         krennan->ExitVehicle();
                                         krennan->AI()->Talk(SAY_RESCUED, me);
                                         krennan->DespawnOrUnsummon(Seconds(7));
                                     }
+                                }
+                            }
                             break;
                         default:
                             break;
@@ -639,6 +646,12 @@ class npc_crowleys_horse : public CreatureScript
                             me->GetMotionMaster()->MovePath(PATH_ID_CROWLEYS_HORSE_2, false);
                             break;
                         case EVENT_DISMOUNT_PLAYER:
+                            for (Unit* attacker : me->getAttackers())
+                            {
+                                if (Creature* creature = attacker->ToCreature())
+                                    if (creature->IsAIEnabled)
+                                        creature->AI()->EnterEvadeMode();
+                            }
                             me->RemoveAurasDueToSpell(VEHICLE_SPELL_RIDE_HARDCODED);
                             me->DespawnOrUnsummon(Seconds(5));
                             break;
@@ -663,6 +676,67 @@ class npc_crowleys_horse : public CreatureScript
         }
 };
 
+enum GileanCrow
+{
+    SPELL_GILNEAN_CROW      = 93275,
+    EVENT_APPLY_HOVER_BYTES = 1,
+    EVENT_FLY_AWAY_1        = 2,
+    EVENT_FLY_AWAY_2        = 3,
+
+    POINT_NONE              = 0,
+    POINT_CROW_FLIGHT       = 1
+};
+
+struct npc_gilnean_crow : public PassiveAI
+{
+    npc_gilnean_crow(Creature* creature) : PassiveAI(creature) { }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_GILNEAN_CROW)
+            _events.ScheduleEvent(EVENT_APPLY_HOVER_BYTES, 500ms);
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type == POINT_MOTION_TYPE && pointId == POINT_CROW_FLIGHT)
+        {
+            Position pos = me->GetRandomNearPosition(8.0f);
+            pos.m_positionZ = me->GetPositionZ() + 10.0f;
+            me->GetMotionMaster()->MovePoint(POINT_NONE, pos);
+            me->DespawnOrUnsummon(14s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_APPLY_HOVER_BYTES:
+                    me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_BYTE1_FLAG_ALWAYS_STAND);
+                    me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_UNK_3);
+                    _events.ScheduleEvent(EVENT_FLY_AWAY_1, 1s);
+                    break;
+                case EVENT_FLY_AWAY_1:
+                {
+                    Position pos = me->GetRandomNearPosition(7.0f);
+                    pos.m_positionZ = me->GetPositionZ() + 8.0f;
+                    me->GetMotionMaster()->MovePoint(POINT_CROW_FLIGHT, pos);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
 void AddSC_gilneas_c1()
 {
     new npc_frightened_citizen();
@@ -670,4 +744,5 @@ void AddSC_gilneas_c1()
     new npc_josiah_avery();
     new npc_greymanes_horse();
     new npc_crowleys_horse();
+    RegisterCreatureAI(npc_gilnean_crow);
 }
