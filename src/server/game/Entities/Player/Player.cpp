@@ -7520,8 +7520,8 @@ void Player::UpdateArea(uint32 newArea)
     pvpInfo.IsInFFAPvPArea = area && (area->flags & AREA_FLAG_ARENA);
     UpdatePvPState(true);
 
-    UpdateAreaDependentAuras(newArea);
     PhasingHandler::OnAreaChange(this);
+    UpdateAreaDependentAuras(newArea);
 
     // previously this was in UpdateZone (but after UpdateArea) so nothing will break
     pvpInfo.IsInNoPvPArea = false;
