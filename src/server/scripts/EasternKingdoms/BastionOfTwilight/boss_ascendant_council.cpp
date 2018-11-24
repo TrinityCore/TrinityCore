@@ -859,7 +859,7 @@ class npc_ignacious : public CreatureScript
                         case EVENT_FLAME_TORRENT:
                             me->StopMoving();
                             DoCastSelf(SPELL_FLAME_TORRENT);
-                            _events.Repeat(Seconds(12));
+                            _events.Repeat(Seconds(16), Seconds(18));
                             break;
                         case EVENT_BURNING_BLOOD:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
