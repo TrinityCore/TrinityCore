@@ -1041,7 +1041,7 @@ class spell_alakir_lightning_clouds_targeting : public SpellScript
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
-        return ValidateSpellInfo({ SPELL_LIGHTNING_CLOUDS_SUMMON_EXTRA_VISUALS });
+        return ValidateSpellInfo({ SPELL_SUMMON_LIGHTNING_CLOUDS_SUMMON });
     }
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
