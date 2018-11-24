@@ -793,6 +793,7 @@ struct npc_chogall_elemental : public PassiveAI
                     {
                         if (!chogall->HasUnitState(UNIT_STATE_CASTING))
                         {
+                            chogall->StopMoving();
                             if (me->GetEntry() == NPC_FIRE_ELEMENTAL)
                                 DoCastSelf(SPELL_ABSORB_FIRE_REVERSE_CAST);
                             else
