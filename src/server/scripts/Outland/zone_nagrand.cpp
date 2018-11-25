@@ -636,6 +636,12 @@ class go_warmaul_prison : public GameObjectScript
         }
 };
 
+enum PlantBannerCredits
+{
+    NPC_SHADOW_COUNCIL_CREDIT_MARKER = 18388,
+    NPC_WARMAUL_OGRE_CREDIT_MARKER   = 18393
+};
+
 // 32307 - Plant Warmaul Ogre Banner
 class spell_q9927_plant_warmaul_ogre_banner : public SpellScript
 {
@@ -644,7 +650,7 @@ class spell_q9927_plant_warmaul_ogre_banner : public SpellScript
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         if (Player* caster = GetCaster()->ToPlayer())
-            caster->RewardPlayerAndGroupAtEvent(18388, caster);
+            caster->RewardPlayerAndGroupAtEvent(NPC_SHADOW_COUNCIL_CREDIT_MARKER, caster);
     }
 
     void Register() override
@@ -661,7 +667,7 @@ class spell_q9931_plant_kilsorrow_banner : public SpellScript
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         if (Player* caster = GetCaster()->ToPlayer())
-            caster->RewardPlayerAndGroupAtEvent(18393, caster);
+            caster->RewardPlayerAndGroupAtEvent(NPC_WARMAUL_OGRE_CREDIT_MARKER, caster);
     }
 
     void Register() override
