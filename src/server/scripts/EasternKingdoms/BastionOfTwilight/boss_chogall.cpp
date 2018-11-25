@@ -540,7 +540,7 @@ struct boss_chogall : public BossAI
                     }
 
                     DoCastAOE(SPELL_DARKENED_CREATIONS);
-                    events.Repeat(IsHeroic() ? 30s : 40s);
+                    events.Repeat(IsHeroic() ? 40s : 30s);
                     break;
                 case EVENT_SUMMON_SPIKED_TENTACLE:
                     DoCastAOE(SPELL_SUMMON_SPIKED_TENTACLE_TRIGGER);
