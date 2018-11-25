@@ -62,8 +62,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             Optional<ShowTaxiNodesWindowInfo> WindowInfo;
-            TaxiMask const* CanLandNodes = nullptr; // Nodes known by player
-            TaxiMask const* CanUseNodes = nullptr;  // Nodes available for use - this can temporarily disable a known node
+            TaxiMask CanLandNodes; // Nodes known by player
+            TaxiMask CanUseNodes;  // Nodes available for use - this can temporarily disable a known node
         };
 
         class EnableTaxiNode final : public ClientPacket

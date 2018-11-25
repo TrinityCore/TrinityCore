@@ -21,6 +21,7 @@
 #include "DB2Stores.h"
 #include "Config.h"
 #include "Util.h"
+#include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/property_map/transform_value_property_map.hpp>
 
@@ -32,7 +33,7 @@ TaxiPathGraph& TaxiPathGraph::Instance()
 
 void TaxiPathGraph::Initialize()
 {
-    if (GetVertexCount() > 0)
+    if (boost::num_vertices(m_graph) > 0)
         return;
 
     std::vector<std::pair<edge, EdgeCost>> edges;
@@ -47,7 +48,7 @@ void TaxiPathGraph::Initialize()
     }
 
     // create graph
-    m_graph = Graph(GetVertexCount());
+    m_graph = Graph(m_nodesByVertex.size());
     WeightMap weightmap = boost::get(boost::edge_weight, m_graph);
 
     for (std::size_t j = 0; j < edges.size(); ++j)
@@ -59,21 +60,16 @@ void TaxiPathGraph::Initialize()
 
 uint32 TaxiPathGraph::GetNodeIDFromVertexID(vertex_descriptor vertexID)
 {
-    if (vertexID < m_vertices.size())
-        return m_vertices[vertexID]->ID;
+    if (vertexID < m_nodesByVertex.size())
+        return m_nodesByVertex[vertexID]->ID;
 
     return std::numeric_limits<uint32>::max();
 }
 
 TaxiPathGraph::vertex_descriptor TaxiPathGraph::GetVertexIDFromNodeID(TaxiNodesEntry const* node)
 {
-    return node->CharacterBitNumber;
-}
-
-std::size_t TaxiPathGraph::GetVertexCount()
-{
-    //So we can use this function for readability, we define either max defined vertices or already loaded in graph count
-    return std::max(boost::num_vertices(m_graph), m_vertices.size());
+    auto itr = m_verticesByNode.find(node->ID);
+    return itr != m_verticesByNode.end() ? itr->second : std::numeric_limits<vertex_descriptor>::max();
 }
 
 void GetTaxiMapPosition(DBCPosition3D const& position, int32 mapId, DBCPosition2D* uiMapPosition, int32* uiMapId)
@@ -181,14 +177,50 @@ std::size_t TaxiPathGraph::GetCompleteNodeRoute(TaxiNodesEntry const* from, Taxi
     return shortestPath.size();
 }
 
+template<typename T>
+struct DiscoverVertexVisitor : public boost::base_visitor<DiscoverVertexVisitor<T>>
+{
+    using event_filter = boost::on_discover_vertex;
+
+    DiscoverVertexVisitor(T&& func) : _func(std::forward<T>(func)) { }
+
+    template <class Vertex, class Graph>
+    void operator()(Vertex v, Graph& /*g*/)
+    {
+        _func(v);
+    }
+
+private:
+    T _func;
+};
+
+template<typename T>
+inline auto make_discover_vertex_dfs_visitor(T&& t)
+{
+    return boost::make_dfs_visitor(DiscoverVertexVisitor<T>(std::forward<T>(t)));
+}
+
+void TaxiPathGraph::GetReachableNodesMask(TaxiNodesEntry const* from, TaxiMask* mask)
+{
+    boost::vector_property_map<boost::default_color_type> color(boost::num_vertices(m_graph));
+    std::fill(color.storage_begin(), color.storage_end(), boost::white_color);
+    boost::depth_first_visit(m_graph, GetVertexIDFromNodeID(from), make_discover_vertex_dfs_visitor([this, mask](vertex_descriptor vertex)
+    {
+        if (TaxiNodesEntry const* taxiNode = sTaxiNodesStore.LookupEntry(GetNodeIDFromVertexID(vertex)))
+            (*mask)[(taxiNode->ID - 1) / 8] |= 1 << ((taxiNode->ID - 1) % 8);
+    }), color);
+}
+
 TaxiPathGraph::vertex_descriptor TaxiPathGraph::CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesEntry const* node)
 {
-    //Check if we need a new one or if it may be already created
-    if (m_vertices.size() <= node->CharacterBitNumber)
-        m_vertices.resize(node->CharacterBitNumber + 1);
+    auto itr = m_verticesByNode.find(node->ID);
+    if (itr == m_verticesByNode.end())
+    {
+        itr = m_verticesByNode.emplace(node->ID, m_nodesByVertex.size()).first;
+        m_nodesByVertex.push_back(node);
+    }
 
-    m_vertices[node->CharacterBitNumber] = node;
-    return node->CharacterBitNumber;
+    return itr->second;
 }
 
 uint32 TaxiPathGraph::EdgeCost::EvaluateDistance(Player const* player) const
