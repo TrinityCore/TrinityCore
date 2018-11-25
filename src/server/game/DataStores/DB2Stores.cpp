@@ -1218,7 +1218,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
                 continue;
 
             // valid taxi network node
-            uint8  field = (uint8)((node->ID - 1) / 8);
+            uint32 field = uint32((node->ID - 1) / 8);
             uint32 submask = 1 << ((node->ID - 1) % 8);
 
             sTaxiNodesMask[field] |= submask;
