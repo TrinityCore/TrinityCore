@@ -31,7 +31,7 @@ void AddSC_npcs_special();
 void AddSC_achievement_scripts();
 void AddSC_action_ip_logger();
 void AddSC_duel_reset();
-void AddSC_weekend_xp();
+void AddSC_xp_boost();
 // player
 void AddSC_chat_log();
 void AddSC_action_ip_logger();
@@ -57,5 +57,5 @@ void AddWorldScripts()
     if (sWorld->getBoolConfig(CONFIG_IP_BASED_ACTION_LOGGING))
         AddSC_action_ip_logger(); // location: scripts\World\action_ip_logger.cpp
     AddSC_duel_reset();
-    AddSC_weekend_xp();
+    AddSC_xp_boost();
 }
