@@ -565,7 +565,7 @@ enum SpellAttr4
 enum SpellAttr5
 {
     SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING          = 0x00000001, // TITLE Can be channeled while moving
-    SPELL_ATTR5_NO_REAGENT_WHILE_PREP            = 0x00000002, // TITLE Does not require reagents during Preparation
+    SPELL_ATTR5_NO_REAGENT_WHILE_PREP            = 0x00000002, // TITLE No reagents during arena preparation
     SPELL_ATTR5_REMOVE_ON_ARENA_ENTER            = 0x00000004, // TITLE Remove when entering arena DESCRIPTION Force this aura to be removed on entering arena, regardless of other properties
     SPELL_ATTR5_USABLE_WHILE_STUNNED             = 0x00000008, // TITLE Usable while stunned
     SPELL_ATTR5_UNK4                             = 0x00000010,
