@@ -564,38 +564,38 @@ enum SpellAttr4
 // EnumUtils: DESCRIBE THIS
 enum SpellAttr5
 {
-    SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING          = 0x00000001, //  0 available casting channel spell when moving
-    SPELL_ATTR5_NO_REAGENT_WHILE_PREP            = 0x00000002, //  1 not need reagents if UNIT_FLAG_PREPARATION
-    SPELL_ATTR5_REMOVE_ON_ARENA_ENTER            = 0x00000004, //  2 remove this aura on arena enter
-    SPELL_ATTR5_USABLE_WHILE_STUNNED             = 0x00000008, //  3 usable while stunned
-    SPELL_ATTR5_UNK4                             = 0x00000010, //  4
-    SPELL_ATTR5_SINGLE_TARGET_SPELL              = 0x00000020, //  5 Only one target can be apply at a time
-    SPELL_ATTR5_UNK6                             = 0x00000040, //  6
-    SPELL_ATTR5_UNK7                             = 0x00000080, //  7
-    SPELL_ATTR5_UNK8                             = 0x00000100, //  8
-    SPELL_ATTR5_START_PERIODIC_AT_APPLY          = 0x00000200, //  9 begin periodic tick at aura apply
-    SPELL_ATTR5_HIDE_DURATION                    = 0x00000400, // 10 do not send duration to client
-    SPELL_ATTR5_ALLOW_TARGET_OF_TARGET_AS_TARGET = 0x00000800, // 11 (NYI) uses target's target as target if original target not valid (intervene for example)
-    SPELL_ATTR5_UNK12                            = 0x00001000, // 12 Cleave related?
-    SPELL_ATTR5_HASTE_AFFECT_DURATION            = 0x00002000, // 13 haste effects decrease duration of this
-    SPELL_ATTR5_UNK14                            = 0x00004000, // 14
-    SPELL_ATTR5_UNK15                            = 0x00008000, // 15 Inflits on multiple targets?
-    SPELL_ATTR5_UNK16                            = 0x00010000, // 16
-    SPELL_ATTR5_USABLE_WHILE_FEARED              = 0x00020000, // 17 usable while feared
-    SPELL_ATTR5_USABLE_WHILE_CONFUSED            = 0x00040000, // 18 usable while confused
-    SPELL_ATTR5_DONT_TURN_DURING_CAST            = 0x00080000, // 19 Blocks caster's turning when casting (client does not automatically turn caster's model to face UNIT_FIELD_TARGET)
-    SPELL_ATTR5_UNK20                            = 0x00100000, // 20
-    SPELL_ATTR5_UNK21                            = 0x00200000, // 21
-    SPELL_ATTR5_UNK22                            = 0x00400000, // 22
-    SPELL_ATTR5_UNK23                            = 0x00800000, // 23
-    SPELL_ATTR5_UNK24                            = 0x01000000, // 24
-    SPELL_ATTR5_UNK25                            = 0x02000000, // 25
-    SPELL_ATTR5_SKIP_CHECKCAST_LOS_CHECK         = 0x04000000, // 26 aoe related - Boulder, Cannon, Corpse Explosion, Fire Nova, Flames, Frost Bomb, Living Bomb, Seed of Corruption, Starfall, Thunder Clap, Volley
-    SPELL_ATTR5_DONT_SHOW_AURA_IF_SELF_CAST      = 0x08000000, // 27 Auras with this attribute are not visible on units that are the caster
-    SPELL_ATTR5_DONT_SHOW_AURA_IF_NOT_SELF_CAST  = 0x10000000, // 28 Auras with this attribute are not visible on units that are not the caster
-    SPELL_ATTR5_UNK29                            = 0x20000000, // 29
-    SPELL_ATTR5_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR5_UNK31                            = 0x80000000  // 31 Forces all nearby enemies to focus attacks caster
+    SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING          = 0x00000001, // TITLE Can be channeled while moving
+    SPELL_ATTR5_NO_REAGENT_WHILE_PREP            = 0x00000002, // TITLE Does not require reagents during Preparation
+    SPELL_ATTR5_REMOVE_ON_ARENA_ENTER            = 0x00000004, // TITLE Remove when entering arena DESCRIPTION Force this aura to be removed on entering arena, regardless of other properties
+    SPELL_ATTR5_USABLE_WHILE_STUNNED             = 0x00000008, // TITLE Usable while stunned
+    SPELL_ATTR5_UNK4                             = 0x00000010,
+    SPELL_ATTR5_SINGLE_TARGET_SPELL              = 0x00000020, // TITLE Single-target aura DESCRIPTION Remove previous application to another unit if applied
+    SPELL_ATTR5_UNK6                             = 0x00000040,
+    SPELL_ATTR5_UNK7                             = 0x00000080,
+    SPELL_ATTR5_UNK8                             = 0x00000100,
+    SPELL_ATTR5_START_PERIODIC_AT_APPLY          = 0x00000200, // TITLE Immediately do periodic tick on apply
+    SPELL_ATTR5_HIDE_DURATION                    = 0x00000400, // TITLE Do not send aura duration to client
+    SPELL_ATTR5_ALLOW_TARGET_OF_TARGET_AS_TARGET = 0x00000800, // TITLE Auto-target target of target (client only)
+    SPELL_ATTR5_UNK12                            = 0x00001000,
+    SPELL_ATTR5_HASTE_AFFECT_DURATION            = 0x00002000, // TITLE Duration scales with Haste Rating
+    SPELL_ATTR5_UNK14                            = 0x00004000,
+    SPELL_ATTR5_UNK15                            = 0x00008000,
+    SPELL_ATTR5_UNK16                            = 0x00010000,
+    SPELL_ATTR5_USABLE_WHILE_FEARED              = 0x00020000, // TITLE Usable while feared
+    SPELL_ATTR5_USABLE_WHILE_CONFUSED            = 0x00040000, // TITLE Usable while confused
+    SPELL_ATTR5_DONT_TURN_DURING_CAST            = 0x00080000, // TITLE Do not auto-turn while casting
+    SPELL_ATTR5_UNK20                            = 0x00100000,
+    SPELL_ATTR5_UNK21                            = 0x00200000,
+    SPELL_ATTR5_UNK22                            = 0x00400000,
+    SPELL_ATTR5_UNK23                            = 0x00800000,
+    SPELL_ATTR5_UNK24                            = 0x01000000,
+    SPELL_ATTR5_UNK25                            = 0x02000000,
+    SPELL_ATTR5_SKIP_CHECKCAST_LOS_CHECK         = 0x04000000, // TITLE Ignore line of sight checks
+    SPELL_ATTR5_DONT_SHOW_AURA_IF_SELF_CAST      = 0x08000000, // TITLE Don't show aura if self-cast (client only)
+    SPELL_ATTR5_DONT_SHOW_AURA_IF_NOT_SELF_CAST  = 0x10000000, // TITLE Don't show aura unless self-cast (client only)
+    SPELL_ATTR5_UNK29                            = 0x20000000,
+    SPELL_ATTR5_UNK30                            = 0x40000000,
+    SPELL_ATTR5_UNK31                            = 0x80000000
 };
 
 // EnumUtils: DESCRIBE THIS
