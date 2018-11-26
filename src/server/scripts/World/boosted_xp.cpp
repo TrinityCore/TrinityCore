@@ -33,19 +33,19 @@ namespace
     }
 }
 
-class xp_boost_FormulaScript : public FormulaScript
+class xp_boost_PlayerScript : public PlayerScript
 {
 public:
-    xp_boost_FormulaScript() : FormulaScript("xp_boost_FormulaScript") { }
+    xp_boost_PlayerScript() : PlayerScript("xp_boost_PlayerScript") { }
 
-    void OnGainCalculation(uint32& gain, Player* /*player*/, Unit* /*unit*/) override
+    void OnGiveXP(Player* /*player*/, uint32& amount, Unit* /*unit*/) override
     {
         if (IsXPBoostActive())
-            gain *= sWorld->getRate(RATE_XP_BOOST);
+            amount *= sWorld->getRate(RATE_XP_BOOST);
     }
 };
 
 void AddSC_xp_boost()
 {
-    new xp_boost_FormulaScript();
+    new xp_boost_PlayerScript();
 }
