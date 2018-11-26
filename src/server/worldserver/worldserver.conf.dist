@@ -2844,21 +2844,28 @@ AllowTrackBothResources = 0
 PlayerStart.AllReputation = 0
 
 #
-#    Weekend.XP.Days
-#        Description: Enables XP increase during last days of the week.
+#    XP.Boost.Daymask
+#        Description: Enables experience boost during the defined days. This field is a bitmask.
 #
 #        Default:     0 - (Disabled)
-#                     2 - (Weekend - Saturdays and Sundays)
-#                     7 - (Always active)
+#                     1 - (Sunday)
+#                     2 - (Monday)
+#                     4 - (Tuesday)
+#                     8 - (Wednesday)
+#                     16 - (Thrusday)
+#                     32 - (Friday)
+#                     64 - (Saturday)
+#                     65 - (Weekend only)
+#                     127 - (Always active)
 
-Weekend.XP.Days = 0
+XP.Boost.Daymask = 0
 
 #
-#    Weekend.XP.Rate
-#        Description: Experience rates during weekend
-#        Default:     1 - (Weekend.XP.Rate, normal experience gain)
+#    XP.Boost.Rate
+#        Description: The boost multiplier for experience gain during XP boosted days.
+#        Default:     2.0 - (Double experience)
 
-Weekend.XP.Rate = 1
+XP.Boost.Rate = 2.0
 
 #
 #    PlayerStart.AllSpells
