@@ -229,15 +229,16 @@ public:
 ## npc_corastrasza
 ######*/
 
-#define GOSSIP_ITEM_C_1 "I... I think so..."
-
 enum Corastrasza
 {
-    SPELL_SUMMON_WYRMREST_SKYTALON               = 61240,
-    SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC        = 61244,
+    GOSSIP_ITEM_I_I_TINK_SO                = 0,
+    GOSSIP_ITEM_I_AM_READY                 = 1,
 
-    QUEST_ACES_HIGH_DAILY                        = 13414,
-    QUEST_ACES_HIGH                              = 13413
+    SPELL_SUMMON_WYRMREST_SKYTALON         = 61240,
+    SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC  = 61244,
+
+    QUEST_ACES_HIGH_DAILY                  = 13414,
+    QUEST_ACES_HIGH                        = 13413
 };
 
 class npc_corastrasza : public CreatureScript
@@ -254,8 +255,11 @@ public:
             if (me->IsQuestGiver())
                 player->PrepareQuestMenu(me->GetGUID());
 
-            if (player->GetQuestStatus(QUEST_ACES_HIGH) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_ACES_HIGH_DAILY) == QUEST_STATUS_INCOMPLETE) //It's the same dragon for both quests.
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_C_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            if (player->GetQuestStatus(QUEST_ACES_HIGH) == QUEST_STATUS_INCOMPLETE)
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_I_I_TINK_SO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+            if (player->GetQuestStatus(QUEST_ACES_HIGH_DAILY) == QUEST_STATUS_INCOMPLETE)
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_I_AM_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             return true;
