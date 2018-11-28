@@ -3019,6 +3019,30 @@ AllowTrackBothResources = 0
 PlayerStart.AllReputation = 0
 
 #
+#    XP.Boost.Daymask
+#        Description: Enables experience boost during the defined days. This field is a bitmask.
+#
+#        Default:     0 - (Disabled)
+#                     1 - (Sunday)
+#                     2 - (Monday)
+#                     4 - (Tuesday)
+#                     8 - (Wednesday)
+#                     16 - (Thrusday)
+#                     32 - (Friday)
+#                     64 - (Saturday)
+#                     65 - (Weekend only)
+#                     127 - (Always active)
+
+XP.Boost.Daymask = 0
+
+#
+#    XP.Boost.Rate
+#        Description: The boost multiplier for experience gain during XP boosted days.
+#        Default:     2.0 - (Double experience)
+
+XP.Boost.Rate = 2.0
+
+#
 #    PlayerStart.AllSpells
 #        Description: If enabled, players will start with all their class spells (not talents).
 #                     You must populate playercreateinfo_spell_custom table with the spells you
