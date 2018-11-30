@@ -315,8 +315,6 @@ struct CreatureLevelScaling
     int16 DeltaLevelMin;
     int16 DeltaLevelMax;
     int32 ContentTuningID;
-
-    static CreatureLevelScaling const* GetLevelScaling(uint32 entry, uint32 difficulty);
 };
 
 // from `creature_template` table
