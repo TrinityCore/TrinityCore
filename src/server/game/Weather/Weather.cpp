@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,12 +21,14 @@
 */
 
 #include "Weather.h"
-#include "WorldPacket.h"
-#include "Player.h"
 #include "GameTime.h"
 #include "Log.h"
-#include "Util.h"
+#include "Player.h"
+#include "Random.h"
 #include "ScriptMgr.h"
+#include "Util.h"
+#include "World.h"
+#include "WorldPacket.h"
 #include "WorldSession.h"
 
 /// Create the Weather object
@@ -196,7 +198,7 @@ void Weather::SendWeatherUpdateToPlayer(Player* player)
     data << uint32(GetWeatherState());
     data << (float)m_grade;
     data << uint8(0);
-    player->GetSession()->SendPacket(&data);
+    player->SendDirectMessage(&data);
 }
 
 /// Send the new weather to all players in the zone
@@ -319,4 +321,3 @@ WeatherState Weather::GetWeatherState() const
             return WEATHER_STATE_FINE;
     }
 }
-

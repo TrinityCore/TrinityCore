@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "vault_of_archavon.h"
@@ -92,12 +94,12 @@ class boss_emalon : public CreatureScript
             {
                 BossAI::JustSummoned(summoned);
 
-                // AttackStart has NULL-check for victim
+                // AttackStart has nullptr-check for victim
                 if (summoned->AI())
                     summoned->AI()->AttackStart(me->GetVictim());
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!summons.empty())
                 {
@@ -109,12 +111,12 @@ class boss_emalon : public CreatureScript
                     }
                 }
 
-                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5000);
-                events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40000);
-                events.ScheduleEvent(EVENT_BERSERK, 360000);
-                events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
+                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5s);
+                events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40s);
+                events.ScheduleEvent(EVENT_BERSERK, 6min);
+                events.ScheduleEvent(EVENT_OVERCHARGE, 45s);
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void UpdateAI(uint32 diff) override
@@ -134,11 +136,11 @@ class boss_emalon : public CreatureScript
                         case EVENT_CHAIN_LIGHTNING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
+                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25s);
                             break;
                         case EVENT_LIGHTNING_NOVA:
                             DoCastAOE(SPELL_LIGHTNING_NOVA);
-                            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40000);
+                            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40s);
                             break;
                         case EVENT_OVERCHARGE:
                             if (!summons.empty())
@@ -149,7 +151,7 @@ class boss_emalon : public CreatureScript
                                     minion->CastSpell(me, SPELL_OVERCHARGED, true);
                                     minion->SetFullHealth();
                                     Talk(EMOTE_OVERCHARGE);
-                                    events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
+                                    events.ScheduleEvent(EVENT_OVERCHARGE, 45s);
                                 }
                             }
                             break;
@@ -171,7 +173,7 @@ class boss_emalon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_emalonAI(creature);
+            return GetVaultOfArchavonAI<boss_emalonAI>(creature);
         }
 };
 
@@ -214,10 +216,10 @@ class npc_tempest_minion : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 DoZoneInCombat();
-                events.ScheduleEvent(EVENT_SHOCK, 20000);
+                events.ScheduleEvent(EVENT_SHOCK, 20s);
 
                 if (Creature* pEmalon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EMALON)))
                 {
@@ -244,7 +246,7 @@ class npc_tempest_minion : public CreatureScript
                         if (OverchargedTimer <= diff)
                         {
                             DoCast(me, SPELL_OVERCHARGED);
-                            OverchargedTimer = 2000;
+                            OverchargedTimer = 2000; // ms
                         }
                         else
                             OverchargedTimer -= diff;
@@ -263,7 +265,7 @@ class npc_tempest_minion : public CreatureScript
                 if (events.ExecuteEvent() == EVENT_SHOCK)
                 {
                     DoCastVictim(SPELL_SHOCK);
-                    events.ScheduleEvent(EVENT_SHOCK, 20000);
+                    events.ScheduleEvent(EVENT_SHOCK, 20s);
                 }
 
                 DoMeleeAttackIfReady();
@@ -277,7 +279,7 @@ class npc_tempest_minion : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_tempest_minionAI>(creature);
+            return GetVaultOfArchavonAI<npc_tempest_minionAI>(creature);
         }
 };
 

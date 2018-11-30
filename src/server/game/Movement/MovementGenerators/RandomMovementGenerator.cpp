@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,21 +16,33 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Creature.h"
-#include "CreatureGroups.h"
-#include "Map.h"
-#include "MoveSplineInit.h"
-#include "MoveSpline.h"
 #include "RandomMovementGenerator.h"
+#include "Creature.h"
+#include "Map.h"
+#include "MovementDefines.h"
+#include "MoveSpline.h"
+#include "MoveSplineInit.h"
+#include "PathGenerator.h"
+#include "Random.h"
 
 template<class T>
-RandomMovementGenerator<T>::~RandomMovementGenerator() { }
-
-template<>
-RandomMovementGenerator<Creature>::~RandomMovementGenerator()
+RandomMovementGenerator<T>::RandomMovementGenerator(float distance) : _timer(0), _reference(), _wanderDistance(distance)
 {
-    delete _path;
+    this->Mode = MOTION_MODE_DEFAULT;
+    this->Priority = MOTION_PRIORITY_NORMAL;
+    this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
+    this->BaseUnitState = UNIT_STATE_ROAMING;
 }
+
+template RandomMovementGenerator<Creature>::RandomMovementGenerator(float/* distance*/);
+
+template<class T>
+MovementGeneratorType RandomMovementGenerator<T>::GetMovementGeneratorType() const
+{
+    return RANDOM_MOTION_TYPE;
+}
+
+template MovementGeneratorType RandomMovementGenerator<Creature>::GetMovementGeneratorType() const;
 
 template<class T>
 void RandomMovementGenerator<T>::DoInitialize(T*) { }
@@ -38,28 +50,20 @@ void RandomMovementGenerator<T>::DoInitialize(T*) { }
 template<>
 void RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+    AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
+
     if (!owner || !owner->IsAlive())
         return;
 
-    owner->AddUnitState(UNIT_STATE_ROAMING);
-    owner->GetPosition(_reference.x, _reference.y, _reference.z);
+    _reference = owner->GetPosition();
     owner->StopMoving();
 
     if (!_wanderDistance)
         _wanderDistance = owner->GetRespawnRadius();
 
     _timer.Reset(0);
-}
-
-template<class T>
-void RandomMovementGenerator<T>::DoFinalize(T*) { }
-
-template<>
-void RandomMovementGenerator<Creature>::DoFinalize(Creature* owner)
-{
-    owner->ClearUnitState(UNIT_STATE_ROAMING);
-    owner->StopMoving();
-    owner->SetWalk(false);
+    _path = nullptr;
 }
 
 template<class T>
@@ -68,6 +72,8 @@ void RandomMovementGenerator<T>::DoReset(T*) { }
 template<>
 void RandomMovementGenerator<Creature>::DoReset(Creature* owner)
 {
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+
     DoInitialize(owner);
 }
 
@@ -80,14 +86,13 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     if (!owner)
         return;
 
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE | UNIT_STATE_LOST_CONTROL) || owner->IsMovementPreventedByCasting())
     {
-        _interrupt = true;
+        AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
+        _path = nullptr;
         return;
     }
-
-    owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
     Position position(_reference);
     float distance = frand(0.f, 1.f) * _wanderDistance;
@@ -97,15 +102,19 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     uint32 resetTimer = roll_chance_i(50) ? urand(5000, 10000) : urand(1000, 2000);
 
     if (!_path)
-        _path = new PathGenerator(owner);
+    {
+        _path = std::make_unique<PathGenerator>(owner);
+        _path->SetPathLengthLimit(30.0f);
+    }
 
-    _path->SetPathLengthLimit(30.0f);
     bool result = _path->CalculatePath(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ());
     if (!result || (_path->GetPathType() & PATHFIND_NOPATH))
     {
         _timer.Reset(100);
         return;
     }
+
+    owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(_path->GetPath());
@@ -114,8 +123,7 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     _timer.Reset(traveltime + resetTimer);
 
     // Call for creature group update
-    if (owner->GetFormation() && owner->GetFormation()->getLeader() == owner)
-        owner->GetFormation()->LeaderMoveTo(position);
+    owner->SignalFormationMovement(position);
 }
 
 template<class T>
@@ -128,20 +136,51 @@ template<>
 bool RandomMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
 {
     if (!owner || !owner->IsAlive())
-        return false;
+        return true;
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
-        _interrupt = true;
+        AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
+        _path = nullptr;
         return true;
     }
     else
-        _interrupt = false;
+        RemoveFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
 
     _timer.Update(diff);
-    if (!_interrupt && _timer.Passed() && owner->movespline->Finalized())
+    if ((HasFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING) && !owner->movespline->Finalized()) || (_timer.Passed() && owner->movespline->Finalized()))
+    {
+        RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY);
         SetRandomLocation(owner);
+    }
 
     return true;
+}
+
+template<class T>
+void RandomMovementGenerator<T>::DoDeactivate(T*) { }
+
+template<>
+void RandomMovementGenerator<Creature>::DoDeactivate(Creature* owner)
+{
+    AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+    owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+}
+
+template<class T>
+void RandomMovementGenerator<T>::DoFinalize(T*, bool, bool) { }
+
+template<>
+void RandomMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active, bool/* movementInform*/)
+{
+    AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
+    if (active)
+    {
+        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+        owner->StopMoving();
+
+        // TODO: Research if this modification is needed, which most likely isnt
+        owner->SetWalk(false);
+    }
 }

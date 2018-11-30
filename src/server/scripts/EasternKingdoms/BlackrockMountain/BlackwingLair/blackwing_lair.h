@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,9 +18,11 @@
 #ifndef DEF_BLACKWING_LAIR_H
 #define DEF_BLACKWING_LAIR_H
 
+#include "CreatureAIImpl.h"
+
 uint32 const EncounterCount     = 8;
 
-#define BRLScriptName "instance_blackwing_lair"
+#define BWLScriptName "instance_blackwing_lair"
 #define DataHeader    "BWL"
 
 enum BWLEncounter
@@ -79,5 +81,11 @@ enum BWLMisc
     ACTION_PHASE_TWO            = 1,
     DATA_EGG_EVENT
 };
+
+template <class AI, class T>
+inline AI* GetBlackwingLairAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, BWLScriptName);
+}
 
 #endif

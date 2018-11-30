@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "karazhan.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum TerestianSays
@@ -77,24 +78,24 @@ public:
             summons.DoAction(ACTION_DESPAWN_IMPS, pred);
             _Reset();
 
-            events.ScheduleEvent(EVENT_SHADOWBOLT, Seconds(1));
-            events.ScheduleEvent(EVENT_SUMMON_KILREK, Seconds(3));
-            events.ScheduleEvent(EVENT_SACRIFICE, Seconds(30));
+            events.ScheduleEvent(EVENT_SHADOWBOLT, 1s);
+            events.ScheduleEvent(EVENT_SUMMON_KILREK, 3s);
+            events.ScheduleEvent(EVENT_SACRIFICE, 30s);
             events.ScheduleEvent(EVENT_SUMMON_PORTAL_1, Seconds(10));
             events.ScheduleEvent(EVENT_SUMMON_PORTAL_2, Seconds(11));
-            events.ScheduleEvent(EVENT_ENRAGE, Minutes(10));
+            events.ScheduleEvent(EVENT_ENRAGE, 10min);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
         }
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_BROKEN_PACT)
-                events.ScheduleEvent(EVENT_SUMMON_KILREK, Seconds(32));
+                events.ScheduleEvent(EVENT_SUMMON_KILREK, 32s);
         }
 
         void KilledUnit(Unit* victim) override
@@ -125,7 +126,7 @@ public:
                     events.Repeat(Seconds(42));
                     break;
                 case EVENT_SHADOWBOLT:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
                         DoCast(target, SPELL_SHADOW_BOLT);
                     events.Repeat(Seconds(4), Seconds(10));
                     break;

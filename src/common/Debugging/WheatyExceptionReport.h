@@ -1,7 +1,7 @@
 #ifndef _WHEATYEXCEPTIONREPORT_
 #define _WHEATYEXCEPTIONREPORT_
 
-#if PLATFORM == PLATFORM_WINDOWS && !defined(__MINGW32__)
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS && !defined(__MINGW32__)
 
 #include <winnt.h>
 #include <winternl.h>
@@ -56,7 +56,7 @@ enum DataKind                                              // Stolen from CVCONS
     DataIsConstant
 };
 
-const char* const rgBaseType[] =
+char const* const rgBaseType[] =
 {
     "<user defined>",                                     // btNoType = 0,
     "void",                                               // btVoid = 1,
@@ -100,7 +100,7 @@ struct SymbolPair
         _offset = offset;
     }
 
-    bool operator<(const SymbolPair& other) const
+    bool operator<(SymbolPair const& other) const
     {
         return _offset < other._offset ||
               (_offset == other._offset && _type < other._type);
@@ -155,6 +155,8 @@ class WheatyExceptionReport
         static LONG WINAPI WheatyUnhandledExceptionFilter(
             PEXCEPTION_POINTERS pExceptionInfo);
 
+        static void __cdecl WheatyCrtHandler(wchar_t const* expression, wchar_t const* function, wchar_t const* file, unsigned int line, uintptr_t pReserved);
+
         static void printTracesForAllThreads(bool);
     private:
         // where report info is extracted and generated
@@ -174,7 +176,7 @@ class WheatyExceptionReport
 
         static bool FormatSymbolValue(PSYMBOL_INFO, STACKFRAME64 *);
 
-        static void DumpTypeIndex(DWORD64, DWORD, DWORD_PTR, bool &, const char*, char*, bool, bool);
+        static void DumpTypeIndex(DWORD64, DWORD, DWORD_PTR, bool &, char const*, char*, bool, bool);
 
         static void FormatOutputValue(char * pszCurrBuffer, BasicType basicType, DWORD64 length, PVOID pAddress, size_t bufferSize, size_t countOverride = 0);
 
@@ -192,6 +194,7 @@ class WheatyExceptionReport
         static TCHAR m_szLogFileName[MAX_PATH];
         static TCHAR m_szDumpFileName[MAX_PATH];
         static LPTOP_LEVEL_EXCEPTION_FILTER m_previousFilter;
+        static _invalid_parameter_handler m_previousCrtHandler;
         static HANDLE m_hReportFile;
         static HANDLE m_hDumpFile;
         static HANDLE m_hProcess;
@@ -212,4 +215,3 @@ class WheatyExceptionReport
 extern WheatyExceptionReport g_WheatyExceptionReport;       //  global instance of class
 #endif                                                      // _WIN32
 #endif                                                      // _WHEATYEXCEPTIONREPORT_
-

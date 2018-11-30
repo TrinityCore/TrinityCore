@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "drak_tharon_keep.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -89,16 +92,16 @@ class boss_trollgore : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
-                events.ScheduleEvent(EVENT_CONSUME, 15000);
-                events.ScheduleEvent(EVENT_CRUSH, urand(1000, 5000));
-                events.ScheduleEvent(EVENT_INFECTED_WOUND, urand(10000, 60000));
-                events.ScheduleEvent(EVENT_CORPSE_EXPLODE, 3000);
-                events.ScheduleEvent(EVENT_SPAWN, urand(30000, 40000));
+                events.ScheduleEvent(EVENT_CONSUME, 15s);
+                events.ScheduleEvent(EVENT_CRUSH, 1s, 5s);
+                events.ScheduleEvent(EVENT_INFECTED_WOUND, 10s, 60s);
+                events.ScheduleEvent(EVENT_CORPSE_EXPLODE, 3s);
+                events.ScheduleEvent(EVENT_SPAWN, 30s, 40s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -118,27 +121,27 @@ class boss_trollgore : public CreatureScript
                         case EVENT_CONSUME:
                             Talk(SAY_CONSUME);
                             DoCastAOE(SPELL_CONSUME);
-                            events.ScheduleEvent(EVENT_CONSUME, 15000);
+                            events.ScheduleEvent(EVENT_CONSUME, 15s);
                             break;
                         case EVENT_CRUSH:
                             DoCastVictim(SPELL_CRUSH);
-                            events.ScheduleEvent(EVENT_CRUSH, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_CRUSH, 10s, 15s);
                             break;
                         case EVENT_INFECTED_WOUND:
                             DoCastVictim(SPELL_INFECTED_WOUND);
-                            events.ScheduleEvent(EVENT_INFECTED_WOUND, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_INFECTED_WOUND, 25s, 35s);
                             break;
                         case EVENT_CORPSE_EXPLODE:
                             Talk(SAY_EXPLODE);
                             DoCastAOE(SPELL_CORPSE_EXPLODE);
-                            events.ScheduleEvent(EVENT_CORPSE_EXPLODE, urand(15000, 19000));
+                            events.ScheduleEvent(EVENT_CORPSE_EXPLODE, 15s, 19s);
                             break;
                         case EVENT_SPAWN:
                             for (uint8 i = 0; i < 3; ++i)
                                 if (Creature* trigger = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TROLLGORE_INVADER_SUMMONER_1 + i)))
-                                    trigger->CastSpell(trigger, RAND(SPELL_SUMMON_INVADER_A, SPELL_SUMMON_INVADER_B, SPELL_SUMMON_INVADER_C), true, NULL, NULL, me->GetGUID());
+                                    trigger->CastSpell(trigger, RAND(SPELL_SUMMON_INVADER_A, SPELL_SUMMON_INVADER_B, SPELL_SUMMON_INVADER_C), me->GetGUID());
 
-                            events.ScheduleEvent(EVENT_SPAWN, urand(30000, 40000));
+                            events.ScheduleEvent(EVENT_SPAWN, 30s, 40s);
                             break;
                         default:
                             break;
@@ -210,7 +213,7 @@ class npc_drakkari_invader : public CreatureScript
                 if (type == POINT_MOTION_TYPE && pointId == POINT_LANDING)
                 {
                     me->Dismount();
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->SetImmuneToAll(false);
                     DoCastAOE(SPELL_INVADER_TAUNT);
                 }
             }
@@ -234,9 +237,7 @@ class spell_trollgore_consume : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CONSUME_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CONSUME_BUFF });
             }
 
             void HandleConsume(SpellEffIndex /*effIndex*/)
@@ -269,16 +270,14 @@ class spell_trollgore_corpse_explode : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CORPSE_EXPLODE_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CORPSE_EXPLODE_DAMAGE });
             }
 
             void PeriodicTick(AuraEffect const* aurEff)
             {
                 if (aurEff->GetTickNumber() == 2)
                     if (Unit* caster = GetCaster())
-                        caster->CastSpell(GetTarget(), SPELL_CORPSE_EXPLODE_DAMAGE, true, NULL, aurEff);
+                        caster->CastSpell(GetTarget(), SPELL_CORPSE_EXPLODE_DAMAGE, aurEff);
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -312,9 +311,7 @@ class spell_trollgore_invader_taunt : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_0].CalcValue()) });
             }
 
             void HandleTaunt(SpellEffIndex /*effIndex*/)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
+#include <vector>
 
 class ObjectMgr;
 
@@ -256,7 +257,7 @@ enum SocketColor
 
 #define SOCKET_COLOR_ALL (SOCKET_COLOR_META | SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 
-enum InventoryType
+enum InventoryType : uint8
 {
     INVTYPE_NON_EQUIP                           = 0,
     INVTYPE_HEAD                                = 1,
@@ -291,7 +292,7 @@ enum InventoryType
 
 #define MAX_INVTYPE                               29
 
-enum ItemClass
+enum ItemClass : uint8
 {
     ITEM_CLASS_CONSUMABLE                       = 0,
     ITEM_CLASS_CONTAINER                        = 1,
@@ -723,13 +724,10 @@ private:
     void _LoadTotalAP();
 };
 
-// Benchmarked: Faster than std::map (insert/find)
-typedef std::unordered_map<uint32, ItemTemplate> ItemTemplateContainer;
-
 struct ItemLocale
 {
-    StringVector Name;
-    StringVector Description;
+    std::vector<std::string> Name;
+    std::vector<std::string> Description;
 };
 
 struct ItemSetNameEntry
@@ -740,7 +738,7 @@ struct ItemSetNameEntry
 
 struct ItemSetNameLocale
 {
-    StringVector Name;
+    std::vector<std::string> Name;
 };
 
 #endif

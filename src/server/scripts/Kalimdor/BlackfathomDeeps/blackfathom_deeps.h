@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,9 @@
 #ifndef BFD_H_
 #define BFD_H_
 
+#include "CreatureAIImpl.h"
+
+#define BFDScriptName "instance_blackfathom_deeps"
 #define DataHeader "BFD"
 
 uint32 const EncounterCount = 3;
@@ -67,5 +70,11 @@ enum BFDGameObjectIds
     GO_AKU_MAI_DOOR                                        = 21117,
     GO_ALTAR_OF_THE_DEEPS                                  = 103016
 };
+
+template <class AI, class T>
+inline AI* GetBlackfathomDeepsAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, BFDScriptName);
+}
 
 #endif // BFD_H_

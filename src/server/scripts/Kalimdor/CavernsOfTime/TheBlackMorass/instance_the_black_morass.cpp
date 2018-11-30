@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,12 +24,14 @@ Category: Caverns of Time, The Black Morass
 */
 
 #include "ScriptMgr.h"
+#include "EventMap.h"
 #include "InstanceScript.h"
-#include "the_black_morass.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
-#include "TemporarySummon.h"
 #include "SpellInfo.h"
-#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
+#include "the_black_morass.h"
 
 enum Misc
 {
@@ -71,7 +73,7 @@ enum EventIds
 class instance_the_black_morass : public InstanceMapScript
 {
 public:
-    instance_the_black_morass() : InstanceMapScript("instance_the_black_morass", 269) { }
+    instance_the_black_morass() : InstanceMapScript(TBMScriptName, 269) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -180,7 +182,7 @@ public:
                         {
                             if (medivh->IsAlive())
                             {
-                                medivh->DealDamage(medivh, medivh->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                                medivh->KillSelf();
                                 m_auiEncounter[0] = FAIL;
                                 m_auiEncounter[1] = NOT_STARTED;
                             }
@@ -276,7 +278,7 @@ public:
                 return summon;
 
             TC_LOG_DEBUG("scripts", "Instance The Black Morass: What just happened there? No boss, no loot, no fun...");
-            return NULL;
+            return nullptr;
         }
 
         void DoSpawnPortal()
@@ -303,10 +305,10 @@ public:
                     if (Creature* boss = SummonedPortalBoss(temp))
                     {
                         if (boss->GetEntry() == NPC_AEONUS)
-                            boss->AddThreat(medivh, 0.0f);
+                            boss->GetThreatManager().AddThreat(medivh, 0.0f);
                         else
                         {
-                            boss->AddThreat(temp, 0.0f);
+                            boss->GetThreatManager().AddThreat(temp, 0.0f);
                             temp->CastSpell(boss, SPELL_RIFT_CHANNEL, false);
                         }
                     }

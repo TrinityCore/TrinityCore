@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef OCULUS_H_
 #define OCULUS_H_
+
+#include "CreatureAIImpl.h"
 
 #define OculusScriptName "instance_oculus"
 #define DataHeader "OC"
@@ -105,10 +107,10 @@ enum OCMisc
     POINT_MOVE_OUT              = 1
 };
 
-template<class AI>
-AI* GetOculusAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetOculusAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, OculusScriptName);
+    return GetInstanceAI<AI>(obj, OculusScriptName);
 }
 
 #endif // OCULUS_H_

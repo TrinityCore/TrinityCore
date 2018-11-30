@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef HALLS_OF_STONE_H_
 #define HALLS_OF_STONE_H_
+
+#include "CreatureAIImpl.h"
 
 #define HoSScriptName "instance_halls_of_stone"
 #define DataHeader    "HOS"
@@ -67,10 +69,10 @@ enum HOSGameObjectIds
     GO_TRIBUNAL_SKY_FLOOR       = 191527
 };
 
-template<class AI>
-AI* GetHallsOfStoneAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetHallsOfStoneAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, HoSScriptName);
+    return GetInstanceAI<AI>(obj, HoSScriptName);
 }
 
 #endif // HALLS_OF_STONE_H_

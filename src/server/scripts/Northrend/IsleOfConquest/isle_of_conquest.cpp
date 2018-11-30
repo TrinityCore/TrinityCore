@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
 #include "BattlegroundIC.h"
+#include "GameObject.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "Player.h"
-#include "Vehicle.h"
-#include "SpellScript.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
+#include "Vehicle.h"
 
 // TO-DO: This should be done with SmartAI, but yet it does not correctly support vehicles's AIs.
 //        Even adding ReactState Passive we still have issues using SmartAI.
@@ -98,7 +102,7 @@ class npc_ioc_gunship_captain : public CreatureScript
                 if (action == ACTION_GUNSHIP_READY)
                 {
                     DoCast(me, SPELL_SIMPLE_TELEPORT);
-                    _events.ScheduleEvent(EVENT_TALK, 3000);
+                    _events.ScheduleEvent(EVENT_TALK, 3s);
                 }
             }
 
@@ -110,13 +114,13 @@ class npc_ioc_gunship_captain : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_TALK:
-                            _events.ScheduleEvent(EVENT_DESPAWN, 1000);
+                            _events.ScheduleEvent(EVENT_DESPAWN, 1s);
                             Talk(SAY_ONBOARD);
                             DoCast(me, SPELL_TELEPORT_VISUAL_ONLY);
                             break;
                         case EVENT_DESPAWN:
-                            if (me->GetMap()->ToBattlegroundMap())
-                                if (Battleground* bgIoC = me->GetMap()->ToBattlegroundMap()->GetBG())
+                            if (BattlegroundMap* iocMap = me->GetMap()->ToBattlegroundMap())
+                                if (Battleground* bgIoC = iocMap->GetBG())
                                     bgIoC->DelCreature(BG_IC_NPC_GUNSHIP_CAPTAIN_1);
                             break;
                         default:
@@ -278,9 +282,7 @@ class spell_ioc_seaforium_blast_credit : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_A_BOMB_INABLE_CREDIT) || !sSpellMgr->GetSpellInfo(SPELL_A_BOMB_INATION_CREDIT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_A_BOMB_INABLE_CREDIT, SPELL_A_BOMB_INATION_CREDIT });
             }
 
             void HandleAchievementCredit(SpellEffIndex /*effIndex*/)

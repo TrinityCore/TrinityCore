@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -89,13 +89,13 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_FLAME_SHOCK, 2000);
-            events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4000);
-            events.ScheduleEvent(EVENT_FROST_SHOCK, 6000);
-            events.ScheduleEvent(EVENT_SHADOW_SHOCK, 8000);
+            _JustEngagedWith();
+            events.ScheduleEvent(EVENT_FLAME_SHOCK, 2s);
+            events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4s);
+            events.ScheduleEvent(EVENT_FROST_SHOCK, 6s);
+            events.ScheduleEvent(EVENT_SHADOW_SHOCK, 8s);
             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 15000);
 
             Talk(SAY_AGGRO);
@@ -162,22 +162,22 @@ public:
                 case EVENT_FLAME_SHOCK:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_FLAME_SHOCK);
-                    events.ScheduleEvent(EVENT_FLAME_SHOCK, urand(10000, 15000));
+                    events.ScheduleEvent(EVENT_FLAME_SHOCK, 10s, 15s);
                     break;
                 case EVENT_ARCANE_SHOCK:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_ARCANE_SHOCK);
-                    events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(10000, 15000));
+                    events.ScheduleEvent(EVENT_ARCANE_SHOCK, 10s, 15s);
                     break;
                 case EVENT_FROST_SHOCK:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_FROST_SHOCK);
-                    events.ScheduleEvent(EVENT_FROST_SHOCK, urand(10000, 15000));
+                    events.ScheduleEvent(EVENT_FROST_SHOCK, 10s, 15s);
                     break;
                 case EVENT_SHADOW_SHOCK:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_SHADOW_SHOCK);
-                    events.ScheduleEvent(EVENT_SHADOW_SHOCK, urand(10000, 15000));
+                    events.ScheduleEvent(EVENT_SHADOW_SHOCK, 10s, 15s);
                     break;
                 case EVENT_CHAIN_LIGHTNING:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -257,7 +257,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_syth_fireAI(creature);
+        return GetSethekkHallsAI<npc_syth_fireAI>(creature);
     }
 };
 
@@ -316,7 +316,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_syth_arcaneAI(creature);
+        return GetSethekkHallsAI<npc_syth_arcaneAI>(creature);
     }
 };
 
@@ -375,7 +375,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_syth_frostAI(creature);
+        return GetSethekkHallsAI<npc_syth_frostAI>(creature);
     }
 };
 
@@ -434,7 +434,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_syth_shadowAI(creature);
+        return GetSethekkHallsAI<npc_syth_shadowAI>(creature);
     }
 };
 

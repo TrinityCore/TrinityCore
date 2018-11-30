@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,16 +16,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 #include "ArenaTeam.h"
-#include "SocialMgr.h"
 #include "ArenaTeamMgr.h"
-#include "Opcodes.h"
+#include "BattlegroundMgr.h"
+#include "CharacterCache.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "CharacterCache.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "SocialMgr.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleInspectArenaTeamsOpcode(WorldPacket& recvData)
 {
@@ -88,7 +91,7 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
     uint32 arenaTeamId;                                     // arena team id
     std::string invitedName;
 
-    Player* player = NULL;
+    Player* player = nullptr;
 
     recvData >> arenaTeamId >> invitedName;
 
@@ -160,7 +163,7 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
     WorldPacket data(SMSG_ARENA_TEAM_INVITE, (8+10));
     data << GetPlayer()->GetName();
     data << arenaTeam->GetName();
-    player->GetSession()->SendPacket(&data);
+    player->SendDirectMessage(&data);
 
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_ARENA_TEAM_INVITE");
 }
@@ -231,6 +234,19 @@ void WorldSession::HandleArenaTeamLeaveOpcode(WorldPacket& recvData)
         return;
     }
 
+    // Player cannot be removed during queues
+    if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, arenaTeam->GetType()))
+    {
+        GroupQueueInfo ginfo;
+        BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
+        if (queue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
+            if (ginfo.IsInvitedToBGInstanceGUID)
+            {
+                SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, "", "", ERR_ARENA_TEAMS_LOCKED);
+                return;
+            }
+    }
+
     // If team consists only of the captain, disband the team
     if (_player->GetGUID() == arenaTeam->GetCaptain())
     {
@@ -260,6 +276,16 @@ void WorldSession::HandleArenaTeamDisbandOpcode(WorldPacket& recvData)
         // Only captain can disband the team
         if (arenaTeam->GetCaptain() != _player->GetGUID())
             return;
+
+        // Teams cannot be disbanded during queues
+        if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, arenaTeam->GetType()))
+        {
+            GroupQueueInfo ginfo;
+            BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
+            if (queue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
+                if (ginfo.IsInvitedToBGInstanceGUID)
+                    return;
+        }
 
         // Teams cannot be disbanded during fights
         if (arenaTeam->IsFighting())
@@ -308,6 +334,19 @@ void WorldSession::HandleArenaTeamRemoveOpcode(WorldPacket& recvData)
     {
         SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, "", "", ERR_ARENA_TEAM_LEADER_LEAVE_S);
         return;
+    }
+
+    // Team cannot be removed during queues
+    if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, arenaTeam->GetType()))
+    {
+        GroupQueueInfo ginfo;
+        BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
+        if (queue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
+            if (ginfo.IsInvitedToBGInstanceGUID)
+            {
+                SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, "", "", ERR_ARENA_TEAMS_LOCKED);
+                return;
+            }
     }
 
     // Player cannot be removed during fights

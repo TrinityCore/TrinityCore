@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,17 +22,22 @@ SDCategory: Trial Of the Champion
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "trial_of_the_champion.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "trial_of_the_champion.h"
 
 #define MAX_ENCOUNTER  4
 
 class instance_trial_of_the_champion : public InstanceMapScript
 {
 public:
-    instance_trial_of_the_champion() : InstanceMapScript("instance_trial_of_the_champion", 650) { }
+    instance_trial_of_the_champion() : InstanceMapScript(ToCScriptName, 650) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -47,6 +52,7 @@ public:
             uiMovementDone = 0;
             uiGrandChampionsDeaths = 0;
             uiArgentSoldierDeaths = 0;
+            teamInInstance = 0;
 
             bDone = false;
 
@@ -55,6 +61,7 @@ public:
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
+        uint32 teamInInstance;
         uint16 uiMovementDone;
         uint16 uiGrandChampionsDeaths;
         uint8 uiArgentSoldierDeaths;
@@ -87,46 +94,16 @@ public:
             return false;
         }
 
+        void OnPlayerEnter(Player* player) override
+        {
+            if (!teamInInstance)
+                teamInInstance = player->GetTeam();
+        }
+
         void OnCreatureCreate(Creature* creature) override
         {
-            Map::PlayerList const &players = instance->GetPlayers();
-            uint32 TeamInInstance = 0;
-
-            if (!players.isEmpty())
-            {
-                if (Player* player = players.begin()->GetSource())
-                    TeamInInstance = player->GetTeam();
-            }
-
             switch (creature->GetEntry())
             {
-                // Champions
-                case VEHICLE_MOKRA_SKILLCRUSHER_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT);
-                    break;
-                case VEHICLE_ERESSEA_DAWNSINGER_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_AMBROSE_BOLTSPARK_MOUNT);
-                    break;
-                case VEHICLE_RUNOK_WILDMANE_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_COLOSOS_MOUNT);
-                    break;
-                case VEHICLE_ZUL_TORE_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_EVENSONG_MOUNT);
-                    break;
-                case VEHICLE_DEATHSTALKER_VESCERI_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_LANA_STOUTHAMMER_MOUNT);
-                    break;
-                // Coliseum Announcer || Just NPC_JAEREN must be spawned.
-                case NPC_JAEREN:
-                    uiAnnouncerGUID = creature->GetGUID();
-                    if (TeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(NPC_ARELAS);
-                    break;
                 case VEHICLE_ARGENT_WARHORSE:
                 case VEHICLE_ARGENT_BATTLEWORG:
                     VehicleList.push_back(creature->GetGUID());
@@ -135,6 +112,42 @@ public:
                 case NPC_PALETRESS:
                     uiArgentChampionGUID = creature->GetGUID();
                     break;
+                case NPC_JAEREN:
+                case NPC_ARELAS:
+                    uiAnnouncerGUID = creature->GetGUID();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
+        {
+            if (!teamInInstance)
+            {
+                Map::PlayerList const& players = instance->GetPlayers();
+                if (!players.isEmpty())
+                    if (Player* player = players.begin()->GetSource())
+                        teamInInstance = player->GetTeam();
+            }
+
+            uint32 entry = data->id;
+            switch (entry)
+            {
+                case VEHICLE_MOKRA_SKILLCRUSHER_MOUNT:
+                    return teamInInstance == HORDE ? VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT : VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
+                case VEHICLE_ERESSEA_DAWNSINGER_MOUNT:
+                    return teamInInstance == HORDE ? VEHICLE_AMBROSE_BOLTSPARK_MOUNT : VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
+                case VEHICLE_RUNOK_WILDMANE_MOUNT:
+                    return teamInInstance == HORDE ? VEHICLE_COLOSOS_MOUNT : VEHICLE_RUNOK_WILDMANE_MOUNT;
+                case VEHICLE_ZUL_TORE_MOUNT:
+                    return teamInInstance == HORDE ? VEHICLE_EVENSONG_MOUNT : VEHICLE_ZUL_TORE_MOUNT;
+                case VEHICLE_DEATHSTALKER_VESCERI_MOUNT:
+                    return teamInInstance == HORDE ? VEHICLE_LANA_STOUTHAMMER_MOUNT : VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
+                case NPC_JAEREN:
+                    return teamInInstance == HORDE ? NPC_ARELAS : NPC_JAEREN;
+                default:
+                    return entry;
             }
         }
 
@@ -180,7 +193,7 @@ public:
                             {
                                 pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                                 pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                                pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, G3D::Quat(), 90000);
+                                pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData(), 90000);
                             }
                         }
                     }
@@ -203,7 +216,7 @@ public:
                     {
                         pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                         pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, G3D::Quat(), 90000);
+                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData(), 90000);
                     }
                     break;
                 case BOSS_ARGENT_CHALLENGE_P:
@@ -212,7 +225,7 @@ public:
                     {
                         pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                         pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, G3D::Quat(), 90000);
+                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData(), 90000);
                     }
                     break;
             }
@@ -287,7 +300,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {

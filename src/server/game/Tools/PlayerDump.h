@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -57,16 +57,18 @@ enum DumpReturn
     DUMP_SUCCESS,
     DUMP_FILE_OPEN_ERROR,
     DUMP_TOO_MANY_CHARS,
-    DUMP_UNEXPECTED_END,
     DUMP_FILE_BROKEN,
     DUMP_CHARACTER_DELETED
 };
 
+struct DumpTable;
+struct TableStruct;
+class StringTransaction;
+
 class TC_GAME_API PlayerDump
 {
     public:
-        typedef std::set<ObjectGuid::LowType> DumpGuidSet;
-        typedef std::map<ObjectGuid::LowType, ObjectGuid::LowType> DumpGuidMap;
+        static void InitializeTables();
 
     protected:
         PlayerDump() { }
@@ -81,13 +83,14 @@ class TC_GAME_API PlayerDumpWriter : public PlayerDump
         DumpReturn WriteDump(std::string const& file, ObjectGuid::LowType guid);
 
     private:
-        bool DumpTable(std::string& dump, ObjectGuid::LowType guid, char const* tableFrom, char const* tableTo, DumpTableType type);
-        std::string GenerateWhereStr(char const* field, DumpGuidSet const& guids, DumpGuidSet::const_iterator& itr);
-        std::string GenerateWhereStr(char const* field, ObjectGuid::LowType guid);
+        bool AppendTable(StringTransaction& trans, ObjectGuid::LowType guid, TableStruct const& tableStruct, DumpTable const& dumpTable);
+        void PopulateGuids(ObjectGuid::LowType guid);
 
-        DumpGuidSet pets;
-        DumpGuidSet mails;
-        DumpGuidSet items;
+        std::set<ObjectGuid::LowType> _pets;
+        std::set<ObjectGuid::LowType> _mails;
+        std::set<ObjectGuid::LowType> _items;
+
+        std::set<uint64> _itemSets;
 };
 
 class TC_GAME_API PlayerDumpReader : public PlayerDump

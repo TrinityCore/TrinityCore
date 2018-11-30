@@ -5,8 +5,10 @@
 //==========================================
 #include "CompilerDefs.h"
 
-#if PLATFORM == PLATFORM_WINDOWS && !defined(__MINGW32__)
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS && !defined(__MINGW32__)
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #pragma warning(disable:4996)
 #pragma warning(disable:4312)
 #pragma warning(disable:4311)
@@ -20,7 +22,9 @@
 #include "WheatyExceptionReport.h"
 
 #include "Common.h"
+#include "Errors.h"
 #include "GitRevision.h"
+#include <algorithm>
 
 #define CrashFolder _T("Crashes")
 #pragma comment(linker, "/DEFAULTLIB:dbghelp.lib")
@@ -55,6 +59,7 @@ inline LPTSTR ErrorMessage(DWORD dw)
 TCHAR WheatyExceptionReport::m_szLogFileName[MAX_PATH];
 TCHAR WheatyExceptionReport::m_szDumpFileName[MAX_PATH];
 LPTOP_LEVEL_EXCEPTION_FILTER WheatyExceptionReport::m_previousFilter;
+_invalid_parameter_handler WheatyExceptionReport::m_previousCrtHandler;
 HANDLE WheatyExceptionReport::m_hReportFile;
 HANDLE WheatyExceptionReport::m_hDumpFile;
 HANDLE WheatyExceptionReport::m_hProcess;
@@ -75,6 +80,7 @@ WheatyExceptionReport::WheatyExceptionReport()             // Constructor
 {
     // Install the unhandled exception filter function
     m_previousFilter = SetUnhandledExceptionFilter(WheatyUnhandledExceptionFilter);
+    m_previousCrtHandler = _set_invalid_parameter_handler(WheatyCrtHandler);
     m_hProcess = GetCurrentProcess();
     stackOverflowException = false;
     alreadyCrashed = false;
@@ -95,6 +101,8 @@ WheatyExceptionReport::~WheatyExceptionReport()
 {
     if (m_previousFilter)
         SetUnhandledExceptionFilter(m_previousFilter);
+    if (m_previousCrtHandler)
+        _set_invalid_parameter_handler(m_previousCrtHandler);
     ClearSymbols();
 }
 
@@ -123,7 +131,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
     ++pos;
 
     TCHAR crash_folder_path[MAX_PATH];
-    sprintf(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
+    sprintf_s(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
     if (!CreateDirectory(crash_folder_path, NULL))
     {
         if (GetLastError() != ERROR_ALREADY_EXISTS)
@@ -161,8 +169,21 @@ PEXCEPTION_POINTERS pExceptionInfo)
         info.ExceptionPointers = pExceptionInfo;
         info.ThreadId = GetCurrentThreadId();
 
+        MINIDUMP_USER_STREAM additionalStream = {};
+        MINIDUMP_USER_STREAM_INFORMATION additionalStreamInfo = {};
+
+        if (pExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ASSERTION_FAILURE && pExceptionInfo->ExceptionRecord->NumberParameters > 0)
+        {
+            additionalStream.Type = CommentStreamA;
+            additionalStream.Buffer = reinterpret_cast<PVOID>(pExceptionInfo->ExceptionRecord->ExceptionInformation[0]);
+            additionalStream.BufferSize = strlen(reinterpret_cast<char const*>(pExceptionInfo->ExceptionRecord->ExceptionInformation[0])) + 1;
+
+            additionalStreamInfo.UserStreamArray = &additionalStream;
+            additionalStreamInfo.UserStreamCount = 1;
+        }
+
         MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),
-            m_hDumpFile, MiniDumpWithIndirectlyReferencedMemory, &info, 0, 0);
+            m_hDumpFile, MiniDumpWithIndirectlyReferencedMemory, &info, &additionalStreamInfo, 0);
 
         CloseHandle(m_hDumpFile);
     }
@@ -181,6 +202,11 @@ PEXCEPTION_POINTERS pExceptionInfo)
         return m_previousFilter(pExceptionInfo);
     else
         return EXCEPTION_EXECUTE_HANDLER/*EXCEPTION_CONTINUE_SEARCH*/;
+}
+
+void __cdecl WheatyExceptionReport::WheatyCrtHandler(wchar_t const* /*expression*/, wchar_t const* /*function*/, wchar_t const* /*file*/, unsigned int /*line*/, uintptr_t /*pReserved*/)
+{
+    RaiseException(EXCEPTION_ACCESS_VIOLATION, 0, 0, nullptr);
 }
 
 BOOL WheatyExceptionReport::_GetProcessorName(TCHAR* sProcessorName, DWORD maxcount)
@@ -489,6 +515,11 @@ PEXCEPTION_POINTERS pExceptionInfo)
         Log(_T("Exception code: %08X %s\r\n"),
             pExceptionRecord->ExceptionCode,
             GetExceptionString(pExceptionRecord->ExceptionCode));
+        if (pExceptionRecord->ExceptionCode == EXCEPTION_ASSERTION_FAILURE && pExceptionRecord->NumberParameters >= 2)
+        {
+            pExceptionRecord->ExceptionAddress = reinterpret_cast<PVOID>(pExceptionRecord->ExceptionInformation[1]);
+            Log(_T("Assertion message: %s\r\n"), pExceptionRecord->ExceptionInformation[0]);
+        }
 
         // Now print information about where the fault occured
         TCHAR szFaultingModule[MAX_PATH];
@@ -824,7 +855,7 @@ PVOID         UserContext)
     {
         ClearSymbols();
         FormatSymbolValue(pSymInfo, (STACKFRAME64*)UserContext);
-            
+
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
@@ -915,7 +946,7 @@ DWORD64 modBase,
 DWORD dwTypeIndex,
 DWORD_PTR offset,
 bool & bHandled,
-const char* Name,
+char const* Name,
 char* /*suffix*/,
 bool newSymbol,
 bool logChildren)
@@ -1025,7 +1056,7 @@ bool logChildren)
                         ULONG64 length;
                         SymGetTypeInfo(m_hProcess, modBase, innerTypeID, TI_GET_LENGTH, &length);
                         char buffer2[50];
-                        FormatOutputValue(buffer2, basicType, length, (PVOID)address, sizeof(buffer));
+                        FormatOutputValue(buffer2, basicType, length, (PVOID)address, sizeof(buffer2));
                         symbolDetails.top().Value = buffer2;
                     }
                     bHandled = true;
@@ -1081,6 +1112,7 @@ bool logChildren)
                     offset, bHandled, Name, "", false, false);
 
                 // Set Value back to an empty string since the Array object itself has no value, only its elements have
+                std::string firstElementValue = symbolDetails.top().Value;
                 symbolDetails.top().Value.clear();
 
                 DWORD elementsCount;
@@ -1112,10 +1144,30 @@ bool logChildren)
                     default:
                         for (DWORD index = 0; index < elementsCount && index < WER_MAX_ARRAY_ELEMENTS_COUNT; index++)
                         {
+                            bool elementHandled = false;
                             PushSymbolDetail();
-                            symbolDetails.top().Suffix += "[" + std::to_string(index) + "]";
-                            FormatOutputValue(buffer, basicType, length, (PVOID)(offset + length * index), sizeof(buffer));
-                            symbolDetails.top().Value = buffer;
+                            if (index == 0)
+                            {
+                                if (firstElementValue.empty())
+                                {
+                                    FormatOutputValue(buffer, basicType, length, (PVOID)(offset + length * index), sizeof(buffer));
+                                    firstElementValue = buffer;
+                                }
+                                symbolDetails.top().Value = firstElementValue;
+                            }
+                            else
+                            {
+                                DumpTypeIndex(modBase, innerTypeID, offset + length * index, elementHandled, "", "", false, false);
+                                if (!elementHandled)
+                                {
+                                    FormatOutputValue(buffer, basicType, length, (PVOID)(offset + length * index), sizeof(buffer));
+                                    symbolDetails.top().Value = buffer;
+                                }
+                            }
+                            symbolDetails.top().Prefix.clear();
+                            symbolDetails.top().Type.clear();
+                            symbolDetails.top().Suffix = "[" + std::to_string(index) + "]";
+                            symbolDetails.top().Name.clear();
                             PopSymbolDetail();
                         }
                         break;
@@ -1382,12 +1434,15 @@ int __cdecl WheatyExceptionReport::StackLog(const TCHAR * format, va_list argptr
 
 int __cdecl WheatyExceptionReport::HeapLog(const TCHAR * format, va_list argptr)
 {
-    int retValue;
+    int retValue = 0;
     DWORD cbWritten;
     TCHAR* szBuff = (TCHAR*)malloc(sizeof(TCHAR) * WER_LARGE_BUFFER_SIZE);
-    retValue = vsprintf(szBuff, format, argptr);
-    WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0);
-    free(szBuff);
+    if (szBuff != nullptr)
+    {
+        retValue = vsprintf(szBuff, format, argptr);
+        WriteFile(m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0);
+        free(szBuff);
+    }
 
     return retValue;
 }

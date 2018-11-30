@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,8 @@ SDCategory: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "hellfire_ramparts.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -76,12 +76,12 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_MORTAL_WOUND, 5000);
-                events.ScheduleEvent(EVENT_SURGE, 4000);
-                _EnterCombat();
+                events.ScheduleEvent(EVENT_MORTAL_WOUND, 5s);
+                events.ScheduleEvent(EVENT_SURGE, 4s);
+                _JustEngagedWith();
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -139,7 +139,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                             break;
                         case EVENT_RETALIATION:
                             DoCast(me, SPELL_RETALIATION);
-                            events.ScheduleEvent(EVENT_RETALIATION, 30000);
+                            events.ScheduleEvent(EVENT_RETALIATION, 30s);
                             break;
                         default:
                             break;
@@ -150,7 +150,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 {
                     if (HealthBelowPct(20))
                     {
-                        events.ScheduleEvent(EVENT_RETALIATION, 1000);
+                        events.ScheduleEvent(EVENT_RETALIATION, 1s);
                         retaliation = true;
                     }
                 }
@@ -175,7 +175,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_watchkeeper_gargolmarAI(creature);
+            return GetHellfireRampartsAI<boss_watchkeeper_gargolmarAI>(creature);
         }
 };
 
@@ -183,4 +183,3 @@ void AddSC_boss_watchkeeper_gargolmar()
 {
     new boss_watchkeeper_gargolmar();
 }
-

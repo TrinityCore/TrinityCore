@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,12 +38,16 @@ namespace Trinity
 
 } // namespace Trinity
 
-#if COMPILER == COMPILER_MICROSOFT
+#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
 #define ASSERT_BEGIN __pragma(warning(push)) __pragma(warning(disable: 4127))
 #define ASSERT_END __pragma(warning(pop))
 #else
 #define ASSERT_BEGIN
 #define ASSERT_END
+#endif
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#define EXCEPTION_ASSERTION_FAILURE 0xC0000420L
 #endif
 
 #define WPAssert(cond, ...) ASSERT_BEGIN do { if (!(cond)) Trinity::Assert(__FILE__, __LINE__, __FUNCTION__, #cond, ##__VA_ARGS__); } while(0) ASSERT_END
@@ -52,7 +56,12 @@ namespace Trinity
 #define WPWarning(cond, msg) ASSERT_BEGIN do { if (!(cond)) Trinity::Warning(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0) ASSERT_END
 #define WPAbort() ASSERT_BEGIN do { Trinity::Abort(__FILE__, __LINE__, __FUNCTION__); } while(0) ASSERT_END
 
+#ifdef PERFORMANCE_PROFILING
+#define ASSERT(cond, ...) ((void)0)
+#else
 #define ASSERT WPAssert
+#endif
+
 #define ABORT WPAbort
 
 template <typename T> inline T* ASSERT_NOTNULL(T* pointer)

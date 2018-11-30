@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef SUNWELL_PLATEAU_H
 #define SUNWELL_PLATEAU_H
+
+#include "CreatureAIImpl.h"
 
 #define SunwellPlateauScriptName "instance_sunwell_plateau"
 #define DataHeader "SWP"
@@ -58,7 +60,7 @@ enum SWPCreatureIds
     NPC_MURU                                 = 25741,
     NPC_ENTROPIUS                            = 25840,
     NPC_KALECGOS                             = 24850,
-    NPC_KALEC                                = 24891,
+    NPC_KALECGOS_HUMAN                       = 24891,
     NPC_SATHROVARR                           = 24892,
     NPC_BRUTALLUS                            = 24882,
     NPC_MADRIGOSA                            = 24895,
@@ -109,13 +111,16 @@ enum SWPGameObjectIds
     GO_BOSS_COLLISION_2                      = 188524,
     GO_FIRE_BARRIER                          = 188075,
     GO_MURUS_GATE_1                          = 187990,
-    GO_MURUS_GATE_2                          = 188118
+    GO_MURUS_GATE_2                          = 188118,
+    GO_SPECTRAL_RIFT                         = 187055
 };
 
-template<class AI>
-AI* GetSunwellPlateauAI(Creature* creature)
+template <class AI, class T>
+AI* GetSunwellPlateauAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, SunwellPlateauScriptName);
+    return GetInstanceAI<AI>(obj, SunwellPlateauScriptName);
 }
+
+#define RegisterSunwellPlateauCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSunwellPlateauAI)
 
 #endif // SUNWELL_PLATEAU_H

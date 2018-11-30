@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
-#include "Containers.h"
-#include "DBCStores.h"
-#include "ObjectMgr.h"
-#include "AuctionHouseMgr.h"
 #include "AuctionHouseBotSeller.h"
+#include "AuctionHouseMgr.h"
+#include "Containers.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "GameTime.h"
+#include "Item.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "Random.h"
+#include <sstream>
 
 AuctionBotSeller::AuctionBotSeller()
 {
@@ -59,15 +64,11 @@ bool AuctionBotSeller::Initialize()
     TC_LOG_DEBUG("ahbot", "Forced Inclusion %u items", (uint32)includeItems.size());
 
     TC_LOG_DEBUG("ahbot", "Loading npc vendor items for filter..");
-    CreatureTemplateContainer const* creatures = sObjectMgr->GetCreatureTemplates();
-    for (CreatureTemplateContainer::const_iterator it = creatures->begin(); it != creatures->end(); ++it)
-    {
-        if (VendorItemData const* data = sObjectMgr->GetNpcVendorItemList(it->first))
-        {
-            for (VendorItemList::const_iterator it2 = data->m_items.begin(); it2 != data->m_items.end(); ++it2)
-                npcItems.insert((*it2)->item);
-        }
-    }
+    CreatureTemplateContainer const& creatures = sObjectMgr->GetCreatureTemplates();
+    for (auto const& creatureTemplatePair : creatures)
+        if (VendorItemData const* data = sObjectMgr->GetNpcVendorItemList(creatureTemplatePair.first))
+            for (VendorItem const& vendorItem : data->m_items)
+                npcItems.insert(vendorItem.item);
 
     TC_LOG_DEBUG("ahbot", "Npc vendor filter has %u items", (uint32)npcItems.size());
 
@@ -107,7 +108,6 @@ bool AuctionBotSeller::Initialize()
     for (uint32 itemId = 0; itemId < sItemStore.GetNumRows(); ++itemId)
     {
         ItemTemplate const* prototype = sObjectMgr->GetItemTemplate(itemId);
-
         if (!prototype)
             continue;
 
@@ -892,7 +892,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
 
         // Update the just created item so that if it needs random properties it has them.
         // Ex:  Notched Shortsword of Stamina will only generate as a Notched Shortsword without this.
-        if (int32 randomPropertyId = Item::GenerateItemRandomPropertyId(itemId))
+        if (int32 randomPropertyId = GenerateItemRandomPropertyId(itemId))
             item->SetItemRandomProperties(randomPropertyId);
 
         uint32 buyoutPrice;
@@ -929,7 +929,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         auctionEntry->bid = 0;
         auctionEntry->deposit = sAuctionMgr->GetAuctionDeposit(ahEntry, etime, item, stackCount);
         auctionEntry->auctionHouseEntry = ahEntry;
-        auctionEntry->expire_time = time(NULL) + urand(config.GetMinTime(), config.GetMaxTime()) * HOUR;
+        auctionEntry->expire_time = GameTime::GetGameTime() + urand(config.GetMinTime(), config.GetMaxTime()) * HOUR;
 
         item->SaveToDB(trans);
         sAuctionMgr->AddAItem(item);

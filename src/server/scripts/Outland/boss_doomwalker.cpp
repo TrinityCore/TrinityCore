@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -69,16 +69,16 @@ class boss_doomwalker : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_ENRAGE, 0);
-                _events.ScheduleEvent(EVENT_ARMOR, urand(5000, 13000));
-                _events.ScheduleEvent(EVENT_CHAIN, urand(10000, 30000));
-                _events.ScheduleEvent(EVENT_QUAKE, urand(25000, 35000));
-                _events.ScheduleEvent(EVENT_OVERRUN, urand(30000, 45000));
+                _events.ScheduleEvent(EVENT_ARMOR, 5s, 13s);
+                _events.ScheduleEvent(EVENT_CHAIN, 10s, 30s);
+                _events.ScheduleEvent(EVENT_QUAKE, 25s, 35s);
+                _events.ScheduleEvent(EVENT_OVERRUN, 30s, 45s);
                 Initialize();
             }
 
             void KilledUnit(Unit* victim) override
             {
-                victim->CastSpell(victim, SPELL_MARK_DEATH, 0);
+                victim->CastSpell(victim, SPELL_MARK_DEATH, true);
 
                 if (urand(0, 4))
                     return;
@@ -91,7 +91,7 @@ class boss_doomwalker : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
@@ -122,14 +122,14 @@ class boss_doomwalker : public CreatureScript
                             if (!HealthAbovePct(20))
                             {
                                 DoCast(me, SPELL_ENRAGE);
-                                _events.ScheduleEvent(EVENT_ENRAGE, 6000);
+                                _events.ScheduleEvent(EVENT_ENRAGE, 6s);
                                 _inEnrage = true;
                             }
                             break;
                         case EVENT_OVERRUN:
                             Talk(SAY_OVERRUN);
                             DoCastVictim(SPELL_OVERRUN);
-                            _events.ScheduleEvent(EVENT_OVERRUN, urand(25000, 40000));
+                            _events.ScheduleEvent(EVENT_OVERRUN, 25s, 40s);
                             break;
                         case EVENT_QUAKE:
                             if (urand(0, 1))
@@ -142,16 +142,16 @@ class boss_doomwalker : public CreatureScript
                                 me->RemoveAurasDueToSpell(SPELL_ENRAGE);
 
                             DoCast(me, SPELL_EARTHQUAKE);
-                            _events.ScheduleEvent(EVENT_QUAKE, urand(30000, 55000));
+                            _events.ScheduleEvent(EVENT_QUAKE, 30s, 55s);
                             break;
                         case EVENT_CHAIN:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            _events.ScheduleEvent(EVENT_CHAIN, urand(7000, 27000));
+                            _events.ScheduleEvent(EVENT_CHAIN, 7s, 27s);
                             break;
                         case EVENT_ARMOR:
                             DoCastVictim(SPELL_SUNDER_ARMOR);
-                            _events.ScheduleEvent(EVENT_ARMOR, urand(10000, 25000));
+                            _events.ScheduleEvent(EVENT_ARMOR, 10s, 25s);
                             break;
                         default:
                             break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,9 +19,14 @@
 #define TRINITY_CALENDARMGR_H
 
 #include "Common.h"
-#include "DatabaseEnv.h"
-#include "WorldPacket.h"
+#include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
+#include <deque>
+#include <map>
+#include <set>
+#include <vector>
+
+class WorldPacket;
 
 enum CalendarMailAnswers
 {
@@ -141,8 +146,7 @@ struct TC_GAME_API CalendarInvite
             _text = calendarInvite.GetText();
         }
 
-        CalendarInvite() : _inviteId(1), _eventId(0), _invitee(), _senderGUID(), _statusTime(time(NULL)),
-            _status(CALENDAR_STATUS_INVITED), _rank(CALENDAR_RANK_PLAYER), _text("") { }
+        CalendarInvite();
 
         CalendarInvite(uint64 inviteId, uint64 eventId, ObjectGuid invitee, ObjectGuid senderGUID, time_t statusTime,
             CalendarInviteStatus status, CalendarModerationRank rank, std::string text) :
@@ -324,7 +328,7 @@ class TC_GAME_API CalendarMgr
         void SendCalendarEventRemovedAlert(CalendarEvent const& calendarEvent);
         void SendCalendarEventModeratorStatusAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
         void SendCalendarClearPendingAction(ObjectGuid guid);
-        void SendCalendarCommandResult(ObjectGuid guid, CalendarError err, char const* param = NULL);
+        void SendCalendarCommandResult(ObjectGuid guid, CalendarError err, char const* param = nullptr);
 
         void SendPacketToAllEventRelatives(WorldPacket& packet, CalendarEvent const& calendarEvent);
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,13 +23,18 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ObjectMgr.h"
-#include "Chat.h"
 #include "AccountMgr.h"
+#include "Chat.h"
+#include "DatabaseEnv.h"
 #include "Language.h"
-#include "World.h"
-#include "Player.h"
+#include "ObjectAccessor.h"
 #include "Opcodes.h"
+#include "Player.h"
+#include "Realm.h"
+#include "World.h"
+#include "WorldSession.h"
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 
 class gm_commandscript : public CommandScript
 {
@@ -49,7 +54,7 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "gm", rbac::RBAC_PERM_COMMAND_GM, false, NULL, "", gmCommandTable },
+            { "gm", rbac::RBAC_PERM_COMMAND_GM, false, nullptr, "", gmCommandTable },
         };
         return commandTable;
     }

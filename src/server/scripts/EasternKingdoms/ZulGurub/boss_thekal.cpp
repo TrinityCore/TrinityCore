@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,8 @@ SDCategory: Zul'Gurub
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
@@ -118,13 +120,13 @@ class boss_thekal : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_MORTALCLEAVE, 4000, 0, PHASE_ONE);     // Phase 1
-                events.ScheduleEvent(EVENT_SILENCE, 9000, 0, PHASE_ONE);          // Phase 1
-                events.ScheduleEvent(EVENT_CHECK_TIMER, 10000, 0, PHASE_ONE);     // Phase 1
-                events.ScheduleEvent(EVENT_RESURRECT_TIMER, 10000, 0, PHASE_ONE); // Phase 1
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_MORTALCLEAVE, 4s, 0, PHASE_ONE);     // Phase 1
+                events.ScheduleEvent(EVENT_SILENCE, 9s, 0, PHASE_ONE);          // Phase 1
+                events.ScheduleEvent(EVENT_CHECK_TIMER, 10s, 0, PHASE_ONE);     // Phase 1
+                events.ScheduleEvent(EVENT_RESURRECT_TIMER, 10s, 0, PHASE_ONE); // Phase 1
                 Talk(SAY_AGGRO);
             }
 
@@ -164,21 +166,21 @@ class boss_thekal : public CreatureScript
                                 me->SetStandState(UNIT_STAND_STATE_STAND);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 /*
-                                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                                CreatureTemplate const* cinfo = me->GetCreatureTemplate();
                                 me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 40)));
                                 me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 40)));
                                 me->UpdateDamagePhysical(BASE_ATTACK);
                                 */
                                 me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageIncrease); // hack
-                                DoResetThreat();
-                                events.ScheduleEvent(EVENT_FRENZY, 30000, 0, PHASE_TWO);          // Phase 2
-                                events.ScheduleEvent(EVENT_FORCEPUNCH, 4000, 0, PHASE_TWO);       // Phase 2
-                                events.ScheduleEvent(EVENT_SPELL_CHARGE, 12000, 0, PHASE_TWO);    // Phase 2
-                                events.ScheduleEvent(EVENT_ENRAGE, 32000, 0, PHASE_TWO);          // Phase 2
-                                events.ScheduleEvent(EVENT_SUMMONTIGERS, 25000, 0, PHASE_TWO);    // Phase 2
+                                ResetThreatList();
+                                events.ScheduleEvent(EVENT_FRENZY, 30s, 0, PHASE_TWO);          // Phase 2
+                                events.ScheduleEvent(EVENT_FORCEPUNCH, 4s, 0, PHASE_TWO);       // Phase 2
+                                events.ScheduleEvent(EVENT_SPELL_CHARGE, 12s, 0, PHASE_TWO);    // Phase 2
+                                events.ScheduleEvent(EVENT_ENRAGE, 32s, 0, PHASE_TWO);          // Phase 2
+                                events.ScheduleEvent(EVENT_SUMMONTIGERS, 25s, 0, PHASE_TWO);    // Phase 2
                                 events.SetPhase(PHASE_TWO);
                             }
-                            events.ScheduleEvent(EVENT_RESURRECT_TIMER, 10000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_RESURRECT_TIMER, 10s, 0, PHASE_ONE);
                             break;
                         case EVENT_CHECK_TIMER:
                             //Check_Timer for the death of LorKhan and Zath.
@@ -190,7 +192,7 @@ class boss_thekal : public CreatureScript
                                     if (Unit* pLorKhan = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LORKHAN)))
                                     {
                                         pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                                        pLorKhan->setFaction(14);
+                                        pLorKhan->SetFaction(FACTION_MONSTER);
                                         pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                         pLorKhan->SetFullHealth();
                                         instance->SetData(DATA_LORKHAN, DONE);
@@ -203,18 +205,18 @@ class boss_thekal : public CreatureScript
                                     if (Unit* pZath = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ZATH)))
                                     {
                                         pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                                        pZath->setFaction(14);
+                                        pZath->SetFaction(FACTION_MONSTER);
                                         pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                         pZath->SetFullHealth();
                                         instance->SetBossState(DATA_ZATH, DONE);
                                     }
                                 }
                             }
-                            events.ScheduleEvent(EVENT_CHECK_TIMER, 5000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_CHECK_TIMER, 5s, 0, PHASE_ONE);
                             break;
                         case EVENT_FRENZY:
                             DoCast(me, SPELL_FRENZY);
-                            events.ScheduleEvent(EVENT_FRENZY, 30000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_FRENZY, 30s, 0, PHASE_TWO);
                             break;
                         case EVENT_FORCEPUNCH:
                             DoCastVictim(SPELL_FORCEPUNCH, true);
@@ -224,7 +226,7 @@ class boss_thekal : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 DoCast(target, SPELL_CHARGE);
-                                DoResetThreat();
+                                ResetThreatList();
                                 AttackStart(target);
                             }
                             events.ScheduleEvent(EVENT_CHARGE, urand(15000, 22000), 0, PHASE_TWO);
@@ -235,7 +237,7 @@ class boss_thekal : public CreatureScript
                                 DoCast(me, SPELL_ENRAGE);
                                 Enraged = true;
                             }
-                            events.ScheduleEvent(EVENT_ENRAGE, 30000);
+                            events.ScheduleEvent(EVENT_ENRAGE, 30s);
                             break;
                         case EVENT_SUMMONTIGERS:
                             DoCastVictim(SPELL_SUMMONTIGERS, true);
@@ -257,7 +259,7 @@ class boss_thekal : public CreatureScript
                         me->SetStandState(UNIT_STAND_STATE_SLEEP);
                         me->AttackStop();
                         instance->SetBossState(DATA_THEKAL, SPECIAL);
-                        WasDead=true;
+                        WasDead = true;
                     }
 
                     if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -269,7 +271,7 @@ class boss_thekal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_thekalAI>(creature);
+            return GetZulGurubAI<boss_thekalAI>(creature);
         }
 };
 
@@ -317,7 +319,7 @@ class npc_zealot_lorkhan : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
             }
 
@@ -381,7 +383,7 @@ class npc_zealot_lorkhan : public CreatureScript
                         {
                             pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            pThekal->setFaction(14);
+                            pThekal->SetFaction(FACTION_MONSTER);
                             pThekal->SetFullHealth();
                         }
                     }
@@ -393,7 +395,7 @@ class npc_zealot_lorkhan : public CreatureScript
                         {
                             pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            pZath->setFaction(14);
+                            pZath->SetFaction(FACTION_MONSTER);
                             pZath->SetFullHealth();
                         }
                     }
@@ -408,7 +410,7 @@ class npc_zealot_lorkhan : public CreatureScript
                     me->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetStandState(UNIT_STAND_STATE_SLEEP);
-                    me->setFaction(35);
+                    me->SetFaction(FACTION_FRIENDLY);
                     me->AttackStop();
 
                     instance->SetBossState(DATA_LORKHAN, SPECIAL);
@@ -422,7 +424,7 @@ class npc_zealot_lorkhan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_zealot_lorkhanAI>(creature);
+            return GetZulGurubAI<npc_zealot_lorkhanAI>(creature);
         }
 };
 
@@ -473,7 +475,7 @@ class npc_zealot_zath : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
             }
 
@@ -501,8 +503,8 @@ class npc_zealot_zath : public CreatureScript
                 {
                     DoCastVictim(SPELL_GOUGE);
 
-                    if (DoGetThreat(me->GetVictim()))
-                        DoModifyThreatPercent(me->GetVictim(), -100);
+                    if (GetThreat(me->GetVictim()))
+                        ModifyThreatByPercent(me->GetVictim(), -100);
 
                     Gouge_Timer = 17000 + rand32() % 10000;
                 } else Gouge_Timer -= diff;
@@ -531,7 +533,7 @@ class npc_zealot_zath : public CreatureScript
                         {
                             pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            pLorKhan->setFaction(14);
+                            pLorKhan->SetFaction(14);
                             pLorKhan->SetFullHealth();
                         }
                     }
@@ -543,7 +545,7 @@ class npc_zealot_zath : public CreatureScript
                         {
                             pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            pThekal->setFaction(14);
+                            pThekal->SetFaction(14);
                             pThekal->SetFullHealth();
                         }
                     }
@@ -558,7 +560,7 @@ class npc_zealot_zath : public CreatureScript
                     me->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetStandState(UNIT_STAND_STATE_SLEEP);
-                    me->setFaction(35);
+                    me->SetFaction(35);
                     me->AttackStop();
 
                     instance->SetBossState(DATA_ZATH, SPECIAL);
@@ -572,7 +574,7 @@ class npc_zealot_zath : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_zealot_zathAI>(creature);
+            return GetZulGurubAI<npc_zealot_zathAI>(creature);
         }
 };
 

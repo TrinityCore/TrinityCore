@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,13 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ruby_sanctum.h"
 #include "TemporarySummon.h"
 #include "WorldPacket.h"
-#include "ruby_sanctum.h"
+
+Position const HalionControllerSpawnPos = { 3156.037f, 533.2656f, 72.97205f, 0.0f };
 
 BossBoundaryData const boundaries =
 {
@@ -67,7 +71,6 @@ ObjectData const gameObjectData[] =
     { GO_TWILIGHT_FLAME_RING,   DATA_TWILIGHT_FLAME_RING    },
     { 0,                        0                           } //END
 };
-
 
 class instance_ruby_sanctum : public InstanceMapScript
 {
@@ -172,7 +175,10 @@ class instance_ruby_sanctum : public InstanceMapScript
             {
                 if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                     if (Creature* zarithrian = GetCreature(DATA_GENERAL_ZARITHRIAN))
-                        zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                    {
+                        zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        zarithrian->SetImmuneToPC(false);
+                    }
             }
 
             void SetData(uint32 type, uint32 data) override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,7 +38,7 @@ class SOAPCommand
         {
         }
 
-        void appendToPrintBuffer(const char* msg)
+        void appendToPrintBuffer(char const* msg)
         {
             m_printBuffer += msg;
         }
@@ -54,7 +54,7 @@ class SOAPCommand
             return m_success;
         }
 
-        static void print(void* callbackArg, const char* msg)
+        static void print(void* callbackArg, char const* msg)
         {
             ((SOAPCommand*)callbackArg)->appendToPrintBuffer(msg);
         }

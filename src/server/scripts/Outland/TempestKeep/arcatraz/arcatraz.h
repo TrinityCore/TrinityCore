@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef ARCATRAZ_H
 #define ARCATRAZ_H
+
+#include "CreatureAIImpl.h"
 
 #define ArcatrazScriptName "instance_arcatraz"
 #define DataHeader         "AZ"
@@ -47,7 +49,8 @@ enum AZCreatureIds
     NPC_DALLIAH                                 = 20885,
     NPC_SOCCOTHRATES                            = 20886,
     NPC_MELLICHAR                               = 20904, // skyriss will kill this unit
-    NPC_ALPHA_POD_TARGET                        = 21436
+    NPC_ALPHA_POD_TARGET                        = 21436,
+    NPC_MILLHOUSE                               = 20977
 };
 
 enum AZGameObjectIds
@@ -62,10 +65,15 @@ enum AZGameObjectIds
     GO_WARDENS_SHIELD                           = 184802  // shield 'protecting' mellichar
 };
 
-template<class AI>
-AI* GetArcatrazAI(Creature* creature)
+enum AZSpellIds
 {
-    return GetInstanceAI<AI>(creature, ArcatrazScriptName);
+    SPELL_QID_10886                             = 39564
+};
+
+template <class AI, class T>
+inline AI* GetArcatrazAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, ArcatrazScriptName);
 }
 
 #endif // ARCATRAZ_H

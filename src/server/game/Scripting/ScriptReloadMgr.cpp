@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "ScriptReloadMgr.h"
 #include "Errors.h"
+#include "Optional.h"
 
 #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 
@@ -36,43 +37,37 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 
 #else
 
-#include <algorithm>
-#include <vector>
-#include <future>
-#include <memory>
-#include <fstream>
-#include <type_traits>
-#include <unordered_set>
-#include <unordered_map>
-
-#include "Regex.h"
-
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/system/system_error.hpp>
-
-#include "efsw/efsw.hpp"
-
-#include "Log.h"
-#include "Config.h"
 #include "BuiltInConfig.h"
+#include "Config.h"
+#include "GitRevision.h"
+#include "Log.h"
+#include "MPSCQueue.h"
+#include "Regex.h"
 #include "ScriptMgr.h"
 #include "SHA1.h"
 #include "StartProcess.h"
-#include "MPSCQueue.h"
-#include "GitRevision.h"
+#include "Timer.h"
+#include "World.h"
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/system/system_error.hpp>
+#include <efsw/efsw.hpp>
+#include <algorithm>
+#include <fstream>
+#include <future>
+#include <memory>
+#include <sstream>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 namespace fs = boost::filesystem;
 
-#ifdef _WIN32
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     #include <windows.h>
-    #define HOTSWAP_PLATFORM_REQUIRES_CACHING
-#elif __APPLE__
+#else // Posix and Apple
     #include <dlfcn.h>
-    #define HOTSWAP_PLATFORM_REQUIRES_CACHING
-#else // Posix
-    #include <dlfcn.h>
-    // #define HOTSWAP_PLATFORM_REQUIRES_CACHING
 #endif
 
 // Promote the sScriptReloadMgr to a HotSwapScriptReloadMgr
@@ -83,7 +78,7 @@ namespace fs = boost::filesystem;
 // Returns "" on Windows and "lib" on posix.
 static char const* GetSharedLibraryPrefix()
 {
-#ifdef _WIN32
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     return "";
 #else // Posix
     return "lib";
@@ -93,16 +88,16 @@ static char const* GetSharedLibraryPrefix()
 // Returns "dll" on Windows, "dylib" on OS X, and "so" on posix.
 static char const* GetSharedLibraryExtension()
 {
-#ifdef _WIN32
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     return "dll";
-#elif __APPLE__
+#elif TRINITY_PLATFORM == TRINITY_PLATFORM_APPLE
     return "dylib";
 #else // Posix
     return "so";
 #endif
 }
 
-#ifdef _WIN32
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 typedef HMODULE HandleType;
 #else // Posix
 typedef void* HandleType;
@@ -131,7 +126,7 @@ public:
     void operator() (HandleType handle) const
     {
         // Unload the associated shared library.
-#ifdef _WIN32
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
         bool success = (FreeLibrary(handle) != 0);
 #else // Posix
         bool success = (dlclose(handle) == 0);
@@ -241,7 +236,7 @@ private:
 template<typename Fn>
 static bool GetFunctionFromSharedLibrary(HandleType handle, std::string const& name, Fn& fn)
 {
-#ifdef _WIN32
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     fn = reinterpret_cast<Fn>(GetProcAddress(handle, name.c_str()));
 #else // Posix
     fn = reinterpret_cast<Fn>(dlsym(handle, name.c_str()));
@@ -260,7 +255,7 @@ Optional<std::shared_ptr<ScriptModule>>
             return path;
     }();
 
-#ifdef _WIN32
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     HandleType handle = LoadLibrary(load_path.generic_string().c_str());
 #else // Posix
     HandleType handle = dlopen(load_path.generic_string().c_str(), RTLD_LAZY);
@@ -404,7 +399,7 @@ static std::string CalculateScriptModuleProjectName(std::string const& module)
 /// could block the rebuild of new shared libraries.
 static bool IsDebuggerBlockingRebuild()
 {
-#ifdef _WIN32
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     if (IsDebuggerPresent())
         return true;
 #endif
@@ -609,8 +604,6 @@ public:
             }
         }
 
-    #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
-
         temporary_cache_path_ = CalculateTemporaryCachePath();
 
         // We use the boost filesystem function versions which accept
@@ -628,8 +621,6 @@ public:
 
         // Used to silent compiler warnings
         (void)code;
-
-    #endif // #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
 
         // Correct the CMake prefix when needed
         if (sWorld->getBoolConfig(CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED))
@@ -867,21 +858,17 @@ private:
         ASSERT(_running_script_module_names.find(path) == _running_script_module_names.end(),
                "Can't load a module which is running already!");
 
-        Optional<fs::path> cache_path;
-
-    #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
-
-        // Copy the shared library into a cache on platforms which lock files on use (windows).
-        cache_path = GenerateUniquePathForLibraryInCache(path);
+        // Copy the shared library into a cache
+        auto cache_path = GenerateUniquePathForLibraryInCache(path);
 
         {
             boost::system::error_code code;
-            fs::copy_file(path, *cache_path, fs::copy_option::fail_if_exists, code);
+            fs::copy_file(path, cache_path, fs::copy_option::fail_if_exists, code);
             if (code)
             {
                 TC_LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module "
                     "\"%s\" at \"%s\" with reason (\"%s\")!",
-                    path.filename().generic_string().c_str(), cache_path->generic_string().c_str(),
+                    path.filename().generic_string().c_str(), cache_path.generic_string().c_str(),
                     code.message().c_str());
 
                 // Find a better solution for this but it's much better
@@ -892,10 +879,8 @@ private:
             }
 
             TC_LOG_TRACE("scripts.hotswap", ">> Copied the shared library \"%s\" to \"%s\" for caching.",
-                path.filename().generic_string().c_str(), cache_path->generic_string().c_str());
+                path.filename().generic_string().c_str(), cache_path.generic_string().c_str());
         }
-
-    #endif // #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
 
         auto module = ScriptModule::CreateFromPath(path, cache_path);
         if (!module)
@@ -1344,7 +1329,7 @@ private:
 
                 auto current_path = fs::current_path();
 
-            #ifndef _WIN32
+            #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
                 // The worldserver location is ${CMAKE_INSTALL_PREFIX}/bin
                 // on all other platforms then windows
                 current_path = current_path.parent_path();

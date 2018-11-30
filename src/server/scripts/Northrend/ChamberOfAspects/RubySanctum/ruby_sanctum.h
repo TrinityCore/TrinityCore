@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,12 @@
 #ifndef RUBY_SANCTUM_H_
 #define RUBY_SANCTUM_H_
 
+#include "CreatureAIImpl.h"
+
 #define RSScriptName "instance_ruby_sanctum"
 #define DataHeader "RS"
 
 uint32 const EncounterCount = 4;
-
-Position const HalionControllerSpawnPos = {3156.037f, 533.2656f, 72.97205f, 0.0f};
 
 enum RSDataTypes
 {
@@ -129,25 +129,10 @@ enum RSInstanceSpell
     SPELL_BERSERK                       = 26662
 };
 
-template<class AI>
-CreatureAI* GetRubySanctumAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetRubySanctumAI(T* obj)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(RSScriptName))
-                return new AI(creature);
-    return nullptr;
-}
-
-template<class AI>
-GameObjectAI* GetRubySanctumAI(GameObject* go)
-{
-    if (InstanceMap* instance = go->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(RSScriptName))
-                return new AI(go);
-
-    return nullptr;
+    return GetInstanceAI<AI>(obj, RSScriptName);
 }
 
 #endif // RUBY_SANCTUM_H_

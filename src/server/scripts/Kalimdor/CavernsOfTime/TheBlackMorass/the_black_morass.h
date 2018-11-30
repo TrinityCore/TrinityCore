@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,9 @@
 #ifndef DEF_THEBLACKMORASS_H
 #define DEF_THEBLACKMORASS_H
 
+#include "CreatureAIImpl.h"
+
+#define TBMScriptName "instance_the_black_morass"
 #define DataHeader "TBM"
 
 uint32 const EncounterCount             = 2;
@@ -64,5 +67,11 @@ enum TBMCreatureIds
     NPC_INFINITE_EXECUTIONER            = 18994,
     NPC_INFINITE_VANQUISHER             = 18995
 };
+
+template <class AI, class T>
+inline AI* GetBlackMorassAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, TBMScriptName);
+}
 
 #endif

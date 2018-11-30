@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef VIOLET_HOLD_H_
 #define VIOLET_HOLD_H_
+
+#include "CreatureAIImpl.h"
 
 #define VioletHoldScriptName "instance_violet_hold"
 #define DataHeader "VH"
@@ -151,10 +153,10 @@ enum VHInstanceMisc
     POINT_INTRO                                 = 1
 };
 
-template<class AI>
-inline AI* GetVioletHoldAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetVioletHoldAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, VioletHoldScriptName);
+    return GetInstanceAI<AI>(obj, VioletHoldScriptName);
 }
 
 #endif // VIOLET_HOLD_H_

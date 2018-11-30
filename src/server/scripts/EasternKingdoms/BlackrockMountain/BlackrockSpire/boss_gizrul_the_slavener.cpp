@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 
 enum Spells
@@ -58,11 +59,11 @@ public:
             me->GetMotionMaster()->MovePath(GIZRUL_PATH, false);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_FATAL_BITE, urand(17000,20000));
-            events.ScheduleEvent(EVENT_INFECTED_BITE, urand(10000,12000));
+            _JustEngagedWith();
+            events.ScheduleEvent(EVENT_FATAL_BITE, 17s, 20s);
+            events.ScheduleEvent(EVENT_INFECTED_BITE, 10s, 12s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -86,11 +87,11 @@ public:
                 {
                     case EVENT_FATAL_BITE:
                         DoCastVictim(SPELL_FATAL_BITE);
-                        events.ScheduleEvent(EVENT_FATAL_BITE, urand(8000,10000));
+                        events.ScheduleEvent(EVENT_FATAL_BITE, 8s, 10s);
                         break;
                     case EVENT_INFECTED_BITE:
                         DoCast(me, SPELL_INFECTED_BITE);
-                        events.ScheduleEvent(EVENT_FATAL_BITE, urand(8000,10000));
+                        events.ScheduleEvent(EVENT_FATAL_BITE, 8s, 10s);
                         break;
                     default:
                         break;
@@ -105,7 +106,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_gizrul_the_slavenerAI(creature);
+        return GetBlackrockSpireAI<boss_gizrul_the_slavenerAI>(creature);
     }
 };
 

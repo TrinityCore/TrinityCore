@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,9 @@
 #ifndef DEF_GNOMEREGAN_H
 #define DEF_GNOMEREGAN_H
 
+#include "CreatureAIImpl.h"
+
+#define GNOScriptName "instance_gnomeregan"
 #define DataHeader "GNO"
 
 enum GNOGameObjectIds
@@ -32,12 +35,22 @@ enum GNOCreatureIds
     NPC_BLASTMASTER_EMI_SHORTFUSE   = 7998,
     NPC_CAVERNDEEP_AMBUSHER         = 6207,
     NPC_GRUBBIS                     = 7361,
-    NPC_CHOMPER                     = 6215
+    NPC_VICIOUS_FALLOUT             = 7079,
+    NPC_CHOMPER                     = 6215,
+    NPC_ELECTROCUTIONER             = 6235,
+    NPC_CROWD_PUMMELER              = 6229,
+    NPC_MEKGINEER                   = 7800,
 };
 
 enum GNOData
 {
-    TYPE_EVENT = 1
+    DATA_BLASTMASTER_EVENT = 0,
+    DATA_VICIOUS_FALLOUT   = 1,
+    DATA_ELECTROCUTIONER   = 2,
+    DATA_CROWD_PUMMELER    = 3,
+    DATA_THERMAPLUGG       = 4,
+
+    MAX_ENCOUNTER
 };
 
 enum GNOData64
@@ -46,5 +59,11 @@ enum GNOData64
     DATA_GO_CAVE_IN_RIGHT,
     DATA_NPC_BASTMASTER_EMI_SHORTFUSE
 };
+
+template <class AI, class T>
+inline AI* GetGnomereganAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, GNOScriptName);
+}
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,9 @@
 #ifndef DEF_MAGISTERS_TERRACE_H
 #define DEF_MAGISTERS_TERRACE_H
 
+#include "CreatureAIImpl.h"
+
+#define MGTScriptName "instance_magisters_terrace"
 #define DataHeader "MT"
 
 uint32 const EncounterCount = 4;
@@ -73,5 +76,11 @@ enum MTMovementData
 {
     PATH_KALECGOS_FLIGHT    = 248440
 };
+
+template <class AI, class T>
+inline AI* GetMagistersTerraceAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, MGTScriptName);
+}
 
 #endif

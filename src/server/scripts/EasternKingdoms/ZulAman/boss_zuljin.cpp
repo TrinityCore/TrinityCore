@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,9 +23,12 @@ SDComment:
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "zulaman.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
+#include "zulaman.h"
 
 enum Says
 {
@@ -200,9 +203,9 @@ class boss_zuljin : public CreatureScript
                 //me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 Talk(YELL_INTRO);
                 SpawnAdds();
@@ -299,7 +302,7 @@ class boss_zuljin : public CreatureScript
                     case 3:
                     case 4:
                         DoTeleportTo(CENTER_X, CENTER_Y, CENTER_Z, 100);
-                        DoResetThreat();
+                        ResetThreatList();
                         me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
                         me->RemoveAurasDueToSpell(Transform[Phase].unaura);
                         DoCast(me, Transform[Phase].spell);
@@ -545,7 +548,7 @@ class boss_zuljin : public CreatureScript
                         if (Flame_Breath_Timer <= diff)
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                me->SetInFront(target);
+                                me->SetFacingToObject(target);
                             DoCast(me, SPELL_FLAME_BREATH);
                             Flame_Breath_Timer = 10000;
                         }
@@ -578,9 +581,9 @@ class npc_zuljin_vortex : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*target*/) override { }
+            void JustEngagedWith(Unit* /*target*/) override { }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_ZAP_INFORM)
                     DoCast(caster, SPELL_ZAP_DAMAGE, true);
@@ -605,4 +608,3 @@ void AddSC_boss_zuljin()
     new boss_zuljin();
     new npc_zuljin_vortex();
 }
-

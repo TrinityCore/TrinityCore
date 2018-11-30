@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,6 @@
 #ifndef APPENDERCONSOLE_H
 #define APPENDERCONSOLE_H
 
-#include <string>
 #include "Appender.h"
 
 enum ColorTypes
@@ -47,7 +46,7 @@ class TC_COMMON_API AppenderConsole : public Appender
     public:
         typedef std::integral_constant<AppenderType, APPENDER_CONSOLE>::type TypeIndex;
 
-        AppenderConsole(uint8 _id, std::string const& name, LogLevel level, AppenderFlags flags, ExtraAppenderArgs extraArgs);
+        AppenderConsole(uint8 _id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> extraArgs);
         void InitColors(const std::string& init_str);
         AppenderType getType() const override { return TypeIndex::value; }
 
@@ -56,7 +55,7 @@ class TC_COMMON_API AppenderConsole : public Appender
         void ResetColor(bool stdout_stream);
         void _write(LogMessage const* message) override;
         bool _colored;
-        ColorTypes _colors[MaxLogLevels];
+        ColorTypes _colors[NUM_ENABLED_LOG_LEVELS];
 };
 
 #endif

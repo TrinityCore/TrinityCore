@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,6 +37,10 @@
 template<class T>
 void HashMapHolder<T>::Insert(T* o)
 {
+    static_assert(std::is_same<Player, T>::value
+        || std::is_same<Transport, T>::value,
+        "Only Player and Transport can be registered in global HashMapHolder");
+
     boost::unique_lock<boost::shared_mutex> lock(*GetLock());
 
     GetContainer()[o->GetGUID()] = o;
@@ -56,7 +60,7 @@ T* HashMapHolder<T>::Find(ObjectGuid guid)
     boost::shared_lock<boost::shared_mutex> lock(*GetLock());
 
     typename MapType::iterator itr = GetContainer().find(guid);
-    return (itr != GetContainer().end()) ? itr->second : NULL;
+    return (itr != GetContainer().end()) ? itr->second : nullptr;
 }
 
 template<class T>
@@ -120,7 +124,7 @@ WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid con
         case HighGuid::Pet:           return GetPet(p, guid);
         case HighGuid::DynamicObject: return GetDynamicObject(p, guid);
         case HighGuid::Corpse:        return GetCorpse(p, guid);
-        default:                     return NULL;
+        default:                     return nullptr;
     }
 }
 
@@ -161,7 +165,7 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid con
             break;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Corpse* ObjectAccessor::GetCorpse(WorldObject const& u, ObjectGuid const& guid)
@@ -227,7 +231,7 @@ Creature* ObjectAccessor::GetCreatureOrPetOrVehicle(WorldObject const& u, Object
     if (guid.IsCreatureOrVehicle())
         return GetCreature(u, guid);
 
-    return NULL;
+    return nullptr;
 }
 
 Player* ObjectAccessor::FindPlayer(ObjectGuid const& guid)

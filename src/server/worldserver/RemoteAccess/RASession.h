@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,13 +43,13 @@ public:
     unsigned short GetRemotePort() const { return _socket.remote_endpoint().port(); }
 
 private:
-    int Send(const char* data);
+    int Send(char const* data);
     std::string ReadString();
     bool CheckAccessLevel(const std::string& user);
     bool CheckPassword(const std::string& user, const std::string& pass);
     bool ProcessCommand(std::string& command);
 
-    static void CommandPrint(void* callbackArg, const char* text);
+    static void CommandPrint(void* callbackArg, char const* text);
     static void CommandFinished(void* callbackArg, bool);
 
     tcp::socket _socket;

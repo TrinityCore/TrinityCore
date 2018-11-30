@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "ScriptedCreature.h"
 #include "drak_tharon_keep.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 
 enum Yells
 {
@@ -102,9 +106,9 @@ public:
             SetBubbled(false);
         }
 
-        void EnterCombat(Unit* /* victim */) override
+        void JustEngagedWith(Unit* /* victim */) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
 
             SetCrystalsStatus(true);
@@ -149,12 +153,12 @@ public:
                 {
                     case EVENT_SUMMON_MINIONS:
                         DoCast(SPELL_SUMMON_MINIONS);
-                        events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
+                        events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
                         break;
                     case EVENT_ATTACK:
                         if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM))
                             DoCast(victim, RAND(SPELL_ARCANE_BLAST, SPELL_BLIZZARD, SPELL_FROSTBOLT, SPELL_WRATH_OF_MISERY));
-                        events.ScheduleEvent(EVENT_ATTACK, 3000);
+                        events.ScheduleEvent(EVENT_ATTACK, 3s);
                         break;
                     default:
                         break;
@@ -239,7 +243,7 @@ public:
             if (Creature* crystalChannelTarget = crystal->FindNearestCreature(NPC_CRYSTAL_CHANNEL_TARGET, 5.0f))
             {
                 if (active)
-                    crystalChannelTarget->CastSpell((Unit*)NULL, SPELL_BEAM_CHANNEL);
+                    crystalChannelTarget->CastSpell(nullptr, SPELL_BEAM_CHANNEL);
                 else if (crystalChannelTarget->HasUnitState(UNIT_STATE_CASTING))
                     crystalChannelTarget->CastStop();
             }
@@ -261,9 +265,9 @@ public:
                 Talk(SAY_ARCANE_FIELD);
                 SetSummonerStatus(false);
                 SetBubbled(false);
-                events.ScheduleEvent(EVENT_ATTACK, 3000);
+                events.ScheduleEvent(EVENT_ATTACK, 3s);
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
+                    events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
             }
             else if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_SUMMONER_4))
                 if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
@@ -374,15 +378,13 @@ class spell_novos_summon_minions : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_COPY_OF_MINIONS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_COPY_OF_MINIONS });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 for (uint8 i = 0; i < 2; ++i)
-                    GetCaster()->CastSpell((Unit*)NULL, SPELL_SUMMON_COPY_OF_MINIONS, true);
+                    GetCaster()->CastSpell(nullptr, SPELL_SUMMON_COPY_OF_MINIONS, true);
             }
 
             void Register() override

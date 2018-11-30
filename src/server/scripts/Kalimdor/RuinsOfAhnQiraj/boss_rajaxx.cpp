@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,9 @@
  */
 
 #include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 
 enum Yells
 {
@@ -77,8 +77,8 @@ class boss_rajaxx : public CreatureScript
             {
                 _Reset();
                 Initialize();
-                events.ScheduleEvent(EVENT_DISARM, 10000);
-                events.ScheduleEvent(EVENT_THUNDERCRASH, 12000);
+                events.ScheduleEvent(EVENT_DISARM, 10s);
+                events.ScheduleEvent(EVENT_THUNDERCRASH, 12s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -87,9 +87,9 @@ class boss_rajaxx : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void UpdateAI(uint32 diff) override
@@ -108,11 +108,11 @@ class boss_rajaxx : public CreatureScript
                     {
                         case EVENT_DISARM:
                             DoCastVictim(SPELL_DISARM);
-                            events.ScheduleEvent(EVENT_DISARM, 22000);
+                            events.ScheduleEvent(EVENT_DISARM, 22s);
                             break;
                         case EVENT_THUNDERCRASH:
                             DoCast(me, SPELL_THUNDERCRASH);
-                            events.ScheduleEvent(EVENT_THUNDERCRASH, 21000);
+                            events.ScheduleEvent(EVENT_THUNDERCRASH, 21s);
                             break;
                         default:
                             break;
@@ -130,7 +130,7 @@ class boss_rajaxx : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_rajaxxAI(creature);
+            return GetAQ20AI<boss_rajaxxAI>(creature);
         }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -61,11 +61,11 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_REND, urand(17000,20000));
-            events.ScheduleEvent(EVENT_THRASH, urand(10000,12000));
+            _JustEngagedWith();
+            events.ScheduleEvent(EVENT_REND, 17s, 20s);
+            events.ScheduleEvent(EVENT_THRASH, 10s, 12s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -92,7 +92,7 @@ public:
                 {
                     case EVENT_REND:
                         DoCastVictim(SPELL_REND);
-                        events.ScheduleEvent(EVENT_REND, urand(8000,10000));
+                        events.ScheduleEvent(EVENT_REND, 8s, 10s);
                         break;
                     case EVENT_THRASH:
                         DoCast(me, SPELL_THRASH);
@@ -112,7 +112,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_halyconAI(creature);
+        return GetBlackrockSpireAI<boss_halyconAI>(creature);
     }
 };
 

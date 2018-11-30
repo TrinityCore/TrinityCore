@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "AreaBoundary.h"
 #include "black_temple.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 DoorData const doorData[] =
 {
@@ -96,7 +101,9 @@ class instance_black_temple : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
-                akamaState = AKAMA_INTRO;
+                AkamaState = AKAMA_INTRO;
+                TeronGorefiendIntro = 1;
+                AkamaIllidanIntro = 1;
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -121,34 +128,46 @@ class instance_black_temple : public InstanceMapScript
                     case NPC_ASHTONGUE_STORMCALLER:
                     case NPC_ASHTONGUE_FERAL_SPIRIT:
                     case NPC_STORM_FURY:
-                        AshtongueGUIDs.emplace_back(creature->GetGUID());
+                        AshtongueGUIDs.push_back(creature->GetGUID());
                         if (GetBossState(DATA_SHADE_OF_AKAMA) == DONE)
-                            creature->setFaction(ASHTONGUE_FACTION_FRIEND);
+                            creature->SetFaction(FACTION_ASHTONGUE_DEATHSWORN);
                         break;
                     default:
                         break;
                 }
             }
 
-            uint32 GetData(uint32 data) const override
+            uint32 GetData(uint32 type) const override
             {
-                if (data == DATA_AKAMA)
-                    return akamaState;
-
-                return 0;
-            }
-
-            void SetData(uint32 data, uint32 value) override
-            {
-                switch (data)
+                switch (type)
                 {
                     case DATA_AKAMA:
-                        akamaState = value;
+                        return AkamaState;
+                    case DATA_TERON_GOREFIEND_INTRO:
+                        return TeronGorefiendIntro;
+                    case DATA_AKAMA_ILLIDAN_INTRO:
+                        return AkamaIllidanIntro;
+                    default:
+                        return 0;
+                }
+            }
+
+            void SetData(uint32 type, uint32 data) override
+            {
+                switch (type)
+                {
+                    case DATA_AKAMA:
+                        AkamaState = data;
                         break;
                     case ACTION_OPEN_DOOR:
                         if (GameObject* illidanGate = GetGameObject(DATA_GO_ILLIDAN_GATE))
                             HandleGameObject(ObjectGuid::Empty, true, illidanGate);
                         break;
+                    case DATA_TERON_GOREFIEND_INTRO:
+                        TeronGorefiendIntro = data;
+                        break;
+                    case DATA_AKAMA_ILLIDAN_INTRO:
+                        AkamaIllidanIntro = data;
                     default:
                         break;
                 }
@@ -170,7 +189,7 @@ class instance_black_temple : public InstanceMapScript
                         if (state == DONE)
                             for (ObjectGuid ashtongueGuid : AshtongueGUIDs)
                                 if (Creature* ashtongue = instance->GetCreature(ashtongueGuid))
-                                    ashtongue->setFaction(ASHTONGUE_FACTION_FRIEND);
+                                    ashtongue->SetFaction(FACTION_ASHTONGUE_DEATHSWORN);
                         // no break
                     case DATA_TERON_GOREFIEND:
                     case DATA_GURTOGG_BLOODBOIL:
@@ -206,7 +225,9 @@ class instance_black_temple : public InstanceMapScript
 
         protected:
             GuidVector AshtongueGUIDs;
-            uint8 akamaState;
+            uint8 AkamaState;
+            uint8 TeronGorefiendIntro;
+            uint8 AkamaIllidanIntro;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

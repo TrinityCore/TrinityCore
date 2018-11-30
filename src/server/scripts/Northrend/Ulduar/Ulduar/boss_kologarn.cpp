@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,16 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "ulduar.h"
 #include "Vehicle.h"
-#include "Player.h"
 
 /* ScriptData
 SDName: boss_kologarn
@@ -114,23 +118,23 @@ class boss_kologarn : public CreatureScript
             bool left, right;
             ObjectGuid eyebeamTarget;
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
 
-                events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
-                events.ScheduleEvent(EVENT_SMASH, 5000);
-                events.ScheduleEvent(EVENT_SWEEP, 19000);
+                events.ScheduleEvent(EVENT_MELEE_CHECK, 6s);
+                events.ScheduleEvent(EVENT_SMASH, 5s);
+                events.ScheduleEvent(EVENT_SWEEP, 19s);
                 events.ScheduleEvent(EVENT_STONE_GRIP, 25000);
-                events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 21000);
-                events.ScheduleEvent(EVENT_ENRAGE, 600000);
+                events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 21s);
+                events.ScheduleEvent(EVENT_ENRAGE, 10min);
 
                 if (Vehicle* vehicle = me->GetVehicleKit())
                     for (uint8 i = 0; i < 2; ++i)
                         if (Unit* arm = vehicle->GetPassenger(i))
-                            arm->ToCreature()->SetInCombatWithZone();
+                            DoZoneInCombat(arm->ToCreature());
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void Reset() override
@@ -165,7 +169,7 @@ class boss_kologarn : public CreatureScript
                     if (!apply && isEncounterInProgress)
                     {
                         Talk(SAY_LEFT_ARM_GONE);
-                        events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
+                        events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40s);
                     }
                 }
 
@@ -175,7 +179,7 @@ class boss_kologarn : public CreatureScript
                     if (!apply && isEncounterInProgress)
                     {
                         Talk(SAY_RIGHT_ARM_GONE);
-                        events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
+                        events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40s);
                     }
                 }
 
@@ -194,14 +198,14 @@ class boss_kologarn : public CreatureScript
                     }
 
                     if (!right && !left)
-                        events.ScheduleEvent(EVENT_STONE_SHOUT, 5000);
+                        events.ScheduleEvent(EVENT_STONE_SHOUT, 5s);
 
                     instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_DISARMED);
                 }
                 else
                 {
                     events.CancelEvent(EVENT_STONE_SHOUT);
-                    who->ToCreature()->SetInCombatWithZone();
+                    DoZoneInCombat(who->ToCreature());
                 }
             }
 
@@ -225,8 +229,6 @@ class boss_kologarn : public CreatureScript
                 summon->CastSpell(summon, SPELL_FOCUSED_EYEBEAM_PERIODIC, true);
                 summon->CastSpell(summon, SPELL_FOCUSED_EYEBEAM_VISUAL, true);
                 summon->SetReactState(REACT_PASSIVE);
-                // One of the above spells is a channeled spell, we need to clear this unit state for MoveChase to work
-                summon->ClearUnitState(UNIT_STATE_CASTING);
 
                 // Victim gets 67351
                 if (eyebeamTarget)
@@ -256,23 +258,23 @@ class boss_kologarn : public CreatureScript
                         case EVENT_MELEE_CHECK:
                             if (!me->IsWithinMeleeRange(me->GetVictim()))
                                 DoCast(SPELL_PETRIFY_BREATH);
-                            events.ScheduleEvent(EVENT_MELEE_CHECK, 1 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_MELEE_CHECK, 1s);
                             break;
                         case EVENT_SWEEP:
                             if (left)
                                 DoCast(me->FindNearestCreature(NPC_ARM_SWEEP_STALKER, 500.0f, true), SPELL_ARM_SWEEP, true);
-                            events.ScheduleEvent(EVENT_SWEEP, 25 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SWEEP, 25s);
                             break;
                         case EVENT_SMASH:
                             if (left && right)
                                 DoCastVictim(SPELL_TWO_ARM_SMASH);
                             else if (left || right)
                                 DoCastVictim(SPELL_ONE_ARM_SMASH);
-                            events.ScheduleEvent(EVENT_SMASH, 15 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SMASH, 15s);
                             break;
                         case EVENT_STONE_SHOUT:
                             DoCast(SPELL_STONE_SHOUT);
-                            events.ScheduleEvent(EVENT_STONE_SHOUT, 2 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_STONE_SHOUT, 2s);
                             break;
                         case EVENT_ENRAGE:
                             DoCast(SPELL_BERSERK);
@@ -297,16 +299,16 @@ class boss_kologarn : public CreatureScript
                                 Talk(SAY_GRAB_PLAYER);
                                 Talk(EMOTE_STONE_GRIP);
                             }
-                            events.ScheduleEvent(EVENT_STONE_GRIP, 25 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_STONE_GRIP, 25s);
                             break;
                         }
                         case EVENT_FOCUSED_EYEBEAM:
-                            if (Unit* eyebeamTargetUnit = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0, true))
+                            if (Unit* eyebeamTargetUnit = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 0, true))
                             {
                                 eyebeamTarget = eyebeamTargetUnit->GetGUID();
                                 DoCast(me, SPELL_SUMMON_FOCUSED_EYEBEAM, true);
                             }
-                            events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, urand(15, 35) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 15s, 35s);
                             break;
                     }
 
@@ -342,7 +344,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
                 ObjectGuid originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(BOSS_KOLOGARN) : ObjectGuid::Empty;
                 uint32 spellId = GetEffectValue();
                 for (uint8 i = 0; i < 5; ++i)
-                    caster->CastSpell(caster, spellId, true, NULL, NULL, originalCaster);
+                    caster->CastSpell(caster, spellId, originalCaster);
             }
 
             void Register() override
@@ -365,7 +367,7 @@ class StoneGripTargetSelector : public std::unary_function<Unit*, bool>
 
         bool operator()(WorldObject* target)
         {
-            if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
+            if (target == _victim && _me->GetThreatManager().GetThreatListSize() > 1)
                 return true;
 
             if (target->GetTypeId() != TYPEID_PLAYER)
@@ -397,7 +399,7 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
             void FilterTargetsInitial(std::list<WorldObject*>& unitList)
             {
                 // Remove "main tank" and non-player targets
-                unitList.remove_if(StoneGripTargetSelector(GetCaster()->ToCreature(), GetCaster()->GetVictim()));
+                unitList.remove_if(StoneGripTargetSelector(GetCaster()->ToCreature(), GetCaster()->GetThreatManager().GetCurrentVictim()));
                 // Maximum affected targets per difficulty mode
                 uint32 maxTargets = 1;
                 if (GetSpellInfo()->Id == 63981)

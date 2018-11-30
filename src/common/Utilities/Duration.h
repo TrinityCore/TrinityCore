@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,7 +33,6 @@ typedef std::chrono::minutes Minutes;
 typedef std::chrono::hours Hours;
 
 /// Makes std::chrono_literals globally available.
-// ToDo: Enable this when TC supports C++14.
-// using namespace std::chrono_literals;
+using namespace std::chrono_literals;
 
 #endif // _DURATION_H_

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,9 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "scarlet_monastery.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
-#include "scarlet_monastery.h"
 
 enum Says
 {
@@ -77,14 +77,14 @@ class boss_herod : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_RUSHINGCHARGE);
-                _EnterCombat();
+                _JustEngagedWith();
 
-                events.ScheduleEvent(EVENT_CLEAVE, 12000);
-                events.ScheduleEvent(EVENT_WHIRLWIND, 60000);
+                events.ScheduleEvent(EVENT_CLEAVE, 12s);
+                events.ScheduleEvent(EVENT_WHIRLWIND, 1min);
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -117,12 +117,12 @@ class boss_herod : public CreatureScript
                 {
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 12000);
+                        events.ScheduleEvent(EVENT_CLEAVE, 12s);
                         break;
                     case EVENT_WHIRLWIND:
                         Talk(SAY_WHIRLWIND);
                         DoCastVictim(SPELL_WHIRLWIND);
-                        events.ScheduleEvent(EVENT_WHIRLWIND, 30000);
+                        events.ScheduleEvent(EVENT_WHIRLWIND, 30s);
                         break;
                     default:
                         break;
@@ -146,12 +146,12 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_scarlet_traineeAI(creature);
+        return GetScarletMonasteryAI<npc_scarlet_traineeAI>(creature);
     }
 
-    struct npc_scarlet_traineeAI : public npc_escortAI
+    struct npc_scarlet_traineeAI : public EscortAI
     {
-        npc_scarlet_traineeAI(Creature* creature) : npc_escortAI(creature)
+        npc_scarlet_traineeAI(Creature* creature) : EscortAI(creature)
         {
             Start_Timer = urand(1000, 6000);
         }
@@ -159,8 +159,7 @@ public:
         uint32 Start_Timer;
 
         void Reset() override { }
-        void WaypointReached(uint32 /*waypointId*/) override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -173,7 +172,7 @@ public:
                 } else Start_Timer -= diff;
             }
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 };

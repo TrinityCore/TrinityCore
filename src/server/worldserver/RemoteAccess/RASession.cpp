@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,17 +16,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <memory>
-#include <boost/asio/write.hpp>
-#include <boost/asio/read_until.hpp>
-#include <boost/array.hpp>
 #include "RASession.h"
 #include "AccountMgr.h"
-#include "Log.h"
-#include "DatabaseEnv.h"
-#include "World.h"
 #include "Config.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "Util.h"
+#include "World.h"
 #include "ServerMotd.h"
+#include <boost/asio/buffer.hpp>
+#include <boost/asio/read_until.hpp>
+#include <memory>
 
 using boost::asio::ip::tcp;
 
@@ -40,7 +40,7 @@ void RASession::Start()
     if (_socket.available() > 0)
     {
         // Handle subnegotiation
-        boost::array<char, 1024> buf;
+        char buf[1024] = { };
         _socket.read_some(boost::asio::buffer(buf));
 
         // Send the end-of-negotiation packet
@@ -89,7 +89,7 @@ void RASession::Start()
     _socket.close();
 }
 
-int RASession::Send(const char* data)
+int RASession::Send(char const* data)
 {
     std::ostream os(&_writeBuffer);
     os << data;
@@ -205,7 +205,7 @@ bool RASession::ProcessCommand(std::string& command)
     return false;
 }
 
-void RASession::CommandPrint(void* callbackArg, const char* text)
+void RASession::CommandPrint(void* callbackArg, char const* text)
 {
     if (!text || !*text)
         return;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef OBSIDIAN_SANCTUM_H_
 #define OBSIDIAN_SANCTUM_H_
+
+#include "CreatureAIImpl.h"
 
 #define OSScriptName "instance_obsidian_sanctum"
 #define DataHeader "OS"
@@ -46,10 +48,10 @@ enum OSGameObjectIds
     GO_TWILIGHT_PORTAL          = 193988
 };
 
-template<class AI>
-AI* GetObsidianSanctumAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetObsidianSanctumAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, OSScriptName);
+    return GetInstanceAI<AI>(obj, OSScriptName);
 }
 
 #endif // OBSIDIAN_SANCTUM_H_

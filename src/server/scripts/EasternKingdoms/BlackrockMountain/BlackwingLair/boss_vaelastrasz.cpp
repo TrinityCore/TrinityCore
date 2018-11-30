@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "ScriptedCreature.h"
 #include "blackwing_lair.h"
-#include "ScriptedGossip.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Says
 {
@@ -35,7 +36,7 @@ enum Says
 
 enum Gossip
 {
-   GOSSIP_ID                         = 21334,
+   GOSSIP_ID                         = 6101,
 };
 
 enum Spells
@@ -75,7 +76,7 @@ public:
         {
             Initialize();
             creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            creature->setFaction(35);
+            creature->SetFaction(FACTION_FRIENDLY);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -93,21 +94,21 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
 
             DoCast(me, SPELL_ESSENCEOFTHERED);
             me->SetHealth(me->CountPctFromMaxHealth(30));
             // now drop damage requirement to be able to take loot
             me->ResetPlayerDamageReq();
 
-            events.ScheduleEvent(EVENT_CLEAVE, 10000);
-            events.ScheduleEvent(EVENT_FLAMEBREATH, 15000);
-            events.ScheduleEvent(EVENT_FIRENOVA, 20000);
-            events.ScheduleEvent(EVENT_TAILSWIPE, 11000);
-            events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15000);
-            events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45000);
+            events.ScheduleEvent(EVENT_CLEAVE, 10s);
+            events.ScheduleEvent(EVENT_FLAMEBREATH, 15s);
+            events.ScheduleEvent(EVENT_FIRENOVA, 20s);
+            events.ScheduleEvent(EVENT_TAILSWIPE, 11s);
+            events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15s);
+            events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45s);
         }
 
         void BeginSpeech(Unit* target)
@@ -153,7 +154,7 @@ public:
                             events.ScheduleEvent(EVENT_SPEECH_4, 16000);
                             break;
                         case EVENT_SPEECH_4:
-                            me->setFaction(103);
+                            me->SetFaction(FACTION_DRAGONFLIGHT_BLACK);
                             if (PlayerGUID && ObjectAccessor::GetUnit(*me, PlayerGUID))
                                 AttackStart(ObjectAccessor::GetUnit(*me, PlayerGUID));;
                             break;
@@ -170,16 +171,16 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CLEAVE:
-                        events.ScheduleEvent(EVENT_CLEAVE, 15000);
+                        events.ScheduleEvent(EVENT_CLEAVE, 15s);
                         DoCastVictim(SPELL_CLEAVE);
                         break;
                     case EVENT_FLAMEBREATH:
                         DoCastVictim(SPELL_FLAMEBREATH);
-                        events.ScheduleEvent(EVENT_FLAMEBREATH, urand(8000, 14000));
+                        events.ScheduleEvent(EVENT_FLAMEBREATH, 8s, 14s);
                         break;
                     case EVENT_FIRENOVA:
                         DoCastVictim(SPELL_FIRENOVA);
-                        events.ScheduleEvent(EVENT_FIRENOVA, 15000);
+                        events.ScheduleEvent(EVENT_FIRENOVA, 15s);
                         break;
                     case EVENT_TAILSWIPE:
                         //Only cast if we are behind
@@ -187,24 +188,24 @@ public:
                         {
                         DoCast(me->GetVictim(), SPELL_TAILSWIPE);
                         }*/
-                        events.ScheduleEvent(EVENT_TAILSWIPE, 15000);
+                        events.ScheduleEvent(EVENT_TAILSWIPE, 15s);
                         break;
                     case EVENT_BURNINGADRENALINE_CASTER:
                         {
                             //selects a random target that isn't the current victim and is a mana user (selects mana users) but not pets
                             //it also ignores targets who have the aura. We don't want to place the debuff on the same target twice.
-                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, [&](Unit* u) { return u && !u->IsPet() && u->getPowerType() == POWER_MANA && !u->HasAura(SPELL_BURNINGADRENALINE); }))
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, [&](Unit* u) { return u && !u->IsPet() && u->GetPowerType() == POWER_MANA && !u->HasAura(SPELL_BURNINGADRENALINE); }))
                             {
                                 me->CastSpell(target, SPELL_BURNINGADRENALINE, true);
                             }
                         }
                         //reschedule the event
-                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15000);
+                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_CASTER, 15s);
                         break;
                     case EVENT_BURNINGADRENALINE_TANK:
                         //Vael has to cast it himself; contrary to the previous commit's comment. Nothing happens otherwise.
                         me->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, true);
-                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45000);
+                        events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45s);
                         break;
                 }
 
@@ -222,13 +223,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_ID && gossipListId == 0)
             {
                 CloseGossipMenuFor(player);
                 BeginSpeech(player);
             }
+            return false;
         }
 
         private:
@@ -238,7 +240,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_vaelAI(creature);
+        return GetBlackwingLairAI<boss_vaelAI>(creature);
     }
 };
 

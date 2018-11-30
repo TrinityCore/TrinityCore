@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -58,11 +58,11 @@ class boss_wushoolay : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, urand(5000, 10000));
-                events.ScheduleEvent(EVENT_LIGHTNINGWAVE, urand(8000, 16000));
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, 5s, 10s);
+                events.ScheduleEvent(EVENT_LIGHTNINGWAVE, 8s, 16s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -81,11 +81,11 @@ class boss_wushoolay : public CreatureScript
                     {
                         case EVENT_LIGHTNINGCLOUD:
                             DoCastVictim(SPELL_LIGHTNINGCLOUD, true);
-                            events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, 15s, 20s);
                             break;
                         case EVENT_LIGHTNINGWAVE:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_LIGHTNINGWAVE);
-                            events.ScheduleEvent(EVENT_LIGHTNINGWAVE, urand(12000, 16000));
+                            events.ScheduleEvent(EVENT_LIGHTNINGWAVE, 12s, 16s);
                             break;
                         default:
                             break;
@@ -101,7 +101,7 @@ class boss_wushoolay : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_wushoolayAI(creature);
+            return GetZulGurubAI<boss_wushoolayAI>(creature);
         }
 };
 
@@ -109,4 +109,3 @@ void AddSC_boss_wushoolay()
 {
     new boss_wushoolay();
 }
-

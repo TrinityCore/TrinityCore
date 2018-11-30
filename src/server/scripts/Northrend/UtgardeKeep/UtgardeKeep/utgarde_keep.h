@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef UTGARDE_KEEP_H_
 #define UTGARDE_KEEP_H_
+
+#include "CreatureAIImpl.h"
 
 #define UKScriptName "instance_utgarde_keep"
 #define DataHeader "UK"
@@ -85,10 +87,10 @@ struct ForgeInfo
     uint32 Event;
 };
 
-template<class AI>
-AI* GetUtgardeKeepAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetUtgardeKeepAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, UKScriptName);
+    return GetInstanceAI<AI>(obj, UKScriptName);
 }
 
 #endif // UTGARDE_KEEP_H_

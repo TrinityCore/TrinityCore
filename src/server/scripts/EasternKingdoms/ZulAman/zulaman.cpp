@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,12 +28,15 @@ npc_forest_frog
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "zulaman.h"
-#include "Player.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "zulaman.h"
 
 /*######
 ## npc_forest_frog
@@ -67,7 +70,7 @@ class npc_forest_frog : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void DoSpawnRandom() const
             {
@@ -103,7 +106,7 @@ class npc_forest_frog : public CreatureScript
                 me->UpdateEntry(cEntry);
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == NPC_FOREST_FROG)
                 {
@@ -136,42 +139,52 @@ class npc_zulaman_hostage : public CreatureScript
     public:
         npc_zulaman_hostage() : CreatureScript("npc_zulaman_hostage") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        struct npc_zulaman_hostageAI : public ScriptedAI
         {
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+            npc_zulaman_hostageAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            ClearGossipMenuFor(player);
+            InstanceScript* instance;
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                CloseGossipMenuFor(player);
-
-            if (!creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-                return true;
-
-            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-            if (InstanceScript* instance = creature->GetInstanceScript())
+            bool GossipHello(Player* player) override
             {
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+                return true;
+            }
+
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            {
+                uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+                ClearGossipMenuFor(player);
+
+                if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                    CloseGossipMenuFor(player);
+
+                if (!me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+                    return true;
+
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
                 //uint8 progress = instance->GetData(DATA_CHESTLOOTED);
                 instance->SetData(DATA_CHESTLOOTED, 0);
                 float x, y, z;
-                creature->GetPosition(x, y, z);
-                uint32 entry = creature->GetEntry();
+                me->GetPosition(x, y, z);
+                uint32 entry = me->GetEntry();
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     if (HostageEntry[i] == entry)
                     {
-                        creature->SummonGameObject(ChestEntry[i], Position(x - 2, y, z, 0.f), G3D::Quat(), 0);
+                        me->SummonGameObject(ChestEntry[i], Position(x - 2, y, z, 0.f), QuaternionData(), 0);
                         break;
                     }
                 }
+                return true;
             }
-            return true;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetZulAmanAI<npc_zulaman_hostageAI>(creature);
         }
 };
 
@@ -266,9 +279,9 @@ class npc_harrison_jones : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                {
@@ -279,9 +292,10 @@ class npc_harrison_jones : public CreatureScript
                     _gongEvent = GONG_EVENT_1;
                     _gongTimer = 4000;
                }
+               return false;
             }
 
-            void SpellHit(Unit*, const SpellInfo* spell) override
+            void SpellHit(Unit*, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_COSMETIC_SPEAR_THROW)
                 {
@@ -367,13 +381,13 @@ class npc_harrison_jones : public CreatureScript
                                     if (target->GetPositionX() > 120)
                                     {
                                         target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_SPEAR));
-                                        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                                        target->SetImmuneToPC(true);
                                         target->SetReactState(REACT_PASSIVE);
                                         target->AI()->SetData(0, 1);
                                     }
                                     else
                                     {
-                                        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                                        target->SetImmuneToPC(true);
                                         target->SetReactState(REACT_PASSIVE);
                                         target->AI()->SetData(0, 2);
                                     }

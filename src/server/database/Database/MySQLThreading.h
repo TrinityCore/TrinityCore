@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,20 +18,12 @@
 #ifndef _MYSQLTHREADING_H
 #define _MYSQLTHREADING_H
 
-#include "Log.h"
+#include "Define.h"
 
-class TC_DATABASE_API MySQL
+namespace MySQL
 {
-    public:
-        static void Library_Init()
-        {
-            mysql_library_init(-1, NULL, NULL);
-        }
-
-        static void Library_End()
-        {
-            mysql_library_end();
-        }
-};
+    void TC_DATABASE_API Library_Init();
+    void TC_DATABASE_API Library_End();
+}
 
 #endif

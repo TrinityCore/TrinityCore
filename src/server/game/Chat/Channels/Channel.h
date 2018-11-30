@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,11 +20,12 @@
 #define _CHANNEL_H
 
 #include "Common.h"
-
-#include "WorldSession.h"
-#include "WorldPacket.h"
+#include "ObjectGuid.h"
+#include <map>
+#include <unordered_set>
 
 class Player;
+struct AreaTableEntry;
 
 enum ChatNotify
 {
@@ -252,4 +253,3 @@ class TC_GAME_API Channel
         AreaTableEntry const* _zoneEntry;
 };
 #endif
-

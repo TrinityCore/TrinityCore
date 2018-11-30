@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,8 +17,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackwing_lair.h"
+#include "ScriptedCreature.h"
 
 enum Say
 {
@@ -52,16 +52,16 @@ public:
     {
         boss_broodlordAI(Creature* creature) : BossAI(creature, DATA_BROODLORD_LASHLAYER) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
 
-            events.ScheduleEvent(EVENT_CLEAVE, 8000);
-            events.ScheduleEvent(EVENT_BLASTWAVE, 12000);
-            events.ScheduleEvent(EVENT_MORTALSTRIKE, 20000);
-            events.ScheduleEvent(EVENT_KNOCKBACK, 30000);
-            events.ScheduleEvent(EVENT_CHECK, 1000);
+            events.ScheduleEvent(EVENT_CLEAVE, 8s);
+            events.ScheduleEvent(EVENT_BLASTWAVE, 12s);
+            events.ScheduleEvent(EVENT_MORTALSTRIKE, 20s);
+            events.ScheduleEvent(EVENT_KNOCKBACK, 30s);
+            events.ScheduleEvent(EVENT_CHECK, 1s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -77,21 +77,21 @@ public:
                 {
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 7000);
+                        events.ScheduleEvent(EVENT_CLEAVE, 7s);
                         break;
                     case EVENT_BLASTWAVE:
                         DoCastVictim(SPELL_BLASTWAVE);
-                        events.ScheduleEvent(EVENT_BLASTWAVE, urand(8000, 16000));
+                        events.ScheduleEvent(EVENT_BLASTWAVE, 8s, 16s);
                         break;
                     case EVENT_MORTALSTRIKE:
                         DoCastVictim(SPELL_MORTALSTRIKE);
-                        events.ScheduleEvent(EVENT_MORTALSTRIKE, urand(25000, 35000));
+                        events.ScheduleEvent(EVENT_MORTALSTRIKE, 25s, 35s);
                         break;
                     case EVENT_KNOCKBACK:
                         DoCastVictim(SPELL_KNOCKBACK);
-                        if (DoGetThreat(me->GetVictim()))
-                            DoModifyThreatPercent(me->GetVictim(), -50);
-                        events.ScheduleEvent(EVENT_KNOCKBACK, urand(15000, 30000));
+                        if (GetThreat(me->GetVictim()))
+                            ModifyThreatByPercent(me->GetVictim(), -50);
+                        events.ScheduleEvent(EVENT_KNOCKBACK, 15s, 30s);
                         break;
                     case EVENT_CHECK:
                         if (me->GetDistance(me->GetHomePosition()) > 150.0f)
@@ -99,7 +99,7 @@ public:
                             Talk(SAY_LEASH);
                             EnterEvadeMode(EVADE_REASON_BOUNDARY);
                         }
-                        events.ScheduleEvent(EVENT_CHECK, 1000);
+                        events.ScheduleEvent(EVENT_CHECK, 1s);
                         break;
                 }
             }
@@ -110,7 +110,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_broodlordAI>(creature);
+        return GetBlackwingLairAI<boss_broodlordAI>(creature);
     }
 };
 

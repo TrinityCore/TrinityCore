@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "magisters_terrace.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -62,6 +65,7 @@ enum Misc
     ACTION_SWITCH_PHASE             = 1
 };
 
+// @todo crystals should really be a DB creature summon group, having them in `creature` like this will cause tons of despawn/respawn bugs
 class boss_selin_fireheart : public CreatureScript
 {
     public:
@@ -69,23 +73,15 @@ class boss_selin_fireheart : public CreatureScript
 
         struct boss_selin_fireheartAI : public BossAI
         {
-            boss_selin_fireheartAI(Creature* creature) : BossAI(creature, DATA_SELIN)
-            {
-                _scheduledEvents = false;
-            }
+            boss_selin_fireheartAI(Creature* creature) : BossAI(creature, DATA_SELIN), _scheduledEvents(false) { }
 
             void Reset() override
             {
-                Crystals.clear();
-                me->GetCreatureListWithEntryInGrid(Crystals, NPC_FEL_CRYSTAL, 250.0f);
+                std::list<Creature*> crystals;
+                me->GetCreatureListWithEntryInGrid(crystals, NPC_FEL_CRYSTAL, 250.0f);
 
-                for (Creature* creature : Crystals)
-                {
-                    if (!creature->IsAlive())
-                        creature->Respawn();
-
-                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                }
+                for (Creature* creature : crystals)
+                    creature->Respawn(true);
 
                 _Reset();
                 CrystalGUID.Clear();
@@ -98,7 +94,7 @@ class boss_selin_fireheart : public CreatureScript
                 {
                     case ACTION_SWITCH_PHASE:
                         events.SetPhase(PHASE_NORMAL);
-                        events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2000, 0, PHASE_NORMAL);
+                        events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2s, 0, PHASE_NORMAL);
                         AttackStart(me->GetVictim());
                         me->GetMotionMaster()->MoveChase(me->GetVictim());
                         break;
@@ -109,21 +105,16 @@ class boss_selin_fireheart : public CreatureScript
 
             void SelectNearestCrystal()
             {
-                if (Crystals.empty())
-                    return;
-
-                Crystals.sort(Trinity::ObjectDistanceOrderPred(me));
-                if (Creature* CrystalChosen = Crystals.front())
+                if (Creature* crystal = me->FindNearestCreature(NPC_FEL_CRYSTAL, 250.0f))
                 {
                     Talk(SAY_ENERGY);
                     Talk(EMOTE_CRYSTAL);
 
-                    DoCast(CrystalChosen, SPELL_FEL_CRYSTAL_DUMMY);
-                    CrystalGUID = CrystalChosen->GetGUID();
-                    Crystals.remove(CrystalChosen);
+                    DoCast(crystal, SPELL_FEL_CRYSTAL_DUMMY);
+                    CrystalGUID = crystal->GetGUID();
 
                     float x, y, z;
-                    CrystalChosen->GetClosePoint(x, y, z, me->GetCombatReach(), CONTACT_DISTANCE);
+                    crystal->GetClosePoint(x, y, z, me->GetCombatReach(), CONTACT_DISTANCE);
 
                     events.SetPhase(PHASE_DRAIN);
                     me->SetWalk(false);
@@ -133,23 +124,20 @@ class boss_selin_fireheart : public CreatureScript
 
             void ShatterRemainingCrystals()
             {
-                if (Crystals.empty())
-                    return;
+                std::list<Creature*> crystals;
+                me->GetCreatureListWithEntryInGrid(crystals, NPC_FEL_CRYSTAL, 250.0f);
 
-                for (Creature* crystal : Crystals)
-                {
-                    if (crystal && crystal->IsAlive())
-                        crystal->KillSelf();
-                }
+                for (Creature* crystal : crystals)
+                    crystal->KillSelf();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.SetPhase(PHASE_NORMAL);
-                events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2100, 0, PHASE_NORMAL);
+                events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2100ms, 0, PHASE_NORMAL);
              }
 
             void KilledUnit(Unit* victim) override
@@ -167,7 +155,7 @@ class boss_selin_fireheart : public CreatureScript
                     {
                         CrystalChosen->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         CrystalChosen->CastSpell(me, SPELL_MANA_RAGE, true);
-                        events.ScheduleEvent(EVENT_EMPOWER, 10000, PHASE_DRAIN);
+                        events.ScheduleEvent(EVENT_EMPOWER, 10s, PHASE_DRAIN);
                     }
                 }
             }
@@ -196,7 +184,7 @@ class boss_selin_fireheart : public CreatureScript
                     {
                         case EVENT_FEL_EXPLOSION:
                             DoCastAOE(SPELL_FEL_EXPLOSION);
-                            events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2000, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2s, 0, PHASE_NORMAL);
                             break;
                         case EVENT_DRAIN_CRYSTAL:
                             SelectNearestCrystal();
@@ -205,12 +193,12 @@ class boss_selin_fireheart : public CreatureScript
                         case EVENT_DRAIN_MANA:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                                 DoCast(target, SPELL_DRAIN_MANA);
-                            events.ScheduleEvent(EVENT_DRAIN_MANA, 10000, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_MANA, 10s, 0, PHASE_NORMAL);
                             break;
                         case EVENT_DRAIN_LIFE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
                                 DoCast(target, SPELL_DRAIN_LIFE);
-                            events.ScheduleEvent(EVENT_DRAIN_LIFE, 10000, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_LIFE, 10s, 0, PHASE_NORMAL);
                             break;
                         case EVENT_EMPOWER:
                         {
@@ -256,14 +244,13 @@ class boss_selin_fireheart : public CreatureScript
             }
 
         private:
-            std::list<Creature*> Crystals;
             ObjectGuid CrystalGUID;
             bool _scheduledEvents;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_selin_fireheartAI>(creature);
+            return GetMagistersTerraceAI<boss_selin_fireheartAI>(creature);
         };
 };
 
@@ -289,7 +276,7 @@ class npc_fel_crystal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_fel_crystalAI>(creature);
+            return GetMagistersTerraceAI<npc_fel_crystalAI>(creature);
         };
 };
 

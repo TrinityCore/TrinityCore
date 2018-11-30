@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "magisters_terrace.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
 
 enum Yells
 {
@@ -82,18 +83,13 @@ class boss_vexallus : public CreatureScript
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-            }
-
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
-                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8000);
-                events.ScheduleEvent(EVENT_ARCANE_SHOCK, 5000);
+                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8s);
+                events.ScheduleEvent(EVENT_ARCANE_SHOCK, 5s);
             }
 
             void JustSummoned(Creature* summoned) override
@@ -117,7 +113,7 @@ class boss_vexallus : public CreatureScript
                     {
                         _enraged = true;
                         events.Reset();
-                        events.ScheduleEvent(EVENT_OVERLOAD, 1200);
+                        events.ScheduleEvent(EVENT_OVERLOAD, 1200ms);
                         return;
                     }
                     else
@@ -153,16 +149,16 @@ class boss_vexallus : public CreatureScript
                         case EVENT_CHAIN_LIGHTNING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8000);
+                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8s);
                             break;
                         case EVENT_ARCANE_SHOCK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
                                 DoCast(target, SPELL_ARCANE_SHOCK);
-                            events.ScheduleEvent(EVENT_ARCANE_SHOCK, 8000);
+                            events.ScheduleEvent(EVENT_ARCANE_SHOCK, 8s);
                             break;
                         case EVENT_OVERLOAD:
                             DoCastVictim(SPELL_OVERLOAD);
-                            events.ScheduleEvent(EVENT_OVERLOAD, 2000);
+                            events.ScheduleEvent(EVENT_OVERLOAD, 2s);
                             break;
                         default:
                             break;
@@ -182,7 +178,7 @@ class boss_vexallus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_vexallusAI>(creature);
+            return GetMagistersTerraceAI<boss_vexallusAI>(creature);
         };
 };
 
@@ -207,14 +203,15 @@ class npc_pure_energy : public CreatureScript
 
             void JustDied(Unit* killer) override
             {
-                killer->CastSpell(killer, SPELL_ENERGY_FEEDBACK, true);
+                if (killer)
+                    killer->CastSpell(killer, SPELL_ENERGY_FEEDBACK, true);
                 me->RemoveAurasDueToSpell(SPELL_PURE_ENERGY_PASSIVE);
             }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_pure_energyAI(creature);
+            return GetMagistersTerraceAI<npc_pure_energyAI>(creature);
         };
 };
 

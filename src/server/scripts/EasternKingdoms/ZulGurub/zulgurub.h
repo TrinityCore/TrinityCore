@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,12 @@
 #ifndef DEF_ZULGURUB_H
 #define DEF_ZULGURUB_H
 
-#define DataHeader "ZG"
-
-uint32 const EncounterCount = 13;
+#include "CreatureAIImpl.h"
 
 #define ZGScriptName "instance_zulgurub"
+#define DataHeader "ZG"
+
+uint32 const EncounterCount = 12;
 
 enum ZGDataTypes
 {
@@ -38,8 +39,7 @@ enum ZGDataTypes
     DATA_EDGE_OF_MADNESS    = 9,  // Optional Event Edge of Madness - one of: Gri'lek, Renataki, Hazza'rah, or Wushoolay
     DATA_LORKHAN            = 10, // Zealot Lor'Khan add to High priest Thekal!
     DATA_ZATH               = 11, // Zealot Zath add to High priest Thekal!
-    DATA_OHGAN              = 12, // Bloodlord Mandokir's raptor mount
-    TYPE_EDGE_OF_MADNESS    = 13  // Boss storage
+    TYPE_EDGE_OF_MADNESS    = 12  // Boss storage
 };
 
 enum ZGCreatureIds
@@ -67,10 +67,10 @@ enum ZGGameObjectIds
     GO_GONG_OF_BETHEKK      = 180526  // Arlokk Event
 };
 
-template<class AI>
-AI* GetZulGurubAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetZulGurubAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, ZGScriptName);
+    return GetInstanceAI<AI>(obj, ZGScriptName);
 }
 
 #endif

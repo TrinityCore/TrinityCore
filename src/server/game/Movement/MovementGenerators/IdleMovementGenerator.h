@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,56 +22,62 @@
 #include "MovementGenerator.h"
 #include "Timer.h"
 
+enum RotateDirection : uint8;
+
 class IdleMovementGenerator : public MovementGenerator
 {
     public:
+        explicit IdleMovementGenerator();
+
         void Initialize(Unit*) override;
-        void Finalize(Unit*) override {  }
         void Reset(Unit*) override;
         bool Update(Unit*, uint32) override { return true; }
-        MovementGeneratorType GetMovementGeneratorType() const override { return IDLE_MOTION_TYPE; }
+        void Deactivate(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
+        MovementGeneratorType GetMovementGeneratorType() const override;
 };
-
-TC_GAME_API extern IdleMovementGenerator si_idleMovement;
 
 class RotateMovementGenerator : public MovementGenerator
 {
     public:
-        explicit RotateMovementGenerator(uint32 time, RotateDirection direction) : _duration(time), _maxDuration(time), _direction(direction) { }
+        explicit RotateMovementGenerator(uint32 id, uint32 time, RotateDirection direction);
 
         void Initialize(Unit*) override;
-        void Finalize(Unit*) override;
-        void Reset(Unit* owner) override { Initialize(owner); }
+        void Reset(Unit*) override;
         bool Update(Unit*, uint32) override;
-        MovementGeneratorType GetMovementGeneratorType() const override { return ROTATE_MOTION_TYPE; }
+        void Deactivate(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
     private:
-        uint32 _duration, _maxDuration;
+        uint32 _id, _duration, _maxDuration;
         RotateDirection _direction;
 };
 
 class DistractMovementGenerator : public MovementGenerator
 {
     public:
-        explicit DistractMovementGenerator(uint32 timer) : _timer(timer) { }
+        explicit DistractMovementGenerator(uint32 timer, float orientation);
 
         void Initialize(Unit*) override;
-        void Finalize(Unit*) override;
-        void Reset(Unit* owner) override { Initialize(owner); }
+        void Reset(Unit*) override;
         bool Update(Unit*, uint32) override;
-        MovementGeneratorType GetMovementGeneratorType() const override { return DISTRACT_MOTION_TYPE; }
+        void Deactivate(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
     private:
         uint32 _timer;
+        float _orientation;
 };
 
 class AssistanceDistractMovementGenerator : public DistractMovementGenerator
 {
     public:
-        explicit AssistanceDistractMovementGenerator(uint32 timer) : DistractMovementGenerator(timer) { }
+        explicit AssistanceDistractMovementGenerator(uint32 timer, float orientation);
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_DISTRACT_MOTION_TYPE; }
-        void Finalize(Unit*) override;
+        void Finalize(Unit*, bool, bool) override;
+        MovementGeneratorType GetMovementGeneratorType() const override;
 };
 
 #endif

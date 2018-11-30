@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,27 +20,16 @@
 #define _MAPREFERENCE_H
 
 #include "Reference.h"
-#include "Map.h"
+
+class Map;
+class Player;
 
 class MapReference : public Reference<Map, Player>
 {
     protected:
-        void targetObjectBuildLink() override
-        {
-            // called from link()
-            getTarget()->m_mapRefManager.insertFirst(this);
-            getTarget()->m_mapRefManager.incSize();
-        }
-        void targetObjectDestroyLink() override
-        {
-            // called from unlink()
-            if (isValid()) getTarget()->m_mapRefManager.decSize();
-        }
-        void sourceObjectDestroyLink() override
-        {
-            // called from invalidate()
-            getTarget()->m_mapRefManager.decSize();
-        }
+        void targetObjectBuildLink() override;
+        void targetObjectDestroyLink() override;
+        void sourceObjectDestroyLink() override;
     public:
         MapReference() : Reference<Map, Player>() { }
         ~MapReference() { unlink(); }
@@ -50,4 +39,3 @@ class MapReference : public Reference<Map, Player>
         MapReference const* nocheck_prev() const { return (MapReference const*)Reference<Map, Player>::nocheck_prev(); }
 };
 #endif
-

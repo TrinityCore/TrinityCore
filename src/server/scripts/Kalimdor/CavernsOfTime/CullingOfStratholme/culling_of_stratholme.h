@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,8 +18,11 @@
 #ifndef DEF_CULLING_OF_STRATHOLME_H
 #define DEF_CULLING_OF_STRATHOLME_H
 
-#define DataHeader "CS"
+#include "CreatureAIImpl.h"
+
 #define CoSScriptName "instance_culling_of_stratholme"
+#define DataHeader "CS"
+
 uint32 const EncounterCount = 5;
 
 enum CSDataTypes
@@ -99,5 +102,11 @@ enum CSInstanceEvents
 {
     EVENT_INFINITE_TIMER    = 1
 };
+
+template <class AI, class T>
+inline AI* GetCullingOfStratholmeAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, CoSScriptName);
+}
 
 #endif

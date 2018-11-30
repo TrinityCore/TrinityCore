@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,9 @@
 #define AUCTION_HOUSE_BOT_H
 
 #include "Define.h"
+#include "SharedDefines.h"
+#include <string>
+#include <vector>
 
 class AuctionBotSeller;
 class AuctionBotBuyer;
@@ -211,8 +214,8 @@ public:
     static AuctionBotConfig* instance();
 
     bool Initialize();
-    const std::string& GetAHBotIncludes() const { return _AHBotIncludes; }
-    const std::string& GetAHBotExcludes() const { return _AHBotExcludes; }
+    std::string const& GetAHBotIncludes() const { return _AHBotIncludes; }
+    std::string const& GetAHBotExcludes() const { return _AHBotExcludes; }
 
     uint32 GetConfig(AuctionBotConfigUInt32Values index) const { return _configUint32Values[index]; }
     bool GetConfig(AuctionBotConfigBoolValues index) const { return _configBoolValues[index]; }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,13 +19,18 @@
 #ifndef TRINITYCORE_GUILD_H
 #define TRINITYCORE_GUILD_H
 
-#include "World.h"
-#include "Item.h"
-#include "WorldPacket.h"
-#include "ObjectMgr.h"
-#include "Player.h"
+#include "DatabaseEnvFwd.h"
+#include "ObjectGuid.h"
+#include "SharedDefines.h"
+#include <unordered_map>
 
 class Item;
+class Player;
+class WorldPacket;
+class WorldSession;
+struct ItemPosCount;
+enum InventoryResult : uint8;
+enum LocaleConstant : uint8;
 
 enum GuildMisc
 {
@@ -154,22 +159,6 @@ enum GuildEvents
     GE_BANK_TEXT_CHANGED                = 19,
 };
 
-enum PetitionTurns
-{
-    PETITION_TURN_OK                    = 0,
-    PETITION_TURN_ALREADY_IN_GUILD      = 2,
-    PETITION_TURN_NEED_MORE_SIGNATURES  = 4
-};
-
-enum PetitionSigns
-{
-    PETITION_SIGN_OK                    = 0,
-    PETITION_SIGN_ALREADY_SIGNED        = 1,
-    PETITION_SIGN_ALREADY_IN_GUILD      = 2,
-    PETITION_SIGN_CANT_SIGN_OWN         = 3,
-    PETITION_SIGN_NOT_SERVER            = 4
-};
-
 enum GuildBankRights
 {
     GUILD_BANK_RIGHT_VIEW_TAB           = 0x01,
@@ -286,22 +275,10 @@ class TC_GAME_API Guild
         class Member
         {
             public:
-                Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId) :
-                    m_guildId(guildId),
-                    m_guid(guid),
-                    m_zoneId(0),
-                    m_level(0),
-                    m_class(0),
-                    m_flags(GUILDMEMBER_STATUS_NONE),
-                    m_logoutTime(::time(nullptr)),
-                    m_accountId(0),
-                    m_rankId(rankId)
-                {
-                    memset(m_bankWithdraw, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(int32));
-                }
+                Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId);
 
                 void SetStats(Player* player);
-                void SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId);
+                void SetStats(std::string const& name, uint8 level, uint8 _class, uint8 gender, uint32 zoneId, uint32 accountId);
                 bool CheckStats() const;
 
                 void SetPublicNote(std::string const& publicNote);
@@ -326,13 +303,14 @@ class TC_GAME_API Guild
                 std::string GetOfficerNote() const { return m_officerNote; }
                 uint8 GetClass() const { return m_class; }
                 uint8 GetLevel() const { return m_level; }
+                uint8 GetGender() const { return m_gender; }
                 uint8 GetFlags() const { return m_flags; }
                 uint32 GetZoneId() const { return m_zoneId; }
                 bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
                 void ChangeRank(SQLTransaction& trans, uint8 newRank);
 
-                inline void UpdateLogoutTime() { m_logoutTime = ::time(nullptr); }
+                inline void UpdateLogoutTime();
                 inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
                 inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
                 inline bool IsSamePlayer(ObjectGuid guid) const { return m_guid == guid; }
@@ -341,8 +319,8 @@ class TC_GAME_API Guild
                 int32 GetBankWithdrawValue(uint8 tabId) const;
                 void ResetValues();
 
-                inline Player* FindPlayer() const { return ObjectAccessor::FindPlayer(m_guid); }
-                inline Player* FindConnectedPlayer() const { return ObjectAccessor::FindConnectedPlayer(m_guid); }
+                Player* FindPlayer() const;
+                Player* FindConnectedPlayer() const;
 
             private:
                 ObjectGuid::LowType m_guildId;
@@ -352,6 +330,7 @@ class TC_GAME_API Guild
                 uint32 m_zoneId;
                 uint8 m_level;
                 uint8 m_class;
+                uint8 m_gender;
                 uint8 m_flags;
                 uint64 m_logoutTime;
                 uint32 m_accountId;
@@ -367,7 +346,7 @@ class TC_GAME_API Guild
         class LogEntry
         {
             public:
-                LogEntry(ObjectGuid::LowType guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(::time(nullptr)) { }
+                LogEntry(ObjectGuid::LowType guildId, uint32 guid);
                 LogEntry(ObjectGuid::LowType guildId, uint32 guid, time_t timestamp) : m_guildId(guildId), m_guid(guid), m_timestamp(timestamp) { }
                 virtual ~LogEntry() { }
 
@@ -517,10 +496,7 @@ class TC_GAME_API Guild
         class BankTab
         {
             public:
-                BankTab(ObjectGuid::LowType guildId, uint8 tabId) : m_guildId(guildId), m_tabId(tabId)
-                {
-                    memset(m_items, 0, GUILD_BANK_MAX_SLOTS * sizeof(Item*));
-                }
+                BankTab(ObjectGuid::LowType guildId, uint8 tabId);
 
                 void LoadFromDB(Field* fields);
                 bool LoadItemFromDB(Field* fields);
@@ -528,17 +504,13 @@ class TC_GAME_API Guild
 
                 void WritePacket(WorldPacket& data) const;
                 bool WriteSlotPacket(WorldPacket& data, uint8 slotId, bool ignoreEmpty = true) const;
-                void WriteInfoPacket(WorldPacket& data) const
-                {
-                    data << m_name;
-                    data << m_icon;
-                }
+                void WriteInfoPacket(WorldPacket& data) const;
 
                 void SetInfo(std::string const& name, std::string const& icon);
                 void SetText(std::string const& text);
-                void SendText(const Guild* guild, WorldSession* session) const;
+                void SendText(Guild const* guild, WorldSession* session) const;
 
-                inline Item* GetItem(uint8 slotId) const { return slotId < GUILD_BANK_MAX_SLOTS ?  m_items[slotId] : NULL; }
+                inline Item* GetItem(uint8 slotId) const { return slotId < GUILD_BANK_MAX_SLOTS ?  m_items[slotId] : nullptr; }
                 bool SetItem(SQLTransaction& trans, uint8 slotId, Item* pItem);
 
             private:
@@ -555,9 +527,8 @@ class TC_GAME_API Guild
         class MoveItemData
         {
             public:
-                MoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId) : m_pGuild(guild), m_pPlayer(player),
-                    m_container(container), m_slotId(slotId), m_pItem(NULL), m_pClonedItem(NULL) { }
-                virtual ~MoveItemData() { }
+                MoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId);
+                virtual ~MoveItemData();
 
                 virtual bool IsBank() const = 0;
                 // Initializes item pointer. Returns true, if item exists, false otherwise.
@@ -596,7 +567,7 @@ class TC_GAME_API Guild
                 uint8 m_slotId;
                 Item* m_pItem;
                 Item* m_pClonedItem;
-                ItemPosCountVec m_vec;
+                std::vector<ItemPosCount> m_vec;
         };
 
         class PlayerMoveItemData : public MoveItemData
@@ -669,11 +640,11 @@ class TC_GAME_API Guild
         void HandleQuery(WorldSession* session);
         void HandleSetMOTD(WorldSession* session, std::string const& motd);
         void HandleSetInfo(WorldSession* session, std::string const& info);
-        void HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo);
+        void HandleSetEmblem(WorldSession* session, EmblemInfo const& emblemInfo);
         void HandleSetLeader(WorldSession* session, std::string const& name);
         void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string const& name, std::string const& icon);
         void HandleSetMemberNote(WorldSession* session, std::string const& name, std::string const& note, bool officer);
-        void HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string const& name, uint32 rights, uint32 moneyPerDay, const GuildBankRightsAndSlotsVec& rightsAndSlots);
+        void HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string const& name, uint32 rights, uint32 moneyPerDay, GuildBankRightsAndSlotsVec const& rightsAndSlots);
         void HandleBuyBankTab(WorldSession* session, uint8 tabId);
         void HandleInviteMember(WorldSession* session, std::string const& name);
         void HandleAcceptMember(WorldSession* session);
@@ -768,13 +739,7 @@ class TC_GAME_API Guild
         inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }
         inline RankInfo const* GetRankInfo(uint8 rankId) const { return rankId < _GetRanksSize() ? &m_ranks[rankId] : nullptr; }
         inline RankInfo* GetRankInfo(uint8 rankId) { return rankId < _GetRanksSize() ? &m_ranks[rankId] : nullptr; }
-        inline bool _HasRankRight(Player* player, uint32 right) const
-        {
-            if (player)
-                if (Member const* member = GetMember(player->GetGUID()))
-                    return (_GetRankRights(member->GetRankId()) & right) != GR_RIGHT_EMPTY;
-            return false;
-        }
+        bool _HasRankRight(Player* player, uint32 right) const;
 
         inline uint8 _GetLowestRankId() const { return uint8(m_ranks.size() - 1); }
 
@@ -803,12 +768,7 @@ class TC_GAME_API Guild
             return nullptr;
         }
 
-        inline void _DeleteMemberFromDB(SQLTransaction& trans, ObjectGuid::LowType lowguid) const
-        {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER);
-            stmt->setUInt32(0, lowguid);
-            CharacterDatabase.ExecuteOrAppend(trans, stmt);
-        }
+        static void _DeleteMemberFromDB(SQLTransaction& trans, ObjectGuid::LowType lowguid);
 
         // Creates log holders (either when loading or when creating guild)
         void _CreateLogHolders();
@@ -850,8 +810,8 @@ class TC_GAME_API Guild
         void _SendBankMoneyUpdate(WorldSession* session) const;
         void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
         void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
-        void _SendBankList(WorldSession* session = NULL, uint8 tabId = 0, bool sendFullSlots = false, SlotIds *slots = NULL) const;
+        void _SendBankList(WorldSession* session = nullptr, uint8 tabId = 0, bool sendFullSlots = false, SlotIds* slots = nullptr) const;
 
-        void _BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;
+        void _BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, char const* param1 = nullptr, char const* param2 = nullptr, char const* param3 = nullptr) const;
 };
 #endif

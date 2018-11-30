@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "scarlet_monastery.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -61,11 +63,11 @@ class boss_interrogator_vishas : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 5000);
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 5s);
             }
 
             void KilledUnit(Unit* victim) override
@@ -102,7 +104,7 @@ class boss_interrogator_vishas : public CreatureScript
                 {
                     case EVENT_SHADOW_WORD_PAIN:
                         DoCastVictim(SPELL_SHADOW_WORD_PAIN);
-                        events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(5000, 15000));
+                        events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 5s, 15s);
                         break;
                     default:
                         break;
@@ -115,7 +117,7 @@ class boss_interrogator_vishas : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_interrogator_vishasAI>(creature);
+            return GetScarletMonasteryAI<boss_interrogator_vishasAI>(creature);
         }
 };
 

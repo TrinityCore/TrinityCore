@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,14 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseEnv.h"
+#include "Log.h"
 #include "Transaction.h"
+#include "MySQLConnection.h"
+#include "PreparedStatement.h"
+#include "Timer.h"
 #include <mysqld_error.h>
+#include <sstream>
+#include <thread>
 
 std::mutex TransactionTask::_deadlockLock;
 
+#define DEADLOCK_MAX_RETRY_TIME_MS 60000
+
 //- Append a raw ad-hoc query to the transaction
-void Transaction::Append(const char* sql)
+void Transaction::Append(char const* sql)
 {
     SQLElementData data;
     data.type = SQL_ELEMENT_RAW;
@@ -45,9 +52,8 @@ void Transaction::Cleanup()
     if (_cleanedUp)
         return;
 
-    while (!m_queries.empty())
+    for (SQLElementData const& data : m_queries)
     {
-        SQLElementData const &data = m_queries.front();
         switch (data.type)
         {
             case SQL_ELEMENT_PREPARED:
@@ -57,10 +63,9 @@ void Transaction::Cleanup()
                 free((void*)(data.element.query));
             break;
         }
-
-        m_queries.pop_front();
     }
 
+    m_queries.clear();
     _cleanedUp = true;
 }
 
@@ -72,12 +77,22 @@ bool TransactionTask::Execute()
 
     if (errorCode == ER_LOCK_DEADLOCK)
     {
+        std::ostringstream threadIdStream;
+        threadIdStream << std::this_thread::get_id();
+        std::string threadId = threadIdStream.str();
+
         // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
         std::lock_guard<std::mutex> lock(_deadlockLock);
-        uint8 loopBreaker = 5;  // Handle MySQL Errno 1213 without extending deadlock to the core itself
-        for (uint8 i = 0; i < loopBreaker; ++i)
+
+        for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
+        {
             if (!m_conn->ExecuteTransaction(m_trans))
                 return true;
+
+            TC_LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: %u ms, Thread Id: %s", loopDuration, threadId.c_str());
+        }
+
+        TC_LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. Thread Id: %s", threadId.c_str());
     }
 
     // Clean up now.

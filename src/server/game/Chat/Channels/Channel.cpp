@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,17 +17,20 @@
  */
 
 #include "Channel.h"
+#include "AccountMgr.h"
 #include "ChannelAppenders.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "ObjectMgr.h"
 #include "Language.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "SocialMgr.h"
 #include "World.h"
-#include "DatabaseEnv.h"
-#include "AccountMgr.h"
-#include "Player.h"
 
 Channel::Channel(uint32 channelId, uint32 team /*= 0*/, AreaTableEntry const* zoneEntry /*= nullptr*/) :
     _announceEnabled(false),                                        // no join/leave announces
@@ -835,9 +838,9 @@ void Channel::SetOwner(ObjectGuid guid, bool exclaim)
 
         if (exclaim)
         {
-            OwnerChangedAppend appender(_ownerGuid);
-            ChannelNameBuilder<OwnerChangedAppend> builder(this, appender);
-            SendToAll(builder);
+            OwnerChangedAppend ownerAppender(_ownerGuid);
+            ChannelNameBuilder<OwnerChangedAppend> ownerBuilder(this, ownerAppender);
+            SendToAll(ownerBuilder);
         }
 
         UpdateChannelInDB();

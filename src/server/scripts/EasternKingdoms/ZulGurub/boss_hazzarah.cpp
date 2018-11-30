@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "zulgurub.h"
 
 enum Spells
@@ -59,12 +60,12 @@ class boss_hazzarah : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_MANABURN, urand(4000, 10000));
-                events.ScheduleEvent(EVENT_SLEEP, urand(10000, 18000));
-                events.ScheduleEvent(EVENT_ILLUSIONS, urand(10000, 18000));
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_MANABURN, 4s, 10s);
+                events.ScheduleEvent(EVENT_SLEEP, 10s, 18s);
+                events.ScheduleEvent(EVENT_ILLUSIONS, 10s, 18s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -83,11 +84,11 @@ class boss_hazzarah : public CreatureScript
                     {
                         case EVENT_MANABURN:
                             DoCastVictim(SPELL_MANABURN, true);
-                            events.ScheduleEvent(EVENT_MANABURN, urand(8000, 16000));
+                            events.ScheduleEvent(EVENT_MANABURN, 8s, 16s);
                             break;
                         case EVENT_SLEEP:
                             DoCastVictim(SPELL_SLEEP, true);
-                            events.ScheduleEvent(EVENT_SLEEP, urand(12000, 20000));
+                            events.ScheduleEvent(EVENT_SLEEP, 12s, 20s);
                             break;
                         case EVENT_ILLUSIONS:
                             // We will summon 3 illusions that will spawn on a random gamer and attack this gamer
@@ -98,7 +99,7 @@ class boss_hazzarah : public CreatureScript
                                     if (Creature* Illusion = me->SummonCreature(NPC_NIGHTMARE_ILLUSION, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000))
                                         Illusion->AI()->AttackStart(target);
                             }
-                            events.ScheduleEvent(EVENT_ILLUSIONS, urand(15000, 25000));
+                            events.ScheduleEvent(EVENT_ILLUSIONS, 15s, 25s);
                             break;
                         default:
                             break;
@@ -114,7 +115,7 @@ class boss_hazzarah : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_hazzarahAI(creature);
+            return GetZulGurubAI<boss_hazzarahAI>(creature);
         }
 };
 

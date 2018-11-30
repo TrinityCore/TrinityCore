@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,9 @@
 #ifndef DEF_ULDAMAN_H
 #define DEF_ULDAMAN_H
 
+#include "CreatureAIImpl.h"
+
+#define UldamanScriptName "instance_uldaman"
 #define DataHeader "UD"
 
 #define MAX_ENCOUNTER                   3
@@ -41,5 +44,11 @@ enum UDGameObjectIds
     GO_IRONAYA_SEAL_DOOR                = 124372,
     GO_KEYSTONE                         = 124371,
 };
+
+template <class AI, class T>
+inline AI* GetUldamanAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, UldamanScriptName);
+}
 
 #endif

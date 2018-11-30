@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,8 @@
 #ifndef _RBAC_H
 #define _RBAC_H
 
-#include "DatabaseEnv.h"
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 #include <string>
 #include <set>
 #include <map>
@@ -56,7 +57,7 @@ enum RBACPermissions
     RBAC_PERM_JOIN_RANDOM_BG                                 = 4,
     RBAC_PERM_JOIN_ARENAS                                    = 5,
     RBAC_PERM_JOIN_DUNGEON_FINDER                            = 6,
-    //  7 - reuse
+    RBAC_PERM_IGNORE_IDLE_CONNECTION                         = 7,
     //  8 - reuse
     //  9 - reuse
     RBAC_PERM_USE_CHARACTER_TEMPLATES                        = 10, // not on 3.3.5a
@@ -213,7 +214,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_GETITEMSTATE                     = 306,
     RBAC_PERM_COMMAND_DEBUG_GETITEMVALUE                     = 307,
     RBAC_PERM_COMMAND_DEBUG_GETVALUE                         = 308,
-    RBAC_PERM_COMMAND_DEBUG_HOSTIL                           = 309,
+    RBAC_PERM_COMMAND_DEBUG_COMBAT                           = 309,
     RBAC_PERM_COMMAND_DEBUG_ITEMEXPIRE                       = 310,
     RBAC_PERM_COMMAND_DEBUG_LOOTRECIPIENT                    = 311,
     RBAC_PERM_COMMAND_DEBUG_LOS                              = 312,
@@ -243,7 +244,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_SPAWNVEHICLE                     = 336,
     RBAC_PERM_COMMAND_DEBUG_THREAT                           = 337,
     RBAC_PERM_COMMAND_DEBUG_UPDATE                           = 338,
-    RBAC_PERM_COMMAND_DEBUG_UWS                              = 339,
+    RBAC_PERM_COMMAND_DEBUG_WORLDSTATE                       = 339,
     RBAC_PERM_COMMAND_WPGPS                                  = 340,
     RBAC_PERM_COMMAND_DESERTER                               = 341,
     RBAC_PERM_COMMAND_DESERTER_BG                            = 342,
@@ -282,15 +283,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GM_LIST                                = 375,
     RBAC_PERM_COMMAND_GM_VISIBLE                             = 376,
     RBAC_PERM_COMMAND_GO                                     = 377,
-    RBAC_PERM_COMMAND_GO_CREATURE                            = 378,
-    RBAC_PERM_COMMAND_GO_GRAVEYARD                           = 379,
-    RBAC_PERM_COMMAND_GO_GRID                                = 380,
-    RBAC_PERM_COMMAND_GO_OBJECT                              = 381,
-    RBAC_PERM_COMMAND_GO_TAXINODE                            = 382,
-    RBAC_PERM_COMMAND_GO_TICKET                              = 383,
-    RBAC_PERM_COMMAND_GO_TRIGGER                             = 384,
-    RBAC_PERM_COMMAND_GO_XYZ                                 = 385,
-    RBAC_PERM_COMMAND_GO_ZONEXY                              = 386,
+    // unused 378-386
     RBAC_PERM_COMMAND_GOBJECT                                = 387,
     RBAC_PERM_COMMAND_GOBJECT_ACTIVATE                       = 388,
     RBAC_PERM_COMMAND_GOBJECT_ADD                            = 389,
@@ -561,17 +554,17 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_ITEM_LOOT_TEMPLATE              = 654,
     RBAC_PERM_COMMAND_RELOAD_ITEM_SET_NAMES                  = 655,
     RBAC_PERM_COMMAND_RELOAD_LFG_DUNGEON_REWARDS             = 656,
-    RBAC_PERM_COMMAND_RELOAD_LOCALES_ACHIEVEMENT_REWARD      = 657,
-    RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE                 = 658,
-    RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE_TEXT            = 659,
-    RBAC_PERM_COMMAND_RELOAD_LOCALES_GAMEOBJECT              = 660,
-    RBAC_PERM_COMMAND_RELOAD_LOCALES_GOSSIP_MENU_OPTION      = 661,
-    RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM                    = 662,
-    RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM_SET_NAME           = 663,
-    RBAC_PERM_COMMAND_RELOAD_LOCALES_NPC_TEXT                = 664,
-    RBAC_PERM_COMMAND_RELOAD_LOCALES_PAGE_TEXT               = 665,
-    RBAC_PERM_COMMAND_RELOAD_LOCALES_POINTS_OF_INTEREST      = 666,
-    RBAC_PERM_COMMAND_RELOAD_LOCALES_QUEST                   = 667,
+    RBAC_PERM_COMMAND_RELOAD_ACHIEVEMENT_REWARD_LOCALE       = 657,
+    RBAC_PERM_COMMAND_RELOAD_CRETURE_TEMPLATE_LOCALE         = 658,
+    RBAC_PERM_COMMAND_RELOAD_CRETURE_TEXT_LOCALE             = 659,
+    RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_TEMPLATE_LOCALE      = 660,
+    RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU_OPTION_LOCALE       = 661,
+    RBAC_PERM_COMMAND_RELOAD_ITEM_TEMPLATE_LOCALE            = 662,
+    RBAC_PERM_COMMAND_RELOAD_ITEM_SET_NAME_LOCALE            = 663,
+    RBAC_PERM_COMMAND_RELOAD_NPC_TEXT_LOCALE                 = 664,
+    RBAC_PERM_COMMAND_RELOAD_PAGE_TEXT_LOCALE                = 665,
+    RBAC_PERM_COMMAND_RELOAD_POINTS_OF_INTEREST_LOCALE       = 666,
+    RBAC_PERM_COMMAND_RELOAD_QUEST_TEMPLATE_LOCALE           = 667,
     RBAC_PERM_COMMAND_RELOAD_MAIL_LEVEL_REWARD               = 668,
     RBAC_PERM_COMMAND_RELOAD_MAIL_LOOT_TEMPLATE              = 669,
     RBAC_PERM_COMMAND_RELOAD_MILLING_LOOT_TEMPLATE           = 670,
@@ -747,7 +740,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_SERVER_RESTART_FORCE                   = 840,
     RBAC_PERM_COMMAND_NEARGRAVEYARD                          = 841,
     RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 842, // not on 3.3.5a
-    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843, // not on 3.3.5a
+    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843,
     RBAC_PERM_COMMAND_SCENE                                  = 844, // not on 3.3.5a
     RBAC_PERM_COMMAND_SCENE_DEBUG                            = 845, // not on 3.3.5a
     RBAC_PERM_COMMAND_SCENE_PLAY                             = 846, // not on 3.3.5a
@@ -756,8 +749,31 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_LIST_SCENES                            = 849, // not on 3.3.5a
     RBAC_PERM_COMMAND_RELOAD_SCENE_TEMPLATE                  = 850, // not on 3.3.5a
     RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TEMPLATE            = 851, // not on 3.3.5a
-    RBAC_PERM_COMMAND_GO_OFFSET                              = 852,
-
+    RBAC_PERM_COMMAND_DEBUG_DUMMY                            = 852,
+    RBAC_PERM_COMMAND_RELOAD_CONVERSATION_TEMPLATE           = 853, // not on 3.3.5a
+    RBAC_PERM_COMMAND_DEBUG_CONVERSATION                     = 854, // not on 3.3.5a
+    RBAC_PERM_COMMAND_DEBUG_PLAY_MUSIC                       = 855,
+    RBAC_PERM_COMMAND_NPC_SPAWNGROUP                         = 856,
+    RBAC_PERM_COMMAND_NPC_DESPAWNGROUP                       = 857,
+    RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP                     = 858,
+    RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP                   = 859,
+    RBAC_PERM_COMMAND_LIST_RESPAWNS                          = 860,
+    RBAC_PERM_COMMAND_GROUP_SET                              = 861,
+    RBAC_PERM_COMMAND_GROUP_ASSISTANT                        = 862,
+    RBAC_PERM_COMMAND_GROUP_MAINTANK                         = 863,
+    RBAC_PERM_COMMAND_GROUP_MAINASSIST                       = 864,
+    RBAC_PERM_COMMAND_NPC_SHOWLOOT                           = 865,
+    RBAC_PERM_COMMAND_LIST_SPAWNPOINTS                       = 866,
+    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING_LOCALE           = 867,
+    RBAC_PERM_COMMAND_MODIFY_POWER                           = 868, // reserved
+    RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE               = 869, // reserved
+    RBAC_PERM_COMMAND_DEBUG_THREATINFO                       = 870,
+    RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN                    = 871,
+    RBAC_PERM_COMMAND_SERVER_DEBUG                           = 872,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_MOVEMENT_OVERRIDE      = 873,
+    //
+    // IF YOU ADD NEW PERMISSIONS, ADD THEM IN MASTER BRANCH AS WELL!
+    //
     // custom permissions 1000+
     RBAC_PERM_MAX
 };

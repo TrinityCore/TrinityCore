@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,17 +17,14 @@
 #ifndef CREATUREAIIMPL_H
 #define CREATUREAIIMPL_H
 
-#include "Common.h"
-#include "Define.h"
-#include "TemporarySummon.h"
-#include "CreatureAI.h"
-#include "SpellMgr.h"
-
-#include <functional>
+#include "Random.h"
 #include <type_traits>
+#include <functional>
+
+class WorldObject;
 
 template<typename First, typename Second, typename... Rest>
-static inline First const& RAND(First const& first, Second const& second, Rest const&... rest)
+inline First const& RAND(First const& first, Second const& second, Rest const&... rest)
 {
     std::reference_wrapper<typename std::add_const<First>::type> const pack[] = { first, second, rest... };
     return pack[urand(0, sizeof...(rest) + 1)].get();
@@ -65,5 +62,15 @@ struct AISpellInfoType
 
 AISpellInfoType* GetAISpellInfo(uint32 i);
 
-#endif
+TC_GAME_API bool InstanceHasScript(WorldObject const* obj, char const* scriptName);
 
+template <class AI, class T>
+AI* GetInstanceAI(T* obj, char const* scriptName)
+{
+    if (InstanceHasScript(obj, scriptName))
+        return new AI(obj);
+
+    return nullptr;
+}
+
+#endif

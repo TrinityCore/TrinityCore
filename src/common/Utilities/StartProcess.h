@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,14 @@
 #ifndef Process_h__
 #define Process_h__
 
+#include "Define.h"
 #include <future>
 #include <memory>
-#include "Common.h"
+#include <vector>
+#include <string>
 
-namespace Trinity {
+namespace Trinity
+{
 
 /// Starts a process with the given arguments and parameters and will block
 /// until the process is finished.
@@ -59,8 +62,8 @@ TC_COMMON_API std::shared_ptr<AsyncProcessResult>
                       bool secure = false);
 
 /// Searches for the given executable in the PATH variable
-/// and returns a present optional when it was found.
-TC_COMMON_API Optional<std::string> SearchExecutableInPath(std::string const& filename);
+/// and returns a non-empty string when it was found.
+TC_COMMON_API std::string SearchExecutableInPath(std::string const& filename);
 
 } // namespace Trinity
 

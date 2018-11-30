@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,10 +19,16 @@
 #ifndef ObjectGuid_h__
 #define ObjectGuid_h__
 
-#include "Common.h"
 #include "ByteBuffer.h"
-#include <type_traits>
+#include "Define.h"
+#include <deque>
 #include <functional>
+#include <list>
+#include <memory>
+#include <set>
+#include <type_traits>
+#include <vector>
+#include <unordered_set>
 
 enum TypeID
 {
@@ -107,8 +113,8 @@ class PackedGuid;
 
 struct PackedGuidReader
 {
-    explicit PackedGuidReader(ObjectGuid& guid) : GuidPtr(&guid) { }
-    ObjectGuid* GuidPtr;
+    explicit PackedGuidReader(ObjectGuid& guid) : Guid(guid) { }
+    ObjectGuid& Guid;
 };
 
 class TC_GAME_API ObjectGuid
@@ -180,7 +186,7 @@ class TC_GAME_API ObjectGuid
             switch (high)
             {
                 case HighGuid::Item:         return TYPEID_ITEM;
-                //case HighGuid::Container:    return TYPEID_CONTAINER; HighGuid::Container==HighGuid::Item currently
+                //case HighGuid::Container:    return TYPEID_CONTAINER; HighGuid::Container == HighGuid::Item currently
                 case HighGuid::Unit:         return TYPEID_UNIT;
                 case HighGuid::Pet:          return TYPEID_UNIT;
                 case HighGuid::Player:       return TYPEID_PLAYER;
@@ -199,8 +205,8 @@ class TC_GAME_API ObjectGuid
         TypeID GetTypeId() const { return GetTypeId(GetHigh()); }
 
         bool operator!() const { return IsEmpty(); }
-        bool operator== (ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
-        bool operator!= (ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
+        bool operator==(ObjectGuid const& guid) const { return GetRawValue() == guid.GetRawValue(); }
+        bool operator!=(ObjectGuid const& guid) const { return GetRawValue() != guid.GetRawValue(); }
         bool operator< (ObjectGuid const& guid) const { return GetRawValue() < guid.GetRawValue(); }
 
         static char const* GetTypeName(HighGuid high);
@@ -254,7 +260,7 @@ typedef std::unordered_set<ObjectGuid> GuidUnorderedSet;
 
 class TC_GAME_API PackedGuid
 {
-        friend TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
+    friend TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
 
     public:
         explicit PackedGuid() : _packedGuid(PACKED_GUID_MIN_BUFFER_SIZE) { _packedGuid.appendPackGUID(0); }
@@ -264,7 +270,7 @@ class TC_GAME_API PackedGuid
         void Set(uint64 guid) { _packedGuid.wpos(0); _packedGuid.appendPackGUID(guid); }
         void Set(ObjectGuid guid) { _packedGuid.wpos(0); _packedGuid.appendPackGUID(guid.GetRawValue()); }
 
-        size_t size() const { return _packedGuid.size(); }
+        std::size_t size() const { return _packedGuid.size(); }
 
     private:
         ByteBuffer _packedGuid;
@@ -278,9 +284,11 @@ public:
     virtual void Set(ObjectGuid::LowType val) { _nextGuid = val; }
     virtual ObjectGuid::LowType Generate() = 0;
     ObjectGuid::LowType GetNextAfterMaxUsed() const { return _nextGuid; }
+    virtual ~ObjectGuidGeneratorBase() { }
 
 protected:
     static void HandleCounterOverflow(HighGuid high);
+    static void CheckGuidTrigger(ObjectGuid::LowType guid);
     ObjectGuid::LowType _nextGuid;
 };
 
@@ -294,6 +302,10 @@ public:
     {
         if (_nextGuid >= ObjectGuid::GetMaxCounter(high) - 1)
             HandleCounterOverflow(high);
+
+        if (high == HighGuid::Unit || high == HighGuid::GameObject)
+            CheckGuidTrigger(_nextGuid);
+
         return _nextGuid++;
     }
 };
@@ -314,7 +326,7 @@ namespace std
         public:
             size_t operator()(ObjectGuid const& key) const
             {
-                return hash<uint64>()(key.GetRawValue());
+                return std::hash<uint64>()(key.GetRawValue());
             }
     };
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,30 +19,10 @@
 #ifndef TRINITY_WAYPOINTMANAGER_H
 #define TRINITY_WAYPOINTMANAGER_H
 
+#include "Define.h"
+#include "WaypointDefines.h"
 #include <vector>
-
-enum WaypointMoveType
-{
-    WAYPOINT_MOVE_TYPE_WALK,
-    WAYPOINT_MOVE_TYPE_RUN,
-    WAYPOINT_MOVE_TYPE_LAND,
-    WAYPOINT_MOVE_TYPE_TAKEOFF,
-
-    WAYPOINT_MOVE_TYPE_MAX
-};
-
-struct WaypointData
-{
-    uint32 id;
-    float x, y, z, orientation;
-    uint32 delay;
-    uint32 event_id;
-    uint32 move_type;
-    uint8 event_chance;
-};
-
-typedef std::vector<WaypointData*> WaypointPath;
-typedef std::unordered_map<uint32, WaypointPath> WaypointPathContainer;
+#include <unordered_map>
 
 class TC_GAME_API WaypointMgr
 {
@@ -56,20 +36,12 @@ class TC_GAME_API WaypointMgr
         void Load();
 
         // Returns the path from a given id
-        WaypointPath const* GetPath(uint32 id) const
-        {
-            WaypointPathContainer::const_iterator itr = _waypointStore.find(id);
-            if (itr != _waypointStore.end())
-                return &itr->second;
-
-            return NULL;
-        }
+        WaypointPath const* GetPath(uint32 id) const;
 
     private:
-        WaypointMgr();
-        ~WaypointMgr();
+        WaypointMgr() { }
 
-        WaypointPathContainer _waypointStore;
+        std::unordered_map<uint32, WaypointPath> _waypointStore;
 };
 
 #define sWaypointMgr WaypointMgr::instance()

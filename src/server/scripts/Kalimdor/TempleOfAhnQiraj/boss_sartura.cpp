@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,10 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "temple_of_ahnqiraj.h"
+#include "Player.h"
 
 enum Sartura
 {
@@ -36,7 +39,7 @@ enum Sartura
     SPELL_ENRAGE        = 28747,            //Not sure if right ID.
     SPELL_ENRAGEHARD    = 28798,
 
-//Guard Spell
+    //Guard Spell
     SPELL_WHIRLWINDADD  = 26038,
     SPELL_KNOCKBACK     = 26027
 };
@@ -48,7 +51,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_sarturaAI(creature);
+        return GetAQ40AI<boss_sarturaAI>(creature);
     }
 
     struct boss_sarturaAI : public ScriptedAI
@@ -90,7 +93,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
@@ -118,8 +121,7 @@ public:
                     //Attack random Gamers
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
-                        me->AddThreat(target, 1.0f);
-                        me->TauntApply(target);
+                        AddThreat(target, 1.0f);
                         AttackStart(target);
                     }
                     WhirlWindRandom_Timer = urand(3000, 7000);
@@ -146,8 +148,7 @@ public:
                     //Attack random Gamers
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
-                        me->AddThreat(target, 1.0f);
-                        me->TauntApply(target);
+                        AddThreat(target, 1.0f);
                         AttackStart(target);
                     }
                     AggroReset = true;
@@ -198,7 +199,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_sartura_royal_guardAI(creature);
+        return GetAQ40AI<npc_sartura_royal_guardAI>(creature);
     }
 
     struct npc_sartura_royal_guardAI : public ScriptedAI
@@ -236,7 +237,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
@@ -261,8 +262,7 @@ public:
                     //Attack random Gamers
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
-                        me->AddThreat(target, 1.0f);
-                        me->TauntApply(target);
+                        AddThreat(target, 1.0f);
                         AttackStart(target);
                     }
 
@@ -282,8 +282,7 @@ public:
                     //Attack random Gamers
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
-                        me->AddThreat(target, 1.0f);
-                        me->TauntApply(target);
+                        AddThreat(target, 1.0f);
                         AttackStart(target);
                     }
 
@@ -314,8 +313,25 @@ public:
 
 };
 
+// 4052
+class at_aq_battleguard_sartura : public AreaTriggerScript
+{
+public:
+    at_aq_battleguard_sartura() : AreaTriggerScript("at_aq_battleguard_sartura") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (InstanceScript* instance = player->GetInstanceScript())
+            if (Creature* sartura = instance->GetCreature(DATA_SARTURA))
+                sartura->AI()->AttackStart(player);
+
+        return true;
+    }
+};
+
 void AddSC_boss_sartura()
 {
     new boss_sartura();
     new npc_sartura_royal_guard();
+    new at_aq_battleguard_sartura();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackrock_depths.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -43,10 +44,10 @@ class boss_ambassador_flamelash : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_FIREBLAST, 2000);
-                _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 24000);
+                _events.ScheduleEvent(EVENT_FIREBLAST, 2s);
+                _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 24s);
             }
 
             void SummonSpirit(Unit* victim)
@@ -68,12 +69,12 @@ class boss_ambassador_flamelash : public CreatureScript
                     {
                         case EVENT_FIREBLAST:
                             DoCastVictim(SPELL_FIREBLAST);
-                            _events.ScheduleEvent(EVENT_FIREBLAST, 7000);
+                            _events.ScheduleEvent(EVENT_FIREBLAST, 7s);
                             break;
                         case EVENT_SUMMON_SPIRITS:
                             for (uint32 i = 0; i < 4; ++i)
                                 SummonSpirit(me->GetVictim());
-                            _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 30000);
+                            _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 30s);
                             break;
                         default:
                             break;
@@ -89,7 +90,7 @@ class boss_ambassador_flamelash : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_ambassador_flamelashAI(creature);
+            return GetBlackrockDepthsAI<boss_ambassador_flamelashAI>(creature);
         }
 };
 

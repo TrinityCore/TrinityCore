@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,19 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ruins_of_ahnqiraj.h"
-#include "Player.h"
-#include "SpellInfo.h"
-#include "WorldPacket.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "Opcodes.h"
+#include "Player.h"
+#include "ruins_of_ahnqiraj.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "TemporarySummon.h"
+#include "Weather.h"
+#include "WorldPacket.h"
 
 enum Texts
 {
@@ -117,7 +124,8 @@ class boss_ossirian : public CreatureScript
                     if (spell->Id == SpellWeakness[i])
                     {
                         me->RemoveAurasDueToSpell(SPELL_SUPREME);
-                        ((TempSummon*)caster)->UnSummon();
+                        if (Creature* creatureCaster = caster->ToCreature())
+                            creatureCaster->DespawnOrUnsummon();
                         SpawnNextCrystal();
                     }
                 }
@@ -126,18 +134,18 @@ class boss_ossirian : public CreatureScript
             void DoAction(int32 action) override
             {
                 if (action == ACTION_TRIGGER_WEAKNESS)
-                    if (Creature* Trigger = me->GetMap()->GetCreature(TriggerGUID))
+                    if (Creature* Trigger = ObjectAccessor::GetCreature(*me, TriggerGUID))
                         if (!Trigger->HasUnitState(UNIT_STATE_CASTING))
                             Trigger->CastSpell(Trigger, SpellWeakness[urand(0, 4)], false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.Reset();
-                events.ScheduleEvent(EVENT_SILENCE, 30000);
-                events.ScheduleEvent(EVENT_CYCLONE, 20000);
-                events.ScheduleEvent(EVENT_STOMP, 30000);
+                events.ScheduleEvent(EVENT_SILENCE, 30s);
+                events.ScheduleEvent(EVENT_CYCLONE, 20s);
+                events.ScheduleEvent(EVENT_STOMP, 30s);
 
                 DoCast(me, SPELL_SUPREME);
                 Talk(SAY_AGGRO);
@@ -178,7 +186,7 @@ class boss_ossirian : public CreatureScript
 
             void Cleanup()
             {
-                if (GameObject* Crystal = me->GetMap()->GetGameObject(CrystalGUID))
+                if (GameObject* Crystal = ObjectAccessor::GetGameObject(*me, CrystalGUID))
                     Crystal->Use(me);
             }
 
@@ -187,10 +195,10 @@ class boss_ossirian : public CreatureScript
                 if (CrystalIterator == NUM_CRYSTALS)
                     CrystalIterator = 0;
 
-                if (Creature* Trigger = me->GetMap()->SummonCreature(NPC_OSSIRIAN_TRIGGER, CrystalCoordinates[CrystalIterator]))
+                if (Creature* Trigger = me->SummonCreature(NPC_OSSIRIAN_TRIGGER, CrystalCoordinates[CrystalIterator]))
                 {
                     TriggerGUID = Trigger->GetGUID();
-                    if (GameObject* Crystal = Trigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL, CrystalCoordinates[CrystalIterator], G3D::Quat(), uint32(-1)))
+                    if (GameObject* Crystal = Trigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL, CrystalCoordinates[CrystalIterator], QuaternionData(), uint32(-1)))
                     {
                         CrystalGUID = Crystal->GetGUID();
                         ++CrystalIterator;
@@ -248,15 +256,15 @@ class boss_ossirian : public CreatureScript
                     {
                         case EVENT_SILENCE:
                             DoCast(me, SPELL_SILENCE);
-                            events.ScheduleEvent(EVENT_SILENCE, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_SILENCE, 20s, 30s);
                             break;
                         case EVENT_CYCLONE:
                             DoCastVictim(SPELL_CYCLONE);
-                            events.ScheduleEvent(EVENT_CYCLONE, 20000);
+                            events.ScheduleEvent(EVENT_CYCLONE, 20s);
                             break;
                         case EVENT_STOMP:
                             DoCast(me, SPELL_STOMP);
-                            events.ScheduleEvent(EVENT_STOMP, 30000);
+                            events.ScheduleEvent(EVENT_STOMP, 30s);
                             break;
                         default:
                             break;
@@ -269,7 +277,7 @@ class boss_ossirian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_ossirianAI>(creature);
+            return GetAQ20AI<boss_ossirianAI>(creature);
         }
 };
 
@@ -278,18 +286,26 @@ class go_ossirian_crystal : public GameObjectScript
     public:
         go_ossirian_crystal() : GameObjectScript("go_ossirian_crystal") { }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/) override
+        struct go_ossirian_crystalAI : public GameObjectAI
         {
-            InstanceScript* Instance = player->GetInstanceScript();
-            if (!Instance)
-                return false;
+            go_ossirian_crystalAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            Creature* Ossirian = player->FindNearestCreature(NPC_OSSIRIAN, 30.0f);
-            if (!Ossirian || Instance->GetBossState(DATA_OSSIRIAN) != IN_PROGRESS)
-                return false;
+            InstanceScript* instance;
 
-            Ossirian->AI()->DoAction(ACTION_TRIGGER_WEAKNESS);
-            return true;
+            bool GossipHello(Player* player) override
+            {
+                Creature* ossirian = player->FindNearestCreature(NPC_OSSIRIAN, 30.0f);
+                if (!ossirian || instance->GetBossState(DATA_OSSIRIAN) != IN_PROGRESS)
+                    return false;
+
+                ossirian->AI()->DoAction(ACTION_TRIGGER_WEAKNESS);
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetAQ20AI<go_ossirian_crystalAI>(go);
         }
 };
 

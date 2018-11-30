@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,10 +31,13 @@ go_captain_tyralius_prison
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## npc_commander_dawnforge
@@ -112,7 +115,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void JustSummoned(Creature* summoned) override
         {
@@ -315,7 +318,7 @@ class at_commander_dawnforge : public AreaTriggerScript
 public:
     at_commander_dawnforge() : AreaTriggerScript("at_commander_dawnforge") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         //if player lost aura or not have at all, we should not try start event.
         if (!player->HasAura(SPELL_SUNFURY_DISGUISE))
@@ -400,13 +403,13 @@ public:
                 me->UpdateEntry(NPC_PHASE_HUNTER_ENTRY);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
                 PlayerGUID = who->GetGUID();
         }
 
-        //void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/) override
+        //void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) override
         //{
         //    DoCast(me, SPELL_DE_MATERIALIZE);
         //}
@@ -428,21 +431,14 @@ public:
             // some code to cast spell Mana Burn on random target which has mana
             if (ManaBurnTimer <= diff)
             {
-                std::list<HostileReference*> AggroList = me->getThreatManager().getThreatList();
                 std::list<Unit*> UnitsWithMana;
-
-                for (std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
-                {
-                    if (Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
-                    {
-                        if (unit->GetCreateMana() > 0)
-                            UnitsWithMana.push_back(unit);
-                    }
-                }
+                for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
+                    if (ref->GetVictim()->GetPower(POWER_MANA))
+                        UnitsWithMana.push_back(ref->GetVictim());
                 if (!UnitsWithMana.empty())
                 {
                     DoCast(Trinity::Containers::SelectRandomContainerElement(UnitsWithMana), SPELL_MANA_BURN);
-                    ManaBurnTimer = 8000 + (rand32() % 10 * 1000); // 8-18 sec cd
+                    ManaBurnTimer = urand(8000, 18000); // 8-18 sec cd
                 }
                 else
                     ManaBurnTimer = 3500;
@@ -492,25 +488,9 @@ class npc_bessy : public CreatureScript
 public:
     npc_bessy() : CreatureScript("npc_bessy") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    struct npc_bessyAI : public EscortAI
     {
-        if (quest->GetQuestId() == Q_ALMABTRIEB)
-        {
-            creature->setFaction(113);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_bessyAI(creature);
-    }
-
-    struct npc_bessyAI : public npc_escortAI
-    {
-        npc_bessyAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_bessyAI(Creature* creature) : EscortAI(creature) { }
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -518,7 +498,7 @@ public:
                 player->FailQuest(Q_ALMABTRIEB);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -556,7 +536,22 @@ public:
         {
             me->RestoreFaction();
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == Q_ALMABTRIEB)
+            {
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                Start(true, false, player->GetGUID());
+            }
+        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_bessyAI(creature);
+    }
 };
 
 /*######
@@ -574,14 +569,9 @@ class npc_maxx_a_million_escort : public CreatureScript
 public:
     npc_maxx_a_million_escort() : CreatureScript("npc_maxx_a_million_escort") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct npc_maxx_a_million_escortAI : public EscortAI
     {
-        return new npc_maxx_a_million_escortAI(creature);
-    }
-
-    struct npc_maxx_a_million_escortAI : public npc_escortAI
-    {
-        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature)
+        npc_maxx_a_million_escortAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -600,7 +590,7 @@ public:
             Initialize();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -617,7 +607,7 @@ public:
                         // take the GO -> animation
                         me->HandleEmoteCommand(EMOTE_STATE_LOOT);
                         SetEscortPaused(true);
-                        bTake=true;
+                        bTake = true;
                     }
                     break;
                 case 36: //return and quest_complete
@@ -634,7 +624,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (bTake)
             {
@@ -644,7 +634,7 @@ public:
                     if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_DRAENEI_MACHINE, INTERACTION_DISTANCE))
                     {
                         SetEscortPaused(false);
-                        bTake=false;
+                        bTake = false;
                         uiTakeTimer = 3000;
                         go->Delete();
                     }
@@ -654,19 +644,20 @@ public:
             }
             DoMeleeAttackIfReady();
         }
-    };
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
+        void QuestAccept(Player* player, Quest const* quest) override
         {
-            if (npc_maxx_a_million_escortAI* pEscortAI = CAST_AI(npc_maxx_a_million_escort::npc_maxx_a_million_escortAI, creature->AI()))
+            if (quest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
             {
-                creature->setFaction(113);
-                pEscortAI->Start(false, false, player->GetGUID());
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+                Start(false, false, player->GetGUID());
             }
         }
-        return true;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_maxx_a_million_escortAI(creature);
     }
 };
 
@@ -677,7 +668,11 @@ public:
 enum CaptainTyralius
 {
     NPC_CAPTAIN_TYRALIUS    = 20787,
+    NPC_ETHEREUM_PRISONER   = 20825,
+    SPELL_TELEPORT_VISUAL   = 51347,
     SAY_FREE                = 0,
+    ACTION_FREED            = 0,
+    EVENT_TELEPORT          = 1
 };
 
 class go_captain_tyralius_prison : public GameObjectScript
@@ -685,17 +680,79 @@ class go_captain_tyralius_prison : public GameObjectScript
     public:
         go_captain_tyralius_prison() : GameObjectScript("go_captain_tyralius_prison") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_captain_tyralius_prisonAI : public GameObjectAI
         {
-            go->UseDoorOrButton();
-            if (Creature* tyralius = go->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))
+            go_captain_tyralius_prisonAI(GameObject* go) : GameObjectAI(go) { }
+
+            void Reset() override
             {
-                player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS);
-                tyralius->AI()->Talk(SAY_FREE);
-                tyralius->DespawnOrUnsummon(8000);
+                me->SummonCreature(NPC_CAPTAIN_TYRALIUS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
+                me->SummonCreature(NPC_ETHEREUM_PRISONER, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
             }
-            return true;
+
+            bool GossipHello(Player* player) override
+            {
+                me->SetRespawnTime(60);
+                me->SetLootState(GO_JUST_DEACTIVATED);
+
+                if (Creature* tyralius = me->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))
+                {
+                    player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS);
+                    tyralius->AI()->DoAction(ACTION_FREED);
+                }
+
+                if (Creature* prisoner = me->FindNearestCreature(NPC_ETHEREUM_PRISONER, 1.0f))
+                    prisoner->DespawnOrUnsummon(0);
+
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_captain_tyralius_prisonAI(go);
         }
+};
+
+class npc_captain_tyralius : public CreatureScript
+{
+public:
+    npc_captain_tyralius() : CreatureScript("npc_captain_tyralius") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_captain_tyraliusAI(creature);
+    }
+
+    struct npc_captain_tyraliusAI : public ScriptedAI
+    {
+        npc_captain_tyraliusAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void DoAction(int32 /*action*/) override
+        {
+            Talk(SAY_FREE);
+            _events.ScheduleEvent(EVENT_TELEPORT, 5s);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            if (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_TELEPORT:
+                        DoCastSelf(SPELL_TELEPORT_VISUAL);
+                        me->DespawnOrUnsummon(Seconds(2));
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap _events;
+    };
 };
 
 void AddSC_netherstorm()
@@ -706,4 +763,5 @@ void AddSC_netherstorm()
     new npc_bessy();
     new npc_maxx_a_million_escort();
     new go_captain_tyralius_prison();
+    new npc_captain_tyralius();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,14 @@
  */
 
 #include "QuestDef.h"
-#include "Player.h"
-#include "World.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
-
-#include "Packets/QuestPackets.h"
+#include "Player.h"
+#include "QuestPackets.h"
+#include "World.h"
 
 Quest::Quest(Field* questRecord)
 {
@@ -211,15 +213,12 @@ uint32 Quest::XPValue(Player* player) const
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        uint32 xp = diffFactor * xpentry->Exp[_rewardXPDifficulty] / 10;
-        if (xp <= 100)
-            xp = 5 * ((xp + 2) / 5);
-        else if (xp <= 500)
-            xp = 10 * ((xp + 5) / 10);
-        else if (xp <= 1000)
-            xp = 25 * ((xp + 12) / 25);
-        else
-            xp = 50 * ((xp + 25) / 50);
+        uint32 xp = RoundXPValue(diffFactor * xpentry->Exp[_rewardXPDifficulty] / 10);
+        if (sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO))
+        {
+            uint32 minScaledXP = RoundXPValue(xpentry->Exp[_rewardXPDifficulty]) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
+            xp = std::max(minScaledXP, xp);
+        }
 
         return xp;
     }
@@ -315,12 +314,8 @@ bool Quest::CanIncreaseRewardedQuestCounters() const
 
 void Quest::InitializeQueryData()
 {
-    WorldPacket queryTemp;
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
-    {
-        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
-        QueryData[loc] = queryTemp;
-    }
+        QueryData[loc] = BuildQueryData(static_cast<LocaleConstant>(loc));
 }
 
 WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
@@ -433,7 +428,9 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
     for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         response.Info.ObjectiveText[i] = locQuestObjectiveText[i];
 
-    return *response.Write();
+    response.Write();
+    response.ShrinkToFit();
+    return response.Move();
 }
 
 void Quest::AddQuestLevelToTitle(std::string &title, int32 level)
@@ -444,4 +441,16 @@ void Quest::AddQuestLevelToTitle(std::string &title, int32 level)
     std::stringstream questTitlePretty;
     questTitlePretty << "[" << level << "] " << title;
     title = questTitlePretty.str();
+}
+
+uint32 Quest::RoundXPValue(uint32 xp)
+{
+    if (xp <= 100)
+        return 5 * ((xp + 2) / 5);
+    else if (xp <= 500)
+        return 10 * ((xp + 5) / 10);
+    else if (xp <= 1000)
+        return 25 * ((xp + 12) / 25);
+    else
+        return 50 * ((xp + 25) / 50);
 }

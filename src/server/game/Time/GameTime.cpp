@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@ namespace GameTime
 {
     time_t const StartTime = time(nullptr);
 
-    time_t GameTime = 0;
+    time_t GameTime = time(nullptr);
     uint32 GameMSTime = 0;
 
     std::chrono::system_clock::time_point GameTimeSystemPoint = std::chrono::system_clock::time_point::min();

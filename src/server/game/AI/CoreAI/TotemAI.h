@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,10 +36,9 @@ class TC_GAME_API TotemAI : public CreatureAI
         void EnterEvadeMode(EvadeReason /*why*/) override;
 
         void UpdateAI(uint32 diff) override;
-        static int Permissible(Creature const* creature);
+        static int32 Permissible(Creature const* creature);
 
     private:
         ObjectGuid i_victimGuid;
 };
 #endif
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@
 #include "TOTP.h"
 #include <cstring>
 
-int base32_decode(const char* encoded, char* result, int bufSize)
+int base32_decode(char const* encoded, char* result, int bufSize)
 {
     // Base32 implementation
     // Copyright 2010 Google Inc.
@@ -68,7 +68,7 @@ int base32_decode(const char* encoded, char* result, int bufSize)
 
 namespace TOTP
 {
-    unsigned int GenerateToken(const char* b32key)
+    unsigned int GenerateToken(char const* b32key)
     {
         size_t keySize = strlen(b32key);
         int bufsize = (keySize + 7)/8*5;
@@ -76,7 +76,7 @@ namespace TOTP
         memset(encoded, 0, bufsize);
         unsigned int hmacResSize = HMAC_RES_SIZE;
         unsigned char hmacRes[HMAC_RES_SIZE];
-        unsigned long timestamp = time(NULL)/30;
+        unsigned long timestamp = time(nullptr)/30;
         unsigned char challenge[8];
 
         for (int i = 8; i--;timestamp >>= 8)

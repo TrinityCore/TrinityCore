@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,27 +18,34 @@
 #ifndef __SPELL_SCRIPT_H
 #define __SPELL_SCRIPT_H
 
-#include "Util.h"
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
-#include "Spell.h"
-#include "ScriptReloadMgr.h"
+#include "Util.h"
+#include <memory>
 #include <stack>
 
-class Unit;
+class Aura;
+class AuraApplication;
+class AuraEffect;
+class Creature;
+class DamageInfo;
+class DispelInfo;
+class DynamicObject;
+class GameObject;
+class Item;
+class ModuleReference;
+class Player;
+class ProcEventInfo;
+class Spell;
 class SpellInfo;
 class SpellScript;
-class Spell;
-class Aura;
-class AuraEffect;
-struct SpellModifier;
-class Creature;
-class GameObject;
-class DynamicObject;
-class Player;
-class Item;
+class Unit;
 class WorldLocation;
 class WorldObject;
+struct SpellDestination;
+struct SpellModifier;
+struct SpellValue;
 
 #define SPELL_EFFECT_ANY (uint16)-1
 #define SPELL_AURA_ANY (uint16)-1
@@ -61,7 +68,7 @@ class TC_GAME_API _SpellScript
         virtual bool _Validate(SpellInfo const* entry);
 
     public:
-        _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptName(NULL), m_scriptSpellId(0) {}
+        _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptName(nullptr), m_scriptSpellId(0) {}
         virtual ~_SpellScript() { }
         void _Register();
         void _Unload();
@@ -133,7 +140,19 @@ class TC_GAME_API _SpellScript
         // use for: deallocating memory allocated by script
         virtual void Unload() { }
         // Helpers
-        static bool ValidateSpellInfo(std::vector<uint32> const& spellIds);
+        static bool ValidateSpellInfo(std::initializer_list<uint32> spellIds)
+        {
+            return _ValidateSpellInfo(spellIds.begin(), spellIds.end());
+        }
+
+        template <class T>
+        static bool ValidateSpellInfo(T const& spellIds)
+        {
+            return _ValidateSpellInfo(std::begin(spellIds), std::end(spellIds));
+        }
+
+    private:
+        static bool _ValidateSpellInfo(uint32 const* begin, uint32 const* end);
 };
 
 // SpellScript interface - enum used for runtime checks of script function calls
@@ -276,6 +295,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         void _FinishScriptCall();
         bool IsInCheckCastHook() const;
         bool IsInTargetHook() const;
+        bool IsInModifiableHook() const;
         bool IsInHitPhase() const;
         bool IsInEffectHook() const;
     private:
@@ -356,10 +376,11 @@ class TC_GAME_API SpellScript : public _SpellScript
         // methods allowing interaction with Spell object
         //
         // methods useable during all spell handling phases
-        Unit* GetCaster();
-        Unit* GetOriginalCaster();
-        SpellInfo const* GetSpellInfo();
-        SpellValue const* GetSpellValue();
+        Unit* GetCaster() const;
+        GameObject* GetGObjCaster() const;
+        Unit* GetOriginalCaster() const;
+        SpellInfo const* GetSpellInfo() const;
+        SpellValue const* GetSpellValue() const;
 
         // methods useable after spell is prepared
         // accessors to the explicit targets of the spell
@@ -373,48 +394,48 @@ class TC_GAME_API SpellScript : public _SpellScript
         // - ImplicitTargetXX set to TARGET_XXX_TARGET_YYY, _TARGET_ here means that explicit target is used by the effect, so spell needs one too
 
         // returns: WorldLocation which was selected as a spell destination or NULL
-        WorldLocation const* GetExplTargetDest();
+        WorldLocation const* GetExplTargetDest() const;
 
         void SetExplTargetDest(WorldLocation& loc);
 
         // returns: WorldObject which was selected as an explicit spell target or NULL if there's no target
-        WorldObject* GetExplTargetWorldObject();
+        WorldObject* GetExplTargetWorldObject() const;
 
         // returns: Unit which was selected as an explicit spell target or NULL if there's no target
-        Unit* GetExplTargetUnit();
+        Unit* GetExplTargetUnit() const;
 
         // returns: GameObject which was selected as an explicit spell target or NULL if there's no target
-        GameObject* GetExplTargetGObj();
+        GameObject* GetExplTargetGObj() const;
 
         // returns: Item which was selected as an explicit spell target or NULL if there's no target
-        Item* GetExplTargetItem();
+        Item* GetExplTargetItem() const;
 
         // methods useable only during spell hit on target, or during spell launch on target:
         // returns: target of current effect if it was Unit otherwise NULL
-        Unit* GetHitUnit();
+        Unit* GetHitUnit() const;
         // returns: target of current effect if it was Creature otherwise NULL
-        Creature* GetHitCreature();
+        Creature* GetHitCreature() const;
         // returns: target of current effect if it was Player otherwise NULL
-        Player* GetHitPlayer();
+        Player* GetHitPlayer() const;
         // returns: target of current effect if it was Item otherwise NULL
-        Item* GetHitItem();
+        Item* GetHitItem() const;
         // returns: target of current effect if it was GameObject otherwise NULL
-        GameObject* GetHitGObj();
+        GameObject* GetHitGObj() const;
         // returns: destination of current effect
-        WorldLocation* GetHitDest();
+        WorldLocation* GetHitDest() const;
         // setter/getter for for damage done by spell to target of spell hit
         // returns damage calculated before hit, and real dmg done after hit
-        int32 GetHitDamage();
+        int32 GetHitDamage() const;
         void SetHitDamage(int32 damage);
         void PreventHitDamage() { SetHitDamage(0); }
         // setter/getter for for heal done by spell to target of spell hit
         // returns healing calculated before hit, and real dmg done after hit
-        int32 GetHitHeal();
+        int32 GetHitHeal() const;
         void SetHitHeal(int32 heal);
         void PreventHitHeal() { SetHitHeal(0); }
-        Spell* GetSpell() { return m_spell; }
+        Spell* GetSpell() const { return m_spell; }
         // returns current spell hit target aura
-        Aura* GetHitAura();
+        Aura* GetHitAura(bool dynObjAura = false) const;
         // prevents applying aura on current spell hit target
         void PreventHitAura();
 
@@ -434,13 +455,13 @@ class TC_GAME_API SpellScript : public _SpellScript
         void SetEffectValue(int32 value);
 
         // returns: cast item if present.
-        Item* GetCastItem();
+        Item* GetCastItem() const;
 
         // Creates item. Calls Spell::DoCreateItem method.
         void CreateItem(uint32 effIndex, uint32 itemId);
 
         // Returns SpellInfo from the spell that triggered the current one
-        SpellInfo const* GetTriggeringSpell();
+        SpellInfo const* GetTriggeringSpell() const;
 
         // finishes spellcast prematurely with selected error message
         void FinishCast(SpellCastResult result, uint32* param1 = nullptr, uint32* param2 = nullptr);
@@ -657,11 +678,11 @@ class TC_GAME_API AuraScript : public _SpellScript
         #define PrepareAuraScript(CLASSNAME) AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
 
     public:
-        AuraScript() : _SpellScript(), m_aura(NULL), m_auraApplication(NULL), m_defaultActionPrevented(false)
+        AuraScript() : _SpellScript(), m_aura(nullptr), m_auraApplication(nullptr), m_defaultActionPrevented(false)
         { }
         bool _Validate(SpellInfo const* entry) override;
         bool _Load(Aura* aura);
-        void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const* aurApp = NULL);
+        void _PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const* aurApp = nullptr);
         void _FinishScriptCall();
         bool _IsDefaultActionPrevented();
     private:
@@ -767,13 +788,13 @@ class TC_GAME_API AuraScript : public _SpellScript
         HookList<EffectAbsorbHandler> AfterEffectAbsorb;
 
         // executed when mana shield aura effect is going to reduce damage
-        // example: OnEffectManaShield += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
+        // example: OnEffectManaShield += AuraEffectManaShieldFn(class::function, EffectIndexSpecifier);
         // where function is: void function (AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
         HookList<EffectManaShieldHandler> OnEffectManaShield;
         #define AuraEffectManaShieldFn(F, I) EffectManaShieldFunction(&F, I)
 
         // executed after mana shield aura effect reduced damage to target - absorbAmount is real amount absorbed by aura
-        // example: AfterEffectManaShield += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
+        // example: AfterEffectManaShield += AuraEffectManaShieldFn(class::function, EffectIndexSpecifier);
         // where function is: void function (AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
         HookList<EffectManaShieldHandler> AfterEffectManaShield;
 
@@ -835,6 +856,8 @@ class TC_GAME_API AuraScript : public _SpellScript
         ObjectGuid GetCasterGUID() const;
         // returns unit which cast the aura or NULL if not avalible (caster logged out for example)
         Unit* GetCaster() const;
+        // returns gameobject which cast the aura or NULL if not available
+        GameObject* GetGObjCaster() const;
         // returns object on which aura was cast, target for non-area auras, area aura source for area auras
         WorldObject* GetOwner() const;
         // returns owner if it's unit or unit derived object, NULL otherwise (only for persistent area auras NULL is returned)

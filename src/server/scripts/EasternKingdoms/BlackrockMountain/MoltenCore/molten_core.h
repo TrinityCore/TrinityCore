@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,11 @@
 #ifndef DEF_MOLTEN_CORE_H
 #define DEF_MOLTEN_CORE_H
 
+#include "CreatureAIImpl.h"
+
+struct Position;
+
+#define MCScriptName "instance_molten_core"
 #define DataHeader "MC"
 
 enum MCEncounters
@@ -42,8 +47,8 @@ enum MCActions
     ACTION_START_RAGNAROS_ALT   = 1,
 };
 
-Position const RagnarosTelePos   = {829.159f, -815.773f, -228.972f, 5.30500f};
-Position const RagnarosSummonPos = {838.510f, -829.840f, -232.000f, 2.00000f};
+extern Position const RagnarosTelePos;
+extern Position const RagnarosSummonPos;
 
 enum MCCreatures
 {
@@ -70,5 +75,13 @@ enum MCData
 {
     DATA_RAGNAROS_ADDS  = 0,
 };
+
+template <class AI, class T>
+inline AI* GetMoltenCoreAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, MCScriptName);
+}
+
+#define RegisterMoltenCoreCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetMoltenCoreAI)
 
 #endif

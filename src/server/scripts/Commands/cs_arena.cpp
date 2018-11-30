@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,13 +22,16 @@ Comment: All arena team related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ArenaTeamMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "Language.h"
-#include "ArenaTeamMgr.h"
+#include "Log.h"
+#include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptMgr.h"
-#include "CharacterCache.h"
+#include "RBAC.h"
+#include "WorldSession.h"
 
 class arena_commandscript : public CommandScript
 {
@@ -48,7 +51,7 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "arena",          rbac::RBAC_PERM_COMMAND_ARENA,     false, NULL,                       "", arenaCommandTable },
+            { "arena",          rbac::RBAC_PERM_COMMAND_ARENA,     false, nullptr,                       "", arenaCommandTable },
         };
         return commandTable;
     }
@@ -59,10 +62,10 @@ public:
             return false;
 
         Player* target;
-        if (!handler->extractPlayerTarget(*args != '"' ? (char*)args : NULL, &target))
+        if (!handler->extractPlayerTarget(*args != '"' ? (char*)args : nullptr, &target))
             return false;
 
-        char* tailStr = *args != '"' ? strtok(NULL, "") : (char*)args;
+        char* tailStr = *args != '"' ? strtok(nullptr, "") : (char*)args;
         if (!tailStr)
             return false;
 
@@ -70,7 +73,7 @@ public:
         if (!name)
             return false;
 
-        char* typeStr = strtok(NULL, "");
+        char* typeStr = strtok(nullptr, "");
         if (!typeStr)
             return false;
 
@@ -168,7 +171,7 @@ public:
             return false;
         }
 
-        char const* newArenaStr = handler->extractQuotedArg(strtok(NULL, ""));
+        char const* newArenaStr = handler->extractQuotedArg(strtok(nullptr, ""));
         if (!newArenaStr)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);

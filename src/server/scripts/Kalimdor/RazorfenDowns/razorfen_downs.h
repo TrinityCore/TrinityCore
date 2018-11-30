@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef DEF_RAZORFEN_DOWNS_H
 #define DEF_RAZORFEN_DOWNS_H
+
+#include "CreatureAIImpl.h"
 
 #define RFDScriptName "instance_razorfen_downs"
 #define DataHeader "RFD"
@@ -61,10 +63,10 @@ enum RFDGameObjectIds
     GO_BELNISTRASZS_BRAZIER                = 152097
 };
 
-template<class AI>
-AI* GetRazorfenDownsAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetRazorfenDownsAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, RFDScriptName);
+    return GetInstanceAI<AI>(obj, RFDScriptName);
 }
 
 #endif

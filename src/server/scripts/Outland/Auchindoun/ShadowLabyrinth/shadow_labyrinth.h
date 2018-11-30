@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,9 @@
 
 #ifndef SHADOW_LABYRINTH_H_
 #define SHADOW_LABYRINTH_H_
+
+#include "CreatureAIImpl.h"
+#include "ObjectGuid.h"
 
 #define SLScriptName "instance_shadow_labyrinth"
 #define DataHeader "SL"
@@ -38,6 +41,12 @@ enum SLDataTypes
 enum SLCreatureIds
 {
     NPC_AMBASSADOR_HELLMAW              = 18731,
+    NPC_BLACKHEART                      = 18667,
+    NPC_BLACKHEART_DUMMY1               = 19300,
+    NPC_BLACKHEART_DUMMY2               = 19301,
+    NPC_BLACKHEART_DUMMY3               = 19302,
+    NPC_BLACKHEART_DUMMY4               = 19303,
+    NPC_BLACKHEART_DUMMY5               = 19304,
     NPC_GRANDMASTER_VORPIL              = 18732,
     NPC_FEL_OVERSEER                    = 18796
 };
@@ -54,10 +63,12 @@ enum SLMisc
     ACTION_AMBASSADOR_HELLMAW_BANISH    = 2,
 };
 
-template<class AI>
-AI* GetShadowLabyrinthAI(Creature* creature)
+GuidUnorderedSet const* GetBlackheartDummies(InstanceScript const* s);
+
+template <class AI, class T>
+inline AI* GetShadowLabyrinthAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, SLScriptName);
+    return GetInstanceAI<AI>(obj, SLScriptName);
 }
 
 #endif // SHADOW_LABYRINTH_H_

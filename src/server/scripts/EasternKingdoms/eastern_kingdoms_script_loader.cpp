@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,6 +59,7 @@ void AddSC_instance_blackwing_lair();
 void AddSC_deadmines();                      //Deadmines
 void AddSC_instance_deadmines();
 void AddSC_boss_mr_smite();
+void AddSC_boss_vancleef();
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
 void AddSC_boss_attumen();                   //Karazhan
@@ -173,23 +174,20 @@ void AddSC_boss_renataki();
 void AddSC_boss_wushoolay();
 void AddSC_instance_zulgurub();
 //void AddSC_alterac_mountains();
-void AddSC_arathi_highlands();
+//void AddSC_arathi_highlands();
 void AddSC_blasted_lands();
-void AddSC_burning_steppes();
 void AddSC_duskwood();
 //void AddSC_eastern_plaguelands();
 void AddSC_ghostlands();
+void AddSC_goldshire();
 void AddSC_hinterlands();
-void AddSC_isle_of_queldanas();
 void AddSC_redridge_mountains();
 void AddSC_silverpine_forest();
 void AddSC_stormwind_city();
-void AddSC_stranglethorn_vale();
 void AddSC_swamp_of_sorrows();
 void AddSC_tirisfal_glades();
 void AddSC_undercity();
 void AddSC_western_plaguelands();
-void AddSC_wetlands();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -237,6 +235,7 @@ void AddEasternKingdomsScripts()
     AddSC_instance_blackwing_lair();
     AddSC_deadmines();                      //Deadmines
     AddSC_boss_mr_smite();
+    AddSC_boss_vancleef();
     AddSC_instance_deadmines();
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();
@@ -352,21 +351,18 @@ void AddEasternKingdomsScripts()
     AddSC_boss_wushoolay();
     AddSC_instance_zulgurub();
     //AddSC_alterac_mountains();
-    AddSC_arathi_highlands();
+    //AddSC_arathi_highlands();
     AddSC_blasted_lands();
-    AddSC_burning_steppes();
     AddSC_duskwood();
     //AddSC_eastern_plaguelands();
     AddSC_ghostlands();
+    AddSC_goldshire();
     AddSC_hinterlands();
-    AddSC_isle_of_queldanas();
     AddSC_redridge_mountains();
     AddSC_silverpine_forest();
     AddSC_stormwind_city();
-    AddSC_stranglethorn_vale();
     AddSC_swamp_of_sorrows();
     AddSC_tirisfal_glades();
     AddSC_undercity();
     AddSC_western_plaguelands();
-    AddSC_wetlands();
 }

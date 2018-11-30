@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,11 +46,12 @@ public:
     virtual float GetOrientation() const { return 0.0f; }
     virtual float GetScale() const { return 1.0f; }
     virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const { }
+    virtual ~GameObjectModelOwnerBase() { }
 };
 
 class TC_COMMON_API GameObjectModel /*, public Intersectable*/
 {
-    GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(NULL) { }
+    GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(nullptr) { }
 public:
     std::string name;
 

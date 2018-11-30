@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,10 +18,9 @@
 #ifndef _WORLDDATABASE_H
 #define _WORLDDATABASE_H
 
-#include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
-enum WorldDatabaseStatements
+enum WorldDatabaseStatements : uint32
 {
     /*  Naming standard for defines:
         {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
@@ -30,8 +29,9 @@ enum WorldDatabaseStatements
     */
 
     WORLD_SEL_QUEST_POOLS,
-    WORLD_DEL_CRELINKED_RESPAWN,
-    WORLD_REP_CREATURE_LINKED_RESPAWN,
+    WORLD_DEL_LINKED_RESPAWN,
+    WORLD_DEL_LINKED_RESPAWN_MASTER,
+    WORLD_REP_LINKED_RESPAWN,
     WORLD_SEL_CREATURE_TEXT,
     WORLD_SEL_SMART_SCRIPTS,
     WORLD_SEL_SMARTAI_WP,
@@ -99,6 +99,7 @@ enum WorldDatabaseStatements
     WORLD_DEL_DISABLES,
     WORLD_UPD_CREATURE_ZONE_AREA_DATA,
     WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA,
+    WORLD_DEL_SPAWNGROUP_MEMBER,
 
     MAX_WORLDDATABASE_STATEMENTS
 };
@@ -109,13 +110,12 @@ public:
     typedef WorldDatabaseStatements Statements;
 
     //- Constructors for sync and async connections
-    WorldDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-    WorldDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+    WorldDatabaseConnection(MySQLConnectionInfo& connInfo);
+    WorldDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
+    ~WorldDatabaseConnection();
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;
 };
-
-typedef DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabaseWorkerPool;
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,9 +22,9 @@ SDComment: aura applied/defined in database
 SDCategory: Scholomance
 EndScriptData */
 
+#include "scholomance.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "scholomance.h"
 
 enum Spells
 {
@@ -55,11 +55,11 @@ class boss_lord_alexei_barov : public CreatureScript
                     DoCast(me, SPELL_UNHOLY_AURA);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_IMMOLATE, 7000);
-                events.ScheduleEvent(EVENT_VEILOFSHADOW, 15000);
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_IMMOLATE, 7s);
+                events.ScheduleEvent(EVENT_VEILOFSHADOW, 15s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -78,11 +78,11 @@ class boss_lord_alexei_barov : public CreatureScript
                     {
                         case EVENT_IMMOLATE:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_IMMOLATE, true);
-                            events.ScheduleEvent(EVENT_IMMOLATE, 12000);
+                            events.ScheduleEvent(EVENT_IMMOLATE, 12s);
                             break;
                         case EVENT_VEILOFSHADOW:
                             DoCastVictim(SPELL_VEILOFSHADOW, true);
-                            events.ScheduleEvent(EVENT_VEILOFSHADOW, 20000);
+                            events.ScheduleEvent(EVENT_VEILOFSHADOW, 20s);
                             break;
                         default:
                             break;
@@ -98,7 +98,7 @@ class boss_lord_alexei_barov : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_lordalexeibarovAI(creature);
+            return GetScholomanceAI<boss_lordalexeibarovAI>(creature);
         }
 };
 

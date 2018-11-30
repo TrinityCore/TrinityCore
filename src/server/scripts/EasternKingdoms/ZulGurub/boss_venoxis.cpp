@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -120,18 +120,18 @@ class boss_venoxis : public CreatureScript
                 me->RemoveAllAuras();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 me->SetReactState(REACT_AGGRESSIVE);
                 // Always running events
-                events.ScheduleEvent(EVENT_THRASH, 5000);
+                events.ScheduleEvent(EVENT_THRASH, 5s);
                 // Phase one events (regular form)
-                events.ScheduleEvent(EVENT_HOLY_NOVA, 5000, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_DISPEL_MAGIC, 35000, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_HOLY_FIRE, 10000, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_RENEW, 30000, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_HOLY_WRATH, 60000, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_HOLY_NOVA, 5s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_DISPEL_MAGIC, 35s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_HOLY_FIRE, 10s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_RENEW, 30s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_HOLY_WRATH, 1min, 0, PHASE_ONE);
 
                 events.SetPhase(PHASE_ONE);
 
@@ -146,13 +146,13 @@ class boss_venoxis : public CreatureScript
                 {
                     _transformed = true;
                     // schedule the event that changes our phase
-                    events.ScheduleEvent(EVENT_TRANSFORM, 100);
+                    events.ScheduleEvent(EVENT_TRANSFORM, 100ms);
                 }
                 // we're losing health, bad, go frenzy
                 else if (!_frenzied && !HealthAbovePct(20))
                 {
                     _frenzied = true;
-                    events.ScheduleEvent(EVENT_FRENZY, 100);
+                    events.ScheduleEvent(EVENT_FRENZY, 100ms);
                 }
             }
 
@@ -174,7 +174,7 @@ class boss_venoxis : public CreatureScript
                         // thrash is available in all phases
                         case EVENT_THRASH:
                             DoCast(me, SPELL_THRASH, true);
-                            events.ScheduleEvent(EVENT_THRASH, urand(10000, 20000));
+                            events.ScheduleEvent(EVENT_THRASH, 10s, 20s);
                             break;
                         // troll form spells and Actions (first part)
                         case EVENT_DISPEL_MAGIC:
@@ -190,7 +190,7 @@ class boss_venoxis : public CreatureScript
 
                             for (uint8 i = 0; i < 10; ++i)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, i))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, i))
                                     // check if target is within melee-distance
                                     if (me->IsWithinMeleeRange(target))
                                         ++_inMeleeRange;
@@ -230,7 +230,7 @@ class boss_venoxis : public CreatureScript
                         case EVENT_PARASITIC_SERPENT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, SPELL_SUMMON_PARASITIC_SERPENT);
-                            events.ScheduleEvent(EVENT_PARASITIC_SERPENT, 15000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_PARASITIC_SERPENT, 15s, 0, PHASE_TWO);
                             break;
                         case EVENT_FRENZY:
                             // frenzy at 20% health
@@ -245,12 +245,12 @@ class boss_venoxis : public CreatureScript
                             // shapeshift at 50% health
                             DoCast(me, SPELL_VENOXIS_TRANSFORM);
                             Talk(SAY_VENOXIS_TRANSFORM);
-                            DoResetThreat();
+                            ResetThreatList();
 
                             // phase two events (snakeform)
-                            events.ScheduleEvent(EVENT_VENOM_SPIT, 5000, 0, PHASE_TWO);
-                            events.ScheduleEvent(EVENT_POISON_CLOUD, 10000, 0, PHASE_TWO);
-                            events.ScheduleEvent(EVENT_PARASITIC_SERPENT, 30000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_VENOM_SPIT, 5s, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_POISON_CLOUD, 10s, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_PARASITIC_SERPENT, 30s, 0, PHASE_TWO);
 
                             // transformed, start phase two
                             events.SetPhase(PHASE_TWO);
@@ -275,7 +275,7 @@ class boss_venoxis : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_venoxisAI(creature);
+            return GetZulGurubAI<boss_venoxisAI>(creature);
         }
 };
 

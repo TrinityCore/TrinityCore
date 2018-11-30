@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,15 @@
  */
 
 #include "PreparedStatement.h"
+#include "Errors.h"
 #include "MySQLConnection.h"
+#include "QueryResult.h"
 #include "Log.h"
+#ifdef _WIN32 // hack for broken mysql.h not including the correct winsock header for SOCKET definition, fixed in 5.7
+#include <winsock2.h>
+#endif
+#include <mysql.h>
+#include <sstream>
 
 PreparedStatement::PreparedStatement(uint32 index, uint8 capacity) :
 m_stmt(nullptr), m_index(index), statement_data(capacity) { }
@@ -214,9 +221,9 @@ void MySQLPreparedStatement::ClearParameters()
     for (uint32 i=0; i < m_paramCount; ++i)
     {
         delete m_bind[i].length;
-        m_bind[i].length = NULL;
+        m_bind[i].length = nullptr;
         delete[] (char*) m_bind[i].buffer;
-        m_bind[i].buffer = NULL;
+        m_bind[i].buffer = nullptr;
         m_paramsSet[i] = false;
     }
 }
@@ -227,6 +234,19 @@ static bool ParamenterIndexAssertFail(uint32 stmtIndex, uint8 index, uint32 para
     return false;
 }
 
+static void SetParameterValue(MYSQL_BIND* param, enum_field_types type, void const* value, uint32 len, bool isUnsigned)
+{
+    param->buffer_type = type;
+    delete[] static_cast<char*>(param->buffer);
+    param->buffer = new char[len];
+    param->buffer_length = 0;
+    param->is_null_value = 0;
+    param->length = nullptr;               // Only != NULL for strings
+    param->is_unsigned = isUnsigned;
+
+    memcpy(param->buffer, value, len);
+}
+
 //- Bind on mysql level
 void MySQLPreparedStatement::AssertValidIndex(uint8 index)
 {
@@ -234,6 +254,20 @@ void MySQLPreparedStatement::AssertValidIndex(uint8 index)
 
     if (m_paramsSet[index])
         TC_LOG_ERROR("sql.sql", "[ERROR] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->m_index, index);
+}
+
+void MySQLPreparedStatement::setNull(const uint8 index)
+{
+    AssertValidIndex(index);
+    m_paramsSet[index] = true;
+    MYSQL_BIND* param = &m_bind[index];
+    param->buffer_type = MYSQL_TYPE_NULL;
+    delete[] static_cast<char*>(param->buffer);
+    param->buffer = nullptr;
+    param->buffer_length = 0;
+    param->is_null_value = 1;
+    delete param->length;
+    param->length = nullptr;
 }
 
 void MySQLPreparedStatement::setBool(const uint8 index, const bool value)
@@ -246,7 +280,7 @@ void MySQLPreparedStatement::setUInt8(const uint8 index, const uint8 value)
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    setValue(param, MYSQL_TYPE_TINY, &value, sizeof(uint8), true);
+    SetParameterValue(param, MYSQL_TYPE_TINY, &value, sizeof(uint8), true);
 }
 
 void MySQLPreparedStatement::setUInt16(const uint8 index, const uint16 value)
@@ -254,7 +288,7 @@ void MySQLPreparedStatement::setUInt16(const uint8 index, const uint16 value)
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    setValue(param, MYSQL_TYPE_SHORT, &value, sizeof(uint16), true);
+    SetParameterValue(param, MYSQL_TYPE_SHORT, &value, sizeof(uint16), true);
 }
 
 void MySQLPreparedStatement::setUInt32(const uint8 index, const uint32 value)
@@ -262,7 +296,7 @@ void MySQLPreparedStatement::setUInt32(const uint8 index, const uint32 value)
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    setValue(param, MYSQL_TYPE_LONG, &value, sizeof(uint32), true);
+    SetParameterValue(param, MYSQL_TYPE_LONG, &value, sizeof(uint32), true);
 }
 
 void MySQLPreparedStatement::setUInt64(const uint8 index, const uint64 value)
@@ -270,7 +304,7 @@ void MySQLPreparedStatement::setUInt64(const uint8 index, const uint64 value)
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    setValue(param, MYSQL_TYPE_LONGLONG, &value, sizeof(uint64), true);
+    SetParameterValue(param, MYSQL_TYPE_LONGLONG, &value, sizeof(uint64), true);
 }
 
 void MySQLPreparedStatement::setInt8(const uint8 index, const int8 value)
@@ -278,7 +312,7 @@ void MySQLPreparedStatement::setInt8(const uint8 index, const int8 value)
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    setValue(param, MYSQL_TYPE_TINY, &value, sizeof(int8), false);
+    SetParameterValue(param, MYSQL_TYPE_TINY, &value, sizeof(int8), false);
 }
 
 void MySQLPreparedStatement::setInt16(const uint8 index, const int16 value)
@@ -286,7 +320,7 @@ void MySQLPreparedStatement::setInt16(const uint8 index, const int16 value)
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    setValue(param, MYSQL_TYPE_SHORT, &value, sizeof(int16), false);
+    SetParameterValue(param, MYSQL_TYPE_SHORT, &value, sizeof(int16), false);
 }
 
 void MySQLPreparedStatement::setInt32(const uint8 index, const int32 value)
@@ -294,7 +328,7 @@ void MySQLPreparedStatement::setInt32(const uint8 index, const int32 value)
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    setValue(param, MYSQL_TYPE_LONG, &value, sizeof(int32), false);
+    SetParameterValue(param, MYSQL_TYPE_LONG, &value, sizeof(int32), false);
 }
 
 void MySQLPreparedStatement::setInt64(const uint8 index, const int64 value)
@@ -302,7 +336,7 @@ void MySQLPreparedStatement::setInt64(const uint8 index, const int64 value)
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    setValue(param, MYSQL_TYPE_LONGLONG, &value, sizeof(int64), false);
+    SetParameterValue(param, MYSQL_TYPE_LONGLONG, &value, sizeof(int64), false);
 }
 
 void MySQLPreparedStatement::setFloat(const uint8 index, const float value)
@@ -310,7 +344,7 @@ void MySQLPreparedStatement::setFloat(const uint8 index, const float value)
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    setValue(param, MYSQL_TYPE_FLOAT, &value, sizeof(float), (value > 0.0f));
+    SetParameterValue(param, MYSQL_TYPE_FLOAT, &value, sizeof(float), (value > 0.0f));
 }
 
 void MySQLPreparedStatement::setDouble(const uint8 index, const double value)
@@ -318,7 +352,7 @@ void MySQLPreparedStatement::setDouble(const uint8 index, const double value)
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    setValue(param, MYSQL_TYPE_DOUBLE, &value, sizeof(double), (value > 0.0f));
+    SetParameterValue(param, MYSQL_TYPE_DOUBLE, &value, sizeof(double), (value > 0.0f));
 }
 
 void MySQLPreparedStatement::setBinary(const uint8 index, const std::vector<uint8>& value, bool isString)
@@ -328,7 +362,7 @@ void MySQLPreparedStatement::setBinary(const uint8 index, const std::vector<uint
     MYSQL_BIND* param = &m_bind[index];
     uint32 len = uint32(value.size());
     param->buffer_type = MYSQL_TYPE_BLOB;
-    delete [] static_cast<char *>(param->buffer);
+    delete [] static_cast<char*>(param->buffer);
     param->buffer = new char[len];
     param->buffer_length = len;
     param->is_null_value = 0;
@@ -341,33 +375,6 @@ void MySQLPreparedStatement::setBinary(const uint8 index, const std::vector<uint
     }
 
     memcpy(param->buffer, value.data(), len);
-}
-
-void MySQLPreparedStatement::setNull(const uint8 index)
-{
-    AssertValidIndex(index);
-    m_paramsSet[index] = true;
-    MYSQL_BIND* param = &m_bind[index];
-    param->buffer_type = MYSQL_TYPE_NULL;
-    delete [] static_cast<char *>(param->buffer);
-    param->buffer = NULL;
-    param->buffer_length = 0;
-    param->is_null_value = 1;
-    delete param->length;
-    param->length = NULL;
-}
-
-void MySQLPreparedStatement::setValue(MYSQL_BIND* param, enum_field_types type, const void* value, uint32 len, bool isUnsigned)
-{
-    param->buffer_type = type;
-    delete [] static_cast<char *>(param->buffer);
-    param->buffer = new char[len];
-    param->buffer_length = 0;
-    param->is_null_value = 0;
-    param->length = NULL;               // Only != NULL for strings
-    param->is_unsigned = isUnsigned;
-
-    memcpy(param->buffer, value, len);
 }
 
 std::string MySQLPreparedStatement::getQueryString() const
@@ -458,7 +465,7 @@ bool PreparedStatementTask::Execute()
         if (!result || !result->GetRowCount())
         {
             delete result;
-            m_result->set_value(PreparedQueryResult(NULL));
+            m_result->set_value(PreparedQueryResult(nullptr));
             return false;
         }
         m_result->set_value(PreparedQueryResult(result));

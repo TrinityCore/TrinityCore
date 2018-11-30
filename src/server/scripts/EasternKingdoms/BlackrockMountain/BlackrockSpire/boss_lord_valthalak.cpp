@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -63,11 +64,11 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_SUMMON_SPECTRAL_ASSASSIN, urand(6000,8000));
-            events.ScheduleEvent(EVENT_SHADOW_WRATH, urand(9000,18000));
+            _JustEngagedWith();
+            events.ScheduleEvent(EVENT_SUMMON_SPECTRAL_ASSASSIN, 6s, 8s);
+            events.ScheduleEvent(EVENT_SHADOW_WRATH, 9s, 18s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -91,15 +92,15 @@ public:
                 {
                     case EVENT_SUMMON_SPECTRAL_ASSASSIN:
                         DoCast(me, SPELL_SUMMON_SPECTRAL_ASSASSIN);
-                        events.ScheduleEvent(EVENT_SUMMON_SPECTRAL_ASSASSIN, urand(30000,35000));
+                        events.ScheduleEvent(EVENT_SUMMON_SPECTRAL_ASSASSIN, 30s, 35s);
                         break;
                     case EVENT_SHADOW_BOLT_VOLLEY:
                         DoCastVictim(SPELL_SHADOW_BOLT_VOLLEY);
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, urand(4000,6000));
+                        events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 4s, 6s);
                         break;
                     case EVENT_SHADOW_WRATH:
                         DoCastVictim(SPELL_SHADOW_WRATH);
-                        events.ScheduleEvent(EVENT_SHADOW_WRATH, urand(19000,24000));
+                        events.ScheduleEvent(EVENT_SHADOW_WRATH, 19s, 24s);
                         break;
                     default:
                         break;
@@ -124,7 +125,7 @@ public:
                 if (HealthBelowPct(15))
                 {
                     DoCast(me, SPELL_FRENZY);
-                    events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, urand(7000,14000));
+                    events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 7s, 14s);
                     frenzy15 = true;
                 }
             }
@@ -138,7 +139,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lord_valthalakAI>(creature);
+        return GetBlackrockSpireAI<boss_lord_valthalakAI>(creature);
     }
 };
 

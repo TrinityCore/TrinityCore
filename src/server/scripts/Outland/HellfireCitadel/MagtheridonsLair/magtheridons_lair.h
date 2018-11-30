@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,9 @@
 #ifndef DEF_MAGTHERIDONS_LAIR_H
 #define DEF_MAGTHERIDONS_LAIR_H
 
+#include "CreatureAIImpl.h"
+
+#define MLScriptName "instance_magtheridons_lair"
 #define DataHeader "ML"
 
 uint32 const EncounterCount = 1;
@@ -70,5 +73,11 @@ enum MLGameObjectIds
     GO_MAGTHERIDON_COLUMN_4  = 184636,
     GO_MAGTHERIDON_COLUMN_5  = 184637
 };
+
+template <class AI, class T>
+inline AI* GetMagtheridonsLairAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, MLScriptName);
+}
 
 #endif

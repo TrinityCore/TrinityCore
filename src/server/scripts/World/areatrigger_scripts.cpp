@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,10 +35,15 @@ at_brewfest
 at_area_52_entrance
 EndContentData */
 
-#include "GameTime.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "DBCStructure.h"
+#include "GameObject.h"
+#include "GameTime.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 /*######
 ## at_coilfang_waterfall
@@ -156,57 +161,6 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
         }
 };
 
-/*#####
-## at_last_rites
-#####*/
-
-enum AtLastRites
-{
-    QUEST_LAST_RITES                          = 12019,
-    QUEST_BREAKING_THROUGH                    = 11898,
-};
-
-class AreaTrigger_at_last_rites : public AreaTriggerScript
-{
-    public:
-        AreaTrigger_at_last_rites() : AreaTriggerScript("at_last_rites") { }
-
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
-        {
-            if (!(player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE ||
-                player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_COMPLETE ||
-                player->GetQuestStatus(QUEST_BREAKING_THROUGH) == QUEST_STATUS_INCOMPLETE ||
-                player->GetQuestStatus(QUEST_BREAKING_THROUGH) == QUEST_STATUS_COMPLETE))
-                return false;
-
-            WorldLocation pPosition;
-
-            switch (trigger->id)
-            {
-                case 5332:
-                case 5338:
-                    pPosition = WorldLocation(571, 3733.68f, 3563.25f, 290.812f, 3.665192f);
-                    break;
-                case 5334:
-                    pPosition = WorldLocation(571, 3802.38f, 3585.95f, 49.5765f, 0.0f);
-                    break;
-                case 5340:
-                    if (player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE ||
-                        player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_COMPLETE)
-                        pPosition = WorldLocation(571, 3687.91f, 3577.28f, 473.342f);
-                    else
-                        pPosition = WorldLocation(571, 3739.38f, 3567.09f, 341.58f);
-                    break;
-                default:
-                    return false;
-            }
-
-            player->TeleportTo(pPosition);
-
-            return false;
-        }
-};
-
 /*######
 ## at_sholazar_waygate
 ######*/
@@ -283,6 +237,38 @@ class AreaTrigger_at_nats_landing : public AreaTriggerScript
             }
             return true;
         }
+};
+
+/*######
+## at_sentry_point
+######*/
+
+enum SentryPoint
+{
+    SPELL_TELEPORT_VISUAL = 799,  // TODO Find the correct spell
+    QUEST_MISSING_DIPLO_PT14 = 1265,
+    NPC_TERVOSH = 4967
+};
+
+class AreaTrigger_at_sentry_point : public AreaTriggerScript
+{
+public:
+    AreaTrigger_at_sentry_point() : AreaTriggerScript("at_sentry_point") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
+    {
+        QuestStatus quest_status = player->GetQuestStatus(QUEST_MISSING_DIPLO_PT14);
+        if (!player->IsAlive() || quest_status == QUEST_STATUS_NONE || quest_status == QUEST_STATUS_REWARDED)
+            return false;
+
+        if (!player->FindNearestCreature(NPC_TERVOSH, 100.0f))
+        {
+            if (Creature* tervosh = player->SummonCreature(NPC_TERVOSH, -3476.51f, -4105.94f, 17.1f, 5.3816f, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                tervosh->CastSpell(tervosh, SPELL_TELEPORT_VISUAL, true);
+        }
+
+        return true;
+    }
 };
 
 /*######
@@ -480,9 +466,9 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_legion_teleporter();
     new AreaTrigger_at_stormwright_shelf();
     new AreaTrigger_at_scent_larkorwi();
-    new AreaTrigger_at_last_rites();
     new AreaTrigger_at_sholazar_waygate();
     new AreaTrigger_at_nats_landing();
+    new AreaTrigger_at_sentry_point();
     new AreaTrigger_at_brewfest();
     new AreaTrigger_at_area_52_entrance();
     new AreaTrigger_at_frostgrips_hollow();

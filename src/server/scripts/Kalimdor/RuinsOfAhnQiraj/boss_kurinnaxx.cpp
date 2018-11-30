@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,11 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ruins_of_ahnqiraj.h"
 #include "CreatureTextMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ruins_of_ahnqiraj.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -65,10 +66,10 @@ class boss_kurinnaxx : public CreatureScript
             {
                 _Reset();
                 Initialize();
-                events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);
-                events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
-                events.ScheduleEvent(EVENT_TRASH, 1000);
-                events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
+                events.ScheduleEvent(EVENT_MORTAL_WOUND, 8s);
+                events.ScheduleEvent(EVENT_SANDTRAP, 5s, 15s);
+                events.ScheduleEvent(EVENT_TRASH, 1s);
+                events.ScheduleEvent(EVENT_WIDE_SLASH, 11s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -83,8 +84,8 @@ class boss_kurinnaxx : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                if (Creature* Ossirian = me->GetMap()->GetCreature(instance->GetGuidData(DATA_OSSIRIAN)))
-                    sCreatureTextMgr->SendChat(Ossirian, SAY_KURINAXX_DEATH, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                if (Creature* Ossirian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_OSSIRIAN)))
+                    sCreatureTextMgr->SendChat(Ossirian, SAY_KURINAXX_DEATH, nullptr, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
             }
 
             void UpdateAI(uint32 diff) override
@@ -103,22 +104,22 @@ class boss_kurinnaxx : public CreatureScript
                     {
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTALWOUND);
-                            events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);
+                            events.ScheduleEvent(EVENT_MORTAL_WOUND, 8s);
                             break;
                         case EVENT_SANDTRAP:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 target->CastSpell(target, SPELL_SANDTRAP, true);
                             else if (Unit* victim = me->GetVictim())
                                 victim->CastSpell(victim, SPELL_SANDTRAP, true);
-                            events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
+                            events.ScheduleEvent(EVENT_SANDTRAP, 5s, 15s);
                             break;
                         case EVENT_WIDE_SLASH:
                             DoCast(me, SPELL_WIDE_SLASH);
-                            events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
+                            events.ScheduleEvent(EVENT_WIDE_SLASH, 11s);
                             break;
                         case EVENT_TRASH:
                             DoCast(me, SPELL_TRASH);
-                            events.ScheduleEvent(EVENT_WIDE_SLASH, 16000);
+                            events.ScheduleEvent(EVENT_WIDE_SLASH, 15s);
                             break;
                         default:
                             break;
@@ -136,7 +137,7 @@ class boss_kurinnaxx : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_kurinnaxxAI>(creature);
+            return GetAQ20AI<boss_kurinnaxxAI>(creature);
         }
 };
 

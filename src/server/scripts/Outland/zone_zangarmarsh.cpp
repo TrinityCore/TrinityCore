@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,14 +19,12 @@
 /* ScriptData
 SDName: Zangarmarsh
 SD%Complete: 100
-SDComment: Quest support: 9752, 9785, 9803, 10009. Mark Of ... buffs.
+SDComment: Quest support: 9752, 9785, Mark Of ... buffs.
 SDCategory: Zangarmarsh
 EndScriptData */
 
 /* ContentData
 npcs_ashyen_and_keleth
-npc_cooshcoosh
-npc_elder_kuruti
 npc_kayra_longmane
 EndContentData */
 
@@ -65,230 +63,94 @@ class npcs_ashyen_and_keleth : public CreatureScript
 public:
     npcs_ashyen_and_keleth() : CreatureScript("npcs_ashyen_and_keleth") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    struct npcs_ashyen_and_kelethAI : public ScriptedAI
     {
-        if (player->GetReputationRank(942) > REP_NEUTRAL)
+        npcs_ashyen_and_kelethAI(Creature* creature) : ScriptedAI(creature) { }
+
+        bool GossipHello(Player* player) override
         {
-            if (creature->GetEntry() == NPC_ASHYEN)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_ASH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-            if (creature->GetEntry() == NPC_KELETH)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_KEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        }
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            creature->setPowerType(POWER_MANA);
-            creature->SetMaxPower(POWER_MANA, 200);             //set a "fake" mana value, we can't depend on database doing it in this case
-            creature->SetPower(POWER_MANA, 200);
-
-            if (creature->GetEntry() == NPC_ASHYEN)                //check which Creature we are dealing with
+            if (player->GetReputationRank(942) > REP_NEUTRAL)
             {
-                uint32 spell = 0;
-                switch (player->GetReputationRank(942))
-                {                                               //mark of lore
-                    case REP_FRIENDLY:
-                        spell = SPELL_BLESS_ASH_FRI;
-                        break;
-                    case REP_HONORED:
-                        spell = SPELL_BLESS_ASH_HON;
-                        break;
-                    case REP_REVERED:
-                        spell = SPELL_BLESS_ASH_REV;
-                        break;
-                    case REP_EXALTED:
-                        spell = SPELL_BLESS_ASH_EXA;
-                        break;
-                    default:
-                        break;
-                }
+                if (me->GetEntry() == NPC_ASHYEN)
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_ASH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-                if (spell)
-                {
-                    creature->CastSpell(player, spell, true);
-                }
+                if (me->GetEntry() == NPC_KELETH)
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_KEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             }
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
 
-            if (creature->GetEntry() == NPC_KELETH)
+            return true;
+        }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
-                uint32 spell = 0;
-                switch (player->GetReputationRank(942))         //mark of war
+                me->SetPowerType(POWER_MANA);
+                me->SetMaxPower(POWER_MANA, 200);             //set a "fake" mana value, we can't depend on database doing it in this case
+                me->SetPower(POWER_MANA, 200);
+
+                if (me->GetEntry() == NPC_ASHYEN)                //check which Creature we are dealing with
                 {
-                    case REP_FRIENDLY:
-                        spell = SPELL_BLESS_KEL_FRI;
-                        break;
-                    case REP_HONORED:
-                        spell = SPELL_BLESS_KEL_HON;
-                        break;
-                    case REP_REVERED:
-                        spell = SPELL_BLESS_KEL_REV;
-                        break;
-                    case REP_EXALTED:
-                        spell = SPELL_BLESS_KEL_EXA;
-                        break;
-                    default:
-                        break;
+                    uint32 spell = 0;
+                    switch (player->GetReputationRank(942))
+                    {                                               //mark of lore
+                        case REP_FRIENDLY:
+                            spell = SPELL_BLESS_ASH_FRI;
+                            break;
+                        case REP_HONORED:
+                            spell = SPELL_BLESS_ASH_HON;
+                            break;
+                        case REP_REVERED:
+                            spell = SPELL_BLESS_ASH_REV;
+                            break;
+                        case REP_EXALTED:
+                            spell = SPELL_BLESS_ASH_EXA;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (spell)
+                        DoCast(player, spell, true);
                 }
 
-                if (spell)
+                if (me->GetEntry() == NPC_KELETH)
                 {
-                    creature->CastSpell(player, spell, true);
+                    uint32 spell = 0;
+                    switch (player->GetReputationRank(942))         //mark of war
+                    {
+                        case REP_FRIENDLY:
+                            spell = SPELL_BLESS_KEL_FRI;
+                            break;
+                        case REP_HONORED:
+                            spell = SPELL_BLESS_KEL_HON;
+                            break;
+                        case REP_REVERED:
+                            spell = SPELL_BLESS_KEL_REV;
+                            break;
+                        case REP_EXALTED:
+                            spell = SPELL_BLESS_KEL_EXA;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (spell)
+                        DoCast(player, spell, true);
                 }
+                CloseGossipMenuFor(player);
+                player->TalkedToCreature(me->GetEntry(), me->GetGUID());
             }
-            CloseGossipMenuFor(player);
-            player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
-        }
-        return true;
-    }
-};
-
-/*######
-## npc_cooshcoosh
-######*/
-
-#define GOSSIP_COOSH            "You owe Sim'salabim money. Hand them over or die!"
-
-enum Cooshhooosh
-{
-    SPELL_LIGHTNING_BOLT    = 9532,
-    QUEST_CRACK_SKULLS      = 10009,
-    FACTION_HOSTILE_CO      = 45
-};
-
-class npc_cooshcoosh : public CreatureScript
-{
-public:
-    npc_cooshcoosh() : CreatureScript("npc_cooshcoosh") { }
-
-    struct npc_cooshcooshAI : public ScriptedAI
-    {
-        npc_cooshcooshAI(Creature* creature) : ScriptedAI(creature)
-        {
-            m_uiNormFaction = creature->getFaction();
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            LightningBolt_Timer = 2000;
-        }
-
-        uint32 m_uiNormFaction;
-        uint32 LightningBolt_Timer;
-
-        void Reset() override
-        {
-            Initialize();
-            if (me->getFaction() != m_uiNormFaction)
-                me->setFaction(m_uiNormFaction);
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (LightningBolt_Timer <= diff)
-            {
-                DoCastVictim(SPELL_LIGHTNING_BOLT);
-                LightningBolt_Timer = 5000;
-            } else LightningBolt_Timer -= diff;
-
-            DoMeleeAttackIfReady();
+            return true;
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_cooshcooshAI(creature);
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_COOSH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        SendGossipMenuFor(player, 9441, creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            CloseGossipMenuFor(player);
-            creature->setFaction(FACTION_HOSTILE_CO);
-            creature->AI()->AttackStart(player);
-        }
-        return true;
-    }
-};
-
-/*######
-## npc_elder_kuruti
-######*/
-
-#define GOSSIP_ITEM_KUR1 "Greetings, elder. It is time for your people to end their hostility towards the draenei and their allies."
-#define GOSSIP_ITEM_KUR2 "I did not mean to deceive you, elder. The draenei of Telredor thought to approach you in a way that would seem familiar to you."
-#define GOSSIP_ITEM_KUR3 "I will tell them. Farewell, elder."
-
-class npc_elder_kuruti : public CreatureScript
-{
-public:
-    npc_elder_kuruti() : CreatureScript("npc_elder_kuruti") { }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(9803) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        SendGossipMenuFor(player, 9226, creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF:
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                SendGossipMenuFor(player, 9227, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                SendGossipMenuFor(player, 9229, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-            {
-                if (!player->HasItemCount(24573))
-                {
-                    ItemPosCountVec dest;
-                    uint32 itemId = 24573;
-                    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1, NULL);
-                    if (msg == EQUIP_ERR_OK)
-                    {
-                        player->StoreNewItem(dest, itemId, true);
-                    }
-                    else
-                        player->SendEquipError(msg, NULL, NULL, itemId);
-                }
-                SendGossipMenuFor(player, 9231, creature->GetGUID());
-                break;
-            }
-        }
-        return true;
+        return new npcs_ashyen_and_kelethAI(creature);
     }
 };
 
@@ -313,13 +175,13 @@ class npc_kayra_longmane : public CreatureScript
 public:
     npc_kayra_longmane() : CreatureScript("npc_kayra_longmane") { }
 
-    struct npc_kayra_longmaneAI : public npc_escortAI
+    struct npc_kayra_longmaneAI : public EscortAI
     {
-        npc_kayra_longmaneAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_kayra_longmaneAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -350,19 +212,16 @@ public:
                     break;
             }
         }
-    };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_ESCAPE_FROM)
+        void QuestAccept(Player* player, Quest const* quest) override
         {
-            creature->AI()->Talk(SAY_START, player);
-
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_kayra_longmane::npc_kayra_longmaneAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID());
+            if (quest->GetQuestId() == QUEST_ESCAPE_FROM)
+            {
+                Talk(SAY_START, player);
+                Start(false, false, player->GetGUID());
+            }
         }
-        return true;
-    }
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -377,7 +236,5 @@ public:
 void AddSC_zangarmarsh()
 {
     new npcs_ashyen_and_keleth();
-    new npc_cooshcoosh();
-    new npc_elder_kuruti();
     new npc_kayra_longmane();
 }

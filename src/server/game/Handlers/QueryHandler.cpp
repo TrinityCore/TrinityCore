@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,20 +16,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
+#include "CharacterCache.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
+#include "DBCStores.h"
+#include "GameTime.h"
 #include "Log.h"
-#include "World.h"
+#include "MapManager.h"
+#include "NPCHandler.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "QueryPackets.h"
 #include "UpdateMask.h"
-#include "NPCHandler.h"
-#include "MapManager.h"
-#include "CharacterCache.h"
-
-#include "Packets/QueryPackets.h"
+#include "World.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
@@ -52,7 +53,7 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
     data << uint8(nameData->Sex);
     data << uint8(nameData->Class);
 
-    if (DeclinedName const* names = (player ? player->GetDeclinedNames() : NULL))
+    if (DeclinedName const* names = (player ? player->GetDeclinedNames() : nullptr))
     {
         data << uint8(1);                           // Name is declined
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
@@ -83,8 +84,8 @@ void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)
 void WorldSession::SendQueryTimeResponse()
 {
     WorldPacket data(SMSG_QUERY_TIME_RESPONSE, 4+4);
-    data << uint32(time(NULL));
-    data << uint32(sWorld->GetNextDailyQuestsResetTime() - time(NULL));
+    data << uint32(GameTime::GetGameTime());
+    data << uint32(sWorld->GetNextDailyQuestsResetTime() - GameTime::GetGameTime());
     SendPacket(&data);
 }
 
@@ -299,14 +300,14 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
         {
             std::string Text = pageText->Text;
 
-            int loc_idx = GetSessionDbLocaleIndex();
-            if (loc_idx >= 0)
-                if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(pageID))
-                    ObjectMgr::GetLocaleString(player->Text, loc_idx, Text);
+            LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+            if (localeConstant != LOCALE_enUS)
+                if (PageTextLocale const* pageTextLocale = sObjectMgr->GetPageTextLocale(pageID))
+                    ObjectMgr::GetLocaleString(pageTextLocale->Text, localeConstant, Text);
 
             data << Text;
-            data << uint32(pageText->NextPage);
-            pageID = pageText->NextPage;
+            data << uint32(pageText->NextPageID);
+            pageID = pageText->NextPageID;
         }
         SendPacket(&data);
 

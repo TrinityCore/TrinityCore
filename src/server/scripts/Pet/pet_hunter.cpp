@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,9 +21,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "CreatureAIImpl.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "TemporarySummon.h"
 
 enum HunterSpells
 {
@@ -59,81 +61,74 @@ class npc_pet_hunter_snake_trap : public CreatureScript
 
         struct npc_pet_hunter_snake_trapAI : public ScriptedAI
         {
-            npc_pet_hunter_snake_trapAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
+            npc_pet_hunter_snake_trapAI(Creature* creature) : ScriptedAI(creature), _isViper(false), _spellTimer(0) { }
 
-            void Initialize()
-            {
-                _spellTimer = 0;
-                _isViper = false;
-            }
-
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void Reset() override
             {
-                Initialize();
-
-                CreatureTemplate const* Info = me->GetCreatureTemplate();
-
-                _isViper = Info->Entry == NPC_HUNTER_VIPER ? true : false;
+                _isViper = me->GetEntry() == NPC_HUNTER_VIPER ? true : false;
 
                 me->SetMaxHealth(uint32(107 * (me->getLevel() - 40) * 0.025f));
                 // Add delta to make them not all hit the same time
-                uint32 delta = (rand32() % 7) * 100;
-                me->SetAttackTime(BASE_ATTACK, Info->BaseAttackTime + delta);
-                //me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER, float(Info->attackpower));
+                me->SetAttackTime(BASE_ATTACK, me->GetAttackTime(BASE_ATTACK) + urandms(0,6));
 
-                // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
-                if (!me->GetVictim() && me->IsSummon())
-                    if (Unit* Owner = me->ToTempSummon()->GetSummoner())
-                        if (Owner->getAttackerForHelper())
-                            AttackStart(Owner->getAttackerForHelper());
-
-                if (!_isViper)
+                if (!_isViper && !me->HasAura(SPELL_HUNTER_DEADLY_POISON_PASSIVE))
                     DoCast(me, SPELL_HUNTER_DEADLY_POISON_PASSIVE, true);
             }
 
             // Redefined for random target selection:
-            void MoveInLineOfSight(Unit* who) override
-            {
-                if (!me->GetVictim() && me->CanCreatureAttack(who))
-                {
-                    if (me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                        return;
-
-                    float attackRadius = me->GetAttackDistance(who);
-                    if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
-                    {
-                        if (!(rand32() % 5))
-                        {
-                            me->setAttackTimer(BASE_ATTACK, (rand32() % 10) * 100);
-                            _spellTimer = (rand32() % 10) * 100;
-                            AttackStart(who);
-                        }
-                    }
-                }
-            }
+            void MoveInLineOfSight(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !me->GetVictim())
-                    return;
-
-                if (me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
-                {
+                if (me->GetVictim() && me->GetVictim()->HasBreakableByDamageCrowdControlAura())
+                { // don't break cc
+                    me->GetThreatManager().ClearFixate();
                     me->InterruptNonMeleeSpells(false);
+                    me->AttackStop();
                     return;
                 }
+
+                if (me->IsSummon() && !me->GetThreatManager().GetFixateTarget())
+                { // find new target
+                    Unit* summoner = me->ToTempSummon()->GetSummoner();
+
+                    std::vector<Unit*> targets;
+                    for (std::pair<ObjectGuid const, PvPCombatReference*> const& pair : summoner->GetCombatManager().GetPvPCombatRefs())
+                    {
+                        Unit* enemy = pair.second->GetOther(summoner);
+                        if (!enemy->HasBreakableByDamageCrowdControlAura() && me->CanCreatureAttack(enemy) && me->IsWithinDistInMap(enemy, me->GetAttackDistance(enemy)))
+                            targets.push_back(enemy);
+                    }
+
+                    if (targets.empty())
+                        for (std::pair<ObjectGuid const, CombatReference*> const& pair : summoner->GetCombatManager().GetPvECombatRefs())
+                        {
+                            Unit* enemy = pair.second->GetOther(summoner);
+                            if (!enemy->HasBreakableByDamageCrowdControlAura() && me->CanCreatureAttack(enemy) && me->IsWithinDistInMap(enemy, me->GetAttackDistance(enemy)))
+                                targets.push_back(enemy);
+                        }
+
+                    for (Unit* target : targets)
+                        me->EngageWithTarget(target);
+
+                    if (!targets.empty())
+                    {
+                        Unit* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                        me->GetThreatManager().FixateTarget(target);
+                    }
+                }
+
+                if (!UpdateVictim())
+                    return;
 
                 // Viper
                 if (_isViper)
                 {
                     if (_spellTimer <= diff)
                     {
-                        if (urand(0, 2) == 0) // 33% chance to cast
+                        if (!urand(0, 2)) // 33% chance to cast
                             DoCastVictim(RAND(SPELL_HUNTER_MIND_NUMBING_POISON, SPELL_HUNTER_CRIPPLING_POISON));
 
                         _spellTimer = 3000;
@@ -168,10 +163,11 @@ class spell_pet_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PET_SWOOP) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PET_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_PET_SWOOP,
+                    SPELL_PET_CHARGE
+                });
             }
 
             void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -214,9 +210,7 @@ class spell_pet_guard_dog : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PET_GUARD_DOG_HAPPINESS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PET_GUARD_DOG_HAPPINESS });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -235,10 +229,13 @@ class spell_pet_guard_dog : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* caster = eventInfo.GetActor();
-                caster->CastSpell((Unit*)nullptr, SPELL_PET_GUARD_DOG_HAPPINESS, true, nullptr, aurEff);
+                caster->CastSpell(nullptr, SPELL_PET_GUARD_DOG_HAPPINESS, aurEff);
 
+                Unit* target = eventInfo.GetProcTarget();
+                if (!target->CanHaveThreatList())
+                    return;
                 float addThreat = CalculatePct(ASSERT_NOTNULL(eventInfo.GetSpellInfo())->Effects[EFFECT_0].CalcValue(caster), aurEff->GetAmount());
-                eventInfo.GetProcTarget()->AddThreat(caster, addThreat);
+                target->GetThreatManager().AddThreat(caster, addThreat, GetSpellInfo(), false, true);
             }
 
             void Register() override
@@ -266,9 +263,7 @@ class spell_pet_silverback : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PET_GUARD_DOG_HAPPINESS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PET_GUARD_DOG_HAPPINESS });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -289,7 +284,7 @@ class spell_pet_silverback : public SpellScriptLoader
                 PreventDefaultAction();
 
                 uint32 spellId = triggerSpell[GetSpellInfo()->GetRank() - 1];
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(nullptr, spellId, aurEff);
             }
 
             void Register() override

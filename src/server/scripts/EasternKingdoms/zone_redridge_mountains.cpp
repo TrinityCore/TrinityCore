@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,9 +43,9 @@ class npc_corporal_keeshan : public CreatureScript
 public:
     npc_corporal_keeshan() : CreatureScript("npc_corporal_keeshan") { }
 
-    struct npc_corporal_keeshanAI : public npc_escortAI
+    struct npc_corporal_keeshanAI : public EscortAI
     {
-        npc_corporal_keeshanAI(Creature* creature) : npc_escortAI(creature)
+        npc_corporal_keeshanAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -63,17 +63,17 @@ public:
             Initialize();
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_MISSING_IN_ACTION)
             {
                 Talk(SAY_CORPORAL_1, player);
-                me->setFaction(250);
-                npc_escortAI::Start(true, false, player->GetGUID(), quest);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
+                EscortAI::Start(true, false, player->GetGUID(), quest);
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -105,7 +105,7 @@ public:
             if (HasEscortState(STATE_ESCORT_NONE))
                 return;
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (phase)
             {

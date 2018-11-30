@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,9 @@
 #ifndef DEF_ONYXIAS_LAIR_H
 #define DEF_ONYXIAS_LAIR_H
 
+#include "CreatureAIImpl.h"
+
+#define OnyxiaScriptName "instance_onyxias_lair"
 #define DataHeader "OL"
 
 uint32 const EncounterCount     = 1;
@@ -69,4 +72,11 @@ enum OLAchievementData
     ACHIEV_CRITERIA_DEEP_BREATH_25_PLAYER                   = 12569, // Criteria for achievement 4407: She Deep Breaths More (25 player) Everybody evade Deep Breath
     ACHIEV_TIMED_START_EVENT                                =  6601, // Timed event for achievement 4402, 4005: More Dots! (10, 25 player) 5 min kill
 };
+
+template <class AI, class T>
+inline AI* GetOnyxiaAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, OnyxiaScriptName);
+}
+
 #endif

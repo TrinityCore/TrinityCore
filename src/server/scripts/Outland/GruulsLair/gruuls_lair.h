@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #ifndef GRUULS_LAIR_H_
 #define GRUULS_LAIR_H_
+
+#include "CreatureAIImpl.h"
 
 #define GLScriptName "instance_gruuls_lair"
 #define DataHeader   "GL"
@@ -45,10 +47,10 @@ enum GLGameObjectIds
     GO_GRUUL_DOOR               = 184662
 };
 
-template<class AI>
-AI* GetGruulsLairAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetGruulsLairAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, GLScriptName);
+    return GetInstanceAI<AI>(obj, GLScriptName);
 }
 
 #endif // GRUULS_LAIR_H_

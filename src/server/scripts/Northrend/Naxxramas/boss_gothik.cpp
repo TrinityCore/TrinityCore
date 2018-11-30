@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,16 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "CombatAI.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "naxxramas.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "GridNotifiers.h"
-#include "CombatAI.h"
-#include "AreaBoundary.h"
-#include "naxxramas.h"
 
 /* Constants */
 enum Yells
@@ -320,9 +324,9 @@ class boss_gothik : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.SetPhase(PHASE_ONE);
                 events.ScheduleEvent(EVENT_SUMMON, Seconds(25), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_DOORS_UNLOCK, Minutes(3) + Seconds(25), 0, PHASE_ONE);
@@ -394,7 +398,7 @@ class boss_gothik : public CreatureScript
                 switch (action)
                 {
                     case ACTION_MINION_EVADE:
-                        if (_gateIsOpen || me->getThreatManager().isThreatListEmpty())
+                        if (_gateIsOpen || me->GetThreatManager().IsThreatListEmpty())
                             return EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                         if (_gateCanOpen)
                             OpenGate();
@@ -420,8 +424,8 @@ class boss_gothik : public CreatureScript
                     // thus we only do a cursory check to make sure (edge cases?)
                     if (Player* newTarget = FindEligibleTarget(me, _gateIsOpen))
                     {
-                        me->getThreatManager().resetAllAggro();
-                        me->AddThreat(newTarget, 1.0f);
+                        ResetThreatList();
+                        AddThreat(newTarget, 1.0f);
                         AttackStart(newTarget);
                     }
                     else
@@ -503,7 +507,7 @@ class boss_gothik : public CreatureScript
                             Talk(SAY_PHASE_TWO);
                             Talk(EMOTE_PHASE_TWO);
                             me->SetReactState(REACT_PASSIVE);
-                            me->getThreatManager().resetAllAggro();
+                            ResetThreatList();
                             DoCastAOE(SPELL_TELEPORT_LIVE);
                             break;
                         case EVENT_TELEPORT:
@@ -513,7 +517,7 @@ class boss_gothik : public CreatureScript
                                 me->AttackStop();
                                 me->StopMoving();
                                 me->SetReactState(REACT_PASSIVE);
-                                me->getThreatManager().resetAllAggro();
+                                ResetThreatList();
                                 DoCastAOE(_lastTeleportDead ? SPELL_TELEPORT_LIVE : SPELL_TELEPORT_DEAD);
                                 _lastTeleportDead = !_lastTeleportDead;
 
@@ -529,7 +533,7 @@ class boss_gothik : public CreatureScript
                             break;
                         case EVENT_RESUME_ATTACK:
                             me->SetReactState(REACT_AGGRESSIVE);
-                            events.ScheduleEvent(EVENT_BOLT, Seconds(0), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_BOLT, 0s, 0, PHASE_TWO);
                             // return to the start of this method so victim side etc is re-evaluated
                             return UpdateAI(0u); // tail recursion for efficiency
                         case EVENT_BOLT:
@@ -558,7 +562,7 @@ class boss_gothik : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_gothikAI>(creature);
+            return GetNaxxramasAI<boss_gothikAI>(creature);
         }
 };
 
@@ -580,7 +584,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
 
         void DamageTaken(Unit* attacker, uint32 &damage) override
         { // do not allow minions to take damage before the gate is opened
-            if (!_gateIsOpen && !isOnSameSide(attacker))
+            if (!_gateIsOpen && (!attacker || !isOnSameSide(attacker)))
                 damage = 0;
         }
 
@@ -594,7 +598,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
                 case ACTION_ACQUIRE_TARGET:
                     if (Player* target = FindEligibleTarget(me, _gateIsOpen))
                     {
-                        me->AddThreat(target, 1.0f);
+                        AddThreat(target, 1.0f);
                         AttackStart(target);
                     }
                     else
@@ -622,8 +626,8 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
                 if (Player* newTarget = FindEligibleTarget(me, _gateIsOpen))
                 {
                     me->RemoveAurasByType(SPELL_AURA_MOD_TAUNT);
-                    me->getThreatManager().resetAllAggro();
-                    me->AddThreat(newTarget, 1.0f);
+                    ResetThreatList();
+                    AddThreat(newTarget, 1.0f);
                     AttackStart(newTarget);
                 }
                 else
@@ -665,7 +669,7 @@ class npc_gothik_minion_livingtrainee : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_gothik_minion_livingtraineeAI>(creature);
+            return GetNaxxramasAI<npc_gothik_minion_livingtraineeAI>(creature);
         }
 };
 
@@ -694,7 +698,7 @@ class npc_gothik_minion_livingknight : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_gothik_minion_livingknightAI>(creature);
+            return GetNaxxramasAI<npc_gothik_minion_livingknightAI>(creature);
         }
 };
 
@@ -724,7 +728,7 @@ class npc_gothik_minion_livingrider : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_gothik_minion_livingriderAI>(creature);
+            return GetNaxxramasAI<npc_gothik_minion_livingriderAI>(creature);
         }
 };
 
@@ -753,7 +757,7 @@ class npc_gothik_minion_spectraltrainee : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_minion_spectraltraineeAI>(creature);
+        return GetNaxxramasAI<npc_gothik_minion_spectraltraineeAI>(creature);
     }
 };
 
@@ -782,7 +786,7 @@ class npc_gothik_minion_spectralknight : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_minion_spectralknightAI>(creature);
+        return GetNaxxramasAI<npc_gothik_minion_spectralknightAI>(creature);
     }
 };
 
@@ -847,7 +851,7 @@ class npc_gothik_minion_spectralrider : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_minion_spectralriderAI>(creature);
+        return GetNaxxramasAI<npc_gothik_minion_spectralriderAI>(creature);
     }
 };
 
@@ -876,7 +880,7 @@ class npc_gothik_minion_spectralhorse : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_minion_spectralhorseAI>(creature);
+        return GetNaxxramasAI<npc_gothik_minion_spectralhorseAI>(creature);
     }
 };
 
@@ -887,7 +891,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_triggerAI>(creature);
+        return GetNaxxramasAI<npc_gothik_triggerAI>(creature);
     }
 
     struct npc_gothik_triggerAI : public ScriptedAI
@@ -896,7 +900,7 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override { }
         void UpdateAI(uint32 /*diff*/) override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0;  }
 
         Creature* SelectRandomSkullPile()

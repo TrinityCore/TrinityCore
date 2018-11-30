@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "SpellScript.h"
 #include "ScriptedCreature.h"
 #include "violet_hold.h"
@@ -51,9 +52,9 @@ class boss_cyanigosa : public CreatureScript
         {
             boss_cyanigosaAI(Creature* creature) : BossAI(creature, DATA_CYANIGOSA) { }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -63,10 +64,10 @@ class boss_cyanigosa : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+                _JustDied();
             }
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
@@ -154,9 +155,7 @@ class spell_cyanigosa_arcane_vacuum : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_PLAYER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_PLAYER });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

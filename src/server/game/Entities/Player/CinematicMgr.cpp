@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,9 @@
  */
 
 #include "CinematicMgr.h"
-#include "Creature.h"
+#include "Map.h"
+#include "M2Stores.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "TemporarySummon.h"
 
@@ -45,21 +47,20 @@ void CinematicMgr::BeginCinematic()
     if (m_activeCinematicCameraId == 0)
         return;
 
-    auto itr = sFlyByCameraStore.find(m_activeCinematicCameraId);
-    if (itr != sFlyByCameraStore.end())
+    if (std::vector<FlyByCamera> const* flyByCameras = GetFlyByCameras(m_activeCinematicCameraId))
     {
         // Initialize diff, and set camera
         m_cinematicDiff = 0;
-        m_cinematicCamera = &itr->second;
+        m_cinematicCamera = flyByCameras;
 
         auto camitr = m_cinematicCamera->begin();
         if (camitr != m_cinematicCamera->end())
         {
-            Position pos(camitr->locations.x, camitr->locations.y, camitr->locations.z, camitr->locations.w);
+            Position const& pos = camitr->locations;
             if (!pos.IsPositionValid())
                 return;
 
-            player->GetMap()->LoadGrid(camitr->locations.x, camitr->locations.y);
+            player->GetMap()->LoadGrid(pos.GetPositionX(), pos.GetPositionY());
             m_CinematicObject = player->SummonCreature(VISUAL_WAYPOINT, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5 * MINUTE * IN_MILLISECONDS);
             if (m_CinematicObject)
             {
@@ -68,11 +69,7 @@ void CinematicMgr::BeginCinematic()
             }
 
             // Get cinematic length
-            FlyByCameraCollection::const_reverse_iterator camrevitr = m_cinematicCamera->rbegin();
-            if (camrevitr != m_cinematicCamera->rend())
-                m_cinematicLength = camrevitr->timeStamp;
-            else
-                m_cinematicLength = 0;
+            m_cinematicLength = flyByCameras->back().timeStamp;
         }
     }
 }
@@ -110,14 +107,14 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
     {
         if (cam.timeStamp > m_cinematicDiff)
         {
-            nextPosition = Position(cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w);
+            nextPosition.Relocate(cam.locations);
             nextTimestamp = cam.timeStamp;
             break;
         }
-        lastPosition = Position(cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w);
+        lastPosition.Relocate(cam.locations);
         lastTimestamp = cam.timeStamp;
     }
-    float angle = lastPosition.GetAngle(&nextPosition);
+    float angle = lastPosition.GetAbsoluteAngle(&nextPosition);
     angle -= lastPosition.GetOrientation();
     if (angle < 0)
         angle += 2 * float(M_PI);
@@ -129,7 +126,7 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
     workDiff += static_cast<int32>(float(CINEMATIC_LOOKAHEAD) * cos(angle));
 
     // Get an iterator to the last entry in the cameras, to make sure we don't go beyond the end
-    FlyByCameraCollection::const_reverse_iterator endItr = m_cinematicCamera->rbegin();
+    auto endItr = m_cinematicCamera->rbegin();
     if (endItr != m_cinematicCamera->rend() && workDiff > static_cast<int32>(endItr->timeStamp))
         workDiff = endItr->timeStamp;
 
@@ -142,11 +139,11 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
     {
         if (static_cast<int32>(cam.timeStamp) >= workDiff)
         {
-            nextPosition = Position(cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w);
+            nextPosition.Relocate(cam.locations);
             nextTimestamp = cam.timeStamp;
             break;
         }
-        lastPosition = Position(cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w);
+        lastPosition.Relocate(cam.locations);
         lastTimestamp = cam.timeStamp;
     }
 

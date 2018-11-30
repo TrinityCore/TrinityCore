@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -82,9 +82,9 @@ class boss_renataki : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void UpdateAI(uint32 diff) override
@@ -144,8 +144,8 @@ class boss_renataki : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         {
-                            if (DoGetThreat(me->GetVictim()))
-                                DoModifyThreatPercent(me->GetVictim(), -50);
+                            if (GetThreat(me->GetVictim()))
+                                ModifyThreatByPercent(me->GetVictim(), -50);
                             AttackStart(target);
                         }
 
@@ -165,7 +165,7 @@ class boss_renataki : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_renatakiAI(creature);
+            return GetZulGurubAI<boss_renatakiAI>(creature);
         }
 };
 
@@ -173,4 +173,3 @@ void AddSC_boss_renataki()
 {
     new boss_renataki();
 }
-

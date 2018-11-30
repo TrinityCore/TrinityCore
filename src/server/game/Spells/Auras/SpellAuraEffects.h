@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,22 +19,23 @@
 #ifndef TRINITY_SPELLAURAEFFECTS_H
 #define TRINITY_SPELLAURAEFFECTS_H
 
-class Unit;
-class AuraEffect;
-class Aura;
-
 #include "SpellAuras.h"
+
+class AuraEffect;
+class Unit;
 
 typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
 class TC_GAME_API AuraEffect
 {
-    friend void Aura::_InitEffects(uint8 effMask, Unit* caster, int32* baseAmount);
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID, bool resetPeriodicTimer);
+    friend void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 const* baseAmount);
     friend Aura::~Aura();
+    friend class Unit;
+
     private:
         ~AuraEffect();
-        explicit AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster);
+        explicit AuraEffect(Aura* base, uint8 effIndex, int32 const* baseAmount, Unit* caster);
+
     public:
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
         ObjectGuid GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
@@ -50,16 +51,16 @@ class TC_GAME_API AuraEffect
         uint32 GetId() const { return m_spellInfo->Id; }
         uint32 GetEffIndex() const { return m_effIndex; }
         int32 GetBaseAmount() const { return m_baseAmount; }
-        int32 GetAmplitude() const { return m_amplitude; }
+        int32 GetAmplitude() const { return _amplitude; }
 
         int32 GetMiscValueB() const { return m_spellInfo->Effects[m_effIndex].MiscValueB; }
         int32 GetMiscValue() const { return m_spellInfo->Effects[m_effIndex].MiscValue; }
         AuraType GetAuraType() const { return (AuraType)m_spellInfo->Effects[m_effIndex].ApplyAuraName; }
-        int32 GetAmount() const { return m_amount; }
-        void SetAmount(int32 amount) { m_amount = amount; m_canBeRecalculated = false;}
+        int32 GetAmount() const { return _amount; }
+        void SetAmount(int32 amount) { _amount = amount; m_canBeRecalculated = false; }
 
-        int32 GetPeriodicTimer() const { return m_periodicTimer; }
-        void SetPeriodicTimer(int32 periodicTimer) { m_periodicTimer = periodicTimer; }
+        int32 GetPeriodicTimer() const { return _periodicTimer; }
+        void SetPeriodicTimer(int32 periodicTimer) { _periodicTimer = periodicTimer; }
 
         int32 CalculateAmount(Unit* caster);
         void CalculatePeriodic(Unit* caster, bool resetPeriodicTimer = true, bool load = false);
@@ -73,19 +74,13 @@ class TC_GAME_API AuraEffect
         void HandleEffect(Unit* target, uint8 mode, bool apply);
         void ApplySpellMod(Unit* target, bool apply);
 
-        void  SetBonusAmount(int32 val) { m_bonusAmount = val; }
-        int32 GetBonusAmount() const { return m_bonusAmount; }
-        void  SetCritChance(float val) { m_critChance = val; }
-        float GetCritChance() const { return m_critChance; }
-        void  SetDonePct(float val) { m_donePct = val; }
-        float GetDonePct() const { return m_donePct; }
-
         void Update(uint32 diff, Unit* caster);
-        void UpdatePeriodic(Unit* caster);
 
-        uint32 GetTickNumber() const { return m_tickNumber; }
-        int32 GetTotalTicks() const { return m_amplitude ? (GetBase()->GetMaxDuration() / m_amplitude) : 1;}
-        void ResetPeriodic(bool resetPeriodicTimer = false) { if (resetPeriodicTimer) m_periodicTimer = m_amplitude; m_tickNumber = 0;}
+        uint32 GetTickNumber() const { return _ticksDone; }
+        uint32 GetRemainingTicks() const { return GetTotalTicks() - _ticksDone; }
+        uint32 GetTotalTicks() const;
+        void ResetPeriodic(bool resetPeriodicTimer = false);
+        void ResetTicks() { _ticksDone = 0; }
 
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
@@ -108,22 +103,20 @@ class TC_GAME_API AuraEffect
         SpellInfo const* const m_spellInfo;
         int32 const m_baseAmount;
 
-        int32 m_amount;
-        int32 m_bonusAmount;
-        float m_critChance;
-        float m_donePct;
+        int32 _amount;
 
         SpellModifier* m_spellmod;
 
-        int32 m_periodicTimer;
-        int32 m_amplitude;
-        uint32 m_tickNumber;
+        // periodic stuff
+        int32 _periodicTimer;
+        int32 _amplitude;       // time between consecutive ticks
+        uint32 _ticksDone;      // ticks counter
 
         uint8 const m_effIndex;
         bool m_canBeRecalculated;
         bool m_isPeriodic;
-    private:
-        bool CanPeriodicTickCrit(Unit const* caster) const;
+
+        float GetCritChanceFor(Unit const* caster, Unit const* target) const;
 
     public:
         // aura effect apply/remove handlers
@@ -145,6 +138,7 @@ class TC_GAME_API AuraEffect
         void HandleModStealth(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModStealthLevel(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModStealthDetect(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleDetectAmore(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraGhost(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandlePhase(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -182,6 +176,7 @@ class TC_GAME_API AuraEffect
         void HandleModThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModTotalThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModTaunt(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModDetaunt(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  control
         void HandleModConfuse(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModFear(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -244,7 +239,6 @@ class TC_GAME_API AuraEffect
         void HandleAuraModBlockPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModRegenInterrupt(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModWeaponCritPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCritChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCritChanceShool(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -267,7 +261,6 @@ class TC_GAME_API AuraEffect
         void HandleAuraModRangedAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModRangedAttackPowerOfStatPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModAttackPowerOfStatPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraModAttackPowerOfArmor(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   damage bonus
         void HandleModDamageDone(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModDamagePercentDone(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -297,7 +290,6 @@ class TC_GAME_API AuraEffect
         void HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
-        void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const;
@@ -308,6 +300,7 @@ class TC_GAME_API AuraEffect
         void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) const;
+        void HandleModAttackPowerOfArmorAuraTick(Unit* target, Unit* caster) const;
 
         // aura effect proc handlers
         void HandleBreakableCCAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);

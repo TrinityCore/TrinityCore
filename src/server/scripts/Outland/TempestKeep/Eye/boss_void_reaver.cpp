@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "the_eye.h"
 
@@ -78,15 +79,15 @@ class boss_void_reaver : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_POUNDING, 15000);
-                events.ScheduleEvent(EVENT_ARCANE_ORB, 3000);
-                events.ScheduleEvent(EVENT_KNOCK_AWAY, 30000);
-                events.ScheduleEvent(EVENT_BERSERK, 600000);
+                events.ScheduleEvent(EVENT_ARCANE_ORB, 3s);
+                events.ScheduleEvent(EVENT_KNOCK_AWAY, 30s);
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
             }
 
             void UpdateAI(uint32 diff) override
@@ -110,38 +111,33 @@ class boss_void_reaver : public CreatureScript
                             break;
                         case EVENT_ARCANE_ORB:
                         {
-                            Unit* target = NULL;
-                            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
                             std::vector<Unit*> target_list;
-                            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr != t_list.end(); ++itr)
+                            for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                             {
-                                target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
-                                if (!target)
-                                    continue;
-                                // exclude pets & totems, 18 yard radius minimum
+                                Unit* target = ref->GetVictim();
                                 if (target->GetTypeId() == TYPEID_PLAYER && target->IsAlive() && !target->IsWithinDist(me, 18, false))
                                     target_list.push_back(target);
-                                target = NULL;
                             }
 
+                            Unit* target;
                             if (!target_list.empty())
                                 target = *(target_list.begin() + rand32() % target_list.size());
                             else
                                 target = me->GetVictim();
 
                             if (target)
-                                me->CastSpell(target, SPELL_ARCANE_ORB, false, NULL, NULL);
+                                me->CastSpell(target, SPELL_ARCANE_ORB);
 
-                            events.ScheduleEvent(EVENT_ARCANE_ORB, 3000);
+                            events.ScheduleEvent(EVENT_ARCANE_ORB, 3s);
                             break;
                         }
                         case EVENT_KNOCK_AWAY:
                             DoCastVictim(SPELL_KNOCK_AWAY);
                             // Drop 25% aggro
-                            if (DoGetThreat(me->GetVictim()))
-                                DoModifyThreatPercent(me->GetVictim(), -25);
+                            if (GetThreat(me->GetVictim()))
+                                ModifyThreatByPercent(me->GetVictim(), -25);
 
-                            events.ScheduleEvent(EVENT_KNOCK_AWAY, 30000);
+                            events.ScheduleEvent(EVENT_KNOCK_AWAY, 30s);
                             break;
                         case EVENT_BERSERK:
                             if (!Enraged)
@@ -167,7 +163,7 @@ class boss_void_reaver : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_void_reaverAI>(creature);
+            return GetTheEyeAI<boss_void_reaverAI>(creature);
         }
 };
 
@@ -175,4 +171,3 @@ void AddSC_boss_void_reaver()
 {
     new boss_void_reaver();
 }
-

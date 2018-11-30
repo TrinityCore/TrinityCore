@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,11 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "karazhan.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -98,7 +101,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_moroesAI>(creature);
+        return GetKarazhanAI<boss_moroesAI>(creature);
     }
 
     struct boss_moroesAI : public ScriptedAI
@@ -153,7 +156,7 @@ public:
             DoZoneInCombat();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             StartEvent();
 
@@ -190,7 +193,7 @@ public:
                 for (uint8 i = 0; i < 6; ++i)
                     AddList.push_back(Adds[i]);
 
-                Trinity::Containers::RandomResizeList(AddList, 4);
+                Trinity::Containers::RandomResize(AddList, 4);
 
                 uint8 i = 0;
                 for (std::list<uint32>::const_iterator itr = AddList.begin(); itr != AddList.end() && i < 4; ++itr, ++i)
@@ -297,14 +300,8 @@ public:
 
                 if (Blind_Timer <= diff)
                 {
-                    std::list<Unit*> targets;
-                    SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, me->GetCombatReach()*5, true);
-                    for (std::list<Unit*>::const_iterator i = targets.begin(); i != targets.end(); ++i)
-                        if (!me->IsWithinMeleeRange(*i))
-                        {
-                            DoCast(*i, SPELL_BLIND);
-                            break;
-                        }
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 0.0f, true, false))
+                      DoCast(target, SPELL_BLIND);
                     Blind_Timer = 40000;
                 } else Blind_Timer -= diff;
             }
@@ -381,7 +378,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_baroness_dorothea_millstipeAI>(creature);
+        return GetKarazhanAI<boss_baroness_dorothea_millstipeAI>(creature);
     }
 
     struct boss_baroness_dorothea_millstipeAI : public boss_moroes_guestAI
@@ -428,7 +425,7 @@ public:
             if (ManaBurn_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    if (target->getPowerType() == POWER_MANA)
+                    if (target->GetPowerType() == POWER_MANA)
                         DoCast(target, SPELL_MANABURN);
                 ManaBurn_Timer = 5000;                          // 3 sec cast
             } else ManaBurn_Timer -= diff;
@@ -452,7 +449,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_baron_rafe_dreugerAI>(creature);
+        return GetKarazhanAI<boss_baron_rafe_dreugerAI>(creature);
     }
 
     struct boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
@@ -517,7 +514,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lady_catriona_von_indiAI>(creature);
+        return GetKarazhanAI<boss_lady_catriona_von_indiAI>(creature);
     }
 
     struct boss_lady_catriona_von_indiAI : public boss_moroes_guestAI
@@ -595,7 +592,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lady_keira_berrybuckAI>(creature);
+        return GetKarazhanAI<boss_lady_keira_berrybuckAI>(creature);
     }
 
     struct boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
@@ -677,7 +674,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lord_robin_darisAI>(creature);
+        return GetKarazhanAI<boss_lord_robin_darisAI>(creature);
     }
 
     struct boss_lord_robin_darisAI : public boss_moroes_guestAI
@@ -741,7 +738,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lord_crispin_ferenceAI>(creature);
+        return GetKarazhanAI<boss_lord_crispin_ferenceAI>(creature);
     }
 
     struct boss_lord_crispin_ferenceAI : public boss_moroes_guestAI

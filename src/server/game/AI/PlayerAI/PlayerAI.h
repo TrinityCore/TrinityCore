@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,34 +18,26 @@
 #ifndef TRINITY_PLAYERAI_H
 #define TRINITY_PLAYERAI_H
 
+#include "Common.h"
 #include "UnitAI.h"
-#include "Player.h"
-#include "Spell.h"
-#include "Creature.h"
+
+class Creature;
+class Player;
+class Spell;
+class Unit;
 
 class TC_GAME_API PlayerAI : public UnitAI
 {
     public:
-        explicit PlayerAI(Player* player) : UnitAI(static_cast<Unit*>(player)), me(player), _selfSpec(PlayerAI::GetPlayerSpec(player)), _isSelfHealer(PlayerAI::IsPlayerHealer(player)), _isSelfRangedAttacker(PlayerAI::IsPlayerRangedAttacker(player)) { }
+        explicit PlayerAI(Player* player);
 
-        void OnCharmed(bool /*apply*/) override { } // charm AI application for players is handled by Unit::SetCharmedBy / Unit::RemoveCharmedBy
+        Creature* GetCharmer() const;
 
-        Creature* GetCharmer() const
-        {
-            if (ObjectGuid charmerGUID = me->GetCharmerGUID())
-                if (charmerGUID.IsCreature())
-                    return ObjectAccessor::GetCreature(*me, charmerGUID);
-            return nullptr;
-        }
         // helper functions to determine player info
         // Return values range from 0 (left-most spec) to 2 (right-most spec). If two specs have the same number of talent points, the left-most of those specs is returned.
-        static uint8 GetPlayerSpec(Player const* who);
-        // Return values range from 0 (left-most spec) to 2 (right-most spec). If two specs have the same number of talent points, the left-most of those specs is returned.
-        uint8 GetSpec(Player const* who = nullptr) const { return (!who || who == me) ? _selfSpec : GetPlayerSpec(who); }
-        static bool IsPlayerHealer(Player const* who);
-        bool IsHealer(Player const* who = nullptr) const { return (!who || who == me) ? _isSelfHealer : IsPlayerHealer(who); }
-        static bool IsPlayerRangedAttacker(Player const* who);
-        bool IsRangedAttacker(Player const* who = nullptr) const { return (!who || who == me) ? _isSelfRangedAttacker : IsPlayerRangedAttacker(who); }
+        uint8 GetSpec(Player const* who = nullptr) const;
+        bool IsHealer(Player const* who = nullptr) const;
+        bool IsRangedAttacker(Player const* who = nullptr) const;
 
     protected:
         struct TargetedSpell : public std::pair<Spell*, Unit*>
@@ -85,14 +77,9 @@ class TC_GAME_API PlayerAI : public UnitAI
            This invalidates the vector, and empties it to prevent accidental misuse. */
         TargetedSpell SelectSpellCast(PossibleSpellVector& spells);
         /* Helper method - casts the included spell at the included target */
-        inline void DoCastAtTarget(TargetedSpell spell)
-        {
-            SpellCastTargets targets;
-            targets.SetUnitTarget(spell.second);
-            spell.first->prepare(&targets);
-        }
+        void DoCastAtTarget(TargetedSpell spell);
 
-        virtual Unit* SelectAttackTarget() const { return me->GetCharmer() ? me->GetCharmer()->GetVictim() : nullptr; }
+        virtual Unit* SelectAttackTarget() const;
         void DoRangedAttackIfReady();
         void DoAutoAttackIfReady();
 
@@ -108,11 +95,12 @@ class TC_GAME_API PlayerAI : public UnitAI
 class TC_GAME_API SimpleCharmedPlayerAI : public PlayerAI
 {
     public:
-        SimpleCharmedPlayerAI(Player* player) : PlayerAI(player), _castCheckTimer(500), _chaseCloser(false), _forceFacing(true) { }
+        SimpleCharmedPlayerAI(Player* player) : PlayerAI(player), _castCheckTimer(2500), _chaseCloser(false), _forceFacing(true), _isFollowing(false) { }
         void UpdateAI(uint32 diff) override;
-        void OnCharmed(bool apply) override;
+        void OnCharmed(bool isNew) override;
 
     protected:
+        bool CanAIAttack(Unit const* who) const override;
         Unit* SelectAttackTarget() const override;
 
     private:
@@ -120,6 +108,7 @@ class TC_GAME_API SimpleCharmedPlayerAI : public PlayerAI
         uint32 _castCheckTimer;
         bool _chaseCloser;
         bool _forceFacing;
+        bool _isFollowing;
 };
 
 #endif

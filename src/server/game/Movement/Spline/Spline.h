@@ -1,27 +1,29 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITYSERVER_SPLINE_H
 #define TRINITYSERVER_SPLINE_H
 
 #include "MovementTypedefs.h"
+#include "Errors.h"
 #include <G3D/Vector3.h>
 #include <limits>
+#include <vector>
 
 namespace Movement {
 
@@ -48,6 +50,7 @@ protected:
 
     uint8 m_mode;
     bool cyclic;
+    float initialOrientation;
 
     enum{
         // could be modified, affects segment length evaluation precision
@@ -76,10 +79,10 @@ protected:
     typedef float (SplineBase::*SegLenghtMethtod)(index_type) const;
     static SegLenghtMethtod seglengths[ModesEnd];
 
-    void InitLinear(const Vector3*, index_type, index_type);
-    void InitCatmullRom(const Vector3*, index_type, index_type);
-    void InitBezier3(const Vector3*, index_type, index_type);
-    typedef void (SplineBase::*InitMethtod)(const Vector3*, index_type, index_type);
+    void InitLinear(Vector3 const*, index_type, index_type);
+    void InitCatmullRom(Vector3 const*, index_type, index_type);
+    void InitBezier3(Vector3 const*, index_type, index_type);
+    typedef void (SplineBase::*InitMethtod)(Vector3 const*, index_type, index_type);
     static InitMethtod initializers[ModesEnd];
 
     void UninitializedSpline() const { ABORT();}
@@ -108,13 +111,13 @@ public:
     EvaluationMode mode() const { return (EvaluationMode)m_mode;}
     bool isCyclic() const { return cyclic;}
 
-    const ControlArray& getPoints() const { return points;}
+    ControlArray const& getPoints() const { return points;}
     index_type getPointCount() const { return points.size();}
-    const Vector3& getPoint(index_type i) const { return points[i];}
+    Vector3 const& getPoint(index_type i) const { return points[i];}
 
     /** Initializes spline. Don't call other methods while spline not initialized. */
-    void init_spline(const Vector3 * controls, index_type count, EvaluationMode m);
-    void init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point);
+    void init_spline(const Vector3 * controls, index_type count, EvaluationMode m, float orientation);
+    void init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point, float orientation);
 
     /** As i can see there are a lot of ways how spline can be initialized
         would be no harm to have some custom initializers. */
@@ -169,8 +172,8 @@ public:
     void computeIndex(float t, index_type& out_idx, float& out_u) const;
 
     /** Initializes spline. Don't call other methods while spline not initialized. */
-    void init_spline(const Vector3 * controls, index_type count, EvaluationMode m) { SplineBase::init_spline(controls, count, m);}
-    void init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point) { SplineBase::init_cyclic_spline(controls, count, m, cyclic_point);}
+    void init_spline(const Vector3 * controls, index_type count, EvaluationMode m, float orientation = 0) { SplineBase::init_spline(controls, count, m, orientation);}
+    void init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point, float orientation = 0) { SplineBase::init_cyclic_spline(controls, count, m, cyclic_point, orientation);}
 
     /**  Initializes lengths with SplineBase::SegLength method. */
     void initLengths();

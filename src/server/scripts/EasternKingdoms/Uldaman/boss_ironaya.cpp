@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "uldaman.h"
 
 enum Ironaya
 {
@@ -65,7 +66,7 @@ class boss_ironaya : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 uiDiff) override
             {
@@ -74,18 +75,10 @@ class boss_ironaya : public CreatureScript
                     return;
 
                 //If we are <50% hp do knockaway ONCE
-                if (!bHasCastKnockaway && HealthBelowPct(50))
+                if (!bHasCastKnockaway && HealthBelowPct(50) && me->GetVictim())
                 {
                     DoCastVictim(SPELL_KNOCKAWAY, true);
-
-                    // current aggro target is knocked away pick new target
-                    Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
-
-                    if (!target || target == me->GetVictim())
-                        target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
-
-                    if (target)
-                        me->TauntApply(target);
+                    me->GetThreatManager().ResetThreat(me->EnsureVictim());
 
                     //Shouldn't cast this agian
                     bHasCastKnockaway = true;
@@ -110,7 +103,7 @@ class boss_ironaya : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_ironayaAI(creature);
+            return GetUldamanAI<boss_ironayaAI>(creature);
         }
 };
 
