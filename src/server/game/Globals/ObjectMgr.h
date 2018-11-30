@@ -1290,6 +1290,7 @@ class TC_GAME_API ObjectMgr
 
         CreatureBaseStats const* GetCreatureBaseStats(uint8 level, uint8 unitClass);
 
+
         void SetHighestGuids();
 
         template<HighGuid type>

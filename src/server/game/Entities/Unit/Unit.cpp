@@ -1633,14 +1633,13 @@ uint32 Unit::CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 d
         return damage;
 
     uint8 attackerLevel = attacker->GetLevelForTarget(victim);
-    if (attackerLevel > sArmorMitigationByLvlGameTable.GetTableRowCount())
-        attackerLevel = sArmorMitigationByLvlGameTable.GetTableRowCount();
+    // Expansion and ContentTuningID necessary? Does Player get a ContentTuningID too ?
+    float armorConstant = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, attackerLevel, -2, 0, Classes(attacker->getClass()));
 
-    GtArmorMitigationByLvlEntry const* ambl = sArmorMitigationByLvlGameTable.GetRow(attackerLevel);
-    if (!ambl)
+    if (!armorConstant)
         return damage;
 
-    float mitigation = std::min(armor / (armor + ambl->Mitigation), 0.85f);
+    float mitigation = std::min(armor / (armor + armorConstant), 0.85f);
     return std::max<uint32>(damage * (1.0f - mitigation), 1);
 }
 

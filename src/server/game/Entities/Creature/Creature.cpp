@@ -52,6 +52,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include <G3D/g3dmath.h>
+#include "DB2Stores.h"
 
 bool VendorItem::IsGoldRequired(ItemTemplate const* pProto) const
 {
@@ -138,6 +139,28 @@ CreatureModel const* CreatureTemplate::GetFirstVisibleModel() const
                 return &model;
 
     return &CreatureModel::DefaultVisibleModel;
+}
+
+CreatureLevelScaling const* CreatureTemplate::GetLevelScaling(uint8 difficulty) const
+{
+    std::unordered_map<uint8, CreatureLevelScaling>::const_iterator it = scalingStore.find(difficulty);
+
+    if (it != scalingStore.end())
+        return &(it->second);
+
+    struct DefaultCreatureLevelScaling : public CreatureLevelScaling
+    {
+        DefaultCreatureLevelScaling()
+        {
+            MinLevel = 0;
+            MaxLevel = 0;
+            DeltaLevelMin = 0;
+            DeltaLevelMax = 0;
+            ContentTuningID = 0;
+        }
+    };
+    static const DefaultCreatureLevelScaling defScaling;
+    return &defScaling;
 }
 
 bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
@@ -1234,17 +1257,17 @@ void Creature::SelectLevel()
     uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
     SetLevel(level);
 
-    if (HasScalableLevels())
-    {
-        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, cInfo->levelScaling->MinLevel);
-        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, cInfo->levelScaling->MaxLevel);
+    CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(GetMap()->GetDifficultyID());
 
-        int8 mindelta = std::min(cInfo->levelScaling->DeltaLevelMax, cInfo->levelScaling->DeltaLevelMin);
-        int8 maxdelta = std::max(cInfo->levelScaling->DeltaLevelMax, cInfo->levelScaling->DeltaLevelMin);
-        int8 delta = mindelta == maxdelta ? mindelta : irand(mindelta, maxdelta);
+    SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, scaling->MinLevel);
+    SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, scaling->MaxLevel);
 
-        SetInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, delta);
-    }
+    int8 mindelta = std::min(scaling->DeltaLevelMax, scaling->DeltaLevelMin);
+    int8 maxdelta = std::max(scaling->DeltaLevelMax, scaling->DeltaLevelMin);
+    int8 delta = mindelta == maxdelta ? mindelta : irand(mindelta, maxdelta);
+
+    SetInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, delta);
+    SetInt32Value(UNIT_FIELD_CONTENT_TUNING_ID, scaling->ContentTuningID);
 
     UpdateLevelDependantStats();
 }
@@ -1253,12 +1276,13 @@ void Creature::UpdateLevelDependantStats()
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
     uint32 rank = IsPet() ? 0 : cInfo->rank;
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(getLevel(), cInfo->unit_class);
+    uint8 level = getLevel();
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
 
     // health
     float healthmod = _GetHealthMod(rank);
 
-    uint32 basehp = stats->GenerateHealth(cInfo);
+    uint32 basehp = GetMaxHealthByLevel(level);
     uint32 health = uint32(basehp * healthmod);
 
     SetCreateHealth(health);
@@ -1284,7 +1308,7 @@ void Creature::UpdateLevelDependantStats()
     SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, (float)health);
 
     // damage
-    float basedamage = stats->GenerateBaseDamage(cInfo);
+    float basedamage = GetBaseDamageForLevel(level);
 
     float weaponBaseMinDamage = basedamage;
     float weaponBaseMaxDamage = basedamage * 1.5f;
@@ -1301,7 +1325,7 @@ void Creature::UpdateLevelDependantStats()
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
     SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
 
-    float armor = (float)stats->GenerateArmor(cInfo); /// @todo Why is this treated as uint32 when it's a float?
+    float armor = GetBaseArmorForLevel(level); /// @todo Why is this treated as uint32 when it's a float?
     SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, armor);
 }
 
@@ -2500,14 +2524,19 @@ void Creature::AllLootRemovedFromCorpse()
 bool Creature::HasScalableLevels() const
 {
     CreatureTemplate const* cinfo = GetCreatureTemplate();
-    return cinfo->levelScaling.is_initialized();
+    CreatureLevelScaling const* scaling = cinfo->GetLevelScaling(GetMap()->GetDifficultyID());
+
+    return (scaling->MinLevel != 0 && scaling->MaxLevel != 0);
 }
 
 uint64 Creature::GetMaxHealthByLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
-    return stats->GenerateHealth(cInfo);
+    CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(GetMap()->GetDifficultyID());
+
+    float ExpectedHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, cInfo->HealthScalingExpansion, scaling->ContentTuningID, Classes(cInfo->unit_class));
+
+    return ExpectedHealth * cInfo->ModHealth * cInfo->ModHealthExtra;
 }
 
 float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
@@ -2525,8 +2554,9 @@ float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
 float Creature::GetBaseDamageForLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
-    return stats->GenerateBaseDamage(cInfo);
+    CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(GetMap()->GetDifficultyID());
+
+    return sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureAutoAttackDps, level, cInfo->HealthScalingExpansion, scaling->ContentTuningID, Classes(cInfo->unit_class));
 }
 
 float Creature::GetDamageMultiplierForTarget(WorldObject const* target) const
@@ -2542,8 +2572,11 @@ float Creature::GetDamageMultiplierForTarget(WorldObject const* target) const
 float Creature::GetBaseArmorForLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
-    return stats->GenerateArmor(cInfo);
+    CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(GetMap()->GetDifficultyID());
+
+    float ExpectedArmor = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureArmor, level, cInfo->HealthScalingExpansion, scaling->ContentTuningID, Classes(cInfo->unit_class));
+
+    return ExpectedArmor * cInfo->ModArmor;
 }
 
 float Creature::GetArmorMultiplierForTarget(WorldObject const* target) const

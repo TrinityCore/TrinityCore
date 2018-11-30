@@ -292,14 +292,6 @@ const uint32 MAX_CREATURE_NAMES = 4;
 const uint32 MAX_CREATURE_SPELLS = 8;
 const uint32 MAX_CREATURE_DIFFICULTIES = 3;
 
-struct CreatureLevelScaling
-{
-    uint16 MinLevel;
-    uint16 MaxLevel;
-    int16 DeltaLevelMin;
-    int16 DeltaLevelMax;
-};
-
 struct CreatureModel
 {
     static CreatureModel const DefaultInvisibleModel;
@@ -314,6 +306,17 @@ struct CreatureModel
     uint32 CreatureDisplayID;
     float DisplayScale;
     float Probability;
+};
+
+struct CreatureLevelScaling
+{
+    uint16 MinLevel;
+    uint16 MaxLevel;
+    int16 DeltaLevelMin;
+    int16 DeltaLevelMax;
+    int32 ContentTuningID;
+
+    static CreatureLevelScaling const* GetLevelScaling(uint32 entry, uint32 difficulty);
 };
 
 // from `creature_template` table
@@ -331,7 +334,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  GossipMenuId;
     int16   minlevel;
     int16   maxlevel;
-    Optional<CreatureLevelScaling> levelScaling;
+    std::unordered_map<uint8, CreatureLevelScaling> scalingStore;
     int32   HealthScalingExpansion;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
@@ -387,6 +390,7 @@ struct TC_GAME_API CreatureTemplate
     CreatureModel const* GetModelWithDisplayId(uint32 displayId) const;
     CreatureModel const* GetFirstInvisibleModel() const;
     CreatureModel const* GetFirstVisibleModel() const;
+    CreatureLevelScaling const* GetLevelScaling(uint8 difficulty) const;
 
     // helpers
     SkillType GetRequiredLootSkill() const
