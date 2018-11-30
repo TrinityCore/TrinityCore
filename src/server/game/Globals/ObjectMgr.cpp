@@ -704,8 +704,8 @@ void ObjectMgr::LoadCreatureScalingData()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0            1                2                  3                    4
-    QueryResult result = WorldDatabase.Query("SELECT Entry, LevelScalingMin, LevelScalingMax, LevelScalingDeltaMin, LevelScalingDeltaMax FROM creature_template_scaling");
+    //                                                 0          1              2                 3                  4                     5                  6
+    QueryResult result = WorldDatabase.Query("SELECT Entry, DifficultyID, LevelScalingMin, LevelScalingMax, LevelScalingDeltaMin, LevelScalingDeltaMax, ContentTuningID FROM creature_template_scaling ORDER BY Entry");
 
     if (!result)
     {
@@ -719,8 +719,9 @@ void ObjectMgr::LoadCreatureScalingData()
         Field* fields = result->Fetch();
 
         uint32 entry = fields[0].GetUInt32();
+        Difficulty difficulty = Difficulty(fields[1].GetUInt8());
 
-        CreatureTemplateContainer::iterator itr = _creatureTemplateStore.find(entry);
+        auto itr = _creatureTemplateStore.find(entry);
         if (itr == _creatureTemplateStore.end())
         {
             TC_LOG_ERROR("sql.sql", "Creature template (Entry: %u) does not exist but has a record in `creature_template_scaling`", entry);
@@ -728,11 +729,13 @@ void ObjectMgr::LoadCreatureScalingData()
         }
 
         CreatureLevelScaling creatureLevelScaling;
-        creatureLevelScaling.MinLevel              = fields[1].GetUInt16();
-        creatureLevelScaling.MaxLevel              = fields[2].GetUInt16();
-        creatureLevelScaling.DeltaLevelMin         = fields[3].GetInt16();
-        creatureLevelScaling.DeltaLevelMax         = fields[4].GetInt16();
-        itr->second.levelScaling                   = creatureLevelScaling;
+        creatureLevelScaling.MinLevel              = fields[2].GetUInt16();
+        creatureLevelScaling.MaxLevel              = fields[3].GetUInt16();
+        creatureLevelScaling.DeltaLevelMin         = fields[4].GetInt16();
+        creatureLevelScaling.DeltaLevelMax         = fields[5].GetInt16();
+        creatureLevelScaling.ContentTuningID       = fields[6].GetInt32();
+
+        itr->second.scalingStore[difficulty] = creatureLevelScaling;
 
         ++count;
     } while (result->NextRow());
@@ -2232,6 +2235,8 @@ ObjectGuid::LowType ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, float
     if (!map)
         return UI64LIT(0);
 
+    CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(map->GetDifficultyID());
+
     ObjectGuid::LowType guid = GenerateCreatureSpawnId();
     CreatureData& data = NewOrExistCreatureData(guid);
     data.id = entry;
@@ -2245,7 +2250,7 @@ ObjectGuid::LowType ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, float
     data.spawntimesecs = spawntimedelay;
     data.spawndist = 0;
     data.currentwaypoint = 0;
-    data.curhealth = stats->GenerateHealth(cInfo);
+    data.curhealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, cInfo->HealthScalingExpansion, scaling->ContentTuningID, Classes(cInfo->unit_class)) * cInfo->ModHealth * cInfo->ModHealthExtra;
     data.curmana = stats->GenerateMana(cInfo);
     data.movementType = cInfo->MovementType;
     data.spawnDifficulties.push_back(DIFFICULTY_NONE);
@@ -9222,12 +9227,6 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
     {
         DefaultCreatureBaseStats()
         {
-            BaseArmor = 1;
-            for (uint8 j = 0; j < MAX_EXPANSIONS; ++j)
-            {
-                BaseHealth[j] = 1;
-                BaseDamage[j] = 0.0f;
-            }
             BaseMana = 0;
             AttackPower = 0;
             RangedAttackPower = 0;
@@ -9240,8 +9239,8 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
-    //                                               0      1      2         3          4            5
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basemana, basearmor, attackpower, rangedattackpower FROM creature_classlevelstats");
+    //                                               0      1      2         3            4
+    QueryResult result = WorldDatabase.Query("SELECT level, class, basemana, attackpower, rangedattackpower FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -9262,22 +9261,10 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         CreatureBaseStats stats;
 
-        for (uint8 i = 0; i < MAX_EXPANSIONS; ++i)
-        {
-            stats.BaseHealth[i] = GetGameTableColumnForClass(sNpcTotalHpGameTable[i].GetRow(Level), Class);
-            stats.BaseDamage[i] = GetGameTableColumnForClass(sNpcDamageByClassGameTable[i].GetRow(Level), Class);
-            if (stats.BaseDamage[i] < 0.0f)
-            {
-                TC_LOG_ERROR("sql.sql", "Creature base stats for class %u, level %u has invalid negative base damage[%u] - set to 0.0", Class, Level, i);
-                stats.BaseDamage[i] = 0.0f;
-            }
-        }
-
         stats.BaseMana = fields[2].GetUInt32();
-        stats.BaseArmor = fields[3].GetUInt32();
 
-        stats.AttackPower = fields[4].GetUInt16();
-        stats.RangedAttackPower = fields[5].GetUInt16();
+        stats.AttackPower = fields[3].GetUInt16();
+        stats.RangedAttackPower = fields[4].GetUInt16();
 
         _creatureBaseStatsStore[MAKE_PAIR16(Level, Class)] = stats;
 

@@ -288,7 +288,7 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_DUNGEON_BOSS         = 0x10000000,       // creature is a dungeon boss (SET DYNAMICALLY, DO NOT ADD IN DB)
     CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING   = 0x20000000,       // creature ignore pathfinding
     CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK   = 0x40000000,       // creature is immune to knockback effects
-	CREATURE_FLAG_EXTRA_UNUSED_31            = 0x80000000,
+    CREATURE_FLAG_EXTRA_UNUSED_31            = 0x80000000,
 
     // Masks
     CREATURE_FLAG_EXTRA_UNUSED               = (CREATURE_FLAG_EXTRA_UNUSED_11 | CREATURE_FLAG_EXTRA_UNUSED_12 | CREATURE_FLAG_EXTRA_UNUSED_13 |
@@ -309,14 +309,6 @@ const uint32 MAX_CREATURE_NAMES = 4;
 const uint32 MAX_CREATURE_SPELLS = 8;
 const uint32 MAX_CREATURE_DIFFICULTIES = 3;
 
-struct CreatureLevelScaling
-{
-    uint16 MinLevel;
-    uint16 MaxLevel;
-    int16 DeltaLevelMin;
-    int16 DeltaLevelMax;
-};
-
 struct CreatureModel
 {
     static CreatureModel const DefaultInvisibleModel;
@@ -331,6 +323,15 @@ struct CreatureModel
     uint32 CreatureDisplayID;
     float DisplayScale;
     float Probability;
+};
+
+struct CreatureLevelScaling
+{
+    uint16 MinLevel;
+    uint16 MaxLevel;
+    int16 DeltaLevelMin;
+    int16 DeltaLevelMax;
+    int32 ContentTuningID;
 };
 
 // from `creature_template` table
@@ -348,7 +349,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  GossipMenuId;
     int16   minlevel;
     int16   maxlevel;
-    Optional<CreatureLevelScaling> levelScaling;
+    std::unordered_map<Difficulty, CreatureLevelScaling> scalingStore;
     int32   HealthScalingExpansion;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
@@ -408,6 +409,7 @@ struct TC_GAME_API CreatureTemplate
     CreatureModel const* GetModelWithDisplayId(uint32 displayId) const;
     CreatureModel const* GetFirstInvisibleModel() const;
     CreatureModel const* GetFirstVisibleModel() const;
+    CreatureLevelScaling const* GetLevelScaling(Difficulty difficulty) const;
 
     // helpers
     SkillType GetRequiredLootSkill() const
@@ -477,20 +479,11 @@ struct TC_GAME_API CreatureTemplate
 // Defines base stats for creatures (used to calculate HP/mana/armor/attackpower/rangedattackpower/all damage).
 struct TC_GAME_API CreatureBaseStats
 {
-    uint32 BaseHealth[MAX_EXPANSIONS];
     uint32 BaseMana;
-    uint32 BaseArmor;
     uint32 AttackPower;
     uint32 RangedAttackPower;
-    float BaseDamage[MAX_EXPANSIONS];
 
     // Helpers
-
-    uint32 GenerateHealth(CreatureTemplate const* info) const
-    {
-        return uint32(ceil(BaseHealth[info->HealthScalingExpansion] * info->ModHealth * info->ModHealthExtra));
-    }
-
     uint32 GenerateMana(CreatureTemplate const* info) const
     {
         // Mana can be 0.
@@ -498,16 +491,6 @@ struct TC_GAME_API CreatureBaseStats
             return 0;
 
         return uint32(ceil(BaseMana * info->ModMana * info->ModManaExtra));
-    }
-
-    uint32 GenerateArmor(CreatureTemplate const* info) const
-    {
-        return uint32(ceil(BaseArmor * info->ModArmor));
-    }
-
-    float GenerateBaseDamage(CreatureTemplate const* info) const
-    {
-        return BaseDamage[info->HealthScalingExpansion];
     }
 
     static CreatureBaseStats const* GetBaseStats(uint8 level, uint8 unitClass);
