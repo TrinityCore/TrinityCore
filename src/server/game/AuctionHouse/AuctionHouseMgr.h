@@ -22,7 +22,6 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
-#include "DisableMgr.h"
 #include <set>
 
 class Item;

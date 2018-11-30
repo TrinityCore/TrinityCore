@@ -38,6 +38,7 @@ bool AuctionBotSeller::Initialize()
     std::unordered_set<uint32> npcItems;
     std::unordered_set<uint32> lootItems;
     std::unordered_set<uint32> includeItems;
+    std::unordered_set<uint32> excludeItems;
 
     TC_LOG_DEBUG("ahbot", "AHBot seller filters:");
 
@@ -46,6 +47,13 @@ bool AuctionBotSeller::Initialize()
         std::string temp;
         while (std::getline(includeStream, temp, ','))
             includeItems.insert(atoi(temp.c_str()));
+    }
+
+    {
+        std::stringstream excludeStream(sAuctionBotConfig->GetAHBotExcludes());
+        std::string temp;
+        while (std::getline(excludeStream, temp, ','))
+            excludeItems.insert(atoi(temp.c_str()));
     }
 
     TC_LOG_DEBUG("ahbot", "Forced Inclusion %u items", (uint32)includeItems.size());
@@ -105,6 +113,10 @@ bool AuctionBotSeller::Initialize()
 
         // skip items with too high quality (code can't properly work with its)
         if (prototype->Quality >= MAX_AUCTION_QUALITY)
+            continue;
+
+        // forced exclude filter
+        if (excludeItems.count(itemId))
             continue;
 
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ITEM, itemId, nullptr, ITEM_DISABLE_AUCTIONHOUSE))

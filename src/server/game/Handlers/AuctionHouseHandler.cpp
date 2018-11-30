@@ -24,6 +24,7 @@
 
 #include "AuctionHouseMgr.h"
 #include "CharacterCache.h"
+#include "DisableMgr.h"
 #include "Log.h"
 #include "Language.h"
 #include "UpdateMask.h"

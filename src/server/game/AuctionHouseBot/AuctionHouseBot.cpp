@@ -146,6 +146,12 @@ void AuctionBotConfig::GetConfigFromFile()
     SetConfigMax(CONFIG_AHBOT_NEUTRAL_ITEM_AMOUNT_RATIO, "AuctionHouseBot.Neutral.Items.Amount.Ratio", 100, 10000);
 
     SetAHBotIncludes(sConfigMgr->GetStringDefault("AuctionHouseBot.forceIncludeItems", ""));
+    std::string ahBotExcludes = sConfigMgr->GetStringDefault("AuctionHouseBot.forceExcludeItems", "");
+    if (!ahBotExcludes.empty())
+    {
+        TC_LOG_WARN("server.loading", "AuctionHouseBot.forceExcludeItems will be deleted soon. Please, use DisableMgr instead.");
+        SetAHBotExcludes(ahBotExcludes);
+    }
 
     SetConfig(CONFIG_AHBOT_BUYER_ALLIANCE_ENABLED, "AuctionHouseBot.Buyer.Alliance.Enabled", false);
     SetConfig(CONFIG_AHBOT_BUYER_HORDE_ENABLED, "AuctionHouseBot.Buyer.Horde.Enabled", false);
