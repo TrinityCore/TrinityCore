@@ -884,9 +884,16 @@ public:
 
         std::unique_ptr<ScriptType> script_ptr(script);
 
+        if (!sObjectMgr->FindScriptId(script->GetName()))
+        {
+            // The script uses a script name from database, but isn't assigned to anything.
+            TC_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.",
+                script->GetName().c_str());
+        }
+
         // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
         // through a script name (or similar).
-        if (uint32 const id = sObjectMgr->GetScriptId(script->GetName()))
+        if (uint32 const id = sObjectMgr->GetScriptIdOrAdd(script->GetName()))
         {
             // Try to find an existing script.
             for (auto const& stored_script : _scripts)
@@ -912,17 +919,6 @@ public:
 
             sScriptRegistryCompositum->SetScriptNameInContext(script->GetName(),
                 sScriptMgr->GetCurrentScriptContext());
-        }
-        else
-        {
-            // The script uses a script name from database, but isn't assigned to anything.
-            TC_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.",
-                script->GetName().c_str());
-
-            // Avoid calling "delete script;" because we are currently in the script constructor
-            // In a valid scenario this will not happen because every script has a name assigned in the database
-            sScriptRegistryCompositum->QueueForDelayedDelete(std::move(script_ptr));
-            return;
         }
     }
 

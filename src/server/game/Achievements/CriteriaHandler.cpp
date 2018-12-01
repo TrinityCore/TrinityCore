@@ -2438,7 +2438,7 @@ void CriteriaMgr::LoadCriteriaData()
             if (dataType != CRITERIA_DATA_TYPE_SCRIPT)
                 TC_LOG_ERROR("sql.sql", "Table `criteria_data` contains a ScriptName for non-scripted data type (Entry: %u, type %u), useless data.", criteria_id, dataType);
             else
-                scriptId = sObjectMgr->GetScriptId(scriptName);
+                scriptId = sObjectMgr->GetScriptIdOrAdd(scriptName);
         }
 
         CriteriaData data(dataType, fields[2].GetUInt32(), fields[3].GetUInt32(), scriptId);

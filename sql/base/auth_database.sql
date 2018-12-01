@@ -1888,7 +1888,7 @@ INSERT INTO `rbac_permissions` VALUES
 (695,'Command: reload spell_loot_template'),
 (696,'Command: reload spell_linked_spell'),
 (697,'Command: reload spell_pet_auras'),
-(698,'Command: reload spell_proc_event'),
+(698,'Command: reload spell_script_names'),
 (699,'Command: reload spell_proc'),
 (700,'Command: reload spell_scripts'),
 (701,'Command: reload spell_target_position'),

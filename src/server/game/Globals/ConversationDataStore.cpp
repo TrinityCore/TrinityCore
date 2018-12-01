@@ -163,7 +163,7 @@ void ConversationDataStore::LoadConversationTemplates()
             conversationTemplate.FirstLineId        = fields[1].GetUInt32();
             conversationTemplate.LastLineEndTime    = fields[2].GetUInt32();
             conversationTemplate.TextureKitId       = fields[3].GetUInt32();
-            conversationTemplate.ScriptId           = sObjectMgr->GetScriptId(fields[4].GetString());
+            conversationTemplate.ScriptId           = sObjectMgr->GetScriptIdOrAdd(fields[4].GetString());
 
             conversationTemplate.Actors = std::move(actorsByConversation[conversationTemplate.Id]);
             conversationTemplate.ActorGuids = std::move(actorGuidsByConversation[conversationTemplate.Id]);
