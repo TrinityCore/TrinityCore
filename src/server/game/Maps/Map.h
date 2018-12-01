@@ -706,6 +706,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         TransportsContainer _transports;
         TransportsContainer::iterator _transportsUpdateIter;
 
+        virtual std::string GetDebugInfo() const;
+
     private:
         Player* _GetScriptPlayerSourceOrTarget(Object* source, Object* target, ScriptInfo const* scriptInfo) const;
         Creature* _GetScriptCreatureSourceOrTarget(Object* source, Object* target, ScriptInfo const* scriptInfo, bool bReverse = false) const;
@@ -917,6 +919,8 @@ class TC_GAME_API InstanceMap : public Map
         uint32 GetMaxResetDelay() const;
 
         virtual void InitVisibilityDistance() override;
+    protected:
+        std::string GetDebugInfo() const override;
     private:
         bool m_resetAfterUnload;
         bool m_unloadWhenEmpty;
