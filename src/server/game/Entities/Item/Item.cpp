@@ -1197,3 +1197,13 @@ void Item::SetCount(uint32 value)
         }
     }
 }
+
+std::string Item::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Object::GetDebugInfo() << "\n"
+        << std::boolalpha
+        << "Owner: " << GetOwnerGUID().ToString() << " Count: " << GetCount()
+        << " BagSlot: " << std::to_string(GetBagSlot()) << " Slot: " << std::to_string(GetSlot()) << " Equipped: " << IsEquipped();
+    return sstr.str();
+}
