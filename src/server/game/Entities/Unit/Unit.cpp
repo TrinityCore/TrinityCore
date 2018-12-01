@@ -13463,7 +13463,9 @@ std::string Unit::GetDebugInfo() const
 {
     std::stringstream sstr;
     sstr << WorldObject::GetDebugInfo() << "\n"
-        << "IsAIEnabled: " << IsAIEnabled() << " DeathState: " << getDeathState()
-        << " UnitMovementFlags: " << GetUnitMovementFlags() << " ExtraUnitMovementFlags " << GetExtraUnitMovementFlags();
+        << std::boolalpha
+        << "IsAIEnabled: " << IsAIEnabled() << " DeathState: " << std::to_string(getDeathState())
+        << " UnitMovementFlags: " << GetUnitMovementFlags() << " ExtraUnitMovementFlags: " << GetExtraUnitMovementFlags()
+        << " Class: " << std::to_string(getClass());
     return sstr.str();
 }
