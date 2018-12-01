@@ -245,3 +245,10 @@ Item* Bag::GetItemByPos(uint8 slot) const
 
     return nullptr;
 }
+
+std::string Bag::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Item::GetDebugInfo();
+    return sstr.str();
+}
