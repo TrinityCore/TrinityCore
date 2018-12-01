@@ -49,10 +49,12 @@ class TC_GAME_API TempSummon : public Creature
         Unit* GetSummoner() const;
         Creature* GetSummonerCreatureBase() const;
         ObjectGuid GetSummonerGUID() const { return m_summonerGUID; }
-        TempSummonType const& GetSummonType() { return m_type; }
+        TempSummonType GetSummonType() const { return m_type; }
         uint32 GetTimer() const { return m_timer; }
 
         SummonPropertiesEntry const* const m_Properties;
+    protected:
+        std::string GetDebugInfo() const override;
     private:
         TempSummonType m_type;
         uint32 m_timer;
@@ -80,6 +82,7 @@ class TC_GAME_API Minion : public TempSummon
 
         bool IsGuardianPet() const;
     protected:
+        std::string GetDebugInfo() const override;
         Unit* const m_owner;
         float m_followAngle;
 };
@@ -105,6 +108,7 @@ class TC_GAME_API Guardian : public Minion
         float GetBonusStatFromOwner(Stats stat) const { return m_statFromOwner[stat]; }
         void SetBonusDamage(int32 damage);
     protected:
+        std::string GetDebugInfo() const override;
         int32   m_bonusSpellDamage;
         float   m_statFromOwner[MAX_STATS];
 };
