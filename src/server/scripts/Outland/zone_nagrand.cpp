@@ -637,9 +637,6 @@ class go_warmaul_prison : public GameObjectScript
 
 enum PlantBannerQuests
 {
-    NPC_SHADOW_COUNCIL_CREDIT_MARKER = 18388,
-    NPC_WARMAUL_OGRE_CREDIT_MARKER   = 18393,
-
     SPELL_PLANT_WARMAUL_OGRE_BANNER  = 32307,
     SPELL_PLANT_KIL_SORROW_BANNER    = 32314,
 
@@ -650,41 +647,6 @@ enum PlantBannerQuests
     NPC_WARMAUL_REAVER               = 17138,
     NPC_WARMAUL_SHAMAN               = 18064
 };
-
-// 32307 - Plant Warmaul Ogre Banner
-class spell_q9927_plant_warmaul_ogre_banner : public SpellScript
-{
-    PrepareSpellScript(spell_q9927_plant_warmaul_ogre_banner);
-
-    void HandleHit(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* caster = GetCaster()->ToPlayer())
-            caster->RewardPlayerAndGroupAtEvent(NPC_SHADOW_COUNCIL_CREDIT_MARKER, caster);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q9927_plant_warmaul_ogre_banner::HandleHit, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-// 32314 - Plant Kil'Sorrow Banner
-class spell_q9931_plant_kilsorrow_banner : public SpellScript
-{
-    PrepareSpellScript(spell_q9931_plant_kilsorrow_banner);
-
-    void HandleHit(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* caster = GetCaster()->ToPlayer())
-            caster->RewardPlayerAndGroupAtEvent(NPC_WARMAUL_OGRE_CREDIT_MARKER, caster);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q9931_plant_kilsorrow_banner::HandleHit, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 
 class npc_nagrand_banner : public CreatureScript
 {
@@ -967,8 +929,6 @@ void AddSC_nagrand()
     new go_corkis_prison();
     new npc_kurenai_captive();
     new go_warmaul_prison();
-    RegisterSpellScript(spell_q9927_plant_warmaul_ogre_banner);
-    RegisterSpellScript(spell_q9931_plant_kilsorrow_banner);
     new npc_nagrand_banner();
     new condition_nagrand_banner();
 }
