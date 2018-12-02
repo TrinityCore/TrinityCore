@@ -891,7 +891,7 @@ public:
         {
             used_healing = false;
             scheduler
-                .Schedule(Seconds(2), [this](TaskContext SearingTotem)
+                .Schedule(Seconds(2), [this](TaskContext /*SearingTotem*/)
                 {
                     DoCast(SPELL_SCORCHING_TOTEM);
                 })
