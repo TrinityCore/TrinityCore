@@ -9244,8 +9244,6 @@ uint32 ObjectMgr::GetScriptIdOrAdd(std::string const& name)
 
 bool ObjectMgr::FindScriptId(std::string const& name) const
 {
-    // use binary search to find the script name in the sorted vector
-    // assume "" is the first element
     if (name.empty())
         return 0;
 
