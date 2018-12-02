@@ -706,13 +706,13 @@ public:
             SPELL_COUNTERSPELL    = 31999
         };
 
-        npc_kil_sorrow_spellbinderAI(Creature* creature) : npc_nagrand_bannerAI(creature), has_fleed(false), interrupt_cooldown(20000)
+        npc_kil_sorrow_spellbinderAI(Creature* creature) : npc_nagrand_bannerAI(creature), has_fled(false), interrupt_cooldown(20000)
         {
         }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            has_fleed = false;
+            has_fled = false;
             interrupt_cooldown = 20000;
             scheduler
                 .Schedule(Seconds(0), [this](TaskContext ArcaneMissiles)
@@ -751,15 +751,15 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (!has_fleed && me->GetHealth() > damage && me->HealthBelowPctDamaged(15, damage))
+            if (!has_fled && me->GetHealth() > damage && me->HealthBelowPctDamaged(15, damage))
             {
                 me->DoFleeToGetAssistance();
-                has_fleed = true;
+                has_fled = true;
             }
         }
 
     private:
-        bool has_fleed;
+        bool has_fled;
         uint32 interrupt_cooldown;
     };
 
