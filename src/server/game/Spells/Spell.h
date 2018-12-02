@@ -785,6 +785,8 @@ class TC_GAME_API Spell
 
         Spell(Spell const& right) = delete;
         Spell& operator=(Spell const& right) = delete;
+
+        virtual std::string GetDebugInfo() const;
 };
 
 namespace Trinity
