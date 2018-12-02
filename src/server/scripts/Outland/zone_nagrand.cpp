@@ -723,9 +723,16 @@ public:
             });
         }
 
-        bool bannered;
+        bool IsBannered()
+        {
+            return bannered;
+        }
+
     protected:
         TaskScheduler scheduler;
+
+    private:
+        bool bannered;
     };
 
     struct npc_kil_sorrow_spellbinderAI : public npc_nagrand_bannerAI
@@ -737,14 +744,14 @@ public:
             SPELL_COUNTERSPELL    = 31999
         };
 
-        npc_kil_sorrow_spellbinderAI(Creature* creature) : npc_nagrand_bannerAI(creature)
+        npc_kil_sorrow_spellbinderAI(Creature* creature) : npc_nagrand_bannerAI(creature), has_fleed(false), interrupt_cooldown(20000)
         {
         }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            interrupt_cooldown = 20000;
             has_fleed = false;
+            interrupt_cooldown = 20000;
             scheduler
                 .Schedule(Seconds(0), [this](TaskContext ArcaneMissiles)
                 {
@@ -823,7 +830,7 @@ public:
             SPELL_BLOODTHIRST = 31996
         };
 
-        npc_kil_sorrow_deathswornAI(Creature* creature) : npc_nagrand_bannerAI(creature)
+        npc_kil_sorrow_deathswornAI(Creature* creature) : npc_nagrand_bannerAI(creature), used_bloodthirst(false)
         {
         }
 
@@ -852,7 +859,7 @@ public:
             SPELL_GISELDA_TRANSFORM_DND = 33316
         };
 
-        npc_giselda_the_croneAI(Creature* creature) : npc_nagrand_bannerAI(creature)
+        npc_giselda_the_croneAI(Creature* creature) : npc_nagrand_bannerAI(creature), used_transform(false)
         {
         }
 
@@ -883,7 +890,7 @@ public:
             SPELL_HEALING_WAVE    = 11986
         };
 
-        npc_warmaul_shamanAI(Creature* creature) : npc_nagrand_bannerAI(creature)
+        npc_warmaul_shamanAI(Creature* creature) : npc_nagrand_bannerAI(creature), used_healing(false)
         {
         }
 
@@ -946,7 +953,7 @@ public:
         if (Creature* creature = target->ToCreature())
         {
             if (npc_nagrand_banner::npc_nagrand_bannerAI *ai = CAST_AI(npc_nagrand_banner::npc_nagrand_bannerAI, creature->AI()))
-                return !ai->bannered;
+                return !ai->IsBannered();
         }
         return false;
     }
