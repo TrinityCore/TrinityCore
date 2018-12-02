@@ -3598,14 +3598,45 @@ void ObjectMgr::LoadPlayerInfo()
     // Loading levels data (class/race dependent)
     TC_LOG_INFO("server.loading", "Loading Player Create Level Stats Data...");
     {
+        struct RaceStats
+        {
+            int16 StatModifier[MAX_STATS];
+        };
+
+        std::array<RaceStats, MAX_RACES> raceStatModifiers;
+
         uint32 oldMSTime = getMSTime();
 
-        //                                                 0     1      2      3    4    5    6
-        QueryResult result  = WorldDatabase.Query("SELECT race, class, level, str, agi, sta, inte FROM player_levelstats");
+        QueryResult raceStatsResult = WorldDatabase.Query("SELECT race, str, agi, sta, inte FROM player_racestats");
+
+        if (!raceStatsResult)
+        {
+            TC_LOG_ERROR("server.loading", ">> Loaded 0 race stats definitions. DB table `player_racestats` is empty.");
+            exit(1);
+        }
+
+        do
+        {
+            Field* fields = raceStatsResult->Fetch();
+
+            uint32 current_race = fields[0].GetUInt8();
+            if (current_race >= MAX_RACES)
+            {
+                TC_LOG_ERROR("sql.sql", "Wrong race %u in `player_racestats` table, ignoring.", current_race);
+                continue;
+            }
+
+            for (uint32 i = 0; i < MAX_STATS; ++i)
+                raceStatModifiers[current_race].StatModifier[i] = fields[i + 1].GetInt16();
+
+        } while (raceStatsResult->NextRow());
+
+        //                                                  0      1     2    3    4    5
+        QueryResult result  = WorldDatabase.Query("SELECT class, level, str, agi, sta, inte FROM player_classlevelstats");
 
         if (!result)
         {
-            TC_LOG_ERROR("server.loading", ">> Loaded 0 level stats definitions. DB table `player_levelstats` is empty.");
+            TC_LOG_ERROR("server.loading", ">> Loaded 0 level stats definitions. DB table `player_classlevelstats` is empty.");
             exit(1);
         }
 
@@ -3615,41 +3646,35 @@ void ObjectMgr::LoadPlayerInfo()
         {
             Field* fields = result->Fetch();
 
-            uint32 current_race = fields[0].GetUInt8();
-            if (current_race >= MAX_RACES)
-            {
-                TC_LOG_ERROR("sql.sql", "Wrong race %u in `player_levelstats` table, ignoring.", current_race);
-                continue;
-            }
-
-            uint32 current_class = fields[1].GetUInt8();
+            uint32 current_class = fields[0].GetUInt8();
             if (current_class >= MAX_CLASSES)
             {
-                TC_LOG_ERROR("sql.sql", "Wrong class %u in `player_levelstats` table, ignoring.", current_class);
+                TC_LOG_ERROR("sql.sql", "Wrong class %u in `player_classlevelstats` table, ignoring.", current_class);
                 continue;
             }
 
-            uint32 current_level = fields[2].GetUInt8();
+            uint32 current_level = fields[1].GetUInt8();
             if (current_level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
             {
                 if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
-                    TC_LOG_ERROR("sql.sql", "Wrong (> %u) level %u in `player_levelstats` table, ignoring.", STRONG_MAX_LEVEL, current_level);
+                    TC_LOG_ERROR("sql.sql", "Wrong (> %u) level %u in `player_classlevelstats` table, ignoring.", STRONG_MAX_LEVEL, current_level);
                 else
-                {
-                    TC_LOG_INFO("misc", "Unused (> MaxPlayerLevel in worldserver.conf) level %u in `player_levelstats` table, ignoring.", current_level);
-                    ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
-                }
+                    TC_LOG_INFO("misc", "Unused (> MaxPlayerLevel in worldserver.conf) level %u in `player_classlevelstats` table, ignoring.", current_level);
+
                 continue;
             }
 
-            if (PlayerInfo* info = _playerInfo[current_race][current_class])
+            for (std::size_t race = 0; race < raceStatModifiers.size(); ++race)
             {
-                if (!info->levelInfo)
-                    info->levelInfo = new PlayerLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
+                if (PlayerInfo* info = _playerInfo[race][current_class])
+                {
+                    if (!info->levelInfo)
+                        info->levelInfo = new PlayerLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
 
-                PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
-                for (int i = 0; i < MAX_STATS; i++)
-                    levelInfo.stats[i] = fields[i + 3].GetUInt16();
+                    PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
+                    for (int i = 0; i < MAX_STATS; ++i)
+                        levelInfo.stats[i] = fields[i + 2].GetUInt16() + raceStatModifiers[race].StatModifier[i];
+                }
             }
 
             ++count;
