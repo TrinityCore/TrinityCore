@@ -741,7 +741,7 @@ public:
         {
         }
 
-        void JustEngagedWith(Unit* who) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             interrupt_cooldown = 20000;
             has_fleed = false;
@@ -805,7 +805,7 @@ public:
         {
         }
 
-        void JustEngagedWith(Unit* who) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             scheduler
                 .Schedule(Milliseconds(4500), [this](TaskContext MindSear)
@@ -827,7 +827,7 @@ public:
         {
         }
 
-        void JustEngagedWith(Unit* who) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             used_bloodthirst = false;
         }
@@ -856,7 +856,7 @@ public:
         {
         }
 
-        void JustEngagedWith(Unit* who) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             used_transform = false;
         }
@@ -887,7 +887,7 @@ public:
         {
         }
 
-        void JustEngagedWith(Unit* who) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             used_healing = false;
             scheduler
