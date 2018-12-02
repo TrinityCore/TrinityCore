@@ -2366,7 +2366,7 @@ void Spell::EffectLearnSkill(SpellEffIndex /*effIndex*/)
     if (unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (damage < 0)
+    if (damage < 1)
         return;
 
     uint32 skillid = effectInfo->MiscValue;
@@ -2379,7 +2379,7 @@ void Spell::EffectLearnSkill(SpellEffIndex /*effIndex*/)
         return;
 
     uint16 skillval = unitTarget->ToPlayer()->GetPureSkillValue(skillid);
-    unitTarget->ToPlayer()->SetSkill(skillid, effectInfo->CalcValue(), std::max<uint16>(skillval, 1), tier->Value[damage - 1]);
+    unitTarget->ToPlayer()->SetSkill(skillid, damage, std::max<uint16>(skillval, 1), tier->Value[damage - 1]);
 }
 
 void Spell::EffectPlayMovie(SpellEffIndex /*effIndex*/)

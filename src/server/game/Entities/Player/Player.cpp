@@ -5172,43 +5172,6 @@ void Player::SetRegularAttackTime()
     }
 }
 
-//skill+step, checking for max value
-bool Player::UpdateSkill(uint32 skill_id, uint32 step)
-{
-    if (!skill_id)
-        return false;
-
-    SkillStatusMap::iterator itr = mSkillStatus.find(skill_id);
-    if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
-        return false;
-
-    uint16 field = itr->second.pos / 2;
-    uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
-
-    uint16 value = GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
-    uint16 max = GetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
-
-    if (!max || !value || value >= max)
-        return false;
-
-    if (value < max)
-    {
-        uint32 new_value = value + step;
-        if (new_value > max)
-            new_value = max;
-
-        SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, new_value);
-        if (itr->second.uState != SKILL_NEW)
-            itr->second.uState = SKILL_CHANGED;
-
-        UpdateSkillEnchantments(skill_id, value, new_value);
-        UpdateCriteria(CRITERIA_TYPE_REACH_SKILL_LEVEL, skill_id);
-        return true;
-    }
-
-    return false;
-}
-
 inline int SkillGainChance(uint32 SkillValue, uint32 GrayLevel, uint32 GreenLevel, uint32 YellowLevel)
 {
     if (SkillValue >= GrayLevel)
@@ -5229,21 +5192,21 @@ bool Player::UpdateCraftSkill(uint32 spellid)
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
-        if (_spell_idx->second->SkillLine)
+        if (_spell_idx->second->SkillupSkillLineID)
         {
-            uint32 SkillValue = GetPureSkillValue(_spell_idx->second->SkillLine);
+            uint32 SkillValue = GetPureSkillValue(_spell_idx->second->SkillupSkillLineID);
 
             // Alchemy Discoveries here
             SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spellid);
             if (spellEntry && spellEntry->Mechanic == MECHANIC_DISCOVERY)
             {
-                if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->SkillLine, spellid, this))
+                if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->SkillupSkillLineID, spellid, this))
                     LearnSpell(discoveredSpell, false);
             }
 
             uint32 craft_skill_gain = _spell_idx->second->NumSkillUps * sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
 
-            return UpdateSkillPro(_spell_idx->second->SkillLine, SkillGainChance(SkillValue,
+            return UpdateSkillPro(_spell_idx->second->SkillupSkillLineID, SkillGainChance(SkillValue,
                 _spell_idx->second->TrivialSkillLineRankHigh,
                 (_spell_idx->second->TrivialSkillLineRankHigh + _spell_idx->second->TrivialSkillLineRankLow)/2,
                 _spell_idx->second->TrivialSkillLineRankLow),
@@ -5321,8 +5284,7 @@ bool Player::UpdateSkillPro(uint16 skillId, int32 chance, uint32 step)
     // levels sync. with spell requirement for skill levels to learn
     // bonus abilities in sSkillLineAbilityStore
     // Used only to avoid scan DBC at each skill grow
-    static uint32 bonusSkillLevels[] = { 75, 150, 225, 300, 375, 450, 525 };
-    static const size_t bonusSkillLevelsSize = sizeof(bonusSkillLevels) / sizeof(uint32);
+    uint32 const bonusSkillLevels[] = { 75, 150, 225, 300, 375, 450, 525, 600, 700, 850 };
 
     TC_LOG_DEBUG("entities.player.skills", "Player::UpdateSkillPro: Player '%s' (%s), SkillID: %u, Chance: %3.1f%%)",
         GetName().c_str(), GetGUID().ToString().c_str(), skillId, chance / 10.0f);
@@ -5364,9 +5326,8 @@ bool Player::UpdateSkillPro(uint16 skillId, int32 chance, uint32 step)
     if (itr->second.uState != SKILL_NEW)
         itr->second.uState = SKILL_CHANGED;
 
-    for (size_t i = 0; i < bonusSkillLevelsSize; ++i)
+    for (uint32 bsl : bonusSkillLevels)
     {
-        uint32 bsl = bonusSkillLevels[i];
         if (value < bsl && new_value >= bsl)
         {
             LearnSkillRewardedSpells(skillId, new_value);
@@ -5525,10 +5486,13 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 mSkillStatus.erase(itr);
 
             // remove all spells that related to this skill
-            for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
-                if (SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j))
-                    if (pAbility->SkillLine == id)
-                        RemoveSpell(sSpellMgr->GetFirstSpellInChain(pAbility->Spell));
+            if (std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = sDB2Manager.GetSkillLineAbilitiesBySkill(id))
+                for (SkillLineAbilityEntry const* skillLineAbility : *skillLineAbilities)
+                    RemoveSpell(sSpellMgr->GetFirstSpellInChain(skillLineAbility->Spell));
+
+            for (SkillLineEntry const* childSkillLine : sSkillLineStore)
+                if (childSkillLine->ParentSkillLineID == id)
+                    SetSkill(childSkillLine->ID, 0, 0, 0);
 
             // Clear profession lines
             if (GetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE) == id)
@@ -5555,14 +5519,26 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                     return;
                 }
 
-                SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, id);
-                if (skillEntry->CategoryID == SKILL_CATEGORY_PROFESSION)
+                if (skillEntry->ParentSkillLineID && skillEntry->ParentTierIndex > 0)
                 {
-                    if (!GetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE))
-                        SetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE, id);
-                    else if (!GetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE + 1))
-                        SetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE + 1, id);
+                    if (SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, getRace(), getClass()))
+                    {
+                        if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
+                        {
+                            uint16 skillval = GetPureSkillValue(skillEntry->ParentSkillLineID);
+                            SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(skillval, 1), tier->Value[skillEntry->ParentTierIndex - 1]);
+                        }
+                    }
+
+                    if (skillEntry->CategoryID == SKILL_CATEGORY_PROFESSION)
+                    {
+                        int32 freeProfessionSlot = FindProfessionSlotFor(id);
+                        if (freeProfessionSlot != -1)
+                            SetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE + freeProfessionSlot, id);
+                    }
                 }
+
+                SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_ID_OFFSET + field, offset, id);
 
                 SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_STEP_OFFSET + field, offset, step);
                 SetUInt16Value(ACTIVE_PLAYER_FIELD_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset, newVal);
@@ -24119,12 +24095,12 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
 {
     uint64 raceMask  = getRaceMask();
     uint32 classMask = getClassMask();
-    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
-    {
-        SkillLineAbilityEntry const* ability = sSkillLineAbilityStore.LookupEntry(j);
-        if (!ability || ability->SkillLine != int32(skillId))
-            continue;
+    std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = sDB2Manager.GetSkillLineAbilitiesBySkill(skillId);
+    if (!skillLineAbilities)
+        return;
 
+    for (SkillLineAbilityEntry const* ability : *skillLineAbilities)
+    {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ability->Spell);
         if (!spellInfo)
             continue;
@@ -24157,6 +24133,42 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
         else
             LearnSpell(ability->Spell, true, ability->SkillLine);
     }
+}
+
+int32 Player::FindProfessionSlotFor(uint32 skillId) const
+{
+    SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(skillId);
+    if (!skillEntry)
+        return -1;
+
+    uint32 constexpr professionSlots = 2;
+    uint32 const* professionsBegin = &m_uint32Values[ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE];
+    uint32 const* professionsEnd = professionsBegin + professionSlots;
+
+    // both free, return first slot
+    if (std::none_of(professionsBegin, professionsEnd, [](uint32 slot) { return slot != 0; }))
+        return 0;
+
+    // when any slot is filled we need to check both - one of them might be earlier step of the same profession
+    auto sameProfessionSlot = std::find_if(professionsBegin, professionsEnd, [&](uint32 slot)
+    {
+        if (SkillLineEntry const* slotProfession = sSkillLineStore.LookupEntry(slot))
+            if (slotProfession->ParentSkillLineID == skillEntry->ParentSkillLineID)
+                return true;
+        return false;
+    });
+
+    if (sameProfessionSlot != professionsEnd)
+    {
+        if (sSkillLineStore.AssertEntry(*sameProfessionSlot)->ParentTierIndex < skillEntry->ParentTierIndex)
+            return std::distance(professionsBegin, sameProfessionSlot);
+
+        return -1;
+    }
+
+    // if there is no same profession, find any free slot
+    auto freeSlot = std::find(professionsBegin, professionsEnd, 0u);
+    return freeSlot != professionsEnd ? std::distance(professionsBegin, freeSlot) : -1;
 }
 
 void Player::SendAurasForTarget(Unit* target) const
@@ -25792,7 +25804,6 @@ void Player::_LoadSkills(PreparedQueryResult result)
     // SetPQuery(PLAYER_LOGIN_QUERY_LOADSKILLS,          "SELECT skill, value, max FROM character_skills WHERE guid = '%u'", GUID_LOPART(m_guid));
 
     uint32 count = 0;
-    uint8 professionCount = 0;
     std::unordered_map<uint32, uint32> loadedSkillValues;
     if (result)
     {
@@ -25859,8 +25870,12 @@ void Player::_LoadSkills(PreparedQueryResult result)
                 {
                     step = max / 75;
 
-                    if (professionCount < 2)
-                        SetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE + professionCount++, skill);
+                    if (skillLine->ParentSkillLineID && skillLine->ParentTierIndex)
+                    {
+                        int32 professionSlot = FindProfessionSlotFor(skill);
+                        if (professionSlot != -1)
+                            SetUInt32Value(ACTIVE_PLAYER_FIELD_PROFESSION_SKILL_LINE + professionSlot, skill);
+                    }
                 }
             }
 

@@ -112,8 +112,8 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
 
     {
         _worldPacket.WriteBit(VoiceChatManagerSettings.Enabled);
-        _worldPacket << VoiceChatManagerSettings.Unused_801_1;
-        _worldPacket << VoiceChatManagerSettings.Unused_801_2;
+        _worldPacket << VoiceChatManagerSettings.BnetAccountGuid;
+        _worldPacket << VoiceChatManagerSettings.GuildGuid;
     }
 
     if (EuropaTicketSystemStatus)

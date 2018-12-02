@@ -83,8 +83,8 @@ namespace WorldPackets
             struct VoiceChatProxySettings
             {
                 bool Enabled = false;
-                ObjectGuid Unused_801_1;
-                ObjectGuid Unused_801_2;
+                ObjectGuid BnetAccountGuid;
+                ObjectGuid GuildGuid;
             };
 
             FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 48) { }

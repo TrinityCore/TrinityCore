@@ -1786,9 +1786,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static Difficulty CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty);
         void SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay) const;
 
-        bool UpdateSkill(uint32 skill_id, uint32 step);
         bool UpdateSkillPro(uint16 skillId, int32 chance, uint32 step);
-
         bool UpdateCraftSkill(uint32 spellid);
         bool UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator = 1);
         bool UpdateFishingSkill();
@@ -1928,6 +1926,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint16 GetSkillStep(uint16 skill) const;            // 0...6
         bool HasSkill(uint32 skill) const;
         void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue);
+        int32 FindProfessionSlotFor(uint32 skillId) const;
 
         WorldLocation& GetTeleportDest() { return m_teleport_dest; }
         bool IsBeingTeleported() const { return mSemaphoreTeleport_Near || mSemaphoreTeleport_Far; }
