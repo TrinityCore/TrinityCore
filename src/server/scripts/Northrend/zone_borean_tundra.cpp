@@ -291,7 +291,7 @@ enum Iruk
     GOSSIP_OPTION_ID_SEARCH_CORPSE = 0,
     NPC_TEXT_THIS_YOUNG_TUSKARR    = 12585,
     QUEST_SPIRITS_WATCH_OVER_US    = 11961,
-    SPELL_CREATE_TOTEM_OF_ISSLIRUK = 46816,
+    SPELL_CREATE_TOTEM_OF_ISSLIRUK = 46816
 };
 
 class npc_iruk : public CreatureScript
@@ -316,6 +316,7 @@ public:
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
+
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
                     player->CastSpell(player, SPELL_CREATE_TOTEM_OF_ISSLIRUK, true);
