@@ -241,7 +241,6 @@ public:
         void JustEngagedWith(Unit* /*who*/) override { }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (!who)
                 return;
@@ -636,6 +635,292 @@ class go_warmaul_prison : public GameObjectScript
         }
 };
 
+enum PlantBannerQuests
+{
+    SPELL_PLANT_WARMAUL_OGRE_BANNER  = 32307,
+    SPELL_PLANT_KIL_SORROW_BANNER    = 32314,
+
+    NPC_KIL_SORROW_SPELLBINDER       = 17146,
+    NPC_KIL_SORROW_CULTIST           = 17147,
+    NPC_KIL_SORROW_DEATHSWORN        = 17148,
+    NPC_GISELDA_THE_CRONE            = 18391,
+    NPC_WARMAUL_REAVER               = 17138,
+    NPC_WARMAUL_SHAMAN               = 18064
+};
+
+class npc_nagrand_banner : public CreatureScript
+{
+public:
+    npc_nagrand_banner() : CreatureScript("npc_nagrand_banner") { }
+
+    struct npc_nagrand_bannerAI : public ScriptedAI
+    {
+        npc_nagrand_bannerAI(Creature* creature) : ScriptedAI(creature), bannered(false)
+        {
+            scheduler.SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            });
+        }
+
+        void Reset() override
+        {
+            scheduler.CancelAll();
+        }
+
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+        {
+            if (spellInfo->Id == SPELL_PLANT_WARMAUL_OGRE_BANNER || spellInfo->Id == SPELL_PLANT_KIL_SORROW_BANNER)
+                bannered = true;
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                return;
+
+            scheduler.Update(diff, [this]
+            {
+                DoMeleeAttackIfReady();
+            });
+        }
+
+        bool IsBannered()
+        {
+            return bannered;
+        }
+
+    protected:
+        TaskScheduler scheduler;
+
+    private:
+        bool bannered;
+    };
+
+    struct npc_kil_sorrow_spellbinderAI : public npc_nagrand_bannerAI
+    {
+        enum KilSorrowSpellBinder
+        {
+            SPELL_ARCANE_MISSILES = 34447,
+            SPELL_CHAINS_OF_ICE   = 22744,
+            SPELL_COUNTERSPELL    = 31999
+        };
+
+        npc_kil_sorrow_spellbinderAI(Creature* creature) : npc_nagrand_bannerAI(creature), has_fled(false), interrupt_cooldown(20000)
+        {
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            has_fled = false;
+            interrupt_cooldown = 20000;
+            scheduler
+                .Schedule(Seconds(0), [this](TaskContext ArcaneMissiles)
+                {
+                    DoCastVictim(SPELL_ARCANE_MISSILES);
+                    ArcaneMissiles.Repeat(Milliseconds(2400), Milliseconds(3800));
+                })
+                .Schedule(Seconds(3), Seconds(6), [this](TaskContext ChainsOfIce)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        DoCast(target, SPELL_CHAINS_OF_ICE, true);
+                    ChainsOfIce.Repeat(Seconds(20),Seconds(25));
+                });
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                return;
+
+            interrupt_cooldown += diff;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            if (me->GetVictim()->HasUnitState(UNIT_STATE_CASTING) && interrupt_cooldown > 25000)
+            {
+                DoCastVictim(SPELL_COUNTERSPELL);
+                interrupt_cooldown = 0;
+            }
+
+            scheduler.Update(diff, [this]
+            {
+                DoMeleeAttackIfReady();
+            });
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            if (!has_fled && me->GetHealth() > damage && me->HealthBelowPctDamaged(15, damage))
+            {
+                me->DoFleeToGetAssistance();
+                has_fled = true;
+            }
+        }
+
+    private:
+        bool has_fled;
+        uint32 interrupt_cooldown;
+    };
+
+    struct npc_kil_sorrow_cultistAI : public npc_nagrand_bannerAI
+    {
+        enum KilSorrowCultist
+        {
+            SPELL_MIND_SEAR = 32000
+        };
+
+        npc_kil_sorrow_cultistAI(Creature* creature) : npc_nagrand_bannerAI(creature)
+        {
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            scheduler
+                .Schedule(Milliseconds(4500), [this](TaskContext MindSear)
+                {
+                    DoCastVictim(SPELL_MIND_SEAR);
+                    MindSear.Repeat(Milliseconds(7000), Milliseconds(11000));
+                });
+        }
+    };
+
+    struct npc_kil_sorrow_deathswornAI : public npc_nagrand_bannerAI
+    {
+        enum KilSorrowDeathsworn
+        {
+            SPELL_BLOODTHIRST = 31996
+        };
+
+        npc_kil_sorrow_deathswornAI(Creature* creature) : npc_nagrand_bannerAI(creature), used_bloodthirst(false)
+        {
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            used_bloodthirst = false;
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            if (!used_bloodthirst && me->GetHealth() > damage && me->HealthBelowPctDamaged(50, damage))
+            {
+                DoCastVictim(SPELL_BLOODTHIRST);
+                used_bloodthirst = true;
+            }
+        }
+
+    private:
+        bool used_bloodthirst;
+    };
+
+    struct npc_giselda_the_croneAI : public npc_nagrand_bannerAI
+    {
+        enum GiseldaTheCrone
+        {
+            SPELL_GISELDA_TRANSFORM_DND = 33316
+        };
+
+        npc_giselda_the_croneAI(Creature* creature) : npc_nagrand_bannerAI(creature), used_transform(false)
+        {
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            used_transform = false;
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            if (!used_transform && me->GetHealth() > damage && me->HealthBelowPctDamaged(65, damage))
+            {
+                DoCastVictim(SPELL_GISELDA_TRANSFORM_DND);
+                used_transform = true;
+            }
+        }
+
+    private:
+        bool used_transform;
+    };
+
+    struct npc_warmaul_shamanAI : public npc_nagrand_bannerAI
+    {
+        enum WarmaulShaman
+        {
+            SPELL_SCORCHING_TOTEM = 15038,
+            SPELL_FROST_SHOCK     = 12548,
+            SPELL_HEALING_WAVE    = 11986
+        };
+
+        npc_warmaul_shamanAI(Creature* creature) : npc_nagrand_bannerAI(creature), used_healing(false)
+        {
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            used_healing = false;
+            scheduler
+                .Schedule(Seconds(2), [this](TaskContext /*SearingTotem*/)
+                {
+                    DoCast(SPELL_SCORCHING_TOTEM);
+                })
+                .Schedule(Seconds(6), [this](TaskContext FrostShock)
+                {
+                    DoCastVictim(SPELL_FROST_SHOCK);
+                    FrostShock.Repeat(Seconds(12));
+                });
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            if (!used_healing && me->GetHealth() > damage && me->HealthBelowPctDamaged(50, damage))
+            {
+                DoCastSelf(SPELL_HEALING_WAVE);
+                used_healing = true;
+            }
+        }
+
+    private:
+        uint32 used_healing;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        switch (creature->GetEntry())
+        {
+            case NPC_KIL_SORROW_SPELLBINDER:
+                return new npc_kil_sorrow_spellbinderAI(creature);
+            case NPC_KIL_SORROW_CULTIST:
+                return new npc_kil_sorrow_cultistAI(creature);
+            case NPC_KIL_SORROW_DEATHSWORN:
+                return new npc_kil_sorrow_deathswornAI(creature);
+            case NPC_GISELDA_THE_CRONE:
+                return new npc_giselda_the_croneAI(creature);
+            case NPC_WARMAUL_SHAMAN:
+                return new npc_warmaul_shamanAI(creature);
+            default:
+                return new npc_nagrand_bannerAI(creature);
+        }
+    }
+};
+
+class condition_nagrand_banner : public ConditionScript
+{
+public:
+    condition_nagrand_banner() : ConditionScript("conditition_nagrand_banner") {}
+
+    bool OnConditionCheck(Condition const* condition, ConditionSourceInfo& sourceInfo) override
+    {
+        WorldObject* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
+        if (Creature* creature = target->ToCreature())
+        {
+            if (npc_nagrand_banner::npc_nagrand_bannerAI *ai = CAST_AI(npc_nagrand_banner::npc_nagrand_bannerAI, creature->AI()))
+                return !ai->IsBannered();
+        }
+        return false;
+    }
+};
+
 void AddSC_nagrand()
 {
     new npc_maghar_captive();
@@ -644,4 +929,6 @@ void AddSC_nagrand()
     new go_corkis_prison();
     new npc_kurenai_captive();
     new go_warmaul_prison();
+    new npc_nagrand_banner();
+    new condition_nagrand_banner();
 }
