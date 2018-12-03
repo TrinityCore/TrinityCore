@@ -60,7 +60,7 @@ enum Sinkhole
     SPELL_SET_CART                = 46797,
     SPELL_EXPLODE_CART            = 46799,
     SPELL_SUMMON_CART             = 46798,
-    SPELL_SUMMON_WORM             = 46800,
+    SPELL_SUMMON_WORM             = 46800
 };
 
 class npc_sinkhole_kill_credit : public CreatureScript
