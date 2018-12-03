@@ -120,7 +120,7 @@ bool AuctionBotSeller::Initialize()
         if (excludeItems.count(itemId))
             continue;
 
-        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ITEM, itemId, nullptr, ITEM_DISABLE_AUCTIONHOUSE))
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ITEM, itemId, nullptr, ITEM_DISABLE_AUCTIONHOUSE_BOT))
             continue;
 
         // forced include filter
