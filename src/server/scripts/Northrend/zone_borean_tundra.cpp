@@ -231,14 +231,19 @@ public:
 
 enum Corastrasza
 {
-    GOSSIP_ITEM_I_I_TINK_SO                = 0,
-    GOSSIP_ITEM_I_AM_READY                 = 1,
+    GOSSIP_MENU_ID_CORASTRASZA            = 10204,
+    GOSSIP_MENU_ITEM_ID_I_I_THINK_SO      = 0,
+    GOSSIP_MENU_ITEM_ID_I_AM_READY        = 1,
 
-    SPELL_SUMMON_WYRMREST_SKYTALON         = 61240,
-    SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC  = 61244,
+    NPC_TEXT_MOST_DRAGONS_WOULD_FEAR_TO   = 14168,
+    NPC_TEXT_DO_YOU_POSSESS_THE_COURAGE   = 14169,
+    NPC_TEXT_EAGERLY_AWAITING_YOUR_RETURN = 14170,
 
-    QUEST_ACES_HIGH_DAILY                  = 13414,
-    QUEST_ACES_HIGH                        = 13413
+    QUEST_ACES_HIGH                       = 13413,
+    QUEST_ACES_HIGH_DAILY                 = 13414,
+
+    SPELL_SUMMON_WYRMREST_SKYTALON        = 61240,
+    SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC = 61244
 };
 
 class npc_corastrasza : public CreatureScript
@@ -254,17 +259,19 @@ public:
         {
             if (me->IsQuestGiver())
                 player->PrepareQuestMenu(me->GetGUID());
-
             if (player->GetQuestStatus(QUEST_ACES_HIGH) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_I_I_TINK_SO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            if (player->GetQuestStatus(QUEST_ACES_HIGH_DAILY) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_I_AM_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            {
+                AddGossipItemFor(player, GOSSIP_MENU_ID_CORASTRASZA, GOSSIP_MENU_ITEM_ID_I_I_THINK_SO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, NPC_TEXT_DO_YOU_POSSESS_THE_COURAGE, me->GetGUID());
+            }
+            else if (player->GetQuestStatus(QUEST_ACES_HIGH_DAILY) == QUEST_STATUS_INCOMPLETE)
+            {
+                AddGossipItemFor(player, GOSSIP_MENU_ID_CORASTRASZA, GOSSIP_MENU_ITEM_ID_I_AM_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, NPC_TEXT_EAGERLY_AWAITING_YOUR_RETURN, me->GetGUID());
+            }
+            SendGossipMenuFor(player, NPC_TEXT_MOST_DRAGONS_WOULD_FEAR_TO, me->GetGUID());
             return true;
         }
-
         bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
@@ -272,7 +279,6 @@ public:
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
                 CloseGossipMenuFor(player);
-
                 player->CastSpell(player, SPELL_SUMMON_WYRMREST_SKYTALON, true);
                 player->CastSpell(player, SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC, true);
             }
