@@ -9227,13 +9227,11 @@ std::string const& ObjectMgr::GetScriptName(uint32 id) const
 
 uint32 ObjectMgr::GetScriptIdOrAdd(std::string const& name)
 {
-    // use binary search to find the script name in the sorted vector
-    // assume "" is the first element
     if (name.empty())
         return 0;
 
     ScriptNameContainer::const_iterator itr = std::find(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
-    if (itr == _scriptNamesStore.end() || *itr != name)
+    if (itr == _scriptNamesStore.end())
     {
         _scriptNamesStore.push_back(name);
         return _scriptNamesStore.size() - 1;
@@ -9242,13 +9240,13 @@ uint32 ObjectMgr::GetScriptIdOrAdd(std::string const& name)
     return uint32(itr - _scriptNamesStore.begin());
 }
 
-bool ObjectMgr::FindScriptId(std::string const& name) const
+bool ObjectMgr::ScriptExists(std::string const& name) const
 {
     if (name.empty())
-        return 0;
+        return false;
 
     ScriptNameContainer::const_iterator itr = std::find(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
-    return itr != _scriptNamesStore.end() && *itr == name;
+    return itr != _scriptNamesStore.end();
 }
 
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)

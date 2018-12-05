@@ -1499,7 +1499,7 @@ class TC_GAME_API ObjectMgr
         ScriptNameContainer const& GetAllScriptNames() const;
         std::string const& GetScriptName(uint32 id) const;
         uint32 GetScriptIdOrAdd(std::string const& name);
-        bool FindScriptId(std::string const& name) const;
+        bool ScriptExists(std::string const& name) const;
 
         SpellClickInfoMapBounds GetSpellClickInfoMapBounds(uint32 creature_id) const
         {
