@@ -5227,15 +5227,39 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
     switch (SkillId)
     {
         case SKILL_HERBALISM:
+        case SKILL_HERBALISM_2:
+        case SKILL_OUTLAND_HERBALISM:
+        case SKILL_NORTHREND_HERBALISM:
+        case SKILL_CATACLYSM_HERBALISM:
+        case SKILL_PANDARIA_HERBALISM:
+        case SKILL_DRAENOR_HERBALISM:
+        case SKILL_LEGION_HERBALISM:
+        case SKILL_KUL_TIRAN_HERBALISM:
         case SKILL_JEWELCRAFTING:
         case SKILL_INSCRIPTION:
             return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator, gathering_skill_gain);
         case SKILL_SKINNING:
+        case SKILL_SKINNING_2:
+        case SKILL_OUTLAND_SKINNING:
+        case SKILL_NORTHREND_SKINNING:
+        case SKILL_CATACLYSM_SKINNING:
+        case SKILL_PANDARIA_SKINNING:
+        case SKILL_DRAENOR_SKINNING:
+        case SKILL_LEGION_SKINNING:
+        case SKILL_KUL_TIRAN_SKINNING:
             if (sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS) == 0)
                 return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator, gathering_skill_gain);
             else
                 return UpdateSkillPro(SkillId, (SkillGainChance(SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator) >> (SkillValue/sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS)), gathering_skill_gain);
         case SKILL_MINING:
+        case SKILL_MINING_2:
+        case SKILL_OUTLAND_MINING:
+        case SKILL_NORTHREND_MINING:
+        case SKILL_CATACLYSM_MINING:
+        case SKILL_PANDARIA_MINING:
+        case SKILL_DRAENOR_MINING:
+        case SKILL_LEGION_MINING:
+        case SKILL_KUL_TIRAN_MINING:
             if (sWorld->getIntConfig(CONFIG_SKILL_CHANCE_MINING_STEPS) == 0)
                 return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator, gathering_skill_gain);
             else
