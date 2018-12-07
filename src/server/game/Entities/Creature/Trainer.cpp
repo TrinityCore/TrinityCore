@@ -141,21 +141,29 @@ namespace Trainer
 
         // check ranks
         bool hasLearnSpellEffect = false;
+        bool knowsAllLearnedSpells = true;
         for (SpellEffectInfo const* spellEffect : sSpellMgr->AssertSpellInfo(trainerSpell->SpellId)->GetEffectsForDifficulty(DIFFICULTY_NONE))
         {
             if (!spellEffect || !spellEffect->IsEffect(SPELL_EFFECT_LEARN_SPELL))
                 continue;
 
             hasLearnSpellEffect = true;
+            if (!player->HasSpell(spellEffect->TriggerSpell))
+                knowsAllLearnedSpells = false;
+
             if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(spellEffect->TriggerSpell))
                 if (!player->HasSpell(previousRankSpellId))
                     return SpellState::Unavailable;
         }
 
         if (!hasLearnSpellEffect)
+        {
             if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(trainerSpell->SpellId))
                 if (!player->HasSpell(previousRankSpellId))
                     return SpellState::Unavailable;
+        }
+        else if (knowsAllLearnedSpells)
+            return SpellState::Known;
 
         // check additional spell requirement
         for (auto const& requirePair : sSpellMgr->GetSpellsRequiredForSpellBounds(trainerSpell->SpellId))
