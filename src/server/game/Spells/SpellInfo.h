@@ -368,7 +368,7 @@ public:
     bool IsUnitOwnedAuraEffect() const;
 
     int32 CalcValue(Unit const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr, int32 itemLevel = -1) const;
-    int32 CalcBaseValue(int32 value) const;
+    int32 CalcBaseValue(Unit const* caster, Unit const* target, int32 itemLevel) const;
     float CalcValueMultiplier(Unit* caster, Spell* spell = NULL) const;
     float CalcDamageMultiplier(Unit* caster, Spell* spell = NULL) const;
 
