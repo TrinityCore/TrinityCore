@@ -60,3 +60,4 @@ script:
   - cd check_install/bin
   - ./bnetserver --version
   - ./worldserver --version
+
