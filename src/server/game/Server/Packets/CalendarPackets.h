@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "CalendarMgr.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "PacketUtilities.h"
 
 namespace WorldPackets
