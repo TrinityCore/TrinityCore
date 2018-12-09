@@ -1607,3 +1607,7 @@ INSERT INTO `npc_text` (`ID`, `Probability0`, `Probability1`, `Probability2`, `P
 (33845, 1, 0, 0, 0, 0, 0, 0, 0, 146359, 0, 0, 0, 0, 0, 0, 0, 28153), -- 33845
 (34038, 1, 1, 1, 1, 0, 0, 0, 0, 147388, 147389, 147380, 147390, 0, 0, 0, 0, 28153), -- 34038
 (33743, 1, 0, 0, 0, 0, 0, 0, 0, 145171, 0, 0, 0, 0, 0, 0, 0, 28153); -- 33743
+
+
+UPDATE `creature` SET `terrainSwapMap` = 1817 WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+524;
+UPDATE `gameobject` SET `terrainSwapMap` = 1817 WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+125;

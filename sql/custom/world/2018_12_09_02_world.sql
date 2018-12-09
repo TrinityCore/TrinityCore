@@ -5,7 +5,7 @@ INSERT INTO `terrain_swap_defaults` VALUES
 
 DELETE FROM `terrain_worldmap` WHERE `TerrainSwapMap` IN (1817, 1815);
 INSERT INTO `terrain_worldmap` VALUES
-(1817, 229, 'Silithus: The Wound'),
+(1817, 9491, 'Silithus: The Wound'),
 (1815, 0, 'Silithus');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 25 AND `SourceEntry` = 1817;
