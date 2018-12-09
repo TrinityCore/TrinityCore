@@ -22,6 +22,7 @@
 #include "AuthenticationPackets.h"
 #include "NPCHandler.h"
 #include "ObjectGuid.h"
+#include "PacketUtilities.h"
 #include "Position.h"
 #include "QuestDef.h"
 #include "SharedDefines.h"
