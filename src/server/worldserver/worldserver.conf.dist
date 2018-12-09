@@ -1836,6 +1836,14 @@ PreserveCustomChannels = 1
 PreserveCustomChannelDuration = 14
 
 #
+#    PartyRaidWarnings
+#        Description: Allow any user to use raid warnings when in a 5-man party.
+#        Default:     0 - (Disabled, Blizzlike)
+#                     1 - (Enabled)
+
+PartyRaidWarnings = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -1996,6 +2004,7 @@ Support.SuggestionsEnabled = 0
 #        Default:     1 - (Raid)
 #                     0 - (Party)
 #                     2 - (Faction)
+#                     3 - (None)
 
 Visibility.GroupMode = 1
 

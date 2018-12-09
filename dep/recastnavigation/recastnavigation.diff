@@ -68,15 +68,6 @@ diff --git a/Detour/Source/DetourNavMeshQuery.cpp b/Detour/Source/DetourNavMeshQ
 index 75af102..a263106 100644
 --- a/Detour/Source/DetourNavMeshQuery.cpp
 +++ b/Detour/Source/DetourNavMeshQuery.cpp
-@@ -100,7 +100,7 @@ inline float dtQueryFilter::getCost(const float* pa, const float* pb,
- }
- #endif	
- 	
--static const float H_SCALE = 0.999f; // Search heuristic scale.
-+static const float H_SCALE = 2.0f; // Search heuristic scale.
- 
- 
- dtNavMeshQuery* dtAllocNavMeshQuery()
 @@ -3623,7 +3623,7 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
  	dtVsub(hitNormal, centerPos, hitPos);
  	dtVnormalize(hitNormal);

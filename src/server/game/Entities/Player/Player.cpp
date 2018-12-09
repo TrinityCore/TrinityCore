@@ -210,6 +210,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_MirrorTimerFlags = UNDERWATER_NONE;
     m_MirrorTimerFlagsLast = UNDERWATER_NONE;
     m_isInWater = false;
+    m_hostileReferenceCheckTimer = 0;
     m_drunkTimer = 0;
     m_deathTimer = 0;
     m_deathExpireTime = 0;
@@ -1348,6 +1349,18 @@ void Player::Update(uint32 p_time)
     //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
         RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
 
+    if (IsAlive())
+    {
+        if (m_hostileReferenceCheckTimer <= p_time)
+        {
+            m_hostileReferenceCheckTimer = 15 * IN_MILLISECONDS;
+            if (!GetMap()->IsDungeon())
+                getHostileRefManager().deleteReferencesOutOfRange(GetVisibilityRange());
+        }
+        else
+            m_hostileReferenceCheckTimer -= p_time;
+    }
+
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
@@ -2268,6 +2281,7 @@ bool Player::IsGroupVisibleFor(Player const* p) const
         default: return IsInSameGroupWith(p);
         case 1:  return IsInSameRaidWith(p);
         case 2:  return GetTeam() == p->GetTeam();
+        case 3:  return false;
     }
 }
 
@@ -5877,7 +5891,6 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
     //if (movementInfo.flags & MOVEMENTFLAG_TURNING)
     //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
-    //AURA_INTERRUPT_FLAG_JUMP not sure
 
     // group update
     if (GetGroup())
@@ -22108,21 +22121,6 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         return false;
     }
 
-    // check node starting pos data set case if provided
-    if (node->Pos.X != 0.0f || node->Pos.Y != 0.0f || node->Pos.Z != 0.0f)
-    {
-        if (node->ContinentID != GetMapId() || !IsInDist(node->Pos.X, node->Pos.Y, node->Pos.Z, 2 * INTERACTION_DISTANCE))
-        {
-            GetSession()->SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
-            return false;
-        }
-    }
-    // node must have pos if taxi master case (npc != NULL)
-    else if (npc)
-    {
-        GetSession()->SendActivateTaxiReply(ERR_TAXIUNSPECIFIEDSERVERERROR);
-        return false;
-    }
     // Prepare to flight start now
 
     // stop combat at start taxi flight if any
@@ -25749,6 +25747,13 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* 
     if (!qitem && item->is_blocked)
     {
         SendLootReleaseAll();
+        return;
+    }
+
+    // dont allow protected item to be looted by someone else
+    if (!item->rollWinnerGUID.IsEmpty() && item->rollWinnerGUID != GetGUID())
+    {
+        SendLootRelease(GetLootGUID());
         return;
     }
 

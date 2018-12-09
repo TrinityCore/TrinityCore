@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "Common.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "PacketUtilities.h"
 #include "SharedDefines.h"
 
