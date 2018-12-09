@@ -53,6 +53,7 @@ namespace WorldPackets
             enum ContentTuningType : uint32
             {
                 TYPE_PLAYER_TO_PLAYER               = 7, // NYI
+                TYPE_PLAYER_TO_PLAYER_HEALING       = 8,
                 TYPE_CREATURE_TO_PLAYER_DAMAGE      = 1,
                 TYPE_PLAYER_TO_CREATURE_DAMAGE      = 2,
                 TYPE_CREATURE_TO_CREATURE_DAMAGE    = 4
