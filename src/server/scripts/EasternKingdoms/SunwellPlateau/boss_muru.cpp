@@ -402,7 +402,7 @@ public:
 
         void Initialize()
         {
-            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+            me->SetDisplayFromModel(1);
             me->SetReactState(REACT_PASSIVE);
             DoCast(me, SPELL_DARKFIEND_SKIN, true);
 

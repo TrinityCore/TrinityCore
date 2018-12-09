@@ -107,6 +107,16 @@ void WorldSession::SendTaxiMenu(Creature* unit)
 
     GetPlayer()->m_taxi.AppendTaximaskTo(data, lastTaxiCheaterState);
 
+    TaxiMask reachableNodes;
+    std::fill(reachableNodes.begin(), reachableNodes.end(), 0);
+    sTaxiPathGraph.GetReachableNodesMask(sTaxiNodesStore.LookupEntry(curloc), &reachableNodes);
+
+    for (std::size_t i = 0; i < TaxiMaskSize; ++i)
+    {
+        data.CanLandNodes[i] &= reachableNodes[i];
+        data.CanUseNodes[i] &= reachableNodes[i];
+    }
+
     SendPacket(data.Write());
 
     GetPlayer()->SetTaxiCheater(lastTaxiCheaterState);

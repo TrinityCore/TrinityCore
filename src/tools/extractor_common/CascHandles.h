@@ -55,6 +55,7 @@ namespace CASC
     FileHandle OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors = false);
     DWORD GetFileSize(FileHandle const& file, PDWORD fileSizeHigh);
     DWORD GetFilePointer(FileHandle const& file);
+    bool SetFilePointer(FileHandle const& file, LONGLONG position);
     bool ReadFile(FileHandle const& file, void* buffer, DWORD bytes, PDWORD bytesRead);
 }
 

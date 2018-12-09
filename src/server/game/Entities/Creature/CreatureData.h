@@ -301,16 +301,29 @@ struct CreatureLevelScaling
     int16 DeltaLevelMax;
 };
 
+struct CreatureModel
+{
+    static CreatureModel const DefaultInvisibleModel;
+    static CreatureModel const DefaultVisibleModel;
+
+    CreatureModel() :
+        CreatureDisplayID(0), DisplayScale(0.0f), Probability(0.0f) { }
+
+    CreatureModel(uint32 creatureDisplayID, float displayScale, float probability) :
+        CreatureDisplayID(creatureDisplayID), DisplayScale(displayScale), Probability(probability) { }
+
+    uint32 CreatureDisplayID;
+    float DisplayScale;
+    float Probability;
+};
+
 // from `creature_template` table
 struct TC_GAME_API CreatureTemplate
 {
     uint32  Entry;
     uint32  DifficultyEntry[MAX_CREATURE_DIFFICULTIES];
     uint32  KillCredit[MAX_KILL_CREDIT];
-    uint32  Modelid1;
-    uint32  Modelid2;
-    uint32  Modelid3;
-    uint32  Modelid4;
+    std::vector<CreatureModel> Models;
     std::string  Name;
     std::string FemaleName;
     std::string  SubName;
@@ -369,10 +382,12 @@ struct TC_GAME_API CreatureTemplate
     uint32  MechanicImmuneMask;
     uint32  flags_extra;
     uint32  ScriptID;
-    uint32  GetRandomValidModelId() const;
-    uint32  GetFirstValidModelId() const;
-    uint32  GetFirstInvisibleModel() const;
-    uint32  GetFirstVisibleModel() const;
+    CreatureModel const* GetModelByIdx(uint32 idx) const;
+    CreatureModel const* GetRandomValidModel() const;
+    CreatureModel const* GetFirstValidModel() const;
+    CreatureModel const* GetModelWithDisplayId(uint32 displayId) const;
+    CreatureModel const* GetFirstInvisibleModel() const;
+    CreatureModel const* GetFirstVisibleModel() const;
 
     // helpers
     SkillType GetRequiredLootSkill() const
