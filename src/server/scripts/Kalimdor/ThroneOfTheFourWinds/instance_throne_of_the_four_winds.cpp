@@ -75,13 +75,12 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
             {
                 InstanceScript::OnCreatureCreate(creature);
 
-                creature->setActive(true);
-                creature->SetFarVisible(true);
-
                 switch (creature->GetEntry())
                 {
 
                     case BOSS_ALAKIR:
+                        creature->setActive(true);
+                        creature->SetFarVisible(true);
                         if (GetBossState(DATA_CONCLAVE_OF_WIND) != DONE)
                             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         break;
@@ -111,6 +110,12 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                         break;
                     case NPC_RELENTLESS_STORM:
                         _relentlessStormVehicleGUIDs.push_back(creature->GetGUID());
+                        break;
+                    case BOSS_ANSHAL:
+                    case BOSS_NEZIR:
+                    case BOSS_ROHASH:
+                        creature->setActive(true);
+                        creature->SetFarVisible(true);
                         break;
                     default:
                         break;
@@ -205,11 +210,21 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                             _relentlessStormVehicleGUIDs.clear();
                             instance->SetZoneWeather(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, WEATHER_STATE_FINE, 0.0f);
                             instance->SetZoneOverrideLight(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, LIGHT_OVERRIDE_ID_DEFAULT, 3000);
+                            for (ObjectGuid guid : _relentlessStormInitialVehicleGUIDs)
+                            {
+                                if (Creature* vehicle = instance->GetCreature(guid))
+                                    vehicle->DespawnOrUnsummon(0, 30s);
+                            }
                         }
                         else if (state == DONE)
                         {
                             instance->SetZoneWeather(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, WEATHER_STATE_FOG, 0.0f);
                             instance->SetZoneOverrideLight(ZONE_ID_THRONE_OF_THE_FOUR_WINDS, LIGHT_OVERRIDE_ID_DEFAULT, 3000);
+                            for (ObjectGuid guid : _relentlessStormInitialVehicleGUIDs)
+                            {
+                                if (Creature* vehicle = instance->GetCreature(guid))
+                                    vehicle->DespawnOrUnsummon(0);
+                            }
                         }
                     default:
                         break;
