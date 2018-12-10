@@ -40,6 +40,11 @@ std::size_t DB2CascFileSource::GetPosition() const
     return CASC::GetFilePointer(_fileHandle);
 }
 
+bool DB2CascFileSource::SetPosition(std::size_t position)
+{
+    return CASC::SetFilePointer(_fileHandle, position);
+}
+
 std::size_t DB2CascFileSource::GetFileSize() const
 {
     DWORD sizeLow = 0;

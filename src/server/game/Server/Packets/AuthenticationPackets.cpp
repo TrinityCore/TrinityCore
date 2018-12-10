@@ -84,8 +84,6 @@ void WorldPackets::Auth::AuthSession::Read()
     uint32 realmJoinTicketSize;
 
     _worldPacket >> DosResponse;
-    _worldPacket >> Build;
-    _worldPacket >> BuildType;
     _worldPacket >> RegionID;
     _worldPacket >> BattlegroupID;
     _worldPacket >> RealmID;
@@ -145,6 +143,7 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket.WriteBit(SuccessInfo->ForceCharacterTemplate);
         _worldPacket.WriteBit(SuccessInfo->NumPlayersHorde.is_initialized());
         _worldPacket.WriteBit(SuccessInfo->NumPlayersAlliance.is_initialized());
+        _worldPacket.WriteBit(SuccessInfo->ExpansionTrialExpiration.is_initialized());
         _worldPacket.FlushBits();
 
         {
@@ -163,6 +162,9 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 
         if (SuccessInfo->NumPlayersAlliance)
             _worldPacket << uint16(*SuccessInfo->NumPlayersAlliance);
+
+        if (SuccessInfo->ExpansionTrialExpiration)
+            _worldPacket << int32(*SuccessInfo->ExpansionTrialExpiration);
 
         for (VirtualRealmInfo const& virtualRealm : SuccessInfo->VirtualRealms)
             _worldPacket << virtualRealm;

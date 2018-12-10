@@ -985,7 +985,7 @@ public:
 
         if (m)
             if (uint32 um = (uint32)atoi(m))
-                phaseShift.AddUiWorldMapAreaIdSwap(um);
+                phaseShift.AddUiMapPhaseId(um);
 
         PhasingHandler::SendToPlayer(handler->GetSession()->GetPlayer(), phaseShift);
         return true;

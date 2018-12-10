@@ -122,9 +122,11 @@ namespace WorldPackets
                 Optional<int32> MmrChange;
                 std::vector<int32> Stats;
                 int32 PrimaryTalentTree = 0;
-                int32 PrimaryTalentTreeNameIndex = 0;  // controls which name field from ChrSpecialization.dbc will be sent to lua
+                int32 Sex = 0;
                 int32 Race = 0;
-                uint32 Prestige = 0;
+                int32 Class = 0;
+                int32 CreatureID = 0;
+                int32 HonorLevel = 0;
             };
 
             Optional<uint8> Winner;

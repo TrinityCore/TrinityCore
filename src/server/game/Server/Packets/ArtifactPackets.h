@@ -99,17 +99,6 @@ namespace WorldPackets
             ObjectGuid ArtifactGUID;
             uint64 Amount = 0;
         };
-
-        class ArtifactKnowledge final : public ServerPacket
-        {
-        public:
-            ArtifactKnowledge() : ServerPacket(SMSG_ARTIFACT_KNOWLEDGE, 1 + 4) { }
-
-            WorldPacket const* Write() override;
-
-            int32 ArtifactCategoryID = 0;
-            int8 KnowledgeLevel = 0;
-        };
     }
 }
 

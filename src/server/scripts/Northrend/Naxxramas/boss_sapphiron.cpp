@@ -173,7 +173,7 @@ class boss_sapphiron : public CreatureScript
                 switch(spell->Id)
                 {
                     case SPELL_CHECK_RESISTS:
-                        if (target && target->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
+                        if (target && target->GetResistance(SPELL_SCHOOL_MASK_FROST) > MAX_FROST_RESISTANCE)
                             _canTheHundredClub = false;
                         break;
                 }

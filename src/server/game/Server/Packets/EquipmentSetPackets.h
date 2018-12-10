@@ -28,7 +28,7 @@ namespace WorldPackets
         class EquipmentSetID final : public ServerPacket
         {
         public:
-            EquipmentSetID() : ServerPacket(SMSG_EQUIPMENT_SET_ID, 8 + 4) { }
+            EquipmentSetID() : ServerPacket(SMSG_EQUIPMENT_SET_ID, 8 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -89,7 +89,7 @@ namespace WorldPackets
         class UseEquipmentSetResult final : public ServerPacket
         {
         public:
-            UseEquipmentSetResult() : ServerPacket(SMSG_USE_EQUIPMENT_SET_RESULT, 1) { }
+            UseEquipmentSetResult() : ServerPacket(SMSG_USE_EQUIPMENT_SET_RESULT, 8 + 1) { }
 
             WorldPacket const* Write() override;
 

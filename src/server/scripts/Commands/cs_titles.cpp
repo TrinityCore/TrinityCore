@@ -234,7 +234,7 @@ public:
 
         titles &= ~titles2;                                     // remove non-existing titles
 
-        target->SetUInt64Value(PLAYER__FIELD_KNOWN_TITLES, titles);
+        target->SetUInt64Value(ACTIVE_PLAYER_FIELD_KNOWN_TITLES, titles);
         handler->SendSysMessage(LANG_DONE);
 
         if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))

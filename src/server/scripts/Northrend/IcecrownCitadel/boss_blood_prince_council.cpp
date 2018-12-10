@@ -252,10 +252,6 @@ class boss_blood_council_controller : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                // Avoid do set boss state to fail with hotswap
-                if (instance->GetBossState(DATA_BLOOD_PRINCE_COUNCIL) == DONE)
-                    return;
-
                 for (uint32 bossData : PrincesData)
                     if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetGuidData(bossData)))
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, prince);

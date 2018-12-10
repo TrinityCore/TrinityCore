@@ -55,6 +55,7 @@ LootItem::LootItem(LootStoreItem const& li)
     is_blocked = 0;
     is_underthreshold = 0;
     is_counted = 0;
+    rollWinnerGUID = ObjectGuid::Empty;
     canSave = true;
 }
 
@@ -517,6 +518,13 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                         // or it IS the round robin group owner
                         // => item is lootable
                         slot_type = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                    }
+                    else if (!items[i].rollWinnerGUID.IsEmpty())
+                    {
+                        if (items[i].rollWinnerGUID == viewer->GetGUID())
+                            slot_type = LOOT_SLOT_TYPE_OWNER;
+                        else
+                            continue;
                     }
                     else
                         // item shall not be displayed.

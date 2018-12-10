@@ -135,7 +135,12 @@ bool ConfigMgr::GetBoolDefault(std::string const& name, bool def) const
     return StringToBool(val);
 }
 
-int ConfigMgr::GetIntDefault(std::string const& name, int def) const
+int32 ConfigMgr::GetIntDefault(std::string const& name, int32 def) const
+{
+    return GetValueDefault(name, def);
+}
+
+int64 ConfigMgr::GetInt64Default(std::string const& name, int64 def) const
 {
     return GetValueDefault(name, def);
 }

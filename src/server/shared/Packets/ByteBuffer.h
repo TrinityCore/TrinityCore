@@ -123,9 +123,10 @@ class TC_SHARED_API ByteBuffer
             _storage.clear();
         }
 
-        template <typename T> void append(T value)
+        template <typename T>
+        void append(T value)
         {
-            static_assert(std::is_fundamental<T>::value, "append(compound)");
+            static_assert(std::is_trivially_copyable<T>::value, "append(T) must be used with trivially copyable types");
             EndianConvert(value);
             append((uint8 *)&value, sizeof(value));
         }
@@ -210,7 +211,7 @@ class TC_SHARED_API ByteBuffer
         template <typename T>
         void put(std::size_t pos, T value)
         {
-            static_assert(std::is_fundamental<T>::value, "append(compound)");
+            static_assert(std::is_trivially_copyable<T>::value, "put(size_t, T) must be used with trivially copyable types");
             EndianConvert(value);
             put(pos, (uint8 *)&value, sizeof(value));
         }
@@ -435,7 +436,8 @@ class TC_SHARED_API ByteBuffer
             _rpos += skip;
         }
 
-        template <typename T> T read()
+        template <typename T>
+        T read()
         {
             ResetBitPos();
             T r = read<T>(_rpos);
@@ -443,13 +445,21 @@ class TC_SHARED_API ByteBuffer
             return r;
         }
 
-        template <typename T> T read(size_t pos) const
+        template <typename T>
+        T read(size_t pos) const
         {
             if (pos + sizeof(T) > size())
                 throw ByteBufferPositionException(pos, sizeof(T), size());
             T val = *((T const*)&_storage[pos]);
             EndianConvert(val);
             return val;
+        }
+
+        template<class T>
+        void read(T* dest, size_t count)
+        {
+            static_assert(std::is_trivially_copyable<T>::value, "read(T*, size_t) must be used with trivially copyable types");
+            return read(reinterpret_cast<uint8*>(dest), count * sizeof(T));
         }
 
         void read(uint8 *dest, size_t len)
@@ -540,7 +550,8 @@ class TC_SHARED_API ByteBuffer
             return append((const uint8 *)src, cnt);
         }
 
-        template<class T> void append(const T *src, size_t cnt)
+        template<class T>
+        void append(const T *src, size_t cnt)
         {
             return append((const uint8 *)src, cnt * sizeof(T));
         }

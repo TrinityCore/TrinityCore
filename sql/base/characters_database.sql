@@ -1095,9 +1095,12 @@ DROP TABLE IF EXISTS `character_pvp_talent`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_pvp_talent` (
   `guid` bigint(20) unsigned NOT NULL,
-  `talentId` mediumint(8) unsigned NOT NULL,
+  `talentId0` int(10) unsigned NOT NULL,
+  `talentId1` int(10) unsigned NOT NULL,
+  `talentId2` int(10) unsigned NOT NULL,
+  `talentId3` int(10) unsigned NOT NULL,
   `talentGroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`talentId`,`talentGroup`)
+  PRIMARY KEY (`guid`,`talentGroup`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1731,7 +1734,6 @@ CREATE TABLE `characters` (
   `deleteDate` int(10) unsigned DEFAULT NULL,
   `honor` int(10) unsigned NOT NULL DEFAULT '0',
   `honorLevel` int(10) unsigned NOT NULL DEFAULT '1',
-  `prestigeLevel` int(10) unsigned NOT NULL DEFAULT '0',
   `honorRestState` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `honorRestBonus` float NOT NULL DEFAULT '0',
   `lastLoginBuild` int(10) unsigned NOT NULL DEFAULT '0',
@@ -3566,7 +3568,10 @@ INSERT INTO `updates` VALUES
 ('2018_03_04_00_characters.sql','2A4CD2EE2547E718490706FADC78BF36F0DED8D6','RELEASED','2018-03-04 18:15:24',0),
 ('2018_04_28_00_characters.sql','CBD0FDC0F32DE3F456F7CE3D9CAD6933CD6A50F5','RELEASED','2018-04-28 12:44:09',0),
 ('2018_07_28_00_characters.sql','31F66AE7831251A8915625EC7F10FA138AB8B654','RELEASED','2018-07-28 18:30:19',0),
-('2018_07_31_00_characters.sql','7DA8D4A4534520B23E6F5BBD5B8EE205B799C798','RELEASED','2018-07-31 20:54:39',0);
+('2018_07_31_00_characters.sql','7DA8D4A4534520B23E6F5BBD5B8EE205B799C798','RELEASED','2018-07-31 20:54:39',0),
+('2018_12_09_00_characters.sql','7FE9641C93ED762597C08F1E9B6649C9EC2F0E47','RELEASED','2018-09-18 23:34:29',0),
+('2018_12_09_01_characters.sql','C80B936AAD94C58A0F33382CED08CFB4E0B6AC34','RELEASED','2018-10-10 22:05:28',0),
+('2018_12_09_02_characters.sql','DBBA0C06985CE8AC4E6E7E94BD6B2673E9ADFAE2','RELEASED','2018-12-02 17:32:31',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

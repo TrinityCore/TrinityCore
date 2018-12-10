@@ -360,7 +360,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
         case CHAT_MSG_RAID_WARNING:
         {
             Group* group = GetPlayer()->GetGroup();
-            if (!group || !group->isRaidGroup() || !(group->IsLeader(GetPlayer()->GetGUID()) || group->IsAssistant(GetPlayer()->GetGUID())) || group->isBGGroup())
+            if (!group || !(group->isRaidGroup() || sWorld->getBoolConfig(CONFIG_CHAT_PARTY_RAID_WARNINGS)) || !(group->IsLeader(GetPlayer()->GetGUID()) || group->IsAssistant(GetPlayer()->GetGUID())) || group->isBGGroup())
                 return;
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
@@ -413,41 +413,12 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
 
 void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMessage& chatAddonMessage)
 {
-    ChatMsg type;
-
-    switch (chatAddonMessage.GetOpcode())
-    {
-        case CMSG_CHAT_ADDON_MESSAGE_GUILD:
-            type = CHAT_MSG_GUILD;
-            break;
-        case CMSG_CHAT_ADDON_MESSAGE_OFFICER:
-            type = CHAT_MSG_OFFICER;
-            break;
-        case CMSG_CHAT_ADDON_MESSAGE_PARTY:
-            type = CHAT_MSG_PARTY;
-            break;
-        case CMSG_CHAT_ADDON_MESSAGE_RAID:
-            type = CHAT_MSG_RAID;
-            break;
-        case CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT:
-            type = CHAT_MSG_INSTANCE_CHAT;
-            break;
-        default:
-            TC_LOG_ERROR("network", "HandleChatAddonMessageOpcode: Unknown addon chat opcode (%u)", chatAddonMessage.GetOpcode());
-            return;
-    }
-
-    HandleChatAddonMessage(type, chatAddonMessage.Prefix, chatAddonMessage.Text);
+    HandleChatAddonMessage(chatAddonMessage.Params.Type, chatAddonMessage.Params.Prefix, chatAddonMessage.Params.Text);
 }
 
-void WorldSession::HandleChatAddonMessageWhisperOpcode(WorldPackets::Chat::ChatAddonMessageWhisper& chatAddonMessageWhisper)
+void WorldSession::HandleChatAddonMessageTargetedOpcode(WorldPackets::Chat::ChatAddonMessageTargeted& chatAddonMessageTargeted)
 {
-    HandleChatAddonMessage(CHAT_MSG_WHISPER, chatAddonMessageWhisper.Prefix, chatAddonMessageWhisper.Text, chatAddonMessageWhisper.Target);
-}
-
-void WorldSession::HandleChatAddonMessageChannelOpcode(WorldPackets::Chat::ChatAddonMessageChannel& chatAddonMessageChannel)
-{
-    HandleChatAddonMessage(CHAT_MSG_CHANNEL, chatAddonMessageChannel.Prefix, chatAddonMessageChannel.Text, chatAddonMessageChannel.Target);
+    HandleChatAddonMessage(chatAddonMessageTargeted.Params.Type, chatAddonMessageTargeted.Params.Prefix, chatAddonMessageTargeted.Params.Text, chatAddonMessageTargeted.Target);
 }
 
 void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std::string text, std::string target /*= ""*/)

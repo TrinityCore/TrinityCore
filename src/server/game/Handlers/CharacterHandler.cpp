@@ -349,6 +349,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         while (result->NextRow());
     }
 
+    charEnum.IsTestDemonHunterCreationAllowed = canAlwaysCreateDemonHunter;
     charEnum.IsDemonHunterCreationAllowed = GetAccountExpansion() >= EXPANSION_LEGION || canAlwaysCreateDemonHunter;
     charEnum.IsAlliedRacesCreationAllowed = GetAccountExpansion() >= EXPANSION_BATTLE_FOR_AZEROTH;
 
@@ -506,8 +507,8 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
     if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RACEMASK))
     {
-        uint32 raceMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
-        if ((1 << (charCreate.CreateInfo->Race - 1)) & raceMaskDisabled)
+        uint64 raceMaskDisabled = sWorld->GetUInt64Config(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
+        if ((UI64LIT(1) << (charCreate.CreateInfo->Race - 1)) & raceMaskDisabled)
         {
             SendCharCreate(CHAR_CREATE_DISABLED);
             return;
@@ -733,7 +734,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
             LoginDatabase.CommitTransaction(trans);
 
-            SendCharCreate(CHAR_CREATE_SUCCESS);
+            SendCharCreate(CHAR_CREATE_SUCCESS, newChar.GetGUID());
 
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Create Character: %s %s", GetAccountId(), GetRemoteAddress().c_str(), createInfo->Name.c_str(), newChar.GetGUID().ToString().c_str());
             sScriptMgr->OnPlayerCreate(&newChar);
@@ -971,16 +972,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     // TODO: Move this to BattlePetMgr::SendJournalLock() just to have all packets in one file
     WorldPackets::BattlePet::BattlePetJournalLockAcquired lock;
     SendPacket(lock.Write());
-
-    WorldPackets::Artifact::ArtifactKnowledge artifactKnowledge;
-    artifactKnowledge.ArtifactCategoryID = ARTIFACT_CATEGORY_PRIMARY;
-    artifactKnowledge.KnowledgeLevel = sWorld->getIntConfig(CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE);
-    SendPacket(artifactKnowledge.Write());
-
-    WorldPackets::Artifact::ArtifactKnowledge artifactKnowledgeFishingPole;
-    artifactKnowledgeFishingPole.ArtifactCategoryID = ARTIFACT_CATEGORY_FISHING;
-    artifactKnowledgeFishingPole.KnowledgeLevel = 0;
-    SendPacket(artifactKnowledgeFishingPole.Write());
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
 
@@ -1234,7 +1225,7 @@ void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packe
 
 void WorldSession::HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWatchedFaction& packet)
 {
-    GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, packet.FactionIndex);
+    GetPlayer()->SetUInt32Value(ACTIVE_PLAYER_FIELD_WATCHED_FACTION_INDEX, packet.FactionIndex);
 }
 
 void WorldSession::HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFactionInactive& packet)
@@ -1834,8 +1825,8 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
 
     if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RACEMASK))
     {
-        uint32 raceMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
-        if ((1 << (factionChangeInfo->RaceID - 1)) & raceMaskDisabled)
+        uint64 raceMaskDisabled = sWorld->GetUInt64Config(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
+        if ((UI64LIT(1) << (factionChangeInfo->RaceID - 1)) & raceMaskDisabled)
         {
             SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
             return;
@@ -1962,7 +1953,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
         trans->Append(stmt);
 
         // Race specific languages
-        if (factionChangeInfo->RaceID != RACE_ORC && factionChangeInfo->RaceID != RACE_HUMAN)
+        if (factionChangeInfo->RaceID != RACE_ORC && factionChangeInfo->RaceID != RACE_HUMAN && factionChangeInfo->RaceID != RACE_MAGHAR_ORC)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILL_LANGUAGE);
             stmt->setUInt64(0, lowGuid);
@@ -1970,6 +1961,7 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             switch (factionChangeInfo->RaceID)
             {
                 case RACE_DWARF:
+                case RACE_DARK_IRON_DWARF:
                     stmt->setUInt16(1, 111);
                     break;
                 case RACE_DRAENEI:
@@ -2351,7 +2343,7 @@ void WorldSession::HandleReorderCharacters(WorldPackets::Character::ReorderChara
 void WorldSession::HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& /*packet*/)
 {
     // Only players that has not yet gained any experience can use this
-    if (_player->GetUInt32Value(PLAYER_XP))
+    if (_player->GetUInt32Value(ACTIVE_PLAYER_FIELD_XP))
         return;
 
     if (ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(_player->getClass()))
@@ -2485,10 +2477,11 @@ void WorldSession::HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCha
     }));
 }
 
-void WorldSession::SendCharCreate(ResponseCodes result)
+void WorldSession::SendCharCreate(ResponseCodes result, ObjectGuid const& guid /*= ObjectGuid::Empty*/)
 {
     WorldPackets::Character::CreateChar response;
     response.Code = result;
+    response.Guid = guid;
 
     SendPacket(response.Write());
 }

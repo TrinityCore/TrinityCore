@@ -111,7 +111,7 @@ WorldPacket const* WorldPackets::Achievement::AchievementEarned::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Achievement::ServerFirstAchievement::Write()
+WorldPacket const* WorldPackets::Achievement::BroadcastAchievement::Write()
 {
     _worldPacket.WriteBits(Name.length(), 7);
     _worldPacket.WriteBit(GuildAchievement);
