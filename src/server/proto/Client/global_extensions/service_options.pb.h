@@ -20,8 +20,10 @@
 #endif
 
 #include <google/protobuf/generated_message_util.h>
+#include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
+#include <google/protobuf/unknown_field_set.h>
 #include "google/protobuf/descriptor.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
@@ -34,25 +36,486 @@ void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2epro
 void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto();
 void protobuf_ShutdownFile_global_5fextensions_2fservice_5foptions_2eproto();
 
+class BGSServiceOptions;
+class SDKServiceOptions;
 
+// ===================================================================
+
+class TC_PROTO_API BGSServiceOptions : public ::google::protobuf::Message {
+ public:
+  BGSServiceOptions();
+  virtual ~BGSServiceOptions();
+
+  BGSServiceOptions(const BGSServiceOptions& from);
+
+  inline BGSServiceOptions& operator=(const BGSServiceOptions& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const BGSServiceOptions& default_instance();
+
+  void Swap(BGSServiceOptions* other);
+
+  // implements Message ----------------------------------------------
+
+  BGSServiceOptions* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const BGSServiceOptions& from);
+  void MergeFrom(const BGSServiceOptions& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string descriptor_name = 1;
+  inline bool has_descriptor_name() const;
+  inline void clear_descriptor_name();
+  static const int kDescriptorNameFieldNumber = 1;
+  inline const ::std::string& descriptor_name() const;
+  inline void set_descriptor_name(const ::std::string& value);
+  inline void set_descriptor_name(const char* value);
+  inline void set_descriptor_name(const char* value, size_t size);
+  inline ::std::string* mutable_descriptor_name();
+  inline ::std::string* release_descriptor_name();
+  inline void set_allocated_descriptor_name(::std::string* descriptor_name);
+
+  // optional uint32 version = 4;
+  inline bool has_version() const;
+  inline void clear_version();
+  static const int kVersionFieldNumber = 4;
+  inline ::google::protobuf::uint32 version() const;
+  inline void set_version(::google::protobuf::uint32 value);
+
+  // optional string shard_name = 5;
+  inline bool has_shard_name() const;
+  inline void clear_shard_name();
+  static const int kShardNameFieldNumber = 5;
+  inline const ::std::string& shard_name() const;
+  inline void set_shard_name(const ::std::string& value);
+  inline void set_shard_name(const char* value);
+  inline void set_shard_name(const char* value, size_t size);
+  inline ::std::string* mutable_shard_name();
+  inline ::std::string* release_shard_name();
+  inline void set_allocated_shard_name(::std::string* shard_name);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.BGSServiceOptions)
+ private:
+  inline void set_has_descriptor_name();
+  inline void clear_has_descriptor_name();
+  inline void set_has_version();
+  inline void clear_has_version();
+  inline void set_has_shard_name();
+  inline void clear_has_shard_name();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* descriptor_name_;
+  ::std::string* shard_name_;
+  ::google::protobuf::uint32 version_;
+  friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto();
+  friend void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto();
+  friend void protobuf_ShutdownFile_global_5fextensions_2fservice_5foptions_2eproto();
+
+  void InitAsDefaultInstance();
+  static BGSServiceOptions* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API SDKServiceOptions : public ::google::protobuf::Message {
+ public:
+  SDKServiceOptions();
+  virtual ~SDKServiceOptions();
+
+  SDKServiceOptions(const SDKServiceOptions& from);
+
+  inline SDKServiceOptions& operator=(const SDKServiceOptions& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SDKServiceOptions& default_instance();
+
+  void Swap(SDKServiceOptions* other);
+
+  // implements Message ----------------------------------------------
+
+  SDKServiceOptions* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const SDKServiceOptions& from);
+  void MergeFrom(const SDKServiceOptions& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional bool inbound = 1;
+  inline bool has_inbound() const;
+  inline void clear_inbound();
+  static const int kInboundFieldNumber = 1;
+  inline bool inbound() const;
+  inline void set_inbound(bool value);
+
+  // optional bool outbound = 2;
+  inline bool has_outbound() const;
+  inline void clear_outbound();
+  static const int kOutboundFieldNumber = 2;
+  inline bool outbound() const;
+  inline void set_outbound(bool value);
+
+  // optional bool use_client_id = 3;
+  inline bool has_use_client_id() const;
+  inline void clear_use_client_id();
+  static const int kUseClientIdFieldNumber = 3;
+  inline bool use_client_id() const;
+  inline void set_use_client_id(bool value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.SDKServiceOptions)
+ private:
+  inline void set_has_inbound();
+  inline void clear_has_inbound();
+  inline void set_has_outbound();
+  inline void clear_has_outbound();
+  inline void set_has_use_client_id();
+  inline void clear_has_use_client_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  bool inbound_;
+  bool outbound_;
+  bool use_client_id_;
+  friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto();
+  friend void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto();
+  friend void protobuf_ShutdownFile_global_5fextensions_2fservice_5foptions_2eproto();
+
+  void InitAsDefaultInstance();
+  static SDKServiceOptions* default_instance_;
+};
 // ===================================================================
 
 
 // ===================================================================
 
-
-// ===================================================================
-
-static const int kOriginalFullyQualifiedDescriptorNameFieldNumber = 1001;
+static const int kServiceOptionsFieldNumber = 90000;
 TC_PROTO_API extern ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::ServiceOptions,
-    ::google::protobuf::internal::StringTypeTraits, 9, false >
-  original_fully_qualified_descriptor_name;
-static const int kServiceIdFieldNumber = 50000;
+    ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::BGSServiceOptions >, 11, false >
+  service_options;
+static const int kSdkServiceOptionsFieldNumber = 90001;
 TC_PROTO_API extern ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::ServiceOptions,
-    ::google::protobuf::internal::PrimitiveTypeTraits< ::google::protobuf::uint32 >, 13, false >
-  service_id;
+    ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::SDKServiceOptions >, 11, false >
+  sdk_service_options;
 
 // ===================================================================
+
+// BGSServiceOptions
+
+// optional string descriptor_name = 1;
+inline bool BGSServiceOptions::has_descriptor_name() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void BGSServiceOptions::set_has_descriptor_name() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void BGSServiceOptions::clear_has_descriptor_name() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void BGSServiceOptions::clear_descriptor_name() {
+  if (descriptor_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    descriptor_name_->clear();
+  }
+  clear_has_descriptor_name();
+}
+inline const ::std::string& BGSServiceOptions::descriptor_name() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSServiceOptions.descriptor_name)
+  return *descriptor_name_;
+}
+inline void BGSServiceOptions::set_descriptor_name(const ::std::string& value) {
+  set_has_descriptor_name();
+  if (descriptor_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    descriptor_name_ = new ::std::string;
+  }
+  descriptor_name_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSServiceOptions.descriptor_name)
+}
+inline void BGSServiceOptions::set_descriptor_name(const char* value) {
+  set_has_descriptor_name();
+  if (descriptor_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    descriptor_name_ = new ::std::string;
+  }
+  descriptor_name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.BGSServiceOptions.descriptor_name)
+}
+inline void BGSServiceOptions::set_descriptor_name(const char* value, size_t size) {
+  set_has_descriptor_name();
+  if (descriptor_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    descriptor_name_ = new ::std::string;
+  }
+  descriptor_name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.BGSServiceOptions.descriptor_name)
+}
+inline ::std::string* BGSServiceOptions::mutable_descriptor_name() {
+  set_has_descriptor_name();
+  if (descriptor_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    descriptor_name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.BGSServiceOptions.descriptor_name)
+  return descriptor_name_;
+}
+inline ::std::string* BGSServiceOptions::release_descriptor_name() {
+  clear_has_descriptor_name();
+  if (descriptor_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = descriptor_name_;
+    descriptor_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BGSServiceOptions::set_allocated_descriptor_name(::std::string* descriptor_name) {
+  if (descriptor_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete descriptor_name_;
+  }
+  if (descriptor_name) {
+    set_has_descriptor_name();
+    descriptor_name_ = descriptor_name;
+  } else {
+    clear_has_descriptor_name();
+    descriptor_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.BGSServiceOptions.descriptor_name)
+}
+
+// optional uint32 version = 4;
+inline bool BGSServiceOptions::has_version() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void BGSServiceOptions::set_has_version() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void BGSServiceOptions::clear_has_version() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void BGSServiceOptions::clear_version() {
+  version_ = 0u;
+  clear_has_version();
+}
+inline ::google::protobuf::uint32 BGSServiceOptions::version() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSServiceOptions.version)
+  return version_;
+}
+inline void BGSServiceOptions::set_version(::google::protobuf::uint32 value) {
+  set_has_version();
+  version_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSServiceOptions.version)
+}
+
+// optional string shard_name = 5;
+inline bool BGSServiceOptions::has_shard_name() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void BGSServiceOptions::set_has_shard_name() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void BGSServiceOptions::clear_has_shard_name() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void BGSServiceOptions::clear_shard_name() {
+  if (shard_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    shard_name_->clear();
+  }
+  clear_has_shard_name();
+}
+inline const ::std::string& BGSServiceOptions::shard_name() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSServiceOptions.shard_name)
+  return *shard_name_;
+}
+inline void BGSServiceOptions::set_shard_name(const ::std::string& value) {
+  set_has_shard_name();
+  if (shard_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    shard_name_ = new ::std::string;
+  }
+  shard_name_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSServiceOptions.shard_name)
+}
+inline void BGSServiceOptions::set_shard_name(const char* value) {
+  set_has_shard_name();
+  if (shard_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    shard_name_ = new ::std::string;
+  }
+  shard_name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.BGSServiceOptions.shard_name)
+}
+inline void BGSServiceOptions::set_shard_name(const char* value, size_t size) {
+  set_has_shard_name();
+  if (shard_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    shard_name_ = new ::std::string;
+  }
+  shard_name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.BGSServiceOptions.shard_name)
+}
+inline ::std::string* BGSServiceOptions::mutable_shard_name() {
+  set_has_shard_name();
+  if (shard_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    shard_name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.BGSServiceOptions.shard_name)
+  return shard_name_;
+}
+inline ::std::string* BGSServiceOptions::release_shard_name() {
+  clear_has_shard_name();
+  if (shard_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = shard_name_;
+    shard_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BGSServiceOptions::set_allocated_shard_name(::std::string* shard_name) {
+  if (shard_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete shard_name_;
+  }
+  if (shard_name) {
+    set_has_shard_name();
+    shard_name_ = shard_name;
+  } else {
+    clear_has_shard_name();
+    shard_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.BGSServiceOptions.shard_name)
+}
+
+// -------------------------------------------------------------------
+
+// SDKServiceOptions
+
+// optional bool inbound = 1;
+inline bool SDKServiceOptions::has_inbound() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void SDKServiceOptions::set_has_inbound() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void SDKServiceOptions::clear_has_inbound() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void SDKServiceOptions::clear_inbound() {
+  inbound_ = false;
+  clear_has_inbound();
+}
+inline bool SDKServiceOptions::inbound() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.SDKServiceOptions.inbound)
+  return inbound_;
+}
+inline void SDKServiceOptions::set_inbound(bool value) {
+  set_has_inbound();
+  inbound_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.SDKServiceOptions.inbound)
+}
+
+// optional bool outbound = 2;
+inline bool SDKServiceOptions::has_outbound() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void SDKServiceOptions::set_has_outbound() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void SDKServiceOptions::clear_has_outbound() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void SDKServiceOptions::clear_outbound() {
+  outbound_ = false;
+  clear_has_outbound();
+}
+inline bool SDKServiceOptions::outbound() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.SDKServiceOptions.outbound)
+  return outbound_;
+}
+inline void SDKServiceOptions::set_outbound(bool value) {
+  set_has_outbound();
+  outbound_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.SDKServiceOptions.outbound)
+}
+
+// optional bool use_client_id = 3;
+inline bool SDKServiceOptions::has_use_client_id() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void SDKServiceOptions::set_has_use_client_id() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void SDKServiceOptions::clear_has_use_client_id() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void SDKServiceOptions::clear_use_client_id() {
+  use_client_id_ = false;
+  clear_has_use_client_id();
+}
+inline bool SDKServiceOptions::use_client_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.SDKServiceOptions.use_client_id)
+  return use_client_id_;
+}
+inline void SDKServiceOptions::set_use_client_id(bool value) {
+  set_has_use_client_id();
+  use_client_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.SDKServiceOptions.use_client_id)
+}
 
 
 // @@protoc_insertion_point(namespace_scope)

@@ -96,19 +96,19 @@ WorldPacket const* WorldPackets::NPC::VendorInventory::Write()
 WorldPacket const* WorldPackets::NPC::TrainerList::Write()
 {
     _worldPacket << TrainerGUID;
-    _worldPacket << TrainerType;
-    _worldPacket << TrainerID;
+    _worldPacket << uint32(TrainerType);
+    _worldPacket << uint32(TrainerID);
 
-    _worldPacket << int32(Spells.size());
+    _worldPacket << uint32(Spells.size());
     for (TrainerListSpell const& spell : Spells)
     {
-        _worldPacket << spell.SpellID;
-        _worldPacket << spell.MoneyCost;
-        _worldPacket << spell.ReqSkillLine;
-        _worldPacket << spell.ReqSkillRank;
+        _worldPacket << int32(spell.SpellID);
+        _worldPacket << uint32(spell.MoneyCost);
+        _worldPacket << uint32(spell.ReqSkillLine);
+        _worldPacket << uint32(spell.ReqSkillRank);
         _worldPacket.append(spell.ReqAbility.data(), spell.ReqAbility.size());
-        _worldPacket << spell.Usable;
-        _worldPacket << spell.ReqLevel;
+        _worldPacket << uint8(spell.Usable);
+        _worldPacket << uint8(spell.ReqLevel);
     }
 
     _worldPacket.WriteBits(Greeting.length(), 11);
@@ -144,11 +144,13 @@ WorldPacket const* WorldPackets::NPC::PlayerTabardVendorActivate::Write()
 
 WorldPacket const* WorldPackets::NPC::GossipPOI::Write()
 {
-    _worldPacket.WriteBits(Flags, 14);
-    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket << int32(ID);
     _worldPacket << Pos;
     _worldPacket << int32(Icon);
     _worldPacket << int32(Importance);
+    _worldPacket.WriteBits(Flags, 14);
+    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket.FlushBits();
     _worldPacket.WriteString(Name);
 
     return &_worldPacket;

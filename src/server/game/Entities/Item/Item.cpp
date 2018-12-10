@@ -275,8 +275,6 @@ Item::Item()
     m_objectType |= TYPEMASK_ITEM;
     m_objectTypeId = TYPEID_ITEM;
 
-    m_updateFlag = 0;
-
     m_valuesCount = ITEM_END;
     _dynamicValuesCount = ITEM_DYNAMIC_END;
     m_slot = 0;
@@ -316,14 +314,8 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
 
     for (std::size_t i = 0; i < itemProto->Effects.size(); ++i)
-    {
         if (i < 5)
             SetSpellCharges(i, itemProto->Effects[i]->Charges);
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemProto->Effects[i]->SpellID))
-            if (owner && spellInfo->HasEffect(SPELL_EFFECT_GIVE_ARTIFACT_POWER))
-                if (uint32 artifactKnowledgeLevel = sWorld->getIntConfig(CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE))
-                    SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, artifactKnowledgeLevel + 1);
-    }
 
     SetUInt32Value(ITEM_FIELD_DURATION, itemProto->GetDuration());
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
@@ -1709,7 +1701,7 @@ bool Item::HasStats() const
     ItemTemplate const* proto = GetTemplate();
     Player const* owner = GetOwner();
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if ((owner ? GetItemStatValue(i, owner) : proto->GetItemStatValue(i)) != 0)
+        if ((owner ? GetItemStatValue(i, owner) : proto->GetItemStatAllocation(i)) != 0)
             return true;
 
     return false;
@@ -1721,7 +1713,7 @@ bool Item::HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusD
         return true;
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (bonus->ItemStatValue[i] != 0)
+        if (bonus->ItemStatAllocation[i] != 0)
             return true;
 
     return false;
@@ -2231,9 +2223,9 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
         else
             level = std::min(std::max(int32(level), ssd->MinLevel), ssd->MaxLevel);
 
-        if (SandboxScalingEntry const* sandbox = sSandboxScalingStore.LookupEntry(bonusData.SandboxScalingId))
-            if ((sandbox->Flags & 2 || sandbox->MinLevel || sandbox->MaxLevel) && !(sandbox->Flags & 4))
-                level = std::min(std::max(int32(level), sandbox->MinLevel), sandbox->MaxLevel);
+        if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(bonusData.ContentTuningId))
+            if ((contentTuning->Flags & 2 || contentTuning->MinLevel || contentTuning->MaxLevel) && !(contentTuning->Flags & 4))
+                level = std::min(std::max(int32(level), contentTuning->MinLevel), contentTuning->MaxLevel);
 
         if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->PlayerLevelToItemLevelCurveID, level)))
             itemLevel = heirloomIlvl;
@@ -2276,7 +2268,7 @@ int32 Item::GetItemStatValue(uint32 index, Player const* owner) const
         return int32(std::floor(statValue + 0.5f));
     }
 
-    return _bonusData.ItemStatValue[index];
+    return 0;
 }
 
 ItemDisenchantLootEntry const* Item::GetDisenchantLoot(Player const* owner) const
@@ -2565,8 +2557,6 @@ void Item::GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCatego
         uint32 artifactKnowledgeLevel = 1;
         if (sourceItem && sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL))
             artifactKnowledgeLevel = sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL);
-        else if (artifactCategoryId == ARTIFACT_CATEGORY_PRIMARY)
-            artifactKnowledgeLevel = sWorld->getIntConfig(CONFIG_CURRENCY_START_ARTIFACT_KNOWLEDGE) + 1;
 
         if (GtArtifactKnowledgeMultiplierEntry const* artifactKnowledge = sArtifactKnowledgeMultiplierGameTable.GetRow(artifactKnowledgeLevel))
             amount = uint64(amount * artifactKnowledge->Multiplier);
@@ -2598,9 +2588,9 @@ void Item::SetFixedLevel(uint8 level)
     {
         level = std::min(std::max(int32(level), ssd->MinLevel), ssd->MaxLevel);
 
-        if (SandboxScalingEntry const* sandbox = sSandboxScalingStore.LookupEntry(_bonusData.SandboxScalingId))
-            if ((sandbox->Flags & 2 || sandbox->MinLevel || sandbox->MaxLevel) && !(sandbox->Flags & 4))
-                level = std::min(std::max(int32(level), sandbox->MinLevel), sandbox->MaxLevel);
+        if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(_bonusData.ContentTuningId))
+            if ((contentTuning->Flags & 2 || contentTuning->MinLevel || contentTuning->MaxLevel) && !(contentTuning->Flags & 4))
+                level = std::min(std::max(int32(level), contentTuning->MinLevel), contentTuning->MaxLevel);
 
         SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, level);
     }
@@ -2625,9 +2615,6 @@ void BonusData::Initialize(ItemTemplate const* proto)
         ItemStatType[i] = proto->GetItemStatType(i);
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        ItemStatValue[i] = proto->GetItemStatValue(i);
-
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         ItemStatAllocation[i] = proto->GetItemStatAllocation(i);
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
@@ -2646,7 +2633,7 @@ void BonusData::Initialize(ItemTemplate const* proto)
     AppearanceModID = 0;
     RepairCostMultiplier = 1.0f;
     ScalingStatDistribution = proto->GetScalingStatDistribution();
-    SandboxScalingId = 0;
+    ContentTuningId = 0;
     RelicType = -1;
     HasItemLevelBonus = false;
     HasFixedLevel = false;
@@ -2734,7 +2721,7 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[3])
             if (values[1] < _state.ScalingStatDistributionPriority)
             {
                 ScalingStatDistribution = static_cast<uint32>(values[0]);
-                SandboxScalingId = static_cast<uint32>(values[2]);
+                ContentTuningId = static_cast<uint32>(values[2]);
                 _state.ScalingStatDistributionPriority = values[1];
                 HasFixedLevel = type == ITEM_BONUS_SCALING_STAT_DISTRIBUTION_FIXED;
             }

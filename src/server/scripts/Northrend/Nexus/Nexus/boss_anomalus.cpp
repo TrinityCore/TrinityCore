@@ -224,7 +224,7 @@ class npc_chaotic_rift : public CreatureScript
             void Reset() override
             {
                 Initialize();
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetDisplayFromModel(1);
                 DoCast(me, SPELL_ARCANEFORM, false);
             }
 

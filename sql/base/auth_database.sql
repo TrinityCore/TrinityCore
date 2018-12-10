@@ -40,7 +40,7 @@ CREATE TABLE `account` (
   `lock_country` varchar(2) NOT NULL DEFAULT '00',
   `last_login` timestamp NULL DEFAULT NULL,
   `online` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `expansion` tinyint(3) unsigned NOT NULL DEFAULT '6',
+  `expansion` tinyint(3) unsigned NOT NULL DEFAULT '7',
   `mutetime` bigint(20) NOT NULL DEFAULT '0',
   `mutereason` varchar(255) NOT NULL DEFAULT '',
   `muteby` varchar(50) NOT NULL DEFAULT '',
@@ -1888,7 +1888,7 @@ INSERT INTO `rbac_permissions` VALUES
 (695,'Command: reload spell_loot_template'),
 (696,'Command: reload spell_linked_spell'),
 (697,'Command: reload spell_pet_auras'),
-(698,'Command: reload spell_proc_event'),
+(698,'Command: character changeaccount'),
 (699,'Command: reload spell_proc'),
 (700,'Command: reload spell_scripts'),
 (701,'Command: reload spell_target_position'),
@@ -2076,7 +2076,7 @@ CREATE TABLE `realmlist` (
   `timezone` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `population` float unsigned NOT NULL DEFAULT '0',
-  `gamebuild` int(10) unsigned NOT NULL DEFAULT '26972',
+  `gamebuild` int(10) unsigned NOT NULL DEFAULT '28153',
   `Region` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `Battlegroup` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -2091,7 +2091,7 @@ CREATE TABLE `realmlist` (
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
 INSERT INTO `realmlist` VALUES
-(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,26972,1,1);
+(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,28153,1,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2242,7 +2242,9 @@ INSERT INTO `updates` VALUES
 ('2018_05_24_00_auth.sql','B98FD71AAA13810856729E034E6B8C9F8D5D4F6B','RELEASED','2018-05-24 22:32:49',0),
 ('2018_06_14_00_auth.sql','67EAB915BF0C7F2D410BE45F885A1A39D42C8C14','RELEASED','2018-06-14 23:06:59',0),
 ('2018_06_22_00_auth.sql','9DA24F70B8A365AFDEF58A9B578255CDEDFCA47C','RELEASED','2018-06-22 17:45:45',0),
-('2018_06_29_00_auth.sql','03AAEA7E52848FA5522C3F0C6D9C38B988407480','RELEASED','2018-06-29 22:34:04',0);
+('2018_06_29_00_auth.sql','03AAEA7E52848FA5522C3F0C6D9C38B988407480','RELEASED','2018-06-29 22:34:04',0),
+('2018_12_09_00_auth_2017_01_06_00_auth.sql','6CCFE6A9774EC733C9863D36A0F15F3534189BBD','RELEASED','2018-11-22 22:21:26',0),
+('2018_12_09_01_auth.sql','576C2A11BE671D8420FA3EB705E594E381ECCC56','RELEASED','2018-12-09 14:49:17',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

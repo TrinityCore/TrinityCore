@@ -324,7 +324,6 @@ public:
         {
             _events.Reset();
             _events.ScheduleEvent(EVENT_DETERMINE_EVENT, Seconds(2));
-            me->SetDisplayId(me->GetCreatureTemplate()->GetRandomValidModelId());
         }
 
         void UpdateAI(uint32 diff) override
