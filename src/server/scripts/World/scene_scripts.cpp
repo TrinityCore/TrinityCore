@@ -85,8 +85,6 @@ public:
 
     void OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate)
     {
-		PhasingHandler::OnMapChange(player);
-        PhasingHandler::OnAreaChange(player);
         PhasingHandler::OnConditionChange(player);
     }
 };
@@ -101,9 +99,7 @@ public:
         if (triggerName == "SEEFELSABERCREDIT")
             player->KilledMonsterCredit(SEE_FELSABER_QUEST_KILL_CREDIT);
         if (triggerName == "UPDATEPHASE")
-		PhasingHandler::OnMapChange(player);
-        PhasingHandler::OnAreaChange(player);
-        PhasingHandler::OnConditionChange(player);
+            PhasingHandler::OnConditionChange(player);
     }
 };
 

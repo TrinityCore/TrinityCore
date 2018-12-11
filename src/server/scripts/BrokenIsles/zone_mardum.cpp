@@ -338,9 +338,7 @@ public:
                 return false;
 
             player->SummonCreature(100982, creature->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 13000);
-		PhasingHandler::OnMapChange(player);
-        PhasingHandler::OnAreaChange(player);
-        PhasingHandler::OnConditionChange(player);
+            PhasingHandler::OnConditionChange(player);
         }
 
         return true;
@@ -778,8 +776,6 @@ public:
                 CloseGossipMenuFor(player);
                 // Personal Spawn Part Missing
                 player->KilledMonsterCredit(CREATURE_LADY_STHENO);
-		        PhasingHandler::OnMapChange(player);
-                PhasingHandler::OnAreaChange(player);
                 PhasingHandler::OnConditionChange(player);
                 player->CastSpell(player, SPELL_COILSKAR_SCENE, true);
             }
@@ -830,9 +826,7 @@ public:
                 CloseGossipMenuFor(player);
                 // Personal Spawn Part Missing
                 player->KilledMonsterCredit(CREATURE_MATRON_MOTHER_MALEVOLENCE);
-                PhasingHandler::OnMapChange(player);
-                PhasingHandler::OnAreaChange(player);
-                PhasingHandler::OnConditionChange(player);;
+                PhasingHandler::OnConditionChange(player);
                 player->CastSpell(player, SPELL_SHIVARRA_SCENE, true);
             }
         }
@@ -882,8 +876,6 @@ public:
                 CloseGossipMenuFor(player);
                 // Personal Spawn Part Missing
                 player->KilledMonsterCredit(CREATURE_BATTLELORD_GAARDOUN);
-		        PhasingHandler::OnMapChange(player);
-                PhasingHandler::OnAreaChange(player);
                 PhasingHandler::OnConditionChange(player);
                 player->CastSpell(player, SPELL_ASHTONGUE_SCENE, true);
             }
@@ -957,9 +949,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_HIDDEN_NO_MORE)
         {
-		    PhasingHandler::OnMapChange(player);
-            PhasingHandler::OnAreaChange(player);
-             PhasingHandler::OnConditionChange(player);
+            PhasingHandler::OnConditionChange(player);
             //Personal Spawn Start
         }
         return true;
