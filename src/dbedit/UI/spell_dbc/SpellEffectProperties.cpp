@@ -14,10 +14,10 @@ SpellEffectProperties::SpellEffectProperties(QWidget* parent)
 {
     QVBoxLayout* layout = new QVBoxLayout(this);
     _tab = new QTabWidget(this);
-    for (SpellEffIndex i : EnumUtils<SpellEffIndex>::Iterate())
+    for (SpellEffIndex i : EnumUtils::Iterate<SpellEffIndex>())
     {
         _children[i] = new SpellEffectsWidget(_tab, i);
-        _tab->addTab(_children[i], EnumUtils<SpellEffIndex>::ToTitle(i));
+        _tab->addTab(_children[i], EnumUtils::ToTitle(i));
     }
     layout->addWidget(_tab);
 }

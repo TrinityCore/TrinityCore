@@ -274,3 +274,5 @@ bool SearchTraits<SpellCastTimesEntry const*, void>::CheckLabel(SpellCastTimesEn
     return false;
 }
 
+bool SearchTraits<SpellEffects, void>::CheckLabel(SpellEffects e, char const* label, char const* needle) { return false; }
+

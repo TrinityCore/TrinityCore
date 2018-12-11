@@ -26,8 +26,8 @@ struct SearchTraits<T, std::enable_if_t<advstd::is_enum_v<T>>>
 {
     using KeyType = std::underlying_type_t<T>;
 
-    static auto Iterate() { return EnumUtils<T>::Iterate(); }
-    static std::string GetTitle(T v) { return EnumUtils<T>::ToTitle(v); }
+    static auto Iterate() { return EnumUtils::Iterate<T>(); }
+    static std::string GetTitle(T v) { return EnumUtils::ToTitle(v); }
     static bool CheckLabel(T v, char const* label, char const* needle);
     static T FromKey(KeyType k) { return T(k); }
     static KeyType ToKey(T v) { return v; }

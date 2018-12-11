@@ -39,12 +39,12 @@ class SpellAttributesPage : public SpellAttributesPageBase
             layout->addWidget(label);
             CONNECT(label, Clicked, this, ReturnClicked);
 
-            for (E attr : EnumUtils<E>::Iterate())
+            for (E attr : EnumUtils::Iterate<E>())
             {
                 QCheckBox* box = new QCheckBox(this);
                 _checkboxes.emplace(box, attr);
                 CONNECT(box, stateChanged, this, ValueChanged);
-                EnumText text = EnumUtils<E>::ToString(attr);
+                EnumText text = EnumUtils::ToString(attr);
                 box->setText(text.Title);
                 box->setToolTip(text.Description);
                 layout->addWidget(box);

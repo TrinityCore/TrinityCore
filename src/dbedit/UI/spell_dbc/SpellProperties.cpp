@@ -36,9 +36,9 @@ SpellSchoolSelector::SpellSchoolSelector(QWidget* parent) : SelectorBase(parent)
 {
     QGridLayout* layout = new QGridLayout(this);
     layout->setAlignment(Qt::AlignTop);
-    for (SpellSchools v : EnumUtils<SpellSchools>::Iterate())
+    for (SpellSchools v : EnumUtils::Iterate<SpellSchools>())
     {
-        QCheckBox* box = MakeBox(1 << v, EnumUtils<SpellSchools>::ToTitle(v));
+        QCheckBox* box = MakeBox(1 << v, EnumUtils::ToTitle(v));
         layout->addWidget(box, (v + 1) / 2, (v ? 1 - (v % 2) : 0), 1, (v ? 1 : 2), Qt::AlignLeft);
     }
 }
@@ -48,9 +48,9 @@ CastInterruptSelector::CastInterruptSelector(QWidget* parent) : SelectorBase(par
     QGridLayout* layout = new QGridLayout(this);
     layout->setAlignment(Qt::AlignTop);
     uint32 i = 0;
-    for (SpellInterruptFlags v : EnumUtils<SpellInterruptFlags>::Iterate())
+    for (SpellInterruptFlags v : EnumUtils::Iterate<SpellInterruptFlags>())
     {
-        QCheckBox* box = MakeBox(v, EnumUtils<SpellInterruptFlags>::ToTitle(v));
+        QCheckBox* box = MakeBox(v, EnumUtils::ToTitle(v));
         layout->addWidget(box, i/2, i%2, Qt::AlignLeft);
         ++i;
     }
@@ -61,9 +61,9 @@ ChannelInterruptSelector::ChannelInterruptSelector(QWidget* parent) : SelectorBa
     QGridLayout* layout = new QGridLayout(this);
     layout->setAlignment(Qt::AlignTop);
     uint32 i = 0;
-    for (SpellChannelInterruptFlags v : EnumUtils<SpellChannelInterruptFlags>::Iterate())
+    for (SpellChannelInterruptFlags v : EnumUtils::Iterate<SpellChannelInterruptFlags>())
     {
-        QCheckBox* box = MakeBox(v, EnumUtils<SpellChannelInterruptFlags>::ToTitle(v));
+        QCheckBox* box = MakeBox(v, EnumUtils::ToTitle(v));
         layout->addWidget(box, i/2, i%2, Qt::AlignLeft);
         ++i;
     }

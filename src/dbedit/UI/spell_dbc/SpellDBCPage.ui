@@ -830,110 +830,117 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>SpellDBCPage</class>
-   <extends>QWidget</extends>
-   <header>spelldbcpage.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>SpellSearchResults</class>
-   <extends>QWidget</extends>
-   <header>spellsearchresults.h</header>
+   <extends>QListWidget</extends>
+   <header>SpellSearchResults.h</header>
   </customwidget>
   <customwidget>
    <class>SpellDataDisplay</class>
    <extends>QWidget</extends>
-   <header>spelldatadisplay.h</header>
+   <header>SpellDataDisplay.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SpellProperties</class>
+   <extends>QGroupBox</extends>
+   <header>SpellProperties.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>SpellBaseProperties</class>
-   <extends>QWidget</extends>
-   <header>spellbaseproperties.h</header>
-  </customwidget>
-  <customwidget>
-   <class>SpellFamilyDropdown</class>
-   <extends>QWidget</extends>
-   <header>spellfamilydropdown.h</header>
-  </customwidget>
-  <customwidget>
-   <class>SpellSourceSelector</class>
-   <extends>QWidget</extends>
-   <header>spellsourceselector.h</header>
+   <extends>QGroupBox</extends>
+   <header>SpellBaseProperties.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>SpellAuraProperties</class>
-   <extends>QWidget</extends>
-   <header>spellauraproperties.h</header>
+   <extends>QGroupBox</extends>
+   <header>SpellAuraProperties.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>SpellCasterProperties</class>
-   <extends>QWidget</extends>
-   <header>spellcasterproperties.h</header>
+   <extends>QGroupBox</extends>
+   <header>SpellCasterProperties.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>SpellTargetProperties</class>
-   <extends>QWidget</extends>
-   <header>spelltargetproperties.h</header>
+   <extends>QGroupBox</extends>
+   <header>SpellTargetProperties.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SpellSourceSelector</class>
+   <extends>QGroupBox</extends>
+   <header>SpellSourceSelector.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>SpellAttributes</class>
-   <extends>QWidget</extends>
-   <header>spellattributes.h</header>
+   <extends>QGroupBox</extends>
+   <header>SpellAttributes.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>SpellAttributesOverview</class>
    <extends>QWidget</extends>
-   <header>spellattributesoverview.h</header>
+   <header>SpellAttributesOverview.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
-   <class>SpellProperties</class>
-   <extends>QWidget</extends>
-   <header>spellproperties.h</header>
-  </customwidget>
-  <customwidget>
-   <class>SpellDamageClassDropdown</class>
-   <extends>QWidget</extends>
-   <header>spelldamageclassdropdown.h</header>
-  </customwidget>
-  <customwidget>
-   <class>SpellPreventionTypeDropdown</class>
-   <extends>QWidget</extends>
-   <header>spellpreventiontypedropdown.h</header>
+   <class>SpellFamilyDropdown</class>
+   <extends>QLabel</extends>
+   <header>SearchableDropdown.h</header>
   </customwidget>
   <customwidget>
    <class>PowerTypeDropdown</class>
-   <extends>QWidget</extends>
-   <header>powertypedropdown.h</header>
+   <extends>QLabel</extends>
+   <header>SearchableDropdown.h</header>
   </customwidget>
   <customwidget>
    <class>RuneCostDropdown</class>
-   <extends>QWidget</extends>
-   <header>runecostdropdown.h</header>
-  </customwidget>
-  <customwidget>
-   <class>SpellCastTimeDropdown</class>
-   <extends>QWidget</extends>
-   <header>spellcasttimedropdown.h</header>
+   <extends>QLabel</extends>
+   <header>SearchableDropdown.h</header>
   </customwidget>
   <customwidget>
    <class>SpellSchoolSelector</class>
-   <extends>QWidget</extends>
-   <header>spellschoolselector.h</header>
+   <extends>QGroupBox</extends>
+   <header>SpellProperties.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
-   <class>CastInterruptSelector</class>
-   <extends>QWidget</extends>
-   <header>castinterruptselector.h</header>
+   <class>SpellCastTimeDropdown</class>
+   <extends>QLabel</extends>
+   <header>SearchableDropdown.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SpellPreventionTypeDropdown</class>
+   <extends>QLabel</extends>
+   <header>SearchableDropdown.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SpellDamageClassDropdown</class>
+   <extends>QLabel</extends>
+   <header>SearchableDropdown.h</header>
   </customwidget>
   <customwidget>
    <class>ChannelInterruptSelector</class>
-   <extends>QWidget</extends>
-   <header>channelinterruptselector.h</header>
+   <extends>QGroupBox</extends>
+   <header>SpellProperties.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CastInterruptSelector</class>
+   <extends>QGroupBox</extends>
+   <header>SpellProperties.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>SpellEffectProperties</class>
-   <extends>QWidget</extends>
-   <header>spelleffectproperties.h</header>
+   <extends>QGroupBox</extends>
+   <header>SpellEffectProperties.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

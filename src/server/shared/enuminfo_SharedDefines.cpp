@@ -25,6 +25,36 @@ namespace Trinity
 namespace Impl
 {
 
+/*********************************************************************\
+|* data for enum 'SpellEffIndex' in 'SharedDefines.h' auto-generated *|
+\*********************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<SpellEffIndex>::ToString(SpellEffIndex value)
+{
+    switch (value)
+    {
+        case EFFECT_0: return { "EFFECT_0", "EFFECT_0", "" };
+        case EFFECT_1: return { "EFFECT_1", "EFFECT_1", "" };
+        case EFFECT_2: return { "EFFECT_2", "EFFECT_2", "" };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellEffIndex>::Count() { return 3; }
+
+template <>
+TC_API_EXPORT SpellEffIndex EnumUtils<SpellEffIndex>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return EFFECT_0;
+        case 1: return EFFECT_1;
+        case 2: return EFFECT_2;
+        default: throw std::out_of_range("index");
+    }
+}
+
 /**************************************************************\
 |* data for enum 'Powers' in 'SharedDefines.h' auto-generated *|
 \**************************************************************/
@@ -803,6 +833,502 @@ TC_API_EXPORT SpellAttr7 EnumUtils<SpellAttr7>::FromIndex(size_t index)
         case 29: return SPELL_ATTR7_UNK29;
         case 30: return SPELL_ATTR7_UNK30;
         case 31: return SPELL_ATTR7_CLIENT_INDICATOR;
+        default: throw std::out_of_range("index");
+    }
+}
+
+/***************************************************************************\
+|* data for enum 'SpellInterruptFlags' in 'SharedDefines.h' auto-generated *|
+\***************************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<SpellInterruptFlags>::ToString(SpellInterruptFlags value)
+{
+    switch (value)
+    {
+        case SPELL_INTERRUPT_FLAG_MOVEMENT: return { "SPELL_INTERRUPT_FLAG_MOVEMENT", "SPELL_INTERRUPT_FLAG_MOVEMENT", "why need this for instant?" };
+        case SPELL_INTERRUPT_FLAG_PUSH_BACK: return { "SPELL_INTERRUPT_FLAG_PUSH_BACK", "SPELL_INTERRUPT_FLAG_PUSH_BACK", "push back" };
+        case SPELL_INTERRUPT_FLAG_UNK3: return { "SPELL_INTERRUPT_FLAG_UNK3", "SPELL_INTERRUPT_FLAG_UNK3", "any info?" };
+        case SPELL_INTERRUPT_FLAG_INTERRUPT: return { "SPELL_INTERRUPT_FLAG_INTERRUPT", "SPELL_INTERRUPT_FLAG_INTERRUPT", "interrupt" };
+        case SPELL_INTERRUPT_FLAG_ABORT_ON_DMG: return { "SPELL_INTERRUPT_FLAG_ABORT_ON_DMG", "SPELL_INTERRUPT_FLAG_ABORT_ON_DMG", "SPELL_INTERRUPT_UNK               = 0x20                // unk, 564 of 727 spells having this spell start with \042Glyph\042" };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellInterruptFlags>::Count() { return 5; }
+
+template <>
+TC_API_EXPORT SpellInterruptFlags EnumUtils<SpellInterruptFlags>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return SPELL_INTERRUPT_FLAG_MOVEMENT;
+        case 1: return SPELL_INTERRUPT_FLAG_PUSH_BACK;
+        case 2: return SPELL_INTERRUPT_FLAG_UNK3;
+        case 3: return SPELL_INTERRUPT_FLAG_INTERRUPT;
+        case 4: return SPELL_INTERRUPT_FLAG_ABORT_ON_DMG;
+        default: throw std::out_of_range("index");
+    }
+}
+
+/**********************************************************************************\
+|* data for enum 'SpellChannelInterruptFlags' in 'SharedDefines.h' auto-generated *|
+\**********************************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<SpellChannelInterruptFlags>::ToString(SpellChannelInterruptFlags value)
+{
+    switch (value)
+    {
+        case CHANNEL_INTERRUPT_FLAG_INTERRUPT: return { "CHANNEL_INTERRUPT_FLAG_INTERRUPT", "CHANNEL_INTERRUPT_FLAG_INTERRUPT", "interrupt" };
+        case CHANNEL_FLAG_DELAY: return { "CHANNEL_FLAG_DELAY", "CHANNEL_FLAG_DELAY", "" };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellChannelInterruptFlags>::Count() { return 2; }
+
+template <>
+TC_API_EXPORT SpellChannelInterruptFlags EnumUtils<SpellChannelInterruptFlags>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return CHANNEL_INTERRUPT_FLAG_INTERRUPT;
+        case 1: return CHANNEL_FLAG_DELAY;
+        default: throw std::out_of_range("index");
+    }
+}
+
+/*******************************************************************************\
+|* data for enum 'SpellAuraInterruptFlags' in 'SharedDefines.h' auto-generated *|
+\*******************************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<SpellAuraInterruptFlags>::ToString(SpellAuraInterruptFlags value)
+{
+    switch (value)
+    {
+        case AURA_INTERRUPT_FLAG_HITBYSPELL: return { "AURA_INTERRUPT_FLAG_HITBYSPELL", "AURA_INTERRUPT_FLAG_HITBYSPELL", "0    removed when getting hit by a negative spell?" };
+        case AURA_INTERRUPT_FLAG_TAKE_DAMAGE: return { "AURA_INTERRUPT_FLAG_TAKE_DAMAGE", "AURA_INTERRUPT_FLAG_TAKE_DAMAGE", "1    removed by any damage" };
+        case AURA_INTERRUPT_FLAG_CAST: return { "AURA_INTERRUPT_FLAG_CAST", "AURA_INTERRUPT_FLAG_CAST", "2    cast any spells" };
+        case AURA_INTERRUPT_FLAG_MOVE: return { "AURA_INTERRUPT_FLAG_MOVE", "AURA_INTERRUPT_FLAG_MOVE", "3    removed by any movement" };
+        case AURA_INTERRUPT_FLAG_TURNING: return { "AURA_INTERRUPT_FLAG_TURNING", "AURA_INTERRUPT_FLAG_TURNING", "4    removed by any turning" };
+        case AURA_INTERRUPT_FLAG_JUMP: return { "AURA_INTERRUPT_FLAG_JUMP", "AURA_INTERRUPT_FLAG_JUMP", "5    removed by entering combat" };
+        case AURA_INTERRUPT_FLAG_NOT_MOUNTED: return { "AURA_INTERRUPT_FLAG_NOT_MOUNTED", "AURA_INTERRUPT_FLAG_NOT_MOUNTED", "6    removed by dismounting" };
+        case AURA_INTERRUPT_FLAG_NOT_ABOVEWATER: return { "AURA_INTERRUPT_FLAG_NOT_ABOVEWATER", "AURA_INTERRUPT_FLAG_NOT_ABOVEWATER", "7    removed by entering water" };
+        case AURA_INTERRUPT_FLAG_NOT_UNDERWATER: return { "AURA_INTERRUPT_FLAG_NOT_UNDERWATER", "AURA_INTERRUPT_FLAG_NOT_UNDERWATER", "8    removed by leaving water" };
+        case AURA_INTERRUPT_FLAG_NOT_SHEATHED: return { "AURA_INTERRUPT_FLAG_NOT_SHEATHED", "AURA_INTERRUPT_FLAG_NOT_SHEATHED", "9    removed by unsheathing" };
+        case AURA_INTERRUPT_FLAG_TALK: return { "AURA_INTERRUPT_FLAG_TALK", "AURA_INTERRUPT_FLAG_TALK", "10   talk to npc / loot? action on creature" };
+        case AURA_INTERRUPT_FLAG_USE: return { "AURA_INTERRUPT_FLAG_USE", "AURA_INTERRUPT_FLAG_USE", "11   mine/use/open action on gameobject" };
+        case AURA_INTERRUPT_FLAG_MELEE_ATTACK: return { "AURA_INTERRUPT_FLAG_MELEE_ATTACK", "AURA_INTERRUPT_FLAG_MELEE_ATTACK", "12   removed by attacking" };
+        case AURA_INTERRUPT_FLAG_SPELL_ATTACK: return { "AURA_INTERRUPT_FLAG_SPELL_ATTACK", "AURA_INTERRUPT_FLAG_SPELL_ATTACK", "13   ???" };
+        case AURA_INTERRUPT_FLAG_UNK14: return { "AURA_INTERRUPT_FLAG_UNK14", "AURA_INTERRUPT_FLAG_UNK14", "14" };
+        case AURA_INTERRUPT_FLAG_TRANSFORM: return { "AURA_INTERRUPT_FLAG_TRANSFORM", "AURA_INTERRUPT_FLAG_TRANSFORM", "15   removed by transform?" };
+        case AURA_INTERRUPT_FLAG_UNK16: return { "AURA_INTERRUPT_FLAG_UNK16", "AURA_INTERRUPT_FLAG_UNK16", "16" };
+        case AURA_INTERRUPT_FLAG_MOUNT: return { "AURA_INTERRUPT_FLAG_MOUNT", "AURA_INTERRUPT_FLAG_MOUNT", "17   misdirect, aspect, swim speed" };
+        case AURA_INTERRUPT_FLAG_NOT_SEATED: return { "AURA_INTERRUPT_FLAG_NOT_SEATED", "AURA_INTERRUPT_FLAG_NOT_SEATED", "18   removed by standing up (used by food and drink mostly and sleep/Fake Death like)" };
+        case AURA_INTERRUPT_FLAG_CHANGE_MAP: return { "AURA_INTERRUPT_FLAG_CHANGE_MAP", "AURA_INTERRUPT_FLAG_CHANGE_MAP", "19   leaving map/getting teleported" };
+        case AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION: return { "AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION", "AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION", "20   removed by auras that make you invulnerable, or make other to lose selection on you" };
+        case AURA_INTERRUPT_FLAG_UNK21: return { "AURA_INTERRUPT_FLAG_UNK21", "AURA_INTERRUPT_FLAG_UNK21", "21" };
+        case AURA_INTERRUPT_FLAG_TELEPORTED: return { "AURA_INTERRUPT_FLAG_TELEPORTED", "AURA_INTERRUPT_FLAG_TELEPORTED", "22" };
+        case AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT: return { "AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT", "AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT", "23   removed by entering pvp combat" };
+        case AURA_INTERRUPT_FLAG_DIRECT_DAMAGE: return { "AURA_INTERRUPT_FLAG_DIRECT_DAMAGE", "AURA_INTERRUPT_FLAG_DIRECT_DAMAGE", "24   removed by any direct damage" };
+        case AURA_INTERRUPT_FLAG_LANDING: return { "AURA_INTERRUPT_FLAG_LANDING", "AURA_INTERRUPT_FLAG_LANDING", "25   removed by hitting the ground" };
+        case AURA_INTERRUPT_FLAG_LEAVE_COMBAT: return { "AURA_INTERRUPT_FLAG_LEAVE_COMBAT", "AURA_INTERRUPT_FLAG_LEAVE_COMBAT", "31   removed by leaving combat" };
+        case AURA_INTERRUPT_FLAG_NOT_VICTIM: return { "AURA_INTERRUPT_FLAG_NOT_VICTIM", "AURA_INTERRUPT_FLAG_NOT_VICTIM", "" };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellAuraInterruptFlags>::Count() { return 28; }
+
+template <>
+TC_API_EXPORT SpellAuraInterruptFlags EnumUtils<SpellAuraInterruptFlags>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return AURA_INTERRUPT_FLAG_HITBYSPELL;
+        case 1: return AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
+        case 2: return AURA_INTERRUPT_FLAG_CAST;
+        case 3: return AURA_INTERRUPT_FLAG_MOVE;
+        case 4: return AURA_INTERRUPT_FLAG_TURNING;
+        case 5: return AURA_INTERRUPT_FLAG_JUMP;
+        case 6: return AURA_INTERRUPT_FLAG_NOT_MOUNTED;
+        case 7: return AURA_INTERRUPT_FLAG_NOT_ABOVEWATER;
+        case 8: return AURA_INTERRUPT_FLAG_NOT_UNDERWATER;
+        case 9: return AURA_INTERRUPT_FLAG_NOT_SHEATHED;
+        case 10: return AURA_INTERRUPT_FLAG_TALK;
+        case 11: return AURA_INTERRUPT_FLAG_USE;
+        case 12: return AURA_INTERRUPT_FLAG_MELEE_ATTACK;
+        case 13: return AURA_INTERRUPT_FLAG_SPELL_ATTACK;
+        case 14: return AURA_INTERRUPT_FLAG_UNK14;
+        case 15: return AURA_INTERRUPT_FLAG_TRANSFORM;
+        case 16: return AURA_INTERRUPT_FLAG_UNK16;
+        case 17: return AURA_INTERRUPT_FLAG_MOUNT;
+        case 18: return AURA_INTERRUPT_FLAG_NOT_SEATED;
+        case 19: return AURA_INTERRUPT_FLAG_CHANGE_MAP;
+        case 20: return AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION;
+        case 21: return AURA_INTERRUPT_FLAG_UNK21;
+        case 22: return AURA_INTERRUPT_FLAG_TELEPORTED;
+        case 23: return AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT;
+        case 24: return AURA_INTERRUPT_FLAG_DIRECT_DAMAGE;
+        case 25: return AURA_INTERRUPT_FLAG_LANDING;
+        case 26: return AURA_INTERRUPT_FLAG_LEAVE_COMBAT;
+        case 27: return AURA_INTERRUPT_FLAG_NOT_VICTIM;
+        default: throw std::out_of_range("index");
+    }
+}
+
+/********************************************************************\
+|* data for enum 'SpellEffects' in 'SharedDefines.h' auto-generated *|
+\********************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<SpellEffects>::ToString(SpellEffects value)
+{
+    switch (value)
+    {
+        case SPELL_EFFECT_INSTAKILL: return { "SPELL_EFFECT_INSTAKILL", "SPELL_EFFECT_INSTAKILL", "" };
+        case SPELL_EFFECT_SCHOOL_DAMAGE: return { "SPELL_EFFECT_SCHOOL_DAMAGE", "SPELL_EFFECT_SCHOOL_DAMAGE", "" };
+        case SPELL_EFFECT_DUMMY: return { "SPELL_EFFECT_DUMMY", "SPELL_EFFECT_DUMMY", "" };
+        case SPELL_EFFECT_PORTAL_TELEPORT: return { "SPELL_EFFECT_PORTAL_TELEPORT", "SPELL_EFFECT_PORTAL_TELEPORT", "" };
+        case SPELL_EFFECT_TELEPORT_UNITS: return { "SPELL_EFFECT_TELEPORT_UNITS", "SPELL_EFFECT_TELEPORT_UNITS", "" };
+        case SPELL_EFFECT_APPLY_AURA: return { "SPELL_EFFECT_APPLY_AURA", "SPELL_EFFECT_APPLY_AURA", "" };
+        case SPELL_EFFECT_ENVIRONMENTAL_DAMAGE: return { "SPELL_EFFECT_ENVIRONMENTAL_DAMAGE", "SPELL_EFFECT_ENVIRONMENTAL_DAMAGE", "" };
+        case SPELL_EFFECT_POWER_DRAIN: return { "SPELL_EFFECT_POWER_DRAIN", "SPELL_EFFECT_POWER_DRAIN", "" };
+        case SPELL_EFFECT_HEALTH_LEECH: return { "SPELL_EFFECT_HEALTH_LEECH", "SPELL_EFFECT_HEALTH_LEECH", "" };
+        case SPELL_EFFECT_HEAL: return { "SPELL_EFFECT_HEAL", "SPELL_EFFECT_HEAL", "" };
+        case SPELL_EFFECT_BIND: return { "SPELL_EFFECT_BIND", "SPELL_EFFECT_BIND", "" };
+        case SPELL_EFFECT_PORTAL: return { "SPELL_EFFECT_PORTAL", "SPELL_EFFECT_PORTAL", "" };
+        case SPELL_EFFECT_RITUAL_BASE: return { "SPELL_EFFECT_RITUAL_BASE", "SPELL_EFFECT_RITUAL_BASE", "" };
+        case SPELL_EFFECT_RITUAL_SPECIALIZE: return { "SPELL_EFFECT_RITUAL_SPECIALIZE", "SPELL_EFFECT_RITUAL_SPECIALIZE", "" };
+        case SPELL_EFFECT_RITUAL_ACTIVATE_PORTAL: return { "SPELL_EFFECT_RITUAL_ACTIVATE_PORTAL", "SPELL_EFFECT_RITUAL_ACTIVATE_PORTAL", "" };
+        case SPELL_EFFECT_QUEST_COMPLETE: return { "SPELL_EFFECT_QUEST_COMPLETE", "SPELL_EFFECT_QUEST_COMPLETE", "" };
+        case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL: return { "SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL", "SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL", "" };
+        case SPELL_EFFECT_RESURRECT: return { "SPELL_EFFECT_RESURRECT", "SPELL_EFFECT_RESURRECT", "" };
+        case SPELL_EFFECT_ADD_EXTRA_ATTACKS: return { "SPELL_EFFECT_ADD_EXTRA_ATTACKS", "SPELL_EFFECT_ADD_EXTRA_ATTACKS", "" };
+        case SPELL_EFFECT_DODGE: return { "SPELL_EFFECT_DODGE", "SPELL_EFFECT_DODGE", "" };
+        case SPELL_EFFECT_EVADE: return { "SPELL_EFFECT_EVADE", "SPELL_EFFECT_EVADE", "" };
+        case SPELL_EFFECT_PARRY: return { "SPELL_EFFECT_PARRY", "SPELL_EFFECT_PARRY", "" };
+        case SPELL_EFFECT_BLOCK: return { "SPELL_EFFECT_BLOCK", "SPELL_EFFECT_BLOCK", "" };
+        case SPELL_EFFECT_CREATE_ITEM: return { "SPELL_EFFECT_CREATE_ITEM", "SPELL_EFFECT_CREATE_ITEM", "" };
+        case SPELL_EFFECT_WEAPON: return { "SPELL_EFFECT_WEAPON", "SPELL_EFFECT_WEAPON", "" };
+        case SPELL_EFFECT_DEFENSE: return { "SPELL_EFFECT_DEFENSE", "SPELL_EFFECT_DEFENSE", "" };
+        case SPELL_EFFECT_PERSISTENT_AREA_AURA: return { "SPELL_EFFECT_PERSISTENT_AREA_AURA", "SPELL_EFFECT_PERSISTENT_AREA_AURA", "" };
+        case SPELL_EFFECT_SUMMON: return { "SPELL_EFFECT_SUMMON", "SPELL_EFFECT_SUMMON", "" };
+        case SPELL_EFFECT_LEAP: return { "SPELL_EFFECT_LEAP", "SPELL_EFFECT_LEAP", "" };
+        case SPELL_EFFECT_ENERGIZE: return { "SPELL_EFFECT_ENERGIZE", "SPELL_EFFECT_ENERGIZE", "" };
+        case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE: return { "SPELL_EFFECT_WEAPON_PERCENT_DAMAGE", "SPELL_EFFECT_WEAPON_PERCENT_DAMAGE", "" };
+        case SPELL_EFFECT_TRIGGER_MISSILE: return { "SPELL_EFFECT_TRIGGER_MISSILE", "SPELL_EFFECT_TRIGGER_MISSILE", "" };
+        case SPELL_EFFECT_OPEN_LOCK: return { "SPELL_EFFECT_OPEN_LOCK", "SPELL_EFFECT_OPEN_LOCK", "" };
+        case SPELL_EFFECT_SUMMON_CHANGE_ITEM: return { "SPELL_EFFECT_SUMMON_CHANGE_ITEM", "SPELL_EFFECT_SUMMON_CHANGE_ITEM", "" };
+        case SPELL_EFFECT_APPLY_AREA_AURA_PARTY: return { "SPELL_EFFECT_APPLY_AREA_AURA_PARTY", "SPELL_EFFECT_APPLY_AREA_AURA_PARTY", "" };
+        case SPELL_EFFECT_LEARN_SPELL: return { "SPELL_EFFECT_LEARN_SPELL", "SPELL_EFFECT_LEARN_SPELL", "" };
+        case SPELL_EFFECT_SPELL_DEFENSE: return { "SPELL_EFFECT_SPELL_DEFENSE", "SPELL_EFFECT_SPELL_DEFENSE", "" };
+        case SPELL_EFFECT_DISPEL: return { "SPELL_EFFECT_DISPEL", "SPELL_EFFECT_DISPEL", "" };
+        case SPELL_EFFECT_LANGUAGE: return { "SPELL_EFFECT_LANGUAGE", "SPELL_EFFECT_LANGUAGE", "" };
+        case SPELL_EFFECT_DUAL_WIELD: return { "SPELL_EFFECT_DUAL_WIELD", "SPELL_EFFECT_DUAL_WIELD", "" };
+        case SPELL_EFFECT_JUMP: return { "SPELL_EFFECT_JUMP", "SPELL_EFFECT_JUMP", "" };
+        case SPELL_EFFECT_JUMP_DEST: return { "SPELL_EFFECT_JUMP_DEST", "SPELL_EFFECT_JUMP_DEST", "" };
+        case SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER: return { "SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER", "SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER", "" };
+        case SPELL_EFFECT_SKILL_STEP: return { "SPELL_EFFECT_SKILL_STEP", "SPELL_EFFECT_SKILL_STEP", "" };
+        case SPELL_EFFECT_ADD_HONOR: return { "SPELL_EFFECT_ADD_HONOR", "SPELL_EFFECT_ADD_HONOR", "" };
+        case SPELL_EFFECT_SPAWN: return { "SPELL_EFFECT_SPAWN", "SPELL_EFFECT_SPAWN", "" };
+        case SPELL_EFFECT_TRADE_SKILL: return { "SPELL_EFFECT_TRADE_SKILL", "SPELL_EFFECT_TRADE_SKILL", "" };
+        case SPELL_EFFECT_STEALTH: return { "SPELL_EFFECT_STEALTH", "SPELL_EFFECT_STEALTH", "" };
+        case SPELL_EFFECT_DETECT: return { "SPELL_EFFECT_DETECT", "SPELL_EFFECT_DETECT", "" };
+        case SPELL_EFFECT_TRANS_DOOR: return { "SPELL_EFFECT_TRANS_DOOR", "SPELL_EFFECT_TRANS_DOOR", "" };
+        case SPELL_EFFECT_FORCE_CRITICAL_HIT: return { "SPELL_EFFECT_FORCE_CRITICAL_HIT", "SPELL_EFFECT_FORCE_CRITICAL_HIT", "" };
+        case SPELL_EFFECT_GUARANTEE_HIT: return { "SPELL_EFFECT_GUARANTEE_HIT", "SPELL_EFFECT_GUARANTEE_HIT", "" };
+        case SPELL_EFFECT_ENCHANT_ITEM: return { "SPELL_EFFECT_ENCHANT_ITEM", "SPELL_EFFECT_ENCHANT_ITEM", "" };
+        case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: return { "SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY", "SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY", "" };
+        case SPELL_EFFECT_TAMECREATURE: return { "SPELL_EFFECT_TAMECREATURE", "SPELL_EFFECT_TAMECREATURE", "" };
+        case SPELL_EFFECT_SUMMON_PET: return { "SPELL_EFFECT_SUMMON_PET", "SPELL_EFFECT_SUMMON_PET", "" };
+        case SPELL_EFFECT_LEARN_PET_SPELL: return { "SPELL_EFFECT_LEARN_PET_SPELL", "SPELL_EFFECT_LEARN_PET_SPELL", "" };
+        case SPELL_EFFECT_WEAPON_DAMAGE: return { "SPELL_EFFECT_WEAPON_DAMAGE", "SPELL_EFFECT_WEAPON_DAMAGE", "" };
+        case SPELL_EFFECT_CREATE_RANDOM_ITEM: return { "SPELL_EFFECT_CREATE_RANDOM_ITEM", "SPELL_EFFECT_CREATE_RANDOM_ITEM", "" };
+        case SPELL_EFFECT_PROFICIENCY: return { "SPELL_EFFECT_PROFICIENCY", "SPELL_EFFECT_PROFICIENCY", "" };
+        case SPELL_EFFECT_SEND_EVENT: return { "SPELL_EFFECT_SEND_EVENT", "SPELL_EFFECT_SEND_EVENT", "" };
+        case SPELL_EFFECT_POWER_BURN: return { "SPELL_EFFECT_POWER_BURN", "SPELL_EFFECT_POWER_BURN", "" };
+        case SPELL_EFFECT_THREAT: return { "SPELL_EFFECT_THREAT", "SPELL_EFFECT_THREAT", "" };
+        case SPELL_EFFECT_TRIGGER_SPELL: return { "SPELL_EFFECT_TRIGGER_SPELL", "SPELL_EFFECT_TRIGGER_SPELL", "" };
+        case SPELL_EFFECT_APPLY_AREA_AURA_RAID: return { "SPELL_EFFECT_APPLY_AREA_AURA_RAID", "SPELL_EFFECT_APPLY_AREA_AURA_RAID", "" };
+        case SPELL_EFFECT_CREATE_MANA_GEM: return { "SPELL_EFFECT_CREATE_MANA_GEM", "SPELL_EFFECT_CREATE_MANA_GEM", "" };
+        case SPELL_EFFECT_HEAL_MAX_HEALTH: return { "SPELL_EFFECT_HEAL_MAX_HEALTH", "SPELL_EFFECT_HEAL_MAX_HEALTH", "" };
+        case SPELL_EFFECT_INTERRUPT_CAST: return { "SPELL_EFFECT_INTERRUPT_CAST", "SPELL_EFFECT_INTERRUPT_CAST", "" };
+        case SPELL_EFFECT_DISTRACT: return { "SPELL_EFFECT_DISTRACT", "SPELL_EFFECT_DISTRACT", "" };
+        case SPELL_EFFECT_PULL: return { "SPELL_EFFECT_PULL", "SPELL_EFFECT_PULL", "" };
+        case SPELL_EFFECT_PICKPOCKET: return { "SPELL_EFFECT_PICKPOCKET", "SPELL_EFFECT_PICKPOCKET", "" };
+        case SPELL_EFFECT_ADD_FARSIGHT: return { "SPELL_EFFECT_ADD_FARSIGHT", "SPELL_EFFECT_ADD_FARSIGHT", "" };
+        case SPELL_EFFECT_UNTRAIN_TALENTS: return { "SPELL_EFFECT_UNTRAIN_TALENTS", "SPELL_EFFECT_UNTRAIN_TALENTS", "" };
+        case SPELL_EFFECT_APPLY_GLYPH: return { "SPELL_EFFECT_APPLY_GLYPH", "SPELL_EFFECT_APPLY_GLYPH", "" };
+        case SPELL_EFFECT_HEAL_MECHANICAL: return { "SPELL_EFFECT_HEAL_MECHANICAL", "SPELL_EFFECT_HEAL_MECHANICAL", "" };
+        case SPELL_EFFECT_SUMMON_OBJECT_WILD: return { "SPELL_EFFECT_SUMMON_OBJECT_WILD", "SPELL_EFFECT_SUMMON_OBJECT_WILD", "" };
+        case SPELL_EFFECT_SCRIPT_EFFECT: return { "SPELL_EFFECT_SCRIPT_EFFECT", "SPELL_EFFECT_SCRIPT_EFFECT", "" };
+        case SPELL_EFFECT_ATTACK: return { "SPELL_EFFECT_ATTACK", "SPELL_EFFECT_ATTACK", "" };
+        case SPELL_EFFECT_SANCTUARY: return { "SPELL_EFFECT_SANCTUARY", "SPELL_EFFECT_SANCTUARY", "" };
+        case SPELL_EFFECT_ADD_COMBO_POINTS: return { "SPELL_EFFECT_ADD_COMBO_POINTS", "SPELL_EFFECT_ADD_COMBO_POINTS", "" };
+        case SPELL_EFFECT_CREATE_HOUSE: return { "SPELL_EFFECT_CREATE_HOUSE", "SPELL_EFFECT_CREATE_HOUSE", "" };
+        case SPELL_EFFECT_BIND_SIGHT: return { "SPELL_EFFECT_BIND_SIGHT", "SPELL_EFFECT_BIND_SIGHT", "" };
+        case SPELL_EFFECT_DUEL: return { "SPELL_EFFECT_DUEL", "SPELL_EFFECT_DUEL", "" };
+        case SPELL_EFFECT_STUCK: return { "SPELL_EFFECT_STUCK", "SPELL_EFFECT_STUCK", "" };
+        case SPELL_EFFECT_SUMMON_PLAYER: return { "SPELL_EFFECT_SUMMON_PLAYER", "SPELL_EFFECT_SUMMON_PLAYER", "" };
+        case SPELL_EFFECT_ACTIVATE_OBJECT: return { "SPELL_EFFECT_ACTIVATE_OBJECT", "SPELL_EFFECT_ACTIVATE_OBJECT", "" };
+        case SPELL_EFFECT_GAMEOBJECT_DAMAGE: return { "SPELL_EFFECT_GAMEOBJECT_DAMAGE", "SPELL_EFFECT_GAMEOBJECT_DAMAGE", "" };
+        case SPELL_EFFECT_GAMEOBJECT_REPAIR: return { "SPELL_EFFECT_GAMEOBJECT_REPAIR", "SPELL_EFFECT_GAMEOBJECT_REPAIR", "" };
+        case SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE: return { "SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE", "SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE", "" };
+        case SPELL_EFFECT_KILL_CREDIT: return { "SPELL_EFFECT_KILL_CREDIT", "SPELL_EFFECT_KILL_CREDIT", "" };
+        case SPELL_EFFECT_THREAT_ALL: return { "SPELL_EFFECT_THREAT_ALL", "SPELL_EFFECT_THREAT_ALL", "" };
+        case SPELL_EFFECT_ENCHANT_HELD_ITEM: return { "SPELL_EFFECT_ENCHANT_HELD_ITEM", "SPELL_EFFECT_ENCHANT_HELD_ITEM", "" };
+        case SPELL_EFFECT_FORCE_DESELECT: return { "SPELL_EFFECT_FORCE_DESELECT", "SPELL_EFFECT_FORCE_DESELECT", "" };
+        case SPELL_EFFECT_SELF_RESURRECT: return { "SPELL_EFFECT_SELF_RESURRECT", "SPELL_EFFECT_SELF_RESURRECT", "" };
+        case SPELL_EFFECT_SKINNING: return { "SPELL_EFFECT_SKINNING", "SPELL_EFFECT_SKINNING", "" };
+        case SPELL_EFFECT_CHARGE: return { "SPELL_EFFECT_CHARGE", "SPELL_EFFECT_CHARGE", "" };
+        case SPELL_EFFECT_CAST_BUTTON: return { "SPELL_EFFECT_CAST_BUTTON", "SPELL_EFFECT_CAST_BUTTON", "" };
+        case SPELL_EFFECT_KNOCK_BACK: return { "SPELL_EFFECT_KNOCK_BACK", "SPELL_EFFECT_KNOCK_BACK", "" };
+        case SPELL_EFFECT_DISENCHANT: return { "SPELL_EFFECT_DISENCHANT", "SPELL_EFFECT_DISENCHANT", "" };
+        case SPELL_EFFECT_INEBRIATE: return { "SPELL_EFFECT_INEBRIATE", "SPELL_EFFECT_INEBRIATE", "" };
+        case SPELL_EFFECT_FEED_PET: return { "SPELL_EFFECT_FEED_PET", "SPELL_EFFECT_FEED_PET", "" };
+        case SPELL_EFFECT_DISMISS_PET: return { "SPELL_EFFECT_DISMISS_PET", "SPELL_EFFECT_DISMISS_PET", "" };
+        case SPELL_EFFECT_REPUTATION: return { "SPELL_EFFECT_REPUTATION", "SPELL_EFFECT_REPUTATION", "" };
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT1: return { "SPELL_EFFECT_SUMMON_OBJECT_SLOT1", "SPELL_EFFECT_SUMMON_OBJECT_SLOT1", "" };
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT2: return { "SPELL_EFFECT_SUMMON_OBJECT_SLOT2", "SPELL_EFFECT_SUMMON_OBJECT_SLOT2", "" };
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT3: return { "SPELL_EFFECT_SUMMON_OBJECT_SLOT3", "SPELL_EFFECT_SUMMON_OBJECT_SLOT3", "" };
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT4: return { "SPELL_EFFECT_SUMMON_OBJECT_SLOT4", "SPELL_EFFECT_SUMMON_OBJECT_SLOT4", "" };
+        case SPELL_EFFECT_DISPEL_MECHANIC: return { "SPELL_EFFECT_DISPEL_MECHANIC", "SPELL_EFFECT_DISPEL_MECHANIC", "" };
+        case SPELL_EFFECT_RESURRECT_PET: return { "SPELL_EFFECT_RESURRECT_PET", "SPELL_EFFECT_RESURRECT_PET", "" };
+        case SPELL_EFFECT_DESTROY_ALL_TOTEMS: return { "SPELL_EFFECT_DESTROY_ALL_TOTEMS", "SPELL_EFFECT_DESTROY_ALL_TOTEMS", "" };
+        case SPELL_EFFECT_DURABILITY_DAMAGE: return { "SPELL_EFFECT_DURABILITY_DAMAGE", "SPELL_EFFECT_DURABILITY_DAMAGE", "" };
+        case SPELL_EFFECT_112: return { "SPELL_EFFECT_112", "SPELL_EFFECT_112", "" };
+        case SPELL_EFFECT_RESURRECT_NEW: return { "SPELL_EFFECT_RESURRECT_NEW", "SPELL_EFFECT_RESURRECT_NEW", "" };
+        case SPELL_EFFECT_ATTACK_ME: return { "SPELL_EFFECT_ATTACK_ME", "SPELL_EFFECT_ATTACK_ME", "" };
+        case SPELL_EFFECT_DURABILITY_DAMAGE_PCT: return { "SPELL_EFFECT_DURABILITY_DAMAGE_PCT", "SPELL_EFFECT_DURABILITY_DAMAGE_PCT", "" };
+        case SPELL_EFFECT_SKIN_PLAYER_CORPSE: return { "SPELL_EFFECT_SKIN_PLAYER_CORPSE", "SPELL_EFFECT_SKIN_PLAYER_CORPSE", "" };
+        case SPELL_EFFECT_SPIRIT_HEAL: return { "SPELL_EFFECT_SPIRIT_HEAL", "SPELL_EFFECT_SPIRIT_HEAL", "" };
+        case SPELL_EFFECT_SKILL: return { "SPELL_EFFECT_SKILL", "SPELL_EFFECT_SKILL", "" };
+        case SPELL_EFFECT_APPLY_AREA_AURA_PET: return { "SPELL_EFFECT_APPLY_AREA_AURA_PET", "SPELL_EFFECT_APPLY_AREA_AURA_PET", "" };
+        case SPELL_EFFECT_TELEPORT_GRAVEYARD: return { "SPELL_EFFECT_TELEPORT_GRAVEYARD", "SPELL_EFFECT_TELEPORT_GRAVEYARD", "" };
+        case SPELL_EFFECT_NORMALIZED_WEAPON_DMG: return { "SPELL_EFFECT_NORMALIZED_WEAPON_DMG", "SPELL_EFFECT_NORMALIZED_WEAPON_DMG", "" };
+        case SPELL_EFFECT_122: return { "SPELL_EFFECT_122", "SPELL_EFFECT_122", "" };
+        case SPELL_EFFECT_SEND_TAXI: return { "SPELL_EFFECT_SEND_TAXI", "SPELL_EFFECT_SEND_TAXI", "" };
+        case SPELL_EFFECT_PULL_TOWARDS: return { "SPELL_EFFECT_PULL_TOWARDS", "SPELL_EFFECT_PULL_TOWARDS", "" };
+        case SPELL_EFFECT_MODIFY_THREAT_PERCENT: return { "SPELL_EFFECT_MODIFY_THREAT_PERCENT", "SPELL_EFFECT_MODIFY_THREAT_PERCENT", "" };
+        case SPELL_EFFECT_STEAL_BENEFICIAL_BUFF: return { "SPELL_EFFECT_STEAL_BENEFICIAL_BUFF", "SPELL_EFFECT_STEAL_BENEFICIAL_BUFF", "" };
+        case SPELL_EFFECT_PROSPECTING: return { "SPELL_EFFECT_PROSPECTING", "SPELL_EFFECT_PROSPECTING", "" };
+        case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND: return { "SPELL_EFFECT_APPLY_AREA_AURA_FRIEND", "SPELL_EFFECT_APPLY_AREA_AURA_FRIEND", "" };
+        case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY: return { "SPELL_EFFECT_APPLY_AREA_AURA_ENEMY", "SPELL_EFFECT_APPLY_AREA_AURA_ENEMY", "" };
+        case SPELL_EFFECT_REDIRECT_THREAT: return { "SPELL_EFFECT_REDIRECT_THREAT", "SPELL_EFFECT_REDIRECT_THREAT", "" };
+        case SPELL_EFFECT_PLAY_SOUND: return { "SPELL_EFFECT_PLAY_SOUND", "SPELL_EFFECT_PLAY_SOUND", "" };
+        case SPELL_EFFECT_PLAY_MUSIC: return { "SPELL_EFFECT_PLAY_MUSIC", "SPELL_EFFECT_PLAY_MUSIC", "" };
+        case SPELL_EFFECT_UNLEARN_SPECIALIZATION: return { "SPELL_EFFECT_UNLEARN_SPECIALIZATION", "SPELL_EFFECT_UNLEARN_SPECIALIZATION", "" };
+        case SPELL_EFFECT_KILL_CREDIT2: return { "SPELL_EFFECT_KILL_CREDIT2", "SPELL_EFFECT_KILL_CREDIT2", "" };
+        case SPELL_EFFECT_CALL_PET: return { "SPELL_EFFECT_CALL_PET", "SPELL_EFFECT_CALL_PET", "" };
+        case SPELL_EFFECT_HEAL_PCT: return { "SPELL_EFFECT_HEAL_PCT", "SPELL_EFFECT_HEAL_PCT", "" };
+        case SPELL_EFFECT_ENERGIZE_PCT: return { "SPELL_EFFECT_ENERGIZE_PCT", "SPELL_EFFECT_ENERGIZE_PCT", "" };
+        case SPELL_EFFECT_LEAP_BACK: return { "SPELL_EFFECT_LEAP_BACK", "SPELL_EFFECT_LEAP_BACK", "" };
+        case SPELL_EFFECT_CLEAR_QUEST: return { "SPELL_EFFECT_CLEAR_QUEST", "SPELL_EFFECT_CLEAR_QUEST", "" };
+        case SPELL_EFFECT_FORCE_CAST: return { "SPELL_EFFECT_FORCE_CAST", "SPELL_EFFECT_FORCE_CAST", "" };
+        case SPELL_EFFECT_FORCE_CAST_WITH_VALUE: return { "SPELL_EFFECT_FORCE_CAST_WITH_VALUE", "SPELL_EFFECT_FORCE_CAST_WITH_VALUE", "" };
+        case SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE: return { "SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE", "SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE", "" };
+        case SPELL_EFFECT_APPLY_AREA_AURA_OWNER: return { "SPELL_EFFECT_APPLY_AREA_AURA_OWNER", "SPELL_EFFECT_APPLY_AREA_AURA_OWNER", "" };
+        case SPELL_EFFECT_KNOCK_BACK_DEST: return { "SPELL_EFFECT_KNOCK_BACK_DEST", "SPELL_EFFECT_KNOCK_BACK_DEST", "" };
+        case SPELL_EFFECT_PULL_TOWARDS_DEST: return { "SPELL_EFFECT_PULL_TOWARDS_DEST", "SPELL_EFFECT_PULL_TOWARDS_DEST", "" };
+        case SPELL_EFFECT_ACTIVATE_RUNE: return { "SPELL_EFFECT_ACTIVATE_RUNE", "SPELL_EFFECT_ACTIVATE_RUNE", "" };
+        case SPELL_EFFECT_QUEST_FAIL: return { "SPELL_EFFECT_QUEST_FAIL", "SPELL_EFFECT_QUEST_FAIL", "" };
+        case SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE: return { "SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE", "SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE", "" };
+        case SPELL_EFFECT_CHARGE_DEST: return { "SPELL_EFFECT_CHARGE_DEST", "SPELL_EFFECT_CHARGE_DEST", "" };
+        case SPELL_EFFECT_QUEST_START: return { "SPELL_EFFECT_QUEST_START", "SPELL_EFFECT_QUEST_START", "" };
+        case SPELL_EFFECT_TRIGGER_SPELL_2: return { "SPELL_EFFECT_TRIGGER_SPELL_2", "SPELL_EFFECT_TRIGGER_SPELL_2", "" };
+        case SPELL_EFFECT_SUMMON_RAF_FRIEND: return { "SPELL_EFFECT_SUMMON_RAF_FRIEND", "SPELL_EFFECT_SUMMON_RAF_FRIEND", "" };
+        case SPELL_EFFECT_CREATE_TAMED_PET: return { "SPELL_EFFECT_CREATE_TAMED_PET", "SPELL_EFFECT_CREATE_TAMED_PET", "" };
+        case SPELL_EFFECT_DISCOVER_TAXI: return { "SPELL_EFFECT_DISCOVER_TAXI", "SPELL_EFFECT_DISCOVER_TAXI", "" };
+        case SPELL_EFFECT_TITAN_GRIP: return { "SPELL_EFFECT_TITAN_GRIP", "SPELL_EFFECT_TITAN_GRIP", "" };
+        case SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC: return { "SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC", "SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC", "" };
+        case SPELL_EFFECT_CREATE_ITEM_2: return { "SPELL_EFFECT_CREATE_ITEM_2", "SPELL_EFFECT_CREATE_ITEM_2", "" };
+        case SPELL_EFFECT_MILLING: return { "SPELL_EFFECT_MILLING", "SPELL_EFFECT_MILLING", "" };
+        case SPELL_EFFECT_ALLOW_RENAME_PET: return { "SPELL_EFFECT_ALLOW_RENAME_PET", "SPELL_EFFECT_ALLOW_RENAME_PET", "" };
+        case SPELL_EFFECT_FORCE_CAST_2: return { "SPELL_EFFECT_FORCE_CAST_2", "SPELL_EFFECT_FORCE_CAST_2", "" };
+        case SPELL_EFFECT_TALENT_SPEC_COUNT: return { "SPELL_EFFECT_TALENT_SPEC_COUNT", "SPELL_EFFECT_TALENT_SPEC_COUNT", "" };
+        case SPELL_EFFECT_TALENT_SPEC_SELECT: return { "SPELL_EFFECT_TALENT_SPEC_SELECT", "SPELL_EFFECT_TALENT_SPEC_SELECT", "" };
+        case SPELL_EFFECT_163: return { "SPELL_EFFECT_163", "SPELL_EFFECT_163", "" };
+        case SPELL_EFFECT_REMOVE_AURA: return { "SPELL_EFFECT_REMOVE_AURA", "SPELL_EFFECT_REMOVE_AURA", "" };
+        case TOTAL_SPELL_EFFECTS: return { "TOTAL_SPELL_EFFECTS", "TOTAL_SPELL_EFFECTS", "" };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpellEffects>::Count() { return 165; }
+
+template <>
+TC_API_EXPORT SpellEffects EnumUtils<SpellEffects>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return SPELL_EFFECT_INSTAKILL;
+        case 1: return SPELL_EFFECT_SCHOOL_DAMAGE;
+        case 2: return SPELL_EFFECT_DUMMY;
+        case 3: return SPELL_EFFECT_PORTAL_TELEPORT;
+        case 4: return SPELL_EFFECT_TELEPORT_UNITS;
+        case 5: return SPELL_EFFECT_APPLY_AURA;
+        case 6: return SPELL_EFFECT_ENVIRONMENTAL_DAMAGE;
+        case 7: return SPELL_EFFECT_POWER_DRAIN;
+        case 8: return SPELL_EFFECT_HEALTH_LEECH;
+        case 9: return SPELL_EFFECT_HEAL;
+        case 10: return SPELL_EFFECT_BIND;
+        case 11: return SPELL_EFFECT_PORTAL;
+        case 12: return SPELL_EFFECT_RITUAL_BASE;
+        case 13: return SPELL_EFFECT_RITUAL_SPECIALIZE;
+        case 14: return SPELL_EFFECT_RITUAL_ACTIVATE_PORTAL;
+        case 15: return SPELL_EFFECT_QUEST_COMPLETE;
+        case 16: return SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL;
+        case 17: return SPELL_EFFECT_RESURRECT;
+        case 18: return SPELL_EFFECT_ADD_EXTRA_ATTACKS;
+        case 19: return SPELL_EFFECT_DODGE;
+        case 20: return SPELL_EFFECT_EVADE;
+        case 21: return SPELL_EFFECT_PARRY;
+        case 22: return SPELL_EFFECT_BLOCK;
+        case 23: return SPELL_EFFECT_CREATE_ITEM;
+        case 24: return SPELL_EFFECT_WEAPON;
+        case 25: return SPELL_EFFECT_DEFENSE;
+        case 26: return SPELL_EFFECT_PERSISTENT_AREA_AURA;
+        case 27: return SPELL_EFFECT_SUMMON;
+        case 28: return SPELL_EFFECT_LEAP;
+        case 29: return SPELL_EFFECT_ENERGIZE;
+        case 30: return SPELL_EFFECT_WEAPON_PERCENT_DAMAGE;
+        case 31: return SPELL_EFFECT_TRIGGER_MISSILE;
+        case 32: return SPELL_EFFECT_OPEN_LOCK;
+        case 33: return SPELL_EFFECT_SUMMON_CHANGE_ITEM;
+        case 34: return SPELL_EFFECT_APPLY_AREA_AURA_PARTY;
+        case 35: return SPELL_EFFECT_LEARN_SPELL;
+        case 36: return SPELL_EFFECT_SPELL_DEFENSE;
+        case 37: return SPELL_EFFECT_DISPEL;
+        case 38: return SPELL_EFFECT_LANGUAGE;
+        case 39: return SPELL_EFFECT_DUAL_WIELD;
+        case 40: return SPELL_EFFECT_JUMP;
+        case 41: return SPELL_EFFECT_JUMP_DEST;
+        case 42: return SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER;
+        case 43: return SPELL_EFFECT_SKILL_STEP;
+        case 44: return SPELL_EFFECT_ADD_HONOR;
+        case 45: return SPELL_EFFECT_SPAWN;
+        case 46: return SPELL_EFFECT_TRADE_SKILL;
+        case 47: return SPELL_EFFECT_STEALTH;
+        case 48: return SPELL_EFFECT_DETECT;
+        case 49: return SPELL_EFFECT_TRANS_DOOR;
+        case 50: return SPELL_EFFECT_FORCE_CRITICAL_HIT;
+        case 51: return SPELL_EFFECT_GUARANTEE_HIT;
+        case 52: return SPELL_EFFECT_ENCHANT_ITEM;
+        case 53: return SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY;
+        case 54: return SPELL_EFFECT_TAMECREATURE;
+        case 55: return SPELL_EFFECT_SUMMON_PET;
+        case 56: return SPELL_EFFECT_LEARN_PET_SPELL;
+        case 57: return SPELL_EFFECT_WEAPON_DAMAGE;
+        case 58: return SPELL_EFFECT_CREATE_RANDOM_ITEM;
+        case 59: return SPELL_EFFECT_PROFICIENCY;
+        case 60: return SPELL_EFFECT_SEND_EVENT;
+        case 61: return SPELL_EFFECT_POWER_BURN;
+        case 62: return SPELL_EFFECT_THREAT;
+        case 63: return SPELL_EFFECT_TRIGGER_SPELL;
+        case 64: return SPELL_EFFECT_APPLY_AREA_AURA_RAID;
+        case 65: return SPELL_EFFECT_CREATE_MANA_GEM;
+        case 66: return SPELL_EFFECT_HEAL_MAX_HEALTH;
+        case 67: return SPELL_EFFECT_INTERRUPT_CAST;
+        case 68: return SPELL_EFFECT_DISTRACT;
+        case 69: return SPELL_EFFECT_PULL;
+        case 70: return SPELL_EFFECT_PICKPOCKET;
+        case 71: return SPELL_EFFECT_ADD_FARSIGHT;
+        case 72: return SPELL_EFFECT_UNTRAIN_TALENTS;
+        case 73: return SPELL_EFFECT_APPLY_GLYPH;
+        case 74: return SPELL_EFFECT_HEAL_MECHANICAL;
+        case 75: return SPELL_EFFECT_SUMMON_OBJECT_WILD;
+        case 76: return SPELL_EFFECT_SCRIPT_EFFECT;
+        case 77: return SPELL_EFFECT_ATTACK;
+        case 78: return SPELL_EFFECT_SANCTUARY;
+        case 79: return SPELL_EFFECT_ADD_COMBO_POINTS;
+        case 80: return SPELL_EFFECT_CREATE_HOUSE;
+        case 81: return SPELL_EFFECT_BIND_SIGHT;
+        case 82: return SPELL_EFFECT_DUEL;
+        case 83: return SPELL_EFFECT_STUCK;
+        case 84: return SPELL_EFFECT_SUMMON_PLAYER;
+        case 85: return SPELL_EFFECT_ACTIVATE_OBJECT;
+        case 86: return SPELL_EFFECT_GAMEOBJECT_DAMAGE;
+        case 87: return SPELL_EFFECT_GAMEOBJECT_REPAIR;
+        case 88: return SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE;
+        case 89: return SPELL_EFFECT_KILL_CREDIT;
+        case 90: return SPELL_EFFECT_THREAT_ALL;
+        case 91: return SPELL_EFFECT_ENCHANT_HELD_ITEM;
+        case 92: return SPELL_EFFECT_FORCE_DESELECT;
+        case 93: return SPELL_EFFECT_SELF_RESURRECT;
+        case 94: return SPELL_EFFECT_SKINNING;
+        case 95: return SPELL_EFFECT_CHARGE;
+        case 96: return SPELL_EFFECT_CAST_BUTTON;
+        case 97: return SPELL_EFFECT_KNOCK_BACK;
+        case 98: return SPELL_EFFECT_DISENCHANT;
+        case 99: return SPELL_EFFECT_INEBRIATE;
+        case 100: return SPELL_EFFECT_FEED_PET;
+        case 101: return SPELL_EFFECT_DISMISS_PET;
+        case 102: return SPELL_EFFECT_REPUTATION;
+        case 103: return SPELL_EFFECT_SUMMON_OBJECT_SLOT1;
+        case 104: return SPELL_EFFECT_SUMMON_OBJECT_SLOT2;
+        case 105: return SPELL_EFFECT_SUMMON_OBJECT_SLOT3;
+        case 106: return SPELL_EFFECT_SUMMON_OBJECT_SLOT4;
+        case 107: return SPELL_EFFECT_DISPEL_MECHANIC;
+        case 108: return SPELL_EFFECT_RESURRECT_PET;
+        case 109: return SPELL_EFFECT_DESTROY_ALL_TOTEMS;
+        case 110: return SPELL_EFFECT_DURABILITY_DAMAGE;
+        case 111: return SPELL_EFFECT_112;
+        case 112: return SPELL_EFFECT_RESURRECT_NEW;
+        case 113: return SPELL_EFFECT_ATTACK_ME;
+        case 114: return SPELL_EFFECT_DURABILITY_DAMAGE_PCT;
+        case 115: return SPELL_EFFECT_SKIN_PLAYER_CORPSE;
+        case 116: return SPELL_EFFECT_SPIRIT_HEAL;
+        case 117: return SPELL_EFFECT_SKILL;
+        case 118: return SPELL_EFFECT_APPLY_AREA_AURA_PET;
+        case 119: return SPELL_EFFECT_TELEPORT_GRAVEYARD;
+        case 120: return SPELL_EFFECT_NORMALIZED_WEAPON_DMG;
+        case 121: return SPELL_EFFECT_122;
+        case 122: return SPELL_EFFECT_SEND_TAXI;
+        case 123: return SPELL_EFFECT_PULL_TOWARDS;
+        case 124: return SPELL_EFFECT_MODIFY_THREAT_PERCENT;
+        case 125: return SPELL_EFFECT_STEAL_BENEFICIAL_BUFF;
+        case 126: return SPELL_EFFECT_PROSPECTING;
+        case 127: return SPELL_EFFECT_APPLY_AREA_AURA_FRIEND;
+        case 128: return SPELL_EFFECT_APPLY_AREA_AURA_ENEMY;
+        case 129: return SPELL_EFFECT_REDIRECT_THREAT;
+        case 130: return SPELL_EFFECT_PLAY_SOUND;
+        case 131: return SPELL_EFFECT_PLAY_MUSIC;
+        case 132: return SPELL_EFFECT_UNLEARN_SPECIALIZATION;
+        case 133: return SPELL_EFFECT_KILL_CREDIT2;
+        case 134: return SPELL_EFFECT_CALL_PET;
+        case 135: return SPELL_EFFECT_HEAL_PCT;
+        case 136: return SPELL_EFFECT_ENERGIZE_PCT;
+        case 137: return SPELL_EFFECT_LEAP_BACK;
+        case 138: return SPELL_EFFECT_CLEAR_QUEST;
+        case 139: return SPELL_EFFECT_FORCE_CAST;
+        case 140: return SPELL_EFFECT_FORCE_CAST_WITH_VALUE;
+        case 141: return SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE;
+        case 142: return SPELL_EFFECT_APPLY_AREA_AURA_OWNER;
+        case 143: return SPELL_EFFECT_KNOCK_BACK_DEST;
+        case 144: return SPELL_EFFECT_PULL_TOWARDS_DEST;
+        case 145: return SPELL_EFFECT_ACTIVATE_RUNE;
+        case 146: return SPELL_EFFECT_QUEST_FAIL;
+        case 147: return SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE;
+        case 148: return SPELL_EFFECT_CHARGE_DEST;
+        case 149: return SPELL_EFFECT_QUEST_START;
+        case 150: return SPELL_EFFECT_TRIGGER_SPELL_2;
+        case 151: return SPELL_EFFECT_SUMMON_RAF_FRIEND;
+        case 152: return SPELL_EFFECT_CREATE_TAMED_PET;
+        case 153: return SPELL_EFFECT_DISCOVER_TAXI;
+        case 154: return SPELL_EFFECT_TITAN_GRIP;
+        case 155: return SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC;
+        case 156: return SPELL_EFFECT_CREATE_ITEM_2;
+        case 157: return SPELL_EFFECT_MILLING;
+        case 158: return SPELL_EFFECT_ALLOW_RENAME_PET;
+        case 159: return SPELL_EFFECT_FORCE_CAST_2;
+        case 160: return SPELL_EFFECT_TALENT_SPEC_COUNT;
+        case 161: return SPELL_EFFECT_TALENT_SPEC_SELECT;
+        case 162: return SPELL_EFFECT_163;
+        case 163: return SPELL_EFFECT_REMOVE_AURA;
+        case 164: return TOTAL_SPELL_EFFECTS;
         default: throw std::out_of_range("index");
     }
 }

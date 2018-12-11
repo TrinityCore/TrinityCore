@@ -42,11 +42,11 @@ void SpellAttributesOverview::AddChildrenFor(int32 index, char const* label, E v
     connect(header, &ClickableLabel::Clicked, this, [this, index]() { Q_EMIT PageHeaderClicked(index); });
 
 
-    for (E attr : EnumUtils<E>::Iterate())
+    for (E attr : EnumUtils::Iterate<E>())
     {
         if (!(value & attr))
             continue;
-        ClickableLabel* entry = AddNewChild(EnumUtils<E>::ToDescription(attr), ENTRY_X, PADDING_Y_ENTRY);
+        ClickableLabel* entry = AddNewChild(EnumUtils::ToTitle(attr), ENTRY_X, PADDING_Y_ENTRY);
         QFont font = entry->font();
         font.setBold(false);
         font.setUnderline(false);

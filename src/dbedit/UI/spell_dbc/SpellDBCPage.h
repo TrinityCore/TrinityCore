@@ -26,9 +26,9 @@ class SpellDBCPage : public TopLevelPage
     private:
         std::unique_ptr<Ui::SpellDBCPage> me;
         
-        QLineEdit* _searchBox;
-        SpellSearchResults* _searchResults;
-        SpellDataDisplay* _dataDisplay;
+        QLineEdit& _searchBox;
+        SpellSearchResults& _searchResults;
+        SpellDataDisplay& _dataDisplay;
 };
 
 #endif

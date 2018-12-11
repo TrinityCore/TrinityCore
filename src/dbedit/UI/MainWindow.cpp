@@ -2,6 +2,7 @@
 #include "ui_MainWindow.h"
 #include "Errors.h"
 #include "DBCStructure.h"
+#include "GlobalDBCStores.h"
 #include "Globals.h"
 #include "QtHelpers.h"
 #include "TopLevelPage.h"
