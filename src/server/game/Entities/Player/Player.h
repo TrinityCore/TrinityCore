@@ -2151,6 +2151,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
 
+        std::string GetDebugInfo() const override;
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2404,8 +2406,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 m_fishingSteps;
 
         bool m_needsZoneUpdate;
-
-        std::string GetDebugInfo() const override;
 
     private:
         // internal common parts for CanStore/StoreItem functions

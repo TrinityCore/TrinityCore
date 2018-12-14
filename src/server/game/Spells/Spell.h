@@ -558,6 +558,8 @@ class TC_GAME_API Spell
 
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
 
+        std::string GetDebugInfo() const;
+
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
@@ -785,8 +787,6 @@ class TC_GAME_API Spell
 
         Spell(Spell const& right) = delete;
         Spell& operator=(Spell const& right) = delete;
-
-        std::string GetDebugInfo() const;
 };
 
 namespace Trinity

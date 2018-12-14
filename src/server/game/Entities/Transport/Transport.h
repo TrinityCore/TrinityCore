@@ -100,7 +100,6 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         TransportTemplate const* GetTransportTemplate() const { return _transportInfo; }
 
-    protected:
         std::string GetDebugInfo() const override;
 
     private:

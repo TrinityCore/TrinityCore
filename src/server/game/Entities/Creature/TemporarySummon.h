@@ -53,7 +53,7 @@ class TC_GAME_API TempSummon : public Creature
         uint32 GetTimer() const { return m_timer; }
 
         SummonPropertiesEntry const* const m_Properties;
-    protected:
+
         std::string GetDebugInfo() const override;
     private:
         TempSummonType m_type;
@@ -81,8 +81,9 @@ class TC_GAME_API Minion : public TempSummon
         bool IsSpiritWolf() const { return GetEntry() == PET_SPIRIT_WOLF; } // Spirit wolf from feral spirits
 
         bool IsGuardianPet() const;
-    protected:
+
         std::string GetDebugInfo() const override;
+    protected:
         Unit* const m_owner;
         float m_followAngle;
 };
@@ -107,8 +108,8 @@ class TC_GAME_API Guardian : public Minion
         int32 GetBonusDamage() const { return m_bonusSpellDamage; }
         float GetBonusStatFromOwner(Stats stat) const { return m_statFromOwner[stat]; }
         void SetBonusDamage(int32 damage);
-    protected:
         std::string GetDebugInfo() const override;
+    protected:
         int32   m_bonusSpellDamage;
         float   m_statFromOwner[MAX_STATS];
 };

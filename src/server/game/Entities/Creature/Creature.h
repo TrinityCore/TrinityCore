@@ -361,6 +361,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AtEnterCombat() override;
         void AtExitCombat() override;
 
+        std::string GetDebugInfo() const override;
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -412,8 +414,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool IsInvisibleDueToDespawn() const override;
         bool CanAlwaysSee(WorldObject const* obj) const override;
-
-        std::string GetDebugInfo() const override;
 
     private:
         void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds forceRespawnTimer = 0s);

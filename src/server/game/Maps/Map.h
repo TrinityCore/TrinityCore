@@ -624,6 +624,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             _updateObjects.erase(obj);
         }
 
+        virtual std::string GetDebugInfo() const;
+
     private:
 
         void LoadMapAndVMap(int gx, int gy);
@@ -705,8 +707,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         typedef std::set<Transport*> TransportsContainer;
         TransportsContainer _transports;
         TransportsContainer::iterator _transportsUpdateIter;
-
-        virtual std::string GetDebugInfo() const;
 
     private:
         Player* _GetScriptPlayerSourceOrTarget(Object* source, Object* target, ScriptInfo const* scriptInfo) const;
@@ -919,7 +919,7 @@ class TC_GAME_API InstanceMap : public Map
         uint32 GetMaxResetDelay() const;
 
         virtual void InitVisibilityDistance() override;
-    protected:
+
         std::string GetDebugInfo() const override;
     private:
         bool m_resetAfterUnload;

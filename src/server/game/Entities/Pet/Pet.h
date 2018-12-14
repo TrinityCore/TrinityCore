@@ -147,9 +147,9 @@ class TC_GAME_API Pet : public Guardian
 
         Player* GetOwner() const;
 
-    protected:
         std::string GetDebugInfo() const override;
 
+    protected:
         uint32  m_happinessTimer;
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)

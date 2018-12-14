@@ -173,6 +173,8 @@ class TC_GAME_API Object
         DynamicObject* ToDynObject() { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject*>(this); else return nullptr; }
         DynamicObject const* ToDynObject() const { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject const*>(this); else return nullptr; }
 
+        virtual std::string GetDebugInfo() const;
+
     protected:
         Object();
 
@@ -209,8 +211,6 @@ class TC_GAME_API Object
         void AddToObjectUpdateIfNeeded();
 
         bool m_objectUpdated;
-
-        virtual std::string GetDebugInfo() const;
 
     private:
         bool m_inWorld;
@@ -510,6 +510,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         float GetMapWaterOrGroundLevel(float x, float y, float z, float* ground = nullptr) const;
         float GetMapHeight(float x, float y, float z, bool vmap = true, float distanceToSearch = 50.0f) const; // DEFAULT_HEIGHT_SEARCH in map.h
 
+        std::string GetDebugInfo() const override;
+
         // Event handler
         EventProcessor m_Events;
 
@@ -540,8 +542,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual bool IsInvisibleDueToDespawn() const { return false; }
         //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
         virtual bool IsAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
-
-        std::string GetDebugInfo() const override;
     private:
         Map* m_currMap;                                   // current object's Map location
 

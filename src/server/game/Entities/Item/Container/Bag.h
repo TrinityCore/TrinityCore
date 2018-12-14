@@ -27,7 +27,6 @@
 class TC_GAME_API Bag : public Item
 {
     public:
-
         Bag();
         ~Bag();
 
@@ -58,11 +57,12 @@ class TC_GAME_API Bag : public Item
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
 
+        std::string GetDebugInfo() const override;
+
     protected:
 
         // Bag Storage space
         Item* m_bagslot[MAX_BAG_SIZE];
-        std::string GetDebugInfo() const override;
 };
 
 inline Item* NewItemOrBag(ItemTemplate const* proto)
