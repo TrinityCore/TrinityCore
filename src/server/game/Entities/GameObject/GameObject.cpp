@@ -2839,3 +2839,11 @@ void GameObject::CreateModel()
     if (m_model && m_model->isMapObject())
         AddFlag(GO_FLAG_MAP_OBJECT);
 }
+
+std::string GameObject::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << WorldObject::GetDebugInfo() << "\n"
+        << "SpawnId: " << GetSpawnId() << " GoState: " << std::to_string(GetGoState()) << " ScriptId: " << GetScriptId() << " AIName: " << GetAIName();
+    return sstr.str();
+}

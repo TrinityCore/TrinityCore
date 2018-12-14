@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "UpdateData.h"
 #include "Player.h"
+#include <sstream>
 
 Bag::Bag(): Item()
 {
@@ -279,6 +280,13 @@ Item* Bag::GetItemByPos(uint8 slot) const
         return m_bagslot[slot];
 
     return nullptr;
+}
+
+std::string Bag::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Item::GetDebugInfo();
+    return sstr.str();
 }
 
 uint32 GetBagSize(Bag const* bag)

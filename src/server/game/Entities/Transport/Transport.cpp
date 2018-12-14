@@ -31,6 +31,7 @@
 #include "UpdateData.h"
 #include "Vehicle.h"
 #include <G3D/Vector3.h>
+#include <sstream>
 
 Transport::Transport() : GameObject(),
     _transportInfo(nullptr), _isMoving(true), _pendingStop(false),
@@ -772,4 +773,11 @@ void Transport::BuildUpdate(UpdateDataMapType& data_map)
         BuildFieldsUpdate(itr->GetSource(), data_map);
 
     ClearUpdateMask(true);
+}
+
+std::string Transport::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << GameObject::GetDebugInfo();
+    return sstr.str();
 }

@@ -1865,3 +1865,12 @@ std::string Pet::GenerateActionBarData() const
 
     return ss.str();
 }
+
+std::string Pet::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Guardian::GetDebugInfo() << "\n"
+        << std::boolalpha
+        << "PetType: " << std::to_string(getPetType());
+    return sstr.str();
+}

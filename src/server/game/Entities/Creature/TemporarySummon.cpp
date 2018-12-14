@@ -23,6 +23,7 @@
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
+#include <sstream>
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) :
 Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
@@ -276,6 +277,15 @@ void TempSummon::RemoveFromWorld()
     Creature::RemoveFromWorld();
 }
 
+std::string TempSummon::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Creature::GetDebugInfo() << "\n"
+        << std::boolalpha
+        << "TempSummonType : " << std::to_string(GetSummonType()) << " Summoner: " << GetSummonerGUID().ToString();
+    return sstr.str();
+}
+
 Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject)
     : TempSummon(properties, owner, isWorldObject), m_owner(owner)
 {
@@ -316,7 +326,7 @@ void Minion::setDeathState(DeathState s)
     Unit* owner = GetOwner();
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER || owner->GetMinionGUID() != GetGUID())
         return;
-                
+
     for (Unit* controlled : owner->m_Controlled)
     {
         if (controlled->GetEntry() == GetEntry() && controlled->IsAlive())
@@ -332,6 +342,15 @@ void Minion::setDeathState(DeathState s)
 bool Minion::IsGuardianPet() const
 {
     return IsPet() || (m_Properties && m_Properties->Control == SUMMON_CATEGORY_PET);
+}
+
+std::string Minion::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << TempSummon::GetDebugInfo() << "\n"
+        << std::boolalpha
+        << "Owner: " << (GetOwner() ? GetOwner()->GetGUID().ToString() : "");
+    return sstr.str();
 }
 
 Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) : Minion(properties, owner, isWorldObject)
@@ -368,6 +387,13 @@ void Guardian::InitSummon()
     {
         GetOwner()->ToPlayer()->CharmSpellInitialize();
     }
+}
+
+std::string Guardian::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Minion::GetDebugInfo();
+    return sstr.str();
 }
 
 Puppet::Puppet(SummonPropertiesEntry const* properties, Unit* owner)

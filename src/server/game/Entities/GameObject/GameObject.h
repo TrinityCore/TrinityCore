@@ -308,6 +308,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void AIM_Destroy();
         bool AIM_Initialize();
 
+        std::string GetDebugInfo() const override;
+
         UF::UpdateField<UF::GameObjectData, 0, TYPEID_GAMEOBJECT> m_gameObjectData;
 
     protected:

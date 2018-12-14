@@ -621,6 +621,8 @@ class TC_GAME_API Spell
         int64 GetGameObjectTargetCountForEffect(SpellEffIndex effect) const;
         int64 GetItemTargetCountForEffect(SpellEffIndex effect) const;
 
+        std::string GetDebugInfo() const;
+
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();

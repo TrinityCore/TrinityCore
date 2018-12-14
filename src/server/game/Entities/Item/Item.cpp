@@ -1554,7 +1554,7 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, ItemContext context, Play
         if (count > proto->GetMaxStackSize())
             count = proto->GetMaxStackSize();
 
-        ASSERT(count != 0, "proto->Stackable == 0 but checked at loading already");
+        ASSERT_NODEBUGINFO(count != 0, "proto->Stackable == 0 but checked at loading already");
 
         Item* item = NewItemOrBag(proto);
         if (item->Create(sObjectMgr->GetGenerator<HighGuid::Item>().Generate(), itemEntry, context, player))
@@ -2692,6 +2692,16 @@ int32 Item::GetRequiredLevel() const
     if (_bonusData.HasFixedLevel && _bonusData.PlayerLevelToItemLevelCurveId)
         return fixedLevel;
     return _bonusData.RequiredLevel;
+}
+
+std::string Item::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Object::GetDebugInfo() << "\n"
+        << std::boolalpha
+        << "Owner: " << GetOwnerGUID().ToString() << " Count: " << GetCount()
+        << " BagSlot: " << std::to_string(GetBagSlot()) << " Slot: " << std::to_string(GetSlot()) << " Equipped: " << IsEquipped();
+    return sstr.str();
 }
 
 void BonusData::Initialize(ItemTemplate const* proto)

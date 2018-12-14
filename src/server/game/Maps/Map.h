@@ -577,6 +577,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             _updateObjects.erase(obj);
         }
 
+        virtual std::string GetDebugInfo() const;
+
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
@@ -889,6 +891,8 @@ class TC_GAME_API InstanceMap : public Map
         uint32 GetMaxResetDelay() const;
 
         virtual void InitVisibilityDistance() override;
+
+        std::string GetDebugInfo() const override;
     private:
         bool m_resetAfterUnload;
         bool m_unloadWhenEmpty;

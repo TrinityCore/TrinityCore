@@ -229,6 +229,8 @@ class TC_GAME_API Object
             AddToObjectUpdateIfNeeded();
         }
 
+        virtual std::string GetDebugInfo() const;
+
     protected:
         Object();
 
@@ -665,6 +667,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         float GetMapWaterOrGroundLevel(float x, float y, float z, float* ground = nullptr) const;
         float GetMapHeight(float x, float y, float z, bool vmap = true, float distanceToSearch = 50.0f) const; // DEFAULT_HEIGHT_SEARCH in map.h
+
+        std::string GetDebugInfo() const override;
 
         // Event handler
         EventProcessor m_Events;

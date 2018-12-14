@@ -27,6 +27,7 @@
 #include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include <sstream>
 
 void UnitAI::AttackStart(Unit* victim)
 {
@@ -310,6 +311,14 @@ ThreatManager& UnitAI::GetThreatManager()
 void UnitAI::SortByDistance(std::list<Unit*> list, bool ascending)
 {
     list.sort(Trinity::ObjectDistanceOrderPred(me, ascending));
+}
+
+std::string UnitAI::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << std::boolalpha
+         << "Me: " << (me ? me->GetDebugInfo() : "NULL");
+    return sstr.str();
 }
 
 DefaultTargetSelector::DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withTank, int32 aura)

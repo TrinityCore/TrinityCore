@@ -302,6 +302,8 @@ class TC_GAME_API Aura
 
         AuraEffectVector const& GetAuraEffects() const { return _effects; }
 
+        virtual std::string GetDebugInfo() const;
+
     private:
         AuraScript* GetScriptByType(std::type_info const& type) const;
         void _DeleteRemovedApplications();

@@ -2717,6 +2717,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool CanEnableWarModeInArea() const;
 
+        std::string GetDebugInfo() const override;
+
         UF::UpdateField<UF::PlayerData, 0, TYPEID_PLAYER> m_playerData;
         UF::UpdateField<UF::ActivePlayerData, 0, TYPEID_ACTIVE_PLAYER> m_activePlayerData;
 

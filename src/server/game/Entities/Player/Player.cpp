@@ -28955,3 +28955,10 @@ bool Player::CanEnableWarModeInArea() const
 
     return area->Flags[1] & AREA_FLAG_2_CAN_ENABLE_WAR_MODE;
 }
+
+std::string Player::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Unit::GetDebugInfo();
+    return sstr.str();
+}

@@ -57,6 +57,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include <numeric>
+#include <sstream>
 
 extern NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EFFECTS];
 
@@ -8187,6 +8188,15 @@ void Spell::CancelGlobalCooldown()
         return;
 
     m_caster->ToUnit()->GetSpellHistory()->CancelGlobalCooldown(m_spellInfo);
+}
+
+std::string Spell::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << std::boolalpha
+        << "Id: " << GetSpellInfo()->Id << " OriginalCaster: " << m_originalCasterGUID.ToString()
+        << " State: " << getState();
+    return sstr.str();
 }
 
 namespace Trinity
