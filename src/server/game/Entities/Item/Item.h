@@ -202,6 +202,8 @@ class TC_GAME_API Item : public Object
         void RemoveFromObjectUpdate() override;
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
+
+        std::string GetDebugInfo() const override;
     private:
         std::string m_text;
         uint8 m_slot;

@@ -218,3 +218,10 @@ ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::Packed
     buf.appendPackXYZ(streamer.Pos->GetPositionX(), streamer.Pos->GetPositionY(), streamer.Pos->GetPositionZ());
     return buf;
 }
+
+std::string WorldLocation::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << "MapID: " << m_mapId << " " << Position::ToString();
+    return sstr.str();
+}

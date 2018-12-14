@@ -26617,3 +26617,10 @@ void Player::RemoveSocial()
     sSocialMgr->RemovePlayerSocial(GetGUID());
     m_social = nullptr;
 }
+
+std::string Player::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Unit::GetDebugInfo();
+    return sstr.str();
+}
