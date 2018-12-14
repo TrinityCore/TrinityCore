@@ -266,6 +266,9 @@ class TC_GAME_API Aura
 
         std::vector<AuraScript*> m_loadedScripts;
 
+    protected:
+        virtual std::string GetDebugInfo() const;
+
     private:
         AuraScript* GetScriptByName(std::string const& scriptName) const;
         void _DeleteRemovedApplications();
