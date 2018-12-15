@@ -1873,6 +1873,7 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
 
     _CreateNewBankTab();
     _BroadcastEvent(GE_BANK_TAB_PURCHASED, ObjectGuid::Empty);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS, _GetPurchasedTabsSize(), 0, 0, nullptr, player);
     SendPermissions(session); /// Hack to force client to update permissions
 }
 
@@ -2212,7 +2213,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
     CharacterDatabase.CommitTransaction(trans);
 
     std::string aux = ByteArrayToHexStr(reinterpret_cast<uint8*>(&m_bankMoney), 8, true);
-    _BroadcastEvent(GE_BANK_MONEY_SET, ObjectGuid::Empty, aux.c_str());
+    _BroadcastEvent(GE_BANK_MONEY_SET, player->GetGUID(), aux.c_str());
 
     if (player->GetSession()->HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
     {
@@ -2262,7 +2263,10 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool
     CharacterDatabase.CommitTransaction(trans);
 
     std::string aux = ByteArrayToHexStr(reinterpret_cast<uint8*>(&m_bankMoney), 8, true);
-    _BroadcastEvent(GE_BANK_MONEY_SET, ObjectGuid::Empty, aux.c_str());
+    _BroadcastEvent(GE_BANK_MONEY_SET, player->GetGUID(), aux.c_str());
+
+    if (repair)
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS, amount, 0, 0, nullptr, player);
     return true;
 }
 

@@ -875,7 +875,7 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
         guild->BroadcastWorker(_localizer, GetOwner());
     }
 
-    if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_KILL | ACHIEVEMENT_FLAG_REALM_FIRST_REACH))
+    if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_KILL | ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_GUILD))
     {
         // broadcast realm first reached
         WorldPacket data(SMSG_SERVER_FIRST_ACHIEVEMENT, GetOwner()->GetName().size() + 1 + 8 + 4 + 4);
@@ -960,7 +960,7 @@ template<>
 void AchievementMgr<Guild>::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 /*timeElapsed*/, bool /*timedCompleted*/) const
 {
     //will send response to criteria progress request
-    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3 + 1 + 1 + 8 + 8 + 4 + 4 + 4 + 4 + 4);
+    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3 + 1 + 1 + 1 + 1 + 4 + 4 + 4 + 4 + 4);
 
     ObjectGuid counter(progress->counter); // for accessing every byte individually
     ObjectGuid guid = progress->CompletedGUID;
@@ -1233,12 +1233,15 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA: // This also behaves like ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA
         case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
             SetCriteriaProgress(achievementCriteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
             break;
             // std case: increment at miscValue1
         case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS:
         case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD:
+        case ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER:
         case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL:
@@ -1333,6 +1336,9 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             // miscValue1 is the ingame fallheight*100 as stored in dbc
             SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer);
             break;
+        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS:
+            SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer);
+            break;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
         case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
@@ -1340,6 +1346,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
         case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD:
             SetCriteriaProgress(achievementCriteria, 1, referencePlayer);
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT:
@@ -1407,6 +1414,12 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
                 SetCriteriaProgress(achievementCriteria, _achievementPoints, referencePlayer, PROGRESS_SET);
             else
                 SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_ACCUMULATE);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS:
+            SetCriteriaProgress(achievementCriteria, miscValue1, referencePlayer, PROGRESS_ACCUMULATE);
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD:
+            SetCriteriaProgress(achievementCriteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
         {
@@ -1477,17 +1490,10 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
         case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
         case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
-        case ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
         case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
         case ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL:
-        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS:
-        case ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS:
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_BG_RATING:
-        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD:
-        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD:
-        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD:
-        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
             break;                                   // Not implemented yet :(
@@ -1527,7 +1533,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
     if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER)
         return false;
 
-    if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
+    if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL | ACHIEVEMENT_FLAG_REALM_FIRST_GUILD))
     {
         // someone on this realm has already completed that achievement
         if (sAchievementMgr->IsRealmCompleted(achievement, GetInstanceId(GetOwner())))
@@ -1552,6 +1558,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
             return progress->counter >= achievementCriteria->reach_skill_level.skillLevel;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD:
             return progress->counter >= 1;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT:
             return progress->counter >= achievementCriteria->complete_quest_count.totalQuestCount;
@@ -1582,7 +1589,10 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
             return progress->counter >= 1;
         case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD:
             return progress->counter >= achievementCriteria->honorable_kill.killCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
+            return progress->counter >= achievementCriteria->raw.count;
         case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
             return progress->counter >= achievementCriteria->own_item.itemCount;
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
@@ -1597,6 +1607,8 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
             return progress->counter >= achievementCriteria->loot_item.itemCount;
         case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
             return progress->counter >= 1;
+        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS:
+            return progress->counter >= achievementCriteria->raw.count;
         case ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT:
             return progress->counter >= achievementCriteria->buy_bank_slot.numberOfSlots;
         case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
@@ -1618,6 +1630,8 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
             return progress->counter >= achievementCriteria->do_emote.count;
         case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
             return progress->counter >= achievementCriteria->equip_item.count;
+        case ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
+            return progress->counter >= achievementCriteria->guild_gold_repairs.goldInCopper;
         case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD:
             return progress->counter >= achievementCriteria->quest_reward_money.goldInCopper;
         case ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY:
@@ -1636,6 +1650,10 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
             return progress->counter >= achievementCriteria->loot_type.lootTypeCount;
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
             return progress->counter >= achievementCriteria->learn_skill_line.spellCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS:
+            return progress->counter >= achievementCriteria->raw.count;
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD:
+            return progress->counter >= achievementCriteria->raw.count;
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
             return progress->counter >= 9000;
         case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
@@ -2044,7 +2062,7 @@ void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achieve
     _achievementPoints += achievement->points;
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, 0, 0, 0, nullptr, referencePlayer);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->points, 0, 0, nullptr, referencePlayer);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS, achievement->points, 0, 0, nullptr, referencePlayer);
 }
 
 struct VisibleAchievementPred
@@ -2271,7 +2289,16 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
         ++numCriteria;
     }
 
-    criteriaBits.WriteBits(numCriteria, 21);
+    if (!numCriteria)
+    {
+        WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3);
+        data.WriteBits(0, 21);
+        receiver->GetSession()->SendPacket(&data);
+        return;
+    }
+
+    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, 3 + numCriteria * (1 + 1 + 1 + 1 + 4 + 4 + 4 + 4 + 4));
+    data.WriteBits(numCriteria, 21);
 
     for (AchievementCriteriaEntryList::const_iterator itr = criteria->begin(); itr != criteria->end(); ++itr)
     {
@@ -2283,50 +2310,47 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
         counter.Set(progress->second.counter);
         guid = progress->second.CompletedGUID;
 
-        criteriaBits.WriteBit(counter[4]);
-        criteriaBits.WriteBit(counter[1]);
-        criteriaBits.WriteBit(guid[2]);
-        criteriaBits.WriteBit(counter[3]);
-        criteriaBits.WriteBit(guid[1]);
-        criteriaBits.WriteBit(counter[5]);
-        criteriaBits.WriteBit(counter[0]);
-        criteriaBits.WriteBit(guid[3]);
-        criteriaBits.WriteBit(counter[2]);
-        criteriaBits.WriteBit(guid[7]);
-        criteriaBits.WriteBit(guid[5]);
-        criteriaBits.WriteBit(guid[0]);
-        criteriaBits.WriteBit(counter[6]);
-        criteriaBits.WriteBit(guid[6]);
-        criteriaBits.WriteBit(counter[7]);
-        criteriaBits.WriteBit(guid[4]);
+        data.WriteBit(counter[4]);
+        data.WriteBit(counter[1]);
+        data.WriteBit(guid[2]);
+        data.WriteBit(counter[3]);
+        data.WriteBit(guid[1]);
+        data.WriteBit(counter[5]);
+        data.WriteBit(counter[0]);
+        data.WriteBit(guid[3]);
+        data.WriteBit(counter[2]);
+        data.WriteBit(guid[7]);
+        data.WriteBit(guid[5]);
+        data.WriteBit(guid[0]);
+        data.WriteBit(counter[6]);
+        data.WriteBit(guid[6]);
+        data.WriteBit(counter[7]);
+        data.WriteBit(guid[4]);
 
-        criteriaData.WriteByteSeq(guid[5]);
-        criteriaData << uint32(progress->second.date);      // unknown date
-        criteriaData.WriteByteSeq(counter[3]);
-        criteriaData.WriteByteSeq(counter[7]);
-        criteriaData << uint32(progress->second.date);      // unknown date
-        criteriaData.WriteByteSeq(counter[6]);
-        criteriaData.WriteByteSeq(guid[4]);
-        criteriaData.WriteByteSeq(guid[1]);
-        criteriaData.WriteByteSeq(counter[4]);
-        criteriaData.WriteByteSeq(guid[3]);
-        criteriaData.WriteByteSeq(counter[0]);
-        criteriaData.WriteByteSeq(guid[2]);
-        criteriaData.WriteByteSeq(counter[1]);
-        criteriaData.WriteByteSeq(guid[6]);
-        criteriaData << uint32(progress->second.date);      // last update time (not packed!)
-        criteriaData << uint32(criteriaId);
-        criteriaData.WriteByteSeq(counter[5]);
-        criteriaData << uint32(0);
-        criteriaData.WriteByteSeq(guid[7]);
-        criteriaData.WriteByteSeq(counter[2]);
-        criteriaData.WriteByteSeq(guid[0]);
+        data.FlushBits();
+
+        data.WriteByteSeq(guid[5]);
+        data << uint32(progress->second.date);      // unknown date
+        data.WriteByteSeq(counter[3]);
+        data.WriteByteSeq(counter[7]);
+        data << uint32(progress->second.date);      // unknown date
+        data.WriteByteSeq(counter[6]);
+        data.WriteByteSeq(guid[4]);
+        data.WriteByteSeq(guid[1]);
+        data.WriteByteSeq(counter[4]);
+        data.WriteByteSeq(guid[3]);
+        data.WriteByteSeq(counter[0]);
+        data.WriteByteSeq(guid[2]);
+        data.WriteByteSeq(counter[1]);
+        data.WriteByteSeq(guid[6]);
+        data << uint32(progress->second.date);      // last update time (not packed!)
+        data << uint32(criteriaId);
+        data.WriteByteSeq(counter[5]);
+        data << uint32(0);
+        data.WriteByteSeq(guid[7]);
+        data.WriteByteSeq(counter[2]);
+        data.WriteByteSeq(guid[0]);
     }
-
-    WorldPacket data(SMSG_GUILD_CRITERIA_DATA, criteriaBits.size() + criteriaData.size());
-    data.append(criteriaBits);
-    if (numCriteria)
-        data.append(criteriaData);
 
     receiver->SendDirectMessage(&data);
 }
@@ -2473,6 +2497,9 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
         case ACHIEVEMENT_CRITERIA_TYPE_WON_AUCTIONS:
+        case ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
+        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS:
+        case ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS:
             if (!miscValue1)
                 return false;
             break;
@@ -2488,6 +2515,10 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
         case ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS:
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
+        case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD:
+        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
         case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
@@ -2912,8 +2943,21 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_ZONE: // 41
                 if (!unit || unit->GetZoneId() != reqValue)
                     return false;
+                break;
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_PERCENT_BELOW: // 46
                 if (!unit || unit->GetHealthPct() >= reqValue)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_REQUIRES_GUILD_GROUP: // 61
+            {
+                Guild* guild = referencePlayer->GetGuild();
+                Group* group = referencePlayer->GetGroup();
+                if (!guild || !group || !group->IsGuildGroupFor(referencePlayer))
+                    return false;
+                break;
+            }
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GUILD_REPUTATION: // 62
+                if (referencePlayer->GetReputation(PLAYER_GUILD_REPUTATION) < reqValue)
                     return false;
                 break;
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_PROJECT_RARITY: // 65
@@ -3347,7 +3391,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
             continue;
         }
-        else if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
+        else if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL | ACHIEVEMENT_FLAG_REALM_FIRST_GUILD))
             m_allCompletedAchievements[achievementId] = uint32(0xFFFFFFFF);
     }
     while (result->NextRow());

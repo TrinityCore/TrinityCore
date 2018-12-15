@@ -1592,7 +1592,7 @@ void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& recvData)
     uint32 achievementId;
     recvData >> achievementId;
 
-    if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
+    if (Guild* guild = _player->GetGuild())
         guild->GetAchievementMgr().SendAchievementInfo(_player, achievementId);
 }
 

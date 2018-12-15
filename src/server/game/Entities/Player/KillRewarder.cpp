@@ -312,9 +312,11 @@ void KillRewarder::Reward()
             if (InstanceScript* instance = _victim->GetInstanceScript())
                 instance->UpdateEncounterStateForKilledCreature(_victim->GetEntry(), _victim);
 
-        if (uint32 guildId = victim->GetMap()->GetOwnerGuildId())
-            if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
+        if (Guild* guild = _killer->GetGuild())
+        {
+            guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
+            guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD, 0, 0, 0, victim, _killer);
+        }
     }
 }
 

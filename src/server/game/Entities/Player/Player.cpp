@@ -6930,6 +6930,8 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HK_RACE, victim->getRace());
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, GetAreaId());
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, 1, 0, 0, victim);
+            if (Guild* guild = GetGuild())
+                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD, 0, 0, 0, victim, this);
         }
         else
         {
@@ -12139,6 +12141,8 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
     // only for full equip instead adding to stack
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
+    if (Guild* guild = GetGuild())
+        guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM, pItem->GetEntry(), 1, 0, nullptr, this);
 
     return pItem;
 }
@@ -15386,6 +15390,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         uint32 guildRep = std::max(uint32(1), uint32(_xp / 450));
         guild->GiveXP(uint32(_xp * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_QUEST_GUILD_MODIFIER)), this);
         guild->GiveReputation(guildRep, this);
+        guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD, 0, 0, 0, nullptr, this);
     }
 
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative

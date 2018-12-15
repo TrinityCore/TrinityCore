@@ -359,7 +359,10 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
             GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
         if (Guild* guild = GetPlayer()->GetGuild())
+        {
+            guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD, 0, 0, 0, NULL, GetPlayer());
             guild->HandleSetEmblem(this, emblemInfo);
+        }
         else
             Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_NOGUILD); // "You are not part of a guild!";
     }
