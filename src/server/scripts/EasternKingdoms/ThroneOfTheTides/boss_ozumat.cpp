@@ -267,6 +267,7 @@ struct boss_ozumat : public BossAI
                 if (GameObject* cache = me->SummonGameObject(IsHeroic() ? GO_NEPTULONS_CACHE_HEROIC : GO_NEPTULONS_CACHE_NORMAL, NeptulonsCachePos, NeptulonsCacheRot, WEEK, GO_SUMMON_TIMED_DESPAWN))
                     cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
+                events.Reset();
                 events.ScheduleEvent(EVENT_CHANGE_SEAT, 3s + 500ms);
                 _dead = true;
             }
