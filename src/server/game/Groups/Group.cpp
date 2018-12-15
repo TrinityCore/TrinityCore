@@ -1877,16 +1877,6 @@ bool Group::_setMembersGroup(ObjectGuid guid, uint8 group)
     return true;
 }
 
-bool Group::MemberLevelIsInRange(uint32 levelMin, uint32 levelMax)
-{
-    for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
-        if (Player *member = ObjectAccessor::FindPlayer(itr->guid))
-            if (member->getLevel() < levelMin || member->getLevel() > levelMax)
-                return false;
-
-    return true;
-}
-
 bool Group::IsGuildGroupFor(Player* player)
 {
     if (!IsMember(player->GetGUID()))
@@ -1971,6 +1961,16 @@ float Group::GetGuildXpRateForPlayer(Player* player)
     }
 
     return 1.0f;
+}
+
+bool Group::MemberLevelIsInRange(uint32 levelMin, uint32 levelMax)
+{
+    for (auto itr : m_memberSlots)
+        if (Player* member = ObjectAccessor::FindPlayer(itr.guid))
+            if (member->getLevel() < levelMin || member->getLevel() > levelMax)
+                return false;
+
+    return true;
 }
 
 void Group::UpdateGuildFor(ObjectGuid guid, uint32 guildId)

@@ -21,6 +21,7 @@
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
+#include "Guild.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -174,7 +175,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_ACHIEVEMENT:
         {
             if (Player* player = object->ToPlayer())
-                condMeets = player->HasAchieved(ConditionValue1);
+            {
+                if (ConditionValue2 == 1)
+                    condMeets = player->HasAchieved(ConditionValue1);
+                else if (Guild *guild = player->GetGuild())
+                    condMeets = guild->HasAchieved(ConditionValue1);
+            }
             break;
         }
         case CONDITION_TEAM:

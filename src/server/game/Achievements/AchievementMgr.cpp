@@ -1262,6 +1262,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
         case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
         case ACHIEVEMENT_CRITERIA_TYPE_CURRENCY:
+        case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
             SetCriteriaProgress(achievementCriteria, miscValue2, referencePlayer, PROGRESS_ACCUMULATE);
             break;
@@ -1354,7 +1355,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
         {
-            int32 reputation = referencePlayer->GetReputationMgr().GetReputation(achievementCriteria->gain_reputation.factionID);
+            int32 reputation = referencePlayer->GetReputation(achievementCriteria->gain_reputation.factionID);
             if (reputation > 0)
                 SetCriteriaProgress(achievementCriteria, reputation, referencePlayer);
             break;
@@ -1490,7 +1491,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
         case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
         case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
-        case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
         case ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL:
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_BG_RATING:
@@ -1662,6 +1662,8 @@ bool AchievementMgr<T>::IsCompletedCriteria(AchievementCriteriaEntry const* achi
             return progress->counter >= achievementCriteria->get_killing_blow.killCount;
         case ACHIEVEMENT_CRITERIA_TYPE_CURRENCY:
             return progress->counter >= achievementCriteria->currencyGain.count;
+        case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
+            return progress->counter >= achievementCriteria->raw.count;
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
             return achievementCriteria->win_arena.count && progress->counter >= achievementCriteria->win_arena.count;
         case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
@@ -2525,6 +2527,10 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
             if (m_completedAchievements.find(achievementCriteria->complete_achievement.linkedAchievement) == m_completedAchievements.end())
                 return false;
             break;
+        case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
+            if (!miscValue1 || !miscValue2)
+                return false;
+            break;
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
             if (!miscValue1 || achievementCriteria->win_bg.bgMapID != referencePlayer->GetMapId())
                 return false;
@@ -2829,6 +2835,13 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
 
         switch (AchievementCriteriaAdditionalCondition(reqType))
         {
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_LEVEL: // 3
+            {
+                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+                if (!item || item->ItemLevel < reqValue)
+                    return false;
+                break;
+            }
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_ENTRY: // 4
                 if (!unit || unit->GetEntry() != reqValue)
                     return false;
@@ -2927,6 +2940,20 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
                 if (referencePlayer->GetMapId() != reqValue)
                     return false;
                 break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_CLASS: // 33
+            {
+                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+                if (!item || item->Class != reqValue)
+                    return false;
+                break;
+            }
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_SUBCLASS: // 34
+            {
+                ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+                if (!item || item->SubClass != reqValue)
+                    return false;
+                break;
+            }
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TITLE_BIT_INDEX: // 38
                 // miscValue1 is title's bit index
                 if (miscValue1 != reqValue)

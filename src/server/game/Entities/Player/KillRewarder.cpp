@@ -239,6 +239,8 @@ void KillRewarder::_RewardGroup()
             }
 
             // 3.1.3. Reward each group member (even dead or corpse) within reward distance.
+            // 3.1.4. Update guild achievements.
+            std::vector<uint32> guildList;
             for (GroupReference* itr = _group->GetFirstMember(); itr != nullptr; itr = itr->next())
             {
                 if (Player* member = itr->GetSource())
@@ -248,6 +250,26 @@ void KillRewarder::_RewardGroup()
                     {
                         _RewardPlayer(member, isDungeon);
                         member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, 0, _victim);
+
+                        bool guildAlreadyUpdated = false;
+                        for (auto itr : guildList)
+                        {
+                            if (itr == member->GetGuildId())
+                                guildAlreadyUpdated = true;
+                        }
+
+                        if (!guildAlreadyUpdated)
+                        {
+                            if (Creature* victim = _victim->ToCreature())
+                            {
+                                if (Guild* guild = member->GetGuild())
+                                {
+                                    guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, member);
+                                    guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD, 0, 0, 0, victim, member);
+                                    guildList.push_back(member->GetGuildId());
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -302,21 +324,23 @@ void KillRewarder::Reward()
         if (!_isBattleGround || _xp)
             // 3.2.2. Reward killer.
             _RewardPlayer(_killer, false);
+
+        if (Creature* victim = _victim->ToCreature())
+        {
+            if (Guild* guild = _killer->GetGuild())
+            {
+                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
+                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD, 0, 0, 0, victim, _killer);
+            }
+        }
     }
 
     // 5. Credit instance encounter.
-    // 6. Update guild achievements.
     if (Creature* victim = _victim->ToCreature())
     {
         if (victim->IsDungeonBoss())
-            if (InstanceScript* instance = _victim->GetInstanceScript())
+            if (InstanceScript* instance = victim->GetInstanceScript())
                 instance->UpdateEncounterStateForKilledCreature(_victim->GetEntry(), _victim);
-
-        if (Guild* guild = _killer->GetGuild())
-        {
-            guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, 0, victim, _killer);
-            guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD, 0, 0, 0, victim, _killer);
-        }
     }
 }
 
