@@ -2215,10 +2215,6 @@ class spell_gen_mounted_charge : public SpellScript
                         if (auraInfo && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
                         {
                             aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
-                            // Remove dummys from rider (Necessary for updating visual shields)
-                            if (Unit* rider = target->GetCharmer())
-                                if (Aura* defend = rider->GetAura(aura->GetId()))
-                                    defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
                             break;
                         }
                     }
