@@ -60,7 +60,7 @@ namespace
         va_end(len);
 
         formatted.resize(length);
-        vsnprintf(&formatted[0], length, format, args);
+        vsnprintf(&formatted[0], length + 1, format, args);
 
         return formatted;
     }
