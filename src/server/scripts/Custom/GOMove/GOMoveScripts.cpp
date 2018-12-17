@@ -282,4 +282,5 @@ void AddSC_GOMove_commandscript()
 {
     new GOMove_commandscript();
     new GOMove_spell_place();
+    new GOMove_player_track();
 }
