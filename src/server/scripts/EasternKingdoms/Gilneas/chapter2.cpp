@@ -111,7 +111,7 @@ class npc_gilneas_horrid_abomination : public CreatureScript
                         Talk(SAY_KEG_PLACED);
                         me->AttackStop();
                         me->SetReactState(REACT_PASSIVE);
-                        me->GetMotionMaster()->MovementExpired();
+                        me->GetMotionMaster()->InitDefault();
                         me->StopMoving();
                         _playerGUID = caster->GetGUID();
                         _allowEvents = true;
