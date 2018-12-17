@@ -452,6 +452,13 @@ struct AchievementCriteriaEntry
             uint64  duelCount;                              // 4
         } win_duel;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM         = 90
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  count;                                  // 4
+        } loot_epic_item;
+
         // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_POWER          = 96
         struct
         {
@@ -566,6 +573,13 @@ struct AchievementCriteriaEntry
             uint32 unused;
             uint32 count;
         } kill_creature_type_guild;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE = 138
+        struct
+        {
+            uint32 flag;         // 1: Guild Dungeon, 2:Guild raid, 3:Guild battleground
+            uint32 count;
+        } guild_challenge;
 
         struct
         {

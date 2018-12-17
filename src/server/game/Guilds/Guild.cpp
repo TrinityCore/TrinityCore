@@ -3876,8 +3876,8 @@ void Guild::CompleteChallenge(uint8 challengeType, Player* source)
     data << countNeeded;
     BroadcastPacket(&data);
 
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE, challengeType, 0, 0, NULL, source);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE, 0, 0, 0, NULL, source);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE, challengeType, 0, 0, nullptr, source);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE, 0, 0, 0, nullptr, source);
 
     // Give Reward now
     GiveXP(xp, source, true);
@@ -4053,9 +4053,9 @@ bool Guild::HasAchieved(uint32 achievementId) const
     return m_achievementMgr->HasAchieved(achievementId);
 }
 
-void Guild::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player)
+void Guild::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player, GameObject* go)
 {
-    m_achievementMgr->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, player);
+    m_achievementMgr->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, player, go);
 }
 
 void Guild::HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool sticky)

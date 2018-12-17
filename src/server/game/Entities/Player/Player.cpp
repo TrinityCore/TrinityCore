@@ -25911,7 +25911,7 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
     }
 }
 
-void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
+void Player::StoreLootItem(uint8 lootSlot, Loot* loot, GameObject* go)
 {
     NotNormalLootItem* qitem = nullptr;
     NotNormalLootItem* ffaitem = nullptr;
@@ -25993,6 +25993,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, item->itemid, item->count, loot->loot_type);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL, item->itemid, item->count, 0, nullptr, go);
 
         // LootItem is being removed (looted) from the container, delete it from the DB.
         if (loot->containerID > 0)
@@ -26321,7 +26322,7 @@ void Player::ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 misc
     m_achievementMgr->ResetAchievementCriteria(type, miscValue1, miscValue2, evenIfCriteriaComplete);
 }
 
-void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, Unit* unit /*= nullptr*/)
+void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, Unit* unit /*= nullptr*/, GameObject* go /*= nullptr*/)
 {
     m_achievementMgr->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
     Guild* guild = sGuildMgr->GetGuildById(GetGuildId());
@@ -26333,7 +26334,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 mis
     if (sAchievementMgr->IsGroupCriteriaType(type))
         return;
 
-    guild->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
+    guild->UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, this, go);
 }
 
 void Player::CompletedAchievement(AchievementEntry const* entry)
