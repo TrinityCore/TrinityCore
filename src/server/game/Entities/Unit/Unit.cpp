@@ -9417,7 +9417,6 @@ void Unit::SetAI(UnitAI* newAI)
 
 void Unit::ScheduleAIChange()
 {
-    ASSERT(!m_aiLocked, "Attempt to schedule AI change during AI update tick");
     bool const charmed = IsCharmed();
     // if charm is applied, we can't have disabled AI already, and vice versa
     if (charmed)
@@ -9427,15 +9426,20 @@ void Unit::ScheduleAIChange()
 
     if (charmed)
         i_disabledAI = std::move(i_AI);
+    else if (m_aiLocked)
+    {
+        ASSERT(!i_lockedAILifetimeExtension, "Attempt to schedule multiple charm AI changes during one update");
+        i_lockedAILifetimeExtension = std::move(i_AI); // AI needs to live just a bit longer to finish its UpdateAI
+    }
     else
         i_AI.reset();
 }
 
 void Unit::RestoreDisabledAI()
 {
-    ASSERT(!m_aiLocked, "Attempt to restore AI during UpdateAI tick");
     ASSERT((GetTypeId() == TYPEID_PLAYER) || i_disabledAI, "Attempt to restore disabled AI on creature without disabled AI");
     i_AI = std::move(i_disabledAI);
+    i_lockedAILifetimeExtension.reset();
 }
 
 void Unit::AddToWorld()
