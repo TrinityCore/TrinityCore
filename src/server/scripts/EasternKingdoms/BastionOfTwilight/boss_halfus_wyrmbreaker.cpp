@@ -166,7 +166,6 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 if (Map* map = me->GetMap())
                 {
                     map->SummonCreature(NPC_NETHER_SCION, NetherScionPos);
-                    map->SummonCreature(NPC_NETHER_SCION, NetherScionPos);
                     map->SummonCreature(NPC_SLATE_DRAGON, SlateDragonPos);
                     map->SummonCreature(NPC_STORM_RIDER, StormRiderPos);
                     map->SummonCreature(NPC_TIME_WARDEN, TimeWardenPos);
