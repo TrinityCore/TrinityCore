@@ -75,6 +75,9 @@ enum GBCreatureIds
     NPC_TWILIGHT_HATCHLING              = 39388,
     NPC_HATCHED_TWILIGHT_EGG            = 40846,
 
+    // Generic Creatures
+    NPC_ENSLAVED_GRONN_BRUTE            = 40166,
+
 };
 
 enum GBSpells

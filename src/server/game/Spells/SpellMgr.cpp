@@ -4499,6 +4499,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx5 &= ~SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING;
     });
 
+    // Gronn Knockback Cosmetic
+    ApplySpellFix({ 76138 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
     // ENDOF GRIM_BATOL SPELLS
 
     //
