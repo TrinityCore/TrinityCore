@@ -956,6 +956,21 @@ public:
     }
 };
 
+class DelayedDazzlingDestructionEvent : public BasicEvent
+{
+    public:
+        DelayedDazzlingDestructionEvent(Unit* owner, uint32 spellId) :  _owner(owner), _spellId(spellId) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            _owner->CastSpell(_owner, _spellId, true);
+            return true;
+        }
+    private:
+        Unit* _owner;
+        uint32 _spellId;
+};
+
 class spell_theralion_dazzling_destruction : public SpellScriptLoader
 {
     public:
@@ -1000,7 +1015,7 @@ class spell_theralion_dazzling_destruction : public SpellScriptLoader
                     {
                         target->RemoveAllAuras();
                         target->CastSpell(target, SPELL_DAZZLING_DESTRUCTION_TWILIGHT_REALM, true);
-                        target->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints, true);
+                        target->m_Events.AddEventAtOffset(new DelayedDazzlingDestructionEvent(target, GetSpellInfo()->Effects[effIndex].BasePoints), 100ms);
                     }
                 }
             }
