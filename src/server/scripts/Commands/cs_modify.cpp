@@ -770,7 +770,7 @@ public:
             }
             if (r >= MAX_REPUTATION_RANK)
             {
-                handler->PSendSysMessage(LANG_COMMAND_FACTION_INVPARAM, rankTxt);
+                handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, rankTxt);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
