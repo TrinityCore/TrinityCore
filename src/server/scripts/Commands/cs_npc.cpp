@@ -840,7 +840,7 @@ public:
         
         if (!sCreatureDisplayInfoStore.LookupEntry(displayId))
         {
-            handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, displayId);
+            handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, "model id");
             handler->SetSentErrorMessage(true);
             return false;
         }
