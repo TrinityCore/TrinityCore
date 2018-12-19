@@ -840,7 +840,7 @@ public:
         
         if (!sCreatureDisplayInfoStore.LookupEntry(displayId))
         {
-            handler->PSendSysMessage("* The specified displayId '%u' doesn't exist", displayId);
+            handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, displayId);
             handler->SetSentErrorMessage(true);
             return false;
         }
