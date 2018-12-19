@@ -193,7 +193,7 @@ bool CreatureAI::UpdateVictim()
     else if (me->GetVictim())
         me->AttackStop();
 
-    return true;
+    return me->GetVictim() != nullptr;
 }
 
 bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
