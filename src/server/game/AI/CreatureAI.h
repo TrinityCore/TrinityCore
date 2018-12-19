@@ -74,6 +74,7 @@ class TC_GAME_API CreatureAI : public UnitAI
     protected:
         Creature* const me;
 
+        // Returns true only if me->GetVictim() would return a valid object
         bool UpdateVictim();
 
         Creature* DoSummon(uint32 entry, Position const& pos, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
