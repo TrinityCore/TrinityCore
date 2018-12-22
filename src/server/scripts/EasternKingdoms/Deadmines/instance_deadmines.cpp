@@ -57,7 +57,7 @@ class instance_deadmines : public InstanceMapScript
 
         struct instance_deadmines_InstanceMapScript : public InstanceScript
         {
-            instance_deadmines_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_deadmines_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
 

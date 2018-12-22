@@ -33,6 +33,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
@@ -50,7 +51,7 @@ struct EnumName
 #define CREATE_NAMED_ENUM(VALUE) { VALUE, STRINGIZE(VALUE) }
 
 #define NPC_FLAG_COUNT    24
-#define FLAGS_EXTRA_COUNT 19
+#define FLAGS_EXTRA_COUNT 20
 
 EnumName<NPCFlags, uint32> const npcFlagTexts[NPC_FLAG_COUNT] =
 {
@@ -192,6 +193,7 @@ EnumName<CreatureFlagsExtra> const flagsExtra[FLAGS_EXTRA_COUNT] =
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_NO_XP_AT_KILL),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_TRIGGER),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_NO_TAUNT),
+    CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_WORLDEVENT),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_GUARD),
     CREATE_NAMED_ENUM(CREATURE_FLAG_EXTRA_NO_CRIT),
@@ -300,7 +302,7 @@ public:
 
             Creature* creature = trans->CreateNPCPassenger(guid, &data);
 
-            creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, UI64LIT(1) << map->GetSpawnMode());
+            creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, { map->GetDifficultyID() });
 
             sObjectMgr->AddCreatureToGrid(guid, &data);
             return true;
@@ -310,8 +312,8 @@ public:
         if (!creature)
             return false;
 
-        creature->CopyPhaseFrom(chr);
-        creature->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
+        PhasingHandler::InheritPhaseShift(creature, chr);
+        creature->SaveToDB(map->GetId(), { map->GetDifficultyID() });
 
         ObjectGuid::LowType db_guid = creature->GetSpawnId();
 
@@ -762,17 +764,7 @@ public:
         if (CreatureData const* data = sObjectMgr->GetCreatureData(target->GetSpawnId()))
         {
             handler->PSendSysMessage(LANG_NPCINFO_PHASES, data->phaseId, data->phaseGroup);
-            if (data->phaseGroup)
-            {
-                std::set<uint32> _phases = target->GetPhases();
-
-                if (!_phases.empty())
-                {
-                    handler->PSendSysMessage(LANG_NPCINFO_PHASE_IDS);
-                    for (uint32 phaseId : _phases)
-                        handler->PSendSysMessage("%u", phaseId);
-                }
-            }
+            PhasingHandler::PrintToChat(handler, target->GetPhaseShift());
         }
 
         handler->PSendSysMessage(LANG_NPCINFO_ARMOR, target->GetArmor());
@@ -1122,12 +1114,8 @@ public:
             return false;
         }
 
-        creature->ClearPhases();
-
-        for (uint32 id : sDB2Manager.GetPhasesForGroup(phaseGroupId))
-            creature->SetInPhase(id, false, true); // don't send update here for multiple phases, only send it once after adding all phases
-
-        creature->UpdateObjectVisibility();
+        PhasingHandler::ResetPhaseShift(creature);
+        PhasingHandler::AddPhaseGroup(creature, phaseGroupId, true);
         creature->SetDBPhase(-phaseGroupId);
 
         creature->SaveToDB();
@@ -1158,8 +1146,8 @@ public:
             return false;
         }
 
-        creature->ClearPhases();
-        creature->SetInPhase(phaseID, true, true);
+        PhasingHandler::ResetPhaseShift(creature);
+        PhasingHandler::AddPhase(creature, phaseID, true);
         creature->SetDBPhase(phaseID);
 
         creature->SaveToDB();

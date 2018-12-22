@@ -20,7 +20,8 @@ BnetServiceGenerator::BnetServiceGenerator(pb::ServiceDescriptor const* descript
     else
         vars_["dllexport"] = options.dllexport_decl + " ";
 
-    vars_["original_hash"] = "  typedef std::integral_constant<uint32, 0x" + pb::ToUpper(pb::ToHex(HashServiceName(descriptor_->options().GetExtension(Battlenet::original_fully_qualified_descriptor_name)))) + "u> OriginalHash;\n";
+    if (descriptor_->options().HasExtension(Battlenet::service_options))
+        vars_["original_hash"] = "  typedef std::integral_constant<uint32, 0x" + pb::ToUpper(pb::ToHex(HashServiceName(descriptor_->options().GetExtension(Battlenet::service_options).descriptor_name()))) + "u> OriginalHash;\n";
     vars_["name_hash"] = "  typedef std::integral_constant<uint32, 0x" + pb::ToUpper(pb::ToHex(HashServiceName(descriptor_->full_name()))) + "u> NameHash;\n";
 }
 
@@ -85,13 +86,13 @@ void BnetServiceGenerator::GenerateClientMethodSignatures(pb::io::Printer* print
     for (int i = 0; i < descriptor_->method_count(); i++)
     {
         pb::MethodDescriptor const* method = descriptor_->method(i);
-        if (!method->options().HasExtension(Battlenet::method_id))
+        if (!method->options().HasExtension(Battlenet::method_options))
             continue;
 
         std::map<std::string, std::string> sub_vars;
         sub_vars["name"] = method->name();
         sub_vars["full_name"] = descriptor_->name() + "." + method->name();
-        sub_vars["method_id"] = pb::SimpleItoa(method->options().GetExtension(Battlenet::method_id));
+        sub_vars["method_id"] = pb::SimpleItoa(method->options().GetExtension(Battlenet::method_options).id());
         sub_vars["input_type"] = pbcpp::ClassName(method->input_type(), true);
         sub_vars["output_type"] = pbcpp::ClassName(method->output_type(), true);
         sub_vars["input_type_name"] = method->input_type()->full_name();
@@ -108,7 +109,7 @@ void BnetServiceGenerator::GenerateServerMethodSignatures(pb::io::Printer* print
     for (int i = 0; i < descriptor_->method_count(); i++)
     {
         pb::MethodDescriptor const* method = descriptor_->method(i);
-        if (!method->options().HasExtension(Battlenet::method_id))
+        if (!method->options().HasExtension(Battlenet::method_options))
             continue;
 
         std::map<std::string, std::string> sub_vars;
@@ -161,14 +162,14 @@ void BnetServiceGenerator::GenerateClientMethodImplementations(pb::io::Printer* 
     for (int i = 0; i < descriptor_->method_count(); i++)
     {
         pb::MethodDescriptor const* method = descriptor_->method(i);
-        if (!method->options().HasExtension(Battlenet::method_id))
+        if (!method->options().HasExtension(Battlenet::method_options))
             continue;
 
         std::map<std::string, std::string> sub_vars;
         sub_vars["classname"] = vars_["classname"];
         sub_vars["name"] = method->name();
         sub_vars["full_name"] = descriptor_->name() + "." + method->name();
-        sub_vars["method_id"] = pb::SimpleItoa(method->options().GetExtension(Battlenet::method_id));
+        sub_vars["method_id"] = pb::SimpleItoa(method->options().GetExtension(Battlenet::method_options).id());
         sub_vars["input_type"] = pbcpp::ClassName(method->input_type(), true);
         sub_vars["output_type"] = pbcpp::ClassName(method->output_type(), true);
         sub_vars["input_type_name"] = method->input_type()->full_name();
@@ -210,14 +211,14 @@ void BnetServiceGenerator::GenerateServerCallMethod(pb::io::Printer* printer)
     for (int i = 0; i < descriptor_->method_count(); i++)
     {
         pb::MethodDescriptor const* method = descriptor_->method(i);
-        if (!method->options().HasExtension(Battlenet::method_id))
+        if (!method->options().HasExtension(Battlenet::method_options))
             continue;
 
         std::map<std::string, std::string> sub_vars;
         sub_vars["classname"] = vars_["classname"];
         sub_vars["name"] = method->name();
         sub_vars["full_name"] = descriptor_->name() + "." + method->name();
-        sub_vars["method_id"] = pb::SimpleItoa(method->options().GetExtension(Battlenet::method_id));
+        sub_vars["method_id"] = pb::SimpleItoa(method->options().GetExtension(Battlenet::method_options).id());
         sub_vars["input_type"] = pbcpp::ClassName(method->input_type(), true);
         sub_vars["output_type"] = pbcpp::ClassName(method->output_type(), true);
         sub_vars["input_type_name"] = method->input_type()->full_name();
@@ -285,7 +286,7 @@ void BnetServiceGenerator::GenerateServerImplementations(pb::io::Printer* printe
     for (int i = 0; i < descriptor_->method_count(); i++)
     {
         pb::MethodDescriptor const* method = descriptor_->method(i);
-        if (!method->options().HasExtension(Battlenet::method_id))
+        if (!method->options().HasExtension(Battlenet::method_options))
             continue;
 
         std::map<std::string, std::string> sub_vars;

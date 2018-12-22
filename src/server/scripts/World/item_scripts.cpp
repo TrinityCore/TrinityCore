@@ -245,7 +245,7 @@ public:
 
         float x, y, z;
         go->GetClosePoint(x, y, z, go->GetObjectSize() / 3, 7.0f);
-        go->SummonGameObject(GO_HIGH_QUALITY_FUR, *go, QuaternionData(), 1);
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, *go, QuaternionData::fromEulerAnglesZYX(go->GetOrientation(), 0.0f, 0.0f), 1);
         if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
             summon->SetVisible(false);

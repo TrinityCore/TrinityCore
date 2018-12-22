@@ -2049,7 +2049,7 @@ public:
 
                 float displacement = 0.7f;
                 for (uint8 i = 0; i < 4; i++)
-                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), QuaternionData(), 1);
+                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), QuaternionData::fromEulerAnglesZYX(me->GetOrientation(), 0.0f, 0.0f), 1);
             }
             else
                 //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);
@@ -2606,8 +2606,8 @@ public:
             init.SetFacing(o);
             init.Launch();
             who->m_Events.AddEvent(new CastFoodSpell(who, _chairSpells.at(who->GetEntry())), who->m_Events.CalculateTime(1000));
-            if (who->GetTypeId() == TYPEID_UNIT)
-                who->SetDisplayId(who->ToCreature()->GetCreatureTemplate()->Modelid1);
+            if (Creature* creature = who->ToCreature())
+                creature->SetDisplayFromModel(0);
         }
     };
 

@@ -27,6 +27,7 @@ void WorldPackets::Spells::SpellCastLogData::Initialize(Unit const* unit)
     Health = unit->GetHealth();
     AttackPower = unit->GetTotalAttackPowerValue(unit->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
     SpellPower = unit->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+    Armor = unit->GetArmor();
     PowerData.emplace_back(int32(unit->GetPowerType()), unit->GetPower(unit->GetPowerType()), int32(0));
 }
 
@@ -35,6 +36,7 @@ void WorldPackets::Spells::SpellCastLogData::Initialize(Spell const* spell)
     Health = spell->GetCaster()->GetHealth();
     AttackPower = spell->GetCaster()->GetTotalAttackPowerValue(spell->GetCaster()->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
     SpellPower = spell->GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+    Armor = spell->GetCaster()->GetArmor();
     Powers primaryPowerType = spell->GetCaster()->GetPowerType();
     bool primaryPowerAdded = false;
     for (SpellPowerCost const& cost : spell->GetPowerCost())
@@ -53,64 +55,64 @@ namespace WorldPackets
     namespace Spells
     {
         template<class T, class U>
-        bool SandboxScalingData::GenerateDataForUnits(T* /*attacker*/, U* /*target*/)
+        bool ContentTuningParams::GenerateDataForUnits(T* /*attacker*/, U* /*target*/)
         {
             return false;
         }
 
         template<>
-        bool SandboxScalingData::GenerateDataForUnits<Creature, Player>(Creature* attacker, Player* target)
+        bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attacker, Player* target)
         {
             CreatureTemplate const* creatureTemplate = attacker->GetCreatureTemplate();
 
             Type = TYPE_CREATURE_TO_PLAYER_DAMAGE;
-            PlayerLevelDelta = target->GetInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
+            PlayerLevelDelta = target->GetInt32Value(ACTIVE_PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
             PlayerItemLevel = target->GetAverageItemLevel();
+            ScalingHealthItemLevelCurveID = target->GetUInt32Value(UNIT_FIELD_SCALING_HEALTH_ITEM_LEVEL_CURVE_ID);
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
-            Class = creatureTemplate->unit_class;
             TargetMinScalingLevel = uint8(creatureTemplate->levelScaling->MinLevel);
             TargetMaxScalingLevel = uint8(creatureTemplate->levelScaling->MaxLevel);
-            TargetScalingLevelDelta = int8(creatureTemplate->levelScaling->DeltaLevel);
+            TargetScalingLevelDelta = int8(attacker->GetInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA));
             return true;
         }
 
         template<>
-        bool SandboxScalingData::GenerateDataForUnits<Player, Creature>(Player* attacker, Creature* target)
+        bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacker, Creature* target)
         {
             CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
 
             Type = TYPE_PLAYER_TO_CREATURE_DAMAGE;
-            PlayerLevelDelta = attacker->GetInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
+            PlayerLevelDelta = attacker->GetInt32Value(ACTIVE_PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
             PlayerItemLevel = attacker->GetAverageItemLevel();
+            ScalingHealthItemLevelCurveID = target->GetUInt32Value(UNIT_FIELD_SCALING_HEALTH_ITEM_LEVEL_CURVE_ID);
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
-            Class = creatureTemplate->unit_class;
             TargetMinScalingLevel = uint8(creatureTemplate->levelScaling->MinLevel);
             TargetMaxScalingLevel = uint8(creatureTemplate->levelScaling->MaxLevel);
-            TargetScalingLevelDelta = int8(creatureTemplate->levelScaling->DeltaLevel);
+            TargetScalingLevelDelta = int8(target->GetInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA));
             return true;
         }
 
         template<>
-        bool SandboxScalingData::GenerateDataForUnits<Creature, Creature>(Creature* attacker, Creature* target)
+        bool ContentTuningParams::GenerateDataForUnits<Creature, Creature>(Creature* attacker, Creature* target)
         {
-            CreatureTemplate const* creatureTemplate = target->HasScalableLevels() ? target->GetCreatureTemplate() : attacker->GetCreatureTemplate();
+            Creature* accessor = target->HasScalableLevels() ? target : attacker;
+            CreatureTemplate const* creatureTemplate = accessor->GetCreatureTemplate();
 
             Type = TYPE_CREATURE_TO_CREATURE_DAMAGE;
             PlayerLevelDelta = 0;
             PlayerItemLevel = 0;
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
-            Class = creatureTemplate->unit_class;
             TargetMinScalingLevel = uint8(creatureTemplate->levelScaling->MinLevel);
             TargetMaxScalingLevel = uint8(creatureTemplate->levelScaling->MaxLevel);
-            TargetScalingLevelDelta = int8(creatureTemplate->levelScaling->DeltaLevel);
+            TargetScalingLevelDelta = int8(accessor->GetInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA));
             return true;
         }
 
         template<>
-        bool SandboxScalingData::GenerateDataForUnits<Unit, Unit>(Unit* attacker, Unit* target)
+        bool ContentTuningParams::GenerateDataForUnits<Unit, Unit>(Unit* attacker, Unit* target)
         {
             if (Player* playerAttacker = attacker->ToPlayer())
             {
@@ -151,6 +153,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData 
     data << int64(spellCastLogData.Health);
     data << int32(spellCastLogData.AttackPower);
     data << int32(spellCastLogData.SpellPower);
+    data << int32(spellCastLogData.Armor);
     data.WriteBits(spellCastLogData.PowerData.size(), 9);
     data.FlushBits();
 
@@ -164,16 +167,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SandboxScalingData const& sandboxScalingData)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::ContentTuningParams const& contentTuningParams)
 {
-    data.WriteBits(sandboxScalingData.Type, 4);
-    data << int16(sandboxScalingData.PlayerLevelDelta);
-    data << uint16(sandboxScalingData.PlayerItemLevel);
-    data << uint8(sandboxScalingData.TargetLevel);
-    data << uint8(sandboxScalingData.Expansion);
-    data << uint8(sandboxScalingData.Class);
-    data << uint8(sandboxScalingData.TargetMinScalingLevel);
-    data << uint8(sandboxScalingData.TargetMaxScalingLevel);
-    data << int8(sandboxScalingData.TargetScalingLevelDelta);
+    data << int16(contentTuningParams.PlayerLevelDelta);
+    data << uint16(contentTuningParams.PlayerItemLevel);
+    data << uint16(contentTuningParams.ScalingHealthItemLevelCurveID);
+    data << uint8(contentTuningParams.TargetLevel);
+    data << uint8(contentTuningParams.Expansion);
+    data << uint8(contentTuningParams.TargetMinScalingLevel);
+    data << uint8(contentTuningParams.TargetMaxScalingLevel);
+    data << int8(contentTuningParams.TargetScalingLevelDelta);
+    data.WriteBits(contentTuningParams.Type, 4);
+    data.WriteBit(contentTuningParams.ScalesWithItemLevel);
+    data.FlushBits();
     return data;
 }

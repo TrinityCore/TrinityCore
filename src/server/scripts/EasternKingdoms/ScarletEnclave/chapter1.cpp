@@ -370,9 +370,12 @@ class npc_eye_of_acherus : public CreatureScript
         {
             npc_eye_of_acherusAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+                me->SetDisplayFromModel(0);
                 if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
+                {
+                    me->GetCharmInfo()->InitPossessCreateSpells();
                     owner->SendAutoRepeatCancel(me);
+                }
 
                 me->SetReactState(REACT_PASSIVE);
 
@@ -1020,7 +1023,7 @@ class npc_scarlet_miner_cart : public CreatureScript
         {
             npc_scarlet_miner_cartAI(Creature* creature) : PassiveAI(creature)
             {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1); // Modelid2 is a horse.
+                me->SetDisplayFromModel(0); // Modelid2
             }
 
             void JustSummoned(Creature* summon) override

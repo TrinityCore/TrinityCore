@@ -516,7 +516,7 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
     Item* pItem = _player->GetItemFromBuyBackSlot(packet.Slot);
     if (pItem)
     {
-        uint32 price = _player->GetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + packet.Slot - BUYBACK_SLOT_START);
+        uint32 price = _player->GetUInt32Value(ACTIVE_PLAYER_FIELD_BUYBACK_PRICE + packet.Slot - BUYBACK_SLOT_START);
         if (!_player->HasEnoughMoney(uint64(price)))
         {
             _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, pItem->GetEntry(), 0);
@@ -529,9 +529,7 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
         {
             _player->ModifyMoney(-(int32)price);
             _player->RemoveItemFromBuyBackSlot(packet.Slot, false);
-            _player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-            _player->UpdateCriteria(CRITERIA_TYPE_RECEIVE_EPIC_ITEM, pItem->GetEntry(), pItem->GetCount());
-            _player->StoreItem(dest, pItem, true);
+            _player->MoveItemToInventory(dest, pItem, true);
         }
         else
             _player->SendEquipError(msg, pItem, NULL);
@@ -1044,7 +1042,7 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
                     }
                 }
 
-                if (limit_newcount > 0 && uint32(limit_newcount) > limitEntry->Quantity)
+                if (limit_newcount > 0 && uint32(limit_newcount) > _player->GetItemLimitCategoryQuantity(limitEntry))
                 {
                     _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
                     return;

@@ -484,7 +484,7 @@ public:
         {
             Unit* caster = GetCaster();
             Position pos = caster->GetPosition();
-            pos.m_positionZ = caster->GetMap()->GetHeight(caster->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, 100.0f);
+            pos.m_positionZ = caster->GetMap()->GetHeight(caster->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, 100.0f);
             dest.Relocate(pos);
         }
 

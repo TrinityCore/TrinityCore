@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "blackrock_caverns.h"
 #include "InstanceScript.h"
-#include "Map.h"
 
 ObjectData const creatureData[] =
 {
@@ -33,7 +32,7 @@ class instance_blackrock_caverns : public InstanceMapScript
 
         struct instance_blackrock_caverns_InstanceMapScript : public InstanceScript
         {
-            instance_blackrock_caverns_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_blackrock_caverns_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

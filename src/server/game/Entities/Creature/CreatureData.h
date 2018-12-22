@@ -264,6 +264,7 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_XP_AT_KILL        = 0x00000040,       // creature kill not provide XP
     CREATURE_FLAG_EXTRA_TRIGGER              = 0x00000080,       // trigger creature
     CREATURE_FLAG_EXTRA_NO_TAUNT             = 0x00000100,       // creature is immune to taunt auras and effect attack me
+    CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE = 0x00000200,       // creature won't update movement flags
     CREATURE_FLAG_EXTRA_WORLDEVENT           = 0x00004000,       // custom flag for world event creatures (left room for merging)
     CREATURE_FLAG_EXTRA_GUARD                = 0x00008000,       // Creature is guard
     CREATURE_FLAG_EXTRA_NO_CRIT              = 0x00020000,       // creature can't do critical strikes
@@ -279,7 +280,7 @@ enum CreatureFlagsExtra
 #define CREATURE_FLAG_EXTRA_DB_ALLOWED (CREATURE_FLAG_EXTRA_INSTANCE_BIND | CREATURE_FLAG_EXTRA_CIVILIAN | \
     CREATURE_FLAG_EXTRA_NO_PARRY | CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN | CREATURE_FLAG_EXTRA_NO_BLOCK | \
     CREATURE_FLAG_EXTRA_NO_CRUSH | CREATURE_FLAG_EXTRA_NO_XP_AT_KILL | CREATURE_FLAG_EXTRA_TRIGGER | \
-    CREATURE_FLAG_EXTRA_NO_TAUNT | CREATURE_FLAG_EXTRA_WORLDEVENT | CREATURE_FLAG_EXTRA_NO_CRIT | \
+    CREATURE_FLAG_EXTRA_NO_TAUNT | CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE | CREATURE_FLAG_EXTRA_WORLDEVENT | CREATURE_FLAG_EXTRA_NO_CRIT | \
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN | CREATURE_FLAG_EXTRA_TAUNT_DIMINISH | CREATURE_FLAG_EXTRA_ALL_DIMINISH | \
     CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING | CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ | CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK)
 
@@ -296,7 +297,24 @@ struct CreatureLevelScaling
 {
     uint16 MinLevel;
     uint16 MaxLevel;
-    int16 DeltaLevel;
+    int16 DeltaLevelMin;
+    int16 DeltaLevelMax;
+};
+
+struct CreatureModel
+{
+    static CreatureModel const DefaultInvisibleModel;
+    static CreatureModel const DefaultVisibleModel;
+
+    CreatureModel() :
+        CreatureDisplayID(0), DisplayScale(0.0f), Probability(0.0f) { }
+
+    CreatureModel(uint32 creatureDisplayID, float displayScale, float probability) :
+        CreatureDisplayID(creatureDisplayID), DisplayScale(displayScale), Probability(probability) { }
+
+    uint32 CreatureDisplayID;
+    float DisplayScale;
+    float Probability;
 };
 
 // from `creature_template` table
@@ -305,10 +323,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  Entry;
     uint32  DifficultyEntry[MAX_CREATURE_DIFFICULTIES];
     uint32  KillCredit[MAX_KILL_CREDIT];
-    uint32  Modelid1;
-    uint32  Modelid2;
-    uint32  Modelid3;
-    uint32  Modelid4;
+    std::vector<CreatureModel> Models;
     std::string  Name;
     std::string FemaleName;
     std::string  SubName;
@@ -367,10 +382,12 @@ struct TC_GAME_API CreatureTemplate
     uint32  MechanicImmuneMask;
     uint32  flags_extra;
     uint32  ScriptID;
-    uint32  GetRandomValidModelId() const;
-    uint32  GetFirstValidModelId() const;
-    uint32  GetFirstInvisibleModel() const;
-    uint32  GetFirstVisibleModel() const;
+    CreatureModel const* GetModelByIdx(uint32 idx) const;
+    CreatureModel const* GetRandomValidModel() const;
+    CreatureModel const* GetFirstValidModel() const;
+    CreatureModel const* GetModelWithDisplayId(uint32 displayId) const;
+    CreatureModel const* GetFirstInvisibleModel() const;
+    CreatureModel const* GetFirstVisibleModel() const;
 
     // helpers
     SkillType GetRequiredLootSkill() const
@@ -499,8 +516,8 @@ struct CreatureData
     CreatureData() : id(0), mapid(0), displayid(0), equipmentId(0),
                      posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
                      spawndist(0.0f), currentwaypoint(0), curhealth(0), curmana(0), movementType(0),
-                     spawnMask(0), npcflag(0), unit_flags(0), unit_flags2(0), unit_flags3(0), dynamicflags(0),
-                     phaseId(0), phaseGroup(0), ScriptId(0), dbData(true) { }
+                     spawnDifficulties(), npcflag(0), unit_flags(0), unit_flags2(0), unit_flags3(0), dynamicflags(0),
+                     phaseUseFlags(0), phaseId(0), phaseGroup(0), terrainSwapMap(-1), ScriptId(0), dbData(true) { }
     uint32 id;                                              // entry in creature_template
     uint16 mapid;
     uint32 displayid;
@@ -515,14 +532,16 @@ struct CreatureData
     uint32 curhealth;
     uint32 curmana;
     uint8 movementType;
-    uint64 spawnMask;
+    std::vector<Difficulty> spawnDifficulties;
     uint64 npcflag;
     uint32 unit_flags;                                      // enum UnitFlags mask values
     uint32 unit_flags2;                                     // enum UnitFlags2 mask values
     uint32 unit_flags3;                                     // enum UnitFlags3 mask values
     uint32 dynamicflags;
+    uint8 phaseUseFlags;
     uint32 phaseId;
     uint32 phaseGroup;
+    int32 terrainSwapMap;
     uint32 ScriptId;
     bool dbData;
 };

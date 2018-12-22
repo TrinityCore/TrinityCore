@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "auchenai_crypts.h"
 #include "InstanceScript.h"
-#include "Map.h"
 
 class instance_auchenai_crypts : public InstanceMapScript
 {
@@ -27,7 +26,7 @@ class instance_auchenai_crypts : public InstanceMapScript
 
         struct instance_auchenai_crypts_InstanceMapScript : public InstanceScript
         {
-            instance_auchenai_crypts_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_auchenai_crypts_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

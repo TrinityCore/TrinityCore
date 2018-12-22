@@ -106,9 +106,15 @@ public:
 
         WorldPacket data;
         if (strncmp(args, "on", 3) == 0)
+        {
             target->SetCanFly(true);
+            target->SetCanTransitionBetweenSwimAndFly(true);
+        }
         else if (strncmp(args, "off", 4) == 0)
+        {
             target->SetCanFly(false);
+            target->SetCanTransitionBetweenSwimAndFly(false);
+        }
         else
         {
             handler->SendSysMessage(LANG_USE_BOL);

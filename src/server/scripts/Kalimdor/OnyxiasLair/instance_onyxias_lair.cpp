@@ -48,7 +48,7 @@ public:
 
     struct instance_onyxias_lair_InstanceMapScript : public InstanceScript
     {
-        instance_onyxias_lair_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_onyxias_lair_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
@@ -112,7 +112,7 @@ public:
                 //THIS GOB IS A TRAP - What shall i do? =(
                 //Cast it spell? Copyed Heigan method
                 floorEruption->SendCustomAnim(floorEruption->GetGoAnimProgress());
-                floorEruption->CastSpell(nullptr, Difficulty(instance->GetSpawnMode()) == DIFFICULTY_10_N ? 17731 : 69294); //pFloorEruption->GetGOInfo()->trap.spellId
+                floorEruption->CastSpell(nullptr, instance->GetDifficultyID() == DIFFICULTY_10_N ? 17731 : 69294); //pFloorEruption->GetGOInfo()->trap.spellId
 
                 //Get all immediatly nearby floors
                 std::list<GameObject*> nearFloorList;

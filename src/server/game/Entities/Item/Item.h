@@ -78,7 +78,6 @@ struct BonusData
     int32 ItemLevelBonus;
     int32 RequiredLevel;
     int32 ItemStatType[MAX_ITEM_PROTO_STATS];
-    int32 ItemStatValue[MAX_ITEM_PROTO_STATS];
     int32 ItemStatAllocation[MAX_ITEM_PROTO_STATS];
     float ItemStatSocketCostMultiplier[MAX_ITEM_PROTO_STATS];
     uint32 SocketColor[MAX_ITEM_PROTO_SOCKETS];
@@ -86,13 +85,15 @@ struct BonusData
     uint32 AppearanceModID;
     float RepairCostMultiplier;
     uint32 ScalingStatDistribution;
-    uint32 SandboxScalingId;
+    uint32 ContentTuningId;
     uint32 DisenchantLootId;
     uint32 GemItemLevelBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 GemRelicType[MAX_ITEM_PROTO_SOCKETS];
     uint16 GemRelicRankBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 RelicType;
+    int32 RequiredLevelOverride;
     bool HasItemLevelBonus;
+    bool HasFixedLevel;
 
     void Initialize(ItemTemplate const* proto);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
@@ -142,7 +143,7 @@ class TC_GAME_API Item : public Object
 
         ObjectGuid GetOwnerGUID()    const { return GetGuidValue(ITEM_FIELD_OWNER); }
         void SetOwnerGUID(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
-        Player* GetOwner()const;
+        Player* GetOwner() const;
 
         ItemBondingType GetBonding() const { return _bonusData.Bonding; }
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, val); }
@@ -153,7 +154,8 @@ class TC_GAME_API Item : public Object
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
         virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry);
-        void LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
+        void LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, uint32 artifactTier, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
+        void CheckArtifactRelicSlotUnlock(Player const* owner);
 
         void AddBonuses(uint32 bonusListID);
 
@@ -264,7 +266,7 @@ class TC_GAME_API Item : public Object
         uint32 GetItemLevel(Player const* owner) const;
         static uint32 GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bonusData, uint32 level, uint32 fixedLevel, uint32 upgradeId,
             uint32 minItemLevel, uint32 minItemLevelCutoff, uint32 maxItemLevel, bool pvpBonus);
-        int32 GetRequiredLevel() const { return _bonusData.RequiredLevel; }
+        int32 GetRequiredLevel() const;
         int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return _bonusData.ItemStatType[index]; }
         int32 GetItemStatValue(uint32 index, Player const* owner) const;
         SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(_bonusData.SocketColor[index]); }
@@ -278,6 +280,7 @@ class TC_GAME_API Item : public Object
         uint32 GetScalingStatDistribution() const { return _bonusData.ScalingStatDistribution; }
         ItemDisenchantLootEntry const* GetDisenchantLoot(Player const* owner) const;
         static ItemDisenchantLootEntry const* GetDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
+        void SetFixedLevel(uint8 level);
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = nullptr, bool addToCollection = true);

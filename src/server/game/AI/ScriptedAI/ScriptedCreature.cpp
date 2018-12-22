@@ -128,7 +128,7 @@ ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
     _isCombatMovementAllowed(true)
 {
     _isHeroic = me->GetMap()->IsHeroic();
-    _difficulty = Difficulty(me->GetMap()->GetSpawnMode());
+    _difficulty = me->GetMap()->GetDifficultyID();
 }
 
 void ScriptedAI::AttackStartNoMove(Unit* who)

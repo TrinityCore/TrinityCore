@@ -306,7 +306,7 @@ class boss_lich_king_toc : public CreatureScript
                 if (Creature* summoned = me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[2].GetPositionX(), ToCCommonLoc[2].GetPositionY(), ToCCommonLoc[2].GetPositionZ(), 5, TEMPSUMMON_TIMED_DESPAWN, 1*MINUTE*IN_MILLISECONDS))
                 {
                     summoned->CastSpell(summoned, 51807, false);
-                    summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid2);
+                    summoned->SetDisplayFromModel(1);
                 }
 
                 _instance->SetBossState(BOSS_LICH_KING, IN_PROGRESS);
@@ -497,11 +497,11 @@ class npc_fizzlebang_toc : public CreatureScript
                             me->GetMotionMaster()->MovementExpired();
                             Talk(SAY_STAGE_1_03);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_SPELL_CAST_OMNI);
-                            if (Unit* pTrigger =  me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 4.69494f, TEMPSUMMON_MANUAL_DESPAWN))
+                            if (Creature* pTrigger = me->SummonCreature(NPC_TRIGGER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 4.69494f, TEMPSUMMON_MANUAL_DESPAWN))
                             {
                                 _triggerGUID = pTrigger->GetGUID();
                                 pTrigger->SetObjectScale(2.0f);
-                                pTrigger->SetDisplayId(pTrigger->ToCreature()->GetCreatureTemplate()->Modelid1);
+                                pTrigger->SetDisplayFromModel(0);
                                 pTrigger->CastSpell(pTrigger, SPELL_WILFRED_PORTAL, false);
                             }
                             _instance->SetData(TYPE_EVENT, 1132);
@@ -829,7 +829,7 @@ class npc_tirion_toc : public CreatureScript
                         case 6000:
                             me->SummonCreature(NPC_TIRION_FORDRING, EndSpawnLoc[0]);
                             me->SummonCreature(NPC_ARGENT_MAGE, EndSpawnLoc[1]);
-                            me->SummonGameObject(GO_PORTAL_TO_DALARAN, EndSpawnLoc[2], QuaternionData(), 0);
+                            me->SummonGameObject(GO_PORTAL_TO_DALARAN, EndSpawnLoc[2], QuaternionData::fromEulerAnglesZYX(EndSpawnLoc[2].GetOrientation(), 0.0f, 0.0f), 0);
                             _updateTimer = 20*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 6005);
                             break;

@@ -39,20 +39,26 @@ struct DB2Header
     uint32 MinId;
     uint32 MaxId;
     uint32 Locale;
-    uint32 CopyTableSize;
     uint16 Flags;
     int16 IndexField;
     uint32 TotalFieldCount;
     uint32 PackedDataOffset;
     uint32 ParentLookupCount;
-    uint32 CatalogDataOffset;
-    uint32 IdTableSize;
     uint32 ColumnMetaSize;
     uint32 CommonDataSize;
     uint32 PalletDataSize;
-    uint32 ParentLookupDataSize;
+    uint32 SectionCount;
 };
 #pragma pack(pop)
+
+struct TC_COMMON_API DB2FieldMeta
+{
+    DB2FieldMeta(bool isSigned, DBCFormer type, char const* name);
+
+    bool IsSigned;
+    DBCFormer Type;
+    char const* Name;
+};
 
 struct TC_COMMON_API DB2FileLoadInfo
 {
@@ -81,6 +87,8 @@ struct TC_COMMON_API DB2FileSource
 
     // Returns current read position in file
     virtual std::size_t GetPosition() const = 0;
+
+    virtual bool SetPosition(std::size_t position) = 0;
 
     virtual std::size_t GetFileSize() const = 0;
 
@@ -140,7 +148,7 @@ public:
 
     bool Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo);
     char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool);
-    char* AutoProduceStrings(char* dataTable, uint32 locale);
+    char* AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale);
     void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable);
 
     uint32 GetCols() const { return _header.TotalFieldCount; }

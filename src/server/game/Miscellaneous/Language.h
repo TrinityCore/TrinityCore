@@ -212,16 +212,16 @@ enum TrinityStrings
     LANG_LIQUID_STATUS                  = 175,
     LANG_INVALID_GAMEOBJECT_TYPE        = 176,
     LANG_GAMEOBJECT_DAMAGED             = 177,
+    LANG_GRID_POSITION                  = 178,
 
-    LANG_PHASING_SUCCESS                = 178,
-    LANG_PHASING_FAILED                 = 179,
-    LANG_PHASING_LAST_PHASE             = 180,
-    LANG_PHASING_LIST                   = 181,
-    LANG_PHASING_PHASEMASK              = 182,
-    LANG_PHASING_REPORT_STATUS          = 183,
-    LANG_PHASING_NO_DEFINITIONS         = 184,              // Phasing
+    LANG_PHASESHIFT_STATUS              = 179,
+    LANG_PHASESHIFT_PHASES              = 180,
+    LANG_PHASESHIFT_VISIBLE_MAP_IDS     = 181,
+    LANG_PHASESHIFT_UI_WORLD_MAP_AREA_SWAPS = 182,
+    LANG_PHASE_FLAG_COSMETIC            = 183,
+    LANG_PHASE_FLAG_PERSONAL            = 184,
 
-    LANG_GRID_POSITION                  = 185,
+    //                                    185 not used
     LANG_TRANSPORT_POSITION             = 186,
     // Room for more level 1              187-199 not used
 
@@ -926,7 +926,9 @@ enum TrinityStrings
     LANG_ACCOUNT_BNET_UNLINKED          = 1188,
     LANG_ACCOUNT_BNET_NOT_LINKED        = 1189,
     LANG_DISALLOW_TICKETS_CONFIG        = 1190,
-    // Room for more level 3              1191-1198 not used
+    LANG_BAN_EXISTS                     = 1191,
+	LANG_CHANGEACCOUNT_SUCCESS          = 1192,
+    // Room for more level 3              1193-1198 not used
 
     // Debug commands
     LANG_DEBUG_AREATRIGGER_LEFT         = 1999,

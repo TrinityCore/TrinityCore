@@ -51,7 +51,7 @@ class instance_magisters_terrace : public InstanceMapScript
 
         struct instance_magisters_terrace_InstanceMapScript : public InstanceScript
         {
-            instance_magisters_terrace_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_magisters_terrace_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

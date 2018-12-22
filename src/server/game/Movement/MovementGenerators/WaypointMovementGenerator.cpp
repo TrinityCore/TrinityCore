@@ -120,6 +120,9 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     if (!i_path || i_path->nodes.empty())
         return false;
 
+    if (Stopped())
+        return true;
+
     bool transportPath = creature->GetTransport() != nullptr;
 
     if (IsArrivalDone)
@@ -404,6 +407,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* player)
     }
 
     player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
+    player->RestoreDisplayId();
 }
 
 #define PLAYER_FLIGHT_SPEED 30.0f

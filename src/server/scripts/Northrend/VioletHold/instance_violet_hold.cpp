@@ -197,7 +197,7 @@ class instance_violet_hold : public InstanceMapScript
 
         struct instance_violet_hold_InstanceMapScript : public InstanceScript
         {
-            instance_violet_hold_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_violet_hold_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

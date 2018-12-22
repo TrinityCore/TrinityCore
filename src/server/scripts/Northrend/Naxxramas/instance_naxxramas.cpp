@@ -115,7 +115,7 @@ class instance_naxxramas : public InstanceMapScript
 
         struct instance_naxxramas_InstanceMapScript : public InstanceScript
         {
-            instance_naxxramas_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_naxxramas_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

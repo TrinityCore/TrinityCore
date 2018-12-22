@@ -42,7 +42,7 @@ class instance_pit_of_saron : public InstanceMapScript
 
         struct instance_pit_of_saron_InstanceScript : public InstanceScript
         {
-            instance_pit_of_saron_InstanceScript(Map* map) : InstanceScript(map)
+            instance_pit_of_saron_InstanceScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

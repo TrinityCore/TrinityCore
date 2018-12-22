@@ -52,11 +52,12 @@ void Battlenet::Session::AccountInfo::LoadResult(PreparedQueryResult result)
 
 void Battlenet::Session::GameAccountInfo::LoadResult(Field* fields)
 {
-    // a.id, a.username, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, ab.unbandate = ab.bandate, aa.gmlevel
+    // a.id, a.username, ab.unbandate, ab.unbandate = ab.bandate, aa.gmlevel
     Id = fields[0].GetUInt32();
     Name = fields[1].GetString();
-    IsBanned = fields[2].GetUInt64() != 0;
-    IsPermanenetlyBanned = fields[3].GetUInt64() != 0;
+    UnbanDate = fields[2].GetUInt32();
+    IsPermanenetlyBanned = fields[3].GetUInt32() != 0;
+    IsBanned = IsPermanenetlyBanned || UnbanDate > time(nullptr);
     SecurityLevel = AccountTypes(fields[4].GetUInt8());
 
     std::size_t hashPos = Name.find('#');
@@ -244,11 +245,17 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
 
 uint32 Battlenet::Session::HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* verifyWebCredentialsRequest, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation)
 {
-    return VerifyWebCredentials(verifyWebCredentialsRequest->web_credentials(), continuation);
+    if (verifyWebCredentialsRequest->has_web_credentials())
+        return VerifyWebCredentials(verifyWebCredentialsRequest->web_credentials(), continuation);
+
+    return ERROR_DENIED;
 }
 
 uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredentials, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation)
 {
+    if (webCredentials.empty())
+        return ERROR_DENIED;
+
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_INFO);
     stmt->setString(0, webCredentials);
 
@@ -371,12 +378,9 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
         logonResult.mutable_account_id()->set_high(UI64LIT(0x100000000000000));
         for (auto itr = _accountInfo->GameAccounts.begin(); itr != _accountInfo->GameAccounts.end(); ++itr)
         {
-            if (!itr->second.IsBanned)
-            {
-                EntityId* gameAccountId = logonResult.add_game_account_id();
-                gameAccountId->set_low(itr->second.Id);
-                gameAccountId->set_high(UI64LIT(0x200000200576F57));
-            }
+            EntityId* gameAccountId = logonResult.add_game_account_id();
+            gameAccountId->set_low(itr->second.Id);
+            gameAccountId->set_high(UI64LIT(0x200000200576F57));
         }
 
         if (!_ipCountry.empty())
@@ -403,7 +407,7 @@ uint32 Battlenet::Session::HandleGetAccountState(account::v1::GetAccountStateReq
     if (request->options().field_privacy_info())
     {
         response->mutable_state()->mutable_privacy_info()->set_is_using_rid(false);
-        response->mutable_state()->mutable_privacy_info()->set_is_real_id_visible_for_view_friends(false);
+        response->mutable_state()->mutable_privacy_info()->set_is_visible_for_view_friends(false);
         response->mutable_state()->mutable_privacy_info()->set_is_hidden_from_friend_finder(true);
 
         response->mutable_tags()->set_privacy_info_tag(0xD7CA834D);
@@ -436,6 +440,7 @@ uint32 Battlenet::Session::HandleGetGameAccountState(account::v1::GetGameAccount
         {
             response->mutable_state()->mutable_game_status()->set_is_suspended(itr->second.IsBanned);
             response->mutable_state()->mutable_game_status()->set_is_banned(itr->second.IsPermanenetlyBanned);
+            response->mutable_state()->mutable_game_status()->set_suspension_expires(uint64(itr->second.UnbanDate) * 1000000);
         }
 
         response->mutable_state()->mutable_game_status()->set_program(5730135); // WoW
@@ -507,6 +512,11 @@ uint32 Battlenet::Session::GetRealmListTicket(std::unordered_map<std::string, Va
 
     if (!_gameAccountInfo)
         return ERROR_UTIL_SERVER_INVALID_IDENTITY_ARGS;
+
+    if (_gameAccountInfo->IsPermanenetlyBanned)
+        return ERROR_GAME_ACCOUNT_BANNED;
+    else if (_gameAccountInfo->IsBanned)
+        return ERROR_GAME_ACCOUNT_SUSPENDED;
 
     bool clientInfoOk = false;
     if (Variant const* clientInfo = GetParam(params, "Param_ClientInfo"))

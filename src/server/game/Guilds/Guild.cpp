@@ -583,8 +583,8 @@ void Guild::Member::ChangeRank(SQLTransaction& trans, uint8 newRank)
     m_rankId = newRank;
 
     // Update rank information in player's field, if he is online.
-    if (Player* player = FindPlayer())
-        player->SetRank(newRank);
+    if (Player* player = FindConnectedPlayer())
+        player->SetGuildRank(newRank);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_RANK);
     stmt->setUInt8 (0, newRank);
@@ -656,6 +656,13 @@ bool Guild::Member::CheckStats() const
         return false;
     }
     return true;
+}
+
+float Guild::Member::GetInactiveDays() const
+{
+    if (IsOnline())
+        return 0.0f;
+    return float(::time(nullptr) - GetLogoutTime()) / float(DAY);
 }
 
 // Decreases amount of slots left for today.
@@ -1321,7 +1328,7 @@ void Guild::HandleRoster(WorldSession* session)
         memberData.AreaID = int32(member->GetZoneId());
         memberData.PersonalAchievementPoints = int32(member->GetAchievementPoints());
         memberData.GuildReputation = int32(member->GetTotalReputation());
-        memberData.LastSave = float(member->IsOnline() ? 0.0f : float(::time(nullptr) - member->GetLogoutTime()) / DAY);
+        memberData.LastSave = member->GetInactiveDays();
 
         //GuildRosterProfessionData
 
@@ -1393,7 +1400,7 @@ void Guild::SendGuildRankInfo(WorldSession* session) const
         rankData.RankID = uint32(rankInfo->GetId());
         rankData.RankOrder = uint32(i);
         rankData.Flags = rankInfo->GetRights();
-        rankData.WithdrawGoldLimit = rankInfo->GetBankMoneyPerDay();
+        rankData.WithdrawGoldLimit = (rankInfo->GetId() == GR_GUILDMASTER ? (-1) : int32(rankInfo->GetBankMoneyPerDay() / GOLD));
         rankData.RankName = rankInfo->GetName();
 
         for (uint8 j = 0; j < GUILD_BANK_MAX_TABS; ++j)
@@ -1504,26 +1511,48 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
     }
 }
 
-void Guild::HandleSetNewGuildMaster(WorldSession* session, std::string const& name)
+void Guild::HandleSetNewGuildMaster(WorldSession* session, std::string const& name, bool isSelfPromote)
 {
     Player* player = session->GetPlayer();
-    // Only the guild master can throne a new guild master
-    if (!_IsLeader(player))
-        SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
-    // Old GM must be a guild member
-    else if (Member* oldGuildMaster = GetMember(player->GetGUID()))
+
+    Member* oldGuildMaster = GetMember(GetLeaderGUID());
+    ASSERT(oldGuildMaster);
+
+    Member* newGuildMaster;
+
+    if (isSelfPromote)
     {
-        // Same for the new one
-        if (Member* newGuildMaster = GetMember(name))
+        newGuildMaster = GetMember(player->GetGUID());
+        if (!newGuildMaster)
+            return;
+
+        if (!newGuildMaster->IsRankNotLower(GR_MEMBER) || uint32(oldGuildMaster->GetInactiveDays()) < GUILD_MASTER_DETHRONE_INACTIVE_DAYS)
         {
-            _SetLeaderGUID(newGuildMaster);
-
-            SQLTransaction trans(nullptr);
-            oldGuildMaster->ChangeRank(trans, GR_INITIATE);
-
-            SendEventNewLeader(newGuildMaster, oldGuildMaster);
+            SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
+            return;
         }
     }
+    else
+    {
+        if (!_IsLeader(player))
+        {
+            SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
+            return;
+        }
+
+        newGuildMaster = GetMember(name);
+        if (!newGuildMaster)
+            return;
+    }
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    _SetLeader(trans, newGuildMaster);
+    oldGuildMaster->ChangeRank(trans, GR_INITIATE);
+
+    SendEventNewLeader(newGuildMaster, oldGuildMaster, isSelfPromote);
+
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 void Guild::HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string const& name, std::string const& icon)
@@ -1557,13 +1586,11 @@ void Guild::HandleSetMemberNote(WorldSession* session, std::string const& note, 
         else
             member->SetOfficerNote(note);
 
-        HandleRoster(session); // FIXME - We should send SMSG_GUILD_MEMBER_UPDATE_NOTE
-
         WorldPackets::Guild::GuildMemberUpdateNote updateNote;
         updateNote.Member = guid;
         updateNote.IsPublic = isPublic;
         updateNote.Note = note;
-        session->SendPacket(updateNote.Write()); // @todo - Verify receiver of this packet...
+        BroadcastPacket(updateNote.Write());
     }
 }
 
@@ -1578,7 +1605,7 @@ void Guild::HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string c
 
         rankInfo->SetName(name);
         rankInfo->SetRights(rights);
-        _SetRankBankMoneyPerDay(rankId, moneyPerDay);
+        _SetRankBankMoneyPerDay(rankId, moneyPerDay * GOLD);
 
         for (auto itr = rightsAndSlots.begin(); itr != rightsAndSlots.end(); ++itr)
             _SetRankBankTabRightsAndSlots(rankId, *itr);
@@ -2496,8 +2523,8 @@ bool Guild::Validate()
     // Repair the structure of the guild.
     // If the guildmaster doesn't exist or isn't member of the guild
     // attempt to promote another member.
-    Member* pLeader = GetMember(m_leaderGuid);
-    if (!pLeader)
+    Member* leader = GetMember(m_leaderGuid);
+    if (!leader)
     {
         SQLTransaction trans(nullptr);
         DeleteMember(trans, m_leaderGuid);
@@ -2508,8 +2535,8 @@ bool Guild::Validate()
             return false;
         }
     }
-    else if (!pLeader->IsRank(GR_GUILDMASTER))
-        _SetLeaderGUID(pLeader);
+    else if (!leader->IsRank(GR_GUILDMASTER))
+        _SetLeader(trans, leader);
 
     // Check config if multiple guildmasters are allowed
     if (!sConfigMgr->GetBoolDefault("Guild.AllowMultipleGuildMaster", false))
@@ -2632,7 +2659,7 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
         m_members[guid] = member;
         player->SetInGuild(m_id);
         player->SetGuildIdInvited(UI64LIT(0));
-        player->SetRank(rankId);
+        player->SetGuildRank(rankId);
         player->SetGuildLevel(GetLevel());
         SendLoginInfo(player->GetSession());
         name = player->GetName();
@@ -2712,11 +2739,7 @@ void Guild::DeleteMember(SQLTransaction& trans, ObjectGuid guid, bool isDisbandi
             return;
         }
 
-        _SetLeaderGUID(newLeader);
-
-        // If player not online data in data field will be loaded from guild tabs no need to update it !!
-        if (Player* newLeaderPlayer = newLeader->FindPlayer())
-            newLeaderPlayer->SetRank(GR_GUILDMASTER);
+        _SetLeader(trans, newLeader);
 
         // If leader does not exist (at guild loading with deleted leader) do not send broadcasts
         if (oldLeader)
@@ -2737,7 +2760,7 @@ void Guild::DeleteMember(SQLTransaction& trans, ObjectGuid guid, bool isDisbandi
     if (player)
     {
         player->SetInGuild(UI64LIT(0));
-        player->SetRank(0);
+        player->SetGuildRank(0);
         player->SetGuildLevel(0);
 
         for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
@@ -2955,21 +2978,25 @@ bool Guild::_ModifyBankMoney(SQLTransaction& trans, uint64 amount, bool add)
     return true;
 }
 
-void Guild::_SetLeaderGUID(Member* pLeader)
+void Guild::_SetLeader(SQLTransaction& trans, Member* leader)
 {
-    if (!pLeader)
+    if (!leader)
         return;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    m_leaderGuid = pLeader->GetGUID();
-    pLeader->ChangeRank(trans, GR_GUILDMASTER);
+    bool isInTransaction = bool(trans);
+    if (!isInTransaction)
+        trans = CharacterDatabase.BeginTransaction();
+
+    m_leaderGuid = leader->GetGUID();
+    leader->ChangeRank(trans, GR_GUILDMASTER);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_LEADER);
     stmt->setUInt64(0, m_leaderGuid.GetCounter());
     stmt->setUInt64(1, m_id);
     trans->Append(stmt);
 
-    CharacterDatabase.CommitTransaction(trans);
+    if (!isInTransaction)
+        CharacterDatabase.CommitTransaction(trans);
 }
 
 void Guild::_SetRankBankMoneyPerDay(uint8 rankId, uint32 moneyPerDay)

@@ -26,7 +26,6 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "the_eye.h"
 
 /* The Eye encounters:
@@ -58,7 +57,7 @@ class instance_the_eye : public InstanceMapScript
 
         struct instance_the_eye_InstanceMapScript : public InstanceScript
         {
-            instance_the_eye_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_the_eye_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

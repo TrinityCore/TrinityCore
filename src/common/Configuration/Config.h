@@ -40,7 +40,8 @@ public:
 
     std::string GetStringDefault(std::string const& name, const std::string& def) const;
     bool GetBoolDefault(std::string const& name, bool def) const;
-    int GetIntDefault(std::string const& name, int def) const;
+    int32 GetIntDefault(std::string const& name, int32 def) const;
+    int64 GetInt64Default(std::string const& name, int64 def) const;
     float GetFloatDefault(std::string const& name, float def) const;
 
     std::string const& GetFilename();

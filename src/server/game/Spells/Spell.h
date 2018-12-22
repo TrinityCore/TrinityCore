@@ -65,6 +65,7 @@ enum TriggerCastFlags : uint32;
 enum WeaponAttackType : uint8;
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
+#define MAX_SPELL_RANGE_TOLERANCE 3.0f
 
 enum SpellCastFlags
 {
@@ -295,8 +296,9 @@ class TC_GAME_API SpellCastTargets
 
 struct SpellValue
 {
-    explicit  SpellValue(Difficulty diff, SpellInfo const* proto);
+    explicit  SpellValue(Difficulty diff, SpellInfo const* proto, Unit const* caster);
     int32     EffectBasePoints[MAX_SPELL_EFFECTS];
+    uint32    CustomBasePointsMask;
     uint32    MaxAffectedTargets;
     float     RadiusMod;
     uint8     AuraStackAmount;
@@ -320,7 +322,7 @@ enum SpellEffectHandleMode
     SPELL_EFFECT_HANDLE_HIT_TARGET
 };
 
-typedef std::list<std::pair<uint32, ObjectGuid>> DispelList;
+typedef std::vector<std::pair<uint32, ObjectGuid>> DispelList;
 
 static const uint32 SPELL_INTERRUPT_NONPLAYER = 32747;
 
@@ -748,6 +750,7 @@ class TC_GAME_API Spell
         GameObject* gameObjTarget;
         WorldLocation* destTarget;
         int32 damage;
+        SpellMissInfo targetMissInfo;
         float variance;
         SpellEffectHandleMode effectHandleMode;
         SpellEffectInfo const* effectInfo;
@@ -775,18 +778,17 @@ class TC_GAME_API Spell
         // Targets store structures and data
         struct TargetInfo
         {
-            // a bug in gcc-4.7 needs a destructor to call move operator instead of copy operator in std::vector remove
-            ~TargetInfo() { }
             ObjectGuid targetGUID;
             uint64 timeDelay;
-            SpellMissInfo missCondition:8;
-            SpellMissInfo reflectResult:8;
-            uint32  effectMask;
-            bool   processed:1;
-            bool   alive:1;
-            bool   crit:1;
-            bool   scaleAura:1;
             int32  damage;
+
+            SpellMissInfo missCondition;
+            SpellMissInfo reflectResult;
+
+            uint32 effectMask;
+            bool   processed;
+            bool   alive;
+            bool   crit;
         };
         std::vector<TargetInfo> m_UniqueTargetInfo;
         uint32 m_channelTargetEffectMask;                        // Mask req. alive targets
@@ -795,7 +797,7 @@ class TC_GAME_API Spell
         {
             ObjectGuid targetGUID;
             uint64 timeDelay;
-            uint32  effectMask;
+            uint32 effectMask;
             bool   processed;
         };
         std::vector<GOTargetInfo> m_UniqueGOTargetInfo;
@@ -815,7 +817,7 @@ class TC_GAME_API Spell
         void AddDestTarget(SpellDestination const& dest, uint32 effIndex);
 
         void DoAllEffectOnTarget(TargetInfo* target);
-        SpellMissInfo DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleAura);
+        SpellMissInfo DoSpellHitOnUnit(Unit* unit, uint32 effectMask);
         void DoTriggersOnSpellHit(Unit* unit, uint32 effMask);
         void DoAllEffectOnTarget(GOTargetInfo* target);
         void DoAllEffectOnTarget(ItemTargetInfo* target);
@@ -882,7 +884,6 @@ class TC_GAME_API Spell
         SpellInfo const* m_triggeredByAuraSpell;
 
         bool m_skipCheck;
-        uint32 m_auraScaleMask;
         std::unique_ptr<PathGenerator> m_preGeneratedPath;
 
         std::vector<SpellLogEffectPowerDrainParams> _powerDrainTargets[MAX_SPELL_EFFECTS];

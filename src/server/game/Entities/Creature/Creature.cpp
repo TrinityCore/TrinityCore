@@ -38,6 +38,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "PoolMgr.h"
 #include "QuestDef.h"
@@ -76,68 +77,67 @@ VendorItem const* VendorItemData::FindItemCostPair(uint32 item_id, uint32 extend
     return nullptr;
 }
 
-uint32 CreatureTemplate::GetRandomValidModelId() const
+CreatureModel const CreatureModel::DefaultInvisibleModel(11686, 1.0f, 1.0f);
+CreatureModel const CreatureModel::DefaultVisibleModel(17519, 1.0f, 1.0f);
+
+CreatureModel const* CreatureTemplate::GetModelByIdx(uint32 idx) const
 {
-    uint8 c = 0;
-    uint32 modelIDs[4];
-
-    if (Modelid1) modelIDs[c++] = Modelid1;
-    if (Modelid2) modelIDs[c++] = Modelid2;
-    if (Modelid3) modelIDs[c++] = Modelid3;
-    if (Modelid4) modelIDs[c++] = Modelid4;
-
-    return ((c>0) ? modelIDs[urand(0, c-1)] : 0);
+    return idx < Models.size() ? &Models[idx] : nullptr;
 }
 
-uint32 CreatureTemplate::GetFirstValidModelId() const
+CreatureModel const* CreatureTemplate::GetRandomValidModel() const
 {
-    if (Modelid1) return Modelid1;
-    if (Modelid2) return Modelid2;
-    if (Modelid3) return Modelid3;
-    if (Modelid4) return Modelid4;
-    return 0;
+    if (!Models.size())
+        return nullptr;
+
+    // If only one element, ignore the Probability (even if 0)
+    if (Models.size() == 1)
+        return &Models[0];
+
+    auto selectedItr = Trinity::Containers::SelectRandomWeightedContainerElement(Models, [](CreatureModel const& model)
+    {
+        return model.Probability;
+    });
+
+    return &(*selectedItr);
 }
 
-uint32 CreatureTemplate::GetFirstInvisibleModel() const
+CreatureModel const* CreatureTemplate::GetFirstValidModel() const
 {
-    CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid1);
-    if (modelInfo && modelInfo->is_trigger)
-        return Modelid1;
+    for (CreatureModel const& model : Models)
+        if (model.CreatureDisplayID)
+            return &model;
 
-    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid2);
-    if (modelInfo && modelInfo->is_trigger)
-        return Modelid2;
-
-    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid3);
-    if (modelInfo && modelInfo->is_trigger)
-        return Modelid3;
-
-    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid4);
-    if (modelInfo && modelInfo->is_trigger)
-        return Modelid4;
-
-    return 11686;
+    return nullptr;
 }
 
-uint32 CreatureTemplate::GetFirstVisibleModel() const
+CreatureModel const* CreatureTemplate::GetModelWithDisplayId(uint32 displayId) const
 {
-    CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid1);
-    if (modelInfo && !modelInfo->is_trigger)
-        return Modelid1;
+    for (CreatureModel const& model : Models)
+        if (displayId == model.CreatureDisplayID)
+            return &model;
 
-    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid2);
-    if (modelInfo && !modelInfo->is_trigger)
-        return Modelid2;
+    return nullptr;
+}
 
-    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid3);
-    if (modelInfo && !modelInfo->is_trigger)
-        return Modelid3;
+CreatureModel const* CreatureTemplate::GetFirstInvisibleModel() const
+{
+    for (CreatureModel const& model : Models)
+        if (CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(model.CreatureDisplayID))
+            if (modelInfo && modelInfo->is_trigger)
+                return &model;
 
-    modelInfo = sObjectMgr->GetCreatureModelInfo(Modelid4);
-    if (modelInfo && !modelInfo->is_trigger)
-        return Modelid4;
+    return &CreatureModel::DefaultInvisibleModel;
+}
 
-    return 17519;
+CreatureModel const* CreatureTemplate::GetFirstVisibleModel() const
+{
+    for (CreatureModel const& model : Models)
+        if (CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(model.CreatureDisplayID))
+            if (modelInfo && !modelInfo->is_trigger)
+                return &model;
+
+    return &CreatureModel::DefaultVisibleModel;
 }
 
 bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
@@ -286,6 +286,10 @@ void Creature::RemoveCorpse(bool setSpawnTime)
     if (setSpawnTime)
         m_respawnTime = time(NULL) + respawnDelay;
 
+    // if corpse was removed during falling, the falling will continue and override relocation to respawn position
+    if (IsFalling())
+        StopMoving();
+
     float x, y, z, o;
     GetRespawnPosition(x, y, z, &o);
     SetHomePosition(x, y, z, o);
@@ -306,7 +310,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     // get difficulty 1 mode entry
     CreatureTemplate const* cinfo = nullptr;
-    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(GetMap()->GetSpawnMode());
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(GetMap()->GetDifficultyID());
     while (!cinfo && difficultyEntry)
     {
         int32 idx = CreatureTemplate::DifficultyIDToDifficultyEntryIndex(difficultyEntry->ID);
@@ -342,22 +346,22 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, uint8(cinfo->unit_class));
 
     // Cancel load if no model defined
-    if (!(cinfo->GetFirstValidModelId()))
+    if (!(cinfo->GetFirstValidModel()))
     {
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has no model defined in table `creature_template`, can't load. ", entry);
         return false;
     }
 
-    uint32 displayID = ObjectMgr::ChooseDisplayId(GetCreatureTemplate(), data);
-    CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
+    CreatureModel model = *ObjectMgr::ChooseDisplayId(cinfo, data);
+    CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&model, cinfo);
     if (!minfo)                                             // Cancel load if no model defined
     {
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid model %u defined in table `creature_template`, can't load.", entry, displayID);
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid model %u defined in table `creature_template`, can't load.", entry, model.CreatureDisplayID);
         return false;
     }
 
-    SetDisplayId(displayID);
-    SetNativeDisplayId(displayID);
+    SetDisplayId(model.CreatureDisplayID, model.DisplayScale);
+    SetNativeDisplayId(model.CreatureDisplayID, model.DisplayScale);
     SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
 
     // Load creature equipment
@@ -383,7 +387,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     SetSpeedRate(MOVE_SWIM,   1.0f); // using 1.0 rate
     SetSpeedRate(MOVE_FLIGHT, 1.0f); // using 1.0 rate
 
-    // Will set UNIT_FIELD_BOUNDINGRADIUS and UNIT_FIELD_COMBATREACH
+    // Will set UNIT_FIELD_BOUNDINGRADIUS, UNIT_FIELD_COMBATREACH and UNIT_FIELD_DISPLAYSCALE
     SetObjectScale(cinfo->scale);
 
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, cinfo->HoverHeight);
@@ -428,6 +432,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     SetUInt32Value(UNIT_FIELD_FLAGS_3, unitFlags3);
 
     SetUInt32Value(OBJECT_DYNAMIC_FLAGS, dynamicFlags);
+
+    SetUInt32Value(UNIT_FIELD_STATE_ANIM_ID, sAnimationDataStore.GetNumRows());
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
@@ -861,12 +867,11 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float
     ASSERT(map);
     SetMap(map);
 
-    if (data && data->phaseId)
-        SetInPhase(data->phaseId, false, true);
-
-    if (data && data->phaseGroup)
-        for (auto ph : sDB2Manager.GetPhasesForGroup(data->phaseGroup))
-            SetInPhase(ph, false, true);
+    if (data)
+    {
+        PhasingHandler::InitDbPhaseShift(GetPhaseShift(), data->phaseUseFlags, data->phaseId, data->phaseGroup);
+        PhasingHandler::InitDbVisibleMapId(GetPhaseShift(), data->terrainSwapMap);
+    }
 
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cinfo)
@@ -890,7 +895,8 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float
     if (!CreateFromProto(guidlow, entry, data, vehId))
         return false;
 
-    switch (GetCreatureTemplate()->rank)
+    cinfo = GetCreatureTemplate(); // might be different than initially requested
+    switch (cinfo->rank)
     {
         case CREATURE_ELITE_RARE:
             m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_RARE);
@@ -920,12 +926,12 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float
         Relocate(x, y, z, ang);
     }
 
-    uint32 displayID = GetNativeDisplayId();
-    CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
+    CreatureModel display(GetNativeDisplayId(), GetNativeDisplayScale(), 1.0f);
+    CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&display, cinfo);
     if (minfo && !IsTotem())                               // Cancel load if no model defined or if totem
     {
-        SetDisplayId(displayID);
-        SetNativeDisplayId(displayID);
+        SetDisplayId(display.CreatureDisplayID, display.DisplayScale);
+        SetNativeDisplayId(display.CreatureDisplayID, display.DisplayScale);
         SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
     }
 
@@ -938,10 +944,10 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float
         m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
     }
 
-    if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING)
+    if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING)
         AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
 
-    if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK)
+    if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK)
     {
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
@@ -1103,10 +1109,10 @@ void Creature::SaveToDB()
     }
 
     uint32 mapId = GetTransport() ? GetTransport()->GetGOInfo()->moTransport.SpawnMap : GetMapId();
-    SaveToDB(mapId, data->spawnMask);
+    SaveToDB(mapId, data->spawnDifficulties);
 }
 
-void Creature::SaveToDB(uint32 mapid, uint64 spawnMask)
+void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties)
 {
     // update in loaded data
     if (!m_spawnId)
@@ -1125,9 +1131,9 @@ void Creature::SaveToDB(uint32 mapid, uint64 spawnMask)
     CreatureTemplate const* cinfo = GetCreatureTemplate();
     if (cinfo)
     {
-        if (displayId == cinfo->Modelid1 || displayId == cinfo->Modelid2 ||
-            displayId == cinfo->Modelid3 || displayId == cinfo->Modelid4)
-            displayId = 0;
+        for (CreatureModel model : cinfo->Models)
+            if (displayId && displayId == model.CreatureDisplayID)
+                displayId = 0;
 
         if (npcflag == cinfo->npcflag)
             npcflag = 0;
@@ -1174,7 +1180,7 @@ void Creature::SaveToDB(uint32 mapid, uint64 spawnMask)
     // prevent add data integrity problems
     data.movementType = !m_respawnradius && GetDefaultMovementType() == RANDOM_MOTION_TYPE
         ? IDLE_MOTION_TYPE : GetDefaultMovementType();
-    data.spawnMask = spawnMask;
+    data.spawnDifficulties = spawnDifficulties;
     data.npcflag = npcflag;
     data.unit_flags = unitFlags;
     data.unit_flags2 = unitFlags2;
@@ -1197,7 +1203,7 @@ void Creature::SaveToDB(uint32 mapid, uint64 spawnMask)
     stmt->setUInt64(index++, m_spawnId);
     stmt->setUInt32(index++, GetEntry());
     stmt->setUInt16(index++, uint16(mapid));
-    stmt->setUInt64(index++, spawnMask);
+    stmt->setString(index++, StringJoin(data.spawnDifficulties, ","));
     stmt->setUInt32(index++, data.phaseId);
     stmt->setUInt32(index++, data.phaseGroup);
     stmt->setUInt32(index++, displayId);
@@ -1226,20 +1232,22 @@ void Creature::SelectLevel()
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
 
-    if (!HasScalableLevels())
+    // level
+    uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
+    uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
+    uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
+    SetLevel(level);
+
+    if (HasScalableLevels())
     {
-        // level
-        uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
-        uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
-        uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
-        SetLevel(level);
-    }
-    else
-    {
-        SetLevel(cInfo->levelScaling->MaxLevel);
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, cInfo->levelScaling->MinLevel);
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, cInfo->levelScaling->MaxLevel);
-        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, cInfo->levelScaling->DeltaLevel);
+
+        int8 mindelta = std::min(cInfo->levelScaling->DeltaLevelMax, cInfo->levelScaling->DeltaLevelMin);
+        int8 maxdelta = std::max(cInfo->levelScaling->DeltaLevelMax, cInfo->levelScaling->DeltaLevelMin);
+        int8 delta = mindelta == maxdelta ? mindelta : irand(mindelta, maxdelta);
+
+        SetInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, delta);
     }
 
     UpdateLevelDependantStats();
@@ -1471,7 +1479,7 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
         m_deathState = DEAD;
         if (CanFly())
         {
-            float tz = map->GetHeight(GetPhases(), data->posX, data->posY, data->posZ, true, MAX_FALL_DISTANCE);
+            float tz = map->GetHeight(GetPhaseShift(), data->posX, data->posY, data->posZ, true, MAX_FALL_DISTANCE);
             if (data->posZ - tz > 0.1f && Trinity::IsValidMapCoord(tz))
                 Relocate(data->posX, data->posY, tz);
         }
@@ -1838,12 +1846,12 @@ void Creature::Respawn(bool force)
 
         setDeathState(JUST_RESPAWNED);
 
-        uint32 displayID = GetNativeDisplayId();
-        CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
+        CreatureModel display(GetNativeDisplayId(), GetNativeDisplayScale(), 1.0f);
+        CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&display, GetCreatureTemplate());
         if (minfo)                                             // Cancel load if no model defined
         {
-            SetDisplayId(displayID);
-            SetNativeDisplayId(displayID);
+            SetDisplayId(display.CreatureDisplayID, display.DisplayScale);
+            SetNativeDisplayId(display.CreatureDisplayID, display.DisplayScale);
             SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
         }
 
@@ -2566,10 +2574,10 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
         // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
         if (HasScalableLevels())
         {
-            uint8 targetLevelWithDelta = unitTarget->getLevel() + GetCreatureTemplate()->levelScaling->DeltaLevel;
+            uint8 targetLevelWithDelta = unitTarget->getLevel() + GetInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA);
 
             if (target->IsPlayer())
-                targetLevelWithDelta += target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
+                targetLevelWithDelta += target->GetUInt32Value(ACTIVE_PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
 
             return RoundToInterval<uint8>(targetLevelWithDelta, GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN), GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX));
         }
@@ -2808,8 +2816,12 @@ void Creature::UpdateMovementFlags()
     if (m_playerMovingMe)
         return;
 
+    // Creatures with CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE should control MovementFlags in your own scripts
+    if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE)
+        return;
+
     // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
-    float ground = GetMap()->GetHeight(GetPhases(), GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
+    float ground = GetMap()->GetHeight(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
 
     bool isInAir = (G3D::fuzzyGt(GetPositionZMinusOffset(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZMinusOffset(), ground - 0.05f)); // Can be underground too, prevent the falling
 
@@ -2838,20 +2850,26 @@ void Creature::SetObjectScale(float scale)
 
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(GetDisplayId()))
     {
-        SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius * scale);
-        SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach * scale);
+        SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, (IsPet() ? 1.0f : minfo->bounding_radius) * scale);
+        SetFloatValue(UNIT_FIELD_COMBATREACH, (IsPet() ? DEFAULT_COMBAT_REACH : minfo->combat_reach) * scale);
     }
 }
 
-void Creature::SetDisplayId(uint32 modelId)
+void Creature::SetDisplayId(uint32 modelId, float displayScale /*= 1.f*/)
 {
-    Unit::SetDisplayId(modelId);
+    Unit::SetDisplayId(modelId, displayScale);
 
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
     {
-        SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius * GetObjectScale());
-        SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach * GetObjectScale());
+        SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, (IsPet() ? 1.0f : minfo->bounding_radius) * GetObjectScale());
+        SetFloatValue(UNIT_FIELD_COMBATREACH, (IsPet() ? DEFAULT_COMBAT_REACH : minfo->combat_reach) * GetObjectScale());
     }
+}
+
+void Creature::SetDisplayFromModel(uint32 modelIdx)
+{
+    if (CreatureModel const* model = GetCreatureTemplate()->GetModelByIdx(modelIdx))
+        SetDisplayId(model->CreatureDisplayID, model->DisplayScale);
 }
 
 void Creature::SetTarget(ObjectGuid const& guid)

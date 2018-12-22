@@ -52,7 +52,7 @@ class TC_GAME_API Pet : public Guardian
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        void SetDisplayId(uint32 modelId) override;
+        void SetDisplayId(uint32 modelId, float displayScale = 1.f) override;
 
         PetType getPetType() const { return m_petType; }
         void setPetType(PetType type) { m_petType = type; }
@@ -160,7 +160,7 @@ class TC_GAME_API Pet : public Guardian
         uint16 m_petSpecialization;
 
     private:
-        void SaveToDB(uint32, uint64) override              // override of Creature::SaveToDB     - must not be called
+        void SaveToDB(uint32, std::vector<Difficulty> const&) override              // override of Creature::SaveToDB     - must not be called
         {
             ABORT();
         }

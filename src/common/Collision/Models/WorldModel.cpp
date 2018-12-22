@@ -19,6 +19,8 @@
 #include "WorldModel.h"
 #include "VMapDefinitions.h"
 #include "MapTree.h"
+#include "ModelInstance.h"
+#include "ModelIgnoreFlags.h"
 
 using G3D::Vector3;
 using G3D::Ray;
@@ -103,8 +105,16 @@ namespace VMAP
     WmoLiquid::WmoLiquid(uint32 width, uint32 height, const Vector3 &corner, uint32 type):
         iTilesX(width), iTilesY(height), iCorner(corner), iType(type)
     {
-        iHeight = new float[(width+1)*(height+1)];
-        iFlags = new uint8[width*height];
+        if (width && height)
+        {
+            iHeight = new float[(width + 1) * (height + 1)];
+            iFlags = new uint8[width * height];
+        }
+        else
+        {
+            iHeight = new float[1];
+            iFlags = nullptr;
+        }
     }
 
     WmoLiquid::WmoLiquid(const WmoLiquid &other): iHeight(nullptr), iFlags(nullptr)
@@ -126,8 +136,8 @@ namespace VMAP
         iTilesY = other.iTilesY;
         iCorner = other.iCorner;
         iType = other.iType;
-        delete iHeight;
-        delete iFlags;
+        delete[] iHeight;
+        delete[] iFlags;
         if (other.iHeight)
         {
             iHeight = new float[(iTilesX+1)*(iTilesY+1)];
@@ -147,6 +157,13 @@ namespace VMAP
 
     bool WmoLiquid::GetLiquidHeight(const Vector3 &pos, float &liqHeight) const
     {
+        // simple case
+        if (!iFlags)
+        {
+            liqHeight = iHeight[0];
+            return true;
+        }
+
         float tx_f = (pos.x - iCorner.x)/LIQUID_TILE_SIZE;
         uint32 tx = uint32(tx_f);
         if (tx_f < 0.0f || tx >= iTilesX)
@@ -198,8 +215,8 @@ namespace VMAP
     {
         return 2 * sizeof(uint32) +
                 sizeof(Vector3) +
-                (iTilesX + 1)*(iTilesY + 1) * sizeof(float) +
-                iTilesX * iTilesY;
+                sizeof(uint32) +
+                (iFlags ? ((iTilesX + 1) * (iTilesY + 1) * sizeof(float) + iTilesX * iTilesY) : sizeof(float));
     }
 
     bool WmoLiquid::writeToFile(FILE* wf)
@@ -210,12 +227,17 @@ namespace VMAP
             fwrite(&iCorner, sizeof(Vector3), 1, wf) == 1 &&
             fwrite(&iType, sizeof(uint32), 1, wf) == 1)
         {
-            uint32 size = (iTilesX + 1) * (iTilesY + 1);
-            if (fwrite(iHeight, sizeof(float), size, wf) == size)
+            if (iTilesX && iTilesY)
             {
-                size = iTilesX*iTilesY;
-                result = fwrite(iFlags, sizeof(uint8), size, wf) == size;
+                uint32 size = (iTilesX + 1) * (iTilesY + 1);
+                if (fwrite(iHeight, sizeof(float), size, wf) == size)
+                {
+                    size = iTilesX * iTilesY;
+                    result = fwrite(iFlags, sizeof(uint8), size, wf) == size;
+                }
             }
+            else
+                result = fwrite(iHeight, sizeof(float), 1, wf) == 1;
         }
 
         return result;
@@ -231,13 +253,21 @@ namespace VMAP
             fread(&liquid->iCorner, sizeof(Vector3), 1, rf) == 1 &&
             fread(&liquid->iType, sizeof(uint32), 1, rf) == 1)
         {
-            uint32 size = (liquid->iTilesX + 1) * (liquid->iTilesY + 1);
-            liquid->iHeight = new float[size];
-            if (fread(liquid->iHeight, sizeof(float), size, rf) == size)
+            if (liquid->iTilesX && liquid->iTilesY)
             {
-                size = liquid->iTilesX * liquid->iTilesY;
-                liquid->iFlags = new uint8[size];
-                result = fread(liquid->iFlags, sizeof(uint8), size, rf) == size;
+                uint32 size = (liquid->iTilesX + 1) * (liquid->iTilesY + 1);
+                liquid->iHeight = new float[size];
+                if (fread(liquid->iHeight, sizeof(float), size, rf) == size)
+                {
+                    size = liquid->iTilesX * liquid->iTilesY;
+                    liquid->iFlags = new uint8[size];
+                    result = fread(liquid->iFlags, sizeof(uint8), size, rf) == size;
+                }
+            }
+            else
+            {
+                liquid->iHeight = new float[1];
+                result = fread(liquid->iHeight, sizeof(float), 1, rf) == 1;
             }
         }
 
@@ -444,8 +474,16 @@ namespace VMAP
         bool hit;
     };
 
-    bool WorldModel::IntersectRay(const G3D::Ray &ray, float &distance, bool stopAtFirstHit) const
+    bool WorldModel::IntersectRay(const G3D::Ray &ray, float &distance, bool stopAtFirstHit, ModelIgnoreFlags ignoreFlags) const
     {
+        // If the caller asked us to ignore certain objects we should check flags
+        if ((ignoreFlags & ModelIgnoreFlags::M2) != ModelIgnoreFlags::Nothing)
+        {
+            // M2 models are not taken into account for LoS calculation if caller requested their ignoring.
+            if (Flags & MOD_M2)
+                return false;
+        }
+
         // small M2 workaround, maybe better make separate class with virtual intersection funcs
         // in any case, there's no need to use a bound tree if we only have one submodel
         if (groupModels.size() == 1)

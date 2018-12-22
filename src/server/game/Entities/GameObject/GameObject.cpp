@@ -35,6 +35,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
+#include "PhasingHandler.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
 #include "SpellMgr.h"
@@ -60,7 +61,8 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
 
-    m_updateFlag = (UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION);
+    m_updateFlag.Stationary = true;
+    m_updateFlag.Rotation = true;
 
     m_valuesCount = GAMEOBJECT_END;
     _dynamicValuesCount = GAMEOBJECT_DYNAMIC_END;
@@ -237,7 +239,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     else
     {
         guid = ObjectGuid::Create<HighGuid::Transport>(map->GenerateLowGuid<HighGuid::Transport>());
-        m_updateFlag |= UPDATEFLAG_TRANSPORT;
+        m_updateFlag.ServerTime = true;
     }
 
     Object::_Create(guid);
@@ -270,7 +272,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
         if (m_goTemplateAddon->WorldEffectID)
         {
-            m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
+            m_updateFlag.GameObject = true;
             SetWorldEffectID(m_goTemplateAddon->WorldEffectID);
         }
     }
@@ -283,11 +285,15 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     SetDisplayId(goInfo->displayId);
 
     m_model = CreateModel();
+    if (m_model && m_model->isMapObject())
+        SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_MAP_OBJECT);
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goInfo->type));
     m_prevGoState = goState;
     SetGoState(goState);
     SetGoArtKit(artKit);
+
+    SetUInt32Value(GAMEOBJECT_STATE_ANIM_ID, sAnimationDataStore.GetNumRows());
 
     switch (goInfo->type)
     {
@@ -354,6 +360,12 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
                 m_invisibility.AddValue(INVISIBILITY_TRAP, 300);
             }
             break;
+        case GAMEOBJECT_TYPE_PHASEABLE_MO:
+            SetByteValue(GAMEOBJECT_FLAGS, 1, m_goInfo->phaseableMO.AreaNameSet & 0xF);
+            break;
+        case GAMEOBJECT_TYPE_CAPTURE_POINT:
+            SetUInt32Value(GAMEOBJECT_SPELL_VISUAL_ID, m_goInfo->capturePoint.SpellVisual1);
+            break;
         default:
             SetGoAnimProgress(animProgress);
             break;
@@ -367,7 +379,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
     if (gameObjectAddon && gameObjectAddon->WorldEffectID)
     {
-        m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
+        m_updateFlag.GameObject = true;
         SetWorldEffectID(gameObjectAddon->WorldEffectID);
     }
 
@@ -902,10 +914,10 @@ void GameObject::SaveToDB()
         return;
     }
 
-    SaveToDB(GetMapId(), data->spawnMask);
+    SaveToDB(GetMapId(), data->spawnDifficulties);
 }
 
-void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
+void GameObject::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties)
 {
     const GameObjectTemplate* goI = GetGOInfo();
 
@@ -929,7 +941,7 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
     data.animprogress = GetGoAnimProgress();
     data.go_state = GetGoState();
-    data.spawnMask = spawnMask;
+    data.spawnDifficulties = spawnDifficulties;
     data.artKit = GetGoArtKit();
 
     data.phaseId = GetDBPhase() > 0 ? GetDBPhase() : data.phaseId;
@@ -948,7 +960,7 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     stmt->setUInt64(index++, m_spawnId);
     stmt->setUInt32(index++, GetEntry());
     stmt->setUInt16(index++, uint16(mapid));
-    stmt->setUInt64(index++, spawnMask);
+    stmt->setString(index++, StringJoin(data.spawnDifficulties, ","));
     stmt->setUInt32(index++, data.phaseId);
     stmt->setUInt32(index++, data.phaseGroup);
     stmt->setFloat(index++, GetPositionX());
@@ -988,15 +1000,8 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, boo
     if (!Create(entry, map, pos, data->rotation, animprogress, go_state, artKit))
         return false;
 
-    if (data->phaseId)
-        SetInPhase(data->phaseId, false, true);
-
-    if (data->phaseGroup)
-    {
-        // Set the gameobject in all the phases of the phasegroup
-        for (auto ph : sDB2Manager.GetPhasesForGroup(data->phaseGroup))
-            SetInPhase(ph, false, true);
-    }
+    PhasingHandler::InitDbPhaseShift(GetPhaseShift(), data->phaseUseFlags, data->phaseId, data->phaseGroup);
+    PhasingHandler::InitDbVisibleMapId(GetPhaseShift(), data->terrainSwapMap);
 
     if (data->spawntimesecs >= 0)
     {
@@ -2209,8 +2214,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
-                if (modelData->State0Wmo)
-                    modelId = modelData->State0Wmo;
+                if (modelData->State1Wmo)
+                    modelId = modelData->State1Wmo;
             SetDisplayId(modelId);
 
             if (setHealth)
@@ -2237,8 +2242,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
-                if (modelData->State1Wmo)
-                    modelId = modelData->State1Wmo;
+                if (modelData->State2Wmo)
+                    modelId = modelData->State2Wmo;
             SetDisplayId(modelId);
 
             if (setHealth)
@@ -2256,8 +2261,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
-                if (modelData->State2Wmo)
-                    modelId = modelData->State2Wmo;
+                if (modelData->State3Wmo)
+                    modelId = modelData->State3Wmo;
             SetDisplayId(modelId);
 
             // restores to full health
@@ -2354,6 +2359,39 @@ void GameObject::SetDisplayId(uint32 displayid)
     UpdateModel();
 }
 
+uint8 GameObject::GetNameSetId() const
+{
+    switch (GetGoType())
+    {
+        case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->destructibleBuilding.DestructibleModelRec))
+            {
+                switch (GetDestructibleState())
+                {
+                    case GO_DESTRUCTIBLE_INTACT:
+                        return modelData->State0NameSet;
+                    case GO_DESTRUCTIBLE_DAMAGED:
+                        return modelData->State1NameSet;
+                    case GO_DESTRUCTIBLE_DESTROYED:
+                        return modelData->State2NameSet;
+                    case GO_DESTRUCTIBLE_REBUILDING:
+                        return modelData->State3NameSet;
+                    default:
+                        break;
+                }
+            }
+            break;
+        case GAMEOBJECT_TYPE_GARRISON_BUILDING:
+        case GAMEOBJECT_TYPE_GARRISON_PLOT:
+        case GAMEOBJECT_TYPE_PHASEABLE_MO:
+            return GetByteValue(GAMEOBJECT_FLAGS, 1) & 0xF;
+        default:
+            break;
+    }
+
+    return 0;
+}
+
 void GameObject::EnableCollision(bool enable)
 {
     if (!m_model)
@@ -2376,6 +2414,8 @@ void GameObject::UpdateModel()
     m_model = CreateModel();
     if (m_model)
         GetMap()->InsertGameObjectModel(*m_model);
+
+    ApplyModFlag(GAMEOBJECT_FLAGS, GO_FLAG_MAP_OBJECT, m_model && m_model->isMapObject());
 }
 
 Player* GameObject::GetLootRecipient() const
@@ -2618,19 +2658,20 @@ void GameObject::SetAnimKitId(uint16 animKitId, bool oneshot)
 class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase
 {
 public:
-    explicit GameObjectModelOwnerImpl(GameObject const* owner) : _owner(owner) { }
+    explicit GameObjectModelOwnerImpl(GameObject* owner) : _owner(owner) { }
     virtual ~GameObjectModelOwnerImpl() = default;
 
-    virtual bool IsSpawned() const override { return _owner->isSpawned(); }
-    virtual uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
-    virtual bool IsInPhase(std::set<uint32> const& phases) const override { return _owner->IsInPhase(phases); }
-    virtual G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
-    virtual float GetOrientation() const override { return _owner->GetOrientation(); }
-    virtual float GetScale() const override { return _owner->GetObjectScale(); }
-    virtual void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { _owner->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
+    bool IsSpawned() const override { return _owner->isSpawned(); }
+    uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
+    uint8 GetNameSetId() const override { return _owner->GetNameSetId(); }
+    bool IsInPhase(PhaseShift const& phaseShift) const override { return _owner->GetPhaseShift().CanSee(phaseShift); }
+    G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
+    float GetOrientation() const override { return _owner->GetOrientation(); }
+    float GetScale() const override { return _owner->GetObjectScale(); }
+    void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { _owner->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
 
 private:
-    GameObject const* _owner;
+    GameObject* _owner;
 };
 
 GameObjectModel* GameObject::CreateModel()

@@ -37,7 +37,7 @@ void WorldPackets::LFG::DFProposalResponse::Read()
 {
     _worldPacket >> Ticket;
     _worldPacket >> InstanceID;
-    _worldPacket >> InstanceID;
+    _worldPacket >> ProposalID;
     Accepted = _worldPacket.ReadBit();
 }
 
@@ -311,10 +311,15 @@ WorldPacket const* WorldPackets::LFG::LFGQueueStatus::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards const& lfgPlayerRewards)
 {
-    data << int32(lfgPlayerRewards.RewardItem);
-    data << uint32(lfgPlayerRewards.RewardItemQuantity);
-    data << int32(lfgPlayerRewards.BonusCurrency);
-    data.WriteBit(lfgPlayerRewards.IsCurrency);
+    data.WriteBit(lfgPlayerRewards.RewardItem.is_initialized());
+    data.WriteBit(lfgPlayerRewards.RewardCurrency.is_initialized());
+    if (lfgPlayerRewards.RewardItem)
+        data << *lfgPlayerRewards.RewardItem;
+
+    data << uint32(lfgPlayerRewards.Quantity);
+    data << int32(lfgPlayerRewards.BonusQuantity);
+    if (lfgPlayerRewards.RewardCurrency)
+        data << int32(*lfgPlayerRewards.RewardCurrency);
 
     return data;
 }

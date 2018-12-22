@@ -46,7 +46,7 @@ public:
 
     struct instance_trial_of_the_champion_InstanceMapScript : public InstanceScript
     {
-        instance_trial_of_the_champion_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_trial_of_the_champion_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             uiMovementDone = 0;
@@ -185,7 +185,7 @@ public:
                             {
                                 pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                                 pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                                pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData(), 90000);
+                                pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData::fromEulerAnglesZYX(1.42f, 0.0f, 0.0f), 90000);
                             }
                         }
                     }
@@ -208,7 +208,7 @@ public:
                     {
                         pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                         pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData(), 90000);
+                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData::fromEulerAnglesZYX(1.42f, 0.0f, 0.0f), 90000);
                     }
                     break;
                 case BOSS_ARGENT_CHALLENGE_P:
@@ -217,7 +217,7 @@ public:
                     {
                         pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                         pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData(), 90000);
+                        pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData::fromEulerAnglesZYX(1.42f, 0.0f, 0.0f), 90000);
                     }
                     break;
             }

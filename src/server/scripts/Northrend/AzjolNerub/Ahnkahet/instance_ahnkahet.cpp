@@ -36,7 +36,7 @@ class instance_ahnkahet : public InstanceMapScript
 
         struct instance_ahnkahet_InstanceScript : public InstanceScript
         {
-            instance_ahnkahet_InstanceScript(Map* map) : InstanceScript(map)
+            instance_ahnkahet_InstanceScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

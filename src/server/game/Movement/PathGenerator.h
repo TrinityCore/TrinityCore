@@ -122,7 +122,7 @@ class TC_GAME_API PathGenerator
         void BuildPointPath(float const* startPoint, float const* endPoint);
         void BuildShortcut();
 
-        NavTerrain GetNavTerrain(float x, float y, float z);
+        NavTerrainFlag GetNavTerrain(float x, float y, float z);
         void CreateFilter();
         void UpdateFilter();
 

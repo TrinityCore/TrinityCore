@@ -22,6 +22,7 @@
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPSI.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "World.h"
@@ -156,9 +157,9 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
             {
                 // he dropped it further, summon mound
                 Map* map = player->GetMap();
-                if (GameObject* go = GameObject::CreateGameObject(SI_SILITHYST_MOUND, map, *player, QuaternionData(), 255, GO_STATE_READY))
+                if (GameObject* go = GameObject::CreateGameObject(SI_SILITHYST_MOUND, map, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
                 {
-                    go->CopyPhaseFrom(player);
+                    PhasingHandler::InheritPhaseShift(go, player);
                     go->SetRespawnTime(0);
 
                     if (!map->AddToMap(go))

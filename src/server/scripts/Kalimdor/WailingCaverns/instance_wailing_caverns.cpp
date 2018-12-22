@@ -44,7 +44,7 @@ public:
 
     struct instance_wailing_caverns_InstanceMapScript : public InstanceScript
     {
-        instance_wailing_caverns_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_wailing_caverns_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));

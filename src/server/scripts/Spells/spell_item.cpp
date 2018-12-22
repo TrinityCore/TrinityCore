@@ -2825,7 +2825,7 @@ class spell_item_crystal_prison_dummy_dnd : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                     if (target->isDead() && !target->IsPet())
                     {
-                        GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, *target, QuaternionData(), uint32(target->GetRespawnTime()-time(NULL)));
+                        GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, *target, QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.0f, 0.0f), uint32(target->GetRespawnTime()-time(NULL)));
                         target->DespawnOrUnsummon();
                     }
             }

@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
@@ -37,7 +38,7 @@ DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
     m_objectType |= TYPEMASK_DYNAMICOBJECT;
     m_objectTypeId = TYPEID_DYNAMICOBJECT;
 
-    m_updateFlag = UPDATEFLAG_STATIONARY_POSITION;
+    m_updateFlag.Stationary = true;
 
     m_valuesCount = DYNAMICOBJECT_END;
     _dynamicValuesCount = DYNAMICOBJECT_DYNAMIC_END;
@@ -96,6 +97,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     }
 
     WorldObject::_Create(ObjectGuid::Create<HighGuid::DynamicObject>(GetMapId(), spell->Id, guidlow));
+    PhasingHandler::InheritPhaseShift(this, caster);
 
     SetEntry(spell->Id);
     SetObjectScale(1.0f);

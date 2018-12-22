@@ -103,6 +103,7 @@ namespace WorldPackets
 
             ObjectGuid ArbiterGUID;
             bool Accepted = false;
+            bool Forfeited = false;
         };
 
         class DuelWinner final : public ServerPacket

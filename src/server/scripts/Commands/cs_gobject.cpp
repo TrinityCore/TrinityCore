@@ -34,6 +34,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "PoolMgr.h"
 #include "RBAC.h"
@@ -146,7 +147,7 @@ public:
         if (!object)
             return false;
 
-        object->CopyPhaseFrom(player);
+        PhasingHandler::InheritPhaseShift(object, player);
 
         if (spawntimeSecs)
         {
@@ -155,7 +156,7 @@ public:
         }
 
         // fill the gameobject data and save to the db
-        object->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
+        object->SaveToDB(map->GetId(), { map->GetDifficultyID() });
         ObjectGuid::LowType spawnId = object->GetSpawnId();
 
         // delete the old object and do a clean load from DB with a fresh new GameObject instance.
@@ -410,16 +411,23 @@ public:
             oz = player->GetOrientation();
         }
 
-        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
-        object->RelocateStationaryPosition(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
-        object->SetWorldRotationAngles(oz, oy, ox);
-        object->DestroyForNearbyPlayers();
-        object->UpdateObjectVisibility();
+        Map* map = object->GetMap();
 
+        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), oz);
+        object->SetWorldRotationAngles(oz, oy, ox);
         object->SaveToDB();
 
-        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, std::to_string(object->GetSpawnId()).c_str(), object->GetGOInfo()->name.c_str(), object->GetGUID().ToString().c_str(), object->GetOrientation());
+        // Generate a completely new spawn with new guid
+        // 3.3.5a client caches recently deleted objects and brings them back to life
+        // when CreateObject block for this guid is received again
+        // however it entirely skips parsing that block and only uses already known location
+        object->Delete();
 
+        object = GameObject::CreateGameObjectFromDB(guidLow, map);
+        if (!object)
+            return false;
+
+        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, std::to_string(object->GetSpawnId()).c_str(), object->GetGOInfo()->name.c_str(), object->GetGUID().ToString().c_str(), object->GetOrientation());
         return true;
     }
 
@@ -470,14 +478,22 @@ public:
             }
         }
 
-        object->DestroyForNearbyPlayers();
-        object->RelocateStationaryPosition(x, y, z, object->GetOrientation());
-        object->GetMap()->GameObjectRelocation(object, x, y, z, object->GetOrientation());
+        Map* map = object->GetMap();
 
+        object->Relocate(x, y, z, object->GetOrientation());
         object->SaveToDB();
 
-        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, std::to_string(object->GetSpawnId()).c_str(), object->GetGOInfo()->name.c_str(), object->GetGUID().ToString().c_str());
+        // Generate a completely new spawn with new guid
+        // 3.3.5a client caches recently deleted objects and brings them back to life
+        // when CreateObject block for this guid is received again
+        // however it entirely skips parsing that block and only uses already known location
+        object->Delete();
 
+        object = GameObject::CreateGameObjectFromDB(guidLow, map);
+        if (!object)
+            return false;
+
+        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, std::to_string(object->GetSpawnId()).c_str(), object->GetGOInfo()->name.c_str(), object->GetGUID().ToString().c_str());
         return true;
     }
 
@@ -662,6 +678,13 @@ public:
             object->SetByteValue(GAMEOBJECT_BYTES_1, uint8(objectType), uint8(objectState));
         else if (objectType == 4)
             object->SendCustomAnim(objectState);
+        else if (objectType == 5)
+        {
+            if (objectState < 0 || objectState > GO_DESTRUCTIBLE_REBUILDING)
+                return false;
+
+            object->SetDestructibleState(GameObjectDestructibleState(objectState));
+        }
 
         handler->PSendSysMessage("Set gobject type %d state %d", objectType, objectState);
         return true;

@@ -346,7 +346,8 @@ WorldPacket const* WorldPackets::Misc::LevelUpInfo::Write()
     for (int32 stat : StatDelta)
         _worldPacket << stat;
 
-    _worldPacket << int32(Cp);
+    _worldPacket << int32(NumNewTalents);
+    _worldPacket << int32(NumNewPvpTalentSlots);
 
     return &_worldPacket;
 }
@@ -376,29 +377,39 @@ WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Misc::PhaseShift::Write()
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Misc::PhaseShiftDataPhase const& phaseShiftDataPhase)
 {
-    _worldPacket << ClientGUID;                                 // CLientGUID
-    _worldPacket << uint32(PhaseShifts.size() ? 0 : 8);         // PhaseShiftFlags
-    _worldPacket << uint32(PhaseShifts.size());                 // PhaseShiftCount
-    _worldPacket << PersonalGUID;                               // PersonalGUID
-    for (uint32 phase : PhaseShifts)
-    {
-        _worldPacket << uint16(1);                              // PhaseFlags
-        _worldPacket << uint16(phase);                          // PhaseID
-    }
+    data << uint16(phaseShiftDataPhase.PhaseFlags);
+    data << uint16(phaseShiftDataPhase.Id);
+    return data;
+}
 
-    _worldPacket << uint32(VisibleMapIDs.size() * 2);           // Active terrain swaps size
-    for (uint32 map : VisibleMapIDs)
-        _worldPacket << uint16(map);                            // Active terrain swap map id
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Misc::PhaseShiftData const& phaseShiftData)
+{
+    data << uint32(phaseShiftData.PhaseShiftFlags);
+    data << uint32(phaseShiftData.Phases.size());
+    data << phaseShiftData.PersonalGUID;
+    for (WorldPackets::Misc::PhaseShiftDataPhase const& phaseShiftDataPhase : phaseShiftData.Phases)
+        data << phaseShiftDataPhase;
 
-    _worldPacket << uint32(PreloadMapIDs.size() * 2);           // Inactive terrain swaps size
-    for (uint32 map : PreloadMapIDs)
-        _worldPacket << uint16(map);                            // Inactive terrain swap map id
+    return data;
+}
 
-    _worldPacket << uint32(UiWorldMapAreaIDSwaps.size() * 2);   // UI map swaps size
-    for (uint32 map : UiWorldMapAreaIDSwaps)
-        _worldPacket << uint16(map);                            // UI map id, WorldMapArea.dbc, controls map display
+WorldPacket const* WorldPackets::Misc::PhaseShiftChange::Write()
+{
+    _worldPacket << Client;
+    _worldPacket << Phaseshift;
+    _worldPacket << uint32(VisibleMapIDs.size() * 2);           // size in bytes
+    for (uint16 visibleMapId : VisibleMapIDs)
+        _worldPacket << uint16(visibleMapId);                   // Active terrain swap map id
+
+    _worldPacket << uint32(PreloadMapIDs.size() * 2);           // size in bytes
+    for (uint16 preloadMapId : PreloadMapIDs)
+        _worldPacket << uint16(preloadMapId);                   // Inactive terrain swap map id
+
+    _worldPacket << uint32(UiMapPhaseIDs.size() * 2);           // size in bytes
+    for (uint16 uiMapPhaseId : UiMapPhaseIDs)
+        _worldPacket << uint16(uiMapPhaseId);                   // phase id, controls only map display (visible on all maps)
 
     return &_worldPacket;
 }

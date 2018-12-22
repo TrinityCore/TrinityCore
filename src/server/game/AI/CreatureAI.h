@@ -160,6 +160,9 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called when a spell cast gets interrupted
         virtual void OnSpellCastInterrupt(SpellInfo const* /*spell*/) { }
 
+        // Called when a spell cast has been successfully finished
+        virtual void OnSuccessfulSpellCast(SpellInfo const* /*spell*/) { }
+
         // Called at reaching home after evade
         virtual void JustReachedHome() { }
 

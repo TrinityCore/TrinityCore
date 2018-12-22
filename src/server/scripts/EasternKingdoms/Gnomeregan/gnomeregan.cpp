@@ -358,9 +358,9 @@ public:
                     me->SummonCreature(NPC_CHOMPER, SpawnPosition[16], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
                 case 9:
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17], QuaternionData(), 7200);
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[18], QuaternionData(), 7200);
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[19], QuaternionData(), 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17], QuaternionData::fromEulerAnglesZYX(SpawnPosition[17].GetOrientation(), 0.0f, 0.0f), 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[18], QuaternionData::fromEulerAnglesZYX(SpawnPosition[18].GetOrientation(), 0.0f, 0.0f), 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[19], QuaternionData::fromEulerAnglesZYX(SpawnPosition[19].GetOrientation(), 0.0f, 0.0f), 7200);
                     break;
             }
         }

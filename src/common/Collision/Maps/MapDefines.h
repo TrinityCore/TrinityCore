@@ -5,7 +5,7 @@
 #include "DetourNavMesh.h"
 
 const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
-#define MMAP_VERSION 8
+#define MMAP_VERSION 9
 
 struct MmapTileHeader
 {
@@ -29,18 +29,22 @@ static_assert(sizeof(MmapTileHeader) == (sizeof(MmapTileHeader::mmapMagic) +
                                          sizeof(MmapTileHeader::usesLiquids) +
                                          sizeof(MmapTileHeader::padding)), "MmapTileHeader has uninitialized padding fields");
 
-enum NavTerrain
+enum NavArea
 {
-    NAV_EMPTY   = 0x00,
-    NAV_GROUND  = 0x01,
-    NAV_MAGMA   = 0x02,
-    NAV_SLIME   = 0x04,
-    NAV_WATER   = 0x08,
-    NAV_UNUSED1 = 0x10,
-    NAV_UNUSED2 = 0x20,
-    NAV_UNUSED3 = 0x40,
-    NAV_UNUSED4 = 0x80
-    // we only have 8 bits
+    NAV_AREA_EMPTY          = 0,
+    // areas 1-60 will be used for destructible areas (currently skipped in vmaps, WMO with flag 1)
+    // ground is the highest value to make recast choose ground over water when merging surfaces very close to each other (shallow water would be walkable)
+    NAV_AREA_GROUND         = 63,
+    NAV_AREA_WATER          = 62,
+    NAV_AREA_MAGMA_SLIME    = 61 // don't need to differentiate between them
+};
+
+enum NavTerrainFlag
+{
+    NAV_EMPTY       = 0x00,
+    NAV_GROUND      = 1 << (63 - NAV_AREA_GROUND),
+    NAV_WATER       = 1 << (63 - NAV_AREA_WATER),
+    NAV_MAGMA_SLIME = 1 << (63 - NAV_AREA_MAGMA_SLIME)
 };
 
 #endif /* _MAPDEFINES_H */

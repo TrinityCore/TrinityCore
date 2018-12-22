@@ -37,7 +37,6 @@ class Player;
 class Unit;
 class ProcEventInfo;
 struct SkillLineAbilityEntry;
-struct SpellEntry;
 struct SpellAuraOptionsEntry;
 struct SpellAuraRestrictionsEntry;
 struct SpellCastingRequirementsEntry;
@@ -48,6 +47,7 @@ struct SpellEquippedItemsEntry;
 struct SpellInterruptsEntry;
 struct SpellLevelsEntry;
 struct SpellMiscEntry;
+struct SpellNameEntry;
 struct SpellReagentsEntry;
 struct SpellScalingEntry;
 struct SpellShapeshiftEntry;
@@ -452,8 +452,9 @@ typedef std::map<uint32, PetAura> SpellPetAuraMap;
 
 enum SpellAreaFlag
 {
-    SPELL_AREA_FLAG_AUTOCAST   = 0x1, // if has autocast, spell is applied on enter
-    SPELL_AREA_FLAG_AUTOREMOVE = 0x2, // if has autoremove, spell is remove automatically inside zone/area (allways removed on leaving area or zone)
+    SPELL_AREA_FLAG_AUTOCAST                                = 0x1, // if has autocast, spell is applied on enter
+    SPELL_AREA_FLAG_AUTOREMOVE                              = 0x2, // if has autoremove, spell is remove automatically inside zone/area (always removed on leaving area or zone)
+    SPELL_AREA_FLAG_IGNORE_AUTOCAST_ON_QUEST_STATUS_CHANGE  = 0x4, // if this flag is set then spell will not be applied automatically on quest status change
 };
 
 struct TC_GAME_API SpellArea
@@ -463,7 +464,7 @@ struct TC_GAME_API SpellArea
     uint32 questStart;                                      // quest start (quest must be active or rewarded for spell apply)
     uint32 questEnd;                                        // quest end (quest must not be rewarded for spell apply)
     int32  auraSpell;                                       // spell aura must be applied for spell apply)if possitive) and it must not be applied in other case
-    uint32 raceMask;                                        // can be applied only to races
+    uint64 raceMask;                                        // can be applied only to races
     Gender gender;                                          // can be applied only to gender
     uint32 questStartStatus;                                // QuestStatus that quest_start must have in order to keep the spell
     uint32 questEndStatus;                                  // QuestStatus that the quest_end must have in order to keep the spell (if the quest_end's status is different than this, the spell will be dropped)
@@ -560,7 +561,7 @@ bool IsWeaponSkill(uint32 skill);
 
 inline bool IsProfessionSkill(uint32 skill)
 {
-    return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID;
+    return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING;
 }
 
 inline bool IsProfessionOrRidingSkill(uint32 skill)
@@ -574,7 +575,7 @@ TC_GAME_API extern PetFamilySpellsStore                         sPetFamilySpells
 
 struct SpellInfoLoadHelper
 {
-    SpellEntry const* Entry = nullptr;
+    SpellNameEntry const* Entry = nullptr;
 
     SpellAuraOptionsEntry const* AuraOptions = nullptr;
     SpellAuraRestrictionsEntry const* AuraRestrictions = nullptr;
@@ -592,6 +593,8 @@ struct SpellInfoLoadHelper
     SpellTargetRestrictionsEntry const* TargetRestrictions = nullptr;
     SpellTotemsEntry const* Totems = nullptr;
 };
+
+typedef std::map<std::pair<uint32 /*SpellId*/, uint8 /*RaceId*/>, uint32 /*DisplayId*/> SpellTotemModelMap;
 
 class TC_GAME_API SpellMgr
 {
@@ -685,6 +688,8 @@ class TC_GAME_API SpellMgr
 
         void LoadPetFamilySpellsStore();
 
+        uint32 GetModelForTotem(uint32 spellId, uint8 race) const;
+
     private:
         SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
 
@@ -718,6 +723,7 @@ class TC_GAME_API SpellMgr
         void LoadSpellInfoSpellSpecificAndAuraState();
         void LoadSpellInfoDiminishing();
         void LoadSpellInfoImmunities();
+        void LoadSpellTotemModel();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
@@ -746,6 +752,7 @@ class TC_GAME_API SpellMgr
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellInfoMap               mSpellInfoMap;
+        SpellTotemModelMap         mSpellTotemModel;
 };
 
 #define sSpellMgr SpellMgr::instance()

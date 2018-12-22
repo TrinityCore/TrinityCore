@@ -34,6 +34,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Random.h"
 #include "SmartAI.h"
 #include "SpellAuras.h"
@@ -411,10 +412,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {
                         if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(e.action.morphOrMount.creature))
                         {
-                            uint32 displayId = ObjectMgr::ChooseDisplayId(ci);
-                            (*itr)->ToCreature()->SetDisplayId(displayId);
+                            CreatureModel const* model = ObjectMgr::ChooseDisplayId(ci);
+                            (*itr)->ToCreature()->SetDisplayId(model->CreatureDisplayID, model->DisplayScale);
                             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry %u, %s set displayid to %u",
-                                (*itr)->GetEntry(), (*itr)->GetGUID().ToString().c_str(), displayId);
+                                (*itr)->GetEntry(), (*itr)->GetGUID().ToString().c_str(), model->CreatureDisplayID);
                         }
                     }
                     //if no param1, then use value from param2 (modelId)
@@ -1246,7 +1247,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
-                (*itr)->SetInPhase(e.action.ingamePhaseId.id, true, e.action.ingamePhaseId.apply == 1);
+            {
+                if (e.action.ingamePhaseId.apply == 1)
+                    PhasingHandler::AddPhase(*itr, e.action.ingamePhaseId.id, true);
+                else
+                    PhasingHandler::RemovePhase(*itr, e.action.ingamePhaseId.id, true);
+            }
 
             delete targets;
             break;
@@ -1258,11 +1264,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!targets)
                 break;
 
-            std::set<uint32> phases = sDB2Manager.GetPhasesForGroup(e.action.ingamePhaseGroup.groupId);
-
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
-                for (auto phase : phases)
-                    (*itr)->SetInPhase(phase, true, e.action.ingamePhaseGroup.apply == 1);
+            {
+                if (e.action.ingamePhaseGroup.apply == 1)
+                    PhasingHandler::AddPhaseGroup(*itr, e.action.ingamePhaseGroup.groupId, true);
+                else
+                    PhasingHandler::RemovePhaseGroup(*itr, e.action.ingamePhaseGroup.groupId, true);
+            }
 
             delete targets;
             break;
@@ -1283,7 +1291,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (e.action.morphOrMount.creature > 0)
                     {
                         if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(e.action.morphOrMount.creature))
-                            (*itr)->ToUnit()->Mount(ObjectMgr::ChooseDisplayId(cInfo));
+                            (*itr)->ToUnit()->Mount(ObjectMgr::ChooseDisplayId(cInfo)->CreatureDisplayID);
                     }
                     else
                         (*itr)->ToUnit()->Mount(e.action.morphOrMount.model);
@@ -1699,7 +1707,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, dest, e.action.MoveToPos.disablePathfinding == 0);
             }
             else
-                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), e.action.MoveToPos.disablePathfinding == 0);
+            {
+                float x, y, z;
+                target->GetPosition(x, y, z);
+                if (e.action.MoveToPos.ContactDistance > 0)
+                    target->GetContactPoint(me, x, y, z, e.action.MoveToPos.ContactDistance);
+                me->GetMotionMaster()->MovePoint(e.action.MoveToPos.pointId, x, y, z, e.action.MoveToPos.disablePathfinding == 0);
+            }
             break;
         }
         case SMART_ACTION_RESPAWN_TARGET:
@@ -3863,9 +3877,29 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
         {
             if (obj && obj->GetMap()->IsDungeon())
             {
-                if ((1 << (obj->GetMap()->GetSpawnMode()+1)) & (*i).event.event_flags)
+                // TODO: fix it for new maps and difficulties
+                switch (obj->GetMap()->GetDifficultyID())
                 {
-                    mEvents.push_back((*i));
+                    case DIFFICULTY_NORMAL:
+                    case DIFFICULTY_10_N:
+                        if (i->event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_0)
+                            mEvents.emplace_back(std::move(*i));
+                        break;
+                    case DIFFICULTY_HEROIC:
+                    case DIFFICULTY_25_N:
+                        if (i->event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_1)
+                            mEvents.emplace_back(std::move(*i));
+                        break;
+                    case DIFFICULTY_10_HC:
+                        if (i->event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_2)
+                            mEvents.emplace_back(std::move(*i));
+                        break;
+                    case DIFFICULTY_25_HC:
+                        if (i->event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_3)
+                            mEvents.emplace_back(std::move(*i));
+                        break;
+                    default:
+                        break;
                 }
             }
             continue;
@@ -3882,24 +3916,24 @@ void SmartScript::GetScript()
         e = sSmartScriptMgr->GetScript(-((int32)me->GetSpawnId()), mScriptType);
         if (e.empty())
             e = sSmartScriptMgr->GetScript((int32)me->GetEntry(), mScriptType);
-        FillScript(e, me, nullptr, nullptr);
+        FillScript(std::move(e), me, nullptr, nullptr);
     }
     else if (go)
     {
         e = sSmartScriptMgr->GetScript(-((int32)go->GetSpawnId()), mScriptType);
         if (e.empty())
             e = sSmartScriptMgr->GetScript((int32)go->GetEntry(), mScriptType);
-        FillScript(e, go, nullptr, nullptr);
+        FillScript(std::move(e), go, nullptr, nullptr);
     }
     else if (trigger)
     {
         e = sSmartScriptMgr->GetScript((int32)trigger->ID, mScriptType);
-        FillScript(e, nullptr, trigger, nullptr);
+        FillScript(std::move(e), nullptr, trigger, nullptr);
     }
     else if (sceneTemplate)
     {
         e = sSmartScriptMgr->GetScript(sceneTemplate->SceneId, mScriptType);
-        FillScript(e, nullptr, nullptr, sceneTemplate);
+        FillScript(std::move(e), nullptr, nullptr, sceneTemplate);
     }
 }
 

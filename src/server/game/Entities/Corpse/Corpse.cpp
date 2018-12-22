@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "UpdateData.h"
 #include "World.h"
@@ -32,7 +33,7 @@ Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type
     m_objectType |= TYPEMASK_CORPSE;
     m_objectTypeId = TYPEID_CORPSE;
 
-    m_updateFlag = UPDATEFLAG_STATIONARY_POSITION;
+    m_updateFlag.Stationary = true;
 
     m_valuesCount = CORPSE_END;
     _dynamicValuesCount = CORPSE_DYNAMIC_END;
@@ -89,7 +90,7 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
 
     _cellCoord = Trinity::ComputeCellCoord(GetPositionX(), GetPositionY());
 
-    CopyPhaseFrom(owner);
+    PhasingHandler::InheritPhaseShift(this, owner);
 
     return true;
 }
@@ -119,12 +120,12 @@ void Corpse::SaveToDB()
     stmt->setUInt32(index++, GetInstanceId());                                        // instanceId
     trans->Append(stmt);
 
-    for (uint32 phaseId : GetPhases())
+    for (PhaseShift::PhaseRef const& phase : GetPhaseShift().GetPhases())
     {
         index = 0;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE_PHASES);
         stmt->setUInt64(index++, GetOwnerGUID().GetCounter());                        // OwnerGuid
-        stmt->setUInt32(index++, phaseId);                                            // PhaseId
+        stmt->setUInt32(index++, phase.Id);                                           // PhaseId
         trans->Append(stmt);
     }
 

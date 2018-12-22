@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "the_stockade.h"
 
 class instance_the_stockade : public InstanceMapScript
@@ -27,7 +26,7 @@ public:
 
     struct instance_the_stockade_InstanceMapScript : public InstanceScript
     {
-        instance_the_stockade_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_the_stockade_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);

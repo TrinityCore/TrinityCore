@@ -23,7 +23,6 @@
 
 #include "ScriptMgr.h"
 #include "AreaTrigger.h"
-#include "AreaTriggerTemplate.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "ObjectAccessor.h"

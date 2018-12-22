@@ -61,6 +61,16 @@ namespace WorldPackets
             bool IsSetFavorite = false;
             std::vector<uint32> FavoriteAppearances;
         };
+
+        class OpenTransmogrifier final : public ServerPacket
+        {
+        public:
+            OpenTransmogrifier(ObjectGuid const& guid) : ServerPacket(SMSG_OPEN_TRANSMOGRIFIER, 16), Guid(guid) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
     }
 }
 

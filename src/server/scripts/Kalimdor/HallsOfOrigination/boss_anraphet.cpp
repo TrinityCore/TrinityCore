@@ -543,7 +543,7 @@ public:
 
             float x = caster->GetPositionX() + dist * std::cos(angle);
             float y = caster->GetPositionY() + dist * std::sin(angle);
-            float z = caster->GetMap()->GetHeight(caster->GetPhases(), x, y, caster->GetPositionZ());
+            float z = caster->GetMap()->GetHeight(caster->GetPhaseShift(), x, y, caster->GetPositionZ());
             float o = dest._position.GetOrientation();
 
             dest.Relocate({ x, y, z, o });

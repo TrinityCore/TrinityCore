@@ -1289,9 +1289,10 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
         {
             playerData.IsInWorld = true;
             playerData.PrimaryTalentTree = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
-            playerData.PrimaryTalentTreeNameIndex = 0;
+            playerData.Sex = player->getGender();
             playerData.Race = player->getRace();
-            playerData.Prestige = player->GetPrestigeLevel();
+            playerData.Class = player->getClass();
+            playerData.HonorLevel = player->GetHonorLevel();
         }
 
         pvpLogData.Players.push_back(playerData);

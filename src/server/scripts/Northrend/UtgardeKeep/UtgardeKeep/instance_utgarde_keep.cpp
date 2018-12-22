@@ -19,7 +19,6 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "utgarde_keep.h"
 
 DoorData const doorData[] =
@@ -43,7 +42,7 @@ class instance_utgarde_keep : public InstanceMapScript
 
         struct instance_utgarde_keep_InstanceMapScript : public InstanceScript
         {
-            instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_utgarde_keep_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

@@ -19,7 +19,6 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "sethekk_halls.h"
 
 DoorData const doorData[] =
@@ -41,7 +40,7 @@ class instance_sethekk_halls : public InstanceMapScript
 
         struct instance_sethekk_halls_InstanceMapScript : public InstanceScript
         {
-            instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_sethekk_halls_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

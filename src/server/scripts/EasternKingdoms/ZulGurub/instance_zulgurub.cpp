@@ -20,7 +20,6 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "zulgurub.h"
 
 DoorData const doorData[] =
@@ -40,7 +39,7 @@ class instance_zulgurub : public InstanceMapScript
 
         struct instance_zulgurub_InstanceMapScript : public InstanceScript
         {
-            instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_zulgurub_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
