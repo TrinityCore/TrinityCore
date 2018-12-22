@@ -1951,7 +1951,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void UpdateSpeakTime();
         bool CanSpeak() const;
-        void ChangeSpeakTime(int utime);
 
         /*********************************************************/
         /***                 VARIOUS SYSTEMS                   ***/
@@ -2166,6 +2165,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 #ifdef PRESETS
         PresetMapType presetMap; // presetMap[presetId] = presetData
 #endif
+
+        std::string GetDebugInfo() const override;
 
     protected:
         // Gamemaster whisper whitelist

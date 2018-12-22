@@ -1676,6 +1676,8 @@ class TC_GAME_API Unit : public WorldObject
         virtual void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
 
         float GetCollisionHeight() const override;
+
+        std::string GetDebugInfo() const override;
     protected:
         explicit Unit (bool isWorldObject);
 
@@ -1789,7 +1791,9 @@ class TC_GAME_API Unit : public WorldObject
 
         void UpdateCharmAI();
         void RestoreDisabledAI();
-        std::unique_ptr<UnitAI> i_AI, i_disabledAI;
+        std::unique_ptr<UnitAI> i_AI;
+        std::unique_ptr<UnitAI> i_disabledAI;
+        std::unique_ptr<UnitAI> i_lockedAILifetimeExtension; // yes, this lifetime extension is terrible
         bool m_aiLocked;
 
         std::unordered_set<AbstractFollower*> m_followingMe;
