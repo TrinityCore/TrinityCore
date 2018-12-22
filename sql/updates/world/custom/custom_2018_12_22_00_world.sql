@@ -24,7 +24,7 @@ UPDATE `creature_template` SET `difficulty_entry_1`= 49282 WHERE `entry`= 39366;
 UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3, `faction`= 16, `unit_class`= 4, `unit_flags`= 64 WHERE `entry`= 49293;
 UPDATE `creature_template` SET `minlevel`= 85, `maxlevel`= 85, `exp`= 3, `faction`= 91, `unit_flags`= 64 WHERE `entry`= 49285;
 UPDATE `creature_template` SET `minlevel`= 85, `maxlevel`= 85, `exp`= 3, `faction`= 91 WHERE `entry` IN (49283, 49282);
-UPDATE `creature_template` SET `minlevel`= 87, `maxlevel`= 87, `exp`= 3, `faction`= 16 WHERE `entry`= 48891;
+UPDATE `creature_template` SET `minlevel`= 85, `maxlevel`= 85, `exp`= 3, `faction`= 16 WHERE `entry`= 48891;
 UPDATE `creature_template` SET `DamageModifier`= 15, `BaseVariance`= 0.5 WHERE `entry` IN (40310, 39440, 40787, 40311, 40808, 40450, 41371, 41364, 40668, 39366, 49283);
 UPDATE `creature_template` SET `DamageModifier`= 8, `BaseVariance`= 0.5 WHERE `entry` IN (39369);
 UPDATE `creature_template` SET `DamageModifier`= 30, `BaseVariance`= 0.5 WHERE `entry` IN (49294, 49286, 49301, 49295, 49302, 49296, 49305, 49303, 40668, 49282);
