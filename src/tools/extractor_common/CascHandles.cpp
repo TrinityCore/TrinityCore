@@ -127,6 +127,13 @@ DWORD CASC::GetFilePointer(FileHandle const& file)
     return ::CascSetFilePointer(file.get(), 0, nullptr, FILE_CURRENT);
 }
 
+bool CASC::SetFilePointer(FileHandle const& file, LONGLONG position)
+{
+    LONG parts[2];
+    memcpy(parts, &position, sizeof(parts));
+    return ::CascSetFilePointer(file.get(), parts[0], &parts[1], FILE_BEGIN) != CASC_INVALID_POS;
+}
+
 bool CASC::ReadFile(FileHandle const& file, void* buffer, DWORD bytes, PDWORD bytesRead)
 {
     return ::CascReadFile(file.get(), buffer, bytes, bytesRead);

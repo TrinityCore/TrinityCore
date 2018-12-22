@@ -59,6 +59,7 @@ void WorldPackets::Duel::DuelResponse::Read()
 {
     _worldPacket >> ArbiterGUID;
     Accepted = _worldPacket.ReadBit();
+    Forfeited = _worldPacket.ReadBit();
 }
 
 WorldPacket const* WorldPackets::Duel::DuelWinner::Write()

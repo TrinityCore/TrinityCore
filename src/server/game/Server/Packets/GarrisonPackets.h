@@ -249,7 +249,7 @@ namespace WorldPackets
         class GarrisonLearnBlueprintResult final : public ServerPacket
         {
         public:
-            GarrisonLearnBlueprintResult() : ServerPacket(SMSG_GARRISON_LEARN_BLUEPRINT_RESULT, 4 + 4) { }
+            GarrisonLearnBlueprintResult() : ServerPacket(SMSG_GARRISON_LEARN_BLUEPRINT_RESULT, 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 

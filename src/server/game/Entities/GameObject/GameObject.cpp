@@ -61,7 +61,8 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
 
-    m_updateFlag = (UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION);
+    m_updateFlag.Stationary = true;
+    m_updateFlag.Rotation = true;
 
     m_valuesCount = GAMEOBJECT_END;
     _dynamicValuesCount = GAMEOBJECT_DYNAMIC_END;
@@ -238,7 +239,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     else
     {
         guid = ObjectGuid::Create<HighGuid::Transport>(map->GenerateLowGuid<HighGuid::Transport>());
-        m_updateFlag |= UPDATEFLAG_TRANSPORT;
+        m_updateFlag.ServerTime = true;
     }
 
     Object::_Create(guid);
@@ -274,7 +275,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
         if (m_goTemplateAddon->WorldEffectID)
         {
-            m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
+            m_updateFlag.GameObject = true;
             SetWorldEffectID(m_goTemplateAddon->WorldEffectID);
         }
     }
@@ -294,6 +295,8 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     m_prevGoState = goState;
     SetGoState(goState);
     SetGoArtKit(artKit);
+
+    SetUInt32Value(GAMEOBJECT_STATE_ANIM_ID, sAnimationDataStore.GetNumRows());
 
     switch (goInfo->type)
     {
@@ -379,7 +382,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
     if (gameObjectAddon && gameObjectAddon->WorldEffectID)
     {
-        m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
+        m_updateFlag.GameObject = true;
         SetWorldEffectID(gameObjectAddon->WorldEffectID);
     }
 

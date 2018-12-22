@@ -111,13 +111,13 @@ void PlayerTaxi::AppendTaximaskTo(WorldPackets::Taxi::ShowTaxiNodes& data, bool 
 {
     if (all)
     {
-        data.CanLandNodes = &sTaxiNodesMask;              // all existed nodes
-        data.CanUseNodes = &sTaxiNodesMask;
+        data.CanLandNodes = sTaxiNodesMask;              // all existed nodes
+        data.CanUseNodes = sTaxiNodesMask;
     }
     else
     {
-        data.CanLandNodes = &m_taximask;                  // known nodes
-        data.CanUseNodes = &m_taximask;
+        data.CanLandNodes = m_taximask;                  // known nodes
+        data.CanUseNodes = m_taximask;
     }
 }
 

@@ -38,6 +38,9 @@ const ::google::protobuf::Descriptor* FieldOperation_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   FieldOperation_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* FieldOperation_OperationType_descriptor_ = NULL;
+const ::google::protobuf::Descriptor* PresenceState_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  PresenceState_reflection_ = NULL;
 const ::google::protobuf::Descriptor* ChannelState_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ChannelState_reflection_ = NULL;
@@ -119,7 +122,23 @@ void protobuf_AssignDesc_presence_5ftypes_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FieldOperation));
   FieldOperation_OperationType_descriptor_ = FieldOperation_descriptor_->enum_type(0);
-  ChannelState_descriptor_ = file->message_type(4);
+  PresenceState_descriptor_ = file->message_type(4);
+  static const int PresenceState_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PresenceState, entity_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PresenceState, field_operation_),
+  };
+  PresenceState_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      PresenceState_descriptor_,
+      PresenceState::default_instance_,
+      PresenceState_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PresenceState, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PresenceState, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(PresenceState));
+  ChannelState_descriptor_ = file->message_type(5);
   static const int ChannelState_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChannelState, entity_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChannelState, field_operation_),
@@ -157,6 +176,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     FieldOperation_descriptor_, &FieldOperation::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    PresenceState_descriptor_, &PresenceState::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ChannelState_descriptor_, &ChannelState::default_instance());
 }
 
@@ -171,6 +192,8 @@ void protobuf_ShutdownFile_presence_5ftypes_2eproto() {
   delete Field_reflection_;
   delete FieldOperation::default_instance_;
   delete FieldOperation_reflection_;
+  delete PresenceState::default_instance_;
+  delete PresenceState_reflection_;
   delete ChannelState::default_instance_;
   delete ChannelState_reflection_;
 }
@@ -199,24 +222,29 @@ void protobuf_AddDesc_presence_5ftypes_2eproto() {
     "Field\022N\n\toperation\030\002 \001(\01626.bgs.protocol."
     "presence.v1.FieldOperation.OperationType"
     ":\003SET\"#\n\rOperationType\022\007\n\003SET\020\000\022\t\n\005CLEAR"
-    "\020\001\"\365\001\n\014ChannelState\022)\n\tentity_id\030\001 \001(\0132\026"
+    "\020\001\"}\n\rPresenceState\022)\n\tentity_id\030\001 \001(\0132\026"
     ".bgs.protocol.EntityId\022A\n\017field_operatio"
     "n\030\002 \003(\0132(.bgs.protocol.presence.v1.Field"
-    "Operation\022\026\n\007healing\030\003 \001(\010:\005false2_\n\010pre"
-    "sence\022%.bgs.protocol.channel.v1.ChannelS"
-    "tate\030e \001(\0132&.bgs.protocol.presence.v1.Ch"
-    "annelStateB\002H\001", 814);
+    "Operation\"\365\001\n\014ChannelState\022)\n\tentity_id\030"
+    "\001 \001(\0132\026.bgs.protocol.EntityId\022A\n\017field_o"
+    "peration\030\002 \003(\0132(.bgs.protocol.presence.v"
+    "1.FieldOperation\022\026\n\007healing\030\003 \001(\010:\005false"
+    "2_\n\010presence\022%.bgs.protocol.channel.v1.C"
+    "hannelState\030e \001(\0132&.bgs.protocol.presenc"
+    "e.v1.ChannelStateB\002H\001", 941);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "presence_types.proto", &protobuf_RegisterTypes);
   RichPresenceLocalizationKey::default_instance_ = new RichPresenceLocalizationKey();
   FieldKey::default_instance_ = new FieldKey();
   Field::default_instance_ = new Field();
   FieldOperation::default_instance_ = new FieldOperation();
+  PresenceState::default_instance_ = new PresenceState();
   ChannelState::default_instance_ = new ChannelState();
   RichPresenceLocalizationKey::default_instance_->InitAsDefaultInstance();
   FieldKey::default_instance_->InitAsDefaultInstance();
   Field::default_instance_->InitAsDefaultInstance();
   FieldOperation::default_instance_->InitAsDefaultInstance();
+  PresenceState::default_instance_->InitAsDefaultInstance();
   ChannelState::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::ExtensionSet::RegisterMessageExtension(
     &::bgs::protocol::channel::v1::ChannelState::default_instance(),
@@ -1467,6 +1495,276 @@ void FieldOperation::Swap(FieldOperation* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = FieldOperation_descriptor_;
   metadata.reflection = FieldOperation_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int PresenceState::kEntityIdFieldNumber;
+const int PresenceState::kFieldOperationFieldNumber;
+#endif  // !_MSC_VER
+
+PresenceState::PresenceState()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.presence.v1.PresenceState)
+}
+
+void PresenceState::InitAsDefaultInstance() {
+  entity_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
+}
+
+PresenceState::PresenceState(const PresenceState& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.presence.v1.PresenceState)
+}
+
+void PresenceState::SharedCtor() {
+  _cached_size_ = 0;
+  entity_id_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+PresenceState::~PresenceState() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.presence.v1.PresenceState)
+  SharedDtor();
+}
+
+void PresenceState::SharedDtor() {
+  if (this != default_instance_) {
+    delete entity_id_;
+  }
+}
+
+void PresenceState::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* PresenceState::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return PresenceState_descriptor_;
+}
+
+const PresenceState& PresenceState::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_presence_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+PresenceState* PresenceState::default_instance_ = NULL;
+
+PresenceState* PresenceState::New() const {
+  return new PresenceState;
+}
+
+void PresenceState::Clear() {
+  if (has_entity_id()) {
+    if (entity_id_ != NULL) entity_id_->::bgs::protocol::EntityId::Clear();
+  }
+  field_operation_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool PresenceState::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.presence.v1.PresenceState)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .bgs.protocol.EntityId entity_id = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_entity_id()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_field_operation;
+        break;
+      }
+
+      // repeated .bgs.protocol.presence.v1.FieldOperation field_operation = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_field_operation:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_field_operation()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_field_operation;
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.presence.v1.PresenceState)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.presence.v1.PresenceState)
+  return false;
+#undef DO_
+}
+
+void PresenceState::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.presence.v1.PresenceState)
+  // optional .bgs.protocol.EntityId entity_id = 1;
+  if (has_entity_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->entity_id(), output);
+  }
+
+  // repeated .bgs.protocol.presence.v1.FieldOperation field_operation = 2;
+  for (int i = 0; i < this->field_operation_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->field_operation(i), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.presence.v1.PresenceState)
+}
+
+::google::protobuf::uint8* PresenceState::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.presence.v1.PresenceState)
+  // optional .bgs.protocol.EntityId entity_id = 1;
+  if (has_entity_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->entity_id(), target);
+  }
+
+  // repeated .bgs.protocol.presence.v1.FieldOperation field_operation = 2;
+  for (int i = 0; i < this->field_operation_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->field_operation(i), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.presence.v1.PresenceState)
+  return target;
+}
+
+int PresenceState::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional .bgs.protocol.EntityId entity_id = 1;
+    if (has_entity_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->entity_id());
+    }
+
+  }
+  // repeated .bgs.protocol.presence.v1.FieldOperation field_operation = 2;
+  total_size += 1 * this->field_operation_size();
+  for (int i = 0; i < this->field_operation_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->field_operation(i));
+  }
+
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void PresenceState::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const PresenceState* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const PresenceState*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void PresenceState::MergeFrom(const PresenceState& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  field_operation_.MergeFrom(from.field_operation_);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_entity_id()) {
+      mutable_entity_id()->::bgs::protocol::EntityId::MergeFrom(from.entity_id());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void PresenceState::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void PresenceState::CopyFrom(const PresenceState& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool PresenceState::IsInitialized() const {
+
+  if (has_entity_id()) {
+    if (!this->entity_id().IsInitialized()) return false;
+  }
+  if (!::google::protobuf::internal::AllAreInitialized(this->field_operation())) return false;
+  return true;
+}
+
+void PresenceState::Swap(PresenceState* other) {
+  if (other != this) {
+    std::swap(entity_id_, other->entity_id_);
+    field_operation_.Swap(&other->field_operation_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata PresenceState::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = PresenceState_descriptor_;
+  metadata.reflection = PresenceState_reflection_;
   return metadata;
 }
 

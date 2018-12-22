@@ -52,7 +52,7 @@ class TC_GAME_API Pet : public Guardian
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        void SetDisplayId(uint32 modelId) override;
+        void SetDisplayId(uint32 modelId, float displayScale = 1.f) override;
 
         PetType getPetType() const { return m_petType; }
         void setPetType(PetType type) { m_petType = type; }

@@ -55,7 +55,7 @@ Object::Object()
 {
     m_objectTypeId      = TYPEID_OBJECT;
     m_objectType        = TYPEMASK_OBJECT;
-    m_updateFlag        = UPDATEFLAG_NONE;
+    m_updateFlag.Clear();
 
     m_uint32Values      = nullptr;
     _dynamicValues      = nullptr;
@@ -130,7 +130,6 @@ void Object::_Create(ObjectGuid const& guid)
     if (!m_uint32Values) _InitValues();
 
     SetGuidValue(OBJECT_FIELD_GUID, guid);
-    SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
 }
 
 std::string Object::_ConcatFields(uint16 startIndex, uint16 size) const
@@ -171,12 +170,19 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (!target)
         return;
 
-    uint8  updateType = UPDATETYPE_CREATE_OBJECT;
-    uint32 flags      = m_updateFlag;
+    uint8 updateType = UPDATETYPE_CREATE_OBJECT;
+    uint8 objectType = m_objectTypeId;
+    uint16 objectTypeMask = m_objectType;
+    CreateObjectBits flags = m_updateFlag;
 
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
-        flags |= UPDATEFLAG_SELF;
+    {
+        flags.ThisIsYou = true;
+        flags.ActivePlayer = true;
+        objectType = TYPEID_ACTIVE_PLAYER;
+        objectTypeMask |= TYPEMASK_ACTIVE_PLAYER;
+    }
 
     switch (GetGUID().GetHigh())
     {
@@ -209,15 +215,14 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     if (WorldObject const* worldObject = dynamic_cast<WorldObject const*>(this))
     {
-        if (!(flags & UPDATEFLAG_LIVING))
-            if (!worldObject->m_movementInfo.transport.guid.IsEmpty())
-                flags |= UPDATEFLAG_TRANSPORT_POSITION;
+        if (!flags.MovementUpdate && !worldObject->m_movementInfo.transport.guid.IsEmpty())
+            flags.MovementTransport = true;
 
         if (worldObject->GetAIAnimKitId() || worldObject->GetMovementAnimKitId() || worldObject->GetMeleeAnimKitId())
-            flags |= UPDATEFLAG_ANIMKITS;
+            flags.AnimKit = true;
     }
 
-    if (flags & UPDATEFLAG_STATIONARY_POSITION)
+    if (flags.Stationary)
     {
         // UPDATETYPE_CREATE_OBJECT2 for some gameobject types...
         if (isType(TYPEMASK_GAMEOBJECT))
@@ -238,12 +243,13 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     if (Unit const* unit = ToUnit())
         if (unit->GetVictim())
-            flags |= UPDATEFLAG_HAS_TARGET;
+            flags.CombatVictim = true;
 
     ByteBuffer buf(0x400);
     buf << uint8(updateType);
     buf << GetGUID();
-    buf << uint8(m_objectTypeId);
+    buf << uint8(objectType);
+    buf << uint32(objectTypeMask);
 
     BuildMovementUpdate(&buf, flags);
     BuildValuesUpdate(updateType, &buf, target);
@@ -338,25 +344,8 @@ ObjectGuid const& Object::GetGuidValue(uint16 index) const
     return *((ObjectGuid*)&(m_uint32Values[index]));
 }
 
-void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
+void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
 {
-    bool NoBirthAnim = false;
-    bool EnablePortals = false;
-    bool PlayHoverAnim = false;
-    bool HasMovementUpdate = (flags & UPDATEFLAG_LIVING) != 0;
-    bool HasMovementTransport = (flags & UPDATEFLAG_TRANSPORT_POSITION) != 0;
-    bool Stationary = (flags & UPDATEFLAG_STATIONARY_POSITION) != 0;
-    bool CombatVictim = (flags & UPDATEFLAG_HAS_TARGET) != 0;
-    bool ServerTime = (flags & UPDATEFLAG_TRANSPORT) != 0;
-    bool VehicleCreate = (flags & UPDATEFLAG_VEHICLE) != 0;
-    bool AnimKitCreate = (flags & UPDATEFLAG_ANIMKITS) != 0;
-    bool Rotation = (flags & UPDATEFLAG_ROTATION) != 0;
-    bool HasAreaTrigger = (flags & UPDATEFLAG_AREATRIGGER) != 0;
-    bool HasGameObject = (flags & UPDATEFLAG_GAMEOBJECT) != 0;
-    bool ThisIsYou = (flags & UPDATEFLAG_SELF) != 0;
-    bool SmoothPhasing = false;
-    bool SceneObjCreate = false;
-    bool PlayerCreateData = GetTypeId() == TYPEID_PLAYER && ToUnit()->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
     std::vector<uint32> const* PauseTimes = nullptr;
     uint32 PauseTimesCount = 0;
     if (GameObject const* go = ToGameObject())
@@ -368,26 +357,27 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         }
     }
 
-    data->WriteBit(NoBirthAnim);
-    data->WriteBit(EnablePortals);
-    data->WriteBit(PlayHoverAnim);
-    data->WriteBit(HasMovementUpdate);
-    data->WriteBit(HasMovementTransport);
-    data->WriteBit(Stationary);
-    data->WriteBit(CombatVictim);
-    data->WriteBit(ServerTime);
-    data->WriteBit(VehicleCreate);
-    data->WriteBit(AnimKitCreate);
-    data->WriteBit(Rotation);
-    data->WriteBit(HasAreaTrigger);
-    data->WriteBit(HasGameObject);
-    data->WriteBit(SmoothPhasing);
-    data->WriteBit(ThisIsYou);
-    data->WriteBit(SceneObjCreate);
-    data->WriteBit(PlayerCreateData);
+    data->WriteBit(flags.NoBirthAnim);
+    data->WriteBit(flags.EnablePortals);
+    data->WriteBit(flags.PlayHoverAnim);
+    data->WriteBit(flags.MovementUpdate);
+    data->WriteBit(flags.MovementTransport);
+    data->WriteBit(flags.Stationary);
+    data->WriteBit(flags.CombatVictim);
+    data->WriteBit(flags.ServerTime);
+    data->WriteBit(flags.Vehicle);
+    data->WriteBit(flags.AnimKit);
+    data->WriteBit(flags.Rotation);
+    data->WriteBit(flags.AreaTrigger);
+    data->WriteBit(flags.GameObject);
+    data->WriteBit(flags.SmoothPhasing);
+    data->WriteBit(flags.ThisIsYou);
+    data->WriteBit(flags.SceneObject);
+    data->WriteBit(flags.ActivePlayer);
+    data->WriteBit(flags.Conversation);
     data->FlushBits();
 
-    if (HasMovementUpdate)
+    if (flags.MovementUpdate)
     {
         Unit const* unit = ToUnit();
         bool HasFallDirection = unit->HasUnitMovementFlag(MOVEMENTFLAG_FALLING);
@@ -458,6 +448,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         //    *data << uint32(TransportID);
         //    *data << float(Magnitude);
         //    data->WriteBits(Type, 2);
+        //    data->FlushBits();
         //}
 
         if (HasSpline)
@@ -466,7 +457,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
     *data << uint32(PauseTimesCount);
 
-    if (Stationary)
+    if (flags.Stationary)
     {
         WorldObject const* self = static_cast<WorldObject const*>(this);
         *data << float(self->GetStationaryX());
@@ -475,10 +466,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         *data << float(self->GetStationaryO());
     }
 
-    if (CombatVictim)
+    if (flags.CombatVictim)
         *data << ToUnit()->GetVictim()->GetGUID();                      // CombatVictim
 
-    if (ServerTime)
+    if (flags.ServerTime)
     {
         GameObject const* go = ToGameObject();
         /** @TODO Use IsTransport() to also handle type 11 (TRANSPORT)
@@ -492,14 +483,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             *data << uint32(getMSTime());
     }
 
-    if (VehicleCreate)
+    if (flags.Vehicle)
     {
         Unit const* unit = ToUnit();
         *data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->ID); // RecID
         *data << float(unit->GetOrientation());                         // InitialRawFacing
     }
 
-    if (AnimKitCreate)
+    if (flags.AnimKit)
     {
         WorldObject const* self = static_cast<WorldObject const*>(this);
         *data << uint16(self->GetAIAnimKitId());                        // AiID
@@ -507,19 +498,19 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         *data << uint16(self->GetMeleeAnimKitId());                     // MeleeID
     }
 
-    if (Rotation)
+    if (flags.Rotation)
         *data << uint64(ToGameObject()->GetPackedWorldRotation());      // Rotation
 
     if (PauseTimesCount)
         data->append(PauseTimes->data(), PauseTimes->size());
 
-    if (HasMovementTransport)
+    if (flags.MovementTransport)
     {
         WorldObject const* self = static_cast<WorldObject const*>(this);
         *data << self->m_movementInfo.transport;
     }
 
-    if (HasAreaTrigger)
+    if (flags.AreaTrigger)
     {
         AreaTrigger const* areaTrigger = ToAreaTrigger();
         AreaTriggerMiscTemplate const* areaTriggerMiscTemplate = areaTrigger->GetMiscTemplate();
@@ -540,9 +531,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool hasMorphCurveID        = areaTriggerMiscTemplate->MorphCurveId != 0;
         bool hasFacingCurveID       = areaTriggerMiscTemplate->FacingCurveId != 0;
         bool hasMoveCurveID         = areaTriggerMiscTemplate->MoveCurveId != 0;
-        bool hasUnk2                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK2);
+        bool hasAnimation           = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_ANIM_ID);
         bool hasUnk3                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK3);
-        bool hasUnk4                = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_UNK4);
+        bool hasAnimKitID           = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_ANIM_KIT_ID);
+        bool hasAnimProgress        = false;
         bool hasAreaTriggerSphere   = areaTriggerTemplate->IsSphere();
         bool hasAreaTriggerBox      = areaTriggerTemplate->IsBox();
         bool hasAreaTriggerPolygon  = areaTriggerTemplate->IsPolygon();
@@ -561,9 +553,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         data->WriteBit(hasMorphCurveID);
         data->WriteBit(hasFacingCurveID);
         data->WriteBit(hasMoveCurveID);
-        data->WriteBit(hasUnk2);
+        data->WriteBit(hasAnimation);
+        data->WriteBit(hasAnimKitID);
         data->WriteBit(hasUnk3);
-        data->WriteBit(hasUnk4);
+        data->WriteBit(hasAnimProgress);
         data->WriteBit(hasAreaTriggerSphere);
         data->WriteBit(hasAreaTriggerBox);
         data->WriteBit(hasAreaTriggerPolygon);
@@ -599,10 +592,13 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         if (hasMoveCurveID)
             *data << uint32(areaTriggerMiscTemplate->MoveCurveId);
 
-        if (hasUnk2)
-            *data << int32(0);
+        if (hasAnimation)
+            *data << int32(areaTriggerMiscTemplate->AnimId);
 
-        if (hasUnk4)
+        if (hasAnimKitID)
+            *data << int32(areaTriggerMiscTemplate->AnimKitId);
+
+        if (hasAnimProgress)
             *data << uint32(0);
 
         if (hasAreaTriggerSphere)
@@ -649,7 +645,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             *data << *areaTrigger->GetCircularMovementInfo();
     }
 
-    if (HasGameObject)
+    if (flags.GameObject)
     {
         bool bit8 = false;
         uint32 Int1 = 0;
@@ -664,7 +660,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             *data << uint32(Int1);
     }
 
-    //if (SmoothPhasing)
+    //if (flags.SmoothPhasing)
     //{
     //    data->WriteBit(ReplaceActive);
     //    data->WriteBit(HasReplaceObject);
@@ -673,7 +669,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //        *data << ObjectGuid(ReplaceObject);
     //}
 
-    //if (SceneObjCreate)
+    //if (flags.SceneObject)
     //{
     //    data->WriteBit(HasLocalScriptData);
     //    data->WriteBit(HasPetBattleFullUpdate);
@@ -783,7 +779,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //    }
     //}
 
-    if (PlayerCreateData)
+    if (flags.ActivePlayer)
     {
         bool HasSceneInstanceIDs = false;
         bool HasRuneState = ToUnit()->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
@@ -809,6 +805,15 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             for (uint32 i = 0; i < maxRunes; ++i)
                 *data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255);
         }
+    }
+
+    if (flags.Conversation)
+    {
+        Conversation const* self = ToConversation();
+        if (data->WriteBit(self->GetTextureKitId() != 0))
+            *data << uint32(self->GetTextureKitId());
+
+        data->FlushBits();
     }
 }
 
@@ -843,7 +848,11 @@ void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player
     if (!target)
         return;
 
-    std::size_t blockCount = UpdateMask::GetBlockCount(_dynamicValuesCount);
+    std::size_t valueCount = _dynamicValuesCount;
+    if (target != this && GetTypeId() == TYPEID_PLAYER)
+        valueCount = PLAYER_DYNAMIC_END;
+
+    std::size_t blockCount = UpdateMask::GetBlockCount(valueCount);
 
     uint32* flags = nullptr;
     uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
@@ -852,7 +861,7 @@ void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player
     std::size_t maskPos = data->wpos();
     data->resize(data->size() + blockCount * sizeof(UpdateMask::BlockType));
 
-    for (uint16 index = 0; index < _dynamicValuesCount; ++index)
+    for (uint16 index = 0; index < valueCount; ++index)
     {
         std::vector<uint32> const& values = _dynamicValues[index];
         if (_fieldNotifyFlags & flags[index] ||
@@ -928,7 +937,17 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
     {
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
-            flags = ItemUpdateFieldFlags;
+            flags = ContainerUpdateFieldFlags;
+            if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
+            break;
+        case TYPEID_AZERITE_EMPOWERED_ITEM:
+            flags = AzeriteEmpoweredItemUpdateFieldFlags;
+            if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
+            break;
+        case TYPEID_AZERITE_ITEM:
+            flags = AzeriteItemUpdateFieldFlags;
             if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
             break;
@@ -973,6 +992,7 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             flags = ConversationUpdateFieldFlags;
             break;
         case TYPEID_OBJECT:
+        case TYPEID_ACTIVE_PLAYER:
             ABORT();
             break;
     }
@@ -991,6 +1011,8 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
     {
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
+        case TYPEID_AZERITE_EMPOWERED_ITEM:
+        case TYPEID_AZERITE_ITEM:
             flags = ItemDynamicUpdateFieldFlags;
             if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
@@ -1671,7 +1693,7 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
     return distsq < maxdist * maxdist;
 }
 
-bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
+bool WorldObject::IsWithinLOSInMap(const WorldObject* obj, VMAP::ModelIgnoreFlags ignoreFlags) const
 {
     if (!IsInMap(obj))
         return false;
@@ -1682,7 +1704,7 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
     else
         obj->GetHitSpherePointFor(GetPosition(), x, y, z);
 
-    return IsWithinLOS(x, y, z);
+    return IsWithinLOS(x, y, z, ignoreFlags);
 }
 
 float WorldObject::GetDistance(const WorldObject* obj) const
@@ -1759,7 +1781,7 @@ bool WorldObject::IsWithinDistInMap(WorldObject const* obj, float dist2compare, 
     return obj && IsInMap(obj) && IsInPhase(obj) && _IsWithinDist(obj, dist2compare, is3D);
 }
 
-bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
+bool WorldObject::IsWithinLOS(float ox, float oy, float oz, VMAP::ModelIgnoreFlags ignoreFlags) const
 {
     /*float x, y, z;
     GetPosition(x, y, z);
@@ -1773,7 +1795,7 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
         else
             GetHitSpherePointFor({ ox, oy, oz }, x, y, z);
 
-        return GetMap()->isInLineOfSight(GetPhaseShift(), x, y, z + 2.0f, ox, oy, oz + 2.0f);
+        return GetMap()->isInLineOfSight(GetPhaseShift(), x, y, z + 2.0f, ox, oy, oz + 2.0f, ignoreFlags);
     }
 
     return true;
@@ -2100,6 +2122,14 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
                             corpseVisibility = true;
                 }
             }
+
+            if (Unit const* target = obj->ToUnit())
+            {
+                // Don't allow to detect vehicle accessories if you can't see vehicle
+                if (Unit const* vehicle = target->GetVehicleBase())
+                    if (!thisPlayer->HaveAtClient(vehicle))
+                        return false;
+            }
         }
 
         WorldObject const* viewpoint = this;
@@ -2229,7 +2259,7 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj, bool checkAlert) co
     if (!HasInArc(float(M_PI), obj))
         return false;
 
-    GameObject const* go = ToGameObject();
+    GameObject const* go = obj->ToGameObject();
     for (uint32 i = 0; i < TOTAL_STEALTH_TYPES; ++i)
     {
         if (!(obj->m_stealth.GetFlags() & (1 << i)))
@@ -2975,7 +3005,7 @@ struct WorldObjectChangeAccumulator
             {
                 //Caster may be NULL if DynObj is in removelist
                 if (Player* caster = ObjectAccessor::FindPlayer(guid))
-                    if (caster->GetGuidValue(PLAYER_FARSIGHT) == source->GetGUID())
+                    if (caster->GetGuidValue(ACTIVE_PLAYER_FIELD_FARSIGHT) == source->GetGUID())
                         BuildPacket(caster);
             }
         }

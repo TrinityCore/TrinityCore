@@ -473,38 +473,12 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   inline bool public_computer() const;
   inline void set_public_computer(bool value);
 
-  // optional bytes sso_id = 8;
-  inline bool has_sso_id() const;
-  inline void clear_sso_id();
-  static const int kSsoIdFieldNumber = 8;
-  inline const ::std::string& sso_id() const;
-  inline void set_sso_id(const ::std::string& value);
-  inline void set_sso_id(const char* value);
-  inline void set_sso_id(const void* value, size_t size);
-  inline ::std::string* mutable_sso_id();
-  inline ::std::string* release_sso_id();
-  inline void set_allocated_sso_id(::std::string* sso_id);
-
-  // optional bool disconnect_on_cookie_fail = 9 [default = false];
-  inline bool has_disconnect_on_cookie_fail() const;
-  inline void clear_disconnect_on_cookie_fail();
-  static const int kDisconnectOnCookieFailFieldNumber = 9;
-  inline bool disconnect_on_cookie_fail() const;
-  inline void set_disconnect_on_cookie_fail(bool value);
-
   // optional bool allow_logon_queue_notifications = 10 [default = false];
   inline bool has_allow_logon_queue_notifications() const;
   inline void clear_allow_logon_queue_notifications();
   static const int kAllowLogonQueueNotificationsFieldNumber = 10;
   inline bool allow_logon_queue_notifications() const;
   inline void set_allow_logon_queue_notifications(bool value);
-
-  // optional bool web_client_verification = 11 [default = false];
-  inline bool has_web_client_verification() const;
-  inline void clear_web_client_verification();
-  static const int kWebClientVerificationFieldNumber = 11;
-  inline bool web_client_verification() const;
-  inline void set_web_client_verification(bool value);
 
   // optional bytes cached_web_credentials = 12;
   inline bool has_cached_web_credentials() const;
@@ -558,14 +532,8 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   inline void clear_has_application_version();
   inline void set_has_public_computer();
   inline void clear_has_public_computer();
-  inline void set_has_sso_id();
-  inline void clear_has_sso_id();
-  inline void set_has_disconnect_on_cookie_fail();
-  inline void clear_has_disconnect_on_cookie_fail();
   inline void set_has_allow_logon_queue_notifications();
   inline void clear_has_allow_logon_queue_notifications();
-  inline void set_has_web_client_verification();
-  inline void clear_has_web_client_verification();
   inline void set_has_cached_web_credentials();
   inline void clear_has_cached_web_credentials();
   inline void set_has_user_agent();
@@ -582,12 +550,9 @@ class TC_PROTO_API LogonRequest : public ::google::protobuf::Message {
   ::std::string* locale_;
   ::std::string* email_;
   ::std::string* version_;
-  ::std::string* sso_id_;
   ::google::protobuf::int32 application_version_;
   bool public_computer_;
-  bool disconnect_on_cookie_fail_;
   bool allow_logon_queue_notifications_;
-  bool web_client_verification_;
   ::std::string* cached_web_credentials_;
   ::std::string* user_agent_;
   ::std::string* device_id_;
@@ -2975,115 +2940,15 @@ inline void LogonRequest::set_public_computer(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.authentication.v1.LogonRequest.public_computer)
 }
 
-// optional bytes sso_id = 8;
-inline bool LogonRequest::has_sso_id() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
-}
-inline void LogonRequest::set_has_sso_id() {
-  _has_bits_[0] |= 0x00000080u;
-}
-inline void LogonRequest::clear_has_sso_id() {
-  _has_bits_[0] &= ~0x00000080u;
-}
-inline void LogonRequest::clear_sso_id() {
-  if (sso_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    sso_id_->clear();
-  }
-  clear_has_sso_id();
-}
-inline const ::std::string& LogonRequest::sso_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.authentication.v1.LogonRequest.sso_id)
-  return *sso_id_;
-}
-inline void LogonRequest::set_sso_id(const ::std::string& value) {
-  set_has_sso_id();
-  if (sso_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    sso_id_ = new ::std::string;
-  }
-  sso_id_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.authentication.v1.LogonRequest.sso_id)
-}
-inline void LogonRequest::set_sso_id(const char* value) {
-  set_has_sso_id();
-  if (sso_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    sso_id_ = new ::std::string;
-  }
-  sso_id_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.authentication.v1.LogonRequest.sso_id)
-}
-inline void LogonRequest::set_sso_id(const void* value, size_t size) {
-  set_has_sso_id();
-  if (sso_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    sso_id_ = new ::std::string;
-  }
-  sso_id_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.authentication.v1.LogonRequest.sso_id)
-}
-inline ::std::string* LogonRequest::mutable_sso_id() {
-  set_has_sso_id();
-  if (sso_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    sso_id_ = new ::std::string;
-  }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.authentication.v1.LogonRequest.sso_id)
-  return sso_id_;
-}
-inline ::std::string* LogonRequest::release_sso_id() {
-  clear_has_sso_id();
-  if (sso_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    return NULL;
-  } else {
-    ::std::string* temp = sso_id_;
-    sso_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    return temp;
-  }
-}
-inline void LogonRequest::set_allocated_sso_id(::std::string* sso_id) {
-  if (sso_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete sso_id_;
-  }
-  if (sso_id) {
-    set_has_sso_id();
-    sso_id_ = sso_id;
-  } else {
-    clear_has_sso_id();
-    sso_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.authentication.v1.LogonRequest.sso_id)
-}
-
-// optional bool disconnect_on_cookie_fail = 9 [default = false];
-inline bool LogonRequest::has_disconnect_on_cookie_fail() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
-}
-inline void LogonRequest::set_has_disconnect_on_cookie_fail() {
-  _has_bits_[0] |= 0x00000100u;
-}
-inline void LogonRequest::clear_has_disconnect_on_cookie_fail() {
-  _has_bits_[0] &= ~0x00000100u;
-}
-inline void LogonRequest::clear_disconnect_on_cookie_fail() {
-  disconnect_on_cookie_fail_ = false;
-  clear_has_disconnect_on_cookie_fail();
-}
-inline bool LogonRequest::disconnect_on_cookie_fail() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.authentication.v1.LogonRequest.disconnect_on_cookie_fail)
-  return disconnect_on_cookie_fail_;
-}
-inline void LogonRequest::set_disconnect_on_cookie_fail(bool value) {
-  set_has_disconnect_on_cookie_fail();
-  disconnect_on_cookie_fail_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.authentication.v1.LogonRequest.disconnect_on_cookie_fail)
-}
-
 // optional bool allow_logon_queue_notifications = 10 [default = false];
 inline bool LogonRequest::has_allow_logon_queue_notifications() const {
-  return (_has_bits_[0] & 0x00000200u) != 0;
+  return (_has_bits_[0] & 0x00000080u) != 0;
 }
 inline void LogonRequest::set_has_allow_logon_queue_notifications() {
-  _has_bits_[0] |= 0x00000200u;
+  _has_bits_[0] |= 0x00000080u;
 }
 inline void LogonRequest::clear_has_allow_logon_queue_notifications() {
-  _has_bits_[0] &= ~0x00000200u;
+  _has_bits_[0] &= ~0x00000080u;
 }
 inline void LogonRequest::clear_allow_logon_queue_notifications() {
   allow_logon_queue_notifications_ = false;
@@ -3099,39 +2964,15 @@ inline void LogonRequest::set_allow_logon_queue_notifications(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.authentication.v1.LogonRequest.allow_logon_queue_notifications)
 }
 
-// optional bool web_client_verification = 11 [default = false];
-inline bool LogonRequest::has_web_client_verification() const {
-  return (_has_bits_[0] & 0x00000400u) != 0;
-}
-inline void LogonRequest::set_has_web_client_verification() {
-  _has_bits_[0] |= 0x00000400u;
-}
-inline void LogonRequest::clear_has_web_client_verification() {
-  _has_bits_[0] &= ~0x00000400u;
-}
-inline void LogonRequest::clear_web_client_verification() {
-  web_client_verification_ = false;
-  clear_has_web_client_verification();
-}
-inline bool LogonRequest::web_client_verification() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.authentication.v1.LogonRequest.web_client_verification)
-  return web_client_verification_;
-}
-inline void LogonRequest::set_web_client_verification(bool value) {
-  set_has_web_client_verification();
-  web_client_verification_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.authentication.v1.LogonRequest.web_client_verification)
-}
-
 // optional bytes cached_web_credentials = 12;
 inline bool LogonRequest::has_cached_web_credentials() const {
-  return (_has_bits_[0] & 0x00000800u) != 0;
+  return (_has_bits_[0] & 0x00000100u) != 0;
 }
 inline void LogonRequest::set_has_cached_web_credentials() {
-  _has_bits_[0] |= 0x00000800u;
+  _has_bits_[0] |= 0x00000100u;
 }
 inline void LogonRequest::clear_has_cached_web_credentials() {
-  _has_bits_[0] &= ~0x00000800u;
+  _has_bits_[0] &= ~0x00000100u;
 }
 inline void LogonRequest::clear_cached_web_credentials() {
   if (cached_web_credentials_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -3201,13 +3042,13 @@ inline void LogonRequest::set_allocated_cached_web_credentials(::std::string* ca
 
 // optional string user_agent = 14;
 inline bool LogonRequest::has_user_agent() const {
-  return (_has_bits_[0] & 0x00001000u) != 0;
+  return (_has_bits_[0] & 0x00000200u) != 0;
 }
 inline void LogonRequest::set_has_user_agent() {
-  _has_bits_[0] |= 0x00001000u;
+  _has_bits_[0] |= 0x00000200u;
 }
 inline void LogonRequest::clear_has_user_agent() {
-  _has_bits_[0] &= ~0x00001000u;
+  _has_bits_[0] &= ~0x00000200u;
 }
 inline void LogonRequest::clear_user_agent() {
   if (user_agent_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -3277,13 +3118,13 @@ inline void LogonRequest::set_allocated_user_agent(::std::string* user_agent) {
 
 // optional string device_id = 15;
 inline bool LogonRequest::has_device_id() const {
-  return (_has_bits_[0] & 0x00002000u) != 0;
+  return (_has_bits_[0] & 0x00000400u) != 0;
 }
 inline void LogonRequest::set_has_device_id() {
-  _has_bits_[0] |= 0x00002000u;
+  _has_bits_[0] |= 0x00000400u;
 }
 inline void LogonRequest::clear_has_device_id() {
-  _has_bits_[0] &= ~0x00002000u;
+  _has_bits_[0] &= ~0x00000400u;
 }
 inline void LogonRequest::clear_device_id() {
   if (device_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {

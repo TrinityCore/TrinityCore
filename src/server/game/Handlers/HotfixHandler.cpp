@@ -73,10 +73,15 @@ void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotf
             WorldPackets::Hotfix::HotfixResponse::HotfixData hotfixData;
             hotfixData.ID = hotfixId;
             hotfixData.RecordID = *hotfix;
-            if (storage->HasRecord(hotfixData.RecordID))
+            if (storage && storage->HasRecord(hotfixData.RecordID))
             {
                 hotfixData.Data = boost::in_place();
                 storage->WriteRecord(hotfixData.RecordID, GetSessionDbcLocale(), *hotfixData.Data);
+            }
+            else if (std::vector<uint8> const* blobData = sDB2Manager.GetHotfixBlobData(PAIR64_HIPART(hotfixId), *hotfix))
+            {
+                hotfixData.Data = boost::in_place();
+                hotfixData.Data->append(blobData->data(), blobData->size());
             }
 
             hotfixQueryResponse.Hotfixes.emplace_back(std::move(hotfixData));
