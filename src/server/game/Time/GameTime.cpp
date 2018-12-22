@@ -16,6 +16,7 @@
  */
 
 #include "GameTime.h"
+#include "Duration.h"
 #include "Timer.h"
 
 namespace GameTime
@@ -43,12 +44,12 @@ namespace GameTime
         return GameMSTime;
     }
 
-    std::chrono::system_clock::time_point GetGameTimeSystemPoint()
+    SystemTimePoint GetSystemTime()
     {
         return GameTimeSystemPoint;
     }
 
-    std::chrono::steady_clock::time_point GetGameTimeSteadyPoint()
+    TimePoint Now()
     {
         return GameTimeSteadyPoint;
     }

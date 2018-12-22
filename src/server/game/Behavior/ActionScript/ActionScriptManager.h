@@ -15,33 +15,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GAMETIME_H
-#define __GAMETIME_H
+#ifndef TRINITY_ACTIONSCRIPTMANAGER_H
+#define TRINITY_ACTIONSCRIPTMANAGER_H
 
 #include "Define.h"
-#include "Duration.h"
+#include <memory>
 
-namespace GameTime
+class ActionScript;
+
+class TC_GAME_API ActionScriptManager
 {
-    // Server start time
-    TC_GAME_API time_t GetStartTime();
+    private:
+        static std::unique_ptr<ActionScriptManager const> i;
+    public:
+        static std::unique_ptr<ActionScriptManager const>& instance() { return i; }
+        static void GlobalInit();
+        
+};
 
-    // Current server time (unix) in seconds
-    TC_GAME_API time_t GetGameTime();
-
-    // Milliseconds since server start
-    TC_GAME_API uint32 GetGameTimeMS();
-
-    /// Current chrono system_clock time point
-    TC_GAME_API SystemTimePoint GetSystemTime();
-
-    /// Current chrono steady_clock time point
-    TC_GAME_API TimePoint Now();
-
-    /// Uptime (in secs)
-    TC_GAME_API uint32 GetUptime();
-
-    void UpdateGameTimers();
-}
+#define sActionScriptManager ActionScriptManager::instance()
+        
 
 #endif

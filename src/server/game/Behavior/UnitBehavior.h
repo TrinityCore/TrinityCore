@@ -18,6 +18,7 @@
 #ifndef TRINITY_UNITBEHAVIOR_H
 #define TRINITY_UNITBEHAVIOR_H
 
+#include "Define.h"
 #include "Duration.h"
 
 class Unit;
@@ -46,6 +47,6 @@ class TC_GAME_API UnitBehavior
     private:
         Unit* const _owner;
         Unit* _primaryTarget = nullptr;
-}
+};
 
 #endif

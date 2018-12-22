@@ -2294,7 +2294,7 @@ bool AchievementGlobalMgr::IsRealmCompleted(AchievementEntry const* achievement)
     // it may allow more than one group to achieve it (highly unlikely)
     // but apparently this is how blizz handles it as well
     if (achievement->Flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL)
-        return (GameTime::GetGameTimeSystemPoint() - itr->second) > Minutes(1);
+        return (GameTime::GetSystemTime() - itr->second) > Minutes(1);
 
     return true;
 }
@@ -2304,7 +2304,7 @@ void AchievementGlobalMgr::SetRealmCompleted(AchievementEntry const* achievement
     if (IsRealmCompleted(achievement))
         return;
 
-    _allCompletedAchievements[achievement->ID] = GameTime::GetGameTimeSystemPoint();
+    _allCompletedAchievements[achievement->ID] = GameTime::GetSystemTime();
 }
 
 //==========================================================

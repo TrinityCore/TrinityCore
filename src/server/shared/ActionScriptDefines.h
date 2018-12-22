@@ -15,33 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GAMETIME_H
-#define __GAMETIME_H
+#ifndef TRINITY_ACTIONSCRIPTDEFINES_H
+#define TRINITY_ACTIONSCRIPTDEFINES_H
 
 #include "Define.h"
-#include "Duration.h"
 
-namespace GameTime
+constexpr size_t ACTIONSCRIPT_STEP_ARGS_MAX = 4;
+
+enum ActionScriptStepType : uint8
 {
-    // Server start time
-    TC_GAME_API time_t GetStartTime();
-
-    // Current server time (unix) in seconds
-    TC_GAME_API time_t GetGameTime();
-
-    // Milliseconds since server start
-    TC_GAME_API uint32 GetGameTimeMS();
-
-    /// Current chrono system_clock time point
-    TC_GAME_API SystemTimePoint GetSystemTime();
-
-    /// Current chrono steady_clock time point
-    TC_GAME_API TimePoint Now();
-
-    /// Uptime (in secs)
-    TC_GAME_API uint32 GetUptime();
-
-    void UpdateGameTimers();
-}
+    ACTIONSCRIPT_NULL = 0, // do nothing, never finish by itself
+};
 
 #endif
