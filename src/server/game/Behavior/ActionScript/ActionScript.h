@@ -25,6 +25,16 @@
 #include <array>
 #include <vector>
 
+struct TC_GAME_API ActionScriptVariableContent
+{
+
+};
+
+struct TC_GAME_API ActionScriptVariableReference
+{
+
+};
+
 struct TC_GAME_API ActionScriptStepArgument
 {
 
@@ -68,6 +78,8 @@ class TC_GAME_API ActionScriptThread
         ActionScript const& _script;
         ActionScriptStep const* _currentStep;
         TimePoint _stepTimeout;
+
+        std::vector<ActionScriptVariableContent> _variables;
 
         Optional<bool> EvaluateCurrentStep();
         void StepTo(Optional<size_t> step);

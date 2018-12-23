@@ -23,6 +23,7 @@
 #include "World.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
+#include "ActionScriptManager.h"
 #include "AddonMgr.h"
 #include "ArenaTeamMgr.h"
 #include "AuctionHouseBot.h"
@@ -1639,6 +1640,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Account Roles and Permissions...");
     sAccountMgr->LoadRBAC();
+
+    TC_LOG_INFO("server.loading", "Loading Creature behavior data...");
+    ActionScriptManager::GlobalInit();
 
     TC_LOG_INFO("server.loading", "Loading Page Texts...");
     sObjectMgr->LoadPageTexts();

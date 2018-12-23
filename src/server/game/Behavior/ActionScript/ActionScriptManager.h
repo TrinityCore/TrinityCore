@@ -18,22 +18,49 @@
 #ifndef TRINITY_ACTIONSCRIPTMANAGER_H
 #define TRINITY_ACTIONSCRIPTMANAGER_H
 
+#include "ActionScript.h"
 #include "Define.h"
+#include "SpawnData.h"
+#include <unordered_map>
 #include <memory>
-
-class ActionScript;
 
 class TC_GAME_API ActionScriptManager
 {
     private:
-        static std::unique_ptr<ActionScriptManager const> i;
+        static auto& _instance() { static std::unique_ptr<ActionScriptManager> i; return i; }
     public:
-        static std::unique_ptr<ActionScriptManager const>& instance() { return i; }
+        static ActionScriptManager const& instance() { return *_instance(); }
         static void GlobalInit();
-        
+
+        ActionScript const* GetScriptForTemplate(SpawnObjectType type, uint32 templateId, uint32 index)
+        {
+            auto it = _scriptsByTemplate.find({ type, templateId });
+            if (it == _scriptsByTemplate.end())
+                return nullptr;
+            auto const& scripts = it->second;
+            if (!(index < scripts.size()))
+                return nullptr;
+            if (!scripts[index])
+                return nullptr;
+            return GetScriptById(*scripts[index]);
+        }
+
+        ActionScript const* GetScriptById(uint32 id)
+        {
+            auto it = _scripts.find(id);
+            if (it == _scripts.end())
+                return nullptr;
+            return &it->second;
+        }
+        size_t GetScriptCount() { return _scripts.size(); }
+
+    private:
+        std::unordered_map<std::pair<SpawnObjectType, uint32>, std::vector<Optional<uint32>>> _scriptsByTemplate;
+        std::unordered_map<uint32, ActionScript> _scripts;
+        void Init();
 };
 
-#define sActionScriptManager ActionScriptManager::instance()
+#define sActionScriptMgr ActionScriptManager::instance()
         
 
 #endif
