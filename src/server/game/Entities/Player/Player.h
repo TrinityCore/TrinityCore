@@ -1940,7 +1940,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void UpdateSpeakTime();
         bool CanSpeak() const;
-        void ChangeSpeakTime(int utime);
 
         /*********************************************************/
         /***                 VARIOUS SYSTEMS                   ***/
@@ -2151,6 +2150,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
+
+        std::string GetDebugInfo() const override;
 
     protected:
         // Gamemaster whisper whitelist

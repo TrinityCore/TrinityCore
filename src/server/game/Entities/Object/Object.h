@@ -176,6 +176,8 @@ class TC_GAME_API Object
         DynamicObject* ToDynObject() { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject*>(this); else return nullptr; }
         DynamicObject const* ToDynObject() const { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject const*>(this); else return nullptr; }
 
+        virtual std::string GetDebugInfo() const;
+
     protected:
         Object();
 
@@ -514,6 +516,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 #ifdef ELUNA
         ElunaEventProcessor* elunaEvents;
 #endif
+
+        std::string GetDebugInfo() const override;
+
         // Event handler
         EventProcessor m_Events;
 

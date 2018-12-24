@@ -2594,3 +2594,11 @@ GameObjectModel* GameObject::CreateModel()
 {
     return GameObjectModel::Create(Trinity::make_unique<GameObjectModelOwnerImpl>(this), sWorld->GetDataPath());
 }
+
+std::string GameObject::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << WorldObject::GetDebugInfo() << "\n"
+        << "SpawnId: " << GetSpawnId() << " GoState: " << std::to_string(GetGoState()) << " ScriptId: " << GetScriptId() << " AIName: " << GetAIName();
+    return sstr.str();
+}

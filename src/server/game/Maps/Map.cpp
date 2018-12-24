@@ -4685,3 +4685,21 @@ void Map::UpdateAreaDependentAuras()
         }
     }
 }
+
+std::string Map::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << std::boolalpha
+        << "Id: " << GetId() << " InstanceId: " << GetInstanceId() << " Difficulty: " << std::to_string(GetDifficulty())
+        << " HasPlayers: " << HavePlayers();
+    return sstr.str();
+}
+
+std::string InstanceMap::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Map::GetDebugInfo() << "\n"
+        << std::boolalpha
+        << "ScriptId: " << GetScriptId() << " ScriptName: " << GetScriptName();
+    return sstr.str();
+}

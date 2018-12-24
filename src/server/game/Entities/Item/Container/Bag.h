@@ -27,16 +27,14 @@
 class TC_GAME_API Bag : public Item
 {
     public:
-
         Bag();
         ~Bag();
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        bool Create(ObjectGuid::LowType guidlow, ObjectGuid::LowType itemid, Player const* owner) override;
+        bool Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner) override;
 
-        void Clear();
         void StoreItem(uint8 slot, Item* pItem, bool update);
         void RemoveItem(uint8 slot, bool update);
 
@@ -58,6 +56,8 @@ class TC_GAME_API Bag : public Item
         void DeleteFromDB(SQLTransaction& trans) override;
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
+
+        std::string GetDebugInfo() const override;
 
     protected:
 
