@@ -31,12 +31,10 @@ void ActionScriptManager::GlobalInit()
     TimePoint start = std::chrono::steady_clock::now();
 
     auto& i = _instance();
-    assert(!i);
-    i = std::make_unique<ActionScriptManager>();
-    i->Init();
+    i.Init();
 
     uint32 ms = std::chrono::duration_cast<Milliseconds>(std::chrono::steady_clock::now() - start).count();
-    TC_LOG_INFO("server.loading", ">> Loaded %u behavior scripts in %u ms", i->GetScriptCount(), ms);
+    TC_LOG_INFO("server.loading", ">> Loaded %u behavior scripts in %u ms", i.GetScriptCount(), ms);
 }
 
 void ActionScriptManager::Init()
