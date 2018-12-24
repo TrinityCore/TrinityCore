@@ -27,9 +27,9 @@
 class TC_GAME_API ActionScriptManager
 {
     private:
-        static auto& _instance() { static std::unique_ptr<ActionScriptManager> i; return i; }
+        static ActionScriptManager& _instance();
     public:
-        static ActionScriptManager const& instance() { return *_instance(); }
+        static ActionScriptManager const& instance() { return _instance(); }
         static void GlobalInit();
 
         ActionScript const* GetScriptForTemplate(SpawnObjectType type, uint32 templateId, uint32 index)

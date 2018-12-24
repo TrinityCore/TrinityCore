@@ -20,6 +20,12 @@
 #include "Duration.h"
 #include "Log.h"
 
+ActionScriptManager& ActionScriptManager::_instance()
+{
+    static ActionScriptManager i;
+    return i;
+}
+
 void ActionScriptManager::GlobalInit()
 {
     TimePoint start = std::chrono::steady_clock::now();
