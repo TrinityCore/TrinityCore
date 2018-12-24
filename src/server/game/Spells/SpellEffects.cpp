@@ -991,8 +991,8 @@ void Spell::CalculateJumpSpeeds(SpellInfo const* spellInfo, uint8 i, float dist,
 
     float duration = dist / speedXY;
     float durationSqr = duration * duration;
-    float minHeight = m_spellInfo->Effects[i].MiscValue  ? m_spellInfo->Effects[i].MiscValue  / 10.0f :    0.5f; // Lower bound is blizzlike
-    float maxHeight = m_spellInfo->Effects[i].MiscValueB ? m_spellInfo->Effects[i].MiscValueB / 10.0f : 1000.0f; // Upper bound is unknown
+    float minHeight = spellInfo->Effects[i].MiscValue  ? spellInfo->Effects[i].MiscValue  / 10.0f :    0.5f; // Lower bound is blizzlike
+    float maxHeight = spellInfo->Effects[i].MiscValueB ? spellInfo->Effects[i].MiscValueB / 10.0f : 1000.0f; // Upper bound is unknown
     float height;
     if (durationSqr < minHeight * 8 / Movement::gravity)
         height = minHeight;
