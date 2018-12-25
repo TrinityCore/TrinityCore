@@ -30,38 +30,36 @@ enum Spells
     SPELL_ASPHYXIATE                = 93423,
     SPELL_ASPHYXIATE_ROOT           = 93422,
     SPELL_ASPHYXIATE_DAMAGE         = 93424,
-    SPELL_STAY_OF_EXECUTION         = 93468,
-    SPELL_STAY_OF_EXECUTION_HC      = 93705,
     SPELL_PAIN_AND_SUFFERING        = 93581,
     SPELL_PAIN_AND_SUFFERING_DUMMY  = 93605,
     SPELL_WRACKING_PAIN             = 93720,
-    SPELL_DARK_ARCHANGEL            = 93757,
-    SPELL_CALAMITY_CHANNEL          = 93812,
-
-    // Wings
-    SPELL_RIDE_VEHICLE_HARDCODED    = 46598,
-    SPELL_CALAMITY_AURA             = 93766
+    SPELL_DARK_ARCHANGEL_FORM       = 93757,
+    SPELL_CALAMITY                  = 93812
 };
+
+#define SPELL_STAY_OF_EXECUTION RAID_MODE<uint32>(93468, 93705)
 
 enum Texts
 {
-    SAY_AGGRO           = 1,
-    SAY_ASPHYXIATE      = 2,
-    SAY_ANNOUNCE_STAY   = 3,
-    SAY_STAY_EXECUTION  = 4,
-    SAY_ARCHANGEL       = 5,
-    SAY_DEATH           = 6
+    // Baron Ashbury
+    SAY_AGGRO                       = 1,
+    SAY_ASPHYXIATE                  = 2,
+    SAY_ANNOUNCE_STAY_OF_EXECUTION  = 3,
+    SAY_STAY_OF_EXECUTION           = 4,
+    SAY_ARCHANGEL_FORM              = 5,
+    SAY_DEATH                       = 6
 };
 
 enum Events
 {
+    // Baron Ashbury
     EVENT_ASPHYXIATE = 1,
     EVENT_STAY_OF_EXECUTION,
     EVENT_PAIN_AND_SUFFERING,
     EVENT_WRACKING_PAIN,
-    EVENT_DARK_ARCHANGEL,
-    EVENT_APPLY_IMMUNITY,
-    EVENT_DISABLE_ACHIEVEMENT
+    EVENT_DARK_ARCHANGEL_FORM,
+    EVENT_DISABLE_ACHIEVEMENT,
+    EVENT_APPLY_INTERRUPT_IMMUNITY
 };
 
 enum AchievementData
@@ -69,282 +67,287 @@ enum AchievementData
     DATA_PARDON_DENIED = 1
 };
 
-class boss_baron_ashbury : public CreatureScript
+struct boss_baron_ashbury : public BossAI
 {
-public:
-    boss_baron_ashbury() : CreatureScript("boss_baron_ashbury") { }
-
-    struct boss_baron_ashburyAI : public BossAI
+    boss_baron_ashbury(Creature* creature) : BossAI(creature, DATA_BARON_ASHBURY)
     {
-        boss_baron_ashburyAI(Creature* creature) : BossAI(creature, DATA_BARON_ASHBURY)
-        {
-        }
+        Initialize();
+    }
 
-        void Reset() override
-        {
-            _Reset();
-            _isArchangel = false;
-            _canAttack = true;
-            _pardonDenied = true;
-            me->SetReactState(REACT_PASSIVE);
-            MakeInterruptable(false);
-        }
+    void Initialize()
+    {
+        _phaseTwoTriggered = false;
+        _isInArchangelForm = false;
+        _canAttack = true;
+        _pardonDenied = true;
+    }
 
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _JustEngagedWith();
-            Talk(SAY_AGGRO);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-            me->SetReactState(REACT_AGGRESSIVE);
-            events.ScheduleEvent(EVENT_ASPHYXIATE, Seconds(20));
-            events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, Seconds(5) + Milliseconds(500));
-            if (IsHeroic())
-                events.ScheduleEvent(EVENT_WRACKING_PAIN, Seconds(14));
-        }
+    void Reset() override
+    {
+        _Reset();
+        _phaseTwoTriggered = false;
+        _isInArchangelForm = false;
+        _canAttack = true;
+        _pardonDenied = true;
+        me->MakeInterruptable(false);
+    }
 
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WRACKING_PAIN);
-            Talk(SAY_DEATH);
-        }
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+        Talk(SAY_AGGRO);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
-            _EnterEvadeMode();
-            summons.DespawnAll();
-            instance->SetBossState(DATA_BARON_ASHBURY, FAIL);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WRACKING_PAIN);
-            MakeInterruptable(false);
-            me->SetReactState(REACT_PASSIVE);
-            _DespawnAtEvade();
-        }
+        events.ScheduleEvent(EVENT_ASPHYXIATE, 20s);
+        events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 5s + 500ms);
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_WRACKING_PAIN, 14s);
+    }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WRACKING_PAIN);
+        Talk(SAY_DEATH);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        summons.DespawnAll();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_WRACKING_PAIN);
+        _DespawnAtEvade();
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(25, damage) && !_phaseTwoTriggered && IsHeroic())
         {
-            if (me->HealthBelowPct(25) && !_isArchangel && IsHeroic())
+            events.CancelEvent(EVENT_PAIN_AND_SUFFERING);
+            events.CancelEvent(EVENT_ASPHYXIATE);
+            events.CancelEvent(EVENT_STAY_OF_EXECUTION);
+            events.CancelEvent(EVENT_APPLY_INTERRUPT_IMMUNITY);
+            events.ScheduleEvent(EVENT_DARK_ARCHANGEL_FORM, 1ms);
+            _phaseTwoTriggered = true;
+        }
+    }
+
+    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    {
+        me->MakeInterruptable(false);
+        events.CancelEvent(EVENT_APPLY_INTERRUPT_IMMUNITY);
+
+        if (spell->Id == SPELL_STAY_OF_EXECUTION && IsHeroic())
+            events.CancelEvent(EVENT_DISABLE_ACHIEVEMENT);
+    }
+
+    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_STAY_OF_EXECUTION && !IsHeroic())
+        {
+            me->MakeInterruptable(false);
+            events.CancelEvent(EVENT_APPLY_INTERRUPT_IMMUNITY);
+        }
+        else if (spell->Id == SPELL_DARK_ARCHANGEL_FORM)
+            _isInArchangelForm = true;
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        switch (type)
+        {
+            case DATA_PARDON_DENIED:
+                return _pardonDenied;
+            default:
+                break;
+        }
+        return 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING) && !_isInArchangelForm)
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                events.Reset();
-                events.ScheduleEvent(EVENT_DARK_ARCHANGEL, Milliseconds(1));
-                _isArchangel = true;
-            }
-        }
-
-        void OnSpellCastInterrupt(SpellInfo const* spell) override
-        {
-            MakeInterruptable(false);
-            events.CancelEvent(EVENT_APPLY_IMMUNITY);
-
-            if (spell->Id == SPELL_STAY_OF_EXECUTION_HC && _pardonDenied)
-                events.CancelEvent(EVENT_DISABLE_ACHIEVEMENT);
-        }
-
-        void MakeInterruptable(bool apply)
-        {
-            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, !apply);
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, !apply);
-        }
-
-        uint32 GetData(uint32 type) const override
-        {
-            switch (type)
-            {
-                case DATA_PARDON_DENIED:
-                    return _pardonDenied;
+                case EVENT_ASPHYXIATE:
+                    Talk(SAY_ASPHYXIATE);
+                    DoCastAOE(SPELL_ASPHYXIATE);
+                    events.ScheduleEvent(EVENT_STAY_OF_EXECUTION, 7s);
+                    _canAttack = false;
+                    break;
+                case EVENT_STAY_OF_EXECUTION:
+                    me->StopMoving();
+                    me->MakeInterruptable(true);
+                    Talk(SAY_STAY_OF_EXECUTION);
+                    Talk(SAY_ANNOUNCE_STAY_OF_EXECUTION);
+                    DoCastAOE(SPELL_STAY_OF_EXECUTION);
+                    events.ScheduleEvent(EVENT_ASPHYXIATE, 45s);
+                    _canAttack = true;
+                    if (IsHeroic())
+                    {
+                        events.ScheduleEvent(EVENT_DISABLE_ACHIEVEMENT, 8s);
+                        events.ScheduleEvent(EVENT_APPLY_INTERRUPT_IMMUNITY, 8s);
+                    }
+                    break;
+                case EVENT_PAIN_AND_SUFFERING:
+                    me->MakeInterruptable(true);
+                    me->StopMoving();
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                    {
+                        DoCast(target, SPELL_PAIN_AND_SUFFERING);
+                        events.ScheduleEvent(EVENT_APPLY_INTERRUPT_IMMUNITY, 6s);
+                    }
+                    events.Repeat(26s + 500ms);
+                    break;
+                case EVENT_WRACKING_PAIN:
+                    DoCastAOE(SPELL_WRACKING_PAIN, true);
+                    events.Repeat(26s + 500ms);
+                    break;
+                case EVENT_DARK_ARCHANGEL_FORM:
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    me->MakeInterruptable(false);
+                    Talk(SAY_ARCHANGEL_FORM);
+                    DoCastAOE(SPELL_DARK_ARCHANGEL_FORM);
+                    break;
+                case EVENT_DISABLE_ACHIEVEMENT:
+                    _pardonDenied = false;
+                    break;
+                case EVENT_APPLY_INTERRUPT_IMMUNITY:
+                    me->MakeInterruptable(false);
+                    break;
                 default:
                     break;
             }
-            return 0;
         }
+        if (_canAttack)
+            DoMeleeAttackIfReady();
+    }
+private:
+    bool _phaseTwoTriggered;
+    bool _isInArchangelForm;
+    bool _canAttack;
+    bool _pardonDenied;
+};
 
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
+class spell_ashbury_asphyxiate : public AuraScript
+{
+    PrepareAuraScript(spell_ashbury_asphyxiate);
 
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while(uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_ASPHYXIATE:
-                        Talk(SAY_ASPHYXIATE);
-                        DoCastAOE(SPELL_ASPHYXIATE);
-                        events.ScheduleEvent(EVENT_STAY_OF_EXECUTION, Seconds(7));
-                        _canAttack = false;
-                        break;
-                    case EVENT_STAY_OF_EXECUTION:
-                        if (IsHeroic())
-                        {
-                            MakeInterruptable(true);
-                            events.ScheduleEvent(EVENT_APPLY_IMMUNITY, Seconds(8));
-                            events.ScheduleEvent(EVENT_DISABLE_ACHIEVEMENT, Seconds(8));
-                        }
-                        Talk(SAY_STAY_EXECUTION);
-                        Talk(SAY_ANNOUNCE_STAY);
-                        DoCastAOE(SPELL_STAY_OF_EXECUTION);
-                        events.ScheduleEvent(EVENT_ASPHYXIATE, Seconds(45));
-                        _canAttack = true;
-                        break;
-                    case EVENT_PAIN_AND_SUFFERING:
-                        MakeInterruptable(true);
-                        me->StopMoving();
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            DoCast(target, SPELL_PAIN_AND_SUFFERING);
-
-                        events.ScheduleEvent(EVENT_APPLY_IMMUNITY, IsHeroic() ? Seconds(6) : Seconds(8));
-                        events.Repeat(Seconds(26) + Milliseconds(500));
-                        break;
-                    case EVENT_WRACKING_PAIN:
-                        DoCastAOE(SPELL_WRACKING_PAIN);
-                        events.Repeat(Seconds(26) + Milliseconds(500));
-                        break;
-                    case EVENT_DARK_ARCHANGEL:
-                        Talk(SAY_ARCHANGEL);
-                        me->CastStop();
-                        DoCastAOE(SPELL_DARK_ARCHANGEL);
-                        me->AttackStop();
-                        me->SetReactState(REACT_PASSIVE);
-                        MakeInterruptable(false);
-                        if (Creature* wings = DoSummon(NPC_ASHBURY_WINGS, me->GetPosition(), 0, TEMPSUMMON_MANUAL_DESPAWN))
-                            wings->CastSpell(me, SPELL_RIDE_VEHICLE_HARDCODED);
-                        break;
-                    case EVENT_APPLY_IMMUNITY:
-                        MakeInterruptable(true);
-                        break;
-                    case EVENT_DISABLE_ACHIEVEMENT:
-                        _pardonDenied = false;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            if (_canAttack)
-                DoMeleeAttackIfReady();
-        }
-
-    private:
-        bool _isArchangel;
-        bool _canAttack;
-        bool _pardonDenied;
-    };
-    CreatureAI* GetAI(Creature *creature) const override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return GetShadowfangKeepAI<boss_baron_ashburyAI>(creature);
+        return ValidateSpellInfo({ SPELL_ASPHYXIATE_ROOT });
+    }
+
+    void HandleTriggerSpell(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        if (Unit* caster = GetCaster())
+        {
+            if (Unit* target = GetTarget())
+            {
+                uint32 triggerSpell = GetSpellInfo()->Effects[EFFECT_2].TriggerSpell;
+                uint64 damage = target->GetMaxHealth() / GetSpellInfo()->GetMaxTicks();
+
+                if (damage >= target->GetHealth())
+                    damage = target->GetHealth() - 1;
+
+                if (!target->HasAura(SPELL_ASPHYXIATE_ROOT))
+                    target->CastSpell(target, SPELL_ASPHYXIATE_ROOT, true);
+
+                target->CastCustomSpell(triggerSpell, SPELLVALUE_BASE_POINT0, damage, target, true, nullptr, aurEff, caster->GetGUID());
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ashbury_asphyxiate::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
-class spell_sfk_asphyxiate : public SpellScriptLoader
+class spell_ashbury_pain_and_suffering : public AuraScript
 {
-public:
-    spell_sfk_asphyxiate() : SpellScriptLoader("spell_sfk_asphyxiate") { }
+    PrepareAuraScript(spell_ashbury_pain_and_suffering);
 
-    class spell_sfk_asphyxiate_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_sfk_asphyxiate_AuraScript);
+        return ValidateSpellInfo({ SPELL_PAIN_AND_SUFFERING_DUMMY });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_ASPHYXIATE_ROOT });
-        }
-
-        void HandleTriggerSpell(AuraEffect const* aurEff)
-        {
-            PreventDefaultAction();
+    void OnPeriodic(AuraEffect const* aurEff)
+    {
+        if (Unit* owner = GetTarget())
             if (Unit* caster = GetCaster())
-            {
-                if (Unit* target = GetTarget())
-                {
-                    uint32 triggerSpell = GetSpellInfo()->Effects[EFFECT_2].TriggerSpell;
-                    uint64 damage = target->GetMaxHealth() / GetSpellInfo()->GetMaxTicks();
+               owner->CastSpell(caster, SPELL_PAIN_AND_SUFFERING_DUMMY, true);
 
-                    if (damage > target->GetHealth())
-                        damage = target->GetHealth() - 1;
+        uint64 damage = aurEff->GetBaseAmount() * aurEff->GetTickNumber();
+        GetEffect(EFFECT_0)->ChangeAmount(damage);
+    }
 
-                    if (!target->HasAura(SPELL_ASPHYXIATE_ROOT))
-                        target->CastSpell(target, SPELL_ASPHYXIATE_ROOT, true);
-
-                    target->CastCustomSpell(triggerSpell, SPELLVALUE_BASE_POINT0, damage, target, true, nullptr, aurEff, caster->GetGUID());
-                }
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_sfk_asphyxiate_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_sfk_asphyxiate_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ashbury_pain_and_suffering::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
-class spell_sfk_pain_and_suffering : public SpellScriptLoader
+class spell_ashbury_dark_archangel_form : public AuraScript
 {
-    public:
-        spell_sfk_pain_and_suffering() : SpellScriptLoader("spell_sfk_pain_and_suffering") { }
+    PrepareAuraScript(spell_ashbury_dark_archangel_form);
 
-        class spell_sfk_pain_and_suffering_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CALAMITY });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* target = GetTarget())
         {
-            PrepareAuraScript(spell_sfk_pain_and_suffering_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PAIN_AND_SUFFERING_DUMMY });
-            }
-
-            void OnPeriodic(AuraEffect const* aurEff)
-            {
-                if (Unit* owner = GetOwner()->ToUnit())
-                    if (InstanceScript* instance = owner->GetInstanceScript())
-                        if (Creature* ashbury = instance->GetCreature(DATA_BARON_ASHBURY))
-                            owner->CastSpell(ashbury, SPELL_PAIN_AND_SUFFERING_DUMMY, true);
-
-                uint64 damage = aurEff->GetBaseAmount() * aurEff->GetTickNumber();
-                GetEffect(EFFECT_0)->ChangeAmount(damage);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sfk_pain_and_suffering_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_sfk_pain_and_suffering_AuraScript();
+            target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_0].BasePoints, true);
+            target->CastSpell(target, SPELL_CALAMITY, true);
         }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_ashbury_dark_archangel_form::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 class achievement_pardon_denied : public AchievementCriteriaScript
 {
-public:
-    achievement_pardon_denied() : AchievementCriteriaScript("achievement_pardon_denied") { }
+    public:
+        achievement_pardon_denied() : AchievementCriteriaScript("achievement_pardon_denied") { }
 
-    bool OnCheck(Player* /*source*/, Unit* target)
-    {
-        if (!target)
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (target->GetMap()->IsHeroic())
+                return target->GetAI()->GetData(DATA_PARDON_DENIED);
+
             return false;
-
-        if (target->GetMap()->IsHeroic())
-            return target->GetAI()->GetData(DATA_PARDON_DENIED);
-
-        return false;
-    }
+        }
 };
 
 void AddSC_boss_baron_ashbury()
 {
-    new boss_baron_ashbury();
-    new spell_sfk_asphyxiate();
-    new spell_sfk_pain_and_suffering();
+    RegisterShadowfangKeepCreatureAI(boss_baron_ashbury);
+    RegisterAuraScript(spell_ashbury_asphyxiate);
+    RegisterAuraScript(spell_ashbury_pain_and_suffering);
+    RegisterAuraScript(spell_ashbury_dark_archangel_form);
     new achievement_pardon_denied();
 }

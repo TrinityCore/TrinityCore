@@ -45,7 +45,6 @@ enum SKCreatures
 {
     // Baron Ashbury
     BOSS_BARON_ASHBURY          = 46962,
-    NPC_ASHBURY_WINGS           = 50604,
 
     // Baron Silverlaine
     BOSS_BARON_SILVERLAINE      = 3887,
@@ -294,5 +293,7 @@ AI* GetShadowfangKeepAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, SKScriptName);
 }
+
+#define RegisterShadowfangKeepCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetShadowfangKeepAI)
 
 #endif
