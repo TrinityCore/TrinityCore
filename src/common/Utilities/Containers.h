@@ -41,7 +41,7 @@ namespace Trinity
     }
 
     template <class T>
-    class BufferWriteGuard
+    class CheckedBufferOutputIterator
     {
         public:
             using iterator_category = std::output_iterator_tag;
@@ -50,20 +50,20 @@ namespace Trinity
             using reference = T&;
             using difference_type = std::ptrdiff_t;
 
-            BufferWriteGuard(T* buf, size_t n) : _buf(buf), _n(n) {}
+            CheckedBufferOutputIterator(T* buf, size_t n) : _buf(buf), _end(buf+n) {}
 
             T& operator*() const { check(); return *_buf; }
-            BufferWriteGuard& operator++() { check(); ++_buf; --_n; return *this; }
-            T* operator++(int) { check(); T* b = _buf; ++_buf; --_n; return b; }
+            CheckedBufferOutputIterator& operator++() { check(); ++_buf; return *this; }
+            CheckedBufferOutputIterator operator++(int) { CheckedBufferOutputIterator v = *this; operator++(); return v; }
 
-            size_t size() const { return _n; }
+            size_t remaining() const { return (_end - _buf); }
 
         private:
             T* _buf;
-            size_t _n;
-            void check()
+            T* _end;
+            void check() const
             {
-                if (!_n)
+                if (!(_buf < _end))
                     throw std::out_of_range("index");
             }
     };
