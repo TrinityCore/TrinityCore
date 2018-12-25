@@ -253,9 +253,9 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
 {
     try
     {
-        Trinity::BufferWriteGuard<wchar_t> guard(wstr, wsize);
-        guard = utf8::utf8to16(utf8str, utf8str+csize, guard);
-        wsize -= guard.size(); // remaining unused space
+        Trinity::CheckedBufferOutputIterator<wchar_t> out(wstr, wsize);
+        out = utf8::utf8to16(utf8str, utf8str+csize, out);
+        wsize -= out.remaining(); // remaining unused space
         wstr[wsize] = L'\0';
     }
     catch(std::exception)
