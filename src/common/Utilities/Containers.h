@@ -21,6 +21,8 @@
 #include "Define.h"
 #include "Random.h"
 #include <algorithm>
+#include <exception>
+#include <iterator>
 #include <utility>
 #include <vector>
 
@@ -37,6 +39,34 @@ namespace Trinity
     {
         return std::addressof(not_ptr);
     }
+
+    template <class T>
+    class CheckedBufferOutputIterator
+    {
+        public:
+            using iterator_category = std::output_iterator_tag;
+            using value_type = void;
+            using pointer = T*;
+            using reference = T&;
+            using difference_type = std::ptrdiff_t;
+
+            CheckedBufferOutputIterator(T* buf, size_t n) : _buf(buf), _end(buf+n) {}
+
+            T& operator*() const { check(); return *_buf; }
+            CheckedBufferOutputIterator& operator++() { check(); ++_buf; return *this; }
+            CheckedBufferOutputIterator operator++(int) { CheckedBufferOutputIterator v = *this; operator++(); return v; }
+
+            size_t remaining() const { return (_end - _buf); }
+
+        private:
+            T* _buf;
+            T* _end;
+            void check() const
+            {
+                if (!(_buf < _end))
+                    throw std::out_of_range("index");
+            }
+    };
 
     namespace Containers
     {
