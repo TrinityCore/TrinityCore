@@ -21,6 +21,8 @@
 #include "Define.h"
 #include "Random.h"
 #include <algorithm>
+#include <exception>
+#include <iterator>
 #include <utility>
 #include <vector>
 
@@ -37,6 +39,34 @@ namespace Trinity
     {
         return std::addressof(not_ptr);
     }
+
+    template <class T>
+    class BufferWriteGuard
+    {
+        public:
+            using iterator_category = std::output_iterator_tag;
+            using value_type = void;
+            using pointer = T*;
+            using reference = T&;
+            using difference_type = std::ptrdiff_t;
+
+            BufferWriteGuard(T* buf, size_t n) : _buf(buf), _n(n) {}
+
+            T& operator*() const { check(); return *_buf; }
+            BufferWriteGuard& operator++() { check(); ++_buf; --_n; return *this; }
+            T* operator++(int) { check(); T* b = _buf; ++_buf; --_n; return b; }
+
+            size_t size() const { return _n; }
+
+        private:
+            T* _buf;
+            size_t _n;
+            void check()
+            {
+                if (!_n)
+                    throw std::out_of_range("index");
+            }
+    };
 
     namespace Containers
     {
