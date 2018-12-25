@@ -29,7 +29,7 @@ enum DefiasWatcherSpells
 {
     SPELL_ON_FIRE           = 91737,
     SPELL_EXPLOSIVE_SUICIDE = 91738,
-    SPELL_ENERGIZE          = 89132,
+    SPELL_ENERGIZE          = 89132
 };
 
 enum DefiasWatcherFaction
