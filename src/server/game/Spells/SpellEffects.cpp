@@ -5589,9 +5589,6 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         if (!summon)
             return;
 
-        if (summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
-            ((Guardian*)summon)->InitStatsForLevel(level);
-
         if (properties && properties->Category == SUMMON_CATEGORY_ALLY)
             summon->SetFaction(unitCaster->GetFaction());
 
