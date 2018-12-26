@@ -29,7 +29,7 @@ class TC_GAME_API ActionThreadStep
     public:
         virtual ~ActionThreadStep() {}
 
-        static std::unique_ptr<ActionThreadStep> StepTo(ActionThread const& thread, ActionScriptStep const& stepTemplate);
+        static void StepTo(unsigned char* ptr, ActionThread const& thread, ActionScriptStep const& stepTemplate);
 
         virtual void Initialize() = 0;
         virtual Optional<bool> Evaluate() = 0;

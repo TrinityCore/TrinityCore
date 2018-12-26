@@ -29,15 +29,16 @@ class NullStep : public ActionThreadStep
         void Abort() override {}
 };
 
-/*static*/ std::unique_ptr<ActionThreadStep> ActionThreadStep::StepTo(ActionThread const& thread, ActionScriptStep const& stepTemplate)
+/*static*/ void ActionThreadStep::StepTo(unsigned char* ptr, ActionThread const& thread, ActionScriptStep const& stepTemplate)
 {
-    ActionThreadStep* step;
+    if (ptr[ACTIONSCRIPT_MAX_STEP_SIZE])
+        reinterpret_cast<ActionThreadStep*>(ptr)->~ActionThreadStep();
+
     switch (stepTemplate.StepType)
     {
         case ACTIONSCRIPT_NULL:
-            step = new NullStep(thread, stepTemplate);
+            new(ptr) NullStep(thread, stepTemplate);
             break;
     }
-    step->Initialize();
-    return std::unique_ptr<ActionThreadStep>(step);
+    reinterpret_cast<ActionThreadStep*>(ptr)->Initialize();
 }

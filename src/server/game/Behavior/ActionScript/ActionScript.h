@@ -23,6 +23,7 @@
 #include "Optional.h"
 #include <array>
 #include <memory>
+#include <type_traits>
 #include <vector>
 
 struct TC_GAME_API ActionScriptVariableContent
@@ -67,25 +68,30 @@ class TC_GAME_API ActionScript
 };
 
 class ActionThreadStep;
+constexpr size_t ACTIONSCRIPT_MAX_STEP_SIZE = 32;
 class TC_GAME_API ActionThread
 {
     public:
         ActionThread(Unit* owner, ActionScript const& script, size_t initialStep);
         ~ActionThread();
-        // @todo this needs a return value indicating whether behavior should control
-        void Update();
+
+        // @todo return value needs to indicate whether behavior should control
+        enum ActionThreadState { STATE_RUNNING, STATE_FINISHED };
+        ActionThreadState Update();
 
         Unit* GetOwner() const { return _owner; }
         
     private:
         Unit* const _owner;
         ActionScript const& _script;
-        std::unique_ptr<ActionThreadStep> _currentStep;
         TimePoint _stepTimeout;
+
+        ActionThreadStep& GetCurrentStep() { return *reinterpret_cast<ActionThreadStep*>(_currentStep); }
+        unsigned char _currentStep[ACTIONSCRIPT_MAX_STEP_SIZE];
 
         std::vector<ActionScriptVariableContent> _variables;
 
-        void StepTo(Optional<size_t> step);
+        void StepTo(size_t step);
 };
 
 #endif

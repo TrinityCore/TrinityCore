@@ -27,38 +27,40 @@ ActionThread::ActionThread(Unit* owner, ActionScript const& script, size_t initi
 }
 ActionThread::~ActionThread() {}
 
-void ActionThread::Update()
+ActionThread::ActionThreadState ActionThread::Update()
 {
-    if (!_currentStep)
-        return;
+    ActionThreadStep& step = GetCurrentStep();
 
-    if (Optional<bool> success = _currentStep->Evaluate())
+    Optional<size_t> stepTo;
+
+    if (Optional<bool> success = step.Evaluate())
     {
         if (*success)
-            StepTo(_currentStep->GetTemplate().GotoSuccess);
+            stepTo = step.GetTemplate().GotoSuccess;
         else
-            StepTo(_currentStep->GetTemplate().GotoFailure);
+            stepTo = step.GetTemplate().GotoFailure;
     }
     else if (_stepTimeout <= GameTime::Now())
     {
-        _currentStep->Abort();
-        StepTo(_currentStep->GetTemplate().GotoTimeout);
+        step.Abort();
+        stepTo = step.GetTemplate().GotoTimeout;
     }
     else
-        return;
+        return STATE_RUNNING;
 
-    return Update();
+    step.~ActionThreadStep();
+    if (stepTo)
+    {
+        StepTo(*stepTo);
+        return Update();
+    }
+    else
+        return STATE_FINISHED;
 }
 
-void ActionThread::StepTo(Optional<size_t> step)
+void ActionThread::StepTo(size_t step)
 {
-    if (!step)
-    {
-        _currentStep = nullptr;
-        return;
-    }
-
-    _currentStep = ActionThreadStep::StepTo(*this, _script[*step]);
-    _stepTimeout = GameTime::Now() + _currentStep->GetTemplate().Timeout;
-    // @todo execute step
+    ActionScriptStep const& stepTemplate = _script[step];
+    ActionThreadStep::StepTo(&_currentStep[0], *this, stepTemplate);
+    _stepTimeout = GameTime::Now() + stepTemplate.Timeout;
 }
