@@ -479,6 +479,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void setActive(bool isActiveObject);
         bool IsFarVisible() const { return m_isFarVisible; }
         void SetFarVisible(bool on);
+        bool IsLargeObject() const { return m_isLargeObject; }
+        void SetLargeObject(bool on);
         void SetWorldObject(bool apply);
         bool IsPermanentWorldObject() const { return m_isWorldObject; }
         bool IsWorldObject() const;
@@ -519,6 +521,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         std::string m_name;
         bool m_isActive;
         bool m_isFarVisible;
+        bool m_isLargeObject;
         bool const m_isWorldObject;
         ZoneScript* m_zoneScript;
 

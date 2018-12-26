@@ -28,6 +28,11 @@
 #define TRADE_DISTANCE              11.11f
 #define MAX_VISIBILITY_DISTANCE     SIZE_OF_GRIDS           // max distance for visible objects
 #define SIGHT_RANGE_UNIT            50.0f
+#define SIGHT_GIGANTIC              400.0f
+#define SIGHT_LARGE                 200.0f
+#define SIGHT_NORMAL                100.0f
+#define SIGHT_SMALL                 50.0f
+#define SIGHT_TINY                  25.0f
 #define DEFAULT_VISIBILITY_DISTANCE 90.0f                   // default visible distance, 90 yards on continents
 #define DEFAULT_VISIBILITY_INSTANCE 170.0f                  // default visible distance in instances, 170 yards
 #define DEFAULT_VISIBILITY_BGARENAS 533.0f                  // default visible distance in BG/Arenas, roughly 533 yards
