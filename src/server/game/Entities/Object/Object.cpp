@@ -51,6 +51,16 @@
 #include "WorldSession.h"
 #include <G3D/Vector3.h>
 
+constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max)] =
+{
+    DEFAULT_VISIBILITY_DISTANCE,
+    VISIBILITY_DISTANCE_TINY,
+    VISIBILITY_DISTANCE_SMALL,
+    VISIBILITY_DISTANCE_LARGE,
+    VISIBILITY_DISTANCE_GIGANTIC,
+    MAX_VISIBILITY_DISTANCE
+};
+
 Object::Object()
 {
     m_objectTypeId      = TYPEID_OBJECT;
@@ -1615,6 +1625,15 @@ void WorldObject::setActive(bool on)
     }
 }
 
+void WorldObject::SetVisibilityDistanceOverride(VisibilityDistanceType type)
+{
+    ASSERT(type < VisibilityDistanceType::Max);
+    if (GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    m_visibilityDistanceOverride = VisibilityDistances[AsUnderlyingType(type)];
+}
+
 void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
 {
     if (IsInWorld())
@@ -2063,6 +2082,8 @@ float WorldObject::GetVisibilityRange() const
 {
     if (isActiveObject() && !ToPlayer())
         return MAX_VISIBILITY_DISTANCE;
+    else if (IsVisibilityOverride() && !ToPlayer())
+        return *m_visibilityDistanceOverride;
     else
         return GetMap()->GetVisibilityRange();
 }
@@ -2075,6 +2096,8 @@ float WorldObject::GetSightRange(const WorldObject* target) const
         {
             if (target && target->isActiveObject() && !target->ToPlayer())
                 return MAX_VISIBILITY_DISTANCE;
+            else if (target && target->IsVisibilityOverride() && !target->ToPlayer())
+                return *m_visibilityDistanceOverride;
             else if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
                 return DEFAULT_VISIBILITY_INSTANCE;
             else
