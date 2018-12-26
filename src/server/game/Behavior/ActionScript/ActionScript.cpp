@@ -16,41 +16,41 @@
  */
 
 #include "ActionScript.h"
+#include "ActionThreadStep.h"
+#include "Errors.h"
 #include "GameTime.h"
 
-ActionScriptThread::ActionScriptThread(ActionScript const& script, size_t initialStep)
-    : _script(script)
+ActionThread::ActionThread(Unit* owner, ActionScript const& script, size_t initialStep)
+    : _owner(ASSERT_NOTNULL(owner)), _script(script)
 {
     StepTo(initialStep);
 }
+ActionThread::~ActionThread() {}
 
-void ActionScriptThread::Update()
+void ActionThread::Update()
 {
     if (!_currentStep)
         return;
 
-    if (Optional<bool> success = EvaluateCurrentStep())
+    if (Optional<bool> success = _currentStep->Evaluate())
     {
         if (*success)
-            StepTo(_currentStep->GotoSuccess);
+            StepTo(_currentStep->GetTemplate().GotoSuccess);
         else
-            StepTo(_currentStep->GotoFailure);
+            StepTo(_currentStep->GetTemplate().GotoFailure);
     }
     else if (_stepTimeout <= GameTime::Now())
-        StepTo(_currentStep->GotoTimeout);
+    {
+        _currentStep->Abort();
+        StepTo(_currentStep->GetTemplate().GotoTimeout);
+    }
     else
         return;
 
     return Update();
 }
 
-// true means success, false means failure, none means no result
-Optional<bool> ActionScriptThread::EvaluateCurrentStep()
-{
-    return {};
-}
-
-void ActionScriptThread::StepTo(Optional<size_t> step)
+void ActionThread::StepTo(Optional<size_t> step)
 {
     if (!step)
     {
@@ -58,7 +58,7 @@ void ActionScriptThread::StepTo(Optional<size_t> step)
         return;
     }
 
-    _currentStep = &_script[*step];
-    _stepTimeout = GameTime::Now() + _currentStep->Timeout;
+    _currentStep = ActionThreadStep::StepTo(*this, _script[*step]);
+    _stepTimeout = GameTime::Now() + _currentStep->GetTemplate().Timeout;
     // @todo execute step
 }

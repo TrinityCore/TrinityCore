@@ -19,10 +19,10 @@
 #define TRINITY_ACTIONSCRIPT_H
 
 #include "ActionScriptDefines.h"
-#include "Define.h"
 #include "Duration.h"
 #include "Optional.h"
 #include <array>
+#include <memory>
 #include <vector>
 
 struct TC_GAME_API ActionScriptVariableContent
@@ -66,22 +66,25 @@ class TC_GAME_API ActionScript
     friend class ActionScriptManager;
 };
 
-class TC_GAME_API ActionScriptThread
+class ActionThreadStep;
+class TC_GAME_API ActionThread
 {
     public:
-        ActionScriptThread(ActionScript const& script, size_t initialStep);
+        ActionThread(Unit* owner, ActionScript const& script, size_t initialStep);
+        ~ActionThread();
         // @todo this needs a return value indicating whether behavior should control
         void Update();
 
+        Unit* GetOwner() const { return _owner; }
         
     private:
+        Unit* const _owner;
         ActionScript const& _script;
-        ActionScriptStep const* _currentStep;
+        std::unique_ptr<ActionThreadStep> _currentStep;
         TimePoint _stepTimeout;
 
         std::vector<ActionScriptVariableContent> _variables;
 
-        Optional<bool> EvaluateCurrentStep();
         void StepTo(Optional<size_t> step);
 };
 
