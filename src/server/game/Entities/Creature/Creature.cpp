@@ -2360,6 +2360,25 @@ bool Creature::LoadCreaturesAddon()
     SetMovementAnimKitId(cainfo->movementAnimKit);
     SetMeleeAnimKitId(cainfo->meleeAnimKit);
 
+    // Check if visibility distance different
+    if (cainfo->visibilityDistanceType != VisibilityDistanceType::Normal)
+    {
+        switch (cainfo->visibilityDistanceType)
+        {
+            case VisibilityDistanceType::Tiny:
+                SetVisibilityDistanceOverride(VisibilityDistanceType::Tiny);
+            case VisibilityDistanceType::Small:
+                SetVisibilityDistanceOverride(VisibilityDistanceType::Small);
+            case VisibilityDistanceType::Large:
+                SetVisibilityDistanceOverride(VisibilityDistanceType::Large);
+            case VisibilityDistanceType::Gigantic:
+                SetVisibilityDistanceOverride(VisibilityDistanceType::Gigantic);
+            case VisibilityDistanceType::Infinite:
+                SetVisibilityDistanceOverride(VisibilityDistanceType::Infinite);
+            default: return false;
+        }
+    }
+
     //Load Path
     if (cainfo->path_id != 0)
         m_path_id = cainfo->path_id;

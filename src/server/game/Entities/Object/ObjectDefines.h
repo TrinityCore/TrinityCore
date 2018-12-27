@@ -43,7 +43,7 @@
 #define NOMINAL_MELEE_RANGE             5.0f
 #define MELEE_RANGE                     (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
 
-enum class VisibilityDistanceType
+enum class VisibilityDistanceType : uint8
 {
     Normal      = 0,
     Tiny        = 1,
