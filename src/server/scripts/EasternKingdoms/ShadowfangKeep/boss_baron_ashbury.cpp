@@ -77,19 +77,15 @@ struct boss_baron_ashbury : public BossAI
     void Initialize()
     {
         _phaseTwoTriggered = false;
-        _isInArchangelForm = false;
         _canAttack = true;
         _pardonDenied = true;
+        me->MakeInterruptable(false);
     }
 
     void Reset() override
     {
         _Reset();
-        _phaseTwoTriggered = false;
-        _isInArchangelForm = false;
-        _canAttack = true;
-        _pardonDenied = true;
-        me->MakeInterruptable(false);
+        Initialize();
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -150,8 +146,6 @@ struct boss_baron_ashbury : public BossAI
             me->MakeInterruptable(false);
             events.CancelEvent(EVENT_APPLY_INTERRUPT_IMMUNITY);
         }
-        else if (spell->Id == SPELL_DARK_ARCHANGEL_FORM)
-            _isInArchangelForm = true;
     }
 
     uint32 GetData(uint32 type) const override
@@ -173,7 +167,7 @@ struct boss_baron_ashbury : public BossAI
 
         events.Update(diff);
 
-        if (me->HasUnitState(UNIT_STATE_CASTING) && !_isInArchangelForm)
+        if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -184,6 +178,9 @@ struct boss_baron_ashbury : public BossAI
                     Talk(SAY_ASPHYXIATE);
                     DoCastAOE(SPELL_ASPHYXIATE);
                     events.ScheduleEvent(EVENT_STAY_OF_EXECUTION, 7s);
+                    events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 12s);
+                    events.ScheduleEvent(EVENT_WRACKING_PAIN, 13s);
+                    events.Repeat(52s);
                     _canAttack = false;
                     break;
                 case EVENT_STAY_OF_EXECUTION:
@@ -192,7 +189,6 @@ struct boss_baron_ashbury : public BossAI
                     Talk(SAY_STAY_OF_EXECUTION);
                     Talk(SAY_ANNOUNCE_STAY_OF_EXECUTION);
                     DoCastAOE(SPELL_STAY_OF_EXECUTION);
-                    events.ScheduleEvent(EVENT_ASPHYXIATE, 45s);
                     _canAttack = true;
                     if (IsHeroic())
                     {
@@ -208,11 +204,9 @@ struct boss_baron_ashbury : public BossAI
                         DoCast(target, SPELL_PAIN_AND_SUFFERING);
                         events.ScheduleEvent(EVENT_APPLY_INTERRUPT_IMMUNITY, 6s);
                     }
-                    events.Repeat(26s + 500ms);
                     break;
                 case EVENT_WRACKING_PAIN:
                     DoCastAOE(SPELL_WRACKING_PAIN, true);
-                    events.Repeat(26s + 500ms);
                     break;
                 case EVENT_DARK_ARCHANGEL_FORM:
                     me->AttackStop();
@@ -236,7 +230,6 @@ struct boss_baron_ashbury : public BossAI
     }
 private:
     bool _phaseTwoTriggered;
-    bool _isInArchangelForm;
     bool _canAttack;
     bool _pardonDenied;
 };
