@@ -1321,8 +1321,6 @@ class npc_elementium_monstrosity : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 DoZoneInCombat();
-                if (Player* player = me->SelectNearestPlayer(100.0f))
-                    me->SetLootRecipient(player);
                 DoCastSelf(SPELL_TWILIGHT_EXPLOSION_DND);
                 DoCastSelf(SPELL_MERGE_HEALTH);
                 Talk(SAY_SUMMONED);
