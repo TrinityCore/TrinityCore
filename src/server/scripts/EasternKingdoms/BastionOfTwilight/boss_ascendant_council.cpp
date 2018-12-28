@@ -387,7 +387,7 @@ class boss_ascendant_council_controller : public CreatureScript
                         events.ScheduleEvent(EVENT_RESET_BOSS_STATE, Seconds(30));
                         break;
                     case ACTION_SWITCH_COUNCILLORS:
-                        if (!events.IsInPhase(PHASE_ARION_TERRASTRA))
+                        if (!events.IsInPhase(PHASE_ARION_TERRASTRA) && !events.IsInPhase(PHASE_ELEMENTIUM_MONSTROSITY))
                         {
                             if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
                             {
