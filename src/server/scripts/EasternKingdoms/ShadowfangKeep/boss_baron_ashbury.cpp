@@ -179,7 +179,8 @@ struct boss_baron_ashbury : public BossAI
                     DoCastAOE(SPELL_ASPHYXIATE);
                     events.ScheduleEvent(EVENT_STAY_OF_EXECUTION, 7s);
                     events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 12s);
-                    events.ScheduleEvent(EVENT_WRACKING_PAIN, 13s);
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_WRACKING_PAIN, 13s);
                     events.Repeat(52s);
                     _canAttack = false;
                     break;
