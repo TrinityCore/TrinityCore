@@ -2080,10 +2080,10 @@ float WorldObject::GetGridActivationRange() const
 
 float WorldObject::GetVisibilityRange() const
 {
-    if (isActiveObject() && !ToPlayer())
-        return MAX_VISIBILITY_DISTANCE;
-    else if (IsVisibilityOverride() && !ToPlayer())
+    if (IsVisibilityOverride() && !ToPlayer())
         return *m_visibilityDistanceOverride;
+    else if (isActiveObject() && !ToPlayer())
+        return MAX_VISIBILITY_DISTANCE;
     else
         return GetMap()->GetVisibilityRange();
 }
@@ -2094,10 +2094,10 @@ float WorldObject::GetSightRange(const WorldObject* target) const
     {
         if (ToPlayer())
         {
-            if (target && target->isActiveObject() && !target->ToPlayer())
-                return MAX_VISIBILITY_DISTANCE;
-            else if (target && target->IsVisibilityOverride() && !target->ToPlayer())
+            if (target && target->IsVisibilityOverride() && !target->ToPlayer())
                 return *m_visibilityDistanceOverride;
+            else if (target && target->isActiveObject() && !target->ToPlayer())
+                return MAX_VISIBILITY_DISTANCE;
             else if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
                 return DEFAULT_VISIBILITY_INSTANCE;
             else
