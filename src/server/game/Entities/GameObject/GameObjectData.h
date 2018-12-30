@@ -587,7 +587,6 @@ struct GameObjectTemplate
         }
     }
 
-
     void InitializeQueryData();
     WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
