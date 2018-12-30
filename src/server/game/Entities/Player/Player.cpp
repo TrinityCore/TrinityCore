@@ -2649,6 +2649,12 @@ void Player::SendKnownSpells()
     SendDirectMessage(knownSpells.Write());
 }
 
+void Player::SendUnlearnSpells()
+{
+    WorldPackets::Spells::SendUnlearnSpells sendUnlearnSpells;
+    SendDirectMessage(sendUnlearnSpells.Write());
+}
+
 void Player::RemoveMail(uint32 id)
 {
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
@@ -24266,7 +24272,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendKnownSpells();
 
     /// SMSG_SEND_UNLEARN_SPELLS
-    SendDirectMessage(WorldPackets::Spells::SendUnlearnSpells().Write());
+    SendUnlearnSpells();
 
     /// SMSG_SEND_SPELL_HISTORY
     WorldPackets::Spells::SendSpellHistory sendSpellHistory;
