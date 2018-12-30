@@ -587,8 +587,8 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(MSG_MOVE_JUMP,                                         STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_FACING,                                   STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_PITCH,                                    STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
-    DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_RUN_MODE,                                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_WALK_MODE,                                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_RUN_MODE,                                 STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleMovementOpcodes);
+    DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_WALK_MODE,                                STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleMovementOpcodes);
     DEFINE_OPCODE_HANDLER(MSG_MOVE_START_ASCEND,                                 STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     DEFINE_OPCODE_HANDLER(MSG_MOVE_START_BACKWARD,                               STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     DEFINE_OPCODE_HANDLER(MSG_MOVE_START_DESCEND,                                STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );

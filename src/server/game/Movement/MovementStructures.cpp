@@ -2129,15 +2129,15 @@ MovementStatusElements const MovementSetRunMode[] =
     MSETransportGuidByte0,
     MSETransportPositionY,
     MSETransportGuidByte6,
-    MSEFallCosAngle,
-    MSEFallHorizontalSpeed,
     MSEFallSinAngle,
+    MSEFallHorizontalSpeed,
+    MSEFallCosAngle,
     MSEFallTime,
     MSEFallVerticalSpeed,
     MSESplineElevation,
     MSETimestamp,
     MSEOrientation,
-    MSEEnd,
+    MSEEnd
 };
 
 MovementStatusElements const MovementSetWalkMode[] =
@@ -2200,16 +2200,16 @@ MovementStatusElements const MovementSetWalkMode[] =
     MSETransportGuidByte7,
     MSETransportPositionY,
     MSETransportGuidByte1,
-    MSEFallSinAngle,
-    MSEFallHorizontalSpeed,
     MSEFallCosAngle,
+    MSEFallHorizontalSpeed,
+    MSEFallSinAngle,
     MSEFallVerticalSpeed,
     MSEFallTime,
     MSESplineElevation,
     MSEPitch,
     MSETimestamp,
     MSEOrientation,
-    MSEEnd,
+    MSEEnd
 };
 
 MovementStatusElements const MovementSetCanFly[] =
