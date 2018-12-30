@@ -61,8 +61,8 @@ namespace Trainer
             trainerListSpell.SpellID = trainerSpell.SpellId;
             trainerListSpell.Usable = AsUnderlyingType(GetSpellState(player, &trainerSpell));
             trainerListSpell.MoneyCost = int32(trainerSpell.MoneyCost * reputationDiscount);
-            trainerListSpell.ProfessionDialog = (primaryProfessionFirstRank && (player->GetFreePrimaryProfessionPoints() > 0) ? 1 : 0);
-            trainerListSpell.ProfessionButton = (primaryProfessionFirstRank ? 1 : 0);
+            trainerListSpell.PointCost[0] = 0; // spells don't cost talent points
+            trainerListSpell.PointCost[1] = (primaryProfessionFirstRank ? 1 : 0);
             trainerListSpell.ReqLevel = trainerSpell.ReqLevel;
             trainerListSpell.ReqSkillLine = trainerSpell.ReqSkillLine;
             trainerListSpell.ReqSkillRank = trainerSpell.ReqSkillRank;

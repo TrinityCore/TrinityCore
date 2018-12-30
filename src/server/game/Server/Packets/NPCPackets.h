@@ -47,8 +47,7 @@ namespace WorldPackets
             int32 SpellID          = 0;
             uint8 Usable           = 0;
             int32 MoneyCost        = 0;
-            int32 ProfessionDialog = 0;
-            int32 ProfessionButton = 0;
+            std::array<int32, 2> PointCost = { }; // compared with PLAYER_CHARACTER_POINTS in Lua
             uint8 ReqLevel         = 0;
             int32 ReqSkillLine     = 0;
             int32 ReqSkillRank     = 0;

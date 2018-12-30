@@ -33,8 +33,7 @@ WorldPacket const* WorldPackets::NPC::TrainerList::Write()
         _worldPacket << int32(spell.SpellID);
         _worldPacket << uint8(spell.Usable);
         _worldPacket << int32(spell.MoneyCost);
-        _worldPacket << int32(spell.ProfessionDialog);
-        _worldPacket << int32(spell.ProfessionButton);
+        _worldPacket.append(spell.PointCost.data(), spell.PointCost.size());
         _worldPacket << uint8(spell.ReqLevel);
         _worldPacket << int32(spell.ReqSkillLine);
         _worldPacket << int32(spell.ReqSkillRank);
