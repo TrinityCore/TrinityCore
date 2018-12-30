@@ -524,9 +524,6 @@ struct CellObjectGuids
 typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
 typedef std::unordered_map<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
 
-// Trinity Trainer Reference start range
-#define TRINITY_TRAINER_START_REF      200000
-
 struct TrinityString
 {
     std::vector<std::string> Content;
