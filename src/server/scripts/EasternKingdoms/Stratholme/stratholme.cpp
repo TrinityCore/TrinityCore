@@ -41,6 +41,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "stratholme.h"
 
 /*######
@@ -332,10 +333,48 @@ class spell_ysida_saved_credit : public SpellScript
     }
 };
 
+enum HauntingPhantoms
+{
+    SPELL_SUMMON_SPITEFUL_PHANTOM = 16334,
+    SPELL_SUMMON_WRATH_PHANTOM    = 16335
+};
+
+class spell_stratholme_haunting_phantoms : public AuraScript
+{
+    PrepareAuraScript(spell_stratholme_haunting_phantoms);
+
+    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
+    {
+        isPeriodic = true;
+        amplitude = irand(30, 90) * IN_MILLISECONDS;
+    }
+
+    void HandleDummyTick(AuraEffect const* /*aurEff*/)
+    {
+        if (roll_chance_i(50))
+            GetTarget()->CastSpell(nullptr, SPELL_SUMMON_SPITEFUL_PHANTOM, true);
+        else
+            GetTarget()->CastSpell(nullptr, SPELL_SUMMON_WRATH_PHANTOM, true);
+    }
+
+    void HandleUpdatePeriodic(AuraEffect* aurEff)
+    {
+        aurEff->CalculatePeriodic(GetCaster());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_stratholme_haunting_phantoms::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_stratholme_haunting_phantoms::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_stratholme_haunting_phantoms::HandleUpdatePeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_stratholme()
 {
     new go_gauntlet_gate();
     new npc_restless_soul();
     new npc_spectral_ghostly_citizen();
     RegisterSpellScript(spell_ysida_saved_credit);
+    RegisterAuraScript(spell_stratholme_haunting_phantoms);
 }
