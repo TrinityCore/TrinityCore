@@ -571,6 +571,7 @@ void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
 void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, bool party)
 {
     bool join = false;
+    bool extraData = false;
     bool queued = false;
     uint8 size = uint8(updateData.dungeons.size());
     ObjectGuid guid = _player->GetGUID();
@@ -585,14 +586,19 @@ void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, boo
         case lfg::LFG_UPDATETYPE_JOIN_QUEUE:
         case lfg::LFG_UPDATETYPE_ADDED_TO_QUEUE:                // Rolecheck Success
             join = true;
+            extraData = true;
             queued = true;
+            break;
+        case lfg::LFG_UPDATETYPE_JOIN_RAIDBROWSER:
+            join = true;
+            extraData = true;
             break;
         case lfg::LFG_UPDATETYPE_PROPOSAL_BEGIN:
             join = true;
             break;
         case lfg::LFG_UPDATETYPE_UPDATE_STATUS:
             join = updateData.state != lfg::LFG_STATE_ROLECHECK && updateData.state != lfg::LFG_STATE_NONE;
-            queued = updateData.state == lfg::LFG_STATE_QUEUED;
+            queued = updateData.state == lfg::LFG_STATE_QUEUED || updateData.state == lfg::LFG_STATE_RAIDBROWSER;
             break;
         default:
             break;
@@ -606,7 +612,7 @@ void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, boo
     data.WriteBit(party);
     data.WriteBits(size, 24);
     data.WriteBit(guid[6]);
-    data.WriteBit(queued);                                // Extra info
+    data.WriteBit(extraData);                              // Extra info
     data.WriteBits(updateData.comment.length(), 9);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[7]);

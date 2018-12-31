@@ -498,6 +498,11 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
             LfgType type = GetDungeonType(*it);
             switch (type)
             {
+                case LFG_TYPE_RAID:
+                    if (isDungeon)
+                        joinData.result = LFG_JOIN_MIXED_RAID_DUNGEON;
+                    isRaid = true;
+                    break;
                 case LFG_TYPE_RANDOM:
                     if (dungeons.size() > 1)               // Only allow 1 random dungeon
                         joinData.result = LFG_JOIN_DUNGEON_INVALID;
@@ -509,11 +514,6 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                     if (isRaid)
                         joinData.result = LFG_JOIN_MIXED_RAID_DUNGEON;
                     isDungeon = true;
-                    break;
-                case LFG_TYPE_RAID:
-                    if (isDungeon)
-                        joinData.result = LFG_JOIN_MIXED_RAID_DUNGEON;
-                    isRaid = true;
                     break;
                 default:
                     joinData.result = LFG_JOIN_DUNGEON_INVALID;
@@ -548,12 +548,6 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
     }
 
     SetComment(guid, comment);
-
-    if (isRaid)
-    {
-        TC_LOG_DEBUG("lfg.join", "%s trying to join raid browser and it's disabled.", guid.ToString().c_str());
-        return;
-    }
 
     std::string debugNames = "";
     if (grp)                                               // Begin rolecheck
@@ -615,8 +609,16 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
 
         // Send update to player
         player->GetSession()->SendLfgJoinResult(joinData);
-        player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons, comment), false);
-        SetState(gguid, LFG_STATE_QUEUED);
+        if (!isRaid)
+        {
+            player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons, comment), false);
+            SetState(gguid, LFG_STATE_QUEUED);
+        }
+        else
+        {
+            player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_JOIN_RAIDBROWSER, dungeons, comment), false);
+            SetState(gguid, LFG_STATE_RAIDBROWSER);
+        }
         SetRoles(guid, roles);
         debugNames.append(player->GetName());
     }
@@ -641,6 +643,10 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
     switch (state)
     {
         case LFG_STATE_QUEUED:
+        case LFG_STATE_RAIDBROWSER:
+        {
+            lfg::LfgUpdateType type = state == LFG_STATE_QUEUED ?
+                LFG_UPDATETYPE_REMOVED_FROM_QUEUE : LFG_UPDATETYPE_LEAVE_RAIDBROWSER;
             if (gguid)
             {
                 LFGQueue& queue = GetQueue(gguid);
@@ -650,17 +656,18 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
                 for (GuidSet::const_iterator it = players.begin(); it != players.end(); ++it)
                 {
                     SetState(*it, LFG_STATE_NONE);
-                    SendLfgUpdateStatus(*it, LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE), true);
+                    SendLfgUpdateStatus(*it, LfgUpdateData(type), true);
                 }
             }
             else
             {
                 LFGQueue& queue = GetQueue(guid);
                 queue.RemoveFromQueue(guid);
-                SendLfgUpdateStatus(guid, LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE), false);
+                SendLfgUpdateStatus(guid, LfgUpdateData(type), false);
                 SetState(guid, LFG_STATE_NONE);
             }
             break;
+        }
         case LFG_STATE_ROLECHECK:
             if (gguid)
                 UpdateRoleCheck(gguid);                    // No player to update role = LFG_ROLECHECK_ABORTED
@@ -688,7 +695,6 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
             break;
         }
         case LFG_STATE_NONE:
-        case LFG_STATE_RAIDBROWSER:
             break;
         case LFG_STATE_DUNGEON:
         case LFG_STATE_FINISHED_DUNGEON:

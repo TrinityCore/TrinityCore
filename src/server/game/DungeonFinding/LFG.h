@@ -40,6 +40,8 @@ enum LfgUpdateType
 {
     LFG_UPDATETYPE_DEFAULT                       = 0,      // Internal Use
     LFG_UPDATETYPE_LEADER_UNK1                   = 1,      // FIXME: At group leave
+    LFG_UPDATETYPE_LEAVE_RAIDBROWSER             = 2,
+    LFG_UPDATETYPE_JOIN_RAIDBROWSER              = 3,
     LFG_UPDATETYPE_ROLECHECK_ABORTED             = 4,
     LFG_UPDATETYPE_JOIN_QUEUE                    = 6,
     LFG_UPDATETYPE_ROLECHECK_FAILED              = 7,
