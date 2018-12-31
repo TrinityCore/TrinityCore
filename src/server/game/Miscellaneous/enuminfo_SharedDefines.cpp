@@ -1017,7 +1017,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr10>::ToString(SpellAttr10 value)
     {
         case SPELL_ATTR10_UNK0: return { "SPELL_ATTR10_UNK0", "Unknown attribute 0@Attr10", "" };
         case SPELL_ATTR10_UNK1: return { "SPELL_ATTR10_UNK1", "Unknown attribute 1@Attr10", "" };
-        case SPELL_ATTR10_UNK2: return { "SPELL_ATTR10_UNK2", "Unknown attribute 2@Attr10", "" };
+        case SPELL_ATTR10_USES_RANGED_SLOT_COSMETIC_ONLY: return { "SPELL_ATTR10_USES_RANGED_SLOT_COSMETIC_ONLY", "Uses Ranged Slot (Cosmetic Only)", "" };
         case SPELL_ATTR10_UNK3: return { "SPELL_ATTR10_UNK3", "Unknown attribute 3@Attr10", "" };
         case SPELL_ATTR10_WATER_SPOUT: return { "SPELL_ATTR10_WATER_SPOUT", "NPC Knockback - ignore doors", "" };
         case SPELL_ATTR10_UNK5: return { "SPELL_ATTR10_UNK5", "Unknown attribute 5@Attr10", "" };
@@ -1061,7 +1061,7 @@ TC_API_EXPORT SpellAttr10 EnumUtils<SpellAttr10>::FromIndex(size_t index)
     {
         case 0: return SPELL_ATTR10_UNK0;
         case 1: return SPELL_ATTR10_UNK1;
-        case 2: return SPELL_ATTR10_UNK2;
+        case 2: return SPELL_ATTR10_USES_RANGED_SLOT_COSMETIC_ONLY;
         case 3: return SPELL_ATTR10_UNK3;
         case 4: return SPELL_ATTR10_WATER_SPOUT;
         case 5: return SPELL_ATTR10_UNK5;

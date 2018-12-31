@@ -3223,6 +3223,42 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         }
 
         spellInfoMutable->_InitializeExplicitTargetMask();
+
+        if (spellInfoMutable->Speed > 0.0f)
+        {
+            auto visualNeedsAmmo = [](SpellXSpellVisualEntry const* spellXspellVisual)
+            {
+                SpellVisualEntry const* spellVisual = sSpellVisualStore.LookupEntry(spellXspellVisual->SpellVisualID);
+                if (!spellVisual)
+                    return false;
+
+                std::vector<SpellVisualMissileEntry const*> const* spellVisualMissiles = sDB2Manager.GetSpellVisualMissiles(spellVisual->SpellVisualMissileSetID);
+                if (!spellVisualMissiles)
+                    return false;
+
+                for (SpellVisualMissileEntry const* spellVisualMissile : *spellVisualMissiles)
+                {
+                    SpellVisualEffectNameEntry const* spellVisualEffectName = sSpellVisualEffectNameStore.LookupEntry(spellVisualMissile->SpellVisualEffectNameID);
+                    if (!spellVisualEffectName)
+                        continue;
+
+                    SpellVisualEffectNameType type = SpellVisualEffectNameType(spellVisualEffectName->Type);
+                    if (type == SpellVisualEffectNameType::UnitAmmoBasic || type == SpellVisualEffectNameType::UnitAmmoPreferred)
+                        return true;
+                }
+
+                return false;
+            };
+
+            for (SpellXSpellVisualEntry const* spellXspellVisual : spellInfoMutable->_visuals)
+            {
+                if (visualNeedsAmmo(spellXspellVisual))
+                {
+                    spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_NEEDS_AMMO_DATA;
+                    break;
+                }
+            }
+        }
     }
 
     // addition for binary spells, omit spells triggering other spells

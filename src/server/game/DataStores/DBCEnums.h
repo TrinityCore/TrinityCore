@@ -1493,6 +1493,21 @@ enum class SpellShapeshiftFormFlags : int32
 
 DEFINE_ENUM_FLAG(SpellShapeshiftFormFlags);
 
+enum class SpellVisualEffectNameType : uint32
+{
+    Model                           = 0,
+    Item                            = 1,
+    Creature                        = 2,
+    UnitItemMainHand                = 3,
+    UnitItemOffHand                 = 4,
+    UnitItemRanged                  = 5,
+    UnitAmmoBasic                   = 6,
+    UnitAmmoPreferred               = 7,
+    UnitItemMainHandIgnoreDisarmed  = 8,
+    UnitItemOffHandIgnoreDisarmed   = 9,
+    UnitItemRangedIgnoreDisarmed    = 10
+};
+
 #define TaxiMaskSize 339
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 

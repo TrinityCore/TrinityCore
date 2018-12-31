@@ -769,7 +769,7 @@ enum SpellAttr10 : uint32
 {
     SPELL_ATTR10_UNK0                            = 0x00000001, // TITLE Unknown attribute 0@Attr10
     SPELL_ATTR10_UNK1                            = 0x00000002, // TITLE Unknown attribute 1@Attr10
-    SPELL_ATTR10_UNK2                            = 0x00000004, // TITLE Unknown attribute 2@Attr10
+    SPELL_ATTR10_USES_RANGED_SLOT_COSMETIC_ONLY  = 0x00000004, // TITLE Uses Ranged Slot (Cosmetic Only)
     SPELL_ATTR10_UNK3                            = 0x00000008, // TITLE Unknown attribute 3@Attr10
     SPELL_ATTR10_WATER_SPOUT                     = 0x00000010, // TITLE NPC Knockback - ignore doors
     SPELL_ATTR10_UNK5                            = 0x00000020, // TITLE Unknown attribute 5@Attr10
