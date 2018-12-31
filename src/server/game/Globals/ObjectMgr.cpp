@@ -517,12 +517,12 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
         CreatureAddon& creatureAddon = _creatureTemplateAddonStore[entry];
 
-        creatureAddon.path_id = fields[1].GetUInt32();
-        creatureAddon.mount   = fields[2].GetUInt32();
-        creatureAddon.bytes1  = fields[3].GetUInt32();
-        creatureAddon.bytes2  = fields[4].GetUInt32();
-        creatureAddon.emote   = fields[5].GetUInt32();
-        creatureAddon.visibilityDistanceType = VisibilityDistanceType(fields[6].GetUInt8());
+        creatureAddon.path_id                   = fields[1].GetUInt32();
+        creatureAddon.mount                     = fields[2].GetUInt32();
+        creatureAddon.bytes1                    = fields[3].GetUInt32();
+        creatureAddon.bytes2                    = fields[4].GetUInt32();
+        creatureAddon.emote                     = fields[5].GetUInt32();
+        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[6].GetUInt8());
 
         Tokenizer tokens(fields[7].GetString(), ' ');
         uint8 i = 0;
@@ -1065,11 +1065,11 @@ void ObjectMgr::LoadCreatureAddons()
             TC_LOG_ERROR("sql.sql", "Creature (GUID %u) has movement type set to WAYPOINT_MOTION_TYPE but no path assigned", guid);
         }
 
-        creatureAddon.mount   = fields[2].GetUInt32();
-        creatureAddon.bytes1  = fields[3].GetUInt32();
-        creatureAddon.bytes2  = fields[4].GetUInt32();
-        creatureAddon.emote   = fields[5].GetUInt32();
-        creatureAddon.visibilityDistanceType = VisibilityDistanceType(fields[6].GetUInt8());
+        creatureAddon.mount                     = fields[2].GetUInt32();
+        creatureAddon.bytes1                    = fields[3].GetUInt32();
+        creatureAddon.bytes2                    = fields[4].GetUInt32();
+        creatureAddon.emote                     = fields[5].GetUInt32();
+        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[6].GetUInt8());
 
         Tokenizer tokens(fields[7].GetString(), ' ');
         uint8 i = 0;
@@ -1112,7 +1112,7 @@ void ObjectMgr::LoadCreatureAddons()
 
         if (creatureAddon.visibilityDistanceType >= VisibilityDistanceType::Max)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (GUID: " UI64FMTD ") has invalid visibilityDistanceType (%u) defined in `creature_addon`.",
+            TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has invalid visibilityDistanceType (%u) defined in `creature_addon`.",
                 guid, AsUnderlyingType(creatureAddon.visibilityDistanceType));
             creatureAddon.visibilityDistanceType = VisibilityDistanceType::Normal;
         }
