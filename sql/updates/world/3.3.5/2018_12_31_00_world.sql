@@ -1,6 +1,6 @@
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 54089;
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (16336, 51966, 51971, 52010, 54089);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_stratholme_haunting_phantoms', 'spell_scourge_disguise', 'spell_scourge_disguise_instability', 'spell_scourge_disguise_expiring', 'spell_drop_disguise');
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (16336, 'spell_stratholme_haunting_phantoms'),
 (51966, 'spell_scourge_disguise'),
