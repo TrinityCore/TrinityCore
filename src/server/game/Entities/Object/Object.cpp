@@ -648,7 +648,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (GameObject const* go = ToGameObject())
         {
             if (go->IsDynTransport())
-                *data << uint32(go->ToTransport()->GetPathProgress());
+                *data << uint32(go->ToTransport()->GetCurrentTransportTime());
             else
                 *data << uint32(getMSTime());
         }
