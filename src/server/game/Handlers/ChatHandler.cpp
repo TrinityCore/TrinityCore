@@ -305,16 +305,21 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
                 SendChatPlayerNotfoundNotice(target);
                 return;
             }
-            if (!sender->IsGameMaster() && sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ) && !receiver->IsInWhisperWhiteList(sender->GetGUID()))
-            {
-                SendNotification(GetTrinityString(LANG_WHISPER_REQ), sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ));
-                return;
-            }
 
-            if (GetPlayer()->GetTeam() != receiver->GetTeam() && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT) && !receiver->IsInWhisperWhiteList(sender->GetGUID()))
+            // Apply checks only if receiver is not already in whitelist and if receiver is not a GM with ".whisper on"
+            if (!receiver->IsInWhisperWhiteList(sender->GetGUID()) && !receiver->IsGameMasterAcceptingWhispers())
             {
-                SendChatPlayerNotfoundNotice(target);
-                return;
+                if (!sender->IsGameMaster() && sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ))
+                {
+                    SendNotification(GetTrinityString(LANG_WHISPER_REQ), sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ));
+                    return;
+                }
+
+                if (GetPlayer()->GetTeam() != receiver->GetTeam() && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT))
+                {
+                    SendChatPlayerNotfoundNotice(target);
+                    return;
+                }
             }
 
             if (GetPlayer()->HasAura(1852) && !receiver->IsGameMaster())
