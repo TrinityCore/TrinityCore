@@ -996,7 +996,7 @@ public:
             {
                 if (Creature* pPortal = DoSpawnCreature(NPC_FELFIRE_PORTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
                     for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
-                        AddThreat(ref->GetAutoAttackVictim(), 1.0f, pPortal);
+                        AddThreat(ref->GetVictim(), 1.0f, pPortal);
                 FelfirePortalTimer = 20000;
             } else FelfirePortalTimer -= diff;
 

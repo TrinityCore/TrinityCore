@@ -7890,7 +7890,7 @@ void Player::UpdateEquipSpellsAtFormChange()
 
 void Player::CastItemCombatSpell(DamageInfo const& damageInfo)
 {
-    Unit* target = damageInfo.GetAutoAttackVictim();
+    Unit* target = damageInfo.GetVictim();
     if (!target || !target->IsAlive() || target == this)
         return;
 
@@ -7979,8 +7979,8 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             else if (chance > 100.0f)
                 chance = GetWeaponProcChance();
 
-            if (roll_chance_f(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetAutoAttackVictim(), spellInfo, item))
-                CastSpell(damageInfo.GetAutoAttackVictim(), spellInfo->Id, item);
+            if (roll_chance_f(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetVictim(), spellInfo, item))
+                CastSpell(damageInfo.GetVictim(), spellInfo->Id, item);
         }
     }
 
@@ -8042,7 +8042,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
 
             if (roll_chance_f(chance))
             {
-                Unit* target = spellInfo->IsPositive() ? this : damageInfo.GetAutoAttackVictim();
+                Unit* target = spellInfo->IsPositive() ? this : damageInfo.GetVictim();
 
                 CastSpellExtraArgs args(item);
                 // reduce effect values if enchant is limited

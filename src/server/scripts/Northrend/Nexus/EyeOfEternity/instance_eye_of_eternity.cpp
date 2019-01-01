@@ -192,7 +192,7 @@ public:
                             if (counter >= 5)
                                 break;
 
-                            if (Player* player = ref->GetAutoAttackVictim()->ToPlayer())
+                            if (Player* player = ref->GetVictim()->ToPlayer())
                             {
                                 if (player->IsGameMaster() || player->HasAura(SPELL_VORTEX_4))
                                     continue;

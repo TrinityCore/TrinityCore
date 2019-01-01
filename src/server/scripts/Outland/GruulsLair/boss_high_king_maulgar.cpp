@@ -557,7 +557,7 @@ public:
                 std::vector<Unit*> target_list;
                 for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                 {
-                    Unit* target = ref->GetAutoAttackVictim();
+                    Unit* target = ref->GetVictim();
                     if (target && target->IsWithinDist(me, 15, false)) // 15 yard radius minimum
                         target_list.push_back(target);
                 }

@@ -440,7 +440,7 @@ public:
                     bool inMeleeRange = false;
                     for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        Unit* target = ref->GetAutoAttackVictim();
+                        Unit* target = ref->GetVictim();
                         if (target->IsWithinMeleeRange(me)) // if in melee range
                         {
                             inMeleeRange = true;

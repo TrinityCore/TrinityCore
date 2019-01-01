@@ -610,7 +610,7 @@ struct boss_faction_championsAI : public BossAI
     void UpdateThreat()
     {
         for (ThreatReference* ref : me->GetThreatManager().GetModifiableThreatList())
-            if (Player* victim = ref->GetAutoAttackVictim()->ToPlayer())
+            if (Player* victim = ref->GetVictim()->ToPlayer())
             {
                 ref->ScaleThreat(0.0f);
                 ref->AddThreat(1000000.0f * CalculateThreat(me->GetDistance2d(victim), victim->GetArmor(), victim->GetHealth()));
@@ -687,7 +687,7 @@ struct boss_faction_championsAI : public BossAI
     {
         uint32 count = 0;
         for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
-            if (me->GetDistance2d(ref->GetAutoAttackVictim()) < distance)
+            if (me->GetDistance2d(ref->GetVictim()) < distance)
                 ++count;
         return count;
     }

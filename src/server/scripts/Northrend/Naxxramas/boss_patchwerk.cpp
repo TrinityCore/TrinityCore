@@ -132,11 +132,11 @@ public:
                             return;
                         }
 
-                        if ((*it)->GetAutoAttackVictim() != currentVictim)
+                        if ((*it)->GetVictim() != currentVictim)
                             secondThreat = *it;
                         if ((!secondThreat || Is25ManRaid()) && (++it != end && (*it)->IsAvailable()))
                         {
-                            if ((*it)->GetAutoAttackVictim() != currentVictim)
+                            if ((*it)->GetVictim() != currentVictim)
                                 (secondThreat ? thirdThreat : secondThreat) = *it;
                             if (!thirdThreat && Is25ManRaid() && (++it != end && (*it)->IsAvailable()))
                                 thirdThreat = *it;
@@ -146,9 +146,9 @@ public:
                         if (!secondThreat)
                             pHatefulTarget = currentVictim;
                         else if (!thirdThreat)
-                            pHatefulTarget = secondThreat->GetAutoAttackVictim();
+                            pHatefulTarget = secondThreat->GetVictim();
                         else
-                            pHatefulTarget = (secondThreat->GetAutoAttackVictim()->GetHealth() < thirdThreat->GetAutoAttackVictim()->GetHealth()) ? thirdThreat->GetAutoAttackVictim() : secondThreat->GetAutoAttackVictim();
+                            pHatefulTarget = (secondThreat->GetVictim()->GetHealth() < thirdThreat->GetVictim()->GetHealth()) ? thirdThreat->GetVictim() : secondThreat->GetVictim();
 
                         // add threat to highest threat targets
                         AddThreat(currentVictim, HATEFUL_THREAT_AMT);

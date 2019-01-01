@@ -528,7 +528,7 @@ public:
                     Unit* currentVictim = mgr.GetCurrentVictim();
                     for (ThreatReference const* ref : mgr.GetSortedThreatList())
                     {
-                        if (Player* tempTarget = ref->GetAutoAttackVictim()->ToPlayer())
+                        if (Player* tempTarget = ref->GetVictim()->ToPlayer())
                             if (tempTarget != currentVictim && TargetList.size()<5)
                                 TargetList.push_back(tempTarget);
                     }

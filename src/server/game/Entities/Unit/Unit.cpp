@@ -1694,10 +1694,10 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
 
 /*static*/ void Unit::CalcAbsorbResist(DamageInfo& damageInfo)
 {
-    if (!damageInfo.GetAutoAttackVictim() || !damageInfo.GetAutoAttackVictim()->IsAlive() || !damageInfo.GetDamage())
+    if (!damageInfo.GetVictim() || !damageInfo.GetVictim()->IsAlive() || !damageInfo.GetDamage())
         return;
 
-    uint32 resistedDamage = Unit::CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetAutoAttackVictim(), damageInfo.GetDamage(), damageInfo.GetSchoolMask(), damageInfo.GetSpellInfo());
+    uint32 resistedDamage = Unit::CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetVictim(), damageInfo.GetDamage(), damageInfo.GetSchoolMask(), damageInfo.GetSpellInfo());
     damageInfo.ResistDamage(resistedDamage);
 
     // Ignore Absorption Auras
@@ -1724,7 +1724,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
 
     // We're going to call functions which can modify content of the list during iteration over it's elements
     // Let's copy the list so we can prevent iterator invalidation
-    AuraEffectList vSchoolAbsorbCopy(damageInfo.GetAutoAttackVictim()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB));
+    AuraEffectList vSchoolAbsorbCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB));
     vSchoolAbsorbCopy.sort(Trinity::AbsorbAuraOrderPred());
 
     // absorb without mana cost
@@ -1732,7 +1732,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     {
         AuraEffect* absorbAurEff = *itr;
         // Check if aura was removed during iteration - we don't need to work on such auras
-        AuraApplication const* aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(damageInfo.GetAutoAttackVictim()->GetGUID());
+        AuraApplication const* aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(damageInfo.GetVictim()->GetGUID());
         if (!aurApp)
             continue;
         if (!(absorbAurEff->GetMiscValue() & damageInfo.GetSchoolMask()))
@@ -1774,12 +1774,12 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     }
 
     // absorb by mana cost
-    AuraEffectList vManaShieldCopy(damageInfo.GetAutoAttackVictim()->GetAuraEffectsByType(SPELL_AURA_MANA_SHIELD));
+    AuraEffectList vManaShieldCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_MANA_SHIELD));
     for (AuraEffectList::const_iterator itr = vManaShieldCopy.begin(); (itr != vManaShieldCopy.end()) && (damageInfo.GetDamage() > 0); ++itr)
     {
         AuraEffect* absorbAurEff = *itr;
         // Check if aura was removed during iteration - we don't need to work on such auras
-        AuraApplication const* aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(damageInfo.GetAutoAttackVictim()->GetGUID());
+        AuraApplication const* aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(damageInfo.GetVictim()->GetGUID());
         if (!aurApp)
             continue;
         // check damage school mask
@@ -1811,7 +1811,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
         if (float manaMultiplier = absorbAurEff->GetSpellInfo()->Effects[absorbAurEff->GetEffIndex()].CalcValueMultiplier(absorbAurEff->GetCaster()))
             manaReduction = int32(float(manaReduction) * manaMultiplier);
 
-        int32 manaTaken = -damageInfo.GetAutoAttackVictim()->ModifyPower(POWER_MANA, -manaReduction);
+        int32 manaTaken = -damageInfo.GetVictim()->ModifyPower(POWER_MANA, -manaReduction);
 
         // take case when mana has ended up into account
         currentAbsorb = currentAbsorb ? int32(float(currentAbsorb) * (float(manaTaken) / float(manaReduction))) : 0;
@@ -1833,15 +1833,15 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     damageInfo.ModifyDamage(absorbIgnoringDamage);
 
     // split damage auras - only when not damaging self
-    if (damageInfo.GetAutoAttackVictim() != damageInfo.GetAttacker())
+    if (damageInfo.GetVictim() != damageInfo.GetAttacker())
     {
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
-        AuraEffectList vSplitDamageFlatCopy(damageInfo.GetAutoAttackVictim()->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_FLAT));
+        AuraEffectList vSplitDamageFlatCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_FLAT));
         for (AuraEffectList::iterator itr = vSplitDamageFlatCopy.begin(); (itr != vSplitDamageFlatCopy.end()) && (damageInfo.GetDamage() > 0); ++itr)
         {
             // Check if aura was removed during iteration - we don't need to work on such auras
-            if (!((*itr)->GetBase()->IsAppliedOnTarget(damageInfo.GetAutoAttackVictim()->GetGUID())))
+            if (!((*itr)->GetBase()->IsAppliedOnTarget(damageInfo.GetVictim()->GetGUID())))
                 continue;
             // check damage school mask
             if (!((*itr)->GetMiscValue() & damageInfo.GetSchoolMask()))
@@ -1849,7 +1849,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
 
             // Damage can be splitted only if aura has an alive caster
             Unit* caster = (*itr)->GetCaster();
-            if (!caster || (caster == damageInfo.GetAutoAttackVictim()) || !caster->IsInWorld() || !caster->IsAlive())
+            if (!caster || (caster == damageInfo.GetVictim()) || !caster->IsInWorld() || !caster->IsAlive())
                 continue;
 
             int32 splitDamage = (*itr)->GetAmount();
@@ -1862,7 +1862,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
             // check if caster is immune to damage
             if (caster->IsImmunedToDamage(damageInfo.GetSchoolMask()))
             {
-                damageInfo.GetAutoAttackVictim()->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
+                damageInfo.GetVictim()->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
                 continue;
             }
 
@@ -1879,11 +1879,11 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
 
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
-        AuraEffectList vSplitDamagePctCopy(damageInfo.GetAutoAttackVictim()->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_PCT));
+        AuraEffectList vSplitDamagePctCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_PCT));
         for (AuraEffectList::iterator itr = vSplitDamagePctCopy.begin(); itr != vSplitDamagePctCopy.end() && damageInfo.GetDamage() > 0; ++itr)
         {
             // Check if aura was removed during iteration - we don't need to work on such auras
-            AuraApplication const* aurApp = (*itr)->GetBase()->GetApplicationOfTarget(damageInfo.GetAutoAttackVictim()->GetGUID());
+            AuraApplication const* aurApp = (*itr)->GetBase()->GetApplicationOfTarget(damageInfo.GetVictim()->GetGUID());
             if (!aurApp)
                 continue;
 
@@ -1893,7 +1893,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
 
             // Damage can be splitted only if aura has an alive caster
             Unit* caster = (*itr)->GetCaster();
-            if (!caster || (caster == damageInfo.GetAutoAttackVictim()) || !caster->IsInWorld() || !caster->IsAlive())
+            if (!caster || (caster == damageInfo.GetVictim()) || !caster->IsInWorld() || !caster->IsAlive())
                 continue;
 
             uint32 splitDamage = CalculatePct(damageInfo.GetDamage(), (*itr)->GetAmount());
@@ -1908,7 +1908,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
             // check if caster is immune to damage
             if (caster->IsImmunedToDamage(damageInfo.GetSchoolMask()))
             {
-                damageInfo.GetAutoAttackVictim()->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
+                damageInfo.GetVictim()->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
                 continue;
             }
 

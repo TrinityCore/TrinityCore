@@ -175,7 +175,7 @@ ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatLi
 ThreatManager::~ThreatManager()
 {
     ASSERT(_myThreatListEntries.empty(), "ThreatManager::~ThreatManager - %s: we still have %zu things threatening us, one of them is %s.", _owner->GetGUID().ToString().c_str(), _myThreatListEntries.size(), _myThreatListEntries.begin()->first.ToString().c_str());
-    ASSERT(_sortedThreatList.empty(), "ThreatManager::~ThreatManager - %s: we still have %zu things threatening us, one of them is %s.", _owner->GetGUID().ToString().c_str(), _sortedThreatList.size(), (*_sortedThreatList.begin())->GetAutoAttackVictim()->GetGUID().ToString().c_str());
+    ASSERT(_sortedThreatList.empty(), "ThreatManager::~ThreatManager - %s: we still have %zu things threatening us, one of them is %s.", _owner->GetGUID().ToString().c_str(), _sortedThreatList.size(), (*_sortedThreatList.begin())->GetVictim()->GetGUID().ToString().c_str());
     ASSERT(_threatenedByMe.empty(), "ThreatManager::~ThreatManager - %s: we are still threatening %zu things, one of them is %s.", _owner->GetGUID().ToString().c_str(), _threatenedByMe.size(), _threatenedByMe.begin()->first.ToString().c_str());
 }
 
@@ -207,7 +207,7 @@ Unit* ThreatManager::GetCurrentVictim()
 Unit* ThreatManager::GetCurrentVictim() const
 {
     if (_currentVictimRef && !_currentVictimRef->ShouldBeOffline())
-        return _currentVictimRef->GetAutoAttackVictim();
+        return _currentVictimRef->GetVictim();
     return nullptr;
 }
 
@@ -215,7 +215,7 @@ Unit* ThreatManager::GetAnyTarget() const
 {
     for (ThreatReference const* ref : _sortedThreatList)
         if (!ref->IsOffline())
-            return ref->GetAutoAttackVictim();
+            return ref->GetVictim();
     return nullptr;
 }
 
@@ -513,7 +513,7 @@ void ThreatManager::FixateTarget(Unit* target)
 Unit* ThreatManager::GetFixateTarget() const
 {
     if (_fixateRef)
-        return _fixateRef->GetAutoAttackVictim();
+        return _fixateRef->GetVictim();
     else
         return nullptr;
 }
@@ -766,7 +766,7 @@ void ThreatManager::SendThreatListToClients(bool newHighest) const
     WorldPacket data(newHighest ? SMSG_HIGHEST_THREAT_UPDATE : SMSG_THREAT_UPDATE, (_sortedThreatList.size() + 2) * 8); // guess
     data << _owner->GetPackGUID();
     if (newHighest)
-        data << _currentVictimRef->GetAutoAttackVictim()->GetPackGUID();
+        data << _currentVictimRef->GetVictim()->GetPackGUID();
     size_t countPos = data.wpos();
     data << uint32(0); // placeholder
     uint32 count = 0;
@@ -774,7 +774,7 @@ void ThreatManager::SendThreatListToClients(bool newHighest) const
     {
         if (!ref->IsAvailable())
             continue;
-        data << ref->GetAutoAttackVictim()->GetPackGUID();
+        data << ref->GetVictim()->GetPackGUID();
         data << uint32(ref->GetThreat() * 100);
         ++count;
     }

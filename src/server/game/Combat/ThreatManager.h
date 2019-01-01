@@ -257,7 +257,7 @@ class TC_GAME_API ThreatReference
         enum OnlineState { ONLINE_STATE_ONLINE = 2, ONLINE_STATE_SUPPRESSED = 1, ONLINE_STATE_OFFLINE = 0 };
 
         Creature* GetOwner() const { return _owner; }
-        Unit* GetAutoAttackVictim() const { return _victim; }
+        Unit* GetVictim() const { return _victim; }
         float GetThreat() const { return std::max<float>(_baseAmount + (float)_tempModifier, 0.0f); }
         OnlineState GetOnlineState() const { return _online; }
         bool IsOnline() const { return (_online >= ONLINE_STATE_ONLINE); }

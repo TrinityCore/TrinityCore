@@ -225,7 +225,7 @@ class TC_GAME_API UnitAI
                     if (ref->IsOffline())
                         continue;
 
-                    targetList.push_back(ref->GetAutoAttackVictim());
+                    targetList.push_back(ref->GetVictim());
                 }
             }
             else
@@ -239,7 +239,7 @@ class TC_GAME_API UnitAI
                     if (ref->IsOffline())
                         continue;
 
-                    Unit* thisTarget = ref->GetAutoAttackVictim();
+                    Unit* thisTarget = ref->GetVictim();
                     if (thisTarget != currentVictim)
                         targetList.push_back(thisTarget);
                 }

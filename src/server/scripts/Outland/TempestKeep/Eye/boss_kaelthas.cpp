@@ -1145,7 +1145,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                     Unit* target = nullptr;
                     for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        Unit* unit = ref->GetAutoAttackVictim();
+                        Unit* unit = ref->GetVictim();
                         if (unit->IsWithinMeleeRange(me))
                         {
                             InMeleeRange = true;

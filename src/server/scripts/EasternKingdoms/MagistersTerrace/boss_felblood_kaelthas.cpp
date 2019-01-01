@@ -201,7 +201,7 @@ public:
 
             for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
             {
-                Unit* unit = ref->GetAutoAttackVictim();
+                Unit* unit = ref->GetVictim();
                 if (unit && unit->IsAlive())
                     AddThreat(unit, ref->GetThreat(), summonedUnit);
             }

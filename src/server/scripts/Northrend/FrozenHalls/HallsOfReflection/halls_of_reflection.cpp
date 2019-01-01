@@ -986,7 +986,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
             void DeleteAllFromThreatList(Unit* target, ObjectGuid except)
             {
                 for (ThreatReference* ref : target->GetThreatManager().GetModifiableThreatList())
-                  if (ref->GetAutoAttackVictim()->GetGUID() != except)
+                  if (ref->GetVictim()->GetGUID() != except)
                     ref->ClearThreat();
             }
 

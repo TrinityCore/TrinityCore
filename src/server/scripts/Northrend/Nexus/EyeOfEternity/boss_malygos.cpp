@@ -1803,7 +1803,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
                 {
                     for (ThreatReference const* ref : caster->GetThreatManager().GetUnsortedThreatList())
                     {
-                        if (Player* targetPlayer = ref->GetAutoAttackVictim()->ToPlayer())
+                        if (Player* targetPlayer = ref->GetVictim()->ToPlayer())
                         {
                             if (targetPlayer->IsGameMaster())
                                 continue;

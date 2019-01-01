@@ -122,7 +122,7 @@ struct boss_supremus : public BossAI
 
         for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
         {
-            Unit* unit = ref->GetAutoAttackVictim();
+            Unit* unit = ref->GetVictim();
             if (me->IsWithinMeleeRange(unit))
             {
                 if (unit->GetHealth() > health)

@@ -651,7 +651,7 @@ public:
                         Stomach_Map.clear();
 
                         for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
-                            Stomach_Map[ref->GetAutoAttackVictim()->GetGUID()] = false;   //Outside stomach
+                            Stomach_Map[ref->GetVictim()->GetGUID()] = false;   //Outside stomach
 
                         //Spawn 2 flesh tentacles
                         FleshTentaclesKilled = 0;

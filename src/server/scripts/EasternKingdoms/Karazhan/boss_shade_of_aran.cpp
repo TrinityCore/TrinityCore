@@ -188,8 +188,8 @@ public:
             //store the threat list in a different container
             for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
             {
-                Unit* target = ref->GetAutoAttackVictim();
-                if (ref->GetAutoAttackVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetAutoAttackVictim()->IsAlive())
+                Unit* target = ref->GetVictim();
+                if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetVictim()->IsAlive())
                     targets.push_back(target);
             }
 

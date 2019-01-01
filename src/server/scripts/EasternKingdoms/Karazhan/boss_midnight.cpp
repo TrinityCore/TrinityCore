@@ -177,7 +177,7 @@ public:
 
                     for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        target = ref->GetAutoAttackVictim();
+                        target = ref->GetVictim();
                         if (target && !target->IsWithinDist(me, 8.00f, false) && target->IsWithinDist(me, 25.0f, false))
                             target_list.push_back(target);
 

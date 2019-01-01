@@ -889,7 +889,7 @@ public:
                 Unit* fixateVictim = mgr.GetFixateTarget();
                 for (ThreatReference const* ref : mgr.GetSortedThreatList())
                 {
-                    Unit* unit = ref->GetAutoAttackVictim();
+                    Unit* unit = ref->GetVictim();
                     char const* onlineStr;
                     switch (ref->GetOnlineState())
                     {

@@ -420,7 +420,7 @@ class TC_GAME_API DamageInfo
         void BlockDamage(uint32 amount);
 
         Unit* GetAttacker() const { return m_attacker; }
-        Unit* GetAutoAttackVictim() const { return m_victim; }
+        Unit* GetVictim() const { return m_victim; }
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         SpellSchoolMask GetSchoolMask() const { return m_schoolMask; }
         DamageEffectType GetDamageType() const { return m_damageType; }
