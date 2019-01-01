@@ -340,7 +340,7 @@ enum TrinityStrings
     LANG_COMMAND_MODIFY_ARENA             = 306,
     LANG_COMMAND_FACTION_NOTFOUND         = 307,
     LANG_COMMAND_FACTION_UNKNOWN          = 308,
-    LANG_COMMAND_FACTION_INVPARAM         = 309,
+    LANG_COMMAND_INVALID_PARAM            = 309,
     LANG_COMMAND_FACTION_DELTA            = 310,
     LANG_FACTION_LIST                     = 311,
     LANG_FACTION_VISIBLE                  = 312,
