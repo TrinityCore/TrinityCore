@@ -379,7 +379,7 @@ public:
                     if (Unit* temp = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         SummonDoomfire(temp);
                     else
-                        SummonDoomfire(me->GetVictim());
+                        SummonDoomfire(me->GetAutoAttackVictim());
                     events.ScheduleEvent(EVENT_DOOMFIRE, 20s);
                     break;
                 case EVENT_DISTANCE_CHECK:

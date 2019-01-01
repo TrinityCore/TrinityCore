@@ -870,7 +870,7 @@ void hyjalAI::UpdateAI(uint32 diff)
                         break;
 
                     case TARGETTYPE_VICTIM:
-                        target = me->GetVictim();
+                        target = me->GetAutoAttackVictim();
                         break;
                 }
 

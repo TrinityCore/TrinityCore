@@ -186,7 +186,7 @@ public:
                         // add a blink to simulate a stealthed movement and reappearing elsewhere
                         DoCast(me, SPELL_FADE_BLINK);
                         // if the victim is out of melee range she cast multi shot
-                        if (Unit* victim = me->GetVictim())
+                        if (Unit* victim = me->GetAutoAttackVictim())
                             if (me->GetDistance(victim) > 10.0f)
                                 DoCast(victim, SPELL_MULTI_SHOT);
                         _events.ScheduleEvent(EVENT_FADE, 30s, 35s);
@@ -196,17 +196,17 @@ public:
                         _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 20s, 30s);
                         break;
                     case EVENT_BLACK_ARROW:
-                        if (Unit* victim = me->GetVictim())
+                        if (Unit* victim = me->GetAutoAttackVictim())
                             DoCast(victim, SPELL_BLACK_ARROW);
                         _events.ScheduleEvent(EVENT_BLACK_ARROW, 15s, 20s);
                         break;
                     case EVENT_SHOOT:
-                        if (Unit* victim = me->GetVictim())
+                        if (Unit* victim = me->GetAutoAttackVictim())
                             DoCast(victim, SPELL_SHOT);
                         _events.ScheduleEvent(EVENT_SHOOT, 8s, 10s);
                         break;
                     case EVENT_MULTI_SHOT:
-                        if (Unit* victim = me->GetVictim())
+                        if (Unit* victim = me->GetAutoAttackVictim())
                             DoCast(victim, SPELL_MULTI_SHOT);
                         _events.ScheduleEvent(EVENT_MULTI_SHOT, 10s, 13s);
                         break;

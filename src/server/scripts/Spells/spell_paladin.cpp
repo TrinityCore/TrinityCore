@@ -1822,7 +1822,7 @@ class spell_pal_righteous_defense : public SpellScript
 
         if (Unit* target = GetExplTargetUnit())
         {
-            if (!target->IsFriendlyTo(caster) || target == caster || target->getAttackers().empty())
+            if (!target->IsFriendlyTo(caster) || target == caster || target->GetAutoAttackingMe().empty())
                 return SPELL_FAILED_BAD_TARGETS;
         }
         else
@@ -1835,7 +1835,7 @@ class spell_pal_righteous_defense : public SpellScript
     {
         if (Unit* target = GetHitUnit())
         {
-            auto const& attackers = target->getAttackers();
+            auto const& attackers = target->GetAutoAttackingMe();
 
             std::vector<Unit*> list(attackers.cbegin(), attackers.cend());
             Trinity::Containers::RandomResize(list, 3);

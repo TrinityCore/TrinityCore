@@ -499,7 +499,7 @@ class boss_sindragosa : public CreatureScript
                             me->SetDisableGravity(true);
                             me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             me->SetReactState(REACT_PASSIVE);
-                            me->AttackStop();
+                            me->AutoAttackStop();
                             Position pos;
                             pos.Relocate(me);
                             pos.m_positionZ += 17.0f;
@@ -915,7 +915,7 @@ class npc_rimefang : public CreatureScript
                         {
                             _icyBlastCounter = RAID_MODE<uint8>(5, 7, 6, 8);
                             me->SetReactState(REACT_PASSIVE);
-                            me->AttackStop();
+                            me->AutoAttackStop();
                             me->SetCanFly(true);
                             me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, RimefangFlyPos);
                             float moveTime = me->GetExactDist(&RimefangFlyPos)/(me->GetSpeed(MOVE_FLIGHT)*0.001f);

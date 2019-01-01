@@ -77,8 +77,8 @@ public:
                         break;
                     case EVENT_WINGBUFFET:
                         DoCastVictim(SPELL_WINGBUFFET);
-                        if (GetThreat(me->GetVictim()))
-                            ModifyThreatByPercent(me->GetVictim(), -75);
+                        if (GetThreat(me->GetAutoAttackVictim()))
+                            ModifyThreatByPercent(me->GetAutoAttackVictim(), -75);
                         events.ScheduleEvent(EVENT_WINGBUFFET, 30s);
                         break;
                     case EVENT_FRENZY:

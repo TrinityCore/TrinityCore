@@ -218,7 +218,7 @@ struct boss_xt002 : public BossAI
     {
         events.SetPhase(PHASE_HEART);
         me->SetReactState(REACT_PASSIVE);
-        me->AttackStop();
+        me->AutoAttackStop();
         Talk(SAY_HEART_OPENED);
         events.CancelEvent(EVENT_TYMPANIC_TANTRUM);
         events.ScheduleEvent(EVENT_SUBMERGE, 6s, 0, PHASE_HEART);

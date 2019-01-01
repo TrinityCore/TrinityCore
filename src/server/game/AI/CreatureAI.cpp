@@ -179,19 +179,22 @@ bool CreatureAI::UpdateVictim()
 
     if (!me->HasReactState(REACT_PASSIVE))
     {
-        if (Unit* victim = me->SelectVictim())
-            if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
-                AttackStart(victim);
+        Unit* victim = me->SelectVictim();
+        if (victim)
+            AttackStart(victim);
+        else if (me->GetAutoAttackVictim())
+            me->AutoAttackStop();
+        me->SetPrimaryTarget(victim);
 
-        return me->GetVictim() != nullptr;
+        return me->IsEngaged();
     }
     else if (!me->IsInCombat())
     {
         EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
         return false;
     }
-    else if (me->GetVictim())
-        me->AttackStop();
+    else if (me->GetAutoAttackVictim())
+        me->AutoAttackStop();
 
     return true;
 }
@@ -211,7 +214,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->ResetPlayerDamageReq();
     me->SetLastDamagedTime(0);
     me->SetCannotReachTarget(false);
-    me->DoNotReacquireTarget();
+    me->ClearSpellFocus();
 
     if (me->IsInEvadeMode())
         return false;

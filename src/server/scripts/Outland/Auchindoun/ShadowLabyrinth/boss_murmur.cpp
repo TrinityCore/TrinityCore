@@ -121,7 +121,7 @@ class boss_murmur : public CreatureScript
                             events.ScheduleEvent(EVENT_MURMURS_TOUCH, 25s, 35s);
                             break;
                         case EVENT_RESONANCE:
-                            if (!(me->IsWithinMeleeRange(me->GetVictim())))
+                            if (!(me->IsWithinMeleeRange(me->GetAutoAttackVictim())))
                             {
                                 DoCast(me, SPELL_RESONANCE);
                                 events.ScheduleEvent(EVENT_RESONANCE, 5s);
@@ -155,8 +155,8 @@ class boss_murmur : public CreatureScript
                 if (!me->isAttackReady())
                     return;
 
-                if (!me->IsWithinMeleeRange(me->GetVictim()))
-                    me->GetThreatManager().ResetThreat(me->GetVictim());
+                if (!me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
+                    me->GetThreatManager().ResetThreat(me->GetAutoAttackVictim());
 
                 DoMeleeAttackIfReady();
             }

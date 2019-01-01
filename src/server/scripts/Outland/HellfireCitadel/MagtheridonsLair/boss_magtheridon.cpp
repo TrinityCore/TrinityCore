@@ -196,7 +196,7 @@ class boss_magtheridon : public CreatureScript
                 {
                     events.SetPhase(PHASE_3);
                     me->SetReactState(REACT_PASSIVE);
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     Talk(SAY_COLLAPSE);
                     instance->SetData(DATA_COLLAPSE, ACTION_ENABLE);
                     DoCastAOE(SPELL_CAMERA_SHAKE);

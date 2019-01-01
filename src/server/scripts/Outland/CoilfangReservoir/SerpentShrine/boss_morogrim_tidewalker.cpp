@@ -330,7 +330,7 @@ public:
         void MoveInLineOfSight(Unit* who) override
 
         {
-            if (!who || me->GetVictim())
+            if (!who || me->GetAutoAttackVictim())
                 return;
 
             if (me->CanCreatureAttack(who))
@@ -349,7 +349,7 @@ public:
 
             if (Check_Timer <= diff)
             {
-                if (me->IsWithinDistInMap(me->GetVictim(), 5))
+                if (me->IsWithinDistInMap(me->GetAutoAttackVictim(), 5))
                 {
                     DoCastVictim(SPELL_GLOBULE_EXPLOSION);
 

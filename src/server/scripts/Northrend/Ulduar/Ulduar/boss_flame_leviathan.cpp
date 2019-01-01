@@ -571,7 +571,7 @@ class boss_flame_leviathan : public CreatureScript
             }
 
             private:
-                //! Copypasta from DoSpellAttackIfReady, only difference is the target - it cannot be selected trough getVictim this way -
+                //! Copypasta from DoSpellAttackIfReady, only difference is the target - it cannot be selected trough GetAutoAttackVictim this way -
                 //! I also removed the spellInfo check
                 void DoBatteringRamIfReady()
                 {

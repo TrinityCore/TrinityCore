@@ -529,7 +529,7 @@ public:
                     if (!lose)
                     {
                         pDoneBy->RemoveGameObject(SPELL_DUEL_FLAG, true);
-                        pDoneBy->AttackStop();
+                        pDoneBy->AutoAttackStop();
                         me->CastSpell(pDoneBy, SPELL_DUEL_VICTORY, true);
                         lose = true;
                         me->CastSpell(me, SPELL_GROVEL, true);
@@ -566,10 +566,10 @@ public:
                         EnterEvadeMode();
                     return;
                 }
-                else if (me->GetVictim() && me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER && me->EnsureVictim()->HealthBelowPct(10))
+                else if (me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->GetTypeId() == TYPEID_PLAYER && me->GetAutoAttackVictim()->HealthBelowPct(10))
                 {
-                    me->EnsureVictim()->CastSpell(me->GetVictim(), SPELL_GROVEL, true); // beg
-                    me->EnsureVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
+                    me->GetAutoAttackVictim()->CastSpell(me->GetAutoAttackVictim(), SPELL_GROVEL, true); // beg
+                    me->GetAutoAttackVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
                     EnterEvadeMode();
                     return;
                 }
@@ -706,7 +706,7 @@ class npc_dark_rider_of_acherus : public CreatureScript
                 me->SetWalk(true);
                 me->SetSpeedRate(MOVE_RUN, 0.4f);
                 me->GetMotionMaster()->MoveChase(who);
-                me->SetTarget(TargetGUID);
+                me->SetPrimaryTarget(TargetGUID);
                 Intro = true;
             }
 
@@ -954,9 +954,9 @@ public:
                 {
                     if ((*itr)->GetOwner()->GetGUID() == me->GetOwner()->GetGUID())
                     {
-                        if ((*itr)->IsInCombat() && (*itr)->getAttackerForHelper())
+                        if ((*itr)->IsInCombat() && (*itr)->GetAttackerForHelper())
                         {
-                            AttackStart((*itr)->getAttackerForHelper());
+                            AttackStart((*itr)->GetAttackerForHelper());
                         }
                     }
                 }
@@ -972,27 +972,27 @@ public:
                     Player* plrOwner = owner->ToPlayer();
                     if (plrOwner && plrOwner->IsInCombat())
                     {
-                        if (plrOwner->getAttackerForHelper() && plrOwner->getAttackerForHelper()->GetEntry() == NPC_GHOSTS)
-                            AttackStart(plrOwner->getAttackerForHelper());
+                        if (plrOwner->GetAttackerForHelper() && plrOwner->GetAttackerForHelper()->GetEntry() == NPC_GHOSTS)
+                            AttackStart(plrOwner->GetAttackerForHelper());
                         else
                             FindMinions(owner);
                     }
                 }
             }
 
-            if (!UpdateVictim() || !me->GetVictim())
+            if (!UpdateVictim() || !me->GetAutoAttackVictim())
                 return;
 
             //ScriptedAI::UpdateAI(diff);
             //Check if we have a current target
-            if (me->EnsureVictim()->GetEntry() == NPC_GHOSTS)
+            if (me->GetAutoAttackVictim()->GetEntry() == NPC_GHOSTS)
             {
                 if (me->isAttackReady())
                 {
                     //If we are within range melee the target
-                    if (me->IsWithinMeleeRange(me->GetVictim()))
+                    if (me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                     {
-                        me->AttackerStateUpdate(me->GetVictim());
+                        me->AttackerStateUpdate(me->GetAutoAttackVictim());
                         me->resetAttackTimer();
                     }
                 }

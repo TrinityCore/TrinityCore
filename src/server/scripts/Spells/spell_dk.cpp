@@ -768,7 +768,7 @@ class spell_dk_dancing_rune_weapon : public SpellScriptLoader
                     }
                 }
 
-                if (!drw || !drw->GetVictim())
+                if (!drw || !drw->GetAutoAttackVictim())
                     return;
 
                 SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
@@ -780,8 +780,8 @@ class spell_dk_dancing_rune_weapon : public SpellScriptLoader
                     return;
 
                 int32 amount = static_cast<int32>(damageInfo->GetDamage()) / 2;
-                drw->SendSpellNonMeleeDamageLog(drw->GetVictim(), spellInfo->Id, amount, spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
-                Unit::DealDamage(drw, drw->GetVictim(), amount, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
+                drw->SendSpellNonMeleeDamageLog(drw->GetAutoAttackVictim(), spellInfo->Id, amount, spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
+                Unit::DealDamage(drw, drw->GetAutoAttackVictim(), amount, nullptr, SPELL_DIRECT_DAMAGE, spellInfo->GetSchoolMask(), spellInfo, true);
             }
 
             void Register() override

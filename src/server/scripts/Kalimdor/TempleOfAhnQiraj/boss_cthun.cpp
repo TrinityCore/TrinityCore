@@ -276,7 +276,7 @@ public:
                             DoCast(target, SPELL_GREEN_BEAM);
 
                             //Correctly update our target
-                            me->SetTarget(target->GetGUID());
+                            me->SetPrimaryTarget(target->GetGUID());
                         }
 
                         //Beam every 3 seconds
@@ -311,7 +311,7 @@ public:
                         me->SetReactState(REACT_PASSIVE);
 
                         //Remove any target
-                        me->SetTarget(ObjectGuid::Empty);
+                        me->SetPrimaryTarget(ObjectGuid::Empty);
 
                         //Select random target for dark beam to start on
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -388,7 +388,7 @@ public:
                 //Transition phase
                 case PHASE_CTHUN_TRANSITION:
                     //Remove any target
-                    me->SetTarget(ObjectGuid::Empty);
+                    me->SetPrimaryTarget(ObjectGuid::Empty);
                     me->SetHealth(0);
                     me->SetVisible(false);
                     break;
@@ -424,7 +424,7 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
 
                     //Remove Target field
-                    me->SetTarget(ObjectGuid::Empty);
+                    me->SetPrimaryTarget(ObjectGuid::Empty);
 
                     //Death animation/respawning;
                     instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_TRANSITION);
@@ -602,7 +602,7 @@ public:
                 return;
             }
 
-            me->SetTarget(ObjectGuid::Empty);
+            me->SetPrimaryTarget(ObjectGuid::Empty);
 
             uint32 currentPhase = instance->GetData(DATA_CTHUN_PHASE);
             if (currentPhase == PHASE_CTHUN_STOMACH || currentPhase == PHASE_CTHUN_WEAK)
@@ -651,7 +651,7 @@ public:
                         Stomach_Map.clear();
 
                         for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
-                            Stomach_Map[ref->GetVictim()->GetGUID()] = false;   //Outside stomach
+                            Stomach_Map[ref->GetAutoAttackVictim()->GetGUID()] = false;   //Outside stomach
 
                         //Spawn 2 flesh tentacles
                         FleshTentaclesKilled = 0;
@@ -672,7 +672,7 @@ public:
                 //Body Phase
                 case PHASE_CTHUN_STOMACH:
                     //Remove Target field
-                    me->SetTarget(ObjectGuid::Empty);
+                    me->SetPrimaryTarget(ObjectGuid::Empty);
 
                     //Weaken
                     if (FleshTentaclesKilled > 1)
@@ -1024,7 +1024,7 @@ public:
                 return;
 
             //EvadeTimer
-            if (!me->IsWithinMeleeRange(me->GetVictim()))
+            if (!me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
             {
                 if (EvadeTimer <= diff)
                 {
@@ -1141,7 +1141,7 @@ public:
                 return;
 
             //EvadeTimer
-            if (!me->IsWithinMeleeRange(me->GetVictim()))
+            if (!me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
             {
                 if (EvadeTimer <= diff)
                 {

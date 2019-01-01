@@ -222,7 +222,7 @@ class npc_ethereal_beacon : public CreatureScript
 
             void JustSummoned(Creature* summoned) override
             {
-                summoned->AI()->AttackStart(me->GetVictim());
+                summoned->AI()->AttackStart(me->GetAutoAttackVictim());
             }
 
             void UpdateAI(uint32 diff) override
@@ -362,7 +362,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_DOUBLE_BREATH:
-                        if (me->IsWithinDist(me->GetVictim(), ATTACK_DISTANCE))
+                        if (me->IsWithinDist(me->GetAutoAttackVictim(), ATTACK_DISTANCE))
                             DoCastVictim(SPELL_DOUBLE_BREATH);
                         _events.ScheduleEvent(EVENT_DOUBLE_BREATH, 6s, 9s);
                         break;

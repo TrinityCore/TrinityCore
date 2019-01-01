@@ -491,7 +491,7 @@ void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    _player->SetSelection(guid);
+    _player->SetPrimaryTarget(guid);
 }
 
 void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recvData)

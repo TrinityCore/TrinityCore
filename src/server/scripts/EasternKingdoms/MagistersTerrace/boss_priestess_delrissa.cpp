@@ -1070,7 +1070,7 @@ public:
 
             boss_priestess_lackey_commonAI::UpdateAI(diff);
 
-            if (me->IsWithinDistInMap(me->GetVictim(), ATTACK_DISTANCE))
+            if (me->IsWithinDistInMap(me->GetAutoAttackVictim(), ATTACK_DISTANCE))
             {
                 if (Wing_Clip_Timer <= diff)
                 {

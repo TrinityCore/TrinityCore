@@ -352,7 +352,7 @@ class boss_janalai : public CreatureScript
                 {
                     Talk(SAY_FIRE_BOMBS);
 
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     me->GetMotionMaster()->Clear();
                     DoTeleportTo(JanalainPos[0][0], JanalainPos[0][1], JanalainPos[0][2]);
                     me->StopMoving();
@@ -387,7 +387,7 @@ class boss_janalai : public CreatureScript
                     {
                         Talk(SAY_ALL_EGGS);
 
-                        me->AttackStop();
+                        me->AutoAttackStop();
                         me->GetMotionMaster()->Clear();
                         DoTeleportTo(JanalainPos[0][0], JanalainPos[0][1], JanalainPos[0][2]);
                         me->StopMoving();
@@ -415,7 +415,7 @@ class boss_janalai : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        me->AttackStop();
+                        me->AutoAttackStop();
                         me->GetMotionMaster()->Clear();
                         DoCast(target, SPELL_FLAME_BREATH, false);
                         me->StopMoving();

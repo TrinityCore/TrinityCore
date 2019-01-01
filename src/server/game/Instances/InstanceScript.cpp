@@ -228,7 +228,7 @@ void InstanceScript::UpdateMinionState(Creature* minion, EncounterState state)
         case IN_PROGRESS:
             if (!minion->IsAlive())
                 minion->Respawn();
-            else if (!minion->GetVictim())
+            else if (!minion->GetAutoAttackVictim())
                 minion->AI()->DoZoneInCombat();
             break;
         default:

@@ -258,7 +258,7 @@ public:
             me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
             me->SetDisableGravity(true);
             me->SetReactState(REACT_PASSIVE);
-            me->AttackStop();
+            me->AutoAttackStop();
 
             if (me->GetDistance(FlyPositionLeft) < me->GetDistance(FlyPosition))
                 me->GetMotionMaster()->MovePoint(POINT_PHASE_TWO_PRE_FLY, FlyPositionLeft, true);

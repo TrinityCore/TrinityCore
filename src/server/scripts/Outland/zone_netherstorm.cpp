@@ -433,8 +433,8 @@ public:
             {
                 std::list<Unit*> UnitsWithMana;
                 for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
-                    if (ref->GetVictim()->GetPower(POWER_MANA))
-                        UnitsWithMana.push_back(ref->GetVictim());
+                    if (ref->GetAutoAttackVictim()->GetPower(POWER_MANA))
+                        UnitsWithMana.push_back(ref->GetAutoAttackVictim());
                 if (!UnitsWithMana.empty())
                 {
                     DoCast(Trinity::Containers::SelectRandomContainerElement(UnitsWithMana), SPELL_MANA_BURN);

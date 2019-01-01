@@ -121,7 +121,7 @@ public:
             if (!target)
                 return;
 
-            if (me->Attack(target, true))
+            if (me->AutoAttackStart(target, true))
                 DoStartNoMovement(target);
         }
 

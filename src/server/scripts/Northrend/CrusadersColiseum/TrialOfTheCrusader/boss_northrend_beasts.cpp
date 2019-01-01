@@ -465,7 +465,7 @@ struct npc_snobold_vassal : public ScriptedAI
         Unit* gormok = _instance->GetCreature(DATA_GORMOK_THE_IMPALER);
         if (gormok && gormok->IsAlive())
         {
-            me->AttackStop();
+            me->AutoAttackStop();
             _targetGUID.Clear();
             _mountedOnPlayer = false;
             _events.CancelEvent(EVENT_BATTER);
@@ -485,7 +485,7 @@ struct npc_snobold_vassal : public ScriptedAI
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             _events.CancelEvent(EVENT_CHECK_MOUNT);
-            me->AttackStop();
+            me->AutoAttackStop();
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                 AttackStart(target);
             SetCombatMovement(true);
@@ -710,7 +710,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
     void Submerge()
     {
         me->SetReactState(REACT_PASSIVE);
-        me->AttackStop();
+        me->AutoAttackStop();
 
         if (wasMobile)
         {
@@ -760,7 +760,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
         }
         else
         {
-            if (Unit* target = me->GetVictim())
+            if (Unit* target = me->GetAutoAttackVictim())
                 me->GetMotionMaster()->MoveChase(target);
             me->SetDisplayId(modelMobile);
             events.SetPhase(PHASE_MOBILE);
@@ -989,7 +989,7 @@ struct boss_icehowl : public boss_northrend_beastsAI
                 break;
             case EVENT_MASSIVE_CRASH:
                 me->SetReactState(REACT_PASSIVE);
-                me->AttackStop();
+                me->AutoAttackStop();
                 events.SetPhase(PHASE_CHARGE);
                 me->GetMotionMaster()->MoveJump(ToCCommonLoc[1], 20.0f, 20.0f, POINT_MIDDLE);
                 break;
@@ -997,7 +997,7 @@ struct boss_icehowl : public boss_northrend_beastsAI
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                 {
                     DoCast(target, SPELL_FURIOUS_CHARGE_SUMMON, true);
-                    me->SetTarget(target->GetGUID());
+                    me->SetPrimaryTarget(target->GetGUID());
                     Talk(EMOTE_TRAMPLE_ROAR, target);
                     events.ScheduleEvent(EVENT_ICEHOWL_ROAR, 1s);
                 }
@@ -1015,7 +1015,7 @@ struct boss_icehowl : public boss_northrend_beastsAI
             case EVENT_TRAMPLE:
                 if (Creature* stalker = instance->GetCreature(DATA_FURIOUS_CHARGE))
                     me->GetMotionMaster()->MoveCharge(stalker->GetPositionX(), stalker->GetPositionY(), stalker->GetPositionZ(), 42.0f, POINT_ICEHOWL_CHARGE);
-                me->SetTarget(ObjectGuid::Empty);
+                me->SetPrimaryTarget(ObjectGuid::Empty);
                 break;
             case EVENT_FEROCIOUS_BUTT:
                 DoCastVictim(SPELL_FEROCIOUS_BUTT);

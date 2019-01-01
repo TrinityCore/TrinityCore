@@ -236,7 +236,7 @@ public:
         {
             CloseGossipMenuFor(player);
             me->SetFaction(FACTION_MONSTER);
-            me->Attack(player, true);
+            me->AutoAttackStart(player, true);
             return false;
         }
 

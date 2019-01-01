@@ -183,7 +183,7 @@ class boss_high_botanist_freywinn : public CreatureScript
 
                             me->InterruptNonMeleeSpells(true);
                             me->RemoveAllAuras();
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                             MoveFree = true;
                         }
                         MoveCheck_Timer = 500;

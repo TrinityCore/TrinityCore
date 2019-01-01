@@ -261,7 +261,7 @@ class boss_mandokir : public CreatureScript
                             events.ScheduleEvent(EVENT_OVERPOWER, 6s, 12s);
                             break;
                         case EVENT_MORTAL_STRIKE:
-                            if (me->GetVictim() && me->EnsureVictim()->HealthBelowPct(50))
+                            if (me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->HealthBelowPct(50))
                                 DoCastVictim(SPELL_MORTAL_STRIKE, true);
                             events.ScheduleEvent(EVENT_MORTAL_STRIKE, 12s, 18s);
                             break;

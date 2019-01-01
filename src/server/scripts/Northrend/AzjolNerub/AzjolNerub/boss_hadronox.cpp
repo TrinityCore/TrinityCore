@@ -178,7 +178,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
             me->SetHomePosition(hadronoxStep[step]);
             me->GetMotionMaster()->Clear();
-            me->AttackStop();
+            me->AutoAttackStop();
             me->GetMotionMaster()->MovePoint(0, hadronoxStep[step]);
         }
 
@@ -340,7 +340,7 @@ public:
                                 {
                                     me->GetMotionMaster()->Clear();
                                     SetCombatMovement(true);
-                                    AttackStart(me->GetVictim());
+                                    AttackStart(me->GetAutoAttackVictim());
                                 }
                             }
                             else // we are no longer in combat with players - reset the encounter

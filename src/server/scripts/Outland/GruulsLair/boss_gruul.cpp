@@ -156,8 +156,8 @@ class boss_gruul : public CreatureScript
                         //and correct movement, if not already
                         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
                         {
-                            if (me->GetVictim())
-                                me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            if (me->GetAutoAttackVictim())
+                                me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                         }
                     }
                 }
@@ -208,7 +208,7 @@ class boss_gruul : public CreatureScript
                     {
                         Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 1);
 
-                        if (target && me->IsWithinMeleeRange(me->GetVictim()))
+                        if (target && me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                             DoCast(target, SPELL_HURTFUL_STRIKE);
                         else
                             DoCastVictim(SPELL_HURTFUL_STRIKE);

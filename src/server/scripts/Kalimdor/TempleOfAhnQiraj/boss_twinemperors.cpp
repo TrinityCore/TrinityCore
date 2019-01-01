@@ -300,7 +300,7 @@ struct boss_twinemperorsAI : public ScriptedAI
     void MoveInLineOfSight(Unit* who) override
 
     {
-        if (!who || me->GetVictim())
+        if (!who || me->GetAutoAttackVictim())
             return;
 
         if (me->CanCreatureAttack(who))
@@ -548,8 +548,8 @@ public:
             //ShadowBolt_Timer
             if (ShadowBolt_Timer <= diff)
             {
-                if (!me->IsWithinDist(me->GetVictim(), 45.0f))
-                    me->GetMotionMaster()->MoveChase(me->GetVictim(), VEKLOR_DIST);
+                if (!me->IsWithinDist(me->GetAutoAttackVictim(), 45.0f))
+                    me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim(), VEKLOR_DIST);
                 else
                     DoCastVictim(SPELL_SHADOWBOLT);
                 ShadowBolt_Timer = 2000;
@@ -597,7 +597,7 @@ public:
             if (who->isTargetableForAttack())
             {
                 // VL doesn't melee
-                if (me->Attack(who, false))
+                if (me->AutoAttackStart(who, false))
                 {
                     me->GetMotionMaster()->MoveChase(who, VEKLOR_DIST);
                     AddThreat(who, 0.0f);

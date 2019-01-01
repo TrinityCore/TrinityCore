@@ -192,8 +192,8 @@ public:
                     CrusaderStrike_Timer = 10000;
                     HammerOfJustice_Timer = 10000;
 
-                    if (me->GetVictim())
-                        me->GetMotionMaster()->MoveChase(me->GetVictim());
+                    if (me->GetAutoAttackVictim())
+                        me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
 
                     _bHeal = true;
                 }

@@ -211,7 +211,7 @@ public:
         {
             FollowerAI::MoveInLineOfSight(who);
 
-            if (!me->GetVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_SPRAGGLE)
+            if (!me->GetAutoAttackVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_SPRAGGLE)
             {
                 if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
                 {

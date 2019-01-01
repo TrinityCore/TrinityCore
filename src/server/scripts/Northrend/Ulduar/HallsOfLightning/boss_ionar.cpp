@@ -154,7 +154,7 @@ public:
                 for (uint8 i = 0; i < DATA_MAX_SPARKS; ++i)
                     me->CastSpell(me, SPELL_SUMMON_SPARK, true);
 
-                me->AttackStop();
+                me->AutoAttackStop();
                 me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
@@ -249,8 +249,8 @@ public:
                         uiSplitTimer = 25*IN_MILLISECONDS;
                         bIsSplitPhase = true;
 
-                        if (me->GetVictim())
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                        if (me->GetAutoAttackVictim())
+                            me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                     }
                 }
                 else

@@ -120,7 +120,7 @@ public:
             //RaiseUndeadScarab
             if (RaiseUndeadScarab_Timer <= diff)
             {
-                RaiseUndeadScarab(me->GetVictim());
+                RaiseUndeadScarab(me->GetAutoAttackVictim());
                 RaiseUndeadScarab_Timer = 16000;
             } else RaiseUndeadScarab_Timer -= diff;
 

@@ -204,7 +204,7 @@ public:
                             }
 
                             if (markAura->GetDuration() < AURA_DURATION_TIME_LEFT)
-                                if (!lastSpawnedGuard->GetVictim())
+                                if (!lastSpawnedGuard->GetAutoAttackVictim())
                                     lastSpawnedGuard->AI()->AttackStart(who);
                         }
                         else
@@ -231,7 +231,7 @@ public:
                             return;
 
                         // ROOFTOP only triggers if the player is on the ground
-                        if (!playerTarget->IsFlying() && !lastSpawnedGuard->GetVictim())
+                        if (!playerTarget->IsFlying() && !lastSpawnedGuard->GetAutoAttackVictim())
                             lastSpawnedGuard->AI()->AttackStart(who);
 
                         break;

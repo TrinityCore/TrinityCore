@@ -488,7 +488,7 @@ class boss_professor_putricide : public CreatureScript
                     case ACTION_CHANGE_PHASE:
                         me->SetSpeedRate(MOVE_RUN, _baseSpeed*2.0f);
                         events.DelayEvents(30000);
-                        me->AttackStop();
+                        me->AutoAttackStop();
                         if (!IsHeroic())
                         {
                             DoCast(me, SPELL_TEAR_GAS);
@@ -505,7 +505,7 @@ class boss_professor_putricide : public CreatureScript
                                 std::list<Unit*> targetList;
                                 {
                                     for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
-                                        if (Player* target = ref->GetVictim()->ToPlayer())
+                                        if (Player* target = ref->GetAutoAttackVictim()->ToPlayer())
                                             targetList.push_back(target);
                                 }
 
@@ -623,7 +623,7 @@ class boss_professor_putricide : public CreatureScript
                             break;
                         case EVENT_RESUME_ATTACK:
                             me->SetReactState(REACT_AGGRESSIVE);
-                            AttackStart(me->GetVictim());
+                            AttackStart(me->GetAutoAttackVictim());
                             // remove Tear Gas
                             me->RemoveAurasDueToSpell(SPELL_TEAR_GAS_PERIODIC_TRIGGER);
                             instance->DoRemoveAurasDueToSpellOnPlayers(71615);

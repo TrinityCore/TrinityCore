@@ -107,7 +107,7 @@ public:
                         x -= 2.0f;
                         y -= 1.5f;
                         me->GetMotionMaster()->MovePoint(0, x, y, z);
-                        me->SetTarget(player->GetGUID());
+                        me->SetPrimaryTarget(player->GetGUID());
                         me->SetVisible(true);
                         FlyBackTimer = 4500;
                         break;

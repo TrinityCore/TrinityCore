@@ -158,8 +158,8 @@ public:
                 Madrigosa->SetMaxHealth(me->GetMaxHealth());
                 Madrigosa->SetHealth(me->GetMaxHealth());
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->Attack(Madrigosa, true);
-                Madrigosa->Attack(me, true);
+                me->AutoAttackStart(Madrigosa, true);
+                Madrigosa->AutoAttackStart(me, true);
             }
             else
             {
@@ -211,8 +211,8 @@ public:
                 case 3:
                     DoCast(me, SPELL_INTRO_FROST_BLAST);
                     Madrigosa->SetDisableGravity(true);
-                    me->AttackStop();
-                    Madrigosa->AttackStop();
+                    me->AutoAttackStop();
+                    Madrigosa->AutoAttackStop();
                     IntroFrostBoltTimer = 3000;
                     IntroPhaseTimer = 28000;
                     ++IntroPhase;
@@ -238,7 +238,7 @@ public:
                     Unit::Kill(me, Madrigosa);
                     Madrigosa->AI()->Talk(YELL_MADR_DEATH);
                     me->SetFullHealth();
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     IntroPhaseTimer = 4000;
                     ++IntroPhase;
                     break;

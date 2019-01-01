@@ -235,7 +235,7 @@ class boss_kologarn : public CreatureScript
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*summon, eyebeamTarget))
                     {
-                        summon->Attack(target, false);
+                        summon->AutoAttackStart(target, false);
                         summon->GetMotionMaster()->MoveChase(target);
                     }
                 }
@@ -256,7 +256,7 @@ class boss_kologarn : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_MELEE_CHECK:
-                            if (!me->IsWithinMeleeRange(me->GetVictim()))
+                            if (!me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                                 DoCast(SPELL_PETRIFY_BREATH);
                             events.ScheduleEvent(EVENT_MELEE_CHECK, 1s);
                             break;

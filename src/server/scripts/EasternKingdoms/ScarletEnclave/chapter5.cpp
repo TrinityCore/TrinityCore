@@ -428,7 +428,7 @@ public:
             if (who == me)
                 return;
 
-            if (me->Attack(who, true))
+            if (me->AutoAttackStart(who, true))
             {
                 AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
@@ -1407,7 +1407,7 @@ public:
                         temp->RemoveAllAuras();
                         temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
-                        temp->AttackStop();
+                        temp->AutoAttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);
                         temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[9]);
@@ -1418,7 +1418,7 @@ public:
                         temp->RemoveAllAuras();
                         temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
-                        temp->AttackStop();
+                        temp->AutoAttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);
                         temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[12]);
@@ -1429,7 +1429,7 @@ public:
                         temp->RemoveAllAuras();
                         temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
-                        temp->AttackStop();
+                        temp->AutoAttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);
                         temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[15]);
@@ -1441,7 +1441,7 @@ public:
                         temp->RemoveAllAuras();
                         temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
-                        temp->AttackStop();
+                        temp->AutoAttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);
                         temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[18]);
@@ -1456,7 +1456,7 @@ public:
                         temp->RemoveAllAuras();
                         temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
-                        temp->AttackStop();
+                        temp->AutoAttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);
                         temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[20]);

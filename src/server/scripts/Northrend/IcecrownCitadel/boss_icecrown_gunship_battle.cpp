@@ -630,10 +630,10 @@ protected:
         if (!me->HasReactState(REACT_PASSIVE))
         {
             if (Unit* victim = me->SelectVictim())
-                if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
+                if (!me->HasSpellFocusTarget() && victim != me->GetAutoAttackVictim())
                     AttackStart(victim);
 
-            return me->GetVictim() != nullptr;
+            return me->GetAutoAttackVictim() != nullptr;
         }
         else if (me->GetThreatManager().IsThreatListEmpty())
         {
@@ -1074,7 +1074,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                     }
                 }
 
-                if (me->IsWithinMeleeRange(me->GetVictim()))
+                if (me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                     DoMeleeAttackIfReady();
                 else if (me->isAttackReady())
                 {
@@ -1342,7 +1342,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                     }
                 }
 
-                if (me->IsWithinMeleeRange(me->GetVictim()))
+                if (me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                     DoMeleeAttackIfReady();
                 else if (me->isAttackReady())
                 {
@@ -1635,7 +1635,7 @@ class npc_gunship_gunner : public CreatureScript
 
             void AttackStart(Unit* target) override
             {
-                me->Attack(target, false);
+                me->AutoAttackStart(target, false);
             }
 
             void MovementInform(uint32 type, uint32 pointId) override

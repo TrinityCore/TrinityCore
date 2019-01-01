@@ -4538,13 +4538,12 @@ void Spell::EffectForceDeselect(SpellEffIndex /*effIndex*/)
     Cell::VisitWorldObjects(unitCaster, notifierClear, dist);
 
     // we should also force pets to remove us from current target
-    Unit::AttackerSet attackerSet;
-    for (Unit::AttackerSet::const_iterator itr = unitCaster->getAttackers().begin(); itr != unitCaster->getAttackers().end(); ++itr)
-        if ((*itr)->GetTypeId() == TYPEID_UNIT && !(*itr)->CanHaveThreatList())
-            attackerSet.insert(*itr);
-
-    for (Unit::AttackerSet::const_iterator itr = attackerSet.begin(); itr != attackerSet.end(); ++itr)
-        (*itr)->AttackStop();
+    std::vector<Unit*> toRemove;
+    for (Unit* attacker : unitCaster->GetAutoAttackingMe())
+        if (attacker->GetTypeId() == TYPEID_UNIT && attacker->IsControlledByPlayer())
+            toRemove.push_back(attacker);
+    for (Unit* attacker : toRemove)
+        attacker->AutoAttackStop();
 }
 
 void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
@@ -4641,7 +4640,7 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
     {
         // not all charge effects used in negative spells
         if (!m_spellInfo->IsPositive() && m_caster->GetTypeId() == TYPEID_PLAYER)
-            unitCaster->Attack(unitTarget, true);
+            unitCaster->AutoAttackStart(unitTarget, true);
     }
 }
 

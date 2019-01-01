@@ -156,7 +156,7 @@ void CasterAI::UpdateAI(uint32 diff)
 
     events.Update(diff);
 
-    if (me->GetVictim() && me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
+    if (me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->HasBreakableByDamageCrowdControlAura(me))
     {
         me->InterruptNonMeleeSpells(false);
         return;
@@ -198,12 +198,12 @@ void ArcherAI::AttackStart(Unit* who)
 
     if (me->IsWithinCombatRange(who, m_minRange))
     {
-        if (me->Attack(who, true) && !who->IsFlying())
+        if (me->AutoAttackStart(who, true) && !who->IsFlying())
             me->GetMotionMaster()->MoveChase(who);
     }
     else
     {
-        if (me->Attack(who, false) && !who->IsFlying())
+        if (me->AutoAttackStart(who, false) && !who->IsFlying())
             me->GetMotionMaster()->MoveChase(who, me->m_CombatDistance);
     }
 
@@ -216,7 +216,7 @@ void ArcherAI::UpdateAI(uint32 /*diff*/)
     if (!UpdateVictim())
         return;
 
-    if (!me->IsWithinCombatRange(me->GetVictim(), m_minRange))
+    if (!me->IsWithinCombatRange(me->GetAutoAttackVictim(), m_minRange))
         DoSpellAttackIfReady(me->m_spells[0]);
     else
         DoMeleeAttackIfReady();
@@ -249,7 +249,7 @@ bool TurretAI::CanAIAttack(Unit const* who) const
 void TurretAI::AttackStart(Unit* who)
 {
     if (who)
-        me->Attack(who, false);
+        me->AutoAttackStart(who, false);
 }
 
 void TurretAI::UpdateAI(uint32 /*diff*/)

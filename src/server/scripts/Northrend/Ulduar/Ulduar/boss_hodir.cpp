@@ -210,12 +210,12 @@ class npc_flash_freeze : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim()
-                 || !me->GetVictim()
-                 || me->EnsureVictim()->HasAura(SPELL_BLOCK_OF_ICE)
-                 || me->EnsureVictim()->HasAura(SPELL_FLASH_FREEZE_HELPER))
+                 || !me->GetAutoAttackVictim()
+                 || me->GetAutoAttackVictim()->HasAura(SPELL_BLOCK_OF_ICE)
+                 || me->GetAutoAttackVictim()->HasAura(SPELL_FLASH_FREEZE_HELPER))
                     return;
 
-                if (me->EnsureVictim()->GetGUID() != targetGUID || instance->GetBossState(BOSS_HODIR) != IN_PROGRESS)
+                if (me->GetAutoAttackVictim()->GetGUID() != targetGUID || instance->GetBossState(BOSS_HODIR) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 if (checkDespawnTimer <= diff)
@@ -392,8 +392,8 @@ class boss_hodir : public CreatureScript
                         instance->SetData(DATA_HODIR_RARE_CACHE, 1);
 
                     me->RemoveAllAuras();
-                    me->RemoveAllAttackers();
-                    me->AttackStop();
+                    me->StopAutoAttackingMe();
+                    me->AutoAttackStop();
                     me->SetReactState(REACT_PASSIVE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->SetControlled(true, UNIT_STATE_ROOT);

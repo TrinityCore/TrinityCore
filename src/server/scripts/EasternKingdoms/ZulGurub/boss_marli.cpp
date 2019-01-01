@@ -160,8 +160,8 @@ class boss_marli : public CreatureScript
                             */
                             me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageIncrease); // hack
                             DoCastVictim(SPELL_ENVOLWINGWEB);
-                            if (GetThreat(me->GetVictim()))
-                                ModifyThreatByPercent(me->GetVictim(), -100);
+                            if (GetThreat(me->GetAutoAttackVictim()))
+                                ModifyThreatByPercent(me->GetAutoAttackVictim(), -100);
                             events.ScheduleEvent(EVENT_CHARGE_PLAYER, 1500ms, 0, PHASE_THREE);
                             events.ScheduleEvent(EVENT_TRANSFORM_BACK, 25s, 0, PHASE_THREE);
                             events.SetPhase(PHASE_THREE);

@@ -114,7 +114,7 @@ class boss_void_reaver : public CreatureScript
                             std::vector<Unit*> target_list;
                             for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                             {
-                                Unit* target = ref->GetVictim();
+                                Unit* target = ref->GetAutoAttackVictim();
                                 if (target->GetTypeId() == TYPEID_PLAYER && target->IsAlive() && !target->IsWithinDist(me, 18, false))
                                     target_list.push_back(target);
                             }
@@ -123,7 +123,7 @@ class boss_void_reaver : public CreatureScript
                             if (!target_list.empty())
                                 target = *(target_list.begin() + rand32() % target_list.size());
                             else
-                                target = me->GetVictim();
+                                target = me->GetAutoAttackVictim();
 
                             if (target)
                                 me->CastSpell(target, SPELL_ARCANE_ORB);
@@ -134,8 +134,8 @@ class boss_void_reaver : public CreatureScript
                         case EVENT_KNOCK_AWAY:
                             DoCastVictim(SPELL_KNOCK_AWAY);
                             // Drop 25% aggro
-                            if (GetThreat(me->GetVictim()))
-                                ModifyThreatByPercent(me->GetVictim(), -25);
+                            if (GetThreat(me->GetAutoAttackVictim()))
+                                ModifyThreatByPercent(me->GetAutoAttackVictim(), -25);
 
                             events.ScheduleEvent(EVENT_KNOCK_AWAY, 30s);
                             break;

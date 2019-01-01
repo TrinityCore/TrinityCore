@@ -440,7 +440,7 @@ struct boss_thaddius : public BossAI
             }
             if (events.IsInPhase(PHASE_THADDIUS) && !me->HasUnitState(UNIT_STATE_CASTING) && me->isAttackReady())
             {
-                if (me->IsWithinMeleeRange(me->GetVictim()))
+                if (me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                 {
                     ballLightningEnabled = false;
                     DoMeleeAttackIfReady();
@@ -543,10 +543,10 @@ public:
                         refreshBeam = true; // force beam refresh
 
                         if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
-                            if (feugen->GetVictim())
+                            if (feugen->GetAutoAttackVictim())
                             {
-                                AddThreat(feugen->EnsureVictim(), 0.0f);
-                                me->SetInCombatWith(feugen->EnsureVictim());
+                                AddThreat(feugen->GetAutoAttackVictim(), 0.0f);
+                                me->SetInCombatWith(feugen->GetAutoAttackVictim());
                             }
                         break;
                     case ACTION_TRANSITION:
@@ -612,7 +612,7 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveAllAuras();
                 me->SetReactState(REACT_PASSIVE);
-                me->AttackStop();
+                me->AutoAttackStop();
                 me->StopMoving();
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
 
@@ -801,10 +801,10 @@ public:
                         refreshBeam = true; // force beam refresh
 
                         if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
-                            if (stalagg->GetVictim())
+                            if (stalagg->GetAutoAttackVictim())
                             {
-                                AddThreat(stalagg->EnsureVictim(), 0.0f);
-                                me->SetInCombatWith(stalagg->EnsureVictim());
+                                AddThreat(stalagg->GetAutoAttackVictim(), 0.0f);
+                                me->SetInCombatWith(stalagg->GetAutoAttackVictim());
                             }
                         staticFieldTimer = 6 * IN_MILLISECONDS;
                         magneticPullTimer = 30 * IN_MILLISECONDS;
@@ -870,7 +870,7 @@ public:
 
                 me->RemoveAllAuras();
                 me->SetReactState(REACT_PASSIVE);
-                me->AttackStop();
+                me->AutoAttackStop();
                 me->StopMoving();
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

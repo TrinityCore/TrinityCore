@@ -203,7 +203,7 @@ public:
                                 uiOutroTimer = 8000;
                                 break;
                             case 2:
-                                me->SetTarget(instance->GetGuidData(DATA_ARTHAS));
+                                me->SetPrimaryTarget(instance->GetGuidData(DATA_ARTHAS));
                                 me->HandleEmoteCommand(29);
                                 Talk(SAY_ESCAPE_SPEECH_2);
                                 ++uiOutroStep;

@@ -418,7 +418,7 @@ class boss_gothik : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (me->HasReactState(REACT_AGGRESSIVE) && !_gateIsOpen && !IsOnSameSide(me, me->GetVictim()))
+                if (me->HasReactState(REACT_AGGRESSIVE) && !_gateIsOpen && !IsOnSameSide(me, me->GetAutoAttackVictim()))
                 {
                     // NBD: this should only happen in practice if there is nobody left alive on our side (we should open gate)
                     // thus we only do a cursory check to make sure (edge cases?)
@@ -514,7 +514,7 @@ class boss_gothik : public CreatureScript
                             if (!HealthBelowPct(30))
                             {
                                 me->CastStop();
-                                me->AttackStop();
+                                me->AutoAttackStop();
                                 me->StopMoving();
                                 me->SetReactState(REACT_PASSIVE);
                                 ResetThreatList();
@@ -621,7 +621,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
             if (!UpdateVictim())
                 return;
 
-            if (!_gateIsOpen && !isOnSameSide(me->GetVictim()))
+            if (!_gateIsOpen && !isOnSameSide(me->GetAutoAttackVictim()))
             { // reset threat, then try to find someone on same side as us to attack
                 if (Player* newTarget = FindEligibleTarget(me, _gateIsOpen))
                 {

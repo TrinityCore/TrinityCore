@@ -386,11 +386,11 @@ public:
                         Talk(ANACHRONOS_SAY_1, Fandral);
                         break;
                     case 1:
-                        Fandral->SetTarget(me->GetGUID());
+                        Fandral->SetPrimaryTarget(me->GetGUID());
                         Fandral->AI()->Talk(FANDRAL_SAY_1, me);
                         break;
                     case 2:
-                        Fandral->SetTarget(ObjectGuid::Empty);
+                        Fandral->SetPrimaryTarget(ObjectGuid::Empty);
                         Merithra->AI()->Talk(MERITHRA_EMOTE_1);
                         break;
                     case 3:
@@ -400,14 +400,14 @@ public:
                         Arygos->AI()->Talk(ARYGOS_EMOTE_1);
                         break;
                     case 5:
-                        Caelestrasz->SetTarget(Fandral->GetGUID());
+                        Caelestrasz->SetPrimaryTarget(Fandral->GetGUID());
                         Caelestrasz->AI()->Talk(CAELESTRASZ_SAY_1);
                         break;
                     case 6:
                         Merithra->AI()->Talk(MERITHRA_SAY_2);
                         break;
                     case 7:
-                        Caelestrasz->SetTarget(ObjectGuid::Empty);
+                        Caelestrasz->SetPrimaryTarget(ObjectGuid::Empty);
                         Merithra->GetMotionMaster()->MoveCharge(-8065, 1530, 2.61f, 10);
                         break;
                     case 8:
@@ -737,8 +737,8 @@ public:
             {
                 if (SpellTimer4 <= diff)
                 {
-                    me->RemoveAllAttackers();
-                    me->AttackStop();
+                    me->StopAutoAttackingMe();
+                    me->AutoAttackStop();
                     DoCast(me, SPELL_STONED_CHANNEL_CAST_VISUAL);
                     SpellTimer4 = SpawnCast[0].Timer2;
                 } else SpellTimer4 -= diff;

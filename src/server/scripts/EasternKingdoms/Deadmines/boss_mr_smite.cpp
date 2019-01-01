@@ -154,7 +154,7 @@ public:
                 ++uiHealth;
                 DoCastAOE(SPELL_SMITE_STOMP, false);
                 SetCombatMovement(false);
-                me->AttackStop();
+                me->AutoAttackStop();
                 me->InterruptNonMeleeSpells(false);
                 me->SetReactState(REACT_PASSIVE);
                 uiTimer = 2500;
@@ -206,7 +206,7 @@ public:
                         case 4:
                             me->SetReactState(REACT_AGGRESSIVE);
                             SetCombatMovement(true);
-                            me->GetMotionMaster()->MoveChase(me->GetVictim(), me->m_CombatDistance);
+                            me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim(), me->m_CombatDistance);
                             uiIsMoving = false;
                             uiPhase = 0;
                             break;

@@ -473,7 +473,7 @@ public:
                     break;
                 case NPC_KILJAEDEN:
                     summoned->CastSpell(summoned, SPELL_REBIRTH, false);
-                    AddThreat(me->GetVictim(), 1.0f, summoned);
+                    AddThreat(me->GetAutoAttackVictim(), 1.0f, summoned);
                     break;
             }
             summons.Summon(summoned);
@@ -996,7 +996,7 @@ public:
             {
                 if (Creature* pPortal = DoSpawnCreature(NPC_FELFIRE_PORTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
                     for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
-                        AddThreat(ref->GetVictim(), 1.0f, pPortal);
+                        AddThreat(ref->GetAutoAttackVictim(), 1.0f, pPortal);
                 FelfirePortalTimer = 20000;
             } else FelfirePortalTimer -= diff;
 
@@ -1109,7 +1109,7 @@ public:
 
             if (!bLockedTarget)
             {
-                AddThreat(me->GetVictim(), 10000000.0f);
+                AddThreat(me->GetAutoAttackVictim(), 10000000.0f);
                 bLockedTarget = true;
             }
 
@@ -1119,7 +1119,7 @@ public:
                     uiExplodeTimer = 0;
                 else uiExplodeTimer -= diff;
             }
-            else if (me->IsWithinDistInMap(me->GetVictim(), 3)) // Explode if it's close enough to it's target
+            else if (me->IsWithinDistInMap(me->GetAutoAttackVictim(), 3)) // Explode if it's close enough to it's target
             {
                 DoCastVictim(SPELL_FELFIRE_FISSION);
                 me->KillSelf();
@@ -1324,9 +1324,9 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if ((victimClass == 0) && me->GetVictim())
+            if ((victimClass == 0) && me->GetAutoAttackVictim())
             {
-                victimClass = me->EnsureVictim()->getClass();
+                victimClass = me->GetAutoAttackVictim()->getClass();
                 switch (victimClass)
                 {
                     case CLASS_DRUID:
@@ -1374,7 +1374,7 @@ public:
                         DoCastVictim(SPELL_SR_SHOOT, false);
                         uiTimer[2] = urand(4000, 6000);
                     }
-                    if (me->IsWithinMeleeRange(me->GetVictim()))
+                    if (me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                     {
                         if (uiTimer[0] <= diff)
                         {

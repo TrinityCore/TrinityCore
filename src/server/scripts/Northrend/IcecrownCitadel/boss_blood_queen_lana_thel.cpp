@@ -382,7 +382,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         case EVENT_BLOOD_MIRROR:
                         {
                             // victim can be nullptr when this is processed in the same update tick as EVENT_AIR_PHASE
-                            if (me->GetVictim())
+                            if (me->GetAutoAttackVictim())
                             {
                                 Player* newOfftank = SelectRandomTarget(true);
                                 if (newOfftank)
@@ -392,8 +392,8 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                         _offtankGUID = newOfftank->GetGUID();
 
                                         // both spells have SPELL_ATTR5_SINGLE_TARGET_SPELL, no manual removal needed
-                                        newOfftank->CastSpell(me->GetVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
-                                        me->EnsureVictim()->CastSpell(newOfftank, SPELL_BLOOD_MIRROR_DUMMY, true);
+                                        newOfftank->CastSpell(me->GetAutoAttackVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
+                                        me->GetAutoAttackVictim()->CastSpell(newOfftank, SPELL_BLOOD_MIRROR_DUMMY, true);
                                         DoCastVictim(SPELL_BLOOD_MIRROR_VISUAL);
                                         if (Is25ManRaid() && newOfftank->GetQuestStatus(QUEST_BLOOD_INFUSION) == QUEST_STATUS_INCOMPLETE &&
                                             newOfftank->HasAura(SPELL_UNSATED_CRAVING) && !newOfftank->HasAura(SPELL_THIRST_QUENCHED) &&
@@ -494,7 +494,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 std::list<Player*> tempTargets;
                 Unit* maintank = me->GetThreatManager().GetCurrentVictim();
                 for (ThreatReference const* ref : me->GetThreatManager().GetSortedThreatList())
-                    if (Player* refTarget = ref->GetVictim()->ToPlayer())
+                    if (Player* refTarget = ref->GetAutoAttackVictim()->ToPlayer())
                         if (refTarget != maintank && (includeOfftank || (refTarget->GetGUID() != _offtankGUID)))
                             tempTargets.push_back(refTarget->ToPlayer());
 
@@ -509,7 +509,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 if (includeOfftank)
                 {
-                    tempTargets.sort(Trinity::ObjectDistanceOrderPred(me->GetVictim()));
+                    tempTargets.sort(Trinity::ObjectDistanceOrderPred(me->GetAutoAttackVictim()));
                     return tempTargets.front();
                 }
 

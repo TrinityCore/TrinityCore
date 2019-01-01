@@ -186,7 +186,7 @@ class boss_ignis : public CreatureScript
                     summon->SetControlled(false, UNIT_STATE_ROOT);
                 }
 
-                summon->AI()->AttackStart(me->GetVictim());
+                summon->AI()->AttackStart(me->GetAutoAttackVictim());
                 summon->AI()->DoZoneInCombat();
                 summons.Summon(summon);
             }
@@ -262,7 +262,7 @@ class boss_ignis : public CreatureScript
                             break;
                         case EVENT_SCORCH:
                             Talk(SAY_SCORCH);
-                            if (Unit* target = me->GetVictim())
+                            if (Unit* target = me->GetAutoAttackVictim())
                                 me->SummonCreature(NPC_GROUND_SCORCH, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 45000);
                             DoCast(SPELL_SCORCH);
                             events.ScheduleEvent(EVENT_SCORCH, 25000);

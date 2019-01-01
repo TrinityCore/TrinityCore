@@ -136,7 +136,7 @@ void ScriptedAI::AttackStartNoMove(Unit* who)
     if (!who)
         return;
 
-    if (me->Attack(who, true))
+    if (me->AutoAttackStart(who, true))
         DoStartNoMovement(who);
 }
 
@@ -173,8 +173,8 @@ void ScriptedAI::DoStartNoMovement(Unit* victim)
 
 void ScriptedAI::DoStopAttack()
 {
-    if (me->GetVictim())
-        me->AttackStop();
+    if (me->GetAutoAttackVictim())
+        me->AutoAttackStop();
 }
 
 void ScriptedAI::DoCastSpell(Unit* target, SpellInfo const* spellInfo, bool triggered)

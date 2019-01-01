@@ -172,7 +172,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 if (IsIntroEvent || !IsMainEvent)
                     return;
 
-                if (me->Attack(who, true))
+                if (me->AutoAttackStart(who, true))
                 {
                     if (Phase)
                         DoStartNoMovement(who);

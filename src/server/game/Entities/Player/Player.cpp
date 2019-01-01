@@ -1104,7 +1104,7 @@ void Player::Update(uint32 p_time)
 
     if (HasUnitState(UNIT_STATE_MELEE_ATTACKING) && !HasUnitState(UNIT_STATE_CASTING))
     {
-        if (Unit* victim = GetVictim())
+        if (Unit* victim = GetAutoAttackVictim())
         {
             // default combat reach 10
             /// @todo add weapon, skill check
@@ -1761,7 +1761,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 return true;
             }
 
-            SetSelection(ObjectGuid::Empty);
+            SetPrimaryTarget(ObjectGuid::Empty);
 
             CombatStop();
 
@@ -5820,7 +5820,7 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
 void Player::UpdateWeaponSkill(WeaponAttackType attType)
 {
     // no skill gain in pvp
-    Unit* victim = GetVictim();
+    Unit* victim = GetAutoAttackVictim();
     if (victim && victim->GetTypeId() == TYPEID_PLAYER)
         return;
 
@@ -7001,7 +7001,7 @@ void Player::UpdateArea(uint32 newArea)
 
     // check if we were in ffa arena and we left
     if (oldFFAPvPArea && !pvpInfo.IsInFFAPvPArea)
-        ValidateAttackersAndOwnTarget();
+        ValidateAutoAttackStates();
 
     UpdateAreaDependentAuras(newArea);
 
@@ -7202,15 +7202,15 @@ void Player::DuelComplete(DuelCompleteType type)
             // or initiator and opponent are not PvP enabled, forcibly stop attacking
             if (GetTeam() == opponent->GetTeam())
             {
-                AttackStop();
-                opponent->AttackStop();
+                AutoAttackStop();
+                opponent->AutoAttackStop();
             }
             else
             {
                 if (!IsPvP())
-                    AttackStop();
+                    AutoAttackStop();
                 if (!opponent->IsPvP())
-                    opponent->AttackStop();
+                    opponent->AutoAttackStop();
             }
             break;
         case DUEL_WON:
@@ -7890,7 +7890,7 @@ void Player::UpdateEquipSpellsAtFormChange()
 
 void Player::CastItemCombatSpell(DamageInfo const& damageInfo)
 {
-    Unit* target = damageInfo.GetVictim();
+    Unit* target = damageInfo.GetAutoAttackVictim();
     if (!target || !target->IsAlive() || target == this)
         return;
 
@@ -7979,8 +7979,8 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             else if (chance > 100.0f)
                 chance = GetWeaponProcChance();
 
-            if (roll_chance_f(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetVictim(), spellInfo, item))
-                CastSpell(damageInfo.GetVictim(), spellInfo->Id, item);
+            if (roll_chance_f(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetAutoAttackVictim(), spellInfo, item))
+                CastSpell(damageInfo.GetAutoAttackVictim(), spellInfo->Id, item);
         }
     }
 
@@ -8042,7 +8042,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
 
             if (roll_chance_f(chance))
             {
-                Unit* target = spellInfo->IsPositive() ? this : damageInfo.GetVictim();
+                Unit* target = spellInfo->IsPositive() ? this : damageInfo.GetAutoAttackVictim();
 
                 CastSpellExtraArgs args(item);
                 // reduce effect values if enchant is limited
@@ -22328,8 +22328,8 @@ void Player::SendInitialVisiblePackets(Unit* target) const
     SendAurasForTarget(target);
     if (target->IsAlive())
     {
-        if (target->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && target->GetVictim())
-            target->SendMeleeAttackStart(target->GetVictim());
+        if (target->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && target->GetAutoAttackVictim())
+            target->SendMeleeAttackStart(target->GetAutoAttackVictim());
     }
 }
 
@@ -22437,20 +22437,6 @@ void Player::SetMoney(uint32 value)
 bool Player::IsQuestRewarded(uint32 quest_id) const
 {
     return m_RewardedQuests.find(quest_id) != m_RewardedQuests.end();
-}
-
-Unit* Player::GetSelectedUnit() const
-{
-    if (ObjectGuid selectionGUID = GetTarget())
-        return ObjectAccessor::GetUnit(*this, selectionGUID);
-    return nullptr;
-}
-
-Player* Player::GetSelectedPlayer() const
-{
-    if (ObjectGuid selectionGUID = GetTarget())
-        return ObjectAccessor::FindConnectedPlayer(selectionGUID);
-    return nullptr;
 }
 
 void Player::SetGroup(Group* group, int8 subgroup)

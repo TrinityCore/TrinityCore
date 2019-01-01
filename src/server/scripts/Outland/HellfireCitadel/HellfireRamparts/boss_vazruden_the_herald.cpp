@@ -144,7 +144,7 @@ class boss_nazan : public CreatureScript
                         me->GetMotionMaster()->Clear();
                         if (Unit* victim = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                             AttackStart(victim);
-                        DoStartMovement(me->GetVictim());
+                        DoStartMovement(me->GetAutoAttackVictim());
                         Talk(EMOTE);
                         return;
                     }
@@ -267,7 +267,7 @@ class boss_vazruden : public CreatureScript
 
                 if (Revenge_Timer <= diff)
                 {
-                    if (Unit* victim = me->GetVictim())
+                    if (Unit* victim = me->GetAutoAttackVictim())
                         DoCast(victim, DUNGEON_MODE(SPELL_REVENGE, SPELL_REVENGE_H));
                     Revenge_Timer = 5000;
                 }
@@ -371,7 +371,7 @@ class boss_vazruden_the_herald : public CreatureScript
             {
                 if (!summon)
                     return;
-                Unit* victim = me->GetVictim();
+                Unit* victim = me->GetAutoAttackVictim();
                 if (summon->GetEntry() == NPC_NAZAN)
                 {
                     summon->SetDisableGravity(true);
@@ -428,7 +428,7 @@ class boss_vazruden_the_herald : public CreatureScript
                         Creature* Vazruden = ObjectAccessor::GetCreature(*me, VazrudenGUID);
                         if ((Nazan && Nazan->IsAlive()) || (Vazruden && Vazruden->IsAlive()))
                         {
-                            if ((Nazan && Nazan->GetVictim()) || (Vazruden && Vazruden->GetVictim()))
+                            if ((Nazan && Nazan->GetAutoAttackVictim()) || (Vazruden && Vazruden->GetAutoAttackVictim()))
                                 return;
                             else
                             {
@@ -501,7 +501,7 @@ class npc_hellfire_sentry : public CreatureScript
 
                 if (KidneyShot_Timer <= diff)
                 {
-                    if (Unit* victim = me->GetVictim())
+                    if (Unit* victim = me->GetAutoAttackVictim())
                         DoCast(victim, SPELL_KIDNEY_SHOT);
                     KidneyShot_Timer = 20000;
                 }

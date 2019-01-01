@@ -179,7 +179,7 @@ class boss_bronjahm : public CreatureScript
                             }
                             else
                             {
-                                if (!me->IsWithinMeleeRange(me->GetVictim()))
+                                if (!me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                                     DoCastVictim(SPELL_SHADOW_BOLT);
                                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
                             }

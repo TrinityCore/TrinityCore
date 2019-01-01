@@ -330,7 +330,7 @@ struct boss_essence_of_suffering : public BossAI
             {
                 _dead = true;
                 Talk(SUFF_SAY_RECAP);
-                me->AttackStop();
+                me->AutoAttackStop();
                 me->SetReactState(REACT_PASSIVE);
                 events.Reset();
                 me->InterruptNonMeleeSpells(false);
@@ -449,7 +449,7 @@ struct boss_essence_of_desire : public BossAI
             {
                 _dead = true;
                 Talk(DESI_SAY_RECAP);
-                me->AttackStop();
+                me->AutoAttackStop();
                 me->SetReactState(REACT_PASSIVE);
                 events.Reset();
                 me->InterruptNonMeleeSpells(false);
@@ -562,7 +562,7 @@ struct boss_essence_of_anger : public BossAI
             {
                 case EVENT_CHECK_TANKER:
                 {
-                    Unit* target = me->GetVictim();
+                    Unit* target = me->GetAutoAttackVictim();
                     if (!_targetGUID || !target)
                         return;
 
@@ -585,7 +585,7 @@ struct boss_essence_of_anger : public BossAI
                     events.Repeat(Seconds(20));
                     break;
                 case EVENT_START_CHECK_TANKER:
-                    if (Unit* target = me->GetVictim())
+                    if (Unit* target = me->GetAutoAttackVictim())
                     {
                         _targetGUID = target->GetGUID();
                         events.ScheduleEvent(EVENT_CHECK_TANKER, 1s);

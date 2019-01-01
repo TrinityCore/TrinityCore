@@ -91,7 +91,7 @@ public:
                         DoCast(SPELL_ILLUSION);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetDisplayId(11686);  // Invisible Model
-                        ModifyThreatByPercent(me->GetVictim(), -99);
+                        ModifyThreatByPercent(me->GetAutoAttackVictim(), -99);
                         events.ScheduleEvent(EVENT_SET_VISIBILITY, 3s);
                         events.ScheduleEvent(EVENT_ILLUSION, 25s);
                         break;

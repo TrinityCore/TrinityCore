@@ -129,7 +129,7 @@ class boss_harbinger_skyriss : public CreatureScript
                     summon->SetHealth(summon->CountPctFromMaxHealth(33));
                 else
                     summon->SetHealth(summon->CountPctFromMaxHealth(66));
-                if (me->GetVictim())
+                if (me->GetAutoAttackVictim())
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         summon->AI()->AttackStart(target);
 

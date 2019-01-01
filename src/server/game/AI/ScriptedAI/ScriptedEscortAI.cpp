@@ -291,7 +291,7 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
         }
     }
 
-    if (me->GetVictim())
+    if (me->GetAutoAttackVictim())
     {
         TC_LOG_ERROR("scripts", "EscortAI::Start: (script: %s, creature entry: %u) attempts to Start while in combat", me->GetScriptName().c_str(), me->GetEntry());
         return;
@@ -393,7 +393,7 @@ Player* EscortAI::GetPlayerForEscort()
 // see followerAI
 bool EscortAI::AssistPlayerInCombatAgainst(Unit* who)
 {
-    if (!who || !who->GetVictim())
+    if (!who || !who->GetAutoAttackVictim())
         return false;
 
     if (me->HasReactState(REACT_PASSIVE))
@@ -404,7 +404,7 @@ bool EscortAI::AssistPlayerInCombatAgainst(Unit* who)
         return false;
 
     // not a player
-    if (!who->EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
+    if (!who->GetAutoAttackVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
     if (!who->isInAccessiblePlaceFor(me))
@@ -421,7 +421,7 @@ bool EscortAI::AssistPlayerInCombatAgainst(Unit* who)
     if (who->GetTypeId() == TYPEID_UNIT && who->ToCreature()->IsInEvadeMode())
         return false;
 
-    if (!me->IsValidAssistTarget(who->GetVictim()))
+    if (!me->IsValidAssistTarget(who->GetAutoAttackVictim()))
         return false;
 
     // too far away and no free sight

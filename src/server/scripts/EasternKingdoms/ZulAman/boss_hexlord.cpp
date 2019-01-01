@@ -300,7 +300,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 {
                     Creature* creature = ObjectAccessor::GetCreature(*me, AddGUID[i]);
                     if (creature && creature->IsAlive())
-                        creature->AI()->AttackStart(me->GetVictim());
+                        creature->AI()->AttackStart(me->GetAutoAttackVictim());
                     else
                     {
                         EnterEvadeMode();
@@ -388,8 +388,8 @@ class boss_hexlord_malacrass : public CreatureScript
                 {
                     for (uint8 i = 0; i < 4; ++i)
                         if (Creature* temp = ObjectAccessor::GetCreature(*me, AddGUID[i]))
-                            if (temp->IsAlive() && !temp->GetVictim())
-                                temp->AI()->AttackStart(me->GetVictim());
+                            if (temp->IsAlive() && !temp->GetAutoAttackVictim())
+                                temp->AI()->AttackStart(me->GetAutoAttackVictim());
 
                     CheckAddState_Timer = 5000;
                 }
@@ -481,7 +481,7 @@ class boss_hexlord_malacrass : public CreatureScript
                         target = me;
                         break;
                     case ABILITY_TARGET_VICTIM:
-                        target = me->GetVictim();
+                        target = me->GetAutoAttackVictim();
                         break;
                     case ABILITY_TARGET_ENEMY:
                     default:
@@ -611,7 +611,7 @@ class boss_alyson_antille : public CreatureScript
 
                 if (who->isTargetableForAttack())
                 {
-                    if (me->Attack(who, false))
+                    if (me->AutoAttackStart(who, false))
                     {
                         me->GetMotionMaster()->MoveChase(who, 20);
                         AddThreat(who, 0.0f);
@@ -871,7 +871,7 @@ class boss_slither : public CreatureScript
 
                 if (who->isTargetableForAttack())
                 {
-                    if (me->Attack(who, false))
+                    if (me->AutoAttackStart(who, false))
                     {
                         me->GetMotionMaster()->MoveChase(who, 20);
                         AddThreat(who, 0.0f);
@@ -936,8 +936,8 @@ class boss_fenstalker : public CreatureScript
                 if (volatileinf_timer <= diff)
                 {
                     // core bug
-                    if (me->GetVictim())
-                        me->EnsureVictim()->CastSpell(me->GetVictim(), SPELL_VOLATILE_INFECTION, false);
+                    if (me->GetAutoAttackVictim())
+                        me->GetAutoAttackVictim()->CastSpell(me->GetAutoAttackVictim(), SPELL_VOLATILE_INFECTION, false);
                     volatileinf_timer = 12000;
                 }
                 else

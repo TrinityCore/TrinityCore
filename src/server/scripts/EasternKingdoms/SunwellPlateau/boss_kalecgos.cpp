@@ -314,8 +314,8 @@ struct boss_kalecgos : public BossAI
                     me->SetRegenerateHealth(false);
                     me->SetReactState(REACT_PASSIVE);
                     me->InterruptNonMeleeSpells(true);
-                    me->RemoveAllAttackers();
-                    me->AttackStop();
+                    me->StopAutoAttackingMe();
+                    me->AutoAttackStop();
                     me->SetFaction(FACTION_FRIENDLY);
                     me->RemoveAllAuras();
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);

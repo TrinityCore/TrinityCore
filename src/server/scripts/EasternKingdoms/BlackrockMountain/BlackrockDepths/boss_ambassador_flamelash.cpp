@@ -73,7 +73,7 @@ class boss_ambassador_flamelash : public CreatureScript
                             break;
                         case EVENT_SUMMON_SPIRITS:
                             for (uint32 i = 0; i < 4; ++i)
-                                SummonSpirit(me->GetVictim());
+                                SummonSpirit(me->GetAutoAttackVictim());
                             _events.ScheduleEvent(EVENT_SUMMON_SPIRITS, 30s);
                             break;
                         default:

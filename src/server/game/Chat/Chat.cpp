@@ -313,7 +313,7 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
             Player* player = m_session->GetPlayer();
             if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
             {
-                ObjectGuid guid = player->GetTarget();
+                ObjectGuid guid = player->GetSelectedUnitGUID();
                 uint32 areaId = player->GetAreaId();
                 std::string areaName = "Unknown";
                 std::string zoneName = "Unknown";
@@ -650,7 +650,7 @@ Player* ChatHandler::getSelectedPlayer()
     if (!m_session)
         return nullptr;
 
-    ObjectGuid selected = m_session->GetPlayer()->GetTarget();
+    ObjectGuid selected = m_session->GetPlayer()->GetSelectedUnitGUID();
     if (!selected)
         return m_session->GetPlayer();
 
@@ -673,7 +673,7 @@ WorldObject* ChatHandler::getSelectedObject()
     if (!m_session)
         return nullptr;
 
-    ObjectGuid guid = m_session->GetPlayer()->GetTarget();
+    ObjectGuid guid = m_session->GetPlayer()->GetSelectedUnitGUID();
 
     if (!guid)
         return GetNearbyGameObject();
@@ -686,7 +686,7 @@ Creature* ChatHandler::getSelectedCreature()
     if (!m_session)
         return nullptr;
 
-    return ObjectAccessor::GetCreatureOrPetOrVehicle(*m_session->GetPlayer(), m_session->GetPlayer()->GetTarget());
+    return ObjectAccessor::GetCreatureOrPetOrVehicle(*m_session->GetPlayer(), m_session->GetPlayer()->GetSelectedUnitGUID());
 }
 
 Player* ChatHandler::getSelectedPlayerOrSelf()
@@ -694,7 +694,7 @@ Player* ChatHandler::getSelectedPlayerOrSelf()
     if (!m_session)
         return nullptr;
 
-    ObjectGuid selected = m_session->GetPlayer()->GetTarget();
+    ObjectGuid selected = m_session->GetPlayer()->GetSelectedUnitGUID();
     if (!selected)
         return m_session->GetPlayer();
 

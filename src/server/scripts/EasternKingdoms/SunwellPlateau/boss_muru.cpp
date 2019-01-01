@@ -418,7 +418,7 @@ public:
 
             _scheduler.Schedule(Seconds(3), [this](TaskContext context)
             {
-                if (me->IsWithinDist(me->GetVictim(), 5.0f) && me->HasAura(SPELL_DARKFIEND_SKIN))
+                if (me->IsWithinDist(me->GetAutoAttackVictim(), 5.0f) && me->HasAura(SPELL_DARKFIEND_SKIN))
                 {
                     DoCastAOE(SPELL_DARKFIEND_DAMAGE, false);
                     me->DisappearAndDie();
@@ -653,7 +653,7 @@ class spell_dark_fiend_skin : public SpellScriptLoader
                 if (Creature* target = GetTarget()->ToCreature())
                 {
                     target->SetReactState(REACT_PASSIVE);
-                    target->AttackStop();
+                    target->AutoAttackStop();
                     target->StopMoving();
                     target->CastSpell(target, SPELL_DARKFIEND_VISUAL, true);
                     target->DespawnOrUnsummon(3000);

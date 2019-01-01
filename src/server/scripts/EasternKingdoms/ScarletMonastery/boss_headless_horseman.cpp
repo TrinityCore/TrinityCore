@@ -325,7 +325,7 @@ public:
                 DoCast(me, SPELL_HEAD, false);
                 SaySound(SAY_LOST_HEAD);
                 me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveFleeing(caster->GetVictim());
+                me->GetMotionMaster()->MoveFleeing(caster->GetAutoAttackVictim());
             }
         }
 
@@ -337,10 +337,10 @@ public:
                 if (wait <= diff)
                 {
                     wait = 1000;
-                    if (!me->GetVictim())
+                    if (!me->GetAutoAttackVictim())
                         return;
                     me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MoveFleeing(me->GetVictim());
+                    me->GetMotionMaster()->MoveFleeing(me->GetAutoAttackVictim());
                 }
                 else wait -= diff;
 
@@ -548,7 +548,7 @@ public:
 
             std::list<Player*> temp;
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                if ((me->IsWithinLOSInMap(i->GetSource()) || !checkLoS) && me->GetVictim() != i->GetSource() &&
+                if ((me->IsWithinLOSInMap(i->GetSource()) || !checkLoS) && me->GetAutoAttackVictim() != i->GetSource() &&
                     me->IsWithinDistInMap(i->GetSource(), range) && i->GetSource()->IsAlive())
                     temp.push_back(i->GetSource());
 
@@ -827,7 +827,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                 DoCast(me, SPELL_SPROUT_BODY, true);
                 me->UpdateEntry(PUMPKIN_FIEND);
-                DoStartMovement(me->GetVictim());
+                DoStartMovement(me->GetAutoAttackVictim());
             }
         }
 
@@ -852,7 +852,7 @@ public:
 
         void MoveInLineOfSight(Unit* who) override
         {
-            if (!who || !me->IsValidAttackTarget(who) || me->GetVictim())
+            if (!who || !me->IsValidAttackTarget(who) || me->GetAutoAttackVictim())
                 return;
 
             AddThreat(who, 0.0f);

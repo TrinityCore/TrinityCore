@@ -167,7 +167,7 @@ public:
                         Talk(EMOTE_DANCE);
                         _safeSection = 0;
                         me->SetReactState(REACT_PASSIVE);
-                        me->AttackStop();
+                        me->AutoAttackStop();
                         me->StopMoving();
                         DoCast(SPELL_TELEPORT_SELF);
                         DoCastAOE(SPELL_PLAGUE_CLOUD);

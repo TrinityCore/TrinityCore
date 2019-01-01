@@ -593,7 +593,7 @@ struct boss_illidan_stormrage : public BossAI
             case ACTION_START_PHASE_2:
             {
                 me->SetReactState(REACT_PASSIVE);
-                me->AttackStop();
+                me->AutoAttackStop();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                 me->SetDisableGravity(true);
@@ -623,7 +623,7 @@ struct boss_illidan_stormrage : public BossAI
                 DoCastSelf(SPELL_SHADOW_PRISON, true);
                 summons.DoAction(ACTION_START_PHASE_4, EntryCheckPredicate(NPC_PARASITIC_SHADOWFIEND));
                 me->SetReactState(REACT_PASSIVE);
-                me->AttackStop();
+                me->AutoAttackStop();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 events.ScheduleEvent(EVENT_SHADOW_PRISON_TEXT, Milliseconds(500), GROUP_PHASE_ALL);
                 break;
@@ -633,7 +633,7 @@ struct boss_illidan_stormrage : public BossAI
                 DoCastSelf(SPELL_CAGE_TRAP, true);
                 break;
             case ACTION_START_OUTRO:
-                me->AttackStop();
+                me->AutoAttackStop();
                 events.Reset();
                 specialEvents.Reset();
                 DoCastSelf(SPELL_DEATH, true);
@@ -1140,7 +1140,7 @@ struct npc_akama_illidan : public ScriptedAI
                 break;
             case ACTION_START_OUTRO:
                 me->SetReactState(REACT_PASSIVE);
-                me->AttackStop();
+                me->AutoAttackStop();
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_AKAMA_MOVE_BACK, 2s);
                 break;
@@ -1316,7 +1316,7 @@ struct npc_akama_illidan : public ScriptedAI
                     break;
                 case EVENT_AKAMA_MINIONS_EMOTE:
                     me->SetReactState(REACT_PASSIVE);
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                     me->SetImmuneToNPC(true);
                     _events.ScheduleEvent(EVENT_AKAMA_MINIONS_MOVE, 4s);
@@ -1397,7 +1397,7 @@ struct npc_parasitic_shadowfiend : public ScriptedAI
         if (action == ACTION_START_PHASE_4)
         {
             me->SetReactState(REACT_PASSIVE);
-            me->AttackStop();
+            me->AutoAttackStop();
         }
         else if (action == ACTION_RESUME_COMBAT)
             _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
@@ -1648,7 +1648,7 @@ struct npc_maiev : public ScriptedAI
         {
             _events.Reset();
             me->SetReactState(REACT_PASSIVE);
-            me->AttackStop();
+            me->AutoAttackStop();
             if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                 me->SetFacingToObject(illidan);
             Talk(SAY_MAIEV_SHADOWSONG_FINISHED);
@@ -1718,7 +1718,7 @@ struct npc_maiev : public ScriptedAI
                     _events.Repeat(Seconds(50));
                     break;
                 case EVENT_THROW_DAGGER:
-                    if (Unit* target = me->GetVictim())
+                    if (Unit* target = me->GetAutoAttackVictim())
                         if (!me->IsWithinMeleeRange(target))
                         {
                             DoCastVictim(SPELL_THROW_DAGGER);

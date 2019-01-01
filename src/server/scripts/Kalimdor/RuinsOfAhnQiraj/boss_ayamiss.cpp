@@ -165,9 +165,9 @@ class boss_ayamiss : public CreatureScript
                     _phase = PHASE_GROUND;
                     SetCombatMovement(true);
                     me->SetCanFly(false);
-                    if (me->GetVictim())
+                    if (me->GetAutoAttackVictim())
                     {
-                        Position VictimPos = me->EnsureVictim()->GetPosition();
+                        Position VictimPos = me->GetAutoAttackVictim()->GetPosition();
                         me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
                     }
                     ResetThreatList();

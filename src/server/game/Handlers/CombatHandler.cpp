@@ -63,12 +63,12 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
         }
     }
 
-    _player->Attack(pEnemy, true);
+    _player->AutoAttackStart(pEnemy, true);
 }
 
 void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recvData*/)
 {
-    GetPlayer()->AttackStop();
+    GetPlayer()->AutoAttackStop();
 }
 
 void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)

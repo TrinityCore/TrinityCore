@@ -415,7 +415,7 @@ public:
             {
                 tree->AI()->Talk(SAY_WALKER_ENEMY, player);
                 tree->SetFaction(FACTION_MONSTER);
-                tree->Attack(player, true);
+                tree->AutoAttackStart(player, true);
             }
         }
 

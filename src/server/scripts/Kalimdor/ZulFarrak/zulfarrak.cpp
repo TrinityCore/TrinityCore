@@ -83,7 +83,7 @@ public:
         uint32 postGossipStep;
         uint32 Text_Timer;
         uint32 ShieldBash_Timer;
-        uint32 Revenge_Timer;                                   //this is wrong, spell should never be used unless me->GetVictim() dodge, parry or block attack. Trinity support required.
+        uint32 Revenge_Timer;                                   //this is wrong, spell should never be used unless me->GetAutoAttackVictim() dodge, parry or block attack. Trinity support required.
         ObjectGuid PlayerGUID;
 
         void Reset() override
@@ -311,7 +311,7 @@ public:
             else
                 Bomb_Timer -= diff;
 
-            if (me->isAttackReady() && !me->IsWithinMeleeRange(me->GetVictim()))
+            if (me->isAttackReady() && !me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
             {
                 DoCastVictim(SPELL_SHOOT);
                 me->SetSheath(SHEATH_STATE_RANGED);

@@ -142,7 +142,7 @@ public:
         void JustSummoned(Creature* summon) override
         {
             summons.Summon(summon);
-            summon->AI()->AttackStart(me->GetVictim());
+            summon->AI()->AttackStart(me->GetAutoAttackVictim());
         }
 
         void SummonedCreatureDespawn(Creature* summon) override

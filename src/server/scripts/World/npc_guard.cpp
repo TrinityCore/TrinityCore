@@ -117,7 +117,7 @@ struct npc_guard_generic : public GuardAI
 
         _combatScheduler.Schedule(Seconds(1), [this](TaskContext meleeContext)
         {
-            Unit* victim = me->GetVictim();
+            Unit* victim = me->GetAutoAttackVictim();
             if (!me->isAttackReady() || !me->IsWithinMeleeRange(victim))
             {
                 meleeContext.Repeat();
@@ -125,7 +125,7 @@ struct npc_guard_generic : public GuardAI
             }
             if (roll_chance_i(20))
             {
-                if (SpellInfo const* spellInfo = SelectSpell(me->GetVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, 0, NOMINAL_MELEE_RANGE, SELECT_EFFECT_DONTCARE))
+                if (SpellInfo const* spellInfo = SelectSpell(me->GetAutoAttackVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, 0, NOMINAL_MELEE_RANGE, SELECT_EFFECT_DONTCARE))
                 {
                     me->resetAttackTimer();
                     DoCastVictim(spellInfo->Id);
@@ -152,7 +152,7 @@ struct npc_guard_generic : public GuardAI
             if (spellInfo)
                 healing = true;
             else
-                spellInfo = SelectSpell(me->GetVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, NOMINAL_MELEE_RANGE, 0, SELECT_EFFECT_DONTCARE);
+                spellInfo = SelectSpell(me->GetAutoAttackVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, NOMINAL_MELEE_RANGE, 0, SELECT_EFFECT_DONTCARE);
 
             // Found a spell
             if (spellInfo)
@@ -215,7 +215,7 @@ struct npc_guard_shattrath_faction : public GuardAI
     {
         _scheduler.Schedule(Seconds(5), [this](TaskContext banishContext)
         {
-            Unit* temp = me->GetVictim();
+            Unit* temp = me->GetAutoAttackVictim();
             if (temp && temp->GetTypeId() == TYPEID_PLAYER)
             {
                 DoCast(temp, me->GetEntry() == NPC_ALDOR_VINDICATOR ? SPELL_BANISHED_SHATTRATH_S : SPELL_BANISHED_SHATTRATH_A);

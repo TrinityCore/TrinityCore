@@ -699,7 +699,7 @@ class boss_leviathan_mk_ii : public CreatureScript
                     damage = me->GetHealth() - 1; // Let creature fall to 1 hp, but do not let it die or damage itself with SetHealth().
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     DoCast(me, SPELL_VEHICLE_DAMAGED, true);
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     me->SetReactState(REACT_PASSIVE);
                     me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
 
@@ -943,7 +943,7 @@ class boss_vx_001 : public CreatureScript
                 if (damage >= me->GetHealth())
                 {
                     damage = me->GetHealth() - 1; // Let creature fall to 1 hp, but do not let it die or damage itself with SetHealth().
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     DoCast(me, SPELL_VEHICLE_DAMAGED, true);
                     me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
 
@@ -1126,7 +1126,7 @@ class boss_aerial_command_unit : public CreatureScript
                 {
                     damage = me->GetHealth() - 1; // Let creature fall to 1 hp, but do not let it die or damage itself with SetHealth().
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     me->SetReactState(REACT_PASSIVE);
                     DoCast(me, SPELL_VEHICLE_DAMAGED, true);
                     me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
@@ -1174,7 +1174,7 @@ class boss_aerial_command_unit : public CreatureScript
                         break;
                     case DO_DISABLE_AERIAL:
                         me->CastStop();
-                        me->AttackStop();
+                        me->AutoAttackStop();
                         me->SetReactState(REACT_PASSIVE);
                         me->GetMotionMaster()->MoveFall();
                         events.DelayEvents(23000);

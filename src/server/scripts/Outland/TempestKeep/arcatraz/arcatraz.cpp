@@ -117,7 +117,7 @@ class npc_millhouse_manastorm : public CreatureScript
 
             void AttackStart(Unit* who) override
             {
-                if (me->Attack(who, true))
+                if (me->AutoAttackStart(who, true))
                 {
                     AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
@@ -320,7 +320,7 @@ class npc_warden_mellichar : public CreatureScript
                 if (IsRunning)
                     return;
 
-                if (!me->GetVictim() && me->CanCreatureAttack(who))
+                if (!me->GetAutoAttackVictim() && me->CanCreatureAttack(who))
                 {
                     if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                         return;

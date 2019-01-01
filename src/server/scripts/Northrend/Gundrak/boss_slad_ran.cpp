@@ -235,7 +235,7 @@ public:
 
             if (uiGripOfSladRanTimer <= diff)
             {
-                Unit* target = me->GetVictim();
+                Unit* target = me->GetAutoAttackVictim();
 
                 DoCast(target, SPELL_GRIP_OF_SLAD_RAN);
                 uiGripOfSladRanTimer = urand(3, 6)*IN_MILLISECONDS;

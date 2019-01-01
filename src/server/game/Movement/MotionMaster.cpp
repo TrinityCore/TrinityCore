@@ -921,7 +921,7 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
     if (_owner->GetTypeId() == TYPEID_UNIT)
     {
         TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveSeekAssistance: '%s', seeks assistance (X: %f, Y: %f, Z: %f)", _owner->GetGUID().ToString().c_str(), x, y, z);
-        _owner->AttackStop();
+        _owner->AutoAttackStop();
         _owner->CastStop();
         _owner->ToCreature()->SetReactState(REACT_PASSIVE);
         Add(new AssistanceMovementGenerator(EVENT_ASSIST_MOVE, x, y, z));

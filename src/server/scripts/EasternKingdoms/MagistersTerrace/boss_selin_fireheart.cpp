@@ -95,8 +95,8 @@ class boss_selin_fireheart : public CreatureScript
                     case ACTION_SWITCH_PHASE:
                         events.SetPhase(PHASE_NORMAL);
                         events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2s, 0, PHASE_NORMAL);
-                        AttackStart(me->GetVictim());
-                        me->GetMotionMaster()->MoveChase(me->GetVictim());
+                        AttackStart(me->GetAutoAttackVictim());
+                        me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                         break;
                     default:
                         break;
@@ -211,7 +211,7 @@ class boss_selin_fireheart : public CreatureScript
                             CrystalGUID.Clear();
 
                             me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                             break;
                         }
                         default:

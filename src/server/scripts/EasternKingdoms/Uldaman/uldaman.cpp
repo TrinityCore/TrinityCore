@@ -93,7 +93,7 @@ class npc_jadespine_basilisk : public CreatureScript
                     //Stop attacking target thast asleep and pick new target
                     uiCslumberTimer = 28000;
 
-                    me->GetThreatManager().ResetThreat(me->GetVictim());
+                    me->GetThreatManager().ResetThreat(me->GetAutoAttackVictim());
 
                 } else uiCslumberTimer -= uiDiff;
 

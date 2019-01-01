@@ -251,7 +251,7 @@ class boss_steelbreaker : public CreatureScript
                             events.CancelEvent(EVENT_BERSERK);
                             break;
                         case EVENT_FUSION_PUNCH:
-                            if (me->IsWithinMeleeRange(me->GetVictim()))
+                            if (me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                                 DoCastVictim(SPELL_FUSION_PUNCH);
                             events.ScheduleEvent(EVENT_FUSION_PUNCH, 13s, 22s);
                             break;
@@ -590,7 +590,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             Talk(SAY_BRUNDIR_FLIGHT);
                             DoCast(me, SPELL_LIGHTNING_TENDRILS);
                             DoCast(me, SPELL_LIGHTNING_TENDRILS_VISUAL);
-                            me->AttackStop();
+                            me->AutoAttackStop();
                             me->SetHover(true);
                             events.DelayEvents(35000);
                             events.ScheduleEvent(EVENT_FLIGHT, 2500ms);
@@ -617,12 +617,12 @@ class boss_stormcaller_brundir : public CreatureScript
                         case EVENT_GROUND:
                             me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHTNING_TENDRILS, me));
                             me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS_VISUAL);
-                            DoStartMovement(me->GetVictim());
+                            DoStartMovement(me->GetAutoAttackVictim());
                             events.CancelEvent(EVENT_GROUND);
                             ResetThreatList();
                             break;
                         case EVENT_MOVE_POSITION:
-                            if (me->IsWithinMeleeRange(me->GetVictim()))
+                            if (me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                             {
                                 float x = float(irand(-25, 25));
                                 float y = float(irand(-25, 25));

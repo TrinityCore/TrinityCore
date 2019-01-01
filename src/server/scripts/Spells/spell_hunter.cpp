@@ -539,7 +539,7 @@ class spell_hun_feeding_frenzy : public AuraScript
         uint8 rank = GetSpellInfo()->GetRank();
         uint32 spellId = triggerSpells[rank - 1];
 
-        if (GetTarget()->GetVictim() && GetTarget()->EnsureVictim()->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+        if (GetTarget()->GetAutoAttackVictim() && GetTarget()->GetAutoAttackVictim()->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
             GetTarget()->CastSpell(nullptr, spellId, aurEff);
         else
             GetTarget()->RemoveAurasDueToSpell(spellId);
@@ -1324,7 +1324,7 @@ class spell_hun_scatter_shot : public SpellScriptLoader
                 Player* caster = GetCaster()->ToPlayer();
                 // break Auto Shot and autohit
                 caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-                caster->AttackStop();
+                caster->AutoAttackStop();
                 caster->SendAttackSwingCancelAttack();
             }
 

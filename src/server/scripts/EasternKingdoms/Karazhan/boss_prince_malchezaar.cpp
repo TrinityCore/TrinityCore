@@ -321,7 +321,7 @@ public:
 
             for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
             {
-                Unit* target = ref->GetVictim();
+                Unit* target = ref->GetAutoAttackVictim();
                 if (target != tank && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                     targets.push_back(target);
             }
@@ -403,8 +403,8 @@ public:
             if (me->HasUnitState(UNIT_STATE_STUNNED))      // While shifting to phase 2 malchezaar stuns himself
                 return;
 
-            if (me->GetVictim() && me->GetTarget() != me->EnsureVictim()->GetGUID())
-                me->SetTarget(me->EnsureVictim()->GetGUID());
+            if (me->GetAutoAttackVictim() && me->GetSelectedUnitGUID() != me->GetAutoAttackVictim()->GetGUID())
+                me->SetPrimaryTarget(me->GetAutoAttackVictim()->GetGUID());
 
             if (phase == 1)
             {
@@ -492,8 +492,8 @@ public:
                         {
                             if (Unit* axe = ObjectAccessor::GetUnit(*me, axes[i]))
                             {
-                                if (axe->GetVictim())
-                                    ResetThreat(axe->GetVictim(), axe);
+                                if (axe->GetAutoAttackVictim())
+                                    ResetThreat(axe->GetAutoAttackVictim(), axe);
                                 AddThreat(target, 1000000.0f, axe);
                             }
                         }
@@ -527,7 +527,7 @@ public:
                 {
                     Unit* target = nullptr;
                     if (phase == 1)
-                        target = me->GetVictim();        // the tank
+                        target = me->GetAutoAttackVictim();        // the tank
                     else                                          // anyone but the tank
                         target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
 
@@ -557,18 +557,18 @@ public:
 
         void DoMeleeAttacksIfReady()
         {
-            if (me->IsWithinMeleeRange(me->GetVictim()) && !me->IsNonMeleeSpellCast(false))
+            if (me->IsWithinMeleeRange(me->GetAutoAttackVictim()) && !me->IsNonMeleeSpellCast(false))
             {
                 //Check for base attack
-                if (me->isAttackReady() && me->GetVictim())
+                if (me->isAttackReady() && me->GetAutoAttackVictim())
                 {
-                    me->AttackerStateUpdate(me->GetVictim());
+                    me->AttackerStateUpdate(me->GetAutoAttackVictim());
                     me->resetAttackTimer();
                 }
                 //Check for offhand attack
-                if (me->isAttackReady(OFF_ATTACK) && me->GetVictim())
+                if (me->isAttackReady(OFF_ATTACK) && me->GetAutoAttackVictim())
                 {
-                    me->AttackerStateUpdate(me->GetVictim(), OFF_ATTACK);
+                    me->AttackerStateUpdate(me->GetAutoAttackVictim(), OFF_ATTACK);
                     me->resetAttackTimer(OFF_ATTACK);
                 }
             }

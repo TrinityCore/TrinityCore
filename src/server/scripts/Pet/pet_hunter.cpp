@@ -82,11 +82,11 @@ class npc_pet_hunter_snake_trap : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (me->GetVictim() && me->GetVictim()->HasBreakableByDamageCrowdControlAura())
+                if (me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->HasBreakableByDamageCrowdControlAura())
                 { // don't break cc
                     me->GetThreatManager().ClearFixate();
                     me->InterruptNonMeleeSpells(false);
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     return;
                 }
 

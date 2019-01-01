@@ -433,7 +433,7 @@ struct npc_feral_defender : public ScriptedAI
             if (!me->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
             {
                 me->SetReactState(REACT_PASSIVE);
-                me->AttackStop();
+                me->AutoAttackStop();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH, true);
                 DoCastSelf(SPELL_FERAL_ESSENCE_APPLICATION_REMOVAL, true);

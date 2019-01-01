@@ -614,7 +614,7 @@ public:
     {
         Unit* target = handler->getSelectedUnit();
 
-        if (!target || !handler->GetSession()->GetPlayer()->GetTarget())
+        if (!target || !handler->GetSession()->GetPlayer()->GetSelectedUnitGUID())
         {
             handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
             handler->SetSentErrorMessage(true);
@@ -684,7 +684,7 @@ public:
 
     static bool HandleGUIDCommand(ChatHandler* handler, char const* /*args*/)
     {
-        ObjectGuid guid = handler->GetSession()->GetPlayer()->GetTarget();
+        ObjectGuid guid = handler->GetSession()->GetPlayer()->GetSelectedUnitGUID();
 
         if (guid.IsEmpty())
         {
@@ -1882,8 +1882,7 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        // accept only explicitly selected target (not implicitly self targeting case)
-        Creature* target = player->GetTarget() ? handler->getSelectedCreature() : nullptr;
+        Creature* target = handler->getSelectedCreature();
         if (target)
         {
             if (target->IsPet())
@@ -2272,7 +2271,7 @@ public:
         }
 
         Unit* target = handler->getSelectedUnit();
-        if (!target || !handler->GetSession()->GetPlayer()->GetTarget())
+        if (!target || !handler->GetSession()->GetPlayer()->GetSelectedUnitGUID())
         {
             handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
             handler->SetSentErrorMessage(true);

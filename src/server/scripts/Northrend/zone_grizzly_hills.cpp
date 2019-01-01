@@ -73,7 +73,7 @@ public:
             if (Creature* Mrfloppy = GetClosestCreatureWithEntry(me, NPC_MRFLOPPY, 50.0f))
                 summoned->AI()->AttackStart(Mrfloppy);
             else
-                summoned->AI()->AttackStart(me->GetVictim());
+                summoned->AI()->AttackStart(me->GetAutoAttackVictim());
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override

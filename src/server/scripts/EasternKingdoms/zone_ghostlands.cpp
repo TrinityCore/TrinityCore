@@ -92,8 +92,8 @@ public:
                         Creature* Summ2 = me->SummonCreature(NPC_SHADOWPINE_ORACLE, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TEMPSUMMON_DEAD_DESPAWN, 0);
                         if (Summ1 && Summ2)
                         {
-                            Summ1->Attack(me, true);
-                            Summ2->Attack(player, true);
+                            Summ1->AutoAttackStart(me, true);
+                            Summ2->AutoAttackStart(player, true);
                         }
                         AttackStart(Summ1);
                     }

@@ -177,7 +177,7 @@ public:
 
                     for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        target = ref->GetVictim();
+                        target = ref->GetAutoAttackVictim();
                         if (target && !target->IsWithinDist(me, 8.00f, false) && target->IsWithinDist(me, 25.0f, false))
                             target_list.push_back(target);
 
@@ -235,14 +235,14 @@ public:
                     _phase = PHASE_NONE;
                     scheduler.CancelAll();
 
-                    midnight->AttackStop();
-                    midnight->RemoveAllAttackers();
+                    midnight->AutoAttackStop();
+                    midnight->StopAutoAttackingMe();
                     midnight->SetReactState(REACT_PASSIVE);
                     midnight->GetMotionMaster()->MoveFollow(me, 2.0f, 0.0f);
                     midnight->AI()->Talk(EMOTE_MOUNT_UP);
 
-                    me->AttackStop();
-                    me->RemoveAllAttackers();
+                    me->AutoAttackStop();
+                    me->StopAutoAttackingMe();
                     me->SetReactState(REACT_PASSIVE);
                     me->GetMotionMaster()->MoveFollow(midnight, 2.0f, 0.0f);
                     Talk(SAY_MOUNT);
@@ -331,7 +331,7 @@ public:
             {
                 _attumenGUID = summon->GetGUID();
                 summon->AI()->SetGUID(me->GetGUID(), NPC_MIDNIGHT);
-                summon->AI()->AttackStart(me->GetVictim());
+                summon->AI()->AttackStart(me->GetAutoAttackVictim());
                 summon->AI()->Talk(SAY_APPEAR);
             }
 

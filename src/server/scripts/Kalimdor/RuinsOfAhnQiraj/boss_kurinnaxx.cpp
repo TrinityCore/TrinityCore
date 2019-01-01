@@ -109,7 +109,7 @@ class boss_kurinnaxx : public CreatureScript
                         case EVENT_SANDTRAP:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 target->CastSpell(target, SPELL_SANDTRAP, true);
-                            else if (Unit* victim = me->GetVictim())
+                            else if (Unit* victim = me->GetAutoAttackVictim())
                                 victim->CastSpell(victim, SPELL_SANDTRAP, true);
                             events.ScheduleEvent(EVENT_SANDTRAP, 5s, 15s);
                             break;

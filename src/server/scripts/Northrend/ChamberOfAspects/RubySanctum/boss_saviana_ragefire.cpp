@@ -164,7 +164,7 @@ class boss_saviana_ragefire : public CreatureScript
                             me->SetDisableGravity(true);
                             me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             me->SetReactState(REACT_PASSIVE);
-                            me->AttackStop();
+                            me->AutoAttackStop();
                             Position pos;
                             pos.Relocate(me);
                             pos.m_positionZ += 10.0f;

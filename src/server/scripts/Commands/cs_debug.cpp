@@ -208,7 +208,7 @@ public:
             return false;
         }
 
-        if (player->GetTarget())
+        if (player->GetSelectedUnitGUID())
             unit->PlayDistanceSound(soundId, player);
         else
             unit->PlayDirectSound(soundId, player);
@@ -889,7 +889,7 @@ public:
                 Unit* fixateVictim = mgr.GetFixateTarget();
                 for (ThreatReference const* ref : mgr.GetSortedThreatList())
                 {
-                    Unit* unit = ref->GetVictim();
+                    Unit* unit = ref->GetAutoAttackVictim();
                     char const* onlineStr;
                     switch (ref->GetOnlineState())
                     {

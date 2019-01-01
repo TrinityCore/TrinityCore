@@ -322,7 +322,7 @@ public:
         {
             FollowerAI::MoveInLineOfSight(who);
 
-            if (!me->GetVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && who->GetEntry() == NPC_TORTA)
+            if (!me->GetAutoAttackVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && who->GetEntry() == NPC_TORTA)
             {
                 if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
                 {

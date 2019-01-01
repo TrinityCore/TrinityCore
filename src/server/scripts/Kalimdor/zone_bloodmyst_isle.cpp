@@ -680,7 +680,7 @@ public:
                                     target = me;
 
                                 AddThreat(sironas, 0.001f, target);
-                                sironas->Attack(target, true);
+                                sironas->AutoAttackStart(target, true);
                                 sironas->GetMotionMaster()->MoveChase(target);
                             }
                             _moveTimer = 10 * IN_MILLISECONDS;

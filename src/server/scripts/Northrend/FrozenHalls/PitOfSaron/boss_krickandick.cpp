@@ -198,7 +198,7 @@ class boss_ick : public CreatureScript
             {
                 if (actionId == ACTION_STORE_OLD_TARGET)
                 {
-                    if (Unit* victim = me->GetVictim())
+                    if (Unit* victim = me->GetAutoAttackVictim())
                     {
                         _oldTargetGUID = victim->GetGUID();
                         _tempThreat = GetThreat(victim);
@@ -208,7 +208,7 @@ class boss_ick : public CreatureScript
                 {
                     if (Unit* oldTarget = ObjectAccessor::GetUnit(*me, _oldTargetGUID))
                     {
-                        if (Unit* current = me->GetVictim())
+                        if (Unit* current = me->GetAutoAttackVictim())
                             ModifyThreatByPercent(current, -100);
 
                         AddThreat(oldTarget, _tempThreat);
@@ -581,7 +581,7 @@ class spell_ick_explosive_barrage : public SpellScriptLoader
                     if (caster->GetTypeId() == TYPEID_UNIT)
                     {
                         caster->GetMotionMaster()->Clear();
-                        caster->GetMotionMaster()->MoveChase(caster->GetVictim());
+                        caster->GetMotionMaster()->MoveChase(caster->GetAutoAttackVictim());
                     }
             }
 

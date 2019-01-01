@@ -124,7 +124,7 @@ class boss_halazzi : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
-                summon->AI()->AttackStart(me->GetVictim());
+                summon->AI()->AttackStart(me->GetAutoAttackVictim());
                 if (summon->GetEntry() == NPC_SPIRIT_LYNX)
                     LynxGUID = summon->GetGUID();
                 summons.Summon(summon);
@@ -157,8 +157,8 @@ class boss_halazzi : public CreatureScript
                         if (Phase == PHASE_MERGE)
                         {
                             DoCast(me, SPELL_TRANSFORM_MERGE, true);
-                            me->Attack(me->GetVictim(), true);
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            me->AutoAttackStart(me->GetAutoAttackVictim(), true);
+                            me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                         }
                         if (Creature* Lynx = ObjectAccessor::GetCreature(*me, LynxGUID))
                             Lynx->DisappearAndDie();

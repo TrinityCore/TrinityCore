@@ -74,7 +74,7 @@ public:
 
         void JustSummoned(Creature* summoned) override
         {
-            summoned->AI()->AttackStart(me->GetVictim());
+            summoned->AI()->AttackStart(me->GetAutoAttackVictim());
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override

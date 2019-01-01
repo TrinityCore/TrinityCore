@@ -149,8 +149,6 @@ void ConfusedMovementGenerator<Creature>::DoFinalize(Creature* owner, bool activ
     {
         owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
         owner->ClearUnitState(UNIT_STATE_CONFUSED_MOVE);
-        if (owner->GetVictim())
-            owner->SetTarget(owner->EnsureVictim()->GetGUID());
     }
 }
 

@@ -178,7 +178,7 @@ public:
         {
             if (!CanStartEvent) // boss is invisible, don't attack
                 return;
-            if (!me->GetVictim() && who->IsValidAttackTarget(me))
+            if (!me->GetAutoAttackVictim() && who->IsValidAttackTarget(me))
             {
                 float attackRadius = me->GetAttackDistance(who);
                 if (me->IsWithinDistInMap(who, attackRadius))
@@ -312,8 +312,8 @@ public:
                 if (GeyserTimer <= diff)
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                    if (!target && me->GetVictim())
-                        target = me->GetVictim();
+                    if (!target && me->GetAutoAttackVictim())
+                        target = me->GetAutoAttackVictim();
                     if (target)
                         DoCast(target, SPELL_GEYSER, true);
                     GeyserTimer = rand32() % 5000 + 15000;
@@ -326,8 +326,8 @@ public:
                     if (WaterboltTimer <= diff)
                     {
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        if (!target && me->GetVictim())
-                            target = me->GetVictim();
+                        if (!target && me->GetAutoAttackVictim())
+                            target = me->GetAutoAttackVictim();
                         if (target)
                             DoCast(target, SPELL_WATERBOLT, true);
                         WaterboltTimer = 3000;
@@ -418,7 +418,7 @@ public:
         void MoveInLineOfSight(Unit* who) override
 
         {
-            if (!who || me->GetVictim())
+            if (!who || me->GetAutoAttackVictim())
                 return;
 
             if (who->isInAccessiblePlaceFor(me) && me->IsValidAttackTarget(who) && me->IsWithinDistInMap(who, 45))
@@ -429,7 +429,7 @@ public:
         {
             if (MultiShotTimer <= diff)
             {
-                if (me->GetVictim())
+                if (me->GetAutoAttackVictim())
                     DoCastVictim(SPELL_SPREAD_SHOT, true);
 
                 MultiShotTimer = 10000 + rand32() % 10000;

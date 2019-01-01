@@ -211,7 +211,7 @@ struct boss_gurtogg_bloodboil : public BossAI
                 case EVENT_START_PHASE_2:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                     {
-                        if (Unit* oldTarget = me->GetVictim())
+                        if (Unit* oldTarget = me->GetAutoAttackVictim())
                         {
                             _oldTargetGUID = oldTarget->GetGUID();
                             _oldThreat = GetThreat(oldTarget);

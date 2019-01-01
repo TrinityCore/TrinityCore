@@ -277,7 +277,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
 
-                if (victim && me->Attack(victim, true) && _phase != PHASE_ONE)
+                if (victim && me->AutoAttackStart(victim, true) && _phase != PHASE_ONE)
                     me->GetMotionMaster()->MoveChase(victim);
             }
 
@@ -414,7 +414,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     _phase = PHASE_TWO;
                     Talk(SAY_PHASE_2);
                     Talk(EMOTE_PHASE_2);
-                    DoStartMovement(me->GetVictim());
+                    DoStartMovement(me->GetAutoAttackVictim());
                     ResetThreatList();
                     damage -= me->GetPower(POWER_MANA);
                     me->SetPower(POWER_MANA, 0);
@@ -434,8 +434,8 @@ class boss_lady_deathwhisper : public CreatureScript
                         })
                         .Schedule(Seconds(6), Seconds(9), GROUP_TWO, [this](TaskContext touch)
                         {
-                            if (me->GetVictim())
-                                me->AddAura(SPELL_TOUCH_OF_INSIGNIFICANCE, me->EnsureVictim());
+                            if (me->GetAutoAttackVictim())
+                                me->AddAura(SPELL_TOUCH_OF_INSIGNIFICANCE, me->GetAutoAttackVictim());
                             touch.Repeat();
                         })
                         .Schedule(Seconds(12), GROUP_TWO, [this](TaskContext summonShade)
@@ -644,7 +644,7 @@ class npc_cult_fanatic : public CreatureScript
                     case SPELL_DARK_MARTYRDOM_T:
                         me->SetReactState(REACT_PASSIVE);
                         me->InterruptNonMeleeSpells(true);
-                        me->AttackStop();
+                        me->AutoAttackStop();
                         DoCastSelf(SPELL_DARK_MARTYRDOM_FANATIC);
                         break;
                     case SPELL_DARK_MARTYRDOM_FANATIC:
@@ -746,7 +746,7 @@ class npc_cult_adherent : public CreatureScript
                     case SPELL_DARK_MARTYRDOM_T:
                         me->SetReactState(REACT_PASSIVE);
                         me->InterruptNonMeleeSpells(true);
-                        me->AttackStop();
+                        me->AutoAttackStop();
                         DoCastSelf(SPELL_DARK_MARTYRDOM_ADHERENT);
                         break;
                     case SPELL_DARK_MARTYRDOM_ADHERENT:
@@ -935,7 +935,7 @@ class npc_darnavan : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (_canShatter && me->GetVictim() && me->EnsureVictim()->IsImmunedToDamage(SPELL_SCHOOL_MASK_NORMAL))
+                if (_canShatter && me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->IsImmunedToDamage(SPELL_SCHOOL_MASK_NORMAL))
                 {
                     DoCastVictim(SPELL_SHATTERING_THROW);
                     _canShatter = false;
@@ -943,7 +943,7 @@ class npc_darnavan : public CreatureScript
                     return;
                 }
 
-                if (_canCharge && !me->IsWithinMeleeRange(me->GetVictim()))
+                if (_canCharge && !me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                 {
                     DoCastVictim(SPELL_CHARGE);
                     _canCharge = false;

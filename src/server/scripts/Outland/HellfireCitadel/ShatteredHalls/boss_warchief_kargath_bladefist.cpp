@@ -227,7 +227,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                                 // stop bladedance
                                 InBlade = false;
                                 me->SetSpeedRate(MOVE_RUN, 2);
-                                me->GetMotionMaster()->MoveChase(me->GetVictim());
+                                me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                                 Blade_Dance_Timer = 30000;
                                 Wait_Timer = 0;
                                 if (IsHeroic())

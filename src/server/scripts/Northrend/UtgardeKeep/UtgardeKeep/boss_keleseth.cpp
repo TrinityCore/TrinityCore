@@ -310,7 +310,7 @@ class npc_vrykul_skeleton : public CreatureScript
                             DoCastAOE(SPELL_BONE_ARMOR, true);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->SetStandState(UNIT_STAND_STATE_STAND);
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                             events.ScheduleEvent(EVENT_DECREPIFY, 4s, 6s);
                             break;
                         default:

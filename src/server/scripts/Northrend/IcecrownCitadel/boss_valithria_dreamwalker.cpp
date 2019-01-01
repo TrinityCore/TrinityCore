@@ -825,7 +825,7 @@ class npc_blazing_skeleton : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FIREBALL:
-                            if (!me->IsWithinMeleeRange(me->GetVictim()))
+                            if (!me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                                 DoCastVictim(SPELL_FIREBALL);
                             _events.ScheduleEvent(EVENT_FIREBALL, 2s, 4s);
                             break;
@@ -918,7 +918,7 @@ class npc_suppresser : public CreatureScript
                 }
 
                 // this creature has REACT_PASSIVE so it does not always have victim here
-                if (Unit* victim = me->GetVictim())
+                if (Unit* victim = me->GetAutoAttackVictim())
                     if (victim->GetEntry() != NPC_VALITHRIA_DREAMWALKER)
                         DoMeleeAttackIfReady();
             }

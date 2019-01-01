@@ -188,7 +188,7 @@ class go_orb_of_domination : public GameObjectScript
                 {
                     if (Creature* razorgore = instance->GetCreature(DATA_RAZORGORE_THE_UNTAMED))
                     {
-                        razorgore->Attack(player, true);
+                        razorgore->AutoAttackStart(player, true);
                         player->CastSpell(razorgore, SPELL_MINDCONTROL);
                     }
                 }

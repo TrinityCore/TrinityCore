@@ -425,7 +425,7 @@ public:
         {
             if (Creature* pBjarngrim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BJARNGRIM)))
             {
-                if (pBjarngrim->IsAlive() && !pBjarngrim->GetVictim())
+                if (pBjarngrim->IsAlive() && !pBjarngrim->GetAutoAttackVictim())
                     pBjarngrim->AI()->AttackStart(who);
             }
         }

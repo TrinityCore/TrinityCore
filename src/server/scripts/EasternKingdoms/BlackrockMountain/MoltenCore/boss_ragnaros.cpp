@@ -230,7 +230,7 @@ class boss_ragnaros : public CreatureScript
                                 events.ScheduleEvent(EVENT_ELEMENTAL_FIRE, 10s, 14s);
                                 break;
                             case EVENT_MAGMA_BLAST:
-                                if (!me->IsWithinMeleeRange(me->GetVictim()))
+                                if (!me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                                 {
                                     DoCastVictim(SPELL_MAGMA_BLAST);
                                     if (!_hasYelledMagmaBurst)
@@ -249,7 +249,7 @@ class boss_ragnaros : public CreatureScript
                                     //Creature spawning and ragnaros becomming unattackable
                                     //is not very well supported in the core //no it really isnt
                                     //so added normaly spawning and banish workaround and attack again after 90 secs.
-                                    me->AttackStop();
+                                    me->AutoAttackStop();
                                     ResetThreatList();
                                     me->SetReactState(REACT_PASSIVE);
                                     me->InterruptNonMeleeSpells(false);

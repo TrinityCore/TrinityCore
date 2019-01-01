@@ -380,7 +380,7 @@ public:
             for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
             {
                 if (Creature* creature = *itr)
-                    DoZoneInCombat(creature);    // AI()->AttackStart(me->GetVictim());
+                    DoZoneInCombat(creature);    // AI()->AttackStart(me->GetAutoAttackVictim());
             }
 
             _events.ScheduleEvent(EVENT_STRIKE, 8s, 16s);

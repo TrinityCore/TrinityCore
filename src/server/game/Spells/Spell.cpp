@@ -675,13 +675,13 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
             if (Player* playerCaster = m_caster->ToPlayer())
             {
                 // selection has to be found and to be valid target for the spell
-                if (Unit* selectedUnit = ObjectAccessor::GetUnit(*m_caster, playerCaster->GetTarget()))
+                if (Unit* selectedUnit = ObjectAccessor::GetUnit(*m_caster, playerCaster->GetSelectedUnitGUID()))
                     if (m_spellInfo->CheckExplicitTarget(m_caster, selectedUnit) == SPELL_CAST_OK)
                         unit = selectedUnit;
             }
             // try to use attacked unit as a target
             else if ((m_caster->GetTypeId() == TYPEID_UNIT) && neededTargets & (TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT))
-                unit = m_caster->ToCreature()->GetVictim();
+                unit = m_caster->ToCreature()->GetAutoAttackVictim();
 
             // didn't find anything - let's use self as target
             if (!unit && neededTargets & (TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY | TARGET_FLAG_UNIT_ALLY))
@@ -1691,9 +1691,9 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
     {
         case SPELL_EFFECT_SUMMON_RAF_FRIEND:
         case SPELL_EFFECT_SUMMON_PLAYER:
-            if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetTarget())
+            if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetSelectedUnitGUID())
             {
-                WorldObject* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetTarget());
+                WorldObject* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetSelectedUnitGUID());
                 CallScriptObjectTargetSelectHandlers(target, SpellEffIndex(effIndex), SpellImplicitTargetInfo());
 
                 // scripts may modify the target - recheck
@@ -3056,14 +3056,14 @@ void Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggered
     }
 
     // focus if not controlled creature
-    if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED))
+    if (Creature* creatureCaster = m_caster->ToCreature())
     {
-        if (!(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat()))
+        if (!creatureCaster->GetPlayerMovingMe() && !(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat()))
         {
             if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
-                m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget());
+                creatureCaster->SetSpellFocus(m_targets.GetObjectTarget(), this);
             else if (m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
-                m_caster->ToCreature()->FocusTarget(this, nullptr);
+                creatureCaster->SetSpellFocus(nullptr, this);
         }
     }
 
@@ -3308,10 +3308,14 @@ void Spell::_cast(bool skipCheck)
 
     // if the spell allows the creature to turn while casting, then adjust server-side orientation to face the target now
     // client-side orientation is handled by the client itself, as the cast target is targeted due to Creature::FocusTarget
-    if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED))
-        if (!m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+    if (Creature* creatureCaster = m_caster->ToCreature())
+    {
+        if (!creatureCaster->GetPlayerMovingMe() && !m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+        {
             if (WorldObject* objTarget = m_targets.GetObjectTarget())
                 m_caster->ToCreature()->SetInFront(objTarget);
+        }
+    }
 
     SelectSpellTargets();
 
@@ -3375,7 +3379,7 @@ void Spell::_cast(bool skipCheck)
 
     if (!m_spellInfo->IsChanneled())
         if (Creature* creatureCaster = m_caster->ToCreature())
-            creatureCaster->ReleaseFocus(this);
+            creatureCaster->ReleaseSpellFocus(this);
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->HasAttribute(SPELL_ATTR4_UNK4))
@@ -3796,7 +3800,7 @@ void Spell::finish(bool ok)
     }
 
     if (Creature* creatureCaster = unitCaster->ToCreature())
-        creatureCaster->ReleaseFocus(this);
+        creatureCaster->ReleaseSpellFocus(this);
 
     if (!ok)
         return;
@@ -3845,7 +3849,7 @@ void Spell::finish(bool ok)
 
     // Stop Attack for some spells
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_STOP_ATTACK_TARGET))
-        unitCaster->AttackStop();
+        unitCaster->AutoAttackStop();
 }
 
 void Spell::WriteCastResultInfo(WorldPacket& data, Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError, uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/)
@@ -4544,8 +4548,7 @@ void Spell::SendChannelStart(uint32 duration)
 
         if (channelTarget != unitCaster->GetGUID())
             if (Creature* creatureCaster = unitCaster->ToCreature())
-                if (!creatureCaster->IsFocusing(this))
-                    creatureCaster->FocusTarget(this, ObjectAccessor::GetWorldObject(*creatureCaster, channelTarget));
+                creatureCaster->SetSpellFocus(ObjectAccessor::GetWorldObject(*creatureCaster, channelTarget), this);
     }
 
     unitCaster->SetUInt32Value(UNIT_CHANNEL_SPELL, m_spellInfo->Id);
@@ -5671,10 +5674,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return SPELL_FAILED_BAD_TARGETS;
 
-                if (!m_caster->ToPlayer()->GetTarget())
+                if (!m_caster->ToPlayer()->GetSelectedUnitGUID())
                     return SPELL_FAILED_BAD_TARGETS;
 
-                Player* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetTarget());
+                Player* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetSelectedUnitGUID());
                 if (!target || m_caster->ToPlayer() == target || (!target->IsInSameRaidWith(m_caster->ToPlayer()) && m_spellInfo->Id != 48955)) // refer-a-friend spell
                     return SPELL_FAILED_BAD_TARGETS;
 
@@ -5708,7 +5711,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     return SPELL_FAILED_BAD_TARGETS;
 
                 Player* playerCaster = m_caster->ToPlayer();
-                if (!playerCaster->GetTarget())
+                if (!playerCaster->GetSelectedUnitGUID())
                     return SPELL_FAILED_BAD_TARGETS;
 
                 Player* target = playerCaster->GetSelectedPlayer();
@@ -7233,7 +7236,11 @@ bool Spell::IsIgnoringCooldowns() const
 
 bool Spell::IsFocusDisabled() const
 {
-    return ((_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING) || (m_spellInfo->IsChanneled() && !m_spellInfo->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET)));
+    return (
+        (_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING) ||
+        (m_spellInfo->IsChanneled() && !m_spellInfo->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET)) ||
+        (m_spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+        );
 }
 
 bool Spell::IsProcDisabled() const

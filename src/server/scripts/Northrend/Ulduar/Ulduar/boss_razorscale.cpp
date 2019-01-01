@@ -642,14 +642,14 @@ struct boss_razorscale : public BossAI
                     DoCastSelf(SPELL_FIREBOLT);
                     break;
                 case EVENT_FUSE_ARMOR:
-                    if (Unit* victim = me->GetVictim())
+                    if (Unit* victim = me->GetAutoAttackVictim())
                         if (!victim->HasAura(SPELL_FUSED_ARMOR))
                             DoCast(victim, SPELL_FUSE_ARMOR);
                     events.Repeat(Seconds(10), Seconds(15));
                     break;
                 case EVENT_RESUME_MOVE_CHASE:
                     SetCombatMovement(true);
-                    if (Unit* victim = me->GetVictim())
+                    if (Unit* victim = me->GetAutoAttackVictim())
                         me->GetMotionMaster()->MoveChase(victim);
                     break;
                 default:

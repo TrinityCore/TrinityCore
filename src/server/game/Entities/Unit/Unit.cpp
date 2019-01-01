@@ -289,6 +289,7 @@ bool DispelableAura::RollDispel() const
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject), m_playerMovingMe(nullptr), m_lastSanctuaryTime(0), LastCharmerGUID(),
     movespline(new Movement::MoveSpline()), m_ControlledByPlayer(false), m_AutoRepeatFirstCast(false),
+    m_primaryTarget(nullptr), m_spellFocusDelay(0), m_focusSpell(0), m_suppressedOrientation(0.0f),
     m_procDeep(0), m_transformSpell(0), m_removedAurasCount(0), m_charmer(nullptr), m_charmed(nullptr),
     i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_vehicle(nullptr), m_vehicleKit(nullptr),
     m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(), m_combatManager(this), m_threatManager(this),
@@ -429,6 +430,9 @@ void Unit::Update(uint32 p_time)
     ASSERT(!m_procDeep);
 
     m_combatManager.Update(p_time);
+
+    if (m_spellFocusDelay && m_spellFocusDelay <= GameTime::GetGameTimeMS())
+        ClearSpellFocus();
 
     // not implemented before 3.0.2
     if (uint32 base_att = getAttackTimer(BASE_ATTACK))
@@ -1690,10 +1694,10 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
 
 /*static*/ void Unit::CalcAbsorbResist(DamageInfo& damageInfo)
 {
-    if (!damageInfo.GetVictim() || !damageInfo.GetVictim()->IsAlive() || !damageInfo.GetDamage())
+    if (!damageInfo.GetAutoAttackVictim() || !damageInfo.GetAutoAttackVictim()->IsAlive() || !damageInfo.GetDamage())
         return;
 
-    uint32 resistedDamage = Unit::CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetVictim(), damageInfo.GetDamage(), damageInfo.GetSchoolMask(), damageInfo.GetSpellInfo());
+    uint32 resistedDamage = Unit::CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetAutoAttackVictim(), damageInfo.GetDamage(), damageInfo.GetSchoolMask(), damageInfo.GetSpellInfo());
     damageInfo.ResistDamage(resistedDamage);
 
     // Ignore Absorption Auras
@@ -1720,7 +1724,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
 
     // We're going to call functions which can modify content of the list during iteration over it's elements
     // Let's copy the list so we can prevent iterator invalidation
-    AuraEffectList vSchoolAbsorbCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB));
+    AuraEffectList vSchoolAbsorbCopy(damageInfo.GetAutoAttackVictim()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB));
     vSchoolAbsorbCopy.sort(Trinity::AbsorbAuraOrderPred());
 
     // absorb without mana cost
@@ -1728,7 +1732,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     {
         AuraEffect* absorbAurEff = *itr;
         // Check if aura was removed during iteration - we don't need to work on such auras
-        AuraApplication const* aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(damageInfo.GetVictim()->GetGUID());
+        AuraApplication const* aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(damageInfo.GetAutoAttackVictim()->GetGUID());
         if (!aurApp)
             continue;
         if (!(absorbAurEff->GetMiscValue() & damageInfo.GetSchoolMask()))
@@ -1770,12 +1774,12 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     }
 
     // absorb by mana cost
-    AuraEffectList vManaShieldCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_MANA_SHIELD));
+    AuraEffectList vManaShieldCopy(damageInfo.GetAutoAttackVictim()->GetAuraEffectsByType(SPELL_AURA_MANA_SHIELD));
     for (AuraEffectList::const_iterator itr = vManaShieldCopy.begin(); (itr != vManaShieldCopy.end()) && (damageInfo.GetDamage() > 0); ++itr)
     {
         AuraEffect* absorbAurEff = *itr;
         // Check if aura was removed during iteration - we don't need to work on such auras
-        AuraApplication const* aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(damageInfo.GetVictim()->GetGUID());
+        AuraApplication const* aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(damageInfo.GetAutoAttackVictim()->GetGUID());
         if (!aurApp)
             continue;
         // check damage school mask
@@ -1807,7 +1811,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
         if (float manaMultiplier = absorbAurEff->GetSpellInfo()->Effects[absorbAurEff->GetEffIndex()].CalcValueMultiplier(absorbAurEff->GetCaster()))
             manaReduction = int32(float(manaReduction) * manaMultiplier);
 
-        int32 manaTaken = -damageInfo.GetVictim()->ModifyPower(POWER_MANA, -manaReduction);
+        int32 manaTaken = -damageInfo.GetAutoAttackVictim()->ModifyPower(POWER_MANA, -manaReduction);
 
         // take case when mana has ended up into account
         currentAbsorb = currentAbsorb ? int32(float(currentAbsorb) * (float(manaTaken) / float(manaReduction))) : 0;
@@ -1829,15 +1833,15 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     damageInfo.ModifyDamage(absorbIgnoringDamage);
 
     // split damage auras - only when not damaging self
-    if (damageInfo.GetVictim() != damageInfo.GetAttacker())
+    if (damageInfo.GetAutoAttackVictim() != damageInfo.GetAttacker())
     {
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
-        AuraEffectList vSplitDamageFlatCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_FLAT));
+        AuraEffectList vSplitDamageFlatCopy(damageInfo.GetAutoAttackVictim()->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_FLAT));
         for (AuraEffectList::iterator itr = vSplitDamageFlatCopy.begin(); (itr != vSplitDamageFlatCopy.end()) && (damageInfo.GetDamage() > 0); ++itr)
         {
             // Check if aura was removed during iteration - we don't need to work on such auras
-            if (!((*itr)->GetBase()->IsAppliedOnTarget(damageInfo.GetVictim()->GetGUID())))
+            if (!((*itr)->GetBase()->IsAppliedOnTarget(damageInfo.GetAutoAttackVictim()->GetGUID())))
                 continue;
             // check damage school mask
             if (!((*itr)->GetMiscValue() & damageInfo.GetSchoolMask()))
@@ -1845,7 +1849,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
 
             // Damage can be splitted only if aura has an alive caster
             Unit* caster = (*itr)->GetCaster();
-            if (!caster || (caster == damageInfo.GetVictim()) || !caster->IsInWorld() || !caster->IsAlive())
+            if (!caster || (caster == damageInfo.GetAutoAttackVictim()) || !caster->IsInWorld() || !caster->IsAlive())
                 continue;
 
             int32 splitDamage = (*itr)->GetAmount();
@@ -1858,7 +1862,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
             // check if caster is immune to damage
             if (caster->IsImmunedToDamage(damageInfo.GetSchoolMask()))
             {
-                damageInfo.GetVictim()->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
+                damageInfo.GetAutoAttackVictim()->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
                 continue;
             }
 
@@ -1875,11 +1879,11 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
 
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
-        AuraEffectList vSplitDamagePctCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_PCT));
+        AuraEffectList vSplitDamagePctCopy(damageInfo.GetAutoAttackVictim()->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_PCT));
         for (AuraEffectList::iterator itr = vSplitDamagePctCopy.begin(); itr != vSplitDamagePctCopy.end() && damageInfo.GetDamage() > 0; ++itr)
         {
             // Check if aura was removed during iteration - we don't need to work on such auras
-            AuraApplication const* aurApp = (*itr)->GetBase()->GetApplicationOfTarget(damageInfo.GetVictim()->GetGUID());
+            AuraApplication const* aurApp = (*itr)->GetBase()->GetApplicationOfTarget(damageInfo.GetAutoAttackVictim()->GetGUID());
             if (!aurApp)
                 continue;
 
@@ -1889,7 +1893,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
 
             // Damage can be splitted only if aura has an alive caster
             Unit* caster = (*itr)->GetCaster();
-            if (!caster || (caster == damageInfo.GetVictim()) || !caster->IsInWorld() || !caster->IsAlive())
+            if (!caster || (caster == damageInfo.GetAutoAttackVictim()) || !caster->IsInWorld() || !caster->IsAlive())
                 continue;
 
             uint32 splitDamage = CalculatePct(damageInfo.GetDamage(), (*itr)->GetAmount());
@@ -1904,7 +1908,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
             // check if caster is immune to damage
             if (caster->IsImmunedToDamage(damageInfo.GetSchoolMask()))
             {
-                damageInfo.GetVictim()->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
+                damageInfo.GetAutoAttackVictim()->SendSpellMiss(caster, (*itr)->GetSpellInfo()->Id, SPELL_MISS_IMMUNE);
                 continue;
             }
 
@@ -5424,22 +5428,12 @@ void Unit::UpdateDisplayPower()
     SetPowerType(displayPower);
 }
 
-void Unit::_addAttacker(Unit* pAttacker)
-{
-    m_attackers.insert(pAttacker);
-}
-
-void Unit::_removeAttacker(Unit* pAttacker)
-{
-    m_attackers.erase(pAttacker);
-}
-
-Unit* Unit::getAttackerForHelper() const                 // If someone wants to help, who to give them
+Unit* Unit::GetAttackerForHelper() const                 // If someone wants to help, who to give them
 {
     if (!IsEngaged())
         return nullptr;
 
-    if (Unit* victim = GetVictim())
+    if (Unit* victim = GetAutoAttackVictim())
         if ((!IsPet() && !GetPlayerMovingMe()) || IsInCombatWith(victim))
             return victim;
 
@@ -5457,7 +5451,7 @@ Unit* Unit::getAttackerForHelper() const                 // If someone wants to 
     return nullptr;
 }
 
-bool Unit::Attack(Unit* victim, bool meleeAttack)
+bool Unit::AutoAttackStart(Unit* victim, bool meleeAttack)
 {
     if (!victim || victim == this)
         return false;
@@ -5524,13 +5518,10 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     }
 
     if (m_attacking)
-        m_attacking->_removeAttacker(this);
+        m_attacking->m_attackers.erase(this);
 
     m_attacking = victim;
-    m_attacking->_addAttacker(this);
-
-    // Set our target
-    SetTarget(victim->GetGUID());
+    m_attacking->m_attackers.insert(this);
 
     if (meleeAttack)
         AddUnitState(UNIT_STATE_MELEE_ATTACKING);
@@ -5570,18 +5561,15 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     return true;
 }
 
-bool Unit::AttackStop()
+bool Unit::AutoAttackStop()
 {
     if (!m_attacking)
         return false;
 
     Unit* victim = m_attacking;
 
-    m_attacking->_removeAttacker(this);
+    m_attacking->m_attackers.erase(this);
     m_attacking = nullptr;
-
-    // Clear our target
-    SetTarget(ObjectGuid::Empty);
 
     ClearUnitState(UNIT_STATE_MELEE_ATTACKING);
 
@@ -5604,22 +5592,21 @@ bool Unit::AttackStop()
     return true;
 }
 
-void Unit::ValidateAttackersAndOwnTarget()
+void Unit::ValidateAutoAttackStates()
 {
     // iterate attackers
-    UnitVector toRemove;
-    AttackerSet const& attackers = getAttackers();
-    for (Unit* attacker : attackers)
+    std::vector<Unit*> toRemove;
+    for (Unit* attacker : m_attackers)
         if (!attacker->IsValidAttackTarget(this))
             toRemove.push_back(attacker);
 
     for (Unit* attacker : toRemove)
-        attacker->AttackStop();
+        attacker->AutoAttackStop();
 
     // remove our own victim
-    if (Unit* victim = GetVictim())
+    if (Unit* victim = GetAutoAttackVictim())
         if (!IsValidAttackTarget(victim))
-            AttackStop();
+            AutoAttackStop();
 }
 
 void Unit::CombatStop(bool includingCast, bool mutualPvP)
@@ -5627,8 +5614,8 @@ void Unit::CombatStop(bool includingCast, bool mutualPvP)
     if (includingCast && IsNonMeleeSpellCast(false))
         InterruptNonMeleeSpells(false);
 
-    AttackStop();
-    RemoveAllAttackers();
+    AutoAttackStop();
+    StopAutoAttackingMe();
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendAttackSwingCancelAttack();     // melee and ranged forced attack cancel
 
@@ -5649,35 +5636,10 @@ void Unit::CombatStopWithPets(bool includingCast)
         minion->CombatStop(includingCast);
 }
 
-bool Unit::isAttackingPlayer() const
-{
-    if (HasUnitState(UNIT_STATE_ATTACK_PLAYER))
-        return true;
-
-    for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-        if ((*itr)->isAttackingPlayer())
-            return true;
-
-    for (uint8 i = 0; i < MAX_SUMMON_SLOT; ++i)
-        if (m_SummonSlot[i])
-            if (Creature* summon = GetMap()->GetCreature(m_SummonSlot[i]))
-                if (summon->isAttackingPlayer())
-                    return true;
-
-    return false;
-}
-
-void Unit::RemoveAllAttackers()
+void Unit::StopAutoAttackingMe()
 {
     while (!m_attackers.empty())
-    {
-        AttackerSet::iterator iter = m_attackers.begin();
-        if (!(*iter)->AttackStop())
-        {
-            TC_LOG_ERROR("entities.unit", "WORLD: Unit has an attacker that isn't attacking it!");
-            m_attackers.erase(iter);
-        }
-    }
+        (*m_attackers.begin())->AutoAttackStop();
 }
 
 void Unit::ModifyAuraState(AuraStateType flag, bool apply)
@@ -8201,7 +8163,7 @@ void Unit::SetImmuneToAll(bool apply, bool keepCombat)
     if (apply)
     {
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-        ValidateAttackersAndOwnTarget();
+        ValidateAutoAttackStates();
         if (!keepCombat)
             m_combatManager.EndAllCombat();
     }
@@ -8214,7 +8176,7 @@ void Unit::SetImmuneToPC(bool apply, bool keepCombat)
     if (apply)
     {
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-        ValidateAttackersAndOwnTarget();
+        ValidateAutoAttackStates();
         if (!keepCombat)
         {
             std::list<CombatReference*> toEnd;
@@ -8237,7 +8199,7 @@ void Unit::SetImmuneToNPC(bool apply, bool keepCombat)
     if (apply)
     {
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-        ValidateAttackersAndOwnTarget();
+        ValidateAutoAttackStates();
         if (!keepCombat)
         {
             std::list<CombatReference*> toEnd;
@@ -8699,6 +8661,10 @@ void Unit::setDeathState(DeathState s)
         SetHealth(0);
         SetPower(GetPowerType(), 0);
         SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+
+        ReleaseSpellFocus(nullptr, false); // remove spellcast focus
+        if (GetTypeId() != TYPEID_PLAYER && !GetPlayerMovingMe())
+            SetPrimaryTarget(ObjectGuid::Empty); // drop target - dead mobs shouldn't ever target things
 
         // players in instance don't have ZoneScript, but they have InstanceScript
         if (ZoneScript* zoneScript = GetZoneScript() ? GetZoneScript() : GetInstanceScript())
@@ -10430,8 +10396,8 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
     Cell::VisitAllObjects(this, searcher, dist);
 
     // remove current target
-    if (GetVictim())
-        targets.remove(GetVictim());
+    if (GetAutoAttackVictim())
+        targets.remove(GetAutoAttackVictim());
 
     if (exclude)
         targets.remove(exclude);
@@ -11145,7 +11111,6 @@ void Unit::SetStunned(bool apply)
 {
     if (apply)
     {
-        SetTarget(ObjectGuid::Empty);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
         // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
@@ -11167,9 +11132,6 @@ void Unit::SetStunned(bool apply)
     }
     else
     {
-        if (IsAlive() && GetVictim())
-            SetTarget(EnsureVictim()->GetGUID());
-
         // don't remove UNIT_FLAG_STUNNED for pet when owner is mounted (disabled pet's interface)
         Unit* owner = GetCharmerOrOwner();
         if (!owner || owner->GetTypeId() != TYPEID_PLAYER || !owner->ToPlayer()->IsMounted())
@@ -11185,6 +11147,7 @@ void Unit::SetStunned(bool apply)
             RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
     }
+    UpdateSelectedUnit();
 }
 
 void Unit::SetRooted(bool apply)
@@ -11242,25 +11205,16 @@ void Unit::SetFeared(bool apply)
 {
     if (apply)
     {
-        SetTarget(ObjectGuid::Empty);
-
         Unit* caster = nullptr;
         Unit::AuraEffectList const& fearAuras = GetAuraEffectsByType(SPELL_AURA_MOD_FEAR);
         if (!fearAuras.empty())
             caster = ObjectAccessor::GetUnit(*this, fearAuras.front()->GetCasterGUID());
         if (!caster)
-            caster = getAttackerForHelper();
+            caster = GetAttackerForHelper();
         GetMotionMaster()->MoveFleeing(caster, fearAuras.empty() ? sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_FLEE_DELAY) : 0);             // caster == NULL processed in MoveFleeing
     }
-    else
-    {
-        if (IsAlive())
-        {
-            GetMotionMaster()->Remove(FLEEING_MOTION_TYPE);
-            if (GetVictim())
-                SetTarget(EnsureVictim()->GetGUID());
-        }
-    }
+    else if (IsAlive())
+        GetMotionMaster()->Remove(FLEEING_MOTION_TYPE);
 
     // block / allow control to real player in control (eg charmer)
     if (GetTypeId() == TYPEID_PLAYER)
@@ -11273,26 +11227,16 @@ void Unit::SetFeared(bool apply)
 void Unit::SetConfused(bool apply)
 {
     if (apply)
-    {
-        SetTarget(ObjectGuid::Empty);
         GetMotionMaster()->MoveConfused();
-    }
-    else
-    {
-        if (IsAlive())
-        {
-            GetMotionMaster()->Remove(CONFUSED_MOTION_TYPE);
-            if (GetVictim())
-                SetTarget(EnsureVictim()->GetGUID());
-        }
-    }
+    else if (IsAlive())
+        GetMotionMaster()->Remove(CONFUSED_MOTION_TYPE);
+
+    UpdateSelectedUnit();
 
     // block / allow control to real player in control (eg charmer)
     if (GetTypeId() == TYPEID_PLAYER)
-    {
         if (m_playerMovingMe)
             m_playerMovingMe->SetClientControl(this, !apply);
-    }
 }
 
 bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* aurApp)
@@ -11303,6 +11247,8 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     // dismount players when charmed
     if (GetTypeId() == TYPEID_PLAYER)
         RemoveAurasByType(SPELL_AURA_MOUNTED);
+
+    UpdateSelectedUnit();
 
     if (charmer->GetTypeId() == TYPEID_PLAYER)
         charmer->RemoveAurasByType(SPELL_AURA_MOUNTED);
@@ -12814,11 +12760,11 @@ void Unit::RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker)
 
 void Unit::StopAttackFaction(uint32 faction_id)
 {
-    if (Unit* victim = GetVictim())
+    if (Unit* victim = GetAutoAttackVictim())
     {
         if (victim->GetFactionTemplateEntry()->faction == faction_id)
         {
-            AttackStop();
+            AutoAttackStop();
             if (IsNonMeleeSpellCast(false))
                 InterruptNonMeleeSpells(false);
 
@@ -12828,17 +12774,12 @@ void Unit::StopAttackFaction(uint32 faction_id)
         }
     }
 
-    AttackerSet const& attackers = getAttackers();
-    for (AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
-    {
-        if ((*itr)->GetFactionTemplateEntry()->faction == faction_id)
-        {
-            (*itr)->AttackStop();
-            itr = attackers.begin();
-        }
-        else
-            ++itr;
-    }
+    std::vector<Unit*> toRemove;
+    for (Unit* attacker : m_attackers)
+        if (attacker->GetFactionTemplateEntry()->faction == faction_id)
+            toRemove.push_back(attacker);
+    for (Unit* attacker : toRemove)
+        attacker->AutoAttackStop();
 
     std::vector<CombatReference*> refsToEnd;
     for (auto const& pair : m_combatManager.GetPvECombatRefs())
@@ -12898,6 +12839,102 @@ void Unit::SendClearTarget()
     WorldPacket data(SMSG_BREAK_TARGET, GetPackGUID().size());
     data << GetPackGUID();
     SendMessageToSet(&data, false);
+}
+
+ObjectGuid Unit::ChooseSelectedUnit() const
+{
+    if (GetTypeId() != TYPEID_PLAYER && !GetPlayerMovingMe())
+    {
+        if (HasUnitState(UNIT_STATE_CONTROLLED) || !IsAlive())
+            return ObjectGuid::Empty;
+
+        if (HasSpellFocusTarget())
+            return GetSpellFocusTarget();
+    }
+
+    return Object::GetGUID(GetPrimaryTarget());
+}
+
+Unit* Unit::GetSelectedUnit() const
+{
+    return ObjectAccessor::GetUnit(*this, GetSelectedUnitGUID());
+}
+
+void Unit::SetSpellFocus(WorldObject* target, Spell const* spell)
+{
+    // already focused
+    if (m_focusSpell)
+        return;
+
+    // spell shouldn't use focus system
+    if (spell->IsFocusDisabled())
+        return;
+
+    // untargeted instant cast spells
+    if ((!target || target == this) && !spell->GetCastTime())
+        return;
+
+    // only overwrite suppressed orientation if we're not already being oriented by spell focus
+    if (!m_spellFocusDelay)
+        m_suppressedOrientation = GetOrientation();
+
+    m_focusSpell = reinterpret_cast<std::uintptr_t>(spell);
+    m_spellFocusTarget = Object::GetGUID(target);
+    UpdateSelectedUnit();
+
+    bool const noTurnDuringCast = spell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
+    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
+    {
+        if (target)
+            SetFacingToObject(target, false);
+        else if (noTurnDuringCast)
+            SetFacingTo(GetOrientation(), false);
+    }
+
+    if (noTurnDuringCast)
+        AddUnitState(UNIT_STATE_FOCUSING);
+}
+
+void Unit::ReleaseSpellFocus(Spell const* spell, bool withDelay)
+{
+    // not focused, or focused to a different spell
+    if (spell)
+        if (!m_focusSpell || m_focusSpell != reinterpret_cast<std::uintptr_t>(spell))
+            return;
+
+    ClearUnitState(UNIT_STATE_FOCUSING);
+
+    m_focusSpell = 0;
+    if (withDelay && !IsPet())
+        m_spellFocusDelay = GameTime::GetGameTimeMS() + 1000;
+    else
+        ClearSpellFocus();
+}
+
+void Unit::ClearSpellFocus()
+{
+    m_focusSpell = 0;
+    m_spellFocusDelay = 0;
+    UpdateSelectedUnit();
+
+    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
+    {
+        if (Unit* unit = GetSelectedUnit())
+            SetFacingToObject(unit, false);
+        else
+            SetFacingTo(m_suppressedOrientation, false);
+    }
+}
+
+void Unit::SetPrimaryTarget(ObjectGuid guid)
+{
+    SetPrimaryTarget(ObjectAccessor::GetUnit(*this, guid));
+}
+
+void Unit::StopTargetingMe()
+{
+    while (!m_targetingMe.empty())
+        (*m_targetingMe.begin())->SetPrimaryTarget(nullptr);
 }
 
 uint32 Unit::GetResistance(SpellSchoolMask mask) const

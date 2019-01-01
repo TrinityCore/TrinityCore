@@ -171,7 +171,7 @@ class boss_tyrannus : public CreatureScript
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
 
-                if (victim && me->Attack(victim, true) && !events.IsInPhase(PHASE_INTRO))
+                if (victim && me->AutoAttackStart(victim, true) && !events.IsInPhase(PHASE_INTRO))
                     me->GetMotionMaster()->MoveChase(victim);
             }
 
@@ -403,7 +403,7 @@ class player_overlord_brandAI : public PlayerAI
         void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) override
         {
             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
-                if (Unit* victim = tyrannus->GetVictim())
+                if (Unit* victim = tyrannus->GetAutoAttackVictim())
                 {
                     CastSpellExtraArgs args(tyrannus->GetGUID());
                     args.AddSpellBP0(damage);

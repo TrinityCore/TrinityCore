@@ -184,9 +184,9 @@ public:
         void EnterEvadeMode(EvadeReason why) override
         {
             Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
-            if (player && player->IsInCombat() && player->getAttackerForHelper())
+            if (player && player->IsInCombat() && player->GetAttackerForHelper())
             {
-                AttackStart(player->getAttackerForHelper());
+                AttackStart(player->GetAttackerForHelper());
                 return;
             }
             EscortAI::EnterEvadeMode(why);
@@ -223,8 +223,8 @@ public:
                 if (checkPlayerTimer <= diff)
                 {
                     Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
-                    if (player && player->IsInCombat() && player->getAttackerForHelper())
-                        AttackStart(player->getAttackerForHelper());
+                    if (player && player->IsInCombat() && player->GetAttackerForHelper())
+                        AttackStart(player->GetAttackerForHelper());
                     checkPlayerTimer = 1000;
                 } else checkPlayerTimer -= diff;
             }

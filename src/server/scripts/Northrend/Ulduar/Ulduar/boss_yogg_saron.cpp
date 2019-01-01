@@ -3142,7 +3142,7 @@ class spell_yogg_saron_hodirs_protective_gaze : public SpellScriptLoader     // 
                 if (dmgInfo.GetDamage() >= GetTarget()->GetHealth())
                 {
                     absorbAmount = dmgInfo.GetDamage();
-                    // or absorbAmount = dmgInfo.GetDamage() - GetTarget()->GetHealth() + 1
+                    // or absorbAmount = dmgInfo.GetDamage() - GetSelectedUnitGUID()->GetHealth() + 1
                     GetTarget()->CastSpell(GetTarget(), SPELL_FLASH_FREEZE, true);
                 }
                 else

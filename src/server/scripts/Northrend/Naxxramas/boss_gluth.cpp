@@ -210,11 +210,11 @@ public:
                             me->SetSpeed(MOVE_RUN, 36.0f);
 
                             me->SetReactState(ReactStates::REACT_PASSIVE);
-                            me->AttackStop();
+                            me->AutoAttackStop();
 
                             Talk(EMOTE_SPOTS_ONE);
 
-                            //me->SetTarget(ObjectGuid::Empty);
+                            //me->SetPrimaryTarget(ObjectGuid::Empty);
 
                             me->GetMotionMaster()->MoveCloserAndStop(1, zombie, 2.0f);
 
@@ -440,8 +440,8 @@ public:
                 if (value == STATE_ZOMBIE_DECIMATED)
                 {
                     me->SetReactState(ReactStates::REACT_PASSIVE);
-                    me->AttackStop();
-                    me->SetTarget(ObjectGuid::Empty);
+                    me->AutoAttackStop();
+                    me->SetPrimaryTarget(ObjectGuid::Empty);
                     // at this point, the zombie should be non attacking and non moving.
 
                     me->SetWalk(true); // it doesnt seem to work with MoveFollow() (but it does work with MovePoint()).
@@ -456,8 +456,8 @@ public:
 
                     // and loose aggro behavior
                     me->SetReactState(ReactStates::REACT_PASSIVE);
-                    me->AttackStop();
-                    me->SetTarget(ObjectGuid::Empty);
+                    me->AutoAttackStop();
+                    me->SetPrimaryTarget(ObjectGuid::Empty);
 
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true); // not sure if this is blizz-like but this is very convenient
                 }

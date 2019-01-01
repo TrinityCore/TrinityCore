@@ -332,12 +332,12 @@ public:
                 {
                     if (HealthBelowPct(65))
                     {
-                        if (Unit* target = me->GetVictim())
+                        if (Unit* target = me->GetAutoAttackVictim())
                             tankGUID = target->GetGUID();
                         SetCombatMovement(false);
                         Phase = PHASE_BREATH;
                         me->SetReactState(REACT_PASSIVE);
-                        me->AttackStop();
+                        me->AutoAttackStop();
                         me->GetMotionMaster()->MovePoint(10, Phase2Location);
                         return;
                     }

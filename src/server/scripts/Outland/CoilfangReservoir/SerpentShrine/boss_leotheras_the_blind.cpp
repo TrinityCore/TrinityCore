@@ -145,12 +145,12 @@ public:
         void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
-            if (!UpdateVictim() || !me->GetVictim())
+            if (!UpdateVictim() || !me->GetAutoAttackVictim())
                 return;
 
-            if (me->EnsureVictim()->GetGUID() != victimGUID)
+            if (me->GetAutoAttackVictim()->GetGUID() != victimGUID)
             {
-                ModifyThreatByPercent(me->GetVictim(), -100);
+                ModifyThreatByPercent(me->GetAutoAttackVictim(), -100);
                 Unit* owner = ObjectAccessor::GetUnit(*me, victimGUID);
                 if (owner && owner->IsAlive())
                 {
@@ -282,7 +282,7 @@ public:
             if (me->HasAura(AURA_BANISH))
                 return;
 
-            if (!me->GetVictim() && me->CanCreatureAttack(who))
+            if (!me->GetAutoAttackVictim() && me->CanCreatureAttack(who))
             {
                 if (me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                     return;
@@ -460,7 +460,7 @@ public:
                 NeedThreatReset = false;
                 ResetThreatList();
                 me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveChase(me->GetVictim());
+                me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
             }
 
             //Enrage_Timer (10 min)
@@ -506,17 +506,17 @@ public:
             else
             {
                 //ChaosBlast_Timer
-                if (!me->GetVictim())
+                if (!me->GetAutoAttackVictim())
                     return;
-                if (me->IsWithinDist(me->GetVictim(), 30))
+                if (me->IsWithinDist(me->GetAutoAttackVictim(), 30))
                     me->StopMoving();
                 if (ChaosBlast_Timer <= diff)
                 {
                     // will cast only when in range of spell
-                    if (me->IsWithinDist(me->GetVictim(), 30))
+                    if (me->IsWithinDist(me->GetAutoAttackVictim(), 30))
                     {
                         //DoCastVictim(SPELL_CHAOS_BLAST, true);
-                        me->CastSpell(me->GetVictim(), SPELL_CHAOS_BLAST, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()).AddSpellBP0(100));
+                        me->CastSpell(me->GetAutoAttackVictim(), SPELL_CHAOS_BLAST, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()).AddSpellBP0(100));
                     }
                     ChaosBlast_Timer = 3000;
                 } else ChaosBlast_Timer -= diff;
@@ -528,7 +528,7 @@ public:
                     Unit* currentVictim = mgr.GetCurrentVictim();
                     for (ThreatReference const* ref : mgr.GetSortedThreatList())
                     {
-                        if (Player* tempTarget = ref->GetVictim()->ToPlayer())
+                        if (Player* tempTarget = ref->GetAutoAttackVictim()->ToPlayer())
                             if (tempTarget != currentVictim && TargetList.size()<5)
                                 TargetList.push_back(tempTarget);
                     }
@@ -586,8 +586,8 @@ public:
                 if (Creature* Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 6000))
                 {
                     Demon = Copy->GetGUID();
-                    if (me->GetVictim())
-                        Copy->AI()->AttackStart(me->GetVictim());
+                    if (me->GetAutoAttackVictim())
+                        Copy->AI()->AttackStart(me->GetAutoAttackVictim());
                 }
                 //set nightelf final form
                 IsFinalForm = true;
@@ -663,16 +663,16 @@ public:
             if (!UpdateVictim())
                 return;
             //ChaosBlast_Timer
-            if (me->IsWithinDist(me->GetVictim(), 30))
+            if (me->IsWithinDist(me->GetAutoAttackVictim(), 30))
                 me->StopMoving();
 
             if (ChaosBlast_Timer <= diff)
              {
                 // will cast only when in range od spell
-                if (me->IsWithinDist(me->GetVictim(), 30))
+                if (me->IsWithinDist(me->GetAutoAttackVictim(), 30))
                 {
                     //DoCastVictim(SPELL_CHAOS_BLAST, true);
-                    me->CastSpell(me->GetVictim(), SPELL_CHAOS_BLAST, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()).AddSpellBP0(100));
+                    me->CastSpell(me->GetAutoAttackVictim(), SPELL_CHAOS_BLAST, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()).AddSpellBP0(100));
                     ChaosBlast_Timer = 3000;
                 }
              } else ChaosBlast_Timer -= diff;

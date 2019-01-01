@@ -610,7 +610,7 @@ struct boss_faction_championsAI : public BossAI
     void UpdateThreat()
     {
         for (ThreatReference* ref : me->GetThreatManager().GetModifiableThreatList())
-            if (Player* victim = ref->GetVictim()->ToPlayer())
+            if (Player* victim = ref->GetAutoAttackVictim()->ToPlayer())
             {
                 ref->ScaleThreat(0.0f);
                 ref->AddThreat(1000000.0f * CalculateThreat(me->GetDistance2d(victim), victim->GetArmor(), victim->GetHealth()));
@@ -687,7 +687,7 @@ struct boss_faction_championsAI : public BossAI
     {
         uint32 count = 0;
         for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
-            if (me->GetDistance2d(ref->GetVictim()) < distance)
+            if (me->GetDistance2d(ref->GetAutoAttackVictim()) < distance)
                 ++count;
         return count;
     }
@@ -697,7 +697,7 @@ struct boss_faction_championsAI : public BossAI
         if (!who)
             return;
 
-        if (me->Attack(who, true))
+        if (me->AutoAttackStart(who, true))
         {
             AddThreat(who, 10.0f);
 
@@ -1484,7 +1484,7 @@ class npc_toc_hunter : public CreatureScript
                             events.ScheduleEvent(EVENT_STEADY_SHOT, 5s, 15s);
                             return;
                         case EVENT_WING_CLIP:
-                            if (Unit* target = me->GetVictim())
+                            if (Unit* target = me->GetAutoAttackVictim())
                             {
                                 if (me->GetDistance2d(target) < 6.0f)
                                     DoCast(target, SPELL_WING_CLIP);
@@ -1673,7 +1673,7 @@ class npc_toc_warrior : public CreatureScript
                             events.ScheduleEvent(EVENT_SUNDER_ARMOR, 2s, 5s);
                             return;
                         case EVENT_SHATTERING_THROW:
-                            if (Unit* target = me->GetVictim())
+                            if (Unit* target = me->GetAutoAttackVictim())
                             {
                                 if (target->HasAuraWithMechanic(1 << MECHANIC_IMMUNE_SHIELD))
                                 {
@@ -1752,7 +1752,7 @@ class npc_toc_dk : public CreatureScript
                             events.ScheduleEvent(EVENT_DEATH_COIL, 5s, 15s);
                             return;
                         case EVENT_DEATH_GRIP:
-                            if (Unit* target = me->GetVictim())
+                            if (Unit* target = me->GetAutoAttackVictim())
                             {
                                 if (me->IsInRange(target, 5.0f, 30.0f, false))
                                 {
@@ -1871,7 +1871,7 @@ class npc_toc_rogue : public CreatureScript
                                 events.RescheduleEvent(EVENT_BLADE_FLURRY, 5*IN_MILLISECONDS);
                             return;
                         case EVENT_SHADOWSTEP:
-                            if (Unit* target = me->GetVictim())
+                            if (Unit* target = me->GetAutoAttackVictim())
                             {
                                 if (me->IsInRange(target, 10.0f, 40.0f, false))
                                 {

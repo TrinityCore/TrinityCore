@@ -208,7 +208,7 @@ struct npc_angered_soul_fragment : public ScriptedAI
         _scheduler.CancelGroup(GROUP_OUT_OF_COMBAT);
         _scheduler.Schedule(Seconds(1), [this](TaskContext anger)
         {
-            Unit* target = me->GetVictim();
+            Unit* target = me->GetAutoAttackVictim();
             if (target && me->IsWithinMeleeRange(target))
                 DoCastSelf(SPELL_ANGER);
             else

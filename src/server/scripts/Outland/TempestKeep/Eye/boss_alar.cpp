@@ -209,8 +209,8 @@ class boss_alar : public CreatureScript
                         me->InterruptNonMeleeSpells(true);
                         me->RemoveAllAuras();
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        me->AttackStop();
-                        me->SetTarget(ObjectGuid::Empty);
+                        me->AutoAttackStop();
+                        me->SetPrimaryTarget(ObjectGuid::Empty);
                         me->SetSpeedRate(MOVE_RUN, 5.0f);
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(0, waypoint[5][0], waypoint[5][1], waypoint[5][2]);
@@ -418,7 +418,7 @@ class boss_alar : public CreatureScript
 
                     if (DiveBomb_Timer <= diff)
                     {
-                        me->AttackStop();
+                        me->AutoAttackStop();
                         me->GetMotionMaster()->MovePoint(6, waypoint[4][0], waypoint[4][1], waypoint[4][2]);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 50);
@@ -458,9 +458,9 @@ class boss_alar : public CreatureScript
             {
                 if (me->isAttackReady() && !me->IsNonMeleeSpellCast(false))
                 {
-                    if (me->IsWithinMeleeRange(me->GetVictim()))
+                    if (me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                     {
-                        me->AttackerStateUpdate(me->GetVictim());
+                        me->AttackerStateUpdate(me->GetAutoAttackVictim());
                         me->resetAttackTimer();
                     }
                     else

@@ -89,8 +89,8 @@ public:
                         break;
                     case EVENT_KNOCKBACK:
                         DoCastVictim(SPELL_KNOCKBACK);
-                        if (GetThreat(me->GetVictim()))
-                            ModifyThreatByPercent(me->GetVictim(), -50);
+                        if (GetThreat(me->GetAutoAttackVictim()))
+                            ModifyThreatByPercent(me->GetAutoAttackVictim(), -50);
                         events.ScheduleEvent(EVENT_KNOCKBACK, 15s, 30s);
                         break;
                     case EVENT_CHECK:

@@ -2192,7 +2192,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
 
         if (target->GetMap()->IsDungeon()) // feign death does not remove combat in dungeons
         {
-            target->AttackStop();
+            target->AutoAttackStop();
             if (Player* targetPlayer = target->ToPlayer())
                 targetPlayer->SendAttackSwingCancelAttack();
         }
@@ -2255,7 +2255,7 @@ void AuraEffect::HandleModUnattackable(AuraApplication const* aurApp, uint8 mode
     {
         if (target->GetMap()->IsDungeon())
         {
-            target->AttackStop();
+            target->AutoAttackStop();
             if (Player* targetPlayer = target->ToPlayer())
                 targetPlayer->SendAttackSwingCancelAttack();
         }
@@ -2370,7 +2370,7 @@ void AuraEffect::HandleAuraModPacify(AuraApplication const* aurApp, uint8 mode, 
     if (apply)
     {
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
-        target->AttackStop();
+        target->AutoAttackStop();
     }
     else
     {
@@ -2897,7 +2897,7 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
             caster->ToPlayer()->PetSpellInitialize();
 
             // TODO: remove this
-            if (!pet->GetVictim() && !pet->GetCharmInfo()->HasCommandState(COMMAND_STAY))
+            if (!pet->GetAutoAttackVictim() && !pet->GetCharmInfo()->HasCommandState(COMMAND_STAY))
                 pet->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, pet->GetFollowAngle());
         }
     }

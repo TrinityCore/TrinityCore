@@ -50,7 +50,7 @@ void FollowerAI::AttackStart(Unit* who)
     if (!who)
         return;
 
-    if (me->Attack(who, true))
+    if (me->AutoAttackStart(who, true))
     {
         me->EngageWithTarget(who); // in case it doesn't have threat+combat yet
 
@@ -67,7 +67,7 @@ void FollowerAI::AttackStart(Unit* who)
 //The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
 bool FollowerAI::AssistPlayerInCombatAgainst(Unit* who)
 {
-    if (!who || !who->GetVictim())
+    if (!who || !who->GetAutoAttackVictim())
         return false;
 
     //experimental (unknown) flag not present
@@ -75,7 +75,7 @@ bool FollowerAI::AssistPlayerInCombatAgainst(Unit* who)
         return false;
 
     //not a player
-    if (!who->EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
+    if (!who->GetAutoAttackVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
     //never attack friendly
@@ -107,7 +107,7 @@ void FollowerAI::MoveInLineOfSight(Unit* who)
             float fAttackRadius = me->GetAttackDistance(who);
             if (me->IsWithinDistInMap(who, fAttackRadius) && me->IsWithinLOSInMap(who))
             {
-                if (!me->GetVictim())
+                if (!me->GetAutoAttackVictim())
                 {
                     // Clear distracted state on combat
                     if (me->HasUnitState(UNIT_STATE_DISTRACTED))
@@ -187,7 +187,7 @@ void FollowerAI::EnterEvadeMode(EvadeReason /*why*/)
 
 void FollowerAI::UpdateAI(uint32 uiDiff)
 {
-    if (HasFollowState(STATE_FOLLOW_INPROGRESS) && !me->GetVictim())
+    if (HasFollowState(STATE_FOLLOW_INPROGRESS) && !me->GetAutoAttackVictim())
     {
         if (m_uiUpdateFollowTimer <= uiDiff)
         {
@@ -273,7 +273,7 @@ void FollowerAI::MovementInform(uint32 motionType, uint32 pointId)
 
 void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, Quest const* quest)
 {
-    if (me->GetVictim())
+    if (me->GetAutoAttackVictim())
     {
         TC_LOG_DEBUG("scripts", "FollowerAI attempt to StartFollow while in combat.");
         return;

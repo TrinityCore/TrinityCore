@@ -247,7 +247,7 @@ public:
                     Creature* temp = ObjectAccessor::GetCreature((*me), AddGUID[i]);
                     if (temp && temp->IsAlive())
                     {
-                        temp->AI()->AttackStart(me->GetVictim());
+                        temp->AI()->AttackStart(me->GetAutoAttackVictim());
                         DoZoneInCombat(temp);
                     } else
                         EnterEvadeMode();
@@ -274,8 +274,8 @@ public:
                     {
                         Creature* temp = ObjectAccessor::GetCreature((*me), AddGUID[i]);
                         if (temp && temp->IsAlive())
-                            if (!temp->GetVictim())
-                                temp->AI()->AttackStart(me->GetVictim());
+                            if (!temp->GetAutoAttackVictim())
+                                temp->AI()->AttackStart(me->GetAutoAttackVictim());
                     }
                 }
                 CheckAdds_Timer = 5000;

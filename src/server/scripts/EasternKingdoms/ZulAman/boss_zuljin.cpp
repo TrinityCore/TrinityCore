@@ -242,20 +242,20 @@ class boss_zuljin : public CreatureScript
             {
                 if (!me->IsNonMeleeSpellCast(false))
                 {
-                    if (me->isAttackReady() && me->IsWithinMeleeRange(me->GetVictim()))
+                    if (me->isAttackReady() && me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                     {
                         if (Phase == 1 && !Overpower_Timer)
                         {
-                            uint32 health = me->EnsureVictim()->GetHealth();
-                            me->AttackerStateUpdate(me->GetVictim());
-                            if (me->GetVictim() && health == me->EnsureVictim()->GetHealth())
+                            uint32 health = me->GetAutoAttackVictim()->GetHealth();
+                            me->AttackerStateUpdate(me->GetAutoAttackVictim());
+                            if (me->GetAutoAttackVictim() && health == me->GetAutoAttackVictim()->GetHealth())
                             {
                                 DoCastVictim(SPELL_OVERPOWER, false);
                                 Overpower_Timer = 5000;
                             }
                         }
                         else
-                            me->AttackerStateUpdate(me->GetVictim());
+                            me->AttackerStateUpdate(me->GetAutoAttackVictim());
                         me->resetAttackTimer();
                     }
                 }
@@ -334,13 +334,13 @@ class boss_zuljin : public CreatureScript
                             }
                         }
                         else
-                            AttackStart(me->GetVictim());
+                            AttackStart(me->GetAutoAttackVictim());
 
                         if (NextPhase == 3)
                         {
                             me->RemoveAurasDueToSpell(SPELL_ENERGY_STORM);
                             summons.DespawnEntry(CREATURE_FEATHER_VORTEX);
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                         }
                         break;
                     default:
@@ -429,8 +429,8 @@ class boss_zuljin : public CreatureScript
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
-                                    if (me->GetVictim())
-                                        TankGUID = me->EnsureVictim()->GetGUID();
+                                    if (me->GetAutoAttackVictim())
+                                        TankGUID = me->GetAutoAttackVictim()->GetGUID();
 
                                     me->SetSpeedRate(MOVE_RUN, 5.0f);
                                     AttackStart(target); // change victim
@@ -443,7 +443,7 @@ class boss_zuljin : public CreatureScript
                             {
                                 if (Claw_Loop_Timer <= diff)
                                 {
-                                    Unit* target = me->GetVictim();
+                                    Unit* target = me->GetAutoAttackVictim();
                                     if (!target || !target->isTargetableForAttack())
                                         target = ObjectAccessor::GetUnit(*me, TankGUID);
                                     if (!target || !target->isTargetableForAttack())
@@ -485,7 +485,7 @@ class boss_zuljin : public CreatureScript
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
-                                    TankGUID = me->EnsureVictim()->GetGUID();
+                                    TankGUID = me->GetAutoAttackVictim()->GetGUID();
                                     me->SetSpeedRate(MOVE_RUN, 5.0f);
                                     AttackStart(target); // change victim
                                     Lynx_Rush_Timer = 0;
@@ -494,7 +494,7 @@ class boss_zuljin : public CreatureScript
                             }
                             else if (!Lynx_Rush_Timer)
                             {
-                                Unit* target = me->GetVictim();
+                                Unit* target = me->GetAutoAttackVictim();
                                 if (!target || !target->isTargetableForAttack())
                                 {
                                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
@@ -592,7 +592,7 @@ class npc_zuljin_vortex : public CreatureScript
             void UpdateAI(uint32 /*diff*/) override
             {
                 //if the vortex reach the target, it change his target to another player
-                if (me->IsWithinMeleeRange(me->GetVictim()))
+                if (me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                     AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
             }
         };

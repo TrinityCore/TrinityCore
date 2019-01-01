@@ -121,7 +121,7 @@ class boss_jindo : public CreatureScript
                             events.ScheduleEvent(EVENT_POWERFULL_HEALING_WARD, 14s, 20s);
                             break;
                         case EVENT_HEX:
-                            if (Unit* target = me->GetVictim())
+                            if (Unit* target = me->GetAutoAttackVictim())
                             {
                                 DoCast(target, SPELL_HEX, true);
                                 if (GetThreat(target))
@@ -143,7 +143,7 @@ class boss_jindo : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             {
                                 DoTeleportPlayer(target, TeleportLoc.GetPositionX(), TeleportLoc.GetPositionY(), TeleportLoc.GetPositionZ(), TeleportLoc.GetOrientation());
-                                if (GetThreat(me->GetVictim()))
+                                if (GetThreat(me->GetAutoAttackVictim()))
                                     ModifyThreatByPercent(target, -100);
 
                                 // Summon a formation of trolls

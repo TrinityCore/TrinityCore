@@ -307,7 +307,7 @@ public:
             {
                 EscortAI::UpdateAI(diff);
 
-                if (!me->GetVictim())
+                if (!me->GetAutoAttackVictim())
                 {
                     if (HasEscortState(STATE_ESCORT_PAUSED) && _isBrazierExtinguished)
                     {

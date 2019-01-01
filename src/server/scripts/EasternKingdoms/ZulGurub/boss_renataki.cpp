@@ -144,8 +144,8 @@ class boss_renataki : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         {
-                            if (GetThreat(me->GetVictim()))
-                                ModifyThreatByPercent(me->GetVictim(), -50);
+                            if (GetThreat(me->GetAutoAttackVictim()))
+                                ModifyThreatByPercent(me->GetAutoAttackVictim(), -50);
                             AttackStart(target);
                         }
 

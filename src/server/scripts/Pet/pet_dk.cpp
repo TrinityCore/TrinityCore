@@ -59,7 +59,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
                     if ((*iter)->HasAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))
                     {
-                        me->Attack((*iter), false);
+                        me->AutoAttackStart((*iter), false);
                         break;
                     }
             }

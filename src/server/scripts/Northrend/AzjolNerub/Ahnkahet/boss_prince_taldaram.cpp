@@ -181,7 +181,7 @@ class boss_prince_taldaram : public CreatureScript
                             break;
                         case EVENT_CONJURE_FLAME_SPHERES:
                             // random target?
-                            if (Unit* victim = me->GetVictim())
+                            if (Unit* victim = me->GetAutoAttackVictim())
                             {
                                 _flameSphereTargetGUID = victim->GetGUID();
                                 DoCast(victim, SPELL_CONJURE_FLAME_SPHERE);

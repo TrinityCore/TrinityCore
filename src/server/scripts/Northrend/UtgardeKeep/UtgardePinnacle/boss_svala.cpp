@@ -570,7 +570,7 @@ class npc_scourge_hulk : public CreatureScript
 
                 if (mightyBlow <= diff)
                 {
-                    if (Unit* victim = me->GetVictim())
+                    if (Unit* victim = me->GetAutoAttackVictim())
                         if (!victim->HasUnitState(UNIT_STATE_STUNNED))    // Prevent knocking back a ritual player
                             DoCast(victim, SPELL_MIGHTY_BLOW);
                     mightyBlow = urand(12000, 17000);

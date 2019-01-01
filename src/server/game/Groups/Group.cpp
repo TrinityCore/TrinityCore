@@ -2019,9 +2019,9 @@ bool Group::InCombatToInstance(uint32 instanceId)
     for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
     {
         Player* player = itr->GetSource();
-        if (player && player->GetInstanceId() == instanceId && !player->getAttackers().empty() && (player->GetMap()->IsRaidOrHeroicDungeon()))
-            for (std::set<Unit*>::const_iterator i = player->getAttackers().begin(); i != player->getAttackers().end(); ++i)
-                if ((*i) && (*i)->GetTypeId() == TYPEID_UNIT && (*i)->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
+        if (player && player->GetInstanceId() == instanceId && !player->GetAutoAttackingMe().empty() && (player->GetMap()->IsRaidOrHeroicDungeon()))
+            for (Unit* attacker : player->GetAutoAttackingMe())
+                if (attacker && attacker->GetTypeId() == TYPEID_UNIT && attacker->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                     return true;
     }
     return false;

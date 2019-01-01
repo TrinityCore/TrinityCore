@@ -140,7 +140,7 @@ void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
     if (!pet->IsAlive())
         return;
 
-    pet->AttackStop();
+    pet->AutoAttackStop();
 }
 
 void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2)
@@ -172,7 +172,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     charmInfo->SaveStayPosition();
                     break;
                 case COMMAND_FOLLOW:                        //spellid=1792  //FOLLOW
-                    pet->AttackStop();
+                    pet->AutoAttackStop();
                     pet->InterruptNonMeleeSpells(false);
                     pet->GetMotionMaster()->MoveFollow(_player, PET_FOLLOW_DIST, pet->GetFollowAngle());
                     charmInfo->SetCommandState(COMMAND_FOLLOW);
@@ -204,10 +204,10 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
 
                     pet->ClearUnitState(UNIT_STATE_FOLLOW);
                     // This is true if pet has no target or has target but targets differs.
-                    if (pet->GetVictim() != TargetUnit || !pet->GetCharmInfo()->IsCommandAttack())
+                    if (pet->GetAutoAttackVictim() != TargetUnit || !pet->GetCharmInfo()->IsCommandAttack())
                     {
-                        if (pet->GetVictim())
-                            pet->AttackStop();
+                        if (pet->GetAutoAttackVictim())
+                            pet->AutoAttackStop();
 
                         if (pet->GetTypeId() != TYPEID_PLAYER && pet->ToCreature()->IsAIEnabled())
                         {
@@ -240,7 +240,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                             charmInfo->SetIsCommandFollow(false);
                             charmInfo->SetIsReturning(false);
 
-                            pet->Attack(TargetUnit, true);
+                            pet->AutoAttackStart(TargetUnit, true);
                             pet->SendPetAIReaction(guid1);
                         }
                     }
@@ -274,7 +274,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             switch (spellid)
             {
                 case REACT_PASSIVE:                         //passive
-                    pet->AttackStop();
+                    pet->AutoAttackStop();
                     // no break;
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete
@@ -329,14 +329,14 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             {
                 if (unit_target)
                 {
-                    if (!pet->IsFocusing())
+                    if (!pet->HasSpellFocusTarget())
                         pet->SetInFront(unit_target);
                     if (Player* player = unit_target->ToPlayer())
                         pet->SendUpdateToPlayer(player);
                 }
                 else if (Unit* unit_target2 = spell->m_targets.GetUnitTarget())
                 {
-                    if (!pet->IsFocusing())
+                    if (!pet->HasSpellFocusTarget())
                         pet->SetInFront(unit_target2);
                     if (Player* player = unit_target2->ToPlayer())
                         pet->SendUpdateToPlayer(player);
@@ -365,7 +365,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 if (unit_target && !GetPlayer()->IsFriendlyTo(unit_target) && !pet->isPossessed() && !pet->IsVehicle())
                 {
                     // This is true if pet has no target or has target but targets differs.
-                    if (pet->GetVictim() != unit_target)
+                    if (pet->GetAutoAttackVictim() != unit_target)
                     {
                         pet->GetMotionMaster()->Clear();
                         if (CreatureAI* AI = pet->ToCreature()->AI())

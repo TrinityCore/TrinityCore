@@ -87,7 +87,7 @@ public:
         {
             FollowerAI::MoveInLineOfSight(who);
 
-            if (!me->GetVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_LILADRIS)
+            if (!me->GetAutoAttackVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_LILADRIS)
             {
                 if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE*5))
                 {
@@ -335,7 +335,7 @@ public:
         {
             FollowerAI::MoveInLineOfSight(who);
 
-            if (!me->GetVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_GELKAK)
+            if (!me->GetAutoAttackVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_GELKAK)
             {
                 if (me->IsWithinDistInMap(who, 10.0f))
                 {

@@ -110,11 +110,11 @@ class boss_general_angerforge : public CreatureScript
                             break;
                         case EVENT_MEDIC:
                             for (uint8 i = 0; i < 2; ++i)
-                                SummonMedic(me->GetVictim());
+                                SummonMedic(me->GetAutoAttackVictim());
                             break;
                         case EVENT_ADDS:
                             for (uint8 i = 0; i < 3; ++i)
-                                SummonAdd(me->GetVictim());
+                                SummonAdd(me->GetAutoAttackVictim());
                             _events.ScheduleEvent(EVENT_ADDS, 25s, 0, PHASE_TWO);
                             break;
                         default:

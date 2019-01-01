@@ -432,9 +432,9 @@ public:
                             if (Unit* disguised2 = me->SummonCreature(NPC_CITY_MAN, 2400.82f, 1201.69f, 134.01f, 1.534082f, TEMPSUMMON_DEAD_DESPAWN, 180000))
                             {
                                 infiniteDraconianGUID[2] = disguised2->GetGUID();
-                                disguised0->SetTarget(infiniteDraconianGUID[1]);
-                                disguised1->SetTarget(infiniteDraconianGUID[0]);
-                                disguised2->SetTarget(infiniteDraconianGUID[1]);
+                                disguised0->SetPrimaryTarget(infiniteDraconianGUID[1]);
+                                disguised1->SetPrimaryTarget(infiniteDraconianGUID[0]);
+                                disguised2->SetPrimaryTarget(infiniteDraconianGUID[1]);
                             }
                         }
                     }
@@ -539,8 +539,8 @@ public:
                                 utherGUID = uther->GetGUID();
                                 uther->SetWalk(false);
                                 uther->GetMotionMaster()->MovePoint(0, 1897.018f, 1287.487f, 143.481f);
-                                uther->SetTarget(me->GetGUID());
-                                me->SetTarget(utherGUID);
+                                uther->SetPrimaryTarget(me->GetGUID());
+                                me->SetPrimaryTarget(utherGUID);
                             }
                             JumpToNextStep(17000);
                             break;
@@ -565,7 +565,7 @@ public:
                         //After waypoint 1
                         case 5:
                             if (Creature* jaina = ObjectAccessor::GetCreature(*me, jainaGUID))
-                                jaina->SetTarget(me->GetGUID());
+                                jaina->SetPrimaryTarget(me->GetGUID());
                             Talk(SAY_PHASE104);
                             JumpToNextStep(10000);
                             break;
@@ -630,7 +630,7 @@ public:
                         case 18:
                             if (Creature* jaina = ObjectAccessor::GetCreature(*me, jainaGUID))
                             {
-                                me->SetTarget(jainaGUID);
+                                me->SetPrimaryTarget(jainaGUID);
                                 jaina->SetWalk(true);
                                 jaina->GetMotionMaster()->MovePoint(0, 1794.357f, 1272.183f, 140.558f);
                             }
@@ -648,13 +648,13 @@ public:
                         case 21:
                             SetEscortPaused(false);
                             bStepping = false;
-                            me->SetTarget(ObjectGuid::Empty);
+                            me->SetPrimaryTarget(ObjectGuid::Empty);
                             JumpToNextStep(0);
                             break;
                         //After waypoint 3
                         case 22:
                             Talk(SAY_PHASE118);
-                            me->SetTarget(jainaGUID);
+                            me->SetPrimaryTarget(jainaGUID);
                             JumpToNextStep(10000);
                             break;
                         case 23:
@@ -668,7 +668,7 @@ public:
                             if (Creature* uther = ObjectAccessor::GetCreature(*me, utherGUID))
                                 uther->DisappearAndDie();
 
-                            me->SetTarget(ObjectGuid::Empty);
+                            me->SetPrimaryTarget(ObjectGuid::Empty);
                             JumpToNextStep(0);
                             break;
                         //After Gossip 1 (waypoint 8)
@@ -676,7 +676,7 @@ public:
                             if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2026.469f, 1287.088f, 143.596f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 14000))
                             {
                                 stalkerGUID = pStalker->GetGUID();
-                                me->SetTarget(stalkerGUID);
+                                me->SetPrimaryTarget(stalkerGUID);
                             }
 
                             instance->DoUpdateWorldState(WORLDSTATE_WAVE_COUNT, 0);
@@ -691,15 +691,15 @@ public:
                             SetEscortPaused(false);
                             bStepping = false;
                             SetRun(false);
-                            me->SetTarget(ObjectGuid::Empty);
+                            me->SetPrimaryTarget(ObjectGuid::Empty);
                             JumpToNextStep(0);
                             break;
                         //After waypoint 9
                         case 27:
-                            me->SetTarget(citymenGUID[0]);
+                            me->SetPrimaryTarget(citymenGUID[0]);
                             if (Creature* cityman = ObjectAccessor::GetCreature(*me, citymenGUID[0]))
                             {
-                                cityman->SetTarget(me->GetGUID());
+                                cityman->SetPrimaryTarget(me->GetGUID());
                                 cityman->SetWalk(true);
                                 cityman->GetMotionMaster()->MovePoint(0, 2088.625f, 1279.191f, 140.743f);
                             }
@@ -727,10 +727,10 @@ public:
                             if (Creature* cityman1 = ObjectAccessor::GetCreature(*me, citymenGUID[1]))
                             {
                                 cityman1->AI()->Talk(SAY_PHASE204);
-                                cityman1->SetTarget(me->GetGUID());
+                                cityman1->SetPrimaryTarget(me->GetGUID());
                                 if (Creature* cityman0 = ObjectAccessor::GetCreature(*me, citymenGUID[0]))
                                     cityman0->KillSelf();
-                                me->SetTarget(citymenGUID[1]);
+                                me->SetPrimaryTarget(citymenGUID[1]);
                             }
                             JumpToNextStep(0);
                             break;
@@ -748,7 +748,7 @@ public:
                             if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
                             {
                                 stalkerGUID = pStalker->GetGUID();
-                                me->SetTarget(stalkerGUID);
+                                me->SetPrimaryTarget(stalkerGUID);
                             }
                             Talk(SAY_PHASE205);
                             JumpToNextStep(3000);
@@ -757,7 +757,7 @@ public:
                             if (Unit* pStalkerM = me->SummonCreature(NPC_INVIS_TARGET, 2117.349f, 1288.624f, 136.271f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 60000))
                             {
                                 stalkerGUID = pStalkerM->GetGUID();
-                                me->SetTarget(stalkerGUID);
+                                me->SetPrimaryTarget(stalkerGUID);
                             }
                             JumpToNextStep(1000);
                             break;
@@ -769,7 +769,7 @@ public:
 
                                 malganisGUID = malganis->GetGUID();
                                 malganis->AI()->Talk(SAY_PHASE206);
-                                malganis->SetTarget(me->GetGUID());
+                                malganis->SetPrimaryTarget(me->GetGUID());
                                 malganis->SetReactState(REACT_PASSIVE);
                             }
                             JumpToNextStep(11000);
@@ -804,7 +804,7 @@ public:
                             if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
                             {
                                 stalkerGUID = pStalker->GetGUID();
-                                me->SetTarget(stalkerGUID);
+                                me->SetPrimaryTarget(stalkerGUID);
                             }
                             Talk(SAY_PHASE209);
 
@@ -909,11 +909,11 @@ public:
                         case 61:
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Creature* disguised0 = ObjectAccessor::GetCreature(*me, infiniteDraconianGUID[0]))
-                                disguised0->SetTarget(me->GetGUID());
+                                disguised0->SetPrimaryTarget(me->GetGUID());
                             if (Creature* disguised1 = ObjectAccessor::GetCreature(*me, infiniteDraconianGUID[1]))
-                                disguised1->SetTarget(me->GetGUID());
+                                disguised1->SetPrimaryTarget(me->GetGUID());
                             if (Creature* disguised2 = ObjectAccessor::GetCreature(*me, infiniteDraconianGUID[2]))
-                                disguised2->SetTarget(me->GetGUID());
+                                disguised2->SetPrimaryTarget(me->GetGUID());
                             JumpToNextStep(1000);
                             break;
                         case 62:
@@ -1028,7 +1028,7 @@ public:
                                 SpawnTimeRift(17, &epochGUID);
                                 if (Creature* epoch = ObjectAccessor::GetCreature(*me, epochGUID))
                                     epoch->AI()->Talk(SAY_PHASE314);
-                                me->SetTarget(epochGUID);
+                                me->SetPrimaryTarget(epochGUID);
                             }
                             JumpToNextStep(18000);
                             break;
@@ -1089,7 +1089,7 @@ public:
                         case 86:
                             Talk(SAY_PHASE502);
                             JumpToNextStep(6000);
-                            me->SetTarget(malganisGUID);
+                            me->SetPrimaryTarget(malganisGUID);
                             break;
                         case 87:
                             if (Creature* malganis = ObjectAccessor::GetCreature(*me, malganisGUID))
@@ -1113,13 +1113,13 @@ public:
                         //After waypoint 56
                         case 89:
                             SetRun(true);
-                            me->SetTarget(malganisGUID);
+                            me->SetPrimaryTarget(malganisGUID);
                             Talk(SAY_PHASE503);
                             JumpToNextStep(7000);
                             break;
                         case 90:
                             instance->SetBossState(DATA_ARTHAS, DONE); //Rewards: Achiev & Chest ;D
-                            me->SetTarget(instance->GetGuidData(DATA_MAL_GANIS_GATE_2)); //Look behind
+                            me->SetPrimaryTarget(instance->GetGuidData(DATA_MAL_GANIS_GATE_2)); //Look behind
                             Talk(SAY_PHASE504);
                             bStepping = false;
                             break;
@@ -1128,7 +1128,7 @@ public:
             }
 
             //Battling skills
-            if (!me->GetVictim())
+            if (!me->GetAutoAttackVictim())
                 return;
 
             if (exorcismTimer < diff)

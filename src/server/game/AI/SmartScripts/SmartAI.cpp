@@ -416,7 +416,7 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
 
     if (!IsAIControlled())
     {
-        me->AttackStop();
+        me->AutoAttackStop();
         return;
     }
 
@@ -473,7 +473,7 @@ bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
     if (me->HasReactState(REACT_PASSIVE) || !IsAIControlled())
         return false;
 
-    if (!who || !who->GetVictim())
+    if (!who || !who->GetAutoAttackVictim())
         return false;
 
     // experimental (unknown) flag not present
@@ -481,7 +481,7 @@ bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
         return false;
 
     // not a player
-    if (!who->EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
+    if (!who->GetAutoAttackVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
     if (!who->isInAccessiblePlaceFor(me))
@@ -498,7 +498,7 @@ bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
     if (who->GetTypeId() == TYPEID_UNIT && who->ToCreature()->IsInEvadeMode())
         return false;
 
-    if (!me->IsValidAssistTarget(who->GetVictim()))
+    if (!me->IsValidAssistTarget(who->GetAutoAttackVictim()))
         return false;
 
     // too far away and no free sight
@@ -588,11 +588,11 @@ void SmartAI::AttackStart(Unit* who)
     if (!IsAIControlled())
     {
         if (who)
-            me->Attack(who, mCanAutoAttack);
+            me->AutoAttackStart(who, mCanAutoAttack);
         return;
     }
 
-    if (who && me->Attack(who, mCanAutoAttack))
+    if (who && me->AutoAttackStart(who, mCanAutoAttack))
     {
         me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
         me->PauseMovement();
@@ -787,13 +787,13 @@ void SmartAI::SetCombatMove(bool on)
     {
         if (on)
         {
-            if (!me->HasReactState(REACT_PASSIVE) && me->GetVictim() && !me->GetMotionMaster()->HasMovementGenerator([](MovementGenerator const* movement) -> bool
+            if (!me->HasReactState(REACT_PASSIVE) && me->GetAutoAttackVictim() && !me->GetMotionMaster()->HasMovementGenerator([](MovementGenerator const* movement) -> bool
             {
                 return movement->Mode == MOTION_MODE_DEFAULT && movement->Priority == MOTION_PRIORITY_NORMAL;
             }))
             {
                 SetRun(mRun);
-                me->GetMotionMaster()->MoveChase(me->GetVictim());
+                me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
             }
         }
         else if (MovementGenerator* movement = me->GetMotionMaster()->GetMovementGenerator([](MovementGenerator const* a) -> bool

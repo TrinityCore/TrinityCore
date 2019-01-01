@@ -1844,7 +1844,7 @@ void GameObject::Use(Unit* user)
 
             Player* player = user->ToPlayer();
 
-            Player* targetPlayer = ObjectAccessor::FindPlayer(player->GetTarget());
+            Player* targetPlayer = ObjectAccessor::FindPlayer(player->GetSelectedUnitGUID());
 
             // accept only use by player from same raid as caster, except caster itself
             if (!targetPlayer || targetPlayer == player || !targetPlayer->IsInSameRaidWith(player))

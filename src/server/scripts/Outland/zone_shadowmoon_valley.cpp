@@ -875,7 +875,7 @@ public:
 
             me->AddUnitState(UNIT_STATE_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetTarget(ObjectGuid::Empty);
+            me->SetPrimaryTarget(ObjectGuid::Empty);
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -905,7 +905,7 @@ public:
             case 5:
                 if (Player* AggroTarget = ObjectAccessor::GetPlayer(*me, AggroTargetGUID))
                 {
-                    me->SetTarget(AggroTarget->GetGUID());
+                    me->SetPrimaryTarget(AggroTarget->GetGUID());
                     AddThreat(AggroTarget, 1);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
                 }

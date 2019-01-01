@@ -238,7 +238,7 @@ class boss_akilzon : public CreatureScript
                             {
                             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                             if (!target)
-                                target = me->GetVictim();
+                                target = me->GetAutoAttackVictim();
                             if (target)
                             {
                                 TargetGUID = target->GetGUID();
@@ -253,7 +253,7 @@ class boss_akilzon : public CreatureScript
                             {
                                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                                 if (!target)
-                                    target = me->GetVictim();
+                                    target = me->GetAutoAttackVictim();
                                 if (target)
                                     DoCast(target, SPELL_GUST_OF_WIND);
                                 events.ScheduleEvent(EVENT_GUST_OF_WIND, 20s, 30s);
@@ -345,8 +345,8 @@ class boss_akilzon : public CreatureScript
                                     Creature* creature = me->SummonCreature(NPC_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                                     if (creature)
                                     {
-                                        AddThreat(me->GetVictim(), 1.0f, creature);
-                                        creature->AI()->AttackStart(me->GetVictim());
+                                        AddThreat(me->GetAutoAttackVictim(), 1.0f, creature);
+                                        creature->AI()->AttackStart(me->GetAutoAttackVictim());
                                         BirdGUIDs[i] = creature->GetGUID();
                                     }
                                 }

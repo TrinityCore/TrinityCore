@@ -757,7 +757,7 @@ public:
         {
             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true);
             if (target)
-                summon->Attack(target, false);
+                summon->AutoAttackStart(target, false);
             summons.Summon(summon);
         }
 
@@ -1217,11 +1217,11 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!me->IsWithinDist(me->GetVictim(), 25))
+            if (!me->IsWithinDist(me->GetAutoAttackVictim(), 25))
             {
                 if (MoveTimer <= diff)
                 {
-                    me->GetMotionMaster()->MoveChase(me->GetVictim());
+                    me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                     MoveTimer = 2000;
                 }
                 else
@@ -1230,7 +1230,7 @@ public:
 
             if (FrostBreathTimer <= diff)
             {
-                if (!me->IsWithinDist(me->GetVictim(), 25))
+                if (!me->IsWithinDist(me->GetAutoAttackVictim(), 25))
                 {
                     DoCastVictim(SPELL_FROST_BREATH);
                     me->StopMoving();
@@ -1348,18 +1348,18 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!me->IsWithinDist(me->GetVictim(), 20) || forcemove)
+            if (!me->IsWithinDist(me->GetAutoAttackVictim(), 20) || forcemove)
             {
                 if (forcemove)
                 {
                     forcemove = false;
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        me->Attack(target, false);
+                        me->AutoAttackStart(target, false);
                 }
                 if (MoveTimer <= diff)
                 {
                     float x, y, z;
-                    me->EnsureVictim()->GetPosition(x, y, z);
+                    me->GetAutoAttackVictim()->GetPosition(x, y, z);
                     me->GetMotionMaster()->MovePoint(0, x, y, z + Zpos);
                     Zpos -= 1.0f;
                     if (Zpos <= 0)
@@ -1372,7 +1372,7 @@ public:
 
             if (StrikeTimer <= diff)
             {
-                if (me->IsWithinDist(me->GetVictim(), 20))
+                if (me->IsWithinDist(me->GetAutoAttackVictim(), 20))
                 {
                     DoCastVictim(SPELL_GARGOYLE_STRIKE);
                     me->StopMoving();
@@ -1425,7 +1425,7 @@ public:
         void MoveInLineOfSight(Unit* who) override
 
         {
-            if (!who || me->GetVictim())
+            if (!who || me->GetAutoAttackVictim())
                 return;
 
             if (me->IsValidAttackTarget(who))
@@ -1447,14 +1447,14 @@ public:
                 return;
             if (ExplodeTimer <= diff)
             {
-                if (!me->IsWithinDistInMap(me->GetVictim(), 30))
+                if (!me->IsWithinDistInMap(me->GetAutoAttackVictim(), 30))
                 {
                     EnterEvadeMode();
                     return;
                 }
                 CastSpellExtraArgs args;
                 args.AddSpellMod(SPELLVALUE_BASE_POINT0, 500 + rand32() % 700);
-                me->CastSpell(me->GetVictim(), SPELL_EXPLODING_SHOT, args);
+                me->CastSpell(me->GetAutoAttackVictim(), SPELL_EXPLODING_SHOT, args);
                 ExplodeTimer = 5000 + rand32() % 5000;
             } else ExplodeTimer -= diff;
             DoMeleeAttackIfReady();

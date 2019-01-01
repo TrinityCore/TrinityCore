@@ -245,7 +245,7 @@ public:
             if (!who)
                 return;
 
-            if (me->Attack(who, true))
+            if (me->AutoAttackStart(who, true))
             {
                 AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
@@ -537,7 +537,7 @@ public:
                 return;
 
             //GreaterFireball_Timer
-            if (GreaterFireball_Timer < diff || me->IsWithinDist(me->GetVictim(), 30))
+            if (GreaterFireball_Timer < diff || me->IsWithinDist(me->GetAutoAttackVictim(), 30))
             {
                 DoCastVictim(SPELL_GREATER_FIREBALL);
                 GreaterFireball_Timer = 2000;
@@ -557,7 +557,7 @@ public:
                 std::vector<Unit*> target_list;
                 for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                 {
-                    Unit* target = ref->GetVictim();
+                    Unit* target = ref->GetAutoAttackVictim();
                     if (target && target->IsWithinDist(me, 15, false)) // 15 yard radius minimum
                         target_list.push_back(target);
                 }

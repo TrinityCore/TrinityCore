@@ -257,7 +257,7 @@ class boss_thekal : public CreatureScript
                         me->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetStandState(UNIT_STAND_STATE_SLEEP);
-                        me->AttackStop();
+                        me->AutoAttackStop();
                         instance->SetBossState(DATA_THEKAL, SPECIAL);
                         WasDead = true;
                     }
@@ -411,7 +411,7 @@ class npc_zealot_lorkhan : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetStandState(UNIT_STAND_STATE_SLEEP);
                     me->SetFaction(FACTION_FRIENDLY);
-                    me->AttackStop();
+                    me->AutoAttackStop();
 
                     instance->SetBossState(DATA_LORKHAN, SPECIAL);
 
@@ -503,8 +503,8 @@ class npc_zealot_zath : public CreatureScript
                 {
                     DoCastVictim(SPELL_GOUGE);
 
-                    if (GetThreat(me->GetVictim()))
-                        ModifyThreatByPercent(me->GetVictim(), -100);
+                    if (GetThreat(me->GetAutoAttackVictim()))
+                        ModifyThreatByPercent(me->GetAutoAttackVictim(), -100);
 
                     Gouge_Timer = 17000 + rand32() % 10000;
                 } else Gouge_Timer -= diff;
@@ -561,7 +561,7 @@ class npc_zealot_zath : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetStandState(UNIT_STAND_STATE_SLEEP);
                     me->SetFaction(35);
-                    me->AttackStop();
+                    me->AutoAttackStop();
 
                     instance->SetBossState(DATA_ZATH, SPECIAL);
 

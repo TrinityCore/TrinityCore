@@ -75,10 +75,10 @@ class boss_ironaya : public CreatureScript
                     return;
 
                 //If we are <50% hp do knockaway ONCE
-                if (!bHasCastKnockaway && HealthBelowPct(50) && me->GetVictim())
+                if (!bHasCastKnockaway && HealthBelowPct(50) && me->GetAutoAttackVictim())
                 {
                     DoCastVictim(SPELL_KNOCKAWAY, true);
-                    me->GetThreatManager().ResetThreat(me->EnsureVictim());
+                    me->GetThreatManager().ResetThreat(me->GetAutoAttackVictim());
 
                     //Shouldn't cast this agian
                     bHasCastKnockaway = true;

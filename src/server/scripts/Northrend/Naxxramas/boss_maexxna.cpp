@@ -79,7 +79,7 @@ struct WebTargetSelector : public std::unary_function<Unit*, bool>
     {
         if (target->GetTypeId() != TYPEID_PLAYER) // never web nonplayers (pets, guardians, etc.)
             return false;
-        if (_maexxna->GetVictim() == target) // never target tank
+        if (_maexxna->GetAutoAttackVictim() == target) // never target tank
             return false;
         if (target->HasAura(SPELL_WEB_WRAP)) // never target targets that are already webbed
             return false;

@@ -73,6 +73,7 @@ class TC_GAME_API Object
         virtual void AddToWorld();
         virtual void RemoveFromWorld();
 
+        static ObjectGuid GetGUID(Object* o) { return o ? o->GetGUID() : ObjectGuid::Empty; }
         ObjectGuid GetGUID() const { return GetGuidValue(OBJECT_FIELD_GUID); }
         PackedGuid const& GetPackGUID() const { return m_PackGUID; }
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY); }

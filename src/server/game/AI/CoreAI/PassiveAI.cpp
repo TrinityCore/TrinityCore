@@ -42,15 +42,15 @@ void PassiveAI::UpdateAI(uint32)
 
 void PossessedAI::AttackStart(Unit* target)
 {
-    me->Attack(target, true);
+    me->AutoAttackStart(target, true);
 }
 
 void PossessedAI::UpdateAI(uint32 /*diff*/)
 {
-    if (me->GetVictim())
+    if (me->GetAutoAttackVictim())
     {
-        if (!me->IsValidAttackTarget(me->GetVictim()))
-            me->AttackStop();
+        if (!me->IsValidAttackTarget(me->GetAutoAttackVictim()))
+            me->AutoAttackStop();
         else
             DoMeleeAttackIfReady();
     }

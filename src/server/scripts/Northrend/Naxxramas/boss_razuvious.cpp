@@ -142,7 +142,7 @@ public:
                 {
                     case EVENT_ATTACK:
                         SetCombatMovement(true);
-                        if (Unit* victim = me->GetVictim())
+                        if (Unit* victim = me->GetAutoAttackVictim())
                             me->GetMotionMaster()->MoveChase(victim);
                         break;
                     case EVENT_STRIKE:

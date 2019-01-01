@@ -1006,7 +1006,7 @@ class npc_ball_of_flame : public CreatureScript
                     {
                         // need to clear states now because this call is before AuraEffect is fully removed
                         me->ClearUnitState(UNIT_STATE_CASTING | UNIT_STATE_STUNNED);
-                        if (me->Attack(target, true))
+                        if (me->AutoAttackStart(target, true))
                             me->GetMotionMaster()->MoveChase(target, 1.0f);
                     }
             }
@@ -1128,12 +1128,12 @@ class npc_dark_nucleus : public CreatureScript
             {
                 _scheduler.Schedule(Seconds(1), [this](TaskContext targetAuraCheck)
                 {
-                    if (Unit* victim = me->GetVictim())
+                    if (Unit* victim = me->GetAutoAttackVictim())
                     {
                         if (me->GetDistance(victim) < 15.0f && !victim->HasAura(SPELL_SHADOW_RESONANCE_RESIST, me->GetGUID()))
                             DoCast(victim, SPELL_SHADOW_RESONANCE_RESIST);
                         else
-                            MoveInLineOfSight(me->GetVictim());
+                            MoveInLineOfSight(me->GetAutoAttackVictim());
                     }
                     targetAuraCheck.Repeat();
                 });

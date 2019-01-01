@@ -290,7 +290,7 @@ public:
 
             if (Creature* fetchTene = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON)))
             {
-                if (fetchTene->IsAlive() && !fetchTene->GetVictim())
+                if (fetchTene->IsAlive() && !fetchTene->GetAutoAttackVictim())
                 {
                     _canUseWill = true;
                     if (!fetchTene->IsInCombat())
@@ -308,7 +308,7 @@ public:
 
             if (Creature* fetchShad = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHADRON)))
             {
-                if (fetchShad->IsAlive() && !fetchShad->GetVictim())
+                if (fetchShad->IsAlive() && !fetchShad->GetAutoAttackVictim())
                 {
                     _canUseWill = true;
                     if (!fetchShad->IsInCombat())
@@ -326,7 +326,7 @@ public:
 
             if (Creature* fetchVesp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
             {
-                if (fetchVesp->IsAlive() && !fetchVesp->GetVictim())
+                if (fetchVesp->IsAlive() && !fetchVesp->GetAutoAttackVictim())
                 {
                     _canUseWill = true;
                     if (!fetchVesp->IsInCombat())
@@ -350,7 +350,7 @@ public:
         {
             if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(dataId)))
             {
-                if (temp->IsAlive() && !temp->GetVictim())
+                if (temp->IsAlive() && !temp->GetAutoAttackVictim())
                 {
                     temp->SetWalk(false);
 

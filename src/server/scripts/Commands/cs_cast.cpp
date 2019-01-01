@@ -206,7 +206,7 @@ public:
             return false;
         }
 
-        if (!caster->GetVictim())
+        if (!caster->GetAutoAttackVictim())
         {
             handler->SendSysMessage(LANG_SELECTED_TARGET_NOT_HAVE_VICTIM);
             handler->SetSentErrorMessage(true);
@@ -230,7 +230,7 @@ public:
         }
 
         TriggerCastFlags triggered = (triggeredStr != nullptr) ? TRIGGERED_FULL_DEBUG_MASK : TRIGGERED_NONE;
-        caster->CastSpell(caster->GetVictim(), spellId, triggered);
+        caster->CastSpell(caster->GetAutoAttackVictim(), spellId, triggered);
 
         return true;
     }

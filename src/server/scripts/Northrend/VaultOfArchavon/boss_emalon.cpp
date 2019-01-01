@@ -96,7 +96,7 @@ class boss_emalon : public CreatureScript
 
                 // AttackStart has nullptr-check for victim
                 if (summoned->AI())
-                    summoned->AI()->AttackStart(me->GetVictim());
+                    summoned->AI()->AttackStart(me->GetAutoAttackVictim());
             }
 
             void JustEngagedWith(Unit* who) override
@@ -106,7 +106,7 @@ class boss_emalon : public CreatureScript
                     for (SummonList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
                     {
                         Creature* minion = ObjectAccessor::GetCreature(*me, *itr);
-                        if (minion && minion->IsAlive() && !minion->GetVictim() && minion->AI())
+                        if (minion && minion->IsAlive() && !minion->GetAutoAttackVictim() && minion->AI())
                             minion->AI()->AttackStart(who);
                     }
                 }
@@ -223,7 +223,7 @@ class npc_tempest_minion : public CreatureScript
 
                 if (Creature* pEmalon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EMALON)))
                 {
-                    if (!pEmalon->GetVictim() && pEmalon->AI())
+                    if (!pEmalon->GetAutoAttackVictim() && pEmalon->AI())
                         pEmalon->AI()->AttackStart(who);
                 }
             }

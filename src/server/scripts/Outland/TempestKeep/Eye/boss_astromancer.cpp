@@ -210,7 +210,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 if (AppearDelay)
                 {
                     me->StopMoving();
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     if (AppearDelay_Timer <= diff)
                     {
                         AppearDelay = false;
@@ -256,7 +256,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 if (!me->HasInArc(2.5f, target))
-                                    target = me->GetVictim();
+                                    target = me->GetAutoAttackVictim();
 
                                 DoCast(target, SPELL_ARCANE_MISSILES);
                             }
@@ -331,7 +331,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 else if (Phase == 2)
                 {
                     //10 seconds after Solarian disappears, 12 mobs spawn out of the three portals.
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     me->StopMoving();
                     if (Phase2_Timer <= diff)
                     {
@@ -348,7 +348,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 }
                 else if (Phase == 3)
                 {
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     me->StopMoving();
                     //Check Phase3_Timer
                     if (Phase3_Timer <= diff)

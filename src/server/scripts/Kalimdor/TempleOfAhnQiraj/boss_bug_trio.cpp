@@ -218,8 +218,8 @@ public:
             if (KnockBack_Timer <= diff)
             {
                 DoCastVictim(SPELL_KNOCKBACK);
-                if (GetThreat(me->GetVictim()))
-                    ModifyThreatByPercent(me->GetVictim(), -80);
+                if (GetThreat(me->GetAutoAttackVictim()))
+                    ModifyThreatByPercent(me->GetAutoAttackVictim(), -80);
                 KnockBack_Timer = urand(15000, 25000);
             } else KnockBack_Timer -= diff;
 

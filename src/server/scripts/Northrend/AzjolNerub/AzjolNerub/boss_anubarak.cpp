@@ -512,7 +512,7 @@ class npc_anubarak_anub_ar_assassin : public CreatureScript
 
                 if (diff >= _backstabTimer)
                 {
-                    if (me->GetVictim() && me->GetVictim()->isInBack(me))
+                    if (me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->isInBack(me))
                         DoCastVictim(SPELL_BACKSTAB);
                     _backstabTimer = 6 * IN_MILLISECONDS;
                 }

@@ -220,7 +220,7 @@ class boss_garfrost : public CreatureScript
                             events.ScheduleEvent(EVENT_DEEP_FREEZE, 35s, 0, PHASE_THREE);
                             break;
                         case EVENT_FORGE_JUMP:
-                            me->AttackStop();
+                            me->AutoAttackStop();
                             if (events.IsInPhase(PHASE_TWO))
                                 me->GetMotionMaster()->MoveJump(northForgePos, 25.0f, 15.0f, POINT_FORGE);
                             else if (events.IsInPhase(PHASE_THREE))
@@ -231,7 +231,7 @@ class boss_garfrost : public CreatureScript
                                 events.ScheduleEvent(EVENT_CHILLING_WAVE, 5s, 0, PHASE_TWO);
                             else if (events.IsInPhase(PHASE_THREE))
                                 events.ScheduleEvent(EVENT_DEEP_FREEZE, 10s, 0, PHASE_THREE);
-                            AttackStart(me->GetVictim());
+                            AttackStart(me->GetAutoAttackVictim());
                             break;
                         default:
                             break;

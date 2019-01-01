@@ -618,8 +618,8 @@ class boss_freya : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
                 me->InterruptNonMeleeSpells(true);
-                me->RemoveAllAttackers();
-                me->AttackStop();
+                me->StopAutoAttackingMe();
+                me->AutoAttackStop();
                 me->SetFaction(FACTION_FRIENDLY);
                 me->DespawnOrUnsummon(7500);
                 me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
@@ -631,7 +631,7 @@ class boss_freya : public CreatureScript
                     if (Elder && Elder->IsAlive())
                     {
                         Elder->RemoveAllAuras();
-                        Elder->AttackStop();
+                        Elder->AutoAttackStop();
                         Elder->CombatStop(true);
                         Elder->GetThreatManager().ClearAllThreat();
                         Elder->AI()->DoAction(ACTION_ELDER_FREYA_KILLED);
@@ -1041,7 +1041,7 @@ class npc_detonating_lasher : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
                         // Switching to other target - modify aggro of new target by 20% from current target's aggro
-                        AddThreat(target, GetThreat(me->GetVictim()) * 1.2f);
+                        AddThreat(target, GetThreat(me->GetAutoAttackVictim()) * 1.2f);
                         AttackStart(target);
                     }
                     changeTargetTimer = urand(5000, 10000);

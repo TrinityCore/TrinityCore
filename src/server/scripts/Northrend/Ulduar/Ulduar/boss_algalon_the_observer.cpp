@@ -485,7 +485,7 @@ struct boss_algalon_the_observer : public BossAI
             damage = 0;
             events.SetPhase(PHASE_ROLE_PLAY);
             me->SetReactState(REACT_PASSIVE);
-            me->AttackStop();
+            me->AutoAttackStop();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             DoCastSelf(SPELL_SELF_STUN);
             events.Reset();

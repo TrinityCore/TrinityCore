@@ -345,7 +345,7 @@ public:
                                 if (Creature* dragon = me->SummonCreature(CreatureID, DrakeSpawnLoc[i]))
                                 {
                                     dragon->SetFaction(FACTION_DRAGONFLIGHT_BLACK);
-                                    dragon->AI()->AttackStart(me->GetVictim());
+                                    dragon->AI()->AttackStart(me->GetAutoAttackVictim());
                                 }
 
                                 if (++SpawnedAdds >= 42)
@@ -459,8 +459,8 @@ public:
             if (id == 1)
             {
                 DoZoneInCombat();
-                if (me->GetVictim())
-                    AttackStart(me->GetVictim());
+                if (me->GetAutoAttackVictim())
+                    AttackStart(me->GetAutoAttackVictim());
             }
         }
 

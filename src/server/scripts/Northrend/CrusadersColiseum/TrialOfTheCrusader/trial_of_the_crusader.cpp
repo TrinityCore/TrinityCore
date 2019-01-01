@@ -715,7 +715,7 @@ struct npc_fizzlebang_toc : public ScriptedAI
                     break;
                 case EVENT_SET_TARGET:
                     if (Creature* jaraxxus = _instance->GetCreature(DATA_JARAXXUS))
-                        me->SetTarget(jaraxxus->GetGUID());
+                        me->SetPrimaryTarget(jaraxxus->GetGUID());
                     _events.ScheduleEvent(EVENT_EMOTE_SHEATHE, 6s);
                     break;
                 case EVENT_EMOTE_SHEATHE:

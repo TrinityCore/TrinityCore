@@ -283,7 +283,7 @@ public:
             }
             if (!CanAttack)
                 return;
-            if (!who || me->GetVictim())
+            if (!who || me->GetAutoAttackVictim())
                 return;
 
             if (me->CanCreatureAttack(who))
@@ -338,7 +338,7 @@ public:
                 }
             }
             // to prevent abuses during phase 2
-            if (Phase == 2 && !me->GetVictim() && me->IsInCombat())
+            if (Phase == 2 && !me->GetAutoAttackVictim() && me->IsInCombat())
             {
                 EnterEvadeMode();
                 return;
@@ -440,7 +440,7 @@ public:
                     bool inMeleeRange = false;
                     for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        Unit* target = ref->GetVictim();
+                        Unit* target = ref->GetAutoAttackVictim();
                         if (target->IsWithinMeleeRange(me)) // if in melee range
                         {
                             inMeleeRange = true;
@@ -466,7 +466,7 @@ public:
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                     if (!target)
-                        target = me->GetVictim();
+                        target = me->GetAutoAttackVictim();
 
                     DoCast(target, SPELL_FORKED_LIGHTNING);
 
@@ -504,8 +504,8 @@ public:
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             coilfangElite->AI()->AttackStart(target);
-                        else if (me->GetVictim())
-                            coilfangElite->AI()->AttackStart(me->GetVictim());
+                        else if (me->GetAutoAttackVictim())
+                            coilfangElite->AI()->AttackStart(me->GetAutoAttackVictim());
                     }
                     CoilfangEliteTimer = 45000 + rand32() % 5000;
                 } else CoilfangEliteTimer -= diff;
@@ -518,8 +518,8 @@ public:
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             CoilfangStrider->AI()->AttackStart(target);
-                        else if (me->GetVictim())
-                            CoilfangStrider->AI()->AttackStart(me->GetVictim());
+                        else if (me->GetAutoAttackVictim())
+                            CoilfangStrider->AI()->AttackStart(me->GetAutoAttackVictim());
                     }
                     CoilfangStriderTimer = 60000 + rand32() % 10000;
                 } else CoilfangStriderTimer -= diff;
@@ -540,7 +540,7 @@ public:
                         Phase = 3;
 
                         // return to the tank
-                        me->GetMotionMaster()->MoveChase(me->GetVictim());
+                        me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                     }
                     CheckTimer = 1000;
                 } else CheckTimer -= diff;

@@ -276,7 +276,7 @@ public:
             switch (uiFlightCount)
             {
                 case 0:
-                    //me->AttackStop();
+                    //me->AutoAttackStop();
                     me->GetMotionMaster()->Clear();
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                     me->StopMoving();
@@ -537,7 +537,7 @@ public:
 
         void UpdateAI(uint32 /*diff*/) override
         {
-            if (!me->GetVictim())
+            if (!me->GetAutoAttackVictim())
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     AttackStart(target);
         }
@@ -560,7 +560,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             DoCast(me, SPELL_TRAIL_TRIGGER, true);
-            me->SetTarget(me->GetGUID());
+            me->SetPrimaryTarget(me->GetGUID());
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 0.01f); // core bug
         }
 

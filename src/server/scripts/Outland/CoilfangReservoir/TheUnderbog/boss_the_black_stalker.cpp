@@ -99,8 +99,8 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                     summon->AI()->AttackStart(target);
                 else
-                    if (me->GetVictim())
-                        summon->AI()->AttackStart(me->GetVictim());
+                    if (me->GetAutoAttackVictim())
+                        summon->AI()->AttackStart(me->GetAutoAttackVictim());
             }
         }
 

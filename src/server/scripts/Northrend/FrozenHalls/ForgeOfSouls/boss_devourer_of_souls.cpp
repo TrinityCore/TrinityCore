@@ -298,7 +298,7 @@ class boss_devourer_of_souls : public CreatureScript
                             me->SetReactState(REACT_PASSIVE);
 
                             //Remove any target
-                            me->SetTarget(ObjectGuid::Empty);
+                            me->SetPrimaryTarget(ObjectGuid::Empty);
 
                             me->GetMotionMaster()->Clear();
                             me->SetControlled(true, UNIT_STATE_ROOT);
@@ -322,7 +322,7 @@ class boss_devourer_of_souls : public CreatureScript
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 me->SetDisplayId(DISPLAY_ANGER);
                                 me->SetControlled(false, UNIT_STATE_ROOT);
-                                me->GetMotionMaster()->MoveChase(me->GetVictim());
+                                me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                                 events.ScheduleEvent(EVENT_WAILING_SOULS, 60s, 70s);
                             }
                             break;

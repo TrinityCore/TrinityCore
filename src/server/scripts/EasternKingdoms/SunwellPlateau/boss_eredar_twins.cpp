@@ -119,8 +119,8 @@ public:
             {
                 if (temp->isDead())
                     temp->Respawn();
-                else if (temp->GetVictim())
-                    AddThreat(temp->GetVictim(), 0.0f);
+                else if (temp->GetAutoAttackVictim())
+                    AddThreat(temp->GetAutoAttackVictim(), 0.0f);
             }
 
             if (!me->IsInCombat())
@@ -136,7 +136,7 @@ public:
             DoZoneInCombat();
 
             Creature* temp = instance->GetCreature(DATA_ALYTHESS);
-            if (temp && temp->IsAlive() && !temp->GetVictim())
+            if (temp && temp->IsAlive() && !temp->GetAutoAttackVictim())
                 temp->AI()->AttackStart(who);
 
             instance->SetBossState(DATA_EREDAR_TWINS, IN_PROGRESS);
@@ -302,10 +302,10 @@ public:
             if (me->isAttackReady() && !me->IsNonMeleeSpellCast(false))
             {
                 //If we are within range melee the target
-                if (me->IsWithinMeleeRange(me->GetVictim()))
+                if (me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                 {
-                    HandleTouchedSpells(me->GetVictim(), SPELL_DARK_TOUCHED);
-                    me->AttackerStateUpdate(me->GetVictim());
+                    HandleTouchedSpells(me->GetAutoAttackVictim(), SPELL_DARK_TOUCHED);
+                    me->AttackerStateUpdate(me->GetAutoAttackVictim());
                     me->resetAttackTimer();
                 }
             }
@@ -371,8 +371,8 @@ public:
             {
                 if (temp->isDead())
                     temp->Respawn();
-                else if (temp->GetVictim())
-                    AddThreat(temp->GetVictim(), 0.0f);
+                else if (temp->GetAutoAttackVictim())
+                    AddThreat(temp->GetAutoAttackVictim(), 0.0f);
             }
 
             if (!me->IsInCombat())
@@ -388,7 +388,7 @@ public:
             DoZoneInCombat();
 
             Creature* temp = instance->GetCreature(DATA_SACROLASH);
-            if (temp && temp->IsAlive() && !temp->GetVictim())
+            if (temp && temp->IsAlive() && !temp->GetAutoAttackVictim())
                 temp->AI()->AttackStart(who);
 
             instance->SetBossState(DATA_EREDAR_TWINS, IN_PROGRESS);
@@ -402,7 +402,7 @@ public:
 
         void MoveInLineOfSight(Unit* who) override
         {
-            if (!who || me->GetVictim())
+            if (!who || me->GetAutoAttackVictim())
                 return;
 
             if (me->CanCreatureAttack(who))
@@ -545,14 +545,14 @@ public:
                     SisterDeath = true;
                 }
             }
-            if (!me->GetVictim())
+            if (!me->GetAutoAttackVictim())
             {
                 Creature* sisiter = instance->GetCreature(DATA_SACROLASH);
-                if (sisiter && !sisiter->isDead() && sisiter->GetVictim())
+                if (sisiter && !sisiter->isDead() && sisiter->GetAutoAttackVictim())
                 {
-                    AddThreat(sisiter->GetVictim(), 0.0f);
-                    DoStartNoMovement(sisiter->GetVictim());
-                    me->Attack(sisiter->GetVictim(), false);
+                    AddThreat(sisiter->GetAutoAttackVictim(), 0.0f);
+                    DoStartNoMovement(sisiter->GetAutoAttackVictim());
+                    me->AutoAttackStart(sisiter->GetAutoAttackVictim(), false);
                 }
             }
 
@@ -717,7 +717,7 @@ public:
                 if (!me->IsNonMeleeSpellCast(false))
                 {
                     //If we are within range melee the target
-                    if (me->IsWithinMeleeRange(me->GetVictim()))
+                    if (me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                         DoCastVictim(SPELL_DARK_STRIKE);
                 }
                 DarkstrikeTimer = 3000;

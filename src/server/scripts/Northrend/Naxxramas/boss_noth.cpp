@@ -247,7 +247,7 @@ public:
                         me->SetReactState(REACT_PASSIVE);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetImmuneToPC(true);
-                        me->AttackStop();
+                        me->AutoAttackStop();
                         me->StopMoving();
                         me->RemoveAllAuras();
 
@@ -316,10 +316,10 @@ public:
             {
                 /* workaround for movechase breaking after blinking
                    without this noth would just stand there unless his current target moves */
-                if (justBlinked && me->GetVictim() && !me->IsWithinMeleeRange(me->EnsureVictim()))
+                if (justBlinked && me->GetAutoAttackVictim() && !me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                 {
                     me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MoveChase(me->EnsureVictim());
+                    me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                     justBlinked = false;
                 }
                 else

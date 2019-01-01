@@ -674,7 +674,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (PlayerGUID && !me->GetVictim() && me->IsAlive())
+            if (PlayerGUID && !me->GetAutoAttackVictim() && me->IsAlive())
             {
                 if (ExecuteSpeech_Timer <= diff)
                 {

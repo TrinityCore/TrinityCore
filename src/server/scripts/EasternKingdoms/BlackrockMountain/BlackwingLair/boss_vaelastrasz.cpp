@@ -184,9 +184,9 @@ public:
                         break;
                     case EVENT_TAILSWIPE:
                         //Only cast if we are behind
-                        /*if (!me->HasInArc(M_PI, me->GetVictim()))
+                        /*if (!me->HasInArc(M_PI, me->GetAutoAttackVictim()))
                         {
-                        DoCast(me->GetVictim(), SPELL_TAILSWIPE);
+                        DoCast(me->GetAutoAttackVictim(), SPELL_TAILSWIPE);
                         }*/
                         events.ScheduleEvent(EVENT_TAILSWIPE, 15s);
                         break;
@@ -204,7 +204,7 @@ public:
                         break;
                     case EVENT_BURNINGADRENALINE_TANK:
                         //Vael has to cast it himself; contrary to the previous commit's comment. Nothing happens otherwise.
-                        me->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, true);
+                        me->CastSpell(me->GetAutoAttackVictim(), SPELL_BURNINGADRENALINE, true);
                         events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45s);
                         break;
                 }

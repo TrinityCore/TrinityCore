@@ -687,7 +687,7 @@ class boss_the_lich_king : public CreatureScript
                 {
                     events.SetPhase(PHASE_TRANSITION);
                     me->SetReactState(REACT_PASSIVE);
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     me->InterruptNonMeleeSpells(true);
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_1, CenterPosition);
                     return;
@@ -697,7 +697,7 @@ class boss_the_lich_king : public CreatureScript
                 {
                     events.SetPhase(PHASE_TRANSITION);
                     me->SetReactState(REACT_PASSIVE);
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     me->InterruptNonMeleeSpells(true);
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_2, CenterPosition);
                     return;
@@ -706,7 +706,7 @@ class boss_the_lich_king : public CreatureScript
                 if (events.IsInPhase(PHASE_THREE) && !HealthAbovePct(10))
                 {
                     me->SetReactState(REACT_PASSIVE);
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     events.Reset();
                     events.SetPhase(PHASE_OUTRO);
                     summons.DespawnAll();
@@ -1041,7 +1041,7 @@ class boss_the_lich_king : public CreatureScript
                             events.ScheduleEvent(EVENT_HARVEST_SOULS, urand(100000, 110000), 0, PHASE_THREE);
                             events.SetPhase(PHASE_FROSTMOURNE); // will stop running UpdateVictim (no evading)
                             me->SetReactState(REACT_PASSIVE);
-                            me->AttackStop();
+                            me->AutoAttackStop();
                             events.DelayEvents(50000, EVENT_GROUP_VILE_SPIRITS);
                             events.RescheduleEvent(EVENT_DEFILE, 50000, 0, PHASE_THREE);
                             events.RescheduleEvent(EVENT_SOUL_REAPER, urand(57000, 62000), 0, PHASE_THREE);
@@ -1413,7 +1413,7 @@ class npc_raging_spirit : public CreatureScript
                     _events.SetPhase(PHASE_FROSTMOURNE);
                     _events.ScheduleEvent(EVENT_SET_AGRESSIVE, 52s);
                     me->SetReactState(REACT_PASSIVE);
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     me->InterruptNonMeleeSpells(true);
                 }
             }
@@ -2408,7 +2408,7 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
                 if (GetCaster()->GetTypeId() == TYPEID_UNIT)
                 {
                     GetCaster()->ToCreature()->SetReactState(REACT_PASSIVE);
-                    GetCaster()->AttackStop();
+                    GetCaster()->AutoAttackStop();
                     GetCaster()->ToCreature()->DespawnOrUnsummon(500);
                 }
             }

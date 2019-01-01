@@ -311,7 +311,7 @@ class boss_sapphiron : public CreatureScript
                                     _delayedDrain = false;
                                     events.SetPhase(PHASE_FLIGHT);
                                     me->SetReactState(REACT_PASSIVE);
-                                    me->AttackStop();
+                                    me->AutoAttackStop();
                                     float x, y, z, o;
                                     me->GetHomePosition(x, y, z, o);
                                     me->GetMotionMaster()->MovePoint(1, x, y, z);

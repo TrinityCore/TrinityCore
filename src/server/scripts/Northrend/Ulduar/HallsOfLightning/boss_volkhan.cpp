@@ -133,7 +133,7 @@ public:
 
         void AttackStart(Unit* who) override
         {
-            if (me->Attack(who, true))
+            if (me->AutoAttackStart(who, true))
             {
                 AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
@@ -245,8 +245,8 @@ public:
                         if (m_bIsStriking)
                         {
                             if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
-                                if (me->GetVictim())
-                                    me->GetMotionMaster()->MoveChase(me->GetVictim());
+                                if (me->GetAutoAttackVictim())
+                                    me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
 
                             m_bHasTemper = false;
                             m_bIsStriking = false;
@@ -408,7 +408,7 @@ public:
 
         void AttackStart(Unit* who) override
         {
-            if (me->Attack(who, true))
+            if (me->AutoAttackStart(who, true))
             {
                 AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
@@ -427,7 +427,7 @@ public:
                 me->SetHealth(1);
                 damage = 0;
                 me->RemoveAllAuras();
-                me->AttackStop();
+                me->AutoAttackStop();
                 // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // Set in DB
                 // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // Set in DB
                 if (me->IsNonMeleeSpellCast(false))

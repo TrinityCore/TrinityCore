@@ -79,7 +79,7 @@ class npc_crystalcore_devastator : public CreatureScript
                 //Knockaway_Timer
                 if (Knockaway_Timer <= diff)
                 {
-                    if (Unit* victim = me->GetVictim())
+                    if (Unit* victim = me->GetAutoAttackVictim())
                     {
                         DoCastVictim(SPELL_KNOCKAWAY, true);
                         me->GetThreatManager().ResetThreat(victim);

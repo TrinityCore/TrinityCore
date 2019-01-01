@@ -420,7 +420,7 @@ class TC_GAME_API DamageInfo
         void BlockDamage(uint32 amount);
 
         Unit* GetAttacker() const { return m_attacker; }
-        Unit* GetVictim() const { return m_victim; }
+        Unit* GetAutoAttackVictim() const { return m_victim; }
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         SpellSchoolMask GetSchoolMask() const { return m_schoolMask; }
         DamageEffectType GetDamageType() const { return m_damageType; }
@@ -739,7 +739,6 @@ enum PlayerTotemType
 class TC_GAME_API Unit : public WorldObject
 {
     public:
-        typedef std::set<Unit*> AttackerSet;
         typedef std::set<Unit*> ControlList;
         typedef std::vector<Unit*> UnitVector;
 
@@ -801,24 +800,15 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_extraAttacks;
         bool m_canDualWield;
 
-        void _addAttacker(Unit* pAttacker);                  // must be called only from Unit::Attack(Unit*)
-        void _removeAttacker(Unit* pAttacker);               // must be called only from Unit::AttackStop()
-        Unit* getAttackerForHelper() const;                 // If someone wants to help, who to give them
-        bool Attack(Unit* victim, bool meleeAttack);
+        Unit* GetAttackerForHelper() const;                 // If someone wants to help, who to give them
+        bool AutoAttackStart(Unit* victim, bool meleeAttack);
         void CastStop(uint32 except_spellid = 0);
-        bool AttackStop();
-        void RemoveAllAttackers();
-        AttackerSet const& getAttackers() const { return m_attackers; }
-        bool isAttackingPlayer() const;
-        Unit* GetVictim() const { return m_attacking; }
-        // Use this only when 100% sure there is a victim
-        Unit* EnsureVictim() const
-        {
-            ASSERT(m_attacking);
-            return m_attacking;
-        }
+        bool AutoAttackStop();
+        Unit* GetAutoAttackVictim() const { return m_attacking; }
+        std::unordered_set<Unit*> const& GetAutoAttackingMe() const { return m_attackers; }
+        void StopAutoAttackingMe();
+        void ValidateAutoAttackStates();
 
-        void ValidateAttackersAndOwnTarget();
         void CombatStop(bool includingCast = false, bool mutualPvP = true);
         void CombatStopWithPets(bool includingCast = false);
         void StopAttackFaction(uint32 faction_id);
@@ -1364,7 +1354,6 @@ class TC_GAME_API Unit : public WorldObject
         Spell* FindCurrentSpellBySpellId(uint32 spell_id) const;
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
 
-        virtual bool IsFocusing(Spell const* /*focusSpell*/ = nullptr, bool /*withDelay*/ = false) { return false; }
         virtual bool IsMovementPreventedByCasting() const;
 
         SpellHistory* GetSpellHistory() { return m_spellHistory; }
@@ -1652,8 +1641,29 @@ class TC_GAME_API Unit : public WorldObject
         TempSummon* ToTempSummon() { if (IsSummon()) return reinterpret_cast<TempSummon*>(this); else return nullptr; }
         TempSummon const* ToTempSummon() const { if (IsSummon()) return reinterpret_cast<TempSummon const*>(this); else return nullptr; }
 
-        ObjectGuid GetTarget() const { return GetGuidValue(UNIT_FIELD_TARGET); }
-        virtual void SetTarget(ObjectGuid /*guid*/) = 0;
+        void UpdateSelectedUnit() { SetGuidValue(UNIT_FIELD_TARGET, ChooseSelectedUnit()); }
+        ObjectGuid GetSelectedUnitGUID() const { return GetGuidValue(UNIT_FIELD_TARGET); }
+        Unit* GetSelectedUnit() const;
+        Player* GetSelectedPlayer() const { return GetSelectedUnit()->ToPlayer(); }
+
+        bool HasSpellFocusTarget() const { return m_focusSpell || m_spellFocusDelay; }
+        ObjectGuid GetSpellFocusTarget() const { return m_spellFocusTarget; }
+        void SetSpellFocus(WorldObject* target, Spell const* spell);
+        void ReleaseSpellFocus(Spell const* spell = nullptr, bool withDelay = true);
+        void ClearSpellFocus();
+
+        void SetPrimaryTarget(ObjectGuid guid);
+        void SetPrimaryTarget(Unit* target)
+        {
+            if (m_primaryTarget)
+                m_primaryTarget->m_targetingMe.erase(this);
+            m_primaryTarget = target;
+            if (target)
+                target->m_targetingMe.insert(this);
+            UpdateSelectedUnit();
+        }
+        void StopTargetingMe();
+        Unit* GetPrimaryTarget() const { return m_primaryTarget; }
 
         void SetInstantCast(bool set) { _instantCast = set; }
         bool CanInstantCast() const { return _instantCast; }
@@ -1696,8 +1706,16 @@ class TC_GAME_API Unit : public WorldObject
 
         float m_createStats[MAX_STATS];
 
-        AttackerSet m_attackers;
+        std::unordered_set<Unit*> m_attackers;
         Unit* m_attacking;
+
+        std::unordered_set<Unit*> m_targetingMe;
+        Unit* m_primaryTarget;
+
+        ObjectGuid m_spellFocusTarget;
+        uint32 m_spellFocusDelay;
+        std::uintptr_t m_focusSpell;
+        float m_suppressedOrientation; // "real" orientation to return to
 
         DeathState m_deathState;
 
@@ -1775,6 +1793,8 @@ class TC_GAME_API Unit : public WorldObject
         void SetConfused(bool apply);
         void SetStunned(bool apply);
         void SetRooted(bool apply);
+
+        ObjectGuid ChooseSelectedUnit() const;
 
         uint32 m_rootTimes;
 

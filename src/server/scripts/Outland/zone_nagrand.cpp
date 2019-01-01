@@ -730,14 +730,14 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim() || !me->GetVictim())
+            if (!UpdateVictim() || !me->GetAutoAttackVictim())
                 return;
 
             interrupt_cooldown += diff;
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            if (me->EnsureVictim()->HasUnitState(UNIT_STATE_CASTING) && interrupt_cooldown > 25000)
+            if (me->GetAutoAttackVictim()->HasUnitState(UNIT_STATE_CASTING) && interrupt_cooldown > 25000)
             {
                 DoCastVictim(SPELL_COUNTERSPELL);
                 interrupt_cooldown = 0;

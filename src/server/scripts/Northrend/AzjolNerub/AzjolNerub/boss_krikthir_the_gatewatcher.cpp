@@ -737,7 +737,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
                             _events.Repeat(randtime(Seconds(20), Seconds(25)));
                             break;
                         case EVENT_BACKSTAB:
-                            if (me->GetVictim() && me->GetVictim()->isInBack(me))
+                            if (me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->isInBack(me))
                                 DoCastVictim(SPELL_BACKSTAB);
                             _events.Repeat(randtime(Seconds(10), Seconds(13)));
                             break;
@@ -840,7 +840,7 @@ class npc_skittering_swarmer : public CreatureScript
                 ScriptedAI::InitializeAI();
                 if (Creature* gatewatcher = me->GetInstanceScript()->GetCreature(DATA_KRIKTHIR))
                 {
-                    if (Unit* target = gatewatcher->getAttackerForHelper())
+                    if (Unit* target = gatewatcher->GetAttackerForHelper())
                         AttackStart(target);
                     gatewatcher->AI()->JustSummoned(me);
                 }
@@ -867,7 +867,7 @@ class npc_skittering_infector : public CreatureScript
                 ScriptedAI::InitializeAI();
                 if (Creature* gatewatcher = me->GetInstanceScript()->GetCreature(DATA_KRIKTHIR))
                 {
-                    if (Unit* target = gatewatcher->getAttackerForHelper())
+                    if (Unit* target = gatewatcher->GetAttackerForHelper())
                         AttackStart(target);
                     gatewatcher->AI()->JustSummoned(me);
                 }

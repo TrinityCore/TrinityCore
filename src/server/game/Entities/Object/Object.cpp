@@ -177,7 +177,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     if (isType(TYPEMASK_UNIT))
     {
-        if (ToUnit()->GetVictim())
+        if (ToUnit()->GetAutoAttackVictim())
             flags |= UPDATEFLAG_HAS_TARGET;
     }
 
@@ -415,7 +415,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (flags & UPDATEFLAG_HAS_TARGET)
     {
         ASSERT(unit);
-        if (Unit* victim = unit->GetVictim())
+        if (Unit* victim = unit->GetAutoAttackVictim())
             *data << victim->GetPackGUID();
         else
             *data << uint8(0);

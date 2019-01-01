@@ -986,7 +986,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
             void DeleteAllFromThreatList(Unit* target, ObjectGuid except)
             {
                 for (ThreatReference* ref : target->GetThreatManager().GetModifiableThreatList())
-                  if (ref->GetVictim()->GetGUID() != except)
+                  if (ref->GetAutoAttackVictim()->GetGUID() != except)
                     ref->ClearThreat();
             }
 
@@ -1026,7 +1026,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             }
                             break;
                         case EVENT_ESCAPE_2:
-                            me->AttackStop();
+                            me->AutoAttackStop();
                             me->StopMoving();
                             me->SetReactState(REACT_PASSIVE);
 
@@ -1058,7 +1058,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             if (Creature* lichking = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING_ESCAPE)))
                             {
                                 lichking->SetImmuneToPC(true);
-                                lichking->RemoveAllAttackers();
+                                lichking->StopAutoAttackingMe();
 
                                 DeleteAllFromThreatList(lichking, me->GetGUID());
                             }
@@ -1363,9 +1363,9 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                 if (!me->HasReactState(REACT_PASSIVE))
                 {
                     if (Unit* victim = me->SelectVictim())
-                        if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
+                        if (!me->HasSpellFocusTarget() && victim != me->GetAutoAttackVictim())
                             AttackStart(victim);
-                    return me->GetVictim() != nullptr;
+                    return me->GetAutoAttackVictim() != nullptr;
                 }
                 else if (me->GetCombatManager().GetPvECombatRefs().size() < 2 && me->HasAura(SPELL_REMORSELESS_WINTER))
                 {
@@ -2237,7 +2237,7 @@ class npc_raging_ghoul : public CreatureScript
                 switch (_events.ExecuteEvent())
                 {
                     case EVENT_RAGING_GHOUL_JUMP:
-                        if (Unit* victim = me->GetVictim())
+                        if (Unit* victim = me->GetAutoAttackVictim())
                         {
                             if (me->IsInRange(victim, 5.0f, 30.0f))
                             {

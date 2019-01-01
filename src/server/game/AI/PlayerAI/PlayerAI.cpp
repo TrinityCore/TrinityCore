@@ -469,7 +469,7 @@ PlayerAI::TargetedSpell PlayerAI::VerifySpellCast(uint32 spellId, SpellTarget ta
         case TARGET_NONE:
             break;
         case TARGET_VICTIM:
-            pTarget = me->GetVictim();
+            pTarget = me->GetAutoAttackVictim();
             if (!pTarget)
                 return {};
             break;
@@ -530,7 +530,7 @@ void PlayerAI::DoRangedAttackIfReady()
     if (!me->isAttackReady(RANGED_ATTACK))
         return;
 
-    Unit* victim = me->GetVictim();
+    Unit* victim = me->GetAutoAttackVictim();
     if (!victim)
         return;
 
@@ -609,7 +609,7 @@ void PlayerAI::CancelAllShapeshifts()
 
 Unit* PlayerAI::SelectAttackTarget() const
 {
-    return me->GetCharmer() ? me->GetCharmer()->GetVictim() : nullptr;
+    return me->GetCharmer() ? me->GetCharmer()->GetAutoAttackVictim() : nullptr;
 }
 
 struct ValidTargetSelectPredicate
@@ -638,7 +638,7 @@ Unit* SimpleCharmedPlayerAI::SelectAttackTarget() const
     {
         if (UnitAI* charmerAI = charmer->GetAI())
             return charmerAI->SelectTarget(SELECT_TARGET_RANDOM, 0, ValidTargetSelectPredicate(this));
-        return charmer->GetVictim();
+        return charmer->GetAutoAttackVictim();
     }
     return nullptr;
 }
@@ -650,14 +650,14 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
     switch (me->getClass())
     {
         case CLASS_WARRIOR:
-            if (!me->IsWithinMeleeRange(me->GetVictim()))
+            if (!me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
             {
                 VerifyAndPushSpellCast(spells, SPELL_CHARGE, TARGET_VICTIM, 15);
                 VerifyAndPushSpellCast(spells, SPELL_INTERCEPT, TARGET_VICTIM, 10);
             }
             VerifyAndPushSpellCast(spells, SPELL_ENRAGED_REGEN, TARGET_NONE, 3);
             VerifyAndPushSpellCast(spells, SPELL_INTIMIDATING_SHOUT, TARGET_VICTIM, 4);
-            if (me->GetVictim() && me->GetVictim()->HasUnitState(UNIT_STATE_CASTING))
+            if (me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->HasUnitState(UNIT_STATE_CASTING))
             {
                 VerifyAndPushSpellCast(spells, SPELL_PUMMEL, TARGET_VICTIM, 15);
                 VerifyAndPushSpellCast(spells, SPELL_SHIELD_BASH, TARGET_VICTIM, 15);
@@ -752,7 +752,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
             VerifyAndPushSpellCast(spells, SPELL_FREEZING_ARROW, TARGET_VICTIM, 2);
             VerifyAndPushSpellCast(spells, SPELL_RAPID_FIRE, TARGET_NONE, 10);
             VerifyAndPushSpellCast(spells, SPELL_KILL_SHOT, TARGET_VICTIM, 10);
-            if (me->GetVictim() && me->GetVictim()->GetPowerType() == POWER_MANA && !me->GetVictim()->GetAuraApplicationOfRankedSpell(SPELL_VIPER_STING, me->GetGUID()))
+            if (me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->GetPowerType() == POWER_MANA && !me->GetAutoAttackVictim()->GetAuraApplicationOfRankedSpell(SPELL_VIPER_STING, me->GetGUID()))
                 VerifyAndPushSpellCast(spells, SPELL_VIPER_STING, TARGET_VICTIM, 5);
 
             switch (GetSpec())
@@ -803,13 +803,13 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                 case SPEC_ROGUE_SUBLETY:
                     builder = SPELL_HEMORRHAGE, finisher = SPELL_EVISCERATE;
                     VerifyAndPushSpellCast(spells, SPELL_PREPARATION, TARGET_NONE, 10);
-                    if (!me->IsWithinMeleeRange(me->GetVictim()))
+                    if (!me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                         VerifyAndPushSpellCast(spells, SPELL_SHADOWSTEP, TARGET_VICTIM, 25);
                     VerifyAndPushSpellCast(spells, SPELL_SHADOW_DANCE, TARGET_NONE, 10);
                     break;
             }
 
-            if (Unit* victim = me->GetVictim())
+            if (Unit* victim = me->GetAutoAttackVictim())
             {
                 if (victim->HasUnitState(UNIT_STATE_CASTING))
                     VerifyAndPushSpellCast(spells, SPELL_KICK, TARGET_VICTIM, 25);
@@ -853,7 +853,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                         VerifyAndPushSpellCast(spells, SPELL_SHADOWFORM, TARGET_NONE, 100);
                         break;
                     }
-                    if (Unit* victim = me->GetVictim())
+                    if (Unit* victim = me->GetAutoAttackVictim())
                     {
                         if (!victim->GetAuraApplicationOfRankedSpell(SPELL_VAMPIRIC_TOUCH, me->GetGUID()))
                             VerifyAndPushSpellCast(spells, SPELL_VAMPIRIC_TOUCH, TARGET_VICTIM, 4);
@@ -870,7 +870,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
             break;
         case CLASS_DEATH_KNIGHT:
         {
-            if (!me->IsWithinMeleeRange(me->GetVictim()))
+            if (!me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                 VerifyAndPushSpellCast(spells, SPELL_DEATH_GRIP, TARGET_VICTIM, 25);
             VerifyAndPushSpellCast(spells, SPELL_STRANGULATE, TARGET_VICTIM, 15);
             VerifyAndPushSpellCast(spells, SPELL_EMPOWER_RUNE_WEAP, TARGET_NONE, 5);
@@ -878,7 +878,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
             VerifyAndPushSpellCast(spells, SPELL_ANTI_MAGIC_SHELL, TARGET_NONE, 10);
 
             bool hasFF = false, hasBP = false;
-            if (Unit* victim = me->GetVictim())
+            if (Unit* victim = me->GetAutoAttackVictim())
             {
                 if (victim->HasUnitState(UNIT_STATE_CASTING))
                     VerifyAndPushSpellCast(spells, SPELL_MIND_FREEZE, TARGET_VICTIM, 25);
@@ -946,7 +946,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                     VerifyAndPushSpellCast(spells, SPELL_MANA_TIDE_TOTEM, TARGET_NONE, 3);
                     break;
                 case SPEC_SHAMAN_ELEMENTAL:
-                    if (Unit* victim = me->GetVictim())
+                    if (Unit* victim = me->GetAutoAttackVictim())
                     {
                         if (victim->GetAuraOfRankedSpell(SPELL_FLAME_SHOCK, GetGUID()))
                             VerifyAndPushSpellCast(spells, SPELL_LAVA_BURST, TARGET_VICTIM, 5);
@@ -970,7 +970,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
             }
             break;
         case CLASS_MAGE:
-            if (me->GetVictim() && me->GetVictim()->HasUnitState(UNIT_STATE_CASTING))
+            if (me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->HasUnitState(UNIT_STATE_CASTING))
                 VerifyAndPushSpellCast(spells, SPELL_COUNTERSPELL, TARGET_VICTIM, 25);
             VerifyAndPushSpellCast(spells, SPELL_DAMPEN_MAGIC, TARGET_CHARMER, 2);
             VerifyAndPushSpellCast(spells, SPELL_EVOCATION, TARGET_NONE, 3);
@@ -991,7 +991,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                     VerifyAndPushSpellCast(spells, SPELL_PRESENCE_OF_MIND, TARGET_NONE, 7);
                     break;
                 case SPEC_MAGE_FIRE:
-                    if (me->GetVictim() && !me->GetVictim()->GetAuraApplicationOfRankedSpell(SPELL_LIVING_BOMB))
+                    if (me->GetAutoAttackVictim() && !me->GetAutoAttackVictim()->GetAuraApplicationOfRankedSpell(SPELL_LIVING_BOMB))
                         VerifyAndPushSpellCast(spells, SPELL_LIVING_BOMB, TARGET_VICTIM, 3);
                     VerifyAndPushSpellCast(spells, SPELL_COMBUSTION, TARGET_VICTIM, 3);
                     VerifyAndPushSpellCast(spells, SPELL_FIREBALL, TARGET_VICTIM, 2);
@@ -1004,7 +1004,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                     VerifyAndPushSpellCast(spells, SPELL_FROST_NOVA, TARGET_VICTIM, 3);
                     VerifyAndPushSpellCast(spells, SPELL_FROSTBOLT, TARGET_VICTIM, 3);
                     VerifyAndPushSpellCast(spells, SPELL_COLD_SNAP, TARGET_VICTIM, 5);
-                    if (me->GetVictim() && me->GetVictim()->HasAuraState(AURA_STATE_FROZEN, nullptr, me))
+                    if (me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->HasAuraState(AURA_STATE_FROZEN, nullptr, me))
                         VerifyAndPushSpellCast(spells, SPELL_ICE_LANCE, TARGET_VICTIM, 5);
                     break;
             }
@@ -1014,12 +1014,12 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
             VerifyAndPushSpellCast(spells, SPELL_FEAR, TARGET_VICTIM, 2);
             VerifyAndPushSpellCast(spells, SPELL_SEED_OF_CORRUPTION, TARGET_VICTIM, 4);
             VerifyAndPushSpellCast(spells, SPELL_HOWL_OF_TERROR, TARGET_NONE, 2);
-            if (me->GetVictim() && !me->GetVictim()->GetAuraApplicationOfRankedSpell(SPELL_CORRUPTION, me->GetGUID()))
+            if (me->GetAutoAttackVictim() && !me->GetAutoAttackVictim()->GetAuraApplicationOfRankedSpell(SPELL_CORRUPTION, me->GetGUID()))
                 VerifyAndPushSpellCast(spells, SPELL_CORRUPTION, TARGET_VICTIM, 10);
             switch (GetSpec())
             {
                 case SPEC_WARLOCK_AFFLICTION:
-                    if (Unit* victim = me->GetVictim())
+                    if (Unit* victim = me->GetAutoAttackVictim())
                     {
                         VerifyAndPushSpellCast(spells, SPELL_SHADOW_BOLT, TARGET_VICTIM, 7);
                         if (!victim->GetAuraApplicationOfRankedSpell(SPELL_UNSTABLE_AFFLICTION, me->GetGUID()))
@@ -1040,18 +1040,18 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                     if (me->HasAura(SPELL_METAMORPHOSIS))
                     {
                         VerifyAndPushSpellCast(spells, SPELL_IMMOLATION_AURA, TARGET_NONE, 30);
-                        if (!me->IsWithinMeleeRange(me->GetVictim()))
+                        if (!me->IsWithinMeleeRange(me->GetAutoAttackVictim()))
                             VerifyAndPushSpellCast(spells, SPELL_DEMON_CHARGE, TARGET_VICTIM, 20);
                     }
-                    if (me->GetVictim() && !me->GetVictim()->GetAuraApplicationOfRankedSpell(SPELL_IMMOLATE, me->GetGUID()))
+                    if (me->GetAutoAttackVictim() && !me->GetAutoAttackVictim()->GetAuraApplicationOfRankedSpell(SPELL_IMMOLATE, me->GetGUID()))
                         VerifyAndPushSpellCast(spells, SPELL_IMMOLATE, TARGET_VICTIM, 5);
                     if (me->HasAura(AURA_MOLTEN_CORE))
                         VerifyAndPushSpellCast(spells, SPELL_INCINERATE, TARGET_VICTIM, 10);
                     break;
                 case SPEC_WARLOCK_DESTRUCTION:
-                    if (me->GetVictim() && !me->GetVictim()->GetAuraApplicationOfRankedSpell(SPELL_IMMOLATE, me->GetGUID()))
+                    if (me->GetAutoAttackVictim() && !me->GetAutoAttackVictim()->GetAuraApplicationOfRankedSpell(SPELL_IMMOLATE, me->GetGUID()))
                         VerifyAndPushSpellCast(spells, SPELL_IMMOLATE, TARGET_VICTIM, 8);
-                    if (me->GetVictim() && me->GetVictim()->GetAuraApplicationOfRankedSpell(SPELL_IMMOLATE, me->GetGUID()))
+                    if (me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->GetAuraApplicationOfRankedSpell(SPELL_IMMOLATE, me->GetGUID()))
                         VerifyAndPushSpellCast(spells, SPELL_CONFLAGRATE, TARGET_VICTIM, 8);
                     VerifyAndPushSpellCast(spells, SPELL_SHADOWFURY, TARGET_VICTIM, 5);
                     VerifyAndPushSpellCast(spells, SPELL_CHAOS_BOLT, TARGET_VICTIM, 10);
@@ -1105,11 +1105,11 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                     uint32 const mainAttackSpell = me->HasAura(AURA_ECLIPSE_LUNAR) ? SPELL_STARFIRE : SPELL_WRATH;
                     VerifyAndPushSpellCast(spells, SPELL_STARFALL, TARGET_NONE, 20);
                     VerifyAndPushSpellCast(spells, mainAttackSpell, TARGET_VICTIM, 10);
-                    if (me->GetVictim() && !me->GetVictim()->GetAuraApplicationOfRankedSpell(SPELL_INSECT_SWARM, me->GetGUID()))
+                    if (me->GetAutoAttackVictim() && !me->GetAutoAttackVictim()->GetAuraApplicationOfRankedSpell(SPELL_INSECT_SWARM, me->GetGUID()))
                         VerifyAndPushSpellCast(spells, SPELL_INSECT_SWARM, TARGET_VICTIM, 7);
-                    if (me->GetVictim() && !me->GetVictim()->GetAuraApplicationOfRankedSpell(SPELL_MOONFIRE, me->GetGUID()))
+                    if (me->GetAutoAttackVictim() && !me->GetAutoAttackVictim()->GetAuraApplicationOfRankedSpell(SPELL_MOONFIRE, me->GetGUID()))
                         VerifyAndPushSpellCast(spells, SPELL_MOONFIRE, TARGET_VICTIM, 5);
-                    if (me->GetVictim() && me->GetVictim()->HasUnitState(UNIT_STATE_CASTING))
+                    if (me->GetAutoAttackVictim() && me->GetAutoAttackVictim()->HasUnitState(UNIT_STATE_CASTING))
                         VerifyAndPushSpellCast(spells, SPELL_TYPHOON, TARGET_NONE, 15);
                     break;
                 }
@@ -1124,7 +1124,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                     VerifyAndPushSpellCast(spells, SPELL_SURVIVAL_INSTINCTS, TARGET_NONE, 15);
                     VerifyAndPushSpellCast(spells, SPELL_TIGER_FURY, TARGET_NONE, 15);
                     VerifyAndPushSpellCast(spells, SPELL_DASH, TARGET_NONE, 5);
-                    if (Unit* victim = me->GetVictim())
+                    if (Unit* victim = me->GetAutoAttackVictim())
                     {
                         uint8 const cp = me->GetComboPoints(victim);
                         if (victim->HasUnitState(UNIT_STATE_CASTING) && cp >= 1)
@@ -1174,7 +1174,7 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
 
     if (charmer->IsEngaged())
     {
-        Unit* target = me->GetVictim();
+        Unit* target = me->GetAutoAttackVictim();
         if (!target || !CanAIAttack(target))
         {
             target = SelectAttackTarget();
@@ -1183,7 +1183,7 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
                 if (!_isFollowing)
                 {
                     _isFollowing = true;
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     me->CastStop();
                     me->StopMoving();
                     me->GetMotionMaster()->Clear();
@@ -1247,7 +1247,7 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
     else if (!_isFollowing)
     {
         _isFollowing = true;
-        me->AttackStop();
+        me->AutoAttackStop();
         me->CastStop();
         me->StopMoving();
         me->GetMotionMaster()->Clear();
@@ -1260,7 +1260,7 @@ void SimpleCharmedPlayerAI::OnCharmed(bool isNew)
     if (me->IsCharmed())
     {
         me->CastStop();
-        me->AttackStop();
+        me->AutoAttackStop();
         me->StopMoving();
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MovePoint(0, me->GetPosition(), false); // force re-sync of current position for all clients
@@ -1268,7 +1268,7 @@ void SimpleCharmedPlayerAI::OnCharmed(bool isNew)
     else
     {
         me->CastStop();
-        me->AttackStop();
+        me->AutoAttackStop();
         // @todo only voluntary movement (don't cancel stuff like death grip or charge mid-animation)
         me->GetMotionMaster()->Clear();
         me->StopMoving();

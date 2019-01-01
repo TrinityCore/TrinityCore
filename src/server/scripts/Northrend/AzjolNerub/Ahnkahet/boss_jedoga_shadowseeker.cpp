@@ -323,7 +323,7 @@ struct boss_jedoga_shadowseeker : public BossAI
                     break;
                 case EVENT_START_PHASE_TWO:
                     me->SetReactState(REACT_PASSIVE);
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     me->InterruptNonMeleeSpells(true);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->GetMotionMaster()->MovePoint(POINT_PHASE_TWO, JedogaGroundPosition);

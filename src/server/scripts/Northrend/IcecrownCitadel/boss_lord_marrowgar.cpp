@@ -253,7 +253,7 @@ class boss_lord_marrowgar : public CreatureScript
                                 return false;
                             }))
                                 me->GetMotionMaster()->Remove(movement);
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                             me->SetSpeedRate(MOVE_RUN, _baseSpeed);
                             events.CancelEvent(EVENT_BONE_STORM_MOVE);
                             events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10s);

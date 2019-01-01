@@ -229,7 +229,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                         return;
                     }
                     cBoss->SetReactState(REACT_PASSIVE);
-                    cBoss->AttackStop(); // clear initial target that was set on enter combat
+                    cBoss->AutoAttackStop(); // clear initial target that was set on enter combat
                     cBoss->setActive(true);
                     cBoss->SetFarVisible(true);
 

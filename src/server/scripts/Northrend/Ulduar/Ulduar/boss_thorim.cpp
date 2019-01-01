@@ -573,8 +573,8 @@ class boss_thorim : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
                 me->InterruptNonMeleeSpells(true);
-                me->RemoveAllAttackers();
-                me->AttackStop();
+                me->StopAutoAttackingMe();
+                me->AutoAttackStop();
                 me->SetFaction(FACTION_FRIENDLY);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_RENAME);
 
@@ -1069,7 +1069,7 @@ struct npc_thorim_trashAI : public ScriptedAI
         if (AIHelper::GetTotalHeal(spellInfo, me))
             target = AIHelper::GetHealTarget(spellInfo, me);
         else
-            target = me->GetVictim();
+            target = me->GetAutoAttackVictim();
 
         if (!target)
             return false;
@@ -1601,7 +1601,7 @@ class npc_sif : public CreatureScript
                 {
                     me->InterruptSpell(CURRENT_GENERIC_SPELL);
                     me->SetReactState(REACT_PASSIVE);
-                    me->AttackStop();
+                    me->AutoAttackStop();
                 }
             }
 
@@ -1812,7 +1812,7 @@ class spell_thorim_lightning_charge : public SpellScriptLoader
             {
                 /// @workaround: focus target is not working because spell is triggered and instant
                 if (Creature* creature = GetCaster()->ToCreature())
-                    creature->FocusTarget(GetSpell(), GetExplTargetWorldObject());
+                    creature->SetSpellFocus(GetExplTargetWorldObject(), GetSpell());
             }
 
             void HandleCharge()

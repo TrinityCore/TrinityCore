@@ -188,8 +188,8 @@ public:
             //store the threat list in a different container
             for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
             {
-                Unit* target = ref->GetVictim();
-                if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetVictim()->IsAlive())
+                Unit* target = ref->GetAutoAttackVictim();
+                if (ref->GetAutoAttackVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetAutoAttackVictim()->IsAlive())
                     targets.push_back(target);
             }
 
@@ -419,7 +419,7 @@ public:
                 {
                     if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
                     {
-                        unit->Attack(me->GetVictim(), true);
+                        unit->AutoAttackStart(me->GetAutoAttackVictim(), true);
                         unit->SetFaction(me->GetFaction());
                     }
                 }
@@ -433,7 +433,7 @@ public:
                 {
                     if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                     {
-                        unit->Attack(me->GetVictim(), true);
+                        unit->AutoAttackStart(me->GetAutoAttackVictim(), true);
                         unit->SetFaction(me->GetFaction());
                     }
                 }

@@ -235,12 +235,12 @@ class boss_urom : public CreatureScript
                 {
                     if (arcaneExplosionTimer <= diff)
                     {
-                        if (me->GetVictim())
+                        if (me->GetAutoAttackVictim())
                         {
-                            Position pos = me->EnsureVictim()->GetPosition();
+                            Position pos = me->GetAutoAttackVictim()->GetPosition();
 
                             me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
-                            me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            me->GetMotionMaster()->MoveChase(me->GetAutoAttackVictim());
                         }
                         me->SetWalk(true);
 

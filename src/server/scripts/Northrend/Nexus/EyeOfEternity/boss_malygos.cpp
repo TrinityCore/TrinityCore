@@ -746,7 +746,7 @@ public:
             {
                 SetPhase(PHASE_TWO, true);
                 me->SetReactState(REACT_PASSIVE);
-                me->AttackStop();
+                me->AutoAttackStop();
                 Talk(SAY_END_P_ONE);
             }
 
@@ -781,7 +781,7 @@ public:
                         break;
                     case EVENT_MOVE_TO_VORTEX_POINT:
                         me->SetReactState(REACT_PASSIVE);
-                        me->AttackStop();
+                        me->AutoAttackStop();
                         me->GetMotionMaster()->MovePoint(POINT_VORTEX_P_ONE, MalygosPositions[1]);
                         break;
                     case EVENT_POWER_SPARKS:
@@ -795,7 +795,7 @@ public:
                             break;
                         }
 
-                        me->CastSpell(me->GetVictim(), SPELL_ARCANE_BREATH);
+                        me->CastSpell(me->GetAutoAttackVictim(), SPELL_ARCANE_BREATH);
                         events.ScheduleEvent(EVENT_ARCANE_BREATH, 20*IN_MILLISECONDS, 0, PHASE_ONE);
                         break;
                     case EVENT_ARCANE_STORM:
@@ -1803,7 +1803,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
                 {
                     for (ThreatReference const* ref : caster->GetThreatManager().GetUnsortedThreatList())
                     {
-                        if (Player* targetPlayer = ref->GetVictim()->ToPlayer())
+                        if (Player* targetPlayer = ref->GetAutoAttackVictim()->ToPlayer())
                         {
                             if (targetPlayer->IsGameMaster())
                                 continue;
@@ -1903,7 +1903,7 @@ class spell_nexus_lord_align_disk_aggro : public SpellScriptLoader
             {
                 Creature* caster = GetCaster()->ToCreature();
                 if (Creature* target = GetHitCreature())
-                    target->GetMotionMaster()->MoveChase(caster->GetVictim());
+                    target->GetMotionMaster()->MoveChase(caster->GetAutoAttackVictim());
             }
 
             void Register() override

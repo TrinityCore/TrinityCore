@@ -481,7 +481,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 ref->ModifyThreatByPercent(std::max<int32>(-100,int32(e.action.threatPCT.threatINC) - int32(e.action.threatPCT.threatDEC)));
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_THREAT_ALL_PCT: Creature guidLow %u modify threat for unit %u, value %i",
-                    me->GetGUID().GetCounter(), ref->GetVictim()->GetGUID().GetCounter(), int32(e.action.threatPCT.threatINC)-int32(e.action.threatPCT.threatDEC));
+                    me->GetGUID().GetCounter(), ref->GetAutoAttackVictim()->GetGUID().GetCounter(), int32(e.action.threatPCT.threatINC)-int32(e.action.threatPCT.threatDEC));
             }
             break;
         }
@@ -1621,9 +1621,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* target : targets)
             {
                 if (Creature* creature = target->ToCreature())
-                    if (IsSmart(creature) && creature->GetVictim())
+                    if (IsSmart(creature) && creature->GetAutoAttackVictim())
                         if (ENSURE_AI(SmartAI, creature->AI())->CanCombatMove())
-                            creature->GetMotionMaster()->MoveChase(creature->GetVictim(), attackDistance, attackAngle);
+                            creature->GetMotionMaster()->MoveChase(creature->GetAutoAttackVictim(), attackDistance, attackAngle);
             }
 
             break;
@@ -2442,7 +2442,7 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             break;
         case SMART_TARGET_VICTIM:
             if (me)
-                if (Unit* victim = me->GetVictim())
+                if (Unit* victim = me->GetAutoAttackVictim())
                     targets.push_back(victim);
             break;
         case SMART_TARGET_HOSTILE_SECOND_AGGRO:
@@ -2727,8 +2727,8 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         {
             if (me && me->CanHaveThreatList())
                 for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
-                    if (!e.target.hostilRandom.maxDist || me->IsWithinCombatRange(ref->GetVictim(), float(e.target.hostilRandom.maxDist)))
-                        targets.push_back(ref->GetVictim());
+                    if (!e.target.hostilRandom.maxDist || me->IsWithinCombatRange(ref->GetAutoAttackVictim(), float(e.target.hostilRandom.maxDist)))
+                        targets.push_back(ref->GetAutoAttackVictim());
             break;
         }
         case SMART_TARGET_CLOSEST_ENEMY:
@@ -2833,12 +2833,12 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_TARGET_HEALTH_PCT:
         {
-            if (!me || !me->IsEngaged() || !me->GetVictim() || !me->EnsureVictim()->GetMaxHealth())
+            if (!me || !me->IsEngaged() || !me->GetAutoAttackVictim() || !me->GetAutoAttackVictim()->GetMaxHealth())
                 return;
-            uint32 perc = (uint32)me->EnsureVictim()->GetHealthPct();
+            uint32 perc = (uint32)me->GetAutoAttackVictim()->GetHealthPct();
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
                 return;
-            ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetVictim());
+            ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetAutoAttackVictim());
             break;
         }
         case SMART_EVENT_MANA_PCT:
@@ -2853,21 +2853,21 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_TARGET_MANA_PCT:
         {
-            if (!me || !me->IsEngaged() || !me->GetVictim() || !me->EnsureVictim()->GetMaxPower(POWER_MANA))
+            if (!me || !me->IsEngaged() || !me->GetAutoAttackVictim() || !me->GetAutoAttackVictim()->GetMaxPower(POWER_MANA))
                 return;
-            uint32 perc = uint32(100.0f * me->EnsureVictim()->GetPower(POWER_MANA) / me->EnsureVictim()->GetMaxPower(POWER_MANA));
+            uint32 perc = uint32(100.0f * me->GetAutoAttackVictim()->GetPower(POWER_MANA) / me->GetAutoAttackVictim()->GetMaxPower(POWER_MANA));
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
                 return;
-            ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetVictim());
+            ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetAutoAttackVictim());
             break;
         }
         case SMART_EVENT_RANGE:
         {
-            if (!me || !me->IsEngaged() || !me->GetVictim())
+            if (!me || !me->IsEngaged() || !me->GetAutoAttackVictim())
                 return;
 
-            if (me->IsInRange(me->GetVictim(), (float)e.event.minMaxRepeat.min, (float)e.event.minMaxRepeat.max))
-                ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetVictim());
+            if (me->IsInRange(me->GetAutoAttackVictim(), (float)e.event.minMaxRepeat.min, (float)e.event.minMaxRepeat.max))
+                ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetAutoAttackVictim());
             else // make it predictable
                 RecalcTimer(e, 500, 500);
             break;
@@ -2877,7 +2877,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (!me || !me->IsEngaged())
                 return;
 
-            Unit* victim = me->GetVictim();
+            Unit* victim = me->GetAutoAttackVictim();
 
             if (!victim || !victim->IsNonMeleeSpellCast(false, false, true))
                 return;
@@ -2887,7 +2887,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                     if (currSpell->m_spellInfo->Id != e.event.targetCasting.spellId)
                         return;
 
-            ProcessTimedAction(e, e.event.targetCasting.repeatMin, e.event.targetCasting.repeatMax, me->GetVictim());
+            ProcessTimedAction(e, e.event.targetCasting.repeatMin, e.event.targetCasting.repeatMax, me->GetAutoAttackVictim());
             break;
         }
         case SMART_EVENT_FRIENDLY_HEALTH:
@@ -2944,12 +2944,12 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_TARGET_BUFFED:
         {
-            if (!me || !me->GetVictim())
+            if (!me || !me->GetAutoAttackVictim())
                 return;
-            uint32 count = me->EnsureVictim()->GetAuraCount(e.event.aura.spell);
+            uint32 count = me->GetAutoAttackVictim()->GetAuraCount(e.event.aura.spell);
             if (count < e.event.aura.count)
                 return;
-            ProcessTimedAction(e, e.event.aura.repeatMin, e.event.aura.repeatMax, me->GetVictim());
+            ProcessTimedAction(e, e.event.aura.repeatMin, e.event.aura.repeatMax, me->GetAutoAttackVictim());
             break;
         }
         case SMART_EVENT_CHARMED:
@@ -2990,7 +2990,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 if (!me)
                     return;
 
-                if (Unit* victim = me->GetVictim())
+                if (Unit* victim = me->GetAutoAttackVictim())
                 {
                     if (!victim->HasInArc(static_cast<float>(M_PI), me))
                         ProcessTimedAction(e, e.event.behindTarget.cooldownMin, e.event.behindTarget.cooldownMax, victim);

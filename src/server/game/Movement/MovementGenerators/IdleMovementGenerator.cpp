@@ -81,10 +81,10 @@ void RotateMovementGenerator::Initialize(Unit* owner)
     /*
      *  TODO: This code should be handled somewhere else, like MovementInform
      *
-     *  if (owner->GetVictim())
-     *      owner->SetInFront(owner->GetVictim());
+     *  if (owner->GetAutoAttackVictim())
+     *      owner->SetInFront(owner->GetAutoAttackVictim());
      *
-     *  owner->AttackStop();
+     *  owner->AutoAttackStop();
      */
 }
 

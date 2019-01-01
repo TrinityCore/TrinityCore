@@ -215,7 +215,7 @@ public:
                 me->InterruptNonMeleeSpells(true);
                 DoCast(me, SPELL_SCREAMS_OF_THE_DEAD);
 
-                me->AttackStop();
+                me->AutoAttackStop();
                 me->SetReactState(REACT_PASSIVE);
                 me->GetMotionMaster()->MovePoint(POINT_BOAT, ActiveBoat[ActiveOrder[Order]].MoveX, ActiveBoat[ActiveOrder[Order]].MoveY, ActiveBoat[ActiveOrder[Order]].MoveZ);
 

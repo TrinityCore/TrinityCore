@@ -248,7 +248,7 @@ public:
 
                 //if there aren't other units, cast on the tank
                 if (!target)
-                    target = me->GetVictim();
+                    target = me->GetAutoAttackVictim();
 
                 if (target)
                     DoCast(target, SPELL_CATACLYSMIC_BOLT);
@@ -533,7 +533,7 @@ public:
             {
                 DoCast(me, SPELL_SPITFIRE_TOTEM);
                 if (Unit* SpitfireTotem = me->FindNearestCreature(CREATURE_SPITFIRE_TOTEM, 100.0f))
-                    SpitfireTotem->ToCreature()->AI()->AttackStart(me->GetVictim());
+                    SpitfireTotem->ToCreature()->AI()->AttackStart(me->GetAutoAttackVictim());
 
                 Spitfire_Timer = 60000;
             }
@@ -649,8 +649,8 @@ public:
             {
                 DoCastVictim(SPELL_TIDAL_SURGE);
                 // Hacky way to do it - won't trigger elseways
-                if (me->GetVictim())
-                    me->EnsureVictim()->CastSpell(me->GetVictim(), SPELL_TIDAL_SURGE_FREEZE, true);
+                if (me->GetAutoAttackVictim())
+                    me->GetAutoAttackVictim()->CastSpell(me->GetAutoAttackVictim(), SPELL_TIDAL_SURGE_FREEZE, true);
                 TidalSurge_Timer = 15000 + rand32() % 5000;
             } else TidalSurge_Timer -= diff;
 

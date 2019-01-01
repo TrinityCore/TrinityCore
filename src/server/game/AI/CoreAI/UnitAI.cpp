@@ -29,7 +29,7 @@
 
 void UnitAI::AttackStart(Unit* victim)
 {
-    if (victim && me->Attack(victim, true))
+    if (victim && me->AutoAttackStart(victim, true))
     {
         // Clear distracted state on attacking
         if (me->HasUnitState(UNIT_STATE_DISTRACTED))
@@ -55,7 +55,7 @@ void UnitAI::OnCharmed(bool isNew)
 
 void UnitAI::AttackStartCaster(Unit* victim, float dist)
 {
-    if (victim && me->Attack(victim, false))
+    if (victim && me->AutoAttackStart(victim, false))
         me->GetMotionMaster()->MoveChase(victim, dist);
 }
 
@@ -64,7 +64,7 @@ void UnitAI::DoMeleeAttackIfReady()
     if (me->HasUnitState(UNIT_STATE_CASTING))
         return;
 
-    Unit* victim = me->GetVictim();
+    Unit* victim = me->GetAutoAttackVictim();
 
     if (!me->IsWithinMeleeRange(victim))
         return;
@@ -98,9 +98,9 @@ bool UnitAI::DoSpellAttackIfReady(uint32 spell)
 
     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell))
     {
-        if (me->IsWithinCombatRange(me->GetVictim(), spellInfo->GetMaxRange(false)))
+        if (me->IsWithinCombatRange(me->GetAutoAttackVictim(), spellInfo->GetMaxRange(false)))
         {
-            me->CastSpell(me->GetVictim(), spell, false);
+            me->CastSpell(me->GetAutoAttackVictim(), spell, false);
             me->resetAttackTimer();
             return true;
         }
@@ -136,7 +136,7 @@ void UnitAI::DoCast(uint32 spellId)
             target = me;
             break;
         case AITARGET_VICTIM:
-            target = me->GetVictim();
+            target = me->GetAutoAttackVictim();
             break;
         case AITARGET_ENEMY:
         {
@@ -162,8 +162,8 @@ void UnitAI::DoCast(uint32 spellId)
 
                 DefaultTargetSelector targetSelector(me, range, playerOnly, true, -(int32)spellId);
                 if (!(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
-                    && targetSelector(me->GetVictim()))
-                    target = me->GetVictim();
+                    && targetSelector(me->GetAutoAttackVictim()))
+                    target = me->GetAutoAttackVictim();
                 else
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0, targetSelector);
             }
@@ -185,7 +185,7 @@ void UnitAI::DoCast(Unit* victim, uint32 spellId, CastSpellExtraArgs const& args
 
 void UnitAI::DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args)
 {
-    if (Unit* victim = me->GetVictim())
+    if (Unit* victim = me->GetAutoAttackVictim())
         DoCast(victim, spellId, args);
 }
 
@@ -378,7 +378,7 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
     if (Unit* currentVictim = _source->GetThreatManager().GetCurrentVictim())
         return target != currentVictim;
 
-    return target != _source->GetVictim();
+    return target != _source->GetAutoAttackVictim();
 }
 
 bool PowerUsersSelector::operator()(Unit const* target) const

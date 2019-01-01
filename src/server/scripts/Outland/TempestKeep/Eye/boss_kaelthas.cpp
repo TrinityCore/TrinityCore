@@ -385,7 +385,7 @@ struct advisorbase_ai : public ScriptedAI
             me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
             me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
-            me->SetTarget(ObjectGuid::Empty);
+            me->SetPrimaryTarget(ObjectGuid::Empty);
             me->SetStandState(UNIT_STAND_STATE_DEAD);
             me->GetMotionMaster()->Clear();
             JustDied(killer);
@@ -411,7 +411,7 @@ struct advisorbase_ai : public ScriptedAI
 
                 Unit* Target = ObjectAccessor::GetUnit(*me, DelayRes_Target);
                 if (!Target)
-                    Target = me->GetVictim();
+                    Target = me->GetAutoAttackVictim();
 
                 ResetThreatList();
                 AttackStart(Target);
@@ -459,7 +459,7 @@ class boss_kaelthas : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                 me->SetDisableGravity(false);
-                me->SetTarget(ObjectGuid::Empty);
+                me->SetPrimaryTarget(ObjectGuid::Empty);
                 me->SetObjectScale(1.0f);
                 BossAI::Reset();
             }
@@ -564,7 +564,7 @@ class boss_kaelthas : public CreatureScript
                     DoAction(ACTION_START_ENCOUNTER);
                     who->SetInCombatWith(me);
                     AddThreat(who, 0.0f);
-                    me->SetTarget(who->GetGUID());
+                    me->SetPrimaryTarget(who->GetGUID());
                 }
             }
 
@@ -575,13 +575,13 @@ class boss_kaelthas : public CreatureScript
                     DoAction(ACTION_START_ENCOUNTER);
 
                     if (attacker)
-                        me->SetTarget(attacker->GetGUID());
+                        me->SetPrimaryTarget(attacker->GetGUID());
                 }
 
                 if (!_hasFullPower && me->HealthBelowPctDamaged(50, damage))
                 {
                     _hasFullPower = true;
-                    me->AttackStop();
+                    me->AutoAttackStop();
                     me->InterruptNonMeleeSpells(false);
                     events.CancelEventGroup(EVENT_GROUP_COMBAT);
                     events.CancelEventGroup(EVENT_GROUP_SPECIAL);
@@ -1092,7 +1092,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 if (!who || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
 
-                if (me->Attack(who, true))
+                if (me->AutoAttackStart(who, true))
                 {
                     AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
@@ -1145,7 +1145,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                     Unit* target = nullptr;
                     for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        Unit* unit = ref->GetVictim();
+                        Unit* unit = ref->GetAutoAttackVictim();
                         if (unit->IsWithinMeleeRange(me))
                         {
                             InMeleeRange = true;
@@ -1410,7 +1410,7 @@ class npc_phoenix_egg_tk : public CreatureScript
 
             void AttackStart(Unit* who) override
             {
-                if (me->Attack(who, false))
+                if (me->AutoAttackStart(who, false))
                 {
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
@@ -1421,7 +1421,7 @@ class npc_phoenix_egg_tk : public CreatureScript
 
             void JustSummoned(Creature* summoned) override
             {
-                AddThreat(me->GetVictim(), 0.0f, summoned);
+                AddThreat(me->GetAutoAttackVictim(), 0.0f, summoned);
                 summoned->CastSpell(summoned, SPELL_REBIRTH, false);
             }
 

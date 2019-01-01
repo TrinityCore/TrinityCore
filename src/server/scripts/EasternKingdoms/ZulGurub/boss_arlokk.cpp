@@ -229,7 +229,7 @@ class boss_arlokk : public CreatureScript
                         {
                             Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, urand(1, 3), 0.0f, false, true, -SPELL_MARK_OF_ARLOKK);
                             if (!target)
-                                target = me->GetVictim();
+                                target = me->GetAutoAttackVictim();
                             if (target)
                             {
                                 DoCast(target, SPELL_MARK_OF_ARLOKK, true);
@@ -249,7 +249,7 @@ class boss_arlokk : public CreatureScript
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                             me->UpdateDamagePhysical(BASE_ATTACK);
                             */
-                            me->AttackStop();
+                            me->AutoAttackStop();
                             ResetThreatList();
                             me->SetReactState(REACT_PASSIVE);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
@@ -385,7 +385,7 @@ class npc_zulian_prowler : public CreatureScript
             void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_MARK_OF_ARLOKK_TRIGGER) // Should only hit if line of sight
-                    me->Attack(caster, true);
+                    me->AutoAttackStart(caster, true);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -414,7 +414,7 @@ class npc_zulian_prowler : public CreatureScript
                     {
                         case EVENT_ATTACK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0.0f, 100, false))
-                                me->Attack(target, true);
+                                me->AutoAttackStart(target, true);
                             break;
                         default:
                             break;
