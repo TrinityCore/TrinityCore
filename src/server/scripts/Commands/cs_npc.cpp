@@ -879,6 +879,13 @@ public:
             return false;
         }
 
+        if (!sCreatureDisplayInfoStore.LookupEntry(displayId))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, args);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
         creature->SetDisplayId(displayId);
         creature->SetNativeDisplayId(displayId);
 
