@@ -337,6 +337,14 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
             delete linkedGO;
     }
 
+    // Check if GameObject is Infinite
+    if (m_goInfo->IsInfiniteGameObject())
+        SetVisibilityDistanceOverride(VisibilityDistanceType::Infinite);
+
+    // Check if GameObject is Gigantic
+    if (m_goInfo->IsGiganticGameObject())
+        SetVisibilityDistanceOverride(VisibilityDistanceType::Gigantic);
+
     return true;
 }
 

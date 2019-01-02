@@ -53,6 +53,9 @@ struct GameObjectTemplate
             uint32 closeTextID;                             //5
             uint32 ignoredByPathing;                        //6
             uint32 conditionID1;                            //7
+            uint32 DoorisOpaque;                            //8 Door is Opaque (Disable portal on close), enum { false, true, }; Default: true
+            uint32 GiganticAOI;                             //9 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 InfiniteAOI;                             //10 Infinite AOI, enum { false, true, }; Default: false
         } door;
         //1 GAMEOBJECT_TYPE_BUTTON
         struct
@@ -62,7 +65,7 @@ struct GameObjectTemplate
             uint32 autoCloseTime;                           //2 secs till autoclose = autoCloseTime / 0x10000
             uint32 linkedTrap;                              //3
             uint32 noDamageImmune;                          //4 isBattlegroundObject
-            uint32 large;                                   //5
+            uint32 GiganticAOI;                             //5
             uint32 openTextID;                              //6 can be used to replace castBarCaption?
             uint32 closeTextID;                             //7
             uint32 losOK;                                   //8
@@ -80,7 +83,7 @@ struct GameObjectTemplate
             uint32 openTextID;                              //6 can be used to replace castBarCaption?
             uint32 losOK;                                   //7
             uint32 allowMounted;                            //8 Is usable while on mount/vehicle. (0/1)
-            uint32 large;                                   //9
+            uint32 GiganticAOI;                             //9
             uint32 conditionID1;                            //10
         } questgiver;
         //3 GAMEOBJECT_TYPE_CHEST
@@ -112,7 +115,7 @@ struct GameObjectTemplate
             uint32 floatingTooltip;                         //0
             uint32 highlight;                               //1
             uint32 serverOnly;                              //2
-            uint32 large;                                   //3
+            uint32 GiganticAOI;                             //3
             uint32 floatOnWater;                            //4
             int32 questID;                                  //5
             uint32 conditionID1;                            //6
@@ -130,7 +133,7 @@ struct GameObjectTemplate
             uint32 startDelay;                              //7
             uint32 serverOnly;                              //8
             uint32 stealthed;                               //9
-            uint32 large;                                   //10
+            uint32 GiganticAOI;                             //10
             uint32 invisible;                               //11
             uint32 openTextID;                              //12 can be used to replace castBarCaption?
             uint32 closeTextID;                             //13
@@ -154,7 +157,7 @@ struct GameObjectTemplate
             uint32 linkedTrapId;                            //2
             uint32 serverOnly;                              //3
             uint32 questID;                                 //4
-            uint32 large;                                   //5
+            uint32 GiganticAOI;                             //5
             uint32 floatingTooltip;                         //6
             uint32 floatOnWater;                            //7
             uint32 conditionID1;                            //8
@@ -184,7 +187,7 @@ struct GameObjectTemplate
             uint32 spellId;                                 //10
             uint32 noDamageImmune;                          //11
             uint32 linkedTrapId;                            //12
-            uint32 large;                                   //13
+            uint32 GiganticAOI;                             //13
             uint32 openTextID;                              //14 can be used to replace castBarCaption?
             uint32 closeTextID;                             //15
             uint32 losOK;                                   //16 isBattlegroundObject
@@ -278,7 +281,7 @@ struct GameObjectTemplate
             uint32 charges;                                 //1
             uint32 partyOnly;                               //2
             uint32 allowMounted;                            //3 Is usable while on mount/vehicle. (0/1)
-            uint32 large;                                   //4
+            uint32 GiganticAOI;                             //4
             uint32 conditionID1;                            //5
         } spellcaster;
         //23 GAMEOBJECT_TYPE_MEETINGSTONE
@@ -344,7 +347,7 @@ struct GameObjectTemplate
             uint32 maxSuperiority;                          //15
             uint32 minTime;                                 //16
             uint32 maxTime;                                 //17
-            uint32 large;                                   //18
+            uint32 GiganticAOI;                             //18
             uint32 highlight;                               //19
             uint32 startingValue;                           //20
             uint32 unidirectional;                          //21
@@ -556,6 +559,32 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_TRAP:        return trap.cooldown;
             case GAMEOBJECT_TYPE_GOOBER:      return goober.cooldown;
             default: return 0;
+        }
+    }
+
+    bool IsInfiniteGameObject() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:          return door.InfiniteAOI != 0;
+            default: return false;
+        }
+    }
+
+    bool IsGiganticGameObject() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:                  return door.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_BUTTON:                return button.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER:            return questgiver.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_GENERIC:               return _generic.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_TRAP:                  return trap.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS:           return spellFocus.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_GOOBER:                return goober.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_SPELLCASTER:           return spellcaster.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_CAPTURE_POINT:         return capturePoint.GiganticAOI != 0;
+            default: return false;
         }
     }
 };
