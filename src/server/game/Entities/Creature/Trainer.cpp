@@ -48,7 +48,7 @@ namespace Trainer
             if (!player->IsSpellFitByClassAndRace(trainerSpell.SpellId))
                 continue;
 
-            SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell.SpellId);
+            SpellInfo const* trainerSpellInfo = sSpellMgr->GetSpellInfo(trainerSpell.SpellId);
             if (!trainerSpellInfo)
                 continue;
 
@@ -139,8 +139,6 @@ namespace Trainer
             return false;
 
         SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell->SpellId);
-        if (!trainerSpellInfo)
-            return false;
 
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
