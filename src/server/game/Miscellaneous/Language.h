@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -340,7 +340,7 @@ enum TrinityStrings
     LANG_COMMAND_MODIFY_ARENA             = 306,
     LANG_COMMAND_FACTION_NOTFOUND         = 307,
     LANG_COMMAND_FACTION_UNKNOWN          = 308,
-    LANG_COMMAND_FACTION_INVPARAM         = 309,
+    LANG_COMMAND_INVALID_PARAM            = 309,
     LANG_COMMAND_FACTION_DELTA            = 310,
     LANG_FACTION_LIST                     = 311,
     LANG_FACTION_VISIBLE                  = 312,
