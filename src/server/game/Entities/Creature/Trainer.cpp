@@ -48,9 +48,7 @@ namespace Trainer
             if (!player->IsSpellFitByClassAndRace(trainerSpell.SpellId))
                 continue;
 
-            SpellInfo const* trainerSpellInfo = sSpellMgr->GetSpellInfo(trainerSpell.SpellId);
-            if (!trainerSpellInfo)
-                continue;
+            SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell.SpellId);
 
             bool primaryProfessionFirstRank = false;
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
