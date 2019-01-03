@@ -4131,16 +4131,17 @@ void Spell::SendSpellStart()
         }
     }
 
+    /*
     if (castFlags & CAST_FLAG_PROJECTILE)
     {
-        data << uint32(schoolImmunityMask);
-        data << uint32(mechanicImmunityMask);
+        data << uint32(0);
     }
+    */
 
     if (castFlags & CAST_FLAG_IMMUNITY)
     {
-        data << uint32(0);
-        data << uint32(0);
+        data << uint32(schoolImmunityMask);
+        data << uint32(mechanicImmunityMask);
     }
 
     if (castFlags & CAST_FLAG_HEAL_PREDICTION)
@@ -4534,29 +4535,53 @@ void Spell::SendChannelStart(uint32 duration)
         }
     }
 
+    uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
+    uint32 schoolImmunityMask = m_caster->GetSchoolImmunityMask();
+    uint32 mechanicImmunityMask = m_caster->GetMechanicImmunityMask();
+    if (schoolImmunityMask || mechanicImmunityMask)
+        castFlags |= CAST_FLAG_IMMUNITY;
+
+    if (m_spellInfo->HasAura(SPELL_AURA_PERIODIC_HEAL))
+        castFlags |= CAST_FLAG_HEAL_PREDICTION;
+
     WorldPacket data(MSG_CHANNEL_START, (8+4+4));
     data << m_caster->GetPackGUID();
     data << uint32(m_spellInfo->Id);
     data << uint32(duration);
-    data << uint8(0);                           // immunity (castflag & 0x04000000)
-    /*
-    if (immunity)
+
+    data << uint8(castFlags & CAST_FLAG_IMMUNITY);
+    if (castFlags & CAST_FLAG_IMMUNITY)
     {
-        data << uint32();                       // CastSchoolImmunities
-        data << uint32();                       // CastImmunities
+        data << uint32(schoolImmunityMask);     // CastSchoolImmunities
+        data << uint32(mechanicImmunityMask);   // CastImmunities
     }
-    */
-    data << uint8(0);                           // healPrediction (castflag & 0x40000000)
-    /*
-    if (healPrediction)
+
+    data << uint8(castFlags & CAST_FLAG_HEAL_PREDICTION);
+    if (castFlags & CAST_FLAG_HEAL_PREDICTION)
     {
-        data.appendPackGUID(channelTarget);     // target packguid
-        data << uint32();                       // spellid
-        data << uint8(0);                       // unk3
-        if (unk3 == 2)
-            data.append();                      // unk packed guid (unused ?)
+        uint8 type = DOT;
+        int32 amount = 0;
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
+        {
+            if (m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_PERIODIC_HEAL)
+            {
+                type = 0;
+                Unit* target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster;
+
+                amount = m_spellInfo->Effects[i].CalcValue(m_caster);
+                amount = m_caster->SpellHealingBonusDone(target, m_spellInfo, amount, DOT, i);
+                break;
+            }
+        }
+
+        data.appendPackGUID(channelTarget);
+        data << uint32(amount);
+        data << uint8(type);
+        if (type == DOT)
+            data.appendPackGUID(m_caster->GetGUID());
     }
-    */
+
     m_caster->SendMessageToSet(&data, true);
 
     m_timer = duration;
