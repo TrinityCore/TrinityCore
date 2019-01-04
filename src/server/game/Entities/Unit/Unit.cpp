@@ -9416,6 +9416,12 @@ void Unit::PushAI(UnitAI* newAI)
     i_AIs.emplace(newAI);
 }
 
+void Unit::SetAI(UnitAI* newAI)
+{
+    PushAI(newAI);
+    RefreshAI();
+}
+
 bool Unit::PopAI()
 {
     if (!i_AIs.empty())
@@ -9567,9 +9573,7 @@ void Unit::UpdateCharmAI()
         }
 
         ASSERT(newAI);
-        PushAI(newAI);
-        // Hack: this is required because we want to call OnCharmed(true) on the restored AI
-        RefreshAI();
+        SetAI(newAI);
         newAI->OnCharmed(true);
     }
     else

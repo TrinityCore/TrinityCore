@@ -950,6 +950,7 @@ void Creature::DoFleeToGetAssistance()
 bool Creature::AIM_Destroy()
 {
     PopAI();
+    RefreshAI();
     return true;
 }
 
@@ -957,7 +958,7 @@ bool Creature::AIM_Create(CreatureAI* ai /*= nullptr*/)
 {
     Motion_Initialize();
 
-    PushAI(ai ? ai : FactorySelector::SelectAI(this));
+    SetAI(ai ? ai : FactorySelector::SelectAI(this));
 
     return true;
 }

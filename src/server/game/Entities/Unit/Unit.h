@@ -771,7 +771,8 @@ class TC_GAME_API Unit : public WorldObject
         void ScheduleAIChange();
         void PushAI(UnitAI* newAI);
         bool PopAI();
-    private:
+    protected:
+        void SetAI(UnitAI* newAI);
         UnitAI* GetTopAI() const { return i_AIs.empty() ? nullptr : i_AIs.top().get(); }
         void RefreshAI();
     public:
