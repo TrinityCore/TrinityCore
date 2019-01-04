@@ -128,10 +128,7 @@ void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet)
         return;
     }
 
-    if (sObjectMgr->GetTrainer(npc->GetEntry()))
-        SendTrainerList(npc);
-    else
-        TC_LOG_DEBUG("network", "WorldSession::SendTrainerList - Creature id %u has no trainer data.", npc->GetEntry());
+    SendTrainerList(npc);
 }
 
 void WorldSession::SendTrainerList(Creature* npc)
@@ -144,6 +141,12 @@ void WorldSession::SendTrainerList(Creature* npc)
     if (!trainer)
     {
         TC_LOG_DEBUG("network", "WorldSession: SendTrainerList - trainer spells not found for %s", npc->GetGUID().ToString().c_str());
+        return;
+    }
+
+    if (!trainer->IsTrainerValidForPlayer(_player))
+    {
+        TC_LOG_DEBUG("network", "WorldSession: SendTrainerList - trainer %s not valid for player %s", npc->GetGUID().ToString().c_str(), GetPlayerInfo().c_str());
         return;
     }
 

@@ -209,17 +209,24 @@ namespace Trainer
 
     bool Trainer::IsTrainerValidForPlayer(Player const* player) const
     {
-        // check class for class trainers
-        if (player->getClass() != GetTrainerRequirement() && (GetTrainerType() == Type::Class || GetTrainerType() == Type::Pet))
-            return false;
+        if (!GetTrainerRequirement())
+            return true;
 
-        // check race for mount trainers
-        if (player->getRace() != GetTrainerRequirement() && GetTrainerType() == Type::Mount)
-            return false;
-
-        // check spell for profession trainers
-        if (!player->HasSpell(GetTrainerRequirement()) && GetTrainerRequirement() != 0 && GetTrainerType() == Type::Tradeskill)
-            return false;
+        switch (GetTrainerType())
+        {
+            case Type::Class:
+            case Type::Pet:
+                // check class for class trainers
+                return player->getClass() == GetTrainerRequirement();
+            case Type::Mount:
+                // check race for mount trainers
+                return player->getRace() == GetTrainerRequirement();
+            case Type::Tradeskill:
+                // check spell for profession trainers
+                return player->HasSpell(GetTrainerRequirement());
+            default:
+                break;
+        }
 
         return true;
     }

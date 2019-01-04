@@ -3406,6 +3406,10 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
                 case 64412: // Phase Punch, Algalon the Observer, Ulduar
                 case 72410: // Rune of Blood, Saurfang, Icecrown Citadel
                 case 71204: // Touch of Insignificance, Lady Deathwhisper, Icecrown Citadel
+                case 70853: // Malleable Goo, Professor Putricide (10 normal)
+                case 72458: // Malleable Goo, Professor Putricide (25 normal)
+                case 72873: // Malleable Goo, Professor Putricide (10 heroic)
+                case 72874: // Malleable Goo, Professor Putricide (25 heroic)
                     return false;
                 case 24732: // Bat Costume
                 case 30877: // Tag Murloc
