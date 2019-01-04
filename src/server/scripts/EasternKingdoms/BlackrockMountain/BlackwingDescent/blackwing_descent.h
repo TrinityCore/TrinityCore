@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,15 +39,22 @@ enum BWDDataTypes
 enum BWDCreatureIds
 {
     // Bosses
-    BOSS_MAGMAW     = 41570,
-    BOSS_MAGMATRON  = 42178,
-    BOSS_ARCANOTRON = 42166,
-    BOSS_TOXITRON   = 42180,
-    BOSS_ELECTRON   = 42179,
-    BOSS_CHIMAERON  = 43296,
-    BOSS_ATRAMEDES  = 41442,
-    BOSS_MALORIAK   = 41378,
-    BOSS_NEFARIAN   = 41376
+    BOSS_MAGMAW                                     = 41570,
+    BOSS_MAGMATRON                                  = 42178,
+    BOSS_ARCANOTRON                                 = 42166,
+    BOSS_TOXITRON                                   = 42180,
+    BOSS_ELECTRON                                   = 42179,
+    BOSS_CHIMAERON                                  = 43296,
+    BOSS_ATRAMEDES                                  = 41442,
+    BOSS_MALORIAK                                   = 41378,
+    BOSS_NEFARIAN                                   = 41376,
+
+    // Encounter related creatures
+    /*Magmaw*/
+    NPC_MAGMAWS_PINCER_1                            = 41620,
+    NPC_MAGMAWS_PINCER_2                            = 41789,
+    NPC_EXPOSED_HEAD_OF_MAGMAW                      = 42347,
+    NPC_EXPOSED_HEAD_OF_MAGMAW_2                    = 48270
 };
 
 enum BWDGameObjectIds
@@ -58,7 +64,7 @@ enum BWDGameObjectIds
 template <class AI, class T>
 inline AI* GetBlackwingDescentAI(T* obj)
 {
-    return GetInstanceAI<AI>(obj, BWDcriptName);
+    return GetInstanceAI<AI>(obj, BWDScriptName);
 }
 
 #define RegisterBlackwingDescentCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBlackwingDescentAI)
