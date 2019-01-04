@@ -769,10 +769,10 @@ class TC_GAME_API Unit : public WorldObject
         void AIUpdateTick(uint32 diff);
         UnitAI* GetAI() const { return i_AI.get(); }
         void ScheduleAIChange();
-    protected:
-        UnitAI* GetTopAI() const { return i_AIs.empty() ? nullptr : i_AIs.top().get(); }
         void PushAI(UnitAI* newAI);
         bool PopAI();
+    protected:
+        UnitAI* GetTopAI() const { return i_AIs.empty() ? nullptr : i_AIs.top().get(); }
         void RefreshAI() { i_AI.reset(GetTopAI()); }
     public:
 
