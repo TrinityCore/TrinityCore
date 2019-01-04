@@ -321,6 +321,9 @@ void CombatManager::PutReference(ObjectGuid const& guid, CombatReference* ref)
 
 void CombatManager::PurgeReference(ObjectGuid const& guid, bool pvp)
 {
+    if (Unit::GetGUID(_owner->GetPrimaryTarget()) == guid)
+        _owner->SetPrimaryTarget(nullptr);
+
     if (pvp)
         _pvpRefs.erase(guid);
     else

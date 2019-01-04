@@ -1347,6 +1347,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         size_t GetRewardedQuestCount() const { return m_RewardedQuests.size(); }
         bool IsQuestRewarded(uint32 quest_id) const;
 
+        void SetSelection(ObjectGuid guid);
+
         void SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, ObjectGuid::LowType item_guid = 0, uint32 item_count = 0) const;
         void SendNewMail() const;
         void UpdateNextMailTimeAndUnreads();

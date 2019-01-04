@@ -11280,6 +11280,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
         return false;
     }
 
+    ClearSpellFocus();
     CastStop();
     CombatStop(); /// @todo CombatStop(true) may cause crash (interrupt spells)
 
@@ -12843,14 +12844,13 @@ void Unit::SendClearTarget()
 
 ObjectGuid Unit::ChooseSelectedUnit() const
 {
-    if (GetTypeId() != TYPEID_PLAYER && !GetPlayerMovingMe())
-    {
-        if (HasUnitState(UNIT_STATE_CONTROLLED) || !IsAlive())
-            return ObjectGuid::Empty;
+    ASSERT(!IsDirectlyControlledByPlayer(), "Core is trying to hijack target of unit under direct player control", GetName());
 
-        if (HasSpellFocusTarget())
-            return GetSpellFocusTarget();
-    }
+    if (HasUnitState(UNIT_STATE_CONTROLLED) || !IsAlive())
+        return ObjectGuid::Empty;
+
+    if (HasSpellFocusTarget())
+        return GetSpellFocusTarget();
 
     return Object::GetGUID(GetPrimaryTarget());
 }
@@ -12864,6 +12864,10 @@ void Unit::SetSpellFocus(WorldObject* target, Spell const* spell)
 {
     // already focused
     if (m_focusSpell)
+        return;
+    
+    // controlled by player
+    if (IsDirectlyControlledByPlayer())
         return;
 
     // spell shouldn't use focus system
@@ -12929,12 +12933,6 @@ void Unit::ClearSpellFocus()
 void Unit::SetPrimaryTarget(ObjectGuid guid)
 {
     SetPrimaryTarget(ObjectAccessor::GetUnit(*this, guid));
-}
-
-void Unit::StopTargetingMe()
-{
-    while (!m_targetingMe.empty())
-        (*m_targetingMe.begin())->SetPrimaryTarget(nullptr);
 }
 
 uint32 Unit::GetResistance(SpellSchoolMask mask) const

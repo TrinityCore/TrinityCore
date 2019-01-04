@@ -3058,7 +3058,7 @@ void Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggered
     // focus if not controlled creature
     if (Creature* creatureCaster = m_caster->ToCreature())
     {
-        if (!creatureCaster->GetPlayerMovingMe() && !(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat()))
+        if (!m_spellInfo->IsNextMeleeSwingSpell() && !IsAutoRepeat())
         {
             if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
                 creatureCaster->SetSpellFocus(m_targets.GetObjectTarget(), this);

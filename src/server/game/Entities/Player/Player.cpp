@@ -1761,7 +1761,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 return true;
             }
 
-            SetPrimaryTarget(ObjectGuid::Empty);
+            SetSelection(ObjectGuid::Empty);
 
             CombatStop();
 
@@ -22439,6 +22439,16 @@ bool Player::IsQuestRewarded(uint32 quest_id) const
     return m_RewardedQuests.find(quest_id) != m_RewardedQuests.end();
 }
 
+void Player::SetSelection(ObjectGuid guid)
+{
+    if (IsDirectlyControlledByPlayer())
+        SetGuidValue(UNIT_FIELD_TARGET, guid);
+
+    if (Unit* moved = GetUnitBeingMoved())
+        if (moved != this && moved->IsDirectlyControlledByPlayer())
+            moved->SetGuidValue(UNIT_FIELD_TARGET, guid);
+}
+
 void Player::SetGroup(Group* group, int8 subgroup)
 {
     if (group == nullptr)
@@ -23796,6 +23806,7 @@ void Player::SetMovedUnit(Unit* target)
 
     m_unitMovedByMe = target;
     m_unitMovedByMe->m_playerMovingMe = this;
+    ASSERT(!m_unitMovedByMe->GetPrimaryTarget(), "Player just took direct control of unit, but unit has primary target: %s", m_unitMovedByMe->GetDebugInfo().c_str());
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)

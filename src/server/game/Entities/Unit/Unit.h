@@ -1143,6 +1143,7 @@ class TC_GAME_API Unit : public WorldObject
         ObjectGuid GetCharmedGUID() const { return GetGuidValue(UNIT_FIELD_CHARM); }
         Unit* GetCharmed() const { return m_charmed; }
 
+        bool IsDirectlyControlledByPlayer() const { return IsControlledByPlayer() && (GetTypeId() == TYPEID_PLAYER || IsPlayerMovingMe()); }
         bool IsControlledByPlayer() const { return m_ControlledByPlayer; }
         Player* GetControllingPlayer() const;
         ObjectGuid GetCharmerOrOwnerGUID() const override { return IsCharmed() ? GetCharmerGUID() : GetOwnerGUID(); }
@@ -1178,6 +1179,8 @@ class TC_GAME_API Unit : public WorldObject
         Unit* GetUnitBeingMoved() const;
         // returns the player that this player IS CONTROLLING
         Player* GetPlayerBeingMoved() const;
+        // returns true if the unit is under direct client control (possess effects, vehicles, etc.)
+        bool IsPlayerMovingMe() const { return !!GetPlayerMovingMe(); }
         // returns the player that this unit is BEING CONTROLLED BY
         Player* GetPlayerMovingMe() const { return m_playerMovingMe; }
         // only set for direct client control (possess effects, vehicles and similar)
@@ -1653,16 +1656,7 @@ class TC_GAME_API Unit : public WorldObject
         void ClearSpellFocus();
 
         void SetPrimaryTarget(ObjectGuid guid);
-        void SetPrimaryTarget(Unit* target)
-        {
-            if (m_primaryTarget)
-                m_primaryTarget->m_targetingMe.erase(this);
-            m_primaryTarget = target;
-            if (target)
-                target->m_targetingMe.insert(this);
-            UpdateSelectedUnit();
-        }
-        void StopTargetingMe();
+        void SetPrimaryTarget(Unit* target) { if (IsDirectlyControlledByPlayer() || (target && !IsInCombatWith(target))) return; m_primaryTarget = target; UpdateSelectedUnit(); }
         Unit* GetPrimaryTarget() const { return m_primaryTarget; }
 
         void SetInstantCast(bool set) { _instantCast = set; }
@@ -1709,9 +1703,7 @@ class TC_GAME_API Unit : public WorldObject
         std::unordered_set<Unit*> m_attackers;
         Unit* m_attacking;
 
-        std::unordered_set<Unit*> m_targetingMe;
         Unit* m_primaryTarget;
-
         ObjectGuid m_spellFocusTarget;
         uint32 m_spellFocusDelay;
         std::uintptr_t m_focusSpell;
