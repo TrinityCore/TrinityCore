@@ -771,9 +771,9 @@ class TC_GAME_API Unit : public WorldObject
         void ScheduleAIChange();
         void PushAI(UnitAI* newAI);
         bool PopAI();
-    protected:
+    private:
         UnitAI* GetTopAI() const { return i_AIs.empty() ? nullptr : i_AIs.top().get(); }
-        void RefreshAI() { i_AI.reset(GetTopAI()); }
+        void RefreshAI();
     public:
 
         void AddToWorld() override;

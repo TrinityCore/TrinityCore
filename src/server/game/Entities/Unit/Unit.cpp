@@ -9427,6 +9427,11 @@ bool Unit::PopAI()
         return false;
 }
 
+void Unit::RefreshAI()
+{
+    i_AI.reset(GetTopAI());
+}
+
 void Unit::ScheduleAIChange()
 {
     bool const charmed = IsCharmed();
