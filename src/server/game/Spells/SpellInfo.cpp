@@ -4358,6 +4358,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
                 case 64412: // Phase Punch, Algalon the Observer, Ulduar
                 case 72410: // Rune of Blood, Saurfang, Icecrown Citadel
                 case 71204: // Touch of Insignificance, Lady Deathwhisper, Icecrown Citadel
+                case 70853: // Malleable Goo, Professor Putricide, Icecrown Citadel
                     return false;
                 case 24732: // Bat Costume
                 case 30877: // Tag Murloc
