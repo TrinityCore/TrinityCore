@@ -479,31 +479,6 @@ void Spell::EffectSchoolDMG()
         {
             case SPELLFAMILY_GENERIC:
             {
-                ///@todo: move those to scripts
-                switch (m_spellInfo->Id)                     // better way to check unknown
-                {
-                    // Consumption
-                    case 28865:
-                        damage = 2750;
-                        if (m_caster->GetMap()->IsHeroic())
-                            damage = 4250;
-                        break;
-                    // percent from health with min
-                    case 25599:                             // Thundercrash
-                    {
-                        damage = unitTarget->GetHealth() / 2;
-                        if (damage < 200)
-                            damage = 200;
-                        break;
-                    }
-                    // arcane charge. must only affect demons (also undead?)
-                    case 45072:
-                    {
-                        if (!(unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_DEMON_OR_UNDEAD))
-                            return;
-                        break;
-                    }
-                }
                 break;
             }
             case SPELLFAMILY_WARRIOR:
