@@ -3406,10 +3406,6 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
                 case 64412: // Phase Punch, Algalon the Observer, Ulduar
                 case 72410: // Rune of Blood, Saurfang, Icecrown Citadel
                 case 71204: // Touch of Insignificance, Lady Deathwhisper, Icecrown Citadel
-                case 70853: // Malleable Goo, Professor Putricide (10 normal)
-                case 72458: // Malleable Goo, Professor Putricide (25 normal)
-                case 72873: // Malleable Goo, Professor Putricide (10 heroic)
-                case 72874: // Malleable Goo, Professor Putricide (25 heroic)
                     return false;
                 case 24732: // Bat Costume
                 case 30877: // Tag Murloc
@@ -3437,9 +3433,6 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
                 return false;
             // Arcane Missiles
             if (spellInfo->SpellFamilyFlags[0] == 0x00000800)
-                return false;
-            // Mage Slow
-            if (spellInfo->Id == 31589)
                 return false;
             break;
         case SPELLFAMILY_WARRIOR:
@@ -3639,12 +3632,14 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
                 break;
             case SPELL_AURA_MOD_ATTACKSPEED:            // some buffs have negative bp, check both target and bp
             case SPELL_AURA_MOD_MELEE_HASTE:
+            case SPELL_AURA_HASTE_RANGED:
             case SPELL_AURA_MOD_RESISTANCE_PCT:
             case SPELL_AURA_MOD_RATING:
             case SPELL_AURA_MOD_ATTACK_POWER:
             case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
             case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
-                if (!_isPositiveTarget(spellInfo, effIndex) && bp < 0)
+            case SPELL_AURA_MOD_SPEED_SLOW_ALL:
+                if (!_isPositiveTarget(spellInfo, effIndex) || bp < 0)
                     return false;
                 break;
             case SPELL_AURA_MOD_DAMAGE_TAKEN:           // dependent from basepoint sign (positive -> negative)
