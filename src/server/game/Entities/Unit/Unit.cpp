@@ -9435,7 +9435,10 @@ bool Unit::PopAI()
 
 void Unit::RefreshAI()
 {
-    i_AI.reset(GetTopAI());
+    if (i_AIs.empty())
+        i_AI = nullptr;
+    else
+        i_AI = i_AIs.top();
 }
 
 void Unit::ScheduleAIChange()
