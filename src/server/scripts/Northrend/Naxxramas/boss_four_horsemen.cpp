@@ -690,64 +690,69 @@ class boss_four_horsemen_sir : public CreatureScript
         }
 };
 
-class spell_four_horsemen_mark : public SpellScriptLoader
-{
-    public:
-        spell_four_horsemen_mark() : SpellScriptLoader("spell_four_horsemen_mark") { }
+ class spell_four_horsemen_mark : public AuraScript
+ {
+     PrepareAuraScript(spell_four_horsemen_mark);
 
-        class spell_four_horsemen_mark_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_four_horsemen_mark_AuraScript);
+     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+     {
+         if (Unit* caster = GetCaster())
+         {
+             int32 damage;
+             switch (GetStackAmount())
+             {
+                 case 1:
+                     damage = 0;
+                     break;
+                 case 2:
+                     damage = 500;
+                     break;
+                 case 3:
+                     damage = 1000;
+                     break;
+                 case 4:
+                     damage = 1500;
+                     break;
+                 case 5:
+                     damage = 4000;
+                     break;
+                 case 6:
+                     damage = 12000;
+                     break;
+                 default:
+                     damage = 20000 + 1000 * (GetStackAmount() - 7);
+                     break;
+             }
+             if (damage)
+             {
+                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                 args.AddSpellBP0(damage);
+                 caster->CastSpell(GetTarget(), SPELL_MARK_DAMAGE, args);
+             }
+         }
+     }
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 damage;
-                    switch (GetStackAmount())
-                    {
-                        case 1:
-                            damage = 0;
-                            break;
-                        case 2:
-                            damage = 500;
-                            break;
-                        case 3:
-                            damage = 1000;
-                            break;
-                        case 4:
-                            damage = 1500;
-                            break;
-                        case 5:
-                            damage = 4000;
-                            break;
-                        case 6:
-                            damage = 12000;
-                            break;
-                        default:
-                            damage = 20000 + 1000 * (GetStackAmount() - 7);
-                            break;
-                    }
-                    if (damage)
-                    {
-                        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.AddSpellBP0(damage);
-                        caster->CastSpell(GetTarget(), SPELL_MARK_DAMAGE, args);
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_four_horsemen_mark_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_four_horsemen_mark_AuraScript();
-        }
+     void Register() override
+     {
+         AfterEffectApply += AuraEffectApplyFn(spell_four_horsemen_mark::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+     }
 };
+
+ class spell_four_horsemen_consumption : public SpellScript
+ {
+     PrepareSpellScript(spell_four_horsemen_consumption);
+
+     void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+     {
+         uint32 damage = GetCaster()->GetMap()->IsHeroic() ? 4250 : 2750;
+         SetHitDamage(damage);
+     }
+
+     void Register() override
+     {
+         OnEffectHitTarget += SpellEffectFn(spell_four_horsemen_consumption::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+     }
+ };
 
 void AddSC_boss_four_horsemen()
 {
@@ -755,5 +760,6 @@ void AddSC_boss_four_horsemen()
     new boss_four_horsemen_thane();
     new boss_four_horsemen_lady();
     new boss_four_horsemen_sir();
-    new spell_four_horsemen_mark();
+    RegisterAuraScript(spell_four_horsemen_mark);
+    RegisterSpellScript(spell_four_horsemen_consumption);
 }
