@@ -43,9 +43,9 @@ public:
 
     // create battlefields
     void Initialize();
-    // called when a player enters an battlefield area
+    // called when a player enters a battlefield area
     void HandlePlayerEnterZone(Player* player, uint32 zoneId);
-    // called when player leaves an battlefield area
+    // called when player leaves a battlefield area
     void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
     void Update(uint32 diff);
 

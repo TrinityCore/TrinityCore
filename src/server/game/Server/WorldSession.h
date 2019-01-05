@@ -82,13 +82,11 @@ namespace WorldPackets
         class BattlefieldMgrQueueInviteResponse;
         class BattlefieldMgrExitRequest;
     }
-
     namespace NPC
     {
         class Hello;
         class TrainerBuySpell;
     }
-
     namespace Query
     {
         class QueryCreature;
