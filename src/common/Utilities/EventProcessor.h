@@ -24,6 +24,8 @@
 #include <map>
 #include "Random.h"
 
+#include <functional>
+
 class EventProcessor;
 
 // Note. All times are in milliseconds here.
@@ -79,6 +81,9 @@ class TC_COMMON_API EventProcessor
         void Update(uint32 p_time);
         void KillAllEvents(bool force);
         void AddEvent(BasicEvent* event, uint64 e_time, bool set_addtime = true);
+
+        void AddEvent(const std::function<void()>& func, uint64 e_time);
+
         void AddEventAtOffset(BasicEvent* event, Milliseconds offset) { AddEvent(event, CalculateTime(offset.count())); }
         void AddEventAtOffset(BasicEvent* event, Milliseconds offset, Milliseconds offset2) { AddEvent(event, CalculateTime(urand(offset.count(), offset2.count()))); }
         void ModifyEventTime(BasicEvent* event, uint64 newTime);
@@ -87,6 +92,7 @@ class TC_COMMON_API EventProcessor
     protected:
         uint64 m_time;
         std::multimap<uint64, BasicEvent*> m_events;
+        std::multimap< uint64, std::function<void()>> m_quickEvents;
 };
 
 #endif

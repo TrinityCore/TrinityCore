@@ -78,6 +78,17 @@ void EventProcessor::Update(uint32 p_time)
         // the next update tick
         AddEvent(event, CalculateTime(1), false);
     }
+
+    auto itr = m_quickEvents.begin();
+    auto end = m_quickEvents.upper_bound(m_time);
+    while (itr != end && itr != m_quickEvents.end())
+    {
+        itr->second();
+        ++itr;
+    }
+
+    if (itr != end)
+        m_quickEvents.erase(m_quickEvents.begin(), end);
 }
 
 void EventProcessor::KillAllEvents(bool force)
@@ -109,6 +120,11 @@ void EventProcessor::KillAllEvents(bool force)
 
     if (force)
         m_events.clear();
+}
+
+void EventProcessor::AddEvent(const std::function<void()>& func, uint64 e_time)
+{
+    m_quickEvents.insert({ e_time, func });
 }
 
 void EventProcessor::AddEvent(BasicEvent* event, uint64 e_time, bool set_addtime)
