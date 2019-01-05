@@ -9449,7 +9449,10 @@ void Unit::ScheduleAIChange()
     if (charmed)
         PushAI(nullptr);
     else
+    {
+        RestoreDisabledAI();
         PushAI(nullptr); //This could actually be PopAI() to get the previous AI but it's required atm to trigger UpdateCharmAI()
+    }
 }
 
 void Unit::RestoreDisabledAI()
