@@ -29,16 +29,32 @@ enum Spells
     // Magmaw
     SPELL_RIDE_VEHICLE                          = 77901,
     SPELL_BIRTH                                 = 26586,
+    SPELL_MAGMA_SPIT_TARGETING                  = 95280,
+    SPELL_MAGMA_SPIT_MISSILE                    = 78359,
+    SPELL_LAVA_SPEW                             = 77839,
+    SPELL_MAGMA_SPIT_MOLTEN_TANTRUM             = 78068,
+    SPELL_MANGLE_1                              = 89773,
+    SPELL_MANGLE_2                              = 78412,
+    SPELL_MANGLE_TARGETING                      = 92047,
+    SPELL_MASSIVE_CRASH                         = 88253,
+    SPELL_MASSIVE_CRASH_DAMAGE                  = 88287,
 
     // Exposed Head of Magmaw
     SPELL_POINT_OF_VULNERABILITY_SHARE_DAMAGE   = 79010,
     SPELL_POINT_OF_VULNERABILITY                = 79011,
     SPELL_RIDE_VEHICLE_EXPOSED_HEAD             = 89743,
     SPELL_QUEST_INVIS_5                         = 95478,
+
+    // Room Stalker
+    SPELL_LIGHT_SHOW                            = 87949,
 };
 
 enum Events
 {
+    // Magmaw
+    EVENT_MAGMA_SPIT = 1,
+    EVENT_LAVA_SPEW,
+    EVENT_MANGLE,
 };
 
 enum Actions
@@ -97,6 +113,10 @@ struct boss_magmaw : public BossAI
     {
         _JustEngagedWith();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        events.ScheduleEvent(EVENT_MAGMA_SPIT, 6s);
+        events.ScheduleEvent(EVENT_LAVA_SPEW, 19s);
+        //events.ScheduleEvent(EVENT_MANGLE, 1min + 31s);
+        events.ScheduleEvent(EVENT_MANGLE, 5s);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -119,6 +139,45 @@ struct boss_magmaw : public BossAI
 
         if (passenger->GetEntry() == NPC_EXPOSED_HEAD_OF_MAGMAW)
             passenger->SetFacingTo(me->GetOrientation());
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_MAGMA_SPIT:
+                    DoCastAOE(SPELL_MAGMA_SPIT_TARGETING);
+                    events.Repeat(12s, 16s);
+                    break;
+                case EVENT_LAVA_SPEW:
+                    DoCastAOE(SPELL_LAVA_SPEW);
+                    events.Repeat(24s, 28s);
+                    break;
+                case EVENT_MANGLE:
+                    DoCastAOE(SPELL_MANGLE_TARGETING);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (Unit* victim = me->GetVictim())
+        {
+            if (me->IsWithinMeleeRange(victim))
+                DoMeleeAttackIfReady();
+            else
+                DoSpellAttackIfReady(SPELL_MAGMA_SPIT_MOLTEN_TANTRUM);
+        }
     }
 
 private:
@@ -177,7 +236,91 @@ private:
     Vehicle const* vehicle;
 };
 
+class spell_magmaw_magma_spit: public SpellScript
+{
+    PrepareSpellScript(spell_magmaw_magma_spit);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGMA_SPIT_MISSILE });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->Is25ManRaid() ? 8 : 3);
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), SPELL_MAGMA_SPIT_MISSILE, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_magmaw_magma_spit::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_magmaw_magma_spit::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class VictimCheck
+{
+    public:
+        VictimCheck(Unit* _attacker) : attacker(_attacker)  { }
+
+        bool operator()(WorldObject* object)
+        {
+            return (attacker->GetVictim() && attacker->GetVictim() != object->ToUnit());
+        }
+    private:
+        Unit* attacker;
+};
+
+class spell_magmaw_mangle : public SpellScript
+{
+    PrepareSpellScript(spell_magmaw_mangle);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_MANGLE_1,
+                SPELL_MANGLE_2
+            });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(VictimCheck(GetCaster()));
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* target = GetHitUnit();
+        caster->CastSpell(target, SPELL_MANGLE_1, true);
+        target->CastSpell(target, SPELL_MANGLE_2, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_magmaw_mangle::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_magmaw_mangle::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_boss_magmaw()
 {
     RegisterBlackwingDescentCreatureAI(boss_magmaw);
+    RegisterSpellScript(spell_magmaw_magma_spit);
+    RegisterSpellScript(spell_magmaw_mangle);
 }
