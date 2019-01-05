@@ -9435,6 +9435,7 @@ bool Unit::PopAI()
 
 void Unit::RefreshAI()
 {
+    ASSERT(!m_aiLocked, "Tried to change current AI during UpdateAI()");
     if (i_AIs.empty())
         i_AI = nullptr;
     else
