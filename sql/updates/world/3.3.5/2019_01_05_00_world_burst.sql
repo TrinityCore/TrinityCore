@@ -1,7 +1,7 @@
 UPDATE `spell_script_names` SET `ScriptName`='spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576' WHERE `spell_id` = 59576;
 UPDATE `spell_script_names` SET `ScriptName`='spell_q12690_burst_at_the_seams_52510' WHERE `spell_id` = 52510;
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (52593, 59579, 76245, 59590, 60039, 60041);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death', 'spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579', 'spell_q13264_q13276_q13288_q13289_area_restrict_abom', 'spell_q13264_q13276_q13288_q13289_assign_credit_to_master');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (52593, 'spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death'),
 (59579, 'spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579'),
