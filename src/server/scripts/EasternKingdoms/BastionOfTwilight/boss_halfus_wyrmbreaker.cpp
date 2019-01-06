@@ -564,7 +564,7 @@ class npc_halfus_enslaved_dragon : public CreatureScript
                             break;
                         }
                         case EVENT_BIND_TO_HALFUS_WILL:
-                            if (Creature* halfus = _instance->GetCreature(DATA_HALFUS_WYRMBREAKER))
+                            if (_instance->GetCreature(DATA_HALFUS_WYRMBREAKER))
                                 DoCastSelf(SPELL_BIND_WILL, true);
                             break;
                         default:
