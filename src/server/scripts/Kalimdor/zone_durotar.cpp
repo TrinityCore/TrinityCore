@@ -66,7 +66,23 @@ class spell_voodoo : public SpellScriptLoader
         }
 };
 
+class spell_zuni_lvl_1_trigger_aura : public SpellScript
+{
+    PrepareSpellScript(spell_zuni_lvl_1_trigger_aura);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), GetSpellInfo()->Effects[EFFECT_0].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuni_lvl_1_trigger_aura::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_durotar()
 {
     new spell_voodoo();
+    RegisterSpellScript(spell_zuni_lvl_1_trigger_aura);
 }
