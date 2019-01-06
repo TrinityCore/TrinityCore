@@ -1402,7 +1402,7 @@ class TC_GAME_API Unit : public WorldObject
         // only players have item requirements
         virtual bool CheckAttackFitToAuraRequirement(WeaponAttackType /*attackType*/, AuraEffect const* /*aurEff*/) const { return true; }
 
-        virtual void UpdateDamageDoneMods(WeaponAttackType attackType);
+        virtual void UpdateDamageDoneMods(WeaponAttackType attackType, int32 skipEnchantSlot = -1);
         void UpdateAllDamageDoneMods();
 
         void UpdateDamagePctDoneMods(WeaponAttackType attackType);

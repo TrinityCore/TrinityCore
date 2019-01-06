@@ -8875,6 +8875,34 @@ void ObjectMgr::LoadTrainers()
                 spellsByTrainer.erase(spellsItr);
             }
 
+            switch (trainerType)
+            {
+                case Trainer::Type::Class:
+                case Trainer::Type::Pet:
+                    if (requirement && !sChrClassesStore.LookupEntry(requirement))
+                    {
+                        TC_LOG_ERROR("sql.sql", "Table `trainer` references non-existing class requirement %u for TrainerId %u, ignoring", requirement, trainerId);
+                        continue;
+                    }
+                    break;
+                case Trainer::Type::Mount:
+                    if (requirement && !sChrRacesStore.LookupEntry(requirement))
+                    {
+                        TC_LOG_ERROR("sql.sql", "Table `trainer` references non-existing race requirement %u for TrainerId %u, ignoring", requirement, trainerId);
+                        continue;
+                    }
+                    break;
+                case Trainer::Type::Tradeskill:
+                    if (requirement && !sSpellMgr->GetSpellInfo(requirement))
+                    {
+                        TC_LOG_ERROR("sql.sql", "Table `trainer` references non-existing spell requirement %u for TrainerId %u, ignoring", requirement, trainerId);
+                        continue;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
             _trainers.emplace(std::piecewise_construct, std::forward_as_tuple(trainerId), std::forward_as_tuple(trainerId, trainerType, requirement, std::move(greeting), std::move(spells)));
         } while (trainersResult->NextRow());
     }

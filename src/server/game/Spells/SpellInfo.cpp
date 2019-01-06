@@ -3434,9 +3434,6 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             // Arcane Missiles
             if (spellInfo->SpellFamilyFlags[0] == 0x00000800)
                 return false;
-            // Mage Slow
-            if (spellInfo->Id == 31589)
-                return false;
             break;
         case SPELLFAMILY_WARRIOR:
             // Slam, Execute
@@ -3635,12 +3632,14 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
                 break;
             case SPELL_AURA_MOD_ATTACKSPEED:            // some buffs have negative bp, check both target and bp
             case SPELL_AURA_MOD_MELEE_HASTE:
+            case SPELL_AURA_HASTE_RANGED:
             case SPELL_AURA_MOD_RESISTANCE_PCT:
             case SPELL_AURA_MOD_RATING:
             case SPELL_AURA_MOD_ATTACK_POWER:
             case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
             case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
-                if (!_isPositiveTarget(spellInfo, effIndex) && bp < 0)
+            case SPELL_AURA_MOD_SPEED_SLOW_ALL:
+                if (!_isPositiveTarget(spellInfo, effIndex) || bp < 0)
                     return false;
                 break;
             case SPELL_AURA_MOD_DAMAGE_TAKEN:           // dependent from basepoint sign (positive -> negative)

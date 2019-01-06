@@ -48,10 +48,15 @@ namespace Trainer
             if (!player->IsSpellFitByClassAndRace(trainerSpell.SpellId))
                 continue;
 
+            SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell.SpellId);
+
             bool primaryProfessionFirstRank = false;
-            for (int32 reqAbility : trainerSpell.ReqAbility)
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(reqAbility);
+                if (trainerSpellInfo->Effects[i].Effect != SPELL_EFFECT_LEARN_SPELL)
+                    continue;
+
+                SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainerSpellInfo->Effects[i].TriggerSpell);
                 if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank())
                     primaryProfessionFirstRank = true;
             }
@@ -132,8 +137,16 @@ namespace Trainer
             return false;
 
         SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell->SpellId);
-        if (trainerSpellInfo->IsPrimaryProfessionFirstRank() && !player->GetFreePrimaryProfessionPoints())
-            return false;
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (trainerSpellInfo->Effects[i].Effect != SPELL_EFFECT_LEARN_SPELL)
+                continue;
+
+            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainerSpellInfo->Effects[i].TriggerSpell);
+            if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank() && !player->GetFreePrimaryProfessionPoints())
+                return false;
+        }
 
         return true;
     }
@@ -196,17 +209,24 @@ namespace Trainer
 
     bool Trainer::IsTrainerValidForPlayer(Player const* player) const
     {
-        // check class for class trainers
-        if (player->getClass() != GetTrainerRequirement() && (GetTrainerType() == Type::Class || GetTrainerType() == Type::Pet))
-            return false;
+        if (!GetTrainerRequirement())
+            return true;
 
-        // check race for mount trainers
-        if (player->getRace() != GetTrainerRequirement() && GetTrainerType() == Type::Mount)
-            return false;
-
-        // check spell for profession trainers
-        if (!player->HasSpell(GetTrainerRequirement()) && GetTrainerRequirement() != 0 && GetTrainerType() == Type::Tradeskill)
-            return false;
+        switch (GetTrainerType())
+        {
+            case Type::Class:
+            case Type::Pet:
+                // check class for class trainers
+                return player->getClass() == GetTrainerRequirement();
+            case Type::Mount:
+                // check race for mount trainers
+                return player->getRace() == GetTrainerRequirement();
+            case Type::Tradeskill:
+                // check spell for profession trainers
+                return player->HasSpell(GetTrainerRequirement());
+            default:
+                break;
+        }
 
         return true;
     }

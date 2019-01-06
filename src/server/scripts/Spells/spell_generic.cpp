@@ -201,6 +201,27 @@ class spell_gen_animal_blood : public AuraScript
     }
 };
 
+class spell_gen_arcane_charge : public SpellScript
+{
+    PrepareSpellScript(spell_gen_arcane_charge);
+
+    SpellCastResult CheckRequirement()
+    {
+        if (Unit* target = GetExplTargetUnit())
+        {
+            if (!(target->GetCreatureTypeMask() & CREATURE_TYPEMASK_DEMON_OR_UNDEAD))
+                return SPELL_FAILED_DONT_REPORT;
+        }
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_gen_arcane_charge::CheckRequirement);
+    }
+};
+
 // 430 Drink
 // 431 Drink
 // 432 Drink
@@ -4052,6 +4073,7 @@ void AddSC_generic_spell_scripts()
     RegisterAuraScript(spell_gen_adaptive_warding);
     RegisterSpellScript(spell_gen_allow_cast_from_item_only);
     RegisterAuraScript(spell_gen_animal_blood);
+    RegisterSpellScript(spell_gen_arcane_charge);
     RegisterAuraScript(spell_gen_arena_drink);
     RegisterAuraScript(spell_gen_aura_of_anger);
     RegisterAuraScript(spell_gen_aura_of_fear);
