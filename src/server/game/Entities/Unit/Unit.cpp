@@ -12844,7 +12844,7 @@ void Unit::SendClearTarget()
 
 ObjectGuid Unit::ChooseSelectedUnit() const
 {
-    ASSERT(!IsDirectlyControlledByPlayer(), "Core is trying to hijack target of unit under direct player control", GetName());
+    ASSERT(!IsDirectlyControlledByPlayer(), "Core is trying to hijack target of unit under direct player control");
 
     if (HasUnitState(UNIT_STATE_CONTROLLED) || !IsAlive())
         return ObjectGuid::Empty;
