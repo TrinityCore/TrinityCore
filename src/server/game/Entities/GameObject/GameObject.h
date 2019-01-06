@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -284,6 +284,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void AIM_Destroy();
         bool AIM_Initialize();
+
+        std::string GetDebugInfo() const override;
 
     protected:
         GameObjectModel* CreateModel();
