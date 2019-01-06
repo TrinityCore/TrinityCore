@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -59,7 +59,7 @@ namespace
         int32 length = vsnprintf(nullptr, 0, format, len);
         va_end(len);
 
-        formatted.resize(length + 1);
+        formatted.resize(length);
         vsnprintf(&formatted[0], length + 1, format, args);
 
         return formatted;
@@ -69,20 +69,20 @@ namespace
 namespace Trinity
 {
 
-void Assert(char const* file, int line, char const* function, char const* message)
+void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message)
 {
-    std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message);
+    std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + debugInfo + '\n';
     fprintf(stderr, "%s", formattedMessage.c_str());
     fflush(stderr);
     Crash(formattedMessage.c_str());
 }
 
-void Assert(char const* file, int line, char const* function, char const* message, char const* format, ...)
+void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message, char const* format, ...)
 {
     va_list args;
     va_start(args, format);
 
-    std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n';
+    std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
     va_end(args);
 
     fprintf(stderr, "%s", formattedMessage.c_str());
@@ -138,3 +138,8 @@ void AbortHandler(int sigval)
 }
 
 } // namespace Trinity
+
+std::string GetDebugInfo()
+{
+    return "";
+}

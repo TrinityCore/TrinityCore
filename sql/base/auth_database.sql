@@ -1496,7 +1496,7 @@ INSERT INTO `rbac_permissions` VALUES
 (669,'Command: reload mail_loot_template'),
 (670,'Command: reload milling_loot_template'),
 (671,'Command: reload npc_spellclick_spells'),
-(672,'Command: reload npc_trainer'),
+(672,'Command: reload trainer'),
 (673,'Command: reload npc_vendor'),
 (674,'Command: reload page_text'),
 (675,'Command: reload pickpocketing_loot_template'),
@@ -1773,7 +1773,8 @@ INSERT INTO `updates` VALUES
 ('2018_06_23_00_auth.sql','BE35312C386A127D047E5A7CE0D14DB41D905F8E','ARCHIVED','2018-06-23 00:00:00',0),
 ('2018_08_30_00_auth.sql','22F69864361D3E72F800379338310172C0576D1C','ARCHIVED','2018-08-30 00:00:00',0),
 ('2018_09_06_00_auth.sql','309D21E0DF82ED8921F77EAFDE741F38AC32BB13','ARCHIVED','2018-09-06 00:00:00',0),
-('2018_09_17_00_auth.sql','4DB671F0A4FA1A93AF28FB6426AF13DE72C7DA3D','ARCHIVED','2018-09-17 00:00:00',0);
+('2018_09_17_00_auth.sql','4DB671F0A4FA1A93AF28FB6426AF13DE72C7DA3D','ARCHIVED','2018-09-17 00:00:00',0),
+('2018_12_30_00_auth.sql','680F4F9194FC37592041C2DB5B2B7006B14E836D','RELEASED','2018-12-30 00:00:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

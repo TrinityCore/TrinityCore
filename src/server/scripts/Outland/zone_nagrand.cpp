@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -730,14 +730,14 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim())
+            if (!UpdateVictim() || !me->GetVictim())
                 return;
 
             interrupt_cooldown += diff;
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            if (me->GetVictim()->HasUnitState(UNIT_STATE_CASTING) && interrupt_cooldown > 25000)
+            if (me->EnsureVictim()->HasUnitState(UNIT_STATE_CASTING) && interrupt_cooldown > 25000)
             {
                 DoCastVictim(SPELL_COUNTERSPELL);
                 interrupt_cooldown = 0;
