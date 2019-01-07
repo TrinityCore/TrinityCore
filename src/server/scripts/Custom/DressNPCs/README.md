@@ -33,12 +33,14 @@ Using diff:
 - do `git apply dressnpcs_7.x.diff`
 - use cmake and compile
 
+Before compiling:
+- You can choose in CMake to disable sound workaround if you have a client patch for the NPC sounds. The option is `DISABLE_DRESSNPCS_CORESOUNDS`.
+
 After compiling:
-- TrinityCore auto updater should run needed SQLs automatically.
-- If you do not use the auto updater then run files named `*_dressnpcs.sql` from `\sql\custom` to your databases.
+- Make sure you have already created and updated your databases to match your TC version. You can usually do this by running the worldserver once.
+- Run SQL files from `src/server/scripts/Custom/DressNPCs/new_install` to their respective databases.
 
 ## Usage
-- Before compiling the core you can choose in CMake to disable sound workaround if you have a client patch for the NPC sounds. The option is `DISABLE_DRESSNPCS_CORESOUNDS`.
 - Remember to check server startup errors, they tell when you do things wrong.
 - For some skins you must use a specific class, like for death knight skins and eyes.
 - Unplayable races like naga are possible to be used as race, experiment :).
@@ -50,7 +52,7 @@ To make an outfit create a row to `creature_template_outfits` table with your de
 - The items can use positive value as item entry and negative for displayid.
 - Appearances are usually between 0 and 10 and they define the look of the item. Different appearances are usually used by mythic and heroic versions of an item. The appearance column takes effect only when using an item entry (a positive value) for the equipped item definition.
 - `guildid` refers to an actual guild from characters table and it is used to define the tabard looks of the creature if one is equipped. So you must make a guild and set a tabard for it and use it's ID in the column for the outfit.
-- `npcsoundsid` refers to `NPCSounds.dbc/db2`. In this column you can define what gossip replies to use for the NPC with the core side workaround for missing sounds for gossip. To create completely new sound combinations you can use hotfixes database or edit the DBC file.
+- `npcsoundsid` refers to `NPCSounds.dbc/db2`. In this column you can define what gossip replies to use for the NPC with the core side workaround for missing sounds for gossip. To create completely new sound combinations you can use hotfixes database `npc_sounds` table or edit the DBC file.
 
 You can use the outfit entry as modelid in creature template, smart scripts and elsewhere in the DB and core for setting a modelid/displayid, like `creature->SetDisplayId(outfitid)`.
 

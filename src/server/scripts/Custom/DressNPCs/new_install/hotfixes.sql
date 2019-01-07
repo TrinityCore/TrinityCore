@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS `npc_sounds`;
 CREATE TABLE `npc_sounds` (
 	`ID` INT(10) UNSIGNED NOT NULL,
 	`hello` INT(10) UNSIGNED NOT NULL DEFAULT '0',
