@@ -5,8 +5,8 @@ UPDATE `creature_template` SET `gossip_menu_id`=0 WHERE `entry` IN (5637);
 DELETE FROM `gossip_menu` WHERE `MenuID`=50000; -- npc 2993
 DELETE FROM `npc_text` WHERE `id`=50000;
 
-DELETE FROM `gossip_menu` WHERE `entry`=9856 AND `text_id`=10887;
-INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (9856,10887);
+DELETE FROM `gossip_menu` WHERE `MenuID`=9856 AND `TextID`=10887;
+INSERT INTO `gossip_menu` (`MenuID`,`TextID`) VALUES (9856,10887);
 
 UPDATE `creature_template` SET `gossip_menu_id`=5021, `npcflag`=3 WHERE `entry` IN (13257,22567,32048,37369);
 UPDATE `creature_template` SET `gossip_menu_id`=5148, `npcflag`=3 WHERE `entry` IN (13438,22698,31824,37483);
