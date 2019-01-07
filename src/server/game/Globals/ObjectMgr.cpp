@@ -8405,28 +8405,41 @@ void ObjectMgr::LoadCreatureOutfits()
 
     _creatureOutfitStore.clear();
 
+    std::map<int, Races> newRaceToOldRace = {
+        {/*RACE_NIGHTBORNE*/            27, RACE_NIGHTELF},
+        {/*RACE_HIGHMOUNTAIN_TAUREN*/   28, RACE_TAUREN},
+        {/*RACE_VOID_ELF*/              29, RACE_BLOODELF},
+        {/*RACE_LIGHTFORGED_DRAENEI*/   30, RACE_DRAENEI},
+        {/*RACE_ZANDALARI_TROLL*/       31, RACE_TROLL},
+        {/*RACE_KUL_TIRAN*/             32, RACE_DRAENEI},
+        {/*RACE_THIN_HUMAN*/            33, RACE_NIGHTELF},
+        {/*RACE_DARK_IRON_DWARF*/       34, RACE_DWARF},
+        {/*RACE_VULPERA*/               35, RACE_GNOME},
+        {/*RACE_MAGHAR_ORC*/            36, RACE_ORC},
+    };
+
+    for (auto const & r : newRaceToOldRace)
+    {
+        auto* e1 = sChrRacesStore.AssertEntry(r.first);
+        auto* e2 = sChrRacesStore.AssertEntry(r.second);
+        if (!GetCreatureModelInfo(e1->MaleDisplayId))
+        {
+            auto* info = GetCreatureModelInfo(e2->MaleDisplayId);
+            ASSERT(info, "Dress NPCs: New race has no info for male and old race has no info either");
+            _creatureModelStore[e1->MaleDisplayId] = *info;
+        }
+        if (!GetCreatureModelInfo(e1->FemaleDisplayId))
+        {
+            auto* info = GetCreatureModelInfo(e2->FemaleDisplayId);
+            ASSERT(info, "Dress NPCs: New race has no info for female and old race has no info either");
+            _creatureModelStore[e1->FemaleDisplayId] = *info;
+        }
+    }
+
     for (auto* e : sChrRacesStore)
     {
-        if (!GetCreatureModelInfo(e->MaleDisplayId))
-        {
-            TC_LOG_ERROR("server.loading", "Dress NPCs requires an entry in creature_model_info for modelid %u (%s Male), using hardcoded dummy info", e->MaleDisplayId, e->Name->Str[DEFAULT_LOCALE]);
-            auto& info = _creatureModelStore[e->MaleDisplayId];
-            info.gender = GENDER_MALE;
-            info.displayId_other_gender = e->FemaleDisplayId;
-            info.is_trigger = false;
-            info.combat_reach = 1.0f;
-            info.bounding_radius = 0.5f;
-        }
-        if (!GetCreatureModelInfo(e->FemaleDisplayId))
-        {
-            TC_LOG_ERROR("server.loading", "Dress NPCs requires an entry in creature_model_info for modelid %u (%s Female), using hardcoded dummy info", e->FemaleDisplayId, e->Name->Str[DEFAULT_LOCALE]);
-            auto& info = _creatureModelStore[e->FemaleDisplayId];
-            info.gender = GENDER_FEMALE;
-            info.displayId_other_gender = e->MaleDisplayId;
-            info.is_trigger = false;
-            info.combat_reach = 1.0f;
-            info.bounding_radius = 0.5f;
-        }
+        ASSERT(GetCreatureModelInfo(e->MaleDisplayId), "Dress NPCs requires an entry in creature_model_info for modelid %u (%s Male)", e->MaleDisplayId, e->Name->Str[DEFAULT_LOCALE]);
+        ASSERT(GetCreatureModelInfo(e->FemaleDisplayId), "Dress NPCs requires an entry in creature_model_info for modelid %u (%s Female)", e->FemaleDisplayId, e->Name->Str[DEFAULT_LOCALE]);
     }
 
     QueryResult result = WorldDatabase.Query("SELECT entry, npcsoundsid, race, class, gender, skin, face, hair, haircolor, facialhair, feature1, feature2, feature3, "
