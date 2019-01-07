@@ -491,7 +491,7 @@ void SpellCastTargets::OutDebug() const
     TC_LOG_DEBUG("spells", "pitch: %f", m_pitch);
 }
 
-SpellValue::SpellValue(Difficulty diff, SpellInfo const* proto)
+SpellValue::SpellValue(Difficulty diff, SpellInfo const* proto, Unit const* caster)
 {
     // todo 6.x
     SpellEffectInfoVector effects = proto->GetEffectsForDifficulty(diff);
@@ -499,8 +499,9 @@ SpellValue::SpellValue(Difficulty diff, SpellInfo const* proto)
     memset(EffectBasePoints, 0, sizeof(EffectBasePoints));
     for (SpellEffectInfo const* effect : effects)
         if (effect)
-            EffectBasePoints[effect->EffectIndex] = effect->BasePoints;
+            EffectBasePoints[effect->EffectIndex] = effect->CalcBaseValue(caster, nullptr, -1);
 
+    CustomBasePointsMask = 0;
     MaxAffectedTargets = proto->MaxAffectedTargets;
     RadiusMod = 1.0f;
     AuraStackAmount = 1;
@@ -521,7 +522,7 @@ protected:
 
 Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID, bool skipCheck) :
 m_spellInfo(info), m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster),
-m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo))
+m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo, caster))
 {
     _effects = info->GetEffectsForDifficulty(caster->GetMap()->GetDifficultyID());
 
@@ -537,7 +538,6 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo))
     m_delayAtDamageCount = 0;
 
     m_applyMultiplierMask = 0;
-    m_auraScaleMask = 0;
     memset(m_damageMultipliers, 0, sizeof(m_damageMultipliers));
 
     // Get data for type of attack
@@ -789,31 +789,6 @@ void Spell::SelectSpellTargets()
                     m_channelTargetEffectMask |= mask;
                     break;
                 }
-            }
-        }
-        else if (m_auraScaleMask)
-        {
-            bool checkLvl = !m_UniqueTargetInfo.empty();
-            for (std::vector<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end();)
-            {
-                // remove targets which did not pass min level check
-                if (m_auraScaleMask && ihit->effectMask == m_auraScaleMask)
-                {
-                    // Do not check for selfcast
-                    if (!ihit->scaleAura && ihit->targetGUID != m_caster->GetGUID())
-                    {
-                        ihit = m_UniqueTargetInfo.erase(ihit);
-                        continue;
-                    }
-                }
-
-                ++ihit;
-            }
-
-            if (checkLvl && m_UniqueTargetInfo.empty())
-            {
-                SendCastResult(SPELL_FAILED_LOWLEVEL);
-                finish(false);
             }
         }
     }
@@ -1489,6 +1464,9 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImpli
             if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->IsVehicle())
                 target = m_caster->GetVehicleKit()->GetPassenger(targetType.GetTarget() - TARGET_UNIT_PASSENGER_0);
             break;
+        case TARGET_UNIT_OWN_CRITTER:
+            target = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_caster, m_caster->GetCritterGUID());
+            break;
         default:
             break;
     }
@@ -2128,13 +2106,6 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         if (targetGUID == ihit->targetGUID)             // Found in list
         {
             ihit->effectMask |= effectMask;             // Immune effects removed from mask
-            ihit->scaleAura = false;
-            if (m_auraScaleMask && ihit->effectMask == m_auraScaleMask && m_caster != target)
-            {
-                SpellInfo const* auraSpell = m_spellInfo->GetFirstRankSpell();
-                if (uint32(target->GetLevelForTarget(m_caster) + 10) >= auraSpell->SpellLevel)
-                    ihit->scaleAura = true;
-            }
             return;
         }
     }
@@ -2149,13 +2120,6 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     targetInfo.alive      = target->IsAlive();
     targetInfo.damage     = 0;
     targetInfo.crit       = false;
-    targetInfo.scaleAura  = false;
-    if (m_auraScaleMask && targetInfo.effectMask == m_auraScaleMask && m_caster != target)
-    {
-        SpellInfo const* auraSpell = m_spellInfo->GetFirstRankSpell();
-        if (uint32(target->GetLevelForTarget(m_caster) + 10) >= auraSpell->SpellLevel)
-            targetInfo.scaleAura = true;
-    }
 
     // Calculate hit result
     if (m_originalCaster)
@@ -2398,7 +2362,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         if (unit->IsPvP() && m_caster->GetTypeId() == TYPEID_PLAYER)
             enablePvP = true; // Decide on PvP flagging now, but act on it later.
 
-        SpellMissInfo missInfo2 = DoSpellHitOnUnit(spellHitTarget, mask, target->scaleAura);
+        SpellMissInfo missInfo2 = DoSpellHitOnUnit(spellHitTarget, mask);
 
         if (missInfo2 != SPELL_MISS_NONE)
         {
@@ -2591,7 +2555,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     }
 }
 
-SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleAura)
+SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
 {
     if (!unit || !effectMask)
         return SPELL_MISS_EVADE;
@@ -2676,34 +2640,19 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
     if (aura_effmask)
     {
-        // Select rank for aura with level requirements only in specific cases
-        // Unit has to be target only of aura effect, both caster and target have to be players, target has to be other than unit target
-        SpellInfo const* aurSpellInfo = m_spellInfo;
-        int32 basePoints[MAX_SPELL_EFFECTS];
-        if (scaleAura)
-        {
-            aurSpellInfo = m_spellInfo->GetAuraRankForLevel(unitTarget->getLevel());
-            ASSERT(aurSpellInfo);
-            for (SpellEffectInfo const* effect : aurSpellInfo->GetEffectsForDifficulty(0))
-            {
-                basePoints[effect->EffectIndex] = effect->BasePoints;
-                if (SpellEffectInfo const* myEffect = GetEffect(effect->EffectIndex))
-                {
-                    if (myEffect->Effect != effect->Effect)
-                    {
-                        aurSpellInfo = m_spellInfo;
-                        break;
-                    }
-                }
-            }
-        }
-
         if (m_originalCaster)
         {
+            int32 basePoints[MAX_SPELL_EFFECTS];
+            for (SpellEffectInfo const* auraSpellEffect : GetEffects())
+                if (auraSpellEffect)
+                    basePoints[auraSpellEffect->EffectIndex] = (m_spellValue->CustomBasePointsMask & (1 << auraSpellEffect->EffectIndex)) ?
+                        m_spellValue->EffectBasePoints[auraSpellEffect->EffectIndex] :
+                        auraSpellEffect->CalcBaseValue(m_originalCaster, unit, m_castItemLevel);
+
             bool refresh = false;
             bool const resetPeriodicTimer = !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
-            m_spellAura = Aura::TryRefreshStackOrCreate(aurSpellInfo, m_castId, effectMask, unit,
-                m_originalCaster, (aurSpellInfo == m_spellInfo) ? m_spellValue->EffectBasePoints : basePoints,
+            m_spellAura = Aura::TryRefreshStackOrCreate(m_spellInfo, m_castId, effectMask, unit,
+                m_originalCaster, basePoints,
                 m_CastItem, ObjectGuid::Empty, &refresh, resetPeriodicTimer, ObjectGuid::Empty, m_castItemLevel);
             if (m_spellAura)
             {
@@ -2718,7 +2667,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
                 // Now Reduce spell duration using data received at spell hit
                 int32 duration = m_spellAura->GetMaxDuration();
-                float diminishMod = unit->ApplyDiminishingToDuration(aurSpellInfo, duration, m_originalCaster, diminishLevel);
+                float diminishMod = unit->ApplyDiminishingToDuration(m_spellInfo, duration, m_originalCaster, diminishLevel);
 
                 // unit is immune to aura if it was diminished to 0 duration
                 if (diminishMod == 0.0f)
@@ -2739,13 +2688,13 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     if (AuraApplication* aurApp = m_spellAura->GetApplicationOfTarget(m_originalCaster->GetGUID()))
                         positive = aurApp->IsPositive();
 
-                    duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, positive, effectMask);
+                    duration = m_originalCaster->ModSpellDuration(m_spellInfo, unit, duration, positive, effectMask);
 
                     if (duration > 0)
                     {
                         // Haste modifies duration of channeled spells
                         if (m_spellInfo->IsChanneled())
-                            m_originalCaster->ModSpellDurationTime(aurSpellInfo, duration, this);
+                            m_originalCaster->ModSpellDurationTime(m_spellInfo, duration, this);
                         else if (m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
                         {
                             int32 origDuration = duration;
@@ -2952,27 +2901,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     }
 
     InitExplicitTargets(*targets);
-
-    // Fill aura scaling information
-    if (m_caster->IsControlledByPlayer() && !m_spellInfo->IsPassive() && m_spellInfo->SpellLevel && !m_spellInfo->IsChanneled() && !(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_SCALING))
-    {
-        for (SpellEffectInfo const* effect : GetEffects())
-        {
-            if (effect && effect->Effect == SPELL_EFFECT_APPLY_AURA)
-            {
-                // Change aura with ranks only if basepoints are taken from spellInfo and aura is positive
-                if (m_spellInfo->IsPositiveEffect(effect->EffectIndex))
-                {
-                    m_auraScaleMask |= (1 << effect->EffectIndex);
-                    if (m_spellValue->EffectBasePoints[effect->EffectIndex] != effect->BasePoints)
-                    {
-                        m_auraScaleMask = 0;
-                        break;
-                    }
-                }
-            }
-        }
-    }
 
     m_spellState = SPELL_STATE_PREPARING;
 
@@ -6045,7 +5973,8 @@ SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
 
 int32 Spell::CalculateDamage(uint8 i, Unit const* target, float* var /*= nullptr*/) const
 {
-    return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], var, m_castItemLevel);
+    bool needRecalculateBasePoints = !(m_spellValue->CustomBasePointsMask & (1 << i));
+    return m_caster->CalculateSpellDamage(target, m_spellInfo, i, needRecalculateBasePoints ? nullptr : &m_spellValue->EffectBasePoints[i], var, m_castItemLevel);
 }
 
 bool Spell::CanAutoCast(Unit* target)
@@ -7233,8 +7162,8 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         uint32 targetAmount = m_UniqueTargetInfo.size();
-                        if (targetAmount > 10)
-                            m_damage = m_damage * 10/targetAmount;
+                        if (targetAmount > 20)
+                            m_damage = m_damage * 20/targetAmount;
                     }
                 }
             }
@@ -7295,7 +7224,7 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
 
                 skillId = SkillByLockType(LockType(lockInfo->Index[j]));
 
-                if (skillId != SKILL_NONE || lockInfo->Index[j] == LOCKTYPE_PICKLOCK)
+                if (skillId != SKILL_NONE || lockInfo->Index[j] == LOCKTYPE_LOCKPICKING)
                 {
                     reqSkillValue = lockInfo->Skill[j];
 
@@ -7303,7 +7232,7 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
                     skillValue = 0;
                     if (!m_CastItem && m_caster->GetTypeId() == TYPEID_PLAYER)
                         skillValue = m_caster->ToPlayer()->GetSkillValue(skillId);
-                    else if (lockInfo->Index[j] == LOCKTYPE_PICKLOCK)
+                    else if (lockInfo->Index[j] == LOCKTYPE_LOCKPICKING)
                         skillValue = m_caster->getLevel() * 5;
 
                     // skill bonus provided by casting spell (mostly item spells)
@@ -7330,8 +7259,8 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
 {
     if (mod < SPELLVALUE_BASE_POINT_END)
     {
-        if (SpellEffectInfo const* effect = GetEffect(mod))
-            m_spellValue->EffectBasePoints[mod] = effect->CalcBaseValue(value);
+        m_spellValue->EffectBasePoints[mod] = value;
+        m_spellValue->CustomBasePointsMask |= 1 << mod;
         return;
     }
 

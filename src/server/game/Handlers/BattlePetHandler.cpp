@@ -68,7 +68,7 @@ void WorldSession::HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& c
 
 void WorldSession::HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon)
 {
-    if (_player->GetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_ID) != battlePetSummon.PetGuid)
+    if (_player->GetGuidValue(ACTIVE_PLAYER_FIELD_SUMMONED_BATTLE_PET_ID) != battlePetSummon.PetGuid)
         GetBattlePetMgr()->SummonPet(battlePetSummon.PetGuid);
     else
         GetBattlePetMgr()->DismissPet();

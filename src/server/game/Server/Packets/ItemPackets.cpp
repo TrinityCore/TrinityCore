@@ -280,7 +280,7 @@ WorldPacket const* WorldPackets::Item::ReadItemResultFailed::Write()
 {
     _worldPacket << Item;
     _worldPacket << uint32(Delay);
-    _worldPacket.WriteBits(Subcode, 3);
+    _worldPacket.WriteBits(Subcode, 2);
 
     _worldPacket.FlushBits();
 

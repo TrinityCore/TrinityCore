@@ -36,10 +36,11 @@ enum AreaTriggerFlags
     AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN        = 0x00010, // NYI
     AREATRIGGER_FLAG_UNK1                       = 0x00020,
     AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH_YAW  = 0x00040, // NYI
-    AREATRIGGER_FLAG_UNK2                       = 0x00080,
+    AREATRIGGER_FLAG_HAS_ANIM_ID                = 0x00080,
     AREATRIGGER_FLAG_UNK3                       = 0x00100,
-    AREATRIGGER_FLAG_UNK4                       = 0x00200,
-    AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT      = 0x00400
+    AREATRIGGER_FLAG_HAS_ANIM_KIT_ID            = 0x00200,
+    AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT      = 0x00400,
+    AREATRIGGER_FLAG_UNK5                       = 0x00800,
 };
 
 enum AreaTriggerTypes
@@ -96,7 +97,7 @@ struct AreaTriggerScaleInfo
 
 struct AreaTriggerCircularMovementInfo
 {
-    Optional<ObjectGuid> TargetGUID;
+    Optional<ObjectGuid> PathTarget;
     Optional<TaggedPosition<Position::XYZ>> Center;
     bool CounterClockwise = false;
     bool CanLoop = false;
@@ -189,6 +190,9 @@ public:
     uint32 ScaleCurveId;
     uint32 MorphCurveId;
     uint32 FacingCurveId;
+
+    int32 AnimId;
+    int32 AnimKitId;
 
     uint32 DecalPropertiesId;
 

@@ -25,7 +25,7 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
-#include "client/v1/channel_id.pb.h"  // IWYU pragma: export
+#include "api/client/v1/channel_id.pb.h"  // IWYU pragma: export
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
 #include "invitation_types.pb.h"
@@ -673,7 +673,7 @@ class TC_PROTO_API ChannelState : public ::google::protobuf::Message {
   inline ::std::string* release_channel_type();
   inline void set_allocated_channel_type(::std::string* channel_type);
 
-  // optional fixed32 program = 11 [default = 0];
+  // optional fixed32 program = 11;
   inline bool has_program() const;
   inline void clear_program();
   static const int kProgramFieldNumber = 11;
@@ -1881,7 +1881,7 @@ inline void ChannelState::set_allocated_channel_type(::std::string* channel_type
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.ChannelState.channel_type)
 }
 
-// optional fixed32 program = 11 [default = 0];
+// optional fixed32 program = 11;
 inline bool ChannelState::has_program() const {
   return (_has_bits_[0] & 0x00000100u) != 0;
 }

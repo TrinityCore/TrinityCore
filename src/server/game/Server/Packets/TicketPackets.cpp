@@ -201,8 +201,16 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
     bool hasGuildInfo = _worldPacket.ReadBit();
     bool hasLFGListSearchResult = _worldPacket.ReadBit();
     bool hasLFGListApplicant = _worldPacket.ReadBit();
+    bool hasClubMessage = _worldPacket.ReadBit();
 
     _worldPacket.ResetBitPos();
+
+    if (hasClubMessage)
+    {
+        CommunityMessage = boost::in_place();
+        CommunityMessage->IsPlayerUsingVoice = _worldPacket.ReadBit();
+        _worldPacket.ResetBitPos();
+    }
 
     if (hasMailInfo)
         _worldPacket >> MailInfo;

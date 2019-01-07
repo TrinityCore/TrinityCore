@@ -96,6 +96,9 @@ AreaTriggerMiscTemplate::AreaTriggerMiscTemplate()
     MorphCurveId = 0;
     FacingCurveId = 0;
 
+    AnimId = 0;
+    AnimKitId = 0;
+
     DecalPropertiesId = 0;
 
     TimeToTarget = 0;

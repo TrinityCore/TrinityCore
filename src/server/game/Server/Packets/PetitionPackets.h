@@ -56,7 +56,7 @@ namespace WorldPackets
             int32 NumChoices = 0;
             int32 StaticType = 0;
             uint32 Muid = 0;
-            std::string Choicetext[10];
+            std::array<std::string, 10> Choicetext;
         };
 
         class QueryPetitionResponse final : public ServerPacket

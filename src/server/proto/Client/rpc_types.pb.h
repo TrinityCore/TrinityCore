@@ -23,11 +23,11 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
-#include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
-#include "global_extensions/method_options.pb.h"  // IWYU pragma: export
-#include "global_extensions/service_options.pb.h"  // IWYU pragma: export
 #include "global_extensions/field_options.pb.h"  // IWYU pragma: export
+#include "global_extensions/method_options.pb.h"  // IWYU pragma: export
+#include "global_extensions/message_options.pb.h"  // IWYU pragma: export
+#include "global_extensions/service_options.pb.h"  // IWYU pragma: export
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
@@ -45,29 +45,9 @@ class ProcessId;
 class ObjectAddress;
 class NoData;
 class ErrorInfo;
-class TraceInfo;
 class Header;
+class KafkaHeader;
 
-enum TraceInfo_Sampling {
-  TraceInfo_Sampling_YES = 0,
-  TraceInfo_Sampling_NO = 1,
-  TraceInfo_Sampling_DEFER = 2
-};
-TC_PROTO_API bool TraceInfo_Sampling_IsValid(int value);
-const TraceInfo_Sampling TraceInfo_Sampling_Sampling_MIN = TraceInfo_Sampling_YES;
-const TraceInfo_Sampling TraceInfo_Sampling_Sampling_MAX = TraceInfo_Sampling_DEFER;
-const int TraceInfo_Sampling_Sampling_ARRAYSIZE = TraceInfo_Sampling_Sampling_MAX + 1;
-
-TC_PROTO_API const ::google::protobuf::EnumDescriptor* TraceInfo_Sampling_descriptor();
-inline const ::std::string& TraceInfo_Sampling_Name(TraceInfo_Sampling value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    TraceInfo_Sampling_descriptor(), value);
-}
-inline bool TraceInfo_Sampling_Parse(
-    const ::std::string& name, TraceInfo_Sampling* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<TraceInfo_Sampling>(
-    TraceInfo_Sampling_descriptor(), name, value);
-}
 // ===================================================================
 
 class TC_PROTO_API NO_RESPONSE : public ::google::protobuf::Message {
@@ -593,170 +573,6 @@ class TC_PROTO_API ErrorInfo : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_PROTO_API TraceInfo : public ::google::protobuf::Message {
- public:
-  TraceInfo();
-  virtual ~TraceInfo();
-
-  TraceInfo(const TraceInfo& from);
-
-  inline TraceInfo& operator=(const TraceInfo& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const TraceInfo& default_instance();
-
-  void Swap(TraceInfo* other);
-
-  // implements Message ----------------------------------------------
-
-  TraceInfo* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const TraceInfo& from);
-  void MergeFrom(const TraceInfo& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  typedef TraceInfo_Sampling Sampling;
-  static const Sampling YES = TraceInfo_Sampling_YES;
-  static const Sampling NO = TraceInfo_Sampling_NO;
-  static const Sampling DEFER = TraceInfo_Sampling_DEFER;
-  static inline bool Sampling_IsValid(int value) {
-    return TraceInfo_Sampling_IsValid(value);
-  }
-  static const Sampling Sampling_MIN =
-    TraceInfo_Sampling_Sampling_MIN;
-  static const Sampling Sampling_MAX =
-    TraceInfo_Sampling_Sampling_MAX;
-  static const int Sampling_ARRAYSIZE =
-    TraceInfo_Sampling_Sampling_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  Sampling_descriptor() {
-    return TraceInfo_Sampling_descriptor();
-  }
-  static inline const ::std::string& Sampling_Name(Sampling value) {
-    return TraceInfo_Sampling_Name(value);
-  }
-  static inline bool Sampling_Parse(const ::std::string& name,
-      Sampling* value) {
-    return TraceInfo_Sampling_Parse(name, value);
-  }
-
-  // accessors -------------------------------------------------------
-
-  // optional string session_id = 1;
-  inline bool has_session_id() const;
-  inline void clear_session_id();
-  static const int kSessionIdFieldNumber = 1;
-  inline const ::std::string& session_id() const;
-  inline void set_session_id(const ::std::string& value);
-  inline void set_session_id(const char* value);
-  inline void set_session_id(const char* value, size_t size);
-  inline ::std::string* mutable_session_id();
-  inline ::std::string* release_session_id();
-  inline void set_allocated_session_id(::std::string* session_id);
-
-  // optional string trace_id = 2;
-  inline bool has_trace_id() const;
-  inline void clear_trace_id();
-  static const int kTraceIdFieldNumber = 2;
-  inline const ::std::string& trace_id() const;
-  inline void set_trace_id(const ::std::string& value);
-  inline void set_trace_id(const char* value);
-  inline void set_trace_id(const char* value, size_t size);
-  inline ::std::string* mutable_trace_id();
-  inline ::std::string* release_trace_id();
-  inline void set_allocated_trace_id(::std::string* trace_id);
-
-  // optional string span_id = 3;
-  inline bool has_span_id() const;
-  inline void clear_span_id();
-  static const int kSpanIdFieldNumber = 3;
-  inline const ::std::string& span_id() const;
-  inline void set_span_id(const ::std::string& value);
-  inline void set_span_id(const char* value);
-  inline void set_span_id(const char* value, size_t size);
-  inline ::std::string* mutable_span_id();
-  inline ::std::string* release_span_id();
-  inline void set_allocated_span_id(::std::string* span_id);
-
-  // optional string parent_span_id = 4;
-  inline bool has_parent_span_id() const;
-  inline void clear_parent_span_id();
-  static const int kParentSpanIdFieldNumber = 4;
-  inline const ::std::string& parent_span_id() const;
-  inline void set_parent_span_id(const ::std::string& value);
-  inline void set_parent_span_id(const char* value);
-  inline void set_parent_span_id(const char* value, size_t size);
-  inline ::std::string* mutable_parent_span_id();
-  inline ::std::string* release_parent_span_id();
-  inline void set_allocated_parent_span_id(::std::string* parent_span_id);
-
-  // optional .bgs.protocol.TraceInfo.Sampling sampling = 5 [default = DEFER];
-  inline bool has_sampling() const;
-  inline void clear_sampling();
-  static const int kSamplingFieldNumber = 5;
-  inline ::bgs::protocol::TraceInfo_Sampling sampling() const;
-  inline void set_sampling(::bgs::protocol::TraceInfo_Sampling value);
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.TraceInfo)
- private:
-  inline void set_has_session_id();
-  inline void clear_has_session_id();
-  inline void set_has_trace_id();
-  inline void clear_has_trace_id();
-  inline void set_has_span_id();
-  inline void clear_has_span_id();
-  inline void set_has_parent_span_id();
-  inline void clear_has_parent_span_id();
-  inline void set_has_sampling();
-  inline void clear_has_sampling();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::std::string* session_id_;
-  ::std::string* trace_id_;
-  ::std::string* span_id_;
-  ::std::string* parent_span_id_;
-  int sampling_;
-  friend void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
-  friend void protobuf_AssignDesc_rpc_5ftypes_2eproto();
-  friend void protobuf_ShutdownFile_rpc_5ftypes_2eproto();
-
-  void InitAsDefaultInstance();
-  static TraceInfo* default_instance_;
-};
-// -------------------------------------------------------------------
-
 class TC_PROTO_API Header : public ::google::protobuf::Message {
  public:
   Header();
@@ -897,14 +713,17 @@ class TC_PROTO_API Header : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 service_hash() const;
   inline void set_service_hash(::google::protobuf::uint32 value);
 
-  // optional .bgs.protocol.TraceInfo trace_info = 12;
-  inline bool has_trace_info() const;
-  inline void clear_trace_info();
-  static const int kTraceInfoFieldNumber = 12;
-  inline const ::bgs::protocol::TraceInfo& trace_info() const;
-  inline ::bgs::protocol::TraceInfo* mutable_trace_info();
-  inline ::bgs::protocol::TraceInfo* release_trace_info();
-  inline void set_allocated_trace_info(::bgs::protocol::TraceInfo* trace_info);
+  // optional string client_id = 13;
+  inline bool has_client_id() const;
+  inline void clear_client_id();
+  static const int kClientIdFieldNumber = 13;
+  inline const ::std::string& client_id() const;
+  inline void set_client_id(const ::std::string& value);
+  inline void set_client_id(const char* value);
+  inline void set_client_id(const char* value, size_t size);
+  inline ::std::string* mutable_client_id();
+  inline ::std::string* release_client_id();
+  inline void set_allocated_client_id(::std::string* client_id);
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.Header)
  private:
@@ -926,8 +745,8 @@ class TC_PROTO_API Header : public ::google::protobuf::Message {
   inline void clear_has_is_response();
   inline void set_has_service_hash();
   inline void clear_has_service_hash();
-  inline void set_has_trace_info();
-  inline void clear_has_trace_info();
+  inline void set_has_client_id();
+  inline void clear_has_client_id();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -943,7 +762,7 @@ class TC_PROTO_API Header : public ::google::protobuf::Message {
   bool is_response_;
   ::google::protobuf::uint64 timeout_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::ProcessId > forward_targets_;
-  ::bgs::protocol::TraceInfo* trace_info_;
+  ::std::string* client_id_;
   ::google::protobuf::uint32 service_hash_;
   friend void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
   friend void protobuf_AssignDesc_rpc_5ftypes_2eproto();
@@ -951,6 +770,187 @@ class TC_PROTO_API Header : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static Header* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API KafkaHeader : public ::google::protobuf::Message {
+ public:
+  KafkaHeader();
+  virtual ~KafkaHeader();
+
+  KafkaHeader(const KafkaHeader& from);
+
+  inline KafkaHeader& operator=(const KafkaHeader& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const KafkaHeader& default_instance();
+
+  void Swap(KafkaHeader* other);
+
+  // implements Message ----------------------------------------------
+
+  KafkaHeader* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const KafkaHeader& from);
+  void MergeFrom(const KafkaHeader& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional fixed32 service_hash = 1;
+  inline bool has_service_hash() const;
+  inline void clear_service_hash();
+  static const int kServiceHashFieldNumber = 1;
+  inline ::google::protobuf::uint32 service_hash() const;
+  inline void set_service_hash(::google::protobuf::uint32 value);
+
+  // optional uint32 method_id = 2;
+  inline bool has_method_id() const;
+  inline void clear_method_id();
+  static const int kMethodIdFieldNumber = 2;
+  inline ::google::protobuf::uint32 method_id() const;
+  inline void set_method_id(::google::protobuf::uint32 value);
+
+  // optional uint32 token = 3;
+  inline bool has_token() const;
+  inline void clear_token();
+  static const int kTokenFieldNumber = 3;
+  inline ::google::protobuf::uint32 token() const;
+  inline void set_token(::google::protobuf::uint32 value);
+
+  // optional uint64 object_id = 4 [default = 0];
+  inline bool has_object_id() const;
+  inline void clear_object_id();
+  static const int kObjectIdFieldNumber = 4;
+  inline ::google::protobuf::uint64 object_id() const;
+  inline void set_object_id(::google::protobuf::uint64 value);
+
+  // optional uint32 size = 5 [default = 0];
+  inline bool has_size() const;
+  inline void clear_size();
+  static const int kSizeFieldNumber = 5;
+  inline ::google::protobuf::uint32 size() const;
+  inline void set_size(::google::protobuf::uint32 value);
+
+  // optional uint32 status = 6 [default = 0];
+  inline bool has_status() const;
+  inline void clear_status();
+  static const int kStatusFieldNumber = 6;
+  inline ::google::protobuf::uint32 status() const;
+  inline void set_status(::google::protobuf::uint32 value);
+
+  // optional uint64 timeout = 7;
+  inline bool has_timeout() const;
+  inline void clear_timeout();
+  static const int kTimeoutFieldNumber = 7;
+  inline ::google::protobuf::uint64 timeout() const;
+  inline void set_timeout(::google::protobuf::uint64 value);
+
+  // optional .bgs.protocol.ProcessId forward_target = 8;
+  inline bool has_forward_target() const;
+  inline void clear_forward_target();
+  static const int kForwardTargetFieldNumber = 8;
+  inline const ::bgs::protocol::ProcessId& forward_target() const;
+  inline ::bgs::protocol::ProcessId* mutable_forward_target();
+  inline ::bgs::protocol::ProcessId* release_forward_target();
+  inline void set_allocated_forward_target(::bgs::protocol::ProcessId* forward_target);
+
+  // optional string return_topic = 9;
+  inline bool has_return_topic() const;
+  inline void clear_return_topic();
+  static const int kReturnTopicFieldNumber = 9;
+  inline const ::std::string& return_topic() const;
+  inline void set_return_topic(const ::std::string& value);
+  inline void set_return_topic(const char* value);
+  inline void set_return_topic(const char* value, size_t size);
+  inline ::std::string* mutable_return_topic();
+  inline ::std::string* release_return_topic();
+  inline void set_allocated_return_topic(::std::string* return_topic);
+
+  // optional string client_id = 11;
+  inline bool has_client_id() const;
+  inline void clear_client_id();
+  static const int kClientIdFieldNumber = 11;
+  inline const ::std::string& client_id() const;
+  inline void set_client_id(const ::std::string& value);
+  inline void set_client_id(const char* value);
+  inline void set_client_id(const char* value, size_t size);
+  inline ::std::string* mutable_client_id();
+  inline ::std::string* release_client_id();
+  inline void set_allocated_client_id(::std::string* client_id);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.KafkaHeader)
+ private:
+  inline void set_has_service_hash();
+  inline void clear_has_service_hash();
+  inline void set_has_method_id();
+  inline void clear_has_method_id();
+  inline void set_has_token();
+  inline void clear_has_token();
+  inline void set_has_object_id();
+  inline void clear_has_object_id();
+  inline void set_has_size();
+  inline void clear_has_size();
+  inline void set_has_status();
+  inline void clear_has_status();
+  inline void set_has_timeout();
+  inline void clear_has_timeout();
+  inline void set_has_forward_target();
+  inline void clear_has_forward_target();
+  inline void set_has_return_topic();
+  inline void clear_has_return_topic();
+  inline void set_has_client_id();
+  inline void clear_has_client_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 service_hash_;
+  ::google::protobuf::uint32 method_id_;
+  ::google::protobuf::uint64 object_id_;
+  ::google::protobuf::uint32 token_;
+  ::google::protobuf::uint32 size_;
+  ::google::protobuf::uint64 timeout_;
+  ::bgs::protocol::ProcessId* forward_target_;
+  ::std::string* return_topic_;
+  ::std::string* client_id_;
+  ::google::protobuf::uint32 status_;
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_rpc_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_rpc_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static KafkaHeader* default_instance_;
 };
 // ===================================================================
 
@@ -1310,339 +1310,6 @@ inline void ErrorInfo::set_method_id(::google::protobuf::uint32 value) {
 
 // -------------------------------------------------------------------
 
-// TraceInfo
-
-// optional string session_id = 1;
-inline bool TraceInfo::has_session_id() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void TraceInfo::set_has_session_id() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void TraceInfo::clear_has_session_id() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void TraceInfo::clear_session_id() {
-  if (session_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    session_id_->clear();
-  }
-  clear_has_session_id();
-}
-inline const ::std::string& TraceInfo::session_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.TraceInfo.session_id)
-  return *session_id_;
-}
-inline void TraceInfo::set_session_id(const ::std::string& value) {
-  set_has_session_id();
-  if (session_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.TraceInfo.session_id)
-}
-inline void TraceInfo::set_session_id(const char* value) {
-  set_has_session_id();
-  if (session_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.TraceInfo.session_id)
-}
-inline void TraceInfo::set_session_id(const char* value, size_t size) {
-  set_has_session_id();
-  if (session_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    session_id_ = new ::std::string;
-  }
-  session_id_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.TraceInfo.session_id)
-}
-inline ::std::string* TraceInfo::mutable_session_id() {
-  set_has_session_id();
-  if (session_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    session_id_ = new ::std::string;
-  }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.TraceInfo.session_id)
-  return session_id_;
-}
-inline ::std::string* TraceInfo::release_session_id() {
-  clear_has_session_id();
-  if (session_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    return NULL;
-  } else {
-    ::std::string* temp = session_id_;
-    session_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    return temp;
-  }
-}
-inline void TraceInfo::set_allocated_session_id(::std::string* session_id) {
-  if (session_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete session_id_;
-  }
-  if (session_id) {
-    set_has_session_id();
-    session_id_ = session_id;
-  } else {
-    clear_has_session_id();
-    session_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.TraceInfo.session_id)
-}
-
-// optional string trace_id = 2;
-inline bool TraceInfo::has_trace_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void TraceInfo::set_has_trace_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void TraceInfo::clear_has_trace_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void TraceInfo::clear_trace_id() {
-  if (trace_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    trace_id_->clear();
-  }
-  clear_has_trace_id();
-}
-inline const ::std::string& TraceInfo::trace_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.TraceInfo.trace_id)
-  return *trace_id_;
-}
-inline void TraceInfo::set_trace_id(const ::std::string& value) {
-  set_has_trace_id();
-  if (trace_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    trace_id_ = new ::std::string;
-  }
-  trace_id_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.TraceInfo.trace_id)
-}
-inline void TraceInfo::set_trace_id(const char* value) {
-  set_has_trace_id();
-  if (trace_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    trace_id_ = new ::std::string;
-  }
-  trace_id_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.TraceInfo.trace_id)
-}
-inline void TraceInfo::set_trace_id(const char* value, size_t size) {
-  set_has_trace_id();
-  if (trace_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    trace_id_ = new ::std::string;
-  }
-  trace_id_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.TraceInfo.trace_id)
-}
-inline ::std::string* TraceInfo::mutable_trace_id() {
-  set_has_trace_id();
-  if (trace_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    trace_id_ = new ::std::string;
-  }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.TraceInfo.trace_id)
-  return trace_id_;
-}
-inline ::std::string* TraceInfo::release_trace_id() {
-  clear_has_trace_id();
-  if (trace_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    return NULL;
-  } else {
-    ::std::string* temp = trace_id_;
-    trace_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    return temp;
-  }
-}
-inline void TraceInfo::set_allocated_trace_id(::std::string* trace_id) {
-  if (trace_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete trace_id_;
-  }
-  if (trace_id) {
-    set_has_trace_id();
-    trace_id_ = trace_id;
-  } else {
-    clear_has_trace_id();
-    trace_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.TraceInfo.trace_id)
-}
-
-// optional string span_id = 3;
-inline bool TraceInfo::has_span_id() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void TraceInfo::set_has_span_id() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void TraceInfo::clear_has_span_id() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void TraceInfo::clear_span_id() {
-  if (span_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    span_id_->clear();
-  }
-  clear_has_span_id();
-}
-inline const ::std::string& TraceInfo::span_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.TraceInfo.span_id)
-  return *span_id_;
-}
-inline void TraceInfo::set_span_id(const ::std::string& value) {
-  set_has_span_id();
-  if (span_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    span_id_ = new ::std::string;
-  }
-  span_id_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.TraceInfo.span_id)
-}
-inline void TraceInfo::set_span_id(const char* value) {
-  set_has_span_id();
-  if (span_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    span_id_ = new ::std::string;
-  }
-  span_id_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.TraceInfo.span_id)
-}
-inline void TraceInfo::set_span_id(const char* value, size_t size) {
-  set_has_span_id();
-  if (span_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    span_id_ = new ::std::string;
-  }
-  span_id_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.TraceInfo.span_id)
-}
-inline ::std::string* TraceInfo::mutable_span_id() {
-  set_has_span_id();
-  if (span_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    span_id_ = new ::std::string;
-  }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.TraceInfo.span_id)
-  return span_id_;
-}
-inline ::std::string* TraceInfo::release_span_id() {
-  clear_has_span_id();
-  if (span_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    return NULL;
-  } else {
-    ::std::string* temp = span_id_;
-    span_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    return temp;
-  }
-}
-inline void TraceInfo::set_allocated_span_id(::std::string* span_id) {
-  if (span_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete span_id_;
-  }
-  if (span_id) {
-    set_has_span_id();
-    span_id_ = span_id;
-  } else {
-    clear_has_span_id();
-    span_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.TraceInfo.span_id)
-}
-
-// optional string parent_span_id = 4;
-inline bool TraceInfo::has_parent_span_id() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
-inline void TraceInfo::set_has_parent_span_id() {
-  _has_bits_[0] |= 0x00000008u;
-}
-inline void TraceInfo::clear_has_parent_span_id() {
-  _has_bits_[0] &= ~0x00000008u;
-}
-inline void TraceInfo::clear_parent_span_id() {
-  if (parent_span_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    parent_span_id_->clear();
-  }
-  clear_has_parent_span_id();
-}
-inline const ::std::string& TraceInfo::parent_span_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.TraceInfo.parent_span_id)
-  return *parent_span_id_;
-}
-inline void TraceInfo::set_parent_span_id(const ::std::string& value) {
-  set_has_parent_span_id();
-  if (parent_span_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    parent_span_id_ = new ::std::string;
-  }
-  parent_span_id_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.TraceInfo.parent_span_id)
-}
-inline void TraceInfo::set_parent_span_id(const char* value) {
-  set_has_parent_span_id();
-  if (parent_span_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    parent_span_id_ = new ::std::string;
-  }
-  parent_span_id_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.TraceInfo.parent_span_id)
-}
-inline void TraceInfo::set_parent_span_id(const char* value, size_t size) {
-  set_has_parent_span_id();
-  if (parent_span_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    parent_span_id_ = new ::std::string;
-  }
-  parent_span_id_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.TraceInfo.parent_span_id)
-}
-inline ::std::string* TraceInfo::mutable_parent_span_id() {
-  set_has_parent_span_id();
-  if (parent_span_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    parent_span_id_ = new ::std::string;
-  }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.TraceInfo.parent_span_id)
-  return parent_span_id_;
-}
-inline ::std::string* TraceInfo::release_parent_span_id() {
-  clear_has_parent_span_id();
-  if (parent_span_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    return NULL;
-  } else {
-    ::std::string* temp = parent_span_id_;
-    parent_span_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    return temp;
-  }
-}
-inline void TraceInfo::set_allocated_parent_span_id(::std::string* parent_span_id) {
-  if (parent_span_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete parent_span_id_;
-  }
-  if (parent_span_id) {
-    set_has_parent_span_id();
-    parent_span_id_ = parent_span_id;
-  } else {
-    clear_has_parent_span_id();
-    parent_span_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.TraceInfo.parent_span_id)
-}
-
-// optional .bgs.protocol.TraceInfo.Sampling sampling = 5 [default = DEFER];
-inline bool TraceInfo::has_sampling() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
-}
-inline void TraceInfo::set_has_sampling() {
-  _has_bits_[0] |= 0x00000010u;
-}
-inline void TraceInfo::clear_has_sampling() {
-  _has_bits_[0] &= ~0x00000010u;
-}
-inline void TraceInfo::clear_sampling() {
-  sampling_ = 2;
-  clear_has_sampling();
-}
-inline ::bgs::protocol::TraceInfo_Sampling TraceInfo::sampling() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.TraceInfo.sampling)
-  return static_cast< ::bgs::protocol::TraceInfo_Sampling >(sampling_);
-}
-inline void TraceInfo::set_sampling(::bgs::protocol::TraceInfo_Sampling value) {
-  assert(::bgs::protocol::TraceInfo_Sampling_IsValid(value));
-  set_has_sampling();
-  sampling_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.TraceInfo.sampling)
-}
-
-// -------------------------------------------------------------------
-
 // Header
 
 // required uint32 service_id = 1;
@@ -1921,45 +1588,445 @@ inline void Header::set_service_hash(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.Header.service_hash)
 }
 
-// optional .bgs.protocol.TraceInfo trace_info = 12;
-inline bool Header::has_trace_info() const {
+// optional string client_id = 13;
+inline bool Header::has_client_id() const {
   return (_has_bits_[0] & 0x00000800u) != 0;
 }
-inline void Header::set_has_trace_info() {
+inline void Header::set_has_client_id() {
   _has_bits_[0] |= 0x00000800u;
 }
-inline void Header::clear_has_trace_info() {
+inline void Header::clear_has_client_id() {
   _has_bits_[0] &= ~0x00000800u;
 }
-inline void Header::clear_trace_info() {
-  if (trace_info_ != NULL) trace_info_->::bgs::protocol::TraceInfo::Clear();
-  clear_has_trace_info();
+inline void Header::clear_client_id() {
+  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_->clear();
+  }
+  clear_has_client_id();
 }
-inline const ::bgs::protocol::TraceInfo& Header::trace_info() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.Header.trace_info)
-  return trace_info_ != NULL ? *trace_info_ : *default_instance_->trace_info_;
+inline const ::std::string& Header::client_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.Header.client_id)
+  return *client_id_;
 }
-inline ::bgs::protocol::TraceInfo* Header::mutable_trace_info() {
-  set_has_trace_info();
-  if (trace_info_ == NULL) trace_info_ = new ::bgs::protocol::TraceInfo;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.Header.trace_info)
-  return trace_info_;
+inline void Header::set_client_id(const ::std::string& value) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.Header.client_id)
 }
-inline ::bgs::protocol::TraceInfo* Header::release_trace_info() {
-  clear_has_trace_info();
-  ::bgs::protocol::TraceInfo* temp = trace_info_;
-  trace_info_ = NULL;
+inline void Header::set_client_id(const char* value) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.Header.client_id)
+}
+inline void Header::set_client_id(const char* value, size_t size) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.Header.client_id)
+}
+inline ::std::string* Header::mutable_client_id() {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.Header.client_id)
+  return client_id_;
+}
+inline ::std::string* Header::release_client_id() {
+  clear_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = client_id_;
+    client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Header::set_allocated_client_id(::std::string* client_id) {
+  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete client_id_;
+  }
+  if (client_id) {
+    set_has_client_id();
+    client_id_ = client_id;
+  } else {
+    clear_has_client_id();
+    client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.Header.client_id)
+}
+
+// -------------------------------------------------------------------
+
+// KafkaHeader
+
+// optional fixed32 service_hash = 1;
+inline bool KafkaHeader::has_service_hash() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void KafkaHeader::set_has_service_hash() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void KafkaHeader::clear_has_service_hash() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void KafkaHeader::clear_service_hash() {
+  service_hash_ = 0u;
+  clear_has_service_hash();
+}
+inline ::google::protobuf::uint32 KafkaHeader::service_hash() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.KafkaHeader.service_hash)
+  return service_hash_;
+}
+inline void KafkaHeader::set_service_hash(::google::protobuf::uint32 value) {
+  set_has_service_hash();
+  service_hash_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.KafkaHeader.service_hash)
+}
+
+// optional uint32 method_id = 2;
+inline bool KafkaHeader::has_method_id() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void KafkaHeader::set_has_method_id() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void KafkaHeader::clear_has_method_id() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void KafkaHeader::clear_method_id() {
+  method_id_ = 0u;
+  clear_has_method_id();
+}
+inline ::google::protobuf::uint32 KafkaHeader::method_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.KafkaHeader.method_id)
+  return method_id_;
+}
+inline void KafkaHeader::set_method_id(::google::protobuf::uint32 value) {
+  set_has_method_id();
+  method_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.KafkaHeader.method_id)
+}
+
+// optional uint32 token = 3;
+inline bool KafkaHeader::has_token() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void KafkaHeader::set_has_token() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void KafkaHeader::clear_has_token() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void KafkaHeader::clear_token() {
+  token_ = 0u;
+  clear_has_token();
+}
+inline ::google::protobuf::uint32 KafkaHeader::token() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.KafkaHeader.token)
+  return token_;
+}
+inline void KafkaHeader::set_token(::google::protobuf::uint32 value) {
+  set_has_token();
+  token_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.KafkaHeader.token)
+}
+
+// optional uint64 object_id = 4 [default = 0];
+inline bool KafkaHeader::has_object_id() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void KafkaHeader::set_has_object_id() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void KafkaHeader::clear_has_object_id() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void KafkaHeader::clear_object_id() {
+  object_id_ = GOOGLE_ULONGLONG(0);
+  clear_has_object_id();
+}
+inline ::google::protobuf::uint64 KafkaHeader::object_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.KafkaHeader.object_id)
+  return object_id_;
+}
+inline void KafkaHeader::set_object_id(::google::protobuf::uint64 value) {
+  set_has_object_id();
+  object_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.KafkaHeader.object_id)
+}
+
+// optional uint32 size = 5 [default = 0];
+inline bool KafkaHeader::has_size() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void KafkaHeader::set_has_size() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void KafkaHeader::clear_has_size() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void KafkaHeader::clear_size() {
+  size_ = 0u;
+  clear_has_size();
+}
+inline ::google::protobuf::uint32 KafkaHeader::size() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.KafkaHeader.size)
+  return size_;
+}
+inline void KafkaHeader::set_size(::google::protobuf::uint32 value) {
+  set_has_size();
+  size_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.KafkaHeader.size)
+}
+
+// optional uint32 status = 6 [default = 0];
+inline bool KafkaHeader::has_status() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void KafkaHeader::set_has_status() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void KafkaHeader::clear_has_status() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void KafkaHeader::clear_status() {
+  status_ = 0u;
+  clear_has_status();
+}
+inline ::google::protobuf::uint32 KafkaHeader::status() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.KafkaHeader.status)
+  return status_;
+}
+inline void KafkaHeader::set_status(::google::protobuf::uint32 value) {
+  set_has_status();
+  status_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.KafkaHeader.status)
+}
+
+// optional uint64 timeout = 7;
+inline bool KafkaHeader::has_timeout() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void KafkaHeader::set_has_timeout() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void KafkaHeader::clear_has_timeout() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void KafkaHeader::clear_timeout() {
+  timeout_ = GOOGLE_ULONGLONG(0);
+  clear_has_timeout();
+}
+inline ::google::protobuf::uint64 KafkaHeader::timeout() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.KafkaHeader.timeout)
+  return timeout_;
+}
+inline void KafkaHeader::set_timeout(::google::protobuf::uint64 value) {
+  set_has_timeout();
+  timeout_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.KafkaHeader.timeout)
+}
+
+// optional .bgs.protocol.ProcessId forward_target = 8;
+inline bool KafkaHeader::has_forward_target() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void KafkaHeader::set_has_forward_target() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void KafkaHeader::clear_has_forward_target() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void KafkaHeader::clear_forward_target() {
+  if (forward_target_ != NULL) forward_target_->::bgs::protocol::ProcessId::Clear();
+  clear_has_forward_target();
+}
+inline const ::bgs::protocol::ProcessId& KafkaHeader::forward_target() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.KafkaHeader.forward_target)
+  return forward_target_ != NULL ? *forward_target_ : *default_instance_->forward_target_;
+}
+inline ::bgs::protocol::ProcessId* KafkaHeader::mutable_forward_target() {
+  set_has_forward_target();
+  if (forward_target_ == NULL) forward_target_ = new ::bgs::protocol::ProcessId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.KafkaHeader.forward_target)
+  return forward_target_;
+}
+inline ::bgs::protocol::ProcessId* KafkaHeader::release_forward_target() {
+  clear_has_forward_target();
+  ::bgs::protocol::ProcessId* temp = forward_target_;
+  forward_target_ = NULL;
   return temp;
 }
-inline void Header::set_allocated_trace_info(::bgs::protocol::TraceInfo* trace_info) {
-  delete trace_info_;
-  trace_info_ = trace_info;
-  if (trace_info) {
-    set_has_trace_info();
+inline void KafkaHeader::set_allocated_forward_target(::bgs::protocol::ProcessId* forward_target) {
+  delete forward_target_;
+  forward_target_ = forward_target;
+  if (forward_target) {
+    set_has_forward_target();
   } else {
-    clear_has_trace_info();
+    clear_has_forward_target();
   }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.Header.trace_info)
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.KafkaHeader.forward_target)
+}
+
+// optional string return_topic = 9;
+inline bool KafkaHeader::has_return_topic() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void KafkaHeader::set_has_return_topic() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void KafkaHeader::clear_has_return_topic() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void KafkaHeader::clear_return_topic() {
+  if (return_topic_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return_topic_->clear();
+  }
+  clear_has_return_topic();
+}
+inline const ::std::string& KafkaHeader::return_topic() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.KafkaHeader.return_topic)
+  return *return_topic_;
+}
+inline void KafkaHeader::set_return_topic(const ::std::string& value) {
+  set_has_return_topic();
+  if (return_topic_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return_topic_ = new ::std::string;
+  }
+  return_topic_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.KafkaHeader.return_topic)
+}
+inline void KafkaHeader::set_return_topic(const char* value) {
+  set_has_return_topic();
+  if (return_topic_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return_topic_ = new ::std::string;
+  }
+  return_topic_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.KafkaHeader.return_topic)
+}
+inline void KafkaHeader::set_return_topic(const char* value, size_t size) {
+  set_has_return_topic();
+  if (return_topic_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return_topic_ = new ::std::string;
+  }
+  return_topic_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.KafkaHeader.return_topic)
+}
+inline ::std::string* KafkaHeader::mutable_return_topic() {
+  set_has_return_topic();
+  if (return_topic_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return_topic_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.KafkaHeader.return_topic)
+  return return_topic_;
+}
+inline ::std::string* KafkaHeader::release_return_topic() {
+  clear_has_return_topic();
+  if (return_topic_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = return_topic_;
+    return_topic_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void KafkaHeader::set_allocated_return_topic(::std::string* return_topic) {
+  if (return_topic_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete return_topic_;
+  }
+  if (return_topic) {
+    set_has_return_topic();
+    return_topic_ = return_topic;
+  } else {
+    clear_has_return_topic();
+    return_topic_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.KafkaHeader.return_topic)
+}
+
+// optional string client_id = 11;
+inline bool KafkaHeader::has_client_id() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
+}
+inline void KafkaHeader::set_has_client_id() {
+  _has_bits_[0] |= 0x00000200u;
+}
+inline void KafkaHeader::clear_has_client_id() {
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline void KafkaHeader::clear_client_id() {
+  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_->clear();
+  }
+  clear_has_client_id();
+}
+inline const ::std::string& KafkaHeader::client_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.KafkaHeader.client_id)
+  return *client_id_;
+}
+inline void KafkaHeader::set_client_id(const ::std::string& value) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.KafkaHeader.client_id)
+}
+inline void KafkaHeader::set_client_id(const char* value) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.KafkaHeader.client_id)
+}
+inline void KafkaHeader::set_client_id(const char* value, size_t size) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.KafkaHeader.client_id)
+}
+inline ::std::string* KafkaHeader::mutable_client_id() {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.KafkaHeader.client_id)
+  return client_id_;
+}
+inline ::std::string* KafkaHeader::release_client_id() {
+  clear_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = client_id_;
+    client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void KafkaHeader::set_allocated_client_id(::std::string* client_id) {
+  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete client_id_;
+  }
+  if (client_id) {
+    set_has_client_id();
+    client_id_ = client_id;
+  } else {
+    clear_has_client_id();
+    client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.KafkaHeader.client_id)
 }
 
 
@@ -1972,11 +2039,6 @@ inline void Header::set_allocated_trace_info(::bgs::protocol::TraceInfo* trace_i
 namespace google {
 namespace protobuf {
 
-template <> struct is_proto_enum< ::bgs::protocol::TraceInfo_Sampling> : ::google::protobuf::internal::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::TraceInfo_Sampling>() {
-  return ::bgs::protocol::TraceInfo_Sampling_descriptor();
-}
 
 }  // namespace google
 }  // namespace protobuf

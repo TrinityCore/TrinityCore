@@ -671,7 +671,8 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     6 - (Expansion 6)
+#        Default:     7 - (Expansion 7)
+#                     6 - (Expansion 6)
 #                     5 - (Expansion 5)
 #                     4 - (Expansion 4)
 #                     3 - (Expansion 3)
@@ -679,7 +680,7 @@ DeclinedNames = 0
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 6
+Expansion = 7
 
 #
 #    MinPlayerName
@@ -830,9 +831,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     110
+#        Default:     120
 
-MaxPlayerLevel = 110
+MaxPlayerLevel = 120
 
 #
 #    MinDualSpecLevel
@@ -3954,14 +3955,6 @@ Currency.StartJusticePoints = 0
 #
 
 Currency.MaxJusticePoints = 4000
-
-#
-#    Currency.StartArtifactKnowledge
-#        Amount artifact knowledge that new players will start with
-#        Default: 55 (max)
-#
-
-Currency.StartArtifactKnowledge = 55
 
 #
 ###################################################################################################

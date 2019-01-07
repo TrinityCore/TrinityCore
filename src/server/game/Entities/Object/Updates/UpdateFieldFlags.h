@@ -37,10 +37,12 @@ enum UpdatefieldFlags
     UF_FLAG_URGENT_SELF_ONLY    = 0x400
 };
 
-TC_GAME_API extern uint32 ItemUpdateFieldFlags[CONTAINER_END];
+TC_GAME_API extern uint32 ContainerUpdateFieldFlags[CONTAINER_END];
+TC_GAME_API extern uint32 AzeriteEmpoweredItemUpdateFieldFlags[AZERITE_EMPOWERED_ITEM_END];
+TC_GAME_API extern uint32 AzeriteItemUpdateFieldFlags[AZERITE_ITEM_END];
 TC_GAME_API extern uint32 ItemDynamicUpdateFieldFlags[CONTAINER_DYNAMIC_END];
-TC_GAME_API extern uint32 UnitUpdateFieldFlags[PLAYER_END];
-TC_GAME_API extern uint32 UnitDynamicUpdateFieldFlags[PLAYER_DYNAMIC_END];
+TC_GAME_API extern uint32 UnitUpdateFieldFlags[ACTIVE_PLAYER_END];
+TC_GAME_API extern uint32 UnitDynamicUpdateFieldFlags[ACTIVE_PLAYER_DYNAMIC_END];
 TC_GAME_API extern uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END];
 TC_GAME_API extern uint32 GameObjectDynamicUpdateFieldFlags[GAMEOBJECT_DYNAMIC_END];
 TC_GAME_API extern uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END];
