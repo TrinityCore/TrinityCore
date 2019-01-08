@@ -32,7 +32,8 @@ DoorData const doorData[] =
 MinionData const minionData[] =
 {
     { NPC_SKARVALD,     DATA_SKARVALD_DALRONN },
-    { NPC_DALRONN,      DATA_SKARVALD_DALRONN }
+    { NPC_DALRONN,      DATA_SKARVALD_DALRONN },
+    { 0,                0 }
 };
 
 class instance_utgarde_keep : public InstanceMapScript
