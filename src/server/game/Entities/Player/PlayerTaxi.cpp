@@ -34,44 +34,26 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
         }
     }
 
-    // race specific initial known nodes: capital and taxi hub masks
-    switch (race)
+    uint32 team = Player::TeamForRace(race);
+
+    // Patch 4.2: players will now unlock all taxi nodes within the recommended level range of the player
+    for (TaxiNodesEntry* itr : sTaxiNodesStore)
     {
-        case RACE_HUMAN:
-            SetTaximaskNode(2);
-            break;
-        case RACE_ORC:
-            SetTaximaskNode(23);
-            break;
-        case RACE_DWARF:
-            SetTaximaskNode(6);
-            break;
-        case RACE_NIGHTELF:
-            SetTaximaskNode(26);
-            SetTaximaskNode(27);
-            break;
-        case RACE_UNDEAD_PLAYER:
-            SetTaximaskNode(11);
-            break;
-        case RACE_TAUREN:
-            SetTaximaskNode(22);
-            break;
-        case RACE_GNOME:
-            SetTaximaskNode(6);
-            break;
-        case RACE_TROLL:
-            SetTaximaskNode(23);
-            break;
-        case RACE_BLOODELF:
-            SetTaximaskNode(82);
-            break;
-        case RACE_DRAENEI:
-            SetTaximaskNode(94);
-            break;
+        // Skip scripted and debug nodes
+        if (itr->Flags == TAXI_NODE_FLAG_SCRIPT)
+            continue;
+
+        // Skip nodes that are restricted the player's opposite faction
+        if (!(itr->Flags & TAXI_NODE_FLAG_ALLIANCE_RESTRICTED) && team == ALLIANCE
+            || !(itr->Flags & TAXI_NODE_FLAG_HORDE_RESTRICTED) && team == HORDE)
+            continue;
+
+        if (sObjectMgr->IsTaxiNodeUnlockedFor(itr->ID, level))
+            SetTaximaskNode(itr->ID);
     }
 
-    // new continent starting masks (It will be accessible only at new map)
-    switch (Player::TeamForRace(race))
+    // New continent starting masks (It will be accessible only at new map)
+    switch (team)
     {
         case ALLIANCE:
             SetTaximaskNode(100); // Honor Hold
@@ -81,13 +63,9 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
             SetTaximaskNode(99); // Thrallmar
             SetTaximaskNode(257); // Warsong Hold
             break;
+        default:
+            break;
     }
-    // level dependent taxi hubs
-    if (level >= 68)
-        SetTaximaskNode(213); // Shattered Sun Staging Area
-
-    if (level >= 78)
-        SetTaximaskNode(310); // Dalaran
 }
 
 void PlayerTaxi::LoadTaxiMask(std::string const &data)

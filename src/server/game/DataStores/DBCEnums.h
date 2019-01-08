@@ -522,6 +522,14 @@ enum EnchantmentSlotMask
 #define TaxiMaskSize 114
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
+enum TaxiNodeFlags
+{
+    TAXI_NODE_FLAG_SCRIPT               = 0x0,
+    TAXI_NODE_FLAG_ALLIANCE_RESTRICTED  = 0x1,
+    TAXI_NODE_FLAG_HORDE_RESTRICTED     = 0x2,
+    TAXI_NODE_FLAG_UNK                  = 0x4
+};
+
 enum TotemCategoryType
 {
     TOTEM_CATEGORY_TYPE_KNIFE           = 1,

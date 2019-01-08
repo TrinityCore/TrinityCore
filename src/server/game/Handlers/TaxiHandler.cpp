@@ -57,7 +57,7 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
 
     WorldPacket data(SMSG_TAXINODE_STATUS, 9);
     data << guid;
-    data << uint8(player->m_taxi.IsTaximaskNodeKnown(nearest) ? 1 : 0);
+    data << uint8(player->m_taxi.IsTaximaskNodeKnown(nearest) ? 1 : 2);
     SendPacket(&data);
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_TAXINODE_STATUS");
 }

@@ -22355,7 +22355,7 @@ void Player::SendTaxiNodeStatusMultiple()
             continue;
         WorldPacket data(SMSG_TAXINODE_STATUS, 9);
         data << *itr;
-        data << uint8(m_taxi.IsTaximaskNodeKnown(nearestNode) ? 1 : 0);
+        data << uint8(m_taxi.IsTaximaskNodeKnown(nearestNode) ? 1 : 2);
         SendDirectMessage(&data);
     }
 }

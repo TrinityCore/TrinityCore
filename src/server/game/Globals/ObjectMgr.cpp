@@ -10297,6 +10297,44 @@ void ObjectMgr::LoadCreatureQuestItems()
     TC_LOG_INFO("server.loading", ">> Loaded %u creature quest items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadTaxiNodeLevelData()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0            1
+    QueryResult result = WorldDatabase.Query("SELECT TaxiNodeId, `Level` FROM taxi_level_data ORDER BY TaxiNodeId ASC");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 taxi node level definitions. DB table `taxi_level_data` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 taxiNodeId = fields[0].GetUInt16();
+        uint8 level = fields[1].GetUInt8();
+
+        TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(taxiNodeId);
+        
+        if (!node)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `taxi_level_data` has data for nonexistent taxi node (ID: %u), skipped", taxiNodeId);
+            continue;
+        };
+
+        _taxiNodeLevelDataStore.emplace(taxiNodeId, level);
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u taxi node level definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 uint32 ObjectMgr::GetGameObjectTypeByEntry(uint32 entry) const
 {
     if (GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry))

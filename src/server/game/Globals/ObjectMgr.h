@@ -558,6 +558,7 @@ typedef std::unordered_map<uint32, ItemLocale> ItemLocaleContainer;
 typedef std::unordered_map<uint32, QuestLocale> QuestLocaleContainer;
 typedef std::unordered_map<uint32, NpcTextLocale> NpcTextLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
+typedef std::unordered_map<uint32, uint8> TaxiNodeLevelDataContainer;
 
 struct GossipMenuItemsLocale
 {
@@ -1215,6 +1216,8 @@ class TC_GAME_API ObjectMgr
         void LoadTerrainWorldMaps();
         void LoadAreaPhases();
 
+        void LoadTaxiNodeLevelData();
+
         std::string GeneratePetName(uint32 entry) const;
         uint32 GetBaseXP(uint8 level);
         uint32 GetXPForLevel(uint8 level) const;
@@ -1522,6 +1525,16 @@ class TC_GAME_API ObjectMgr
                 value = data[localeConstant];
         }
 
+        // taxi node level data
+        bool IsTaxiNodeUnlockedFor(uint32 taxiNodeId, uint8 level) const
+        {
+            TaxiNodeLevelDataContainer::const_iterator itr = _taxiNodeLevelDataStore.find(taxiNodeId);
+            if (itr != _taxiNodeLevelDataStore.end())
+                return itr->second <= level;
+
+           return false;
+        }
+
         CharacterConversionMap FactionChangeAchievements;
         CharacterConversionMap FactionChangeItems;
         CharacterConversionMap FactionChangeQuests;
@@ -1714,6 +1727,8 @@ class TC_GAME_API ObjectMgr
         CacheTrainerSpellContainer _cacheTrainerSpellStore;
 
         GraveyardOrientationContainer _graveyardOrientations;
+
+        TaxiNodeLevelDataContainer _taxiNodeLevelDataStore;
 
         std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
         std::set<uint32> _hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
