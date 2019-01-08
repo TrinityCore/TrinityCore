@@ -2564,7 +2564,12 @@ FactionTemplateEntry const* WorldObject::GetFactionTemplateEntry() const
         else if (Creature const* creature = ToCreature())
             TC_LOG_ERROR("entities", "Creature (template id: %u) has invalid faction (faction template id) #%u", creature->GetCreatureTemplate()->Entry, GetFaction());
         else if (GameObject const* go = ToGameObject())
-            TC_LOG_ERROR("entities", "GameObject (template id: %u) has invalid faction (faction template id) #%u", go->GetGOInfo()->entry, GetFaction());
+        {
+            if (GetFaction() == 0)
+                TC_LOG_DEBUG("entities", "GameObject (template id: %u) has empty faction (faction template id) #%u", go->GetGOInfo()->entry, GetFaction());
+            else
+                TC_LOG_ERROR("entities", "GameObject (template id: %u) has invalid faction (faction template id) #%u", go->GetGOInfo()->entry, GetFaction());
+        }
         else
             TC_LOG_ERROR("entities", "WorldObject (name: %s, type: %u) has invalid faction (faction template id) #%u", GetName().c_str(), uint32(GetTypeId()), GetFaction());
     }
