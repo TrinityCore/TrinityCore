@@ -37,7 +37,7 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     uint32 team = Player::TeamForRace(race);
 
     // Patch 4.2: players will now unlock all taxi nodes within the recommended level range of the player
-    for (TaxiNodesEntry* itr : sTaxiNodesStore)
+    for (TaxiNodesEntry const* itr : sTaxiNodesStore)
     {
         // Skip scripted and debug nodes
         if (itr->Flags == TAXI_NODE_FLAG_SCRIPT)
