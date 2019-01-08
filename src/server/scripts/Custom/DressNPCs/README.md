@@ -1,4 +1,4 @@
-# DressNPCs [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=dressnpcs_7.x)](https://travis-ci.org/Rochet2/TrinityCore)
+# DressNPCs [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=dressnpcs_master)](https://travis-ci.org/Rochet2/TrinityCore)
 
 ## About
 This patch allows you to dress up armor on NPCs as well as choose their facial features.
@@ -15,22 +15,22 @@ Known bugs:
 ## Installation
 
 Available as:
-- Direct merge: https://github.com/Rochet2/TrinityCore/tree/dressnpcs_7.x
-- Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:master...dressnpcs_7.x.diff
-- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:master...dressnpcs_7.x
+- Direct merge: https://github.com/Rochet2/TrinityCore/tree/dressnpcs_master
+- Diff: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:master...dressnpcs_master.diff
+- Diff in github view: https://github.com/Rochet2/TrinityCore/compare/TrinityCore:master...dressnpcs_master
 
 Using direct merge:
 - open git bash to source location
 - do `git remote add rochet2 https://github.com/Rochet2/TrinityCore.git`
-- do `git pull rochet2 dressnpcs_7.x`
+- do `git pull rochet2 dressnpcs_master`
 - use cmake and compile
 
 Using diff:
 - DO NOT COPY THE DIFF DIRECTLY! It causes apply to fail.
 - download the diff by __right clicking__ the link and select __Save link as__
-- place the downloaded `dressnpcs_7.x.diff` to the source root folder
+- place the downloaded `dressnpcs_master.diff` to the source root folder
 - open git bash to source location
-- do `git apply dressnpcs_7.x.diff`
+- do `git apply dressnpcs_master.diff`
 - use cmake and compile
 
 Before compiling:
