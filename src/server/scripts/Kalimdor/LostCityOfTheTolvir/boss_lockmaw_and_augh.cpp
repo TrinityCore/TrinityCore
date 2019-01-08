@@ -264,7 +264,15 @@ class boss_augh : public CreatureScript
 
         struct boss_aughAI : public BossAI
         {
-            boss_aughAI(Creature* creature) : BossAI(creature, DATA_AUGH) { }
+            boss_aughAI(Creature* creature) : BossAI(creature, DATA_AUGH)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                me->SetReactState(REACT_PASSIVE);
+            }
 
             void JustEngagedWith(Unit* /*victim*/) override
             {
@@ -290,7 +298,6 @@ class boss_augh : public CreatureScript
                 switch (action)
                 {
                     case ACTION_AUGH_INTRO:
-                        me->SetReactState(REACT_PASSIVE);
                         Talk(SAY_ANNOUNCE_AUGH_APPEAR);
                         events.SetPhase(PHASE_INTRO);
                         events.ScheduleEvent(EVENT_MOVE_HOME_POS, Seconds(1));
