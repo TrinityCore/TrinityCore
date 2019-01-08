@@ -36,6 +36,9 @@ enum Spells
     SPELL_MANGLE_1                              = 89773,
     SPELL_MANGLE_2                              = 78412,
     SPELL_MANGLE_TARGETING                      = 92047,
+    SPELL_PILLAR_OF_FLAME                       = 77998,
+    SPELL_PILLAR_OF_FLAME_MISSILE_PERIODIC      = 78006,
+
     SPELL_MASSIVE_CRASH                         = 88253,
     SPELL_MASSIVE_CRASH_DAMAGE                  = 88287,
 
@@ -45,6 +48,10 @@ enum Spells
     SPELL_RIDE_VEHICLE_EXPOSED_HEAD             = 89743,
     SPELL_QUEST_INVIS_5                         = 95478,
 
+    // Pillar of Flame
+    SPELL_PILLAR_OF_FLAME_DUMMY                 = 78017,
+    SPELL_PILLAR_OF_FLAME_PERIODIC              = 77970,
+
     // Room Stalker
     SPELL_LIGHT_SHOW                            = 87949,
 };
@@ -52,7 +59,7 @@ enum Spells
 enum Events
 {
     // Magmaw
-    EVENT_MAGMA_SPIT = 1,
+    EVENT_MAGMA_PROJECTILE = 1,
     EVENT_LAVA_SPEW,
     EVENT_MANGLE,
 };
@@ -63,6 +70,8 @@ enum Actions
 
 enum Texts
 {
+    // Magmaw
+    SAY_ANNOUNCE_LAVA_PARASITES = 0,
 };
 
 enum VehicleSeats
@@ -97,11 +106,20 @@ class DelayedSpellCastEvent : public BasicEvent
 
 struct boss_magmaw : public BossAI
 {
-    boss_magmaw(Creature* creature) : BossAI(creature, DATA_MAGMAW), vehicle(me->GetVehicleKit()) { }
+    boss_magmaw(Creature* creature) : BossAI(creature, DATA_MAGMAW), vehicle(me->GetVehicleKit())
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        _magmaProjectileCount = 0;
+    }
 
     void Reset() override
     {
         _Reset();
+        Initialize();
     }
 
     void JustAppeared() override
@@ -113,10 +131,9 @@ struct boss_magmaw : public BossAI
     {
         _JustEngagedWith();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-        events.ScheduleEvent(EVENT_MAGMA_SPIT, 6s);
+        events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 5s, 6s);
         events.ScheduleEvent(EVENT_LAVA_SPEW, 19s);
-        //events.ScheduleEvent(EVENT_MANGLE, 1min + 31s);
-        events.ScheduleEvent(EVENT_MANGLE, 5s);
+        //events.ScheduleEvent(EVENT_MANGLE, 1min + 30s);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -130,6 +147,17 @@ struct boss_magmaw : public BossAI
     void JustSummoned(Creature* summon) override
     {
         summons.Summon(summon);
+        switch (summon->GetEntry())
+        {
+            case NPC_PILLAR_OF_FLAME:
+                summon->CastSpell(summon, SPELL_PILLAR_OF_FLAME_DUMMY);
+                summon->SetDisplayId(summon->GetCreatureTemplate()->Modelid1);
+                summon->DespawnOrUnsummon(7s);
+                Talk(SAY_ANNOUNCE_LAVA_PARASITES);
+                break;
+            default:
+                break;
+        }
     }
 
     void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
@@ -155,13 +183,23 @@ struct boss_magmaw : public BossAI
         {
             switch (eventId)
             {
-                case EVENT_MAGMA_SPIT:
-                    DoCastAOE(SPELL_MAGMA_SPIT_TARGETING);
-                    events.Repeat(12s, 16s);
+                case EVENT_MAGMA_PROJECTILE:
+                    if (_magmaProjectileCount < 4)
+                    {
+                        DoCastAOE(SPELL_MAGMA_SPIT_TARGETING);
+                        _magmaProjectileCount++;
+                        events.Repeat(6s);
+                    }
+                    else
+                    {
+                        DoCastAOE(SPELL_PILLAR_OF_FLAME);
+                        _magmaProjectileCount = 0;
+                        events.Repeat(8s);
+                    }
                     break;
                 case EVENT_LAVA_SPEW:
                     DoCastAOE(SPELL_LAVA_SPEW);
-                    events.Repeat(24s, 28s);
+                    events.Repeat(24s);
                     break;
                 case EVENT_MANGLE:
                     DoCastAOE(SPELL_MANGLE_TARGETING);
@@ -234,6 +272,18 @@ private:
     }
 
     Vehicle const* vehicle;
+    uint8 _magmaProjectileCount;
+};
+
+class IsOnVehicleCheck
+{
+    public:
+        IsOnVehicleCheck() { }
+
+        bool operator()(WorldObject* object)
+        {
+            return object->ToUnit()->GetVehicle();
+        }
 };
 
 class spell_magmaw_magma_spit: public SpellScript
@@ -247,6 +297,11 @@ class spell_magmaw_magma_spit: public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(IsOnVehicleCheck());
+
         if (targets.empty())
             return;
 
@@ -318,9 +373,69 @@ class spell_magmaw_mangle : public SpellScript
     }
 };
 
+class spell_magmaw_pillar_of_flame_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_magmaw_pillar_of_flame_dummy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PILLAR_OF_FLAME_MISSILE_PERIODIC,
+                SPELL_PILLAR_OF_FLAME_PERIODIC
+            });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_PILLAR_OF_FLAME_MISSILE_PERIODIC);
+        if (Unit* caster = GetCaster())
+            caster->m_Events.AddEventAtOffset(new DelayedSpellCastEvent(caster, caster->GetGUID(), SPELL_PILLAR_OF_FLAME_PERIODIC), 2s);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_magmaw_pillar_of_flame_dummy::HandleHit, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_magmaw_pillar_of_flame_forcecast : public SpellScript
+{
+    PrepareSpellScript(spell_magmaw_pillar_of_flame_forcecast);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_MANGLE_1,
+                SPELL_MANGLE_2
+            });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(IsOnVehicleCheck());
+
+        if (targets.empty())
+            return;
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_magmaw_pillar_of_flame_forcecast::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
 void AddSC_boss_magmaw()
 {
     RegisterBlackwingDescentCreatureAI(boss_magmaw);
     RegisterSpellScript(spell_magmaw_magma_spit);
     RegisterSpellScript(spell_magmaw_mangle);
+    RegisterSpellScript(spell_magmaw_pillar_of_flame_dummy);
+    RegisterSpellScript(spell_magmaw_pillar_of_flame_forcecast);
 }

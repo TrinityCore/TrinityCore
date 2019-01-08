@@ -61,13 +61,16 @@ class instance_blackwing_descent : public InstanceMapScript
             {
                 InstanceScript::OnCreatureCreate(creature);
 
-                /*
                 switch (creature->GetEntry())
                 {
+                    case NPC_PILLAR_OF_FLAME:
+                    case NPC_LAVA_PARASITE:
+                        if (Creature* magmaw = GetCreature(DATA_MAGMAW))
+                            magmaw->AI()->JustSummoned(creature);
+                        break;
                     default:
                         break;
                 }
-                */
             }
 
             void OnGameObjectCreate(GameObject* go) override

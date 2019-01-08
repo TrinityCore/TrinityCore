@@ -54,7 +54,9 @@ enum BWDCreatureIds
     NPC_MAGMAWS_PINCER_1                            = 41620,
     NPC_MAGMAWS_PINCER_2                            = 41789,
     NPC_EXPOSED_HEAD_OF_MAGMAW                      = 42347,
-    NPC_EXPOSED_HEAD_OF_MAGMAW_2                    = 48270
+    NPC_EXPOSED_HEAD_OF_MAGMAW_2                    = 48270,
+    NPC_PILLAR_OF_FLAME                             = 41843,
+    NPC_LAVA_PARASITE                               = 41806,
 };
 
 enum BWDGameObjectIds
