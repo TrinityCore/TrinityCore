@@ -227,6 +227,15 @@ SourceDirectory  = ""
 MySQLExecutable = ""
 
 #
+#    IPLocationFile
+#        Description: The path to your IP2Location database CSV file.
+#        Example:     "C:/Trinity/IP2LOCATION-LITE-DB1.CSV"
+#                     "/home/trinity/IP2LOCATION-LITE-DB1.CSV"
+#        Default:     ""  - (Disabled)
+
+IPLocationFile = ""
+
+#
 ###################################################################################################
 
 ###################################################################################################
