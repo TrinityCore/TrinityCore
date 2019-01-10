@@ -105,7 +105,7 @@ class TC_GAME_API MotionMaster
 
         bool Empty() const;
         uint32 Size() const;
-        std::vector<MovementGeneratorInformation> GetMovementGeneratorsInformation() const;
+        std::vector<MovementGeneratorInformation> const GetMovementGeneratorsInformation() const;
         MovementSlot GetCurrentSlot() const;
         MovementGenerator* GetCurrentMovementGenerator() const;
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
