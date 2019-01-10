@@ -119,6 +119,10 @@ class instance_stonecore : public InstanceMapScript
                         if (GetBossState(DATA_SLABHIDE) == DONE)
                             ActivateTeleporter(creature);
                         break;
+                    case BOSS_CORBORUS:
+                    case BOSS_SLABHIDE:
+                        creature->setActive(true);
+                        break;
                     default:
                         break;
                 }
