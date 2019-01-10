@@ -78,7 +78,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
 
     // our target might have gone away
     Unit* const target = GetTarget();
-    if (!target)
+    if (!target || !target->IsInWorld())
         return false;
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())

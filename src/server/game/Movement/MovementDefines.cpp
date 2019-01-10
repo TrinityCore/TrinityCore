@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "MovementDefines.h"
 #include "ObjectDefines.h"
 #include "Position.h"
