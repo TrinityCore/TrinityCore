@@ -2993,10 +2993,10 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
     // PvP case
     if (unitTarget && unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
     {
-        Player const* targetPlayerOwner = unitTarget->GetAffectingPlayer();
-        if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+        if (unit && unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
         {
             Player const* selfPlayerOwner = GetAffectingPlayer();
+            Player const* targetPlayerOwner = unitTarget->GetAffectingPlayer();
             if (selfPlayerOwner && targetPlayerOwner)
             {
                 // can't assist player which is dueling someone
@@ -3004,7 +3004,7 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
                     return false;
             }
             // can't assist player in ffa_pvp zone from outside
-            if (unitTarget->IsFFAPvP() && unit && !unit->IsFFAPvP())
+            if (unitTarget->IsFFAPvP() && !unit->IsFFAPvP())
                 return false;
 
             // can't assist player out of sanctuary from sanctuary if has pvp enabled
