@@ -1060,6 +1060,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_WEATHER] = sConfigMgr->GetBoolDefault("ActivateWeather", true);
 
     m_int_configs[CONFIG_DISABLE_BREATHING] = sConfigMgr->GetIntDefault("DisableWaterBreath", SEC_CONSOLE);
+    m_int_configs[CONFIG_WATER_BREATH_DURATION] = sConfigMgr->GetIntDefault("WaterBreathDuration", 180);
 
     m_bool_configs[CONFIG_ALWAYS_MAX_SKILL_FOR_LEVEL] = sConfigMgr->GetBoolDefault("AlwaysMaxSkillForLevel", false);
 
