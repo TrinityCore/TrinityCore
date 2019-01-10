@@ -146,4 +146,3 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14, 6650, 5996, 0, 0, 15, 0, 8, 0, 0, 0, 0, 0, "", "Show gossip text if player is a rogue");
 
 UPDATE `creature_template` SET `gossip_menu_id`=0, `npcflag` = `npcflag`&~1 WHERE `entry` = 4794;
- 
