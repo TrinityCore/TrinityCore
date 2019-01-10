@@ -119,6 +119,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                         break;
                     case NPC_WIND_TUNNEL:
                         creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        creature->setActive(true);
                         break;
                     case NPC_REPENTANCE:
                         repenteanceGUIDs.push_back(creature->GetGUID());

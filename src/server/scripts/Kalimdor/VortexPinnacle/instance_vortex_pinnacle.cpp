@@ -188,6 +188,7 @@ class instance_vortex_pinnacle : public InstanceMapScript
                     {
                         summon->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                         summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        summon->setActive(true);
                     }
 
                     WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, summon->GetPackGUID().size() + 4);
