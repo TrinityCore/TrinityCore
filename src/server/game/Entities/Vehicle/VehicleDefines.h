@@ -80,13 +80,11 @@ struct PassengerInfo
 {
     ObjectGuid Guid;
     bool IsUnselectable;
-    bool IsGravityDisabled;
 
     void Reset()
     {
         Guid.Clear();
         IsUnselectable = false;
-        IsGravityDisabled = false;
     }
 };
 
