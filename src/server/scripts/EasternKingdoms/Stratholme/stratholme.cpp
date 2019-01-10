@@ -200,9 +200,9 @@ public:
 
 enum GhostlyCitizenSpells
 {
-    SPELL_HAUNTING_PHANTOM  = 16336,
-    DEBILITATING_TOUCH      = 16333,
-    SPELL_SLAP              = 6754
+    SPELL_HAUNTING_PHANTOM        = 16336,
+    SPELL_DEBILITATING_TOUCH      = 16333,
+    SPELL_SLAP                    = 6754
 };
 
 class npc_spectral_ghostly_citizen : public CreatureScript
@@ -286,7 +286,7 @@ public:
             if (TouchTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, DEBILITATING_TOUCH);
+                    DoCast(target, SPELL_DEBILITATING_TOUCH);
                 TouchTimer = 7000;
             }
             else TouchTimer -= diff;
