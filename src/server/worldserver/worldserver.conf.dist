@@ -898,6 +898,16 @@ RecruitAFriend.MaxDifference = 4
 DisableWaterBreath = 4
 
 #
+#    WaterBreathDuration
+#         Description: Duration (in seconds) player can breath under water
+#         Default:    180 - seconds
+#
+#
+#
+
+WaterBreathDuration = 180
+
+#
 #    AllFlightPaths
 #        Description: Character knows all flight paths (of both factions) after creation.
 #        Default:     0 - (Disabled)
