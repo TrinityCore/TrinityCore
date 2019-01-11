@@ -1872,32 +1872,39 @@ float Creature::GetAttackDistance(Unit const* player) const
     return (RetDistance*aggroRate);
 }
 
+/**
+ * Return the respawntime after which a creature respawn
+ * @return
+ */
+time_t Creature::respawnTime()
+{
+
+    m_corpseRemoveTime = GameTime::GetGameTime() + m_corpseDelay;
+
+    uint32 respawnDelay = m_respawnDelay;
+    if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
+        GetMap()->ApplyDynamicModeRespawnScaling(this, m_spawnId, respawnDelay, scalingMode);
+    // @todo remove the boss respawn time hack in a dynspawn follow-up once we have creature groups in instances
+
+    uint32 corpseDelay = (m_respawnCompatibilityMode) ? m_corpseDelay : 0;
+
+    if (IsDungeonBoss() && !m_respawnDelay)
+        return std::numeric_limits<time_t>::max(); // never respawn in this instance
+
+    if(sWorld->getIntConfig(CONFIG_MIN_SPAWN_TIME_SECS_MULTIPLIER_APPLY)<respawnDelay){
+        respawnDelay = (int)(respawnDelay * sWorld->getFloatConfig(CONFIG_RESPAWN_MULTIPLIER));
+    }
+
+    return GameTime::GetGameTime() + respawnDelay + corpseDelay;
+}
+
 void Creature::setDeathState(DeathState s)
 {
     Unit::setDeathState(s);
 
     if (s == JUST_DIED)
     {
-        m_corpseRemoveTime = GameTime::GetGameTime() + m_corpseDelay;
-
-        uint32 respawnDelay = m_respawnDelay;
-        if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
-            GetMap()->ApplyDynamicModeRespawnScaling(this, m_spawnId, respawnDelay, scalingMode);
-        // @todo remove the boss respawn time hack in a dynspawn follow-up once we have creature groups in instances
-        if (m_respawnCompatibilityMode)
-        {
-            if (IsDungeonBoss() && !m_respawnDelay)
-                m_respawnTime = std::numeric_limits<time_t>::max(); // never respawn in this instance
-            else
-                m_respawnTime = GameTime::GetGameTime() + respawnDelay + m_corpseDelay;
-        }
-        else
-        {
-            if (IsDungeonBoss() && !m_respawnDelay)
-                m_respawnTime = std::numeric_limits<time_t>::max(); // never respawn in this instance
-            else
-                m_respawnTime = GameTime::GetGameTime() + respawnDelay;
-        }
+        m_respawnTime = respawnTime();
 
         // always save boss respawn time at death to prevent crash cheating
         if (sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
