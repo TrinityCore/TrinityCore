@@ -501,10 +501,9 @@ class spell_gen_blood_reserve : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
-            if (Unit* caster = eventInfo.GetActionTarget())
-                if (caster->HealthBelowPctDamaged(35, dmgInfo->GetDamage()))
-                    return true;
+        if (Unit* caster = eventInfo.GetActionTarget())
+            if (caster->HealthBelowPct(35))
+                return true;
 
         return false;
     }
