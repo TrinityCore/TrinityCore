@@ -24648,17 +24648,9 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
 uint32 Player::CalculateTalentsPoints() const
 {
-    uint32 base_talent = getLevel() < 10 ? 0 : getLevel()-9;
-
-    if (getClass() != CLASS_DEATH_KNIGHT || GetMapId() != 609)
-        return uint32(base_talent * sWorld->getRate(RATE_TALENT));
-
-    uint32 talentPointsForLevel = getLevel() < 56 ? 0 : getLevel() - 55;
-    talentPointsForLevel += m_questRewardTalentCount;
-
-    if (talentPointsForLevel > base_talent)
-        talentPointsForLevel = base_talent;
-
+    uint32 base_talent = static_cast<uint32>(getLevel() < 10 ? 0 : getLevel() - 9 + 5);
+    base_talent = static_cast<uint32>((sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - 5) < getLevel() ? sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - 9 : base_talent);
+    uint32 talentPointsForLevel = (m_questRewardTalentCount > base_talent) ? base_talent : m_questRewardTalentCount;
     return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
 }
 
