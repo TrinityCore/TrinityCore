@@ -460,7 +460,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
 {
-    uint32 spellId;
+    uint32 spellId = 0;
 
     recvPacket.read_skip<uint8>();                          // counter, increments with every CANCEL packet, don't use for now
     recvPacket >> spellId;
@@ -568,7 +568,16 @@ void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPacket& /*recvPacket*/
 
 void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
 {
-    recvData.read_skip<uint32>();                          // spellid, not used
+    uint32 spellId = 0;
+    recvData >> spellId;    // Spell Id
+
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    if (!spellInfo)
+        return;
+
+    // not allow cancel channeling with attr SPELL_ATTR0_CANT_CANCEL
+    if (spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL))
+        return;
 
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_unitMovedByMe;
