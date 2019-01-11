@@ -107,6 +107,10 @@ public:
             return;
 
         boost::system::error_code err;
+
+        boost::asio::socket_base::linger option(true, 30);
+        _acceptor.set_option(option, err);
+
         _acceptor.close(err);
     }
 
