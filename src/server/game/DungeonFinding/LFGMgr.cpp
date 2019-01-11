@@ -481,7 +481,8 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                 }
             }
 
-            if (joinData.result == LFG_JOIN_OK && memberCount != grp->GetMembersCount())
+            if ((joinData.result == LFG_JOIN_OK && memberCount != grp->GetMembersCount())
+                || (joinData.result == LFG_JOIN_PARTY_RANDOM_COOLDOWN && grp->isLFGGroup() && memberCount != grp->GetMembersCount()))
                 joinData.result = LFG_JOIN_DISCONNECTED;
         }
     }
