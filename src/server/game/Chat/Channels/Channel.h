@@ -222,7 +222,7 @@ class TC_GAME_API Channel
         void List(Player const* player);
         void Announce(Player const* player);
         void Say(ObjectGuid const& guid, std::string const& what, uint32 lang) const;
-        void AddonSay(ObjectGuid const& guid, std::string const& prefix, std::string const& what) const;
+        void AddonSay(ObjectGuid const& guid, std::string const& prefix, std::string const& what, bool isLogged) const;
         void DeclineInvite(Player const* player);
         void Invite(Player const* player, std::string const& newp);
         void JoinNotify(Player const* player);
