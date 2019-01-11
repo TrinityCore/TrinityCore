@@ -69,6 +69,7 @@ enum HunterSpells
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_TERMINATION_R_1                    = 83489,
     SPELL_HUNTER_TERMINATION_R_2                    = 83490,
+    SPELL_HUNTER_TRAP_LAUNCHER_LINKED               = 82946,
     SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED     = 53220,
     SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720,
     SPELL_HUNTER_WILD_QUIVER_DAMAGE                 = 76663,
@@ -1496,6 +1497,32 @@ class spell_hun_bombardment : public SpellScriptLoader
         }
 };
 
+class spell_hun_trap_launcher : public AuraScript
+{
+    PrepareAuraScript(spell_hun_trap_launcher);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED });
+    }
+
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED, true, nullptr, aurEff);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_trap_launcher::AfterApply, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_trap_launcher::AfterRemove, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_ancient_hysteria();
@@ -1528,5 +1555,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_thrill_of_the_hunt();
     new spell_hun_tnt();
+    RegisterAuraScript(spell_hun_trap_launcher);
     new spell_hun_wild_quiver();
 }
