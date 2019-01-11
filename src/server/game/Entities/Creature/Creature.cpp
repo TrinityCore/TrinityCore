@@ -1932,10 +1932,7 @@ void Creature::setDeathState(DeathState s)
         if (m_formation && m_formation->GetLeader() == this)
             m_formation->FormationReset(true);
 
-        bool needsFalling = IsFlying() || IsHovering();
-        SetHover(false);
-
-        if (needsFalling)
+        if ((CanFly() || IsFlying()))
             GetMotionMaster()->MoveFall();
 
         Unit::setDeathState(CORPSE);

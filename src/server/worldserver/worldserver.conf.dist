@@ -1658,6 +1658,7 @@ Corpse.Decay.WORLDBOSS = 3600
 
 Rate.Corpse.Decay.Looted = 0.5
 
+
 #
 #    Rate.Creature.Normal.Damage
 #    Rate.Creature.Elite.Elite.Damage
@@ -1878,6 +1879,26 @@ Respawn.DynamicRateGameObject = 10
 #        Default:     10 - (10 seconds)
 
 Respawn.DynamicMinimumGameObject = 10
+
+
+
+
+#
+#   Respawn.Multiplier
+#
+#       Description: Respown multiplier for creature spawntimesecs < Respawn.MinSpawnTimeSecs
+#       Default: 1.0
+#
+Respawn.Multiplier = 1.0
+
+#
+#   Respawn.MinSpawnTimeSecsMultiplierApply
+#
+#       Description: Min timesecs where respawn multiplier is applied
+#       Default: 150
+#
+Respawn.MinSpawnTimeSecsMultiplierApply = 1
+
 
 #
 ###################################################################################################
