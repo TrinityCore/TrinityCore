@@ -207,10 +207,6 @@ class instance_deadmines : public InstanceMapScript
                         if (!GetData(DATA_FOE_REAPER_INTRO) && creature->isDead())
                             creature->Respawn();
                         break;
-                    case NPC_PROTOTYPE_REAPER:
-                        if (!instance->IsHeroic())
-                            creature->SetVisible(false);
-                        break;
                     case NPC_MOLTEN_SLAG:
                         if (Creature* reaper = GetCreature(DATA_FOE_REAPER_5000))
                             reaper->AI()->JustSummoned(creature);
