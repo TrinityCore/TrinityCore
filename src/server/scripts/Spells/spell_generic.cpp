@@ -201,6 +201,27 @@ class spell_gen_animal_blood : public AuraScript
     }
 };
 
+class spell_gen_arcane_charge : public SpellScript
+{
+    PrepareSpellScript(spell_gen_arcane_charge);
+
+    SpellCastResult CheckRequirement()
+    {
+        if (Unit* target = GetExplTargetUnit())
+        {
+            if (!(target->GetCreatureTypeMask() & CREATURE_TYPEMASK_DEMON_OR_UNDEAD))
+                return SPELL_FAILED_DONT_REPORT;
+        }
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_gen_arcane_charge::CheckRequirement);
+    }
+};
+
 // 430 Drink
 // 431 Drink
 // 432 Drink
@@ -479,10 +500,9 @@ class spell_gen_blood_reserve : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
-            if (Unit* caster = eventInfo.GetActionTarget())
-                if (caster->HealthBelowPctDamaged(35, dmgInfo->GetDamage()))
-                    return true;
+        if (Unit* caster = eventInfo.GetActionTarget())
+            if (caster->HealthBelowPct(35))
+                return true;
 
         return false;
     }
@@ -4046,12 +4066,73 @@ class spell_gen_pony_mount_check : public AuraScript
     }
 };
 
+enum CorruptinPlagueEntrys
+{
+    NPC_APEXIS_FLAYER       = 22175,
+    NPC_SHARD_HIDE_BOAR     = 22180,
+    NPC_AETHER_RAY          = 22181,
+    SPELL_CORRUPTING_PLAGUE = 40350
+};
+
+// 40350 - Corrupting Plague
+class CorruptingPlagueSearcher
+{
+public:
+    CorruptingPlagueSearcher(Unit* obj, float distance) : _unit(obj), _distance(distance)  { }
+
+    bool operator()(Unit* u) const
+    {
+        if (_unit->GetDistance2d(u) < _distance &&
+            (u->GetEntry() == NPC_APEXIS_FLAYER || u->GetEntry() == NPC_SHARD_HIDE_BOAR || u->GetEntry() == NPC_AETHER_RAY) &&
+            !u->HasAura(SPELL_CORRUPTING_PLAGUE))
+            return true;
+
+        return false;
+    }
+
+private:
+    Unit* _unit;
+    float _distance;
+};
+
+// 40349 - Corrupting Plague
+class spell_corrupting_plague_aura : public AuraScript
+{
+    PrepareAuraScript(spell_corrupting_plague_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CORRUPTING_PLAGUE });
+    }
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* owner = GetTarget();
+
+        std::list<Creature*> targets;
+        CorruptingPlagueSearcher creature_check(owner, 15.0f);
+        Trinity::CreatureListSearcher<CorruptingPlagueSearcher> creature_searcher(owner, targets, creature_check);
+        Cell::VisitGridObjects(owner, creature_searcher, 15.0f);
+
+        if (!targets.empty())
+            return;
+
+        PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_corrupting_plague_aura::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterAuraScript(spell_gen_absorb0_hitlimit1);
     RegisterAuraScript(spell_gen_adaptive_warding);
     RegisterSpellScript(spell_gen_allow_cast_from_item_only);
     RegisterAuraScript(spell_gen_animal_blood);
+    RegisterSpellScript(spell_gen_arcane_charge);
     RegisterAuraScript(spell_gen_arena_drink);
     RegisterAuraScript(spell_gen_aura_of_anger);
     RegisterAuraScript(spell_gen_aura_of_fear);
@@ -4164,4 +4245,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_landmine_knockback_achievement);
     RegisterSpellScript(spell_gen_clear_debuffs);
     RegisterAuraScript(spell_gen_pony_mount_check);
+    RegisterAuraScript(spell_corrupting_plague_aura);
 }

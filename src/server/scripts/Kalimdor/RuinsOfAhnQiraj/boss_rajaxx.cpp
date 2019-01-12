@@ -19,6 +19,7 @@
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 
 enum Yells
 {
@@ -134,7 +135,27 @@ class boss_rajaxx : public CreatureScript
         }
 };
 
+class spell_rajaxx_thundercrash : public SpellScript
+{
+    PrepareSpellScript(spell_rajaxx_thundercrash);
+
+    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+    {
+        int32 damage = GetHitUnit()->GetHealth() / 2;
+        if (damage < 200)
+            damage = 200;
+
+        SetHitDamage(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rajaxx_thundercrash::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_boss_rajaxx()
 {
     new boss_rajaxx();
+    RegisterSpellScript(spell_rajaxx_thundercrash);
 }

@@ -1803,7 +1803,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetBaseModFlatValue(BaseModGroup modGroup, float val);
         void SetBaseModPctValue(BaseModGroup modGroup, float val);
 
-        void UpdateDamageDoneMods(WeaponAttackType attackType) override;
+        void UpdateDamageDoneMods(WeaponAttackType attackType, int32 skipEnchantSlot = -1) override;
         void UpdateBaseModGroup(BaseModGroup modGroup);
 
         float GetBaseModValue(BaseModGroup modGroup, BaseModType modType) const;
