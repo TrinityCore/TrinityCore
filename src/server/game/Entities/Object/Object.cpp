@@ -1447,9 +1447,15 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         }
         else
         {
-            float ground_z = GetMapHeight(x, y, z) + unit->GetHoverOffset();
-            if (z < ground_z)
-                z = ground_z;
+            float const gridHeight = GetMap()->GetGridHeight(x, y) + unit->GetHoverOffset();
+            float const vmapHeight = GetMap()->GetVmapDataFloorZ(x, y, z); // don't add hover offset here. if check might return unintended value
+            // Check if vmap under us
+            if (vmapHeight <= INVALID_HEIGHT)
+            {
+                // no vmap found, check if unit is under grid height
+                if (z < gridHeight)
+                    z = gridHeight;
+            }
         }
     }
     else

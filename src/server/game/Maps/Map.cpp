@@ -2439,24 +2439,11 @@ float Map::GetWaterOrGroundLevel(uint32 phasemask, float x, float y, float z, fl
     return VMAP_INVALID_HEIGHT_VALUE;
 }
 
-float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
+float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float /*maxSearchDist*/ /*= DEFAULT_HEIGHT_SEARCH*/) const
 {
     // find raw .map surface under Z coordinates
-    float mapHeight = VMAP_INVALID_HEIGHT_VALUE;
-    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
-    {
-        float gridHeight = gmap->getHeight(x, y);
-        if (G3D::fuzzyGe(z, gridHeight - GROUND_HEIGHT_TOLERANCE))
-            mapHeight = gridHeight;
-    }
-
-    float vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
-    if (checkVMap)
-    {
-        VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
-        if (vmgr->isHeightCalcEnabled())
-            vmapHeight = vmgr->getHeight(GetId(), x, y, z, maxSearchDist);
-    }
+    float const mapHeight = GetGridHeight(x, y);
+    float const vmapHeight = checkVMap ? GetVmapDataFloorZ(x, y, z) : VMAP_INVALID_HEIGHT_VALUE;
 
     // mapHeight set for any above raw ground Z or <= INVALID_HEIGHT
     // vmapheight set for any under Z value or <= INVALID_HEIGHT
@@ -2470,14 +2457,35 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
             // or if the distance of the vmap height is less the land height distance
             if (vmapHeight > mapHeight || std::fabs(mapHeight - z) > std::fabs(vmapHeight - z))
                 return vmapHeight;
-            else
-                return mapHeight;                           // better use .map surface height
+
+            return mapHeight;                           // better use .map surface height
         }
-        else
-            return vmapHeight;                              // we have only vmapHeight (if have)
+
+        return vmapHeight;                              // we have only vmapHeight (if have)
     }
 
     return mapHeight;                               // explicitly use map data
+}
+
+float Map::GetGridHeight(float x, float y) const
+{
+    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
+        return gmap->getHeight(x, y);
+
+    return VMAP_INVALID_HEIGHT_VALUE;
+}
+
+float Map::GetVmapDataFloorZ(float x, float y, float z) const
+{
+    VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
+    if (vmgr->isHeightCalcEnabled())
+    {
+        VMAP::AreaAndLiquidData vmapData;
+        vmgr->getAreaAndLiquidData(GetId(), x, y, z, MAP_ALL_LIQUIDS, vmapData);
+        return vmapData.floorZ;
+    }
+
+    return VMAP_INVALID_HEIGHT_VALUE;
 }
 
 float Map::GetMinHeight(float x, float y) const
