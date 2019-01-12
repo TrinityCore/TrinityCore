@@ -217,7 +217,7 @@ class boss_corborus : public CreatureScript
                             instance->SetData(DATA_MILLHOUSE_EVENT_DESPAWN, 0);
                             break;
                         case EVENT_DAMPENING_WAVE:
-                            DoCastVictim(SPELL_DAMPENING_WAVE);
+                            DoCastAOE(SPELL_DAMPENING_WAVE);
                             events.Repeat(Seconds(15));
                             break;
                         case EVENT_CRYSTAL_BARRAGE:
