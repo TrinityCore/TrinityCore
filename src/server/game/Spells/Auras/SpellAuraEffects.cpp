@@ -1272,6 +1272,7 @@ void AuraEffect::HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
         case SPELL_AURA_MOD_STUN:
         case SPELL_AURA_MOD_ROOT:
         case SPELL_AURA_TRANSFORM:
+        case SPELL_AURA_MOD_ROOT_2:
             HandleBreakableCCAuraProc(aurApp, eventInfo);
             break;
         case SPELL_AURA_DUMMY:
