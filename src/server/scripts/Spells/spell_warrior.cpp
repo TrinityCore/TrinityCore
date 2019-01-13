@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
 #include "Item.h"
 #include "Player.h"
 #include "Random.h"

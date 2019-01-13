@@ -313,7 +313,7 @@ class npc_worgen_runt : public CreatureScript
                             break;
                         case EVENT_AGGRO_PLAYER:
                             if (Unit* player = ObjectAccessor::GetPlayer(*me, _playerGuid))
-                                if (me->IsAIEnabled && me->IsInDist(&player->GetPosition(), 100.0f))
+                                if (me->IsAIEnabled && me->IsInDist(player->GetPosition(), 100.0f))
                                     me->AI()->AttackStart(player);
                             break;
                         default:
