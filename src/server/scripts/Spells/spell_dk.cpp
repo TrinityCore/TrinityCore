@@ -2914,14 +2914,14 @@ public:
             if (ghoulGuid.IsEmpty())
                 return;
 
-            player->SetAI(new player_ghoulAI(player, ghoulGuid));
+            player->PushAI(new player_ghoulAI(player, ghoulGuid));
         }
 
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Player* player = GetTarget()->ToPlayer();
 
-            player->SetAI(nullptr);
+            player->PopAI();
 
             // Dismiss ghoul if necessary
             if (Creature* ghoul = ObjectAccessor::GetCreature(*player, ghoulGuid))
