@@ -106,7 +106,7 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
         // the owner needs to reposition itself when being too close to its victim
         if (Creature* me = owner->ToCreature())
         {
-            MovementGeneratorType type = GetMovementGeneratorType();
+            MovementGeneratorType type = this->GetMovementGeneratorType();
             if (type == CHASE_MOTION_TYPE && me->IsAllowedToRepostionAgainst(GetTarget()))
             {
                 if (me->GetCombatReach() > me->GetPosition().GetExactDist(GetTarget()->GetPosition()))
