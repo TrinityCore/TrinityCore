@@ -449,7 +449,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                     return;
 
                 Player* pTarget = GetTarget()->ToPlayer();
-                GetTarget()->SetAI(new player_overlord_brandAI(pTarget, GetCasterGUID()));
+                GetTarget()->PushAI(new player_overlord_brandAI(pTarget, GetCasterGUID()));
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -457,7 +457,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                 if (GetTarget()->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                GetTarget()->SetAI(nullptr);
+                GetTarget()->PopAI();
             }
 
             void Register() override
