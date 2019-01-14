@@ -212,6 +212,7 @@ struct boss_high_priestess_kilnara : public BossAI
                     break;
                 case EVENT_TEARS_OF_BLOOD:
                     me->StopMoving();
+                    me->MakeInterruptable(true);
                     DoCastSelf(SPELL_TEARS_OF_BLOOD);
                     events.Repeat(21s, 24s);
                     break;
@@ -347,24 +348,17 @@ class spell_kilnara_tears_of_blood : public AuraScript
         return ValidateSpellInfo({ SPELL_WAIL_OF_SORROW });
     }
 
-    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (Creature* creature = GetTarget()->ToCreature())
-            creature->MakeInterruptable(true);
-    }
-
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* creature = GetTarget()->ToCreature())
         {
-            creature->MakeInterruptable(true);
+            creature->MakeInterruptable(false);
             creature->CastSpell(creature, SPELL_WAIL_OF_SORROW);
         }
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_kilnara_tears_of_blood::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_kilnara_tears_of_blood::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
