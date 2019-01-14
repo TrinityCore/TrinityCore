@@ -598,7 +598,7 @@ class spell_dru_glyph_of_innervate : public SpellScriptLoader
 
                 Unit* caster = eventInfo.GetActor();
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_GLYPH_OF_INNERVATE_REGEN);
-                int32 amount = CalculatePct(static_cast<int32>(caster->GetCreatePowers(POWER_MANA)), aurEff->GetAmount());
+                int32 amount = CalculatePct(static_cast<int32>(caster->GetCreatePowerValue(POWER_MANA)), aurEff->GetAmount());
 
                 ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
@@ -904,7 +904,7 @@ class spell_dru_innervate : public SpellScriptLoader
                 }
 
                 if (Unit* caster = GetCaster())
-                    amount = int32(CalculatePct(caster->GetCreatePowers(POWER_MANA), amount) / aurEff->GetTotalTicks());
+                    amount = int32(CalculatePct(caster->GetCreatePowerValue(POWER_MANA), amount) / aurEff->GetTotalTicks());
                 else
                     amount = 0;
             }
@@ -1258,7 +1258,7 @@ class spell_dru_owlkin_frenzy : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
-                amount = CalculatePct(GetUnitOwner()->GetCreatePowers(POWER_MANA), amount);
+                amount = CalculatePct(GetUnitOwner()->GetCreatePowerValue(POWER_MANA), amount);
             }
 
             void Register() override

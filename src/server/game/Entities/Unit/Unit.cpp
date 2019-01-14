@@ -63,6 +63,7 @@
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "Totem.h"
+#include "UnitAI.h"
 #include "UpdateFieldFlags.h"
 #include "Util.h"
 #include "Vehicle.h"
@@ -459,8 +460,9 @@ void Unit::Update(uint32 p_time)
     UpdateSplineMovement(p_time);
     i_motionMaster->Update(p_time);
 
-    if (!i_AI && (GetTypeId() != TYPEID_PLAYER || IsCharmed()))
+    if (!GetAI() && (GetTypeId() != TYPEID_PLAYER || IsCharmed()))
         UpdateCharmAI();
+    RefreshAI();
 }
 
 bool Unit::haveOffhandWeapon() const
@@ -9387,19 +9389,26 @@ void Unit::SetMaxPower(Powers power, uint32 val)
         SetPower(power, val);
 }
 
-uint32 Unit::GetCreatePowers(Powers power) const
+uint32 Unit::GetCreatePowerValue(Powers power) const
 {
     // Only hunter pets have POWER_FOCUS and POWER_HAPPINESS
     switch (power)
     {
-        case POWER_MANA:      return GetCreateMana();
-        case POWER_RAGE:      return 1000;
-        case POWER_FOCUS:     return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->IsPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
-        case POWER_ENERGY:    return 100;
-        case POWER_HAPPINESS: return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->IsPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 1050000);
-        case POWER_RUNIC_POWER: return 1000;
-        case POWER_RUNE:      return 0;
-        case POWER_HEALTH:    return 0;
+        case POWER_MANA:
+            return GetCreateMana();
+        case POWER_RAGE:
+            return 1000;
+        case POWER_FOCUS:
+            return (GetTypeId() != TYPEID_UNIT || !ToCreature()->IsPet() || ToPet()->getPetType() != HUNTER_PET) ? 0 : 100;
+        case POWER_ENERGY:
+            return 100;
+        case POWER_HAPPINESS:
+            return (GetTypeId() != TYPEID_UNIT || !ToCreature()->IsPet() || ToPet()->getPetType() != HUNTER_PET) ? 0 : 1050000;
+        case POWER_RUNIC_POWER:
+            return 1000;
+        case POWER_RUNE:
+        case POWER_HEALTH:
+            return 0;
         default:
             break;
     }
@@ -9417,37 +9426,56 @@ void Unit::AIUpdateTick(uint32 diff)
     }
 }
 
+void Unit::PushAI(UnitAI* newAI)
+{
+    i_AIs.emplace(newAI);
+}
+
 void Unit::SetAI(UnitAI* newAI)
 {
-    ASSERT(!m_aiLocked, "Attempt to replace AI during AI update tick");
-    i_AI.reset(newAI);
+    PushAI(newAI);
+    RefreshAI();
+}
+
+bool Unit::PopAI()
+{
+    if (!i_AIs.empty())
+    {
+        i_AIs.pop();
+        return true;
+    }
+    else
+        return false;
+}
+
+void Unit::RefreshAI()
+{
+    ASSERT(!m_aiLocked, "Tried to change current AI during UpdateAI()");
+    if (i_AIs.empty())
+        i_AI = nullptr;
+    else
+        i_AI = i_AIs.top();
 }
 
 void Unit::ScheduleAIChange()
 {
     bool const charmed = IsCharmed();
-    // if charm is applied, we can't have disabled AI already, and vice versa
-    if (charmed)
-        ASSERT(!i_disabledAI, "Attempt to schedule charm AI change on unit that already has disabled AI");
-    else if (GetTypeId() != TYPEID_PLAYER)
-        ASSERT(i_disabledAI, "Attempt to schedule charm ID change on unit that doesn't have disabled AI");
 
     if (charmed)
-        i_disabledAI = std::move(i_AI);
-    else if (m_aiLocked)
-    {
-        ASSERT(!i_lockedAILifetimeExtension, "Attempt to schedule multiple charm AI changes during one update");
-        i_lockedAILifetimeExtension = std::move(i_AI); // AI needs to live just a bit longer to finish its UpdateAI
-    }
+        PushAI(nullptr);
     else
-        i_AI.reset();
+    {
+        RestoreDisabledAI();
+        PushAI(nullptr); //This could actually be PopAI() to get the previous AI but it's required atm to trigger UpdateCharmAI()
+    }
 }
 
 void Unit::RestoreDisabledAI()
 {
-    ASSERT((GetTypeId() == TYPEID_PLAYER) || i_disabledAI, "Attempt to restore disabled AI on creature without disabled AI");
-    i_AI = std::move(i_disabledAI);
-    i_lockedAILifetimeExtension.reset();
+    // Keep popping the stack until we either reach the bottom or find a valid AI
+    while (PopAI())
+        if (GetTopAI())
+            return;
 }
 
 void Unit::AddToWorld()
@@ -9567,14 +9595,16 @@ void Unit::UpdateCharmAI()
         }
 
         ASSERT(newAI);
-        i_AI.reset(newAI);
+        SetAI(newAI);
         newAI->OnCharmed(true);
     }
     else
     {
         RestoreDisabledAI();
-        if (i_AI)
-            i_AI->OnCharmed(true);
+        // Hack: this is required because we want to call OnCharmed(true) on the restored AI
+        RefreshAI();
+        if (UnitAI* ai = GetAI())
+            ai->OnCharmed(true);
     }
 }
 
