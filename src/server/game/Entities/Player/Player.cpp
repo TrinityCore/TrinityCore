@@ -2828,7 +2828,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     // save new stats
     for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
-        SetMaxPower(Powers(i), uint32(GetCreatePowers(Powers(i))));
+        SetMaxPower(Powers(i), uint32(GetCreatePowerValue(Powers(i))));
 
     SetMaxHealth(classInfo.basehealth);                     // stamina bonus will applied later
 
@@ -15925,16 +15925,18 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
     {
         case TYPEID_GAMEOBJECT:
         {
-            if (auto questStatus = questgiver->ToGameObject()->AI()->GetDialogStatus(this))
-                return *questStatus;
+            if (auto ai = questgiver->ToGameObject()->AI())
+                if (auto questStatus = ai->GetDialogStatus(this))
+                    return *questStatus;
             qr = sObjectMgr->GetGOQuestRelationBounds(questgiver->GetEntry());
             qir = sObjectMgr->GetGOQuestInvolvedRelationBounds(questgiver->GetEntry());
             break;
         }
         case TYPEID_UNIT:
         {
-            if (auto questStatus = questgiver->ToCreature()->AI()->GetDialogStatus(this))
-                return *questStatus;
+            if (auto ai = questgiver->ToCreature()->AI())
+                if (auto questStatus = ai->GetDialogStatus(this))
+                    return *questStatus;
             qr = sObjectMgr->GetCreatureQuestRelationBounds(questgiver->GetEntry());
             qir = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(questgiver->GetEntry());
             break;

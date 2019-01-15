@@ -429,7 +429,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         joinData.result = LFG_JOIN_USING_BG_SYSTEM;
     else if (player->HasAura(LFG_SPELL_DUNGEON_DESERTER))
         joinData.result = LFG_JOIN_DESERTER;
-    else if (player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
+    else if (!isContinue && player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
         joinData.result = LFG_JOIN_RANDOM_COOLDOWN;
     else if (dungeons.empty())
         joinData.result = LFG_JOIN_NOT_MEET_REQS;
@@ -450,7 +450,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                         joinData.result = LFG_JOIN_PARTY_NOT_MEET_REQS;
                     if (plrg->HasAura(LFG_SPELL_DUNGEON_DESERTER))
                         joinData.result = LFG_JOIN_PARTY_DESERTER;
-                    else if (plrg->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
+                    else if (!isContinue && plrg->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
                         joinData.result = LFG_JOIN_PARTY_RANDOM_COOLDOWN;
                     else if (plrg->InBattleground() || plrg->InArena() || plrg->InBattlegroundQueue())
                         joinData.result = LFG_JOIN_USING_BG_SYSTEM;
