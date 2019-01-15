@@ -81,7 +81,7 @@ enum Says
 
 enum Gossip
 {
-   GOSSIP_ID                   = 21332,
+   GOSSIP_ID                   = 6045,
    GOSSIP_OPTION_ID            = 0
 };
 
