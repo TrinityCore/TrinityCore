@@ -38,7 +38,7 @@ namespace AuthHelper
             {{ 0x31, 0x9A, 0xFA, 0xA3, 0xF2, 0x55, 0x96, 0x82, 0xF9, 0xFF, 0x65, 0x8B, 0xE0, 0x14, 0x56, 0x25, 0x5F, 0x45, 0x6F, 0xB1 }},
             {{}},
         },
-        {0,     0, 0, 0, ' '}                                   // terminator
+        {0,     0, 0, 0, ' ', {{}}, {{}}}                                   // terminator
     };
 
     static RealmBuildInfo const PreBcAcceptedClientBuilds[] =
@@ -49,7 +49,7 @@ namespace AuthHelper
             {{}},
             {{ 0x8D, 0x17, 0x3C, 0xC3, 0x81, 0x96, 0x1E, 0xEB, 0xAB, 0xF3, 0x36, 0xF5, 0xE6, 0x67, 0x5B, 0x10, 0x1B, 0xB5, 0x13, 0xE5 }},
         },
-        {0,     0, 0, 0, ' '}                                   // terminator
+        {0,     0, 0, 0, ' ', {{}}, {{}}}                                   // terminator
     };
 
     bool IsPreBCAcceptedClientBuild(int build)
