@@ -44,8 +44,20 @@ TeamId Battlefield::GetAttackingTeamId() const
     return TeamIdByPvPTeamId(GetAttackingTeam());
 }
 
-bool Battlefield::Initialize(bool status)
+bool Battlefield::Initialize(bool enabled)
 {
-    _enabled = status;
+    _enabled = enabled;
     return true;
+}
+
+void Battlefield::Update(uint32 /*diff*/)
+{
+}
+
+void Battlefield::HandlePlayerEnterZone(Player* /*player*/, uint32 /*zoneId*/)
+{
+}
+
+void Battlefield::HandlePlayerLeaveZone(Player* /*player*/, uint32 /*zoneId*/)
+{
 }

@@ -2674,7 +2674,7 @@ Battleground.ReportAFK = 3
 #     Wintergrasp.Enable
 #         Description: Enable the Wintergrasp battlefield.
 #         Default:     0 - (Disabled)
-#                      1 - (Enabled, Experimental as in incomplete, bugged and with crashes)
+#                      1 - (Enabled) NYI
 
 Wintergrasp.Enable = 0
 
@@ -2683,7 +2683,7 @@ Wintergrasp.Enable = 0
 #         Description: Maximum number of players allowed in Wintergrasp.
 #         Default:     100
 
-Wintergrasp.PlayerMax = 100
+Wintergrasp.PlayerMax = 120
 
 #
 #     Wintergrasp.PlayerMin
@@ -3879,8 +3879,8 @@ Logger.mmaps=3,Server
 #Logger.addon=3,Console Server
 #Logger.ahbot=3,Console Server
 #Logger.auctionHouse=3,Console Server
+#Logger.battlefield=3,Console Server
 #Logger.bg.arena=3,Console Server
-#Logger.bg.battlefield=3,Console Server
 #Logger.bg.battleground=3,Console Server
 #Logger.bg.reportpvpafk=3,Console Server
 #Logger.chat.log=3,Console Server
