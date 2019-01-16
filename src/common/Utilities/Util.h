@@ -538,7 +538,7 @@ bool CompareValues(ComparisionType type, T val1, T val2)
 }
 
 template<typename E>
-typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
+constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
 {
     static_assert(std::is_enum<E>::value, "AsUnderlyingType can only be used with enums");
     return static_cast<typename std::underlying_type<E>::type>(enumValue);
