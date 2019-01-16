@@ -5497,6 +5497,52 @@ void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
     UpdateRating(combatRating);
 }
 
+void Player::UpdateInstantHasteCap()
+{  
+   if (sWorld->getIntConfig(CONFIG_PLAYER_HASTE_CAP) == -1)
+   {
+       return;
+   }
+
+   bool hasInstantHasteCap = (GetFloatValue(UNIT_FIELD_BASEATTACKTIME + 0) == 1 
+                           || GetFloatValue(UNIT_FIELD_BASEATTACKTIME + 1) == 1 
+                           || GetFloatValue(UNIT_FIELD_BASEATTACKTIME + 2) == 1 
+                           || GetFloatValue(UNIT_MOD_CAST_SPEED) == 0);
+
+   if (m_baseRatingValue[CR_HASTE_MELEE] >= sWorld->getIntConfig(CONFIG_PLAYER_HASTE_CAP))
+   {
+       SetFloatValue(UNIT_MOD_CAST_SPEED, 0);
+       SetFloatValue(UNIT_FIELD_BASEATTACKTIME + BASE_ATTACK, 1);
+       SetFloatValue(UNIT_FIELD_BASEATTACKTIME + OFF_ATTACK, 1);
+       SetFloatValue(UNIT_FIELD_BASEATTACKTIME + RANGED_ATTACK, 1);
+   }
+
+   else if (hasInstantHasteCap && m_baseRatingValue[CR_HASTE_MELEE] < sWorld->getIntConfig(CONFIG_PLAYER_HASTE_CAP))
+   {
+       SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
+       SetRegularAttackTime();
+        ApplyCastTimePercentMod(m_baseRatingValue[CR_HASTE_SPELL] * GetRatingMultiplier(CR_HASTE_SPELL), true);
+
+       if (GetShapeshiftForm())
+       {
+           SpellShapeshiftEntry const* ssEntry = sSpellShapeshiftStore.LookupEntry(GetShapeshiftForm());
+           if (ssEntry && ssEntry->attackSpeed)
+           {
+               SetAttackTime(BASE_ATTACK, ssEntry->attackSpeed);
+               SetAttackTime(OFF_ATTACK, ssEntry->attackSpeed);
+               SetAttackTime(RANGED_ATTACK, BASE_ATTACK_TIME);
+           }
+       }
+   }
+
+   if (CanModifyStats())
+   {
+       UpdateDamagePhysical(BASE_ATTACK);
+       UpdateDamagePhysical(OFF_ATTACK);
+       UpdateDamagePhysical(RANGED_ATTACK);
+   }
+}
+
 void Player::UpdateRating(CombatRating cr)
 {
     int32 amount = m_baseRatingValue[cr];

@@ -3237,6 +3237,15 @@ PlayerDump.DisallowPaths = 1
 PlayerDump.DisallowOverwrite = 1
 
 #
+#    Player.HasteCap
+#        Description: Haste rating at which attack and casting speed will be set to instant (0).
+#        Default:     -1 - (Disabled)
+#                     0+ - (Enabled)
+#	 Example:     Player.HasteCap = 2000
+
+Player.HasteCap = 2000
+
+#
 #     UI.ShowQuestLevelsInDialogs
 #        Description: Show quest levels next to quest titles in UI dialogs
 #        Example:     [13] Westfall Stew
