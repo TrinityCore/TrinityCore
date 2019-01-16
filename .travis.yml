@@ -1,5 +1,5 @@
 sudo: false
-dist: trusty
+dist: xenial
 
 language: cpp
 compiler:
@@ -12,19 +12,17 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
-      - sourceline: 'ppa:kzemek/boost'
     packages:
-      - g++-6
-      - libboost1.58-dev
-      - libboost-filesystem1.58-dev
-      - libboost-iostreams1.58-dev
-      - libboost-program-options1.58-dev
-      - libboost-regex1.58-dev
-      - libboost-system1.58-dev
-      - libboost-thread1.58-dev
+      - libboost-dev
+      - libboost-filesystem-dev
+      - libboost-iostreams-dev
+      - libboost-program-options-dev
+      - libboost-regex-dev
+      - libboost-system-dev
+      - libboost-thread-dev
       - libssl-dev
       - libmysqlclient-dev
-      - libreadline6-dev
+      - libreadline-dev
       - zlib1g-dev
       - libbz2-dev
 
@@ -58,3 +56,12 @@ script:
   - cd check_install/bin
   - ./authserver --version
   - ./worldserver --version
+
+after_success:
+  - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - ./send.sh success $WEBHOOK_URL
+after_failure:
+  - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - ./send.sh failure $WEBHOOK_URL
