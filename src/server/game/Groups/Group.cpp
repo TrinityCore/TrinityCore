@@ -794,7 +794,15 @@ void Group::Disband(bool hideDestroy /* = false */)
 
         _homebindIfInstance(player);
     }
-    RollId.clear();
+
+    auto itr = RollId.begin();
+    while (itr != RollId.end())
+    {
+        // Rolls are deleted inside
+        CountTheRoll(itr, nullptr);
+        itr = RollId.begin();
+    }
+
     m_memberSlots.clear();
 
     RemoveAllInvites();
