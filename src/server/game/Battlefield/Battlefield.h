@@ -35,6 +35,7 @@ public:
     BattlefieldBattleId GetId() const { return _battleId; }
     uint32 GetZoneId() const { return _zoneId; }
     bool IsEnabled() const { return _enabled; }
+    bool IsWarTime() const { return _active; }
     PvPTeamId GetControllingTeam() const { return _controllingTeam; }
     PvPTeamId GetAttackerTeam() const;
 
@@ -46,9 +47,12 @@ public:
 private:
     Battlefield(Battlefield const&) = delete;
 
+    // constant information
     BattlefieldBattleId _battleId;
     uint32 _zoneId;
+
     bool _enabled;
+    bool _active;
     PvPTeamId _controllingTeam;
 };
 

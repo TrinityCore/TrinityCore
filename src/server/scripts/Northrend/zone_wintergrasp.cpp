@@ -24,6 +24,7 @@
 #include "DBCStructure.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
 #include "SpellAuraEffects.h"
@@ -32,41 +33,53 @@
 #include "Unit.h"
 #include "Vehicle.h"
 
-#define GOSSIP_HELLO_DEMO1  "Build catapult."
-#define GOSSIP_HELLO_DEMO2  "Build demolisher."
-#define GOSSIP_HELLO_DEMO3  "Build siege engine."
-#define GOSSIP_HELLO_DEMO4  "I cannot build more!"
-
-enum WintergraspQueueText
+enum ZoneWintergraspNPCTexts
 {
-    TEXT_WINTERGRASP_HORDE_NOWAR    = 14775,
-    TEXT_WINTERGRASP_HORDE_QUEUE    = 14790,
-    TEXT_WINTERGRASP_HORDE_WAR      = 14777,
-    TEXT_WINTERGRASP_ALLIANCE_NOWAR = 14782,
-    TEXT_WINTERGRASP_ALLIANCE_QUEUE = 14791,
-    TEXT_WINTERGRASP_ALLIANCE_WAR   = 14781,
+    NPC_TEXT_HORDE_HOW_CAN_I_HELP        = 13759,
+    NPC_TEXT_HORDE_SORRY_ONLY_OFFICER    = 13761,
+    NPC_TEXT_ALLIANCE_HOW_CAN_I_HELP     = 13798,
+    NPC_TEXT_ALLIANCE_SORRY_ONLY_OFFICER = 14172,
+    NPC_TEXT_SORRY_USED_ALL_PARTS        = 13786,
 
-    TEXTOPTION_JOIN         = 20077, // whats this?
+    NPC_TEXT_HORDE_NOWAR                 = 14775,
+    NPC_TEXT_HORDE_QUEUE                 = 14790,
+    NPC_TEXT_HORDE_WAR                   = 14777,
+    NPC_TEXT_ALLIANCE_NOWAR              = 14782,
+    NPC_TEXT_ALLIANCE_QUEUE              = 14791,
+    NPC_TEXT_ALLIANCE_WAR                = 14781
 };
 
-enum WintergraspSpells
+enum ZoneWintergraspGossipMenuIds
+{
+    GOSSIP_MENU_ENGINEER_HORDE    = 9904,
+    GOSSIP_MENU_ENGINEER_ALLIANCE = 9923,
+};
+
+enum ZoneWintergraspGossipMenuOptionIds
+{
+    GOSSIP_MENU_OPTION_ENGINEER_CATAPULT     = 0,
+    GOSSIP_MENU_OPTION_ENGINEER_DEMOLISHER   = 1,
+    GOSSIP_MENU_OPTION_ENGINEER_SIEGE_ENGINE = 2
+};
+
+enum ZoneWintergraspSpells
 {
     SPELL_BUILD_SIEGE_VEHICLE_FORCE_HORDE    = 61409, // Demolisher engineers spells
     SPELL_BUILD_SIEGE_VEHICLE_FORCE_ALLIANCE = 56662,
     SPELL_BUILD_CATAPULT_FORCE               = 56664,
     SPELL_BUILD_DEMOLISHER_FORCE             = 56659,
     SPELL_ACTIVATE_CONTROL_ARMS              = 49899,
-    SPELL_RIDE_WG_VEHICLE                    = 60968,
+    SPELL_RIDE_WINTERGRASP_VEHICLE           = 60968,
     SPELL_VEHICLE_TELEPORT                   = 49759,
     SPELL_CHANNEL_SPIRIT_HEAL                = 22011, // Spirit guide
 };
 
-enum WintergraspCreatureEntries
+enum ZoneWintergraspCreatureEntries
 {
     NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC = 23472,
 };
 
-enum WintergraspQuestIds
+enum ZoneWintergraspQuestIds
 {
     QUEST_BONES_AND_ARROWS_HORDE_ATT              = 13193,
     QUEST_JINXING_THE_WALLS_HORDE_ATT             = 13202,
@@ -116,12 +129,81 @@ struct npc_wg_demolisher_engineer : public ScriptedAI
     {
     }
 
-    void UpdateAI(uint32 diff) override
+    bool GossipHello(Player* player) override
     {
+        if (CanBuild())
+        {
+            if (player->HasAura(SPELL_WINTERGRASP_CORPORAL))
+            {
+                AddGossipItemFor(player, me->GetEntry() == NPC_WINTERGRASP_GOBLIN_MECHANIC ? GOSSIP_MENU_ENGINEER_HORDE : GOSSIP_MENU_ENGINEER_ALLIANCE, GOSSIP_MENU_OPTION_ENGINEER_CATAPULT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                SendGossipMenuFor(player, me->GetEntry() == NPC_WINTERGRASP_GOBLIN_MECHANIC ? NPC_TEXT_HORDE_HOW_CAN_I_HELP : NPC_TEXT_ALLIANCE_HOW_CAN_I_HELP, me);
+                return true;
+            }
+            else if (player->HasAura(SPELL_WINTERGRASP_LIEUTENANT))
+            {
+                AddGossipItemFor(player, me->GetEntry() == NPC_WINTERGRASP_GOBLIN_MECHANIC ? GOSSIP_MENU_ENGINEER_HORDE : GOSSIP_MENU_ENGINEER_ALLIANCE, GOSSIP_MENU_OPTION_ENGINEER_CATAPULT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, me->GetEntry() == NPC_WINTERGRASP_GOBLIN_MECHANIC ? GOSSIP_MENU_ENGINEER_HORDE : GOSSIP_MENU_ENGINEER_ALLIANCE, GOSSIP_MENU_OPTION_ENGINEER_DEMOLISHER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, me->GetEntry() == NPC_WINTERGRASP_GOBLIN_MECHANIC ? GOSSIP_MENU_ENGINEER_HORDE : GOSSIP_MENU_ENGINEER_ALLIANCE, GOSSIP_MENU_OPTION_ENGINEER_SIEGE_ENGINE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                SendGossipMenuFor(player, me->GetEntry() == NPC_WINTERGRASP_GOBLIN_MECHANIC ? NPC_TEXT_HORDE_HOW_CAN_I_HELP : NPC_TEXT_ALLIANCE_HOW_CAN_I_HELP, me);
+                return true;
+            }
+            else
+            {
+                SendGossipMenuFor(player, me->GetEntry() == NPC_WINTERGRASP_GOBLIN_MECHANIC ? NPC_TEXT_HORDE_SORRY_ONLY_OFFICER : NPC_TEXT_ALLIANCE_SORRY_ONLY_OFFICER, me);
+                return true;
+            }
+        }
+
+        SendGossipMenuFor(player, NPC_TEXT_SORRY_USED_ALL_PARTS, me);
+        return true;
+    }
+
+    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    {
+        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+        CloseGossipMenuFor(player);
+
+        if (CanBuild())
+        {
+            uint32 const selection = action - GOSSIP_ACTION_INFO_DEF;
+            if (selection >= 0 && selection < 3)
+                player->CastSpell(player, SPELL_ACTIVATE_CONTROL_ARMS, true);
+
+            switch (selection)
+            {
+                case 0:
+                    DoCast(player, SPELL_BUILD_CATAPULT_FORCE, true);
+                    break;
+                case 1:
+                    DoCast(player, SPELL_BUILD_DEMOLISHER_FORCE, true);
+                    break;
+                case 2:
+                    DoCast(player, player->GetTeamId() == TEAM_ALLIANCE ? SPELL_BUILD_SIEGE_VEHICLE_FORCE_ALLIANCE : SPELL_BUILD_SIEGE_VEHICLE_FORCE_HORDE, true);
+                    break;
+                default:
+                    break;
+            }
+        }
+        return true;
     }
 
 private:
+    bool CanBuild() const
+    {
+        Battlefield* wintergrasp = sBattlefieldMgr->GetEnabledBattlefield(me->GetZoneId());
+        if (!wintergrasp || !wintergrasp->IsWarTime())
+            return false;
 
+        switch (me->GetEntry())
+        {
+            case NPC_WINTERGRASP_GOBLIN_MECHANIC:
+                //return (wintergrasp->GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H) > wintergrasp->GetData(BATTLEFIELD_WG_DATA_VEHICLE_H));
+            case NPC_WINTERGRASP_GNOMISH_ENGINEER:
+                //return (wintergrasp->GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A) > wintergrasp->GetData(BATTLEFIELD_WG_DATA_VEHICLE_A));
+            default:
+                return false;
+        }
+    }
 };
 
 // 58549 Tenacity
