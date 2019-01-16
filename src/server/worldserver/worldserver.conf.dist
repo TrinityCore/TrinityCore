@@ -2022,15 +2022,15 @@ Visibility.GroupMode = 1
 #    Visibility.Distance.Instances
 #    Visibility.Distance.BGArenas
 #        Description: Visibility distance to see other players or gameobjects.
-#                     Visibility on continents on retail ~90 yards. In BG/Arenas ~533.
+#                     Visibility on continents on retail ~100 yards. In BG/Arenas ~533.
 #                     For instances default ~170.
 #                     Max limited by grid size: 533.33333
 #                     Min limit is max aggro radius (45) * Rate.Creature.Aggro
-#        Default:     90  - (Visibility.Distance.Continents)
+#        Default:     100 - (Visibility.Distance.Continents)
 #                     170 - (Visibility.Distance.Instances)
 #                     533 - (Visibility.Distance.BGArenas)
 
-Visibility.Distance.Continents = 90
+Visibility.Distance.Continents = 100
 Visibility.Distance.Instances = 170
 Visibility.Distance.BGArenas = 533
 

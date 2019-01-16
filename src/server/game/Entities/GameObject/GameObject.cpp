@@ -403,6 +403,18 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         }
     }
 
+    // Check if GameObject is Infinite
+    if (goInfo->IsInfiniteGameObject())
+        SetVisibilityDistanceOverride(VisibilityDistanceType::Infinite);
+
+    // Check if GameObject is Gigantic
+    if (goInfo->IsGiganticGameObject())
+        SetVisibilityDistanceOverride(VisibilityDistanceType::Gigantic);
+
+    // Check if GameObject is Large
+    if (goInfo->IsLargeGameObject())
+        SetVisibilityDistanceOverride(VisibilityDistanceType::Large);
+
     return true;
 }
 
