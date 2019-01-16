@@ -90,6 +90,8 @@ private:
 
     void SetVSFields(const std::string& rI);
 
+    bool VerifyVersion(uint8 const* a, int32 aLength, uint8 const* versionProof, bool isReconnect);
+
     BigNumber N, s, g, v;
     BigNumber b, B;
     BigNumber K;
