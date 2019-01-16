@@ -17,6 +17,7 @@
  */
 
 #include "Object.h"
+#include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
@@ -25,6 +26,7 @@
 #include "Creature.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
 #include "Item.h"
 #include "Log.h"
 #include "Map.h"
@@ -1948,17 +1950,21 @@ void Map::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= null
 
 void WorldObject::SetZoneScript()
 {
-    if (Map* map = FindMap())
+    Map* map = FindMap();
+    if (!map)
+        return;
+
+    if (map->IsBattlegroundOrArena())
+        return;
+
+    if (map->IsDungeon())
+        m_zoneScript = map->ToInstanceMap()->GetInstanceScript();
+    else
     {
-        if (map->IsDungeon())
-            m_zoneScript = (ZoneScript*)((InstanceMap*)map)->GetInstanceScript();
-        else if (!map->IsBattlegroundOrArena())
-        {
-            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
-                m_zoneScript = bf;
-            else
-                m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
-        }
+        if (Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(GetZoneId()))
+            m_zoneScript = battlefield;
+        else
+            m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
     }
 }
 
