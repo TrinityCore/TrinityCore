@@ -28,6 +28,7 @@
 #include <cmath>
 
 struct ItemTemplate;
+enum class VisibilityDistanceType : uint8;
 
 enum CreatureDifficultyFlags
 {
@@ -578,6 +579,7 @@ struct CreatureAddon
     uint16 movementAnimKit;
     uint16 meleeAnimKit;
     std::vector<uint32> auras;
+    VisibilityDistanceType visibilityDistanceType;
 };
 
 // Vendors
