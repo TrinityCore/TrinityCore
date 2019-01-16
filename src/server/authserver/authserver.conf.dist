@@ -131,6 +131,15 @@ WrongPass.BanType = 0
 WrongPass.Logging = 0
 
 #
+#    StrictVersionCheck
+#        Description: Prevent modified clients from connnecting
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+#
+
+StrictVersionCheck = 0
+
+#
 #    BanExpiryCheckInterval
 #        Description: Time (in seconds) between checks for expired bans
 #        Default:     60

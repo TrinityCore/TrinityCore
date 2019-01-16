@@ -84,7 +84,7 @@ typedef struct AUTH_LOGON_PROOF_S
     uint8   M2[20];
     uint32  AccountFlags;
     uint32  SurveyId;
-    uint16  unk3;
+    uint16  LoginFlags;
 } sAuthLogonProof_S;
 
 typedef struct AUTH_LOGON_PROOF_S_OLD
@@ -105,6 +105,8 @@ typedef struct AUTH_RECONNECT_PROOF_C
 } sAuthReconnectProof_C;
 
 #pragma pack(pop)
+
+std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B, 0x21, 0x57, 0xFC, 0x37, 0x3F, 0xB3, 0x69, 0xCD, 0xD2, 0xF1 } };
 
 enum class BufferSizes : uint32
 {
@@ -402,9 +404,6 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
 
     ASSERT(gmod.GetNumBytes() <= 32);
 
-    BigNumber unk3;
-    unk3.SetRand(16 * 8);
-
     // Fill the response packet with the result
     if (AuthHelper::IsAcceptedClientBuild(_build))
     {
@@ -421,7 +420,7 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     pkt << uint8(32);
     pkt.append(N.AsByteArray(32).get(), 32);
     pkt.append(s.AsByteArray(int32(BufferSizes::SRP_6_S)).get(), size_t(BufferSizes::SRP_6_S));   // 32 bytes
-    pkt.append(unk3.AsByteArray(16).get(), 16);
+    pkt.append(VersionChallenge.data(), VersionChallenge.size());
     uint8 securityFlags = 0;
 
     // Check if token is used
@@ -562,11 +561,19 @@ bool AuthSession::HandleLogonProof()
                 ByteBuffer packet;
                 packet << uint8(AUTH_LOGON_PROOF);
                 packet << uint8(WOW_FAIL_UNKNOWN_ACCOUNT);
-                packet << uint8(3);
-                packet << uint8(0);
+                packet << uint16(0);    // LoginFlags, 1 has account message
                 SendPacket(packet);
                 return true;
             }
+        }
+
+        if (!VerifyVersion(logonProof->A, sizeof(logonProof->A), logonProof->crc_hash, false))
+        {
+            ByteBuffer packet;
+            packet << uint8(AUTH_LOGON_PROOF);
+            packet << uint8(WOW_FAIL_VERSION_INVALID);
+            SendPacket(packet);
+            return true;
         }
 
         TC_LOG_DEBUG("server.authserver", "'%s:%d' User '%s' successfully authenticated", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountInfo.Login.c_str());
@@ -596,7 +603,7 @@ bool AuthSession::HandleLogonProof()
             proof.error = 0;
             proof.AccountFlags = 0x00800000;    // 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
             proof.SurveyId = 0;
-            proof.unk3 = 0;
+            proof.LoginFlags = 0;               // 0x1 = has account message
 
             packet.resize(sizeof(proof));
             std::memcpy(packet.contents(), &proof, sizeof(proof));
@@ -621,8 +628,7 @@ bool AuthSession::HandleLogonProof()
         ByteBuffer packet;
         packet << uint8(AUTH_LOGON_PROOF);
         packet << uint8(WOW_FAIL_UNKNOWN_ACCOUNT);
-        packet << uint8(3);
-        packet << uint8(0);
+        packet << uint16(0);    // LoginFlags, 1 has account message
         SendPacket(packet);
 
         TC_LOG_INFO("server.authserver.hack", "'%s:%d' [AuthChallenge] account %s tried to login with invalid password!",
@@ -734,7 +740,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
 
     pkt << uint8(WOW_SUCCESS);
     pkt.append(_reconnectProof.AsByteArray(16).get(), 16);  // 16 bytes random
-    pkt << uint64(0x00) << uint64(0x00);                    // 16 bytes zeros
+    pkt.append(VersionChallenge.data(), VersionChallenge.size());
 
     SendPacket(pkt);
 }
@@ -760,11 +766,20 @@ bool AuthSession::HandleReconnectProof()
 
     if (!memcmp(sha.GetDigest(), reconnectProof->R2, SHA_DIGEST_LENGTH))
     {
+        if (!VerifyVersion(reconnectProof->R1, sizeof(reconnectProof->R1), reconnectProof->R3, true))
+        {
+            ByteBuffer packet;
+            packet << uint8(AUTH_RECONNECT_PROOF);
+            packet << uint8(WOW_FAIL_VERSION_INVALID);
+            SendPacket(packet);
+            return true;
+        }
+
         // Sending response
         ByteBuffer pkt;
         pkt << uint8(AUTH_RECONNECT_PROOF);
-        pkt << uint8(0x00);
-        pkt << uint16(0x00);                               // 2 bytes zeros
+        pkt << uint8(WOW_SUCCESS);
+        pkt << uint16(0);    // LoginFlags, 1 has account message
         SendPacket(pkt);
         _status = STATUS_AUTHED;
         return true;
@@ -917,4 +932,39 @@ void AuthSession::SetVSFields(const std::string& rI)
     stmt->setString(1, s.AsHexStr());
     stmt->setString(2, _accountInfo.Login);
     LoginDatabase.Execute(stmt);
+}
+
+bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, uint8 const* versionProof, bool isReconnect)
+{
+    if (!sConfigMgr->GetBoolDefault("StrictVersionCheck", false))
+        return true;
+
+    std::array<uint8, 20> zeros = { {} };
+    std::array<uint8, 20> const* versionHash = nullptr;
+    if (!isReconnect)
+    {
+        RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(_build);
+        if (!buildInfo)
+            return false;
+
+        if (_os == "Win")
+            versionHash = &buildInfo->WindowsHash;
+        else if (_os == "OSX")
+            versionHash = &buildInfo->MacHash;
+
+        if (!versionHash)
+            return false;
+
+        if (!memcmp(versionHash->data(), zeros.data(), zeros.size()))
+            return true;                                                            // not filled serverside
+    }
+    else
+        versionHash = &zeros;
+
+    SHA1Hash version;
+    version.UpdateData(a, aLength);
+    version.UpdateData(versionHash->data(), versionHash->size());
+    version.Finalize();
+
+    return memcmp(versionProof, version.GetDigest(), version.GetLength()) == 0;
 }
