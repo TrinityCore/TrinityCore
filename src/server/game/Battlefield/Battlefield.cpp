@@ -22,9 +22,26 @@ Battlefield::Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId)
 {
 }
 
-PvPTeamId Battlefield::GetAttackerTeam() const
+PvPTeamId Battlefield::GetAttackingTeam() const
 {
-    return _controllingTeam == PVP_TEAM_NEUTRAL ? PVP_TEAM_NEUTRAL : PvPTeamId(1 - _controllingTeam);
+    switch (GetControllingTeam())
+    {
+        case PVP_TEAM_HORDE: return PVP_TEAM_ALLIANCE;
+        case PVP_TEAM_ALLIANCE: return PVP_TEAM_HORDE;
+        case PVP_TEAM_NEUTRAL: return PVP_TEAM_NEUTRAL;
+        default: break;
+    }
+    return PVP_TEAM_NEUTRAL;
+}
+
+TeamId Battlefield::GetControllingTeamId() const
+{
+    return TeamIdByPvPTeamId(GetControllingTeam());
+}
+
+TeamId Battlefield::GetAttackingTeamId() const
+{
+    return TeamIdByPvPTeamId(GetAttackingTeam());
 }
 
 bool Battlefield::Initialize(bool status)

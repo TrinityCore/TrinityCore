@@ -19,3 +19,7 @@ DELETE FROM `gossip_menu` WHERE `MenuID` = 9904 AND `TextID` IN (13786, 13761);
 DELETE FROM `gossip_menu` WHERE `MenuID` = 9923 AND `TextID` IN (13786, 14172);
 
 UPDATE `creature_template` SET `gossip_menu_id` = 0 WHERE `entry` IN (30400, 30499);
+
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `ScriptName` = 'npc_wg_give_promotion_credit';
+
+DELETE FROM `spell_script_names` WHERE `spell_id` = 49899 AND `ScriptName` = 'spell_wintergrasp_force_building';

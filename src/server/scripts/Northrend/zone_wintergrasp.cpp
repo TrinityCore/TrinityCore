@@ -22,6 +22,8 @@
 #include "ConditionMgr.h"
 #include "Creature.h"
 #include "DBCStructure.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -30,8 +32,10 @@
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "Timer.h"
 #include "Unit.h"
 #include "Vehicle.h"
+#include <array>
 
 enum ZoneWintergraspNPCTexts
 {
@@ -72,6 +76,7 @@ enum ZoneWintergraspSpells
     SPELL_RIDE_WINTERGRASP_VEHICLE           = 60968,
     SPELL_VEHICLE_TELEPORT                   = 49759,
     SPELL_CHANNEL_SPIRIT_HEAL                = 22011, // Spirit guide
+    SPELL_WINTERGRASP_TELEPORT_TRIGGER       = 54643,
 };
 
 enum ZoneWintergraspCreatureEntries
@@ -110,8 +115,8 @@ enum ZoneWintergraspQuestIds
     QUEST_A_RARE_HERB_ALLIANCE_DEF                = 13156,
 };
 
-static uint8 constexpr MAX_WINTERGRASP_VEHICLES = 4;
-static uint32 constexpr vehiclesList[MAX_WINTERGRASP_VEHICLES] =
+static size_t constexpr MAX_WINTERGRASP_VEHICLES = 4;
+static std::array<uint32, MAX_WINTERGRASP_VEHICLES> constexpr wintergraspVehicleIds =
 {
     NPC_WINTERGRASP_CATAPULT,
     NPC_WINTERGRASP_DEMOLISHER,
@@ -203,6 +208,149 @@ private:
             default:
                 return false;
         }
+    }
+};
+
+struct go_wg_vehicle_teleporter : public GameObjectAI
+{
+    go_wg_vehicle_teleporter(GameObject* gameObject) : GameObjectAI(gameObject), _checkTimer(1000) { }
+
+    void UpdateAI(uint32 diff)
+    {
+        _checkTimer.Update(diff);
+        if (_checkTimer.Passed())
+        {
+            Battlefield* wintergrasp = sBattlefieldMgr->GetEnabledBattlefield(me->GetZoneId());
+            if (!wintergrasp || !wintergrasp->IsWarTime())
+            {
+                _checkTimer.Reset(60000);
+                return;
+            }
+
+            Creature* teleportTrigger = me->FindNearestCreature(NPC_WORLD_TRIGGER_LARGE_AOI_NOT_IMMUNE_PC_NPC, 5.0f, true);
+            if (!teleportTrigger)
+            {
+                _checkTimer.Reset(60000);
+                return;
+            }
+
+            for (uint32 entry : wintergraspVehicleIds)
+            {
+                if (Creature* vehicle = me->FindNearestCreature(entry, 5.0f, true))
+                    HandleTeleport(vehicle, teleportTrigger, wintergrasp);
+            }
+
+            _checkTimer.Reset(2000);
+        }
+    }
+
+private:
+    void HandleTeleport(Creature* vehicle, Creature* teleportTrigger, Battlefield* wintergrasp)
+    {
+        if (vehicle->HasAura(SPELL_VEHICLE_TELEPORT))
+            return;
+
+        Player* owner = vehicle->GetCharmerOrOwnerPlayerOrPlayerItself();
+        if (!owner)
+            return;
+
+        if (wintergrasp->GetAttackingTeamId() != owner->GetTeamId())
+            return;
+
+        teleportTrigger->CastSpell(vehicle, SPELL_VEHICLE_TELEPORT, true);
+    }
+
+    TimeTracker _checkTimer;
+};
+
+// 56659 - Build Demolisher (Force)
+// 56662 - Build Siege Vehicle (Force)
+// 56664 - Build Catapult (Force)
+// 61409 - Build Siege Vehicle (Force)
+class spell_wintergrasp_force_building : public SpellScript
+{
+    PrepareSpellScript(spell_wintergrasp_force_building);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_BUILD_CATAPULT_FORCE,
+                SPELL_BUILD_DEMOLISHER_FORCE,
+                SPELL_BUILD_SIEGE_VEHICLE_FORCE_HORDE,
+                SPELL_BUILD_SIEGE_VEHICLE_FORCE_ALLIANCE
+            });
+    }
+
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValue(), false);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_force_building::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 61178 - Grab Passenger
+class spell_wintergrasp_grab_passenger : public SpellScript
+{
+    PrepareSpellScript(spell_wintergrasp_grab_passenger);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* target = GetHitPlayer())
+            target->CastSpell(GetCaster(), SPELL_RIDE_WINTERGRASP_VEHICLE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_grab_passenger::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 54640 - Teleport (Used also in Strand of the Ancients)
+class spell_wintergrasp_defender_teleport : public SpellScript
+{
+    PrepareSpellScript(spell_wintergrasp_defender_teleport);
+
+    SpellCastResult CheckCast()
+    {
+        if (Player* target = GetExplTargetUnit()->ToPlayer())
+        {
+            if (Battlefield* wintergrasp = sBattlefieldMgr->GetEnabledBattlefield(target->GetZoneId()))
+                if ((wintergrasp->GetControllingTeam() != PVP_TEAM_NEUTRAL && target->GetTeamId() != wintergrasp->GetControllingTeamId()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
+                    return SPELL_FAILED_BAD_TARGETS;
+        }
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_wintergrasp_defender_teleport::CheckCast);
+    }
+};
+
+// 54643 - Teleport
+class spell_wintergrasp_defender_teleport_trigger : public SpellScript
+{
+    PrepareSpellScript(spell_wintergrasp_defender_teleport_trigger);
+
+    void HandleDummy(SpellEffIndex /*effindex*/)
+    {
+        if (Unit* target = GetHitUnit())
+        {
+            WorldLocation destination = target->GetWorldLocation();
+            SetExplTargetDest(destination);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_defender_teleport_trigger::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -306,6 +454,11 @@ class condition_is_wintergrasp_alliance : public ConditionScript
 void AddSC_wintergrasp()
 {
     RegisterCreatureAI(npc_wg_demolisher_engineer);
+    RegisterGameObjectAI(go_wg_vehicle_teleporter);
+    RegisterSpellScript(spell_wintergrasp_force_building);
+    RegisterSpellScript(spell_wintergrasp_grab_passenger);
+    RegisterSpellScript(spell_wintergrasp_defender_teleport);
+    RegisterSpellScript(spell_wintergrasp_defender_teleport_trigger);
     RegisterAuraScript(spell_wintergrasp_tenacity_refresh);
     new achievement_wg_didnt_stand_a_chance();
     new condition_is_wintergrasp_horde();

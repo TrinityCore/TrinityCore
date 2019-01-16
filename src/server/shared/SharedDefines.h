@@ -3445,6 +3445,18 @@ enum PvPTeamId : uint8
 
 static uint8 constexpr PVP_TEAMS_COUNT = 2;
 
+constexpr TeamId TeamIdByPvPTeamId(PvPTeamId value)
+{
+    switch (value)
+    {
+        case PVP_TEAM_HORDE: return TEAM_HORDE;
+        case PVP_TEAM_ALLIANCE: return TEAM_ALLIANCE;
+        case PVP_TEAM_NEUTRAL: return TEAM_NEUTRAL;
+        default: break;
+    }
+    return TEAM_NEUTRAL;
+}
+
 // indexes of BattlemasterList.dbc
 enum BattlegroundTypeId : uint32
 {
