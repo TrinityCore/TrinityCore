@@ -5499,7 +5499,7 @@ void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
 
 void Player::UpdateInstantHasteCap()
 {  
-   if (sWorld->getIntConfig(CONFIG_PLAYER_HASTE_CAP) == -1)
+   if (! sWorld->getIntConfig(CONFIG_PLAYER_HASTE_CAP))
    {
        return;
    }
