@@ -24,12 +24,16 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_HIGH_PRIEST_VENOXIS,         DATA_HIGH_PRIEST_VENOXIS    },
-    { BOSS_BLOODLORD_MANDOKIR,          DATA_BLOODLORD_MANDOKIR     },
-    { BOSS_HIGH_PRIESTESS_KILNARA,      DATA_HIGH_PRIESTESS_KILNARA },
-    { BOSS_ZANZIL,                      DATA_ZANZIL                 },
-    { BOSS_JINDO_THE_GODBREAKER,        DATA_JINDO_THE_GODBREAKER   },
-    { NPC_OHGAN,                        DATA_OHGAN                  }
+    { BOSS_HIGH_PRIEST_VENOXIS,         DATA_HIGH_PRIEST_VENOXIS                },
+    { BOSS_BLOODLORD_MANDOKIR,          DATA_BLOODLORD_MANDOKIR                 },
+    { BOSS_HIGH_PRIESTESS_KILNARA,      DATA_HIGH_PRIESTESS_KILNARA             },
+    { BOSS_ZANZIL,                      DATA_ZANZIL                             },
+    { BOSS_JINDO_THE_GODBREAKER,        DATA_JINDO_THE_GODBREAKER               },
+    { NPC_OHGAN,                        DATA_OHGAN                              },
+    { NPC_SPIRIT_OF_HAKKAR,             DATA_SPIRIT_OF_HAKKAR                   },
+    { NPC_SHADOW_OF_HAKKAR,             DATA_SHADOW_OF_HAKKAR                   },
+    { NPC_JINDO_THE_GODBREAKER,         DATA_JINDO_THE_GODBREAKER_SPIRIT_WORLD  },
+    { 0,                                0                                       }  // END
 };
 
 DoorData const doorData[] =
@@ -96,6 +100,19 @@ class instance_zulgurub : public InstanceMapScript
                             creature->RemoveAurasDueToSpell(SPELL_COSMETIC_ALPHA_STATE_25_PCT);
                         }
                         break;
+                    case NPC_JINDO_THE_GODBREAKER:
+                    case NPC_SPIRIT_OF_HAKKAR:
+                    case NPC_SHADOW_OF_HAKKAR:
+                    case NPC_HAKKARS_CHAINS:
+                    case NPC_TWISTED_SPIRIT:
+                    case NPC_TWISTED_SHADOW:
+                    case NPC_GURUBASHI_SPIRIT_WARRIOR:
+                    case NPC_GURUBASHI_SHADOW:
+                    case NPC_GURUBASHI_SPIRIT:
+                    case NPC_SPIRIT_PORTAL:
+                        if (Creature* jindo = GetCreature(DATA_JINDO_THE_GODBREAKER))
+                            jindo->AI()->JustSummoned(creature);
+                        break;
                     default:
                         break;
                 }
@@ -104,6 +121,22 @@ class instance_zulgurub : public InstanceMapScript
             void OnGameObjectCreate(GameObject* go) override
             {
                 InstanceScript::OnGameObjectCreate(go);
+            }
+
+            void OnUnitDeath(Unit* unit) override
+            {
+                if (unit->GetTypeId() != TYPEID_UNIT)
+                    return;
+
+                switch (unit->GetEntry())
+                {
+                    case NPC_HAKKARS_CHAINS:
+                        if (Creature* jindo = GetCreature(DATA_JINDO_THE_GODBREAKER))
+                            jindo->AI()->SummonedCreatureDies(unit->ToCreature(), nullptr);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -146,36 +179,44 @@ class instance_zulgurub : public InstanceMapScript
                             if (Creature* stalker = instance->GetCreature(guid))
                                 stalker->CastSpell(stalker, SPELL_CAVE_IN_VISUAL, false);
                         break;
+                    case DATA_KILLED_GURUBASHI_SPIRIT_WARRIORS:
+                        _killedGurubashiSpiritWarriorMask = data;
+                        SaveToDB();
+                        break;
                     default:
                         break;
                 }
             }
 
-            /*
             uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
+                    case DATA_KILLED_GURUBASHI_SPIRIT_WARRIORS:
+                        return _killedGurubashiSpiritWarriorMask;
+                    default:
+                        return 0;
                 }
-
                 return 0;
             }
-            */
 
             void WriteSaveDataMore(std::ostringstream& data) override
             {
-                data << _defeatedBossesCount;
+                data << _defeatedBossesCount << ' '
+                    << _killedGurubashiSpiritWarriorMask;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
                 data >> _defeatedBossesCount;
+                data >> _killedGurubashiSpiritWarriorMask;
             }
 
         private:
             GuidVector _caveInStalkerGUIDs;
             GuidVector _poisonPlantGUIDs;
             uint8 _defeatedBossesCount;
+            uint8 _killedGurubashiSpiritWarriorMask;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

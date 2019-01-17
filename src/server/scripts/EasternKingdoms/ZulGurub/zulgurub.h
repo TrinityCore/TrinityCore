@@ -29,26 +29,29 @@ uint32 const EncounterCount = 5;
 enum ZGDataTypes
 {
     // Bosses
-    DATA_HIGH_PRIEST_VENOXIS        = 0,
-    DATA_BLOODLORD_MANDOKIR         = 1,
-    DATA_HIGH_PRIESTESS_KILNARA     = 2,
-    DATA_ZANZIL                     = 3,
-    DATA_JINDO_THE_GODBREAKER       = 4,
+    DATA_HIGH_PRIEST_VENOXIS                = 0,
+    DATA_BLOODLORD_MANDOKIR                 = 1,
+    DATA_HIGH_PRIESTESS_KILNARA             = 2,
+    DATA_ZANZIL                             = 3,
+    DATA_JINDO_THE_GODBREAKER               = 4,
 
     // Cache of Madness
-    DATA_HAZZARAH                   = 5,
-    DATA_RENATAKI                   = 6,
-    DATA_WUSHOOLAY                  = 7,
-    DATA_GRILEK                     = 8,
+    DATA_HAZZARAH                           = 5,
+    DATA_RENATAKI                           = 6,
+    DATA_WUSHOOLAY                          = 7,
+    DATA_GRILEK                             = 8,
 
     // Bloodlord Mandokir
-    DATA_OHGAN                      = 9,
+    DATA_OHGAN                              = 9,
 
     // High Priestess Kilnara
-    DATA_CAST_CAVE_IN_VISUAL        = 10,
+    DATA_CAST_CAVE_IN_VISUAL                = 10,
 
     // Jin'do the Godbreaker
-    DATA_JINDOR_TRIGGER
+    DATA_JINDO_THE_GODBREAKER_SPIRIT_WORLD,
+    DATA_SPIRIT_OF_HAKKAR,
+    DATA_SHADOW_OF_HAKKAR,
+    DATA_KILLED_GURUBASHI_SPIRIT_WARRIORS
 };
 
 enum ZGCreatureIds
@@ -85,9 +88,18 @@ enum ZGCreatureIds
     NPC_CAVE_IN_STALKER             = 52387,
 
     // Jin'do the Godbreaker
-    NPC_JINDO_TRIGGER               = 52150,
+    NPC_JINDO_THE_GODBREAKER        = 52150,
     NPC_SPIRIT_OF_HAKKAR            = 52222,
     NPC_SHADOW_OF_HAKKAR            = 52650,
+    NPC_GURUBASHI_SPIRIT_WARRIOR    = 52167,
+    NPC_GURUBASHI_SPIRIT            = 52730,
+    NPC_GURUBASHI_SHADOW            = 52732,
+    NPC_HAKKARS_CHAINS              = 52430,
+    NPC_TWISTED_SPIRIT              = 52624,
+    NPC_TWISTED_SHADOW              = 52608,
+    NPC_SPIRIT_PORTAL               = 52532,
+    NPC_SUNDERED_RIFT               = 52400,
+    NPC_BROKEN_GROUND               = 52407,
 
     // Zanzil
     NPC_ZANZILI_BERSERKER           = 52054,
@@ -132,6 +144,8 @@ enum ZGSpells
     SPELL_POISON_CLOUD                  = 96729,
     SPELL_COSMETIC_ALPHA_STATE_25_PCT   = 82978
 };
+
+#define MAX_GURUBASHI_SPIRIT_WARRIORS 4
 
 template <class AI, class T>
 inline AI* GetZulGurubAI(T* obj)

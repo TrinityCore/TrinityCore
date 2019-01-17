@@ -4819,6 +4819,30 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_2_YARDS);
     });
 
+    // Shadow Spike
+    ApplySpellFix({ 97158 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Call Spirit
+    ApplySpellFix({ 97152 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Spirit Warrior's Gaze
+    ApplySpellFix({ 97597 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
+    // Sunder Rift
+    ApplySpellFix({ 96964 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(18); // 20seconds
+    });
+
     // ENDOF ZUL'GURUB SPELLS
 
     //
