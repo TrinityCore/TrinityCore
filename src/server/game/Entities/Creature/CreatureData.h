@@ -29,6 +29,7 @@
 #include <cmath>
 
 struct ItemTemplate;
+enum class VisibilityDistanceType : uint8;
 
 // EnumUtils: DESCRIBE THIS
 enum CreatureFlagsExtra : uint32
@@ -312,6 +313,7 @@ struct CreatureAddon
     uint32 bytes2;
     uint32 emote;
     std::vector<uint32> auras;
+    VisibilityDistanceType visibilityDistanceType;
 };
 
 // Vendors
