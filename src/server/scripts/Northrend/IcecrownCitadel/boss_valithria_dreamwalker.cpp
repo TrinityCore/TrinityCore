@@ -866,38 +866,30 @@ class npc_suppresser : public CreatureScript
 
         struct npc_suppresserAI : public ScriptedAI
         {
-            npc_suppresserAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->GetInstanceScript())
+            npc_suppresserAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
             }
 
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SUPPRESSION, 10s, 15s);
-                me->SetReactState(REACT_PASSIVE);
             }
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 if (Creature* valithria = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)))
                 {
-                    float x, y, z;
-                    valithria->GetContactPoint(me, x,y,z);
-                    me->GetMotionMaster()->MovePoint(POINT_VALITHRIA, x, y, z);
+                    me->EngageWithTarget(valithria);
+                    me->GetThreatManager().FixateTarget(valithria);
                 }
+                else
+                    me->DespawnOrUnsummon();
             }
 
-            void MovementInform(uint32 /*type*/, uint32 id) override
+            void MovementInform(uint32 type, uint32 /*id*/) override
             {
-                if (id == POINT_VALITHRIA)
-                {
-                    if (Creature* valithria = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)))
-                    {
-                        AttackStart(valithria);
-                        DoCastAOE(SPELL_SUPPRESSION);
-                    }
-                }
+                if (type == CHASE_MOTION_TYPE)
+                    _events.RescheduleEvent(EVENT_SUPPRESSION, 1);
             }
 
             void UpdateAI(uint32 diff) override
@@ -910,24 +902,20 @@ class npc_suppresser : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                // this code will never be reached while channeling
                 while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_SUPPRESSION:
                             DoCastAOE(SPELL_SUPPRESSION);
-                            _events.ScheduleEvent(EVENT_SUPPRESSION, 5s);
+                            _events.Repeat(5s);
                             break;
                         default:
                             break;
                     }
                 }
 
-                // this creature has REACT_PASSIVE so it does not always have victim here
-                if (Unit* victim = me->GetVictim())
-                    if (victim->GetEntry() != NPC_VALITHRIA_DREAMWALKER)
-                        DoMeleeAttackIfReady();
+                DoMeleeAttackIfReady();
             }
 
         private:
