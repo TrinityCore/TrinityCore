@@ -1578,6 +1578,9 @@ class spell_warl_drain_soul : public SpellScriptLoader
 
             void HandlePeriodic(AuraEffect const* aurEff)
             {
+                if (!roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
+                    return;
+
                 if (Unit* caster = GetCaster())
                     caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD, true, 0, aurEff);
             }
