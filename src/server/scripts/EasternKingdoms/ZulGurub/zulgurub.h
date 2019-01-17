@@ -145,8 +145,6 @@ enum ZGSpells
     SPELL_COSMETIC_ALPHA_STATE_25_PCT   = 82978
 };
 
-#define MAX_GURUBASHI_SPIRIT_WARRIORS 4
-
 template <class AI, class T>
 inline AI* GetZulGurubAI(T* obj)
 {
