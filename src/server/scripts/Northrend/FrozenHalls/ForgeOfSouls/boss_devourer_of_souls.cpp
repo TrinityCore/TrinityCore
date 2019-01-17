@@ -22,6 +22,7 @@
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -471,6 +472,21 @@ class spell_devourer_of_souls_mirrored_soul_target_selector : public SpellScript
         }
 };
 
+class spell_devourer_of_souls_well_of_souls_periodic_visual_effect : public SpellScript
+{
+    PrepareSpellScript(spell_devourer_of_souls_well_of_souls_periodic_visual_effect);
+
+    void SetDest(SpellDestination& dest)
+    {
+        dest.RelocateOffset({ 0.0f, 0.0f, 20.0f, 0.0f });
+    }
+
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_devourer_of_souls_well_of_souls_periodic_visual_effect::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
+    }
+};
+
 class achievement_three_faced : public AchievementCriteriaScript
 {
     public:
@@ -495,5 +511,6 @@ void AddSC_boss_devourer_of_souls()
     new spell_devourer_of_souls_mirrored_soul();
     new spell_devourer_of_souls_mirrored_soul_proc();
     new spell_devourer_of_souls_mirrored_soul_target_selector();
+    RegisterSpellScript(spell_devourer_of_souls_well_of_souls_periodic_visual_effect);
     new achievement_three_faced();
 }
