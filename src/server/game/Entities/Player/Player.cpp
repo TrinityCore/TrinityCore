@@ -5509,7 +5509,7 @@ void Player::UpdateInstantHasteCap()
                            || GetFloatValue(UNIT_FIELD_BASEATTACKTIME + 2) == 1 
                            || GetFloatValue(UNIT_MOD_CAST_SPEED) == 0);
 
-   if (m_baseRatingValue[CR_HASTE_MELEE] >= sWorld->getIntConfig(CONFIG_PLAYER_HASTE_CAP))
+   if ((unsigned)m_baseRatingValue[CR_HASTE_MELEE] >= sWorld->getIntConfig(CONFIG_PLAYER_HASTE_CAP))
    {
        SetFloatValue(UNIT_MOD_CAST_SPEED, 0);
        SetFloatValue(UNIT_FIELD_BASEATTACKTIME + BASE_ATTACK, 1);
@@ -5611,6 +5611,7 @@ void Player::UpdateRating(CombatRating cr)
         case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
         case CR_HASTE_RANGED:
         case CR_HASTE_SPELL:
+            UpdateInstantHasteCap();
             break;
         case CR_WEAPON_SKILL_MAINHAND:                      // Implemented in Unit::RollMeleeOutcomeAgainst
         case CR_WEAPON_SKILL_OFFHAND:
