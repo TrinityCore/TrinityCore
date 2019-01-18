@@ -84,6 +84,15 @@ public:
             return false;
         }
 
+#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+        _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), errorCode);
+        if (errorCode)
+        {
+            TC_LOG_INFO("network", "Failed to set reuse_address option on acceptor %s", errorCode.message().c_str());
+            return false;
+        }
+#endif
+
         _acceptor.bind(_endpoint, errorCode);
         if (errorCode)
         {
