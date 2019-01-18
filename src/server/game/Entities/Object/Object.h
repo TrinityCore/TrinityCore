@@ -28,6 +28,7 @@
 #include "MovementInfo.h"
 #include "ObjectDefines.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "Position.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
@@ -482,6 +483,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void setActive(bool isActiveObject);
         bool IsFarVisible() const { return m_isFarVisible; }
         void SetFarVisible(bool on);
+        bool IsVisibilityOverridden() const { return m_visibilityDistanceOverride.is_initialized(); }
+        void SetVisibilityDistanceOverride(VisibilityDistanceType type);
         void SetWorldObject(bool apply);
         bool IsPermanentWorldObject() const { return m_isWorldObject; }
         bool IsWorldObject() const;
@@ -526,6 +529,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         std::string m_name;
         bool m_isActive;
         bool m_isFarVisible;
+        Optional<float> m_visibilityDistanceOverride;
         bool const m_isWorldObject;
         ZoneScript* m_zoneScript;
 
