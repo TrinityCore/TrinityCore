@@ -184,9 +184,9 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
                 {
                     //player joined point!
                     //show progress bar
-                    UpdateWorldStateForPlayer(PROGRESS_BAR_PERCENT_GREY, BG_EY_PROGRESS_BAR_PERCENT_GREY, player);
-                    UpdateWorldStateForPlayer(PROGRESS_BAR_STATUS, m_PointBarStatus[i], player);
-                    UpdateWorldStateForPlayer(PROGRESS_BAR_SHOW, BG_EY_PROGRESS_BAR_SHOW, player);
+                    player->SendUpdateWorldState(PROGRESS_BAR_PERCENT_GREY, BG_EY_PROGRESS_BAR_PERCENT_GREY);
+                    player->SendUpdateWorldState(PROGRESS_BAR_STATUS, m_PointBarStatus[i]);
+                    player->SendUpdateWorldState(PROGRESS_BAR_SHOW, BG_EY_PROGRESS_BAR_SHOW);
                     //add player to point
                     m_PlayersNearPoint[i].push_back(m_PlayersNearPoint[EY_POINTS_MAX][j]);
                     //remove player from "free space"
@@ -228,7 +228,7 @@ void BattlegroundEY::CheckSomeoneLeftPoint()
                 {
                     m_PlayersNearPoint[EY_POINTS_MAX].push_back(m_PlayersNearPoint[i][j]);
                     m_PlayersNearPoint[i].erase(m_PlayersNearPoint[i].begin() + j);
-                    UpdateWorldStateForPlayer(PROGRESS_BAR_SHOW, BG_EY_PROGRESS_BAR_DONT_SHOW, player);
+                    player->SendUpdateWorldState(PROGRESS_BAR_SHOW, BG_EY_PROGRESS_BAR_DONT_SHOW);
                 }
                 else
                 {
@@ -271,7 +271,7 @@ void BattlegroundEY::UpdatePointStatuses()
             Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[point][i]);
             if (player)
             {
-                UpdateWorldStateForPlayer(PROGRESS_BAR_STATUS, m_PointBarStatus[point], player);
+                player->SendUpdateWorldState(PROGRESS_BAR_STATUS, m_PointBarStatus[point]);
                 //if point owner changed we must evoke event!
                 if (pointOwnerTeamId != m_PointOwnedByTeam[point])
                 {
