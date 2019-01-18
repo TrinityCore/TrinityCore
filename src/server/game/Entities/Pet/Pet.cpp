@@ -1052,6 +1052,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, maxDamage);
                     if (!HasAura(50453))        // Blood Siphon
                         CastSpell(this, 50453, true);
+                    break;
                 }
                 case ENTRY_INFERNAL:
                 {
