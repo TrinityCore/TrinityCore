@@ -106,6 +106,7 @@ public:
             { "gossip_menu",                   rbac::RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU,                      true,  &HandleReloadGossipMenuCommand,                 "" },
             { "gossip_menu_option",            rbac::RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU_OPTION,               true,  &HandleReloadGossipMenuOptionCommand,           "" },
             { "item_enchantment_template",     rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_ENCHANTMENT_TEMPLATE,        true,  &HandleReloadItemEnchantementsCommand,          "" },
+            { "item_template",                 rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_TEMPLATE,                    true,  &HandleReloadItemTemplatesCommand,              "" },
             { "item_loot_template",            rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_LOOT_TEMPLATE,               true,  &HandleReloadLootTemplatesItemCommand,          "" },
             { "item_set_names",                rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_SET_NAMES,                   true,  &HandleReloadItemSetNamesCommand,               "" },
             { "lfg_dungeon_rewards",           rbac::RBAC_PERM_COMMAND_RELOAD_LFG_DUNGEON_REWARDS,              true,  &HandleReloadLfgRewardsCommand,                 "" },
@@ -307,6 +308,7 @@ public:
     {
         HandleReloadPageTextsCommand(handler, "a");
         HandleReloadItemEnchantementsCommand(handler, "a");
+        HandleReloadItemTemplatesCommand(handler, "a");
         return true;
     }
 
@@ -914,6 +916,14 @@ public:
         TC_LOG_INFO("misc", "Re-Loading Item Random Enchantments Table...");
         LoadRandomEnchantmentsTable();
         handler->SendGlobalGMSysMessage("DB table `item_enchantment_template` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadItemTemplatesCommand(ChatHandler* handler, char const * /*args*/)
+    {
+        TC_LOG_INFO("misc", "Re-Loading Item templates table...");
+        sObjectMgr->LoadItemTemplates();
+        handler->SendGlobalGMSysMessage("DB table `item_template` reloaded.");
         return true;
     }
 
