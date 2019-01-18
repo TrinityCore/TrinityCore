@@ -9563,7 +9563,7 @@ void Unit::UpdateCharmAI()
         UnitAI* newAI = nullptr;
         if (GetTypeId() == TYPEID_PLAYER)
         {
-            if (Unit* charmer = GetCharmer())
+            if (Unit* charmer = GetCharmer() || GetCharmer() == TYPEID_PLAYER)
             {
                 // first, we check if the creature's own AI specifies an override playerai for its owned players
                 if (Creature* creatureCharmer = charmer->ToCreature())
