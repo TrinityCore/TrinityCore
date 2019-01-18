@@ -4837,6 +4837,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 1;
     });
 
+    // Rolling Boulders Search Effect
+    ApplySpellFix({ 96839 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
     // Sunder Rift
     ApplySpellFix({ 96964 }, [](SpellInfo* spellInfo)
     {

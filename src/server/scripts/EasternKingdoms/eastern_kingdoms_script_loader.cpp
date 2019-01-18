@@ -213,6 +213,7 @@ void AddSC_boss_renataki();
 void AddSC_boss_high_priest_venoxis();
 void AddSC_boss_wushoolay();
 void AddSC_boss_zanzil();
+void AddSC_zulgurub();
 void AddSC_instance_zulgurub();
 //void AddSC_alterac_mountains();
 //void AddSC_arathi_highlands();
@@ -437,6 +438,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_high_priest_venoxis();
     AddSC_boss_wushoolay();
     AddSC_boss_zanzil();
+    AddSC_zulgurub();
     AddSC_instance_zulgurub();
     //AddSC_alterac_mountains();
     //AddSC_arathi_highlands();
