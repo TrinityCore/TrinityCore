@@ -29,6 +29,10 @@ void TCSoapThread(const std::string& host, uint16 port)
     soap_set_imode(&soap, SOAP_C_UTFSTRING);
     soap_set_omode(&soap, SOAP_C_UTFSTRING);
 
+#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+    soap.bind_flags = SO_REUSEADDR;
+#endif
+
     // check every 3 seconds if world ended
     soap.accept_timeout = 3;
     soap.recv_timeout = 5;
