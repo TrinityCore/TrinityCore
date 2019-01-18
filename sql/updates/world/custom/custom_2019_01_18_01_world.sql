@@ -7,13 +7,11 @@ UPDATE `creature_template` SET `unit_flags`= 33554432, `unit_flags2`= 2099200, `
 
 -- Spells
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN 
-('spell_zulgurub_rolling_boulders',
-'spell_zulgurub_boulder_smash');
+('spell_zulgurub_rolling_boulders');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (96826, 'spell_zulgurub_rolling_boulders'),
-(96837, 'spell_zulgurub_rolling_boulders'),
-(96834, 'spell_zulgurub_boulder_smash');
+(96837, 'spell_zulgurub_rolling_boulders');
 
 -- Addons
 DELETE FROM `creature_template_addon` WHERE `entry` IN (52353, 52351, 52354, 52350);
