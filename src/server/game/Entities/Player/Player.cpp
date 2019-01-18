@@ -5517,7 +5517,7 @@ void Player::UpdateInstantHasteCap()
        SetFloatValue(UNIT_FIELD_BASEATTACKTIME + RANGED_ATTACK, 1);
    }
 
-   else if (hasInstantHasteCap && m_baseRatingValue[CR_HASTE_MELEE] < sWorld->getIntConfig(CONFIG_PLAYER_HASTE_CAP))
+   else if (hasInstantHasteCap && (unsigned)m_baseRatingValue[CR_HASTE_MELEE] < sWorld->getIntConfig(CONFIG_PLAYER_HASTE_CAP))
    {
        SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
        SetRegularAttackTime();
