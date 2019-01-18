@@ -3422,6 +3422,53 @@ void ObjectMgr::LoadVehicleAccessories()
     TC_LOG_INFO("server.loading", ">> Loaded %u Vehicle Accessories in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadVehicleSeatAddon()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _vehicleSeatAddonStore.clear();                           // needed for reload case
+
+    uint32 count = 0;
+
+    //                                                  0            1
+    QueryResult result = WorldDatabase.Query("SELECT `SeatID`, `Angle` FROM `vehicle_seat_addon`");
+
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 vehicle seat addons. DB table `vehicle_seat_addon` is empty.");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 seatID       = fields[0].GetUInt32();
+        float orientation   = fields[1].GetFloat() * float(M_PI) / 180;
+
+        if (!sVehicleSeatStore.LookupEntry(seatID))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `vehicle_seat_addon`: SeatID: %u does not exist in VehicleSeat.dbc. Skipping entry.", seatID);
+            continue;
+        }
+
+        // Sanitizing values
+        if (orientation > float(M_PI * 2))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `vehicle_seat_addon`: SeatID: %u is using invalid angle offset value (%f). Setting to 0.", seatID, fields[1].GetFloat());
+            orientation = 0.0f;
+            continue;
+        }
+
+        _vehicleSeatAddonStore.emplace(seatID, orientation);
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u Vehicle Seat Addon entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void ObjectMgr::LoadPetLevelInfo()
 {
     uint32 oldMSTime = getMSTime();

@@ -559,6 +559,7 @@ typedef std::unordered_map<uint32, QuestLocale> QuestLocaleContainer;
 typedef std::unordered_map<uint32, NpcTextLocale> NpcTextLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
 typedef std::unordered_map<uint32, uint8> TaxiNodeLevelDataContainer;
+typedef std::unordered_map<uint32, float> VehicleSeatAddonContainer;
 
 struct GossipMenuItemsLocale
 {
@@ -1171,6 +1172,7 @@ class TC_GAME_API ObjectMgr
         void LoadMailLevelRewards();
         void LoadVehicleTemplateAccessories();
         void LoadVehicleAccessories();
+        void LoadVehicleSeatAddon();
 
         void LoadGossipText();
 
@@ -1568,6 +1570,15 @@ class TC_GAME_API ObjectMgr
 
         uint32 GetGameObjectTypeByEntry(uint32 entry) const;
 
+        float GetVehicleSeatOrientationOffset(uint32 seatId) const
+        {
+            VehicleSeatAddonContainer::const_iterator itr = _vehicleSeatAddonStore.find(seatId);
+            if (itr != _vehicleSeatAddonStore.end())
+                return itr->second;
+
+            return 0.0f;
+        }
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1729,6 +1740,7 @@ class TC_GAME_API ObjectMgr
         GraveyardOrientationContainer _graveyardOrientations;
 
         TaxiNodeLevelDataContainer _taxiNodeLevelDataStore;
+        VehicleSeatAddonContainer _vehicleSeatAddonStore;
 
         std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
         std::set<uint32> _hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate

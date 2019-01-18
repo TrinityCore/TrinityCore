@@ -647,37 +647,6 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000            // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
 };
 
-enum VehicleAttachmentIds
-{
-    VEHICLE_ATTACHMENT_ID_UNK0                  = -1,
-    VEHICLE_ATTACHMENT_ID_UNK1                  = 0,
-    VEHICLE_ATTACHMENT_ID_UNK2                  = 1,
-    VEHICLE_ATTACHMENT_ID_INVERT_SEAT_ANGLE_1   = 2,
-    VEHICLE_ATTACHMENT_ID_UNK3                  = 3,
-    VEHICLE_ATTACHMENT_ID_UNK4                  = 4,
-    VEHICLE_ATTACHMENT_ID_UNK5                  = 5,
-    VEHICLE_ATTACHMENT_ID_UNK6                  = 6,
-    VEHICLE_ATTACHMENT_ID_UNK7                  = 7,
-    VEHICLE_ATTACHMENT_ID_UNK8                  = 8,
-    VEHICLE_ATTACHMENT_ID_UNK9                  = 9,
-    VEHICLE_ATTACHMENT_ID_UNK10                 = 10,
-    VEHICLE_ATTACHMENT_ID_UNK11                 = 11,
-    VEHICLE_ATTACHMENT_ID_UNK12                 = 12,
-    VEHICLE_ATTACHMENT_ID_UNK13                 = 13,
-    VEHICLE_ATTACHMENT_ID_UNK14                 = 14,
-    VEHICLE_ATTACHMENT_ID_UNK15                 = 15,
-    VEHICLE_ATTACHMENT_ID_INVERT_SEAT_ANGLE_2   = 16,
-    VEHICLE_ATTACHMENT_ID_UNK16                 = 17,
-    VEHICLE_ATTACHMENT_ID_UNK17                 = 18,
-    VEHICLE_ATTACHMENT_ID_UNK18                 = 19,
-    VEHICLE_ATTACHMENT_ID_UNK19                 = 20,
-    VEHICLE_ATTACHMENT_ID_UNK20                 = 21,
-    VEHICLE_ATTACHMENT_ID_UNK21                 = 22,
-    VEHICLE_ATTACHMENT_ID_UNK22                 = 23,
-    VEHICLE_ATTACHMENT_ID_UNK23                 = 24,
-    VEHICLE_ATTACHMENT_ID_UNK24                 = 25
-};
-
 // CurrencyTypes.dbc
 enum CurrencyTypes
 {

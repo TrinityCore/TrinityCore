@@ -879,10 +879,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     if (veSeat->HasFlag(VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE))
         Passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-    float o = 0.0f;
-    if ((veSeat->m_attachmentID == VEHICLE_ATTACHMENT_ID_INVERT_SEAT_ANGLE_1 || veSeat->m_attachmentID == VEHICLE_ATTACHMENT_ID_INVERT_SEAT_ANGLE_2)
-        && veSeat->HasFlag(VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4)) // This flag is common in all vehicles that use inverted orientation in combination with the attachment IDs
-        o += float(M_PI);
+    float o = sObjectMgr->GetVehicleSeatOrientationOffset(veSeat->m_ID);
 
     float x = veSeat->m_attachmentOffsetX;
     float y = veSeat->m_attachmentOffsetY;
