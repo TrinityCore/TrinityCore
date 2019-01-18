@@ -116,6 +116,7 @@ public:
             { "unstuck",          rbac::RBAC_PERM_COMMAND_UNSTUCK,           true, &HandleUnstuckCommand,          "" },
             { "wchange",          rbac::RBAC_PERM_COMMAND_WCHANGE,          false, &HandleChangeWeather,           "" },
             { "mailbox",          rbac::RBAC_PERM_COMMAND_MAILBOX,          false, &HandleMailBoxCommand,          "" },
+            { "pcopy",            rbac::RBAC_PERM_COMMAND_PCOPY,            false, &HandlPCopyCommand,          "" },
         };
         return commandTable;
     }
@@ -2672,6 +2673,88 @@ public:
         return true;
     }
 };
+
+static bool HandlePCopyCommand(ChatHandler* handler, char const* args)
+{
+    char* playerNameStr;
+    char* accountNameStr;
+    handler->extractOptFirstArg(const_cast<char*>(args), &playerNameStr, &accountNameStr);
+    if (!accountNameStr)
+        return false;
+
+    ObjectGuid targetGuid;
+    std::string targetName;
+    if (!handler->extractPlayerTarget(playerNameStr, nullptr, &targetGuid, &targetName))
+        return false;
+
+    CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(targetGuid);
+    if (!characterInfo)
+    {
+        handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+
+    uint32 oldAccountId = characterInfo->AccountId;
+    uint32 newAccountId = oldAccountId;
+
+    std::string accountName(accountNameStr);
+    if (!Utf8ToUpperOnlyLatin(accountName))
+    {
+        handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ID_BY_NAME);
+    stmt->setString(0, accountName);
+    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
+        newAccountId = (*result)[0].GetUInt32();
+    else
+    {
+        handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+
+    // nothing to do :)
+    if (newAccountId == oldAccountId)
+        return true;
+
+    if (uint32 charCount = AccountMgr::GetCharactersCount(newAccountId))
+    {
+        if (charCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, accountName.c_str(), newAccountId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+    }
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_BY_GUID);
+    stmt->setUInt32(0, oldAccountId);
+    stmt->setUInt32(0, newAccountId);
+    stmt->setUInt32(1, targetGuid.GetCounter());
+    CharacterDatabase.DirectExecute(stmt);
+
+    sWorld->UpdateRealmCharCount(oldAccountId);
+    sWorld->UpdateRealmCharCount(newAccountId);
+
+    sCharacterCache->UpdateCharacterAccountId(targetGuid, newAccountId);
+
+    handler->PSendSysMessage(LANG_CHANGEACCOUNT_SUCCESS, targetName.c_str(), accountName.c_str());
+
+    std::string logString = Trinity::StringFormat("changed ownership of player %s (%s) from account %u to account %u", targetName.c_str(), targetGuid.ToString().c_str(), oldAccountId, newAccountId);
+    if (WorldSession* session = handler->GetSession())
+    {
+        if (Player* player = session->GetPlayer())
+            sLog->outCommand(session->GetAccountId(), "GM %s (Account: %u) %s", player->GetName().c_str(), session->GetAccountId(), logString.c_str());
+    }
+    else
+        sLog->outCommand(0, "%s %s", handler->GetTrinityString(LANG_CONSOLE), logString.c_str());
+    return true;
+
+
+}
 
 void AddSC_misc_commandscript()
 {
