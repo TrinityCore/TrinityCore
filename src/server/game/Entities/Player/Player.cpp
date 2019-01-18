@@ -97,6 +97,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "WorldStatePackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -8777,12 +8778,12 @@ void Player::SendNotifyLootItemRemoved(uint8 lootSlot) const
     SendDirectMessage(&data);
 }
 
-void Player::SendUpdateWorldState(uint32 Field, uint32 Value) const
+void Player::SendUpdateWorldState(uint32 variable, uint32 value) const
 {
-    WorldPacket data(SMSG_UPDATE_WORLD_STATE, 8);
-    data << Field;
-    data << Value;
-    SendDirectMessage(&data);
+    WorldPackets::WorldState::UpdateWorldState worldstate;
+    worldstate.VariableID = variable;
+    worldstate.Value = value;
+    SendDirectMessage(worldstate.Write());
 }
 
 void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
