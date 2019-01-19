@@ -3299,8 +3299,9 @@ AuraApplication* Unit::_CreateAuraApplication(Aura* aura, uint8 effMask)
 {
     // can't apply aura on unit which is going to be deleted - to not create a memory leak
     ASSERT(!m_cleanupDone);
-    // aura musn't be removed
-    ASSERT(!aura->IsRemoved());
+    // aura musn't be removed (but it could have been removed by OnEffectHitTarget script handler
+    // casting a spell that killed the target and set deathState to CORPSE)
+    ASSERT(!aura->IsRemoved() || !IsAlive());
 
     // aura mustn't be already applied on target
     ASSERT (!aura->IsAppliedOnTarget(GetGUID()) && "Unit::_CreateAuraApplication: aura musn't be applied on target");

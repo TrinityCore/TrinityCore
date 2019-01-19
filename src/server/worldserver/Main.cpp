@@ -267,6 +267,18 @@ extern int main(int argc, char** argv)
     if (sConfigMgr->GetBoolDefault("Ra.Enable", false))
         raAcceptor.reset(StartRaSocketAcceptor(*ioContext));
 
+    // Start soap serving thread if enabled
+    std::shared_ptr<std::thread> soapThread;
+    if (sConfigMgr->GetBoolDefault("SOAP.Enabled", false))
+    {
+        soapThread.reset(new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878))),
+            [](std::thread* thr)
+        {
+            thr->join();
+            delete thr;
+        });
+    }
+
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
@@ -276,12 +288,14 @@ extern int main(int argc, char** argv)
     if (networkThreads <= 0)
     {
         TC_LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");
+        World::StopNow(ERROR_EXIT_CODE);
         return 1;
     }
 
     if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, worldListener, worldPort, networkThreads))
     {
         TC_LOG_ERROR("server.worldserver", "Failed to initialize network");
+        World::StopNow(ERROR_EXIT_CODE);
         return 1;
     }
 
@@ -295,18 +309,6 @@ extern int main(int argc, char** argv)
         ///- Clean database before leaving
         ClearOnlineAccounts();
     });
-
-    // Start soap serving thread if enabled
-    std::shared_ptr<std::thread> soapThread;
-    if (sConfigMgr->GetBoolDefault("SOAP.Enabled", false))
-    {
-        soapThread.reset(new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878))),
-            [](std::thread* thr)
-        {
-            thr->join();
-            delete thr;
-        });
-    }
 
     // Launch CliRunnable thread
     std::shared_ptr<std::thread> cliThread;
