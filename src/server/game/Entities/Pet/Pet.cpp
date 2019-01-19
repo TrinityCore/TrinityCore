@@ -854,6 +854,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             case CLASS_DEATH_KNIGHT:
             case CLASS_MAGE:
             case CLASS_PRIEST:
+            case CLASS_PALADIN:
                 petType = SUMMON_PET;
                 break;
             case CLASS_HUNTER:
