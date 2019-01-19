@@ -155,7 +155,7 @@ public:
 		player->PlayerTalkClass->SendGossipMenu(MAIN_MENU, item->GetGUID());
 	}
 
-	bool OnUse(Player* player, Item* item, SpellCastTargets const& targets) override
+	bool OnUse(Player* player, Item* item)
 	{
 		player->PlayerTalkClass->ClearMenus();
 		if (!player->IsInCombat())
