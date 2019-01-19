@@ -32,57 +32,66 @@
 
 enum PaladinSpells
 {
-    SPELL_PALADIN_AVENGERS_SHIELD                = 31935,
-    SPELL_PALADIN_AURA_MASTERY_IMMUNE            = 64364,
-    SPELL_PALADIN_BEACON_OF_LIGHT                = 53563,
-    SPELL_PALADIN_BEACON_OF_LIGHT_HEAL           = 53652,
-    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID   = 37878,
-    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN = 37879,
-    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST  = 37880,
-    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN  = 37881,
-    SPELL_PALADIN_CENSURE                        = 31803,
-    SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
-    SPELL_PALADIN_CONSECRATION_TRIGGERED         = 81297,
-    SPELL_PALADIN_CRUSADER_STRIKE                = 35395,
-    SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
-    SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
-    SPELL_PALADIN_DIVINE_STORM                   = 53385,
-    SPELL_PALADIN_DIVINE_STORM_DUMMY             = 54171,
-    SPELL_PALADIN_DIVINE_STORM_HEAL              = 54172,
-    SPELL_PALADIN_ETERNAL_GLORY_PROC             = 88676,
-    SPELL_PALADIN_EYE_FOR_AN_EYE_RANK_1          = 9799,
-    SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE          = 25997,
-    SPELL_PALADIN_FORBEARANCE                    = 25771,
-    SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
-    SPELL_PALADIN_HAND_OF_LIGHT                  = 96172,
-    SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
-    SPELL_PALADIN_HOLY_LIGHT                     = 635,
-    SPELL_PALADIN_HOLY_SHOCK_R1                  = 20473,
-    SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE           = 25912,
-    SPELL_PALADIN_HOLY_SHOCK_R1_HEALING          = 25914,
-    SPELL_PALADIN_ILLUMINATED_HEALING            = 86273,
-    SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
-    SPELL_PALADIN_IMPROVED_CONCENTRACTION_AURA   = 63510,
-    SPELL_PALADIN_IMPROVED_DEVOTION_AURA         = 63514,
-    SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
-    SPELL_PALADIN_JUDGEMENT_DAMAGE               = 54158,
-    SPELL_PALADIN_JUDGEMENTS_OF_THE_BOLD         = 89906,
-    SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_PASSIVE = 31878,
-    SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE         = 31930,
-    SPELL_PALADIN_JUDGEEMENT_OF_TRUTH            = 31804,
-    SPELL_PALADIN_LONG_ARM_OF_THE_LAW            = 87173,
-    SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
-    SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA    = 63531,
-    SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1      = 31869,
-    SPELL_PALADIN_SANCTIFIED_WRATH               = 57318,
-    SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1     = 53375,
-    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 20154,
-    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE   = 25742,
-    SPELL_PALADIN_SEAL_OF_TRUTH                  = 31801,
-    SPELL_PALADIN_SEAL_OF_TRUTH_DAMAGE           = 42463,
-    SPELL_PALADIN_SEAL_OF_JUSTICE                = 20164,
-    SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379,
-    SPELL_PALADIN_TEMPLARS_VERDICT               = 85256
+    SPELL_PALADIN_ANCIENT_HEALER                        = 86674,
+    SPELL_PALADIN_ANCIENT_CRUSADER                      = 86701,
+    SPELL_PALADIN_ANCIENT_CRUSADER_GUARDIAN             = 86703,
+    SPELL_PALADIN_ANCIENT_FURY                          = 86704,
+    SPELL_PALADIN_ANCIENT_POWER                         = 86700,
+    SPELL_PALADIN_AVENGERS_SHIELD                       = 31935,
+    SPELL_PALADIN_AURA_MASTERY_IMMUNE                   = 64364,
+    SPELL_PALADIN_BEACON_OF_LIGHT                       = 53563,
+    SPELL_PALADIN_BEACON_OF_LIGHT_HEAL                  = 53652,
+    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID          = 37878,
+    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN        = 37879,
+    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST         = 37880,
+    SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN         = 37881,
+    SPELL_PALADIN_CENSURE                               = 31803,
+    SPELL_PALADIN_CONCENTRACTION_AURA                   = 19746,
+    SPELL_PALADIN_CONSECRATION_TRIGGERED                = 81297,
+    SPELL_PALADIN_CRUSADER_STRIKE                       = 35395,
+    SPELL_PALADIN_DIVINE_PURPOSE_PROC                   = 90174,
+    SPELL_PALADIN_DIVINE_SACRIFICE                      = 64205,
+    SPELL_PALADIN_DIVINE_STORM                          = 53385,
+    SPELL_PALADIN_DIVINE_STORM_DUMMY                    = 54171,
+    SPELL_PALADIN_DIVINE_STORM_HEAL                     = 54172,
+    SPELL_PALADIN_ETERNAL_GLORY_PROC                    = 88676,
+    SPELL_PALADIN_EYE_FOR_AN_EYE_RANK_1                 = 9799,
+    SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE                 = 25997,
+    SPELL_PALADIN_FORBEARANCE                           = 25771,
+    SPELL_PALADIN_GLYPH_OF_SALVATION                    = 63225,
+    SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_HOLY        = 86669,
+    SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_PROTECTION  = 86659,
+    SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_RETRIBUTION = 86698,
+    SPELL_PALADIN_HAND_OF_LIGHT                         = 96172,
+    SPELL_PALADIN_HAND_OF_SACRIFICE                     = 6940,
+    SPELL_PALADIN_HOLY_LIGHT                            = 635,
+    SPELL_PALADIN_HOLY_SHOCK_R1                         = 20473,
+    SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE                  = 25912,
+    SPELL_PALADIN_HOLY_SHOCK_R1_HEALING                 = 25914,
+    SPELL_PALADIN_ILLUMINATED_HEALING                   = 86273,
+    SPELL_PALADIN_IMMUNE_SHIELD_MARKER                  = 61988,
+    SPELL_PALADIN_IMPROVED_CONCENTRACTION_AURA          = 63510,
+    SPELL_PALADIN_IMPROVED_DEVOTION_AURA                = 63514,
+    SPELL_PALADIN_ITEM_HEALING_TRANCE                   = 37706,
+    SPELL_PALADIN_JUDGEMENT_DAMAGE                      = 54158,
+    SPELL_PALADIN_JUDGEMENTS_OF_THE_BOLD                = 89906,
+    SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE_PASSIVE        = 31878,
+    SPELL_PALADIN_JUDGEMENTS_OF_THE_WISE                = 31930,
+    SPELL_PALADIN_JUDGEEMENT_OF_TRUTH                   = 31804,
+    SPELL_PALADIN_LIGHT_OF_THE_ANCIENT_KINGS            = 86678,
+    SPELL_PALADIN_LONG_ARM_OF_THE_LAW                   = 87173,
+    SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT               = 31790,
+    SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA           = 63531,
+    SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1             = 31869,
+    SPELL_PALADIN_SANCTIFIED_WRATH                      = 57318,
+    SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1            = 53375,
+    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS                 = 20154,
+    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE          = 25742,
+    SPELL_PALADIN_SEAL_OF_TRUTH                         = 31801,
+    SPELL_PALADIN_SEAL_OF_TRUTH_DAMAGE                  = 42463,
+    SPELL_PALADIN_SEAL_OF_JUSTICE                       = 20164,
+    SPELL_PALADIN_SWIFT_RETRIBUTION_R1                  = 53379,
+    SPELL_PALADIN_TEMPLARS_VERDICT                      = 85256
 };
 
 enum MiscSpells
@@ -1788,9 +1797,185 @@ class spell_pal_inquisition : public SpellScript
     }
 };
 
+class spell_pal_guardian_of_ancient_kings : public SpellScript
+{
+    PrepareSpellScript(spell_pal_guardian_of_ancient_kings);
+
+    bool Validate(SpellInfo const* spell) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_HOLY,
+                SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_PROTECTION,
+                SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_RETRIBUTION,
+                SPELL_PALADIN_ANCIENT_HEALER,
+                SPELL_PALADIN_ANCIENT_CRUSADER
+            });
+    }
+
+    void HandleDummyEffect()
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster)
+            return;
+
+        switch (caster->GetPrimaryTalentTree(caster->GetActiveSpec()))
+        {
+            case TALENT_TREE_PALADIN_HOLY:
+                caster->CastSpell(caster, SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_HOLY, true);
+                caster->CastSpell(caster, SPELL_PALADIN_ANCIENT_HEALER, true);
+                break;
+            case TALENT_TREE_PALADIN_PROTECTION:
+                caster->CastSpell(caster, SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_PROTECTION, true);
+                break;
+            case TALENT_TREE_PALADIN_RETRIBUTION:
+                caster->CastSpell(caster, SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_RETRIBUTION, true);
+                caster->CastSpell(caster, SPELL_PALADIN_ANCIENT_CRUSADER, true);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pal_guardian_of_ancient_kings::HandleDummyEffect);
+    }
+};
+
+class spell_pal_ancient_healer : public AuraScript
+{
+    PrepareAuraScript(spell_pal_ancient_healer);
+
+    bool Load() override
+    {    
+        _procCount = 0;
+        return true;
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_LIGHT_OF_THE_ANCIENT_KINGS });
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return _procCount < 5;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        HealInfo* heal = eventInfo.GetHealInfo();
+        if (!heal)
+            return;
+
+        int32 bp0 = heal->GetHeal();
+        int32 bp1 = CalculatePct(heal->GetHeal(), 10);
+        if (TempSummon* guardian = GetTarget()->GetGuardianPet())
+            guardian->CastCustomSpell(heal->GetTarget(), SPELL_PALADIN_LIGHT_OF_THE_ANCIENT_KINGS, &bp0, &bp1, nullptr, false, nullptr, aurEff);
+
+        _procCount++;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pal_ancient_healer::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pal_ancient_healer::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+private:
+    uint8 _procCount;
+};
+
+class spell_pal_ancient_crusader : public AuraScript
+{
+    PrepareAuraScript(spell_pal_ancient_crusader);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PALADIN_ANCIENT_POWER,
+                SPELL_PALADIN_ANCIENT_CRUSADER_GUARDIAN,
+                SPELL_PALADIN_ANCIENT_FURY
+            });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        if (m_scriptSpellId == SPELL_PALADIN_ANCIENT_CRUSADER_GUARDIAN)
+        {
+            if (TempSummon* summon = GetTarget()->ToTempSummon())
+                if (Unit* summoner = summon->GetSummoner())
+                    summoner->CastSpell(summoner, SPELL_PALADIN_ANCIENT_POWER, true, nullptr, aurEff);
+        }
+        else
+            GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ANCIENT_POWER, true, nullptr, aurEff);
+    }
+
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (m_scriptSpellId != SPELL_PALADIN_ANCIENT_CRUSADER)
+            return;
+
+        Unit* target = GetTarget();
+        if (Aura* powerAura = target->GetAura(SPELL_PALADIN_ANCIENT_POWER))
+            target->CastSpell(target, SPELL_PALADIN_ANCIENT_FURY, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pal_ancient_crusader::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pal_ancient_crusader::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_paladin_ancient_fury : public SpellScript
+{
+    PrepareSpellScript(spell_paladin_ancient_fury);
+
+    bool Load() override
+    {
+        _targetCount = 0;
+        return true;
+    }
+
+    void CountTargets(std::list<WorldObject*>& targets)
+    {
+        _targetCount = targets.size();
+    }
+
+    void CalculateDamage()
+    {
+        Unit* caster = GetCaster();
+        if (!_targetCount || !caster)
+            return;
+
+        if (Aura* powerAura = caster->GetAura(SPELL_PALADIN_ANCIENT_POWER))
+        {
+            int32 damage = GetHitDamage() * powerAura->GetStackAmount();
+            SetHitDamage(damage / _targetCount);
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_paladin_ancient_fury::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnHit += SpellHitFn(spell_paladin_ancient_fury::CalculateDamage);
+    }
+
+private:
+    uint32 _targetCount;
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
+    RegisterAuraScript(spell_pal_ancient_healer);
+    RegisterAuraScript(spell_pal_ancient_crusader);
+    RegisterSpellScript(spell_paladin_ancient_fury);
     new spell_pal_aura_mastery();
     new spell_pal_aura_mastery_immune();
     RegisterAuraScript(spell_pal_avenging_wrath);
@@ -1806,6 +1991,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_eye_for_an_eye();
     new spell_pal_glyph_of_holy_light();
     new spell_pal_grand_crusader();
+    RegisterSpellScript(spell_pal_guardian_of_ancient_kings);
     new spell_pal_hand_of_light();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_holy_shock();
