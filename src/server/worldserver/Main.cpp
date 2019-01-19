@@ -282,12 +282,14 @@ extern int main(int argc, char** argv)
     if (networkThreads <= 0)
     {
         TC_LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");
+        World::StopNow(ERROR_EXIT_CODE);
         return 1;
     }
 
     if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, worldListener, worldPort, networkThreads))
     {
         TC_LOG_ERROR("server.worldserver", "Failed to initialize network");
+        World::StopNow(ERROR_EXIT_CODE);
         return 1;
     }
 
