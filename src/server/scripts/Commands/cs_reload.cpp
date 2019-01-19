@@ -923,6 +923,10 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Item templates table...");
         sObjectMgr->LoadItemTemplates();
+
+        //No need to add checks here because InitializeQueriesData checks if the config setting is enabled or disabled
+        sObjectMgr->InitializeQueriesData(QUERY_DATA_ITEMS);
+        
         handler->SendGlobalGMSysMessage("DB table `item_template` reloaded.");
         return true;
     }
