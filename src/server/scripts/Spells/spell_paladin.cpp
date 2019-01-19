@@ -1932,9 +1932,9 @@ class spell_pal_ancient_crusader : public AuraScript
     }
 };
 
-class spell_paladin_ancient_fury : public SpellScript
+class spell_pal_ancient_fury : public SpellScript
 {
-    PrepareSpellScript(spell_paladin_ancient_fury);
+    PrepareSpellScript(spell_pal_ancient_fury);
 
     bool Load() override
     {
@@ -1962,8 +1962,8 @@ class spell_paladin_ancient_fury : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_paladin_ancient_fury::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnHit += SpellHitFn(spell_paladin_ancient_fury::CalculateDamage);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_ancient_fury::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnHit += SpellHitFn(spell_pal_ancient_fury::CalculateDamage);
     }
 
 private:
@@ -1975,7 +1975,7 @@ void AddSC_paladin_spell_scripts()
     //new spell_pal_ardent_defender();
     RegisterAuraScript(spell_pal_ancient_healer);
     RegisterAuraScript(spell_pal_ancient_crusader);
-    RegisterSpellScript(spell_paladin_ancient_fury);
+    RegisterSpellScript(spell_pal_ancient_fury);
     new spell_pal_aura_mastery();
     new spell_pal_aura_mastery_immune();
     RegisterAuraScript(spell_pal_avenging_wrath);
