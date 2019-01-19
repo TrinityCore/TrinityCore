@@ -418,6 +418,164 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                     guild->BroadcastToGuild(this, true, msg, lang == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
                 }
             }
+
+            // World chat
+            std::ostringstream ss;
+
+            std::string color;
+
+            Player* player = GetPlayer();
+            ss << "|cff00ff00[World]";
+            std::string RACE_ICON;
+            bool skipPlayer = player->GetSession()->GetVIPLevel() > 0;
+
+            switch (player->GetSession()->GetSecurity())
+            {
+            case SEC_PLAYER:
+                if (!skipPlayer)
+                {
+                    if (player->GetTeam() == ALLIANCE)
+                    {
+                        ss << "|cfffa9900[Player]";
+                        ss << "|cff0000ff|TInterface\\pvpframe\\pvp-currency-alliance:17|t|r ";
+                    }
+                    else
+                    {
+                        ss << "|cfffa9900[Player]";
+                        ss << "|cffff0000|TInterface\\pvpframe\\pvp-currency-horde:17|t|r ";
+                    }
+                }
+                break;
+            case SEC_MODERATOR:
+                ss << "|cff00ffff[Trial GM]";
+                ss << " |TINTERFACE/CHATFRAME/UI-CHATICON-BLIZZ:15|t|r ";
+                break;
+                // GM
+            case SEC_GAMEMASTER:
+                ss << "|cff00ffff[GM]";
+                ss << " |TINTERFACE/CHATFRAME/UI-CHATICON-BLIZZ:15|t|r ";
+                break;
+                // Admin
+            case SEC_ADMINISTRATOR:
+                ss << "|cfffa9900[Admin]";
+                ss << " |TINTERFACE/PVPFrame/Icons/PVP-Banner-Emblem-2:15|t|r ";
+                break;
+
+            case SEC_CONSOLE:
+                // Do nothing
+                break;
+            }
+            switch (player->getRace())
+            {
+            case RACE_BLOODELF:
+                if (player->getGender() == GENDER_MALE)
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Bloodelf_Male:15|t";
+                else
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Bloodelf_Female:15|t";
+                break;
+            case RACE_DRAENEI:
+                if (player->getGender() == GENDER_FEMALE)
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Draenei_Female:15|t";
+                else
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Draenei_Male:15|t";
+                break;
+            case RACE_DWARF:
+                if (player->getGender() == GENDER_FEMALE)
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Dwarf_Female:15|t";
+                else
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Dwarf_Male:15|t";
+                break;
+            case RACE_GNOME:
+                if (player->getGender() == GENDER_FEMALE)
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Gnome_Female:15|t";
+                else
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Gnome_Male:15|t";
+                break;
+            case RACE_HUMAN:
+                if (player->getGender() == GENDER_FEMALE)
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Human_Female:15|t";
+                else
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Human_Male:15|t";
+                break;
+            case RACE_NIGHTELF:
+                if (player->getGender() == GENDER_FEMALE)
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Nightelf_Female:15|t";
+                else
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Nightelf_Male:15|t";
+                break;
+            case RACE_ORC:
+                if (player->getGender() == GENDER_FEMALE)
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Orc_Female:15|t";
+                else
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Orc_Male:15|t";
+                break;
+            case RACE_TAUREN:
+                if (player->getGender() == GENDER_FEMALE)
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Tauren_Female:15|t";
+                else
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Tauren_Male:15|t";
+                break;
+            case RACE_TROLL:
+                if (player->getGender() == GENDER_FEMALE)
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Troll_Female:15|t";
+                else
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Troll_Male:15|t";
+                break;
+            case RACE_UNDEAD_PLAYER:
+                if (player->getGender() == GENDER_FEMALE)
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Undead_Female:15|t";
+                else
+                    RACE_ICON = "|TInterface/ICONS/Achievement_Character_Undead_Male:15|t";
+                break;
+            }
+            if (player->GetSession()->GetVIPLevel() > 0)
+            {
+                ss << "|cfffa9900[VIP]|cff0000ff|TInterface/PVPFrame/Icons/PVP-Banner-Emblem-19:15|t|r";
+            }
+
+            switch (GetPlayer()->getClass())
+            {
+            case CLASS_DEATH_KNIGHT:
+                color = "|cffC41F3B";
+                break;
+            case CLASS_DRUID:
+                color = "|cffFF7D0A";
+                break;
+            case CLASS_HUNTER:
+                color = "|cffABD473";
+                break;
+            case CLASS_MAGE:
+                color = "|cff69CCF0";
+                break;
+            case CLASS_PALADIN:
+                color = "|cffF58CBA";
+                break;
+            case CLASS_PRIEST:
+                color = "|cffFFFFFF";
+                break;
+            case CLASS_ROGUE:
+                color = "|cffFFF569";
+                break;
+            case CLASS_SHAMAN:
+                color = "|cff0070DE";
+                break;
+            case CLASS_WARLOCK:
+                color = "|cff9482C9";
+                break;
+            case CLASS_WARRIOR:
+                color = "|cffC79C6E";
+                break;
+            }
+
+            ss << "|Hplayer:" << player->GetName() << +"|h" + RACE_ICON << color << "[" << player->GetName() << "]|r: ";
+            ss << msg;
+
+            // Don't bother filtering ignored players from seeing msgs in world
+            // SessionMap sessions = sWorld->GetAllSessions();
+            // for (SessionMap::iterator itr = sessions.begin(); itr != sessions.end(); ++itr)
+            //     if (Player* plr = itr->second->GetPlayer())
+            //         if (!plr->GetSocial()->HasIgnore(GetPlayer()->GetGUID()))
+            //             ChatHandler(plr->GetSession()).SendSysMessage(ss.str().c_str());
             break;
         }
         case CHAT_MSG_RAID:
