@@ -59,9 +59,9 @@ enum PaladinSpells
     SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE                 = 25997,
     SPELL_PALADIN_FORBEARANCE                           = 25771,
     SPELL_PALADIN_GLYPH_OF_SALVATION                    = 63225,
-    SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_HOLY        = 86669,
-    SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_PROTECTION  = 86659,
-    SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_RETRIBUTION = 86698,
+    SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_HOLY        = 86669,
+    SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_PROTECTION  = 86659,
+    SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_RETRIBUTION = 86698,
     SPELL_PALADIN_HAND_OF_LIGHT                         = 96172,
     SPELL_PALADIN_HAND_OF_SACRIFICE                     = 6940,
     SPELL_PALADIN_HOLY_LIGHT                            = 635,
@@ -1805,9 +1805,9 @@ class spell_pal_guardian_of_ancient_kings : public SpellScript
     {
         return ValidateSpellInfo(
             {
-                SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_HOLY,
-                SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_PROTECTION,
-                SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_RETRIBUTION,
+                SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_HOLY,
+                SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_PROTECTION,
+                SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_RETRIBUTION,
                 SPELL_PALADIN_ANCIENT_HEALER,
                 SPELL_PALADIN_ANCIENT_CRUSADER
             });
@@ -1822,14 +1822,14 @@ class spell_pal_guardian_of_ancient_kings : public SpellScript
         switch (caster->GetPrimaryTalentTree(caster->GetActiveSpec()))
         {
             case TALENT_TREE_PALADIN_HOLY:
-                caster->CastSpell(caster, SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_HOLY, true);
+                caster->CastSpell(caster, SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_HOLY, true);
                 caster->CastSpell(caster, SPELL_PALADIN_ANCIENT_HEALER, true);
                 break;
             case TALENT_TREE_PALADIN_PROTECTION:
-                caster->CastSpell(caster, SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_PROTECTION, true);
+                caster->CastSpell(caster, SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_PROTECTION, true);
                 break;
             case TALENT_TREE_PALADIN_RETRIBUTION:
-                caster->CastSpell(caster, SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_RETRIBUTION, true);
+                caster->CastSpell(caster, SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_RETRIBUTION, true);
                 caster->CastSpell(caster, SPELL_PALADIN_ANCIENT_CRUSADER, true);
                 break;
             default:
@@ -1858,7 +1858,7 @@ class spell_pal_ancient_healer : public AuraScript
         return ValidateSpellInfo(
             {
                 SPELL_PALADIN_LIGHT_OF_THE_ANCIENT_KINGS,
-                SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_HOLY
+                SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_HOLY
             });
     }
 
@@ -1880,7 +1880,7 @@ class spell_pal_ancient_healer : public AuraScript
 
         for (Unit* guardian : GetTarget()->m_Controlled)
         {
-            if (guardian->GetUInt32Value(UNIT_CREATED_BY_SPELL) == SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_HOLY)
+            if (guardian->GetUInt32Value(UNIT_CREATED_BY_SPELL) == SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_HOLY)
                 guardian->CastCustomSpell(heal->GetTarget(), SPELL_PALADIN_LIGHT_OF_THE_ANCIENT_KINGS, &bp0, &bp1, nullptr, false, nullptr, aurEff);
         }
 
@@ -1930,8 +1930,11 @@ class spell_pal_ancient_crusader : public AuraScript
             return;
 
         Unit* target = GetTarget();
-        if (Aura* powerAura = target->GetAura(SPELL_PALADIN_ANCIENT_POWER))
+        if (Aura* aura = target->GetAura(SPELL_PALADIN_ANCIENT_POWER))
+        {
             target->CastSpell(target, SPELL_PALADIN_ANCIENT_FURY, true, nullptr, aurEff);
+            aura->Remove();
+        }
     }
 
     void Register() override
