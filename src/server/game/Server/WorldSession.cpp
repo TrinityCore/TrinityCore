@@ -115,6 +115,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     _accountId(id),
     _accountName(std::move(name)),
     m_expansion(expansion),
+    m_vipLevel(0),
     _warden(nullptr),
     _logoutTime(0),
     m_inQueue(false),

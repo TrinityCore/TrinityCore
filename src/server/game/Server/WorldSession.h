@@ -318,7 +318,8 @@ class TC_GAME_API WorldSession
         std::string const& GetRemoteAddress() const { return m_Address; }
         void SetPlayer(Player* player);
         uint8 Expansion() const { return m_expansion; }
-
+        void setVIPLevel(uint32 x) { m_vipLevel = x; }//also needs DB update
+        uint32 GetVIPLevel() const { return m_vipLevel; }
         void InitWarden(BigNumber* k, std::string const& os);
 
         /// Session in auth.queue currently
@@ -1051,6 +1052,7 @@ class TC_GAME_API WorldSession
         uint32 _accountId;
         std::string _accountName;
         uint8 m_expansion;
+        uint32 m_vipLevel;
 
         typedef std::list<AddonInfo> AddonsList;
 

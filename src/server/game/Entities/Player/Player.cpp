@@ -26701,3 +26701,112 @@ std::string Player::GetDebugInfo() const
     sstr << Unit::GetDebugInfo();
     return sstr.str();
 }
+
+bool Player::AddCustomCurrency(CustomCurrency curr, uint32 val, bool showToChat)
+{
+    if (val <= 0)
+        return false;
+
+    switch (curr)
+    {
+    case MG:
+        m_mg += val;
+        if (showToChat)
+            ChatHandler(this->GetSession()).PSendSysMessage("+%u MG!");
+        break;
+    case VP:
+        LoginDatabase.PQuery("UPDATE account SET vp = vp + %u WHERE id = %u", val, GetSession()->GetAccountId());
+        if (showToChat)
+            ChatHandler(this->GetSession()).PSendSysMessage("+%u VP!");
+        break;
+    case DP:
+        LoginDatabase.PQuery("UPDATE account SET dp = dp + %u WHERE id = %u", val, GetSession()->GetAccountId());
+        if (showToChat)
+            ChatHandler(this->GetSession()).PSendSysMessage("+%u DP!");
+        break;
+    }
+    return true;
+}
+
+bool Player::RemoveCustomCurrency(CustomCurrency curr, int32 val, bool showToChat)
+{
+    if (val < 0)
+        val = -val;
+    if (val == 0 || val < 0)
+        return false;
+    switch (curr)
+    {
+    case MG:
+        m_mg -= val;
+        if (showToChat)
+            ChatHandler(this->GetSession()).PSendSysMessage("+%u MG!");
+        break;
+    case VP:
+        LoginDatabase.PQuery("UPDATE account SET vp = vp + %u WHERE id = %u", val, GetSession()->GetAccountId());
+        if (showToChat)
+            ChatHandler(this->GetSession()).PSendSysMessage("+%u VP!");
+        break;
+    case DP:
+        LoginDatabase.PQuery("UPDATE account SET dp = dp + %u WHERE id = %u", val, GetSession()->GetAccountId());
+        if (showToChat)
+            ChatHandler(this->GetSession()).PSendSysMessage("+%u DP!");
+        break;
+    }
+    return true;
+}
+
+bool Player::SetCustomCurrency(CustomCurrency curr, uint32 val, bool showToChat)
+{
+    switch (curr)
+    {
+    case MG:
+        m_mg = val;
+        if (showToChat)
+            ChatHandler(this->GetSession()).PSendSysMessage("%u MG!");
+        break;
+    case VP:
+        LoginDatabase.PQuery("UPDATE account SET vp = %u WHERE id = %u", val, GetSession()->GetAccountId());
+        if (showToChat)
+            ChatHandler(this->GetSession()).PSendSysMessage("%u VP!");
+        break;
+    case DP:
+        LoginDatabase.PQuery("UPDATE account SET dp = %u WHERE id = %u", val, GetSession()->GetAccountId());
+        if (showToChat)
+            ChatHandler(this->GetSession()).PSendSysMessage("%u DP!");
+        break;
+    }
+    return true;
+}
+
+bool Player::hasEnoughCustomCurrency(CustomCurrency curr, uint32 val)
+{
+    return GetCustomCurrency(curr) >= val;
+}
+
+uint32 Player::GetCustomCurrency(CustomCurrency curr)
+{
+    QueryResult res = nullptr;
+    switch (curr)
+    {
+    case MG:
+        return m_mg;
+        break;
+    case VP:
+        res = LoginDatabase.PQuery("SELECT vp from account where id = %u", GetSession()->GetAccountId());
+        if (res)
+        {
+            Field* fields = res->Fetch();
+            return fields[0].GetUInt32();
+        }
+        break;
+    case DP:
+        res = LoginDatabase.PQuery("SELECT dp from account where id = %u", GetSession()->GetAccountId());
+        if (res)
+        {
+            Field* fields = res->Fetch();
+            return fields[0].GetUInt32();
+        }
+        break;
+    }
+    return 0;
+}
