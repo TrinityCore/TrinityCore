@@ -1855,7 +1855,11 @@ class spell_pal_ancient_healer : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PALADIN_LIGHT_OF_THE_ANCIENT_KINGS });
+        return ValidateSpellInfo(
+            {
+                SPELL_PALADIN_LIGHT_OF_THE_ANCIENT_KINGS,
+                SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_HOLY
+            });
     }
 
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -1872,8 +1876,13 @@ class spell_pal_ancient_healer : public AuraScript
 
         int32 bp0 = heal->GetHeal();
         int32 bp1 = CalculatePct(heal->GetHeal(), 10);
-        if (TempSummon* guardian = GetTarget()->GetGuardianPet())
-            guardian->CastCustomSpell(heal->GetTarget(), SPELL_PALADIN_LIGHT_OF_THE_ANCIENT_KINGS, &bp0, &bp1, nullptr, false, nullptr, aurEff);
+
+
+        for (Unit* guardian : GetTarget()->m_Controlled)
+        {
+            if (guardian->GetUInt32Value(UNIT_CREATED_BY_SPELL) == SPELL_PALADIN_GUATDIAN_OF_ANCIENT_KINGS_HOLY)
+                guardian->CastCustomSpell(heal->GetTarget(), SPELL_PALADIN_LIGHT_OF_THE_ANCIENT_KINGS, &bp0, &bp1, nullptr, false, nullptr, aurEff);
+        }
 
         _procCount++;
     }
