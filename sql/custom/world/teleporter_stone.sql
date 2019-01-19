@@ -1,4 +1,4 @@
-CREATE TABLE z_teleporter_stone (
+CREATE TABLE IF NOT EXISTS z_teleporter_stone (
     ID INT(10) UNSIGNED NOT NULL DEFAULT '0',
     Text TEXT NULL,
     ConfirmText TEXT NULL,
@@ -15,5 +15,4 @@ CREATE TABLE z_teleporter_stone (
     PRIMARY KEY (ID)
 )
 COLLATE='latin1_swedish_ci'
-ENGINE=InnoDB
-;
+ENGINE=InnoDB;
