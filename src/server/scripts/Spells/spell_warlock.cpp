@@ -1569,20 +1569,7 @@ class spell_warl_drain_soul : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_WARLOCK_SOUL_SHARD,
-                        SPELL_WARLOCK_SOUL_SHARD_ENERGIZE
-                    });
-            }
-
-            void HandlePeriodic(AuraEffect const* aurEff)
-            {
-                if (!roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
-                    return;
-
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD, true, 0, aurEff);
+                return ValidateSpellInfo({  SPELL_WARLOCK_SOUL_SHARD_ENERGIZE });
             }
 
             void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1595,7 +1582,6 @@ class spell_warl_drain_soul : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_warl_drain_soul_AuraScript::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };

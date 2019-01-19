@@ -6921,11 +6921,6 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
             if (spellProto->SpellFamilyFlags[1] & 0x00400000 && IsPet())
                 if (uint8 count = victim->GetDoTsByCaster(GetOwnerGUID()))
                     AddPct(DoneTotalMod, 30 * count);
-
-            // Drain Soul - increased damage for targets under 25 % HP
-            if (spellProto->SpellFamilyFlags[0] & 0x00004000)
-                if (HasAura(100001))
-                    DoneTotalMod *= 2;
             break;
         case SPELLFAMILY_DEATHKNIGHT:
             // Sigil of the Vengeful Heart
