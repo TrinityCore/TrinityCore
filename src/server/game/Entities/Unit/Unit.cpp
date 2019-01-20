@@ -30,6 +30,7 @@
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
+#include "CreatureGroups.h"
 #include "Formulas.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
@@ -12476,6 +12477,11 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
     if (!IsAlive() || GetVehicleKit() == vehicle || vehicle->GetBase()->IsOnVehicle(this))
         return;
 
+    if (Unit* unitVehicle = vehicle->GetBase())
+        if (Creature* creatureVehicle = unitVehicle->ToCreature())
+            if (CreatureGroup* formation = creatureVehicle->GetFormation())
+                formation->RemoveMember(creatureVehicle);
+
     if (m_vehicle)
     {
         if (m_vehicle != vehicle)
@@ -12570,6 +12576,8 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     // This should be done before dismiss, because there may be some aura removal
     Vehicle* vehicle = m_vehicle->RemovePassenger(this);
+
+    vehicle->GetBase()->ToCreature()->SearchFormation();
 
     Player* player = ToPlayer();
 
