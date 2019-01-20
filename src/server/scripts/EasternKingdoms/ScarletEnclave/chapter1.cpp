@@ -634,11 +634,11 @@ enum DarkRiderOfAcherus
 {
     SAY_DARK_RIDER              = 0,
 
-    SPELL_DESPAWN_HORSE         = 52267,
-
     EVENT_START_MOVING          = 1,
     EVENT_DESPAWN_HORSE         = 2,
-    EVENT_END_SCRIPT            = 3
+    EVENT_END_SCRIPT            = 3,
+
+    SPELL_DESPAWN_HORSE         = 52267
 };
 
 struct npc_dark_rider_of_acherus : public ScriptedAI
