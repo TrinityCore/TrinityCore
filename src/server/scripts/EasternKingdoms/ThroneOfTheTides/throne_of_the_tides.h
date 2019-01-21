@@ -91,7 +91,10 @@ enum TotTCreatureIds
     NPC_LADY_NAZJAR                         = 39959,
 
     // Generic Creatures
-    NPC_GEYSER_DUMMY                        = 48983
+    NPC_GEYSER_DUMMY                        = 48983,
+    NPC_GILGOBLIN_HUNTER                    = 40935,
+    NPC_FACELESS_WATCHER                    = 40936,
+    NPC_GILGOBLIN_AQUAMAGE                  = 40943
 };
 
 enum TotTGameObjectIds
@@ -203,6 +206,24 @@ Position const TotTLadyNazjarInvaderJumpPositions[] =
     { -135.474f, 806.198f, 796.912f, 3.176499f },
     { -101.955f, 806.373f, 796.964f, 3.071779f }
 };
+
+Position const TotTGilgoblinHunterPositions[] =
+{
+    { -296.0759f, 668.8297f, 280.8867f, 2.188809f },
+    { -295.146f,  662.971f,  281.3593f, 2.202956f },
+    { -291.068f,  665.408f,  281.9814f, 2.15424f  },
+    { -296.477f,  661.01f,   281.4153f, 2.23188f  },
+    { -297.7917f, 671.1694f, 280.5178f, 2.186387f },
+    { -296.523f,  665.198f,  281.0583f, 2.25458f  }
+};
+
+Position const TotTGilgoblinAquamagePositions[] =
+{
+    { -288.911f, 667.142f, 282.2543f, 2.14487f  },
+    { -297.938f, 659.363f, 281.7794f, 2.262644f }
+};
+
+Position const TotTFacelessWatcherPosition = { -292.3462f, 664.1631f, 281.7034f, 2.1634f };
 
 template <class AI, class T>
 inline AI* GetThroneOfTheTodesAI(T* obj)

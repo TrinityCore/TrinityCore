@@ -65,6 +65,7 @@ enum Events
     EVENT_BREAK_CORAL,
     EVENT_MOVE_COMMANDER_ULTHOK_TO_HOME_POS,
     EVENT_CHECK_DEAD_PLAYERS,
+    EVENT_SUMMON_GHURSHA_FLOOR_ADDS
 };
 
 Position const fallingRocksDummyPos         = { -144.283f,  983.316f,  230.4773f };
@@ -115,6 +116,39 @@ class JumpThroughWindowEvent : public BasicEvent
     private:
         Creature* _owner;
         Position const _jumpPos;
+};
+
+class DelayedPathEvent : public BasicEvent
+{
+    public:
+        DelayedPathEvent(Creature* owner) :  _owner(owner) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            _owner->GetMotionMaster()->MovePath(_owner->GetEntry() * 10 + 1, true);
+            return true;
+        }
+
+    private:
+        Creature* _owner;
+};
+
+class EmoteStateEvent : public BasicEvent
+{
+    public:
+        EmoteStateEvent(Creature* owner) :  _owner(owner) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            if (_owner->GetEntry() == NPC_GILGOBLIN_HUNTER)
+                _owner->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_HOLD_THROWN);
+            else
+                _owner->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
+            return true;
+        }
+
+    private:
+        Creature* _owner;
 };
 
 class instance_throne_of_the_tides : public InstanceMapScript
@@ -350,6 +384,9 @@ class instance_throne_of_the_tides : public InstanceMapScript
 
                                 if (GameObject* tentacle2 = GetGameObject(DATA_LEVIATHAN_TENTACLE_2))
                                     tentacle2->DespawnOrUnsummon(15s);
+
+                                events.ScheduleEvent(EVENT_SUMMON_GHURSHA_FLOOR_ADDS, 17s);
+
                                 break;
                             case EVENT_INDEX_ULTHOK_ARRIVED:
                                 if (Creature* ulthok = instance->SummonCreature(BOSS_COMMANDER_ULTHOK, commanderUlthokIntroPos))
@@ -447,6 +484,31 @@ class instance_throne_of_the_tides : public InstanceMapScript
                             }
                             break;
                         }
+                        case EVENT_SUMMON_GHURSHA_FLOOR_ADDS:
+                            for (uint8 i = 0; i < 6; i++)
+                            {
+                                if (Creature* hunter = instance->SummonCreature(NPC_GILGOBLIN_HUNTER, TotTGilgoblinHunterPositions[i]))
+                                {
+                                    hunter->GetMotionMaster()->MovePath(hunter->GetEntry() * 10 + i, false);
+                                    hunter->m_Events.AddEventAtOffset(new EmoteStateEvent(hunter), 5s);
+                                }
+                            }
+
+                            for (uint8 i = 0; i < 2; i++)
+                            {
+                                if (Creature* aquamage = instance->SummonCreature(NPC_GILGOBLIN_AQUAMAGE, TotTGilgoblinAquamagePositions[i]))
+                                {
+                                    aquamage->GetMotionMaster()->MovePath(aquamage->GetEntry() * 10 + i, false);
+                                    aquamage->m_Events.AddEventAtOffset(new EmoteStateEvent(aquamage), 5s);
+                                }
+                            }
+
+                            if (Creature* watcher = instance->SummonCreature(NPC_FACELESS_WATCHER, TotTFacelessWatcherPosition))
+                            {
+                                watcher->GetMotionMaster()->MovePath(watcher->GetEntry() * 10, false);
+                                watcher->m_Events.AddEventAtOffset(new DelayedPathEvent(watcher), 16s);
+                            }
+                            break;
                         default:
                             break;
                     }
