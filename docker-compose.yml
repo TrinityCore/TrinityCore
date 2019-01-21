@@ -1,0 +1,18 @@
+version: '2'
+services:
+  app:
+    build:
+      context: ./docker/app
+      dockerfile: Dockerfile
+    image: debian/stretch
+    ports:
+      - "${WORLD_PORT}:8085"
+      - "${AUTH_PORT}:3724"
+    volumes:
+      - .:/usr/src
+    networks:
+      - trinity
+    tty: true
+networks:
+  trinity:
+    driver: "bridge"

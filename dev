@@ -1,0 +1,28 @@
+#! /usr/bin/env bash
+
+export WORLD_PORT=${WORLD_PORT:-8085}
+export AUTH_PORT=${AUTH_PORT:-3724}
+
+# Create base docker-compose command to run
+COMPOSE="docker-compose"
+
+# If we pass any arguments...
+if [ $# -gt 0 ]; then
+    # Start building the project
+    if [ "$1" == "start-build" ]; then
+        shift 1
+        $COMPOSE exec app start-build
+
+    # If "ssh" is used, we'll pop the user into a bash shell inside the container
+    elif [ "$1" == "ssh" ]; then
+        shift 1
+        $COMPOSE exec app bash
+
+    # Else, pass-thru args to docker-compose
+    else
+        $COMPOSE "$@"
+    fi
+else
+    # Use the docker-compose ps command if nothing else passed through
+    $COMPOSE ps
+fi
