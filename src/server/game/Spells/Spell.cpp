@@ -2264,6 +2264,9 @@ void Spell::AddDestTarget(SpellDestination const& dest, uint32 effIndex)
 
 bool Spell::TargetInfo::MissedTarget(Spell *spell)
 {
+    if (spell->GetSpellInfo()->IsAffectingArea())
+        return false;
+
     Unit* unit = spell->m_caster->GetGUID() == TargetGUID ? spell->m_caster->ToUnit() : ObjectAccessor::GetUnit(*spell->m_caster, TargetGUID);
     if (!unit)
         return true;
@@ -3463,19 +3466,16 @@ void Spell::DoProcessTargetContainer(Container& targetContainer)
     for (TargetInfoBase& target : targetContainer)
     {
         if (target.MissedTarget(this))
-            return;
-    }
+            continue;
 
-    for (TargetInfoBase& target : targetContainer)
         target.PreprocessTarget(this);
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        for (TargetInfoBase& target : targetContainer)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (target.EffectMask & (1 << i))
                 target.DoTargetSpellHit(this, i);
 
-    for (TargetInfoBase& target : targetContainer)
         target.DoDamageAndTriggers(this);
+    }
 }
 
 void Spell::handle_immediate()
