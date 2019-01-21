@@ -79,6 +79,8 @@ class DBCFile
                     return reinterpret_cast<char*>(file._stringTable + stringOffset);
                 }
 
+                Record(Record const& right) : file(right.file), offset(right.offset) {}
+
             private:
                 Record(DBCFile& file, unsigned char* offset): file(file), offset(offset) {}
                 DBCFile& file;
@@ -88,9 +90,6 @@ class DBCFile
                 friend class DBCFile::Iterator;
 
                 Record& operator=(Record const&);
-                Record(Record const& right) : file(right.file), offset(right.offset)
-                {
-                }
         };
         /** Iterator that iterates over records
         */
