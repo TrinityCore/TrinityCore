@@ -4849,6 +4849,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(18); // 20seconds
     });
 
+   // Yoga Flame
+    ApplySpellFix({
+        97001,
+        97352
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+    });
+
     // ENDOF ZUL'GURUB SPELLS
 
     //
