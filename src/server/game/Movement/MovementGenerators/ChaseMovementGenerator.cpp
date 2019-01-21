@@ -70,7 +70,6 @@ void ChaseMovementGenerator::Initialize(Unit* owner)
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
-    owner->SetWalk(false);
     _path = nullptr;
     _lastTargetPosition.reset();
 }
@@ -203,7 +202,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
 
             Movement::MoveSplineInit init(owner);
             init.MovebyPath(_path->GetPath());
-            init.SetWalk(false);
+            init.SetWalk(owner->IsWalking());
             init.SetFacing(target);
 
             init.Launch();
