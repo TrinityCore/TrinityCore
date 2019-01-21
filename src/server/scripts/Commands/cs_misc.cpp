@@ -289,10 +289,11 @@ public:
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
                 transMapID, object->GetTransOffsetX(), object->GetTransOffsetY(), object->GetTransOffsetZ(), object->GetTransOffsetO(),
                 transport->GetEntry(), transport->GetName().c_str());
-            handler->PSendSysMessage(LANG_GRID_POSITION,
-                cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
-                zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap, haveMMap);
         }
+        handler->PSendSysMessage(LANG_GRID_POSITION,
+            cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
+            zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap, haveMMap);
+
         LiquidData liquidStatus;
         ZLiquidStatus status = map->GetLiquidStatus(object->GetPhaseShift(), object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), MAP_ALL_LIQUIDS, &liquidStatus);
 
