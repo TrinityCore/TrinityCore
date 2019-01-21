@@ -264,68 +264,6 @@ bool FileExists(char const* file)
     return false;
 }
 
-// copied from contrib/extractor/System.cpp
-void ReadLiquidMaterialTable()
-{
-    printf("Read LiquidMaterial.dbc file...\n");
-
-    DBCFile dbc(LocaleMpq, "DBFilesClient\\LiquidMaterial.dbc");
-    if (!dbc.open())
-    {
-        printf("Fatal error: Invalid LiquidMaterial.dbc file format!\n");
-        exit(1);
-    }
-
-    for (uint32 x = 0; x < dbc.getRecordCount(); ++x)
-    {
-        LiquidMaterialEntry& liquidType = LiquidMaterials[dbc.getRecord(x).getUInt(0)];
-        liquidType.LVF = dbc.getRecord(x).getUInt(1);
-    }
-
-    printf("Done! (" SZFMTD " LiquidMaterials loaded)\n", LiquidMaterials.size());
-}
-
-void ReadLiquidObjectTable()
-{
-    printf("Read LiquidObject.dbc file...\n");
-
-    DBCFile dbc(LocaleMpq, "DBFilesClient\\LiquidObject.dbc");
-    if (!dbc.open())
-    {
-        printf("Fatal error: Invalid LiquidObject.dbc file format!\n");
-        exit(1);
-    }
-
-    for (uint32 x = 0; x < dbc.getRecordCount(); ++x)
-    {
-        LiquidObjectEntry& liquidType = LiquidObjects[dbc.getRecord(x).getUInt(0)];
-        liquidType.LiquidTypeID = dbc.getRecord(x).getUInt(3);
-    }
-
-    printf("Done! (" SZFMTD " LiquidObjects loaded)\n", LiquidObjects.size());
-}
-
-void ReadLiquidTypeTable()
-{
-    printf("Read LiquidType.dbc file...");
-
-    DBCFile dbc(LocaleMpq, "DBFilesClient\\LiquidType.dbc");
-    if (!dbc.open())
-    {
-        printf("Fatal error: Invalid LiquidType.dbc file format!\n");
-        exit(1);
-    }
-
-    for (uint32 x = 0; x < dbc.getRecordCount(); ++x)
-    {
-        LiquidTypeEntry& liquidType = LiquidTypes[dbc.getRecord(x).getUInt(0)];
-        liquidType.SoundBank = dbc.getRecord(x).getUInt(3);
-        liquidType.MaterialID = dbc.getRecord(x).getUInt(14);
-    }
-
-    printf("Done! (" SZFMTD " LiquidTypes loaded)\n", LiquidTypes.size());
-}
-
 bool ExtractWmo()
 {
     bool success = false;
@@ -640,31 +578,27 @@ int main(int argc, char ** argv)
         break;
     }
 
-    ReadLiquidMaterialTable();
-    ReadLiquidObjectTable();
-    ReadLiquidTypeTable();
-
-    // extract data
-    if (success)
-        success = ExtractWmo();
+    // Extract models, listed in GameObjectDisplayInfo.dbc
+    ExtractGameobjectModels();
 
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     //map.dbc
     if (success)
     {
-        DBCFile* dbc = new DBCFile(LocaleMpq, "DBFilesClient\\Map.dbc");
-        if (!dbc->open())
+        printf("Read Map.dbc file... ");
+
+        DBCFile dbc(LocaleMpq, "DBFilesClient\\Map.dbc");
+        if (!dbc.open())
         {
-            delete dbc;
             printf("FATAL ERROR: Map.dbc not found in data file.\n");
-            return 1;
+            exit(1);
         }
 
-        for (uint32 x = 0; x < dbc->getRecordCount(); ++x)
+        for (uint32 x = 0; x < dbc.getRecordCount(); ++x)
         {
-            map_info& m = map_ids[dbc->getRecord(x).getUInt(0)];
+            map_info& m = map_ids[dbc.getRecord(x).getUInt(0)];
 
-            char const* map_name = dbc->getRecord(x).getString(1);
+            char const* map_name = dbc.getRecord(x).getString(1);
             size_t max_map_name_length = sizeof(m.name);
             if (strlen(map_name) >= max_map_name_length)
             {
@@ -674,7 +608,7 @@ int main(int argc, char ** argv)
 
             strncpy(m.name, map_name, max_map_name_length);
             m.name[max_map_name_length - 1] = '\0';
-            m.parent_id = int16(dbc->getRecord(x).getInt(19));
+            m.parent_id = int16(dbc.getRecord(x).getInt(19));
             if (m.parent_id >= 0)
                 maps_that_are_parents.insert(m.parent_id);
 
@@ -682,7 +616,6 @@ int main(int argc, char ** argv)
         }
 
         ParsMapFiles();
-        ExtractGameobjectModels();
     }
 
     SFileCloseArchive(LocaleMpq);

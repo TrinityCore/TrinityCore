@@ -92,22 +92,6 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
         return false;
 
     uint32 size;
-
-    std::string xMap;
-    std::string yMap;
-
-    Adtfilename.erase(Adtfilename.find(".adt"),4);
-    std::string TempMapNumber;
-    TempMapNumber = Adtfilename.substr(Adtfilename.length()-6,6);
-    xMap = TempMapNumber.substr(TempMapNumber.find("_")+1,(TempMapNumber.find_last_of("_")-1) - (TempMapNumber.find("_")));
-    yMap = TempMapNumber.substr(TempMapNumber.find_last_of("_")+1,(TempMapNumber.length()) - (TempMapNumber.find_last_of("_")));
-    Adtfilename.erase((Adtfilename.length()-xMap.length()-yMap.length()-2), (xMap.length()+yMap.length()+2));
-    //string AdtMapNumber = xMap + ' ' + yMap + ' ' + GetPlainName((char*)Adtfilename.c_str());
-    //printf("Processing map %s...\n", AdtMapNumber.c_str());
-    //printf("MapNumber = %s\n", TempMapNumber.c_str());
-    //printf("xMap = %s\n", xMap.c_str());
-    //printf("yMap = %s\n", yMap.c_str());
-
     std::string dirname = std::string(szWorkDirWmo) + "/dir_bin";
     FILE* dirfile = fopen(dirname.c_str(), "ab");
     if (!dirfile)
@@ -170,11 +154,15 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
                 int q = 0;
                 while (p < buf + size)
                 {
+                    std::string path(p);
+
                     char* s = GetPlainName(p);
                     FixNameCase(s, strlen(s));
                     FixNameSpaces(s, strlen(s));
 
                     WmoInstanceNames.emplace_back(s);
+
+                    ExtractSingleWmo(path);
 
                     p += strlen(p) + 1;
                 }
