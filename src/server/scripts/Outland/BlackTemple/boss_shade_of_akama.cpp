@@ -463,6 +463,7 @@ struct npc_akama_shade : public ScriptedAI
                     me->RemoveAurasDueToSpell(SPELL_STEALTH);
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(AKAMA_CHANNEL_WAYPOINT, AkamaWP[0], false);
+                    me->SetWalk(false);
                     break;
                 case EVENT_SHADE_CHANNEL:
                     me->SetFacingTo(FACE_THE_PLATFORM);

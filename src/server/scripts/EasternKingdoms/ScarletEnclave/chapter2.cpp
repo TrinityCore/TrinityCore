@@ -443,6 +443,7 @@ public:
                         }
                         break;
                     case 2:
+                        me->SetWalk(false);
                         if (GameObject* tree = me->FindNearestGameObject(GO_INCONSPICUOUS_TREE, 40.0f))
                             if (Unit* unit = tree->GetOwner())
                                 AttackStart(unit);

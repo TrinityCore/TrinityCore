@@ -1235,6 +1235,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(POINT_TIRION_INTRO, TirionIntro);
+                    me->SetWalk(false);
                 }
                 return false;
             }

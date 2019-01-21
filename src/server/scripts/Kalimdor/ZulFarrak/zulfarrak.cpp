@@ -233,6 +233,7 @@ public:
                 crew->SetHomePosition(x, y, z, 0);
                 crew->GetMotionMaster()->MovePoint(1, x, y, z);
                 crew->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
+                crew->SetWalk(false);
             }
         }
     };

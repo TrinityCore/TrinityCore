@@ -320,6 +320,7 @@ public:
                     npc->SetWalk(true);
                     npc->GetMotionMaster()->MovePoint(1, x, y, z);
                     npc->SetHomePosition(x, y, z, o);
+                    npc->SetWalk(false);
                }
             }
         }

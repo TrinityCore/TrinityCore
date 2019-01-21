@@ -282,6 +282,7 @@ class instance_stratholme : public InstanceMapScript
                                     ysida->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                                     ysida->GetClosePoint(x, y, z, ysida->GetObjectScale() / 3, 4.0f);
                                     ysida->GetMotionMaster()->MovePoint(1, x, y, z);
+                                    ysida->SetWalk(false);
 
                                     Map::PlayerList const& players = instance->GetPlayers();
 

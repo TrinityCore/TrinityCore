@@ -187,6 +187,7 @@ public:
                     SetEscortPaused(true);
                     if (Creature* pMarzon = me->SummonCreature(NPC_MARZON_BLADE, -8411.360352f, 480.069733f, 123.760895f, 4.941504f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
                     {
+                        pMarzon->SetWalk(true);
                         pMarzon->GetMotionMaster()->MovePoint(0, -8408.000977f, 468.611450f, 123.759903f);
                         MarzonGUID = pMarzon->GetGUID();
                     }
@@ -256,7 +257,10 @@ public:
                             if (Creature* pTyrion = me->FindNearestCreature(NPC_TYRION, 20.0f, true))
                                 pTyrion->AI()->Talk(SAY_TYRION_2);
                             if (Creature* pMarzon = ObjectAccessor::GetCreature(*me, MarzonGUID))
+                            {
+                                pMarzon->SetWalk(false);
                                 pMarzon->SetFaction(FACTION_MONSTER);
+                            }
                             me->SetFaction(FACTION_MONSTER);
                             uiTimer = 0;
                             uiPhase = 0;
@@ -290,10 +294,7 @@ public:
 
     struct npc_marzon_silent_bladeAI : public ScriptedAI
     {
-        npc_marzon_silent_bladeAI(Creature* creature) : ScriptedAI(creature)
-        {
-            me->SetWalk(true);
-        }
+        npc_marzon_silent_bladeAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {

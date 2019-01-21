@@ -140,7 +140,6 @@ class boss_nazan : public CreatureScript
                         BellowingRoar_Timer = 6000;
                         ConeOfFire_Timer = 12000;
                         me->SetDisableGravity(false);
-                        me->SetWalk(true);
                         me->GetMotionMaster()->Clear();
                         if (Unit* victim = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                             AttackStart(victim);

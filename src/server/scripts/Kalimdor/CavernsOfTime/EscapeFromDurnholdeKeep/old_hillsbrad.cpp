@@ -343,7 +343,7 @@ public:
                     break;
                 case 97:
                     Talk(SAY_TH_EPOCH_KILL_TARETHA);
-                    SetRun();
+                    me->SetWalk(false);
                     break;
                 case 98:
                     //trigger epoch Yell("Thrall! Come outside and face your fate! ....")

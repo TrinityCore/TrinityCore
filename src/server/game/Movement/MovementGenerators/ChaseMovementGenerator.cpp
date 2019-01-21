@@ -65,7 +65,7 @@ ChaseMovementGenerator::ChaseMovementGenerator(Unit* target, Optional<ChaseRange
 }
 ChaseMovementGenerator::~ChaseMovementGenerator() = default;
 
-void ChaseMovementGenerator::Initialize(Unit* owner)
+void ChaseMovementGenerator::Initialize(Unit* /*owner*/)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);

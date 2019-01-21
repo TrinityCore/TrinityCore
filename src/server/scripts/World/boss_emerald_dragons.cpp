@@ -201,6 +201,7 @@ class npc_dream_fog : public CreatureScript
                     {
                         _roamTimer = urand(15000, 30000);
                         me->GetMotionMaster()->Clear();
+                        me->SetWalk(false);
                         me->GetMotionMaster()->MoveChase(target, 0.2f);
                     }
                     else

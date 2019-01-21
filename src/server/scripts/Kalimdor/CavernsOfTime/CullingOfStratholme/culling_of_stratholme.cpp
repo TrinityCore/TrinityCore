@@ -702,6 +702,7 @@ public:
                                 cityman->SetTarget(me->GetGUID());
                                 cityman->SetWalk(true);
                                 cityman->GetMotionMaster()->MovePoint(0, 2088.625f, 1279.191f, 140.743f);
+                                cityman->SetWalk(false);
                             }
                             JumpToNextStep(2000);
                             break;
@@ -882,6 +883,7 @@ public:
                                     bossGUID = pBoss->GetGUID();
                                     pBoss->SetWalk(true);
                                     pBoss->GetMotionMaster()->MovePoint(0, 2194.110f, 1332.00f, 130.00f);
+                                    pBoss->SetWalk(false);
                                 }
                             }
                             JumpToNextStep(30000);

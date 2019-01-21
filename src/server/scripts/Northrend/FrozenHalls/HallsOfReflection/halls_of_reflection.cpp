@@ -697,6 +697,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                             marwyn->AI()->Talk(SAY_MARWYN_INTRO_1);
                             marwyn->SetWalk(true);
                             marwyn->GetMotionMaster()->MovePoint(0, MarwynPosition[1]);
+                            marwyn->SetWalk(false);
                         }
                         _events.ScheduleEvent(EVENT_INTRO_LK_8, 1000);
                         break;
@@ -706,6 +707,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                             falric->AI()->Talk(SAY_FALRIC_INTRO_1);
                             falric->SetWalk(true);
                             falric->GetMotionMaster()->MovePoint(0, FalricPosition[1]);
+                            marwyn->SetWalk(false);
                         }
                         _events.ScheduleEvent(EVENT_INTRO_LK_9, 5000);
                         break;
