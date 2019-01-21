@@ -657,7 +657,7 @@ class TC_GAME_API Spell
 
         struct TargetInfo : public TargetInfoBase
         {
-            bool MissedTarget(Spell * spell) override;
+            bool MissedTarget(Spell* spell) override;
             void PreprocessTarget(Spell* spell) override;
             void DoTargetSpellHit(Spell* spell, uint8 effIndex) override;
             void DoDamageAndTriggers(Spell* spell) override;
