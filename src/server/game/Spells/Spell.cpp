@@ -3463,18 +3463,30 @@ void Spell::_cast(bool skipCheck)
 template <class Container>
 void Spell::DoProcessTargetContainer(Container& targetContainer)
 {
+    std::vector<TargetInfoBase*> hitTargets;
     for (TargetInfoBase& target : targetContainer)
     {
-        if (target.MissedTarget(this))
-            continue;
+        if (!target.MissedTarget(this))
+            hitTargets.push_back(&target);
+    }
 
-        target.PreprocessTarget(this);
+    for (TargetInfoBase* target : hitTargets)
+    {
+        target->PreprocessTarget(this);
+    }
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (target.EffectMask & (1 << i))
-                target.DoTargetSpellHit(this, i);
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        for (TargetInfoBase* target : hitTargets)
+        {
+            if (target->EffectMask & (1 << i))
+                target->DoTargetSpellHit(this, i);
+        }
+    }
 
-        target.DoDamageAndTriggers(this);
+    for (TargetInfoBase* target : hitTargets)
+    {
+        target->DoDamageAndTriggers(this);
     }
 }
 
