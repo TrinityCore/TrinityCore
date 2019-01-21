@@ -643,6 +643,7 @@ class TC_GAME_API Spell
         // Targets store structures and data
         struct TargetInfoBase
         {
+            virtual bool MissedTarget(Spell * spell) { return false; }
             virtual void PreprocessTarget(Spell* /*spell*/) { }
             virtual void DoTargetSpellHit(Spell* spell, uint8 effIndex) = 0;
             virtual void DoDamageAndTriggers(Spell* /*spell*/) { }
@@ -656,6 +657,7 @@ class TC_GAME_API Spell
 
         struct TargetInfo : public TargetInfoBase
         {
+            bool MissedTarget(Spell * spell) override;
             void PreprocessTarget(Spell* spell) override;
             void DoTargetSpellHit(Spell* spell, uint8 effIndex) override;
             void DoDamageAndTriggers(Spell* spell) override;

@@ -2262,6 +2262,16 @@ void Spell::AddDestTarget(SpellDestination const& dest, uint32 effIndex)
     m_destTargets[effIndex] = dest;
 }
 
+bool Spell::TargetInfo::MissedTarget(Spell *spell)
+{
+    Unit* unit = spell->m_caster->GetGUID() == TargetGUID ? spell->m_caster->ToUnit() : ObjectAccessor::GetUnit(*spell->m_caster, TargetGUID);
+    if (!unit)
+        return true;
+    if (unit->HasStealthAura() && unit->IsHostileTo(spell->m_caster))
+        return true;
+    return false;
+}
+
 void Spell::TargetInfo::PreprocessTarget(Spell* spell)
 {
     Unit* unit = spell->m_caster->GetGUID() == TargetGUID ? spell->m_caster->ToUnit() : ObjectAccessor::GetUnit(*spell->m_caster, TargetGUID);
@@ -2817,6 +2827,7 @@ void Spell::DoSpellEffectHit(Unit* unit, uint8 effIndex, TargetInfo& hitInfo)
             hitInfo.HitAura = _spellAura;
         }
     }
+
 
     HandleEffects(unit, nullptr, nullptr, effIndex, SPELL_EFFECT_HANDLE_HIT_TARGET);
 }
@@ -3450,6 +3461,12 @@ template <class Container>
 void Spell::DoProcessTargetContainer(Container& targetContainer)
 {
     for (TargetInfoBase& target : targetContainer)
+    {
+        if (target.MissedTarget(this))
+            return;
+    }
+
+    for (TargetInfoBase& target : targetContainer)
         target.PreprocessTarget(this);
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -3561,6 +3578,8 @@ uint64 Spell::handle_delayed(uint64 t_offset)
 
             return false;
         }), m_UniqueTargetInfo.end());
+
+
 
         DoProcessTargetContainer(delayedTargets);
     }
@@ -3725,14 +3744,53 @@ void Spell::update(uint32 difftime)
             }
 
             if (m_timer == 0 && !m_spellInfo->IsNextMeleeSwingSpell() && !IsAutoRepeat())
+            {
                 // don't CheckCast for instant spells - done in spell::prepare, skip duplicate checks, needed for range checks for example
                 cast(!m_casttime);
+
+                // If the spell is an Instant Spell clear state casting.
+                if (!m_spellInfo->IsChanneled())
+                {
+                    Unit* unitCaster = m_caster->ToUnit();
+                    if (!unitCaster)
+                        return;
+
+                    unitCaster->ClearUnitState(UNIT_STATE_CASTING);
+                }
+                break;
+            }
             break;
         }
         case SPELL_STATE_CASTING:
         {
             if (m_timer)
             {
+                // If the spell is channelled, and any stealthed then remove the aura,
+                // If there are no auras left then stop the channeled spell cast.
+                if (m_spellInfo->IsChanneled())
+                {
+                    bool stopChannel = true;
+                    for (TargetInfo const& target : m_UniqueTargetInfo)
+                    {
+                        if (Unit* unit = m_caster->GetGUID() == target.TargetGUID ? m_caster->ToUnit() : ObjectAccessor::GetUnit(*m_caster, target.TargetGUID))
+                        {
+                            if (unit->HasStealthAura())
+                                unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AURA_REMOVE_BY_CANCEL);
+                            else
+                                stopChannel = false;
+                        }
+                    }
+                    if (stopChannel)
+                    {
+                        m_timer = 0;
+
+                        Unit* unitCaster = m_caster->ToUnit();
+                        if (!unitCaster)
+                            return;
+                        unitCaster->ClearUnitState(UNIT_STATE_CASTING);
+                    }
+                }
+
                 // check if there are alive targets left
                 if (!UpdateChanneledTargetList())
                 {
