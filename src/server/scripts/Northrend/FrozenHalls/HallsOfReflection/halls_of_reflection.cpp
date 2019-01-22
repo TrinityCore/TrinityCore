@@ -707,7 +707,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                             falric->AI()->Talk(SAY_FALRIC_INTRO_1);
                             falric->SetWalk(true);
                             falric->GetMotionMaster()->MovePoint(0, FalricPosition[1]);
-                            marwyn->SetWalk(false);
+                            falric->SetWalk(false);
                         }
                         _events.ScheduleEvent(EVENT_INTRO_LK_9, 5000);
                         break;

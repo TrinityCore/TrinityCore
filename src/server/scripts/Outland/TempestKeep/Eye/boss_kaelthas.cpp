@@ -890,6 +890,7 @@ class boss_thaladred_the_darkener : public CreatureScript
 
             void Initialize()
             {
+                me->SetWalk(true);
                 Gaze_Timer = 100;
                 Silence_Timer = 20000;
                 Rend_Timer = 4000;
