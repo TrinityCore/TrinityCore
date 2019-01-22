@@ -141,7 +141,7 @@ public:
 		if (player->isDead())
 			player->ResurrectPlayer(1.0f, false);
 
-		AddGossipItemFor(player, 0, "|TInterface\\icons\\spell_arcane_teleportshattrath:20|tMall", GOSSIP_SENDER_MAIN, LOC_OFFSET + 0); //start at 0
+		AddGossipItemFor(player, 0, "|TInterface\\icons\\spell_arcane_teleportshattrath:20|tStarter Mall", GOSSIP_SENDER_MAIN, LOC_OFFSET + 0); //start at 0
 		//AddGossipItemFor(player, 0, "|TInterface\\icons\\Inv_misc_map02:20|tWorld Teleport", GOSSIP_SENDER_MAIN, 2); //coded
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_zone_silverpine_01:20|tCustom Dungeon", GOSSIP_SENDER_MAIN, 310000);
 		//AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_reputation_argentcrusader:20|tSpecial Dungeon", GOSSIP_SENDER_MAIN, 320000);
