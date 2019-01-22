@@ -149,8 +149,8 @@ public:
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_datacrystal01:20|tWorld Bosses", GOSSIP_SENDER_MAIN, 8);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_bg_getxflags_no_die:20|tArenas", GOSSIP_SENDER_MAIN, 5);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_bag_07_green:20|tBank", GOSSIP_SENDER_MAIN, 6);
-		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_rune_07:20|tPlayer Info", GOSSIP_SENDER_MAIN, 7);
-		//AddGossipItemFor(player, 0, "|TInterface\\icons\\ability_druid_forceofnature:20|tOptions", GOSSIP_SENDER_MAIN, 10); 
+		//AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_rune_07:20|tPlayer Info", GOSSIP_SENDER_MAIN, 7);
+		AddGossipItemFor(player, 0, "|TInterface\\icons\\ability_druid_forceofnature:20|tOptions", GOSSIP_SENDER_MAIN, 10); 
 		
 		player->PlayerTalkClass->SendGossipMenu(MAIN_MENU, item->GetGUID());
 	}
