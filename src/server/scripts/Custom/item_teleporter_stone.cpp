@@ -244,7 +244,7 @@ public:
 			break;
 
 		case 310003://Zul'Farrak
-			player->TeleportTo(1, -6806.85f, -2890-600f, 8.8868f, 6.257260f);
+			player->TeleportTo(1, -6806.85f, -2890.600f, 8.8868f, 6.257260f);
 			break;
 
 		case 881:
