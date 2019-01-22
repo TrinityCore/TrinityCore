@@ -4,10 +4,13 @@ SOURCE_PATH=/home/trinitycore/wotlk
 
 cd ${SOURCE_PATH}/src
 
+sudo -u trinitycore git pull
+
 if [[ ! -d build ]]; then
-    mkdir build
+    sudo -u trinitycore mkdir build
 fi
 
 cd build
-cmake ../ -DTOOLS=0 -DCMAKE_INSTALL_PREFIX=${SOURCE_PATH}
-make && make install
+sudo -u trinitycore cmake ../ -DTOOLS=0 -DCMAKE_INSTALL_PREFIX=${SOURCE_PATH}
+sudo -u trinitycore make -j4
+sudo -u trinitycore make install
