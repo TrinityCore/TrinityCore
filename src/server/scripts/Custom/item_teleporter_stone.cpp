@@ -150,7 +150,7 @@ public:
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_bg_getxflags_no_die:20|tArenas", GOSSIP_SENDER_MAIN, 5);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_bag_07_green:20|tBank", GOSSIP_SENDER_MAIN, 6);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_rune_07:20|tPlayer Info", GOSSIP_SENDER_MAIN, 7);
-		AddGossipItemFor(player, 0, "|TInterface\\icons\\ability_druid_forceofnature:20|tOptions", GOSSIP_SENDER_MAIN, 10); 
+		//AddGossipItemFor(player, 0, "|TInterface\\icons\\ability_druid_forceofnature:20|tOptions", GOSSIP_SENDER_MAIN, 10); 
 		
 		player->PlayerTalkClass->SendGossipMenu(MAIN_MENU, item->GetGUID());
 	}
@@ -217,27 +217,26 @@ public:
 			AddMainMenuGossipItem(player);
 			player->PlayerTalkClass->SendGossipMenu(WORLD_TELEPORT, item->GetGUID());
 			break;
-			
-			break;
+            
+            break;
 		case 310000: //Custom Dungeon
 			AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_boss_chiefukorzsandscalp:20|tZul'Farrak", GOSSIP_SENDER_MAIN, 310003);
 			AddMainMenuGossipItem(player);
 			player->PlayerTalkClass->SendGossipMenu(DUNGEONS_AND_RAIDS, item->GetGUID());
 			break;
-			
-            
+            break;
 		case 320000: //Special Dungeon
 					 //	AddGossipItemFor(player, 0, "|TInterface\\icons\\creatureportrait_be_scryingorb_epic:20|t)
 				AddMainMenuGossipItem(player);
 				player->PlayerTalkClass->SendGossipMenu(DUNGEONS_AND_RAIDS, item->GetGUID());
 				break;
-				
+				break;
 		case 330000: // super instances
 					 //	AddGossipItemFor(player, 0 "|TInterface\\icons\\creatureportrait_be_scryingorb_epic:20|t)
 					AddMainMenuGossipItem(player);
 					player->PlayerTalkClass->SendGossipMenu(DUNGEONS_AND_RAIDS, item->GetGUID());
 					break;
-                   
+                    
 		case 3://Dungeons and Raids
 			AddGossipItemFor(player, 0, "|TInterface\\icons\\spell_holy_revivechampion:20|tDungeons", GOSSIP_SENDER_MAIN, 31);
 			AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_helmet_74:20|tRaids", GOSSIP_SENDER_MAIN, 32);
