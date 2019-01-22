@@ -47,7 +47,7 @@ struct TeleportInfo
 static const TeleportInfo locations[] =
 {
 	//      x          y         z      o   map
-	{ 1, -1563.47f, 3093.06f, 50.3028f, 3.24139f }, // Mall
+	{ 530, -2278.14f, 5568.74f, 66.9998f, 5.9990100f }, // Mall
 																//Kalimdor 1 - 22
 	{ 1, 1928.4f, -2166.0f, 94.0f, 0.2f }, //ashenvale 1
 	{ 1, 2897.182f, -4833.0f, 128.5f, 1.7f }, //azshara 2
@@ -144,12 +144,12 @@ public:
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_zone_hellfirepeninsula_01:20|tMall", GOSSIP_SENDER_MAIN, LOC_OFFSET + 0); //start at 0
 		//AddGossipItemFor(player, 0, "|TInterface\\icons\\Inv_misc_map02:20|tWorld Teleport", GOSSIP_SENDER_MAIN, 2); //coded
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_zone_silverpine_01:20|tCustom Dungeon", GOSSIP_SENDER_MAIN, 310000);
-		AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_reputation_argentcrusader:20|tSpecial Dungeon", GOSSIP_SENDER_MAIN, 320000);
-		AddGossipItemFor(player, 0, "|TInterface\\icons\\spell_shadow_creepingplague:20|tSuper Instance", GOSSIP_SENDER_MAIN, 330000);
+		//AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_reputation_argentcrusader:20|tSpecial Dungeon", GOSSIP_SENDER_MAIN, 320000);
+		//AddGossipItemFor(player, 0, "|TInterface\\icons\\spell_shadow_creepingplague:20|tSuper Instance", GOSSIP_SENDER_MAIN, 330000);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_datacrystal01:20|tWorld Bosses", GOSSIP_SENDER_MAIN, 8);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_bg_getxflags_no_die:20|tArenas", GOSSIP_SENDER_MAIN, 5);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_bag_07_green:20|tBank", GOSSIP_SENDER_MAIN, 6);
-		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_rune_07:20|tPlayer Info", GOSSIP_SENDER_MAIN, 7);
+		//AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_rune_07:20|tPlayer Info", GOSSIP_SENDER_MAIN, 7);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\ability_druid_forceofnature:20|tOptions", GOSSIP_SENDER_MAIN, 10); 
 		
 		player->PlayerTalkClass->SendGossipMenu(MAIN_MENU, item->GetGUID());
@@ -220,12 +220,7 @@ public:
 			
 			break;
 		case 310000: //Custom Dungeon
-			AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_zone_felwood:20|tEmerald Forest", GOSSIP_SENDER_MAIN, 310003);
-			AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_zone_deadwindpass:20|tThe Deadmines", GOSSIP_SENDER_MAIN, 310002);
-			AddGossipItemFor(player, 0, "|TInterface\\icons\\spell_nature_farsight:20|tHyjal Jihad", GOSSIP_SENDER_MAIN, 310004);
-			AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_dungeon_icecrown_frostwinghalls:20|tfrozen island", GOSSIP_SENDER_MAIN, 310007);
-			AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_battleground_silvershardmines:20|tAbyssal Sands", GOSSIP_SENDER_MAIN, 310005);
-			AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_zone_bladesedgemtns_01:20|tDesert Eagle", GOSSIP_SENDER_MAIN, 310006);
+			AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_boss_chiefukorzsandscalp:20|tZul'Farrak", GOSSIP_SENDER_MAIN, 310003);
 			AddMainMenuGossipItem(player);
 			player->PlayerTalkClass->SendGossipMenu(DUNGEONS_AND_RAIDS, item->GetGUID());
 			break;
@@ -248,27 +243,8 @@ public:
 			player->PlayerTalkClass->SendGossipMenu(DUNGEONS_AND_RAIDS, item->GetGUID());
 			break;
 
-		case 310002://The Deadmines
-			player->TeleportTo(36, -1671.18f, 467.366f, 1.61456f, 0.0691542f);
-			break;
-
-		case 310003://Emerald Forest
-			player->TeleportTo(169, 2732.93f, -3319.63f, 101.284f, 0.5f);
-			break;
-	    case 310007://frozen island
-			player->TeleportTo(599, 1312.65f, -319.7f, 488.21f, 0.936259f);
-			break;
-
-		case 310004://Hyjal Jihad
-            player->TeleportTo(534, 4595.73f, -3925.61f, 944.668f, 1.09223f);
-		    break;
-		
-		case 310005://Abyssal Sands
-			player->TeleportTo(209, 1015.68f, 11.2978f, 31.1031f, 2.36565f);
-			break;
-
-		case 310006://Desert Eagle
-			player->TeleportTo(1, -8967.68f, 1550.15f, 20.0316f, 2.90594f);
+		case 310003://Zul'Farrak
+			player->TeleportTo(1, -6806.85f, -2890-600f, 8.8868f, 6.257260f);
 			break;
 
 		case 881:
