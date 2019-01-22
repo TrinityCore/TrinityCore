@@ -149,7 +149,7 @@ public:
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_datacrystal01:20|tWorld Bosses", GOSSIP_SENDER_MAIN, 8);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_bg_getxflags_no_die:20|tArenas", GOSSIP_SENDER_MAIN, 5);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_bag_07_green:20|tBank", GOSSIP_SENDER_MAIN, 6);
-		//AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_rune_07:20|tPlayer Info", GOSSIP_SENDER_MAIN, 7);
+		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_rune_07:20|tPlayer Info", GOSSIP_SENDER_MAIN, 7);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\ability_druid_forceofnature:20|tOptions", GOSSIP_SENDER_MAIN, 10); 
 		
 		player->PlayerTalkClass->SendGossipMenu(MAIN_MENU, item->GetGUID());
@@ -181,22 +181,22 @@ public:
 			OnGossipHello(player, item);
 			break;
 
-		//case 7://player info
+		case 7://player info
 		{
 			std::ostringstream ss;
 			ss << "[|cFFFF0000" << player->GetName() << "|R]" << " Account ID: " << player->GetSession()->GetAccountId() << " VIP Level: ";// << int(player->GetSession()->getVipLevel()); this too
 			AddGossipItemFor(player, 0, ss.str().c_str(), GOSSIP_SENDER_MAIN, 7);
 			ss.str("");
 			ss.clear();
-			//ss << "MG: |cFFFF0000" << player->GetCCurrency(MG) << "|R"; 
+			ss << "MG: |cFFFF0000" << player->GetCCurrency(MG) << "|R"; 
 			AddGossipItemFor(player, 10, ss.str().c_str(), GOSSIP_SENDER_MAIN, 7);
 			ss.str("");
 			ss.clear();
-			//ss << "VP: |cFFFF0000" << player->GetCCurrency(VP) << "|R";
+			ss << "VP: |cFFFF0000" << player->GetCCurrency(VP) << "|R";
 			AddGossipItemFor(player, 10, ss.str().c_str(), GOSSIP_SENDER_MAIN, 7);
 			ss.str("");
 			ss.clear();
-			//ss << "DP: |cFFFF0000" << player->GetCCurrency(DP) << "|R";
+			ss << "DP: |cFFFF0000" << player->GetCCurrency(DP) << "|R";
 			AddGossipItemFor(player, 10, ss.str().c_str(), GOSSIP_SENDER_MAIN, 7);
 			ss.str("");
 			ss.clear();
