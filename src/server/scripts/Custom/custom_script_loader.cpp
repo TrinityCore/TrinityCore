@@ -32,7 +32,7 @@ void AddCustomScripts()
 	AddSC_item_teleporter();
 	AddSC_npc_Donate_npc();
 	AddSC_npc_vote_npc();
-    AddSC_teleporter_stone();
+   AddSC_teleporter_stone();
     AddSC_reload_full_creature_template_command();
     AddSC_reload_player_items_command();
 }
