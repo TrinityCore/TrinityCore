@@ -181,7 +181,7 @@ public:
 			OnGossipHello(player, item);
 			break;
 
-		case 7://player info
+		//case 7://player info
 		{
 			std::ostringstream ss;
 			ss << "[|cFFFF0000" << player->GetName() << "|R]" << " Account ID: " << player->GetSession()->GetAccountId() << " VIP Level: ";// << int(player->GetSession()->getVipLevel()); this too
@@ -232,12 +232,11 @@ public:
 				break;
 				break;
 		case 330000: // super instances
-					 //	AddGossipItemFor(player, 0 "|TInterface\\icons\\creatureportrait_be_scryingorb_epic:20|t)
-					AddMainMenuGossipItem(player);
-					player->PlayerTalkClass->SendGossipMenu(DUNGEONS_AND_RAIDS, item->GetGUID());
-					break;
-                    
-		case 3://Dungeons and Raids
+					             //	    AddGossipItemFor(player, 0 "|TInterface\\icons\\creatureportrait_be_scryingorb_epic:20|t)
+					             AddMainMenuGossipItem(player);
+					             player->PlayerTalkClass->SendGossipMenu(DUNGEONS_AND_RAIDS, item->GetGUID());
+					             break;
+        case 3://Dungeons and Raids
 			AddGossipItemFor(player, 0, "|TInterface\\icons\\spell_holy_revivechampion:20|tDungeons", GOSSIP_SENDER_MAIN, 31);
 			AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_helmet_74:20|tRaids", GOSSIP_SENDER_MAIN, 32);
 			AddMainMenuGossipItem(player);
