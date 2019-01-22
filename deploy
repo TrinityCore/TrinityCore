@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+SOURCE_PATH=/home/trinitycore/wotlk
+
+cd ${SOURCE_PATH}/src
+
+if [[ ! -d build ]]; then
+    mkdir build
+fi
+
+cd build
+cmake ../ -DTOOLS=0 -DCMAKE_INSTALL_PREFIX=${SOURCE_PATH}
+make && make install
