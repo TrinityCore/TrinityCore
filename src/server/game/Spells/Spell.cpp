@@ -3779,7 +3779,7 @@ void Spell::update(uint32 difftime)
             {
                 // If the spell is channelled, and any stealthed then remove the aura,
                 // If there are no auras left then stop the channeled spell cast.
-                if (m_spellInfo->IsChanneled())
+                if (m_spellInfo->IsChanneled() && !m_spellInfo->IsAffectingArea())
                 {
                     bool stopChannel = true;
                     for (TargetInfo const& target : m_UniqueTargetInfo)
