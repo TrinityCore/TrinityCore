@@ -662,49 +662,48 @@ void Map::ScriptsProcess()
 
             case SCRIPT_COMMAND_CAST_SPELL:
             {
-                /// @todo Allow gameobjects to be targets and casters
                 if (!source && !target)
                 {
                     TC_LOG_ERROR("scripts", "%s source and target objects are NULL.", step.script->GetDebugInfo().c_str());
                     break;
                 }
 
-                Unit* uSource = nullptr;
-                Unit* uTarget = nullptr;
+                WorldObject* uSource = nullptr;
+                WorldObject* uTarget = nullptr;
                 // source/target cast spell at target/source (script->datalong2: 0: s->t 1: s->s 2: t->t 3: t->s)
                 switch (step.script->CastSpell.Flags)
                 {
                     case SF_CASTSPELL_SOURCE_TO_TARGET: // source -> target
-                        uSource = source ? source->ToUnit() : nullptr;
-                        uTarget = target ? target->ToUnit() : nullptr;
+                        uSource = dynamic_cast<WorldObject*>(source);
+                        uTarget = target;
                         break;
                     case SF_CASTSPELL_SOURCE_TO_SOURCE: // source -> source
-                        uSource = source ? source->ToUnit() : nullptr;
+                        uSource = dynamic_cast<WorldObject*>(source);
                         uTarget = uSource;
                         break;
                     case SF_CASTSPELL_TARGET_TO_TARGET: // target -> target
-                        uSource = target ? target->ToUnit() : nullptr;
+                        uSource = target;
                         uTarget = uSource;
                         break;
                     case SF_CASTSPELL_TARGET_TO_SOURCE: // target -> source
-                        uSource = target ? target->ToUnit() : nullptr;
-                        uTarget = source ? source->ToUnit() : nullptr;
+                        uSource = target;
+                        uTarget = dynamic_cast<WorldObject*>(source);
                         break;
                     case SF_CASTSPELL_SEARCH_CREATURE: // source -> creature with entry
-                        uSource = source ? source->ToUnit() : nullptr;
+                        uSource = dynamic_cast<WorldObject*>(source);
                         uTarget = uSource ? uSource->FindNearestCreature(abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius) : nullptr;
                         break;
                 }
 
-                if (!uSource || !uSource->isType(TYPEMASK_UNIT))
+                if (!uSource)
                 {
-                    TC_LOG_ERROR("scripts", "%s no source unit found for spell %u", step.script->GetDebugInfo().c_str(), step.script->CastSpell.SpellID);
+                    TC_LOG_ERROR("scripts", "%s no source worldobject found for spell %u", step.script->GetDebugInfo().c_str(), step.script->CastSpell.SpellID);
                     break;
                 }
 
-                if (!uTarget || !uTarget->isType(TYPEMASK_UNIT))
+                if (!uTarget)
                 {
-                    TC_LOG_ERROR("scripts", "%s no target unit found for spell %u", step.script->GetDebugInfo().c_str(), step.script->CastSpell.SpellID);
+                    TC_LOG_ERROR("scripts", "%s no target worldobject found for spell %u", step.script->GetDebugInfo().c_str(), step.script->CastSpell.SpellID);
                     break;
                 }
 
