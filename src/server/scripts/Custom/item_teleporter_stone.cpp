@@ -188,15 +188,15 @@ public:
 			AddGossipItemFor(player, 0, ss.str().c_str(), GOSSIP_SENDER_MAIN, 7);
 			ss.str("");
 			ss.clear();
-			ss << "MG: |cFFFF0000" << player->GetCCurrency(MG) << "|R"; 
+			//ss << "MG: |cFFFF0000" << player->GetCCurrency(MG) << "|R"; 
 			AddGossipItemFor(player, 10, ss.str().c_str(), GOSSIP_SENDER_MAIN, 7);
 			ss.str("");
 			ss.clear();
-			ss << "VP: |cFFFF0000" << player->GetCCurrency(VP) << "|R";
+			//ss << "VP: |cFFFF0000" << player->GetCCurrency(VP) << "|R";
 			AddGossipItemFor(player, 10, ss.str().c_str(), GOSSIP_SENDER_MAIN, 7);
 			ss.str("");
 			ss.clear();
-			ss << "DP: |cFFFF0000" << player->GetCCurrency(DP) << "|R";
+			//ss << "DP: |cFFFF0000" << player->GetCCurrency(DP) << "|R";
 			AddGossipItemFor(player, 10, ss.str().c_str(), GOSSIP_SENDER_MAIN, 7);
 			ss.str("");
 			ss.clear();
