@@ -141,7 +141,7 @@ public:
 		if (player->isDead())
 			player->ResurrectPlayer(1.0f, false);
 
-		AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_zone_hellfirepeninsula_01:20|tMall", GOSSIP_SENDER_MAIN, LOC_OFFSET + 0); //start at 0
+		AddGossipItemFor(player, 0, "|TInterface\\icons\\spell_arcane_teleportshattrath:20|tMall", GOSSIP_SENDER_MAIN, LOC_OFFSET + 0); //start at 0
 		//AddGossipItemFor(player, 0, "|TInterface\\icons\\Inv_misc_map02:20|tWorld Teleport", GOSSIP_SENDER_MAIN, 2); //coded
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_zone_silverpine_01:20|tCustom Dungeon", GOSSIP_SENDER_MAIN, 310000);
 		//AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_reputation_argentcrusader:20|tSpecial Dungeon", GOSSIP_SENDER_MAIN, 320000);
@@ -149,7 +149,7 @@ public:
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_datacrystal01:20|tWorld Bosses", GOSSIP_SENDER_MAIN, 8);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\achievement_bg_getxflags_no_die:20|tArenas", GOSSIP_SENDER_MAIN, 5);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_bag_07_green:20|tBank", GOSSIP_SENDER_MAIN, 6);
-		//AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_rune_07:20|tPlayer Info", GOSSIP_SENDER_MAIN, 7);
+		AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_misc_rune_07:20|tPlayer Info", GOSSIP_SENDER_MAIN, 7);
 		AddGossipItemFor(player, 0, "|TInterface\\icons\\ability_druid_forceofnature:20|tOptions", GOSSIP_SENDER_MAIN, 10); 
 		
 		player->PlayerTalkClass->SendGossipMenu(MAIN_MENU, item->GetGUID());
@@ -224,18 +224,20 @@ public:
 			AddMainMenuGossipItem(player);
 			player->PlayerTalkClass->SendGossipMenu(DUNGEONS_AND_RAIDS, item->GetGUID());
 			break;
-			break;
+			
+            
 		case 320000: //Special Dungeon
 					 //	AddGossipItemFor(player, 0, "|TInterface\\icons\\creatureportrait_be_scryingorb_epic:20|t)
 				AddMainMenuGossipItem(player);
 				player->PlayerTalkClass->SendGossipMenu(DUNGEONS_AND_RAIDS, item->GetGUID());
 				break;
-				break;
+				
 		case 330000: // super instances
 					 //	AddGossipItemFor(player, 0 "|TInterface\\icons\\creatureportrait_be_scryingorb_epic:20|t)
 					AddMainMenuGossipItem(player);
 					player->PlayerTalkClass->SendGossipMenu(DUNGEONS_AND_RAIDS, item->GetGUID());
 					break;
+                   
 		case 3://Dungeons and Raids
 			AddGossipItemFor(player, 0, "|TInterface\\icons\\spell_holy_revivechampion:20|tDungeons", GOSSIP_SENDER_MAIN, 31);
 			AddGossipItemFor(player, 0, "|TInterface\\icons\\inv_helmet_74:20|tRaids", GOSSIP_SENDER_MAIN, 32);
@@ -277,7 +279,7 @@ public:
 			player->PlayerTalkClass->SendGossipMenu(DUNGEONS, item->GetGUID());
 			break;
 
-		case 10000://Battle angel
+		case 10001://Lich King
 			CloseGossipMenuFor(player);
 			player->TeleportTo(0, 745.286f, -4016.07f, 93.4931f, 0.334191f);
 			break;
