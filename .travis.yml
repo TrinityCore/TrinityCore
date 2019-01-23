@@ -1,5 +1,5 @@
 sudo: false
-dist: trusty
+dist: xenial
 
 language: cpp
 compiler:
@@ -10,11 +10,7 @@ git:
 
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
-      - sourceline: 'ppa:kzemek/boost'
     packages:
-      - g++-6
       - libboost1.58-dev
       - libboost-filesystem1.58-dev
       - libboost-iostreams1.58-dev
