@@ -4444,6 +4444,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
     });
 
+    // Waterspout
+    ApplySpellFix({ 90461 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Speed = 6.0f;
+    });
+
     // END OF THRONE OF THE TIDES SPELLS
 
     //

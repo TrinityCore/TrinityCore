@@ -151,6 +151,22 @@ class EmoteStateEvent : public BasicEvent
         Creature* _owner;
 };
 
+class GeyserActivationEvent : public BasicEvent
+{
+    public:
+        GeyserActivationEvent(Creature* owner) :  _owner(owner) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            _owner->RemoveAurasDueToSpell(SPELL_GEYSER_DUMMY);
+            _owner->CastSpell(_owner, SPELL_GEYSER_DUMMY_KNOCKBACK);
+            return true;
+        }
+
+    private:
+        Creature* _owner;
+};
+
 class instance_throne_of_the_tides : public InstanceMapScript
 {
     public:
@@ -181,23 +197,6 @@ class instance_throne_of_the_tides : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_LADY_NAZJAR:
-                        for (ObjectGuid guid : _geyserGUIDs)
-                        {
-                            if (Creature* geyser = instance->GetCreature(guid))
-                            {
-                                if (state == IN_PROGRESS)
-                                {
-                                    geyser->CastSpell(geyser, SPELL_GEYSER_DUMMY);
-                                    geyser->CastSpell(geyser, SPELL_GEYSER_DUMMY_KNOCKBACK);
-                                }
-                                else
-                                {
-                                    geyser->RemoveAurasDueToSpell(SPELL_GEYSER_DUMMY);
-                                    geyser->RemoveAurasDueToSpell(SPELL_GEYSER_DUMMY_KNOCKBACK);
-                                }
-                            }
-                        }
-
                         if (state == DONE)
                             if (GameObject* defenseSystem = GetGameObject(DATA_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM))
                                 defenseSystem->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -232,18 +231,25 @@ class instance_throne_of_the_tides : public InstanceMapScript
                         creature->setActive(true);
                         creature->SetFarVisible(true);
 
-                        _infiniteAOIDummyGUIDs.push_back(creature->GetGUID());
-
                         if (creature->GetExactDist2d(fallingRocksDummyPos) < 1.0f)
                         {
                             _fallingRocksDummyGUID = creature->GetGUID();
                             if (_eventIndex < EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED)
                                 events.ScheduleEvent(EVENT_FALLING_ROCKS, 1min + 15s);
+                            break;
                         }
                         else if (creature->GetExactDist2d(shockDefenseDummyPos) < 1.0f)
+                        {
                             _shockDefenseDummyGUID = creature->GetGUID();
+                            break;
+                        }
                         else if (creature->GetExactDist2d(ulthokIntroDummyPos) < 1.0f)
+                        {
                             _ulthokIntroDummyGUID = creature->GetGUID();
+                            break;
+                        }
+
+                        _infiniteAOIDummyGUIDs.push_back(creature->GetGUID());
                         break;
                     case NPC_GEYSER_DUMMY:
                         _geyserGUIDs.push_back(creature->GetGUID());
@@ -411,6 +417,24 @@ class instance_throne_of_the_tides : public InstanceMapScript
                         }
 
                         SaveToDB();
+                        break;
+                    case DATA_LADY_NAZJAR_GEYSERS:
+                        for (ObjectGuid guid : _geyserGUIDs)
+                        {
+                            if (Creature* geyser = instance->GetCreature(guid))
+                            {
+                                if (data == IN_PROGRESS)
+                                {
+                                    geyser->CastSpell(geyser, SPELL_GEYSER_DUMMY);
+                                    geyser->m_Events.AddEventAtOffset(new GeyserActivationEvent(geyser), 6s);
+                                }
+                                else
+                                {
+                                    geyser->RemoveAllAuras();
+                                    geyser->m_Events.KillAllEvents(true);
+                                }
+                            }
+                        }
                         break;
                     default:
                         break;

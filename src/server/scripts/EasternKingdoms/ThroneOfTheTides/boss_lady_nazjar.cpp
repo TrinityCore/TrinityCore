@@ -39,9 +39,15 @@ enum Spells
     // Lady Naz'jar
     SPELL_SUMMON_GEYSER             = 75722,
     SPELL_FUNGAL_SPORES             = 76001,
-    SPELL_WATERSPOUT_SUMMON         = 90495,
+    SPELL_WATERSPOUT_SUMMON_1       = 90495,
+    SPELL_WATERSPOUT_SUMMON_2       = 90497,
     SPELL_WATERSPOUT_SHIELD         = 75683,
     SPELL_ACHIEVEMENT_OLD_FAITHFUL  = 94042, // Serverside spell. Handled via UpdateAchievementCriteria
+
+    // Waterspout
+    SPELL_EJECT_ALL_PASSENGERS      = 63109,
+    SPELL_WATERSPOUT                = 90440,
+    SPELL_WATERSPOUT_CHARGE         = 90461,
 
     // Geyser
     SPELL_GEYSER_VISUAL             = 75699,
@@ -127,6 +133,39 @@ class PrepareDelayedAttackEvent : public BasicEvent
         Creature* _owner;
 };
 
+class EjectAllPassengersEvent : public BasicEvent
+{
+    public:
+        EjectAllPassengersEvent(Creature* owner) :  _owner(owner) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            _owner->RemoveAurasDueToSpell(SPELL_WATERSPOUT);
+            _owner->CastSpell(_owner, SPELL_EJECT_ALL_PASSENGERS);
+            return true;
+        }
+
+    private:
+        Creature* _owner;
+};
+
+class WaterSpoutChargeEvent : public BasicEvent
+{
+    public:
+        WaterSpoutChargeEvent(Creature* owner) :  _owner(owner) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            _owner->RemoveAurasDueToSpell(SPELL_WATERSPOUT);
+            _owner->CastSpell(_owner, SPELL_EJECT_ALL_PASSENGERS);
+            return true;
+        }
+
+    private:
+        Creature* _owner;
+};
+
+
 Position const LadyNazjarCenterPosition = { 191.5f, 802.7f, 807.6f, 4.414708f };
 
 Position const LadyNazjarAddPositions[] =
@@ -187,6 +226,7 @@ struct boss_lady_nazjar : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FUNGAL_SPORES_AURA);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_SURGE);
+        instance->SetData(DATA_LADY_NAZJAR_GEYSERS, NOT_STARTED);
         summons.DespawnAll();
         _DespawnAtEvade();
     }
@@ -199,6 +239,7 @@ struct boss_lady_nazjar : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FUNGAL_SPORES_AURA);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_SURGE);
+        instance->SetData(DATA_LADY_NAZJAR_GEYSERS, NOT_STARTED);
     }
 
     void JustSummoned(Creature* summon) override
@@ -214,12 +255,12 @@ struct boss_lady_nazjar : public BossAI
             case NPC_WATERSPOUT:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
                 {
-                    float angle = me->GetAngle(target) - me->GetOrientation();
-                    Position pos = me->GetPosition();
-                    pos.m_positionZ += 5.0f; // To make sure that we wont get stuck at the inner arena ring
-                    me->MovePositionToFirstCollision(pos, 60.0f, angle);
-                    summon->GetMotionMaster()->MovePoint(0, pos, false);
-                    summon->DespawnOrUnsummon(summon->movespline->Duration());
+                    summon->CastSpell(target, SPELL_WATERSPOUT_CHARGE);
+                    if (uint32 duration = summon->movespline->Duration())
+                    {
+                        summon->m_Events.AddEventAtOffset(new EjectAllPassengersEvent(summon), Milliseconds(duration));
+                        summon->DespawnOrUnsummon(duration + (5 * IN_MILLISECONDS));
+                    }
                 }
                 break;
             default:
@@ -235,7 +276,8 @@ struct boss_lady_nazjar : public BossAI
             if (_killedAdds == 3 && me->HasAura(SPELL_WATERSPOUT_SHIELD))
             {
                 me->RemoveAurasDueToSpell(SPELL_WATERSPOUT_SHIELD);
-                me->RemoveAurasDueToSpell(SPELL_WATERSPOUT_SUMMON);
+                me->RemoveAurasDueToSpell(SPELL_WATERSPOUT_SUMMON_1);
+                me->RemoveAurasDueToSpell(SPELL_WATERSPOUT_SUMMON_2);
                 events.RescheduleEvent(EVENT_REENGAGE, 1ms);
             }
 
@@ -258,6 +300,10 @@ struct boss_lady_nazjar : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
+        // Oneshot cases
+        if (damage >= me->GetHealth())
+            return;
+
         if ((me->HealthBelowPctDamaged(60, damage) && _waterspoutPhaseCount == 0)
             || (me->HealthBelowPctDamaged(30, damage) && _waterspoutPhaseCount == 1))
         {
@@ -266,16 +312,20 @@ struct boss_lady_nazjar : public BossAI
             me->SetReactState(REACT_PASSIVE);
             me->InterruptNonMeleeSpells(true);
             me->NearTeleportTo(LadyNazjarCenterPosition);
+            instance->SetData(DATA_LADY_NAZJAR_GEYSERS, IN_PROGRESS);
             Talk(SAY_SUMMON_ADDS);
             if (IsHeroic())
-                DoCastSelf(SPELL_WATERSPOUT_SUMMON);
+            {
+                DoCastSelf(SPELL_WATERSPOUT_SUMMON_1);
+                DoCastSelf(SPELL_WATERSPOUT_SUMMON_2);
+            }
             DoCastSelf(SPELL_WATERSPOUT_SHIELD);
             events.ScheduleEvent(EVENT_REENGAGE, 1min + 1s + 500ms);
 
             _killedAdds = 0;
             for (uint8 i = 0; i < 3; i++)
             {
-                if (Creature* invader = DoSummon((i == 0 ? NPC_NAZJAR_HONOR_GUARD : NPC_NAZJAR_TEMPEST_WITCH), LadyNazjarAddPositions[i], 4000))
+                if (Creature* invader = DoSummon((i == 0 ? NPC_NAZJAR_HONOR_GUARD : NPC_NAZJAR_TEMPEST_WITCH), LadyNazjarAddPositions[i], 4 * IN_MILLISECONDS))
                 {
                     invader->SetReactState(REACT_PASSIVE);
                     invader->SetDisableGravity(true);
@@ -326,6 +376,7 @@ struct boss_lady_nazjar : public BossAI
                     if (Unit* target = me->GetVictim())
                         AttackStart(target);
 
+                    instance->SetData(DATA_LADY_NAZJAR_GEYSERS, NOT_STARTED);
                     events.ScheduleEvent(EVENT_SUMMON_GEYSER, 11s, 16s);
                     events.ScheduleEvent(EVENT_FUNGAL_SPORES, 13s, 19s);
                     events.ScheduleEvent(EVENT_SHOCK_BLAST, 13s, 16s);
