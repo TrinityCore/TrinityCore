@@ -887,4 +887,3 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 (40145, 0, 0, 0, 0, 0, 3, ""),
 (40682, 0, 0, 0, 0, 0, 3, ""),
 (40684, 0, 0, 0, 0, 0, 3, "");  
- 
