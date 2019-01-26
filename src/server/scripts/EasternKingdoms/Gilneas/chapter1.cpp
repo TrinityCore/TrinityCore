@@ -528,11 +528,15 @@ class npc_greymanes_horse : public CreatureScript
                                     {
                                         for (Unit* attacker : me->getAttackers())
                                         {
+                                            if (!attacker)
+                                                continue;
+
                                             if (Creature* creature = attacker->ToCreature())
                                                 if (creature->IsAIEnabled)
                                                     creature->AI()->EnterEvadeMode();
                                         }
                                         player->ExitVehicle();
+                                        krennan->AddUnitState(UNIT_STATE_ROOT);
                                         krennan->ExitVehicle();
                                         krennan->AI()->Talk(SAY_RESCUED, me);
                                         krennan->DespawnOrUnsummon(Seconds(7));
@@ -648,6 +652,9 @@ class npc_crowleys_horse : public CreatureScript
                         case EVENT_DISMOUNT_PLAYER:
                             for (Unit* attacker : me->getAttackers())
                             {
+                                if (!attacker)
+                                    continue;
+
                                 if (Creature* creature = attacker->ToCreature())
                                     if (creature->IsAIEnabled)
                                         creature->AI()->EnterEvadeMode();
