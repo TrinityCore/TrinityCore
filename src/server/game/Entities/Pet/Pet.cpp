@@ -291,7 +291,7 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
         float x, y, z, o;
         GetPosition(x, y, z, o);
         transport->CalculatePassengerOffset(x, y, z, &o);
-        m_movementInfo.transport.pos.Relocate(x, y, z, o); (x, y, z, o);
+        m_movementInfo.transport.pos.Relocate(x, y, z, o);
 
         transport->AddPassenger(this);
     }
