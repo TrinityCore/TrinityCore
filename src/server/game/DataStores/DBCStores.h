@@ -220,6 +220,7 @@ TC_GAME_API extern DBCStorage <SpellRuneCostEntry>           sSpellRuneCostStore
 TC_GAME_API extern DBCStorage <SpellShapeshiftEntry>         sSpellShapeshiftStore;
 TC_GAME_API extern DBCStorage <SpellShapeshiftFormEntry>     sSpellShapeshiftFormStore;
 TC_GAME_API extern DBCStorage <SpellEntry>                   sSpellStore;
+TC_GAME_API extern DBCStorage <SpellVisualEntry>             sSpellVisualStore;
 TC_GAME_API extern DBCStorage <SpellAuraOptionsEntry>        sSpellAuraOptionsStore;
 TC_GAME_API extern DBCStorage <SpellAuraRestrictionsEntry>   sSpellAuraRestrictionsStore;
 TC_GAME_API extern DBCStorage <SpellCastingRequirementsEntry> sSpellCastingRequirementsStore;

@@ -4077,6 +4077,9 @@ void Spell::SendSpellStart()
     if (((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell) && !m_cast_count)
         castFlags |= CAST_FLAG_PENDING;
 
+    if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO))
+        castFlags |= CAST_FLAG_PROJECTILE;
+
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->IsPet()))
          && m_spellInfo->PowerType != POWER_HEALTH)
@@ -4131,12 +4134,14 @@ void Spell::SendSpellStart()
         }
     }
 
-    /*
+
     if (castFlags & CAST_FLAG_PROJECTILE)
     {
-        data << uint32(0);
+        uint32 projectileDisplayId = 0;
+        uint32 projectileInventoryType = 0;
+        GetProjectileData(projectileDisplayId, projectileInventoryType);
+        data << uint32(projectileDisplayId);
     }
-    */
 
     if (castFlags & CAST_FLAG_IMMUNITY)
     {
@@ -4182,6 +4187,9 @@ void Spell::SendSpellGo()
     // triggered spells with spell visual != 0
     if (((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell) && !m_cast_count)
         castFlags |= CAST_FLAG_PENDING;
+
+    if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO))
+        castFlags |= CAST_FLAG_PROJECTILE;                        // arrows/bullets visual
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->IsPet()))
@@ -4253,8 +4261,11 @@ void Spell::SendSpellGo()
 
     if (castFlags & CAST_FLAG_PROJECTILE)
     {
-        data << uint32(0); // Ammo display ID
-        data << uint32(0); // Inventory Type
+        uint32 projectileDisplayId = 0;
+        uint32 projectileInventoryType = 0;
+        GetProjectileData(projectileDisplayId, projectileInventoryType);
+        data << uint32(projectileDisplayId);
+        data << uint32(projectileInventoryType);
     }
 
     if (castFlags & CAST_FLAG_VISUAL_CHAIN)
@@ -4283,6 +4294,84 @@ void Spell::SendSpellGo()
     }
 
     m_caster->SendMessageToSet(&data, true);
+}
+
+void Spell::GetProjectileData(uint32& projectileDisplayId, uint32& projectileInventoryType)
+{
+    uint32 ammoInventoryType = 0;
+    uint32 ammoDisplayID = 0;
+    uint32 nonRangedAmmoDisplayID = 0;
+    uint32 nonRangedAmmoInventoryType = 0;
+
+    ItemEntry const* itemEntry = nullptr;
+
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
+            itemEntry = sItemStore.LookupEntry(item->GetTemplate()->ItemId);
+    }
+    else if (m_caster->GetTypeId() == TYPEID_UNIT)
+    {
+        for (uint8 i = BASE_ATTACK; i < MAX_ATTACK; ++i)
+        {
+            if (uint32 item_id = m_caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + i))
+            {
+                if (ItemEntry const* entry = sItemStore.LookupEntry(item_id))
+                {
+                    if (entry->Class == ITEM_CLASS_WEAPON)
+                    {
+                        switch (entry->SubClass)
+                        {
+                            case ITEM_SUBCLASS_WEAPON_THROWN:
+                            case ITEM_SUBCLASS_WEAPON_BOW:
+                            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+                            case ITEM_SUBCLASS_WEAPON_GUN:
+                                itemEntry = entry;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+
+            if (itemEntry)
+                break;
+        }
+    }
+
+    if (!itemEntry)
+        return;
+
+    switch (itemEntry->SubClass)
+    {
+        case ITEM_SUBCLASS_WEAPON_THROWN:
+            ammoDisplayID = itemEntry->DisplayId;
+            ammoInventoryType = itemEntry->InventoryType;
+            break;
+        case ITEM_SUBCLASS_WEAPON_BOW:
+        case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+            ammoDisplayID = 5996;
+            ammoInventoryType = INVTYPE_AMMO;
+            break;
+        case ITEM_SUBCLASS_WEAPON_GUN:
+            ammoDisplayID = 5998;
+            ammoInventoryType = INVTYPE_AMMO;
+            break;
+        default:
+            nonRangedAmmoDisplayID = itemEntry->DisplayId;
+            nonRangedAmmoInventoryType = itemEntry->InventoryType;
+            break;
+    }
+
+    if (!ammoDisplayID && !ammoInventoryType)
+    {
+        ammoDisplayID = nonRangedAmmoDisplayID;
+        ammoInventoryType = nonRangedAmmoInventoryType;
+    }
+
+    projectileDisplayId = ammoDisplayID;
+    projectileInventoryType = ammoInventoryType;
 }
 
 /// Writes miss and hit targets for a SMSG_SPELL_GO packet

@@ -462,6 +462,7 @@ class TC_GAME_API Spell
 
         void DoCreateItem(uint32 i, uint32 itemtype);
         void WriteSpellGoTargets(WorldPacket* data);
+        void GetProjectileData(uint32& projectileDisplayId, uint32& projectileInventoryType);
 
         bool CheckEffectTarget(Unit const* target, uint32 eff, Position const* losPosition) const;
         bool CanAutoCast(Unit* target);
