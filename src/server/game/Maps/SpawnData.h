@@ -19,6 +19,7 @@
 #define TRINITY_SPAWNDATA_H
 
 #include "Position.h"
+#include "PhaseShift.h"
 
 enum SpawnObjectType
 {
@@ -67,7 +68,7 @@ struct SpawnData
     uint8 spawnMask = 0;
     SpawnGroupTemplateData const* spawnGroupData = nullptr;
     uint8 phaseUseFlags = 0;
-    uint32 phaseId = 0;
+    uint32 phaseId = DEFAULT_PHASE;
     uint32 phaseGroup = 0;
     int32 terrainSwapMap = -1;
     uint32 scriptId = 0;
