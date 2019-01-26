@@ -212,6 +212,8 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     if (!dynamic)
         SetRespawnCompatibilityMode();
 
+    UpdatePositionData();
+
     SetZoneScript();
     if (m_zoneScript)
     {

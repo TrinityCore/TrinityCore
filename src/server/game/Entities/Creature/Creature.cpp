@@ -1000,6 +1000,8 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 /*phaseMask*
         return false;
     }
 
+    UpdatePositionData();
+
     if (!CreateFromProto(guidlow, entry, data, vehId))
         return false;
 
