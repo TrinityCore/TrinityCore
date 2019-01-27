@@ -398,7 +398,7 @@ struct boss_alakir : public BossAI
     {
         if (me->HealthBelowPctDamaged(80, damage) && events.IsInPhase(PHASE_ONE))
         {
-            DoCastSelf(SPELL_ACID_RAIN);
+            DoCastSelf(SPELL_ACID_RAIN, true);
             instance->SetData(DATA_ACID_RAIN_WEATHER, IN_PROGRESS);
             Talk(SAY_PHASE_TWO);
             events.SetPhase(PHASE_TWO);
