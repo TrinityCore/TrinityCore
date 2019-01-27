@@ -28,26 +28,47 @@ uint32 const EncounterCount = 4;
 
 enum MTDataTypes
 {
+    // Encounter states
     DATA_SELIN,
     DATA_VEXALLUS,
     DATA_DELRISSA,
-    DATA_KAELTHAS,
+    DATA_KAELTHAS_SUNSTRIDER,
 
-    DATA_KAEL_STATUE_LEFT,
-    DATA_KAEL_STATUE_RIGHT,
-
+    // Encounter related
+    DATA_KAELTHAS_INTRO,
     DATA_DELRISSA_DEATH_COUNT,
-    DATA_KAELTHAS_STATUES,
+
+    // Additional data
+    DATA_KAELTHAS_INTRO_STATE,
+
     DATA_ESCAPE_ORB
 };
 
 enum MTCreatureIds
 {
-    NPC_SELIN               = 24723,
-    NPC_DELRISSA            = 24560,
-    NPC_FEL_CRYSTAL         = 24722,
-    NPC_KALECGOS            = 24844,
-    NPC_HUMAN_KALECGOS      = 24848
+    // Bosses
+    BOSS_KAELTHAS_SUNSTRIDER    = 24664,
+
+    // Encounter related
+    /*Kael'thas Sunstrider*/
+    NPC_ARCANE_SPHERE           = 24708,
+    NPC_FLAME_STRIKE            = 24666,
+    NPC_PHOENIX                 = 24674,
+    NPC_PHOENIX_EGG             = 24675,
+
+    NPC_SELIN                   = 24723,
+    NPC_DELRISSA                = 24560,
+    NPC_FEL_CRYSTAL             = 24722,
+    NPC_KALECGOS                = 24844,
+
+    // Event related
+    NPC_HUMAN_KALECGOS          = 24848,
+    NPC_COILSKAR_WITCH          = 24696,
+    NPC_SUNBLADE_WARLOCK        = 24686,
+    NPC_SUNBLADE_MAGE_GUARD     = 24683,
+    NPC_SISTER_OF_TORMENT       = 24697,
+    NPC_ETHEREUM_SMUGGLER       = 24698,
+    NPC_SUNBLADE_BLOOD_KNIGHT   = 24684,
 };
 
 enum MTGameObjectIds
@@ -56,7 +77,7 @@ enum MTGameObjectIds
     GO_SELIN_DOOR           = 187979,
     GO_SELIN_ENCOUNTER_DOOR = 188065,
     GO_DELRISSA_DOOR        = 187770,
-    GO_KAEL_DOOR            = 188064,
+    GO_ASYLUM_DOOR          = 188064,
     GO_KAEL_STATUE_1        = 188165,
     GO_KAEL_STATUE_2        = 188166,
     GO_ESCAPE_ORB           = 188173
@@ -82,5 +103,7 @@ inline AI* GetMagistersTerraceAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, MGTScriptName);
 }
+
+#define RegisterMagistersTerraceCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetMagistersTerraceAI)
 
 #endif
