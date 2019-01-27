@@ -95,8 +95,6 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 SET @NPC := 40936;
 SET @PATH := @NPC * 10 + 0;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=-309.076,`position_y`=704.163,`position_z`=277.6152 WHERE `guid`=@NPC;
-DELETE FROM `creature_addon` WHERE `guid`=@NPC;
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES (@NPC,@PATH,0,0,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,-307.078,686.042,279.2762,0,0,1,0,100,0),
