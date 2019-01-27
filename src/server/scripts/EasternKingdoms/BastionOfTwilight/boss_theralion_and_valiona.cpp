@@ -1571,6 +1571,15 @@ class spell_valiona_strafe : public SpellScriptLoader
         {
             PrepareAuraScript(spell_valiona_strafe_AuraScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                    {
+                        SPELL_TWILIGHT_FLAMES_TRIGGER,
+                        SPELL_STRAFE
+                    });
+            }
+
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
