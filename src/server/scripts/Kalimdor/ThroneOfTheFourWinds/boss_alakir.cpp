@@ -333,6 +333,8 @@ struct boss_alakir : public BossAI
 
         if (IsHeroic())
             events.ScheduleEvent(EVENT_STATIC_SHOCK, 5s, 0, PHASE_ONE);
+
+        summons.DespawnEntry(NPC_SLIPSTREAM);
     }
 
     void Reset()
