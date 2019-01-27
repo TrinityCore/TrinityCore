@@ -25,7 +25,8 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (24664, 4, 0, 'Master, grant me strength.', 14, 0, 100, 0, 0, 12419, 25391, 'Kael\'thas Sunstrider to Kael\'thas Sunstrider - Power Feedback'),
 (24664, 5, 0, 'Vengeance burns!', 14, 0, 100, 0, 0, 12415, 25388, 'Kael\'thas Sunstrider - Summon Phoenix'),
 (24664, 6, 0, '%s begins to cast Pyroblast!', 41, 0, 100, 0, 0, 0, 20775, 'Kael\'thas Sunstrider - Announce Pyroblast'),
-(24664, 7, 0, 'My demise accomplishes nothing! The master will have you! You will drown in your own blood! The world shall burn! Aaaghh!', 14, 0, 100, 5, 0, 12421, 25393, 'Kael\'thas Sunstrider - Death');
+(24664, 7, 0, 'Felomin Ashal! ', 14, 0, 100, 0, 0, 12417, 25389, 'Kael\'thas Sunstrider - Flame Strike'),
+(24664, 8, 0, 'My demise accomplishes nothing! The master will have you! You will drown in your own blood! The world shall burn! Aaaghh!', 14, 0, 100, 5, 0, 12421, 25393, 'Kael\'thas Sunstrider - Death');
 
 UPDATE `spell_target_position` SET `PositionX`= 148.5, `PositionY`= 181, `PositionZ`= -16.7, `Orientation`= 4.79965 WHERE `ID`= 44218;
 

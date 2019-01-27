@@ -34,7 +34,8 @@ enum Says
     SAY_POWER_FEEDBACK          = 4,
     SAY_SUMMON_PHOENIX          = 5,
     SAY_ANNOUNCE_PYROBLAST      = 6,
-    SAY_DEATH                   = 7
+    SAY_FLAME_STRIKE            = 7,
+    SAY_DEATH                   = 8
 };
 
 enum Spells
@@ -303,6 +304,7 @@ struct boss_felblood_kaelthas : public BossAI
                     events.Repeat(2s + 500ms);
                     break;
                 case EVENT_FLAME_STRIKE:
+                    Talk(SAY_FLAME_STRIKE);
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true, 0))
                         DoCast(target, SPELL_FLAME_STRIKE);
                     events.Repeat(44s);
