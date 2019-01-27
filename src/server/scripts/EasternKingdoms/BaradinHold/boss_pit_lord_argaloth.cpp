@@ -314,7 +314,7 @@ class spell_argaloth_meteor_slash : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_argaloth_meteor_slash::CountTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
-        OnHit += SpellHitFn(spell_argaloth_meteor_slash::SplitDamage);
+        BeforeHit += SpellHitFn(spell_argaloth_meteor_slash::SplitDamage);
     }
 
 private:

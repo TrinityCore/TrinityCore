@@ -4686,6 +4686,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
     });
+
+    // Meteor Slash
+    ApplySpellFix({ 88942, 95172 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_RESISTANCES;
+    });
+
     // ENDOF BARADIN HOLD SPELLS
 
     //
