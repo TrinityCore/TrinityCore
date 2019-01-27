@@ -643,12 +643,19 @@ enum DarkRiderOfAcherus
 
 struct npc_dark_rider_of_acherus : public ScriptedAI
 {
-    npc_dark_rider_of_acherus(Creature* creature) : ScriptedAI(creature)
+    npc_dark_rider_of_acherus(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
     {
         if (TempSummon* summon = me->ToTempSummon())
             _horseGUID = summon->GetSummonerGUID();
 
         _events.ScheduleEvent(EVENT_START_MOVING, 1s);
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
     }
 
     void UpdateAI(uint32 diff) override
@@ -685,7 +692,7 @@ struct npc_dark_rider_of_acherus : public ScriptedAI
     {
         if (spell->Id == SPELL_DESPAWN_HORSE && target->GetGUID() == _horseGUID)
             if (Creature* creature = target->ToCreature())
-                creature->DespawnOrUnsummon(2000);
+                creature->DespawnOrUnsummon(2s);
     }
 
 private:
