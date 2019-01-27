@@ -1,0 +1,56 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: ubuntu:18.04
+      - image: circleci/mysql:5.7
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_DATABASE: test_mysql
+    steps:
+      - run:
+          name: Requirements
+          command: |
+            apt-get update
+            apt-get install -y wget sudo mysql-client
+            apt-get install -y libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-program-options-dev libboost-regex-dev libboost-system-dev libboost-thread-dev libssl-dev libmysqlclient-dev libreadline-dev libncurses-dev zlib1g-dev libbz2-dev
+            apt-get install -y cmake clang git
+      - run:
+          name: Install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+      - checkout
+      - run:
+          name: Setup
+          command: |
+            git config user.email "circleci@build.bot" && git config user.name "Circl CI"
+            export CC=/usr/bin/clang
+            export CXX=/usr/bin/clang++
+            $CXX --version
+            mkdir bin
+            cd bin
+            cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
+            cd ..
+      - run:
+          name: SQL checks
+          command: |
+            chmod +x contrib/check_updates.sh
+            dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
+            mysql -h 127.0.0.1 -uroot < sql/create/create_mysql.sql
+            mysql -h 127.0.0.1 -uroot auth < sql/base/auth_database.sql
+            ./contrib/check_updates.sh auth 3.3.5 auth 127.0.0.1
+            mysql -h 127.0.0.1 -uroot characters < sql/base/characters_database.sql
+            ./contrib/check_updates.sh characters 3.3.5 characters 127.0.0.1
+            mysql -h 127.0.0.1 -uroot world < sql/base/dev/world_database.sql
+            cat sql/updates/world/3.3.5/*.sql | mysql -h 127.0.0.1 -uroot world
+            mysql -h 127.0.0.1 -uroot < sql/create/drop_mysql.sql
+      - run:
+          name: Build
+          command: |
+            cd bin
+            make -j 4 -k && make install
+            cd check_install/bin
+            ./authserver --version
+            ./worldserver --version
