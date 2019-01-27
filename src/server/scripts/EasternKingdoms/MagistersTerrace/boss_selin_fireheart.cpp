@@ -73,7 +73,7 @@ class boss_selin_fireheart : public CreatureScript
 
         struct boss_selin_fireheartAI : public BossAI
         {
-            boss_selin_fireheartAI(Creature* creature) : BossAI(creature, DATA_SELIN), _scheduledEvents(false) { }
+            boss_selin_fireheartAI(Creature* creature) : BossAI(creature, DATA_SELIN_FIREHEART), _scheduledEvents(false) { }
 
             void Reset() override
             {
@@ -267,9 +267,9 @@ class npc_fel_crystal : public CreatureScript
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                 {
-                    Creature* Selin = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SELIN));
-                    if (Selin && Selin->IsAlive())
-                        Selin->AI()->DoAction(ACTION_SWITCH_PHASE);
+                    Creature* selin = instance->GetCreature(DATA_SELIN_FIREHEART);
+                    if (selin && selin->IsAlive())
+                        selin->AI()->DoAction(ACTION_SWITCH_PHASE);
                 }
             }
         };
