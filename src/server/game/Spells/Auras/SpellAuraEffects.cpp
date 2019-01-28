@@ -4448,20 +4448,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             }
                             break;
                         case 36730:                                     // Flame Strike
-                        {
                             target->CastSpell(target, 36731, this);
                             break;
-                        }
-                        case 44191:                                     // Flame Strike
-                        {
-                            if (target->GetMap()->IsDungeon())
-                            {
-                                uint32 spellId = target->GetMap()->IsHeroic() ? 46163 : 44190;
-
-                                target->CastSpell(target, spellId, this);
-                            }
-                            break;
-                        }
                         case 43681: // Inactive
                         {
                             if (target->GetTypeId() != TYPEID_PLAYER || aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
