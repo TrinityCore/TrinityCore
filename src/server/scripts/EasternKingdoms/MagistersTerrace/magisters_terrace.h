@@ -29,7 +29,7 @@ uint32 const EncounterCount = 4;
 enum MTDataTypes
 {
     // Encounter states
-    DATA_SELIN_FIREHEART,
+    DATA_SELIN_FIREHEART = 0,
     DATA_VEXALLUS,
     DATA_PRIESTESS_DELRISSA,
     DATA_KAELTHAS_SUNSTRIDER,
