@@ -48,9 +48,9 @@ public:
         return new boss_huhuranAI(creature);
     }
 
-    struct boss_huhuranAI : public ScriptedAI
+    struct boss_huhuranAI : public BossAI
     {
-        boss_huhuranAI(Creature* creature) : ScriptedAI(creature)
+        boss_huhuranAI(Creature* creature) : BossAI(creature, DATA_HUHURAN)
         {
             Initialize();
         }
@@ -81,10 +81,7 @@ public:
         void Reset() override
         {
             Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
+            _Reset();
         }
 
         void UpdateAI(uint32 diff) override

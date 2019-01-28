@@ -63,14 +63,11 @@ enum Misc
     TELEPORTTIME                  = 30000
 };
 
-
-
-struct boss_twinemperorsAI : public ScriptedAI
+struct boss_twinemperorsAI : public BossAI
 {
-    boss_twinemperorsAI(Creature* creature): ScriptedAI(creature)
+    boss_twinemperorsAI(Creature* creature): BossAI(creature, DATA_TWIN_EMPERORS)
     {
         Initialize();
-        instance = creature->GetInstanceScript();
     }
 
     void Initialize()
@@ -86,8 +83,6 @@ struct boss_twinemperorsAI : public ScriptedAI
         DontYellWhenDead = false;
         EnrageTimer = 15 * 60000;
     }
-
-    InstanceScript* instance;
 
     uint32 Heal_Timer;
     uint32 Teleport_Timer;
@@ -106,6 +101,7 @@ struct boss_twinemperorsAI : public ScriptedAI
     {
         Initialize();
         me->ClearUnitState(UNIT_STATE_STUNNED);
+        _Reset();
     }
 
     Creature* GetOtherBoss()
@@ -142,6 +138,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
         if (!DontYellWhenDead)                              // I hope AI is not threaded
             DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_DEATH : SOUND_VN_DEATH);
+        _JustDied();
     }
 
     void KilledUnit(Unit* /*victim*/) override
@@ -151,7 +148,7 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     void JustEngagedWith(Unit* who) override
     {
-        DoZoneInCombat();
+        _JustEngagedWith();
         Creature* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
         {

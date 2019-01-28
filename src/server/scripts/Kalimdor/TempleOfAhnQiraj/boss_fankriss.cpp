@@ -47,9 +47,9 @@ class boss_fankriss : public CreatureScript
 public:
     boss_fankriss() : CreatureScript("boss_fankriss") { }
 
-    struct boss_fankrissAI : public ScriptedAI
+    struct boss_fankrissAI : public BossAI
     {
-        boss_fankrissAI(Creature* creature) : ScriptedAI(creature)
+        boss_fankrissAI(Creature* creature) : BossAI(creature, DATA_FRANKRIS)
         {
             Initialize();
         }
@@ -68,6 +68,7 @@ public:
         void Reset() override
         {
             Initialize();
+            _Reset();
         }
 
         void SummonSpawn(Unit* victim)
@@ -95,10 +96,6 @@ public:
             Creature* Spawn = DoSpawnCreature(15630, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
             if (Spawn)
                 Spawn->AI()->AttackStart(victim);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
         }
 
         void UpdateAI(uint32 diff) override

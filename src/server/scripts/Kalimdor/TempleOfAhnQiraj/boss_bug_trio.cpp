@@ -48,12 +48,11 @@ class boss_kri : public CreatureScript
 public:
     boss_kri() : CreatureScript("boss_kri") { }
 
-    struct boss_kriAI : public ScriptedAI
+    struct boss_kriAI : public BossAI
     {
-        boss_kriAI(Creature* creature) : ScriptedAI(creature)
+        boss_kriAI(Creature* creature) : BossAI(creature, DATA_BUG_TRIO)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
         }
 
         void Initialize()
@@ -66,8 +65,6 @@ public:
             Death = false;
         }
 
-        InstanceScript* instance;
-
         uint32 Cleave_Timer;
         uint32 ToxicVolley_Timer;
         uint32 Check_Timer;
@@ -78,11 +75,9 @@ public:
         void Reset() override
         {
             Initialize();
+            _Reset();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-        }
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -146,12 +141,11 @@ class boss_vem : public CreatureScript
 public:
     boss_vem() : CreatureScript("boss_vem") { }
 
-    struct boss_vemAI : public ScriptedAI
+    struct boss_vemAI : public BossAI
     {
-        boss_vemAI(Creature* creature) : ScriptedAI(creature)
+        boss_vemAI(Creature* creature) : BossAI(creature, DATA_BUG_TRIO)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
         }
 
         void Initialize()
@@ -163,8 +157,6 @@ public:
             Enraged = false;
         }
 
-        InstanceScript* instance;
-
         uint32 Charge_Timer;
         uint32 KnockBack_Timer;
         uint32 Enrage_Timer;
@@ -174,6 +166,7 @@ public:
         void Reset() override
         {
             Initialize();
+            _Reset();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -182,10 +175,6 @@ public:
             if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)// Unlootable if death
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             instance->SetData(DATA_BUG_TRIO_DEATH, 1);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
         }
 
         void UpdateAI(uint32 diff) override
@@ -238,12 +227,11 @@ class boss_yauj : public CreatureScript
 public:
     boss_yauj() : CreatureScript("boss_yauj") { }
 
-    struct boss_yaujAI : public ScriptedAI
+    struct boss_yaujAI : public BossAI
     {
-        boss_yaujAI(Creature* creature) : ScriptedAI(creature)
+        boss_yaujAI(Creature* creature) : BossAI(creature, DATA_BUG_TRIO)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
         }
 
         void Initialize()
@@ -254,8 +242,6 @@ public:
 
             VemDead = false;
         }
-
-        InstanceScript* instance;
 
         uint32 Heal_Timer;
         uint32 Fear_Timer;
@@ -282,10 +268,6 @@ public:
                         Summoned->AI()->AttackStart(target);
                 }
             }
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
         }
 
         void UpdateAI(uint32 diff) override

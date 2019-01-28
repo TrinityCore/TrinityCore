@@ -50,9 +50,9 @@ public:
         return new boss_sarturaAI(creature);
     }
 
-    struct boss_sarturaAI : public ScriptedAI
+    struct boss_sarturaAI : public BossAI
     {
-        boss_sarturaAI(Creature* creature) : ScriptedAI(creature)
+        boss_sarturaAI(Creature* creature) : BossAI(creature, DATA_SARTURA)
         {
             Initialize();
         }
@@ -87,16 +87,19 @@ public:
         void Reset() override
         {
             Initialize();
+            _Reset();
         }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
+            _JustEngagedWith();
         }
 
          void JustDied(Unit* /*killer*/) override
          {
              Talk(SAY_DEATH);
+             _JustDied();
          }
 
          void KilledUnit(Unit* /*victim*/) override
