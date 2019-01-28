@@ -4632,6 +4632,9 @@ void SpellMgr::LoadSpellInfoCorrections()
         properties->Title = AsUnderlyingType(SummonTitle::Totem);
     if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(628))) // Hungry Plaguehound
         properties->Control = SUMMON_CATEGORY_PET;
+    // Came with 00958c9178781ac11a9dcabd034ed2e82120fad6 but as of 9.1.5 there are 533 other spells using this summon properties
+    //if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(61))) // Summon Arcane Spheres
+    //    properties->Title = AsUnderlyingType(SummonTitle::None);
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo corrections in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
