@@ -22,8 +22,9 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "TemporarySummon.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
