@@ -38,6 +38,16 @@ ObjectData const creatureData[] =
     { 0,             0              } // END
 };
 
+
+DoorData const doorData[] =
+{
+    { AQ40_DOOR_1, DATA_SARTURA,       DOOR_TYPE_PASSAGE },
+    { AQ40_DOOR_1, DATA_HUHURAN,       DOOR_TYPE_PASSAGE },
+    { AQ40_DOOR_2, DATA_TWIN_EMPERORS, DOOR_TYPE_PASSAGE },
+    { AQ40_DOOR_3, DATA_SKERAM,        DOOR_TYPE_PASSAGE },
+    { 0,           0,                  DOOR_TYPE_ROOM    } // END
+};
+
 class instance_temple_of_ahnqiraj : public InstanceMapScript
 {
     public:
@@ -54,7 +64,8 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 LoadObjectData(creatureData, nullptr);
-
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
                 IsBossDied[0] = false;
                 IsBossDied[1] = false;
                 IsBossDied[2] = false;
