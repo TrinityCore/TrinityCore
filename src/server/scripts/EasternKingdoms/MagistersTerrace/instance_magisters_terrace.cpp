@@ -79,7 +79,7 @@ class instance_magisters_terrace : public InstanceMapScript
                 Initialize();
             }
 
-            void Initialize()
+            void Initialize() override
             {
                 _delrissaDeathCount = 0;
                 _kaelthasIntroState = 0;
