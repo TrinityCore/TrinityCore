@@ -23,6 +23,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
+#include "SpellInfo.h"
 
 enum Says
 {
