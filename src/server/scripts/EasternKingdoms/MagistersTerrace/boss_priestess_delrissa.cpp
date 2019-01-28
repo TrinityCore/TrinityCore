@@ -161,7 +161,7 @@ public:
         //this mean she at some point evaded
         void JustReachedHome() override
         {
-            instance->SetBossState(DATA_DELRISSA, FAIL);
+            instance->SetBossState(DATA_PRIESTESS_DELRISSA, FAIL);
         }
 
         void JustEngagedWith(Unit* who) override
@@ -173,7 +173,7 @@ public:
                     if (!pAdd->IsEngaged())
                         AddThreat(who, 0.0f, pAdd);
 
-            instance->SetBossState(DATA_DELRISSA, IN_PROGRESS);
+            instance->SetBossState(DATA_PRIESTESS_DELRISSA, IN_PROGRESS);
         }
 
         void InitializeLackeys()
@@ -241,7 +241,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance->GetData(DATA_DELRISSA_DEATH_COUNT) == MAX_ACTIVE_LACKEY)
-                instance->SetBossState(DATA_DELRISSA, DONE);
+                instance->SetBossState(DATA_PRIESTESS_DELRISSA, DONE);
             else
             {
                 if (me->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
@@ -382,10 +382,10 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         AcquireGUIDs();
 
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
-        if (Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
+        if (Creature* delrissa = instance->GetCreature(DATA_PRIESTESS_DELRISSA))
         {
-            if (!pDelrissa->IsAlive())
-                pDelrissa->Respawn();
+            if (!delrissa->IsAlive())
+                delrissa->Respawn();
         }
     }
 
@@ -399,21 +399,21 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
                 if (!pAdd->IsEngaged() && pAdd != me)
                     AddThreat(who, 0.0f, pAdd);
 
-        if (Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
-            if (pDelrissa->IsAlive() && !pDelrissa->IsEngaged())
-                AddThreat(who, 0.0f, pDelrissa);
+        if (Creature* delrissa = instance->GetCreature(DATA_PRIESTESS_DELRISSA))
+            if (delrissa->IsAlive() && !delrissa->IsEngaged())
+                AddThreat(who, 0.0f, delrissa);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        Creature* pDelrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA));
+        Creature* delrissa = instance->GetCreature(DATA_PRIESTESS_DELRISSA);
         uint32 uiLackeyDeathCount = instance->GetData(DATA_DELRISSA_DEATH_COUNT);
 
-        if (!pDelrissa)
+        if (!delrissa)
             return;
 
         //should delrissa really yell if dead?
-        pDelrissa->AI()->Talk(LackeyDeath[uiLackeyDeathCount].id);
+        delrissa->AI()->Talk(LackeyDeath[uiLackeyDeathCount].id);
 
         instance->SetData(DATA_DELRISSA_DEATH_COUNT, SPECIAL);
 
@@ -423,28 +423,28 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         if (uiLackeyDeathCount == MAX_ACTIVE_LACKEY)
         {
             //time to make her lootable and complete event if she died before lackeys
-            if (!pDelrissa->IsAlive())
+            if (!delrissa->IsAlive())
             {
-                if (!pDelrissa->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
-                    pDelrissa->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                if (!delrissa->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
+                    delrissa->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                instance->SetBossState(DATA_DELRISSA, DONE);
+                instance->SetBossState(DATA_PRIESTESS_DELRISSA, DONE);
             }
         }
     }
 
     void KilledUnit(Unit* victim) override
     {
-        if (Creature* Delrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
-            Delrissa->AI()->KilledUnit(victim);
+        if (Creature* delrissa = instance->GetCreature(DATA_PRIESTESS_DELRISSA))
+            delrissa->AI()->KilledUnit(victim);
     }
 
     void AcquireGUIDs()
     {
-        if (Creature* Delrissa = (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA))))
+        if (Creature* delrissa = instance->GetCreature(DATA_PRIESTESS_DELRISSA))
         {
             for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
-                m_auiLackeyGUIDs[i] = ENSURE_AI(boss_priestess_delrissa::boss_priestess_delrissaAI, Delrissa->AI())->m_auiLackeyGUID[i];
+                m_auiLackeyGUIDs[i] = ENSURE_AI(boss_priestess_delrissa::boss_priestess_delrissaAI, delrissa->AI())->m_auiLackeyGUID[i];
         }
     }
 
