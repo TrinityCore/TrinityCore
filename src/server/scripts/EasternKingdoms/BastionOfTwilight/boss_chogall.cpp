@@ -197,14 +197,6 @@ enum Seats
 
 namespace CorruptionHandler
 {
-    bool IsCorruptionStage(uint8 power)
-    {
-        return (power == CORRUPTION_LEVEL_ACCELERATED
-            || power == CORRUPTION_LEVEL_SICKNESS
-            || power == CORRUPTION_LEVEL_MALFORMATION
-            || power == CORRUPTION_LEVEL_ABSOLUTE);
-    }
-
     uint32 GetSpellIdForCorruptionLevel(uint8 power, uint8 additionalPower)
     {
         for (uint8 i = power; i <= (power + additionalPower); i++)
