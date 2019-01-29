@@ -35,18 +35,29 @@
 
 ObjectData const creatureData[] =
 {
+    { BOSS_SELIN_FIREHEART,         DATA_SELIN_FIREHEART        },
+    { BOSS_VEXALLUS,                DATA_VEXALLUS               },
+    { BOSS_PRIESTESS_DELRISSA,      DATA_PRIESTESS_DELRISSA     },
     { BOSS_KAELTHAS_SUNSTRIDER,     DATA_KAELTHAS_SUNSTRIDER    },
+    { NPC_KALECGOS,                 DATA_KALECGOS               },
+    { NPC_HUMAN_KALECGOS,           DATA_KALECGOS               },
+    { 0,                            0                           } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_ESCAPE_ORB,                DATA_ESCAPE_ORB             },
     { 0,                            0                           } // END
 };
 
 DoorData const doorData[] =
 {
-    { GO_SELIN_DOOR,           DATA_SELIN,                  DOOR_TYPE_PASSAGE   },
-    { GO_SELIN_ENCOUNTER_DOOR, DATA_SELIN,                  DOOR_TYPE_ROOM      },
-    { GO_VEXALLUS_DOOR,        DATA_VEXALLUS,               DOOR_TYPE_PASSAGE   },
-    { GO_DELRISSA_DOOR,        DATA_DELRISSA,               DOOR_TYPE_PASSAGE   },
-    { GO_ASYLUM_DOOR,          DATA_KAELTHAS_SUNSTRIDER,    DOOR_TYPE_ROOM      },
-    { 0,                       0,                           DOOR_TYPE_ROOM      } // END
+    { GO_SUNWELL_RAID_GATE_2  , DATA_SELIN_FIREHEART,       DOOR_TYPE_PASSAGE   },
+    { GO_ASSEMBLY_CHAMBER_DOOR, DATA_SELIN_FIREHEART,       DOOR_TYPE_ROOM      },
+    { GO_SUNWELL_RAID_GATE_5,   DATA_VEXALLUS,              DOOR_TYPE_PASSAGE   },
+    { GO_SUNWELL_RAID_GATE_4,   DATA_PRIESTESS_DELRISSA,    DOOR_TYPE_PASSAGE   },
+    { GO_ASYLUM_DOOR,           DATA_KAELTHAS_SUNSTRIDER,   DOOR_TYPE_ROOM      },
+    { 0,                        0,                          DOOR_TYPE_ROOM      } // END
 };
 
 Position const KalecgosSpawnPos = { 164.3747f, -397.1197f, 2.151798f, 1.66219f };
@@ -63,7 +74,7 @@ class instance_magisters_terrace : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
                 Initialize();
             }
@@ -113,16 +124,6 @@ class instance_magisters_terrace : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
-                    case NPC_SELIN:
-                        SelinGUID = creature->GetGUID();
-                        break;
-                    case NPC_DELRISSA:
-                        DelrissaGUID = creature->GetGUID();
-                        break;
-                    case NPC_KALECGOS:
-                    case NPC_HUMAN_KALECGOS:
-                        KalecgosGUID = creature->GetGUID();
-                        break;
                     case NPC_COILSKAR_WITCH:
                     case NPC_SUNBLADE_WARLOCK:
                     case NPC_SUNBLADE_MAGE_GUARD:
@@ -177,28 +178,34 @@ class instance_magisters_terrace : public InstanceMapScript
                     case GO_KAEL_STATUE_2:
                         _statueGUIDs.push_back(go->GetGUID());
                         break;
+                    case GO_ESCAPE_ORB:
+                        if (GetBossState(DATA_KAELTHAS_SUNSTRIDER) == DONE)
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        break;
                     default:
                         break;
                 }
             }
 
-            void ProcessEvent(WorldObject* obj, uint32 eventId) override
+            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
             {
                 if (eventId == EVENT_SPAWN_KALECGOS)
-                    if (!ObjectAccessor::GetCreature(*obj, KalecgosGUID) && Events.Empty())
-                       Events.ScheduleEvent(EVENT_SPAWN_KALECGOS, Minutes(1));
+                    if (!GetCreature(DATA_KALECGOS) && _events.Empty())
+                        _events.ScheduleEvent(EVENT_SPAWN_KALECGOS, 1min);
             }
 
             void Update(uint32 diff) override
             {
-                Events.Update(diff);
+                _events.Update(diff);
 
-                if (Events.ExecuteEvent() == EVENT_SPAWN_KALECGOS)
+                if (_events.ExecuteEvent() == EVENT_SPAWN_KALECGOS)
+                {
                     if (Creature* kalecgos = instance->SummonCreature(NPC_KALECGOS, KalecgosSpawnPos))
                     {
                         kalecgos->GetMotionMaster()->MovePath(PATH_KALECGOS_FLIGHT, false);
                         kalecgos->AI()->Talk(SAY_KALECGOS_SPAWN);
                     }
+                }
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -208,7 +215,7 @@ class instance_magisters_terrace : public InstanceMapScript
 
                 switch (type)
                 {
-                    case DATA_DELRISSA:
+                    case DATA_PRIESTESS_DELRISSA:
                         if (state == IN_PROGRESS)
                             _delrissaDeathCount = 0;
                         break;
@@ -218,27 +225,14 @@ class instance_magisters_terrace : public InstanceMapScript
                             for (ObjectGuid guid : _statueGUIDs)
                                 HandleGameObject(guid, false);
                         }
+                        else if (state == DONE)
+                            if (GameObject* orb = GetGameObject(DATA_ESCAPE_ORB))
+                                orb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     default:
                         break;
                 }
                 return true;
-            }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_SELIN:
-                        return SelinGUID;
-                    case DATA_DELRISSA:
-                        return DelrissaGUID;
-                    case DATA_ESCAPE_ORB:
-                        return EscapeOrbGUID;
-                    default:
-                        break;
-                }
-                return ObjectGuid::Empty;
             }
 
             void WriteSaveDataMore(std::ostringstream& data) override
@@ -252,11 +246,7 @@ class instance_magisters_terrace : public InstanceMapScript
             }
 
         protected:
-            EventMap Events;
-            ObjectGuid SelinGUID;
-            ObjectGuid DelrissaGUID;
-            ObjectGuid EscapeOrbGUID;
-            ObjectGuid KalecgosGUID;
+            EventMap _events;
             GuidVector _statueGUIDs;
             GuidSet _kaelthasPreTrashGUIDs;
             uint8 _delrissaDeathCount;

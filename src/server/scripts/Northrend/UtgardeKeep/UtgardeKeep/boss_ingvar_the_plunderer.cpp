@@ -231,11 +231,6 @@ class boss_ingvar_the_plunderer : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             me->SetImmuneToPC(false);
                             ScheduleSecondPhase();
-                            if (!me->IsThreatened())
-                            {
-                                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
-                                return;
-                            }
                             Talk(SAY_AGGRO);
                             DoZoneInCombat();
                             return;
