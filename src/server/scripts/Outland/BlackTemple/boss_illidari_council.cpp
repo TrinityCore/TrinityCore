@@ -79,7 +79,9 @@ enum Spells
     SPELL_DEADLY_STRIKE             = 41480,
     SPELL_DEADLY_POISON             = 41485,
     SPELL_ENVENOM                   = 41487,
+    SPELL_ENVENOM_VISUAL            = 41509,
     SPELL_VANISH                    = 41476,
+    SPELL_VANISH_TELEPORT           = 41479,
 
     // Veras Vanish Effect
     SPELL_BIRTH                     = 40031,
@@ -90,7 +92,6 @@ enum IllidariEvents
 {
     EVENT_EMPYREAL_EQUIVALENCY = 1,
     EVENT_VANISH,
-    EVENT_DEADLY_STRIKE,
     EVENT_FLAMESTRIKE,
     EVENT_BLIZZARD,
     EVENT_ARCANE_EXPLOSION,
@@ -140,7 +141,6 @@ struct boss_illidari_council : public BossAI
         _Reset();
         _inCombat = false;
         me->SummonCreatureGroup(SUMMON_COUNCIL_GROUP);
-        DoCastSelf(SPELL_EMPYREAL_BALANCE, true);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -149,6 +149,7 @@ struct boss_illidari_council : public BossAI
         {
             _inCombat = true;
             _JustEngagedWith();
+            DoCastSelf(SPELL_EMPYREAL_BALANCE, true);
             for (uint32 bossData : CouncilData)
             {
                 if (Creature* council = instance->GetCreature(bossData))
@@ -249,6 +250,7 @@ struct IllidariCouncilBossAI : public BossAI
     {
         me->SetCombatPulseDelay(0);
         events.Reset();
+        DoCastSelf(SPELL_BALANCE_OF_POWER, true);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -508,29 +510,26 @@ struct boss_lady_malande : public IllidariCouncilBossAI
 
 struct boss_veras_darkshadow : public IllidariCouncilBossAI
 {
-    boss_veras_darkshadow(Creature* creature) : IllidariCouncilBossAI(creature, DATA_VERAS_DARKSHADOW)
-    {
-        me->SetMaxHealth(1327900);
-        me->SetFullHealth();
-    }
+    boss_veras_darkshadow(Creature* creature) : IllidariCouncilBossAI(creature, DATA_VERAS_DARKSHADOW) { }
 
     void ScheduleEvents() override
     {
-        events.ScheduleEvent(EVENT_DEADLY_STRIKE, 18s);
         events.ScheduleEvent(EVENT_VANISH, 18s);
+    }
+
+    bool CanSeeAlways(WorldObject const* who) override
+    {
+        return me->HasAura(SPELL_VANISH) ? true : ScriptedAI::CanSeeAlways(who);
     }
 
     void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
-            case EVENT_DEADLY_STRIKE:
-                DoCastSelf(SPELL_DEADLY_STRIKE);
-                events.Repeat(Seconds(60));
-                break;
             case EVENT_VANISH:
-                DoCastSelf(SPELL_VANISH);
                 Talk(SAY_COUNCIL_SPECIAL);
+                DoCastSelf(SPELL_VANISH);
+                DoCastSelf(SPELL_DEADLY_STRIKE);
                 events.Repeat(Seconds(60));
                 break;
             default:
@@ -546,8 +545,19 @@ struct npc_veras_vanish_effect : public PassiveAI
     void Reset() override
     {
         DoCastSelf(SPELL_BIRTH, true);
-        DoCastSelf(SPELL_ENVENOM_DUMMY, true);
+        _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+        {
+            DoCastSelf(SPELL_ENVENOM_DUMMY, true);
+        });
     }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 // 41499 - Empyreal Balance
@@ -555,15 +565,12 @@ class spell_illidari_council_empyreal_balance : public SpellScript
 {
     PrepareSpellScript(spell_illidari_council_empyreal_balance);
 
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_BALANCE_OF_POWER });
-    }
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        target->CastSpell(target, SPELL_BALANCE_OF_POWER, true);
+        uint32 health = GetCaster()->CountPctFromCurHealth(25);
+        target->SetMaxHealth(health);
+        target->SetHealth(health);
     }
 
     void Register() override
@@ -579,12 +586,7 @@ class spell_illidari_council_empyreal_equivalency : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        Unit* target = GetHitUnit();
-        int32 casterHpPct = (int32)GetCaster()->GetHealthPct();
-        uint32 newHp = target->CountPctFromMaxHealth(casterHpPct);
-        if (newHp <= 0)
-            newHp = target->GetMaxHealth() - 1;
-        target->SetHealth(newHp);
+        GetHitUnit()->SetHealth(GetCaster()->CountPctFromCurHealth(25));
     }
 
     void Register() override
@@ -629,7 +631,7 @@ class spell_illidari_council_deadly_strike : public AuraScript
     {
         PreventDefaultAction();
 
-        if (Unit* victim = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+        if (Unit* victim = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true))
             GetTarget()->CastSpell(victim, SPELL_DEADLY_POISON, aurEff);
     }
 
@@ -646,18 +648,43 @@ class spell_illidari_council_deadly_poison : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_ENVENOM });
+        return ValidateSpellInfo({ SPELL_ENVENOM, SPELL_ENVENOM_VISUAL });
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), SPELL_ENVENOM, true);
+        {
+            Unit* target = GetTarget();
+            caster->CastSpell(target, SPELL_ENVENOM, true);
+            target->CastSpell(nullptr, SPELL_ENVENOM_VISUAL, true);
+        }
     }
 
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_illidari_council_deadly_poison::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 41476 - Vanish
+class spell_illidari_council_vanish : public AuraScript
+{
+    PrepareAuraScript(spell_illidari_council_vanish);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VANISH_TELEPORT });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_VANISH_TELEPORT, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_illidari_council_vanish::OnRemove, EFFECT_0, SPELL_AURA_MOD_ROOT, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -788,6 +815,7 @@ void AddSC_boss_illidari_council()
     RegisterAuraScript(spell_illidari_council_balance_of_power);
     RegisterAuraScript(spell_illidari_council_deadly_strike);
     RegisterAuraScript(spell_illidari_council_deadly_poison);
+    RegisterAuraScript(spell_illidari_council_vanish);
     RegisterAuraScript(spell_illidari_council_reflective_shield);
     RegisterSpellScript(spell_illidari_council_judgement);
     RegisterAuraScript(spell_illidari_council_seal);
