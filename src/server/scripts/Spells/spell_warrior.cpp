@@ -1199,8 +1199,26 @@ class spell_warr_devastate : public SpellScript
     }
 };
 
+class spell_warr_blood_craze : public AuraScript
+{
+    PrepareAuraScript(spell_warr_blood_craze);
+
+    void HandleCalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+    {
+        int32 bp = GetSpellInfo()->Effects[EFFECT_0].BasePoints / 2;
+        uint8 totalTicks = aurEff->GetTotalTicks();
+        amount = CalculatePct(GetUnitOwner()->GetMaxHealth(), (float)bp / totalTicks);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_blood_craze::HandleCalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    RegisterAuraScript(spell_warr_blood_craze);
     new spell_warr_bloodthirst();
     new spell_warr_bloodthirst_heal();
     new spell_warr_charge();
