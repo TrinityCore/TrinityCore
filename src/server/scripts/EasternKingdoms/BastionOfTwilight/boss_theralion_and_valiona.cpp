@@ -887,6 +887,8 @@ class npc_theralion_and_valiona_twilight_sentry : public CreatureScript
                 _summons.DespawnAll();
             }
 
+            void UpdateAI(uint32 /*diff*/) override { }
+
         private:
             EventMap _events;
             SummonList _summons;
