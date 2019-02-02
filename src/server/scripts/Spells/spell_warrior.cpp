@@ -932,42 +932,51 @@ class spell_warr_sword_and_board : public SpellScriptLoader
 };
 
 // 34428 - Victory Rush
-class spell_warr_victory_rush : public SpellScriptLoader
+class spell_warr_victory_rush : public SpellScript
 {
-public:
-    spell_warr_victory_rush() : SpellScriptLoader("spell_warr_victory_rush") { }
+    PrepareSpellScript(spell_warr_victory_rush);
 
-    class spell_warr_victory_rush_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_warr_victory_rush_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo(
-                {
-                    SPELL_WARRIOR_VICTORIOUS,
-                    SPELL_WARRIOR_VICTORIOUS_IMPENDING_VICTORY
-                });
-        }
-
-        void HandleHit(SpellEffIndex effIndex)
-        {
-            GetCaster()->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
-            GetCaster()->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS_IMPENDING_VICTORY);
-            SetHitDamage(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetEffectValue()));
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_warr_victory_rush_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warr_victory_rush_SpellScript();
+        return ValidateSpellInfo(
+            {
+                SPELL_WARRIOR_VICTORIOUS,
+                SPELL_WARRIOR_VICTORIOUS_IMPENDING_VICTORY
+            });
     }
 
+    void HandleDamage()
+    {
+        SetHitDamage(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+    }
+
+    void HandleImpendingVictoryHeal(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            // Impending Victory also allows players to cast Victory Rush but with 5% healing effect only
+            if (caster->HasAura(SPELL_WARRIOR_VICTORIOUS_IMPENDING_VICTORY))
+            {
+                int32 damage = 5;
+
+                // Glyph: Victory Rush
+                if (Player* modOwner = caster->GetSpellModOwner())
+                    modOwner->ApplySpellMod(m_scriptSpellId, SPELLMOD_EFFECT3, damage);
+
+                SetEffectDamage(damage);
+            }
+
+            caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
+            caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS_IMPENDING_VICTORY);
+        }
+    }
+
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_warr_victory_rush::HandleDamage);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_victory_rush::HandleImpendingVictoryHeal, EFFECT_2, SPELL_EFFECT_HEAL_PCT);
+    }
 };
 
 // 50720 - Vigilance
@@ -1244,7 +1253,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sweeping_strikes();
     new spell_warr_sword_and_board();
     new spell_warr_thunder_clap();
-    new spell_warr_victory_rush();
+    RegisterSpellScript(spell_warr_victory_rush);
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
 }
