@@ -1203,7 +1203,7 @@ class spell_warr_blood_craze : public AuraScript
 {
     PrepareAuraScript(spell_warr_blood_craze);
 
-    void HandleCalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+    void HandleCalcAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
     {
         int32 bp = GetSpellInfo()->Effects[EFFECT_0].BasePoints / 2;
         uint8 totalTicks = aurEff->GetTotalTicks();
