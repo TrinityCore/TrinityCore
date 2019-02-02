@@ -619,11 +619,19 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
     recvData >> timeSkipped;
 
     Unit* mover = GetPlayer()->m_unitMovedByMe;
-    ASSERT(mover != nullptr);                      // there must always be a mover
+
+    if (mover == nullptr)
+    {
+        TC_LOG_WARN("entities.player", "WorldSession::HandleMoveTimeSkippedOpcode wrong mover state from the unit moved by the player %s", GetPlayer()->GetGUID().ToString().c_str());
+        return;
+    }
 
     // prevent tampered movement data
     if (guid != mover->GetGUID())
+    {
+        TC_LOG_WARN("entities.player", "WorldSession::HandleMoveTimeSkippedOpcode wrong guid from the unit moved by the player %s", GetPlayer()->GetGUID().ToString().c_str());
         return;
+    }
 
     mover->m_movementInfo.time += timeSkipped;
 
