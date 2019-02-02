@@ -585,16 +585,6 @@ void SpellScript::SetHitHeal(int32 heal)
     m_spell->m_healing = heal;
 }
 
-void SpellScript::SetEffectHeal(int32 heal)
-{
-    if (!IsInTargetHook())
-    {
-        TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::SetEffectHeal was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
-        return;
-    }
-    m_spell->m_healing = heal;
-}
-
 Aura* SpellScript::GetHitAura() const
 {
     if (!IsInTargetHook())
