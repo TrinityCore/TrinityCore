@@ -546,6 +546,17 @@ namespace WorldPackets
             uint32 TimeSkipped = 0;
         };
 
+        class MoveSkipTime final : public ServerPacket
+        {
+        public:
+            MoveSkipTime() : ServerPacket(SMSG_MOVE_SKIP_TIME, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 TimeSkipped = 0;
+        };
+
         class SummonResponse final : public ClientPacket
         {
         public:
