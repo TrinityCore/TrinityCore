@@ -427,11 +427,13 @@ class TC_GAME_API SpellScript : public _SpellScript
         int32 GetHitDamage() const;
         void SetHitDamage(int32 damage);
         void PreventHitDamage() { SetHitDamage(0); }
+        void SetEffectDamage(int32 damage);
         // setter/getter for for heal done by spell to target of spell hit
         // returns healing calculated before hit, and real dmg done after hit
         int32 GetHitHeal() const;
         void SetHitHeal(int32 heal);
         void PreventHitHeal() { SetHitHeal(0); }
+        void SetEffectHeal(int32 heal);
         Spell* GetSpell() const { return m_spell; }
         // returns current spell hit target aura
         Aura* GetHitAura() const;
