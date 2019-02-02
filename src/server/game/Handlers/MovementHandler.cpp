@@ -620,7 +620,7 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
 
     Unit* mover = GetPlayer()->m_unitMovedByMe;
 
-    if (mover == nullptr)
+    if (!mover)
     {
         TC_LOG_WARN("entities.player", "WorldSession::HandleMoveTimeSkippedOpcode wrong mover state from the unit moved by the player %s", GetPlayer()->GetGUID().ToString().c_str());
         return;
