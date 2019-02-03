@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -60,23 +60,23 @@ PhaseShift::EraseResult<PhaseShift::VisibleMapIdContainer> PhaseShift::RemoveVis
     return { VisibleMapIds.end(), false };
 }
 
-bool PhaseShift::AddUiWorldMapAreaIdSwap(uint32 uiWorldMapAreaId, int32 references /*= 1*/)
+bool PhaseShift::AddUiMapPhaseId(uint32 uiMapPhaseId, int32 references /*= 1*/)
 {
-    auto insertResult = UiWorldMapAreaIdSwaps.emplace(uiWorldMapAreaId, UiWorldMapAreaIdSwapRef{ 0 });
+    auto insertResult = UiMapPhaseIds.emplace(uiMapPhaseId, UiMapPhaseIdRef{ 0 });
     insertResult.first->second.References += references;
     return insertResult.second;
 }
 
-PhaseShift::EraseResult<PhaseShift::UiWorldMapAreaIdSwapContainer> PhaseShift::RemoveUiWorldMapAreaIdSwap(uint32 uiWorldMapAreaId)
+PhaseShift::EraseResult<PhaseShift::UiMapPhaseIdContainer> PhaseShift::RemoveUiMapPhaseId(uint32 uiMapPhaseId)
 {
-    auto itr = UiWorldMapAreaIdSwaps.find(uiWorldMapAreaId);
-    if (itr != UiWorldMapAreaIdSwaps.end())
+    auto itr = UiMapPhaseIds.find(uiMapPhaseId);
+    if (itr != UiMapPhaseIds.end())
     {
         if (!--itr->second.References)
-            return { UiWorldMapAreaIdSwaps.erase(itr), true };
+            return { UiMapPhaseIds.erase(itr), true };
         return { itr, false };
     }
-    return { UiWorldMapAreaIdSwaps.end(), false };
+    return { UiMapPhaseIds.end(), false };
 }
 
 void PhaseShift::Clear()
@@ -84,7 +84,7 @@ void PhaseShift::Clear()
     ClearPhases();
     PersonalGuid.Clear();
     VisibleMapIds.clear();
-    UiWorldMapAreaIdSwaps.clear();
+    UiMapPhaseIds.clear();
 }
 
 void PhaseShift::ClearPhases()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,7 +68,7 @@ public:
         int32 References = 0;
         TerrainSwapInfo const* VisibleMapInfo = nullptr;
     };
-    struct UiWorldMapAreaIdSwapRef
+    struct UiMapPhaseIdRef
     {
         int32 References = 0;
     };
@@ -80,7 +80,7 @@ public:
     };
     typedef boost::container::flat_set<PhaseRef> PhaseContainer;
     typedef std::map<uint32, VisibleMapIdRef> VisibleMapIdContainer;
-    typedef std::map<uint32, UiWorldMapAreaIdSwapRef> UiWorldMapAreaIdSwapContainer;
+    typedef std::map<uint32, UiMapPhaseIdRef> UiMapPhaseIdContainer;
 
     PhaseShift() : Flags(PhaseShiftFlags::Unphased), NonCosmeticReferences(0), CosmeticReferences(0), DefaultReferences(0), IsDbPhaseShift(false) { }
 
@@ -94,10 +94,10 @@ public:
     bool HasVisibleMapId(uint32 visibleMapId) const { return VisibleMapIds.find(visibleMapId) != VisibleMapIds.end(); }
     VisibleMapIdContainer const& GetVisibleMapIds() const { return VisibleMapIds; }
 
-    bool AddUiWorldMapAreaIdSwap(uint32 uiWorldMapAreaId, int32 references = 1);
-    EraseResult<UiWorldMapAreaIdSwapContainer> RemoveUiWorldMapAreaIdSwap(uint32 uiWorldMapAreaId);
-    bool HasUiWorldMapAreaIdSwap(uint32 uiWorldMapAreaId) const { return UiWorldMapAreaIdSwaps.find(uiWorldMapAreaId) != UiWorldMapAreaIdSwaps.end(); }
-    UiWorldMapAreaIdSwapContainer const& GetUiWorldMapAreaIdSwaps() const { return UiWorldMapAreaIdSwaps; }
+    bool AddUiMapPhaseId(uint32 uiMapPhaseId, int32 references = 1);
+    EraseResult<UiMapPhaseIdContainer> RemoveUiMapPhaseId(uint32 uiMapPhaseId);
+    bool HasUiMapPhaseId(uint32 uiMapPhaseId) const { return UiMapPhaseIds.find(uiMapPhaseId) != UiMapPhaseIds.end(); }
+    UiMapPhaseIdContainer const& GetUiWorldMapAreaIdSwaps() const { return UiMapPhaseIds; }
 
     void Clear();
     void ClearPhases();
@@ -111,7 +111,7 @@ protected:
     ObjectGuid PersonalGuid;
     PhaseContainer Phases;
     VisibleMapIdContainer VisibleMapIds;
-    UiWorldMapAreaIdSwapContainer UiWorldMapAreaIdSwaps;
+    UiMapPhaseIdContainer UiMapPhaseIds;
 
     void ModifyPhasesReferences(PhaseContainer::iterator itr, int32 references);
     void UpdateUnphasedFlag();

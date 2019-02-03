@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -144,8 +144,8 @@ void PhasingHandler::AddVisibleMapId(WorldObject* object, uint32 visibleMapId)
     TerrainSwapInfo const* terrainSwapInfo = sObjectMgr->GetTerrainSwapInfo(visibleMapId);
     bool changed = object->GetPhaseShift().AddVisibleMapId(visibleMapId, terrainSwapInfo);
 
-    for (uint32 uiWorldMapAreaIDSwap : terrainSwapInfo->UiWorldMapAreaIDSwaps)
-        changed = object->GetPhaseShift().AddUiWorldMapAreaIdSwap(uiWorldMapAreaIDSwap) || changed;
+    for (uint32 uiMapPhaseId : terrainSwapInfo->UiMapPhaseIDs)
+        changed = object->GetPhaseShift().AddUiMapPhaseId(uiMapPhaseId) || changed;
 
     if (Unit* unit = object->ToUnit())
     {
@@ -163,8 +163,8 @@ void PhasingHandler::RemoveVisibleMapId(WorldObject* object, uint32 visibleMapId
     TerrainSwapInfo const* terrainSwapInfo = sObjectMgr->GetTerrainSwapInfo(visibleMapId);
     bool changed = object->GetPhaseShift().RemoveVisibleMapId(visibleMapId).Erased;
 
-    for (uint32 uiWorldMapAreaIDSwap : terrainSwapInfo->UiWorldMapAreaIDSwaps)
-        changed = object->GetPhaseShift().RemoveUiWorldMapAreaIdSwap(uiWorldMapAreaIDSwap).Erased || changed;
+    for (uint32 uiWorldMapAreaIDSwap : terrainSwapInfo->UiMapPhaseIDs)
+        changed = object->GetPhaseShift().RemoveUiMapPhaseId(uiWorldMapAreaIDSwap).Erased || changed;
 
     if (Unit* unit = object->ToUnit())
     {
@@ -185,9 +185,6 @@ void PhasingHandler::ResetPhaseShift(WorldObject* object)
 
 void PhasingHandler::InheritPhaseShift(WorldObject* target, WorldObject const* source)
 {
-    if (!source)
-        return;
-
     target->GetPhaseShift() = source->GetPhaseShift();
     target->GetSuppressedPhaseShift() = source->GetSuppressedPhaseShift();
 }
@@ -199,18 +196,21 @@ void PhasingHandler::OnMapChange(WorldObject* object)
     ConditionSourceInfo srcInfo = ConditionSourceInfo(object);
 
     object->GetPhaseShift().VisibleMapIds.clear();
-    object->GetPhaseShift().UiWorldMapAreaIdSwaps.clear();
+    object->GetPhaseShift().UiMapPhaseIds.clear();
     object->GetSuppressedPhaseShift().VisibleMapIds.clear();
 
-    if (std::vector<TerrainSwapInfo*> const* visibleMapIds = sObjectMgr->GetTerrainSwapsForMap(object->GetMapId()))
+    for (auto visibleMapPair : sObjectMgr->GetTerrainSwaps())
     {
-        for (TerrainSwapInfo const* visibleMapInfo : *visibleMapIds)
+        for (TerrainSwapInfo const* visibleMapInfo : visibleMapPair.second)
         {
             if (sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, visibleMapInfo->Id, srcInfo))
             {
-                phaseShift.AddVisibleMapId(visibleMapInfo->Id, visibleMapInfo);
-                for (uint32 uiWorldMapAreaIdSwap : visibleMapInfo->UiWorldMapAreaIDSwaps)
-                    phaseShift.AddUiWorldMapAreaIdSwap(uiWorldMapAreaIdSwap);
+                if (visibleMapPair.first == object->GetMapId())
+                    phaseShift.AddVisibleMapId(visibleMapInfo->Id, visibleMapInfo);
+
+                // ui map is visible on all maps
+                for (uint32 uiMapPhaseId : visibleMapInfo->UiMapPhaseIDs)
+                    phaseShift.AddUiMapPhaseId(uiMapPhaseId);
             }
             else
                 suppressedPhaseShift.AddVisibleMapId(visibleMapInfo->Id, visibleMapInfo);
@@ -318,8 +318,8 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
         if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, itr->first, srcInfo))
         {
             newSuppressions.AddVisibleMapId(itr->first, itr->second.VisibleMapInfo, itr->second.References);
-            for (uint32 uiWorldMapAreaIdSwap : itr->second.VisibleMapInfo->UiWorldMapAreaIDSwaps)
-                changed = phaseShift.RemoveUiWorldMapAreaIdSwap(uiWorldMapAreaIdSwap).Erased || changed;
+            for (uint32 uiMapPhaseId : itr->second.VisibleMapInfo->UiMapPhaseIDs)
+                changed = phaseShift.RemoveUiMapPhaseId(uiMapPhaseId).Erased || changed;
 
             itr = phaseShift.VisibleMapIds.erase(itr);
         }
@@ -332,8 +332,8 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
         if (sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, itr->first, srcInfo))
         {
             changed = phaseShift.AddVisibleMapId(itr->first, itr->second.VisibleMapInfo, itr->second.References) || changed;
-            for (uint32 uiWorldMapAreaIdSwap : itr->second.VisibleMapInfo->UiWorldMapAreaIDSwaps)
-                changed = phaseShift.AddUiWorldMapAreaIdSwap(uiWorldMapAreaIdSwap) || changed;
+            for (uint32 uiMapPhaseId : itr->second.VisibleMapInfo->UiMapPhaseIDs)
+                changed = phaseShift.AddUiMapPhaseId(uiMapPhaseId) || changed;
 
             itr = suppressedPhaseShift.VisibleMapIds.erase(itr);
         }
@@ -409,8 +409,8 @@ void PhasingHandler::SendToPlayer(Player const* player, PhaseShift const& phaseS
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[4]);
 
-    data << uint32(phaseShift.UiWorldMapAreaIdSwaps.size()) * 2;
-    for (auto itr = phaseShift.UiWorldMapAreaIdSwaps.begin(); itr != phaseShift.UiWorldMapAreaIdSwaps.end(); ++itr)
+    data << uint32(phaseShift.UiMapPhaseIds.size()) * 2;
+    for (auto itr = phaseShift.UiMapPhaseIds.begin(); itr != phaseShift.UiMapPhaseIds.end(); ++itr)
         data << uint16(itr->first);                          // WorldMapArea.dbc id (controls map display)
 
     data.WriteByteSeq(guid[1]);
@@ -460,6 +460,7 @@ PhaseShift const& PhasingHandler::GetEmptyPhaseShift()
 
 void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId)
 {
+    phaseShift.ClearPhases();
     phaseShift.IsDbPhaseShift = true;
 
     EnumClassFlag<PhaseShiftFlags> flags = PhaseShiftFlags::None;
@@ -573,10 +574,10 @@ void PhasingHandler::PrintToChat(ChatHandler* chat, PhaseShift const& phaseShift
         chat->PSendSysMessage(LANG_PHASESHIFT_VISIBLE_MAP_IDS, visibleMapIds.str().c_str());
     }
 
-    if (!phaseShift.UiWorldMapAreaIdSwaps.empty())
+    if (!phaseShift.UiMapPhaseIds.empty())
     {
         std::ostringstream uiWorldMapAreaIdSwaps;
-        for (PhaseShift::UiWorldMapAreaIdSwapContainer::value_type const& uiWorldMapAreaIdSwap : phaseShift.UiWorldMapAreaIdSwaps)
+        for (PhaseShift::UiMapPhaseIdContainer::value_type const& uiWorldMapAreaIdSwap : phaseShift.UiMapPhaseIds)
             uiWorldMapAreaIdSwaps << uiWorldMapAreaIdSwap.first << ',' << ' ';
 
         chat->PSendSysMessage(LANG_PHASESHIFT_UI_WORLD_MAP_AREA_SWAPS, uiWorldMapAreaIdSwaps.str().c_str());
