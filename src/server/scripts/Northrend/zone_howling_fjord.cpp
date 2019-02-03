@@ -23,7 +23,6 @@ SDCategory: howling_fjord
 EndScriptData */
 
 /* ContentData
-npc_plaguehound_tracker
 npc_apothecary_hanes
 EndContentData */
 
@@ -255,55 +254,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_Apothecary_HanesAI(creature);
-    }
-};
-
-/*######
-## npc_plaguehound_tracker
-######*/
-
-enum Plaguehound
-{
-    QUEST_SNIFF_OUT_ENEMY        = 11253
-};
-
-class npc_plaguehound_tracker : public CreatureScript
-{
-public:
-    npc_plaguehound_tracker() : CreatureScript("npc_plaguehound_tracker") { }
-
-    struct npc_plaguehound_trackerAI : public EscortAI
-    {
-        npc_plaguehound_trackerAI(Creature* creature) : EscortAI(creature) { }
-
-        void Reset() override
-        {
-            ObjectGuid summonerGUID;
-
-            if (me->IsSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    if (summoner->GetTypeId() == TYPEID_PLAYER)
-                        summonerGUID = summoner->GetGUID();
-
-            if (!summonerGUID)
-                return;
-
-            me->SetWalk(true);
-            Start(false, false, summonerGUID);
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            if (waypointId != 26)
-                return;
-
-            me->DespawnOrUnsummon();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_plaguehound_trackerAI(creature);
     }
 };
 
@@ -662,7 +612,6 @@ public:
 void AddSC_howling_fjord()
 {
     new npc_apothecary_hanes();
-    new npc_plaguehound_tracker();
     new npc_razael_and_lyana();
     new npc_daegarn();
     new npc_mindless_abomination();
