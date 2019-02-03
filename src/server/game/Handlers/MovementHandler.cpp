@@ -608,3 +608,35 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
 
     _player->SummonIfPossible(agree);
 }
+
+void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
+
+    ObjectGuid guid;
+    uint32 timeSkipped;
+    recvData >> guid.ReadAsPacked();
+    recvData >> timeSkipped;
+
+    Unit* mover = GetPlayer()->m_unitMovedByMe;
+
+    if (!mover)
+    {
+        TC_LOG_WARN("entities.player", "WorldSession::HandleMoveTimeSkippedOpcode wrong mover state from the unit moved by the player %s", GetPlayer()->GetGUID().ToString().c_str());
+        return;
+    }
+
+    // prevent tampered movement data
+    if (guid != mover->GetGUID())
+    {
+        TC_LOG_WARN("entities.player", "WorldSession::HandleMoveTimeSkippedOpcode wrong guid from the unit moved by the player %s", GetPlayer()->GetGUID().ToString().c_str());
+        return;
+    }
+
+    mover->m_movementInfo.time += timeSkipped;
+
+    WorldPacket data(MSG_MOVE_TIME_SKIPPED, recvData.size());
+    data << guid.WriteAsPacked();
+    data << timeSkipped;
+    GetPlayer()->SendMessageToSet(&data, false);
+}
