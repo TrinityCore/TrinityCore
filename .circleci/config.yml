@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  pch_and_sql:
     docker:
       - image: ubuntu:18.04
       - image: circleci/mysql:5.7
@@ -54,3 +54,55 @@ jobs:
             cd check_install/bin
             ./authserver --version
             ./worldserver --version
+  nopch:
+    docker:
+      - image: ubuntu:18.04
+    steps:
+      - run:
+          name: Requirements
+          command: |
+            apt-get update
+            apt-get install -y wget sudo mysql-client
+            apt-get install -y libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-program-options-dev libboost-regex-dev libboost-system-dev libboost-thread-dev libssl-dev libmysqlclient-dev libreadline-dev libncurses-dev zlib1g-dev libbz2-dev
+            apt-get install -y cmake clang git
+            apt-get install -y ccache
+      - checkout
+      - restore_cache:
+          keys:
+            - nopch-{{ .Branch }}-{{ .Revision }}
+            - nopch-{{ .Branch }}
+            - nopch
+      - run:
+          name: Setup
+          command: |
+            ccache -s
+            git config user.email "circleci@build.bot" && git config user.name "Circl CI"
+            export CC="ccache clang"
+            export CXX="ccache clang++"
+            export CCACHE_CPP2=yes
+            export USE_CCACHE=1
+            export PATH=/usr/lib/ccache:$PATH
+            $CXX --version
+            mkdir bin
+            cd bin
+            cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
+            cd ..
+      - run:
+          name: Build
+          command: |
+            cd bin
+            make -j 4 -k && make install
+            ccache -s
+            cd check_install/bin
+            ./authserver --version
+            ./worldserver --version
+      - save_cache:
+          key: nopch-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - /root/.ccache
+workflows:
+  version: 2
+  build_all:
+    jobs:
+      - pch_and_sql
+      - nopch
