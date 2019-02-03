@@ -293,7 +293,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
     Unit* mover = _player->m_unitMovedByMe;
 
-    ASSERT(mover != nullptr);                      // there must always be a mover
+    // there must always be a mover
+    if (!mover)
+        return;
 
     Player* plrMover = mover->ToPlayer();
 
