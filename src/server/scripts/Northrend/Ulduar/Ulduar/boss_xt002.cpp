@@ -955,7 +955,7 @@ class spell_xt002_exposed_heart : public AuraScript
     }
 
 private:
-    uint32 _damageAmount;
+    uint32 _damageAmount = 0;
 };
 
 class achievement_nerf_engineering : public AchievementCriteriaScript
