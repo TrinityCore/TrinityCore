@@ -775,6 +775,33 @@ public:
     }
 };
 
+enum HorseSeats
+{
+    SEAT_ID_0                       = 0
+};
+
+class spell_stable_master_repo : public AuraScript
+{
+    PrepareAuraScript(spell_stable_master_repo);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Creature* creature = GetTarget()->ToCreature();
+        if (!creature)
+            return;
+
+        if (Unit* passenger = creature->GetVehicleKit()->GetPassenger(SEAT_ID_0))
+            GetCaster()->GetAI()->AttackStart(passenger);
+
+        creature->DespawnOrUnsummon(2s);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_stable_master_repo::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 class spell_deliver_stolen_horse : public SpellScript
 {
     PrepareSpellScript(spell_deliver_stolen_horse);
@@ -1220,6 +1247,7 @@ void AddSC_the_scarlet_enclave_c1()
     new npc_death_knight_initiate();
     RegisterCreatureAI(npc_dark_rider_of_acherus);
     new npc_salanar_the_horseman();
+    RegisterAuraScript(spell_stable_master_repo);
     RegisterSpellScript(spell_deliver_stolen_horse);
     new npc_ros_dark_rider();
     new npc_dkc1_gothik();
