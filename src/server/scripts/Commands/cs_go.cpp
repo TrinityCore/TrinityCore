@@ -461,7 +461,7 @@ public:
             return true;
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_FAILED, mapid, scriptname, exit->target_mapId);
+        handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_FAILED, mapid, scriptname, exit ? exit->target_mapId : uint32(-1));
         handler->SetSentErrorMessage(true);
         return false;
     }

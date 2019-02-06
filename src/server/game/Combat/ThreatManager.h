@@ -280,8 +280,10 @@ class TC_GAME_API ThreatReference
 
         ThreatReference(ThreatManager* mgr, Unit* victim) :
             _owner(reinterpret_cast<Creature*>(mgr->_owner)), _mgr(*mgr), _victim(victim),
-            _online(ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE),
-            _baseAmount(0.0f), _tempModifier(0), _taunted(TAUNT_STATE_NONE) { }
+            _baseAmount(0.0f), _tempModifier(0), _taunted(TAUNT_STATE_NONE)
+        {
+            _online = ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE;
+        }
 
         void UnregisterAndFree();
 
