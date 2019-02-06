@@ -791,9 +791,9 @@ class spell_stable_master_repo : public AuraScript
             return;
 
         if (Unit* passenger = creature->GetVehicleKit()->GetPassenger(SEAT_ID_0))
-            GetCaster()->GetAI()->AttackStart(passenger);
+            GetCaster()->EngageWithTarget(passenger);
 
-        creature->DespawnOrUnsummon(2s);
+        creature->DespawnOrUnsummon(1s);
     }
 
     void Register() override
