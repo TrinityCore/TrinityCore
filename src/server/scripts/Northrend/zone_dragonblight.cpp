@@ -565,9 +565,11 @@ class npc_wyrmrest_defender : public CreatureScript
             bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == MENU_ID && gossipListId == GOSSIP_OPTION_ID)
+                {
                     // Makes player cast trigger spell for 49207 on self
                     player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
                     CloseGossipMenuFor(player);
+                }
                 return true;
             }
             
