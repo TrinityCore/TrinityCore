@@ -1159,7 +1159,7 @@ class spell_algalon_big_bang : public SpellScript
         AfterCast += SpellCastFn(spell_algalon_big_bang::CheckTargets);
     }
 private:
-    uint32 _targetCount;
+    uint32 _targetCount = 0;
 };
 
 // 64445 - Remove Player from Phase
