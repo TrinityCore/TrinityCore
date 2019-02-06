@@ -26,6 +26,7 @@
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
 #include <new>
+#include <unordered_set>
 
 /// @class dtQueryFilter
 ///
@@ -1206,10 +1207,16 @@ dtStatus dtNavMeshQuery::getPathToNode(dtNode* endNode, dtPolyRef* path, int* pa
 	// Find the length of the entire path.
 	dtNode* curNode = endNode;
 	int length = 0;
+	std::unordered_set<int> processedIds;
+	bool alreadyProcessed = false;
 	do
 	{
 		length++;
+		alreadyProcessed = !processedIds.insert(curNode->pidx).second;
+		if (alreadyProcessed)
+			return DT_FAILURE;
 		curNode = m_nodePool->getNodeAtIdx(curNode->pidx);
+
 	} while (curNode);
 
 	// If the path cannot be fully stored then advance to the last node we will be able to store.
