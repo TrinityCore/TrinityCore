@@ -4871,6 +4871,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
     });
 
+    // Poison Bolt Volley
+    ApplySpellFix({ 97018 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
     // ENDOF ZUL'GURUB SPELLS
 
     //
