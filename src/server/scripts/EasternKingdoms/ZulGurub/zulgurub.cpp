@@ -63,9 +63,9 @@ uint32 boulderCombinationSecond[] =
     SPELL_ROLLING_BOULDERS_SUMMON_CENTER
 };
 
-Position const BoulderMovePosLeft   = { -12128.5f,  -1809.7f,   81.73696f }; // jump to -12134.33 Y: -1809.78 Z: 83.9827
-Position const BoulderMovePosCenter = { -12117.74f, -1818.293f, 80.22023f }; // jump to -12123.57 Y: -1818.352 Z: 80.20083
-Position const BoulderMovePosRight  = { -12126.91f, -1827.861f, 81.26235f }; // jump to -12132.74 Y: -1827.843 Z: 83.37392
+Position const BoulderMovePosLeft   = { -12128.5f,  -1809.7f,   81.73696f };
+Position const BoulderMovePosCenter = { -12117.74f, -1818.293f, 80.22023f };
+Position const BoulderMovePosRight  = { -12126.91f, -1827.861f, 81.26235f };
 
 class ExplodingBoulderEvent : public BasicEvent
 {
@@ -129,6 +129,7 @@ struct npc_zulgurub_berserking_boulder_roller : public ScriptedAI
     {
         _EnterEvadeMode();
         _events.Reset();
+        me->SetReactState(REACT_PASSIVE);
         me->GetMotionMaster()->MoveTargetedHome();
     }
 
@@ -240,8 +241,233 @@ class spell_zulgurub_rolling_boulders : public AuraScript
     }
 };
 
+enum VenomGuardDestroyer
+{
+    SPELL_BREATH_OF_HETHISS     = 96753,
+    SPELL_POOL_OF_ACRID_TEARS   = 96754,
+    SPELL_CAULDRON_NEUTRALIZER  = 97337,
+
+    EVENT_BREATH_OF_HETHISS     = 1,
+    EVENT_RESTORE_REACT_STATE,
+    EVENT_POOL_OF_ACRID_TEARS,
+    EVENT_CAULDRON_NEUTRALIZER,
+};
+
+struct npc_zulgurub_venomguard_destroyer : public ScriptedAI
+{
+    npc_zulgurub_venomguard_destroyer(Creature* creature) : ScriptedAI(creature), _summons(me) { }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_BREATH_OF_HETHISS, 4s, 5s);
+        _events.ScheduleEvent(EVENT_POOL_OF_ACRID_TEARS, 9s, 10s);
+        _events.ScheduleEvent(EVENT_CAULDRON_NEUTRALIZER, 10s, 11s);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        _events.Reset();
+        _summons.DespawnAll();
+        me->GetMotionMaster()->MoveTargetedHome();
+        me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    void JustDied(Unit* /*who*/) override
+    {
+        _summons.DespawnAll();
+        _events.Reset();
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        _summons.Summon(summon);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BREATH_OF_HETHISS:
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    DoCastSelf(SPELL_BREATH_OF_HETHISS);
+                    _events.ScheduleEvent(EVENT_RESTORE_REACT_STATE, 4s + 500ms);
+                    _events.Repeat(14s, 15s);
+                    break;
+                case EVENT_RESTORE_REACT_STATE:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                case EVENT_POOL_OF_ACRID_TEARS:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50.0f, true))
+                        DoCast(target, SPELL_POOL_OF_ACRID_TEARS);
+                    _events.Repeat(13s, 14s);
+                    break;
+                case EVENT_CAULDRON_NEUTRALIZER:
+                    DoCastAOE(SPELL_CAULDRON_NEUTRALIZER);
+                    _events.Repeat(24s, 25s);
+                    break;
+                default:
+                    break;
+            }
+        }
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    SummonList _summons;
+};
+
+enum TikiLordMuLoa
+{
+    SPELL_TIKI_TORCH                = 96822,
+    SPELL_TIKI_LORD_VISUAL_MU_LOA_1 = 96798,
+    SPELL_TIKI_LORD_VISUAL_MU_LOA_2 = 97147,
+    SPELL_TIKI_LORD_VISUAL_MU_LOA_3 = 97148,
+    EVENT_TIKI_TORCH                = 1
+};
+
+struct npc_zulgurub_tiki_lord_mu_loa : public ScriptedAI
+{
+    npc_zulgurub_tiki_lord_mu_loa(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_TIKI_TORCH, 1ms);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        _events.Reset();
+        me->ReleaseFocus(nullptr, false);
+        me->GetMotionMaster()->MoveTargetedHome();
+    }
+
+    void JustDied(Unit* /*who*/) override
+    {
+        _events.Reset();
+        me->RemoveAurasDueToSpell(SPELL_TIKI_LORD_VISUAL_MU_LOA_1);
+        DoCastSelf(SPELL_TIKI_LORD_VISUAL_MU_LOA_3, true);
+        DoCastSelf(SPELL_TIKI_LORD_VISUAL_MU_LOA_2, true);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TIKI_TORCH:
+                    me->StopMoving();
+                    DoCastVictim(SPELL_TIKI_TORCH);
+                    _events.Repeat(10s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+enum TikiLordZimVae
+{
+    SPELL_TIKI_LORD_VISUAL_ZIM_WAE_1    = 96851,
+    SPELL_TIKI_LORD_VISUAL_ZIM_WAE_2    = 97236,
+    SPELL_TIKI_LORD_VISUAL_ZIM_WAE_3    = 97237,
+    SPELL_BONE_VOLLEY                   = 96871,
+    EVENT_BONE_VOLLEY                   = 1
+};
+
+struct npc_zulgurub_tiki_lord_zim_wae : public ScriptedAI
+{
+    npc_zulgurub_tiki_lord_zim_wae(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_BONE_VOLLEY, 1ms);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        _events.Reset();
+        me->GetMotionMaster()->MoveTargetedHome();
+    }
+
+    void JustDied(Unit* /*who*/) override
+    {
+        _events.Reset();
+        me->RemoveAurasDueToSpell(SPELL_TIKI_LORD_VISUAL_ZIM_WAE_1);
+        DoCastSelf(SPELL_TIKI_LORD_VISUAL_ZIM_WAE_3, true);
+        DoCastSelf(SPELL_TIKI_LORD_VISUAL_ZIM_WAE_2, true);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BONE_VOLLEY:
+                    DoCastAOE(SPELL_BONE_VOLLEY);
+                    _events.Repeat(2s + 500ms);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
 void AddSC_zulgurub()
 {
     RegisterZulGurubCreatureAI(npc_zulgurub_berserking_boulder_roller);
+    RegisterZulGurubCreatureAI(npc_zulgurub_venomguard_destroyer);
+    RegisterZulGurubCreatureAI(npc_zulgurub_tiki_lord_mu_loa);
+    RegisterZulGurubCreatureAI(npc_zulgurub_tiki_lord_zim_wae);
     RegisterAuraScript(spell_zulgurub_rolling_boulders);
 }
