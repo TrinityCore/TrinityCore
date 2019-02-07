@@ -17,12 +17,14 @@
  */
 
 #include "MotionMaster.h"
+#include "ChaseMovementGenerator.h"
 #include "ConfusedMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
 #include "DBCStores.h"
 #include "FleeingMovementGenerator.h"
 #include "FlightPathMovementGenerator.h"
+#include "FollowMovementGenerator.h"
 #include "FormationMovementGenerator.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
@@ -36,7 +38,6 @@
 #include "RandomMovementGenerator.h"
 #include "ScriptSystem.h"
 #include "SplineChainMovementGenerator.h"
-#include "TargetedMovementGenerator.h"
 #include "Unit.h"
 #include "WaypointDefines.h"
 #include "WaypointMovementGenerator.h"
@@ -219,7 +220,7 @@ void MotionMaster::MoveTargetedHome()
         if (target)
         {
             TC_LOG_DEBUG("misc", "Following %s (GUID: %u).", target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", target->GetTypeId() == TYPEID_PLAYER ? target->GetGUID().GetCounter() : ((Creature*)target)->GetSpawnId());
-            Mutate(new FollowMovementGenerator<Creature>(target, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE), MOTION_SLOT_ACTIVE);
+            Mutate(new FollowMovementGenerator(target, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE), MOTION_SLOT_ACTIVE);
         }
     }
     else
@@ -237,53 +238,33 @@ void MotionMaster::MoveRandom(float spawndist)
     }
 }
 
-void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlot slot)
+void MotionMaster::MoveFollow(Unit* target, float dist, ChaseAngle angle, MovementSlot slot)
 {
     // ignore movement request if target not exist
     if (!target || target == _owner)
         return;
 
-    //_owner->AddUnitState(UNIT_STATE_FOLLOW);
-    if (_owner->GetTypeId() == TYPEID_PLAYER)
-    {
-        TC_LOG_DEBUG("misc", "Player (GUID: %u) follows %s (GUID: %u).", _owner->GetGUID().GetCounter(),
-            target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-            target->GetTypeId() == TYPEID_PLAYER ? target->GetGUID().GetCounter() : target->ToCreature()->GetSpawnId());
-        Mutate(new FollowMovementGenerator<Player>(target, dist, angle), slot);
-    }
-    else
-    {
-        TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) follows %s (GUID: %u).",
-            _owner->GetEntry(), _owner->GetGUID().GetCounter(),
-            target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-            target->GetTypeId() == TYPEID_PLAYER ? target->GetGUID().GetCounter() : target->ToCreature()->GetSpawnId());
-        Mutate(new FollowMovementGenerator<Creature>(target, dist, angle), slot);
-    }
+    TC_LOG_DEBUG("misc", "%s (Entry: %u, GUID: %u) follows %s (Entry %u, GUID: %u).",
+        _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
+        _owner->GetEntry(), _owner->GetGUID().GetCounter(),
+        target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
+        target->GetEntry(), target->GetGUID().GetCounter());
+
+    Mutate(new FollowMovementGenerator(target, dist, angle), slot);
 }
 
-void MotionMaster::MoveChase(Unit* target, float dist, float angle)
+void MotionMaster::MoveChase(Unit* target, Optional<ChaseRange> dist, Optional<ChaseAngle> angle)
 {
     // ignore movement request if target not exist
     if (!target || target == _owner)
         return;
 
-    //_owner->ClearUnitState(UNIT_STATE_FOLLOW);
-    if (_owner->GetTypeId() == TYPEID_PLAYER)
-    {
-        TC_LOG_DEBUG("misc", "Player (GUID: %u) chase to %s (GUID: %u)",
-            _owner->GetGUID().GetCounter(),
-            target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-            target->GetTypeId() == TYPEID_PLAYER ? target->GetGUID().GetCounter() : target->ToCreature()->GetSpawnId());
-        Mutate(new ChaseMovementGenerator<Player>(target, dist, angle), MOTION_SLOT_ACTIVE);
-    }
-    else
-    {
-        TC_LOG_DEBUG("misc", "Creature (Entry: %u GUID: %u) chase to %s (GUID: %u)",
-            _owner->GetEntry(), _owner->GetGUID().GetCounter(),
-            target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-            target->GetTypeId() == TYPEID_PLAYER ? target->GetGUID().GetCounter() : target->ToCreature()->GetSpawnId());
-        Mutate(new ChaseMovementGenerator<Creature>(target, dist, angle), MOTION_SLOT_ACTIVE);
-    }
+    TC_LOG_DEBUG("misc", "%s (Entry: %u, GUID: %u) chase to %s (Entry: %u, GUID: %u)",
+        _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
+        _owner->GetEntry(), _owner->GetGUID().GetCounter(),
+        target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
+        target->GetEntry(), target->GetGUID().GetCounter());
+    Mutate(new ChaseMovementGenerator(target, dist, angle), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveConfused()
@@ -597,6 +578,9 @@ void MotionMaster::MoveFall(uint32 id /*=0*/)
     // Abort too if the ground is very near
     if (std::fabs(_owner->GetPositionZ() - tz) < 0.1f)
         return;
+
+    _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+    _owner->m_movementInfo.SetFallTime(0);
 
     if (_owner->GetTypeId() == TYPEID_PLAYER)
         _owner->SetFall(true);

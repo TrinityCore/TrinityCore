@@ -16,13 +16,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "PointMovementGenerator.h"
 #include "CreatureAI.h"
 #include "Creature.h"
 #include "Player.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "World.h"
-#include "PointMovementGenerator.h"
 
 //----- Point Movement Generator
 
@@ -83,6 +83,7 @@ bool PointMovementGenerator<T>::DoUpdate(T* owner, uint32 /*diff*/)
         Movement::MoveSplineInit init(owner);
         init.MoveTo(_x, _y, _z, _generatePath);
         if (_speed > 0.0f) // Default value for point motion type is 0.0, if 0.0 spline will use GetSpeed on unit
+            init.SetVelocity(_speed);
         init.Launch();
 
         // Call for creature group update

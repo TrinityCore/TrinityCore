@@ -21,8 +21,6 @@
 
 #include "Object.h"
 #include "EventProcessor.h"
-#include "FollowerReference.h"
-#include "FollowerRefManager.h"
 #include "HostileRefManager.h"
 #include "OptionalFwd.h"
 #include "SpellAuraDefines.h"
@@ -228,6 +226,7 @@ enum InventorySlot
     NULL_SLOT                  = 255
 };
 
+struct AbstractFollower;
 struct FactionTemplateEntry;
 struct LiquidData;
 struct LiquidTypeEntry;
@@ -1008,7 +1007,8 @@ class TC_GAME_API Unit : public WorldObject
         float GetCombatReach() const override { return m_floatValues[UNIT_FIELD_COMBATREACH]; }
         float GetBoundaryRadius() const { return m_floatValues[UNIT_FIELD_BOUNDINGRADIUS]; }
         bool IsWithinCombatRange(Unit const* obj, float dist2compare) const;
-        bool IsWithinMeleeRange(Unit const* obj) const;
+        bool IsWithinMeleeRange(Unit const* obj) const { return IsWithinMeleeRangeAt(GetPosition(), obj); }
+        bool IsWithinMeleeRangeAt(Position const& pos, Unit const* obj) const;
         bool IsWithinBoundaryRadius(const Unit* obj) const;
         float GetMeleeRange(Unit const* target) const;
         void GetRandomContactPoint(Unit const* target, float& x, float& y, float& z, float distance2dMin, float distance2dMax) const;
@@ -1762,8 +1762,9 @@ class TC_GAME_API Unit : public WorldObject
         void  ModSpellCastTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = nullptr);
         void  ModSpellDurationTime(SpellInfo const* spellProto, int32& castTime, Spell* spell = nullptr);
 
-        void addFollower(FollowerReference* pRef) { m_FollowingRefManager.insertFirst(pRef); }
-        void removeFollower(FollowerReference* /*pRef*/) { /* nothing to do yet */ }
+        void FollowerAdded(AbstractFollower* f) { m_followingMe.insert(f); }
+        void FollowerRemoved(AbstractFollower* f) { m_followingMe.erase(f); }
+        void RemoveAllFollowers();
 
         MotionMaster* GetMotionMaster() { return i_motionMaster; }
         MotionMaster const* GetMotionMaster() const { return i_motionMaster; }
@@ -2010,7 +2011,7 @@ class TC_GAME_API Unit : public WorldObject
         // Manage all Units that are threatened by us
         HostileRefManager m_HostileRefManager;
 
-        FollowerRefManager m_FollowingRefManager;
+        std::unordered_set<AbstractFollower*> m_followingMe;
 
         GuidSet m_ComboPointHolders;
 

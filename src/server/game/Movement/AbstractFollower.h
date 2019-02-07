@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,16 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _FOLLOWERREFMANAGER
-#define _FOLLOWERREFMANAGER
-
-#include "RefManager.h"
+#ifndef TRINITY_ABSTRACTFOLLOWER_H
+#define TRINITY_ABSTRACTFOLLOWER_H
 
 class Unit;
-class TargetedMovementGeneratorBase;
 
-class FollowerRefManager : public RefManager<Unit, TargetedMovementGeneratorBase>
+struct AbstractFollower
 {
+    public:
+        AbstractFollower(Unit* target = nullptr) { SetTarget(target); }
+        ~AbstractFollower() { SetTarget(nullptr); }
 
+        void SetTarget(Unit* unit);
+        Unit* GetTarget() const { return _target; }
+
+    private:
+        Unit* _target = nullptr;
 };
+
 #endif

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,21 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Unit.h"
-#include "TargetedMovementGenerator.h"
-#include "FollowerReference.h"
+#ifndef TRINITY_G3DPOSITION_HPP
+#define TRINITY_G3DPOSITION_HPP
 
-void FollowerReference::targetObjectBuildLink()
-{
-    getTarget()->addFollower(this);
-}
+#include "Position.h"
+#include <G3D/Vector3.h>
+#include "Errors.h"
 
-void FollowerReference::targetObjectDestroyLink()
-{
-    getTarget()->removeFollower(this);
-}
+inline G3D::Vector3 PositionToVector3(Position p) { return { p.m_positionX, p.m_positionY, p.m_positionZ }; }
+inline G3D::Vector3 PositionToVector3(Position const* p) { return { ASSERT_NOTNULL(p)->m_positionX, p->m_positionY, p->m_positionZ }; }
+inline Position Vector3ToPosition(G3D::Vector3 v) { return { v.x, v.y, v.z }; }
 
-void FollowerReference::sourceObjectDestroyLink()
-{
-    GetSource()->stopFollowing();
-}
+#endif
