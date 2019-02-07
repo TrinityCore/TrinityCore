@@ -790,8 +790,9 @@ class spell_stable_master_repo : public AuraScript
         if (!creature)
             return;
 
-        if (Unit* passenger = creature->GetVehicleKit()->GetPassenger(SEAT_ID_0))
-            GetCaster()->EngageWithTarget(passenger);
+        if (Vehicle* vehicleKit = creature->GetVehicleKit())
+            if (Unit* passenger = vehicleKit->GetPassenger(SEAT_ID_0))
+                GetCaster()->EngageWithTarget(passenger);
 
         creature->DespawnOrUnsummon(1s);
     }
