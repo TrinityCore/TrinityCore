@@ -446,13 +446,13 @@ void WorldSession::SendLfgPlayerLockInfo()
         data << uint32(0);                                              // completedEncounters
 
         bool isCallToArmsEligible = sLFGMgr->IsCallToArmsEnabled() && sLFGMgr->IsCallToArmsEnligible(player, dungeonId & 0x00FFFFFF);
+        uint8 roleMask = sLFGMgr->GetCallToArmsEnligibleRoles();
 
-        data << uint8(isCallToArmsEligible);                            // Call to Arms eligible
+        data << uint8(isCallToArmsEligible && roleMask);                // Call to Arms eligible
         Quest const* ctaQuest = sObjectMgr->GetQuestTemplate(lfg::LFG_CALL_TO_ARMS_QUEST);
 
-        if (isCallToArmsEligible && ctaQuest)
+        if (isCallToArmsEligible && roleMask && ctaQuest)
         {
-            uint8 roleMask = sLFGMgr->GetCallToArmsEnligibleRoles();
             if (sLFGMgr->IsCallToArmsRewardEnligible(guid))
                 roleMask |= sLFGMgr->GetRoles(guid);
 
