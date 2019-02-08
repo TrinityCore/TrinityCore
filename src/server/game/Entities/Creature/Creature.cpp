@@ -2267,7 +2267,7 @@ void Creature::CallForHelp(float radius)
 
     if (!target)
     {
-        TC_LOG_DEBUG("entities.unit", "Creature %u (%s) is engaged without threat list", GetEntry(), GetName().c_str());
+        TC_LOG_ERROR("entities.unit", "Creature %u (%s) is engaged without threat list", GetEntry(), GetName().c_str());
         return;
     }
 
