@@ -309,7 +309,7 @@ struct npc_kilnara_pride_of_bethekk : public ScriptedAI
     {
         me->SetReactState(REACT_AGGRESSIVE);
         me->RemoveAurasDueToSpell(SPELL_DARK_SLUMBER);
-        _events.ScheduleEvent(EVENT_GAPING_WOUND, 8s);
+        _events.ScheduleEvent(EVENT_GAPING_WOUND, 8s, 10s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -328,6 +328,7 @@ struct npc_kilnara_pride_of_bethekk : public ScriptedAI
             {
                 case EVENT_GAPING_WOUND:
                     DoCastAOE(SPELL_GAPING_WOUND);
+                    _events.Repeat(8s, 10s);
                     break;
                 default:
                     break;
