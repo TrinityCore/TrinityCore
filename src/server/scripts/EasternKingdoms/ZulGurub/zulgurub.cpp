@@ -22,6 +22,7 @@
 #include "MoveSplineInit.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 
@@ -463,6 +464,103 @@ private:
     EventMap _events;
 };
 
+enum SigilShatter
+{
+    SPELL_SIGIL_OF_FLAME = 98006,
+    SPELL_SIGIL_OF_FROST = 98015,
+    SPELL_SIGIL_OF_DEATH = 98018
+};
+
+class spell_zulgurub_sigil_shatter : public SpellScript
+{
+    PrepareSpellScript(spell_zulgurub_sigil_shatter);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_SIGIL_OF_FLAME,
+                SPELL_SIGIL_OF_FROST,
+                SPELL_SIGIL_OF_DEATH
+            });
+    }
+
+    void FilterSigilOfFlameTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_SIGIL_OF_FLAME, GetCaster());
+
+        targets.remove_if(Trinity::UnitAuraCheck(true, spellId));
+    }
+
+    void FilterSigilOfFrostTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_SIGIL_OF_FROST, GetCaster());
+
+        targets.remove_if(Trinity::UnitAuraCheck(true, spellId));
+    }
+
+    void FilterSigilOfDeathTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_SIGIL_OF_DEATH, GetCaster());
+
+        targets.remove_if(Trinity::UnitAuraCheck(true, spellId));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_zulgurub_sigil_shatter::FilterSigilOfFlameTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_zulgurub_sigil_shatter::FilterSigilOfFrostTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_zulgurub_sigil_shatter::FilterSigilOfDeathTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
+enum AncientGuardian
+{
+    SPELL_ANCIENT_GUARDIAN_HEAL = 97980
+};
+
+class spell_zulgurub_ancient_guardian : public AuraScript
+{
+    PrepareAuraScript(spell_zulgurub_ancient_guardian);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ANCIENT_GUARDIAN_HEAL });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = -1;
+    }
+
+    void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        Unit* target = GetTarget();
+        if (dmgInfo.GetDamage() >= target->GetHealth())
+        {
+            absorbAmount = dmgInfo.GetDamage();
+            int32 health = target->CountPctFromMaxHealth(50) - absorbAmount;
+            target->CastCustomSpell(SPELL_ANCIENT_GUARDIAN_HEAL, SPELLVALUE_BASE_POINT0, health, target, true, nullptr, aurEff);
+            Remove();
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_zulgurub_ancient_guardian::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_zulgurub_ancient_guardian::Absorb, EFFECT_1);
+    }
+};
+
 void AddSC_zulgurub()
 {
     RegisterZulGurubCreatureAI(npc_zulgurub_berserking_boulder_roller);
@@ -470,4 +568,6 @@ void AddSC_zulgurub()
     RegisterZulGurubCreatureAI(npc_zulgurub_tiki_lord_mu_loa);
     RegisterZulGurubCreatureAI(npc_zulgurub_tiki_lord_zim_wae);
     RegisterAuraScript(spell_zulgurub_rolling_boulders);
+    RegisterSpellScript(spell_zulgurub_sigil_shatter);
+    RegisterAuraScript(spell_zulgurub_ancient_guardian);
 }

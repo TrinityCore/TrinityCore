@@ -4877,6 +4877,24 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 1;
     });
 
+    // Sigil Shatter
+    ApplySpellFix({ 98033 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].TriggerSpell = 98014;
+    });
+
+    // Sigil Shatter
+    ApplySpellFix({ 98038 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_2].TriggerSpell = 98016;
+    });
+
+    // Sigil Shatter
+    ApplySpellFix({ 98040 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].TriggerSpell = 98019;
+    });
+
     // ENDOF ZUL'GURUB SPELLS
 
     //
