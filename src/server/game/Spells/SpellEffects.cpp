@@ -865,23 +865,29 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
 
 void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & speedZ)
 {
-    float miscA = 0.0f;
-    float miscB = 0.0f;
-    if (m_spellInfo->Effects[i].MiscValue)
-        miscA = float(m_spellInfo->Effects[i].MiscValue) / 10;
+    float runSpeed = m_caster->IsControlledByPlayer() ? playerBaseMoveSpeed[MOVE_RUN] : baseMoveSpeed[MOVE_RUN];
+    if (Creature* creature = m_caster->ToCreature())
+        runSpeed *= creature->GetCreatureTemplate()->speed_run;
 
-    if (m_spellInfo->Effects[i].MiscValueB)
-        miscB = float(m_spellInfo->Effects[i].MiscValueB) / 10;
+    float multiplier = m_spellInfo->Effects[i].ValueMultiplier;
+    if (multiplier <= 0.0f)
+        multiplier = 1.0f;
 
-    if (miscA == 0.0f && miscB == 0.0f)
-        speedZ = 10.0f;
+    speedXY = std::min(runSpeed * 3.0f * multiplier, 50.0f);
+
+    float duration = dist / speedXY;
+    float durationSqr = duration * duration;
+    float minHeight = m_spellInfo->Effects[i].MiscValue ? m_spellInfo->Effects[i].MiscValue / 10.0f : 0.5f; // Lower bound is blizzlike
+    float maxHeight = m_spellInfo->Effects[i].MiscValueB ? m_spellInfo->Effects[i].MiscValueB / 10.0f : 1000.0f; // Upper bound is unknown
+    float height;
+    if (durationSqr < minHeight * 8 / Movement::gravity)
+        height = minHeight;
+    else if (durationSqr > maxHeight * 8 / Movement::gravity)
+        height = maxHeight;
     else
-        speedZ = std::max(miscA, miscB);
+        height = Movement::gravity * durationSqr / 8;
 
-    if (m_spellInfo->Speed != 0.0f)
-        speedXY = m_spellInfo->Speed;
-    else
-        speedXY = dist * 10.0f / speedZ;
+    speedZ = std::sqrt(2 * Movement::gravity * height);
 }
 
 void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
