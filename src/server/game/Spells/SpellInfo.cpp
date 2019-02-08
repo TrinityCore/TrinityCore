@@ -1861,6 +1861,11 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     if (implicit && HasAttribute(SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED) && !unitTarget->CanFreeMove())
         return SPELL_FAILED_BAD_TARGETS;
 
+    // Do not allow pet or guardian targets if the spell is a raid buff or may not target pets at all
+    if ((HasAttribute(SPELL_ATTR7_CONSOLIDATED_RAID_BUFF) || HasAttribute(SPELL_ATTR5_DONT_ALLOW_PET_TARGET)) && (!caster->IsPet() || !caster->IsGuardian()))
+        if ((unitTarget->IsPet() || unitTarget->IsGuardian()))
+            return SPELL_FAILED_BAD_TARGETS;
+
     // checked in Unit::IsValidAttack/AssistTarget, shouldn't be checked for ENTRY targets
     //if (!HasAttribute(SPELL_ATTR6_CAN_TARGET_UNTARGETABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
     //    return SPELL_FAILED_BAD_TARGETS;
