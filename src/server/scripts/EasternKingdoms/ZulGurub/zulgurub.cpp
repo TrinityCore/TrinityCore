@@ -561,13 +561,120 @@ class spell_zulgurub_ancient_guardian : public AuraScript
     }
 };
 
+enum GurubashiBerserker
+{
+    SAY_WHISPER_PURSUIT_PLAYER  = 0,
+    SAY_ANNOUNCE_PURSUIT_PLAYER = 1,
+
+    SPELL_PURSUIT               = 96342,
+    SPELL_THUNDERCLAP_BERSERKER = 96340,
+    SPELL_KNOCK_AWAY_BERSERKER  = 96341,
+
+    //EVENT_THUNDERCLAP           = 1,
+    //EVENT_KNOCK_AWAY            = 2,
+    EVENT_PURSUIT               = 3,
+};
+
+struct npc_zulgurub_gurubashi_berserker: public ScriptedAI
+{
+    npc_zulgurub_gurubashi_berserker(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_PURSUIT, 1s + 200ms);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _events.Reset();
+        me->GetMotionMaster()->MoveTargetedHome();
+    }
+
+    void SpellHitTarget(Unit* victim, const SpellInfo* spellInfo)
+    {
+        if (!victim)
+            return;
+
+        if (spellInfo->Id == SPELL_PURSUIT)
+        {
+            me->getThreatManager().resetAllAggro();
+            me->AddThreat(victim, spellInfo->Effects[EFFECT_1].BasePoints);
+            Talk(SAY_WHISPER_PURSUIT_PLAYER, victim);
+            Talk(SAY_ANNOUNCE_PURSUIT_PLAYER, victim);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PURSUIT:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, 0))
+                        DoCast(target, SPELL_PURSUIT);
+
+                    _events.ScheduleEvent(EVENT_THUNDERCLAP, 7s);
+                    _events.ScheduleEvent(EVENT_KNOCK_AWAY, 6s);
+                    _events.Repeat(14s);
+                    break;
+                case EVENT_THUNDERCLAP:
+                    DoCastAOE(SPELL_THUNDERCLAP_BERSERKER);
+                    break;
+                case EVENT_KNOCK_AWAY:
+                    DoCastVictim(SPELL_KNOCK_AWAY_BERSERKER);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+};
+
+enum ToadExplode
+{
+    SPELL_TOAD_EXPLODE = 24063
+};
+
+class spell_zulgurub_toad_explode : public SpellScript
+{
+    PrepareSpellScript(spell_zulgurub_toad_explode);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TOAD_EXPLODE });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TOAD_EXPLODE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zulgurub_toad_explode::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_zulgurub()
 {
     RegisterZulGurubCreatureAI(npc_zulgurub_berserking_boulder_roller);
     RegisterZulGurubCreatureAI(npc_zulgurub_venomguard_destroyer);
     RegisterZulGurubCreatureAI(npc_zulgurub_tiki_lord_mu_loa);
     RegisterZulGurubCreatureAI(npc_zulgurub_tiki_lord_zim_wae);
+    RegisterZulGurubCreatureAI(npc_zulgurub_gurubashi_berserker);
     RegisterAuraScript(spell_zulgurub_rolling_boulders);
     RegisterSpellScript(spell_zulgurub_sigil_shatter);
     RegisterAuraScript(spell_zulgurub_ancient_guardian);
+    RegisterSpellScript(spell_zulgurub_toad_explode);
 }
