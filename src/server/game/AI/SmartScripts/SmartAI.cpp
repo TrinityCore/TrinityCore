@@ -673,7 +673,6 @@ void SmartAI::AttackStart(Unit* who)
     if (who && me->Attack(who, mCanAutoAttack))
     {
         me->GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
-        me->PauseMovement();
 
         if (mCanCombatMove)
         {
@@ -875,7 +874,10 @@ void SmartAI::SetCombatMove(bool on)
             me->GetMotionMaster()->MoveChase(me->GetVictim());
         }
         else if (!on && me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == CHASE_MOTION_TYPE)
+        {
             me->GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
+            me->StopMoving();
+        }
     }
 }
 
