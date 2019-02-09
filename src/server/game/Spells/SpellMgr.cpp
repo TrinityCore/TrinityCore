@@ -4895,6 +4895,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].TriggerSpell = 98019;
     });
 
+    // Boulder Smash
+    ApplySpellFix({ 96834 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
+        spellInfo->Effects[EFFECT_1].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
+        spellInfo->Effects[EFFECT_2].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
+    });
+
     // ENDOF ZUL'GURUB SPELLS
 
     //
