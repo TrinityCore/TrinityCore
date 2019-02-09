@@ -105,7 +105,9 @@ enum PaladinSpellIcons
 {
     PALADIN_ICON_ID_RETRIBUTION_AURA             = 555,
     PALADIN_ICOM_ID_SELFLESS_HEALER              = 3924,
-    PALADIN_ICON_ID_ETERNAL_GLORY                = 2944
+    PALADIN_ICON_ID_ETERNAL_GLORY                = 2944,
+    PALADIN_ICON_ID_GLYPH_OF_THE_LONG_WORD       = 4127,
+    PALADIN_ICON_ID_GLYPH_OF_LIGHT_OF_DAWN       = 54940
 };
 
 enum PaladinCreatures
@@ -1680,6 +1682,12 @@ class spell_pal_word_of_glory_AuraScript : public AuraScript
         return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_PURPOSE_PROC });
     }
 
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (!GetTarget()->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_GLYPH_OF_THE_LONG_WORD, EFFECT_1))
+            Remove();
+    }
+
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         Unit* caster = GetCaster();
@@ -1698,6 +1706,7 @@ class spell_pal_word_of_glory_AuraScript : public AuraScript
 
     void Register() override
     {
+        OnEffectApply += AuraEffectApplyFn(spell_pal_word_of_glory_AuraScript::HandleApply, EFFECT_1, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_word_of_glory_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
     }
 };
@@ -1982,6 +1991,58 @@ private:
     uint32 _targetCount;
 };
 
+// 85222 - Light of Dawn
+class spell_pal_light_of_dawn: public SpellScript
+{
+    PrepareSpellScript(spell_pal_light_of_dawn);
+
+    bool Load() override
+    {
+        if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+            return false;
+
+        if (GetCaster()->ToPlayer()->getClass() != CLASS_PALADIN)
+            return false;
+
+        return true;
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        uint32 const maxTargets = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_GLYPH_OF_LIGHT_OF_DAWN, EFFECT_0) ? 6 : 4;
+
+        if (targets.size() > maxTargets)
+        {
+            targets.sort(Trinity::HealthPctOrderPred());
+            targets.resize(maxTargets);
+        }
+    }
+
+    void HandleHeal(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        int32 heal = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster, nullptr, GetHitUnit());
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_DAMAGE, heal);
+
+        heal += caster->SpellHealingBonusDone(GetHitUnit(), GetSpellInfo(), heal, HEAL, EFFECT_1);
+        heal += heal * caster->GetPower(POWER_HOLY_POWER);
+
+        // For some reason there is a 2nd effect that is being calculated correctly so we will use its data
+        PreventHitEffect(EFFECT_1);
+        SetHitHeal(heal);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_light_of_dawn::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_light_of_dawn::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ALLY);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -2017,6 +2078,7 @@ void AddSC_paladin_spell_scripts()
     RegisterAuraScript(spell_pal_judgements);
     new spell_pal_lay_on_hands();
     new spell_pal_light_s_beacon();
+    RegisterSpellScript(spell_pal_light_of_dawn);
     RegisterAuraScript(spell_pal_long_arm_of_the_law);
     new spell_pal_righteous_defense();
     RegisterAuraScript(spell_pal_sacred_shield);
