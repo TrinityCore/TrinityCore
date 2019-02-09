@@ -107,7 +107,7 @@ enum PaladinSpellIcons
     PALADIN_ICOM_ID_SELFLESS_HEALER              = 3924,
     PALADIN_ICON_ID_ETERNAL_GLORY                = 2944,
     PALADIN_ICON_ID_GLYPH_OF_THE_LONG_WORD       = 4127,
-    PALADIN_ICON_ID_GLYPH_OF_LIGHT_OF_DAWN       = 54940
+    PALADIN_ICON_ID_GLYPH_OF_LIGHT_OF_DAWN       = 5154
 };
 
 enum PaladinCreatures
