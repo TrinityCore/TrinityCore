@@ -63,6 +63,7 @@ enum DruidSpells
     SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
     SPELL_DRUID_GLYPH_OF_STARFIRE           = 54846,
     SPELL_DRUID_GLYPH_OF_TYPHOON            = 62135,
+    SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE     = 101024,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS       = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP             = 60774,
     SPELL_DRUID_INCREASED_MOONFIRE_DURATION = 38414,
@@ -102,11 +103,12 @@ enum DruidSpells
 
 enum DruidSpellIconIds
 {
-    SPELL_ICON_ID_NATURES_BOUNTY        = 197,
-    SPELL_ICON_ID_DREAMSTATE            = 2255,
-    SPELL_ICON_ID_GLYPH_OF_INNERVATE    = 62,
-    SPELL_ICON_ID_EUPHORIA              = 4431,
-    SPELL_ICON_ID_SAVAGE_DEFENDER       = 146
+    SPELL_ICON_ID_NATURES_BOUNTY            = 197,
+    SPELL_ICON_ID_DREAMSTATE                = 2255,
+    SPELL_ICON_ID_GLYPH_OF_INNERVATE        = 62,
+    SPELL_ICON_ID_EUPHORIA                  = 4431,
+    SPELL_ICON_ID_SAVAGE_DEFENDER           = 146,
+    SPELL_ICON_ID_GLYPH_OF_FEROCIOUS_BITE   = 1680
 };
 
 enum MiscSpells
@@ -1565,6 +1567,60 @@ class spell_dru_furor : public AuraScript
     }
 };
 
+// 22568 - Ferocious Bite
+class spell_dru_ferocious_bite : public SpellScript
+{
+    PrepareSpellScript(spell_dru_ferocious_bite);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE });
+    }
+
+    bool Load() override
+    {
+        if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+            return false;
+
+        if (GetCaster()->ToPlayer()->getClass() != CLASS_DRUID)
+            return false;
+
+        return true;
+    }
+
+    void ChangeDamage()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (Player* player = caster->ToPlayer())
+        {
+            int32 damage = GetHitDamage();
+            damage += int32(player->GetComboPoints() * (player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.109f));
+
+            // converts each extra point of energy (up to 35 energy) into additional damage
+            int32 energy = -(caster->ModifyPower(POWER_ENERGY, -35));
+            AddPct(damage, energy * float(100.0f / 35));
+            SetHitDamage(damage);
+
+            // Glyph of Ferocious Bite
+            if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_GLYPH_OF_FEROCIOUS_BITE, EFFECT_0))
+            {
+                int32 totalEnergySpentMultiplier = std::floor((GetSpell()->GetPowerCost() + energy) / 10);
+                int32 bp = aurEff->GetAmount() * totalEnergySpentMultiplier;
+                caster->CastCustomSpell(SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE, SPELLVALUE_BASE_POINT0, bp, caster, true);
+            }
+
+        }
+    }
+
+    void Register() override
+    {
+        BeforeHit += SpellHitFn(spell_dru_ferocious_bite::ChangeDamage);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterAuraScript(spell_dru_berserk);
@@ -1576,6 +1632,7 @@ void AddSC_druid_spell_scripts()
     RegisterAuraScript(spell_dru_effloresence_aoe);
     RegisterSpellScript(spell_dru_effloresence_heal);
     RegisterAuraScript(spell_dru_enrage);
+    RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterAuraScript(spell_dru_furor);
     RegisterSpellScript(spell_dru_glyph_of_starfire);
     RegisterAuraScript(spell_dru_glyph_of_starfire_proc);

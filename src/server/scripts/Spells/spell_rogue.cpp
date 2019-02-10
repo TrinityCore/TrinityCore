@@ -40,6 +40,7 @@ enum RogueSpells
     SPELL_ROGUE_CHEAT_DEATH_COOLDOWN                = 31231,
     SPELL_ROGUE_CRIPPLING_POISON                    = 3409,
     SPELL_ROGUE_ENERGETIC_RECOVERY                  = 4893,
+    SPELL_ROGUE_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE = 37169,
     SPELL_ROGUE_GLYPH_OF_PREPARATION                = 56819,
     SPELL_ROGUE_GLYPH_HEMORRHAGE_TRIGGERED          = 89775,
     SPELL_ROGUE_KILLING_SPREE                       = 51690,
@@ -1122,6 +1123,52 @@ class spell_rog_glyph_of_hemorrhage : public AuraScript
     }
 };
 
+// 2098 - Eviscerate
+class spell_rog_eviscerate : public SpellScript
+{
+    PrepareSpellScript(spell_rog_eviscerate);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE });
+    }
+
+    bool Load() override
+    {
+        if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+            return false;
+
+        if (GetCaster()->ToPlayer()->getClass() != CLASS_ROGUE)
+            return false;
+
+        return true;
+    }
+
+    void ChangeDamage()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (Player* player = caster->ToPlayer())
+        {
+            int32 damage = GetHitDamage();
+            damage += int32(player->GetComboPoints() * (player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.091f));
+
+            // Eviscerate and Envenom Bonus Damage (item set effect)
+            if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_ROGUE_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE, EFFECT_0))
+                damage += player->GetComboPoints() * aurEff->GetAmount();
+
+            SetHitDamage(damage);
+        }
+    }
+
+    void Register() override
+    {
+        BeforeHit += SpellHitFn(spell_rog_eviscerate::ChangeDamage);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -1129,6 +1176,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_crippling_poison();
     new spell_rog_cut_to_the_chase();
     new spell_rog_deadly_poison();
+    RegisterSpellScript(spell_rog_eviscerate);
     RegisterAuraScript(spell_rog_glyph_of_hemorrhage);
     new spell_rog_killing_spree();
     RegisterAuraScript(spell_rog_main_gauche);
