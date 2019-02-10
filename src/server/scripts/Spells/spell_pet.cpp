@@ -838,7 +838,7 @@ class spell_dk_pet_scaling_01 : public AuraScript
         {
             if (Player* owner = pet->GetOwner())
             {
-                uint8 percentage = 30;
+                uint8 percentage = 45;
 
                 // Glyph of Raise Dead
                 if (AuraEffect const* aurEff = owner->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, DEATH_KNIGHT_ICON_ID_GLYPH_OF_RAISE_DEAD, EFFECT_0))
