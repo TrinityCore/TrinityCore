@@ -3,7 +3,7 @@ DELETE FROM `spell_group_stack_rules` WHERE `group_id` BETWEEN 1139 AND 1147;
 
 INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 -- Armor
-(1139, 770),
+(1139, 91565),
 (1139, 8647),
 (1139, 58567),
 (1139, 95466),
