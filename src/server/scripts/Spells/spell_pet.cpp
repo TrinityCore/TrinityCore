@@ -775,48 +775,37 @@ class spell_hun_pet_passive_crit : public AuraScript
     }
 };
 
-class spell_dk_avoidance_passive : public SpellScriptLoader
+class spell_dk_avoidance_passive : public AuraScript
 {
-public:
-    spell_dk_avoidance_passive() : SpellScriptLoader("spell_dk_avoidance_passive") { }
+    PrepareAuraScript(spell_dk_avoidance_passive);
 
-    class spell_dk_avoidance_passive_AuraScript : public AuraScript
+    bool Load() override
     {
-        PrepareAuraScript(spell_dk_avoidance_passive_AuraScript);
+        if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
+            return false;
+        return true;
+    }
 
-        bool Load() override
+    void CalculateAvoidanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = true;
+        if (Unit* pet = GetUnitOwner())
         {
-            if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
-                return false;
-            return true;
-        }
-
-        void CalculateAvoidanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
-        {
-            canBeRecalculated = true;
-            if (Unit* pet = GetUnitOwner())
+            if (Unit* owner = pet->GetOwner())
             {
-                if (Unit* owner = pet->GetOwner())
-                {
-                    // Army of the dead ghoul
-                    if (pet->GetEntry() == ENTRY_ARMY_OF_THE_DEAD_GHOUL)
-                        amount = -90;
-                    // Night of the dead
-                    else if (Aura* aur = owner->GetAuraOfRankedSpell(SPELL_NIGHT_OF_THE_DEAD))
-                        amount = aur->GetSpellInfo()->Effects[EFFECT_2].CalcValue();
-                }
+                // Army of the dead ghoul
+                if (pet->GetEntry() == ENTRY_ARMY_OF_THE_DEAD_GHOUL)
+                    amount = -90;
+                // Night of the dead
+                else if (Aura* aur = owner->GetAuraOfRankedSpell(SPELL_NIGHT_OF_THE_DEAD))
+                    amount = aur->GetSpellInfo()->Effects[EFFECT_2].CalcValue();
             }
         }
+    }
 
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_avoidance_passive_AuraScript::CalculateAvoidanceAmount, EFFECT_0, SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_dk_avoidance_passive_AuraScript();
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_avoidance_passive::CalculateAvoidanceAmount, EFFECT_0, SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE);
     }
 };
 
@@ -1174,6 +1163,7 @@ void AddSC_pet_spell_scripts()
     RegisterAuraScript(spell_hun_pet_scaling_05);
     RegisterAuraScript(spell_hun_pet_passive_crit);
 
+    RegisterAuraScript(spell_dk_avoidance_passive);
     RegisterAuraScript(spell_dk_pet_scaling_01);
     RegisterAuraScript(spell_dk_pet_scaling_02);
     RegisterAuraScript(spell_dk_pet_scaling_03);

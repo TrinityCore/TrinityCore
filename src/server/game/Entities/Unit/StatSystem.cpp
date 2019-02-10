@@ -1029,15 +1029,6 @@ void Guardian::UpdateMaxHealth()
     float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
     float multiplicator = 10.0f;
 
-    switch (GetEntry())
-    {
-        case ENTRY_BLOODWORM:
-            multiplicator = 1.0f;
-            break;
-        default:
-            break;
-    }
-
     float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
     value *= GetModifierValue(unitMod, BASE_PCT);
     value += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;

@@ -1080,20 +1080,24 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     break;
                 }
                 case ENTRY_EBON_IMP:
-                {
-                    SetBonusDamage(int32(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE)));
+                    SetBonusDamage(m_owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE));
                     break;
-                }
                 case ENTRY_ARMY_OF_THE_DEAD_GHOUL:
                 {
-                    SetCreateHealth(m_owner->CountPctFromMaxHealth(50));
+                    SetCreateHealth(m_owner->CountPctFromMaxHealth(45));
                     SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f));
                     float minDamage = m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.05f;
                     float maxDamage = m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.05f;
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, minDamage);
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, maxDamage);
+                    if (!HasAura(62137))        // Avoidance
+                        CastSpell(this, 62137, true);
                     break;
                 }
+                case ENTRY_GHOUL:
+                    if (!HasAura(62137))        // Avoidance
+                        CastSpell(this, 62137, true);
+                    break;
             }
             break;
         }
