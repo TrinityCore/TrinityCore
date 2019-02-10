@@ -4111,6 +4111,12 @@ void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, 
         return;
 
     Unit* target = aurApp->GetTarget();
+    int32 spellGroupVal = target->GetHighestExclusiveSameEffectSpellGroupValue(this, SPELL_AURA_MOD_ATTACK_POWER_PCT);
+    if (abs(spellGroupVal) >= abs(GetAmount()))
+        return;
+
+    if (spellGroupVal)
+        target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, float(spellGroupVal), !apply);
 
     //UNIT_FIELD_ATTACK_POWER_MULTIPLIER = multiplier - 1
     target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, float(GetAmount()), apply);
@@ -4125,6 +4131,13 @@ void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const* au
 
     if ((target->getClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
+
+    int32 spellGroupVal = target->GetHighestExclusiveSameEffectSpellGroupValue(this, SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT);
+    if (abs(spellGroupVal) >= abs(GetAmount()))
+        return;
+
+    if (spellGroupVal)
+        target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT, float(spellGroupVal), !apply);
 
     //UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = multiplier - 1
     target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT, float(GetAmount()), apply);
