@@ -823,49 +823,40 @@ class spell_dk_pet_scaling_01 : public AuraScript
     void CalculateStaminaAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
-        if (Pet* pet = GetUnitOwner()->ToPet())
+        if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
         {
-            if (Player* owner = pet->GetOwner())
-            {
-                uint8 percentage = 45;
+            uint8 percentage = 45;
 
-                // Glyph of Raise Dead
-                if (AuraEffect const* aurEff = owner->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, DEATH_KNIGHT_ICON_ID_GLYPH_OF_RAISE_DEAD, EFFECT_0))
-                    percentage += aurEff->GetAmount();
+            // Glyph of Raise Dead
+            if (AuraEffect const* aurEff = owner->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, DEATH_KNIGHT_ICON_ID_GLYPH_OF_RAISE_DEAD, EFFECT_0))
+                percentage += aurEff->GetAmount();
 
-                amount = int32(CalculatePct(owner->GetStat(STAT_STAMINA), percentage));
-            }
+            amount = int32(CalculatePct(owner->GetStat(STAT_STAMINA), percentage));
         }
     }
 
     void CalculateStrengthAmount(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
-        if (Pet* pet = GetUnitOwner()->ToPet())
+        if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
         {
-            if (Player* owner = pet->GetOwner())
-            {
-                uint8 percentage = 70;
+            uint8 percentage = 70;
 
-                // Glyph of Raise Dead
-                if (AuraEffect const* aurEff = owner->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, DEATH_KNIGHT_ICON_ID_GLYPH_OF_RAISE_DEAD, EFFECT_0))
-                    percentage += aurEff->GetAmount();
+            // Glyph of Raise Dead
+            if (AuraEffect const* aurEff = owner->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, DEATH_KNIGHT_ICON_ID_GLYPH_OF_RAISE_DEAD, EFFECT_0))
+                percentage += aurEff->GetAmount();
 
-                amount = int32(CalculatePct(owner->GetStat(STAT_STAMINA), percentage));
-            }
+            amount = int32(CalculatePct(owner->GetStat(STAT_STAMINA), percentage));
         }
     }
 
     void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
-        if (Pet* pet = GetUnitOwner()->ToPet())
+        if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
         {
-            if (Player* owner = pet->GetOwner())
-            {
-                float bonusDamage = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.11f;
-                amount += bonusDamage;
-            }
+            float bonusDamage = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.11f;
+            amount += bonusDamage;
         }
     }
 
@@ -891,17 +882,14 @@ class spell_dk_pet_scaling_02 : public AuraScript
     void CalculateAmountMeleeHaste(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
-        if (Pet* pet = GetUnitOwner()->ToPet())
+        if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
         {
-            if (Player* owner = pet->GetOwner())
-            {
-                // For others recalculate it from:
-                float HasteMelee = 0.0f;
-                // Increase hit from SPELL_AURA_MOD_HIT_CHANCE
-                HasteMelee += (1 - owner->m_modAttackSpeedPct[BASE_ATTACK]) * 100;
+            // For others recalculate it from:
+            float HasteMelee = 0.0f;
+            // Increase hit from SPELL_AURA_MOD_HIT_CHANCE
+            HasteMelee += (1 - owner->m_modAttackSpeedPct[BASE_ATTACK]) * 100;
 
-                amount += int32(HasteMelee);
-            }
+            amount += int32(HasteMelee);
         }
     }
 
@@ -925,8 +913,6 @@ class spell_dk_pet_scaling_03 : public AuraScript
     void CalculateAmountMeleeHit(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
-        if (!GetCaster() || !GetCaster()->GetOwner())
-            return;
         if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
         {
             // For others recalculate it from:
@@ -943,8 +929,6 @@ class spell_dk_pet_scaling_03 : public AuraScript
     void CalculateAmountSpellHit(AuraEffect const* /* aurEff */, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
-        if (!GetCaster() || !GetCaster()->GetOwner())
-            return;
         if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
         {
             // For others recalculate it from:
@@ -969,7 +953,7 @@ class spell_dk_pet_scaling_05 : public AuraScript
 {
     PrepareAuraScript(spell_dk_pet_scaling_05);
 
-    bool Load()
+    bool Load() override
     {
         if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
             return false;
@@ -978,24 +962,20 @@ class spell_dk_pet_scaling_05 : public AuraScript
 
     void CalculateAmountCritPct(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
     {
-        if (Pet* pet = GetUnitOwner()->ToPet())
+        if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
         {
-            if (Player* owner = pet->GetOwner())
-            {
-                float CritSpell = owner->GetMeleeCritFromAgility();
-                CritSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE);
-                CritSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
-                CritSpell += owner->GetRatingBonusValue(CR_CRIT_MELEE);
-                amount += int32(CritSpell);
-            }
+            float CritSpell = owner->GetMeleeCritFromAgility();
+            CritSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE);
+            CritSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
+            CritSpell += owner->GetRatingBonusValue(CR_CRIT_MELEE);
+            amount += int32(CritSpell);
         }
     }
 
     void CalculateAmountResistance(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
     {
-        if (Pet* pet = GetUnitOwner()->ToPet())
-            if (Player* owner = pet->GetOwner())
-                amount += owner->GetInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE);
+        if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
+            amount += owner->GetInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE);
     }
 
     void Register()

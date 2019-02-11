@@ -162,75 +162,152 @@ enum GhoulSpells
     SPELL_PET_PUTRID_BULWARK        = 91837,
 };
 
-class spell_pet_ghoul_dummy_ability : public SpellScriptLoader
+class spell_pet_ghoul_dummy_ability : public SpellScript
 {
-public:
-    spell_pet_ghoul_dummy_ability() : SpellScriptLoader("spell_pet_ghoul_dummy_ability") { }
+    PrepareSpellScript(spell_pet_ghoul_dummy_ability);
 
-    class spell_pet_ghoul_dummy_ability_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_pet_ghoul_dummy_ability_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo(
-                {
-                    SPELL_PET_DARK_TRANSFORMATION,
-                    SPELL_PET_GNAW_DUMMY,
-                    SPELL_PET_GNAW_DAMAGE,
-                    SPELL_PET_MONSTROUS_BLOW,
-                    SPELL_PET_LEAP_DUMMY,
-                    SPELL_PET_LEAP_EFFECT,
-                    SPELL_PET_SHAMBLING_RUSH,
-                    SPELL_PET_CLAW_DUMMY,
-                    SPELL_PET_CLAW_DAMAGE,
-                    SPELL_PET_SWEEPING_CLAWS,
-                    SPELL_PET_HUDDLE_DUMMY,
-                    SPELL_PET_HUDDLE_EFFECT,
-                    SPELL_PET_PUTRID_BULWARK
-                });
-        }
-
-        void HandleHit(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* caster = GetCaster())
+        return ValidateSpellInfo(
             {
-                bool isTransformed = caster->HasAura(SPELL_PET_DARK_TRANSFORMATION);
-                switch (GetSpellInfo()->Id)
-                {
-                    case SPELL_PET_GNAW_DUMMY:
-                        caster->CastSpell(GetHitUnit(), isTransformed ? SPELL_PET_MONSTROUS_BLOW : SPELL_PET_GNAW_DAMAGE, true);
-                        break;
-                    case SPELL_PET_LEAP_DUMMY:
-                        caster->CastSpell(GetHitUnit(), isTransformed ? SPELL_PET_SHAMBLING_RUSH : SPELL_PET_LEAP_EFFECT, true);
-                        break;
-                    case SPELL_PET_CLAW_DUMMY:
-                        caster->CastSpell(GetHitUnit(), isTransformed ? SPELL_PET_SWEEPING_CLAWS : SPELL_PET_CLAW_DAMAGE, true);
-                        break;
-                    case SPELL_PET_HUDDLE_DUMMY:
-                        caster->CastSpell(GetHitUnit(), isTransformed ? SPELL_PET_PUTRID_BULWARK : SPELL_PET_HUDDLE_EFFECT, true);
-                        break;
-                    default:
-                        break;
-                }
+                SPELL_PET_DARK_TRANSFORMATION,
+                SPELL_PET_GNAW_DUMMY,
+                SPELL_PET_GNAW_DAMAGE,
+                SPELL_PET_MONSTROUS_BLOW,
+                SPELL_PET_LEAP_DUMMY,
+                SPELL_PET_LEAP_EFFECT,
+                SPELL_PET_SHAMBLING_RUSH,
+                SPELL_PET_CLAW_DUMMY,
+                SPELL_PET_CLAW_DAMAGE,
+                SPELL_PET_SWEEPING_CLAWS,
+                SPELL_PET_HUDDLE_DUMMY,
+                SPELL_PET_HUDDLE_EFFECT,
+                SPELL_PET_PUTRID_BULWARK
+            });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            bool isTransformed = caster->HasAura(SPELL_PET_DARK_TRANSFORMATION);
+            switch (GetSpellInfo()->Id)
+            {
+                case SPELL_PET_GNAW_DUMMY:
+                    caster->CastSpell(GetHitUnit(), isTransformed ? SPELL_PET_MONSTROUS_BLOW : SPELL_PET_GNAW_DAMAGE, true);
+                    break;
+                case SPELL_PET_LEAP_DUMMY:
+                    caster->CastSpell(GetHitUnit(), isTransformed ? SPELL_PET_SHAMBLING_RUSH : SPELL_PET_LEAP_EFFECT, true);
+                    break;
+                case SPELL_PET_CLAW_DUMMY:
+                    caster->CastSpell(GetHitUnit(), isTransformed ? SPELL_PET_SWEEPING_CLAWS : SPELL_PET_CLAW_DAMAGE, true);
+                    break;
+                case SPELL_PET_HUDDLE_DUMMY:
+                    caster->CastSpell(GetHitUnit(), isTransformed ? SPELL_PET_PUTRID_BULWARK : SPELL_PET_HUDDLE_EFFECT, true);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pet_ghoul_dummy_ability::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+enum ArmyOfTheDead
+{
+    SPELL_BIRTH                         = 7398,
+    SPELL_PERIODIC_TAUNT                = 43264,
+    SPELL_DEATH_KNIGHT_PET_SCALING_2    = 51996,
+    SPELL_DEATH_KNIGHT_PET_SCALING_3    = 61697,
+    SPELL_DEATH_KNIGHT_PET_SCALING_5    = 110474,
+
+    EVENT_ALLOW_ATTACKS                 = 1,
+    EVENT_LEAP,
+    EVENT_CLAW
+};
+
+struct npc_pet_dk_army_of_the_dead_ghoul : public AggressorAI
+{
+    npc_pet_dk_army_of_the_dead_ghoul(Creature* creature) : AggressorAI(creature)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        _readyToAttack = false;
+    }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_DEATH_KNIGHT_PET_SCALING_2);
+        DoCastSelf(SPELL_DEATH_KNIGHT_PET_SCALING_3);
+        DoCastSelf(SPELL_DEATH_KNIGHT_PET_SCALING_5);
+        DoCastSelf(SPELL_BIRTH);
+        me->AddUnitState(UNIT_STATE_ROOT);
+        _events.ScheduleEvent(EVENT_ALLOW_ATTACKS, 4s);
+    }
+
+    bool CanAIAttack(Unit const* target) const override
+    {
+        if (!target)
+            return false;
+
+        if (!_readyToAttack)
+            return false;
+
+        Unit* owner = me->GetOwner();
+        if (owner && !target->IsInCombatWith(owner))
+            return false;
+
+        return AggressorAI::CanAIAttack(target);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && _readyToAttack)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ALLOW_ATTACKS:
+                    _readyToAttack = true;
+                    me->ClearUnitState(UNIT_STATE_ROOT);
+                    DoCastSelf(SPELL_PERIODIC_TAUNT);
+                    _events.ScheduleEvent(EVENT_LEAP, 1ms);
+                    _events.ScheduleEvent(EVENT_CLAW, 2s + 500ms);
+                    break;
+                case EVENT_LEAP:
+                    DoCastVictim(SPELL_PET_LEAP_DUMMY, true);
+                    break;
+                case EVENT_CLAW:
+                    DoCastVictim(SPELL_PET_CLAW_DUMMY, true);
+                    _events.Repeat(7s, 8s);
+                    break;
+                default:
+                    break;
             }
         }
 
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_pet_ghoul_dummy_ability_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_pet_ghoul_dummy_ability_SpellScript();
+        DoMeleeAttackIfReady();
     }
+private:
+    EventMap _events;
+    bool _readyToAttack;
 };
 
 void AddSC_deathknight_pet_scripts()
 {
     new npc_pet_dk_ebon_gargoyle();
     new npc_pet_dk_guardian();
-    new spell_pet_ghoul_dummy_ability();
+    RegisterCreatureAI(npc_pet_dk_army_of_the_dead_ghoul);
+    RegisterSpellScript(spell_pet_ghoul_dummy_ability);
 }

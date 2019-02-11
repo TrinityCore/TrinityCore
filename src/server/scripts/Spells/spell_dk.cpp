@@ -1622,11 +1622,35 @@ class spell_dk_crimson_scourge : public AuraScript
     }
 };
 
+class spell_dk_army_of_the_dead : public AuraScript
+{
+    PrepareAuraScript(spell_dk_army_of_the_dead);
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+    {
+        amount = 0;
+        if (Player* player = GetUnitOwner()->ToPlayer())
+        {
+            float dodgeChance = player->GetFloatValue(PLAYER_DODGE_PERCENTAGE);
+            float parryChance = player->GetFloatValue(PLAYER_PARRY_PERCENTAGE);
+            amount -= int32(dodgeChance + parryChance);
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_army_of_the_dead::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
+    }
+private:
+    uint32 absorbPct;
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterAuraScript(spell_dk_anti_magic_shell_raid);
     RegisterAuraScript(spell_dk_anti_magic_shell_self);
     RegisterAuraScript(spell_dk_anti_magic_zone);
+    RegisterAuraScript(spell_dk_army_of_the_dead);
     RegisterSpellScript(spell_dk_blood_boil);
     RegisterAuraScript(spell_dk_blood_gorged);
     RegisterAuraScript(spell_dk_blood_rites);
