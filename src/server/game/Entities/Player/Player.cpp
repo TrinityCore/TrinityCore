@@ -28134,6 +28134,14 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         pet->UpdateAllStats();
         pet->SetFullHealth();
         pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
+
+        if (pet->IsHunterPet())
+            pet->CastSpell(pet, SPELL_PET_ENERGIZE, true);
+        else if (pet->IsPetGhoul())
+        {
+            pet->CastSpell(pet, SPELL_PET_RISEN_GHOUL_SPAWN_IN, true);
+            pet->CastSpell(pet, SPELL_PET_RISEN_GHOUL_SELF_STUN, true);
+        }
     }
 
     PhasingHandler::InheritPhaseShift(pet, this);

@@ -58,6 +58,16 @@ enum PetEntries
     ENTRY_VIPER                     = 19921
 };
 
+enum PlayerPetSpells
+{
+    // Risen Ghoul
+    SPELL_PET_RISEN_GHOUL_SPAWN_IN  = 47448,
+    SPELL_PET_RISEN_GHOUL_SELF_STUN = 47466,
+
+    // Hunter Pets
+    SPELL_PET_ENERGIZE              = 99289
+};
+
 class TC_GAME_API TempSummon : public Creature
 {
     public:
@@ -98,8 +108,8 @@ class TC_GAME_API Minion : public TempSummon
         Unit* GetOwner() const { return m_owner; }
         float GetFollowAngle() const override { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
-        bool IsPetGhoul() const { return GetEntry() == 26125; } // Ghoul may be guardian or pet
-        bool IsSpiritWolf() const { return GetEntry() == 29264; } // Spirit wolf from feral spirits
+        bool IsPetGhoul() const { return GetEntry() == ENTRY_GHOUL; } // Ghoul may be guardian or pet
+        bool IsSpiritWolf() const { return GetEntry() == ENTRY_SPIRIT_WOLF; } // Spirit wolf from feral spirits
         bool IsGuardianPet() const;
         bool IsWarlockMinion() const;
     protected:

@@ -326,9 +326,15 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
     SetFullHealth();                                        // Set full health and mana after pet scaling auras has been applied
 
     if (IsHunterPet())
-        CastSpell(this, 99289, true); // Energize
+        CastSpell(this, SPELL_PET_ENERGIZE, true);
     else
         SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
+
+    if (IsPetGhoul())
+    {
+        CastSpell(this, SPELL_PET_RISEN_GHOUL_SPAWN_IN, true);
+        CastSpell(this, SPELL_PET_RISEN_GHOUL_SELF_STUN, true);
+    }
 
     TC_LOG_DEBUG("entities.pet", "New Pet has guid %u", GetGUID().GetCounter());
 
@@ -1084,7 +1090,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     break;
                 case ENTRY_ARMY_OF_THE_DEAD_GHOUL:
                 {
-                    SetCreateHealth(m_owner->CountPctFromMaxHealth(45));
+                    SetCreateHealth(m_owner->CountPctFromMaxHealth(30));
                     SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f));
                     float minDamage = m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.05f;
                     float maxDamage = m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.05f;

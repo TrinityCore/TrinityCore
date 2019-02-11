@@ -2120,6 +2120,12 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
     if (summon)
     {
+        if (entry == ENTRY_GHOUL)
+        {
+            summon->CastSpell(summon, SPELL_PET_RISEN_GHOUL_SPAWN_IN, true);
+            summon->CastSpell(summon, SPELL_PET_RISEN_GHOUL_SELF_STUN, true);
+        }
+
         summon->SetCreatorGUID(m_originalCaster->GetGUID());
         ExecuteLogEffectSummonObject(effIndex, summon);
     }
