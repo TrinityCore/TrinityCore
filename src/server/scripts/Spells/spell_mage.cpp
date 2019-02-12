@@ -2140,6 +2140,25 @@ class spell_mage_deep_freeze : public SpellScript
     }
 };
 
+class spell_mage_fingers_of_frost_charges : public AuraScript
+{
+    PrepareAuraScript(spell_mage_fingers_of_frost_charges);
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        if (GetStackAmount() > 1)
+            SetStackAmount(GetStackAmount() - 1);
+        else
+            Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_fingers_of_frost_charges::HandleProc, EFFECT_0, SPELL_AURA_ABILITY_IGNORE_AURASTATE);
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_arcane_potency();
@@ -2156,6 +2175,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_flame_orb();
     new spell_mage_flame_orb_aoe_dummy();
     new spell_mage_focus_magic();
+    RegisterAuraScript(spell_mage_fingers_of_frost_charges);
     RegisterSpellScript(spell_mage_frostbolt);
     new spell_mage_hot_streak();
     new spell_mage_ice_barrier();
