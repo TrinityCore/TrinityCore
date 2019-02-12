@@ -219,6 +219,7 @@ enum Events
     // Ascendant Council Controller
     EVENT_RESET_BOSS_STATE,
     EVENT_SUMMON_ELEMENTIUM_MONSTROSITY,
+    EVENT_PREPARE_ULTIMATE_ABILITY,
 
     // Violent Cyclone
     EVENT_CYCLONE_AGGRO,
@@ -262,6 +263,7 @@ enum Actions
     ACTION_SWITCH_COUNCILLORS,
     ACTION_UNITE_COUNCILLORS,
     ACTION_FINISH_ENCOUNTER,
+    ACTION_PREPARE_ULTIMATE_ABILITY,
 
     // Ascendant Council
     ACTION_CHANGE_PLACES,
@@ -349,6 +351,9 @@ class boss_ascendant_council_controller : public CreatureScript
                             if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
                                 terrastra->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
                         }
+
+                        events.ScheduleEvent(EVENT_PREPARE_ULTIMATE_ABILITY, 15s, 0, PHASE_FELUDIUS_IGNACIOUS);
+
                         break;
                     case ACTION_STOP_ENCOUNTER:
                         if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
@@ -383,8 +388,9 @@ class boss_ascendant_council_controller : public CreatureScript
 
                         RemoveAurasFromPlayers();
                         instance->SetBossState(DATA_ASCENDANT_COUNCIL, FAIL);
+                        events.Reset();
                         events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
-                        events.ScheduleEvent(EVENT_RESET_BOSS_STATE, Seconds(30));
+                        events.ScheduleEvent(EVENT_RESET_BOSS_STATE, 30s);
                         break;
                     case ACTION_SWITCH_COUNCILLORS:
                         if (!events.IsInPhase(PHASE_ARION_TERRASTRA) && !events.IsInPhase(PHASE_ELEMENTIUM_MONSTROSITY))
@@ -474,6 +480,18 @@ class boss_ascendant_council_controller : public CreatureScript
                             if (SummonPropertiesEntry const* entry = sSummonPropertiesStore.LookupEntry(PROPERTY_DEFAULT))
                                 me->GetMap()->SummonCreature(BOSS_ELEMENTIUM_MONSTROSITY, me->GetPosition(), entry, 0, me);
                             break;
+                        case EVENT_PREPARE_ULTIMATE_ABILITY:
+                            if (events.IsInPhase(PHASE_FELUDIUS_IGNACIOUS))
+                            {
+                                if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
+                                    feludius->AI()->DoAction(ACTION_PREPARE_ULTIMATE_ABILITY);
+
+                                if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
+                                    ignacious->AI()->DoAction(ACTION_PREPARE_ULTIMATE_ABILITY);
+
+                                events.Repeat(30s);
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -490,7 +508,6 @@ class boss_ascendant_council_controller : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SWIRLING_WINDS);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GROUNDED);
             }
-
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -520,9 +537,8 @@ class npc_feludius : public CreatureScript
                     controller->AI()->DoAction(ACTION_START_ENCOUNTER);
 
                 Talk(SAY_ENGAGE);
-                _events.ScheduleEvent(EVENT_HEART_OF_ICE, Seconds(15) + Milliseconds(500));
-                _events.ScheduleEvent(EVENT_WATER_BOMB, Seconds(16) + Milliseconds(500));
-                _events.ScheduleEvent(EVENT_HYDRO_LANCE, Seconds(8) + Milliseconds(500));
+                _events.ScheduleEvent(EVENT_HEART_OF_ICE, 15s + 500ms);
+                _events.ScheduleEvent(EVENT_HYDRO_LANCE, 8s + 500ms);
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -574,17 +590,21 @@ class npc_feludius : public CreatureScript
                         me->AttackStop();
                         me->SetReactState(REACT_PASSIVE);
                         me->CastStop();
-                        _events.ScheduleEvent(EVENT_EXPLOSION_DND, Seconds(2) + Milliseconds(700));
+                        _events.ScheduleEvent(EVENT_EXPLOSION_DND, 2s + 700ms);
                         break;
                     case ACTION_PREPARE_FUSION:
                         _events.Reset();
                         me->SetWalk(true);
                         me->CastStop();
                         _summons.DespawnAll();
-                        _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, Seconds(1) + Milliseconds(200));
+                        _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, 1s + 200ms);
                         break;
                     case ACTION_SCHEDULE_HEROIC_ABILITY:
-                        _events.ScheduleEvent(EVENT_FROZEN_ORB, Seconds(23) + Milliseconds(900));
+                        _events.ScheduleEvent(EVENT_FROZEN_ORB, 24s);
+                        break;
+                    case ACTION_PREPARE_ULTIMATE_ABILITY:
+                        _events.ScheduleEvent(EVENT_WATER_BOMB, 2s);
+                        _events.ScheduleEvent(EVENT_GLACIATE, 15s);
                         break;
                     default:
                         break;
@@ -625,13 +645,11 @@ class npc_feludius : public CreatureScript
                         case EVENT_HEART_OF_ICE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_HEART_OF_ICE);
-                            _events.Repeat(Seconds(24));
+                            _events.Repeat(24s);
                             break;
                         case EVENT_WATER_BOMB:
                             DoCastAOE(SPELL_WATER_BOMB_AOE, true);
                             DoCastAOE(SPELL_WATER_BOMB);
-                            _events.ScheduleEvent(EVENT_GLACIATE, Seconds(25) + Milliseconds(500));
-                            _events.Repeat(Seconds(32));
                             break;
                         case EVENT_HYDRO_LANCE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
@@ -639,11 +657,11 @@ class npc_feludius : public CreatureScript
                                 me->MakeInterruptable(true);
                                 DoCast(target, SPELL_HYDRO_LANCE);
                             }
-                            _events.Repeat(Seconds(23));
+                            _events.Repeat(13s);
                             break;
                         case EVENT_EXPLOSION_DND:
                             DoCastSelf(SPELL_FROST_EXPLOSION_DND);
-                            _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, Seconds(1) + Milliseconds(200));
+                            _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, 1s + 200ms);
                             break;
                         case EVENT_SWITCH_POSITIONS:
                             DoCastSelf(SPELL_TELEPORT_RIGHT_BALCONY);
@@ -651,8 +669,8 @@ class npc_feludius : public CreatureScript
                             break;
                         case EVENT_TELEPORT_PREPARE_FUSION:
                             DoCastSelf(SPELL_TELEPORT_WATER);
-                            _events.ScheduleEvent(EVENT_FACE_CONTROLLER, Milliseconds(100));
-                            _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, Seconds(6) + Milliseconds(300));
+                            _events.ScheduleEvent(EVENT_FACE_CONTROLLER, 100ms);
+                            _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 6s + 300ms);
                             break;
                         case EVENT_FACE_CONTROLLER:
                             if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
@@ -665,7 +683,7 @@ class npc_feludius : public CreatureScript
                         case EVENT_FROZEN_ORB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
                                 DoCast(target, SPELL_FROZEN_ORB);
-                            _events.Repeat(Seconds(20));
+                            _events.Repeat(20s);
                             break;
                         default:
                             break;
@@ -693,22 +711,13 @@ class npc_ignacious : public CreatureScript
 
         struct npc_ignaciousAI : public ScriptedAI
         {
-            npc_ignaciousAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _lastVictimGuid = ObjectGuid::Empty;
-                _infernoRushGUIDs.clear();
-            }
+            npc_ignaciousAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me) { }
 
             void Reset() override
             {
-                Initialize();
                 _events.Reset();
                 me->MakeInterruptable(false);
+                _infernoRushGUIDs.clear();
             }
 
             void JustEngagedWith(Unit* who) override
@@ -716,10 +725,9 @@ class npc_ignacious : public CreatureScript
                 if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
                     controller->AI()->DoAction(ACTION_START_ENCOUNTER);
 
-                _events.ScheduleEvent(EVENT_TALK_ENGAGE, Seconds(5));
-                _events.ScheduleEvent(EVENT_FLAME_TORRENT, Seconds(8) + Milliseconds(300));
-                _events.ScheduleEvent(EVENT_BURNING_BLOOD, Seconds(30));
-                _events.ScheduleEvent(EVENT_INFERNO_LEAP, Seconds(15) + Milliseconds(500));
+                _events.ScheduleEvent(EVENT_TALK_ENGAGE, 5s);
+                _events.ScheduleEvent(EVENT_FLAME_TORRENT, 8s + 500ms);
+                _events.ScheduleEvent(EVENT_BURNING_BLOOD, 30s);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -800,7 +808,7 @@ class npc_ignacious : public CreatureScript
                             }
 
                             DoCast(target, SPELL_INFERNO_RUSH, true);
-                            _events.ScheduleEvent(EVENT_IGNITE_INFERNO_RUSH, Seconds(2));
+                            _events.ScheduleEvent(EVENT_IGNITE_INFERNO_RUSH, 2s);
                         }
                         break;
                     }
@@ -809,17 +817,24 @@ class npc_ignacious : public CreatureScript
                         me->AttackStop();
                         me->SetReactState(REACT_PASSIVE);
                         me->CastStop();
-                        _events.ScheduleEvent(EVENT_EXPLOSION_DND, Seconds(2) + Milliseconds(700));
+                        _events.ScheduleEvent(EVENT_EXPLOSION_DND, 2s + 700ms);
                         break;
                     case ACTION_PREPARE_FUSION:
                         _events.Reset();
                         me->SetWalk(true);
                         me->CastStop();
                         _summons.DespawnAll();
-                        _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, Seconds(1) + Milliseconds(200));
+                        _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, 1s + 200ms);
                         break;
                     case ACTION_SCHEDULE_HEROIC_ABILITY:
-                        _events.ScheduleEvent(EVENT_FLAME_STRIKE, Seconds(32));
+                        _events.ScheduleEvent(EVENT_FLAME_STRIKE, 32s);
+                        break;
+                    case ACTION_PREPARE_ULTIMATE_ABILITY:
+                        _events.ScheduleEvent(EVENT_INFERNO_LEAP, 500ms);
+                        _events.ScheduleEvent(EVENT_AEGIS_OF_FLAME, 16s + 500ms);
+                        if (Aura* aura = me->GetAura(SPELL_RISING_FLAMES))
+                            if (int32(_events.GetTimeUntilEvent(EVENT_FLAME_TORRENT)) < aura->GetDuration())
+                                _events.RescheduleEvent(EVENT_FLAME_TORRENT, aura->GetDuration() + 1000);
                         break;
                     default:
                         break;
@@ -844,11 +859,18 @@ class npc_ignacious : public CreatureScript
                             Talk(SAY_ENGAGE);
                             break;
                         case EVENT_AEGIS_OF_FLAME:
+                            // Making sure that Ignacious has finished his Inferno Leap
+                            if (me->GetReactState() == REACT_PASSIVE)
+                            {
+                                _events.Repeat(1s);
+                                break;
+                            }
+
                             if (SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                             {
                                 me->MakeInterruptable(true);
                                 DoCastSelf(SPELL_AEGIS_OF_FLAME);
-                                _events.ScheduleEvent(EVENT_RISING_FLAMES, Seconds(4) + Milliseconds(400));
+                                _events.ScheduleEvent(EVENT_RISING_FLAMES, 3s + 500ms);
                             }
                             break;
                         case EVENT_RISING_FLAMES:
@@ -857,14 +879,21 @@ class npc_ignacious : public CreatureScript
                             DoCastSelf(SPELL_RISING_FLAMES);
                             break;
                         case EVENT_FLAME_TORRENT:
+                            if (_events.GetTimeUntilEvent(EVENT_AEGIS_OF_FLAME) < 3000 || _events.GetTimeUntilEvent(EVENT_RISING_FLAMES) < 3500
+                                || _events.GetTimeUntilEvent(EVENT_INFERNO_LEAP) < 3000 || me->GetReactState() == REACT_PASSIVE)
+                            {
+                                _events.Repeat(1s);
+                                break;
+                            }
+
                             me->StopMoving();
                             DoCastSelf(SPELL_FLAME_TORRENT);
-                            _events.Repeat(Seconds(16), Seconds(18));
+                            _events.Repeat(10s);
                             break;
                         case EVENT_BURNING_BLOOD:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                                 DoCast(target, SPELL_BURNING_BLOOD);
-                            _events.Repeat(Seconds(24));
+                            _events.Repeat(21s);
                             break;
                         case EVENT_INFERNO_LEAP:
                             if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 60.0f, true, 0))
@@ -876,8 +905,6 @@ class npc_ignacious : public CreatureScript
                                 me->SetReactState(REACT_PASSIVE);
                                 DoCast(target, SPELL_INFERNO_LEAP);
                             }
-                            _events.ScheduleEvent(EVENT_AEGIS_OF_FLAME, Seconds(26));
-                            _events.Repeat(Seconds(32));
                             break;
                         case EVENT_IGNITE_INFERNO_RUSH:
                             for (ObjectGuid guid : _infernoRushGUIDs)
@@ -888,7 +915,7 @@ class npc_ignacious : public CreatureScript
                             break;
                         case EVENT_EXPLOSION_DND:
                             DoCastSelf(SPELL_FIRE_EXPLOSION_DND);
-                            _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, Seconds(1) + Milliseconds(200));
+                            _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, 1s + 200ms);
                             break;
                         case EVENT_SWITCH_POSITIONS:
                             DoCastSelf(SPELL_TELEPORT_LEFT_BALCONY);
@@ -896,8 +923,8 @@ class npc_ignacious : public CreatureScript
                             break;
                         case EVENT_TELEPORT_PREPARE_FUSION:
                             DoCastSelf(SPELL_TELEPORT_FIRE);
-                            _events.ScheduleEvent(EVENT_FACE_CONTROLLER, Milliseconds(100));
-                            _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, Seconds(9) + Milliseconds(900));
+                            _events.ScheduleEvent(EVENT_FACE_CONTROLLER, 100ms);
+                            _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 9s + 900ms);
                             break;
                         case EVENT_FACE_CONTROLLER:
                             if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
@@ -909,7 +936,7 @@ class npc_ignacious : public CreatureScript
                             break;
                         case EVENT_FLAME_STRIKE:
                             DoCastAOE(SPELL_FLAME_STRIKE_TARGETING, true);
-                            _events.Repeat(Seconds(20));
+                            _events.Repeat(20s);
                         default:
                             break;
                     }
@@ -983,11 +1010,11 @@ class npc_arion : public CreatureScript
                 {
                     case ACTION_CHANGE_PLACES:
                         _events.CancelEvent(EVENT_STATIC_OVERLOAD);
-                        _events.ScheduleEvent(EVENT_TALK_ENGAGE, Milliseconds(1));
-                        _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, Seconds(3));
+                        _events.ScheduleEvent(EVENT_TALK_ENGAGE, 1ms);
+                        _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, 3s);
                         break;
                     case ACTION_CAST_LIGHTNING_BLAST:
-                        _events.ScheduleEvent(EVENT_LIGHTNING_BLAST, Seconds(2));
+                        _events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 2s);
                         break;
                     case ACTION_PREPARE_FUSION:
                         _events.Reset();
@@ -997,10 +1024,10 @@ class npc_arion : public CreatureScript
                         me->SetWalk(true);
                         _summons.DespawnAll();
                         DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
-                        _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, Seconds(1) + Milliseconds(200));
+                        _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, 1s + 200ms);
                         break;
                     case ACTION_SCHEDULE_HEROIC_ABILITY:
-                        _events.ScheduleEvent(EVENT_STATIC_OVERLOAD, Seconds(19) + Milliseconds(700));
+                        _events.ScheduleEvent(EVENT_STATIC_OVERLOAD, 19s + 700ms);
                         break;
                     default:
                         break;
@@ -1039,37 +1066,39 @@ class npc_arion : public CreatureScript
                         case EVENT_SWITCH_POSITIONS:
                             _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
                             DoCastSelf(SPELL_TELEPORT_LEFT_FLOOR);
-                            _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, Milliseconds(100));
+                            _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 100ms);
                             break;
                         case EVENT_ATTACK_PLAYERS:
                             _events.SetPhase(PHASE_ARION_TERRASTRA);
-                            _events.ScheduleEvent(EVENT_CALL_WINDS, Seconds(9) + Milliseconds(300));
-                            _events.ScheduleEvent(EVENT_THUNDERSHOCK, Minutes(1) + Seconds(4));
-                            _events.ScheduleEvent(EVENT_THUNDERSHOCK_PRE_WARNING, Seconds(55) + Milliseconds(700));
-                            _events.ScheduleEvent(EVENT_LIGHTNING_ROD, Seconds(17) + Milliseconds(900));
-                            _events.ScheduleEvent(EVENT_DISPERSE, Seconds(20) + Milliseconds(500));
+                            _events.ScheduleEvent(EVENT_CALL_WINDS, 9s + 300ms);
+                            _events.ScheduleEvent(EVENT_THUNDERSHOCK, 1min + 4s);
+                            _events.ScheduleEvent(EVENT_THUNDERSHOCK_PRE_WARNING, 55s + 700ms);
+                            _events.ScheduleEvent(EVENT_LIGHTNING_ROD, 17s + 900ms);
+                            _events.ScheduleEvent(EVENT_DISPERSE, 20s + 500ms);
                             me->SetReactState(REACT_AGGRESSIVE);
                             DoZoneInCombat();
                             break;
                         case EVENT_CALL_WINDS:
                             Talk(SAY_ABILITY);
                             DoCastSelf(SPELL_CALL_WINDS);
-                            _events.Repeat(Seconds(31) + Milliseconds(500));
+                            _events.Repeat(31s + 500ms);
                             break;
                         case EVENT_THUNDERSHOCK:
                             Talk(SAY_ANNOUNCE_ABILITY);
                             DoCastAOE(SPELL_THUNDERSHOCK);
-                            _events.Repeat(Minutes(1) + Seconds(8));
-                            _events.ScheduleEvent(EVENT_THUNDERSHOCK_PRE_WARNING, Seconds(59) + Milliseconds(700));
+                            _events.Repeat(1min + 8s);
+                            _events.ScheduleEvent(EVENT_THUNDERSHOCK_PRE_WARNING, 59s + 700ms);
                             break;
                         case EVENT_THUNDERSHOCK_PRE_WARNING:
                             if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
                                 controller->AI()->Talk(SAY_ANNOUNCE_THUNDERSHOCK_WARNING);
+                            _events.Repeat(1min);
+                            _events.ScheduleEvent(EVENT_THUNDERSHOCK, 10s);
                             break;
                         case EVENT_LIGHTNING_ROD:
                             DoCastAOE(SPELL_LIGHTNING_ROD);
-                            _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, Seconds(8), Seconds(10));
-                            _events.Repeat(Seconds(19) + Milliseconds(400));
+                            _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8s, 10s);
+                            _events.Repeat(19s + 400ms);
                             break;
                         case EVENT_CHAIN_LIGHTNING:
                             DoCastAOE(SPELL_CHAIN_LIGHTNING_TARGETING);
@@ -1078,7 +1107,7 @@ class npc_arion : public CreatureScript
                             me->AttackStop();
                             me->SetReactState(REACT_PASSIVE);
                             DoCastAOE(SPELL_DISPERSE);
-                            _events.Repeat(Seconds(24));
+                            _events.Repeat(24s);
                             break;
                         case EVENT_LIGHTNING_BLAST:
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -1090,8 +1119,8 @@ class npc_arion : public CreatureScript
                             break;
                         case EVENT_TELEPORT_PREPARE_FUSION:
                             DoCastSelf(SPELL_TELEPORT_AIR);
-                            _events.ScheduleEvent(EVENT_FACE_CONTROLLER, Milliseconds(100));
-                            _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, Milliseconds(200));
+                            _events.ScheduleEvent(EVENT_FACE_CONTROLLER, 100ms);
+                            _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 200ms);
                             break;
                         case EVENT_FACE_CONTROLLER:
                             if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
@@ -1103,7 +1132,7 @@ class npc_arion : public CreatureScript
                             break;
                         case EVENT_STATIC_OVERLOAD:
                             DoCastAOE(SPELL_STATIC_OVERLOAD, true);
-                            _events.Repeat(Seconds(20));
+                            _events.Repeat(20s);
                             break;
                         default:
                             break;
@@ -1175,8 +1204,8 @@ class npc_terrastra : public CreatureScript
                 {
                     case ACTION_CHANGE_PLACES:
                         _events.CancelEvent(EVENT_GRAVITY_CORE);
-                        _events.ScheduleEvent(EVENT_TALK_ENGAGE, Seconds(3) + Milliseconds(100));
-                        _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, Seconds(3));
+                        _events.ScheduleEvent(EVENT_TALK_ENGAGE, 3s + 100ms);
+                        _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, 3s);
                         break;
                     case ACTION_PREPARE_FUSION:
                         _events.Reset();
@@ -1187,10 +1216,10 @@ class npc_terrastra : public CreatureScript
                         _summons.DespawnAll();
                         DoCastAOE(SPELL_ELEMENTAL_STASIS);
                         DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
-                        _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, Seconds(1) + Milliseconds(200));
+                        _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, 1s + 200ms);
                         break;
                     case ACTION_SCHEDULE_HEROIC_ABILITY:
-                        _events.ScheduleEvent(EVENT_GRAVITY_CORE, Seconds(22) + Milliseconds(700));
+                        _events.ScheduleEvent(EVENT_GRAVITY_CORE, 22s + 700ms);
                         break;
                     default:
                         break;
@@ -1217,33 +1246,33 @@ class npc_terrastra : public CreatureScript
                         case EVENT_SWITCH_POSITIONS:
                             _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
                             DoCastSelf(SPELL_TELEPORT_RIGHT_FLOOR);
-                            _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, Milliseconds(100));
+                            _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 100ms);
                             break;
                         case EVENT_ATTACK_PLAYERS:
                             _events.SetPhase(PHASE_ARION_TERRASTRA);
-                            _events.ScheduleEvent(EVENT_GRAVITY_WELL, Seconds(6) + Milliseconds(900));
-                            _events.ScheduleEvent(EVENT_HARDEN_SKIN, Seconds(22) + Milliseconds(700));
-                            _events.ScheduleEvent(EVENT_QUAKE_PRE_WARNING, Seconds(19) + Milliseconds(200));
-                            _events.ScheduleEvent(EVENT_QUAKE, Seconds(27) + Milliseconds(500));
-                            _events.ScheduleEvent(EVENT_ERUPTION, Seconds(9) + Milliseconds(300));
+                            _events.ScheduleEvent(EVENT_GRAVITY_WELL, 6s + 900ms);
+                            _events.ScheduleEvent(EVENT_HARDEN_SKIN, 22s + 700ms);
+                            _events.ScheduleEvent(EVENT_QUAKE_PRE_WARNING, 19s + 200ms);
+                            _events.ScheduleEvent(EVENT_QUAKE, 27s + 500ms);
+                            _events.ScheduleEvent(EVENT_ERUPTION, 9s + 300ms);
                             me->SetReactState(REACT_AGGRESSIVE);
                             DoZoneInCombat();
                             break;
                         case EVENT_GRAVITY_WELL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
                                 DoCast(target, SPELL_GRAVITY_WELL);
-                            _events.Repeat(Seconds(17));
+                            _events.Repeat(17s);
                             break;
                         case EVENT_HARDEN_SKIN:
                             DoCastSelf(SPELL_HARDEN_SKIN);
-                            _events.Repeat(Seconds(43) + Milliseconds(800));
+                            _events.Repeat(43s + 800ms);
                             break;
                         case EVENT_QUAKE:
                             Talk(SAY_ANNOUNCE_ABILITY);
                             Talk(SAY_ABILITY);
                             DoCastAOE(SPELL_QUAKE);
-                            _events.Repeat(Minutes(1) + Seconds(8));
-                            _events.ScheduleEvent(EVENT_QUAKE_PRE_WARNING, Seconds(59) + Milliseconds(700));
+                            _events.Repeat(1min + 8s);
+                            _events.ScheduleEvent(EVENT_QUAKE_PRE_WARNING, 59s + 700ms);
                             break;
                         case EVENT_QUAKE_PRE_WARNING:
                             if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
@@ -1251,12 +1280,12 @@ class npc_terrastra : public CreatureScript
                             break;
                         case EVENT_ERUPTION:
                             DoCastSelf(SPELL_ERUPTION_DUMMY);
-                            _events.Repeat(Seconds(17));
+                            _events.Repeat(17s);
                             break;
                         case EVENT_TELEPORT_PREPARE_FUSION:
                             DoCastSelf(SPELL_TELEPORT_EARTH);
-                            _events.ScheduleEvent(EVENT_FACE_CONTROLLER, Milliseconds(200));
-                            _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, Seconds(3) + Milliseconds(900));
+                            _events.ScheduleEvent(EVENT_FACE_CONTROLLER, 200ms);
+                            _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 3s + 900ms);
                             break;
                         case EVENT_FACE_CONTROLLER:
                             if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
@@ -1268,7 +1297,7 @@ class npc_terrastra : public CreatureScript
                             break;
                         case EVENT_GRAVITY_CORE:
                             DoCastAOE(SPELL_GRAVITY_CORE, true);
-                            _events.Repeat(Seconds(20));
+                            _events.Repeat(20s);
                             break;
                         default:
                             break;
@@ -1325,10 +1354,10 @@ class npc_elementium_monstrosity : public CreatureScript
                 DoCastSelf(SPELL_MERGE_HEALTH);
                 Talk(SAY_SUMMONED);
                 _events.SetPhase(PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_APPLY_PERIODIC_EFFECTS, Seconds(1) + Milliseconds(500));
-                _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, Seconds(3) + Milliseconds(800));
-                _events.ScheduleEvent(EVENT_LAVA_SEED, Seconds(19) + Milliseconds(700));
-                _events.ScheduleEvent(EVENT_GRAVITY_CRUSH, Seconds(32) + Milliseconds(900));
+                _events.ScheduleEvent(EVENT_APPLY_PERIODIC_EFFECTS, 1s + 500ms);
+                _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 3s + 800ms);
+                _events.ScheduleEvent(EVENT_LAVA_SEED, 19s + 700ms);
+                _events.ScheduleEvent(EVENT_GRAVITY_CRUSH, 32s + 900ms);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -1408,11 +1437,11 @@ class npc_elementium_monstrosity : public CreatureScript
                         case EVENT_LAVA_SEED:
                             Talk(SAY_LAVA_SEED);
                             DoCastAOE(SPELL_LAVA_SEED);
-                            _events.Repeat(Seconds(21) + Milliseconds(700));
+                            _events.Repeat(21s + 700ms);
                             break;
                         case EVENT_GRAVITY_CRUSH:
                             DoCastAOE(SPELL_GRAVITY_CRUSH);
-                            _events.Repeat(Seconds(24), Seconds(28));
+                            _events.Repeat(24s, 28s);
                             break;
                         default:
                             break;
@@ -1457,7 +1486,7 @@ class npc_ascendant_council_violent_cyclone : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 me->SetWalk(true);
-                _events.ScheduleEvent(EVENT_CYCLONE_AGGRO, Seconds(2) + Milliseconds(300));
+                _events.ScheduleEvent(EVENT_CYCLONE_AGGRO, 2s + 300ms);
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
@@ -1467,7 +1496,7 @@ class npc_ascendant_council_violent_cyclone : public CreatureScript
                 if (spell->Id == SPELL_CYCLONE_AGGRO)
                 {
                     _targetPositions.push_back(target->GetPosition());
-                    _events.RescheduleEvent(EVENT_MOVE_CYCLONE, Milliseconds(100));
+                    _events.RescheduleEvent(EVENT_MOVE_CYCLONE, 100ms);
                 }
             }
 
@@ -1497,7 +1526,7 @@ class npc_ascendant_council_violent_cyclone : public CreatureScript
                                 me->GetMotionMaster()->MovePoint(POINT_NONE, destination, true);
                             }
 
-                            _events.Repeat(Seconds(10), Seconds(14));
+                            _events.Repeat(10s, 14s);
                             break;
                         }
                         default:
@@ -1529,7 +1558,7 @@ class npc_ascendant_council_gravity_well : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 DoCastSelf(SPELL_GRAVITY_WELL_PRE_VISUAL);
-                _events.ScheduleEvent(EVENT_MAGNETIC_PULL, Seconds(3) + Milliseconds(400));
+                _events.ScheduleEvent(EVENT_MAGNETIC_PULL, 3s + 400ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1573,7 +1602,7 @@ class npc_ascendant_council_eruption_target : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 DoCastSelf(SPELL_ERUPTION_PRE_VISUAL);
-                _events.ScheduleEvent(EVENT_ERUPTION_DAMAGE, Seconds(3) + Milliseconds(900));
+                _events.ScheduleEvent(EVENT_ERUPTION_DAMAGE, 3s + 900ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1586,7 +1615,7 @@ class npc_ascendant_council_eruption_target : public CreatureScript
                     {
                         case EVENT_ERUPTION_DAMAGE:
                             me->RemoveAurasDueToSpell(SPELL_ERUPTION_PRE_VISUAL);
-                            me->DespawnOrUnsummon(Seconds(6) + Milliseconds(400));
+                            me->DespawnOrUnsummon(6s + 400ms);
                             if (TempSummon* summon = me->ToTempSummon())
                                 if (Unit* summoner = summon->GetSummoner())
                                     summoner->CastSpell(me, SPELL_ERUPTION_DAMAGE, true);
@@ -1621,7 +1650,7 @@ class npc_ascendant_council_plume_stalker : public CreatureScript
                 if (spell->Id == SPELL_LAVA_SEED_DUMMY)
                 {
                     me->StopMoving();
-                    _events.ScheduleEvent(EVENT_LAVA_PLUME, Seconds(1) + Milliseconds(100));
+                    _events.ScheduleEvent(EVENT_LAVA_PLUME, 1s + 100ms);
                 }
             }
 
@@ -1635,8 +1664,8 @@ class npc_ascendant_council_plume_stalker : public CreatureScript
                     {
                         case EVENT_LAVA_PLUME:
                             DoCastAOE(SPELL_LAVA_PLUME);
-                            _events.ScheduleEvent(EVENT_CLEAR_LAVA_SEED_DUMMY_AURA, Seconds(1) + Milliseconds(100));
-                            _events.ScheduleEvent(EVENT_MOVE_PLUME, Seconds(2) + Milliseconds(300));
+                            _events.ScheduleEvent(EVENT_CLEAR_LAVA_SEED_DUMMY_AURA, 1s + 100ms);
+                            _events.ScheduleEvent(EVENT_MOVE_PLUME, 2s + 300ms);
                             break;
                         case EVENT_CLEAR_LAVA_SEED_DUMMY_AURA:
                             me->RemoveAurasDueToSpell(SPELL_LAVA_SEED_DUMMY);
@@ -1679,7 +1708,7 @@ class npc_ascendant_council_gravity_crush : public CreatureScript
                     return;
 
                 summoner->CastSpell(me, SPELL_GRAVITY_CRUSH_RIDE_VEHICLE, true);
-                _events.ScheduleEvent(EVENT_MOVE_UP, Seconds(1) + Milliseconds(200));
+                _events.ScheduleEvent(EVENT_MOVE_UP, 1s + 200ms);
 
                 if (Creature* elementiumMonstrosity = _instance->GetCreature(DATA_ELEMENTIUM_MONSTROSITY))
                     elementiumMonstrosity->AI()->JustSummoned(me);
@@ -1748,7 +1777,7 @@ class npc_ascendant_council_frozen_orb : public CreatureScript
                 {
                     case SPELL_FROZEN_ORB_TARGETING:
                         _targetGUID = target->GetGUID();
-                        _events.ScheduleEvent(EVENT_PURSUE_TARGET, Seconds(2));
+                        _events.ScheduleEvent(EVENT_PURSUE_TARGET, 2s);
                         break;
                     case SPELL_FROZEN_ORB_DUMMY:
                         if (target->GetGUID() == _targetGUID)
@@ -1756,7 +1785,7 @@ class npc_ascendant_council_frozen_orb : public CreatureScript
                             me->GetMotionMaster()->Clear();
                             me->RemoveAllAuras();
                             DoCastAOE(SPELL_GLACIATE_FROST_ORB);
-                            me->DespawnOrUnsummon(Seconds(1) + Milliseconds(900));
+                            me->DespawnOrUnsummon(1s + 900ms);
                         }
                         break;
                     default:
@@ -1779,12 +1808,12 @@ class npc_ascendant_council_frozen_orb : public CreatureScript
                                 DoCast(target, SPELL_FROST_BEACON);
                                 me->ClearUnitState(UNIT_STATE_CASTING);
                                 me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
-                                _events.ScheduleEvent(EVENT_INCREASE_SPEED, Seconds(1));
+                                _events.ScheduleEvent(EVENT_INCREASE_SPEED, 1s);
                             }
                             break;
                         case EVENT_INCREASE_SPEED:
                             DoCastSelf(SPELL_FROZEN_ORB_INCREASE_SPEED, true);
-                            _events.Repeat(Seconds(1));
+                            _events.Repeat(1s);
                             break;
                         default:
                             break;
@@ -1834,9 +1863,9 @@ class npc_ascendant_council_flame_strike : public CreatureScript
                 {
                     target->GetMotionMaster()->Clear();
                     target->RemoveAllAuras();
-                    target->ToCreature()->DespawnOrUnsummon(Seconds(2) + Milliseconds(300));
+                    target->ToCreature()->DespawnOrUnsummon(2s + 300ms);
                     me->RemoveAllAuras();
-                    me->DespawnOrUnsummon(Seconds(2) + Milliseconds(300));
+                    me->DespawnOrUnsummon(2s + 300ms);
                 }
             }
 
