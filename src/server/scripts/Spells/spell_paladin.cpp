@@ -2071,7 +2071,7 @@ class spell_pal_holy_radiance: public SpellScript
     {
         if (uint32 heal = GetHitHeal())
             if (_targetCount > 6)
-                SetHitHeal(heal / _targetCount);
+                SetHitHeal((heal * 6) / _targetCount);
     }
 private:
     uint8 _targetCount;

@@ -1662,45 +1662,35 @@ class spell_sha_healing_rain : public SpellScriptLoader
 };
 
 // 73921 - Healing Rain Triggered
-class spell_sha_healing_rain_triggered : public SpellScriptLoader
+class spell_sha_healing_rain_triggered : public SpellScript
 {
-    public:
-        spell_sha_healing_rain_triggered() : SpellScriptLoader("spell_sha_healing_rain_triggered") { }
+    PrepareSpellScript(spell_sha_healing_rain_triggered);
 
-        class spell_sha_healing_rain_triggered_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_healing_rain_triggered_SpellScript);
+    bool Load()
+    {
+        _targets = 0;
+        return true;
+    }
 
-            bool Load()
-            {
-                _targets = 0;
-                return true;
-            }
+    void FilterTargets(std::list<WorldObject*>& unitList)
+    {
+        _targets = unitList.size();
+    }
 
-            void HandleHeal(SpellEffIndex /*effIndex*/)
-            {
-                if (GetHitHeal() && _targets > 6)
-                    SetHitHeal(GetHitHeal() / _targets);
-            }
+    void HandleHeal(SpellEffIndex /*effIndex*/)
+    {
+        if (uint32 heal = GetHitHeal())
+        if (_targets > 6)
+            SetHitHeal((heal * 6) / _targets);
+    }
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
-            {
-                _targets = unitList.size();
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_triggered_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-                OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain_triggered_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
-            }
-
-            uint32 _targets;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_sha_healing_rain_triggered_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_triggered::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain_triggered::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+private:
+    uint8 _targets;
 };
 
 class spell_sha_earthliving_weapon : public SpellScriptLoader
@@ -2043,7 +2033,7 @@ void AddSC_shaman_spell_scripts()
     RegisterAuraScript(spell_sha_frozen_power);
     new spell_sha_glyph_of_healing_wave();
     new spell_sha_healing_rain();
-    new spell_sha_healing_rain_triggered();
+    RegisterSpellScript(spell_sha_healing_rain_triggered);
     new spell_sha_healing_stream_totem();
     new spell_sha_heroism();
     new spell_sha_item_lightning_shield();
