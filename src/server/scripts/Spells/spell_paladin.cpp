@@ -65,6 +65,7 @@ enum PaladinSpells
     SPELL_PALADIN_HAND_OF_LIGHT                         = 96172,
     SPELL_PALADIN_HAND_OF_SACRIFICE                     = 6940,
     SPELL_PALADIN_HOLY_LIGHT                            = 635,
+    SPELL_PALADIN_HOLY_RADIANCE_TRIGGERED               = 86452,
     SPELL_PALADIN_HOLY_SHOCK_R1                         = 20473,
     SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE                  = 25912,
     SPELL_PALADIN_HOLY_SHOCK_R1_HEALING                 = 25914,
@@ -2043,6 +2044,69 @@ class spell_pal_light_of_dawn: public SpellScript
     }
 };
 
+// 82327 - Holy Radiance
+class spell_pal_holy_radiance: public SpellScript
+{
+    PrepareSpellScript(spell_pal_holy_radiance);
+
+    bool Load() override
+    {
+        if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+            return false;
+
+        if (GetCaster()->ToPlayer()->getClass() != CLASS_PALADIN)
+            return false;
+
+        _targetCount = 0;
+
+        return true;
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        _targetCount = targets.size();
+    }
+
+    void HandleHeal(SpellEffIndex /*effIndex*/)
+    {
+        if (uint32 heal = GetHitHeal())
+            if (_targetCount > 6)
+                SetHitHeal(heal / _targetCount);
+    }
+private:
+    uint8 _targetCount;
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_holy_radiance::HandleHeal, EFFECT_1, SPELL_EFFECT_HEAL);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_radiance::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
+class spell_pal_holy_radiance_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_pal_holy_radiance_AuraScript);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_HOLY_RADIANCE_TRIGGERED });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_PALADIN_HOLY_RADIANCE_TRIGGERED, true, nullptr, aurEff);
+    }
+
+private:
+    Position castPos;
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_holy_radiance_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -2066,6 +2130,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_grand_crusader();
     RegisterSpellScript(spell_pal_guardian_of_ancient_kings);
     new spell_pal_hand_of_light();
+    RegisterSpellAndAuraScriptPair(spell_pal_holy_radiance, spell_pal_holy_radiance_AuraScript);
     new spell_pal_hand_of_sacrifice();
     new spell_pal_holy_shock();
     new spell_pal_illuminated_healing();
