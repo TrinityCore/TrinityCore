@@ -963,7 +963,7 @@ class spell_warr_victory_rush : public SpellScript
                 if (Player* modOwner = caster->GetSpellModOwner())
                     modOwner->ApplySpellMod(m_scriptSpellId, SPELLMOD_EFFECT3, damage);
 
-                SetEffectDamage(damage);
+                SetEffectValue(damage);
             }
 
             caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
