@@ -247,6 +247,7 @@ class instance_bastion_of_twilight : public InstanceMapScript
                                 if (Creature* creature = instance->GetCreature(guid))
                                     creature->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
 
+                            _valionaDummyGUIDs.clear();
                             _collapsingTwilightPortalGUIDs.clear();
                         }
                         else if (state == DONE)
