@@ -37,6 +37,7 @@ enum PaladinSpells
     SPELL_PALADIN_ANCIENT_CRUSADER_GUARDIAN             = 86703,
     SPELL_PALADIN_ANCIENT_FURY                          = 86704,
     SPELL_PALADIN_ANCIENT_POWER                         = 86700,
+    SPELL_PALADIN_ARDENT_DEFENDER_HEAL                  = 66235,
     SPELL_PALADIN_AVENGERS_SHIELD                       = 31935,
     SPELL_PALADIN_AURA_MASTERY_IMMUNE                   = 64364,
     SPELL_PALADIN_BEACON_OF_LIGHT                       = 53563,
@@ -201,6 +202,39 @@ class spell_pal_ardent_defender : public SpellScriptLoader
         }
 };
 */
+
+class spell_pal_ardent_defender : public AuraScript
+{
+    PrepareAuraScript(spell_pal_ardent_defender);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_ARDENT_DEFENDER_HEAL });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = -1;
+    }
+
+    void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        Unit* target = GetTarget();
+        if (dmgInfo.GetDamage() >= target->GetHealth())
+        {
+            absorbAmount = dmgInfo.GetDamage();
+            int32 health = target->CountPctFromMaxHealth(15);
+            target->CastCustomSpell(SPELL_PALADIN_ARDENT_DEFENDER_HEAL, SPELLVALUE_BASE_POINT0, health, target, true, nullptr, aurEff);
+            Remove();
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_ardent_defender::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_pal_ardent_defender::Absorb, EFFECT_0);
+    }
+};
 
 // 31821 - Aura Mastery
 class spell_pal_aura_mastery : public SpellScriptLoader
@@ -2109,7 +2143,7 @@ private:
 
 void AddSC_paladin_spell_scripts()
 {
-    //new spell_pal_ardent_defender();
+    RegisterAuraScript(spell_pal_ardent_defender);
     RegisterAuraScript(spell_pal_ancient_healer);
     RegisterAuraScript(spell_pal_ancient_crusader);
     RegisterSpellScript(spell_pal_ancient_fury);
