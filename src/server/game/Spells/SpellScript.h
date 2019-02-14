@@ -172,7 +172,8 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_CHECK_CAST,
     SPELL_SCRIPT_HOOK_BEFORE_CAST,
     SPELL_SCRIPT_HOOK_ON_CAST,
-    SPELL_SCRIPT_HOOK_AFTER_CAST
+    SPELL_SCRIPT_HOOK_AFTER_CAST,
+    SPELL_SCRIPT_HOOK_ON_SPELL_START
 };
 
 #define HOOK_SPELL_HIT_START SPELL_SCRIPT_HOOK_EFFECT_HIT
@@ -307,6 +308,8 @@ class TC_GAME_API SpellScript : public _SpellScript
         // SpellScript interface
         // hooks to which you can attach your functions
         //
+        // example: OnSpellStart += SpellCastFn(class::function);
+        HookList<CastHandler> OnSpellStart;
         // example: BeforeCast += SpellCastFn(class::function);
         HookList<CastHandler> BeforeCast;
         // example: OnCast += SpellCastFn(class::function);

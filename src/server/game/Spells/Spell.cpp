@@ -3148,6 +3148,8 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_GCD))
             TriggerGlobalCooldown();
 
+        CallScriptOnSpellStartHandlers();
+
         // commented out !m_spellInfo->StartRecoveryTime, it forces instant spells with global cooldown to be processed in spell::update
         // as a result a spell that passed CheckCast and should be processed instantly may suffer from this delayed process
         // the easiest bug to observe is LoS check in AddUnitTarget, even if spell passed the CheckCast LoS check the situation can change in spell::update
@@ -7698,6 +7700,20 @@ SpellCastResult Spell::CallScriptCheckCastHandlers()
     }
     return retVal;
 }
+
+void Spell::CallScriptOnSpellStartHandlers()
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_SPELL_START);
+        auto hookItrEnd = (*scritr)->OnSpellStart.end(), hookItr = (*scritr)->OnSpellStart.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            (*hookItr).Call(*scritr);
+
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
 
 void Spell::PrepareScriptHitHandlers()
 {
