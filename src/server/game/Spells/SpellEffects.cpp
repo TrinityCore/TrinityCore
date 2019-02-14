@@ -5232,64 +5232,32 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+    if (m_caster->GetTypeId() != TYPEID_PLAYER || !damage)
         return;
 
     Player* player = m_caster->ToPlayer();
-
     if (player->getClass() != CLASS_DEATH_KNIGHT)
         return;
 
     // needed later
-    m_runesState = m_caster->ToPlayer()->GetRunesState();
+    m_runesState = player->GetRunesState();
+    int32 count = damage;
+    int32 miscValue = (1 << m_spellInfo->Effects[effIndex].MiscValue);
+    if (miscValue & (1 << RUNE_DEATH))
+        miscValue |= (1 << RUNE_BLOOD);
 
-    uint32 count = damage;
-    if (count == 0)
-        count = 1;
-
-    // Blood Tap
-    if (m_spellInfo->Id == 45529 && count > 0)
+    for (uint32 i = 0; i < MAX_RUNES && count > 0; ++i)
     {
-        for (uint32 l = 0; l + 1 < MAX_RUNES && count > 0; ++l)
+        if ((1 << player->GetCurrentRune(i)) & miscValue && player->GetRuneCooldown(i))
         {
-            // Check if both runes are on cd as that is the only time when this needs to come into effect
-            if ((player->GetRuneCooldown(l) && player->GetBaseRune(l) == RUNE_BLOOD) && (player->GetRuneCooldown(l + 1) && player->GetBaseRune(l + 1) == RUNE_BLOOD))
-            {
-                // Should always update the rune with the lowest cd
-                if (l + 1 < MAX_RUNES && player->GetRuneCooldown(l) >= player->GetRuneCooldown(l + 1))
-                    ++l;
-
-                player->SetRuneCooldown(l, 0);
-                --count;
-            }
-            else
-                break;
-        }
-    }
-
-    for (uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
-    {
-        if (player->GetRuneCooldown(j) && player->GetCurrentRune(j) == RuneType(m_spellInfo->Effects[effIndex].MiscValue))
-        {
-            player->SetRuneCooldown(j, 0);
+            player->SetRuneCooldown(i, 0);
             --count;
         }
     }
 
-    // Empower rune weapon
-    if (m_spellInfo->Id == 47568)
-    {
-        // Need to do this just once
-        if (effIndex != 0)
-            return;
-
-        for (uint32 i = 0; i < MAX_RUNES; ++i)
-        {
-            if (player->GetRuneCooldown(i) && (player->GetBaseRune(i) == RUNE_FROST))
-                player->SetRuneCooldown(i, 0);
-        }
-    }
-    player->ResyncRunes(MAX_RUNES);
+    // Send rune state diff
+    uint8 runesState = player->GetRunesState() & ~m_runesState;
+    player->AddRunePower(runesState);
 }
 
 void Spell::EffectCreateTamedPet(SpellEffIndex effIndex)
