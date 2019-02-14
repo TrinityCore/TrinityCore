@@ -54,6 +54,7 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
     SPELL_DK_DEATH_COIL_HEAL                    = 47633,
     SPELL_DK_DEATH_GRIP                         = 49560,
+    SPELL_DK_DEATH_GRIP_INITIAL                 = 49576,
     SPELL_DK_DEATH_STRIKE                       = 49998,
     SPELL_DK_DEATH_STRIKE_OFFHAND               = 66188,
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
@@ -84,6 +85,7 @@ enum DeathKnightSpells
     SPELL_DK_OBLITERATE_OFFHAND                 = 66198,
     SPELL_DK_PLAGUE_STRIKE                      = 45462,
     SPELL_DK_PLAGUE_STRIKE_OFFHAND              = 66216,
+    SPELL_DK_RESILIENT_INFECTION                = 90721,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
     SPELL_DK_RUNIC_CORRUPTION_TRIGGERED         = 51460,
     SPELL_DK_RUNE_STRIKE                        = 56815,
@@ -100,7 +102,8 @@ enum DeathKnightSpells
 
 enum DKSpellIcons
 {
-    DK_ICON_ID_RUNIC_CORRUPTION                 = 4068
+    DK_ICON_ID_RUNIC_CORRUPTION                 = 4068,
+    DK_ICON_ID_RESILIENT_INFECTION              = 1910
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
@@ -1383,16 +1386,16 @@ class spell_dk_runic_empowerment : public AuraScript
                     RuneType rune = player->GetCurrentRune(randomRune);
                     switch (rune)
                     {
-                    case RUNE_BLOOD:
-                    case RUNE_DEATH:
-                        player->CastSpell(player, SPELL_DK_ENERGIZE_BLOOD_RUNE, true, nullptr, aurEff);
-                        break;
-                    case RUNE_FROST:
-                        player->CastSpell(player, SPELL_DK_ENERGIZE_FROST_RUNE, true, nullptr, aurEff);
-                        break;
-                    case RUNE_UNHOLY:
-                        player->CastSpell(player, SPELL_DK_ENERGIZE_UNHOLY_RUNE, true, nullptr, aurEff);
-                        break;
+                        case RUNE_BLOOD:
+                        case RUNE_DEATH:
+                            player->CastSpell(player, SPELL_DK_ENERGIZE_BLOOD_RUNE, true, nullptr, aurEff);
+                            break;
+                        case RUNE_FROST:
+                            player->CastSpell(player, SPELL_DK_ENERGIZE_FROST_RUNE, true, nullptr, aurEff);
+                            break;
+                        case RUNE_UNHOLY:
+                            player->CastSpell(player, SPELL_DK_ENERGIZE_UNHOLY_RUNE, true, nullptr, aurEff);
+                            break;
                     }
                 }
             }
@@ -1645,6 +1648,85 @@ private:
     uint32 absorbPct;
 };
 
+// -49588 Unholy Command
+class spell_dk_unholy_command : public AuraScript
+{
+    PrepareAuraScript(spell_dk_unholy_command);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_DEATH_GRIP_INITIAL });
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_DK_DEATH_GRIP_INITIAL, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dk_unholy_command::HandleProc, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+    }
+};
+
+// 55078 - Blood Plague
+// 55095 - Frost Fever
+class spell_dk_disease : public AuraScript
+{
+    PrepareAuraScript(spell_dk_disease);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DK_RESILIENT_INFECTION,
+                SPELL_DK_BLOOD_PLAGUE,
+                SPELL_DK_FROST_FEVER
+            });
+    }
+
+    void HandleResilientInfection(DispelInfo* /*dispelInfo*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_GENERIC, DK_ICON_ID_RESILIENT_INFECTION, EFFECT_0))
+        {
+            if (roll_chance_i(aurEff->GetAmount()))
+            {
+                int32 bp0 = GetId() == SPELL_DK_FROST_FEVER ? 1 : 0;
+                int32 bp1 = GetId() == SPELL_DK_BLOOD_PLAGUE ? 1 : 0;
+                caster->CastCustomSpell(caster, SPELL_DK_RESILIENT_INFECTION, &bp0, &bp1, nullptr, true);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        AfterDispel += AuraDispelFn(spell_dk_disease::HandleResilientInfection);
+    }
+};
+
+// -55666 - Desecration
+class spell_dk_desecration : public AuraScript
+{
+    PrepareAuraScript(spell_dk_desecration);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (Unit* target = eventInfo.GetActionTarget())
+            return (target->GetMechanicImmunityMask() & MECHANIC_SNARE) == 0;
+
+        return false;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dk_desecration::CheckProc);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterAuraScript(spell_dk_anti_magic_shell_raid);
@@ -1667,6 +1749,8 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_death_pact);
     RegisterSpellScript(spell_dk_death_strike);
     RegisterAuraScript(spell_dk_death_strike_enabler);
+    RegisterAuraScript(spell_dk_desecration);
+    RegisterAuraScript(spell_dk_disease);
     RegisterSpellScript(spell_dk_ghoul_explode);
     RegisterSpellScript(spell_dk_howling_blast);
     RegisterAuraScript(spell_dk_icebound_fortitude);
@@ -1684,6 +1768,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterAuraScript(spell_dk_shadow_infusion);
     RegisterSpellScript(spell_dk_scourge_strike);
     RegisterAuraScript(spell_dk_threat_of_thassarian);
+    RegisterAuraScript(spell_dk_unholy_command);
     RegisterAuraScript(spell_dk_vampiric_blood);
     RegisterAuraScript(spell_dk_will_of_the_necropolis);
 }
