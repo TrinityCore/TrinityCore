@@ -59,6 +59,7 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_STRIKE_OFFHAND               = 66188,
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_DEATH_STRIKE_ENABLER               = 89832,
+    SPELL_DK_EBON_PLAGUE                        = 65142,
     SPELL_DK_ENERGIZE_BLOOD_RUNE                = 81166,
     SPELL_DK_ENERGIZE_FROST_RUNE                = 81168,
     SPELL_DK_ENERGIZE_UNHOLY_RUNE               = 81169,
@@ -1731,6 +1732,95 @@ class spell_dk_desecration : public AuraScript
     }
 };
 
+// -96269 - Death's Advance
+class spell_dk_deaths_advance : public AuraScript
+{
+    PrepareAuraScript(spell_dk_deaths_advance);
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        Player* player = GetTarget()->ToPlayer();
+        if (!player)
+            return false;
+
+        uint8 unholyRunesOnCooldownCount = 0;
+        for (uint8 i = 0; i < MAX_RUNES; ++i)
+        {
+            if (player->GetCurrentRune(i) == RUNE_UNHOLY && player->GetRuneCooldown(i))
+                unholyRunesOnCooldownCount++;
+        }
+
+        if (unholyRunesOnCooldownCount >= 2)
+            return true;
+
+        return false;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dk_deaths_advance::CheckProc);
+    }
+};
+
+class spell_dk_deaths_advance_aura : public AuraScript
+{
+    PrepareAuraScript(spell_dk_deaths_advance_aura);
+
+    void HandleDummyTick(AuraEffect const* /*aurEff*/)
+    {
+        Player* player = GetTarget()->ToPlayer();
+        if (!player)
+            return;
+
+        uint8 unholyRunesOnCooldownCount = 0;
+
+        for (uint8 i = 0; i < MAX_RUNES; ++i)
+        {
+            if (player->GetCurrentRune(i) == RUNE_UNHOLY && player->GetRuneCooldown(i))
+                unholyRunesOnCooldownCount++;
+        }
+
+        if (unholyRunesOnCooldownCount >= 2)
+            RefreshDuration();
+        else
+            Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_deaths_advance_aura::HandleDummyTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// -51099 - Ebon Plaguebringer
+class spell_dk_ebon_plaguebringer : public AuraScript
+{
+    PrepareAuraScript(spell_dk_ebon_plaguebringer);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_EBON_PLAGUE });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        Spell const* spell = eventInfo.GetProcSpell();
+        if (!spell)
+            return;
+
+        int32 bp = aurEff->GetAmount();
+        if (Unit* target = spell->m_targets.GetUnitTarget())
+            GetTarget()->CastCustomSpell(SPELL_DK_EBON_PLAGUE, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dk_ebon_plaguebringer::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterAuraScript(spell_dk_anti_magic_shell_raid);
@@ -1753,8 +1843,11 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_death_pact);
     RegisterSpellScript(spell_dk_death_strike);
     RegisterAuraScript(spell_dk_death_strike_enabler);
+    RegisterAuraScript(spell_dk_deaths_advance);
+    RegisterAuraScript(spell_dk_deaths_advance_aura);
     RegisterAuraScript(spell_dk_desecration);
     RegisterAuraScript(spell_dk_disease);
+    RegisterAuraScript(spell_dk_ebon_plaguebringer);
     RegisterSpellScript(spell_dk_ghoul_explode);
     RegisterSpellScript(spell_dk_howling_blast);
     RegisterAuraScript(spell_dk_icebound_fortitude);
