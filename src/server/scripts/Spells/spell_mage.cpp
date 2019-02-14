@@ -664,7 +664,7 @@ class spell_mage_frostbolt : public SpellScript
 
     void Register() override
     {
-        BeforeCast += SpellCastFn(spell_mage_frostbolt::HandleEarlyFrost);
+        OnSpellStart += SpellCastFn(spell_mage_frostbolt::HandleEarlyFrost);
         OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt::RecalculateDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 
