@@ -1715,8 +1715,12 @@ class spell_dk_desecration : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
+        SpellInfo const* triggerSpell = sSpellMgr->GetSpellInfo(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell);
+        if (!triggerSpell)
+            return false;
+
         if (Unit* target = eventInfo.GetActionTarget())
-            return (target->GetMechanicImmunityMask() & MECHANIC_SNARE) == 0;
+            return !target->IsImmunedToSpell(triggerSpell, GetTarget());
 
         return false;
     }
