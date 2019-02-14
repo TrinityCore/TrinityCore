@@ -2147,10 +2147,7 @@ class spell_mage_fingers_of_frost_charges : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        if (GetStackAmount() > 1)
-            SetStackAmount(GetStackAmount() - 1);
-        else
-            Remove();
+        GetAura()->ModStackAmount(-1);
     }
 
     void Register() override
