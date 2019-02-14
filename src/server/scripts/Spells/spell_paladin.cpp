@@ -136,7 +136,6 @@ class spell_pal_ardent_defender : public AuraScript
         Unit* target = GetTarget();
         if (dmgInfo.GetDamage() >= target->GetHealth())
         {
-            absorbAmount = dmgInfo.GetDamage();
             int32 health = target->CountPctFromMaxHealth(15);
             target->CastCustomSpell(SPELL_PALADIN_ARDENT_DEFENDER_HEAL, SPELLVALUE_BASE_POINT0, health, target, true, nullptr, aurEff);
             Remove();
