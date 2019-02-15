@@ -22,6 +22,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "SpellHistory.h"
 #include "Player.h"
 #include "DBCStores.h"
 #include "bastion_of_twilight.h"
@@ -884,7 +885,7 @@ class npc_ignacious : public CreatureScript
                             break;
                         case EVENT_FLAME_TORRENT:
                             if (_events.GetTimeUntilEvent(EVENT_AEGIS_OF_FLAME) < 3000 || _events.GetTimeUntilEvent(EVENT_RISING_FLAMES) < 3500
-                                || _events.GetTimeUntilEvent(EVENT_INFERNO_LEAP) < 3000 || me->GetReactState() == REACT_PASSIVE)
+                                || me->GetSpellHistory()->HasCooldown(SPELL_FLAME_TORRENT) || me->HasReactState(REACT_PASSIVE))
                             {
                                 _events.Repeat(1s);
                                 break;
@@ -900,6 +901,12 @@ class npc_ignacious : public CreatureScript
                             _events.Repeat(21s);
                             break;
                         case EVENT_INFERNO_LEAP:
+                            if (me->GetSpellHistory()->HasCooldown(SPELL_INFERNO_LEAP))
+                            {
+                                _events.Repeat(1s);
+                                break;
+                            }
+
                             if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 60.0f, true, 0))
                             {
                                 if (Unit* victim = me->GetVictim())
@@ -907,7 +914,7 @@ class npc_ignacious : public CreatureScript
 
                                 me->AttackStop();
                                 me->SetReactState(REACT_PASSIVE);
-                                DoCast(target, SPELL_INFERNO_LEAP, true);
+                                DoCast(target, SPELL_INFERNO_LEAP);
                             }
                             break;
                         case EVENT_IGNITE_INFERNO_RUSH:
