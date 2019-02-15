@@ -46,6 +46,7 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535,
     SPELL_DK_BLOOD_STRIKE                       = 45902,
     SPELL_DK_BLOOD_STRIKE_OFFHAND               = 66215,
+    SPELL_DK_BLOOD_TAP                          = 45529,
     SPELL_DK_BUTCHERY                           = 50163,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_DARK_TRANSFORMATION_DUMMY          = 93426,
@@ -510,6 +511,7 @@ class spell_dk_death_strike : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         int32 heal = 0;
+
         if (AuraEffect* enabler = GetCaster()->GetAuraEffect(SPELL_DK_DEATH_STRIKE_ENABLER, EFFECT_0, GetCaster()->GetGUID()))
         {
             // Call CalculateAmount() to constantly fire the AuraEffect's HandleCalcAmount method
@@ -526,7 +528,14 @@ class spell_dk_death_strike : public SpellScript
             return;
 
         if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_DK_BLOOD_SHIELD_MASTERY, EFFECT_0))
-            GetCaster()->CastCustomSpell(SPELL_DK_BLOOD_SHIELD_ABSORB, SPELLVALUE_BASE_POINT0, CalculatePct(heal, aurEff->GetAmount()), GetCaster(), true);
+        {
+            int32 bp = CalculatePct(heal, aurEff->GetAmount());
+
+            if (AuraEffect const* bloodShieldEffect = GetCaster()->GetAuraEffect(SPELL_DK_BLOOD_SHIELD_ABSORB, EFFECT_0))
+                bp += std::min(bp + bloodShieldEffect->GetAmount(), int32(GetCaster()->GetMaxHealth()));
+
+            GetCaster()->CastCustomSpell(SPELL_DK_BLOOD_SHIELD_ABSORB, SPELLVALUE_BASE_POINT0, bp, GetCaster(), true);
+        }
     }
 
     void Register() override
@@ -1172,6 +1181,7 @@ class spell_dk_vampiric_blood : public AuraScript
     }
 };
 
+// Updated 4.3.4
 // -52284 - Will of the Necropolis
 class spell_dk_will_of_the_necropolis : public AuraScript
 {
@@ -1179,22 +1189,24 @@ class spell_dk_will_of_the_necropolis : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DK_WILL_OF_THE_NECROPOLIS });
+        return ValidateSpellInfo(
+            {
+                SPELL_DK_WILL_OF_THE_NECROPOLIS,
+                SPELL_DK_BLOOD_TAP
+            });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        //! HACK due to currenct proc system implementation
-        if (Player* player = GetTarget()->ToPlayer())
-            if (player->GetSpellHistory()->HasCooldown(GetId()))
-                return false;
-
         return GetTarget()->HealthBelowPctDamaged(30, eventInfo.GetDamageInfo()->GetDamage());
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_DK_WILL_OF_THE_NECROPOLIS, true, nullptr, aurEff);
+        Unit* target = GetTarget();
+        int32 bp = aurEff->GetAmount();
+        target->CastCustomSpell(SPELL_DK_WILL_OF_THE_NECROPOLIS, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+        target->GetSpellHistory()->ResetCooldown(SPELL_DK_BLOOD_TAP, true);
     }
 
     void Register() override
@@ -1610,19 +1622,23 @@ class spell_dk_crimson_scourge : public AuraScript
 {
     PrepareAuraScript(spell_dk_crimson_scourge);
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_BLOOD_PLAGUE });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
         if (DamageInfo* damage = eventInfo.GetDamageInfo())
             if (Unit* target = damage->GetVictim())
-                if (target->GetDiseasesByCaster(GetTarget()->GetGUID(), false))
-                    return;
+                return target->HasAura(SPELL_DK_BLOOD_PLAGUE, GetTarget()->GetGUID());
 
-        PreventDefaultAction();
+        return false;
     }
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_dk_crimson_scourge::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+        DoCheckProc += AuraCheckProcFn(spell_dk_crimson_scourge::CheckProc);
     }
 };
 

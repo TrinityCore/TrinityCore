@@ -2936,8 +2936,9 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     if (uint32 runic = std::min<uint32>(uint32(m_caster->GetPower(POWER_RUNIC_POWER) / 2.5f), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(m_caster)))
                         AddPct(totalDamagePercentMod, runic);
             }
-            // Obliterate / Blood Strike (12.5% more damage per disease) / Heart Strike (15% more damage per disease)
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 || m_spellInfo->SpellFamilyFlags[0] & 0x400000 || m_spellInfo->SpellFamilyFlags[0] & 0x1000000)
+            // Obliterate / Blood Strike / Blood-Caked Strike (12.5% more damage per disease) / Heart Strike (15% more damage per disease)
+            if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 || m_spellInfo->SpellFamilyFlags[0] & 0x400000
+                || m_spellInfo->SpellFamilyFlags[0] & 0x1000000 || m_spellInfo->Id == 50463)
             {
                 float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster);
                 uint8 diseaseCount = unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), false);
