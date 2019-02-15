@@ -92,7 +92,7 @@ class TC_COMMON_API EventProcessor
     protected:
         uint64 m_time;
         std::multimap<uint64, BasicEvent*> m_events;
-        std::multimap< uint64, std::function<void()>> m_quickEvents;
+        std::multimap<uint64, std::function<void()>> m_quickEvents;
 };
 
 #endif
