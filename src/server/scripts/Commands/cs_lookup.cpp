@@ -1400,8 +1400,9 @@ public:
                     Field* characterFields  = result2->Fetch();
                     ObjectGuid guid         = ObjectGuid::Create<HighGuid::Player>(characterFields[0].GetUInt64());
                     std::string name        = characterFields[1].GetString();
+                    uint8 online = characterFields[2].GetUInt8();
 
-                    handler->PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER, name.c_str(), guid.ToString().c_str());
+                    handler->PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER, name.c_str(), guid.ToString().c_str(), online ? handler->GetTrinityString(LANG_ONLINE) : "");
                     ++counter;
                 }
                 while (result2->NextRow() && (limit == -1 || counter < limit));
