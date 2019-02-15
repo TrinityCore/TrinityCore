@@ -903,7 +903,7 @@ class npc_ignacious : public CreatureScript
 
                                 me->AttackStop();
                                 me->SetReactState(REACT_PASSIVE);
-                                DoCast(target, SPELL_INFERNO_LEAP);
+                                DoCast(target, SPELL_INFERNO_LEAP, true);
                             }
                             break;
                         case EVENT_IGNITE_INFERNO_RUSH:
