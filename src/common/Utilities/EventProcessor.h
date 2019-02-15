@@ -22,9 +22,8 @@
 #include "Define.h"
 #include "Duration.h"
 #include <map>
-#include "Random.h"
-
 #include <functional>
+#include "Random.h"
 
 class EventProcessor;
 
