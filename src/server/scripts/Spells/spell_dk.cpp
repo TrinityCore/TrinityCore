@@ -88,7 +88,6 @@ enum DeathKnightSpells
     SPELL_DK_PLAGUE_STRIKE                      = 45462,
     SPELL_DK_PLAGUE_STRIKE_OFFHAND              = 66216,
     SPELL_DK_RESILIENT_INFECTION                = 90721,
-    SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
     SPELL_DK_RUNIC_CORRUPTION_TRIGGERED         = 51460,
     SPELL_DK_RUNE_STRIKE                        = 56815,
     SPELL_DK_RUNE_STRIKE_OFFHAND                = 66217,
@@ -108,81 +107,36 @@ enum DKSpellIcons
     DK_ICON_ID_RESILIENT_INFECTION              = 1910
 };
 
-// 50462 - Anti-Magic Shell (on raid member)
-class spell_dk_anti_magic_shell_raid : public AuraScript
-{
-    PrepareAuraScript(spell_dk_anti_magic_shell_raid);
-
-    bool Load() override
-    {
-        absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-        return true;
-    }
-
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-    {
-        /// @todo this should absorb limited amount of damage, but no info on calculation formula
-        amount = -1;
-    }
-
-    void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-    {
-        absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
-    }
-
-    void Register() override
-    {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_raid::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_raid::Absorb, EFFECT_0);
-    }
-private:
-    uint32 absorbPct;
-};
-
 // 48707 - Anti-Magic Shell (on self)
-class spell_dk_anti_magic_shell_self : public AuraScript
+class spell_dk_anti_magic_shell : public AuraScript
 {
-    PrepareAuraScript(spell_dk_anti_magic_shell_self);
+    PrepareAuraScript(spell_dk_anti_magic_shell);
 
     bool Load() override
     {
         absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-        hpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
+        healthPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
         return true;
-    }
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DK_RUNIC_POWER_ENERGIZE });
     }
 
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
     {
-        amount = GetCaster()->CountPctFromMaxHealth(hpPct);
+        amount = GetCaster()->CountPctFromMaxHealth(healthPct);
     }
 
     void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
     {
-        absorbAmount = std::min(CalculatePct(dmgInfo.GetDamage(), absorbPct), GetTarget()->CountPctFromMaxHealth(hpPct));
-    }
-
-    void Trigger(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
-    {
-        // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
-        // This, if I'm not mistaken, shows that we get back ~20% of the absorbed damage as runic power.
-        int32 bp = CalculatePct(absorbAmount, 20);
-        GetTarget()->CastCustomSpell(SPELL_DK_RUNIC_POWER_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true, nullptr, aurEff);
+        absorbAmount = std::min(CalculatePct(dmgInfo.GetDamage(), absorbPct), GetTarget()->CountPctFromMaxHealth(healthPct));
     }
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_self::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self::Absorb, EFFECT_0);
-        AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self::Trigger, EFFECT_0);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell::Absorb, EFFECT_0);
     }
 private:
-    uint32 absorbPct;
-    uint32 hpPct;
+    int32 absorbPct;
+    int32 healthPct;
 };
 
 // 50461 - Anti-Magic Zone
@@ -1839,8 +1793,7 @@ class spell_dk_ebon_plaguebringer : public AuraScript
 
 void AddSC_deathknight_spell_scripts()
 {
-    RegisterAuraScript(spell_dk_anti_magic_shell_raid);
-    RegisterAuraScript(spell_dk_anti_magic_shell_self);
+    RegisterAuraScript(spell_dk_anti_magic_shell);
     RegisterAuraScript(spell_dk_anti_magic_zone);
     RegisterAuraScript(spell_dk_army_of_the_dead);
     RegisterSpellScript(spell_dk_blood_boil);
