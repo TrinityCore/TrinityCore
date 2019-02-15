@@ -343,14 +343,20 @@ class boss_ascendant_council_controller : public CreatureScript
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, ignacious, 4);
                         }
 
-                        if (IsHeroic())
+                        if (Creature* arion = instance->GetCreature(DATA_ARION))
                         {
-                            if (Creature* arion = instance->GetCreature(DATA_ARION))
+                            arion->SetInCombatWithZone();
+                            if (IsHeroic())
                                 arion->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
+                        }
 
-                            if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
+                        if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
+                        {
+                            terrastra->SetInCombatWithZone();
+                            if (IsHeroic())
                                 terrastra->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
                         }
+
 
                         events.ScheduleEvent(EVENT_PREPARE_ULTIMATE_ABILITY, 15s, 0, PHASE_FELUDIUS_IGNACIOUS);
 
@@ -415,6 +421,7 @@ class boss_ascendant_council_controller : public CreatureScript
                             if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
                                 terrastra->AI()->DoAction(ACTION_CHANGE_PLACES);
 
+                            events.CancelEvent(EVENT_PREPARE_ULTIMATE_ABILITY);
                             events.SetPhase(PHASE_ARION_TERRASTRA);
                         }
                         break;
@@ -528,7 +535,6 @@ class npc_feludius : public CreatureScript
             void Reset() override
             {
                 me->MakeInterruptable(false);
-                _events.Reset();
             }
 
             void JustEngagedWith(Unit* who) override
@@ -715,9 +721,7 @@ class npc_ignacious : public CreatureScript
 
             void Reset() override
             {
-                _events.Reset();
                 me->MakeInterruptable(false);
-                _infernoRushGUIDs.clear();
             }
 
             void JustEngagedWith(Unit* who) override
@@ -971,7 +975,6 @@ class npc_arion : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->MakeInterruptable(false);
-                _events.Reset();
                 _events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
             }
 
@@ -1165,7 +1168,6 @@ class npc_terrastra : public CreatureScript
             void Reset() override
             {
                 me->SetReactState(REACT_PASSIVE);
-                _events.Reset();
                 _events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
             }
 
