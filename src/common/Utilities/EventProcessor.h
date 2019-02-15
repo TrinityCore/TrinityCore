@@ -89,7 +89,7 @@ private:
 };
 
 template<typename T>
-using is_lambda_event = std::enable_if_t<!advstd::is_base_of_v<BasicEvent, std::remove_pointer_t<T>>>;
+using is_lambda_event = std::enable_if_t<!advstd::is_base_of_v<BasicEvent, std::remove_pointer_t<advstd::remove_cvref_t<T>>>>;
 
 class TC_COMMON_API EventProcessor
 {
