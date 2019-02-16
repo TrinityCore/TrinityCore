@@ -777,7 +777,7 @@ public:
 
 enum HorseSeats
 {
-    SEAT_ID_0                       = 0
+    SEAT_ID_0   = 0
 };
 
 class spell_stable_master_repo : public AuraScript
