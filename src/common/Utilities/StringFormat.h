@@ -27,7 +27,15 @@ namespace Trinity
     template<typename Format, typename... Args>
     inline std::string StringFormat(Format&& fmt, Args&&... args)
     {
-        return fmt::sprintf(std::forward<Format>(fmt), std::forward<Args>(args)...);
+        try
+        {
+            return fmt::sprintf(std::forward<Format>(fmt), std::forward<Args>(args)...);
+        }
+        catch (const fmt::FormatError& formatError)
+        {
+            std::string error = "An error occurred formatting string \"" + std::string(fmt) + "\" : " + std::string(formatError.what());
+            return error;
+        }
     }
 
     /// Returns true if the given char pointer is null.

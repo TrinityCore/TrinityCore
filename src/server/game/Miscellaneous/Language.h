@@ -78,7 +78,7 @@ enum TrinityStrings
     LANG_UNKNOWN                          = 45,
     LANG_ERROR                            = 46,
     LANG_NON_EXIST_CHARACTER              = 47,
-    // unused                             = 48,
+    LANG_ONLINE                           = 48,
     LANG_LEVEL_MINREQUIRED                = 49,
     LANG_LEVEL_MINREQUIRED_AND_ITEM       = 50,
     LANG_NPC_TAINER_HELLO                 = 51,
