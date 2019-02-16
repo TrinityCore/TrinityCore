@@ -10948,7 +10948,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     {
         Pet* pet = player->GetPet();
         if (pet && pet->IsAlive() && pet->isControlled())
-            pet->AI()->KilledUnit(victim);
+            ASSERT_NOTNULL(pet->AI())->KilledUnit(victim);
     }
 
     // 10% durability loss on death
