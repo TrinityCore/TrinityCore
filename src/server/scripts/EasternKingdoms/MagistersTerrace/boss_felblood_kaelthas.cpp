@@ -128,22 +128,6 @@ enum Phases
     PHASE_OUTRO = 3
 };
 
-class GravityElapseKnockupEvent : public BasicEvent
-{
-    public:
-        GravityElapseKnockupEvent(Unit* caster, uint32 difficultySpellId) :  _caster(caster), _difficultySpellId(difficultySpellId) { }
-
-        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-        {
-            _caster->CastSpell(_caster, _difficultySpellId);
-            _caster->CastSpell(_caster, SPELL_GRAVITY_LAPSE_FLY);
-            return true;
-        }
-    private:
-        Unit* _caster;
-        uint32 _difficultySpellId;
-};
-
 struct boss_felblood_kaelthas : public BossAI
 {
     boss_felblood_kaelthas(Creature* creature) : BossAI(creature, DATA_KAELTHAS_SUNSTRIDER)
@@ -239,10 +223,18 @@ struct boss_felblood_kaelthas : public BossAI
         switch (spell->Id)
         {
             case SPELL_GRAVITY_LAPSE_INITIAL:
+            {
                 DoCast(target, gravityLapseTeleportSpells[_gravityLapseTargetCount], true);
-                target->m_Events.AddEventAtOffset(new GravityElapseKnockupEvent(target, SPELL_GRAVITY_LAPSE_DAMAGE), 400ms);
+                uint32 gravityLapseDamageSpell = SPELL_GRAVITY_LAPSE_DAMAGE;
+                target->m_Events.AddEventAtOffset([target, gravityLapseDamageSpell]()
+                {
+                    target->CastSpell(target, gravityLapseDamageSpell);
+                    target->CastSpell(target, SPELL_GRAVITY_LAPSE_FLY);
+
+                }, 400ms);
                 _gravityLapseTargetCount++;
                 break;
+            }
             case SPELL_CLEAR_FLIGHT:
                 target->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
                 target->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DAMAGE);

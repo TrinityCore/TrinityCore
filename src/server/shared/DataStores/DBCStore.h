@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include "DBCStorageIterator.h"
+#include "Errors.h"
 #include <vector>
 #include <cstring>
 
