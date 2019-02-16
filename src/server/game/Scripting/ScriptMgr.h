@@ -396,7 +396,7 @@ class TC_GAME_API UnitScript : public ScriptObject
 {
     protected:
 
-        UnitScript(char const* name, bool addToScripts = true);
+        UnitScript(char const* name);
 
     public:
         // Called when a unit deals healing to another unit
@@ -415,7 +415,7 @@ class TC_GAME_API UnitScript : public ScriptObject
         virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
 };
 
-class TC_GAME_API CreatureScript : public UnitScript
+class TC_GAME_API CreatureScript : public ScriptObject
 {
     protected:
 
@@ -612,7 +612,7 @@ class TC_GAME_API AchievementCriteriaScript : public ScriptObject
         virtual bool OnCheck(Player* source, Unit* target) = 0;
 };
 
-class TC_GAME_API PlayerScript : public UnitScript
+class TC_GAME_API PlayerScript : public ScriptObject
 {
     protected:
 
