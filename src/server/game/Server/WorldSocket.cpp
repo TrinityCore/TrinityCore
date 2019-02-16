@@ -360,6 +360,13 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             if (_worldSession)
                 _worldSession->ResetTimeOutTime(true);
             break;
+
+        case CMSG_TIME_SYNC_RESP:
+            sessionGuard.lock(); // is this necessary?
+            LogOpcodeText(opcode, sessionGuard);
+            _worldSession->HandleTimeSyncResp(packet);
+            break;
+
         default:
         {
             sessionGuard.lock();
@@ -674,10 +681,7 @@ bool WorldSocket::HandlePing(WorldPacket& recvPacket)
         std::lock_guard<std::mutex> sessionGuard(_worldSessionLock);
 
         if (_worldSession)
-        {
             _worldSession->SetLatency(latency);
-            _worldSession->ResetClientTimeDelay();
-        }
         else
         {
             TC_LOG_ERROR("network", "WorldSocket::HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = %s", GetRemoteIpAddress().to_string().c_str());
