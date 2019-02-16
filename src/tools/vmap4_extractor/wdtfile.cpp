@@ -79,10 +79,15 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
                 char *p = buf;
                 while (p < buf + size)
                 {
+                    std::string path(p);
+
                     char* s = wdtGetPlainName(p);
                     fixnamen(s, strlen(s));
+                    fixname2(s, strlen(s));
                     p = p + strlen(p) + 1;
                     gWmoInstansName.push_back(s);
+
+                    ExtractSingleWmo(path);
                 }
                 delete[] buf;
             }

@@ -54,7 +54,6 @@ typedef struct
 }map_id;
 
 std::vector<map_id> map_ids;
-std::vector<uint16> LiqType;
 uint32 map_count;
 char output_path[128]=".";
 char input_path[1024]=".";
@@ -88,51 +87,6 @@ void strToLower(char* str)
     }
 }
 
-// copied from contrib/extractor/System.cpp
-void ReadLiquidTypeTableDBC()
-{
-    printf("Read LiquidType.dbc file...");
-    DBCFile dbc("DBFilesClient\\LiquidType.dbc");
-    if(!dbc.open())
-    {
-        printf("Fatal error: Invalid LiquidType.dbc file format!\n");
-        exit(1);
-    }
-
-    size_t LiqType_count = dbc.getRecordCount();
-    size_t LiqType_maxid = dbc.getRecord(LiqType_count - 1).getUInt(0);
-    LiqType.resize(LiqType_maxid + 1, 0xFFFF);
-
-    for(uint32 x = 0; x < LiqType_count; ++x)
-        LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
-
-    printf("Done! (%u LiqTypes loaded)\n", (unsigned int)LiqType_count);
-}
-
-bool ExtractWmo()
-{
-    bool success = true;
-
-    //char const* ParsArchiveNames[] = {"patch-2.MPQ", "patch.MPQ", "common.MPQ", "expansion.MPQ"};
-
-    for (ArchiveSet::const_iterator ar_itr = gOpenArchives.begin(); ar_itr != gOpenArchives.end() && success; ++ar_itr)
-    {
-        std::vector<std::string> filelist;
-
-        (*ar_itr)->GetFileListTo(filelist);
-        for (std::vector<std::string>::iterator fname = filelist.begin(); fname != filelist.end() && success; ++fname)
-        {
-            if (fname->find(".wmo") != std::string::npos)
-                success = ExtractSingleWmo(*fname);
-        }
-    }
-
-    if (success)
-        printf("\nExtract wmo complete (No (fatal) errors)\n");
-
-    return success;
-}
-
 bool ExtractSingleWmo(std::string& fname)
 {
     // Copy files from archive
@@ -164,7 +118,7 @@ bool ExtractSingleWmo(std::string& fname)
         return true;
 
     bool file_ok = true;
-    std::cout << "Extracting " << fname << std::endl;
+    printf("Extracting %s\n", fname.c_str());
     WMORoot froot(fname);
     if(!froot.open())
     {
@@ -482,11 +436,6 @@ int main(int argc, char ** argv)
         printf("FATAL ERROR: None MPQ archive found by path '%s'. Use -d option with proper path.\n", input_path);
         return 1;
     }
-    ReadLiquidTypeTableDBC();
-
-    // extract data
-    if (success)
-        success = ExtractWmo();
 
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     //map.dbc

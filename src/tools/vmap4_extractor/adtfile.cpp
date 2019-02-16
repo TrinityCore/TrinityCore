@@ -116,12 +116,12 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
             {
                 char *buf = new char[size];
                 ADT.read(buf, size);
-                char *p=buf;
-                while (p<buf+size)
+                char *p = buf;
+                while (p < buf + size)
                 {
-                    fixnamen(p,strlen(p));
+                    fixnamen(p, strlen(p));
                     char* s = GetPlainName(p);
-                    fixname2(s,strlen(s));
+                    fixname2(s, strlen(s));
 
                     ModelInstansName.push_back(s);
 
@@ -139,14 +139,19 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
             {
                 char* buf = new char[size];
                 ADT.read(buf, size);
-                char* p=buf;
-                while (p<buf+size)
+                char* p = buf;
+                while (p < buf + size)
                 {
+                    std::string path(p);
+
                     char* s = GetPlainName(p);
                     fixnamen(s, strlen(s));
                     fixname2(s, strlen(s));
-                    p += strlen(p) + 1;
                     WmoInstansName.push_back(s);
+
+                    ExtractSingleWmo(path);
+
+                    p += strlen(p) + 1;
                 }
                 delete[] buf;
             }

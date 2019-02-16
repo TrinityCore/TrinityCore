@@ -136,8 +136,6 @@ public:
     uint32 indx, id;
 
     WMOInstance(MPQFile&f , char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
-
-    static void reset();
 };
 
 #endif

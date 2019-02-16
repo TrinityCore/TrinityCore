@@ -27,8 +27,6 @@
 #undef min
 #undef max
 
-extern std::vector<uint16> LiqType;
-
 WMORoot::WMORoot(std::string &filename)
     : filename(filename), color(0), nTextures(0), nGroups(0), nPortals(0), nLights(0),
     nDoodadNames(0), nDoodadDefs(0), nDoodadSets(0), RootWMOID(0), flags(0)
