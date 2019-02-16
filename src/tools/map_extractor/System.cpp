@@ -41,8 +41,8 @@ typedef struct
     uint32 id;
 } map_id;
 
-map_id *map_ids;
-uint16 *LiqType;
+std::vector<map_id> map_ids;
+std::vector<uint16> LiqType;
 #define MAX_PATH_LENGTH 128
 char output_path[MAX_PATH_LENGTH] = ".";
 char input_path[MAX_PATH_LENGTH] = ".";
@@ -210,7 +210,7 @@ uint32 ReadMapDBC()
     }
 
     size_t map_count = dbc.getRecordCount();
-    map_ids = new map_id[map_count];
+    map_ids.resize(map_count);
     for(uint32 x = 0; x < map_count; ++x)
     {
         map_ids[x].id = dbc.getRecord(x).getUInt(0);
@@ -242,8 +242,7 @@ void ReadLiquidTypeTableDBC()
 
     size_t liqTypeCount = dbc.getRecordCount();
     size_t liqTypeMaxId = dbc.getMaxId();
-    LiqType = new uint16[liqTypeMaxId + 1];
-    memset(LiqType, 0xff, (liqTypeMaxId + 1) * sizeof(uint16));
+    LiqType.resize(liqTypeMaxId + 1, 0xFFFF);
 
     for(uint32 x = 0; x < liqTypeCount; ++x)
         LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
@@ -956,7 +955,6 @@ void ExtractMapsFromMpq(uint32 build)
         }
     }
     printf("\n");
-    delete[] map_ids;
 }
 
 bool ExtractFile( char const* mpq_name, std::string const& filename )

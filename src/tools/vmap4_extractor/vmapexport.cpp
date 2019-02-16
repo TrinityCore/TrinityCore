@@ -53,8 +53,8 @@ typedef struct
     unsigned int id;
 }map_id;
 
-map_id * map_ids;
-uint16 *LiqType = 0;
+std::vector<map_id> map_ids;
+std::vector<uint16> LiqType;
 uint32 map_count;
 char output_path[128]=".";
 char input_path[1024]=".";
@@ -101,8 +101,7 @@ void ReadLiquidTypeTableDBC()
 
     size_t LiqType_count = dbc.getRecordCount();
     size_t LiqType_maxid = dbc.getRecord(LiqType_count - 1).getUInt(0);
-    LiqType = new uint16[LiqType_maxid + 1];
-    memset(LiqType, 0xff, (LiqType_maxid + 1) * sizeof(uint16));
+    LiqType.resize(LiqType_maxid + 1, 0xFFFF);
 
     for(uint32 x = 0; x < LiqType_count; ++x)
         LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
@@ -501,7 +500,7 @@ int main(int argc, char ** argv)
             return 1;
         }
         map_count = dbc->getRecordCount();
-        map_ids = new map_id[map_count];
+        map_ids.resize(map_count);
         for (unsigned int x = 0; x < map_count; ++x)
         {
             map_ids[x].id = dbc->getRecord(x).getUInt(0);
@@ -511,7 +510,6 @@ int main(int argc, char ** argv)
             if (strlen(map_name) >= max_map_name_length)
             {
                 delete dbc;
-                delete[] map_ids;
                 printf("FATAL ERROR: Map name too long.\n");
                 return 1;
             }
@@ -523,7 +521,6 @@ int main(int argc, char ** argv)
 
         delete dbc;
         ParsMapFiles();
-        delete[] map_ids;
         //nError = ERROR_SUCCESS;
         // Extract models, listed in DameObjectDisplayInfo.dbc
         ExtractGameobjectModels();
@@ -537,6 +534,5 @@ int main(int argc, char ** argv)
     }
 
     printf("Extract %s. Work complete. No errors.\n", versionString);
-    delete[] LiqType;
     return 0;
 }

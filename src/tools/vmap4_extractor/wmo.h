@@ -23,6 +23,7 @@
 
 #include <string>
 #include <set>
+#include <vector>
 #include "vec3d.h"
 #include "loadlib/loadlib.h"
 
@@ -51,8 +52,8 @@ class WMORoot
 private:
     std::string filename;
 public:
-    unsigned int col;
-    uint32 nTextures, nGroups, nP, nLights, nModels, nDoodads, nDoodadSets, RootWMOID, liquidType;
+    unsigned int color;
+    uint32 nTextures, nGroups, nPortals, nLights, nDoodadNames, nDoodadDefs, nDoodadSets, RootWMOID, flags;
     float bbcorn1[3];
     float bbcorn2[3];
 
