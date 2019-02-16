@@ -276,7 +276,10 @@ namespace VMAP
         }
         FILE* tf = OpenMapTileFile(basePath, mapID, tileX, tileY, vm).File;
         if (!tf)
+        {
+            fclose(rf);
             return LoadResult::FileNotFound;
+        }
         else
         {
             std::string tilefile = basePath + getTileFileName(mapID, tileX, tileY);

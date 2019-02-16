@@ -225,6 +225,9 @@ void WorldSession::HandleGuildFinderSetGuildPost(WorldPackets::GuildFinder::LFGu
         return;
 
     Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId());
+    if (!guild)
+        return;
+
     // Player must be guild master
     if (guild->GetLeaderGUID() != player->GetGUID())
         return;
