@@ -33,7 +33,7 @@ public:
     bool init(char* map_id, unsigned int mapID);
     ADTFile* GetMap(int x, int z);
 
-    std::string* gWmoInstansName;
+    std::vector<std::string> gWmoInstansName;
     int gnWMO;
 
 private:

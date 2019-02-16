@@ -74,7 +74,7 @@ char* GetExtension(char* FileName)
     return nullptr;
 }
 
-ADTFile::ADTFile(char* filename): ADT(filename), nWMO(0), nMDX(0), WmoInstansName(nullptr), ModelInstansName(nullptr)
+ADTFile::ADTFile(char* filename): ADT(filename), nWMO(0), nMDX(0)
 {
     Adtfilename.append(filename);
 }
@@ -85,22 +85,6 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
         return false;
 
     uint32 size;
-
-    std::string xMap;
-    std::string yMap;
-
-    Adtfilename.erase(Adtfilename.find(".adt"),4);
-    std::string TempMapNumber;
-    TempMapNumber = Adtfilename.substr(Adtfilename.length()-6,6);
-    xMap = TempMapNumber.substr(TempMapNumber.find('_')+1,(TempMapNumber.find_last_of('_')-1) - (TempMapNumber.find('_')));
-    yMap = TempMapNumber.substr(TempMapNumber.find_last_of('_')+1,(TempMapNumber.length()) - (TempMapNumber.find_last_of('_')));
-    Adtfilename.erase((Adtfilename.length()-xMap.length()-yMap.length()-2), (xMap.length()+yMap.length()+2));
-    //string AdtMapNumber = xMap + ' ' + yMap + ' ' + GetPlainName((char*)Adtfilename.c_str());
-    //printf("Processing map %s...\n", AdtMapNumber.c_str());
-    //printf("MapNumber = %s\n", TempMapNumber.c_str());
-    //printf("xMap = %s\n", xMap.c_str());
-    //printf("yMap = %s\n", yMap.c_str());
-
     std::string dirname = std::string(szWorkDirWmo) + "/dir_bin";
     FILE *dirfile;
     dirfile = fopen(dirname.c_str(), "ab");
@@ -133,15 +117,13 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                 char *buf = new char[size];
                 ADT.read(buf, size);
                 char *p=buf;
-                int t=0;
-                ModelInstansName = new std::string[size];
                 while (p<buf+size)
                 {
                     fixnamen(p,strlen(p));
                     char* s = GetPlainName(p);
                     fixname2(s,strlen(s));
 
-                    ModelInstansName[t++] = s;
+                    ModelInstansName.push_back(s);
 
                     std::string path(p);
                     ExtractSingleModel(path);
@@ -158,15 +140,13 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                 char* buf = new char[size];
                 ADT.read(buf, size);
                 char* p=buf;
-                int q = 0;
-                WmoInstansName = new std::string[size];
                 while (p<buf+size)
                 {
                     char* s = GetPlainName(p);
                     fixnamen(s, strlen(s));
                     fixname2(s, strlen(s));
                     p += strlen(p) + 1;
-                    WmoInstansName[q++] = s;
+                    WmoInstansName.push_back(s);
                 }
                 delete[] buf;
             }
@@ -183,8 +163,6 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                     ADT.read(&id, 4);
                     ModelInstance inst(ADT,ModelInstansName[id].c_str(), map_num, tileX, tileY, dirfile);
                 }
-                delete[] ModelInstansName;
-                ModelInstansName = nullptr;
             }
         }
         else if (!strcmp(fourcc,"MODF"))
@@ -198,8 +176,6 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                     ADT.read(&id, 4);
                     WMOInstance inst(ADT,WmoInstansName[id].c_str(), map_num, tileX, tileY, dirfile);
                 }
-                delete[] WmoInstansName;
-                WmoInstansName = nullptr;
             }
         }
         //======================

@@ -31,7 +31,7 @@ char * wdtGetPlainName(char * FileName)
     return FileName;
 }
 
-WDTFile::WDTFile(char* file_name, char* file_name1) : gWmoInstansName(nullptr), gnWMO(0), WDT(file_name)
+WDTFile::WDTFile(char* file_name, char* file_name1) : gnWMO(0), WDT(file_name)
 {
     filename.append(file_name1,strlen(file_name1));
 }
@@ -76,15 +76,13 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
             {
                 char *buf = new char[size];
                 WDT.read(buf, size);
-                char *p=buf;
-                int q = 0;
-                gWmoInstansName = new std::string[size];
+                char *p = buf;
                 while (p < buf + size)
                 {
-                    char* s=wdtGetPlainName(p);
-                    fixnamen(s,strlen(s));
-                    p=p+strlen(p)+1;
-                    gWmoInstansName[q++] = s;
+                    char* s = wdtGetPlainName(p);
+                    fixnamen(s, strlen(s));
+                    p = p + strlen(p) + 1;
+                    gWmoInstansName.push_back(s);
                 }
                 delete[] buf;
             }
@@ -100,11 +98,8 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
                 {
                     int id;
                     WDT.read(&id, 4);
-                    WMOInstance inst(WDT,gWmoInstansName[id].c_str(), mapID, 65, 65, dirfile);
+                    WMOInstance inst(WDT, gWmoInstansName[id].c_str(), mapID, 65, 65, dirfile);
                 }
-
-                delete[] gWmoInstansName;
-                gWmoInstansName = nullptr;
             }
         }
         WDT.seek((int)nextpos);
