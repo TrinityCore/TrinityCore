@@ -1066,44 +1066,37 @@ class spell_warr_vigilance_trigger : public SpellScriptLoader
 };
 
 // 76838 - Strikes of Opportunity
-class spell_warr_strikes_of_opportunity : public SpellScriptLoader
+class spell_warr_strikes_of_opportunity : public AuraScript
 {
-    public:
-        spell_warr_strikes_of_opportunity() : SpellScriptLoader("spell_warr_strikes_of_opportunity") { }
+    PrepareAuraScript(spell_warr_strikes_of_opportunity);
 
-        class spell_warr_strikes_of_opportunity_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warr_strikes_of_opportunity_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_OPPORTUNITY_STRIKE });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_WARRIOR_OPPORTUNITY_STRIKE });
-            }
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (SpellInfo const* spell = eventInfo.GetSpellInfo())
+            if (spell->Id == SPELL_WARRIOR_OPPORTUNITY_STRIKE)
+                return false;
 
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
-            {
-                return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
-            }
+        return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+    }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = eventInfo.GetActionTarget())
-                        caster->CastSpell(target, SPELL_WARRIOR_OPPORTUNITY_STRIKE, true, nullptr, aurEff);
-            }
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        if (Unit* caster = GetCaster())
+            if (Unit* target = eventInfo.GetActionTarget())
+                caster->CastSpell(target, SPELL_WARRIOR_OPPORTUNITY_STRIKE, true, nullptr, aurEff);
+    }
 
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_warr_strikes_of_opportunity_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_warr_strikes_of_opportunity_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_warr_strikes_of_opportunity_AuraScript();
-        }
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warr_strikes_of_opportunity::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_warr_strikes_of_opportunity::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 class spell_warr_thunder_clap : public SpellScriptLoader
@@ -1248,7 +1241,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shattering_throw();
     RegisterAuraScript(spell_warr_shield_specialization);
     new spell_warr_slam();
-    new spell_warr_strikes_of_opportunity();
+    RegisterAuraScript(spell_warr_strikes_of_opportunity);
     new spell_warr_sudden_death();
     new spell_warr_sweeping_strikes();
     new spell_warr_sword_and_board();
