@@ -1077,10 +1077,6 @@ class spell_warr_strikes_of_opportunity : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        if (SpellInfo const* spell = eventInfo.GetSpellInfo())
-            if (spell->Id == SPELL_WARRIOR_OPPORTUNITY_STRIKE)
-                return false;
-
         return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
     }
 
