@@ -134,7 +134,7 @@ class spell_warl_curse_of_agony : public AuraScript
         OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_curse_of_agony::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 private:
-    uint32 _tick_amount;
+    uint32 _tick_amount = 0;
 };
 
 // -710 - Banish
