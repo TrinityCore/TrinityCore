@@ -1399,14 +1399,24 @@ class spell_valiona_devouring_flames_targeting : public SpellScriptLoader
         }
 };
 
-class TheralionVictimCheck
+class TwilightMeteoriteCheck
 {
     public:
-        TheralionVictimCheck(Unit* _theralion) : theralion(_theralion)  { }
+        TwilightMeteoriteCheck(Unit* _theralion) : theralion(_theralion)  { }
 
         bool operator()(WorldObject* object)
         {
-            return (theralion->GetVictim() && theralion->GetVictim() == object->ToUnit());
+            Unit* unit = object->ToUnit();
+            if (!unit)
+                return true;
+
+            if (theralion->GetVictim() && theralion->GetVictim() == unit)
+                return true;
+
+            if (unit->GetPhaseShift().HasPhase(PHASE_ID_TWILIGHT_SHIFT))
+                return true;
+
+            return false;
         }
     private:
         Unit* theralion;
@@ -1430,7 +1440,7 @@ class spell_valiona_twilight_meteorite_targeting : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (Creature* theralion = instance->GetCreature(DATA_THERALION))
-                            targets.remove_if(TheralionVictimCheck(theralion));
+                            targets.remove_if(TwilightMeteoriteCheck(theralion));
 
                 if (targets.empty())
                     return;

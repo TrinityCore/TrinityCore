@@ -91,7 +91,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
                 _deadOrphanedEmeraldWhelps = 0;
                 _lastAreatriggerIndex = 0;
                 _fullHeroicId = instance->IsHeroic();
-                _valionaAuraDummyGUID = ObjectGuid::Empty;
                 GenerateHalfusDragonData();
             }
 
