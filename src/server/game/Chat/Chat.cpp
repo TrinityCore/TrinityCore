@@ -168,75 +168,46 @@ bool ChatHandler::hasStringAbbr(char const* name, char const* part)
 
 void ChatHandler::SendSysMessage(const char *str, bool escapeCharacters)
 {
+    std::string msg{ str };
+
+    // Replace every "|" with "||" in msg
+    if (escapeCharacters && msg.find('|') != std::string::npos)
+    {
+        Tokenizer tokens{msg, '|'};
+        std::ostringstream stream;
+        for (size_t i = 0; i < tokens.size() - 1; ++i)
+            stream << tokens[i] << "||";
+        stream << tokens[tokens.size() - 1];
+
+        msg = stream.str();
+    }
+
     WorldPacket data;
-
-    // need copy to prevent corruption by strtok call in LineFromMessage original string
-    char* buf;
-    char* pos;
-
-    if (escapeCharacters && strchr(str, '|'))
-    {
-        size_t startPos = 0;
-        std::ostringstream o;
-        while (char const* charPos = strchr(str + startPos, '|'))
-        {
-            o.write(str + startPos, charPos - str - startPos);
-            o << "||";
-            startPos = charPos - str + 1;
-        }
-        o.write(str + startPos, strlen(str) - startPos);
-        buf = strdup(o.str().c_str());
-    }
-    else
-    {
-        buf = strdup(str);
-    }
-
-    pos = buf;
-
-    while (char* line = LineFromMessage(pos))
+    for (const auto& line : Tokenizer{msg, '\n'})
     {
         BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         m_session->SendPacket(&data);
     }
-
-    free(buf);
 }
 
 void ChatHandler::SendGlobalSysMessage(const char *str)
 {
-    // Chat output
     WorldPacket data;
-
-    // need copy to prevent corruption by strtok call in LineFromMessage original string
-    char* buf = strdup(str);
-    char* pos = buf;
-
-    while (char* line = LineFromMessage(pos))
+    for (const auto& line : Tokenizer{str, '\n'})
     {
         BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         sWorld->SendGlobalMessage(&data);
     }
-
-    free(buf);
 }
 
 void ChatHandler::SendGlobalGMSysMessage(const char *str)
 {
-    // Chat output
     WorldPacket data;
-
-    // need copy to prevent corruption by strtok call in LineFromMessage original string
-    char* buf = strdup(str);
-    char* pos = buf;
-
-    while (char* line = LineFromMessage(pos))
+    for (const auto& line : Tokenizer{str, '\n'})
     {
         BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         sWorld->SendGlobalGMMessage(&data);
     }
-
-    free(buf);
 }
 
 void ChatHandler::SendSysMessage(uint32 entry)
