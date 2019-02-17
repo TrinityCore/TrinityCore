@@ -117,12 +117,7 @@ void FleeingMovementGenerator<T>::SetTargetLocation(T* owner)
 
     // Add LOS check for target point
     Position mypos = owner->GetPosition();
-    bool isInLOS = VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(
-        PhasingHandler::GetTerrainMapId(owner->GetPhaseShift(), owner->GetMap(), mypos.m_positionX, mypos.m_positionY),
-        mypos.m_positionX, mypos.m_positionY, mypos.m_positionZ + 2.0f, destination.m_positionX, destination.m_positionY,
-        destination.m_positionZ + 2.0f, VMAP::ModelIgnoreFlags::Nothing);
-
-    if (!isInLOS)
+    if (!owner->IsWithinLOS(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ()))
     {
         _timer.Reset(200);
         return;
