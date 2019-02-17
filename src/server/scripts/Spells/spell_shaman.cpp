@@ -1302,63 +1302,58 @@ public:
 };
 
 // 77222 - Elemental Overload
-class spell_sha_elemental_overload : public SpellScriptLoader
+class spell_sha_elemental_overload : public AuraScript
 {
-public:
-    spell_sha_elemental_overload() : SpellScriptLoader("spell_sha_elemental_overload") { }
+    PrepareAuraScript(spell_sha_elemental_overload);
 
-    class spell_sha_elemental_overload_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_sha_elemental_overload_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_SHAMAN_LIGHTNING_BOLT, SPELL_SHAMAN_LIGHTNING_BOLT_TRIGGERED,
-                SPELL_SHAMAN_CHAIN_LIGHTNING, SPELL_SHAMAN_CHAIN_LIGHTNING_TRIGGERED,
-                SPELL_SHAMAN_LAVA_BURST, SPELL_SHAMAN_LAVA_BURST_TRIGGERED });
-        }
-
-        bool CheckProc(ProcEventInfo& /*eventInfo*/)
-        {
-            return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
-        }
-
-        void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
-        {
-            PreventDefaultAction();
-
-            if (Unit* target = eventInfo.GetProcTarget())
+        return ValidateSpellInfo(
             {
-                if (Unit* caster = GetCaster())
+                SPELL_SHAMAN_LIGHTNING_BOLT,
+                SPELL_SHAMAN_LIGHTNING_BOLT_TRIGGERED,
+                SPELL_SHAMAN_CHAIN_LIGHTNING,
+                SPELL_SHAMAN_CHAIN_LIGHTNING_TRIGGERED,
+                SPELL_SHAMAN_LAVA_BURST,
+                SPELL_SHAMAN_LAVA_BURST_TRIGGERED
+            });
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+    }
+
+    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        if (Unit* target = eventInfo.GetProcTarget())
+        {
+            if (Unit* caster = GetCaster())
+            {
+                switch (eventInfo.GetProcSpell()->GetSpellInfo()->Id)
                 {
-                    switch (eventInfo.GetProcSpell()->GetSpellInfo()->Id)
-                    {
-                        case SPELL_SHAMAN_LIGHTNING_BOLT:
-                            caster->CastSpell(target, SPELL_SHAMAN_LIGHTNING_BOLT_TRIGGERED, true);
-                            break;
-                        case SPELL_SHAMAN_CHAIN_LIGHTNING:
-                            caster->CastSpell(target, SPELL_SHAMAN_CHAIN_LIGHTNING_TRIGGERED, true);
-                            break;
-                        case SPELL_SHAMAN_LAVA_BURST:
-                            caster->CastSpell(target, SPELL_SHAMAN_LAVA_BURST_TRIGGERED, true);
-                            break;
-                        default:
-                            break;
-                    }
+                    case SPELL_SHAMAN_LIGHTNING_BOLT:
+                        caster->CastSpell(target, SPELL_SHAMAN_LIGHTNING_BOLT_TRIGGERED, true);
+                        break;
+                    case SPELL_SHAMAN_CHAIN_LIGHTNING:
+                        caster->CastSpell(target, SPELL_SHAMAN_CHAIN_LIGHTNING_TRIGGERED, true);
+                        break;
+                    case SPELL_SHAMAN_LAVA_BURST:
+                        caster->CastSpell(target, SPELL_SHAMAN_LAVA_BURST_TRIGGERED, true);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
+    }
 
-        void Register() override
-        {
-            DoCheckProc += AuraCheckProcFn(spell_sha_elemental_overload_AuraScript::CheckProc);
-            OnEffectProc += AuraEffectProcFn(spell_sha_elemental_overload_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_sha_elemental_overload_AuraScript();
+        DoCheckProc += AuraCheckProcFn(spell_sha_elemental_overload::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_sha_elemental_overload::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2024,7 +2019,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earthbind_totem();
     new spell_sha_earthen_power();
     new spell_sha_earthliving_weapon();
-    new spell_sha_elemental_overload();
+    RegisterAuraScript(spell_sha_elemental_overload);
     new spell_sha_feedback();
     new spell_sha_fire_nova();
     new spell_sha_flame_shock();
