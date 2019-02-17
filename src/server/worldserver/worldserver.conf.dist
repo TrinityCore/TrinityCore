@@ -1896,6 +1896,14 @@ ChatFakeMessagePreventing = 1
 ChatStrictLinkChecking.Severity = 0
 
 #
+#    ChatStrictLinkChecking.CustomLinks
+#        Description: Check chat messages for ingame links and allow custom ones (custom colors in name, quest level in name, etc)
+#        Default:     0 - (Custom links are NOT allowed)
+#                     1 - (Custom links are allowed. This might cause client side crashes)
+
+ChatStrictLinkChecking.CustomLinks = 0
+
+#
 #    ChatStrictLinkChecking.Kick
 #        Description: Defines what should be done if a message containing invalid control characters
 #                     is received.
