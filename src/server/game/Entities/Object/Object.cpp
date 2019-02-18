@@ -1422,40 +1422,29 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
 
     if (Unit const* unit = ToUnit())
     {
-        if (!unit->CanFly())
-        {
-            bool canSwim = unit->CanSwim();
-            float ground_z = z;
-            float max_z;
-            if (canSwim)
-                max_z = GetMapWaterOrGroundLevel(x, y, z, &ground_z);
-            else
-                max_z = ground_z = GetMapHeight(x, y, z);
+        // Unit is flying, ignore.
+        if (unit->IsFlying())
+            return;
 
-            if (max_z > INVALID_HEIGHT)
-            {
-                // hovering units cannot go below their hover height
-                float hoverOffset = unit->GetHoverOffset();
-                max_z += hoverOffset;
-                ground_z += hoverOffset;
-
-                if (z > max_z)
-                    z = max_z;
-                else if (z < ground_z)
-                    z = ground_z;
-            }
-        }
+        bool canSwim = unit->CanSwim();
+        float ground_z = z;
+        float max_z;
+        if (canSwim)
+            max_z = GetMapWaterOrGroundLevel(x, y, z, &ground_z);
         else
+            max_z = ground_z = GetMapHeight(x, y, z);
+
+        if (max_z > INVALID_HEIGHT)
         {
-            float const gridHeight = GetMap()->GetGridHeight(x, y) + unit->GetHoverOffset();
-            float const vmapHeight = GetMap()->GetVmapDataFloorZ(x, y, z); // don't add hover offset here. if check might return unintended value
-            // Check if vmap under us
-            if (vmapHeight <= INVALID_HEIGHT)
-            {
-                // no vmap found, check if unit is under grid height
-                if (z < gridHeight)
-                    z = gridHeight;
-            }
+            // hovering units cannot go below their hover height
+            float hoverOffset = unit->GetHoverOffset();
+            max_z += hoverOffset;
+            ground_z += hoverOffset;
+
+            if (z > max_z && !unit->CanFly())
+                z = max_z;
+            else if (z < ground_z)
+                z = ground_z;
         }
     }
     else
