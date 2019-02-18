@@ -54,6 +54,22 @@
 #include "WorldPacket.h"
 #include <G3D/g3dmath.h>
 
+std::string CreatureMovementData::ToString() const
+{
+    char const* const GroundStates[] = { "None", "Run", "Hover" };
+    char const* const FlightStates[] = { "None", "DisableGravity", "CanFly" };
+
+    std::ostringstream str;
+    str << std::boolalpha
+        << "Ground: " << GroundStates[AsUnderlyingType(Ground)]
+        << ", Swim: " << Swim
+        << ", Flight: " << FlightStates[AsUnderlyingType(Flight)];
+    if (Rooted)
+        str << ", Rooted";
+
+    return str.str();
+}
+
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
     TrainerSpellMap::const_iterator itr = spellList.find(spell_id);
@@ -562,7 +578,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
     }
 
-    if (cInfo->InhabitType & INHABIT_ROOT)
+    if (GetMovementTemplate().IsRooted())
         SetControlled(true, UNIT_STATE_ROOT);
 
     UpdateMovementFlags();
@@ -2431,7 +2447,7 @@ bool Creature::LoadCreaturesAddon()
         //! Check using InhabitType as movement flags are assigned dynamically
         //! basing on whether the creature is in air or not
         //! Set MovementFlag_Hover. Otherwise do nothing.
-        if (GetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER) & UNIT_BYTE1_FLAG_HOVER && !(GetCreatureTemplate()->InhabitType & INHABIT_AIR))
+        if (CanHover())
             AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
 
@@ -2576,6 +2592,14 @@ void Creature::GetRespawnPosition(float &x, float &y, float &z, float* ori, floa
         if (dist)
             *dist = 0;
     }
+}
+
+CreatureMovementData const& Creature::GetMovementTemplate() const
+{
+    if (CreatureMovementData const* movementOverride = sObjectMgr->GetCreatureMovementOverride(m_spawnId))
+        return *movementOverride;
+
+    return GetCreatureTemplate()->Movement;
 }
 
 void Creature::AllLootRemovedFromCorpse()
@@ -2867,34 +2891,35 @@ void Creature::UpdateMovementFlags()
     // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
     float ground = GetFloorZ();
 
-    bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
+    bool canHover = CanHover();
+    bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + (canHover ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f) + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
 
-    if (GetCreatureTemplate()->InhabitType & INHABIT_AIR && isInAir && !IsFalling())
+    if (GetMovementTemplate().IsFlightAllowed() && isInAir && !IsFalling())
     {
-        if (GetCreatureTemplate()->InhabitType & INHABIT_GROUND)
+        if (GetMovementTemplate().Flight == CreatureFlightMovementType::CanFly)
             SetCanFly(true);
         else
             SetDisableGravity(true);
+
+        if (!HasAuraType(SPELL_AURA_HOVER))
+            SetHover(false);
     }
     else
     {
         SetCanFly(false);
         SetDisableGravity(false);
+        if (IsAlive() && CanHover() || HasAuraType(SPELL_AURA_HOVER))
+            SetHover(true);
     }
 
     if (!isInAir)
-        SetFall(false);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
 
-    if (GetCreatureTemplate()->InhabitType & INHABIT_WATER)
+    if (GetMovementTemplate().IsSwimAllowed())
     {
-        if (IsUnderWater())
-            AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-        else
-            RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+        SetSwim(IsInWater());
+        SetDisableGravity(IsUnderWater());
     }
-    else
-
-    SetSwim(GetCreatureTemplate()->InhabitType & INHABIT_WATER && IsInWater());
 }
 
 void Creature::SetObjectScale(float scale)
