@@ -1011,7 +1011,6 @@ class TC_GAME_API Unit : public WorldObject
         bool IsWithinMeleeRangeAt(Position const& pos, Unit const* obj) const;
         bool IsWithinBoundaryRadius(const Unit* obj) const;
         float GetMeleeRange(Unit const* target) const;
-        void GetRandomContactPoint(Unit const* target, float& x, float& y, float& z, float distance2dMin, float distance2dMax) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
 
@@ -1787,8 +1786,6 @@ class TC_GAME_API Unit : public WorldObject
         void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.SetExtraMovementFlags(f); }
         bool IsSplineEnabled() const;
 
-        float GetPositionZMinusOffset() const;
-
         void SetControlled(bool apply, UnitState state);
         void ApplyControlStatesIfNeeded();
 
@@ -1859,6 +1856,12 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool CanFly() const = 0;
         bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_DISABLE_GRAVITY); }
         bool IsFalling() const;
+        virtual bool CanSwim() const;
+
+        float GetHoverOffset() const
+        {
+            return HasUnitMovementFlag(MOVEMENTFLAG_HOVER) ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f;
+        }
 
         void RewardRage(uint32 baseRage, bool attacker);
 

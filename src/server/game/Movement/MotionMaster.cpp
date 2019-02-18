@@ -337,7 +337,7 @@ void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
     {
         // we are already close enough. We just need to turn toward the target without changing position.
         Movement::MoveSplineInit init(_owner);
-        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZMinusOffset());
+        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
         init.SetFacing(target);
         init.Launch();
         Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
@@ -417,7 +417,7 @@ void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, floa
     float dist = 2 * moveTimeHalf * speedXY;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
 
-    _owner->GetNearPoint(_owner, x, y, z, _owner->GetCombatReach(), dist, _owner->GetAngle(srcX, srcY) + float(M_PI));
+    _owner->GetNearPoint(_owner, x, y, z, dist, _owner->GetAngle(srcX, srcY) + float(M_PI));
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(x, y, z);
@@ -438,7 +438,7 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 
     float moveTimeHalf = speedZ / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
-    _owner->GetNearPoint2D(x, y, dist, _owner->GetOrientation() + angle);
+    _owner->GetNearPoint2D(nullptr, x, y, dist, _owner->GetOrientation() + angle);
     z = _owner->GetPositionZ();
     _owner->UpdateAllowedPositionZ(x, y, z);
     MoveJump(x, y, z, 0.0f, speedXY, speedZ);
@@ -483,7 +483,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         if (_owner->IsFlying())
             point.z = z;
         else
-            point.z = _owner->GetMapHeight(point.x, point.y, z);
+            point.z = _owner->GetMapHeight(point.x, point.y, z) + _owner->GetHoverOffset();
 
         init.Path().push_back(point);
     }
@@ -588,7 +588,7 @@ void MotionMaster::MoveFall(uint32 id /*=0*/)
         _owner->SetFall(true);
 
     Movement::MoveSplineInit init(_owner);
-    init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), tz, false);
+    init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), tz + _owner->GetHoverOffset(), false);
     init.SetFall();
     init.Launch();
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);

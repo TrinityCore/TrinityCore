@@ -358,6 +358,7 @@ void Creature::RemoveCorpse(bool setSpawnTime)
                 transport->CalculatePassengerPosition(x, y, z, &o);
         }
 
+        UpdateAllowedPositionZ(x, y, z);
         SetHomePosition(x, y, z, o);
         GetMap()->CreatureRelocation(this, x, y, z, o);
     }
@@ -1030,11 +1031,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 /*phaseMask*
     LoadCreaturesAddon();
 
     //! Need to be called after LoadCreaturesAddon - MOVEMENTFLAG_HOVER is set there
-    if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-    {
-        //! Relocate again with updated Z coord
-        m_positionZ += GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
-    }
+    m_positionZ += GetHoverOffset();
 
     LastUsedScriptID = GetScriptId();
 
@@ -1504,7 +1501,7 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
         return false;
 
     //We should set first home position, because then AI calls home movement
-    SetHomePosition(data->spawnPoint);
+    SetHomePosition(*this);
 
     m_deathState = ALIVE;
 
@@ -1836,7 +1833,10 @@ void Creature::setDeathState(DeathState s)
         if (m_formation && m_formation->getLeader() == this)
             m_formation->FormationReset(true);
 
-        if ((CanFly() || IsFlying()) && !IsUnderWater())
+        bool needsFalling = (IsFlying() || IsHovering()) && !IsUnderWater();
+        SetHover(false);
+
+        if (needsFalling)
             GetMotionMaster()->MoveFall();
 
         Unit::setDeathState(CORPSE);
@@ -2867,7 +2867,7 @@ void Creature::UpdateMovementFlags()
     // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
     float ground = GetFloorZ();
 
-    bool isInAir = (G3D::fuzzyGt(GetPositionZMinusOffset(), ground + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZMinusOffset(), ground - 0.05f)); // Can be underground too, prevent the falling
+    bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
 
     if (GetCreatureTemplate()->InhabitType & INHABIT_AIR && isInAir && !IsFalling())
     {

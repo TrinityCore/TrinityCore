@@ -114,7 +114,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
                     tAngle = _angle.LowerBound();
             }
 
-            target->GetNearPoint(owner, x, y, z, target->GetCombatReach(), _range, target->NormalizeOrientation(target->GetOrientation() + tAngle));
+            target->GetNearPoint(owner, x, y, z, _range, target->NormalizeOrientation(target->GetOrientation() + tAngle));
 
             if (owner->IsHovering())
                 owner->UpdateAllowedPositionZ(x, y, z);

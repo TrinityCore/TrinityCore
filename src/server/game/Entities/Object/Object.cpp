@@ -507,7 +507,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (hasSpline)
             Movement::PacketBuilder::WriteCreateData(*self->movespline, *data);
 
-        *data << float(self->GetPositionZMinusOffset());
+        *data << float(self->GetPositionZ());
         data->WriteByteSeq(guid[5]);
 
         if (self->m_movementInfo.transport.guid)
@@ -1646,7 +1646,9 @@ Position WorldObject::GetRandomPoint(const Position &srcPos, float distance) con
 
 void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
 {
-    z = GetMapHeight(x, y, z);
+    float new_z = GetMapHeight(x, y, z);
+    if (new_z > INVALID_HEIGHT)
+        z = new_z + (isType(TYPEMASK_UNIT) ? static_cast<Unit const*>(this)->GetHoverOffset() : 0.0f);
 }
 
 void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
@@ -1655,65 +1657,43 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
     if (GetTransport())
         return;
 
-    switch (GetTypeId())
+    if (Unit const* unit = ToUnit())
     {
-        case TYPEID_UNIT:
+        if (!unit->CanFly())
         {
-            // non fly unit don't must be in air
-            // non swim unit must be at ground (mostly speedup, because it don't must be in water and water level check less fast
-            if (!ToCreature()->CanFly())
-            {
-                bool canSwim = ToCreature()->CanSwim();
-                float ground_z = z;
-                float max_z = canSwim
-                    ? GetMapWaterOrGroundLevel(x, y, z, &ground_z)
-                    : (ground_z = GetMapHeight(x, y, z));
-                if (max_z > INVALID_HEIGHT)
-                {
-                    if (z > max_z)
-                        z = max_z;
-                    else if (z < ground_z)
-                        z = ground_z;
-                }
-            }
+            bool canSwim = unit->CanSwim();
+            float ground_z = z;
+            float max_z;
+            if (canSwim)
+                max_z = GetMapWaterOrGroundLevel(x, y, z, &ground_z);
             else
+                max_z = ground_z = GetMapHeight(x, y, z);
+
+            if (max_z > INVALID_HEIGHT)
             {
-                float ground_z = GetMapHeight(x, y, z);
-                if (z < ground_z)
+                // hovering units cannot go below their hover height
+                float hoverOffset = unit->GetHoverOffset();
+                max_z += hoverOffset;
+                ground_z += hoverOffset;
+
+                if (z > max_z)
+                    z = max_z;
+                else if (z < ground_z)
                     z = ground_z;
             }
-            break;
         }
-        case TYPEID_PLAYER:
+        else
         {
-            // for server controlled moves playr work same as creature (but it can always swim)
-            if (!ToPlayer()->CanFly())
-            {
-                float ground_z = z;
-                float max_z = GetMapWaterOrGroundLevel(x, y, z, &ground_z);
-                if (max_z > INVALID_HEIGHT)
-                {
-                    if (z > max_z)
-                        z = max_z;
-                    else if (z < ground_z)
-                        z = ground_z;
-                }
-            }
-            else
-            {
-                float ground_z = GetMapHeight(x, y, z);
-                if (z < ground_z)
-                    z = ground_z;
-            }
-            break;
-        }
-        default:
-        {
-            float ground_z = GetMapHeight(x, y, z);
-            if (ground_z > INVALID_HEIGHT)
+            float ground_z = GetMapHeight(x, y, z) + unit->GetHoverOffset();
+            if (z < ground_z)
                 z = ground_z;
-            break;
         }
+    }
+    else
+    {
+        float ground_z = GetMapHeight(x, y, z);
+        if (ground_z > INVALID_HEIGHT)
+            z = ground_z;
     }
 }
 
@@ -2397,18 +2377,38 @@ void WorldObject::GetPlayerListInGrid(Container& playerContainer, float maxSearc
     Cell::VisitWorldObjects(this, searcher, maxSearchRange);
 }
 
-void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float absAngle) const
+void WorldObject::GetNearPoint2D(WorldObject const* searcher, float &x, float &y, float distance2d, float absAngle) const
 {
-    x = GetPositionX() + (GetCombatReach() + distance2d) * std::cos(absAngle);
-    y = GetPositionY() + (GetCombatReach() + distance2d) * std::sin(absAngle);
+    float effectiveReach = GetCombatReach();
+
+    if (searcher)
+    {
+        effectiveReach += searcher->GetCombatReach();
+
+        if (this != searcher)
+        {
+            float myHover = 0.0f, searcherHover = 0.0f;
+            if (Unit const* unit = ToUnit())
+                myHover = unit->GetHoverOffset();
+            if (Unit const* searchUnit = searcher->ToUnit())
+                searcherHover = searchUnit->GetHoverOffset();
+
+            float hoverDelta = myHover - searcherHover;
+            if (hoverDelta != 0.0f)
+                effectiveReach = std::sqrt(effectiveReach * effectiveReach - hoverDelta * hoverDelta);
+        }
+    }
+
+    x = GetPositionX() + (effectiveReach + distance2d) * std::cos(absAngle);
+    y = GetPositionY() + (effectiveReach + distance2d) * std::sin(absAngle);
 
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
 }
 
-void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const
+void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float distance2d, float absAngle) const
 {
-    GetNearPoint2D(x, y, distance2d+searcher_size, absAngle);
+    GetNearPoint2D(searcher, x, y, distance2d, absAngle);
     z = GetPositionZ();
     // Should "searcher" be used instead of "this" when updating z coordinate ?
     UpdateAllowedPositionZ(x, y, z);
@@ -2429,7 +2429,7 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
     // loop in a circle to look for a point in LoS using small steps
     for (float angle = float(M_PI) / 8; angle < float(M_PI) * 2; angle += float(M_PI) / 8)
     {
-        GetNearPoint2D(x, y, distance2d + searcher_size, absAngle + angle);
+        GetNearPoint2D(searcher, x, y, distance2d, absAngle + angle);
         z = GetPositionZ();
         UpdateAllowedPositionZ(x, y, z);
         if (IsWithinLOS(x, y, z))
@@ -2442,10 +2442,10 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
     z = first_z;
 }
 
-void WorldObject::GetClosePoint(float &x, float &y, float &z, float size, float distance2d /*= 0*/, float angle /*= 0*/) const
+void WorldObject::GetClosePoint(float &x, float &y, float &z, float size, float distance2d /*= 0*/, float relAngle /*= 0*/) const
 {
     // angle calculated from current orientation
-    GetNearPoint(nullptr, x, y, z, size, distance2d, GetOrientation() + angle);
+    GetNearPoint(nullptr, x, y, z, distance2d + size, GetOrientation() + relAngle);
 }
 
 Position WorldObject::GetNearPosition(float dist, float angle)
@@ -2472,7 +2472,7 @@ Position WorldObject::GetRandomNearPosition(float radius)
 void WorldObject::GetContactPoint(const WorldObject* obj, float &x, float &y, float &z, float distance2d /*= CONTACT_DISTANCE*/) const
 {
     // angle to face `obj` to `this` using distance includes size of `obj`
-    GetNearPoint(obj, x, y, z, obj->GetCombatReach(), distance2d, GetAngle(obj));
+    GetNearPoint(obj, x, y, z, distance2d, GetAngle(obj));
 }
 
 void WorldObject::MovePosition(Position &pos, float dist, float angle)

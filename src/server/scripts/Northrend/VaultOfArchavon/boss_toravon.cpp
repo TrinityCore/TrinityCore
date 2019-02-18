@@ -276,7 +276,7 @@ class npc_frozen_orb_stalker : public CreatureScript
                 for (uint8 i = 0; i < num_orbs; ++i)
                 {
                     Position pos;
-                    me->GetNearPoint(toravon, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 10.0f, 0.0f);
+                    me->GetNearPoint(toravon, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 10.0f, 0.0f);
                     me->SetPosition(pos);
                     DoCast(me, SPELL_FROZEN_ORB_SUMMON);
                 }

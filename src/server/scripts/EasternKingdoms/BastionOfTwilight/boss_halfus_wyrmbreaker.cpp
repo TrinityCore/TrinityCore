@@ -510,11 +510,9 @@ class npc_halfus_enslaved_dragon : public CreatureScript
                         case EVENT_LIFTOFF:
                         {
                             Position pos = me->GetPosition();
-                            me->SetDisableGravity(true);
-                            me->SendSetPlayHoverAnim(true);
-                            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                            pos.m_positionZ += 5.5f;
                             me->GetMotionMaster()->MoveTakeoff(0, pos);
-                            _events.ScheduleEvent(EVENT_CAST_DEBUFF, Seconds(1) + Milliseconds(750));
+                            _events.ScheduleEvent(EVENT_CAST_DEBUFF, Seconds(1) + Milliseconds(800));
                             break;
                         }
                         case EVENT_MOVE_OUT_OF_CAGE:
@@ -534,6 +532,15 @@ class npc_halfus_enslaved_dragon : public CreatureScript
 
                             if (!halfus || !protoBehemoth)
                                 break;
+
+                            if (me->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
+                            {
+                                me->SetDisableGravity(true);
+                                me->SendSetPlayHoverAnim(true);
+                                me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+                                me->AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
+                                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                            }
 
                             switch (me->GetEntry())
                             {

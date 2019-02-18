@@ -381,7 +381,7 @@ class npc_coldflame : public CreatureScript
                 {
                     float ang = Position::NormalizeOrientation(pos.GetAngle(me));
                     me->SetOrientation(ang);
-                    owner->GetNearPoint2D(pos.m_positionX, pos.m_positionY, 5.0f - owner->GetCombatReach(), ang);
+                    owner->GetNearPoint2D(nullptr, pos.m_positionX, pos.m_positionY, 5.0f - owner->GetCombatReach(), ang);
                 }
                 else
                 {
@@ -394,7 +394,7 @@ class npc_coldflame : public CreatureScript
 
                     float ang = Position::NormalizeOrientation(pos.GetAngle(target));
                     me->SetOrientation(ang);
-                    owner->GetNearPoint2D(pos.m_positionX, pos.m_positionY, 15.0f - owner->GetCombatReach(), ang);
+                    owner->GetNearPoint2D(nullptr, pos.m_positionX, pos.m_positionY, 15.0f - owner->GetCombatReach(), ang);
                 }
 
                 me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
