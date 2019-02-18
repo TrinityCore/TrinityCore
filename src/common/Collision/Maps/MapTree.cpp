@@ -275,7 +275,10 @@ namespace VMAP
         }
         FILE* tf = OpenMapTileFile(basePath, mapID, tileX, tileY, vm).File;
         if (!tf)
-            result = LoadResult::FileNotFound;
+        {
+            fclose(rf);
+            return LoadResult::FileNotFound;
+        }
         else
         {
             if (!readChunk(tf, chunk, VMAP_MAGIC, 8))
