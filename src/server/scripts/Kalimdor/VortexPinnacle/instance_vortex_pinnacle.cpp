@@ -141,6 +141,8 @@ class instance_vortex_pinnacle : public InstanceMapScript
                     for (ObjectGuid guid : airCurrentGUIDs)
                         if (Creature* air = instance->GetCreature(guid))
                             air->DespawnOrUnsummon(0, 30s);
+
+                    airCurrentGUIDs.clear();
                 }
 
                 return true;
