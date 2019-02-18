@@ -28,8 +28,8 @@ uint32 const PrismGroundingFieldPoints = 3;
 
 enum DataTypes
 {
-    // Encounter States/Boss GUIDs
-    DATA_GRAND_VIZIER_ERTAN,
+    // Encounter Data
+    DATA_GRAND_VIZIER_ERTAN = 0,
     DATA_ALTAIRUS,
     DATA_ASAAD,
 
@@ -50,13 +50,16 @@ enum DataTypes
 
 enum Misc
 {
+    // Bosses
     NPC_GRAND_VIZIER_ERTAN      = 43878,
     NPC_ALTAIRUS                = 43873,
     NPC_ASAAD                   = 43875,
 
+    NPC_INVISIBLE_STALKER       = 42844,
+    NPC_AIR_CURRENT             = 47305,
+    NPC_TWISTER                 = 47342,
     NPC_SLIPSTREAM              = 45455,
     NPC_SLIPSTREAM_LANDING_ZONE = 45504,
-
     NPC_HOWLING_GALE            = 45572,
 
     // Grounding Field

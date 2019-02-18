@@ -42,14 +42,7 @@ enum Spells
     SPELL_DOWNWIND_OF_ALTAIRUS  = 88286,
 
     // Twister
-    SPELL_TWISTER_AURA          = 88313,
-};
-
-enum NPCs
-{
-    NPC_INVISIBLE_STALKER       = 42844,
-    NPC_AIR_CURRENT             = 47305,
-    NPC_TWISTER                 = 47342,
+    SPELL_TWISTER_AURA          = 88313
 };
 
 enum Texts
@@ -138,12 +131,16 @@ class boss_altairus : public CreatureScript
                 me->SummonCreature(NPC_INVISIBLE_STALKER, InvisibleStalkerPos);
 
                 if (IsHeroic())
+                {
                     for (int8 i = 0; i < POINT_TWISTER_MAX; i++)
+                    {
                         if (Creature* twister = me->SummonCreature(NPC_TWISTER, TwisterSpawnPoints[i]))
                         {
                             twister->SetHover(true);
                             twister->GetMotionMaster()->MoveRandom(10.0f);
                         }
+                    }
+                }
 
             }
 

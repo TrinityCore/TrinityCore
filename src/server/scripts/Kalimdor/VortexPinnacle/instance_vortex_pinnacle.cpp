@@ -85,9 +85,9 @@ Position const SecondPrismGroundingFieldPoints[PrismGroundingFieldPoints] =
 
 ObjectData const creatureData[] =
 {
-    { NPC_ALTAIRUS, DATA_ALTAIRUS },
-    { NPC_ASAAD, DATA_ASAAD },
-    { 0, 0 }
+    { NPC_ALTAIRUS,     DATA_ALTAIRUS       },
+    { NPC_ASAAD,        DATA_ASAAD          },
+    { 0,                0                   } // END
 };
 
 class instance_vortex_pinnacle : public InstanceMapScript
@@ -117,6 +117,9 @@ class instance_vortex_pinnacle : public InstanceMapScript
                     case NPC_HOWLING_GALE:
                         creature->SetReactState(REACT_PASSIVE);
                         break;
+                    case NPC_AIR_CURRENT:
+                        airCurrentGUIDs.push_back(creature->GetGUID());
+                        break;
                     default:
                         break;
                 }
@@ -132,6 +135,13 @@ class instance_vortex_pinnacle : public InstanceMapScript
                 // Spawn Slipstreams
                 if (state == DONE)
                     SummonSlipstreams(type);
+
+                if (type == DATA_ALTAIRUS && (state == DONE || state == FAIL))
+                {
+                    for (ObjectGuid guid : airCurrentGUIDs)
+                        if (Creature* air = instance->GetCreature(guid))
+                            air->DespawnOrUnsummon(0, 30s);
+                }
 
                 return true;
             }
@@ -219,6 +229,7 @@ class instance_vortex_pinnacle : public InstanceMapScript
             }
 
             EventMap events;
+            GuidVector airCurrentGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
