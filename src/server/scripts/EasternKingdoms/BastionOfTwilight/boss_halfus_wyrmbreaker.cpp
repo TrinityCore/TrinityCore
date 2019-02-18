@@ -537,7 +537,6 @@ class npc_halfus_enslaved_dragon : public CreatureScript
                             {
                                 me->SetDisableGravity(true);
                                 me->SendSetPlayHoverAnim(true);
-                                me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
                                 me->AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
                                 me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             }
