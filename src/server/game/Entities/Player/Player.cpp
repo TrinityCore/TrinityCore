@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -6974,8 +6974,8 @@ void Player::UpdateArea(uint32 newArea)
     pvpInfo.IsInFFAPvPArea = area && (area->Flags[0] & AREA_FLAG_ARENA);
     UpdatePvPState(true);
 
-    UpdateAreaDependentAuras(newArea);
     PhasingHandler::OnAreaChange(this);
+    UpdateAreaDependentAuras(newArea);
 
     if (IsAreaThatActivatesPvpTalents(newArea))
         EnablePvpRules();
@@ -21479,16 +21479,16 @@ void Player::TextEmote(std::string const& text, WorldObject const* /*= nullptr*/
     SendMessageToSetInRange(packet.Write(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !GetSession()->HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT));
 }
 
-void Player::WhisperAddon(std::string const& text, const std::string& prefix, Player* receiver)
+void Player::WhisperAddon(std::string const& text, std::string const& prefix, bool isLogged, Player* receiver)
 {
     std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, uint32(LANG_ADDON), _text, receiver);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, uint32(isLogged ? LANG_ADDON_LOGGED : LANG_ADDON), _text, receiver);
 
     if (!receiver->GetSession()->IsAddonRegistered(prefix))
         return;
 
     WorldPackets::Chat::Chat packet;
-    packet.Initialize(CHAT_MSG_WHISPER, LANG_ADDON, this, this, text, 0, "", DEFAULT_LOCALE, prefix);
+    packet.Initialize(CHAT_MSG_WHISPER, isLogged ? LANG_ADDON_LOGGED : LANG_ADDON, this, this, text, 0, "", DEFAULT_LOCALE, prefix);
     receiver->SendDirectMessage(packet.Write());
 }
 

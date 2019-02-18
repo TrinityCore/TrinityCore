@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2589,21 +2589,16 @@ static bool CheckUiMapAssignmentStatus(float x, float y, float z, int32 mapId, i
     if (areaId && uiMapAssignment->AreaID)
     {
         int8 areaPriority = 0;
-        if (areaId)
+        while (areaId != uiMapAssignment->AreaID)
         {
-            while (areaId != uiMapAssignment->AreaID)
+            if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId))
             {
-                if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId))
-                {
-                    areaId = areaEntry->ParentAreaID;
-                    ++areaPriority;
-                }
-                else
-                    return false;
+                areaId = areaEntry->ParentAreaID;
+                ++areaPriority;
             }
+            else
+                return false;
         }
-        else
-            return false;
 
         status->AreaPriority = areaPriority;
     }

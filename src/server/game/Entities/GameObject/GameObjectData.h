@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -848,6 +848,60 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_TRAP:        return trap.cooldown;
             case GAMEOBJECT_TYPE_GOOBER:      return goober.cooldown;
             default: return 0;
+        }
+    }
+
+    bool IsInfiniteGameObject() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:          return door.InfiniteAOI != 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND:     return flagStand.InfiniteAOI != 0;
+            case GAMEOBJECT_TYPE_FLAGDROP:      return flagDrop.InfiniteAOI != 0;
+            case GAMEOBJECT_TYPE_TRAPDOOR:      return trapdoor.InfiniteAOI != 0;
+            case GAMEOBJECT_TYPE_NEW_FLAG:      return newflag.InfiniteAOI != 0;
+            default: return false;
+        }
+    }
+
+    bool IsGiganticGameObject() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:                  return door.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_BUTTON:                return button.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER:            return questgiver.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_CHEST:                 return chest.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_GENERIC:               return generic.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_TRAP:                  return trap.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS:           return spellFocus.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_GOOBER:                return goober.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_SPELLCASTER:           return spellCaster.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND:             return flagStand.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_FLAGDROP:              return flagDrop.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_CONTROL_ZONE:          return controlZone.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:    return dungeonDifficulty.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_TRAPDOOR:              return trapdoor.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_NEW_FLAG:              return newflag.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_CAPTURE_POINT:         return capturePoint.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_GARRISON_SHIPMENT:     return garrisonShipment.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_UI_LINK:               return UILink.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_GATHERING_NODE:        return gatheringNode.GiganticAOI != 0;
+            default: return false;
+        }
+    }
+
+    bool IsLargeGameObject() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_CHEST:                 return chest.LargeAOI != 0;
+            case GAMEOBJECT_TYPE_GENERIC:               return generic.LargeAOI != 0;
+            case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:    return dungeonDifficulty.LargeAOI != 0;
+            case GAMEOBJECT_TYPE_GARRISON_SHIPMENT:     return garrisonShipment.LargeAOI != 0;
+            case GAMEOBJECT_TYPE_ARTIFACT_FORGE:        return artifactForge.LargeAOI != 0;
+            case GAMEOBJECT_TYPE_GATHERING_NODE:        return gatheringNode.LargeAOI != 0;
+            default: return false;
         }
     }
 };
