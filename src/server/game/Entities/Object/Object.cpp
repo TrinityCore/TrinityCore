@@ -3234,7 +3234,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     UpdateAllowedPositionZ(destx, desty, destz);
     bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),
         pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
-        destx, desty, destz + halfHeight,
+        destx, desty, destz,
         destx, desty, destz, -0.5f);
 
     // collision occured
@@ -3249,7 +3249,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     // check dynamic collision
     col = GetMap()->getObjectHitPos(GetPhaseMask(),
         pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
-        destx, desty, destz + halfHeight,
+        destx, desty, destz,
         destx, desty, destz, -0.5f);
 
     // Collided with a gameobject
