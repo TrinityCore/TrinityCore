@@ -2537,9 +2537,11 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
     float halfHeight = GetCollisionHeight() * 0.5f;
     UpdateAllowedPositionZ(destx, desty, destz);
-    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(PhasingHandler::GetTerrainMapId(GetPhaseShift(), GetMap(), pos.m_positionX, pos.m_positionY),
+
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(GetPhaseShift(), GetMap(), pos.m_positionX, pos.m_positionY);
+    bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(terrainMapId,
         pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
-        destx, desty, destz + halfHeight,
+        destx, desty, destz,
         destx, desty, destz, -0.5f);
 
     // collision occured
@@ -2554,9 +2556,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     // check dynamic collision
     col = GetMap()->getObjectHitPos(GetPhaseShift(),
         pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
-        destx, desty, destz + halfHeight,
+        destx, desty, destz,
         destx, desty, destz, -0.5f);
-
 
     // Collided with a gameobject
     if (col)
@@ -2773,7 +2774,7 @@ float WorldObject::GetFloorZ() const
 {
     if (!IsInWorld())
         return m_staticFloorZ;
-    return std::max<float>(m_staticFloorZ, GetMap()->GetGameObjectFloor(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ()));
+    return std::max<float>(m_staticFloorZ, GetMap()->GetGameObjectFloor(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ() + GetCollisionHeight()));
 }
 
 float WorldObject::GetMapWaterOrGroundLevel(float x, float y, float z, float* ground/* = nullptr*/) const

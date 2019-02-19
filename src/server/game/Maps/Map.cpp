@@ -2456,7 +2456,7 @@ float Map::GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float
     if (GridMap* gmap = m_parentTerrainMap->GetGrid(terrainMapId, x, y))
     {
         float gridHeight = gmap->getHeight(x, y);
-        if (z > gridHeight)
+        if (G3D::fuzzyGe(z, gridHeight - GROUND_HEIGHT_TOLERANCE))
             mapHeight = gridHeight;
     }
 

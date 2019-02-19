@@ -1354,6 +1354,36 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
             dest = SpellDestination(x, y, liquidLevel, m_caster->GetOrientation());
             break;
         }
+        case TARGET_DEST_CASTER_FRONT_LEAP:
+        {
+            Unit* unitCaster = m_caster->ToUnit();
+            if (!unitCaster)
+                break;
+
+            float dist = m_spellInfo->Effects[effIndex].CalcRadius(unitCaster);
+            float angle = targetType.CalcDirectionAngle();
+
+            Position pos = dest._position;
+
+            unitCaster->MovePositionToFirstCollision(pos, dist, angle);
+            // Generate path to that point.
+            if (!m_preGeneratedPath)
+                m_preGeneratedPath = std::make_unique<PathGenerator>(unitCaster);
+
+            m_preGeneratedPath->SetPathLengthLimit(dist);
+
+            // Should we use straightline here ? What do we do when we don't have a full path ?
+            bool pathResult = m_preGeneratedPath->CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false, true);
+            if (pathResult && m_preGeneratedPath->GetPathType() & (PATHFIND_NORMAL | PATHFIND_SHORTCUT))
+            {
+                pos.m_positionX = m_preGeneratedPath->GetActualEndPosition().x;
+                pos.m_positionY = m_preGeneratedPath->GetActualEndPosition().y;
+                pos.m_positionZ = m_preGeneratedPath->GetActualEndPosition().z;
+            }
+
+            dest.Relocate(pos);
+            break;
+        }
         default:
         {
             float dist = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
