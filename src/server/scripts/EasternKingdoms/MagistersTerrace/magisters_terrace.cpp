@@ -159,7 +159,51 @@ public:
     }
 };
 
+enum ShatteredSunSentry
+{
+    POINT_ID_PREPARE_SPLINE_PATH            = 1,
+    POINT_ID_REPEAT_PATH                    = 1,
+    MAX_SHATTERED_SUN_SENTRY_SPLINE_POINTS  = 10
+};
+
+// Sniffed data. There is one single waypoint before the 2nd one is a smooth round
+Position const ShatteredSunSentryWaypoint1 = { 22.85059f, -7.226434f, -2.813324f };
+Position const ShatteredSunSentryPath[MAX_SHATTERED_SUN_SENTRY_SPLINE_POINTS] =
+{
+    { 22.86974f, -8.028148f, -2.570914f },
+    { 22.61974f, -14.77815f, -2.070914f },
+    { 27.86974f, -17.52815f, -1.570914f },
+    { 32.86974f, -15.77815f, -2.070914f },
+    { 33.61974f, -3.778147f, -2.570914f },
+    { 33.61974f, 7.971852f,  -2.570914f },
+    { 33.11974f, 17.72185f,  -1.820914f },
+    { 28.11974f, 18.97185f,  -1.570914f },
+    { 23.36974f, 15.97185f,  -2.070914f },
+    { 22.38889f, 0.6701389f, -2.828505f }
+};
+
+struct npc_mgt_shattered_sun_sentry : public ScriptedAI
+{
+    npc_mgt_shattered_sun_sentry(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        me->SetWalk(true);
+        me->GetMotionMaster()->MovePoint(POINT_ID_PREPARE_SPLINE_PATH, ShatteredSunSentryWaypoint1);
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type == POINT_MOTION_TYPE && pointId == POINT_ID_PREPARE_SPLINE_PATH)
+            me->GetMotionMaster()->MoveSmoothPath(POINT_ID_REPEAT_PATH, ShatteredSunSentryPath, MAX_SHATTERED_SUN_SENTRY_SPLINE_POINTS, true);
+
+        if (type == EFFECT_MOTION_TYPE && pointId == POINT_ID_REPEAT_PATH)
+            me->GetMotionMaster()->MovePoint(POINT_ID_PREPARE_SPLINE_PATH, ShatteredSunSentryWaypoint1);
+    }
+};
+
 void AddSC_magisters_terrace()
 {
     new npc_kalecgos();
+    RegisterMagistersTerraceCreatureAI(npc_mgt_shattered_sun_sentry);
 }
