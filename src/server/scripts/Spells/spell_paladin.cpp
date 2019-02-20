@@ -109,7 +109,8 @@ enum PaladinSpellIcons
     PALADIN_ICOM_ID_SELFLESS_HEALER              = 3924,
     PALADIN_ICON_ID_ETERNAL_GLORY                = 2944,
     PALADIN_ICON_ID_GLYPH_OF_THE_LONG_WORD       = 4127,
-    PALADIN_ICON_ID_GLYPH_OF_LIGHT_OF_DAWN       = 5154
+    PALADIN_ICON_ID_GLYPH_OF_LIGHT_OF_DAWN       = 5154,
+    PALADIN_ICON_ID_GLYPH_OF_EXORCISM            = 292
 };
 
 enum PaladinCreatures
@@ -1375,56 +1376,73 @@ class spell_pal_judgements : public AuraScript
 };
 
 // 879 - Exorcism
-class spell_pal_exorcism : public SpellScriptLoader
+class spell_pal_exorcism : public SpellScript
 {
-    public:
-        spell_pal_exorcism() : SpellScriptLoader("spell_pal_exorcism") { }
+    PrepareSpellScript(spell_pal_exorcism);
 
-        class spell_pal_exorcism_SpellScript : public SpellScript
+    void HandleDamage()
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        int32 damage = GetHitDamage();
+        int32 ap = int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.344f);
+        int32 holy = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
+        holy += GetHitUnit()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
+        holy *= 0.344f;
+        SetHitDamage(damage + std::max(ap, holy));
+    }
+
+    void ApplyDotBonus()
+    {
+        Unit* target = GetHitUnit();
+        Unit* caster = GetCaster();
+
+        if (!target || !caster)
+            return;
+
+        int32 damage = GetHitDamage();
+
+        if (AuraEffect* exorcismAuraEff = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1, caster->GetGUID()))
         {
-            PrepareSpellScript(spell_pal_exorcism_SpellScript);
-
-            void ChangeDamage(SpellEffIndex /*effIndex*/)
+            if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_GLYPH_OF_EXORCISM, EFFECT_0))
             {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 damage = GetHitDamage();
+                uint8 ticks = exorcismAuraEff->GetTotalTicks();
+                if (!ticks)
+                    return;
 
-                    float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.344f;
-                    float holy = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
-                    holy += GetHitUnit()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
-                    holy *= 0.344f;
-
-                    SetHitDamage(damage + (holy > ap ? holy : ap));
-                }
+                int32 amount = CalculatePct(damage, aurEff->GetAmount()) / ticks;
+                exorcismAuraEff->SetAmount(amount);
             }
-
-            void ApplyDotBonus()
-            {
-                if (Unit* target = GetHitUnit())
-                    if (Unit* caster = GetCaster())
-                        if (Aura* aura = target->GetAura(GetSpellInfo()->Id))
-                        {
-                            float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.0688f;
-                            float holy = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
-                            holy += GetHitUnit()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
-                            holy *= 0.0688f;
-
-                            aura->GetEffect(EFFECT_1)->SetAmount(aura->GetEffect(EFFECT_1)->GetAmount() + holy > ap ? holy : ap);
-                        }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_exorcism_SpellScript::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                AfterHit += SpellHitFn(spell_pal_exorcism_SpellScript::ApplyDotBonus);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_exorcism_SpellScript();
         }
+    }
+
+    void Register() override
+    {
+        BeforeHit += SpellHitFn(spell_pal_exorcism::HandleDamage);
+        AfterHit += SpellHitFn(spell_pal_exorcism::ApplyDotBonus);
+    }
+};
+
+class spell_pal_exorcism_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_pal_exorcism_AuraScript);
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (!caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_GLYPH_OF_EXORCISM, EFFECT_0))
+            Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pal_exorcism_AuraScript::HandleApply, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 31801 - Seal of Truth
@@ -2070,7 +2088,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_divine_sacrifice();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
-    new spell_pal_exorcism();
+    RegisterSpellAndAuraScriptPair(spell_pal_exorcism, spell_pal_exorcism_AuraScript);
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
     new spell_pal_glyph_of_holy_light();
