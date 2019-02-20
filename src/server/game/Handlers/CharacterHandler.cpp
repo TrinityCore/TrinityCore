@@ -51,6 +51,13 @@
 #include "QueryHolder.h"
 #include "World.h"
 
+#include "WorldPacket.h"
+
+// Playerbot mod:
+#include "../../plugins/playerbot/playerbot.h"
+#include "../../plugins/playerbot/PlayerbotAIConfig.h"
+
+
 class LoginQueryHolder : public SQLQueryHolder
 {
     private:
@@ -63,6 +70,76 @@ class LoginQueryHolder : public SQLQueryHolder
         uint32 GetAccountId() const { return m_accountId; }
         bool Initialize();
 };
+
+class PlayerbotLoginQueryHolder : public LoginQueryHolder
+{
+private:
+    uint32 masterAccountId;
+    PlayerbotHolder* playerbotHolder;
+
+public:
+    PlayerbotLoginQueryHolder(PlayerbotHolder* playerbotHolder, uint32 masterAccount, uint32 accountId, uint64 guid)
+        : LoginQueryHolder(accountId, ObjectGuid(guid)), masterAccountId(masterAccount), playerbotHolder(playerbotHolder) { }
+
+public:
+    uint32 GetMasterAccountId() const { return masterAccountId; }
+    PlayerbotHolder* GetPlayerbotHolder() { return playerbotHolder; }
+};
+
+void PlayerbotHolder::AddPlayerBot(uint64 playerGuid, uint32 masterAccount)
+{
+    // has bot already been added?
+	Player* bot = sObjectMgr->GetPlayerByLowGUID(playerGuid);
+
+	if (bot && bot->IsInWorld())
+        return;
+
+    uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid(playerGuid));
+    if (accountId == 0)
+        return;
+
+    PlayerbotLoginQueryHolder *holder = new PlayerbotLoginQueryHolder(this, masterAccount, accountId, playerGuid);
+    if(!holder->Initialize())
+    {
+        delete holder;                                      // delete all unprocessed queries
+        return;
+    }
+
+    QueryResultHolderFuture future = CharacterDatabase.DelayQueryHolder(holder);
+    future.get();
+
+    WorldSession* masterSession = masterAccount ? sWorld->FindSession(masterAccount) : NULL;
+    uint32 botAccountId = holder->GetAccountId();
+    WorldSession *botSession = new WorldSession(botAccountId, "bot", NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
+
+    botSession->HandlePlayerLogin(holder); // will delete lqh
+
+	bot = botSession->GetPlayer();
+	if (!bot)
+		return;
+
+	PlayerbotMgr *mgr = bot->GetPlayerbotMgr();
+	bot->SetPlayerbotMgr(NULL);
+	delete mgr;
+	sRandomPlayerbotMgr.OnPlayerLogout(bot);
+
+    bool allowed = false;
+    if (botAccountId == masterAccount)
+        allowed = true;
+    else if (masterSession && sPlayerbotAIConfig.allowGuildBots && bot->GetGuildId() == masterSession->GetPlayer()->GetGuildId())
+        allowed = true;
+    else if (sPlayerbotAIConfig.IsInRandomAccountList(botAccountId))
+        allowed = true;
+
+    if (allowed)
+        OnBotLogin(bot);
+    else if (masterSession)
+    {
+        ChatHandler ch(masterSession);
+        ch.PSendSysMessage("You are not allowed to control bot %s...", bot->GetName().c_str());
+        LogoutPlayerBot(bot->GetGUID());
+    }
+}
 
 bool LoginQueryHolder::Initialize()
 {
@@ -991,12 +1068,22 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     // Handle Login-Achievements (should be handled after loading)
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);
 
+
     // if we're loading a dead player, repop them to the GY after the load is finished
     if (pCurrChar->getDeathState() == CORPSE)
     {
         pCurrChar->BuildPlayerRepop();
         pCurrChar->RepopAtGraveyard();
     }
+
+    // playerbot mod
+    if (!_player->GetPlayerbotAI())
+    {
+        _player->SetPlayerbotMgr(new PlayerbotMgr(_player));
+        sRandomPlayerbotMgr.OnPlayerLogin(_player);
+    }
+    // end of playerbot mod
+
 
     sScriptMgr->OnPlayerLogin(pCurrChar, firstLogin);
 

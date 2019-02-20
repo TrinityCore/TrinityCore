@@ -211,7 +211,8 @@ class CharacterCreateInfo
     friend class WorldSession;
     friend class Player;
 
-    protected:
+    // playerbot mod
+    public:
         /// User specified variables
         std::string Name;
         uint8 Race       = 0;
@@ -836,6 +837,10 @@ class TC_GAME_API WorldSession
         void HandleBattlefieldLeaveOpcode(WorldPacket& recvData);
         void HandleBattlemasterJoinArena(WorldPacket& recvData);
         void HandleReportPvPAFK(WorldPacket& recvData);
+
+        // playerbot mod
+        void HandleBotPackets();
+        // end of playerbot mod
 
         // Battlefield
         void SendBfInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint32 time);

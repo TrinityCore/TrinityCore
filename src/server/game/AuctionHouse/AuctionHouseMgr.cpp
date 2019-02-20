@@ -38,6 +38,8 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
+#include "../../plugins/ahbot/AhBot.h"
+
 enum eAuctionHouse
 {
     AH_MINIMUM_DEPOSIT = 100
@@ -224,6 +226,9 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransa
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_SUCCESSFUL), AuctionEntry::BuildAuctionMailBody(auction->bidder, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut()))
             .AddMoney(profit)
             .SendMailTo(trans, MailReceiver(owner, auction->owner), auction, MAIL_CHECK_MASK_COPIED, sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
+
+        // ahbot mod
+        auctionbot.Won(auction);
     }
 }
 
@@ -247,6 +252,9 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_EXPIRED), AuctionEntry::BuildAuctionMailBody(0, 0, auction->buyout, auction->deposit, 0))
             .AddItem(pItem)
             .SendMailTo(trans, MailReceiver(owner, auction->owner), auction, MAIL_CHECK_MASK_COPIED, 0);
+
+        // ahbot mod
+        auctionbot.Expired(auction);
     }
     else
     {

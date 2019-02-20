@@ -56,6 +56,10 @@
 #undef GetClassName
 #endif
 
+#include "../../../plugins/ahbot/AhBot.h"
+#include "../../../plugins/playerbot/playerbot.h"
+#include "../../../plugins/playerbot/GuildTaskMgr.h"
+
 class misc_commandscript : public CommandScript
 {
 public:
@@ -116,6 +120,11 @@ public:
             { "unstuck",          rbac::RBAC_PERM_COMMAND_UNSTUCK,           true, &HandleUnstuckCommand,          "" },
             { "wchange",          rbac::RBAC_PERM_COMMAND_WCHANGE,          false, &HandleChangeWeather,           "" },
             { "mailbox",          rbac::RBAC_PERM_COMMAND_MAILBOX,          false, &HandleMailBoxCommand,          "" },
+            // playerbot mod
+            { "ahbot",            rbac::RBAC_PERM_COMMAND_GM       ,          true,  &ahbot::AhBot::HandleAhBotCommand,                      "" },
+            { "rndbot",           rbac::RBAC_PERM_COMMAND_GM       ,          true,  &RandomPlayerbotMgr::HandlePlayerbotConsoleCommand,     "" },
+            { "bot",              195                              ,          false, &PlayerbotMgr::HandlePlayerbotMgrCommand,               "" },
+            { "gtask",            rbac::RBAC_PERM_COMMAND_GM       ,          true,  &GuildTaskMgr::HandleConsoleCommand,           "" },
         };
         return commandTable;
     }

@@ -47,6 +47,7 @@ target_link_libraries(worldserver
   PRIVATE
     trinity-core-interface
   PUBLIC
+  plugins
     scripts
     game
     gsoap

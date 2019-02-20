@@ -1,0 +1,209 @@
+################################################
+# MANGOS Auction House Bot Configuration file  #
+################################################
+
+[AhbotConf]
+ConfVersion=2010102201
+
+###################################################################################################################
+# AUCTION HOUSE BOT SETTINGS
+#
+###################################################################################################################
+
+# Disable original AuctionHouseBot
+AuctionHouseBot.Seller.Enabled = 0
+AuctionHouseBot.Buyer.Enabled = 0
+
+# Replace with the new AhBot
+AhBot.Enabled = 1
+
+# Should be used only if random bots are disabled
+# AhBot.GUID = 0
+
+# 199 for 80, 80 for 70, 70 for 60, ..., 25 for 20
+AhBot.MaxItemLevel = 199
+# Same as level cap
+AhBot.MaxRequiredLevel = 80
+
+# Ignore items by ID
+AhBot.IgnoreItemIds = 49283,52200,8494,6345,6891,2460
+
+AhBot.PriceMultiplier = 1.0
+AhBot.DefaultMinPrice = 20
+AhBot.PriceQualityMultiplier = 1.0
+AhBot.AlwaysAvailableMoney = 2000000
+
+# Buy/sell delays
+AhBot.ItemBuyMinInterval = 7200
+AhBot.ItemBuyMaxInterval = 28800
+AhBot.ItemSellMinInterval = 7200
+AhBot.ItemSellMaxInterval = 28800
+
+#
+# Items
+#
+
+AhBot.MaxAuctionCount.equip.green = 0
+AhBot.MaxAuctionCount.equip.blue = 40
+AhBot.MaxAuctionCount.equip.epic = 20
+AhBot.PriceMultiplier.Sell.equip = 1.0
+AhBot.PriceMultiplier.Buy.equip = 1.0
+AhBot.PricingStrategy.equip = buyOnlyRare
+
+AhBot.MaxAuctionCount.reagent.white = 6
+AhBot.MaxAuctionCount.reagent.green = 2
+AhBot.PriceMultiplier.Sell.reagent = 1.0
+AhBot.PriceMultiplier.Buy.reagent = 1.0
+AhBot.PricingStrategy.reagent = buyOnlyRare
+
+AhBot.MaxAuctionCount.other.white = 20
+AhBot.MaxAuctionCount.other.green = 10
+AhBot.MaxAuctionCount.other.blue = 6
+AhBot.PriceMultiplier.Sell.other = 1.0
+AhBot.PriceMultiplier.Buy.other = 1.0
+AhBot.PricingStrategy.other = buyOnlyRare
+
+#
+# Container
+#
+
+AhBot.MaxAuctionCount.quiver.white = 2
+AhBot.PriceMultiplier.Sell.quiver = 1.0
+AhBot.PriceMultiplier.Buy.quiver = 1.0
+AhBot.PricingStrategy.quiver = buyOnlyRare
+
+AhBot.MaxAuctionCount.container.white = 6
+AhBot.MaxAuctionCount.container.green = 2
+AhBot.MaxAuctionCount.container.blue = 2
+AhBot.PriceMultiplier.Sell.container = 1.0
+AhBot.PriceMultiplier.Buy.container = 1.0
+
+#
+# Glyph
+#
+
+AhBot.MaxAuctionCount.glyph.white = 50
+AhBot.MaxAuctionCount.glyph.green = 20
+AhBot.MaxAuctionCount.glyph.blue = 10
+AhBot.PriceMultiplier.Sell.glyph = 1.0
+AhBot.PriceMultiplier.Buy.glyph = 1.0
+
+#
+# Quest
+#
+
+AhBot.MaxAuctionCount.quest.white = 14
+AhBot.MaxAuctionCount.quest.green = 2
+AhBot.MaxAuctionCount.quest.blue = 2
+AhBot.PriceMultiplier.Sell.quest = 1.0
+AhBot.PriceMultiplier.Buy.quest = 1.0
+
+#
+# Consumables
+#
+
+AhBot.MaxAuctionCount.alchemy.white = 50
+AhBot.MaxAuctionCount.alchemy.green = 20
+AhBot.MaxAuctionCount.alchemy.blue = 10
+AhBot.PriceMultiplier.Sell.alchemy = 1.0
+AhBot.PriceMultiplier.Buy.alchemy = 1.0
+
+AhBot.MaxAuctionCount.scroll.white = 40
+AhBot.MaxAuctionCount.scroll.green = 6
+AhBot.MaxAuctionCount.scroll.blue = 4
+AhBot.PriceMultiplier.Sell.scroll = 1.0
+AhBot.PriceMultiplier.Buy.scroll = 1.0
+
+AhBot.MaxAuctionCount.Food.white = 40
+AhBot.PriceMultiplier.Sell.Food = 1.0
+AhBot.PriceMultiplier.Buy.Food = 1.0
+
+AhBot.MaxAuctionCount.bandage.white = 10
+AhBot.PriceMultiplier.Sell.bandage = 1.0
+AhBot.PriceMultiplier.Buy.bandage = 1.0
+
+AhBot.MaxAuctionCount.OtherConsumable.white = 20
+AhBot.MaxAuctionCount.OtherConsumable.green = 10
+AhBot.MaxAuctionCount.OtherConsumable.blue = 5
+AhBot.PriceMultiplier.Sell.OtherConsumable = 1.0
+AhBot.PriceMultiplier.Buy.OtherConsumable = 1.0
+
+#
+# Recipe
+#
+
+AhBot.MaxAuctionCount.recipe.white = 8
+AhBot.MaxAuctionCount.recipe.green = 4
+AhBot.MaxAuctionCount.recipe.blue = 2
+AhBot.MaxAuctionCount.recipe.epic = 2
+AhBot.PriceMultiplier.Sell.recipe = 1.0
+AhBot.PriceMultiplier.Buy.recipe = 1.0
+
+#
+# Trade
+#
+
+AhBot.MaxAuctionCount.Elemental.white = 30
+AhBot.MaxAuctionCount.Elemental.green = 20
+AhBot.MaxAuctionCount.Elemental.blue = 6
+AhBot.PriceMultiplier.Sell.Elemental = 1.0
+AhBot.PriceMultiplier.Buy.Elemental = 1.0
+
+AhBot.MaxAuctionCount.Cloth.white = 50
+AhBot.MaxAuctionCount.Cloth.green = 14
+AhBot.MaxAuctionCount.Cloth.blue = 6
+AhBot.PriceMultiplier.Sell.Cloth = 1.0
+AhBot.PriceMultiplier.Buy.Cloth = 1.0
+
+AhBot.MaxAuctionCount.Leather.white = 50
+AhBot.MaxAuctionCount.Leather.green = 14
+AhBot.MaxAuctionCount.Leather.blue = 6
+AhBot.PriceMultiplier.Sell.Leather = 1.0
+AhBot.PriceMultiplier.Buy.Leather = 1.0
+
+AhBot.MaxAuctionCount.Herb.white = 50
+AhBot.MaxAuctionCount.Herb.green = 14
+AhBot.PriceMultiplier.Sell.Herb = 1.0
+AhBot.PriceMultiplier.Buy.Herb = 1.0
+
+AhBot.MaxAuctionCount.Meat.white = 50
+AhBot.PriceMultiplier.Sell.Meat = 1.0
+AhBot.PriceMultiplier.Buy.Meat = 1.0
+
+AhBot.MaxAuctionCount.Metal.white = 50
+AhBot.MaxAuctionCount.Metal.green = 14
+AhBot.MaxAuctionCount.Metal.blue = 6
+AhBot.PriceMultiplier.Sell.Metal = 1.0
+AhBot.PriceMultiplier.Buy.Metal = 1.0
+
+AhBot.MaxAuctionCount.Engineering.white = 20
+AhBot.MaxAuctionCount.Engineering.green = 10
+AhBot.MaxAuctionCount.Engineering.blue = 4
+AhBot.PriceMultiplier.Sell.Engineering = 1.0
+AhBot.PriceMultiplier.Buy.Engineering = 1.0
+
+AhBot.MaxAuctionCount.Disenchants.white = 40
+AhBot.MaxAuctionCount.Disenchants.green = 20
+AhBot.MaxAuctionCount.Disenchants.blue = 20
+AhBot.PriceMultiplier.Sell.Disenchants = 1.0
+AhBot.PriceMultiplier.Buy.Disenchants = 1.0
+
+AhBot.MaxAuctionCount.SimpleGems.green = 30
+AhBot.MaxAuctionCount.SimpleGems.blue = 20
+AhBot.MaxAuctionCount.SimpleGems.epic = 4
+AhBot.PriceMultiplier.Sell.SimpleGems = 1.0
+AhBot.PriceMultiplier.Buy.SimpleGems = 1.0
+
+AhBot.MaxAuctionCount.SocketGems.green = 50
+AhBot.MaxAuctionCount.SocketGems.blue = 20
+AhBot.MaxAuctionCount.SocketGems.epic = 4
+AhBot.PriceMultiplier.Sell.SocketGems = 1.0
+AhBot.PriceMultiplier.Buy.SocketGems = 1.0
+
+AhBot.MaxAuctionCount.OtherTrade.white = 10
+AhBot.PriceMultiplier.Sell.OtherTrade = 1.0
+AhBot.PriceMultiplier.Buy.OtherTrade = 1.0
+
+AhBot.PriceMultiplier.Sell.projectile = 1.0
+AhBot.PriceMultiplier.Buy.projectile = 1.0
+AhBot.PricingStrategy.projectile = buyOnlyRare

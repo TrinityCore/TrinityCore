@@ -72,6 +72,7 @@ if( BUILD_SHARED_LIBS )
   endif()
 endif()
 
+add_dependencies(game plugins)
 # Generate precompiled header
 if (USE_COREPCH)
   add_cxx_pch(game ${PRIVATE_PCH_HEADER})
