@@ -1937,6 +1937,28 @@ class spell_illidan_parasitic_shadowfiend : public AuraScript
     }
 };
 
+// 41913 - Parasitic Shadowfiend Passive
+class spell_illidan_parasitic_shadowfiend_proc : public AuraScript
+{
+    PrepareAuraScript(spell_illidan_parasitic_shadowfiend_proc);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PARASITIC_SHADOWFIEND, SPELL_PARASITIC_SHADOWFIEND_2 });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        Unit* target = eventInfo.GetProcTarget();
+        return target && !target->HasAura(SPELL_PARASITIC_SHADOWFIEND) && !target->HasAura(SPELL_PARASITIC_SHADOWFIEND_2);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_illidan_parasitic_shadowfiend_proc::CheckProc);
+    }
+};
+
 // 41923 - Remove Parasitic Shadowfiends (SERVERSIDE)
 class spell_illidan_remove_parasitic_shadowfiend : public AuraScript
 {
@@ -2349,6 +2371,7 @@ void AddSC_boss_illidan()
     RegisterAuraScript(spell_illidan_akama_door_channel);
     RegisterSpellScript(spell_illidan_draw_soul);
     RegisterAuraScript(spell_illidan_parasitic_shadowfiend);
+    RegisterAuraScript(spell_illidan_parasitic_shadowfiend_proc);
     RegisterAuraScript(spell_illidan_remove_parasitic_shadowfiend);
     RegisterSpellScript(spell_illidan_throw_warglaive);
     RegisterAuraScript(spell_illidan_tear_of_azzinoth_channel);
