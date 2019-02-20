@@ -2432,7 +2432,7 @@ bool Map::HasGrid(uint32 mapId, int32 gx, int32 gy) const
 
 float Map::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y, float z, float* ground /*= nullptr*/, bool /*swim = false*/, float collisionHeight /*= DEFAULT_COLLISION_HEIGHT*/) const
 {
-    if (const_cast<Map*>(this)->GetGrid(x, y))
+    if (m_parentTerrainMap->GetGrid(x, y))
     {
         // we need ground level (including grid height version) for proper return water level in point
         float ground_z = GetHeight(phaseShift, x, y, z + collisionHeight, true, 50.0f);
