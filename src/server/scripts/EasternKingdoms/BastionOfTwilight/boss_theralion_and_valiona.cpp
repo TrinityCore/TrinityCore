@@ -1129,8 +1129,8 @@ class EngulfingMagicCheck
             if (Unit* target = object->ToUnit())
                 return ((target->getClass() == CLASS_HUNTER
                     || target->getClass() == CLASS_WARRIOR
-                    || target->getClass() == CLASS_DEATH_KNIGHT
-                    ) && !target->HasAura(SPELL_TWILIGHT_METEORITE_TARGETING));
+                    || target->getClass() == CLASS_DEATH_KNIGHT)
+                    || target->HasAura(SPELL_TWILIGHT_METEORITE_TARGETING));
 
             return false;
         }
