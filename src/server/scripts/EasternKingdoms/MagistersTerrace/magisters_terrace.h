@@ -39,7 +39,6 @@ enum MTDataTypes
     DATA_DELRISSA_DEATH_COUNT,
 
     // Additional data
-    DATA_KAELTHAS_INTRO_STATE,
     DATA_KALECGOS,
     DATA_ESCAPE_ORB
 };

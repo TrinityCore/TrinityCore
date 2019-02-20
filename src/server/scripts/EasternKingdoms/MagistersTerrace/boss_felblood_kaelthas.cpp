@@ -156,9 +156,7 @@ struct boss_felblood_kaelthas : public BossAI
     {
         _Reset();
         Initialize();
-        if (instance->GetData(DATA_KAELTHAS_INTRO_STATE) != DONE)
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-
+        events.SetPhase(PHASE_INTRO);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -211,7 +209,11 @@ struct boss_felblood_kaelthas : public BossAI
     {
         if (type == DATA_KAELTHAS_INTRO)
         {
-            events.SetPhase(PHASE_INTRO);
+            // skip the intro if Kael'thas is engaged already
+            if (!events.IsInPhase(PHASE_INTRO))
+                return;
+
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             events.ScheduleEvent(EVENT_TALK_INTRO_1, 6s, 0, PHASE_INTRO);
         }
     }
