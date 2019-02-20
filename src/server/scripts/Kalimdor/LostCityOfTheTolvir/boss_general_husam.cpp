@@ -149,7 +149,8 @@ public:
                 float y = summon->GetPositionY();
                 float z = summon->GetPositionZ();
                 float orientation = summon->GetAngle(me->GetPosition()) + float(M_PI);
-                summon->GetMotionMaster()->MovePoint(0, x + cos(orientation) * 200, y + sin(orientation) * 200, z, false);
+                summon->SetSpeed(MOVE_FLIGHT, 4.5f);
+                summon->GetMotionMaster()->MovePoint(0, x + cos(orientation) * 300, y + sin(orientation) * 300, z, false);
 
                 if (_shockwaveStalkerCount == 4)
                 {
