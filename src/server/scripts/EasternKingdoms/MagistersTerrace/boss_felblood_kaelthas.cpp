@@ -167,15 +167,12 @@ struct boss_felblood_kaelthas : public BossAI
         instance->SetBossState(DATA_KAELTHAS_SUNSTRIDER, DONE);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         DoCastAOE(SPELL_CLEAR_FLIGHT, true);
         _EnterEvadeMode();
         summons.DespawnAll();
-        events.Reset();
-        me->ReleaseFocus();
-        me->SetReactState(REACT_AGGRESSIVE);
-        BossAI::EnterEvadeMode(why);
+        _DespawnAtEvade();
     }
 
     void DamageTaken(Unit* attacker, uint32 &damage) override

@@ -174,10 +174,6 @@ class instance_magisters_terrace : public InstanceMapScript
 
                 switch (go->GetEntry())
                 {
-                    case GO_KAEL_STATUE_1:
-                    case GO_KAEL_STATUE_2:
-                        _statueGUIDs.push_back(go->GetGUID());
-                        break;
                     case GO_ESCAPE_ORB:
                         if (GetBossState(DATA_KAELTHAS_SUNSTRIDER) == DONE)
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -220,12 +216,7 @@ class instance_magisters_terrace : public InstanceMapScript
                             _delrissaDeathCount = 0;
                         break;
                     case DATA_KAELTHAS_SUNSTRIDER:
-                        if (state == NOT_STARTED)
-                        {
-                            for (ObjectGuid guid : _statueGUIDs)
-                                HandleGameObject(guid, false);
-                        }
-                        else if (state == DONE)
+                        if (state == DONE)
                             if (GameObject* orb = GetGameObject(DATA_ESCAPE_ORB))
                                 orb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
@@ -247,7 +238,6 @@ class instance_magisters_terrace : public InstanceMapScript
 
         protected:
             EventMap _events;
-            GuidVector _statueGUIDs;
             GuidSet _kaelthasPreTrashGUIDs;
             uint8 _delrissaDeathCount;
             uint8 _kaelthasIntroState;

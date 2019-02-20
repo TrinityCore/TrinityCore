@@ -80,8 +80,6 @@ enum MTGameObjectIds
     GO_SUNWELL_RAID_GATE_4      = 187770,
     GO_SUNWELL_RAID_GATE_5      = 187896,
     GO_ASYLUM_DOOR              = 188064,
-    GO_KAEL_STATUE_1            = 188165,
-    GO_KAEL_STATUE_2            = 188166,
     GO_ESCAPE_ORB               = 188173
 };
 
