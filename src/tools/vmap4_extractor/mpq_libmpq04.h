@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,8 +33,8 @@ class MPQArchive
 public:
     mpq_archive_s *mpq_a;
 
-    MPQArchive(const char* filename);
-    ~MPQArchive() { close(); }
+    MPQArchive(char const* filename);
+    ~MPQArchive() { if (isOpened()) close(); }
 
     void GetFileListTo(std::vector<std::string>& filelist) {
         uint32_t filenum;
@@ -52,13 +52,13 @@ public:
 
         token = strtok( buffer, seps );
         uint32 counter = 0;
-        while ((token != NULL) && (counter < size)) {
+        while ((token != nullptr) && (counter < size)) {
             //cout << token << endl;
             token[strlen(token) - 1] = 0;
             std::string s = token;
             filelist.push_back(s);
             counter += strlen(token) + 2;
-            token = strtok(NULL, seps);
+            token = strtok(nullptr, seps);
         }
 
         delete[] buffer;
@@ -66,6 +66,7 @@ public:
 
 private:
     void close();
+    bool isOpened() const;
 };
 typedef std::deque<MPQArchive*> ArchiveSet;
 
@@ -76,11 +77,11 @@ class MPQFile
     char *buffer;
     libmpq__off_t pointer,size;
 
-    MPQFile(const MPQFile& /*f*/) = delete;
-    void operator=(const MPQFile& /*f*/) = delete;
+    MPQFile(MPQFile const& /*f*/) = delete;
+    void operator=(MPQFile const& /*f*/) = delete;
 
 public:
-    MPQFile(const char* filename);    // filenames are not case sensitive
+    MPQFile(char const* filename);    // filenames are not case sensitive
     ~MPQFile() { close(); }
     size_t read(void* dest, size_t bytes);
     size_t getSize() { return size; }
@@ -95,13 +96,8 @@ public:
 
 inline void flipcc(char *fcc)
 {
-    char t;
-    t=fcc[0];
-    fcc[0]=fcc[3];
-    fcc[3]=t;
-    t=fcc[1];
-    fcc[1]=fcc[2];
-    fcc[2]=t;
+    std::swap(fcc[0], fcc[3]);
+    std::swap(fcc[1], fcc[2]);
 }
 
 #endif

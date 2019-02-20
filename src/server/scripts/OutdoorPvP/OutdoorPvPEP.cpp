@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,11 +27,78 @@
 #include "Creature.h"
 #include "GossipDef.h"
 
+uint32 const EP_AllianceBuffs[4] = { 11413, 11414, 11415, 1386 };
+
+uint32 const EP_HordeBuffs[4] = { 30880, 30683, 30682, 29520 };
+
+uint32 const EP_GraveyardZone = 139;
+
+uint32 const EP_GraveyardId = 927;
+
+uint8 const EPBuffZonesNum = 3;
+
+uint32 const EP_EWT_CM = 17690;
+uint32 const EP_CGT_CM = 17689;
+uint32 const EP_NPT_CM = 17696;
+uint32 const EP_PWT_CM = 17698;
+
+uint32 const EPBuffZones[EPBuffZonesNum] = { 139, 2017, 2057 };
+
+/*
+uint32 const EPTowerPlayerEnterEvents[EP_TOWER_NUM] = { 10691, 10699, 10701, 10705 };
+uint32 const EPTowerPlayerLeaveEvents[EP_TOWER_NUM] = { 10692, 10698, 10700, 10704 };
+*/
+
+go_type const EPCapturePoints[EP_TOWER_NUM] =
+{
+    { 182097, 0, { 2574.51f, -4794.89f, 144.704f, -1.45003f }, { -0.097056f,  0.095578f, -0.656229f,  0.742165f } },
+    { 181899, 0, { 3181.08f, -4379.36f, 174.123f, -2.03472f }, { -0.065392f,  0.119494f, -0.842275f,  0.521553f } },
+    { 182098, 0, { 2962.71f, -3042.31f, 154.789f,  2.08426f }, { -0.074807f, -0.113837f,  0.855928f,  0.498830f } },
+    { 182096, 0, { 1860.85f, -3731.23f, 196.716f, -2.53214f }, {  0.033967f, -0.131914f,  0.944741f, -0.298177f } }
+};
+
+go_type const EPTowerFlags[EP_TOWER_NUM] =
+{
+    { 182106, 0, { 2569.60f, -4772.93f, 115.399f, 2.722710f }, { 0.0f, 0.0f, 0.978148f, 0.207912f } },
+    { 182106, 0, { 3148.17f, -4365.51f, 145.029f, 1.535890f }, { 0.0f, 0.0f, 0.694658f, 0.719340f } },
+    { 182106, 0, { 2992.63f, -3022.95f, 125.593f, 3.036870f }, { 0.0f, 0.0f, 0.998630f, 0.052336f } },
+    { 182106, 0, { 1838.42f, -3703.56f, 167.713f, 0.890118f }, { 0.0f, 0.0f, 0.430511f, 0.902585f } }
+};
+
+// uint8 const EP_NUM_CREATURES = 6;
+uint8 const EP_EWT_NUM_CREATURES = 5;
+
+// one lordaeron commander, 4 soldiers
+// should be spawned at EWT and follow a path, but trans-grid pathing isn't safe, so summon them directly at NPT
+creature_type const EP_EWT_Summons_A[EP_EWT_NUM_CREATURES] =
+{
+    { 17635, 0, { 3167.61f, -4352.09f, 138.20f, 4.5811f } },
+    { 17647, 0, { 3172.74f, -4352.99f, 139.14f, 4.9873f } },
+    { 17647, 0, { 3165.89f, -4354.46f, 138.67f, 3.7244f } },
+    { 17647, 0, { 3164.65f, -4350.26f, 138.22f, 2.4794f } },
+    { 17647, 0, { 3169.91f, -4349.68f, 138.37f, 0.7444f } }
+};
+
+creature_type const EP_EWT_Summons_H[EP_EWT_NUM_CREATURES] =
+{
+    { 17995, 0, { 3167.61f, -4352.09f, 138.20f, 4.5811f } },
+    { 17996, 0, { 3172.74f, -4352.99f, 139.14f, 4.9873f } },
+    { 17996, 0, { 3165.89f, -4354.46f, 138.67f, 3.7244f } },
+    { 17996, 0, { 3164.65f, -4350.26f, 138.22f, 2.4794f } },
+    { 17996, 0, { 3169.91f, -4349.68f, 138.37f, 0.7444f } }
+};
+
+// when spawning, pay attention at setting the faction manually!
+creature_type const EP_PWT_FlightMaster = { 17209, 0, { 2987.5f, -3049.11f, 120.126f, 5.75959f } };
+
+// after spawning, modify the faction so that only the controller will be able to use it with SetUInt32Value(GAMEOBJECT_FACTION, faction_id);
+go_type const EP_NPT_LordaeronShrine = { 181682, 0, { 3167.72f, -4355.91f, 138.785f, 1.69297f }, { 0.0f, 0.0f, 0.748956f, 0.66262f } };
+
 OPvPCapturePointEP_EWT::OPvPCapturePointEP_EWT(OutdoorPvP* pvp)
 : OPvPCapturePoint(pvp), m_TowerState(EP_TS_N), m_UnitsSummonedSide(0)
 {
-    SetCapturePointData(EPCapturePoints[EP_EWT].entry, EPCapturePoints[EP_EWT].map, EPCapturePoints[EP_EWT].x, EPCapturePoints[EP_EWT].y, EPCapturePoints[EP_EWT].z, EPCapturePoints[EP_EWT].o, EPCapturePoints[EP_EWT].rot0, EPCapturePoints[EP_EWT].rot1, EPCapturePoints[EP_EWT].rot2, EPCapturePoints[EP_EWT].rot3);
-    AddObject(EP_EWT_FLAGS, EPTowerFlags[EP_EWT].entry, EPTowerFlags[EP_EWT].map, EPTowerFlags[EP_EWT].x, EPTowerFlags[EP_EWT].y, EPTowerFlags[EP_EWT].z, EPTowerFlags[EP_EWT].o, EPTowerFlags[EP_EWT].rot0, EPTowerFlags[EP_EWT].rot1, EPTowerFlags[EP_EWT].rot2, EPTowerFlags[EP_EWT].rot3);
+    SetCapturePointData(EPCapturePoints[EP_EWT].entry, EPCapturePoints[EP_EWT].map, EPCapturePoints[EP_EWT].pos, EPCapturePoints[EP_EWT].rot);
+    AddObject(EP_EWT_FLAGS, EPTowerFlags[EP_EWT].entry, EPTowerFlags[EP_EWT].map, EPTowerFlags[EP_EWT].pos, EPTowerFlags[EP_EWT].rot);
 }
 
 void OPvPCapturePointEP_EWT::ChangeState()
@@ -49,14 +116,14 @@ void OPvPCapturePointEP_EWT::ChangeState()
             artkit = 2;
             SummonSupportUnitAtNorthpassTower(ALLIANCE);
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_EWT, ALLIANCE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_EASTWALL_TOWER_TAKEN_ALLIANCE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_EASTWALL_TOWER_TAKEN_ALLIANCE);
             break;
         case OBJECTIVESTATE_HORDE:
             m_TowerState = EP_TS_H;
             artkit = 1;
             SummonSupportUnitAtNorthpassTower(HORDE);
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_EWT, HORDE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_EASTWALL_TOWER_TAKEN_HORDE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_EASTWALL_TOWER_TAKEN_HORDE);
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -119,7 +186,7 @@ void OPvPCapturePointEP_EWT::SummonSupportUnitAtNorthpassTower(uint32 team)
         for (uint8 i = 0; i < EP_EWT_NUM_CREATURES; ++i)
         {
             DelCreature(i);
-            AddCreature(i, ct[i].entry, ct[i].map, ct[i].x, ct[i].y, ct[i].z, ct[i].o, OutdoorPvP::GetTeamIdByTeam(team), 1000000);
+            AddCreature(i, ct[i].entry, ct[i].map, ct[i].pos, OutdoorPvP::GetTeamIdByTeam(team), 1000000);
         }
     }
 }
@@ -128,8 +195,8 @@ void OPvPCapturePointEP_EWT::SummonSupportUnitAtNorthpassTower(uint32 team)
 OPvPCapturePointEP_NPT::OPvPCapturePointEP_NPT(OutdoorPvP* pvp)
 : OPvPCapturePoint(pvp), m_TowerState(EP_TS_N), m_SummonedGOSide(0)
 {
-    SetCapturePointData(EPCapturePoints[EP_NPT].entry, EPCapturePoints[EP_NPT].map, EPCapturePoints[EP_NPT].x, EPCapturePoints[EP_NPT].y, EPCapturePoints[EP_NPT].z, EPCapturePoints[EP_NPT].o, EPCapturePoints[EP_NPT].rot0, EPCapturePoints[EP_NPT].rot1, EPCapturePoints[EP_NPT].rot2, EPCapturePoints[EP_NPT].rot3);
-    AddObject(EP_NPT_FLAGS, EPTowerFlags[EP_NPT].entry, EPTowerFlags[EP_NPT].map, EPTowerFlags[EP_NPT].x, EPTowerFlags[EP_NPT].y, EPTowerFlags[EP_NPT].z, EPTowerFlags[EP_NPT].o, EPTowerFlags[EP_NPT].rot0, EPTowerFlags[EP_NPT].rot1, EPTowerFlags[EP_NPT].rot2, EPTowerFlags[EP_NPT].rot3);
+    SetCapturePointData(EPCapturePoints[EP_NPT].entry, EPCapturePoints[EP_NPT].map, EPCapturePoints[EP_NPT].pos, EPCapturePoints[EP_NPT].rot);
+    AddObject(EP_NPT_FLAGS, EPTowerFlags[EP_NPT].entry, EPTowerFlags[EP_NPT].map, EPTowerFlags[EP_NPT].pos, EPTowerFlags[EP_NPT].rot);
 }
 
 void OPvPCapturePointEP_NPT::ChangeState()
@@ -147,14 +214,14 @@ void OPvPCapturePointEP_NPT::ChangeState()
             artkit = 2;
             SummonGO(ALLIANCE);
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_NPT, ALLIANCE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_NORTHPASS_TOWER_TAKEN_ALLIANCE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_NORTHPASS_TOWER_TAKEN_ALLIANCE);
             break;
         case OBJECTIVESTATE_HORDE:
             m_TowerState = EP_TS_H;
             artkit = 1;
             SummonGO(HORDE);
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_NPT, HORDE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_NORTHPASS_TOWER_TAKEN_HORDE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_NORTHPASS_TOWER_TAKEN_HORDE);
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -219,13 +286,13 @@ void OPvPCapturePointEP_NPT::SummonGO(uint32 team)
     {
         m_SummonedGOSide = team;
         DelObject(EP_NPT_BUFF);
-        AddObject(EP_NPT_BUFF, EP_NPT_LordaeronShrine.entry, EP_NPT_LordaeronShrine.map, EP_NPT_LordaeronShrine.x, EP_NPT_LordaeronShrine.y, EP_NPT_LordaeronShrine.z, EP_NPT_LordaeronShrine.o, EP_NPT_LordaeronShrine.rot0, EP_NPT_LordaeronShrine.rot1, EP_NPT_LordaeronShrine.rot2, EP_NPT_LordaeronShrine.rot3);
+        AddObject(EP_NPT_BUFF, EP_NPT_LordaeronShrine.entry, EP_NPT_LordaeronShrine.map, EP_NPT_LordaeronShrine.pos, EP_NPT_LordaeronShrine.rot);
 
         Map* map = sMapMgr->FindMap(0, 0);
         auto bounds = map->GetGameObjectBySpawnIdStore().equal_range(m_Objects[EP_NPT_BUFF]);
         for (auto itr = bounds.first; itr != bounds.second; ++itr)
             if (GameObject* go = itr->second)
-                go->SetUInt32Value(GAMEOBJECT_FACTION, (team == ALLIANCE ? 84 : 83));
+                go->SetFaction(team == ALLIANCE ? FACTION_ALLIANCE_GENERIC : FACTION_HORDE_GENERIC);
     }
 }
 
@@ -233,8 +300,8 @@ void OPvPCapturePointEP_NPT::SummonGO(uint32 team)
 OPvPCapturePointEP_CGT::OPvPCapturePointEP_CGT(OutdoorPvP* pvp)
 : OPvPCapturePoint(pvp), m_TowerState(EP_TS_N), m_GraveyardSide(0)
 {
-    SetCapturePointData(EPCapturePoints[EP_CGT].entry, EPCapturePoints[EP_CGT].map, EPCapturePoints[EP_CGT].x, EPCapturePoints[EP_CGT].y, EPCapturePoints[EP_CGT].z, EPCapturePoints[EP_CGT].o, EPCapturePoints[EP_CGT].rot0, EPCapturePoints[EP_CGT].rot1, EPCapturePoints[EP_CGT].rot2, EPCapturePoints[EP_CGT].rot3);
-    AddObject(EP_CGT_FLAGS, EPTowerFlags[EP_CGT].entry, EPTowerFlags[EP_CGT].map, EPTowerFlags[EP_CGT].x, EPTowerFlags[EP_CGT].y, EPTowerFlags[EP_CGT].z, EPTowerFlags[EP_CGT].o, EPTowerFlags[EP_CGT].rot0, EPTowerFlags[EP_CGT].rot1, EPTowerFlags[EP_CGT].rot2, EPTowerFlags[EP_CGT].rot3);
+    SetCapturePointData(EPCapturePoints[EP_CGT].entry, EPCapturePoints[EP_CGT].map, EPCapturePoints[EP_CGT].pos, EPCapturePoints[EP_CGT].rot);
+    AddObject(EP_CGT_FLAGS, EPTowerFlags[EP_CGT].entry, EPTowerFlags[EP_CGT].map, EPTowerFlags[EP_CGT].pos, EPTowerFlags[EP_CGT].rot);
 }
 
 void OPvPCapturePointEP_CGT::ChangeState()
@@ -250,16 +317,16 @@ void OPvPCapturePointEP_CGT::ChangeState()
         case OBJECTIVESTATE_ALLIANCE:
             m_TowerState = EP_TS_A;
             artkit = 2;
-            LinkGraveYard(ALLIANCE);
+            LinkGraveyard(ALLIANCE);
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_CGT, ALLIANCE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_CROWN_GUARD_TOWER_TAKEN_ALLIANCE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_CROWN_GUARD_TOWER_TAKEN_ALLIANCE);
             break;
         case OBJECTIVESTATE_HORDE:
             m_TowerState = EP_TS_H;
             artkit = 1;
-            LinkGraveYard(HORDE);
+            LinkGraveyard(HORDE);
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_CGT, HORDE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_CROWN_GUARD_TOWER_TAKEN_HORDE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_CROWN_GUARD_TOWER_TAKEN_HORDE);
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -308,13 +375,13 @@ void OPvPCapturePointEP_CGT::UpdateTowerState()
     m_PvP->SendUpdateWorldState(EP_CGT_N, (m_TowerState & EP_TS_N) != 0);
 }
 
-void OPvPCapturePointEP_CGT::LinkGraveYard(uint32 team)
+void OPvPCapturePointEP_CGT::LinkGraveyard(uint32 team)
 {
     if (m_GraveyardSide != team)
     {
         m_GraveyardSide = team;
-        sObjectMgr->RemoveGraveYardLink(EP_GraveYardId, EP_GraveYardZone, team, false);
-        sObjectMgr->AddGraveYardLink(EP_GraveYardId, EP_GraveYardZone, team, false);
+        sObjectMgr->RemoveGraveyardLink(EP_GraveyardId, EP_GraveyardZone, team, false);
+        sObjectMgr->AddGraveyardLink(EP_GraveyardId, EP_GraveyardZone, team, false);
     }
 }
 
@@ -322,8 +389,8 @@ void OPvPCapturePointEP_CGT::LinkGraveYard(uint32 team)
 OPvPCapturePointEP_PWT::OPvPCapturePointEP_PWT(OutdoorPvP* pvp)
 : OPvPCapturePoint(pvp), m_FlightMasterSpawned(0), m_TowerState(EP_TS_N)
 {
-    SetCapturePointData(EPCapturePoints[EP_PWT].entry, EPCapturePoints[EP_PWT].map, EPCapturePoints[EP_PWT].x, EPCapturePoints[EP_PWT].y, EPCapturePoints[EP_PWT].z, EPCapturePoints[EP_PWT].o, EPCapturePoints[EP_PWT].rot0, EPCapturePoints[EP_PWT].rot1, EPCapturePoints[EP_PWT].rot2, EPCapturePoints[EP_PWT].rot3);
-    AddObject(EP_PWT_FLAGS, EPTowerFlags[EP_PWT].entry, EPTowerFlags[EP_PWT].map, EPTowerFlags[EP_PWT].x, EPTowerFlags[EP_PWT].y, EPTowerFlags[EP_PWT].z, EPTowerFlags[EP_PWT].o, EPTowerFlags[EP_PWT].rot0, EPTowerFlags[EP_PWT].rot1, EPTowerFlags[EP_PWT].rot2, EPTowerFlags[EP_PWT].rot3);
+    SetCapturePointData(EPCapturePoints[EP_PWT].entry, EPCapturePoints[EP_PWT].map, EPCapturePoints[EP_PWT].pos, EPCapturePoints[EP_PWT].rot);
+    AddObject(EP_PWT_FLAGS, EPTowerFlags[EP_PWT].entry, EPTowerFlags[EP_PWT].map, EPTowerFlags[EP_PWT].pos, EPTowerFlags[EP_PWT].rot);
 }
 
 void OPvPCapturePointEP_PWT::ChangeState()
@@ -341,14 +408,14 @@ void OPvPCapturePointEP_PWT::ChangeState()
             SummonFlightMaster(ALLIANCE);
             artkit = 2;
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_PWT, ALLIANCE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_PLAGUEWOOD_TOWER_TAKEN_ALLIANCE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_PLAGUEWOOD_TOWER_TAKEN_ALLIANCE);
             break;
         case OBJECTIVESTATE_HORDE:
             m_TowerState = EP_TS_H;
             SummonFlightMaster(HORDE);
             artkit = 1;
             ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_PWT, HORDE);
-            m_PvP->SendDefenseMessage(EP_GraveYardZone, TEXT_PLAGUEWOOD_TOWER_TAKEN_HORDE);
+            m_PvP->SendDefenseMessage(EP_GraveyardZone, TEXT_PLAGUEWOOD_TOWER_TAKEN_HORDE);
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -413,7 +480,7 @@ void OPvPCapturePointEP_PWT::SummonFlightMaster(uint32 team)
     {
         m_FlightMasterSpawned = team;
         DelCreature(EP_PWT_FLIGHTMASTER);
-        AddCreature(EP_PWT_FLIGHTMASTER, EP_PWT_FlightMaster.entry, EP_PWT_FlightMaster.map, EP_PWT_FlightMaster.x, EP_PWT_FlightMaster.y, EP_PWT_FlightMaster.z, EP_PWT_FlightMaster.o, OutdoorPvP::GetTeamIdByTeam(team));
+        AddCreature(EP_PWT_FLIGHTMASTER, EP_PWT_FlightMaster.entry, EP_PWT_FlightMaster.map, EP_PWT_FlightMaster.pos, OutdoorPvP::GetTeamIdByTeam(team));
         /*
         // sky - we need update gso code
 

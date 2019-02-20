@@ -12,13 +12,17 @@ bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
   Version: 1.0.6
 
-cppformat (type safe format library)
-  https://github.com/cppformat/cppformat
-  Version: 5174b8ca281426af604b85fdf53be8a748b33f56
+cotire (CMake module to speed up builds)
+  https://github.com/sakra/cotire
+  Version: 1.7.10 516d78476f6dda336181fc5514f72774e1e0a8e2
 
 efws (Entropia File System Watcher - crossplatform file system watcher)
   https://bitbucket.org/SpartanJ/efsw
-  ff0b69daeca1edf7785a8a580518e462be5a6f3d
+  Version: 1.0.0 9a7cbec70b8a88b2e876a382f57c59f3796da0d9
+
+fmt (a small, safe and fast formatting library)
+  https://github.com/fmtlib/fmt
+  Version: 4.0.0 f9c97de46b9914c86366ddcb3474a36e654cbd42
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
@@ -26,7 +30,7 @@ G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
 
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
-  Version: 3.6.0
+  Version: 5.1.0
 
 libMPQ (a library for reading MPQ files)
   https://github.com/mbroemme/libmpq/
@@ -50,12 +54,12 @@ utf8-cpp (UTF-8 with C++ in a Portable Way)
 
 zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
   http://www.zlib.net/
-  Version: 1.2.8
+  Version: 1.2.11
 
 gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
   http://gsoap2.sourceforge.net/
-  Version: 2.8.33
+  Version: 2.8.49
 
 recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
-  https://github.com/memononen/recastnavigation
-  Version: 64385e9ed0822427bca5814d03a3f4c4d7a6db9f
+  https://github.com/recastnavigation/recastnavigation
+  Version: 14b2631527c4792e95b2c78ebfa8ac4cd3413363

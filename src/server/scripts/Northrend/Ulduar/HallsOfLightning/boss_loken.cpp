@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,9 +24,11 @@ SDCategory: Halls of Lightning
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "halls_of_lightning.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -100,14 +102,14 @@ public:
             instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
             events.SetPhase(PHASE_NORMAL);
             events.ScheduleEvent(EVENT_ARC_LIGHTNING, 15000);
-            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20000);
-            events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, 1000);
+            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20s);
+            events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, 1s);
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
         }
 
@@ -130,7 +132,7 @@ public:
             {
                 _isIntroDone = true;
                 Talk(SAY_INTRO_1);
-                events.ScheduleEvent(EVENT_INTRO_DIALOGUE, 20000, 0, PHASE_INTRO);
+                events.ScheduleEvent(EVENT_INTRO_DIALOGUE, 20s, 0, PHASE_INTRO);
             }
             BossAI::MoveInLineOfSight(who);
         }
@@ -149,7 +151,7 @@ public:
                     case EVENT_ARC_LIGHTNING:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_ARC_LIGHTNING);
-                        events.ScheduleEvent(EVENT_ARC_LIGHTNING, urand(15000, 16000));
+                        events.ScheduleEvent(EVENT_ARC_LIGHTNING, 15s, 16s);
                         break;
                     case EVENT_LIGHTNING_NOVA:
                         Talk(SAY_NOVA);
@@ -157,11 +159,11 @@ public:
                         DoCastAOE(SPELL_LIGHTNING_NOVA);
                         me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_PULSING_SHOCKWAVE, me));
                         events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, DUNGEON_MODE(5000, 4000)); // Pause Pulsing Shockwave aura
-                        events.ScheduleEvent(EVENT_LIGHTNING_NOVA, urand(20000, 21000));
+                        events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20s, 21s);
                         break;
                     case EVENT_RESUME_PULSING_SHOCKWAVE:
                         DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);
-                        me->ClearUnitState(UNIT_STATE_CASTING); // This flag breaks movement.
+                        me->ClearUnitState(UNIT_STATE_CASTING); // Workaround to allow DoMeleeAttackIfReady work
                         DoCast(me, SPELL_PULSING_SHOCKWAVE, true);
                         break;
                     case EVENT_INTRO_DIALOGUE:
@@ -205,7 +207,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lokenAI>(creature);
+        return GetHallsOfLightningAI<boss_lokenAI>(creature);
     }
 };
 

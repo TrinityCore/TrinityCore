@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,13 +22,20 @@ Comment: All reset related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "AchievementMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "Language.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
 #include "Pet.h"
-#include "ScriptMgr.h"
+#include "Player.h"
+#include "RBAC.h"
+#include "World.h"
+#include "WorldSession.h"
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 
 class reset_commandscript : public CommandScript
 {
@@ -49,7 +56,7 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "reset", rbac::RBAC_PERM_COMMAND_RESET, true, NULL, "", resetCommandTable },
+            { "reset", rbac::RBAC_PERM_COMMAND_RESET, true, nullptr, "", resetCommandTable },
         };
         return commandTable;
     }
@@ -108,9 +115,9 @@ public:
         if (player->GetShapeshiftForm() == FORM_NONE)
             player->InitDisplayIds();
 
-        player->SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP);
+        player->SetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_PVP);
 
-        player->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+        player->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
 
         //-1 is default value
         player->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));
@@ -131,7 +138,7 @@ public:
         // set starting level
         uint32 startLevel = target->getClass() != CLASS_DEATH_KNIGHT
             ? sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL)
-            : sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
+            : sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL);
 
         target->_ApplyAllLevelScaleItemMods(false);
         target->SetLevel(startLevel);

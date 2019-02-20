@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,14 +16,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <algorithm>
-#include <mutex>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
 #include "Config.h"
 #include "Log.h"
+#include "Util.h"
+#include <boost/property_tree/ini_parser.hpp>
+#include <algorithm>
+#include <memory>
+#include <mutex>
 
-using namespace boost::property_tree;
+namespace bpt = boost::property_tree;
+
+namespace
+{
+    std::string _filename;
+    std::vector<std::string> _args;
+    bpt::ptree _config;
+    std::mutex _configLock;
+}
 
 bool ConfigMgr::LoadInitial(std::string const& file, std::vector<std::string> args,
                             std::string& error)
@@ -35,8 +44,8 @@ bool ConfigMgr::LoadInitial(std::string const& file, std::vector<std::string> ar
 
     try
     {
-        ptree fullTree;
-        ini_parser::read_ini(file, fullTree);
+        bpt::ptree fullTree;
+        bpt::ini_parser::read_ini(file, fullTree);
 
         if (fullTree.empty())
         {
@@ -47,7 +56,7 @@ bool ConfigMgr::LoadInitial(std::string const& file, std::vector<std::string> ar
         // Since we're using only one section per config file, we skip the section and have direct property access
         _config = fullTree.begin()->second;
     }
-    catch (ini_parser::ini_parser_error const& e)
+    catch (bpt::ini_parser::ini_parser_error const& e)
     {
         if (e.line() == 0)
             error = e.message() + " (" + e.filename() + ")";
@@ -75,14 +84,14 @@ T ConfigMgr::GetValueDefault(std::string const& name, T def) const
 {
     try
     {
-        return _config.get<T>(ptree::path_type(name, '/'));
+        return _config.get<T>(bpt::ptree::path_type(name, '/'));
     }
-    catch (boost::property_tree::ptree_bad_path)
+    catch (bpt::ptree_bad_path)
     {
         TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
             name.c_str(), _filename.c_str(), name.c_str(), std::to_string(def).c_str());
     }
-    catch (boost::property_tree::ptree_bad_data)
+    catch (bpt::ptree_bad_data)
     {
         TC_LOG_ERROR("server.loading", "Bad value defined for name %s in config file %s, going to use %s instead",
             name.c_str(), _filename.c_str(), std::to_string(def).c_str());
@@ -96,14 +105,14 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
 {
     try
     {
-        return _config.get<std::string>(ptree::path_type(name, '/'));
+        return _config.get<std::string>(bpt::ptree::path_type(name, '/'));
     }
-    catch (boost::property_tree::ptree_bad_path)
+    catch (bpt::ptree_bad_path)
     {
         TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
             name.c_str(), _filename.c_str(), name.c_str(), def.c_str());
     }
-    catch (boost::property_tree::ptree_bad_data)
+    catch (bpt::ptree_bad_data)
     {
         TC_LOG_ERROR("server.loading", "Bad value defined for name %s in config file %s, going to use %s instead",
             name.c_str(), _filename.c_str(), def.c_str());
@@ -123,7 +132,7 @@ bool ConfigMgr::GetBoolDefault(std::string const& name, bool def) const
 {
     std::string val = GetValueDefault(name, std::string(def ? "1" : "0"));
     val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
-    return (val == "1" || val == "true" || val == "TRUE" || val == "yes" || val == "YES");
+    return StringToBool(val);
 }
 
 int ConfigMgr::GetIntDefault(std::string const& name, int def) const
@@ -142,13 +151,18 @@ std::string const& ConfigMgr::GetFilename()
     return _filename;
 }
 
-std::list<std::string> ConfigMgr::GetKeysByString(std::string const& name)
+std::vector<std::string> const& ConfigMgr::GetArguments() const
+{
+    return _args;
+}
+
+std::vector<std::string> ConfigMgr::GetKeysByString(std::string const& name)
 {
     std::lock_guard<std::mutex> lock(_configLock);
 
-    std::list<std::string> keys;
+    std::vector<std::string> keys;
 
-    for (const ptree::value_type& child : _config)
+    for (bpt::ptree::value_type const& child : _config)
         if (child.first.compare(0, name.length(), name) == 0)
             keys.push_back(child.first);
 

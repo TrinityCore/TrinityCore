@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@ Category: Caverns of Time, The Black Morass
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "the_black_morass.h"
 
@@ -61,13 +62,13 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_HASTE, urand(15000, 23000));
-            events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);
-            events.ScheduleEvent(EVENT_WING_BUFFET, urand(25000, 35000));
+            events.ScheduleEvent(EVENT_HASTE, 15s, 23s);
+            events.ScheduleEvent(EVENT_MORTAL_WOUND, 8s);
+            events.ScheduleEvent(EVENT_WING_BUFFET, 25s, 35s);
             if (IsHeroic())
-                events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30000);
+                events.ScheduleEvent(EVENT_SPELL_REFLECTION, 30s);
 
             Talk(SAY_AGGRO);
         }
@@ -85,7 +86,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             //Despawn Time Keeper
             if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_TIME_KEEPER)
@@ -94,7 +94,7 @@ public:
                 {
                     Talk(SAY_BANISH);
 
-                    me->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    Unit::DealDamage(me, who, who->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                 }
             }
 
@@ -118,19 +118,19 @@ public:
                 {
                     case EVENT_HASTE:
                         DoCast(me, SPELL_HASTE);
-                        events.ScheduleEvent(EVENT_HASTE, urand(20000, 25000));
+                        events.ScheduleEvent(EVENT_HASTE, 20s, 25s);
                         break;
                     case EVENT_MORTAL_WOUND:
                         DoCast(me, SPELL_MORTAL_WOUND);
-                        events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 20000));
+                        events.ScheduleEvent(EVENT_MORTAL_WOUND, 10s, 20s);
                         break;
                     case EVENT_WING_BUFFET:
                          DoCast(me, SPELL_WING_BUFFET);
-                        events.ScheduleEvent(EVENT_WING_BUFFET, urand(20000, 30000));
+                        events.ScheduleEvent(EVENT_WING_BUFFET, 20s, 30s);
                         break;
                     case EVENT_SPELL_REFLECTION: // Only in Heroic
                         DoCast(me, SPELL_REFLECT);
-                        events.ScheduleEvent(EVENT_SPELL_REFLECTION, urand(25000, 35000));
+                        events.ScheduleEvent(EVENT_SPELL_REFLECTION, 25s, 35s);
                         break;
                     default:
                         break;
@@ -145,7 +145,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_temporusAI>(creature);
+        return GetBlackMorassAI<boss_temporusAI>(creature);
     }
 };
 

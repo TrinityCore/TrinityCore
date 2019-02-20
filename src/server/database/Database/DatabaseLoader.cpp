@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,10 @@
  */
 
 #include "DatabaseLoader.h"
-#include "DBUpdater.h"
 #include "Config.h"
+#include "DatabaseEnv.h"
+#include "DBUpdater.h"
+#include "Log.h"
 
 #include <mysqld_error.h>
 
@@ -178,8 +180,8 @@ bool DatabaseLoader::Process(std::queue<Predicate>& queue)
 }
 
 template TC_DATABASE_API
-DatabaseLoader& DatabaseLoader::AddDatabase<LoginDatabaseConnection>(LoginDatabaseWorkerPool&, std::string const&);
+DatabaseLoader& DatabaseLoader::AddDatabase<LoginDatabaseConnection>(DatabaseWorkerPool<LoginDatabaseConnection>&, std::string const&);
 template TC_DATABASE_API
-DatabaseLoader& DatabaseLoader::AddDatabase<CharacterDatabaseConnection>(CharacterDatabaseWorkerPool&, std::string const&);
+DatabaseLoader& DatabaseLoader::AddDatabase<CharacterDatabaseConnection>(DatabaseWorkerPool<CharacterDatabaseConnection>&, std::string const&);
 template TC_DATABASE_API
-DatabaseLoader& DatabaseLoader::AddDatabase<WorldDatabaseConnection>(WorldDatabaseWorkerPool&, std::string const&);
+DatabaseLoader& DatabaseLoader::AddDatabase<WorldDatabaseConnection>(DatabaseWorkerPool<WorldDatabaseConnection>&, std::string const&);

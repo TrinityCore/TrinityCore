@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,17 +16,18 @@
  */
 
 #include "DBUpdater.h"
-#include "Log.h"
-#include "GitRevision.h"
-#include "UpdateFetcher.h"
-#include "DatabaseLoader.h"
-#include "Config.h"
 #include "BuiltInConfig.h"
+#include "Config.h"
+#include "DatabaseEnv.h"
+#include "DatabaseLoader.h"
+#include "GitRevision.h"
+#include "Log.h"
+#include "QueryResult.h"
 #include "StartProcess.h"
-
+#include "UpdateFetcher.h"
+#include <boost/filesystem/operations.hpp>
 #include <fstream>
 #include <iostream>
-#include <unordered_map>
 
 std::string DBUpdaterUtil::GetCorrectedMySQLExecutable()
 {
@@ -41,18 +42,12 @@ bool DBUpdaterUtil::CheckExecutable()
     boost::filesystem::path exe(GetCorrectedMySQLExecutable());
     if (!exists(exe))
     {
-        exe.clear();
-
-        if (auto path = Trinity::SearchExecutableInPath("mysql"))
+        exe = Trinity::SearchExecutableInPath("mysql");
+        if (!exe.empty() && exists(exe))
         {
-            exe = std::move(*path);
-
-            if (!exe.empty() && exists(exe))
-            {
-                // Correct the path to the cli
-                corrected_path() = absolute(exe).generic_string();
-                return true;
-            }
+            // Correct the path to the cli
+            corrected_path() = absolute(exe).generic_string();
+            return true;
         }
 
         TC_LOG_FATAL("sql.updates", "Didn't find any executable MySQL binary at \'%s\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
@@ -287,8 +282,10 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
             }
             case LOCATION_DOWNLOAD:
             {
+                std::string const filename = base.filename().generic_string();
+                std::string const workdir = boost::filesystem::current_path().generic_string();
                 TC_LOG_ERROR("sql.updates", ">> File \"%s\" is missing, download it from \"https://github.com/TrinityCore/TrinityCore/releases\"" \
-                    " uncompress it and place the file TDB_full_world_(a_variable_name).sql in your worldserver directory.", base.filename().generic_string().c_str());
+                    " uncompress it and place the file \"%s\" in the directory \"%s\".", filename.c_str(), filename.c_str(), workdir.c_str());
                 break;
             }
         }
@@ -313,7 +310,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
 template<class T>
 QueryResult DBUpdater<T>::Retrieve(DatabaseWorkerPool<T>& pool, std::string const& query)
 {
-    return pool.PQuery(query.c_str());
+    return pool.Query(query.c_str());
 }
 
 template<class T>

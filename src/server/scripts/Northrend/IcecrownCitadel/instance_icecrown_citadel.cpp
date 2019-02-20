@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,17 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AccountMgr.h"
+#include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "CreatureAI.h"
+#include "icecrown_citadel.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "Transport.h"
 #include "TransportMgr.h"
 #include "WorldPacket.h"
-#include "icecrown_citadel.h"
 
 enum EventIds
 {
@@ -49,22 +51,20 @@ enum TimedEvents
 
 BossBoundaryData const boundaries =
 {
-    { DATA_LORD_MARROWGAR, new CircleBoundary(Position(-428.0f,2211.0f), 95.0) },
-    { DATA_LORD_MARROWGAR, new RectangleBoundary(-430.0f, -330.0f, 2110.0f, 2310.0f) },
-    { DATA_LADY_DEATHWHISPER, new RectangleBoundary(-670.0f, -520.0f, 2145.0f, 2280.0f) },
+    { DATA_LORD_MARROWGAR,        new CircleBoundary(Position(-428.0f,2211.0f), 95.0) },
+    { DATA_LORD_MARROWGAR,        new RectangleBoundary(-430.0f, -330.0f, 2110.0f, 2310.0f) },
+    { DATA_LADY_DEATHWHISPER,     new RectangleBoundary(-670.0f, -520.0f, 2145.0f, 2280.0f) },
     { DATA_DEATHBRINGER_SAURFANG, new RectangleBoundary(-565.0f, -465.0f, 2160.0f, 2260.0f) },
-
-    { DATA_ROTFACE, new RectangleBoundary(4385.0f, 4505.0f, 3082.0f, 3195.0f) },
-    { DATA_FESTERGUT, new RectangleBoundary(4205.0f, 4325.0f, 3082.0f, 3195.0f) },
-    { DATA_PROFESSOR_PUTRICIDE, new ParallelogramBoundary(Position(4356.0f, 3290.0f), Position(4435.0f, 3194.0f), Position(4280.0f, 3194.0f)) },
-    { DATA_PROFESSOR_PUTRICIDE, new RectangleBoundary(4280.0f, 4435.0f, 3150.0f, 4360.0f) },
-
-    { DATA_BLOOD_PRINCE_COUNCIL, new EllipseBoundary(Position(4660.95f, 2769.194f), 85.0, 60.0) },
+    { DATA_ROTFACE,               new RectangleBoundary(4385.0f, 4505.0f, 3082.0f, 3195.0f) },
+    { DATA_FESTERGUT,             new RectangleBoundary(4205.0f, 4325.0f, 3082.0f, 3195.0f) },
+    { DATA_PROFESSOR_PUTRICIDE,   new ParallelogramBoundary(Position(4356.0f, 3290.0f), Position(4435.0f, 3194.0f), Position(4280.0f, 3194.0f)) },
+    { DATA_PROFESSOR_PUTRICIDE,   new RectangleBoundary(4280.0f, 4435.0f, 3150.0f, 4360.0f) },
+    { DATA_BLOOD_PRINCE_COUNCIL,  new EllipseBoundary(Position(4660.95f, 2769.194f), 85.0, 60.0) },
     { DATA_BLOOD_QUEEN_LANA_THEL, new CircleBoundary(Position(4595.93f, 2769.365f), 64.0) },
-
-    { DATA_SISTER_SVALNA, new RectangleBoundary(4291.0f, 4423.0f, 2438.0f, 2653.0f) },
+    { DATA_BLOOD_QUEEN_LANA_THEL, new ZRangeBoundary(391.78f, 473.43f) },
+    { DATA_SISTER_SVALNA,         new RectangleBoundary(4291.0f, 4423.0f, 2438.0f, 2653.0f) },
     { DATA_VALITHRIA_DREAMWALKER, new RectangleBoundary(4112.5f, 4293.5f, 2385.0f, 2585.0f) },
-    { DATA_SINDRAGOSA, new EllipseBoundary(Position(4408.6f, 2484.0f), 100.0, 75.0) }
+    { DATA_SINDRAGOSA,            new EllipseBoundary(Position(4408.6f, 2484.0f), 100.0, 75.0) }
 };
 
 DoorData const doorData[] =
@@ -147,6 +147,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 UpperSpireTeleporterActiveState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
+                BloodPrinceIntro = 1;
+                SindragosaIntro = 1;
             }
 
             // A function to help reduce the number of lines for teleporter management.
@@ -184,14 +186,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
-                if (!TeamInInstance)
-                {
-                    Map::PlayerList const &players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            TeamInInstance = player->GetTeam();
-                }
-
                 switch (creature->GetEntry())
                 {
                     case NPC_LORD_MARROWGAR:
@@ -199,42 +193,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_LADY_DEATHWHISPER:
                         LadyDeahtwhisperGUID = creature->GetGUID();
-                        break;
-                    case NPC_KOR_KRON_GENERAL:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_ALLIANCE_COMMANDER);
-                        break;
-                    case NPC_KOR_KRON_LIEUTENANT:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_SKYBREAKER_LIEUTENANT);
-                        break;
-                    case NPC_TORTUNOK:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_ALANA_MOONSTRIKE);
-                        break;
-                    case NPC_GERARDO_THE_SUAVE:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_TALAN_MOONSTRIKE);
-                        break;
-                    case NPC_UVLUS_BANEFIRE:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_MALFUS_GRIMFROST);
-                        break;
-                    case NPC_IKFIRUS_THE_VILE:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_YILI);
-                        break;
-                    case NPC_VOL_GUK:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_JEDEBIA);
-                        break;
-                    case NPC_HARAGG_THE_UNSEEN:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_NIBY_THE_ALMIGHTY);
-                        break;
-                    case NPC_GARROSH_HELLSCREAM:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_KING_VARIAN_WRYNN);
                         break;
                     case NPC_DEATHBRINGER_SAURFANG:
                         DeathbringerSaurfangGUID = creature->GetGUID();
@@ -244,16 +202,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         creature->SetControlled(true, UNIT_STATE_ROOT);
                         break;
                     case NPC_SE_HIGH_OVERLORD_SAURFANG:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_SE_MURADIN_BRONZEBEARD, creature->GetCreatureData());
-                        // no break;
                     case NPC_SE_MURADIN_BRONZEBEARD:
                         DeathbringerSaurfangEventGUID = creature->GetGUID();
-                        creature->LastUsedScriptID = creature->GetScriptId();
-                        break;
-                    case NPC_SE_KOR_KRON_REAVER:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_SE_SKYBREAKER_MARINE);
                         break;
                     case NPC_FESTERGUT:
                         FestergutGUID = creature->GetGUID();
@@ -355,6 +305,14 @@ class instance_icecrown_citadel : public InstanceMapScript
             // Weekly quest spawn prevention
             uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
             {
+                if (!TeamInInstance)
+                {
+                    Map::PlayerList const& players = instance->GetPlayers();
+                    if (!players.isEmpty())
+                        if (Player* player = players.begin()->GetSource())
+                            TeamInInstance = player->GetTeam();
+                }
+
                 uint32 entry = data->id;
                 switch (entry)
                 {
@@ -376,6 +334,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 break;
                             }
                         }
+
+                        if (entry == NPC_KOR_KRON_LIEUTENANT && TeamInInstance == ALLIANCE)
+                            return NPC_SKYBREAKER_LIEUTENANT;
                         break;
                     }
                     case NPC_HORDE_GUNSHIP_CANNON:
@@ -392,15 +353,35 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_ZAFOD_BOOMBOX:
                         if (GameObjectTemplate const* go = sObjectMgr->GetGameObjectTemplate(GO_THE_SKYBREAKER_A))
-                            if ((TeamInInstance == ALLIANCE && data->mapid == go->moTransport.mapID) ||
-                                (TeamInInstance == HORDE && data->mapid != go->moTransport.mapID))
+                            if ((TeamInInstance == ALLIANCE && data->spawnPoint.GetMapId() == go->moTransport.mapID) ||
+                                (TeamInInstance == HORDE && data->spawnPoint.GetMapId() != go->moTransport.mapID))
                                 return entry;
                         return 0;
                     case NPC_IGB_MURADIN_BRONZEBEARD:
-                        if ((TeamInInstance == ALLIANCE && data->posX > 10.0f) ||
-                            (TeamInInstance == HORDE && data->posX < 10.0f))
+                        if ((TeamInInstance == ALLIANCE && data->spawnPoint.GetPositionX() > 10.0f) ||
+                            (TeamInInstance == HORDE && data->spawnPoint.GetPositionX() < 10.0f))
                             return entry;
                         return 0;
+                    case NPC_SE_HIGH_OVERLORD_SAURFANG:
+                        return TeamInInstance == ALLIANCE ? NPC_SE_MURADIN_BRONZEBEARD : NPC_SE_HIGH_OVERLORD_SAURFANG;
+                    case NPC_KOR_KRON_GENERAL:
+                        return TeamInInstance == ALLIANCE ? NPC_ALLIANCE_COMMANDER : NPC_KOR_KRON_GENERAL;
+                    case NPC_TORTUNOK:
+                        return TeamInInstance == ALLIANCE ? NPC_ALANA_MOONSTRIKE : NPC_TORTUNOK;
+                    case NPC_GERARDO_THE_SUAVE:
+                        return TeamInInstance == ALLIANCE ? NPC_TALAN_MOONSTRIKE : NPC_GERARDO_THE_SUAVE;
+                    case NPC_UVLUS_BANEFIRE:
+                        return TeamInInstance == ALLIANCE ? NPC_MALFUS_GRIMFROST : NPC_UVLUS_BANEFIRE;
+                    case NPC_IKFIRUS_THE_VILE:
+                        return TeamInInstance == ALLIANCE ? NPC_YILI : NPC_IKFIRUS_THE_VILE;
+                    case NPC_VOL_GUK:
+                        return TeamInInstance == ALLIANCE ? NPC_JEDEBIA : NPC_VOL_GUK;
+                    case NPC_HARAGG_THE_UNSEEN:
+                        return TeamInInstance == ALLIANCE ? NPC_NIBY_THE_ALMIGHTY : NPC_HARAGG_THE_UNSEEN;
+                    case NPC_GARROSH_HELLSCREAM:
+                        return TeamInInstance == ALLIANCE ? NPC_KING_VARIAN_WRYNN : NPC_GARROSH_HELLSCREAM;
+                    case NPC_SE_KOR_KRON_REAVER:
+                        return TeamInInstance == ALLIANCE ? NPC_SE_SKYBREAKER_MARINE : NPC_SE_KOR_KRON_REAVER;
                     default:
                         break;
                 }
@@ -739,6 +720,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return BloodQuickeningState;
                     case DATA_HEROIC_ATTEMPTS:
                         return HeroicAttempts;
+                    case DATA_BLOOD_PRINCE_COUNCIL_INTRO:
+                        return BloodPrinceIntro;
+                    case DATA_SINDRAGOSA_INTRO:
+                        return SindragosaIntro;
                     default:
                         break;
                 }
@@ -772,11 +757,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return ProfessorPutricideGUID;
                     case DATA_PUTRICIDE_TABLE:
                         return PutricideTableGUID;
-                    case DATA_PRINCE_KELESETH_GUID:
+                    case DATA_PRINCE_KELESETH:
                         return BloodCouncilGUIDs[0];
-                    case DATA_PRINCE_TALDARAM_GUID:
+                    case DATA_PRINCE_TALDARAM:
                         return BloodCouncilGUIDs[1];
-                    case DATA_PRINCE_VALANAR_GUID:
+                    case DATA_PRINCE_VALANAR:
                         return BloodCouncilGUIDs[2];
                     case DATA_BLOOD_PRINCES_CONTROL:
                         return BloodCouncilControllerGUID;
@@ -865,7 +850,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 loot->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                         }
                         else if (state == FAIL)
-                            Events.ScheduleEvent(EVENT_RESPAWN_GUNSHIP, 30000);
+                            Events.ScheduleEvent(EVENT_RESPAWN_GUNSHIP, 30s);
                         break;
                     case DATA_DEATHBRINGER_SAURFANG:
                         switch (state)
@@ -996,9 +981,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         // set the platform as active object to dramatically increase visibility range
                         // note: "active" gameobjects do not block grid unloading
                         if (GameObject* precipice = instance->GetGameObject(ArthasPrecipiceGUID))
-                            precipice->setActive(state == IN_PROGRESS);
+                            precipice->SetFarVisible(state == IN_PROGRESS);
+
                         if (GameObject* platform = instance->GetGameObject(ArthasPlatformGUID))
-                            platform->setActive(state == IN_PROGRESS);
+                            platform->SetFarVisible(state == IN_PROGRESS);
 
                         if (instance->IsHeroic())
                         {
@@ -1089,7 +1075,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         switch (data)
                         {
                             case IN_PROGRESS:
-                                Events.ScheduleEvent(EVENT_UPDATE_EXECUTION_TIME, 60000);
+                                Events.ScheduleEvent(EVENT_UPDATE_EXECUTION_TIME, 1min);
                                 BloodQuickeningMinutes = 30;
                                 DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 1);
                                 DoUpdateWorldState(WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
@@ -1115,6 +1101,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 SetTeleporterState(go, true);
                             SaveToDB();
                         }
+                        break;
+                    case DATA_BLOOD_PRINCE_COUNCIL_INTRO:
+                        BloodPrinceIntro = data;
+                        break;
+                    case DATA_SINDRAGOSA_INTRO:
+                        SindragosaIntro = data;
                         break;
                     default:
                         break;
@@ -1303,12 +1295,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                         teleporter->SetGoState(GO_STATE_ACTIVE);
 
                         std::list<Creature*> stalkers;
-                        GetCreatureListWithEntryInGrid(stalkers, teleporter, NPC_INVISIBLE_STALKER, 100.0f);
+                        teleporter->GetCreatureListWithEntryInGrid(stalkers, NPC_INVISIBLE_STALKER, 100.0f);
                         if (stalkers.empty())
                             return;
 
                         stalkers.sort(Trinity::ObjectDistanceOrderPred(teleporter));
-                        stalkers.front()->CastSpell((Unit*)NULL, SPELL_ARTHAS_TELEPORTER_CEREMONY, false);
+                        stalkers.front()->CastSpell(nullptr, SPELL_ARTHAS_TELEPORTER_CEREMONY, false);
                         stalkers.pop_front();
                         for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
                             (*itr)->AI()->Reset();
@@ -1360,7 +1352,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             --BloodQuickeningMinutes;
                             if (BloodQuickeningMinutes)
                             {
-                                Events.ScheduleEvent(EVENT_UPDATE_EXECUTION_TIME, 60000);
+                                Events.ScheduleEvent(EVENT_UPDATE_EXECUTION_TIME, 1min);
                                 DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 1);
                                 DoUpdateWorldState(WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
                             }
@@ -1435,21 +1427,21 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case EVENT_QUAKE:
                         if (GameObject* warning = instance->GetGameObject(FrozenThroneWarningGUID))
                             warning->SetGoState(GO_STATE_ACTIVE);
-                        Events.ScheduleEvent(EVENT_QUAKE_SHATTER, 5000);
+                        Events.ScheduleEvent(EVENT_QUAKE_SHATTER, 5s);
                         break;
                     case EVENT_SECOND_REMORSELESS_WINTER:
                         if (GameObject* platform = instance->GetGameObject(ArthasPlatformGUID))
                         {
                             platform->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
-                            Events.ScheduleEvent(EVENT_REBUILD_PLATFORM, 1500);
+                            Events.ScheduleEvent(EVENT_REBUILD_PLATFORM, 1500ms);
                         }
                         break;
                     case EVENT_TELEPORT_TO_FROSTMOURNE: // Harvest Soul (normal mode)
-                        if (Creature* terenas = instance->SummonCreature(NPC_TERENAS_MENETHIL_FROSTMOURNE, TerenasSpawn, NULL, 63000))
+                        if (Creature* terenas = instance->SummonCreature(NPC_TERENAS_MENETHIL_FROSTMOURNE, TerenasSpawn, nullptr, 63000))
                         {
                             terenas->AI()->DoAction(ACTION_FROSTMOURNE_INTRO);
                             std::list<Creature*> triggers;
-                            GetCreatureListWithEntryInGrid(triggers, terenas, NPC_WORLD_TRIGGER_INFINITE_AOI, 100.0f);
+                            terenas->GetCreatureListWithEntryInGrid(triggers, NPC_WORLD_TRIGGER_INFINITE_AOI, 100.0f);
                             if (!triggers.empty())
                             {
                                 triggers.sort(Trinity::ObjectDistanceOrderPred(terenas, false));
@@ -1457,10 +1449,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 visual->CastSpell(visual, SPELL_FROSTMOURNE_TELEPORT_VISUAL, true);
                             }
 
-                            if (Creature* warden = instance->SummonCreature(NPC_SPIRIT_WARDEN, SpiritWardenSpawn, NULL, 63000))
+                            if (Creature* warden = instance->SummonCreature(NPC_SPIRIT_WARDEN, SpiritWardenSpawn, nullptr, 63000))
                             {
                                 terenas->AI()->AttackStart(warden);
-                                warden->AddThreat(terenas, 300000.0f);
+                                warden->GetThreatManager().AddThreat(terenas, 300000.0f, nullptr, true, true);
                             }
                         }
                         break;
@@ -1530,6 +1522,8 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint32 BloodQuickeningState;
             uint32 HeroicAttempts;
             uint16 BloodQuickeningMinutes;
+            uint8 BloodPrinceIntro;
+            uint8 SindragosaIntro;
             bool IsBonedEligible;
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;

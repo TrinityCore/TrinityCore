@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,15 @@
 #ifndef PIT_OF_SARON_H_
 #define PIT_OF_SARON_H_
 
+#include "CreatureAIImpl.h"
+#include "EventProcessor.h"
+
 #define PoSScriptName "instance_pit_of_saron"
 #define DataHeader "POS"
 
 uint32 const EncounterCount = 3;
 
-enum DataTypes
+enum POSDataTypes
 {
     // Encounter states and GUIDs
     DATA_GARFROST           = 0,
@@ -41,7 +44,7 @@ enum DataTypes
     DATA_CAVERN_ACTIVE      = 10
 };
 
-enum CreatureIds
+enum POSCreatureIds
 {
     NPC_GARFROST                                = 36494,
     NPC_KRICK                                   = 36477,
@@ -92,14 +95,14 @@ enum CreatureIds
     NPC_CAVERN_EVENT_TRIGGER                    = 32780
 };
 
-enum GameObjectIds
+enum POSGameObjectIds
 {
     GO_SARONITE_ROCK                            = 196485,
     GO_ICE_WALL                                 = 201885,
     GO_HALLS_OF_REFLECTION_PORTCULLIS           = 201848
 };
 
-enum SpellsIcicle
+enum POSSpellsIcicle
 {
     SPELL_ICICLE_SUMMON                 = 69424,
     SPELL_ICICLE_FALL_TRIGGER           = 69426,
@@ -112,27 +115,16 @@ class ScheduledIcicleSummons : public BasicEvent
     public:
         ScheduledIcicleSummons(Creature* trigger) : _trigger(trigger) { }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-        {
-            if (roll_chance_i(12))
-            {
-                _trigger->CastSpell(_trigger, SPELL_ICICLE_SUMMON, true);
-                _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(urand(20000, 35000)));
-            }
-            else
-                _trigger->m_Events. AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(urand(1000,20000)));
-
-            return true;
-        }
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override;
 
     private:
         Creature* _trigger;
 };
 
-template<class AI>
-AI* GetPitOfSaronAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetPitOfSaronAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, PoSScriptName);
+    return GetInstanceAI<AI>(obj, PoSScriptName);
 }
 
 #endif // PIT_OF_SARON_H_

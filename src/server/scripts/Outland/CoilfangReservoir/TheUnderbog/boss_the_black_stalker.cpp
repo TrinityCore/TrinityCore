@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,9 @@ SDCategory: Coilfang Resevoir, Underbog
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "the_underbog.h"
 
 enum Spells
 {
@@ -49,7 +51,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_the_black_stalkerAI(creature);
+        return GetTheUnderbogAI<boss_the_black_stalkerAI>(creature);
     }
 
     struct boss_the_black_stalkerAI : public ScriptedAI
@@ -87,7 +89,7 @@ public:
             Striders.DespawnAll();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void JustSummoned(Creature* summon) override
         {

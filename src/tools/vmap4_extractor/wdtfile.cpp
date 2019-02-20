@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,12 +26,12 @@ char * wdtGetPlainName(char * FileName)
 {
     char * szTemp;
 
-    if((szTemp = strrchr(FileName, '\\')) != NULL)
+    if((szTemp = strrchr(FileName, '\\')) != nullptr)
         FileName = szTemp + 1;
     return FileName;
 }
 
-WDTFile::WDTFile(char* file_name, char* file_name1) : gWmoInstansName(NULL), gnWMO(0), WDT(file_name)
+WDTFile::WDTFile(char* file_name, char* file_name1) : gWmoInstansName(nullptr), gnWMO(0), WDT(file_name)
 {
     filename.append(file_name1,strlen(file_name1));
 }
@@ -104,7 +104,7 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
                 }
 
                 delete[] gWmoInstansName;
-                gWmoInstansName = NULL;
+                gWmoInstansName = nullptr;
             }
         }
         WDT.seek((int)nextpos);
@@ -123,7 +123,7 @@ WDTFile::~WDTFile(void)
 ADTFile* WDTFile::GetMap(int x, int z)
 {
     if(!(x>=0 && z >= 0 && x<64 && z<64))
-        return NULL;
+        return nullptr;
 
     char name[512];
 

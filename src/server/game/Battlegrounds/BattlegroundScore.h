@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,8 +18,11 @@
 #ifndef TRINITY_BATTLEGROUND_SCORE_H
 #define TRINITY_BATTLEGROUND_SCORE_H
 
-#include "WorldPacket.h"
+#include "Errors.h"
 #include "ObjectGuid.h"
+#include "SharedDefines.h"
+
+class WorldPacket;
 
 enum ScoreType
 {
@@ -89,20 +92,7 @@ struct BattlegroundScore
             }
         }
 
-        virtual void AppendToPacket(WorldPacket& data)
-        {
-            data << uint64(PlayerGuid);
-
-            data << uint32(KillingBlows);
-            data << uint32(HonorableKills);
-            data << uint32(Deaths);
-            data << uint32(BonusHonor);
-            data << uint32(DamageDone);
-            data << uint32(HealingDone);
-
-            BuildObjectivesBlock(data);
-        }
-
+        virtual void AppendToPacket(WorldPacket& data);
         virtual void BuildObjectivesBlock(WorldPacket& /*data*/) = 0;
 
         // For Logging purpose

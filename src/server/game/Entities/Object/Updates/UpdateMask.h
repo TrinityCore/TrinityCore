@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,7 +20,6 @@
 #define __UPDATEMASK_H
 
 #include "UpdateFields.h"
-#include "Errors.h"
 #include "ByteBuffer.h"
 
 class UpdateMask
@@ -34,9 +33,9 @@ class UpdateMask
             CLIENT_UPDATE_MASK_BITS = sizeof(ClientUpdateMaskType) * 8,
         };
 
-        UpdateMask() : _fieldCount(0), _blockCount(0), _bits(NULL) { }
+        UpdateMask() : _fieldCount(0), _blockCount(0), _bits(nullptr) { }
 
-        UpdateMask(UpdateMask const& right) : _bits(NULL)
+        UpdateMask(UpdateMask const& right) : _bits(nullptr)
         {
             SetCount(right.GetCount());
             memcpy(_bits, right._bits, sizeof(uint8) * _blockCount * 32);
@@ -123,4 +122,3 @@ class UpdateMask
 };
 
 #endif
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "Player.h"
 #include "violet_hold.h"
 
 /*
@@ -89,9 +91,9 @@ class boss_xevozz : public CreatureScript
                 BossAI::Reset();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -113,10 +115,10 @@ class boss_xevozz : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+                _JustDied();
             }
 
             void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
@@ -261,9 +263,7 @@ class spell_xevozz_summon_players : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGIC_PULL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MAGIC_PULL });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

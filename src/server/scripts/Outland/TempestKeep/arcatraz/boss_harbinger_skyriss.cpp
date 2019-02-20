@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,8 +29,10 @@ boss_harbinger_skyriss_illusion
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "arcatraz.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -97,9 +99,9 @@ class boss_harbinger_skyriss : public CreatureScript
 
             void Reset() override
             {
-                if (!Intro)
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                _Reset();
 
+                me->SetImmuneToAll(!Intro);
                 Initialize();
             }
 
@@ -111,7 +113,7 @@ class boss_harbinger_skyriss : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void JustDied(Unit* /*killer*/) override
             {
@@ -130,6 +132,9 @@ class boss_harbinger_skyriss : public CreatureScript
                 if (me->GetVictim())
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         summon->AI()->AttackStart(target);
+
+                summons.Summon(summon);
+                summon->SetImmuneToAll(false);
             }
 
             void KilledUnit(Unit* victim) override
@@ -181,7 +186,7 @@ class boss_harbinger_skyriss : public CreatureScript
                             Intro_Timer = 3000;
                             break;
                         case 3:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->SetImmuneToAll(false);
                             Intro = true;
                             break;
                         }
@@ -285,15 +290,16 @@ class boss_harbinger_skyriss_illusion : public CreatureScript
 
             void Reset() override
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetImmuneToPC(false);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_harbinger_skyriss_illusionAI(creature);
+            return GetArcatrazAI<boss_harbinger_skyriss_illusionAI>(creature);
         }
 };
 
@@ -302,4 +308,3 @@ void AddSC_boss_harbinger_skyriss()
     new boss_harbinger_skyriss();
     new boss_harbinger_skyriss_illusion();
 }
-

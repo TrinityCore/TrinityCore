@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,12 +21,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "CombatAI.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 
 enum DeathKnightSpells
 {
@@ -56,7 +56,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 std::list<Unit*> targets;
                 Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
                 Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(30.0f, searcher);
+                Cell::VisitAllObjects(me, searcher, 30.0f);
                 for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
                     if ((*iter)->HasAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))
                     {
@@ -97,7 +97,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 float x = me->GetPositionX() + 20 * std::cos(me->GetOrientation());
                 float y = me->GetPositionY() + 20 * std::sin(me->GetOrientation());
                 float z = me->GetPositionZ() + 40;
-                me->GetMotionMaster()->Clear(false);
+                me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MovePoint(0, x, y, z);
 
                 // Despawn as soon as possible
@@ -137,8 +137,31 @@ class npc_pet_dk_guardian : public CreatureScript
         }
 };
 
+class spell_pet_dk_gargoyle_strike : public SpellScript
+{
+    PrepareSpellScript(spell_pet_dk_gargoyle_strike);
+
+    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+    {
+        int32 damage = 60;
+        if (Unit* caster = GetCaster())
+        {
+            if (caster->getLevel() >= 60)
+                damage += (caster->getLevel() - 60) * 4;
+        }
+
+        SetHitDamage(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pet_dk_gargoyle_strike::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_deathknight_pet_scripts()
 {
     new npc_pet_dk_ebon_gargoyle();
     new npc_pet_dk_guardian();
+    RegisterSpellScript(spell_pet_dk_gargoyle_strike);
 }

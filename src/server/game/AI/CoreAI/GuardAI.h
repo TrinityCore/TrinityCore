@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,11 +28,11 @@ class TC_GAME_API GuardAI : public ScriptedAI
     public:
         explicit GuardAI(Creature* creature);
 
-        static int Permissible(Creature const* creature);
+        static int32 Permissible(Creature const* creature);
+        void UpdateAI(uint32 diff) override;
         bool CanSeeAlways(WorldObject const* obj) override;
 
         void EnterEvadeMode(EvadeReason /*why*/) override;
         void JustDied(Unit* killer) override;
 };
 #endif
-

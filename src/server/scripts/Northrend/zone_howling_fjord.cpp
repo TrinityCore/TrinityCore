@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,17 +23,18 @@ SDCategory: howling_fjord
 EndScriptData */
 
 /* ContentData
-npc_plaguehound_tracker
 npc_apothecary_hanes
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
 /*######
 ## npc_apothecary_hanes
@@ -41,12 +42,11 @@ EndContentData */
 enum Entries
 {
     NPC_APOTHECARY_HANES = 23784,
-    FACTION_ESCORTEE_H   = 775,
     QUEST_TRAIL_OF_FIRE  = 11241,
 
     SPELL_HEALING_POTION = 17534,
     SPELL_BURN           = 42685,
-    
+
     EVENT_EMOTE_BEG    = 1,
     EVENT_BEGIN        = 2,
     EVENT_START_ESCORT = 3,
@@ -79,26 +79,17 @@ class npc_apothecary_hanes : public CreatureScript
 public:
     npc_apothecary_hanes() : CreatureScript("npc_apothecary_hanes") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    struct npc_Apothecary_HanesAI : public EscortAI
     {
-        if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
-        {
-            ENSURE_AI(npc_Apothecary_HanesAI, (creature->AI()))->StartEscort(player);
-        }
-        return true;
-    }
-
-    struct npc_Apothecary_HanesAI : public npc_escortAI
-    {
-        npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature)
+        npc_Apothecary_HanesAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
 
         void StartEscort(Player* player)
         {
-            events.ScheduleEvent(EVENT_BEGIN, Seconds(2));
-            events.ScheduleEvent(EVENT_START_ESCORT, Seconds(6));
+            events.ScheduleEvent(EVENT_BEGIN, 2s);
+            events.ScheduleEvent(EVENT_START_ESCORT, 6s);
             _player = player->GetGUID();
         }
 
@@ -106,7 +97,7 @@ public:
         {
             PotTimer = 10000; //10 sec cooldown on potion
             events.Reset();
-            events.ScheduleEvent(EVENT_EMOTE_BEG, Seconds(2));
+            events.ScheduleEvent(EVENT_EMOTE_BEG, 2s);
             me->SetStandState(UNIT_STAND_STATE_KNEEL);
             _player = ObjectGuid();
         }
@@ -138,10 +129,10 @@ public:
                 } else PotTimer -= diff;
             }
 
-            if (GetAttack() && UpdateVictim())
+            if (IsActiveAttacker() && UpdateVictim())
                 DoMeleeAttackIfReady();
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (me->IsInCombat())
                 return;
@@ -154,7 +145,7 @@ public:
                 {
                     case EVENT_EMOTE_BEG:
                         me->HandleEmoteCommand(EMOTE_ONESHOT_BEG);
-                        events.ScheduleEvent(EVENT_EMOTE_BEG, Seconds(25));
+                        events.ScheduleEvent(EVENT_EMOTE_BEG, 25s);
                         break;
                     case EVENT_BEGIN:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
@@ -162,9 +153,9 @@ public:
                         break;
                     case EVENT_START_ESCORT:
                         events.Reset();
-                        me->setFaction(FACTION_ESCORTEE_H);
+                        me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        ENSURE_AI(npc_escortAI, (me->AI()))->Start(true, true, _player);
+                        ENSURE_AI(EscortAI, (me->AI()))->Start(true, true, _player);
                         break;
                     case EVENT_TALK_1:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
@@ -210,7 +201,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -220,12 +211,12 @@ public:
             {
                 case 1:
                     events.ScheduleEvent(EVENT_TALK_1, Seconds(3));
-                    events.ScheduleEvent(EVENT_KNEEL, Seconds(5));
+                    events.ScheduleEvent(EVENT_KNEEL, 5s);
                     events.ScheduleEvent(EVENT_TALK_2, Seconds(6));
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     break;
                 case 12:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, Seconds(1));
+                    events.ScheduleEvent(EVENT_BURN_CRATES, 1s);
                     events.ScheduleEvent(EVENT_TALK_3, Seconds(3));
                     break;
                 case 20:
@@ -237,75 +228,32 @@ public:
                     break;
                 case 28:
                     events.ScheduleEvent(EVENT_BURN_CRATES, 0);
-                    events.ScheduleEvent(EVENT_LAUGH, Seconds(7));
+                    events.ScheduleEvent(EVENT_LAUGH, 7s);
                     events.ScheduleEvent(EVENT_TALK_5, Seconds(9));
                     events.ScheduleEvent(EVENT_TALK_6, Seconds(17));
                     break;
                 case 35:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                        Talk(TALK_7, player);
+                    if (Player* pl = ObjectAccessor::GetPlayer(*me, _player))
+                        Talk(TALK_7, pl);
                     break;
                 case 40:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                        player->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
+                    if (Player* pl = ObjectAccessor::GetPlayer(*me, _player))
+                        pl->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
                     events.ScheduleEvent(EVENT_TALK_8, Seconds(4));
                     break;
             }
+        }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
+                StartEscort(player);
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_Apothecary_HanesAI(creature);
-    }
-};
-
-/*######
-## npc_plaguehound_tracker
-######*/
-
-enum Plaguehound
-{
-    QUEST_SNIFF_OUT_ENEMY        = 11253
-};
-
-class npc_plaguehound_tracker : public CreatureScript
-{
-public:
-    npc_plaguehound_tracker() : CreatureScript("npc_plaguehound_tracker") { }
-
-    struct npc_plaguehound_trackerAI : public npc_escortAI
-    {
-        npc_plaguehound_trackerAI(Creature* creature) : npc_escortAI(creature) { }
-
-        void Reset() override
-        {
-            ObjectGuid summonerGUID;
-
-            if (me->IsSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    if (summoner->GetTypeId() == TYPEID_PLAYER)
-                        summonerGUID = summoner->GetGUID();
-
-            if (!summonerGUID)
-                return;
-
-            me->SetWalk(true);
-            Start(false, false, summonerGUID);
-        }
-
-        void WaypointReached(uint32 waypointId) override
-        {
-            if (waypointId != 26)
-                return;
-
-            me->DespawnOrUnsummon();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_plaguehound_trackerAI(creature);
     }
 };
 
@@ -332,50 +280,63 @@ class npc_razael_and_lyana : public CreatureScript
 public:
     npc_razael_and_lyana() : CreatureScript("npc_razael_and_lyana") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    struct npc_razael_and_lyanaAI : public ScriptedAI
     {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+        npc_razael_and_lyanaAI(Creature* creature) : ScriptedAI(creature) { }
 
-        if (player->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
-            switch (creature->GetEntry())
-            {
-                case NPC_RAZAEL:
-                    if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
-                    {
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_RAZAEL_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL1, creature->GetGUID());
-                        return true;
-                    }
-                break;
-                case NPC_LYANA:
-                    if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
-                    {
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_LYANA_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA1, creature->GetGUID());
-                        return true;
-                    }
-                break;
-            }
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        switch (action)
+        bool GossipHello(Player* player) override
         {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL2, creature->GetGUID());
-                player->TalkedToCreature(NPC_RAZAEL, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA2, creature->GetGUID());
-                player->TalkedToCreature(NPC_LYANA, creature->GetGUID());
-                break;
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (player->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
+            {
+                switch (me->GetEntry())
+                {
+                    case NPC_RAZAEL:
+                        if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
+                        {
+                            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_RAZAEL_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                            SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL1, me->GetGUID());
+                            return true;
+                        }
+                        break;
+                    case NPC_LYANA:
+                        if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
+                        {
+                            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_LYANA_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                            SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA1, me->GetGUID());
+                            return true;
+                        }
+                        break;
+                }
+            }
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            return true;
         }
-        return true;
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            switch (action)
+            {
+                case GOSSIP_ACTION_INFO_DEF + 1:
+                    SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL2, me->GetGUID());
+                    player->TalkedToCreature(NPC_RAZAEL, me->GetGUID());
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 2:
+                    SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA2, me->GetGUID());
+                    player->TalkedToCreature(NPC_LYANA, me->GetGUID());
+                    break;
+            }
+            return true;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_razael_and_lyanaAI(creature);
     }
 };
 
@@ -404,17 +365,6 @@ class npc_daegarn : public CreatureScript
 {
 public:
     npc_daegarn() : CreatureScript("npc_daegarn") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_DEFEAT_AT_RING)
-        {
-            if (npc_daegarnAI* pDaegarnAI = CAST_AI(npc_daegarn::npc_daegarnAI, creature->AI()))
-                pDaegarnAI->StartEvent(player->GetGUID());
-        }
-
-        return true;
-    }
 
     /// @todo make prisoners help (unclear if summoned or using npc's from surrounding cages (summon inside small cages?))
     struct npc_daegarnAI : public ScriptedAI
@@ -484,6 +434,12 @@ public:
 
             SummonGladiator(uiEntry);
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_DEFEAT_AT_RING)
+                StartEvent(player->GetGUID());
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -508,7 +464,7 @@ public:
 
         void Reset() override
         {
-            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1000);
+            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -523,7 +479,7 @@ public:
                         if (!me->IsCharmedOwnedByPlayerOrPlayer())
                             me->DespawnOrUnsummon();
                         else
-                            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1000);
+                            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1s);
                         break;
                 }
             }
@@ -556,9 +512,7 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON) || !sSpellMgr->GetSpellInfo(SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE });
             }
 
             void HandleScript(SpellEffIndex /*eff*/)
@@ -587,12 +541,80 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
         }
 };
 
+enum SummonSpells
+{
+    SPELL_SUMMON_BABY_RIVEN_WIDOWS        = 43275,
+    SPELL_SUMMON_DARKCLAW_BAT             = 43276,
+    SPELL_SUMMON_FANGGORE_WORG            = 43277,
+    SPELL_SUMMON_GJALERBRON_RUNECASTER    = 43278,
+    SPELL_SUMMON_GJALERBRON_SLEEPWATCHER  = 43279,
+    SPELL_SUMMON_GJALERBRON_WARRIOR       = 43280,
+    SPELL_SUMMON_PUTRID_HORROR            = 43281,
+    SPELL_SUMMON_WINTERSKORN_BERSERKER    = 43282,
+    SPELL_SUMMON_WINTERSKORN_WOODSMAN     = 43283,
+    SPELL_SUMMON_WINTERSKORN_TRIBESMAN    = 43284,
+    SPELL_SUMMON_WINTERSKORN_ORACLE       = 43285,
+    SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT = 43289,
+    NPC_MIST_WHISPER_SCOUT                = 24211
+};
+
+const uint32 rivenWidowCocoonVictims[11] =
+{
+    SPELL_SUMMON_BABY_RIVEN_WIDOWS,
+    SPELL_SUMMON_DARKCLAW_BAT,
+    SPELL_SUMMON_FANGGORE_WORG,
+    SPELL_SUMMON_GJALERBRON_RUNECASTER,
+    SPELL_SUMMON_GJALERBRON_SLEEPWATCHER,
+    SPELL_SUMMON_GJALERBRON_WARRIOR,
+    SPELL_SUMMON_PUTRID_HORROR,
+    SPELL_SUMMON_WINTERSKORN_BERSERKER,
+    SPELL_SUMMON_WINTERSKORN_WOODSMAN,
+    SPELL_SUMMON_WINTERSKORN_TRIBESMAN,
+    SPELL_SUMMON_WINTERSKORN_ORACLE
+};
+
+class npc_riven_widow_cocoon : public CreatureScript
+{
+public:
+    npc_riven_widow_cocoon() : CreatureScript("npc_riven_widow_cocoon") { }
+
+    struct npc_riven_widow_cocoonAI : public ScriptedAI
+    {
+        npc_riven_widow_cocoonAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
+        void MoveInLineOfSight(Unit* /*who*/) override { }
+
+        void JustDied(Unit* killer) override
+        {
+            if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            Player* player = killer->ToPlayer();
+
+            if (roll_chance_i(20))
+            {
+                player->CastSpell(me, SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT, true);
+                player->KilledMonsterCredit(NPC_MIST_WHISPER_SCOUT);
+            }
+            else
+                player->CastSpell(me, rivenWidowCocoonVictims[urand(0, 10)], true);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_riven_widow_cocoonAI(creature);
+    }
+};
+
 void AddSC_howling_fjord()
 {
     new npc_apothecary_hanes();
-    new npc_plaguehound_tracker();
     new npc_razael_and_lyana();
     new npc_daegarn();
     new npc_mindless_abomination();
     new spell_mindless_abomination_explosion_fx_master();
+    new npc_riven_widow_cocoon();
  }

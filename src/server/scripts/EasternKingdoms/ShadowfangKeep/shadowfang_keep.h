@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,15 +19,25 @@
 #ifndef DEF_SHADOWFANG_H
 #define DEF_SHADOWFANG_H
 
+#include "CreatureAIImpl.h"
+
+#define SFKScriptName "instance_shadowfang_keep"
 #define DataHeader "SK"
 
-enum DataTypes
+enum SKDataTypes
 {
     TYPE_FREE_NPC               = 1,
     TYPE_RETHILGORE             = 2,
     TYPE_FENRUS                 = 3,
-    TYPE_NANDOS                 = 4
+    TYPE_NANDOS                 = 4,
+    BOSS_ARUGAL                 = 5,
+    DATA_APOTHECARY_HUMMEL      = 6
 };
 
-#endif
+template <class AI, class T>
+inline AI* GetShadowfangKeepAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, SFKScriptName);
+}
 
+#endif

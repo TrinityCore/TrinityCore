@@ -131,6 +131,15 @@ WrongPass.BanType = 0
 WrongPass.Logging = 0
 
 #
+#    StrictVersionCheck
+#        Description: Prevent modified clients from connnecting
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+#
+
+StrictVersionCheck = 0
+
+#
 #    BanExpiryCheckInterval
 #        Description: Time (in seconds) between checks for expired bans
 #        Default:     60
@@ -156,6 +165,15 @@ SourceDirectory  = ""
 #        Default:     ""
 
 MySQLExecutable = ""
+
+#
+#    IPLocationFile
+#        Description: The path to your IP2Location database CSV file.
+#        Example:     "C:/Trinity/IP2LOCATION-LITE-DB1.CSV"
+#                     "/home/trinity/IP2LOCATION-LITE-DB1.CSV"
+#        Default:     ""  - (Disabled)
+
+IPLocationFile = ""
 
 #
 ###################################################################################################

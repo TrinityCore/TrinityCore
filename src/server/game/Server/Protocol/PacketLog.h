@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,7 +43,7 @@ class TC_GAME_API PacketLog
         static PacketLog* instance();
 
         void Initialize();
-        bool CanLogPacket() const { return (_file != NULL); }
+        bool CanLogPacket() const { return (_file != nullptr); }
         void LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address const& addr, uint16 port);
 
     private:

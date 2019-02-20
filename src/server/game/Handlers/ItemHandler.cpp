@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,15 +16,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Bag.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "Opcodes.h"
+#include "Item.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "Item.h"
 #include "SpellInfo.h"
+#include "QueryPackets.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
 {
@@ -46,13 +51,13 @@ void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
 
     if (!_player->IsValidPos(srcbag, srcslot, true))
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
         return;
     }
 
     if (!_player->IsValidPos(dstbag, dstslot, false))       // can be autostore pos
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, nullptr, nullptr);
         return;
     }
 
@@ -73,13 +78,13 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPacket& recvData)
 
     if (!_player->IsValidPos(INVENTORY_SLOT_BAG_0, srcslot, true))
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
         return;
     }
 
     if (!_player->IsValidPos(INVENTORY_SLOT_BAG_0, dstslot, true))
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, nullptr, nullptr);
         return;
     }
 
@@ -137,13 +142,13 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
 
     if (!_player->IsValidPos(srcbag, srcslot, true))
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
         return;
     }
 
     if (!_player->IsValidPos(dstbag, dstslot, true))
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, nullptr, nullptr);
         return;
     }
 
@@ -178,7 +183,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recvData)
     InventoryResult msg = _player->CanEquipItem(NULL_SLOT, dest, pSrcItem, !pSrcItem->IsBag());
     if (msg != EQUIP_ERR_OK)
     {
-        _player->SendEquipError(msg, pSrcItem, NULL);
+        _player->SendEquipError(msg, pSrcItem, nullptr);
         return;
     }
 
@@ -201,7 +206,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recvData)
         msg = _player->CanUnequipItem(dest, !pSrcItem->IsBag());
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, pDstItem, NULL);
+            _player->SendEquipError(msg, pDstItem, nullptr);
             return;
         }
 
@@ -253,6 +258,11 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recvData)
             _player->EquipItem(eSrc, pDstItem, true);
 
         _player->AutoUnequipOffhandIfNeed();
+
+        // if inventory item was moved, check if we can remove dependent auras, because they were not removed in Player::RemoveItem (update was set to false)
+        // do this after swaps are done, we pass nullptr because both weapons could be swapped and none of them should be ignored
+        if ((srcbag == INVENTORY_SLOT_BAG_0 && srcslot < INVENTORY_SLOT_BAG_END) || (dstbag == INVENTORY_SLOT_BAG_0 && dstslot < INVENTORY_SLOT_BAG_END))
+            _player->ApplyItemDependentAuras((Item*)nullptr, false);
     }
 }
 
@@ -272,7 +282,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket& recvData)
         InventoryResult msg = _player->CanUnequipItem(pos, false);
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, _player->GetItemByPos(pos), NULL);
+            _player->SendEquipError(msg, _player->GetItemByPos(pos), nullptr);
             return;
         }
     }
@@ -280,13 +290,13 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket& recvData)
     Item* pItem  = _player->GetItemByPos(bag, slot);
     if (!pItem)
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
         return;
     }
 
     if (pItem->GetTemplate()->Flags & ITEM_FLAG_NO_USER_DESTROY)
     {
-        _player->SendEquipError(EQUIP_ERR_CANT_DROP_SOULBOUND, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_CANT_DROP_SOULBOUND, nullptr, nullptr);
         return;
     }
 
@@ -300,162 +310,26 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket& recvData)
 }
 
 // Only _static_ data send in this packet !!!
-void WorldSession::HandleItemQuerySingleOpcode(WorldPacket& recvData)
+void WorldSession::HandleItemQuerySingleOpcode(WorldPackets::Query::QueryItemSingle& query)
 {
-    //TC_LOG_DEBUG("network", "WORLD: CMSG_ITEM_QUERY_SINGLE");
-    uint32 item;
-    recvData >> item;
+    TC_LOG_INFO("network", "STORAGE: Item Query = %u", query.ItemID);
 
-    TC_LOG_INFO("network", "STORAGE: Item Query = %u", item);
-
-    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
-    if (pProto)
+    if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(query.ItemID))
     {
-        std::string Name        = pProto->Name1;
-        std::string Description = pProto->Description;
-
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+            SendPacket(&itemTemplate->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
+        else
         {
-            if (ItemLocale const* il = sObjectMgr->GetItemLocale(pProto->ItemId))
-            {
-                ObjectMgr::GetLocaleString(il->Name, loc_idx, Name);
-                ObjectMgr::GetLocaleString(il->Description, loc_idx, Description);
-            }
+            WorldPacket response = itemTemplate->BuildQueryData(GetSessionDbLocaleIndex());
+            SendPacket(&response);
         }
-                                                            // guess size
-        WorldPacket data(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 600);
-        data << pProto->ItemId;
-        data << pProto->Class;
-        data << pProto->SubClass;
-        data << pProto->SoundOverrideSubclass;
-        data << Name;
-        data << uint8(0x00);                                //pProto->Name2; // blizz not send name there, just uint8(0x00); <-- \0 = empty string = empty name...
-        data << uint8(0x00);                                //pProto->Name3; // blizz not send name there, just uint8(0x00);
-        data << uint8(0x00);                                //pProto->Name4; // blizz not send name there, just uint8(0x00);
-        data << pProto->DisplayInfoID;
-        data << pProto->Quality;
-        data << pProto->Flags;
-        data << pProto->Flags2;
-        data << pProto->BuyPrice;
-        data << pProto->SellPrice;
-        data << pProto->InventoryType;
-        data << pProto->AllowableClass;
-        data << pProto->AllowableRace;
-        data << pProto->ItemLevel;
-        data << pProto->RequiredLevel;
-        data << pProto->RequiredSkill;
-        data << pProto->RequiredSkillRank;
-        data << pProto->RequiredSpell;
-        data << pProto->RequiredHonorRank;
-        data << pProto->RequiredCityRank;
-        data << pProto->RequiredReputationFaction;
-        data << pProto->RequiredReputationRank;
-        data << int32(pProto->MaxCount);
-        data << int32(pProto->Stackable);
-        data << pProto->ContainerSlots;
-        data << pProto->StatsCount;                         // item stats count
-        for (uint32 i = 0; i < pProto->StatsCount; ++i)
-        {
-            data << pProto->ItemStat[i].ItemStatType;
-            data << pProto->ItemStat[i].ItemStatValue;
-        }
-        data << pProto->ScalingStatDistribution;            // scaling stats distribution
-        data << pProto->ScalingStatValue;                   // some kind of flags used to determine stat values column
-        for (int i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
-        {
-            data << pProto->Damage[i].DamageMin;
-            data << pProto->Damage[i].DamageMax;
-            data << pProto->Damage[i].DamageType;
-        }
-
-        // resistances (7)
-        data << pProto->Armor;
-        data << pProto->HolyRes;
-        data << pProto->FireRes;
-        data << pProto->NatureRes;
-        data << pProto->FrostRes;
-        data << pProto->ShadowRes;
-        data << pProto->ArcaneRes;
-
-        data << pProto->Delay;
-        data << pProto->AmmoType;
-        data << pProto->RangedModRange;
-
-        for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
-        {
-            // send DBC data for cooldowns in same way as it used in Spell::SendSpellCooldown
-            // use `item_template` or if not set then only use spell cooldowns
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(pProto->Spells[s].SpellId);
-            if (spell)
-            {
-                bool db_data = pProto->Spells[s].SpellCooldown >= 0 || pProto->Spells[s].SpellCategoryCooldown >= 0;
-
-                data << pProto->Spells[s].SpellId;
-                data << pProto->Spells[s].SpellTrigger;
-                data << uint32(-abs(pProto->Spells[s].SpellCharges));
-
-                if (db_data)
-                {
-                    data << uint32(pProto->Spells[s].SpellCooldown);
-                    data << uint32(pProto->Spells[s].SpellCategory);
-                    data << uint32(pProto->Spells[s].SpellCategoryCooldown);
-                }
-                else
-                {
-                    data << uint32(spell->RecoveryTime);
-                    data << uint32(spell->GetCategory());
-                    data << uint32(spell->CategoryRecoveryTime);
-                }
-            }
-            else
-            {
-                data << uint32(0);
-                data << uint32(0);
-                data << uint32(0);
-                data << uint32(-1);
-                data << uint32(0);
-                data << uint32(-1);
-            }
-        }
-        data << pProto->Bonding;
-        data << Description;
-        data << pProto->PageText;
-        data << pProto->LanguageID;
-        data << pProto->PageMaterial;
-        data << pProto->StartQuest;
-        data << pProto->LockID;
-        data << int32(pProto->Material);
-        data << pProto->Sheath;
-        data << pProto->RandomProperty;
-        data << pProto->RandomSuffix;
-        data << pProto->Block;
-        data << pProto->ItemSet;
-        data << pProto->MaxDurability;
-        data << pProto->Area;
-        data << pProto->Map;                                // Added in 1.12.x & 2.0.1 client branch
-        data << pProto->BagFamily;
-        data << pProto->TotemCategory;
-        for (int s = 0; s < MAX_ITEM_PROTO_SOCKETS; ++s)
-        {
-            data << pProto->Socket[s].Color;
-            data << pProto->Socket[s].Content;
-        }
-        data << pProto->socketBonus;
-        data << pProto->GemProperties;
-        data << pProto->RequiredDisenchantSkill;
-        data << pProto->ArmorDamageModifier;
-        data << pProto->Duration;                           // added in 2.4.2.8209, duration (seconds)
-        data << pProto->ItemLimitCategory;                  // WotLK, ItemLimitCategory
-        data << pProto->HolidayId;                          // Holiday.dbc?
-        SendPacket(&data);
     }
     else
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_ITEM_QUERY_SINGLE - NO item INFO! (ENTRY: %u)", item);
-        WorldPacket data(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 4);
-        data << uint32(item | 0x80000000);
-        SendPacket(&data);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_ITEM_QUERY_SINGLE - NO item INFO! (ENTRY: %u)", query.ItemID);
+        WorldPackets::Query::QueryItemSingleResponse response;
+        response.ItemID = query.ItemID;
+        SendPacket(response.Write());
     }
 }
 
@@ -483,13 +357,13 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
         {
             data.Initialize(SMSG_READ_ITEM_FAILED, 8);
             TC_LOG_INFO("network", "STORAGE: Unable to read item");
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, pItem, nullptr);
         }
         data << pItem->GetGUID();
         SendPacket(&data);
     }
     else
-        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
 }
 
 void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
@@ -507,7 +381,13 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
     if (!creature)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleSellItemOpcode - %s not found or you can not interact with him.", vendorguid.ToString().c_str());
-        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, itemguid, 0);
+        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, itemguid, 0);
+        return;
+    }
+
+    if ((creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SELL_VENDOR) != 0)
+    {
+        _player->SendSellError(SELL_ERR_CANT_SELL_TO_THIS_MERCHANT, creature, itemguid, 0);
         return;
     }
 
@@ -587,7 +467,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
                 {
                     _player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
                     _player->RemoveItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
-                    pItem->RemoveFromUpdateQueueOf(_player);
+                    RemoveItemFromUpdateQueueOf(pItem, _player);
                     _player->AddItemToBuyBackSlot(pItem);
                 }
 
@@ -616,7 +496,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
     if (!creature)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleBuybackItem - Unit (%s) not found or you can not interact with him.", vendorguid.ToString().c_str());
-        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, ObjectGuid::Empty, 0);
+        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, ObjectGuid::Empty, 0);
         return;
     }
 
@@ -645,7 +525,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
             _player->StoreItem(dest, pItem, true);
         }
         else
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, pItem, nullptr);
         return;
     }
     else
@@ -732,7 +612,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
     if (!vendor)
     {
         TC_LOG_DEBUG("network", "WORLD: SendListInventory - %s not found or you can not interact with him.", vendorGuid.ToString().c_str());
-        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, ObjectGuid::Empty, 0);
+        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, ObjectGuid::Empty, 0);
         return;
     }
 
@@ -741,8 +621,8 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    if (vendor->HasUnitState(UNIT_STATE_MOVING))
-        vendor->StopMoving();
+    vendor->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
+    vendor->SetHomePosition(vendor->GetPosition());
 
     VendorItemData const* items = vendor->GetVendorItems();
     if (!items)
@@ -833,7 +713,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
 
     if (!_player->IsValidPos(dstbag, NULL_SLOT, false))      // can be autostore pos
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, nullptr, nullptr);
         return;
     }
 
@@ -845,7 +725,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
         InventoryResult msg = _player->CanUnequipItem(src, !_player->IsBagPos (src));
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, pItem, nullptr);
             return;
         }
     }
@@ -854,7 +734,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
     InventoryResult msg = _player->CanStoreItem(dstbag, NULL_SLOT, dest, pItem, false);
     if (msg != EQUIP_ERR_OK)
     {
-        _player->SendEquipError(msg, pItem, NULL);
+        _player->SendEquipError(msg, pItem, nullptr);
         return;
     }
 
@@ -862,7 +742,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
     if (dest.size() == 1 && dest[0].pos == src)
     {
         // just remove grey item state
-        _player->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
+        _player->SendEquipError(EQUIP_ERR_NONE, pItem, nullptr);
         return;
     }
 
@@ -941,13 +821,13 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
     InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
     if (msg != EQUIP_ERR_OK)
     {
-        _player->SendEquipError(msg, pItem, NULL);
+        _player->SendEquipError(msg, pItem, nullptr);
         return;
     }
 
     if (dest.size() == 1 && dest[0].pos == pItem->GetPos())
     {
-        _player->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
+        _player->SendEquipError(EQUIP_ERR_NONE, pItem, nullptr);
         return;
     }
 
@@ -980,7 +860,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
         InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, pItem, nullptr);
             return;
         }
 
@@ -994,7 +874,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
         InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, pItem, NULL);
+            _player->SendEquipError(msg, pItem, nullptr);
             return;
         }
 
@@ -1007,7 +887,7 @@ void WorldSession::HandleSetAmmoOpcode(WorldPacket& recvData)
 {
     if (!_player->IsAlive())
     {
-        _player->SendEquipError(EQUIP_ERR_YOU_ARE_DEAD, NULL, NULL);
+        _player->SendEquipError(EQUIP_ERR_YOU_ARE_DEAD, nullptr, nullptr);
         return;
     }
 
@@ -1020,7 +900,7 @@ void WorldSession::HandleSetAmmoOpcode(WorldPacket& recvData)
     {
         if (!_player->GetItemCount(item))
         {
-            _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+            _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
             return;
         }
 
@@ -1062,10 +942,10 @@ void WorldSession::HandleItemNameQueryOpcode(WorldPacket& recvData)
     if (pName)
     {
         std::string Name = pName->name;
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+        if (localeConstant != LOCALE_enUS)
             if (ItemSetNameLocale const* isnl = sObjectMgr->GetItemSetNameLocale(itemid))
-                ObjectMgr::GetLocaleString(isnl->Name, loc_idx, Name);
+                ObjectMgr::GetLocaleString(isnl->Name, localeConstant, Name);
 
         WorldPacket data(SMSG_ITEM_NAME_QUERY_RESPONSE, (4+Name.size()+1+4));
         data << uint32(itemid);
@@ -1089,13 +969,13 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
     Item* gift = _player->GetItemByPos(gift_bag, gift_slot);
     if (!gift)
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, gift, NULL);
+        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, gift, nullptr);
         return;
     }
 
     if (!(gift->GetTemplate()->Flags & ITEM_FLAG_IS_WRAPPER)) // cheating: non-wrapper wrapper
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, gift, NULL);
+        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, gift, nullptr);
         return;
     }
 
@@ -1103,50 +983,50 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 
     if (!item)
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, nullptr);
         return;
     }
 
     if (item == gift)                                          // not possable with pacjket from real client
     {
-        _player->SendEquipError(EQUIP_ERR_WRAPPED_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_WRAPPED_CANT_BE_WRAPPED, item, nullptr);
         return;
     }
 
     if (item->IsEquipped())
     {
-        _player->SendEquipError(EQUIP_ERR_EQUIPPED_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_EQUIPPED_CANT_BE_WRAPPED, item, nullptr);
         return;
     }
 
     if (!item->GetGuidValue(ITEM_FIELD_GIFTCREATOR).IsEmpty())      // HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED);
     {
-        _player->SendEquipError(EQUIP_ERR_WRAPPED_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_WRAPPED_CANT_BE_WRAPPED, item, nullptr);
         return;
     }
 
     if (item->IsBag())
     {
-        _player->SendEquipError(EQUIP_ERR_BAGS_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_BAGS_CANT_BE_WRAPPED, item, nullptr);
         return;
     }
 
     if (item->IsSoulBound())
     {
-        _player->SendEquipError(EQUIP_ERR_BOUND_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_BOUND_CANT_BE_WRAPPED, item, nullptr);
         return;
     }
 
     if (item->GetMaxStackCount() != 1)
     {
-        _player->SendEquipError(EQUIP_ERR_STACKABLE_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_STACKABLE_CANT_BE_WRAPPED, item, nullptr);
         return;
     }
 
     // maybe not correct check  (it is better than nothing)
     if (item->GetTemplate()->MaxCount>0)
     {
-        _player->SendEquipError(EQUIP_ERR_UNIQUE_CANT_BE_WRAPPED, item, NULL);
+        _player->SendEquipError(EQUIP_ERR_UNIQUE_CANT_BE_WRAPPED, item, nullptr);
         return;
     }
 
@@ -1177,7 +1057,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
     if (item->GetState() == ITEM_NEW)                          // save new item, to have alway for `character_gifts` record in `item_instance`
     {
         // after save it will be impossible to remove the item from the queue
-        item->RemoveFromUpdateQueueOf(_player);
+        RemoveItemFromUpdateQueueOf(item, _player);
         item->SaveToDB(trans);                                   // item gave inventory record unchanged and can be save standalone
     }
     CharacterDatabase.CommitTransaction(trans);
@@ -1218,11 +1098,11 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 
     Item* Gems[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        Gems[i] = gem_guids[i] ? _player->GetItemByGuid(gem_guids[i]) : NULL;
+        Gems[i] = gem_guids[i] ? _player->GetItemByGuid(gem_guids[i]) : nullptr;
 
     GemPropertiesEntry const* GemProps[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get geminfo from dbc storage
-        GemProps[i] = (Gems[i]) ? sGemPropertiesStore.LookupEntry(Gems[i]->GetTemplate()->GemProperties) : NULL;
+        GemProps[i] = (Gems[i]) ? sGemPropertiesStore.LookupEntry(Gems[i]->GetTemplate()->GemProperties) : nullptr;
 
     // Find first prismatic socket
     int32 firstPrismatic = 0;
@@ -1283,7 +1163,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
                 {
                     if (iGemProto->ItemId == Gems[j]->GetEntry())
                     {
-                        _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
+                        _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, nullptr);
                         return;
                     }
                 }
@@ -1293,7 +1173,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
                     {
                         if (iGemProto->ItemId == enchantEntry->GemID)
                         {
-                            _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
+                            _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, nullptr);
                             return;
                         }
                     }
@@ -1328,7 +1208,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 
                 if (limit_newcount > 0 && uint32(limit_newcount) > limitEntry->maxCount)
                 {
-                    _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, NULL);
+                    _player->SendEquipError(EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED, itemTarget, nullptr);
                     return;
                 }
             }
@@ -1339,7 +1219,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
         {
             if (InventoryResult res = _player->CanEquipUniqueItem(Gems[i], slot, std::max(limit_newcount, 0)))
             {
-                _player->SendEquipError(res, itemTarget, NULL);
+                _player->SendEquipError(res, itemTarget, nullptr);
                 return;
             }
         }

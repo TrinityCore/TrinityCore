@@ -18,6 +18,7 @@
 #include <efsw/FileSystem.hpp>
 #include <efsw/System.hpp>
 #include <efsw/Debug.hpp>
+#include <efsw/Lock.hpp>
 
 #define BUFF_SIZE ((sizeof(struct inotify_event)+FILENAME_MAX)*1024)
 
@@ -145,9 +146,10 @@ WatchID FileWatcherInotify::addWatch( const std::string& directory, FileWatchLis
 	pWatch->Recursive	= recursive;
 	pWatch->Parent		= parent;
 
-	mWatchesLock.lock();
-	mWatches.insert(std::make_pair(wd, pWatch));
-	mWatchesLock.unlock();
+	{
+		Lock lock( mWatchesLock );
+		mWatches.insert(std::make_pair(wd, pWatch));
+	}
 
 	if ( NULL == pWatch->Parent )
 	{
@@ -228,7 +230,7 @@ void FileWatcherInotify::removeWatchLocked(WatchID watchid)
 
 void FileWatcherInotify::removeWatch(const std::string& directory)
 {
-	mWatchesLock.lock();
+	Lock lock( mWatchesLock );
 
 	WatchMap::iterator iter = mWatches.begin();
 
@@ -285,26 +287,20 @@ void FileWatcherInotify::removeWatch(const std::string& directory)
 			break;
 		}
 	}
-
-	mWatchesLock.unlock();
 }
 
 void FileWatcherInotify::removeWatch( WatchID watchid )
 {
-	mWatchesLock.lock();
+	Lock lock( mWatchesLock );
 
 	WatchMap::iterator iter = mWatches.find( watchid );
 
 	if( iter == mWatches.end() )
 	{
-		mWatchesLock.unlock();
-
 		return;
 	}
 
 	removeWatchLocked( watchid );
-
-	mWatchesLock.unlock();
 }
 
 void FileWatcherInotify::watch()
@@ -343,22 +339,22 @@ void FileWatcherInotify::run()
 				{
 					struct inotify_event *pevent = (struct inotify_event *)&buff[i];
 
-					mWatchesLock.lock();
-
-					wit = mWatches.find( pevent->wd );
-
-					if ( wit != mWatches.end() )
 					{
-						handleAction(wit->second, pevent->name, pevent->mask);
+						Lock lock( mWatchesLock );
 
-						/// Keep track of the IN_MOVED_FROM events to known if the IN_MOVED_TO event is also fired
-						if ( !wit->second->OldFileName.empty() )
+						wit = mWatches.find( pevent->wd );
+
+						if ( wit != mWatches.end() )
 						{
-							movedOutsideWatches.push_back( wit->second );
+							handleAction(wit->second, pevent->name, pevent->mask);
+
+							/// Keep track of the IN_MOVED_FROM events to known if the IN_MOVED_TO event is also fired
+							if ( !wit->second->OldFileName.empty() )
+							{
+								movedOutsideWatches.push_back( wit->second );
+							}
 						}
 					}
-
-					mWatchesLock.unlock();
 
 					i += sizeof(struct inotify_event) + pevent->len;
 				}
@@ -496,7 +492,7 @@ std::list<std::string> FileWatcherInotify::directories()
 {
 	std::list<std::string> dirs;
 
-	mWatchesLock.lock();
+	Lock lock( mWatchesLock );
 
 	WatchMap::iterator it = mRealWatches.begin();
 
@@ -504,8 +500,6 @@ std::list<std::string> FileWatcherInotify::directories()
 	{
 		dirs.push_back( it->second->Directory );
 	}
-
-	mWatchesLock.unlock();
 
 	return dirs;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,14 +18,14 @@
 #ifndef RUBY_SANCTUM_H_
 #define RUBY_SANCTUM_H_
 
+#include "CreatureAIImpl.h"
+
 #define RSScriptName "instance_ruby_sanctum"
 #define DataHeader "RS"
 
 uint32 const EncounterCount = 4;
 
-Position const HalionControllerSpawnPos = {3156.037f, 533.2656f, 72.97205f, 0.0f};
-
-enum DataTypes
+enum RSDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_BALTHARUS_THE_WARBORN              = 0,
@@ -49,17 +49,19 @@ enum DataTypes
     DATA_BURNING_TREE_4                     = 16,
     DATA_FLAME_RING                         = 17,
     DATA_TWILIGHT_FLAME_RING                = 18,
+    DATA_BALTHARUS_CLONE                    = 19,
+    DATA_FLAME_WALLS                        = 20
 };
 
-enum SharedActions
+enum RSSharedActions
 {
     ACTION_INTRO_BALTHARUS                  = -3975101,
     ACTION_BALTHARUS_DEATH                  = -3975102,
     ACTION_INTRO_HALION                     = -4014601,
-    ACTION_INTRO_HALION_2                   = -4014602,
+    ACTION_INTRO_HALION_2                   = -4014602
 };
 
-enum CreaturesIds
+enum RSCreaturesIds
 {
     // Baltharus the Warborn
     NPC_BALTHARUS_THE_WARBORN               = 39751,
@@ -97,10 +99,10 @@ enum CreaturesIds
     NPC_COMBAT_STALKER                      = 40151, // Seen in sniffs but not used, so no wonder.
 
     // Xerestrasza
-    NPC_XERESTRASZA                         = 40429,
+    NPC_XERESTRASZA                         = 40429
 };
 
-enum GameObjectsIds
+enum RSGameObjectsIds
 {
     GO_HALION_PORTAL_1                      = 202794,   // Unknown spell 75074, should be somehow be linked to 74807
     GO_HALION_PORTAL_2                      = 202795,   // Also spell 75074
@@ -112,40 +114,25 @@ enum GameObjectsIds
     GO_BURNING_TREE_1                       = 203034,
     GO_BURNING_TREE_2                       = 203035,
     GO_BURNING_TREE_3                       = 203036,
-    GO_BURNING_TREE_4                       = 203037,
+    GO_BURNING_TREE_4                       = 203037
 };
 
-enum WorldStatesRS
+enum RSWorldStatesRS
 {
     WORLDSTATE_CORPOREALITY_MATERIAL = 5049,
     WORLDSTATE_CORPOREALITY_TWILIGHT = 5050,
-    WORLDSTATE_CORPOREALITY_TOGGLE   = 5051,
+    WORLDSTATE_CORPOREALITY_TOGGLE   = 5051
 };
 
-enum InstanceSpell
+enum RSInstanceSpell
 {
-    SPELL_BERSERK                       = 26662,
+    SPELL_BERSERK                       = 26662
 };
 
-template<class AI>
-CreatureAI* GetRubySanctumAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetRubySanctumAI(T* obj)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(RSScriptName))
-                return new AI(creature);
-    return NULL;
-}
-
-template<class AI>
-GameObjectAI* GetRubySanctumAI(GameObject* go)
-{
-    if (InstanceMap* instance = go->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(RSScriptName))
-                return new AI(go);
-
-    return NULL;
+    return GetInstanceAI<AI>(obj, RSScriptName);
 }
 
 #endif // RUBY_SANCTUM_H_

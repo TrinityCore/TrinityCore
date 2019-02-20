@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,20 +22,28 @@
 #include "MovementGenerator.h"
 #include "Timer.h"
 
+class PathGenerator;
+
 template<class T>
-class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMovementGenerator<T> >
+class ConfusedMovementGenerator : public MovementGeneratorMedium<T, ConfusedMovementGenerator<T>>
 {
     public:
-        explicit ConfusedMovementGenerator() : i_nextMoveTime(0), i_x(0), i_y(0), i_z(0) { }
+        explicit ConfusedMovementGenerator();
+
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
         void DoInitialize(T*);
-        void DoFinalize(T*);
         void DoReset(T*);
         bool DoUpdate(T*, uint32);
+        void DoDeactivate(T*);
+        void DoFinalize(T*, bool, bool);
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return CONFUSED_MOTION_TYPE; }
+        void UnitSpeedChanged() override { ConfusedMovementGenerator<T>::AddFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING); }
+
     private:
-        TimeTracker i_nextMoveTime;
-        float i_x, i_y, i_z;
+        std::unique_ptr<PathGenerator> _path;
+        TimeTracker _timer;
+        float _x, _y, _z;
 };
+
 #endif

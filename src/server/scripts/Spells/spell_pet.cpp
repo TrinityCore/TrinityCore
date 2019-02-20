@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,11 +22,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Unit.h"
-#include "Player.h"
+#include "ObjectMgr.h"
 #include "Pet.h"
+#include "Player.h"
+#include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
+#include "Unit.h"
 
 enum HunterPetCalculate
 {
@@ -304,8 +306,8 @@ public:
 
                 if (Unit* owner = pet->ToPet()->GetOwner())
                 {
-                    int32 fire  = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
-                    int32 shadow = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
+                    int32 fire  = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
+                    int32 shadow = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
                     int32 maximum  = (fire > shadow) ? fire : shadow;
                     if (maximum < 0)
                         maximum = 0;
@@ -318,7 +320,7 @@ public:
                     {
                         if (AuraEffect* /* aurEff */ect = owner->GetAuraEffect(56246, EFFECT_0))
                         {
-                            float base_attPower = pet->GetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE) * pet->GetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_PCT);
+                            float base_attPower = pet->GetFlatModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE) * pet->GetPctModifierValue(UNIT_MOD_ATTACK_POWER, BASE_PCT);
                             amount += CalculatePct(amount+base_attPower, /* aurEff */ect->GetAmount());
                         }
                     }
@@ -332,8 +334,8 @@ public:
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         //the damage bonus used for pets is either fire or shadow damage, whatever is higher
-                        int32 fire  = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
-                        int32 shadow = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
+                        int32 fire  = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
+                        int32 shadow = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
                         int32 maximum  = (fire > shadow) ? fire : shadow;
                         float bonusDamage = 0.0f;
 
@@ -1497,13 +1499,6 @@ public:
     {
         PrepareAuraScript(spell_dk_pet_scaling_01_AuraScript);
 
-    public:
-        spell_dk_pet_scaling_01_AuraScript()
-        {
-            _tempHealth = 0;
-        }
-
-    private:
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1563,7 +1558,7 @@ public:
                 float mod = 0.7f;
 
                 // Ravenous Dead
-                AuraEffect const* aurEff = NULL;
+                AuraEffect const* aurEff = nullptr;
                 // Check just if owner has Ravenous Dead since it's effect is not an aura
                 aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
                 if (aurEff)
@@ -1587,8 +1582,7 @@ public:
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_pet_scaling_01_AuraScript::CalculateStrengthAmount, EFFECT_1, SPELL_AURA_MOD_STAT);
         }
 
-    private:
-        uint32 _tempHealth;
+        uint32 _tempHealth = 0;
     };
 
     AuraScript* GetAuraScript() const override
@@ -1730,7 +1724,8 @@ public:
                 if (pet->IsGuardian())
                     ((Guardian*)pet)->SetBonusDamage(owner->GetTotalAttackPowerValue(BASE_ATTACK));
 
-                amount += owner->CalculateDamage(BASE_ATTACK, true, true);
+                for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+                    amount += owner->CalculateDamage(BASE_ATTACK, true, true, i);
             }
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "culling_of_stratholme.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -254,101 +258,9 @@ class npc_arthas : public CreatureScript
 public:
     npc_arthas() : CreatureScript("npc_arthas") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    struct npc_arthasAI : public EscortAI
     {
-        ClearGossipMenuFor(player);
-        npc_arthasAI* ai = CAST_AI(npc_arthas::npc_arthasAI, creature->AI());
-
-        if (!ai)
-            return false;
-
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF:
-                ai->Start(true, true, player->GetGUID(), 0, false, false);
-                ai->SetDespawnAtEnd(false);
-                ai->bStepping = false;
-                ai->step = 1;
-                break;
-            case GOSSIP_ACTION_INFO_DEF+1:
-                ai->bStepping = true;
-                ai->step = 24;
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                ai->SetHoldState(false);
-                ai->bStepping = false;
-                ai->step = 61;
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                ai->SetHoldState(false);
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                ai->bStepping = true;
-                ai->step = 84;
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                ai->bStepping = true;
-                ai->step = 85;
-                break;
-        }
-        CloseGossipMenuFor(player);
-        ai->SetDespawnAtFar(false);
-        creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        npc_arthasAI* ai = CAST_AI(npc_arthas::npc_arthasAI, creature->AI());
-
-        if (ai && ai->bStepping == false)
-        {
-            switch (ai->gossipStep)
-            {
-                case 0: //This one is a workaround since the very beggining of the script is wrong.
-                {
-                    QuestStatus status = player->GetQuestStatus(13149);
-                    if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
-                        return false;
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                    SendGossipMenuFor(player, 907, creature->GetGUID());
-                    break;
-                }
-                case 1:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                    SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_1, creature->GetGUID());
-                    break;
-                case 2:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                    SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_2, creature->GetGUID());
-                    break;
-                case 3:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                    SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_3, creature->GetGUID());
-                    break;
-                case 4:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                    SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_4, creature->GetGUID());
-                    break;
-                case 5:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-                    SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_5, creature->GetGUID());
-                    break;
-                default:
-                    return false;
-            }
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_arthasAI>(creature);
-    }
-
-    struct npc_arthasAI : public npc_escortAI
-    {
-        npc_arthasAI(Creature* creature) : npc_escortAI(creature)
+        npc_arthasAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
             instance = creature->GetInstanceScript();
@@ -423,11 +335,11 @@ public:
 
         void AttackStart(Unit* who) override
         {
-            if (who && !who->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
-                npc_escortAI::AttackStart(who);
+            if (who && !who->IsImmuneToPC())
+                EscortAI::AttackStart(who);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCast(me, SPELL_ARTHAS_AURA);
         }
@@ -447,7 +359,7 @@ public:
                 if (Creature* temp = me->SummonCreature((uint32)RiftAndSpawnsLocations[i][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
                 {
                     guidVector[i-timeRiftID-1] = temp->GetGUID();
-                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                    temp->SetImmuneToAll(true);
                     temp->SetReactState(REACT_PASSIVE);
                     temp->GetMotionMaster()->MovePoint(0, RiftAndSpawnsLocations[i][1], RiftAndSpawnsLocations[i][2], RiftAndSpawnsLocations[i][3]);
                     if ((uint32)RiftAndSpawnsLocations[i][0] == NPC_EPOCH)
@@ -479,7 +391,7 @@ public:
             ++step;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -599,7 +511,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (bStepping)
             {
@@ -989,7 +901,7 @@ public:
                                 }
                             }
                             else if (instance->GetBossState(bossEvent) == FAIL)
-                                npc_escortAI::EnterEvadeMode();
+                                EscortAI::EnterEvadeMode();
                             else
                                 phaseTimer = 10000;
                             break;
@@ -1039,7 +951,7 @@ public:
                             {
                                 disguised2->UpdateEntry(NPC_INFINITE_HUNTER);
                                 //Make them unattackable
-                                disguised2->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                disguised2->SetImmuneToAll(true);
                                 disguised2->SetReactState(REACT_PASSIVE);
                             }
                             JumpToNextStep(2000);
@@ -1049,7 +961,7 @@ public:
                             {
                                 disguised1->UpdateEntry(NPC_INFINITE_AGENT);
                                 //Make them unattackable
-                                disguised1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                disguised1->SetImmuneToAll(true);
                                 disguised1->SetReactState(REACT_PASSIVE);
                             }
                             JumpToNextStep(2000);
@@ -1059,7 +971,7 @@ public:
                             {
                                 disguised0->UpdateEntry(NPC_INFINITE_ADVERSARY);
                                 //Make them unattackable
-                                disguised0->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                disguised0->SetImmuneToAll(true);
                                 disguised0->SetReactState(REACT_PASSIVE);
                             }
                             JumpToNextStep(2000);
@@ -1073,7 +985,7 @@ public:
                             for (uint32 i = 0; i< ENCOUNTER_DRACONIAN_NUMBER; ++i)
                                 if (Creature* temp = ObjectAccessor::GetCreature(*me, infiniteDraconianGUID[i]))
                                 {
-                                    temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                    temp->SetImmuneToAll(false);
                                     temp->SetReactState(REACT_AGGRESSIVE);
                                 }
                             JumpToNextStep(5000);
@@ -1131,7 +1043,7 @@ public:
                                 if (Creature* epoch = ObjectAccessor::GetCreature(*me, epochGUID))
                                 {
                                     //Make Epoch attackable
-                                    epoch->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                    epoch->SetImmuneToAll(false);
                                     epoch->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                     epoch->SetReactState(REACT_AGGRESSIVE);
                                 }
@@ -1149,7 +1061,7 @@ public:
                                 JumpToNextStep(15000);
                             }
                             else if (instance->GetBossState(DATA_EPOCH) == FAIL)
-                                npc_escortAI::EnterEvadeMode();
+                                EscortAI::EnterEvadeMode();
                             else
                                 phaseTimer = 10000;
                             break;
@@ -1194,7 +1106,7 @@ public:
                                 JumpToNextStep(1000);
                             }
                             else if (instance->GetBossState(DATA_MAL_GANIS) == FAIL)
-                                npc_escortAI::EnterEvadeMode();
+                                EscortAI::EnterEvadeMode();
                             else
                                 phaseTimer = 10000;
                             break;
@@ -1231,8 +1143,93 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            switch (action)
+            {
+                case GOSSIP_ACTION_INFO_DEF:
+                    Start(true, true, player->GetGUID(), 0, false, false);
+                    SetDespawnAtEnd(false);
+                    bStepping = false;
+                    step = 1;
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 1:
+                    bStepping = true;
+                    step = 24;
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 2:
+                    SetHoldState(false);
+                    bStepping = false;
+                    step = 61;
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 3:
+                    SetHoldState(false);
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 4:
+                    bStepping = true;
+                    step = 84;
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 5:
+                    bStepping = true;
+                    step = 85;
+                    break;
+            }
+            CloseGossipMenuFor(player);
+            SetDespawnAtFar(false);
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (!bStepping)
+            {
+                switch (gossipStep)
+                {
+                    case 0: //This one is a workaround since the very beggining of the script is wrong.
+                    {
+                        QuestStatus status = player->GetQuestStatus(13149);
+                        if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
+                            return true;
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                        SendGossipMenuFor(player, 907, me->GetGUID());
+                        break;
+                    }
+                    case 1:
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_1, me->GetGUID());
+                        break;
+                    case 2:
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_2, me->GetGUID());
+                        break;
+                    case 3:
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                        SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_3, me->GetGUID());
+                        break;
+                    case 4:
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                        SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_4, me->GetGUID());
+                        break;
+                    case 5:
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                        SendGossipMenuFor(player, GOSSIP_MENU_ARTHAS_5, me->GetGUID());
+                        break;
+                    default:
+                        return false;
+                }
+            }
+            return true;
+        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetCullingOfStratholmeAI<npc_arthasAI>(creature);
+    }
 };
 
 class npc_crate_helper : public CreatureScript
@@ -1256,7 +1253,7 @@ class npc_crate_helper : public CreatureScript
                         instance->SetData(DATA_CRATE_COUNT, instance->GetData(DATA_CRATE_COUNT) + 1);
                     if (GameObject* crate = me->FindNearestGameObject(GO_SUSPICIOUS_CRATE, 5.0f))
                     {
-                        crate->SummonGameObject(GO_PLAGUED_CRATE, *crate, G3D::Quat(), DAY);
+                        crate->SummonGameObject(GO_PLAGUED_CRATE, *crate, QuaternionData(), DAY);
                         crate->Delete();
                     }
                 }
@@ -1268,7 +1265,7 @@ class npc_crate_helper : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_crate_helperAI(creature);
+            return GetCullingOfStratholmeAI<npc_crate_helperAI>(creature);
         }
 };
 

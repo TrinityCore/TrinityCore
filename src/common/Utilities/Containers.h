@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,43 +20,106 @@
 
 #include "Define.h"
 #include "Random.h"
-#include "Util.h"
 #include <algorithm>
-#include <functional>
-#include <list>
+#include <exception>
+#include <iterator>
+#include <utility>
 #include <vector>
 
 namespace Trinity
 {
+    template<class T>
+    constexpr inline T* AddressOrSelf(T* ptr)
+    {
+        return ptr;
+    }
+
+    template<class T>
+    constexpr inline T* AddressOrSelf(T& not_ptr)
+    {
+        return std::addressof(not_ptr);
+    }
+
+    template <class T>
+    class CheckedBufferOutputIterator
+    {
+        public:
+            using iterator_category = std::output_iterator_tag;
+            using value_type = void;
+            using pointer = T*;
+            using reference = T&;
+            using difference_type = std::ptrdiff_t;
+
+            CheckedBufferOutputIterator(T* buf, size_t n) : _buf(buf), _end(buf+n) {}
+
+            T& operator*() const { check(); return *_buf; }
+            CheckedBufferOutputIterator& operator++() { check(); ++_buf; return *this; }
+            CheckedBufferOutputIterator operator++(int) { CheckedBufferOutputIterator v = *this; operator++(); return v; }
+
+            size_t remaining() const { return (_end - _buf); }
+
+        private:
+            T* _buf;
+            T* _end;
+            void check() const
+            {
+                if (!(_buf < _end))
+                    throw std::out_of_range("index");
+            }
+    };
+
     namespace Containers
     {
-        template<class T>
-        void RandomResizeList(std::list<T>& list, uint32 size)
+        // replace with std::size in C++17
+        template<class C>
+        constexpr inline std::size_t Size(C const& container)
         {
-            uint32 list_size = uint32(list.size());
-
-            while (list_size > size)
-            {
-                typename std::list<T>::iterator itr = list.begin();
-                std::advance(itr, urand(0, list_size - 1));
-                list.erase(itr);
-                --list_size;
-            }
+            return container.size();
         }
 
-        template<class T, class Predicate>
-        void RandomResizeList(std::list<T> &list, Predicate& predicate, uint32 size)
+        template<class T, std::size_t size>
+        constexpr inline std::size_t Size(T const(&)[size]) noexcept
+        {
+            return size;
+        }
+
+        // resizes <container> to have at most <requestedSize> elements
+        // if it has more than <requestedSize> elements, the elements to keep are selected randomly
+        template<class C>
+        void RandomResize(C& container, std::size_t requestedSize)
+        {
+            static_assert(std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<typename C::iterator>::iterator_category>::value, "Invalid container passed to Trinity::Containers::RandomResize");
+            if (Size(container) <= requestedSize)
+                return;
+            auto keepIt = std::begin(container), curIt = std::begin(container);
+            uint32 elementsToKeep = requestedSize, elementsToProcess = Size(container);
+            while (elementsToProcess)
+            {
+                // this element has chance (elementsToKeep / elementsToProcess) of being kept
+                if (urand(1, elementsToProcess) <= elementsToKeep)
+                {
+                    if (keepIt != curIt)
+                        *keepIt = std::move(*curIt);
+                    ++keepIt;
+                    --elementsToKeep;
+                }
+                ++curIt;
+                --elementsToProcess;
+            }
+            container.erase(keepIt, std::end(container));
+        }
+
+        template<class C, class Predicate>
+        void RandomResize(C& container, Predicate&& predicate, std::size_t requestedSize)
         {
             //! First use predicate filter
-            std::list<T> listCopy;
-            for (typename std::list<T>::iterator itr = list.begin(); itr != list.end(); ++itr)
-                if (predicate(*itr))
-                    listCopy.push_back(*itr);
+            C containerCopy;
+            std::copy_if(std::begin(container), std::end(container), std::inserter(containerCopy, std::end(containerCopy)), predicate);
 
-            if (size)
-                RandomResizeList(listCopy, size);
+            if (requestedSize)
+                RandomResize(containerCopy, requestedSize);
 
-            list = std::move(listCopy);
+            container = std::move(containerCopy);
         }
 
         /*
@@ -64,11 +127,11 @@ namespace Trinity
          *
          * Note: container cannot be empty
          */
-        template <class C>
-        typename C::value_type const& SelectRandomContainerElement(C const& container)
+        template<class C>
+        inline auto SelectRandomContainerElement(C const& container) -> typename std::add_const<decltype(*std::begin(container))>::type&
         {
-            typename C::const_iterator it = container.begin();
-            std::advance(it, urand(0, uint32(container.size()) - 1));
+            auto it = std::begin(container);
+            std::advance(it, urand(0, uint32(Size(container)) - 1));
             return *it;
         }
 
@@ -81,13 +144,11 @@ namespace Trinity
          *
          * Note: container cannot be empty
          */
-        template <class C>
-        typename C::const_iterator SelectRandomWeightedContainerElement(C const& container, std::vector<double> weights)
+        template<class C>
+        inline auto SelectRandomWeightedContainerElement(C const& container, std::vector<double> weights) -> decltype(std::begin(container))
         {
-            Trinity::discrete_distribution_param<uint32> ddParam(weights.begin(), weights.end());
-            std::discrete_distribution<uint32> dd(ddParam);
-            typename C::const_iterator it = container.begin();
-            std::advance(it, dd(SFMTEngine::Instance()));
+            auto it = std::begin(container);
+            std::advance(it, urandweighted(weights.size(), weights.data()));
             return it;
         }
 
@@ -99,20 +160,20 @@ namespace Trinity
          *
          * Note: container cannot be empty
          */
-        template <class C, class Fn>
-        typename C::const_iterator SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor)
+        template<class C, class Fn>
+        auto SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor) -> decltype(std::begin(container))
         {
             std::vector<double> weights;
-            weights.reserve(container.size());
+            weights.reserve(Size(container));
             double weightSum = 0.0;
-            for (auto itr = container.begin(); itr != container.end(); ++itr)
+            for (auto& val : container)
             {
-                double weight = weightExtractor(*itr);
+                double weight = weightExtractor(val);
                 weights.push_back(weight);
                 weightSum += weight;
             }
             if (weightSum <= 0.0)
-                weights.assign(container.size(), 1.0);
+                weights.assign(Size(container), 1.0);
 
             return SelectRandomWeightedContainerElement(container, weights);
         }
@@ -124,23 +185,23 @@ namespace Trinity
          *
          * @param container Container to reorder
          */
-        template <class C>
-        void RandomShuffle(C& container)
+        template<class C>
+        inline void RandomShuffle(C& container)
         {
-            std::shuffle(container.begin(), container.end(), SFMTEngine::Instance());
+            std::shuffle(std::begin(container), std::end(container), SFMTEngine::Instance());
         }
 
         /**
-        * @fn bool Trinity::Containers::Intersects(Iterator first1, Iterator last1, Iterator first2, Iterator last2)
-        *
-        * @brief Checks if two SORTED containers have a common element
-        *
-        * @param first1 Iterator pointing to start of the first container
-        * @param last1 Iterator pointing to end of the first container
-        * @param first2 Iterator pointing to start of the second container
-        * @param last2 Iterator pointing to end of the second container
-        *
-        * @return true if containers have a common element, false otherwise.
+         * @fn bool Trinity::Containers::Intersects(Iterator first1, Iterator last1, Iterator first2, Iterator last2)
+         *
+         * @brief Checks if two SORTED containers have a common element
+         *
+         * @param first1 Iterator pointing to start of the first container
+         * @param last1 Iterator pointing to end of the first container
+         * @param first2 Iterator pointing to start of the second container
+         * @param last2 Iterator pointing to end of the second container
+         *
+         * @return true if containers have a common element, false otherwise.
         */
         template<class Iterator1, class Iterator2>
         bool Intersects(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2)
@@ -156,6 +217,16 @@ namespace Trinity
             }
 
             return false;
+        }
+
+        /**
+         * Returns a pointer to mapped value (or the value itself if map stores pointers)
+         */
+        template<class M>
+        inline auto MapGetValuePtr(M& map, typename M::key_type const& key) -> decltype(AddressOrSelf(map.find(key)->second))
+        {
+            auto itr = map.find(key);
+            return itr != map.end() ? AddressOrSelf(itr->second) : nullptr;
         }
 
         template<class K, class V, template<class, class, class...> class M, class... Rest>

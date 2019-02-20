@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 enum Emotes
 {
     EMOTE_BERSERK           = 0,
-    EMOTE_LEAP              = 1 // Not in use
+    EMOTE_LEAP              = 1
 };
 
 enum Spells
@@ -76,14 +76,14 @@ class boss_archavon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
-                events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
-                events.ScheduleEvent(EVENT_STOMP, 45000);
-                events.ScheduleEvent(EVENT_BERSERK, 300000);
+                events.ScheduleEvent(EVENT_ROCK_SHARDS, 15s);
+                events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30s);
+                events.ScheduleEvent(EVENT_STOMP, 45s);
+                events.ScheduleEvent(EVENT_BERSERK, 5min);
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             // Below UpdateAI may need review/debug.
@@ -104,18 +104,20 @@ class boss_archavon : public CreatureScript
                         case EVENT_ROCK_SHARDS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_ROCK_SHARDS);
-                            events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
+                            events.ScheduleEvent(EVENT_ROCK_SHARDS, 15s);
                             break;
                         case EVENT_CHOKING_CLOUD:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -10.0f, true))
+                            {
                                 DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
-                            events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
+                                Talk(EMOTE_LEAP, target);
+                            }
+                            events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30s);
                             break;
                         case EVENT_STOMP:
                             DoCastVictim(SPELL_STOMP);
-                            events.ScheduleEvent(EVENT_IMPALE, 3000);
-                            events.ScheduleEvent(EVENT_STOMP, 45000);
-                            Talk(EMOTE_LEAP, me->GetVictim());
+                            events.ScheduleEvent(EVENT_IMPALE, 3s);
+                            events.ScheduleEvent(EVENT_STOMP, 45s);
                             break;
                         case EVENT_IMPALE:
                             DoCastVictim(SPELL_IMPALE);
@@ -138,7 +140,7 @@ class boss_archavon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_archavonAI(creature);
+            return GetVaultOfArchavonAI<boss_archavonAI>(creature);
         }
 };
 
@@ -161,12 +163,12 @@ class npc_archavon_warder : public CreatureScript
             void Reset() override
             {
                 events.Reset();
-                events.ScheduleEvent(EVENT_ROCK_SHOWER, 2000);
-                events.ScheduleEvent(EVENT_SHIELD_CRUSH, 20000);
-                events.ScheduleEvent(EVENT_WHIRL, 7500);
+                events.ScheduleEvent(EVENT_ROCK_SHOWER, 2s);
+                events.ScheduleEvent(EVENT_SHIELD_CRUSH, 20s);
+                events.ScheduleEvent(EVENT_WHIRL, 7s);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }
@@ -188,15 +190,15 @@ class npc_archavon_warder : public CreatureScript
                         case EVENT_ROCK_SHOWER:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_ROCK_SHOWER);
-                            events.ScheduleEvent(EVENT_ROCK_SHARDS, 6000);
+                            events.ScheduleEvent(EVENT_ROCK_SHARDS, 6s);
                             break;
                         case EVENT_SHIELD_CRUSH:
                             DoCastVictim(SPELL_SHIELD_CRUSH);
-                            events.ScheduleEvent(EVENT_SHIELD_CRUSH, 20000);
+                            events.ScheduleEvent(EVENT_SHIELD_CRUSH, 20s);
                             break;
                         case EVENT_WHIRL:
                             DoCastVictim(SPELL_WHIRL);
-                            events.ScheduleEvent(EVENT_WHIRL, 8000);
+                            events.ScheduleEvent(EVENT_WHIRL, 8s);
                             break;
                         default:
                             break;
@@ -212,7 +214,7 @@ class npc_archavon_warder : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_archavon_warderAI(creature);
+            return GetVaultOfArchavonAI<npc_archavon_warderAI>(creature);
         }
 };
 
@@ -228,12 +230,13 @@ class spell_archavon_rock_shards : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROCK_SHARDS_VISUAL_L)
-                    || !sSpellMgr->GetSpellInfo(SPELL_ROCK_SHARDS_VISUAL_R)
-                    || !sSpellMgr->GetSpellInfo(SPELL_ROCK_SHARDS_DAMAGE_L)
-                    || !sSpellMgr->GetSpellInfo(SPELL_ROCK_SHARDS_DAMAGE_R))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_ROCK_SHARDS_VISUAL_L,
+                    SPELL_ROCK_SHARDS_VISUAL_R,
+                    SPELL_ROCK_SHARDS_DAMAGE_L,
+                    SPELL_ROCK_SHARDS_DAMAGE_R
+                });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -242,12 +245,12 @@ class spell_archavon_rock_shards : public SpellScriptLoader
 
                 for (uint8 i = 0; i < 3; ++i)
                 {
-                    caster->CastSpell((Unit*)NULL, SPELL_ROCK_SHARDS_VISUAL_L, true);
-                    caster->CastSpell((Unit*)NULL, SPELL_ROCK_SHARDS_VISUAL_R, true);
+                    caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_VISUAL_L, true);
+                    caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_VISUAL_R, true);
                 }
 
-                caster->CastSpell((Unit*)NULL, SPELL_ROCK_SHARDS_DAMAGE_L, true);
-                caster->CastSpell((Unit*)NULL, SPELL_ROCK_SHARDS_DAMAGE_R, true);
+                caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_DAMAGE_L, true);
+                caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_DAMAGE_R, true);
             }
 
             void Register() override

@@ -1,5 +1,5 @@
- /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+/*
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,11 +24,11 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "zulaman.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
 
 enum Yells
 {
@@ -83,15 +83,11 @@ float NalorakkWay[8][3] =
 class boss_nalorakk : public CreatureScript
 {
     public:
+        boss_nalorakk() : CreatureScript("boss_nalorakk") { }
 
-        boss_nalorakk()
-            : CreatureScript("boss_nalorakk")
+        struct boss_nalorakkAI : public BossAI
         {
-        }
-
-        struct boss_nalorakkAI : public ScriptedAI
-        {
-            boss_nalorakkAI(Creature* creature) : ScriptedAI(creature)
+            boss_nalorakkAI(Creature* creature) : BossAI(creature, BOSS_NALORAKK)
             {
                 Initialize();
                 inMove = false;
@@ -101,7 +97,6 @@ class boss_nalorakk : public CreatureScript
                 LaceratingSlash_Timer = 0;
                 RendFlesh_Timer = 0;
                 DeafeningRoar_Timer = 0;
-                instance = creature->GetInstanceScript();
             }
 
             void Initialize()
@@ -114,8 +109,6 @@ class boss_nalorakk : public CreatureScript
 
                 inBearForm = false;
             }
-
-            InstanceScript* instance;
 
             uint32 BrutalSwipe_Timer;
             uint32 Mangle_Timer;
@@ -136,6 +129,8 @@ class boss_nalorakk : public CreatureScript
 
             void Reset() override
             {
+                _Reset();
+
                 if (MoveEvent)
                 {
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -144,62 +139,42 @@ class boss_nalorakk : public CreatureScript
                     waitTimer = 0;
                     me->SetSpeedRate(MOVE_RUN, 2);
                     me->SetWalk(false);
-                }else
-                {
-                    (*me).GetMotionMaster()->MovePoint(0, NalorakkWay[7][0], NalorakkWay[7][1], NalorakkWay[7][2]);
                 }
-
-                instance->SetData(DATA_NALORAKKEVENT, NOT_STARTED);
+                else
+                    me->GetMotionMaster()->MovePoint(0, NalorakkWay[7][0], NalorakkWay[7][1], NalorakkWay[7][2]);
 
                 Initialize();
                 // me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);  /// @todo find the correct equipment id
             }
 
-            void SendAttacker(Unit* target)
+            void SendAttacker(Unit* target) const
             {
-                std::list<Creature*> templist;
-                float x, y, z;
-                me->GetPosition(x, y, z);
+                std::vector<Creature*> tempList;
 
-                {
-                    CellCoord pair(Trinity::ComputeCellCoord(x, y));
-                    Cell cell(pair);
-                    cell.SetNoCreate();
+                Trinity::AllFriendlyCreaturesInGrid check(me);
+                Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(me, tempList, check);
+                Cell::VisitGridObjects(me, searcher, 25.0f);
 
-                    Trinity::AllFriendlyCreaturesInGrid check(me);
-                    Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(me, templist, check);
-
-                    TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
-
-                    cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
-                }
-
-                if (templist.empty())
+                if (tempList.empty())
                     return;
 
-                for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
+                for (Creature* creature : tempList)
                 {
-                    if ((*i) && me->IsWithinDistInMap((*i), 25))
-                    {
-                        (*i)->SetNoCallAssistance(true);
-                        (*i)->AI()->AttackStart(target);
-                    }
+                    creature->SetNoCallAssistance(true);
+                    creature->AI()->AttackStart(target);
                 }
             }
 
             void AttackStart(Unit* who) override
             {
                 if (!MoveEvent)
-                    ScriptedAI::AttackStart(who);
+                    BossAI::AttackStart(who);
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (!MoveEvent)
-                {
-                    ScriptedAI::MoveInLineOfSight(who);
-                }
+                    BossAI::MoveInLineOfSight(who);
                 else
                 {
                     if (me->IsHostileTo(who))
@@ -213,8 +188,8 @@ class boss_nalorakk : public CreatureScript
                                     {
                                         Talk(YELL_NALORAKK_WAVE1);
 
-                                        (*me).GetMotionMaster()->MovePoint(1, NalorakkWay[1][0], NalorakkWay[1][1], NalorakkWay[1][2]);
-                                        MovePhase ++;
+                                        me->GetMotionMaster()->MovePoint(1, NalorakkWay[1][0], NalorakkWay[1][1], NalorakkWay[1][2]);
+                                        ++MovePhase;
                                         inMove = true;
 
                                         SendAttacker(who);
@@ -225,8 +200,8 @@ class boss_nalorakk : public CreatureScript
                                     {
                                         Talk(YELL_NALORAKK_WAVE2);
 
-                                        (*me).GetMotionMaster()->MovePoint(3, NalorakkWay[3][0], NalorakkWay[3][1], NalorakkWay[3][2]);
-                                        MovePhase ++;
+                                        me->GetMotionMaster()->MovePoint(3, NalorakkWay[3][0], NalorakkWay[3][1], NalorakkWay[3][2]);
+                                        ++MovePhase;
                                         inMove = true;
 
                                         SendAttacker(who);
@@ -237,8 +212,8 @@ class boss_nalorakk : public CreatureScript
                                     {
                                         Talk(YELL_NALORAKK_WAVE3);
 
-                                        (*me).GetMotionMaster()->MovePoint(6, NalorakkWay[6][0], NalorakkWay[6][1], NalorakkWay[6][2]);
-                                        MovePhase ++;
+                                        me->GetMotionMaster()->MovePoint(6, NalorakkWay[6][0], NalorakkWay[6][1], NalorakkWay[6][2]);
+                                        ++MovePhase;
                                         inMove = true;
 
                                         SendAttacker(who);
@@ -263,17 +238,16 @@ class boss_nalorakk : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                instance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);
+                _JustEngagedWith();
 
                 Talk(YELL_AGGRO);
-                DoZoneInCombat();
             }
 
             void JustDied(Unit* /*killer*/) override
             {
-                instance->SetData(DATA_NALORAKKEVENT, DONE);
+                _JustDied();
 
                 Talk(YELL_DEATH);
             }
@@ -314,7 +288,7 @@ class boss_nalorakk : public CreatureScript
                         case 3:
                         case 4:
                         case 6:
-                            MovePhase ++;
+                            ++MovePhase;
                             waitTimer = 1;
                             inMove = true;
                             return;
@@ -337,10 +311,12 @@ class boss_nalorakk : public CreatureScript
                 {
                     if (waitTimer <= diff)
                     {
-                        (*me).GetMotionMaster()->MovementExpired();
-                        (*me).GetMotionMaster()->MovePoint(MovePhase, NalorakkWay[MovePhase][0], NalorakkWay[MovePhase][1], NalorakkWay[MovePhase][2]);
+                        me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
+                        me->GetMotionMaster()->MovePoint(MovePhase, NalorakkWay[MovePhase][0], NalorakkWay[MovePhase][1], NalorakkWay[MovePhase][2]);
                         waitTimer = 0;
-                    } else waitTimer -= diff;
+                    }
+                    else
+                        waitTimer -= diff;
                 }
 
                 if (!UpdateVictim())
@@ -351,7 +327,9 @@ class boss_nalorakk : public CreatureScript
                     DoCast(me, SPELL_BERSERK, true);
                     Talk(YELL_BERSERK);
                     Berserk_Timer = 600000;
-                } else Berserk_Timer -= diff;
+                }
+                else
+                    Berserk_Timer -= diff;
 
                 if (ShapeShift_Timer <= diff)
                 {
@@ -377,7 +355,9 @@ class boss_nalorakk : public CreatureScript
                         ShapeShift_Timer = urand(20000, 25000); // dur 30s
                         inBearForm = true;
                     }
-                } else ShapeShift_Timer -= diff;
+                }
+                else
+                    ShapeShift_Timer -= diff;
 
                 if (!inBearForm)
                 {
@@ -385,7 +365,9 @@ class boss_nalorakk : public CreatureScript
                     {
                         DoCastVictim(SPELL_BRUTALSWIPE);
                         BrutalSwipe_Timer = urand(7000, 12000);
-                    } else BrutalSwipe_Timer -= diff;
+                    }
+                    else
+                        BrutalSwipe_Timer -= diff;
 
                     if (Mangle_Timer <= diff)
                     {
@@ -395,7 +377,9 @@ class boss_nalorakk : public CreatureScript
                             Mangle_Timer = 1000;
                         }
                         else Mangle_Timer = urand(10000, 15000);
-                    } else Mangle_Timer -= diff;
+                    }
+                    else
+                        Mangle_Timer -= diff;
 
                     if (Surge_Timer <= diff)
                     {
@@ -404,7 +388,9 @@ class boss_nalorakk : public CreatureScript
                         if (target)
                             DoCast(target, SPELL_SURGE);
                         Surge_Timer = urand(15000, 20000);
-                    } else Surge_Timer -= diff;
+                    }
+                    else
+                        Surge_Timer -= diff;
                 }
                 else
                 {
@@ -412,19 +398,25 @@ class boss_nalorakk : public CreatureScript
                     {
                         DoCastVictim(SPELL_LACERATINGSLASH);
                         LaceratingSlash_Timer = urand(18000, 23000);
-                    } else LaceratingSlash_Timer -= diff;
+                    }
+                    else
+                        LaceratingSlash_Timer -= diff;
 
                     if (RendFlesh_Timer <= diff)
                     {
                         DoCastVictim(SPELL_RENDFLESH);
                         RendFlesh_Timer = urand(5000, 10000);
-                    } else RendFlesh_Timer -= diff;
+                    }
+                    else
+                        RendFlesh_Timer -= diff;
 
                     if (DeafeningRoar_Timer <= diff)
                     {
                         DoCastVictim(SPELL_DEAFENINGROAR);
                         DeafeningRoar_Timer = urand(15000, 20000);
-                    } else DeafeningRoar_Timer -= diff;
+                    }
+                    else
+                        DeafeningRoar_Timer -= diff;
                 }
 
                 DoMeleeAttackIfReady();
@@ -433,7 +425,7 @@ class boss_nalorakk : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_nalorakkAI>(creature);
+            return GetZulAmanAI<boss_nalorakkAI>(creature);
         }
 };
 
@@ -441,4 +433,3 @@ void AddSC_boss_nalorakk()
 {
     new boss_nalorakk();
 }
-

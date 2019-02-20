@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,10 +19,9 @@
 #ifndef TRINITY_DISABLEMGR_H
 #define TRINITY_DISABLEMGR_H
 
-#include "VMapManager2.h"
 #include "Define.h"
 
-class Unit;
+class WorldObject;
 
 enum DisableType
 {
@@ -33,21 +32,23 @@ enum DisableType
     DISABLE_TYPE_ACHIEVEMENT_CRITERIA   = 4,
     DISABLE_TYPE_OUTDOORPVP             = 5,
     DISABLE_TYPE_VMAP                   = 6,
-    DISABLE_TYPE_MMAP                   = 7
+    DISABLE_TYPE_MMAP                   = 7,
+    DISABLE_TYPE_LFG_MAP                = 8
 };
 
 enum SpellDisableTypes
 {
-    SPELL_DISABLE_PLAYER            = 0x1,
-    SPELL_DISABLE_CREATURE          = 0x2,
-    SPELL_DISABLE_PET               = 0x4,
-    SPELL_DISABLE_DEPRECATED_SPELL  = 0x8,
+    SPELL_DISABLE_PLAYER            = 0x01,
+    SPELL_DISABLE_CREATURE          = 0x02,
+    SPELL_DISABLE_PET               = 0x04,
+    SPELL_DISABLE_DEPRECATED_SPELL  = 0x08,
     SPELL_DISABLE_MAP               = 0x10,
     SPELL_DISABLE_AREA              = 0x20,
     SPELL_DISABLE_LOS               = 0x40,
+    SPELL_DISABLE_GAMEOBJECT        = 0x80,
     MAX_SPELL_DISABLE_TYPE = (  SPELL_DISABLE_PLAYER | SPELL_DISABLE_CREATURE | SPELL_DISABLE_PET |
                                 SPELL_DISABLE_DEPRECATED_SPELL | SPELL_DISABLE_MAP | SPELL_DISABLE_AREA |
-                                SPELL_DISABLE_LOS)
+                                SPELL_DISABLE_LOS | SPELL_DISABLE_GAMEOBJECT )
 };
 
 enum MMapDisableTypes
@@ -58,7 +59,7 @@ enum MMapDisableTypes
 namespace DisableMgr
 {
     TC_GAME_API void LoadDisables();
-    TC_GAME_API bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags = 0);
+    TC_GAME_API bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8 flags = 0);
     TC_GAME_API void CheckQuestDisables();
     TC_GAME_API bool IsVMAPDisabledFor(uint32 entry, uint8 flags);
     TC_GAME_API bool IsPathfindingEnabled(uint32 mapId);

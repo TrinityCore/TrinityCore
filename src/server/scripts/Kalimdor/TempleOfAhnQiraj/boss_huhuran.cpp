@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "temple_of_ahnqiraj.h"
 
 enum Huhuran
 {
@@ -46,12 +47,12 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_huhuranAI(creature);
+        return GetAQ40AI<boss_huhuranAI>(creature);
     }
 
-    struct boss_huhuranAI : public ScriptedAI
+    struct boss_huhuranAI : public BossAI
     {
-        boss_huhuranAI(Creature* creature) : ScriptedAI(creature)
+        boss_huhuranAI(Creature* creature) : BossAI(creature, DATA_HUHURAN)
         {
             Initialize();
         }
@@ -82,10 +83,7 @@ public:
         void Reset() override
         {
             Initialize();
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
+            _Reset();
         }
 
         void UpdateAI(uint32 diff) override

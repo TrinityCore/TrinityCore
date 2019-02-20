@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,11 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "karazhan.h"
+#include "Map.h"
 
 /*
 0  - Attumen + Midnight (optional)
@@ -52,7 +55,7 @@ const Position OptionalSpawn[] =
 class instance_karazhan : public InstanceMapScript
 {
 public:
-    instance_karazhan() : InstanceMapScript("instance_karazhan", 532) { }
+    instance_karazhan() : InstanceMapScript(KZScriptName, 532) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -84,6 +87,11 @@ public:
                     break;
                 case NPC_MOROES:
                     MoroesGUID = creature->GetGUID();
+                    break;
+                case NPC_NIGHTBANE:
+                    NightbaneGUID = creature->GetGUID();
+                    break;
+                default:
                     break;
             }
         }
@@ -156,7 +164,7 @@ public:
                         HandleGameObject(StageDoorRightGUID, true);
                         if (GameObject* sideEntrance = instance->GetGameObject(SideEntranceDoor))
                             sideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
-                        UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, 16812, NULL);
+                        UpdateEncounterStateForKilledCreature(16812, nullptr);
                     }
                     break;
                 case DATA_CHESS:
@@ -224,6 +232,9 @@ public:
                 case GO_DUST_COVERED_CHEST:
                     DustCoveredChest = go->GetGUID();
                     break;
+                case GO_BLACKENED_URN:
+                    BlackenedUrnGUID = go->GetGUID();
+                    break;
             }
 
             switch (OperaEvent)
@@ -263,6 +274,8 @@ public:
                     return TerestianGUID;
                 case DATA_MOROES:
                     return MoroesGUID;
+                case DATA_NIGHTBANE:
+                    return NightbaneGUID;
                 case DATA_GO_STAGEDOORLEFT:
                     return StageDoorLeftGUID;
                 case DATA_GO_STAGEDOORRIGHT:
@@ -287,6 +300,8 @@ public:
                     return MastersTerraceDoor[1];
                 case DATA_IMAGE_OF_MEDIVH:
                     return ImageGUID;
+                case DATA_GO_BLACKENED_URN:
+                    return BlackenedUrnGUID;
             }
 
             return ObjectGuid::Empty;
@@ -302,6 +317,7 @@ public:
         ObjectGuid KilrekGUID;
         ObjectGuid TerestianGUID;
         ObjectGuid MoroesGUID;
+        ObjectGuid NightbaneGUID;
         ObjectGuid LibraryDoor;                 // Door at Shade of Aran
         ObjectGuid MassiveDoor;                 // Door at Netherspite
         ObjectGuid SideEntranceDoor;            // Side Entrance
@@ -311,6 +327,7 @@ public:
         ObjectGuid MastersTerraceDoor[2];
         ObjectGuid ImageGUID;
         ObjectGuid DustCoveredChest;
+        ObjectGuid BlackenedUrnGUID;
     };
 };
 

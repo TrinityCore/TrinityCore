@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "stratholme.h"
 
 enum Spells
 {
@@ -76,7 +77,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_dathrohan_balnazzarAI(creature);
+        return GetStratholmeAI<boss_dathrohan_balnazzarAI>(creature);
     }
 
     struct boss_dathrohan_balnazzarAI : public ScriptedAI
@@ -127,7 +128,7 @@ public:
                 TEMPSUMMON_TIMED_DESPAWN, HOUR*IN_MILLISECONDS);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,7 +22,6 @@
 #include "PetDefines.h"
 #include "TemporarySummon.h"
 
-#define PET_FOCUS_REGEN_INTERVAL 4 * IN_MILLISECONDS
 #define HAPPINESS_LEVEL_SIZE        333000
 
 struct PetSpell
@@ -36,6 +35,7 @@ typedef std::unordered_map<uint32, PetSpell> PetSpellMap;
 typedef std::vector<uint32> AutoSpellList;
 
 class Player;
+class PetAura;
 
 class TC_GAME_API Pet : public Guardian
 {
@@ -120,6 +120,7 @@ class TC_GAME_API Pet : public Guardian
         bool unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         bool removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         void CleanupActionBar();
+        std::string GenerateActionBarData() const;
 
         PetSpellMap     m_spells;
         AutoSpellList   m_autospells;
@@ -145,6 +146,8 @@ class TC_GAME_API Pet : public Guardian
         bool    m_removed;                                  // prevent overwrite pet state in DB at next Pet::Update if pet already removed(saved)
 
         Player* GetOwner() const;
+
+        std::string GetDebugInfo() const override;
 
     protected:
         uint32  m_happinessTimer;

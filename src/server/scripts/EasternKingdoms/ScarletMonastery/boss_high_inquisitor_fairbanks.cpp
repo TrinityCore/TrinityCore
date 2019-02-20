@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,9 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "scarlet_monastery.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -44,7 +45,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_high_inquisitor_fairbanksAI>(creature);
+        return GetScarletMonasteryAI<boss_high_inquisitor_fairbanksAI>(creature);
     }
 
     struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
@@ -79,14 +80,12 @@ public:
         {
             Initialize();
             me->SetStandState(UNIT_STAND_STATE_DEAD);
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 7);
             instance->SetBossState(DATA_HIGH_INQUISITOR_FAIRBANKS, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             instance->SetBossState(DATA_HIGH_INQUISITOR_FAIRBANKS, IN_PROGRESS);
         }
 
@@ -121,7 +120,7 @@ public:
             //Sleep_Timer
             if (Sleep_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
                     DoCast(target, SPELL_SLEEP);
 
                 Sleep_Timer = 30000;

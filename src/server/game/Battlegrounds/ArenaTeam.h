@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -131,7 +131,7 @@ class TC_GAME_API ArenaTeam
         static uint8 GetSlotByType(uint32 type);
         ObjectGuid GetCaptain() const  { return CaptainGuid; }
         std::string const& GetName() const { return TeamName; }
-        const ArenaTeamStats& GetStats() const { return Stats; }
+        ArenaTeamStats const& GetStats() const { return Stats; }
 
         uint32 GetRating() const          { return Stats.Rating; }
         uint32 GetAverageMMR(Group* group) const;
@@ -200,4 +200,3 @@ class TC_GAME_API ArenaTeam
         ArenaTeamStats Stats;
 };
 #endif
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,8 +17,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -41,7 +41,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_shadowvoshAI(creature);
+        return GetBlackrockSpireAI<boss_shadowvoshAI>(creature);
     }
 
     struct boss_shadowvoshAI : public BossAI
@@ -54,12 +54,12 @@ public:
             //DoCast(me, SPELL_ICEARMOR, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 2 * IN_MILLISECONDS);
+            _JustEngagedWith();
+            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 2s);
             events.ScheduleEvent(EVENT_HEX,     8 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLEAVE, 14 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CLEAVE, 14s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -83,16 +83,16 @@ public:
                 {
                     case EVENT_CURSE_OF_BLOOD:
                         DoCastVictim(SPELL_CURSEOFBLOOD);
-                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 45 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 45s);
                         break;
                     case EVENT_HEX:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(target, SPELL_HEX);
-                        events.ScheduleEvent(EVENT_HEX, 15 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_HEX, 15s);
                         break;
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 7 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CLEAVE, 7s);
                         break;
                 }
 

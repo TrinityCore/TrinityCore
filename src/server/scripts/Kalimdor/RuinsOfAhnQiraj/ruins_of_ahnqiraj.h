@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,9 +18,12 @@
 #ifndef DEF_RUINS_OF_AHNQIRAJ_H
 #define DEF_RUINS_OF_AHNQIRAJ_H
 
+#include "CreatureAIImpl.h"
+
+#define AQ20ScriptName "instance_ruins_of_ahnqiraj"
 #define DataHeader "AQR"
 
-enum DataTypes
+enum AQRDataTypes
 {
     DATA_KURINNAXX          = 0,
     DATA_RAJAXX             = 1,
@@ -33,7 +36,7 @@ enum DataTypes
     DATA_PARALYZED          = 7
 };
 
-enum Creatures
+enum AQRCreatures
 {
     NPC_KURINAXX                = 15348,
     NPC_RAJAXX                  = 15341,
@@ -52,9 +55,15 @@ enum Creatures
     NPC_HORNET                  = 15934
 };
 
-enum GameObjects
+enum AQRGameObjectIds
 {
     GO_OSSIRIAN_CRYSTAL         = 180619
 };
+
+template <class AI, class T>
+inline AI* GetAQ20AI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, AQ20ScriptName);
+}
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,20 @@
  */
 
 #include "CalendarMgr.h"
-#include "QueryResult.h"
-#include "Log.h"
-#include "Player.h"
+#include "CharacterCache.h"
+#include "DatabaseEnv.h"
+#include "GameTime.h"
+#include "Guild.h"
 #include "GuildMgr.h"
+#include "Log.h"
+#include "Mail.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
+#include "Player.h"
+#include "WorldPacket.h"
+
+CalendarInvite::CalendarInvite() : _inviteId(1), _eventId(0), _invitee(), _senderGUID(), _statusTime(GameTime::GetGameTime()),
+_status(CALENDAR_STATUS_INVITED), _rank(CALENDAR_RANK_PLAYER), _text("") { }
 
 CalendarInvite::~CalendarInvite()
 {
@@ -53,6 +61,8 @@ CalendarMgr* CalendarMgr::instance()
 
 void CalendarMgr::LoadFromDB()
 {
+    uint32 oldMSTime = getMSTime();
+
     uint32 count = 0;
     _maxEventId = 0;
     _maxInviteId = 0;
@@ -75,7 +85,7 @@ void CalendarMgr::LoadFromDB()
             ObjectGuid::LowType guildId = 0;
 
             if (flags & CALENDAR_FLAG_GUILD_EVENT || flags & CALENDAR_FLAG_WITHOUT_INVITES)
-                guildId = Player::GetGuildIdFromDB(creatorGUID);
+                guildId = sCharacterCache->GetCharacterGuildIdByGuid(creatorGUID);
 
             CalendarEvent* calendarEvent = new CalendarEvent(eventId, creatorGUID, guildId, type, dungeonId, time_t(eventTime), flags, time_t(timezoneTime), title, description);
             _events.insert(calendarEvent);
@@ -86,11 +96,12 @@ void CalendarMgr::LoadFromDB()
         }
         while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u calendar events", count);
+    TC_LOG_INFO("server.loading", ">> Loaded %u calendar events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     count = 0;
+    oldMSTime = getMSTime();
 
-    //                                                       0   1      2        3       4       5           6     7
-    if (QueryResult result = CharacterDatabase.Query("SELECT id, event, invitee, sender, status, statustime, rank, text FROM calendar_invites"))
+    //                                                       0   1      2        3       4       5            6      7
+    if (QueryResult result = CharacterDatabase.Query("SELECT id, event, invitee, sender, status, statustime, `rank`, text FROM calendar_invites"))
         do
         {
             Field* fields = result->Fetch();
@@ -113,7 +124,7 @@ void CalendarMgr::LoadFromDB()
         }
         while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u calendar invites", count);
+    TC_LOG_INFO("server.loading", ">> Loaded %u calendar invites in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     for (uint64 i = 1; i < _maxEventId; ++i)
         if (!GetEvent(i))
@@ -296,7 +307,7 @@ CalendarEvent* CalendarMgr::GetEvent(uint64 eventId) const
             return *itr;
 
     TC_LOG_DEBUG("calendar", "CalendarMgr::GetEvent: [" UI64FMTD "] not found!", eventId);
-    return NULL;
+    return nullptr;
 }
 
 CalendarInvite* CalendarMgr::GetInvite(uint64 inviteId) const
@@ -307,7 +318,7 @@ CalendarInvite* CalendarMgr::GetInvite(uint64 inviteId) const
                 return *itr2;
 
     TC_LOG_DEBUG("calendar", "CalendarMgr::GetInvite: [" UI64FMTD "] not found!", inviteId);
-    return NULL;
+    return nullptr;
 }
 
 void CalendarMgr::FreeEventId(uint64 id)
@@ -432,7 +443,7 @@ void CalendarMgr::SendCalendarEventInvite(CalendarInvite const& invite)
     ObjectGuid invitee = invite.GetInviteeGUID();
     Player* player = ObjectAccessor::FindConnectedPlayer(invitee);
 
-    uint8 level = player ? player->getLevel() : Player::GetLevelFromDB(invitee);
+    uint8 level = player ? player->getLevel() : sCharacterCache->GetCharacterLevelByGuid(invitee);
 
     WorldPacket data(SMSG_CALENDAR_EVENT_INVITE, 8 + 8 + 8 + 1 + 1 + 1 + (statusTime ? 4 : 0) + 1);
     data << invitee.WriteAsPacked();
@@ -578,8 +589,8 @@ void CalendarMgr::SendCalendarEvent(ObjectGuid guid, CalendarEvent const& calend
         ObjectGuid inviteeGuid = calendarInvite->GetInviteeGUID();
         Player* invitee = ObjectAccessor::FindPlayer(inviteeGuid);
 
-        uint8 inviteeLevel = invitee ? invitee->getLevel() : Player::GetLevelFromDB(inviteeGuid);
-        ObjectGuid::LowType inviteeGuildId = invitee ? invitee->GetGuildId() : Player::GetGuildIdFromDB(inviteeGuid);
+        uint8 inviteeLevel = invitee ? invitee->getLevel() : sCharacterCache->GetCharacterLevelByGuid(inviteeGuid);
+        ObjectGuid::LowType inviteeGuildId = invitee ? invitee->GetGuildId() : sCharacterCache->GetCharacterGuildIdByGuid(inviteeGuid);
 
         data << inviteeGuid.WriteAsPacked();
         data << uint8(inviteeLevel);
@@ -617,7 +628,7 @@ void CalendarMgr::SendCalendarClearPendingAction(ObjectGuid guid)
     }
 }
 
-void CalendarMgr::SendCalendarCommandResult(ObjectGuid guid, CalendarError err, char const* param /*= NULL*/)
+void CalendarMgr::SendCalendarCommandResult(ObjectGuid guid, CalendarError err, char const* param /*= nullptr*/)
 {
     if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
     {
@@ -653,6 +664,6 @@ void CalendarMgr::SendPacketToAllEventRelatives(WorldPacket& packet, CalendarEve
     CalendarInviteStore invites = _invites[calendarEvent.GetEventId()];
     for (CalendarInviteStore::iterator itr = invites.begin(); itr != invites.end(); ++itr)
         if (Player* player = ObjectAccessor::FindConnectedPlayer((*itr)->GetInviteeGUID()))
-            if (!calendarEvent.IsGuildEvent() || (calendarEvent.IsGuildEvent() && player->GetGuildId() != calendarEvent.GetGuildId()))
+            if (!calendarEvent.IsGuildEvent() || player->GetGuildId() != calendarEvent.GetGuildId())
                 player->SendDirectMessage(&packet);
 }

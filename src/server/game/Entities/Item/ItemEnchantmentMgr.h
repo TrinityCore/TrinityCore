@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,8 +22,8 @@
 #include "Common.h"
 
 TC_GAME_API void LoadRandomEnchantmentsTable();
+TC_GAME_API int32 GenerateItemRandomPropertyId(uint32 item_id);
 TC_GAME_API uint32 GetItemEnchantMod(int32 entry);
 TC_GAME_API uint32 GenerateEnchSuffixFactor(uint32 item_id);
 
 #endif
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
-#include "SpellScript.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -83,7 +87,7 @@ struct WebTargetSelector : public std::unary_function<Unit*, bool>
     }
 
     private:
-        const Unit* _maexxna;
+        Unit const* _maexxna;
 };
 
 class boss_maexxna : public CreatureScript
@@ -93,21 +97,21 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_maexxnaAI(creature);
+        return GetNaxxramasAI<boss_maexxnaAI>(creature);
     }
 
     struct boss_maexxnaAI : public BossAI
     {
         boss_maexxnaAI(Creature* creature) : BossAI(creature, BOSS_MAEXXNA)  {  }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
-            events.ScheduleEvent(EVENT_WRAP, Seconds(20));
-            events.ScheduleEvent(EVENT_SPRAY, Seconds(40));
+            _JustEngagedWith();
+            events.ScheduleEvent(EVENT_WRAP, 20s);
+            events.ScheduleEvent(EVENT_SPRAY, 40s);
             events.ScheduleEvent(EVENT_SHOCK, randtime(Seconds(5), Seconds(10)));
             events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
-            events.ScheduleEvent(EVENT_SUMMON, Seconds(30));
+            events.ScheduleEvent(EVENT_SUMMON, 30s);
         }
 
         void Reset() override
@@ -135,7 +139,7 @@ public:
                     case EVENT_WRAP:
                     {
                         std::list<Unit*> targets;
-                        SelectTargetList(targets, WebTargetSelector(me), RAID_MODE(1, 2), SELECT_TARGET_RANDOM);
+                        SelectTargetList(targets, RAID_MODE(1, 2), SELECT_TARGET_RANDOM, 1, WebTargetSelector(me));
                         if (!targets.empty())
                         {
                             Talk(EMOTE_WEB_WRAP);
@@ -194,7 +198,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_webwrapAI(creature);
+        return GetNaxxramasAI<npc_webwrapAI>(creature);
     }
 
     struct npc_webwrapAI : public NullCreatureAI
@@ -209,7 +213,7 @@ public:
             me->SetVisible(false);
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*param*/) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
             if (!guid)
                 return;
@@ -217,7 +221,7 @@ public:
             if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
             {
                 visibleTimer = (me->GetDistance2d(victim)/WEB_WRAP_MOVE_SPEED + 0.5f) * IN_MILLISECONDS;
-                victim->CastSpell(victim, SPELL_WEB_WRAP, true, NULL, NULL, me->GetGUID());
+                victim->CastSpell(victim, SPELL_WEB_WRAP, me->GetGUID());
             }
         }
 

@@ -1,5 +1,5 @@
 # Copyright (C) 2005-2009 MaNGOS project <http://getmangos.com/>
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -13,6 +13,10 @@ CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE_SOURCES)
 
+if (WIN32)
+  list(APPEND PRIVATE_SOURCES ${sources_windows})
+endif()
+
 add_executable(mapextractor
   ${PRIVATE_SOURCES}
 )
@@ -23,6 +27,8 @@ target_include_directories(mapextractor
     ${CMAKE_CURRENT_SOURCE_DIR}/loadlib)
 
 target_link_libraries(mapextractor
+  PRIVATE
+    trinity-core-interface
   PUBLIC
     common
     mpq)

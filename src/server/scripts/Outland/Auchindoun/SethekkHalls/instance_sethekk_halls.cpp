@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +16,16 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "sethekk_halls.h"
 
 DoorData const doorData[] =
 {
     { GO_IKISS_DOOR, DATA_TALON_KING_IKISS, DOOR_TYPE_PASSAGE },
-    { 0,             0,                     DOOR_TYPE_ROOM } // END
+    { 0,             0,                     DOOR_TYPE_ROOM    } // END
 };
 
 ObjectData const gameObjectData[] =

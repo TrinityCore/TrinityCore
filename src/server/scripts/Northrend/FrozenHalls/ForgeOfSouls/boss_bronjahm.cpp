@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "forge_of_souls.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Yells
 {
@@ -80,8 +84,8 @@ class boss_bronjahm : public CreatureScript
             {
                 _Reset();
                 events.SetPhase(PHASE_1);
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
-                events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 20000));
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
+                events.ScheduleEvent(EVENT_MAGIC_BANE, 8s, 20s);
                 events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
             }
 
@@ -91,9 +95,9 @@ class boss_bronjahm : public CreatureScript
                 DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 me->RemoveAurasDueToSpell(SPELL_SOULSTORM_CHANNEL);
             }
@@ -127,7 +131,7 @@ class boss_bronjahm : public CreatureScript
                 {
                     summons.Summon(summon);
                     summon->SetReactState(REACT_PASSIVE);
-                    summon->GetMotionMaster()->MoveFollow(me, me->GetObjectSize(), 0.0f);
+                    summon->GetMotionMaster()->MoveFollow(me, me->GetCombatReach(), 0.0f);
                     summon->CastSpell(summon, SPELL_PURPLE_BANISH_VISUAL, true);
                 }
             }
@@ -165,19 +169,19 @@ class boss_bronjahm : public CreatureScript
                     {
                         case EVENT_MAGIC_BANE:
                             DoCastAOE(SPELL_MAGIC_S_BANE);
-                            events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 20000));
+                            events.ScheduleEvent(EVENT_MAGIC_BANE, 8s, 20s);
                             break;
                         case EVENT_SHADOW_BOLT:
                             if (events.IsInPhase(PHASE_2))
                             {
                                 DoCastVictim(SPELL_SHADOW_BOLT);
-                                events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(1, 2) * IN_MILLISECONDS);
+                                events.ScheduleEvent(EVENT_SHADOW_BOLT, 1s, 2s);
                             }
                             else
                             {
                                 if (!me->IsWithinMeleeRange(me->GetVictim()))
                                     DoCastVictim(SPELL_SHADOW_BOLT);
-                                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2 * IN_MILLISECONDS);
+                                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
                             }
                             break;
                         case EVENT_CORRUPT_SOUL:
@@ -194,7 +198,7 @@ class boss_bronjahm : public CreatureScript
                             me->CastSpell(me, SPELL_SOULSTORM, false);
                             break;
                         case EVENT_FEAR:
-                            me->CastCustomSpell(SPELL_FEAR, SPELLVALUE_MAX_TARGETS, 1, nullptr, false);
+                            me->CastSpell(nullptr, SPELL_FEAR, { SPELLVALUE_MAX_TARGETS, 1 });
                             events.ScheduleEvent(EVENT_FEAR, urand(8000, 12000), 0, PHASE_2);
                             break;
                         default:
@@ -212,7 +216,7 @@ class boss_bronjahm : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_bronjahmAI>(creature, FoSScriptName);
+            return GetForgeOfSoulsAI<boss_bronjahmAI>(creature);
         }
 };
 
@@ -242,7 +246,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
                 if (instance->GetGuidData(DATA_BRONJAHM).GetCounter() != id)
                     return;
 
-                me->CastSpell((Unit*)nullptr, SPELL_CONSUME_SOUL, true);
+                me->CastSpell(nullptr, SPELL_CONSUME_SOUL, true);
                 me->DespawnOrUnsummon();
             }
 
@@ -252,7 +256,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_corrupted_soul_fragmentAI>(creature, FoSScriptName);
+            return GetForgeOfSoulsAI<npc_corrupted_soul_fragmentAI>(creature);
         }
 };
 
@@ -265,20 +269,19 @@ class spell_bronjahm_magic_bane : public SpellScriptLoader
         {
             PrepareSpellScript(spell_bronjahm_magic_bane_SpellScript);
 
-            void RecalculateDamage()
+            void RecalculateDamage(SpellEffIndex /*effIndex*/)
             {
-                if (GetHitUnit()->getPowerType() != POWER_MANA)
+                if (GetHitUnit()->GetPowerType() != POWER_MANA)
                     return;
 
                 int32 const maxDamage = GetCaster()->GetMap()->IsHeroic() ? 15000 : 10000;
-                int32 newDamage = GetHitDamage() + (GetHitUnit()->GetMaxPower(POWER_MANA) / 2);
-
-                SetHitDamage(std::min<int32>(maxDamage, newDamage));
+                int32 newDamage = GetEffectValue() + (GetHitUnit()->GetMaxPower(POWER_MANA) / 2);
+                SetEffectValue(std::min<int32>(maxDamage, newDamage));
             }
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_bronjahm_magic_bane_SpellScript::RecalculateDamage);
+                OnEffectLaunchTarget += SpellEffectFn(spell_bronjahm_magic_bane_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 

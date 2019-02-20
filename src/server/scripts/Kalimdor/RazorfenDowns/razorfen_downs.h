@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef DEF_RAZORFEN_DOWNS_H
 #define DEF_RAZORFEN_DOWNS_H
 
+#include "CreatureAIImpl.h"
+
 #define RFDScriptName "instance_razorfen_downs"
 #define DataHeader "RFD"
 
 uint32 const EncounterCount = 5;
 
-enum DataTypes
+enum RFDDataTypes
 {
     // Main Bosses
     DATA_TUTEN_KASH                        = 0,
@@ -36,7 +38,7 @@ enum DataTypes
     DATA_EXTINGUISHING_THE_IDOL            = 6
 };
 
-enum CreatureIds
+enum RFDCreatureIds
 {
     // Used in Tuten Kash summon event
     NPC_TOMB_FIEND                         = 7349,
@@ -50,7 +52,7 @@ enum CreatureIds
     NPC_PLAGUEMAW_THE_ROTTING              = 7356
 };
 
-enum GameObjectIds
+enum RFDGameObjectIds
 {
     // Used for Tuten Kash summon event
     GO_GONG                                = 148917,
@@ -61,10 +63,10 @@ enum GameObjectIds
     GO_BELNISTRASZS_BRAZIER                = 152097
 };
 
-template<class AI>
-AI* GetRazorfenDownsAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetRazorfenDownsAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, RFDScriptName);
+    return GetInstanceAI<AI>(obj, RFDScriptName);
 }
 
 #endif

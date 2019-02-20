@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,21 +18,29 @@
 #ifndef __ASYNCACCEPT_H_
 #define __ASYNCACCEPT_H_
 
+#include "IoContext.h"
+#include "IpAddress.h"
 #include "Log.h"
-#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include <functional>
 #include <atomic>
 
 using boost::asio::ip::tcp;
+
+#if BOOST_VERSION >= 106600
+#define TRINITY_MAX_LISTEN_CONNECTIONS boost::asio::socket_base::max_listen_connections
+#else
+#define TRINITY_MAX_LISTEN_CONNECTIONS boost::asio::socket_base::max_connections
+#endif
 
 class AsyncAcceptor
 {
 public:
     typedef void(*AcceptCallback)(tcp::socket&& newSocket, uint32 threadIndex);
 
-    AsyncAcceptor(boost::asio::io_service& ioService, std::string const& bindIp, uint16 port) :
-        _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port)),
-        _socket(ioService), _closed(false), _socketFactory(std::bind(&AsyncAcceptor::DefeaultSocketFactory, this))
+    AsyncAcceptor(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port) :
+        _acceptor(ioContext), _endpoint(Trinity::Net::make_address(bindIp), port),
+        _socket(ioContext), _closed(false), _socketFactory(std::bind(&AsyncAcceptor::DefeaultSocketFactory, this))
     {
     }
 
@@ -66,6 +74,42 @@ public:
         });
     }
 
+    bool Bind()
+    {
+        boost::system::error_code errorCode;
+        _acceptor.open(_endpoint.protocol(), errorCode);
+        if (errorCode)
+        {
+            TC_LOG_INFO("network", "Failed to open acceptor %s", errorCode.message().c_str());
+            return false;
+        }
+
+#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+        _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), errorCode);
+        if (errorCode)
+        {
+            TC_LOG_INFO("network", "Failed to set reuse_address option on acceptor %s", errorCode.message().c_str());
+            return false;
+        }
+#endif
+
+        _acceptor.bind(_endpoint, errorCode);
+        if (errorCode)
+        {
+            TC_LOG_INFO("network", "Could not bind to %s:%u %s", _endpoint.address().to_string().c_str(), _endpoint.port(), errorCode.message().c_str());
+            return false;
+        }
+
+        _acceptor.listen(TRINITY_MAX_LISTEN_CONNECTIONS, errorCode);
+        if (errorCode)
+        {
+            TC_LOG_INFO("network", "Failed to start listening on %s:%u %s", _endpoint.address().to_string().c_str(), _endpoint.port(), errorCode.message().c_str());
+            return false;
+        }
+
+        return true;
+    }
+
     void Close()
     {
         if (_closed.exchange(true))
@@ -81,6 +125,7 @@ private:
     std::pair<tcp::socket*, uint32> DefeaultSocketFactory() { return std::make_pair(&_socket, 0); }
 
     tcp::acceptor _acceptor;
+    tcp::endpoint _endpoint;
     tcp::socket _socket;
     std::atomic<bool> _closed;
     std::function<std::pair<tcp::socket*, uint32>()> _socketFactory;

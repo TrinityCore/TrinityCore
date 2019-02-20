@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "forge_of_souls.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 enum Events
 {
@@ -99,7 +99,7 @@ public:
             Initialize();
         }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == MENU_ID_SYLVANAS && gossipListId == GOSSIP_OPTION_ID)
             {
@@ -109,6 +109,7 @@ public:
                 events.Reset();
                 events.ScheduleEvent(EVENT_INTRO_1, 1000);
             }
+            return false;
         }
 
         void UpdateAI(uint32 diff) override
@@ -162,7 +163,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_sylvanas_fosAI>(creature);
+        return GetForgeOfSoulsAI<npc_sylvanas_fosAI>(creature);
     }
 };
 
@@ -196,7 +197,7 @@ public:
             Initialize();
         }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == MENU_ID_JAINA && gossipListId == GOSSIP_OPTION_ID)
             {
@@ -206,6 +207,7 @@ public:
                 events.Reset();
                 events.ScheduleEvent(EVENT_INTRO_1, 1000);
             }
+            return false;
         }
 
         void UpdateAI(uint32 diff) override
@@ -270,7 +272,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_jaina_fosAI>(creature);
+        return GetForgeOfSoulsAI<npc_jaina_fosAI>(creature);
     }
 };
 

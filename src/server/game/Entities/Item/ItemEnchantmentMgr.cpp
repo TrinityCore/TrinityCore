@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,8 @@
 #include "ObjectMgr.h"
 #include "Util.h"
 #include "DBCStores.h"
+#include "Random.h"
+#include "Timer.h"
 
 #include <list>
 #include <vector>
@@ -74,7 +76,7 @@ void LoadRandomEnchantmentsTable()
         TC_LOG_INFO("server.loading", ">> Loaded %u Item Enchantment definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
 }
 
 uint32 GetItemEnchantMod(int32 entry)
@@ -116,6 +118,52 @@ uint32 GetItemEnchantMod(int32 entry)
     }
 
     return 0;
+}
+
+int32 GenerateItemRandomPropertyId(uint32 item_id)
+{
+    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
+
+    if (!itemProto)
+        return 0;
+
+    // item must have one from this field values not null if it can have random enchantments
+    if ((!itemProto->RandomProperty) && (!itemProto->RandomSuffix))
+        return 0;
+
+    // item can have not null only one from field values
+    if ((itemProto->RandomProperty) && (itemProto->RandomSuffix))
+    {
+        TC_LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
+        return 0;
+    }
+
+    // RandomProperty case
+    if (itemProto->RandomProperty)
+    {
+        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomProperty);
+        ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
+        if (!random_id)
+        {
+            TC_LOG_ERROR("sql.sql", "Enchantment id #%u used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
+            return 0;
+        }
+
+        return random_id->ID;
+    }
+    // RandomSuffix case
+    else
+    {
+        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomSuffix);
+        ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
+        if (!random_id)
+        {
+            TC_LOG_ERROR("sql.sql", "Enchantment id #%u used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
+            return 0;
+        }
+
+        return -int32(random_id->ID);
+    }
 }
 
 uint32 GenerateEnchSuffixFactor(uint32 item_id)
@@ -196,4 +244,3 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
     }
     return 0;
 }
-

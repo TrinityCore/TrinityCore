@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,17 +23,21 @@
 #include "BoundingIntervalHierarchy.h"
 #include <unordered_map>
 
+
 namespace VMAP
 {
     class ModelInstance;
     class GroupModel;
     class VMapManager2;
+    enum class LoadResult : uint8;
+    enum class ModelIgnoreFlags : uint32;
 
     struct TC_COMMON_API LocationInfo
     {
-        LocationInfo(): hitInstance(nullptr), hitModel(nullptr), ground_Z(-G3D::finf()) { }
-        const ModelInstance* hitInstance;
-        const GroupModel* hitModel;
+        LocationInfo(): rootId(-1), hitInstance(nullptr), hitModel(nullptr), ground_Z(-G3D::finf()) { }
+        int32 rootId;
+        ModelInstance const* hitInstance;
+        GroupModel const* hitModel;
         float ground_Z;
     };
 
@@ -57,18 +61,18 @@ namespace VMAP
             std::string iBasePath;
 
         private:
-            bool getIntersectionTime(const G3D::Ray& pRay, float &pMaxDist, bool pStopAtFirstHit) const;
+            bool getIntersectionTime(const G3D::Ray& pRay, float &pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags) const;
             //bool containsLoadedMapTile(unsigned int pTileIdent) const { return(iLoadedMapTiles.containsKey(pTileIdent)); }
         public:
             static std::string getTileFileName(uint32 mapID, uint32 tileX, uint32 tileY);
             static uint32 packTileID(uint32 tileX, uint32 tileY) { return tileX<<16 | tileY; }
             static void unpackTileID(uint32 ID, uint32 &tileX, uint32 &tileY) { tileX = ID>>16; tileY = ID&0xFF; }
-            static bool CanLoadMap(const std::string &basePath, uint32 mapID, uint32 tileX, uint32 tileY);
+            static LoadResult CanLoadMap(const std::string &basePath, uint32 mapID, uint32 tileX, uint32 tileY);
 
             StaticMapTree(uint32 mapID, const std::string &basePath);
             ~StaticMapTree();
 
-            bool isInLineOfSight(const G3D::Vector3& pos1, const G3D::Vector3& pos2) const;
+            bool isInLineOfSight(const G3D::Vector3& pos1, const G3D::Vector3& pos2, ModelIgnoreFlags ignoreFlags) const;
             bool getObjectHitPos(const G3D::Vector3& pos1, const G3D::Vector3& pos2, G3D::Vector3& pResultHitPos, float pModifyDist) const;
             float getHeight(const G3D::Vector3& pPos, float maxSearchDist) const;
             bool getAreaInfo(G3D::Vector3 &pos, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const;

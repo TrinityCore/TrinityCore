@@ -1,5 +1,6 @@
 @ECHO OFF
 CLS
+
 :MENU
 ECHO.
 ECHO ...............................................
@@ -8,9 +9,19 @@ ECHO ...............................................
 ECHO PRESS 1, 2, 3 OR 4 to select your task, or 5 to EXIT.
 ECHO ...............................................
 ECHO.
-ECHO 1 - Extract dbc/db2 and maps
-ECHO 2 - Extract vmaps (needs maps to be extracted before you run this)
-ECHO 3 - Extract mmaps (needs vmaps to be extracted before you run this, may take hours)
+ECHO WARNING! when extracting the vmaps extractor will
+ECHO output the text below, it's intended and not an error:
+ECHO ..........................................
+ECHO Extracting World\Wmo\Band\Final_Stage.wmo
+ECHO No such file.
+ECHO Couldn't open RootWmo!!!
+ECHO Done!
+ECHO ..........................................
+ECHO.
+ECHO Press 1, 2, 3 or 4 to start extracting or 5 to exit.
+ECHO 1 - Extract base files (NEEDED) and cameras.
+ECHO 2 - Extract vmaps (needs maps to be extracted before you run this) (OPTIONAL, highly recommended)
+ECHO 3 - Extract mmaps (needs vmaps to be extracted before you run this, may take hours) (OPTIONAL, highly recommended)
 ECHO 4 - Extract all (may take hours)
 ECHO 5 - EXIT
 ECHO.
@@ -19,33 +30,30 @@ IF %M%==1 GOTO MAPS
 IF %M%==2 GOTO VMAPS
 IF %M%==3 GOTO MMAPS
 IF %M%==4 GOTO ALL
-IF %M%==5 GOTO EOF
+IF %M%==5 GOTO :EOF
+
 :MAPS
-start mapextractor.exe
-pause
+start /b /w mapextractor.exe
 GOTO MENU
+
 :VMAPS
-start vmap4extractor.exe
-md vmaps
-start vmap4assembler.exe Buildings vmaps
-pause
-GOTO MENU
-:MMAPS
-md mmaps
-start mmaps_generator.exe
-pause
-GOTO MENU
-:ALL
-start mapextractor.exe
-ECHO wait before mapextractor.exe closes before continue
-pause
-start vmap4extractor.exe
-md vmaps
-start vmap4assembler.exe Buildings vmaps
+start /b /w vmap4extractor.exe
+start /b /w vmap4assembler.exe Buildings vmaps
 rmdir Buildings /s /q
-ECHO wait before vmap4assembler.exe closes before continue
-pause
-md mmaps
-start mmaps_generator.exe
-pause
+GOTO MENU
+
+:MMAPS
+ECHO This may take a few hours to complete. Please be patient.
+PAUSE
+start /b /w mmaps_generator.exe
+GOTO MENU
+
+:ALL
+ECHO This may take a few hours to complete. Please be patient.
+PAUSE
+start /b /w mapextractor.exe
+start /b /w vmap4extractor.exe
+start /b /w vmap4assembler.exe
+rmdir Buildings /s /q
+start /b /w mmaps_generator.exe
 GOTO MENU

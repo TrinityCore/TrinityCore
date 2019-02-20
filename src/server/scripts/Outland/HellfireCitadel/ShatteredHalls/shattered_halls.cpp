@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,13 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-#include "SpellAuras.h"
+#include "ScriptedCreature.h"
 #include "shattered_halls.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 class at_nethekurse_exit : public AreaTriggerScript
 {
@@ -93,23 +94,23 @@ class boss_shattered_executioner : public CreatureScript
                     me->AddLootMode(LOOT_MODE_HARD_MODE_1);
 
                 if (instance->GetBossState(DATA_KARGATH) == DONE)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
                 else
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(true);
 
                 Initialize();
             }
 
             void JustSummoned(Creature*) override { } // avoid despawn of prisoners on death/reset
 
-            void JustDied(Unit*) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
 
                 if (instance->GetData(DATA_PRISONERS_EXECUTED) > 0)
                     return;
 
-                Map::PlayerList const &players = instance->instance->GetPlayers();
+                Map::PlayerList const& players = instance->instance->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                     Player* pl = itr->GetSource();
@@ -124,11 +125,11 @@ class boss_shattered_executioner : public CreatureScript
                 if (type == DATA_PRISONERS_EXECUTED && data <= 3)
                 {
                     if (Creature* victim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FIRST_PRISONER + data - 1)))
-                        me->Kill(victim);
+                        Unit::Kill(me, victim);
 
                     if (data == 1)
                     {
-                        Map::PlayerList const &players = instance->instance->GetPlayers();
+                        Map::PlayerList const& players = instance->instance->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
                             Player* pl = itr->GetSource();
@@ -173,7 +174,7 @@ class boss_shattered_executioner : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_shattered_executionerAI>(creature);
+            return GetShatteredHallsAI<boss_shattered_executionerAI>(creature);
         }
 };
 

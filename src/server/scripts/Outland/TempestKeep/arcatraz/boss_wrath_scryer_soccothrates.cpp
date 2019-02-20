@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,8 +23,11 @@ SDCategory: Tempest Keep, The Arcatraz
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "arcatraz.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Say
 {
@@ -108,12 +111,12 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                         dalliah->AI()->SetData(1, 1);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_FELFIRE_SHOCK, urand(12000, 14000));
-                events.ScheduleEvent(EVENT_KNOCK_AWAY, urand(11000, 12000));
-                events.ScheduleEvent(EVENT_ME_FIRST, 6000);
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_FELFIRE_SHOCK, 12s, 14s);
+                events.ScheduleEvent(EVENT_KNOCK_AWAY, 11s, 12s);
+                events.ScheduleEvent(EVENT_ME_FIRST, 6s);
                 Talk(SAY_AGGRO);
                 preFight = false;
             }
@@ -140,7 +143,7 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                 switch (data)
                 {
                     case 1:
-                        events.ScheduleEvent(EVENT_DALLIAH_DEATH, 6000);
+                        events.ScheduleEvent(EVENT_DALLIAH_DEATH, 6s);
                         dalliahDeath = true;
                         break;
                     default:
@@ -243,12 +246,12 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                     {
                         case EVENT_FELFIRE_SHOCK:
                             DoCastVictim(SPELL_FELFIRE_SHOCK, true);
-                            events.ScheduleEvent(EVENT_FELFIRE_SHOCK, urand(12000, 14000));
+                            events.ScheduleEvent(EVENT_FELFIRE_SHOCK, 12s, 14s);
                             break;
                         case EVENT_KNOCK_AWAY:
                             DoCast(me, SPELL_KNOCK_AWAY);
                             Talk(SAY_KNOCK_AWAY);
-                            events.ScheduleEvent(EVENT_KNOCK_AWAY, urand(11000, 12000));
+                            events.ScheduleEvent(EVENT_KNOCK_AWAY, 11s, 12s);
                             break;
                         case EVENT_ME_FIRST:
                             if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))

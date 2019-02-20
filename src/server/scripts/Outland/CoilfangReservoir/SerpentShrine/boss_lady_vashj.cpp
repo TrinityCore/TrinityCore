@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,10 +24,16 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
 #include "Spell.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 #include "WorldSession.h"
 
 enum LadyVashj
@@ -140,7 +146,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lady_vashjAI>(creature);
+        return GetSerpentshrineCavernAI<boss_lady_vashjAI>(creature);
     }
 
     struct boss_lady_vashjAI : public ScriptedAI
@@ -254,14 +260,14 @@ public:
             instance->SetData(DATA_LADYVASHJEVENT, IN_PROGRESS);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             // remove old tainted cores to prevent cheating in phase 2
-            Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+            Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                 if (Player* player = itr->GetSource())
                     player->DestroyItemCount(31088, 1, true);
-            StartEvent(); // this is EnterCombat(), so were are 100% in combat, start the event
+            StartEvent(); // this is JustEngagedWith(), so were are 100% in combat, start the event
 
             if (Phase != 2)
                 AttackStart(who);
@@ -327,7 +333,7 @@ public:
                 }
                 else
                 {
-                    AggroTimer-=diff;
+                    AggroTimer -= diff;
                     return;
                 }
             }
@@ -349,7 +355,6 @@ public:
                     // Shock Burst
                     // Randomly used in Phases 1 and 3 on Vashj's target, it's a Shock spell doing 8325-9675 nature damage and stunning the target for 5 seconds, during which she will not attack her target but switch to the next person on the aggro list.
                     DoCastVictim(SPELL_SHOCK_BLAST);
-                    me->TauntApply(me->GetVictim());
 
                     ShockBlastTimer = 1000 + rand32() % 14000;       // random cooldown
                 } else ShockBlastTimer -= diff;
@@ -433,11 +438,10 @@ public:
                 if (CheckTimer <= diff)
                 {
                     bool inMeleeRange = false;
-                    std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
-                    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                    for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
-                        Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
-                        if (target && target->IsWithinDistInMap(me, 5)) // if in melee range
+                        Unit* target = ref->GetVictim();
+                        if (target->IsWithinMeleeRange(me)) // if in melee range
                         {
                             inMeleeRange = true;
                             break;
@@ -555,7 +559,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_enchanted_elementalAI>(creature);
+        return GetSerpentshrineCavernAI<npc_enchanted_elementalAI>(creature);
     }
 
     struct npc_enchanted_elementalAI : public ScriptedAI
@@ -603,7 +607,7 @@ public:
             VashjGUID = instance->GetGuidData(DATA_LADYVASHJ);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -650,7 +654,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_tainted_elementalAI>(creature);
+        return GetSerpentshrineCavernAI<npc_tainted_elementalAI>(creature);
     }
 
     struct npc_tainted_elementalAI : public ScriptedAI
@@ -683,9 +687,9 @@ public:
                 ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->EventTaintedElementalDeath();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            me->AddThreat(who, 0.1f);
+            AddThreat(who, 0.1f);
         }
 
         void UpdateAI(uint32 diff) override
@@ -724,7 +728,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_toxic_sporebatAI>(creature);
+        return GetSerpentshrineCavernAI<npc_toxic_sporebatAI>(creature);
     }
 
     struct npc_toxic_sporebatAI : public ScriptedAI
@@ -754,7 +758,7 @@ public:
         void Reset() override
         {
             me->SetDisableGravity(true);
-            me->setFaction(14);
+            me->SetFaction(FACTION_MONSTER);
             Initialize();
         }
 
@@ -789,7 +793,7 @@ public:
                 {
                     if (Creature* trig = me->SummonCreature(TOXIC_SPORES_TRIGGER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
                     {
-                        trig->setFaction(14);
+                        trig->SetFaction(FACTION_MONSTER);
                         trig->CastSpell(trig, SPELL_TOXIC_SPORES, true);
                     }
                 }
@@ -805,9 +809,9 @@ public:
                 if (!Vashj || !Vashj->IsAlive() || ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
                 {
                     // remove
-                    me->setDeathState(DEAD);
-                    me->RemoveCorpse();
-                    me->setFaction(35);
+                    me->SetFaction(FACTION_FRIENDLY);
+                    me->DespawnOrUnsummon();
+                    return;
                 }
 
                 CheckTimer = 1000;
@@ -826,7 +830,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_shield_generator_channelAI>(creature);
+        return GetSerpentshrineCavernAI<npc_shield_generator_channelAI>(creature);
     }
 
     struct npc_shield_generator_channelAI : public ScriptedAI

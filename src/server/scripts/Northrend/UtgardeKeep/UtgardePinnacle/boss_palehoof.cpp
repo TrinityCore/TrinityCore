@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,72 +15,177 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Script Data Start
-SDName: Boss palehoof
-SDAuthor: LordVanMartin
-SD%Complete:
-SDComment:
-SDCategory:
-Script Data End */
-
-#include <algorithm>
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "utgarde_pinnacle.h"
 
 enum Spells
 {
-    SPELL_ARCING_SMASH                          = 48260,
-    SPELL_IMPALE                                = 48261,
-    H_SPELL_IMPALE                              = 59268,
-    SPELL_WITHERING_ROAR                        = 48256,
-    H_SPELL_WITHERING_ROAR                      = 59267,
-    SPELL_FREEZE                                = 16245
+    // Palehoof
+    SPELL_ARCING_SMASH          = 48260,
+    SPELL_IMPALE                = 48261,
+    SPELL_IMPALE_H              = 59268,
+    SPELL_WITHERING_ROAR        = 48256,
+    SPELL_WITHERING_ROAR_H      = 59267,
+    SPELL_FREEZE                = 16245,
+    // Orb - World Trigger
+    SPELL_ORB_VISUAL            = 48044,
+    SPELL_ORB_CHANNEL           = 48048,
+    SPELL_AWAKEN_SUBBOSS        = 47669,
+    SPELL_AWAKEN_GORTOK         = 47670,
+    // Ravenous Furbolg
+    SPELL_CHAIN_LIGHTNING       = 48140,
+    SPELL_CHAIN_LIGHTNING_H     = 59273,
+    SPELL_CRAZED                = 48139,
+    SPELL_CRAZED_TAUNT          = 48147,
+    SPELL_TERRIFYING_ROAR       = 48144,
+    // Frenzied Worgen
+    SPELL_MORTAL_WOUND          = 48137,
+    SPELL_MORTAL_WOUND_H        = 59265,
+    SPELL_ENRAGE_1              = 48138,
+    SPELL_ENRAGE_2              = 48142,
+    // Ferocious Rhino
+    SPELL_GORE                  = 48130,
+    SPELL_GORE_2                = 59264,
+    SPELL_GRIEVOUS_WOUND        = 48105,
+    SPELL_GRIEVOUS_WOUND_H      = 59263,
+    SPELL_STOMP                 = 48131,
+    // Massive Jormungar
+    SPELL_ACID_SPIT             = 48132,
+    SPELL_ACID_SPLATTER         = 48136,
+    SPELL_ACID_SPLATTER_H       = 59272,
+    SPELL_POISON_BREATH         = 48133,
+    SPELL_POISON_BREATH_H       = 59271
 };
 
-//Orb spells
-enum OrbSpells
+enum Events
 {
-    SPELL_ORB_VISUAL                            = 48044,
-    SPELL_ORB_CHANNEL                           = 48048
+    EVENT_ARCING_SMASH = 1,
+    EVENT_IMPALE,
+    EVENT_WITHERING_ROAR,
+    EVENT_CRAZED,
+    EVENT_CHAIN_LIGHTNING,
+    EVENT_TERRIFYING_ROAR,
+    EVENT_MORTAL_WOUND,
+    EVENT_MORTAL_WOUND_2,
+    EVENT_ENRAGE,
+    EVENT_ENRAGE_2,
+    EVENT_GORE,
+    EVENT_GRIEVOUS_WOUND,
+    EVENT_STOMP,
+    EVENT_ACID_SPIT,
+    EVENT_ACID_SPLATTER,
+    EVENT_POISON_BREATH
 };
 
-//not in db
-enum Yells
+enum Says
 {
-    SAY_AGGRO                                = 0,
-    SAY_SLAY                                 = 1
-  //SAY_DEATH                                = 2 Missing in database
+    SAY_AGGRO            = 0,
+    SAY_SLAY             = 1,
+    PALEHOOF_SOUND_DEATH = 13467
 };
 
-enum Creatures
+Position const OrbPositions[2] =
 {
-    NPC_STASIS_CONTROLLER                       = 26688
-};
-
-Position const moveLocs[] =
-{
-    { 261.6f, -449.3f, 109.5f, 0.0f },
-    { 263.3f, -454.0f, 109.5f, 0.0f },
-    { 291.5f, -450.4f, 109.5f, 0.0f },
-    { 291.5f, -454.0f, 109.5f, 0.0f },
-    { 310.0f, -453.4f, 109.5f, 0.0f },
-    { 238.6f, -460.7f, 109.5f, 0.0f }
-};
-
-enum Phase
-{
-    PHASE_FRENZIED_WORGEN,
-    PHASE_RAVENOUS_FURLBORG,
-    PHASE_MASSIVE_JORMUNGAR,
-    PHASE_FEROCIOUS_RHINO,
-    PHASE_GORTOK_PALEHOOF,
-    PHASE_NONE
+    { 238.6077f, -460.7103f, 112.5671f },
+    { 279.26f,   -452.1f,    110.0f    }
 };
 
 enum Misc
 {
-    ACTION_NEXT_PHASE,
+    ACTION_NEXT_PHASE       = 1,
+    ACTION_START_FIGHT      = 2,
+    ACTION_START_ENCOUNTER  = 3,
+    POSITION_FLY            = 0,
+    POSITION_FINAL          = 1,
+    SUMMON_MINIBOSSES_GROUP = 1
+};
+
+class WormAttackEvent : public BasicEvent
+{
+public:
+    WormAttackEvent(TempSummon* owner) : BasicEvent(), _owner(owner) { }
+
+    bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
+    {
+        _owner->SetReactState(REACT_AGGRESSIVE);
+        _owner->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
+        _owner->AI()->DoZoneInCombat();
+        return true;
+    }
+
+private:
+    TempSummon* _owner;
+};
+
+class OrbFinalPositionEvent : public BasicEvent
+{
+public:
+    OrbFinalPositionEvent(Creature* owner) : BasicEvent(), _owner(owner) { }
+
+    bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
+    {
+        _owner->CastSpell(_owner, SPELL_AWAKEN_SUBBOSS, { SPELLVALUE_MAX_TARGETS, 1 });
+        return true;
+    }
+
+private:
+    Creature* _owner;
+};
+
+class OrbAirPositionEvent : public BasicEvent
+{
+public:
+    OrbAirPositionEvent(Creature* owner) : BasicEvent(), _owner(owner) { }
+
+    bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
+    {
+        _owner->SetWalk(true);
+        _owner->GetMotionMaster()->MovePoint(0, OrbPositions[POSITION_FLY]);
+        return true;
+    }
+
+private:
+    Creature* _owner;
+};
+
+class OrbFlyEvent : public BasicEvent
+{
+public:
+    OrbFlyEvent(Creature* owner) : BasicEvent(), _owner(owner) { }
+
+    bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
+    {
+        _owner->SetWalk(false);
+        _owner->GetMotionMaster()->MovePoint(0, OrbPositions[POSITION_FINAL]);
+        _owner->m_Events.AddEvent(new OrbFinalPositionEvent(_owner), _owner->m_Events.CalculateTime(10000));
+        return true;
+    }
+
+private:
+    Creature* _owner;
+};
+
+class CombatStartEvent : public BasicEvent
+{
+public:
+    CombatStartEvent(Unit* owner) : BasicEvent(), _owner(owner) { }
+
+    bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
+    {
+        _owner->GetAI()->DoAction(ACTION_START_FIGHT);
+        return true;
+    }
+
+private:
+    Unit* _owner;
 };
 
 class boss_palehoof : public CreatureScript
@@ -90,112 +195,76 @@ public:
 
     struct boss_palehoofAI : public BossAI
     {
-        boss_palehoofAI(Creature* creature) : BossAI(creature, DATA_GORTOK_PALEHOOF)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            /// There is a good reason to store them like this, we are going to shuffle the order.
-            for (uint32 i = PHASE_FRENZIED_WORGEN; i < PHASE_GORTOK_PALEHOOF; ++i)
-                Sequence[i] = Phase(i);
-
-            /// This ensures a random order and only executes each phase once.
-            Trinity::Containers::RandomShuffle(Sequence);
-
-            uiArcingSmashTimer = 15000;
-            uiImpaleTimer = 12000;
-            uiWhiteringRoarTimer = 10000;
-
-            AddCount = 0;
-
-            currentPhase = PHASE_NONE;
-        }
-
-        uint32 uiArcingSmashTimer;
-        uint32 uiImpaleTimer;
-        uint32 uiWhiteringRoarTimer;
-        Phase currentPhase;
-        uint8 AddCount;
-        std::array<Phase, 4> Sequence;
+        boss_palehoofAI(Creature* creature) : BossAI(creature, DATA_GORTOK_PALEHOOF), _dungeonMode(DUNGEON_MODE(2, 4)), _encountersCount(0) { }
 
         void Reset() override
         {
             _Reset();
+            _orb.Clear();
+            me->SummonCreatureGroup(SUMMON_MINIBOSSES_GROUP);
+            _encountersCount = 0;
 
-            Initialize();
-
-            me->GetMotionMaster()->MoveTargetedHome();
-
-            for (uint8 i = DATA_FRENZIED_WORGEN; i <= DATA_FEROCIOUS_RHINO; ++i)
-                if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i)))
-                    if (!temp->IsAlive())
-                        temp->Respawn();
-
-            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF_SPHERE)))
+            if (GameObject* go = instance->GetGameObject(DATA_GORTOK_PALEHOOF_SPHERE))
             {
                 go->SetGoState(GO_STATE_READY);
                 go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustSummoned(Creature* summon) override
         {
+            BossAI::JustSummoned(summon);
+
+            if (summon->GetEntry() == NPC_PALEHOOF_ORB)
+                _orb = summon->GetGUID();
+        }
+
+        void JustEngagedWith (Unit* /*who*/) override
+        {
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
+            events.ScheduleEvent(EVENT_ARCING_SMASH, 7s);
+            events.ScheduleEvent(EVENT_IMPALE, 11s);
+            events.ScheduleEvent(EVENT_WITHERING_ROAR, 12s);
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         }
 
-        void AttackStart(Unit* who) override
+        void ExecuteEvent(uint32 eventId) override
         {
-            if (!who)
-                return;
-
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                return;
-
-            if (me->Attack(who, true))
+            switch (eventId)
             {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
+                case EVENT_ARCING_SMASH:
+                    DoCastVictim(SPELL_ARCING_SMASH);
+                    events.Repeat(Seconds(7));
+                    break;
+                case EVENT_IMPALE:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_IMPALE);
+                    events.Repeat(Seconds(10), Seconds(15));
+                    break;
+                case EVENT_WITHERING_ROAR:
+                    DoCastSelf(SPELL_WITHERING_ROAR);
+                    events.Repeat(Seconds(11));
+                    break;
+                default:
+                    break;
             }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (currentPhase != PHASE_GORTOK_PALEHOOF)
-                return;
-
-            if (!UpdateVictim())
-                return;
-
-            if (uiArcingSmashTimer <= diff)
-            {
-                DoCast(me, SPELL_ARCING_SMASH);
-                uiArcingSmashTimer = urand(13000, 17000);
-            } else uiArcingSmashTimer -= diff;
-
-            if (uiImpaleTimer <= diff)
-            {
-              if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                  DoCast(target, SPELL_IMPALE);
-              uiImpaleTimer = urand(8000, 12000);
-            } else uiImpaleTimer -= diff;
-
-            if (uiWhiteringRoarTimer <= diff)
-            {
-                DoCast(me, SPELL_WITHERING_ROAR);
-                uiWhiteringRoarTimer = urand(8000, 12000);
-            } else uiWhiteringRoarTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
         {
-            _JustDied();
-            //Talk(SAY_DEATH);
+            events.Reset();
+            instance->SetBossState(DATA_GORTOK_PALEHOOF, DONE);
+            DoPlaySoundToSet(me, PALEHOOF_SOUND_DEATH);
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        }
+
+        void EnterEvadeMode(EvadeReason /*why*/) override
+        {
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+            events.Reset();
+            summons.DespawnAll();
+            _DespawnAtEvade();
         }
 
         void KilledUnit(Unit* who) override
@@ -206,37 +275,45 @@ public:
 
         void DoAction(int32 actionId) override
         {
-            if (actionId != ACTION_NEXT_PHASE)
-                return;
-
-            if (currentPhase == PHASE_NONE)
+            switch (actionId)
             {
-                instance->SetBossState(DATA_GORTOK_PALEHOOF, IN_PROGRESS);
+                case ACTION_NEXT_PHASE:
+                {
+                    Creature* orb = ObjectAccessor::GetCreature(*me, _orb);
+                    if (!orb)
+                        return;
 
-                if (Creature* orb = me->SummonCreature(NPC_STASIS_CONTROLLER, moveLocs[5], TEMPSUMMON_CORPSE_DESPAWN))
-                    orb->CastSpell(me, SPELL_ORB_VISUAL, true);
+                    _encountersCount++;
+                    if (_encountersCount == _dungeonMode)
+                        orb->CastSpell(orb, SPELL_AWAKEN_GORTOK, true);
+                    else
+                        orb->CastSpell(orb, SPELL_AWAKEN_SUBBOSS, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
+                    break;
+                }
+                case ACTION_START_FIGHT:
+                    me->RemoveAurasDueToSpell(SPELL_FREEZE);
+                    me->SetImmuneToPC(false);
+                    DoZoneInCombat();
+                    if (Creature* orb = ObjectAccessor::GetCreature(*me, _orb))
+                        orb->DespawnOrUnsummon(1000);
+                    break;
+                case ACTION_START_ENCOUNTER:
+                    if (Creature* orb = ObjectAccessor::GetCreature(*me, _orb))
+                    {
+                        orb->CastSpell(orb, SPELL_ORB_VISUAL, true);
+                        orb->m_Events.AddEvent(new OrbAirPositionEvent(orb), orb->m_Events.CalculateTime(3000));
+                        orb->m_Events.AddEvent(new OrbFlyEvent(orb), orb->m_Events.CalculateTime(6000));
+                    }
+                    break;
+                default:
+                    break;
             }
-
-            Phase move = PHASE_NONE;
-            if (AddCount >= DUNGEON_MODE(2, 4))
-                move = PHASE_GORTOK_PALEHOOF;
-            else
-                move = Sequence[AddCount++];
-
-            // send orb to summon spot
-            if (Creature* orb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_ORB)))
-                if (orb->IsAlive())
-                    orb->GetMotionMaster()->MovePoint(move, moveLocs[move]);
-
-            currentPhase = move;
         }
 
-        void JustReachedHome() override
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-            DoCast(me, SPELL_FREEZE);
-        }
+        private:
+            uint8 _dungeonMode;
+            uint8 _encountersCount;
+            ObjectGuid _orb;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -245,624 +322,402 @@ public:
     }
 };
 
-//ravenous furbolg's spells
-enum RavenousSpells
+struct PalehoofMinionsBossAI : public BossAI
 {
-    SPELL_CHAIN_LIGHTING                        = 48140,
-    H_SPELL_CHAIN_LIGHTING                      = 59273,
-    SPELL_CRAZED                                = 48139,
-    SPELL_TERRIFYING_ROAR                       = 48144
-};
+    PalehoofMinionsBossAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId) { }
 
-class npc_ravenous_furbolg : public CreatureScript
-{
-public:
-    npc_ravenous_furbolg() : CreatureScript("npc_ravenous_furbolg") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void Reset() override
     {
-        return GetInstanceAI<npc_ravenous_furbolgAI>(creature);
+        me->SetCombatPulseDelay(0);
+        events.Reset();
+        DoCastSelf(SPELL_FREEZE, true);
     }
 
-    struct npc_ravenous_furbolgAI : public ScriptedAI
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        npc_ravenous_furbolgAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            uiChainLightingTimer = 5000;
-            uiCrazedTimer = 10000;
-            uiTerrifyingRoarTimer = 15000;
-        }
-
-        uint32 uiChainLightingTimer;
-        uint32 uiCrazedTimer;
-        uint32 uiTerrifyingRoarTimer;
-
-        InstanceScript* instance;
-
-        void Reset() override
-        {
-            Initialize();
-
-            me->GetMotionMaster()->MoveTargetedHome();
-
-            if (instance->GetBossState(DATA_GORTOK_PALEHOOF) == IN_PROGRESS)
-            {
-                Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF));
-                if (palehoof && palehoof->IsAlive())
-                    palehoof->AI()->Reset();
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (uiChainLightingTimer <= diff)
-            {
-                DoCastVictim(SPELL_CHAIN_LIGHTING);
-                uiChainLightingTimer = 5000 + rand32() % 5000;
-            } else uiChainLightingTimer -=  diff;
-
-            if (uiCrazedTimer <= diff)
-            {
-                DoCast(me, SPELL_CRAZED);
-                uiCrazedTimer = 8000 + rand32() % 4000;
-            } else uiCrazedTimer -=  diff;
-
-            if (uiTerrifyingRoarTimer <= diff)
-            {
-                DoCast(me, SPELL_TERRIFYING_ROAR);
-                uiTerrifyingRoarTimer = 10000 + rand32() % 10000;
-            } else uiTerrifyingRoarTimer -=  diff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                return;
-
-            if (me->Attack(who, true))
-            {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
-            }
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF)))
-                palehoof->AI()->DoAction(ACTION_NEXT_PHASE);
-        }
-
-        void JustReachedHome() override
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-            DoCast(me, SPELL_FREEZE);
-        }
-    };
-
-};
-
-//frenzied worgen's spells
-enum FrenziedSpells
-{
-    SPELL_MORTAL_WOUND                          = 48137,
-    H_SPELL_MORTAL_WOUND                        = 59265,
-    SPELL_ENRAGE_1                              = 48138,
-    SPELL_ENRAGE_2                              = 48142
-};
-
-class npc_frenzied_worgen : public CreatureScript
-{
-public:
-    npc_frenzied_worgen() : CreatureScript("npc_frenzied_worgen") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_frenzied_worgenAI>(creature);
+        me->SetCombatPulseDelay(5);
+        me->setActive(true);
+        ScheduleTasks();
     }
 
-    struct npc_frenzied_worgenAI : public ScriptedAI
+    void DoAction(int32 actionId) override
     {
-        npc_frenzied_worgenAI(Creature* creature) : ScriptedAI(creature)
+        if (actionId == ACTION_START_FIGHT)
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
+            me->RemoveAurasDueToSpell(SPELL_FREEZE);
+            me->SetImmuneToPC(false);
+            DoZoneInCombat();
         }
-
-        void Initialize()
-        {
-            uiMortalWoundTimer = 5000;
-            uiEnrage1Timer = 15000;
-            uiEnrage2Timer = 10000;
-        }
-
-        uint32 uiMortalWoundTimer;
-        uint32 uiEnrage1Timer;
-        uint32 uiEnrage2Timer;
-
-        InstanceScript* instance;
-
-        void Reset() override
-        {
-            Initialize();
-
-            me->GetMotionMaster()->MoveTargetedHome();
-
-            if (instance->GetBossState(DATA_GORTOK_PALEHOOF) == IN_PROGRESS)
-            {
-                Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF));
-                if (palehoof && palehoof->IsAlive())
-                    palehoof->AI()->Reset();
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (uiMortalWoundTimer <= diff)
-            {
-                DoCastVictim(SPELL_MORTAL_WOUND);
-                uiMortalWoundTimer = 3000 + rand32() % 4000;
-            } else uiMortalWoundTimer -= diff;
-
-            if (uiEnrage1Timer <= diff)
-            {
-                DoCast(me, SPELL_ENRAGE_1);
-                uiEnrage1Timer = 15000;
-            } else uiEnrage1Timer -= diff;
-
-            if (uiEnrage2Timer <= diff)
-            {
-                DoCast(me, SPELL_ENRAGE_2);
-                uiEnrage2Timer = 10000;
-            } else uiEnrage2Timer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                return;
-
-            if (me->Attack(who, true))
-            {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
-            }
-            instance->SetBossState(DATA_GORTOK_PALEHOOF, IN_PROGRESS);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF)))
-                palehoof->AI()->DoAction(ACTION_NEXT_PHASE);
-        }
-
-        void JustReachedHome() override
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-            DoCast(me, SPELL_FREEZE);
-        }
-    };
-
-};
-
-//ferocious rhino's spells
-enum FerociousSpells
-{
-    SPELL_GORE                                  = 48130,
-    H_SPELL_GORE                                = 59264,
-    SPELL_GRIEVOUS_WOUND                        = 48105,
-    H_SPELL_GRIEVOUS_WOUND                      = 59263,
-    SPELL_STOMP                                 = 48131
-};
-
-class npc_ferocious_rhino : public CreatureScript
-{
-public:
-    npc_ferocious_rhino() : CreatureScript("npc_ferocious_rhino") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_ferocious_rhinoAI>(creature);
     }
 
-    struct npc_ferocious_rhinoAI : public ScriptedAI
+    void JustDied(Unit* /*killer*/) override
     {
-        npc_ferocious_rhinoAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            uiStompTimer = 10000;
-            uiGoreTimer = 15000;
-            uiGrievousWoundTimer = 20000;
-        }
-
-        uint32 uiStompTimer;
-        uint32 uiGoreTimer;
-        uint32 uiGrievousWoundTimer;
-
-        InstanceScript* instance;
-
-        void Reset() override
-        {
-            Initialize();
-
-            me->GetMotionMaster()->MoveTargetedHome();
-
-            if (instance->GetBossState(DATA_GORTOK_PALEHOOF) == IN_PROGRESS)
-            {
-                Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF));
-                if (palehoof && palehoof->IsAlive())
-                    palehoof->AI()->Reset();
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (uiStompTimer <= diff)
-            {
-                DoCastVictim(SPELL_STOMP);
-                uiStompTimer = 8000 + rand32() % 4000;
-            } else uiStompTimer -= diff;
-
-            if (uiGoreTimer <= diff)
-            {
-                DoCastVictim(SPELL_GORE);
-                uiGoreTimer = 13000 + rand32() % 4000;
-            } else uiGoreTimer -= diff;
-
-            if (uiGrievousWoundTimer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_GRIEVOUS_WOUND);
-                uiGrievousWoundTimer = 18000 + rand32() % 4000;
-            } else uiGrievousWoundTimer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                return;
-
-            if (me->Attack(who, true))
-            {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
-            }
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF)))
-                palehoof->AI()->DoAction(ACTION_NEXT_PHASE);
-        }
-
-        void JustReachedHome() override
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-            DoCast(me, SPELL_FREEZE);
-        }
-    };
-
-};
-
-//massive jormungar's spells
-enum MassiveSpells
-{
-    SPELL_ACID_SPIT                             = 48132,
-    SPELL_ACID_SPLATTER                         = 48136,
-    H_SPELL_ACID_SPLATTER                       = 59272,
-    SPELL_POISON_BREATH                         = 48133,
-    H_SPELL_POISON_BREATH                       = 59271
-};
-
-enum MassiveAdds
-{
-  CREATURE_JORMUNGAR_WORM                     = 27228
-};
-
-class npc_massive_jormungar : public CreatureScript
-{
-public:
-    npc_massive_jormungar() : CreatureScript("npc_massive_jormungar") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_massive_jormungarAI>(creature);
+        if (Creature* palehoof = instance->GetCreature(DATA_GORTOK_PALEHOOF))
+            palehoof->AI()->DoAction(ACTION_NEXT_PHASE);
     }
 
-    struct npc_massive_jormungarAI : public ScriptedAI
+    void EnterEvadeMode(EvadeReason why) override
     {
-        npc_massive_jormungarAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            instance = creature->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            uiAcidSpitTimer = 3000;
-            uiAcidSplatterTimer = 12000;
-            uiPoisonBreathTimer = 10000;
-        }
-
-        uint32 uiAcidSpitTimer;
-        uint32 uiAcidSplatterTimer;
-        uint32 uiPoisonBreathTimer;
-
-        InstanceScript* instance;
-
-        void Reset() override
-        {
-            Initialize();
-
-            me->GetMotionMaster()->MoveTargetedHome();
-
-            if (instance->GetBossState(DATA_GORTOK_PALEHOOF) == IN_PROGRESS)
-            {
-                Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF));
-                if (palehoof && palehoof->IsAlive())
-                    palehoof->AI()->Reset();
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (uiAcidSpitTimer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_ACID_SPIT);
-                uiAcidSpitTimer = 2000 + rand32() % 2000;
-            } else uiAcidSpitTimer -= diff;
-
-            if (uiAcidSplatterTimer <= diff)
-            {
-                DoCast(me, SPELL_POISON_BREATH);
-                uiAcidSplatterTimer = 10000 + rand32() % 4000;
-            } else uiAcidSplatterTimer -= diff;
-
-            if (uiPoisonBreathTimer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_POISON_BREATH);
-                uiPoisonBreathTimer = 8000 + rand32() % 4000;
-            } else uiPoisonBreathTimer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                return;
-
-            if (me->Attack(who, true))
-            {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
-            }
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Creature* palehoof = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GORTOK_PALEHOOF)))
-                palehoof->AI()->DoAction(ACTION_NEXT_PHASE);
-        }
-
-        void JustReachedHome() override
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-            DoCast(me, SPELL_FREEZE);
-        }
-    };
-
+        if (Creature* palehoof = instance->GetCreature(DATA_GORTOK_PALEHOOF))
+            palehoof->AI()->EnterEvadeMode(why);
+    }
 };
 
-class npc_palehoof_orb : public CreatureScript
+class boss_ravenous_furbolg : public CreatureScript
 {
 public:
-    npc_palehoof_orb() : CreatureScript("npc_palehoof_orb") { }
+    boss_ravenous_furbolg() : CreatureScript("boss_ravenous_furbolg") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct boss_ravenous_furbolgAI : public PalehoofMinionsBossAI
     {
-        return GetInstanceAI<npc_palehoof_orbAI>(creature);
-    }
+        boss_ravenous_furbolgAI(Creature* creature) : PalehoofMinionsBossAI(creature, DATA_RAVENOUS_FURBOLG) { }
 
-    struct npc_palehoof_orbAI : public ScriptedAI
-    {
-        npc_palehoof_orbAI(Creature* creature) : ScriptedAI(creature)
+        void ScheduleTasks() override
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
+            events.ScheduleEvent(EVENT_CRAZED, 10s);
+            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 12s);
+            events.ScheduleEvent(EVENT_TERRIFYING_ROAR, 22s);
         }
 
-        void Initialize()
+        void ExecuteEvent(uint32 eventId) override
         {
-            currentPhase = PHASE_NONE;
-            SummonTimer = 5000;
-        }
-
-        InstanceScript* instance;
-        uint32 SummonTimer;
-        Phase currentPhase;
-
-        void Reset() override
-        {
-            Initialize();
-            //! HACK: Creature's can't have MOVEMENTFLAG_FLYING
-            me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
-            me->RemoveAurasDueToSpell(SPELL_ORB_VISUAL);
-            me->SetSpeedRate(MOVE_FLIGHT, 0.5f);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (currentPhase == PHASE_NONE)
-                return;
-
-            if (SummonTimer <= diff)
+            switch (eventId)
             {
-                uint8 nextBossId = 0;
-                switch (currentPhase)
-                {
-                    case PHASE_FRENZIED_WORGEN:
-                        nextBossId = DATA_FRENZIED_WORGEN;
-                        break;
-                    case PHASE_RAVENOUS_FURLBORG:
-                        nextBossId = DATA_RAVENOUS_FURBOLG;
-                        break;
-                    case PHASE_MASSIVE_JORMUNGAR:
-                        nextBossId = DATA_MASSIVE_JORMUNGAR;
-                        break;
-                    case PHASE_FEROCIOUS_RHINO:
-                        nextBossId = DATA_FEROCIOUS_RHINO;
-                        break;
-                    case PHASE_GORTOK_PALEHOOF:
-                        nextBossId = DATA_GORTOK_PALEHOOF;
-                        break;
-                    default:
-                        return;
-                }
-
-                if (Creature* nextBoss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(nextBossId)))
-                {
-                    nextBoss->RemoveAurasDueToSpell(SPELL_FREEZE);
-                    nextBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
-                    nextBoss->SetStandState(UNIT_STAND_STATE_STAND);
-                    nextBoss->SetInCombatWithZone();
-                    nextBoss->Attack(nextBoss->SelectNearestTarget(100), true);
-                }
-                currentPhase = PHASE_NONE;
-
-                if (nextBossId == DATA_GORTOK_PALEHOOF)
-                    me->DespawnOrUnsummon();
-            }
-            else
-                SummonTimer -= diff;
-        }
-
-        void MovementInform(uint32 type, uint32 id) override
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            uint8 nextBossId = 0;
-            switch (id)
-            {
-                case PHASE_FRENZIED_WORGEN:
-                    nextBossId = DATA_FRENZIED_WORGEN;
+                case EVENT_CRAZED:
+                    DoCastSelf(SPELL_CRAZED);
+                    events.Repeat(Seconds(20), Seconds(25));
                     break;
-                case PHASE_RAVENOUS_FURLBORG:
-                    nextBossId = DATA_RAVENOUS_FURBOLG;
+                case EVENT_CHAIN_LIGHTNING:
+                    DoCastVictim(SPELL_CHAIN_LIGHTNING);
+                    events.Repeat(Seconds(11));
                     break;
-                case PHASE_MASSIVE_JORMUNGAR:
-                    nextBossId = DATA_MASSIVE_JORMUNGAR;
-                    break;
-                case PHASE_FEROCIOUS_RHINO:
-                    nextBossId = DATA_FEROCIOUS_RHINO;
-                    break;
-                case PHASE_GORTOK_PALEHOOF:
-                    nextBossId = DATA_GORTOK_PALEHOOF;
+                case EVENT_TERRIFYING_ROAR:
+                    DoCastSelf(SPELL_TERRIFYING_ROAR);
+                    events.Repeat(Seconds(18));
                     break;
                 default:
-                    return;
+                    break;
             }
-
-            if (Creature* nextBoss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(nextBossId)))
-                DoCast(nextBoss, SPELL_ORB_CHANNEL, false);
-
-            currentPhase = Phase(id);
-            SummonTimer = 5000;
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetUtgardePinnacleAI<boss_ravenous_furbolgAI>(creature);
+    }
+};
+
+class boss_frenzied_worgen : public CreatureScript
+{
+public:
+    boss_frenzied_worgen() : CreatureScript("boss_frenzied_worgen") { }
+
+    struct boss_frenzied_worgenAI : public PalehoofMinionsBossAI
+    {
+        boss_frenzied_worgenAI(Creature* creature) : PalehoofMinionsBossAI(creature, DATA_FRENZIED_WORGEN) { }
+
+        void ScheduleTasks() override
+        {
+            events.ScheduleEvent(EVENT_MORTAL_WOUND, 6s);
+            events.ScheduleEvent(EVENT_ENRAGE, 16s);
+            events.ScheduleEvent(EVENT_ENRAGE_2, Minutes(1) + Seconds(30));
+        }
+
+        void ExecuteEvent(uint32 eventId) override
+        {
+            switch (eventId)
+            {
+                case EVENT_MORTAL_WOUND:
+                    DoCastVictim(SPELL_MORTAL_WOUND);
+                    events.Repeat(Seconds(6));
+                    break;
+                case EVENT_ENRAGE:
+                    DoCastSelf(SPELL_ENRAGE_1);
+                    events.Repeat(Seconds(25));
+                    break;
+                case EVENT_ENRAGE_2:
+                    DoCastSelf(SPELL_ENRAGE_2);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetUtgardePinnacleAI<boss_frenzied_worgenAI>(creature);
+    }
+};
+
+class boss_ferocious_rhino : public CreatureScript
+{
+public:
+    boss_ferocious_rhino() : CreatureScript("boss_ferocious_rhino") { }
+
+    struct boss_ferocious_rhinoAI : public PalehoofMinionsBossAI
+    {
+        boss_ferocious_rhinoAI(Creature* creature) : PalehoofMinionsBossAI(creature, DATA_FEROCIOUS_RHINO) { }
+
+        void ScheduleTasks() override
+        {
+            events.ScheduleEvent(EVENT_GORE, 10s);
+            events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, 12s);
+            events.ScheduleEvent(EVENT_STOMP, 5s);
+        }
+
+        void ExecuteEvent(uint32 eventId) override
+        {
+            switch (eventId)
+            {
+                case EVENT_GORE:
+                    DoCastVictim(SPELL_GORE);
+                    events.Repeat(Seconds(19));
+                    break;
+                case EVENT_GRIEVOUS_WOUND:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        DoCast(target, SPELL_GRIEVOUS_WOUND);
+                    events.Repeat(Seconds(18));
+                    break;
+                case EVENT_STOMP:
+                    DoCastSelf(SPELL_STOMP);
+                    events.Repeat(Seconds(10), Seconds(15));
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetUtgardePinnacleAI<boss_ferocious_rhinoAI>(creature);
+    }
+};
+
+class boss_massive_jormungar : public CreatureScript
+{
+public:
+    boss_massive_jormungar() : CreatureScript("boss_massive_jormungar") { }
+
+    struct boss_massive_jormungarAI : public PalehoofMinionsBossAI
+    {
+        boss_massive_jormungarAI(Creature* creature) : PalehoofMinionsBossAI(creature, DATA_MASSIVE_JORMUNGAR) { }
+
+        void ScheduleTasks() override
+        {
+            events.ScheduleEvent(EVENT_ACID_SPIT, 6s);
+            events.ScheduleEvent(EVENT_ACID_SPLATTER, 16s);
+            events.ScheduleEvent(EVENT_POISON_BREATH, 13s);
+        }
+
+        void JustSummoned(Creature* summon) override
+        {
+            if (summon->GetEntry() == NPC_JORMUNGAR_WORM)
+            {
+                summon->m_Events.AddEvent(new WormAttackEvent(summon->ToTempSummon()), summon->m_Events.CalculateTime(2000));
+                summon->GetMotionMaster()->MoveRandom(5.0f);
+            }
+        }
+
+        void ExecuteEvent(uint32 eventId) override
+        {
+            switch (eventId)
+            {
+                case EVENT_ACID_SPIT:
+                    DoCastVictim(SPELL_ACID_SPIT);
+                    events.Repeat(Seconds(7));
+                    break;
+                case EVENT_ACID_SPLATTER:
+                    DoCastSelf(SPELL_ACID_SPLATTER);
+                    events.Repeat(Seconds(16));
+                    break;
+                case EVENT_POISON_BREATH:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_POISON_BREATH);
+                    events.Repeat(Seconds(14));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void EnterEvadeMode(EvadeReason why) override
+        {
+            summons.DespawnAll();
+            PalehoofMinionsBossAI::EnterEvadeMode(why);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetUtgardePinnacleAI<boss_massive_jormungarAI>(creature);
+    }
 };
 
 class go_palehoof_sphere : public GameObjectScript
 {
-    public:
-        go_palehoof_sphere() : GameObjectScript("go_palehoof_sphere") { }
+public:
+    go_palehoof_sphere() : GameObjectScript("go_palehoof_sphere") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    struct go_palehoof_sphereAI : public GameObjectAI
+    {
+        go_palehoof_sphereAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+        InstanceScript* instance;
+
+        bool GossipHello(Player* /*player*/) override
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return false;
-
-            Creature* palehoof = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_GORTOK_PALEHOOF));
-            if (palehoof && palehoof->IsAlive())
+            if (Creature* palehoof = instance->GetCreature(DATA_GORTOK_PALEHOOF))
             {
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                go->SetGoState(GO_STATE_ACTIVE);
-
-                palehoof->AI()->DoAction(ACTION_NEXT_PHASE);
+                if (palehoof->IsAlive() && instance->GetBossState(DATA_GORTOK_PALEHOOF) != DONE)
+                {
+                    me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    me->SetGoState(GO_STATE_ACTIVE);
+                    palehoof->AI()->DoAction(ACTION_START_ENCOUNTER);
+                }
             }
             return true;
         }
+    };
 
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetUtgardePinnacleAI<go_palehoof_sphereAI>(go);
+    }
+};
+
+//  48139 - Crazed
+class spell_palehoof_crazed : public SpellScriptLoader
+{
+    public:
+        spell_palehoof_crazed() : SpellScriptLoader("spell_palehoof_crazed") { }
+
+        class spell_palehoof_crazed_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_palehoof_crazed_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(SPELL_CRAZED_TAUNT);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_palehoof_crazed_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_palehoof_crazed_AuraScript();
+        }
+};
+
+class spell_palehoof_crazed_effect : public SpellScriptLoader
+{
+    public: spell_palehoof_crazed_effect() : SpellScriptLoader("spell_palehoof_crazed_effect") { }
+
+        class spell_palehoof_crazed_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_palehoof_crazed_effect_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_CRAZED_TAUNT });
+            }
+
+            void HandleScriptEffect(SpellEffIndex /* effIndex */)
+            {
+                GetHitUnit()->CastSpell(GetCaster(), SPELL_CRAZED_TAUNT, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_palehoof_crazed_effect_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_palehoof_crazed_effect_SpellScript();
+        }
+};
+
+// 47669 - Awaken Subbos
+class spell_palehoof_awaken_subboss : public SpellScriptLoader
+{
+    public:
+        spell_palehoof_awaken_subboss() : SpellScriptLoader("spell_palehoof_awaken_subboss") { }
+
+        class spell_palehoof_awaken_subboss_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_palehoof_awaken_subboss_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_ORB_CHANNEL });
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit();
+                GetCaster()->CastSpell(target, SPELL_ORB_CHANNEL);
+                target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8500));
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_palehoof_awaken_subboss_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_palehoof_awaken_subboss_SpellScript();
+        }
+};
+
+// 47670 - Awaken Gortok
+class spell_palehoof_awaken_gortok : public SpellScriptLoader
+{
+    public:
+        spell_palehoof_awaken_gortok() : SpellScriptLoader("spell_palehoof_awaken_gortok") { }
+
+        class spell_palehoof_awaken_gortok_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_palehoof_awaken_gortok_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit();
+                target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8000));
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_palehoof_awaken_gortok_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_palehoof_awaken_gortok_SpellScript();
+        }
 };
 
 void AddSC_boss_palehoof()
 {
     new boss_palehoof();
-    new npc_ravenous_furbolg();
-    new npc_frenzied_worgen();
-    new npc_ferocious_rhino();
-    new npc_massive_jormungar();
-    new npc_palehoof_orb();
+    new boss_ravenous_furbolg();
+    new boss_frenzied_worgen();
+    new boss_ferocious_rhino();
+    new boss_massive_jormungar();
     new go_palehoof_sphere();
+    new spell_palehoof_crazed();
+    new spell_palehoof_crazed_effect();
+    new spell_palehoof_awaken_subboss();
+    new spell_palehoof_awaken_gortok();
 }

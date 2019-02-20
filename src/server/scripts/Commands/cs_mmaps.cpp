@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,18 +24,16 @@
 */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
 #include "Chat.h"
 #include "DisableMgr.h"
-#include "ObjectMgr.h"
+#include "GridNotifiersImpl.h"
+#include "Map.h"
+#include "MMapFactory.h"
+#include "PathGenerator.h"
 #include "Player.h"
 #include "PointMovementGenerator.h"
-#include "PathGenerator.h"
-#include "MMapFactory.h"
-#include "Map.h"
-#include "TargetedMovementGenerator.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
+#include "RBAC.h"
 
 class mmaps_commandscript : public CommandScript
 {
@@ -55,7 +53,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "mmap", rbac::RBAC_PERM_COMMAND_MMAP, true, NULL, "", mmapCommandTable },
+            { "mmap", rbac::RBAC_PERM_COMMAND_MMAP, true, nullptr, "", mmapCommandTable },
         };
         return commandTable;
     }
@@ -103,9 +101,9 @@ public:
         handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : useStraightLine ? "Raycast" : "SmoothPath");
         handler->PSendSysMessage("Result: %s - Length: %zu - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
 
-        G3D::Vector3 const &start = path.GetStartPosition();
-        G3D::Vector3 const &end = path.GetEndPosition();
-        G3D::Vector3 const &actualEnd = path.GetActualEndPosition();
+        G3D::Vector3 const& start = path.GetStartPosition();
+        G3D::Vector3 const& end = path.GetEndPosition();
+        G3D::Vector3 const& actualEnd = path.GetActualEndPosition();
 
         handler->PSendSysMessage("StartPosition     (%.3f, %.3f, %.3f)", start.x, start.y, start.z);
         handler->PSendSysMessage("EndPosition       (%.3f, %.3f, %.3f)", end.x, end.y, end.z);
@@ -156,7 +154,7 @@ public:
         // navmesh poly -> navmesh tile location
         dtQueryFilter filter = dtQueryFilter();
         dtPolyRef polyRef = INVALID_POLYREF;
-        if (dtStatusFailed(navmeshquery->findNearestPoly(location, extents, &filter, &polyRef, NULL)))
+        if (dtStatusFailed(navmeshquery->findNearestPoly(location, extents, &filter, &polyRef, nullptr)))
         {
             handler->PSendSysMessage("Dt     [??,??] (invalid poly, probably no tile loaded)");
             return true;
@@ -261,18 +259,11 @@ public:
         float radius = 40.0f;
         WorldObject* object = handler->GetSession()->GetPlayer();
 
-        CellCoord pair(Trinity::ComputeCellCoord(object->GetPositionX(), object->GetPositionY()));
-        Cell cell(pair);
-        cell.SetNoCreate();
-
+        // Get Creatures
         std::list<Creature*> creatureList;
-
         Trinity::AnyUnitInObjectRangeCheck go_check(object, radius);
         Trinity::CreatureListSearcher<Trinity::AnyUnitInObjectRangeCheck> go_search(object, creatureList, go_check);
-        TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AnyUnitInObjectRangeCheck>, GridTypeMapContainer> go_visit(go_search);
-
-        // Get Creatures
-        cell.Visit(pair, go_visit, *(object->GetMap()), *object, radius);
+        Cell::VisitGridObjects(object, go_search, radius);
 
         if (!creatureList.empty())
         {

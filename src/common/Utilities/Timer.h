@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,7 @@
 #ifndef TRINITY_TIMER_H
 #define TRINITY_TIMER_H
 
+#include "Define.h"
 #include <chrono>
 
 inline uint32 getMSTime()
@@ -135,7 +136,7 @@ struct TimeTrackerSmall
 {
 public:
 
-    TimeTrackerSmall(uint32 expiry = 0)
+    TimeTrackerSmall(int32 expiry = 0)
         : i_expiryTime(expiry)
     {
     }
@@ -150,7 +151,7 @@ public:
         return i_expiryTime <= 0;
     }
 
-    void Reset(uint32 interval)
+    void Reset(int32 interval)
     {
         i_expiryTime = interval;
     }

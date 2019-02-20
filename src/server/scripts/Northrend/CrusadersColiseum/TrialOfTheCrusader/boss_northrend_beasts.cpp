@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,12 +16,17 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
 #include "Vehicle.h"
-#include "Player.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 
 enum Yells
 {
@@ -34,17 +38,9 @@ enum Yells
     SAY_SPECIAL             = 1,
 
     // Icehowl
-    EMOTE_TRAMPLE_START     = 0,
-    EMOTE_TRAMPLE_CRASH     = 1,
-    EMOTE_TRAMPLE_FAIL      = 2
-};
-
-enum Equipment
-{
-    EQUIP_MAIN           = 50760,
-    EQUIP_OFFHAND        = 48040,
-    EQUIP_RANGED         = 47267,
-    EQUIP_DONE           = EQUIP_NO_CHANGE
+    EMOTE_TRAMPLE_ROAR     = 0,
+    EMOTE_TRAMPLE_FAIL     = 1,
+    EMOTE_TRAMPLE_ENRAGE   = 2
 };
 
 enum Model
@@ -55,75 +51,81 @@ enum Model
     MODEL_DREADSCALE_MOBILE      = 24564
 };
 
-enum BeastSummons
-{
-    NPC_SNOBOLD_VASSAL   = 34800,
-    NPC_FIRE_BOMB        = 34854,
-    NPC_SLIME_POOL       = 35176,
-    MAX_SNOBOLDS         = 4
-};
-
 enum BossSpells
 {
-    //Gormok
-    SPELL_IMPALE            = 66331,
-    SPELL_STAGGERING_STOMP  = 67648,
-    //Snobold
-    SPELL_RISING_ANGER      = 66636,
-    SPELL_SNOBOLLED         = 66406,
-    SPELL_BATTER            = 66408,
-    SPELL_FIRE_BOMB         = 66313,
-    SPELL_FIRE_BOMB_1       = 66317,
-    SPELL_FIRE_BOMB_DOT     = 66318,
-    SPELL_HEAD_CRACK        = 66407,
-    SPELL_JUMP_TO_HAND      = 66342,
-    SPELL_RIDE_PLAYER       = 66245,
+    // Gormok
+    SPELL_IMPALE                = 66331,
+    SPELL_STAGGERING_STOMP      = 66330,
+    SPELL_TANKING_GORMOK        = 66415, // No idea what it does (SERVERSIDE spell)
 
-    //Acidmaw & Dreadscale Generic
-    SPELL_SWEEP             = 66794,
-    SUMMON_SLIME_POOL       = 66883,
-    SPELL_EMERGE            = 66947,
-    SPELL_SUBMERGE          = 66948,
-    SPELL_ENRAGE            = 68335,
-    SPELL_SLIME_POOL_EFFECT = 66882, //In 60s it diameter grows from 10y to 40y (r=r+0.25 per second)
-    SPELL_GROUND_VISUAL_0   = 66969,
-    SPELL_GROUND_VISUAL_1   = 68302,
-    SPELL_HATE_TO_ZERO      = 63984,
-    //Acidmaw
-    SPELL_ACID_SPIT         = 66880,
-    SPELL_PARALYTIC_SPRAY   = 66901,
-    SPELL_PARALYTIC_BITE    = 66824, //Paralytic Toxin
-    SPELL_ACID_SPEW         = 66818,
-    SPELL_PARALYSIS         = 66830,
-    SPELL_PARALYTIC_TOXIN   = 66823,
-    //Dreadscale
-    SPELL_BURNING_BITE      = 66879, // Burning Bile
-    SPELL_MOLTEN_SPEW       = 66821,
-    SPELL_FIRE_SPIT         = 66796,
-    SPELL_BURNING_SPRAY     = 66902,
-    SPELL_BURNING_BILE      = 66869,
+    // Snobold
+    SPELL_RISING_ANGER          = 66636,
+    SPELL_SNOBOLLED             = 66406,
+    SPELL_BATTER                = 66408,
+    SPELL_FIRE_BOMB             = 66313,
+    SPELL_HEAD_CRACK            = 66407,
+    SPELL_JUMP_TO_HAND          = 66342,
+    SPELL_RIDE_PLAYER           = 66245,
 
-    //Icehowl
-    SPELL_FEROCIOUS_BUTT    = 66770,
-    SPELL_MASSIVE_CRASH     = 66683,
-    SPELL_WHIRL             = 67345,
-    SPELL_ARCTIC_BREATH     = 66689,
-    SPELL_TRAMPLE           = 66734,
-    SPELL_FROTHING_RAGE     = 66759,
-    SPELL_STAGGERED_DAZE    = 66758
+    // Acidmaw & Dreadscale Generic
+    SPELL_SWEEP                 = 66794,
+    SUMMON_SLIME_POOL           = 66883,
+    SPELL_EMERGE                = 66947,
+    SPELL_SUBMERGE              = 66948,
+    SPELL_SUBMERGE_2            = 66936,
+    SPELL_ENRAGE                = 68335,
+    SPELL_GROUND_VISUAL_0       = 66969,
+    SPELL_GROUND_VISUAL_1       = 68302,
+    SPELL_HATE_TO_ZERO          = 63984,
+    // Acidmaw
+    SPELL_ACID_SPIT             = 66880,
+    SPELL_PARALYTIC_SPRAY       = 66901,
+    SPELL_PARALYTIC_BITE        = 66824,
+    SPELL_ACID_SPEW             = 66818,
+    SPELL_PARALYSIS             = 66830,
+    SPELL_PARALYTIC_TOXIN       = 66823,
+    // Dreadscale
+    SPELL_BURNING_BITE          = 66879,
+    SPELL_MOLTEN_SPEW           = 66821,
+    SPELL_FIRE_SPIT             = 66796,
+    SPELL_BURNING_SPRAY         = 66902,
+    SPELL_BURNING_BILE          = 66869,
+
+    // Slime Pool
+    SPELL_SLIME_POOL_EFFECT     = 66882,
+    SPELL_PACIFY_SELF           = 19951,
+
+    // Icehowl
+    SPELL_FEROCIOUS_BUTT        = 66770,
+    SPELL_MASSIVE_CRASH         = 66683,
+    SPELL_WHIRL                 = 67345,
+    SPELL_ARCTIC_BREATH         = 66688,
+    SPELL_TRAMPLE               = 66734,
+    SPELL_FROTHING_RAGE         = 66759,
+    SPELL_STAGGERED_DAZE        = 66758,
+    SPELL_FURIOUS_CHARGE_SUMMON = 66729,
+    SPELL_ROAR                  = 66736,
+    SPELL_JUMP_BACK             = 66733,
+    SPELL_SURGE_OF_ADRENALINE   = 68667,
+    SPELL_BERSERK               = 26662
 };
 
 enum MyActions
 {
-    ACTION_ENABLE_FIRE_BOMB     = 1,
-    ACTION_DISABLE_FIRE_BOMB    = 2,
-    ACTION_ACTIVE_SNOBOLD       = 3
+    ACTION_ENABLE_FIRE_BOMB = 1,
+    ACTION_DISABLE_FIRE_BOMB,
+    ACTION_ACTIVE_SNOBOLD,
+    ACTION_ENRAGE,
+    ACTION_TRAMPLE_FAIL,
+    ACTION_GORMOK_DEAD,
+    ACTION_JORMUNGARS_DEAD
 };
 
 enum Events
 {
     // Gormok
-    EVENT_IMPALE                = 1,
+    EVENT_ENGAGE = 1,
+    EVENT_IMPALE,
     EVENT_STAGGERING_STOMP,
     EVENT_THROW,
 
@@ -134,11 +136,15 @@ enum Events
     EVENT_SNOBOLLED,
     EVENT_CHECK_MOUNT,
 
+    // Beasts Combat Stalker
+    EVENT_BERSERK,
+    EVENT_START_ICEHOWL,
+    EVENT_START_JORGMUNGARS,
+
     // Acidmaw & Dreadscale
     EVENT_BITE,
     EVENT_SPEW,
     EVENT_SLIME_POOL,
-    EVENT_SPIT,
     EVENT_SPRAY,
     EVENT_SWEEP,
     EVENT_SUBMERGE,
@@ -150,433 +156,157 @@ enum Events
     EVENT_MASSIVE_CRASH,
     EVENT_WHIRL,
     EVENT_ARCTIC_BREATH,
+    EVENT_SELECT_CHARGE_TARGET,
+    EVENT_ROAR_EMOTE,
+    EVENT_ICEHOWL_ROAR,
+    EVENT_JUMP_BACK,
     EVENT_TRAMPLE
 };
 
 enum Phases
 {
-    PHASE_MOBILE            = 1,
-    PHASE_STATIONARY        = 2,
-    PHASE_SUBMERGED         = 3
+    PHASE_EVENT = 1,
+    PHASE_COMBAT,
+    PHASE_MOBILE,
+    PHASE_STATIONARY,
+    PHASE_SUBMERGED,
+    PHASE_CHARGE
 };
 
-enum GormokMisc
+enum NorthrendBeastsPoint
 {
-    DATA_NEW_TARGET         =   1,
-    GORMOK_HAND_SEAT        =   4,
-    PLAYER_VEHICLE_ID       = 444,
+    POINT_INITIAL_MOVEMENT = 1,
+    POINT_MIDDLE,
+    POINT_ICEHOWL_CHARGE
 };
 
-class boss_gormok : public CreatureScript
+enum Misc
 {
-    public:
-        boss_gormok() : CreatureScript("boss_gormok") { }
-
-        struct boss_gormokAI : public BossAI
-        {
-            boss_gormokAI(Creature* creature) : BossAI(creature, BOSS_BEASTS) { }
-
-            void Reset() override
-            {
-                events.ScheduleEvent(EVENT_IMPALE, Seconds(8), Seconds(10));
-                events.ScheduleEvent(EVENT_STAGGERING_STOMP, Seconds(15));
-                events.ScheduleEvent(EVENT_THROW, Seconds(15), Seconds(30));
-
-                summons.DespawnAll();
-            }
-
-            void EnterEvadeMode(EvadeReason why) override
-            {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                ScriptedAI::EnterEvadeMode(why);
-            }
-
-            void MovementInform(uint32 type, uint32 pointId) override
-            {
-                if (type != POINT_MOTION_TYPE)
-                    return;
-
-                switch (pointId)
-                {
-                    case 0:
-                        instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->SetInCombatWithZone();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
-            }
-
-            void JustReachedHome() override
-            {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
-
-                me->DespawnOrUnsummon();
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                _EnterCombat();
-                instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_IN_PROGRESS);
-            }
-
-            void DamageTaken(Unit* /*who*/, uint32& damage) override
-            {
-                // despawn the remaining passengers on death
-                if (damage >= me->GetHealth())
-                    for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
-                        if (Unit* snobold = me->GetVehicleKit()->GetPassenger(i))
-                            snobold->ToCreature()->DespawnOrUnsummon();
-            }
-
-            void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
-            {
-                if (apply && seatId == GORMOK_HAND_SEAT)
-                    who->CastSpell(me, SPELL_RISING_ANGER, true);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_IMPALE:
-                            DoCastVictim(SPELL_IMPALE);
-                            events.Repeat(Seconds(8), Seconds(10));
-                            break;
-                        case EVENT_STAGGERING_STOMP:
-                            DoCastVictim(SPELL_STAGGERING_STOMP);
-                            events.Repeat(Seconds(15));
-                            break;
-                        case EVENT_THROW:
-                            for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
-                            {
-                                if (Unit* snobold = me->GetVehicleKit()->GetPassenger(i))
-                                {
-                                    snobold->ExitVehicle();
-                                    snobold->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                    snobold->GetAI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
-                                    snobold->CastSpell(me, SPELL_JUMP_TO_HAND, true);
-                                    break;
-                                }
-                            }
-                            events.Repeat(Seconds(15), Seconds(30));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetInstanceAI<boss_gormokAI>(creature);
-        }
+    DATA_NEW_TARGET         = 1,
+    GORMOK_HAND_SEAT        = 4,
+    MAX_SNOBOLDS            = 4,
+    SPLINE_INITIAL_MOVEMENT = 1
 };
 
-class SnobolledTargetSelector : public std::unary_function<Unit*, bool>
+Position const CombatStalkerPosition = { 563.8941f, 137.3333f, 405.8467f };
+
+class SnobolledTargetSelector
 {
 public:
-    SnobolledTargetSelector(Unit const* /*unit*/) { }
+    SnobolledTargetSelector() { }
 
     bool operator()(Unit* unit) const
     {
-        if (unit->GetTypeId() != TYPEID_PLAYER)
-            return false;
-
-        if (unit->HasAura(SPELL_RIDE_PLAYER) || unit->HasAura(SPELL_SNOBOLLED))
-            return false;
-
-        return true;
+        return unit->GetTypeId() == TYPEID_PLAYER && !unit->HasAura(SPELL_RIDE_PLAYER) && !unit->HasAura(SPELL_SNOBOLLED);
     }
 };
 
-class npc_snobold_vassal : public CreatureScript
+struct boss_northrend_beastsAI : public BossAI
 {
-    public:
-        npc_snobold_vassal() : CreatureScript("npc_snobold_vassal") { }
-
-        struct npc_snobold_vassalAI : public ScriptedAI
-        {
-            npc_snobold_vassalAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _isActive(false)
-            {
-                _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
-                SetCombatMovement(false);
-            }
-
-            void Reset() override
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                me->SetInCombatWithZone();
-                _events.ScheduleEvent(EVENT_CHECK_MOUNT, Seconds(1));
-                _events.ScheduleEvent(EVENT_FIRE_BOMB, Seconds(5), Seconds(30));
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                if (Unit* target = ObjectAccessor::GetPlayer(*me, _targetGUID))
-                    target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
-                _instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_ENABLE_FIRE_BOMB:
-                        _events.ScheduleEvent(EVENT_FIRE_BOMB, Seconds(5), Seconds(30));
-                        break;
-                    case ACTION_DISABLE_FIRE_BOMB:
-                        _events.CancelEvent(EVENT_FIRE_BOMB);
-                        break;
-                    case ACTION_ACTIVE_SNOBOLD:
-                        _isActive = true;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void SetGUID(ObjectGuid guid, int32 id) override
-            {
-                if (id == DATA_NEW_TARGET)
-                    if (Unit* target = ObjectAccessor::GetPlayer(*me, guid))
-                    {
-                        _targetGUID = guid;
-                        AttackStart(target);
-                        _events.ScheduleEvent(EVENT_BATTER, Seconds(5));
-                        _events.ScheduleEvent(EVENT_HEAD_CRACK, Seconds(25));
-                        _events.ScheduleEvent(EVENT_SNOBOLLED, Milliseconds(500));
-                    }
-            }
-
-            void AttackStart(Unit* who) override
-            {
-                //Snobold only melee attack players that is your vehicle
-                if (!_isActive || who->GetGUID() != _targetGUID)
-                    return;
-
-                ScriptedAI::AttackStart(who);
-            }
-
-            void MountOnBoss()
-            {
-                Unit* gormok = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_GORMOK));
-                if (gormok && gormok->IsAlive())
-                {
-                    me->AttackStop();
-                    _targetGUID.Clear();
-                    _isActive = false;
-                    _events.CancelEvent(EVENT_BATTER);
-                    _events.CancelEvent(EVENT_HEAD_CRACK);
-
-                    for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
-                    {
-                        if (!gormok->GetVehicleKit()->GetPassenger(i))
-                        {
-                            me->EnterVehicle(gormok, i);
-                            DoAction(ACTION_ENABLE_FIRE_BOMB);
-                            break;
-                        }
-                    }
-                }
-                //Without Boss, snobolds should jump in another players
-                else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SnobolledTargetSelector(me)))
-                    me->CastSpell(target, SPELL_RIDE_PLAYER, true);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_FIRE_BOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -me->GetVehicleBase()->GetCombatReach(), true))
-                                me->CastSpell(target, SPELL_FIRE_BOMB);
-                            _events.Repeat(Seconds(20));
-                            break;
-                        case EVENT_HEAD_CRACK:
-                            DoCast(me->GetVehicleBase(), SPELL_HEAD_CRACK);
-                            _events.Repeat(Seconds(30));
-                            break;
-                        case EVENT_BATTER:
-                            DoCast(me->GetVehicleBase(), SPELL_BATTER);
-                            _events.Repeat(Seconds(10));
-                            break;
-                        case EVENT_SNOBOLLED:
-                            DoCastAOE(SPELL_SNOBOLLED);
-                            break;
-                        case EVENT_CHECK_MOUNT:
-                            if (!me->GetVehicleBase())
-                                MountOnBoss();
-                            _events.Repeat(Seconds(1));
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                if (!UpdateVictim())
-                    return;
-
-                // do melee attack only if is in player back.
-                if (_isActive)
-                    DoMeleeAttackIfReady();
-            }
-
-            private:
-                EventMap _events;
-                InstanceScript* _instance;
-                ObjectGuid _targetGUID;
-                bool _isActive;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetInstanceAI<npc_snobold_vassalAI>(creature);
-        }
-};
-
-class npc_firebomb : public CreatureScript
-{
-    public:
-        npc_firebomb() : CreatureScript("npc_firebomb") { }
-
-        struct npc_firebombAI : public ScriptedAI
-        {
-            npc_firebombAI(Creature* creature) : ScriptedAI(creature)
-            {
-                _instance = creature->GetInstanceScript();
-            }
-
-            void Reset() override
-            {
-                DoCast(me, SPELL_FIRE_BOMB_DOT, true);
-                SetCombatMovement(false);
-                me->SetReactState(REACT_PASSIVE);
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-            }
-
-            void UpdateAI(uint32 /*diff*/) override
-            {
-                if (_instance->GetData(TYPE_NORTHREND_BEASTS) != GORMOK_IN_PROGRESS)
-                    me->DespawnOrUnsummon();
-            }
-
-            private:
-                InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetInstanceAI<npc_firebombAI>(creature);
-        }
-};
-
-struct boss_jormungarAI : public BossAI
-{
-    boss_jormungarAI(Creature* creature) : BossAI(creature, BOSS_BEASTS)
+    boss_northrend_beastsAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId)
     {
-        OtherWormEntry = 0;
-        ModelStationary = 0;
-        ModelMobile = 0;
-
-        BiteSpell = 0;
-        SpewSpell = 0;
-        SpitSpell = 0;
-        SpraySpell = 0;
-
-        Phase = PHASE_MOBILE;
-        Enraged = false;
-        WasMobile = false;
+        SetBoundary(instance->GetBossBoundary(DATA_NORTHREND_BEASTS));
     }
 
     void Reset() override
     {
-        Enraged = false;
+        events.Reset();
+        events.SetPhase(PHASE_EVENT);
+        summons.DespawnAll();
+        me->SetReactState(REACT_PASSIVE);
+        me->SetCombatPulseDelay(0);
+        HandleInitialMovement();
+    }
 
-        events.ScheduleEvent(EVENT_SPIT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
-        events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
-        events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
-        events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
-        events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
-        events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, 0, PHASE_MOBILE);
+    void HandleInitialMovement()
+    {
+        switch (me->GetEntry())
+        {
+            case NPC_GORMOK:
+            case NPC_DREADSCALE:
+                me->GetMotionMaster()->MoveAlongSplineChain(POINT_INITIAL_MOVEMENT, SPLINE_INITIAL_MOVEMENT, false);
+                break;
+            case NPC_ICEHOWL:
+                me->GetMotionMaster()->MoveAlongSplineChain(POINT_INITIAL_MOVEMENT, SPLINE_INITIAL_MOVEMENT, true);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void HandleWithHeroicEvents()
+    {
+        if (Creature* combatStalker = instance->GetCreature(DATA_BEASTS_COMBAT_STALKER))
+        {
+            if (me->GetEntry() == NPC_GORMOK)
+                combatStalker->AI()->DoAction(ACTION_START_JORMUNGARS);
+            else if (me->GetEntry() == NPC_DREADSCALE)
+                combatStalker->AI()->DoAction(ACTION_START_ICEHOWL);
+        }
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        me->SetCombatPulseDelay(5);
+        me->setActive(true);
+        ScheduleTasks();
+        HandleInstanceProgress();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        if (IsHeroic())
+            HandleWithHeroicEvents();
+    }
+
+    void HandleInstanceProgress()
+    {
+        switch (me->GetEntry())
+        {
+            case NPC_GORMOK:
+                instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_IN_PROGRESS);
+                break;
+            case NPC_ACIDMAW:
+            case NPC_DREADSCALE:
+                if (instance->GetData(TYPE_NORTHREND_BEASTS) != SNAKES_IN_PROGRESS)
+                    instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_IN_PROGRESS);
+                break;
+            case NPC_ICEHOWL:
+                instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_IN_PROGRESS);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        ScriptedAI::EnterEvadeMode(why);
+        instance->SetData(DATA_DESPAWN_SNOBOLDS, 0);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        // prevent losing 2 attempts at once on heroics
+        if (instance->GetData(TYPE_NORTHREND_BEASTS) != FAIL)
+            instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
+        if (Creature* combatStalker = instance->GetCreature(DATA_BEASTS_COMBAT_STALKER))
+            combatStalker->DespawnOrUnsummon();
+        summons.DespawnAll();
+        me->DespawnOrUnsummon();
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* otherWorm = ObjectAccessor::GetCreature(*me, instance->GetGuidData(OtherWormEntry)))
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        if (me->GetEntry() == NPC_GORMOK)
         {
-            if (!otherWorm->IsAlive())
-            {
-                instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
-
-                me->DespawnOrUnsummon();
-                otherWorm->DespawnOrUnsummon();
-            }
-            else
-                instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_SPECIAL);
+            instance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
+            if (Creature* combatStalker = instance->GetCreature(DATA_BEASTS_COMBAT_STALKER))
+                combatStalker->AI()->DoAction(ACTION_GORMOK_DEAD);
         }
-    }
-
-    void JustReachedHome() override
-    {
-        // prevent losing 2 attempts at once on heroics
-        if (instance->GetData(TYPE_NORTHREND_BEASTS) != FAIL)
-            instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
-
-        me->DespawnOrUnsummon();
-    }
-
-    void EnterCombat(Unit* /*who*/) override
-    {
-        _EnterCombat();
-        me->SetInCombatWithZone();
-        instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_IN_PROGRESS);
+        else
+            instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_DONE);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim())
+        if (!UpdateVictim() && !events.IsInPhase(PHASE_EVENT))
             return;
-
-        if (!Enraged && instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL)
-        {
-            me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            DoCast(SPELL_ENRAGE);
-            Enraged = true;
-            Talk(EMOTE_ENRAGE);
-        }
 
         events.Update(diff);
 
@@ -585,783 +315,905 @@ struct boss_jormungarAI : public BossAI
 
         while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (eventId)
-            {
-                case EVENT_EMERGE:
-                    Emerge();
-                    return;
-                case EVENT_SUBMERGE:
-                    Submerge();
-                    return;
-                case EVENT_BITE:
-                    DoCastVictim(BiteSpell);
-                    events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
-                    return;
-                case EVENT_SPEW:
-                    DoCastAOE(SpewSpell);
-                    events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
-                    return;
-                case EVENT_SLIME_POOL:
-                    DoCast(me, SUMMON_SLIME_POOL);
-                    events.ScheduleEvent(EVENT_SLIME_POOL, 30*IN_MILLISECONDS, 0, PHASE_MOBILE);
-                    return;
-                case EVENT_SUMMON_ACIDMAW:
-                    if (Creature* acidmaw = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
+            ExecuteEvent(eventId);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+struct boss_gormok : public boss_northrend_beastsAI
+{
+    boss_gormok(Creature* creature) : boss_northrend_beastsAI(creature, DATA_GORMOK_THE_IMPALER) { }
+
+    void ScheduleTasks() override
+    {
+        events.ScheduleEvent(EVENT_IMPALE, 10s);
+        events.ScheduleEvent(EVENT_STAGGERING_STOMP, 15s);
+        events.ScheduleEvent(EVENT_THROW, 20s);
+    }
+
+    void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
+    {
+        if (apply && seatId == GORMOK_HAND_SEAT)
+            who->CastSpell(who, SPELL_RISING_ANGER, true);
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type == SPLINE_CHAIN_MOTION_TYPE && pointId == POINT_INITIAL_MOVEMENT)
+            events.ScheduleEvent(EVENT_ENGAGE, 7s);
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_ENGAGE:
+                instance->DoUseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
+                me->SetImmuneToPC(false);
+                me->SetReactState(REACT_AGGRESSIVE);
+                // Npc that should keep raid in combat while boss change
+                if (Creature* combatStalker = me->SummonCreature(NPC_BEASTS_COMBAT_STALKER, CombatStalkerPosition))
+                {
+                    DoZoneInCombat(combatStalker);
+                    combatStalker->SetCombatPulseDelay(5);
+                }
+                DoZoneInCombat();
+                events.SetPhase(PHASE_COMBAT);
+                DoCastSelf(SPELL_TANKING_GORMOK, true);
+                break;
+            case EVENT_IMPALE:
+                DoCastVictim(SPELL_IMPALE);
+                events.Repeat(10s);
+                break;
+            case EVENT_STAGGERING_STOMP:
+                DoCastVictim(SPELL_STAGGERING_STOMP);
+                events.Repeat(22s);
+                break;
+            case EVENT_THROW:
+                for (uint8 i = 0; i < MAX_SNOBOLDS; ++i)
+                {
+                    if (Unit* snobold = me->GetVehicleKit()->GetPassenger(i))
                     {
-                        acidmaw->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                        acidmaw->SetReactState(REACT_AGGRESSIVE);
-                        acidmaw->SetInCombatWithZone();
-                        acidmaw->CastSpell(acidmaw, SPELL_EMERGE);
-                        acidmaw->CastSpell(acidmaw, SPELL_GROUND_VISUAL_1, true);
+                        snobold->ExitVehicle();
+                        snobold->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        snobold->GetAI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
+                        snobold->CastSpell(me, SPELL_JUMP_TO_HAND, true);
+                        break;
                     }
-                    return;
-                case EVENT_SPRAY:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                        DoCast(target, SpraySpell);
-                    events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
-                    return;
-                case EVENT_SWEEP:
-                    DoCastAOE(SPELL_SWEEP);
-                    events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
-                    return;
-                default:
-                    return;
+                }
+                events.Repeat(20s);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+struct npc_snobold_vassal : public ScriptedAI
+{
+    npc_snobold_vassal(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _mountedOnPlayer(false)
+    {
+        _instance->SetData(DATA_SNOBOLD_COUNT, INCREASE);
+        SetCombatMovement(false);
+    }
+
+    bool CanAIAttack(Unit const* who) const override
+    {
+        if (_mountedOnPlayer && who->GetGUID() != _targetGUID)
+            return false;
+
+        return ScriptedAI::CanAIAttack(who);
+    }
+
+    void AttackStart(Unit* victim) override
+    {
+        Creature* gormok = _instance->GetCreature(DATA_GORMOK_THE_IMPALER);
+        if (!_mountedOnPlayer && (!gormok || !gormok->IsAlive()))
+            AttackStartCaster(victim, 30.0f);
+        else
+            ScriptedAI::AttackStart(victim);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_CHECK_MOUNT, 3s);
+        _events.ScheduleEvent(EVENT_FIRE_BOMB, 12s, 25s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_ENABLE_FIRE_BOMB:
+                _events.ScheduleEvent(EVENT_FIRE_BOMB, 12s, 25s);
+                break;
+            case ACTION_DISABLE_FIRE_BOMB:
+                _events.CancelEvent(EVENT_FIRE_BOMB);
+                break;
+            case ACTION_ACTIVE_SNOBOLD:
+                _mountedOnPlayer = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void SetGUID(ObjectGuid const& guid, int32 id) override
+    {
+        if (id == DATA_NEW_TARGET)
+            if (Unit* target = ObjectAccessor::GetPlayer(*me, guid))
+            {
+                _targetGUID = guid;
+                AttackStart(target);
+                _events.ScheduleEvent(EVENT_BATTER, 5s);
+                _events.ScheduleEvent(EVENT_SNOBOLLED, 1s);
+                _events.ScheduleEvent(EVENT_HEAD_CRACK, 1s);
+            }
+    }
+
+    void MountOnBoss()
+    {
+        Unit* gormok = _instance->GetCreature(DATA_GORMOK_THE_IMPALER);
+        if (gormok && gormok->IsAlive())
+        {
+            me->AttackStop();
+            _targetGUID.Clear();
+            _mountedOnPlayer = false;
+            _events.CancelEvent(EVENT_BATTER);
+            _events.CancelEvent(EVENT_HEAD_CRACK);
+
+            for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
+            {
+                if (!gormok->GetVehicleKit()->GetPassenger(i))
+                {
+                    me->EnterVehicle(gormok, i);
+                    DoAction(ACTION_ENABLE_FIRE_BOMB);
+                    break;
+                }
             }
         }
-        if (events.IsInPhase(PHASE_MOBILE))
+        else
+        {
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            _events.CancelEvent(EVENT_CHECK_MOUNT);
+            me->AttackStop();
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                AttackStart(target);
+            SetCombatMovement(true);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FIRE_BOMB:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        me->CastSpell(target, SPELL_FIRE_BOMB);
+                    _events.Repeat(20s, 30s);
+                    break;
+                case EVENT_HEAD_CRACK:
+                    if (Unit* target = me->GetVehicleBase())
+                        DoCast(target, SPELL_HEAD_CRACK);
+                    _events.Repeat(30s);
+                    break;
+                case EVENT_BATTER:
+                    if (Unit* target = me->GetVehicleBase())
+                        DoCast(target, SPELL_BATTER);
+                    _events.Repeat(10s, 15s);
+                    break;
+                case EVENT_SNOBOLLED:
+                    DoCastSelf(SPELL_SNOBOLLED);
+                    break;
+                case EVENT_CHECK_MOUNT:
+                    if (!me->GetVehicleBase())
+                        MountOnBoss();
+                    _events.Repeat(3s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        // do melee attack only if is in player back.
+        if (_mountedOnPlayer)
             DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    ObjectGuid _targetGUID;
+    bool _mountedOnPlayer;
+};
+
+struct npc_beasts_combat_stalker : public ScriptedAI
+{
+    npc_beasts_combat_stalker(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+
+    void Reset() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        _events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 9min : 15min);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_START_JORMUNGARS:
+                _events.ScheduleEvent(EVENT_START_JORGMUNGARS, 2min + 30s);
+                break;
+            case ACTION_GORMOK_DEAD:
+                _events.CancelEvent(EVENT_START_JORGMUNGARS);
+                break;
+            case ACTION_START_ICEHOWL:
+                _events.ScheduleEvent(EVENT_START_ICEHOWL, 2min + 30s);
+                break;
+            case ACTION_JORMUNGARS_DEAD:
+                _events.CancelEvent(EVENT_START_ICEHOWL);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BERSERK:
+                    if (Creature* gormok = _instance->GetCreature(DATA_GORMOK_THE_IMPALER))
+                        gormok->CastSpell(gormok, SPELL_BERSERK, true);
+
+                    if (Creature* dreadscale = _instance->GetCreature(DATA_DREADSCALE))
+                        dreadscale->CastSpell(dreadscale, SPELL_BERSERK, true);
+
+                    if (Creature* acidmaw = _instance->GetCreature(DATA_ACIDMAW))
+                        acidmaw->CastSpell(acidmaw, SPELL_BERSERK, true);
+
+                    if (Creature* icehowl = _instance->GetCreature(DATA_ICEHOWL))
+                        icehowl->CastSpell(icehowl, SPELL_BERSERK, true);
+                    break;
+                case EVENT_START_JORGMUNGARS:
+                    if (Creature* tirion = _instance->GetCreature(DATA_FORDRING))
+                        tirion->AI()->DoAction(ACTION_START_JORMUNGARS);
+                    break;
+                case EVENT_START_ICEHOWL:
+                    if (Creature* tirion = _instance->GetCreature(DATA_FORDRING))
+                        tirion->AI()->DoAction(ACTION_START_ICEHOWL);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+};
+
+struct boss_jormungarAI : public boss_northrend_beastsAI
+{
+    boss_jormungarAI(Creature* creature, uint32 bossId) : boss_northrend_beastsAI(creature, bossId)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        otherWormEntry = 0;
+        modelStationary = 0;
+        modelMobile = 0;
+        biteSpell = 0;
+        spewSpell = 0;
+        spitSpell = 0;
+        spraySpell = 0;
+        wasMobile = false;
+    }
+
+    void Reset() override
+    {
+        Initialize();
+        boss_northrend_beastsAI::Reset();
+    }
+
+    void JustSummoned(Creature* summoned) override
+    {
+        if (summoned->GetEntry() == NPC_ACIDMAW)
+            BossAI::JustSummoned(summoned);
+        else
+            summons.Summon(summoned);
+    }
+
+    void ScheduleTasks() override
+    {
         if (events.IsInPhase(PHASE_STATIONARY))
-            DoCastVictim(SpitSpell);
+        {
+            events.ScheduleEvent(EVENT_SPRAY, me->GetEntry() == NPC_DREADSCALE ? 17s : 9s, 0, PHASE_STATIONARY);
+            events.ScheduleEvent(EVENT_SWEEP, 16s, 0, PHASE_STATIONARY);
+        }
+        else
+        {
+            events.ScheduleEvent(EVENT_BITE, 5s, 0, PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_SPEW, 10s, 0, PHASE_MOBILE);
+            events.ScheduleEvent(EVENT_SLIME_POOL, 14s, 0, PHASE_MOBILE);
+        }
+
+        events.ScheduleEvent(EVENT_SUBMERGE, 45s);
+    }
+
+    uint32 GetOtherWormData(uint32 wormEntry)
+    {
+        return wormEntry == NPC_ACIDMAW ? DATA_ACIDMAW : DATA_DREADSCALE;
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* otherWorm = instance->GetCreature(GetOtherWormData(otherWormEntry)))
+        {
+            if (!otherWorm->IsAlive())
+            {
+                instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
+                me->DespawnOrUnsummon();
+                otherWorm->DespawnOrUnsummon();
+                if (Creature* combatStalker = instance->GetCreature(DATA_BEASTS_COMBAT_STALKER))
+                    combatStalker->AI()->DoAction(ACTION_JORMUNGARS_DEAD);
+            }
+            else
+            {
+                instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_SPECIAL);
+                otherWorm->AI()->DoAction(ACTION_ENRAGE);
+            }
+        }
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_ENRAGE)
+        {
+            DoCastSelf(SPELL_ENRAGE, true);
+            Talk(EMOTE_ENRAGE);
+            if (events.IsInPhase(PHASE_SUBMERGED))
+                events.RescheduleEvent(EVENT_EMERGE, 1ms);
+        }
     }
 
     void Submerge()
     {
-        DoCast(me, SPELL_SUBMERGE);
-        DoCast(me, SPELL_GROUND_VISUAL_0, true);
-        me->RemoveAurasDueToSpell(SPELL_EMERGE);
-        me->SetInCombatWithZone();
-        events.SetPhase(PHASE_SUBMERGED);
-        events.ScheduleEvent(EVENT_EMERGE, 5*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-        me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+ frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ());
-        WasMobile = !WasMobile;
+        me->SetReactState(REACT_PASSIVE);
+        me->AttackStop();
+
+        if (wasMobile)
+        {
+            me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
+            DoCastSelf(SPELL_SUBMERGE);
+            me->SetSpeedRate(MOVE_RUN, 8.0f);
+            DoCastSelf(SPELL_GROUND_VISUAL_0, true);
+            events.SetPhase(PHASE_SUBMERGED);
+            events.ScheduleEvent(EVENT_EMERGE, 5s, 0, PHASE_SUBMERGED);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        }
+        else
+        {
+            me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
+            DoCastSelf(SPELL_SUBMERGE_2);
+            me->RemoveAurasDueToSpell(SPELL_GROUND_VISUAL_1);
+            me->SetSpeedRate(MOVE_RUN, 1.1111f);
+            DoCastSelf(SPELL_GROUND_VISUAL_0, true);
+            events.SetPhase(PHASE_SUBMERGED);
+            me->SetControlled(false, UNIT_STATE_ROOT);
+            events.ScheduleEvent(EVENT_EMERGE, 6s, 0, PHASE_SUBMERGED);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        }
+        me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ() + me->GetCollisionHeight());
     }
 
     void Emerge()
     {
-        DoCast(me, SPELL_EMERGE);
-        DoCastAOE(SPELL_HATE_TO_ZERO, true);
-        me->SetDisplayId(ModelMobile);
-        me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
+        me->UpdateSpeed(MOVE_RUN);
+        uint32 submergeSpell = wasMobile ? SPELL_SUBMERGE : SPELL_SUBMERGE_2;
+        me->RemoveAurasDueToSpell(submergeSpell);
         me->RemoveAurasDueToSpell(SPELL_GROUND_VISUAL_0);
+        DoCastSelf(SPELL_EMERGE);
+        DoCastAOE(SPELL_HATE_TO_ZERO, true);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->SetReactState(REACT_AGGRESSIVE);
+        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            AttackStart(target);
 
         // if the worm was mobile before submerging, make him stationary now
-        if (WasMobile)
+        if (wasMobile)
         {
             me->SetControlled(true, UNIT_STATE_ROOT);
-            SetCombatMovement(false);
-            me->SetDisplayId(ModelStationary);
-            me->CastSpell(me, SPELL_GROUND_VISUAL_1, true);
+            me->SetDisplayId(modelStationary);
+            DoCastSelf(SPELL_GROUND_VISUAL_1, true);
             events.SetPhase(PHASE_STATIONARY);
-            events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_STATIONARY);
-            events.ScheduleEvent(EVENT_SPIT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
-            events.ScheduleEvent(EVENT_SPRAY, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
-            events.ScheduleEvent(EVENT_SWEEP, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_STATIONARY);
         }
         else
         {
-            me->SetControlled(false, UNIT_STATE_ROOT);
-            SetCombatMovement(true);
-            me->GetMotionMaster()->MoveChase(me->GetVictim());
-            me->SetDisplayId(ModelMobile);
-            me->RemoveAurasDueToSpell(SPELL_GROUND_VISUAL_1);
+            if (Unit* target = me->GetVictim())
+                me->GetMotionMaster()->MoveChase(target);
+            me->SetDisplayId(modelMobile);
             events.SetPhase(PHASE_MOBILE);
-            events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_MOBILE);
-            events.ScheduleEvent(EVENT_BITE, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
-            events.ScheduleEvent(EVENT_SPEW, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_MOBILE);
-            events.ScheduleEvent(EVENT_SLIME_POOL, 15*IN_MILLISECONDS, 0, PHASE_MOBILE);
         }
+        wasMobile = !wasMobile;
+        ScheduleTasks();
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_ENGAGE:
+                if (me->GetEntry() == NPC_DREADSCALE)
+                {
+                    instance->DoCloseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
+                    me->SetImmuneToPC(false);
+                    events.SetPhase(PHASE_MOBILE);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoZoneInCombat();
+                    events.ScheduleEvent(EVENT_SUMMON_ACIDMAW, 1ms);
+                }
+                else
+                {
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoZoneInCombat();
+                }
+                break;
+            case EVENT_EMERGE:
+                Emerge();
+                break;
+            case EVENT_SUBMERGE:
+                Submerge();
+                break;
+            case EVENT_BITE:
+                DoCastVictim(biteSpell);
+                events.Repeat(15s);
+                break;
+            case EVENT_SPEW:
+                DoCastAOE(spewSpell);
+                events.Repeat(21s);
+                break;
+            case EVENT_SLIME_POOL:
+                DoCastSelf(SUMMON_SLIME_POOL);
+                events.Repeat(12s);
+                break;
+            case EVENT_SUMMON_ACIDMAW:
+                me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9]);
+                break;
+            case EVENT_SPRAY:
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                    DoCast(target, spraySpell);
+                events.Repeat(21s);
+                break;
+            case EVENT_SWEEP:
+                DoCastAOE(SPELL_SWEEP);
+                events.Repeat(17s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && !events.IsInPhase(PHASE_EVENT))
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            ExecuteEvent(eventId);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        if (events.IsInPhase(PHASE_MOBILE))
+            DoMeleeAttackIfReady();
+        else
+            DoCastVictim(spitSpell);
     }
 
     protected:
-        uint32 OtherWormEntry;
-        uint32 ModelStationary;
-        uint32 ModelMobile;
-
-        uint32 BiteSpell;
-        uint32 SpewSpell;
-        uint32 SpitSpell;
-        uint32 SpraySpell;
-
-        Phases Phase;
-        bool Enraged;
-        bool WasMobile;
+        uint32 otherWormEntry;
+        uint32 modelStationary;
+        uint32 modelMobile;
+        uint32 biteSpell;
+        uint32 spewSpell;
+        uint32 spitSpell;
+        uint32 spraySpell;
+        bool wasMobile;
 };
 
-class boss_acidmaw : public CreatureScript
+struct boss_dreadscale : public boss_jormungarAI
 {
-    public:
-        boss_acidmaw() : CreatureScript("boss_acidmaw") { }
+    boss_dreadscale(Creature* creature) : boss_jormungarAI(creature, DATA_DREADSCALE) { }
 
-        struct boss_acidmawAI : public boss_jormungarAI
+    void Reset() override
+    {
+        boss_northrend_beastsAI::Reset();
+        biteSpell = SPELL_BURNING_BITE;
+        spewSpell = SPELL_MOLTEN_SPEW;
+        spitSpell = SPELL_FIRE_SPIT;
+        spraySpell = SPELL_BURNING_SPRAY;
+        modelStationary = MODEL_DREADSCALE_STATIONARY;
+        modelMobile = MODEL_DREADSCALE_MOBILE;
+        otherWormEntry = NPC_ACIDMAW;
+        wasMobile = true;
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type == SPLINE_CHAIN_MOTION_TYPE && pointId == POINT_INITIAL_MOVEMENT)
+            events.ScheduleEvent(EVENT_ENGAGE, 3s);
+    }
+};
+
+struct boss_acidmaw : public boss_jormungarAI
+{
+    boss_acidmaw(Creature* creature) : boss_jormungarAI(creature, DATA_ACIDMAW) { }
+
+    void Reset() override
+    {
+        boss_northrend_beastsAI::Reset();
+        biteSpell = SPELL_PARALYTIC_BITE;
+        spewSpell = SPELL_ACID_SPEW;
+        spitSpell = SPELL_ACID_SPIT;
+        spraySpell = SPELL_PARALYTIC_SPRAY;
+        modelStationary = MODEL_ACIDMAW_STATIONARY;
+        modelMobile = MODEL_ACIDMAW_MOBILE;
+        otherWormEntry = NPC_DREADSCALE;
+        events.SetPhase(PHASE_STATIONARY);
+        wasMobile = false;
+        me->SetControlled(true, UNIT_STATE_ROOT);
+        DoCastSelf(SPELL_GROUND_VISUAL_1, true);
+        events.ScheduleEvent(EVENT_ENGAGE, 3s);
+    }
+};
+
+struct npc_jormungars_slime_pool : public ScriptedAI
+{
+    npc_jormungars_slime_pool(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        DoCastSelf(SPELL_SLIME_POOL_EFFECT, true);
+        DoCastSelf(SPELL_PACIFY_SELF, true);
+    }
+};
+
+struct boss_icehowl : public boss_northrend_beastsAI
+{
+    boss_icehowl(Creature* creature) : boss_northrend_beastsAI(creature, DATA_ICEHOWL) { }
+
+    void ScheduleTasks() override
+    {
+        events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, 8s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_ARCTIC_BREATH, 20s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_WHIRL, 15s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_MASSIVE_CRASH, 35s, 0, PHASE_COMBAT);
+    }
+
+    void RescheduleTasks()
+    {
+        events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, 8s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_ARCTIC_BREATH, 20s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_WHIRL, 15s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_MASSIVE_CRASH, 45s, 0, PHASE_COMBAT);
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE && type != SPLINE_CHAIN_MOTION_TYPE)
+            return;
+
+        switch (pointId)
         {
-            boss_acidmawAI(Creature* creature) : boss_jormungarAI(creature) { }
-
-            void Reset() override
-            {
-                boss_jormungarAI::Reset();
-                BiteSpell = SPELL_PARALYTIC_BITE;
-                SpewSpell = SPELL_ACID_SPEW;
-                SpitSpell = SPELL_ACID_SPIT;
-                SpraySpell = SPELL_PARALYTIC_SPRAY;
-                ModelStationary = MODEL_ACIDMAW_STATIONARY;
-                ModelMobile = MODEL_ACIDMAW_MOBILE;
-                OtherWormEntry = NPC_DREADSCALE;
-
-                WasMobile = true;
-                Emerge();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetInstanceAI<boss_acidmawAI>(creature);
+            case POINT_INITIAL_MOVEMENT:
+                events.ScheduleEvent(EVENT_ENGAGE, 3s);
+                break;
+            case POINT_MIDDLE:
+                DoCastSelf(SPELL_MASSIVE_CRASH);
+                events.ScheduleEvent(EVENT_SELECT_CHARGE_TARGET, 4s);
+                break;
+            case POINT_ICEHOWL_CHARGE:
+                events.Reset();
+                events.SetPhase(PHASE_COMBAT);
+                RescheduleTasks();
+                me->SetReactState(REACT_AGGRESSIVE);
+                DoCastSelf(SPELL_TRAMPLE);
+                break;
+            default:
+                break;
         }
-};
+    }
 
-class boss_dreadscale : public CreatureScript
-{
-    public:
-        boss_dreadscale() : CreatureScript("boss_dreadscale") { }
-
-        struct boss_dreadscaleAI : public boss_jormungarAI
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_ENRAGE)
         {
-            boss_dreadscaleAI(Creature* creature) : boss_jormungarAI(creature) { }
-
-            void Reset() override
-            {
-                boss_jormungarAI::Reset();
-                BiteSpell = SPELL_BURNING_BITE;
-                SpewSpell = SPELL_MOLTEN_SPEW;
-                SpitSpell = SPELL_FIRE_SPIT;
-                SpraySpell = SPELL_BURNING_SPRAY;
-                ModelStationary = MODEL_DREADSCALE_STATIONARY;
-                ModelMobile = MODEL_DREADSCALE_MOBILE;
-                OtherWormEntry = NPC_ACIDMAW;
-
-                events.SetPhase(PHASE_MOBILE);
-                events.ScheduleEvent(EVENT_SUMMON_ACIDMAW, 3*IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SUBMERGE, 45*IN_MILLISECONDS, 0, PHASE_MOBILE);
-                WasMobile = false;
-            }
-
-            void MovementInform(uint32 type, uint32 pointId) override
-            {
-                if (type != POINT_MOTION_TYPE)
-                    return;
-
-                switch (pointId)
-                {
-                    case 0:
-                        instance->DoCloseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->SetInCombatWithZone();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void EnterEvadeMode(EvadeReason why) override
-            {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                boss_jormungarAI::EnterEvadeMode(why);
-            }
-
-            void JustReachedHome() override
-            {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-
-                boss_jormungarAI::JustReachedHome();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetInstanceAI<boss_dreadscaleAI>(creature);
+            DoCastSelf(SPELL_FROTHING_RAGE, true);
+            Talk(EMOTE_TRAMPLE_ENRAGE);
         }
-};
-
-class npc_slime_pool : public CreatureScript
-{
-    public:
-        npc_slime_pool() : CreatureScript("npc_slime_pool") { }
-
-        struct npc_slime_poolAI : public ScriptedAI
+        else if (action == ACTION_TRAMPLE_FAIL)
         {
-            npc_slime_poolAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-                _instance = creature->GetInstanceScript();
-            }
+            DoCastSelf(SPELL_STAGGERED_DAZE, true);
+            Talk(EMOTE_TRAMPLE_FAIL);
+            events.DelayEvents(15s);
+        }
+    }
 
-            void Initialize()
-            {
-                _cast = false;
-            }
-
-            void Reset() override
-            {
-                Initialize();
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_ENGAGE:
+                instance->DoCloseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
+                me->SetImmuneToPC(false);
+                events.SetPhase(PHASE_COMBAT);
+                me->SetReactState(REACT_AGGRESSIVE);
+                DoZoneInCombat();
+                break;
+            case EVENT_MASSIVE_CRASH:
                 me->SetReactState(REACT_PASSIVE);
-            }
-
-            void UpdateAI(uint32 /*diff*/) override
-            {
-                if (!_cast)
+                me->AttackStop();
+                events.SetPhase(PHASE_CHARGE);
+                me->GetMotionMaster()->MoveJump(ToCCommonLoc[1], 20.0f, 20.0f, POINT_MIDDLE);
+                break;
+            case EVENT_SELECT_CHARGE_TARGET:
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                 {
-                    _cast = true;
-                    DoCast(me, SPELL_SLIME_POOL_EFFECT);
+                    DoCast(target, SPELL_FURIOUS_CHARGE_SUMMON, true);
+                    me->SetTarget(target->GetGUID());
+                    Talk(EMOTE_TRAMPLE_ROAR, target);
+                    events.ScheduleEvent(EVENT_ICEHOWL_ROAR, 1s);
                 }
-
-                if (_instance->GetData(TYPE_NORTHREND_BEASTS) != SNAKES_IN_PROGRESS && _instance->GetData(TYPE_NORTHREND_BEASTS) != SNAKES_SPECIAL)
-                    me->DespawnOrUnsummon();
-            }
-            private:
-                InstanceScript* _instance;
-                bool _cast;
-
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetInstanceAI<npc_slime_poolAI>(creature);
+                break;
+            case EVENT_ICEHOWL_ROAR:
+                if (Creature* stalker = instance->GetCreature(DATA_FURIOUS_CHARGE))
+                    DoCast(stalker, SPELL_ROAR);
+                events.ScheduleEvent(EVENT_JUMP_BACK, 3s, 0, PHASE_CHARGE);
+                break;
+            case EVENT_JUMP_BACK:
+                if (Creature* stalker = instance->GetCreature(DATA_FURIOUS_CHARGE))
+                    DoCast(stalker, SPELL_JUMP_BACK);
+                events.ScheduleEvent(EVENT_TRAMPLE, 2s, 0, PHASE_CHARGE);
+                break;
+            case EVENT_TRAMPLE:
+                if (Creature* stalker = instance->GetCreature(DATA_FURIOUS_CHARGE))
+                    me->GetMotionMaster()->MoveCharge(stalker->GetPositionX(), stalker->GetPositionY(), stalker->GetPositionZ(), 42.0f, POINT_ICEHOWL_CHARGE);
+                me->SetTarget(ObjectGuid::Empty);
+                break;
+            case EVENT_FEROCIOUS_BUTT:
+                DoCastVictim(SPELL_FEROCIOUS_BUTT);
+                events.Repeat(20s);
+                break;
+            case EVENT_ARCTIC_BREATH:
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    DoCast(target, SPELL_ARCTIC_BREATH);
+                events.Repeat(24s);
+                break;
+            case EVENT_WHIRL:
+                DoCastSelf(SPELL_WHIRL);
+                events.Repeat(16s);
+                break;
+            default:
+                break;
         }
-};
-
-class spell_gormok_fire_bomb : public SpellScriptLoader
-{
-    public:
-        spell_gormok_fire_bomb() : SpellScriptLoader("spell_gormok_fire_bomb") { }
-
-        class spell_gormok_fire_bomb_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gormok_fire_bomb_SpellScript);
-
-            void TriggerFireBomb(SpellEffIndex /*effIndex*/)
-            {
-                if (const WorldLocation* pos = GetExplTargetDest())
-                {
-                    if (Unit* caster = GetCaster())
-                        caster->SummonCreature(NPC_FIRE_BOMB, pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30*IN_MILLISECONDS);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHit += SpellEffectFn(spell_gormok_fire_bomb_SpellScript::TriggerFireBomb, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gormok_fire_bomb_SpellScript();
-        }
-};
-
-class boss_icehowl : public CreatureScript
-{
-    public:
-        boss_icehowl() : CreatureScript("boss_icehowl") { }
-
-        struct boss_icehowlAI : public BossAI
-        {
-            boss_icehowlAI(Creature* creature) : BossAI(creature, BOSS_BEASTS)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _movementStarted = false;
-                _movementFinish = false;
-                _trampleCast = false;
-                _trampleTargetGUID.Clear();
-                _trampleTargetX = 0;
-                _trampleTargetY = 0;
-                _trampleTargetZ = 0;
-                _stage = 0;
-            }
-
-            void Reset() override
-            {
-                events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_WHIRL, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_MASSIVE_CRASH, 30*IN_MILLISECONDS);
-                Initialize();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_DONE);
-            }
-
-            void MovementInform(uint32 type, uint32 pointId) override
-            {
-                if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
-                    return;
-
-                switch (pointId)
-                {
-                    case 0:
-                        if (_stage != 0)
-                        {
-                            if (me->GetDistance2d(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY()) < 6.0f)
-                                // Middle of the room
-                                _stage = 1;
-                            else
-                            {
-                                // Landed from Hop backwards (start trample)
-                                if (ObjectAccessor::GetPlayer(*me, _trampleTargetGUID))
-                                    _stage = 4;
-                                else
-                                    _stage = 6;
-                            }
-                        }
-                        break;
-                    case 1: // Finish trample
-                        _movementFinish = true;
-                        break;
-                    case 2:
-                        instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->SetInCombatWithZone();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void EnterEvadeMode(EvadeReason why) override
-            {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                ScriptedAI::EnterEvadeMode(why);
-            }
-
-            void JustReachedHome() override
-            {
-                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
-                me->DespawnOrUnsummon();
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                _EnterCombat();
-                instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_IN_PROGRESS);
-            }
-
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
-            {
-                if (spell->Id == SPELL_TRAMPLE && target->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if (!_trampleCast)
-                    {
-                        DoCast(me, SPELL_FROTHING_RAGE, true);
-                        _trampleCast = true;
-                    }
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                switch (_stage)
-                {
-                    case 0:
-                    {
-                        while (uint32 eventId = events.ExecuteEvent())
-                        {
-                            switch (eventId)
-                            {
-                                case EVENT_FEROCIOUS_BUTT:
-                                    DoCastVictim(SPELL_FEROCIOUS_BUTT);
-                                    events.ScheduleEvent(EVENT_FEROCIOUS_BUTT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
-                                    return;
-                                case EVENT_ARCTIC_BREATH:
-                                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                        DoCast(target, SPELL_ARCTIC_BREATH);
-                                    return;
-                                case EVENT_WHIRL:
-                                    DoCastAOE(SPELL_WHIRL);
-                                    events.ScheduleEvent(EVENT_WHIRL, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
-                                    return;
-                                case EVENT_MASSIVE_CRASH:
-                                    me->GetMotionMaster()->MoveJump(ToCCommonLoc[1], 20.0f, 20.0f, 0); // 1: Middle of the room
-                                    SetCombatMovement(false);
-                                    me->AttackStop();
-                                    _stage = 7; //Invalid (Do nothing more than move)
-                                    return;
-                                default:
-                                    break;
-                            }
-
-                            if (me->HasUnitState(UNIT_STATE_CASTING))
-                                return;
-                        }
-                        DoMeleeAttackIfReady();
-                        break;
-                    }
-                    case 1:
-                        DoCastAOE(SPELL_MASSIVE_CRASH);
-                        me->StopMoving();
-                        me->AttackStop();
-                        _stage = 2;
-                        break;
-                    case 2:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                        {
-                            me->StopMoving();
-                            me->AttackStop();
-                            _trampleTargetGUID = target->GetGUID();
-                            me->SetTarget(_trampleTargetGUID);
-                            _trampleCast = false;
-                            SetCombatMovement(false);
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            me->SetControlled(true, UNIT_STATE_ROOT);
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MoveIdle();
-                            events.ScheduleEvent(EVENT_TRAMPLE, 4*IN_MILLISECONDS);
-                            _stage = 3;
-                        }
-                        else
-                            _stage = 6;
-                        break;
-                    case 3:
-                        while (uint32 eventId = events.ExecuteEvent())
-                        {
-                            switch (eventId)
-                            {
-                                case EVENT_TRAMPLE:
-                                {
-                                    if (Unit* target = ObjectAccessor::GetPlayer(*me, _trampleTargetGUID))
-                                    {
-                                        me->StopMoving();
-                                        me->AttackStop();
-                                        _trampleCast = false;
-                                        _movementStarted = true;
-                                        _trampleTargetX = target->GetPositionX();
-                                        _trampleTargetY = target->GetPositionY();
-                                        _trampleTargetZ = target->GetPositionZ();
-                                        // 2: Hop Backwards
-                                        me->GetMotionMaster()->MoveJump(2*me->GetPositionX() - _trampleTargetX, 2*me->GetPositionY() - _trampleTargetY, me->GetPositionZ(), me->GetOrientation(), 30.0f, 20.0f, 0);
-                                        me->SetControlled(false, UNIT_STATE_ROOT);
-                                        _stage = 7; //Invalid (Do nothing more than move)
-                                    }
-                                    else
-                                        _stage = 6;
-                                    break;
-                                }
-                                default:
-                                    break;
-                            }
-
-                            if (me->HasUnitState(UNIT_STATE_CASTING))
-                                return;
-                        }
-                        break;
-                    case 4:
-                        me->StopMoving();
-                        me->AttackStop();
-                        if (Player* target = ObjectAccessor::GetPlayer(*me, _trampleTargetGUID))
-                            Talk(EMOTE_TRAMPLE_START, target);
-                        me->GetMotionMaster()->MoveCharge(_trampleTargetX, _trampleTargetY, _trampleTargetZ, 42, 1);
-                        me->SetTarget(ObjectGuid::Empty);
-                        _stage = 5;
-                        break;
-                    case 5:
-                        if (_movementFinish)
-                        {
-                            DoCastAOE(SPELL_TRAMPLE);
-                            _movementFinish = false;
-                            _stage = 6;
-                            return;
-                        }
-                        if (events.ExecuteEvent() == EVENT_TRAMPLE)
-                        {
-                            Map::PlayerList const &lPlayers = me->GetMap()->GetPlayers();
-                            for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
-                            {
-                                if (Unit* player = itr->GetSource())
-                                {
-                                    if (player->IsAlive() && player->IsWithinDistInMap(me, 6.0f))
-                                    {
-                                        DoCastAOE(SPELL_TRAMPLE);
-                                        events.ScheduleEvent(EVENT_TRAMPLE, 4*IN_MILLISECONDS);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    case 6:
-                        if (!_trampleCast)
-                        {
-                            DoCast(me, SPELL_STAGGERED_DAZE);
-                            Talk(EMOTE_TRAMPLE_CRASH);
-                        }
-                        else
-                        {
-                            DoCast(me, SPELL_FROTHING_RAGE, true);
-                            Talk(EMOTE_TRAMPLE_FAIL);
-                        }
-                        _movementStarted = false;
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        SetCombatMovement(true);
-                        me->GetMotionMaster()->MovementExpired();
-                        me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MoveChase(me->GetVictim());
-                        AttackStart(me->GetVictim());
-                        events.ScheduleEvent(EVENT_MASSIVE_CRASH, 40*IN_MILLISECONDS);
-                        events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
-                        _stage = 0;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            private:
-                float  _trampleTargetX, _trampleTargetY, _trampleTargetZ;
-                ObjectGuid _trampleTargetGUID;
-                bool   _movementStarted;
-                bool   _movementFinish;
-                bool   _trampleCast;
-                uint8  _stage;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetInstanceAI<boss_icehowlAI>(creature);
-        }
-};
-
-class spell_gormok_jump_to_hand : public SpellScriptLoader
-{
-public:
-    spell_gormok_jump_to_hand() : SpellScriptLoader("spell_gormok_jump_to_hand") { }
-
-    class spell_gormok_jump_to_hand_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_gormok_jump_to_hand_AuraScript);
-
-        bool Validate(SpellInfo const* /*spell*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_RIDE_PLAYER))
-                return false;
-            return true;
-        }
-
-        bool Load() override
-        {
-            if (GetCaster() && GetCaster()->GetEntry() == NPC_SNOBOLD_VASSAL)
-                return true;
-            return false;
-        }
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                if (CreatureAI* gormokAI = GetTarget()->ToCreature()->AI())
-                {
-                    if (Unit* target = gormokAI->SelectTarget(SELECT_TARGET_RANDOM, 0, SnobolledTargetSelector(GetTarget())))
-                    {
-                        gormokAI->Talk(EMOTE_SNOBOLLED);
-                        caster->GetAI()->DoAction(ACTION_ACTIVE_SNOBOLD);
-                        caster->CastSpell(target, SPELL_RIDE_PLAYER, true);
-                    }
-                }
-            }
-        }
-
-        void Register() override
-        {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_gormok_jump_to_hand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_gormok_jump_to_hand_AuraScript();
     }
 };
 
-class spell_gormok_ride_player : public SpellScriptLoader
+// 66342 - Jump to Hand
+class spell_gormok_jump_to_hand : public AuraScript
 {
-public:
-    spell_gormok_ride_player() : SpellScriptLoader("spell_gormok_ride_player") { }
+    PrepareAuraScript(spell_gormok_jump_to_hand);
 
-    class spell_gormok_ride_player_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spell*/) override
     {
-        PrepareAuraScript(spell_gormok_ride_player_AuraScript);
+        return ValidateSpellInfo({ SPELL_RIDE_PLAYER });
+    }
 
-        bool Load() override
-        {
-            if (GetCaster() && GetCaster()->GetEntry() == NPC_SNOBOLD_VASSAL)
-                return true;
-            return false;
-        }
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || caster->GetEntry() != NPC_SNOBOLD_VASSAL)
+            return;
 
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* target = GetTarget();
-            if (target->GetTypeId() != TYPEID_PLAYER || !target->IsInWorld())
-                return;
+        if (Creature* gormok = GetTarget()->ToCreature())
+            if (Unit* target = gormok->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, SnobolledTargetSelector()))
+            {
+                gormok->AI()->Talk(EMOTE_SNOBOLLED);
+                caster->GetAI()->DoAction(ACTION_ACTIVE_SNOBOLD);
+                caster->CastSpell(target, SPELL_RIDE_PLAYER, true);
+            }
+    }
 
-            if (!target->CreateVehicleKit(PLAYER_VEHICLE_ID, 0))
-                return;
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gormok_jump_to_hand::OnRemove, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
 
-            if (Unit *caster = GetCaster())
+// 66245 - Ride Vehicle
+class spell_gormok_ride_player : public AuraScript
+{
+    PrepareAuraScript(spell_gormok_ride_player);
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (target->GetTypeId() != TYPEID_PLAYER || !target->IsInWorld())
+            return;
+
+        if (Unit *caster = GetCaster())
+            if (caster->IsAIEnabled())
                 caster->GetAI()->SetGUID(target->GetGUID(), DATA_NEW_TARGET);
-        }
+    }
 
-        void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetTarget()->RemoveVehicleKit();
-        }
-
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_gormok_ride_player_AuraScript::OnApply, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_gormok_ride_player_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_gormok_ride_player_AuraScript();
+        OnEffectApply += AuraEffectApplyFn(spell_gormok_ride_player::OnApply, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
-class spell_gormok_snobolled : public SpellScriptLoader
+// 66406 - Snobolled!
+class spell_gormok_snobolled : public AuraScript
 {
-public:
-    spell_gormok_snobolled() : SpellScriptLoader("spell_gormok_snobolled") { }
+    PrepareAuraScript(spell_gormok_snobolled);
 
-    class spell_gormok_snobolled_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spell*/) override
     {
-        PrepareAuraScript(spell_gormok_snobolled_AuraScript);
+        return ValidateSpellInfo({ SPELL_RIDE_PLAYER });
+    }
 
-        bool Validate(SpellInfo const* /*spell*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_RIDE_PLAYER))
-                return false;
-            return true;
-        }
-
-        void OnPeriodic(AuraEffect const* /*aurEff*/)
-        {
-            if (!GetTarget()->HasAura(SPELL_RIDE_PLAYER))
-                Remove();
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_gormok_snobolled_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
-        return new spell_gormok_snobolled_AuraScript();
+        if (!GetTarget()->HasAura(SPELL_RIDE_PLAYER))
+            Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gormok_snobolled::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
-class spell_jormungars_paralytic_toxin : public SpellScriptLoader
+// 66823 - Paralytic Toxin
+class spell_jormungars_paralytic_toxin : public AuraScript
 {
-public:
-    spell_jormungars_paralytic_toxin() : SpellScriptLoader("spell_jormungars_paralytic_toxin") { }
+    PrepareAuraScript(spell_jormungars_paralytic_toxin);
 
-    class spell_jormungars_paralytic_toxin_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spell*/) override
     {
-        PrepareAuraScript(spell_jormungars_paralytic_toxin_AuraScript);
+        return ValidateSpellInfo({ SPELL_PARALYSIS });
+    }
 
-        bool Validate(SpellInfo const* /*spell*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PARALYSIS))
-                return false;
-            return true;
-        }
-
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* caster = GetCaster();
-            if (caster && caster->GetEntry() == NPC_ACIDMAW)
-            {
-                if (Creature* acidMaw = caster->ToCreature())
-                    acidMaw->AI()->Talk(SAY_SPECIAL, GetTarget());
-            }
-        }
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetTarget()->RemoveAurasDueToSpell(SPELL_PARALYSIS);
-        }
-
-        void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
-        {
-            if (!canBeRecalculated)
-                amount = aurEff->GetAmount();
-
-            canBeRecalculated = false;
-        }
-
-        void HandleDummy(AuraEffect const* /*aurEff*/)
-        {
-            if (AuraEffect* slowEff = GetEffect(EFFECT_0))
-            {
-                int32 newAmount = slowEff->GetAmount() - 10;
-                if (newAmount < -100)
-                    newAmount = -100;
-                slowEff->ChangeAmount(newAmount);
-
-                if (newAmount <= -100 && !GetTarget()->HasAura(SPELL_PARALYSIS))
-                    GetTarget()->CastSpell(GetTarget(), SPELL_PARALYSIS, true, NULL, slowEff, GetCasterGUID());
-            }
-        }
-
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_jormungars_paralytic_toxin_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_jormungars_paralytic_toxin_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_jormungars_paralytic_toxin_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_jormungars_paralytic_toxin_AuraScript::HandleDummy, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        return new spell_jormungars_paralytic_toxin_AuraScript();
+        Unit* caster = GetCaster();
+        if (caster && caster->GetEntry() == NPC_ACIDMAW)
+            if (Creature* acidmaw = caster->ToCreature())
+                acidmaw->AI()->Talk(SAY_SPECIAL, GetTarget());
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_PARALYSIS);
+    }
+
+    void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+    {
+        if (!canBeRecalculated)
+            amount = aurEff->GetAmount();
+
+        canBeRecalculated = false;
+    }
+
+    void HandleDummy(AuraEffect const* /*aurEff*/)
+    {
+        if (AuraEffect* slowEff = GetEffect(EFFECT_0))
+        {
+            int32 newAmount = slowEff->GetAmount() - 10;
+            if (newAmount < -100)
+                newAmount = -100;
+            slowEff->ChangeAmount(newAmount);
+
+            if (newAmount == -100 && !GetTarget()->HasAura(SPELL_PARALYSIS))
+                GetTarget()->CastSpell(GetTarget(), SPELL_PARALYSIS, CastSpellExtraArgs(slowEff).SetOriginalCaster(GetCasterGUID()));
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_jormungars_paralytic_toxin::OnApply, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_jormungars_paralytic_toxin::OnRemove, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_jormungars_paralytic_toxin::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_jormungars_paralytic_toxin::HandleDummy, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
+// 66870 - Burning Bile
+class spell_jormungars_burning_bile : public SpellScript
+{
+    PrepareSpellScript(spell_jormungars_burning_bile);
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        GetHitUnit()->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_jormungars_burning_bile::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 66882 - Slime Pool
+class spell_jormungars_slime_pool : public AuraScript
+{
+    PrepareAuraScript(spell_jormungars_slime_pool);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        int32 const radius = static_cast<int32>(((aurEff->GetTickNumber() / 60.f) * 0.9f + 0.1f) * 10000.f * 2.f / 3.f);
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellMod(SPELLVALUE_RADIUS_MOD, radius);
+        GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, args);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_jormungars_slime_pool::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+/* 66869 - Burning Bile
+   66823 - Paralytic Toxin */
 class spell_jormungars_snakes_spray : public SpellScriptLoader
 {
 public:
-    spell_jormungars_snakes_spray(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+    spell_jormungars_snakes_spray(char const* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
 
     class spell_jormungars_snakes_spray_SpellScript : public SpellScript
     {
@@ -1370,25 +1222,21 @@ public:
     public:
         spell_jormungars_snakes_spray_SpellScript(uint32 spellId) : SpellScript(), _spellId(spellId) { }
 
+    private:
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(_spellId))
-                return false;
-            return true;
+            return ValidateSpellInfo({ _spellId });
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
-            if (Player* target = GetHitPlayer())
-                GetCaster()->CastSpell(target, _spellId, true);
+            GetCaster()->CastSpell(GetHitUnit(), _spellId, true);
         }
 
         void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_jormungars_snakes_spray_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
-
-    private:
         uint32 _spellId;
     };
 
@@ -1401,54 +1249,115 @@ private:
     uint32 _spellId;
 };
 
-class spell_jormungars_paralysis : public SpellScriptLoader
+// 66830 - Paralysis
+class spell_jormungars_paralysis : public AuraScript
 {
-public:
-    spell_jormungars_paralysis() : SpellScriptLoader("spell_jormungars_paralysis") { }
+    PrepareAuraScript(spell_jormungars_paralysis);
 
-    class spell_jormungars_paralysis_AuraScript : public AuraScript
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_jormungars_paralysis_AuraScript);
+        if (Unit* caster = GetCaster())
+            if (InstanceScript* instance = caster->GetInstanceScript())
+                if (instance->GetBossState(DATA_NORTHREND_BEASTS) == IN_PROGRESS)
+                    return;
 
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* caster = GetCaster())
-                if (InstanceScript* instance = caster->GetInstanceScript())
-                    if (instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_IN_PROGRESS || instance->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL)
-                        return;
+        Remove();
+    }
 
-            Remove();
-        }
-
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_jormungars_paralysis_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_jormungars_paralysis_AuraScript();
+        AfterEffectApply += AuraEffectApplyFn(spell_jormungars_paralysis::OnApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 66688 - Arctic Breath
+class spell_icehowl_arctic_breath : public SpellScript
+{
+    PrepareSpellScript(spell_icehowl_arctic_breath);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_0].CalcValue()) });
+    }
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        uint32 spellId = GetSpellInfo()->Effects[effIndex].CalcValue();
+        GetCaster()->CastSpell(GetHitUnit(), spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icehowl_arctic_breath::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 66734 - Trample
+class spell_icehowl_trample : public SpellScript
+{
+    PrepareSpellScript(spell_icehowl_trample);
+
+    void CheckTargets(std::list<WorldObject*>& targets)
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster || !caster->IsAIEnabled())
+            return;
+
+        if (targets.empty())
+            caster->AI()->DoAction(ACTION_TRAMPLE_FAIL);
+        else
+            caster->AI()->DoAction(ACTION_ENRAGE);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_icehowl_trample::CheckTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
+// 66683 - Massive Crash
+class spell_icehowl_massive_crash : public AuraScript
+{
+    PrepareAuraScript(spell_icehowl_massive_crash);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SURGE_OF_ADRENALINE });
+    }
+
+    void HandleSpeed(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            if (target->GetRaidDifficulty() == RAID_DIFFICULTY_10MAN_HEROIC || target->GetRaidDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
+                target->CastSpell(target, SPELL_SURGE_OF_ADRENALINE, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_icehowl_massive_crash::HandleSpeed, EFFECT_2, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 void AddSC_boss_northrend_beasts()
 {
-    new boss_gormok();
-    new npc_snobold_vassal();
-    new npc_firebomb();
-    new spell_gormok_fire_bomb();
-    new spell_gormok_jump_to_hand();
-    new spell_gormok_ride_player();
-    new spell_gormok_snobolled();
+    RegisterTrialOfTheCrusaderCreatureAI(boss_gormok);
+    RegisterTrialOfTheCrusaderCreatureAI(npc_snobold_vassal);
+    RegisterTrialOfTheCrusaderCreatureAI(npc_beasts_combat_stalker);
+    RegisterTrialOfTheCrusaderCreatureAI(boss_acidmaw);
+    RegisterTrialOfTheCrusaderCreatureAI(boss_dreadscale);
+    RegisterTrialOfTheCrusaderCreatureAI(npc_jormungars_slime_pool);
+    RegisterTrialOfTheCrusaderCreatureAI(boss_icehowl);
 
-    new boss_acidmaw();
-    new boss_dreadscale();
-    new npc_slime_pool();
-    new spell_jormungars_paralytic_toxin();
+    RegisterAuraScript(spell_gormok_jump_to_hand);
+    RegisterAuraScript(spell_gormok_ride_player);
+    RegisterAuraScript(spell_gormok_snobolled);
+    RegisterAuraScript(spell_jormungars_paralytic_toxin);
+    RegisterSpellScript(spell_jormungars_burning_bile);
+    RegisterAuraScript(spell_jormungars_slime_pool);
     new spell_jormungars_snakes_spray("spell_jormungars_burning_spray", SPELL_BURNING_BILE);
     new spell_jormungars_snakes_spray("spell_jormungars_paralytic_spray", SPELL_PARALYTIC_TOXIN);
-    new spell_jormungars_paralysis();
-
-    new boss_icehowl();
+    RegisterAuraScript(spell_jormungars_paralysis);
+    RegisterSpellScript(spell_icehowl_arctic_breath);
+    RegisterSpellScript(spell_icehowl_trample);
+    RegisterAuraScript(spell_icehowl_massive_crash);
 }

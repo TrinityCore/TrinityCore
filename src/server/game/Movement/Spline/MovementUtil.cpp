@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "MoveSplineFlag.h"
@@ -153,7 +153,7 @@ namespace Movement
         STR(Falling      ), // 0x00000200,           // Not Compartible With Trajectory Movement
         STR(No_Spline    ), // 0x00000400,
         STR(Trajectory   ), // 0x00000800,           // Not Compartible With Fall Movement
-        STR(Walkmode     ), // 0x00001000,
+        STR(CanSwim      ), // 0x00001000,
         STR(Flying       ), // 0x00002000,           // Smooth Movement(Catmullrom Interpolation Mode), Flying Animation
         STR(Knockback    ), // 0x00004000,           // Model Orientation Fixed
         STR(Final_Point  ), // 0x00008000,
@@ -168,7 +168,7 @@ namespace Movement
         STR(Unknown6     ), // 0x01000000,
         STR(Unknown7     ), // 0x02000000,
         STR(Unknown8     ), // 0x04000000,
-        STR(OrientationInversed ), // 0x08000000,           // Appears With Runmode Flag, Nodes ), // 1, Handles Orientation
+        STR(Backward     ), // 0x08000000,           // Appears With Runmode Flag, Nodes ), // 1, Handles Orientation
         STR(Unknown10    ), // 0x10000000,
         STR(Unknown11    ), // 0x20000000,
         STR(Unknown12    ), // 0x40000000,
@@ -180,7 +180,7 @@ namespace Movement
     {
         for (int i = 0; i < N; ++i)
         {
-            if ((t & Flags(1 << i)) && names[i] != NULL)
+            if ((t & Flags(1 << i)) && names[i] != nullptr)
                 str.append(" ").append(names[i]);
         }
     }

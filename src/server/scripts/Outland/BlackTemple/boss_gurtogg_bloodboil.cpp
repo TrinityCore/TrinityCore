@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,302 +15,353 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-Name: Boss_Bloodboil
-Complete: 80
-Category: Black Temple
-EndScriptData */
-
 #include "ScriptMgr.h"
+#include "black_temple.h"
+#include "GridNotifiers.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "black_temple.h"
 
-enum Bloodboil
+enum Says
 {
-    //Speech'n'Sound
-    SAY_AGGRO                   = 0,
-    SAY_SLAY                    = 1,
-    SAY_SPECIAL                 = 2,
-    SAY_ENRAGE                  = 3,
-    SAY_DEATH                   = 4,
+    SAY_AGGRO     = 0,
+    SAY_SLAY      = 1,
+    SAY_SPECIAL   = 2,
+    SAY_ENRAGE    = 3
+};
 
-    //Spells
-    SPELL_ACID_GEYSER           = 40630,
-    SPELL_ACIDIC_WOUND          = 40481,
-    SPELL_ARCING_SMASH          = 40599,
-    SPELL_BLOODBOIL             = 42005,                      // This spell is AoE whereas it shouldn't be
-    SPELL_FEL_ACID              = 40508,
+enum Spells
+{
+    //Gurtogg
+    SPELL_BLOODBOIL             = 42005,
+    SPELL_ARCING_SMASH          = 40457,
+    SPELL_FEL_ACID_BREATH       = 40508,
+    SPELL_EJECT                 = 40486,
+    SPELL_BEWILDERING_STRIKE    = 40491,
     SPELL_FEL_RAGE_SELF         = 40594,
+    SPELL_INSIGNIFIGANCE        = 40618,
     SPELL_FEL_RAGE_TARGET       = 40604,
     SPELL_FEL_RAGE_2            = 40616,
     SPELL_FEL_RAGE_3            = 41625,
-    SPELL_BEWILDERING_STRIKE    = 40491,
-    SPELL_EJECT1                = 40486,                      // 1000 Physical damage + knockback + script effect (should handle threat reduction I think)
-    SPELL_EJECT2                = 40597,                      // 1000 Physical damage + Stun (used in phase 2?)
+    SPELL_FEL_RAGE_TARGET_2     = 46787,
+    SPELL_FEL_GEYSER            = 40569,
+    SPELL_CHARGE                = 40602,
+    SPELL_EJECT_2               = 40597,
+    SPELL_FEL_ACID_BREATH_2     = 40595,
+    SPELL_ARCING_SMASH_2        = 40599,
+    SPELL_BERSERK               = 45078,
+    //Player
     SPELL_TAUNT_GURTOGG         = 40603,
-    SPELL_INSIGNIFIGANCE        = 40618,
-    SPELL_BERSERK               = 45078
+    SPELL_FEL_RAGE_P            = 40617,
+    //Fel Geyser
+    SPELL_FEL_GEYSER_2          = 40593,
+    SPELL_BIRTH                 = 40031
 };
 
-class boss_gurtogg_bloodboil : public CreatureScript
+enum Phases
 {
-public:
-    boss_gurtogg_bloodboil() : CreatureScript("boss_gurtogg_bloodboil") { }
+    PHASE_1       = 1,
+    PHASE_2       = 2,
+    GROUP_PHASE_1 = 1,
+    GROUP_PHASE_2 = 2
+};
 
-    CreatureAI* GetAI(Creature* creature) const override
+enum Sounds
+{
+    SOUND_ID_DEATH  = 11439,
+    SOUND_ID_ENRAGE = 11437
+};
+
+enum Events
+{
+    EVENT_BERSERK = 1,
+    EVENT_BLOODBOIL,
+    EVENT_ARCING_SMASH,
+    EVENT_FEL_ACID_BREATH,
+    EVENT_EJECT,
+    EVENT_BEWILDERING_STRIKE,
+    EVENT_CHANGE_PHASE,
+    EVENT_START_PHASE_2,
+    EVENT_EJECT_2,
+    EVENT_FEL_ACID_BREATH_2,
+    EVENT_ARCING_SMASH_2,
+    EVENT_CHARGE_PLAYER
+};
+
+
+struct boss_gurtogg_bloodboil : public BossAI
+{
+    boss_gurtogg_bloodboil(Creature* creature) : BossAI(creature, DATA_GURTOGG_BLOODBOIL)
     {
-        return GetInstanceAI<boss_gurtogg_bloodboilAI>(creature);
+        Initialize();
     }
 
-    struct boss_gurtogg_bloodboilAI : public BossAI
+    void Reset() override
     {
-        boss_gurtogg_bloodboilAI(Creature* creature) : BossAI(creature, DATA_GURTOGG_BLOODBOIL)
+        _Reset();
+        Initialize();
+        events.SetPhase(PHASE_1);
+        me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
+    }
+
+    void Initialize()
+    {
+        _oldThreat = 0.0f;
+        _oldTargetGUID.Clear();
+        _targetGUID.Clear();
+    }
+
+    bool CanAIAttack(Unit const* who) const override
+    {
+        return BossAI::CanAIAttack(who) && !who->HasAura(SPELL_BEWILDERING_STRIKE);
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (!CanAIAttack(who))
+            return;
+
+        BossAI::AttackStart(who);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        Talk(SAY_AGGRO);
+        _JustEngagedWith();
+        events.ScheduleEvent(EVENT_BERSERK, 10min);
+        events.ScheduleEvent(EVENT_CHANGE_PHASE, 1min);
+        ScheduleEvents();
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _DespawnAtEvade();
+    }
+
+    void ScheduleEvents()
+    {
+        if (events.IsInPhase(PHASE_1))
         {
-            Initialize();
+            events.ScheduleEvent(EVENT_BLOODBOIL, Seconds(10), GROUP_PHASE_1, PHASE_1);
+            events.ScheduleEvent(EVENT_ARCING_SMASH, Seconds(10), GROUP_PHASE_1, PHASE_1);
+            events.ScheduleEvent(EVENT_FEL_ACID_BREATH, Seconds(25), GROUP_PHASE_1, PHASE_1);
+            events.ScheduleEvent(EVENT_EJECT, Seconds(35), GROUP_PHASE_1, PHASE_1);
+            events.ScheduleEvent(EVENT_BEWILDERING_STRIKE, Seconds(47), GROUP_PHASE_1, PHASE_1);
         }
-
-        void Initialize()
+        else if (events.IsInPhase(PHASE_2))
         {
-            TargetGUID.Clear();
-            TargetThreat = 0;
-
-            BloodboilTimer = 10000;
-            BloodboilCount = 0;
-            AcidGeyserTimer = 1000;
-            AcidicWoundTimer = 6000;
-            ArcingSmashTimer = 19000;
-            EnrageTimer = 600000;
-            FelAcidTimer = 25000;
-            EjectTimer = 10000;
-            BewilderingStrikeTimer = 15000;
-            PhaseChangeTimer = 60000;
-
-            Phase1 = true;
+            events.ScheduleEvent(EVENT_START_PHASE_2, Milliseconds(100), GROUP_PHASE_2, PHASE_2);
+            events.ScheduleEvent(EVENT_EJECT_2, Seconds(14), GROUP_PHASE_2, PHASE_2);
+            events.ScheduleEvent(EVENT_FEL_ACID_BREATH_2, Seconds(16), GROUP_PHASE_2, PHASE_2);
+            events.ScheduleEvent(EVENT_ARCING_SMASH_2, Seconds(8), GROUP_PHASE_2, PHASE_2);
         }
+    }
 
-        ObjectGuid TargetGUID;
-
-        float TargetThreat;
-
-        uint32 BloodboilTimer;
-        uint32 BloodboilCount;
-        uint32 AcidGeyserTimer;
-        uint32 AcidicWoundTimer;
-        uint32 ArcingSmashTimer;
-        uint32 EnrageTimer;
-        uint32 FelAcidTimer;
-        uint32 EjectTimer;
-        uint32 BewilderingStrikeTimer;
-        uint32 PhaseChangeTimer;
-
-        bool Phase1;
-
-        void Reset() override
-        {
-            _Reset();
-            Initialize();
-
-            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            Talk(SAY_AGGRO);
-            _EnterCombat();
-        }
-
-        void KilledUnit(Unit* /*victim*/) override
-        {
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
             Talk(SAY_SLAY);
-        }
+    }
 
-        void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        DoPlaySoundToSet(me, SOUND_ID_DEATH);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            Talk(SAY_DEATH);
-            _JustDied();
-        }
-
-        void RevertThreatOnTarget(ObjectGuid guid)
-        {
-            if (Unit* unit = ObjectAccessor::GetUnit(*me, guid))
+            switch (eventId)
             {
-                if (DoGetThreat(unit))
-                    DoModifyThreatPercent(unit, -100);
-                if (TargetThreat)
-                    me->AddThreat(unit, TargetThreat);
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (ArcingSmashTimer <= diff)
-            {
-                DoCastVictim(SPELL_ARCING_SMASH);
-                ArcingSmashTimer = 10000;
-            } else ArcingSmashTimer -= diff;
-
-            if (FelAcidTimer <= diff)
-            {
-                DoCastVictim(SPELL_FEL_ACID);
-                FelAcidTimer = 25000;
-            } else FelAcidTimer -= diff;
-
-            if (!me->HasAura(SPELL_BERSERK))
-            {
-                if (EnrageTimer <= diff)
-                {
-                    DoCast(me, SPELL_BERSERK);
-                    Talk(SAY_ENRAGE);
-                } else EnrageTimer -= diff;
-            }
-
-            if (Phase1)
-            {
-                if (BewilderingStrikeTimer <= diff)
-                {
+                case EVENT_BLOODBOIL:
+                    DoCast(SPELL_BLOODBOIL);
+                    events.Repeat(Seconds(10));
+                    break;
+                case EVENT_ARCING_SMASH:
+                    DoCastVictim(SPELL_ARCING_SMASH);
+                    events.Repeat(Seconds(10));
+                    break;
+                case EVENT_FEL_ACID_BREATH:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetCombatReach()))
+                        DoCast(target, SPELL_FEL_ACID_BREATH);
+                    events.Repeat(Seconds(25), Seconds(30));
+                    break;
+                case EVENT_EJECT:
+                    Talk(SAY_SPECIAL);
+                    DoCastVictim(SPELL_EJECT);
+                    break;
+                case EVENT_BEWILDERING_STRIKE:
                     DoCastVictim(SPELL_BEWILDERING_STRIKE);
-                    float mt_threat = DoGetThreat(me->GetVictim());
-                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
-                        me->AddThreat(target, mt_threat);
-                    BewilderingStrikeTimer = 20000;
-                } else BewilderingStrikeTimer -= diff;
-
-                if (EjectTimer <= diff)
-                {
-                    DoCastVictim(SPELL_EJECT1);
-                    DoModifyThreatPercent(me->GetVictim(), -40);
-                    EjectTimer = 15000;
-                } else EjectTimer -= diff;
-
-                if (AcidicWoundTimer <= diff)
-                {
-                    DoCastVictim(SPELL_ACIDIC_WOUND);
-                    AcidicWoundTimer = 10000;
-                } else AcidicWoundTimer -= diff;
-
-                if (BloodboilTimer <= diff)
-                {
-                    if (BloodboilCount < 5)                      // Only cast it five times.
+                    break;
+                case EVENT_CHANGE_PHASE:
+                    ChangePhase();
+                    break;
+                case EVENT_START_PHASE_2:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                     {
-                        DoCastAOE(SPELL_BLOODBOIL);
-                        ++BloodboilCount;
-                        BloodboilTimer = 10000*BloodboilCount;
-                    }
-                } else BloodboilTimer -= diff;
-            }
-
-            if (!Phase1)
-            {
-                if (AcidGeyserTimer <= diff)
-                {
-                    DoCastVictim(SPELL_ACID_GEYSER);
-                    AcidGeyserTimer = 30000;
-                } else AcidGeyserTimer -= diff;
-
-                if (EjectTimer <= diff)
-                {
-                    DoCastVictim(SPELL_EJECT2);
-                    EjectTimer = 15000;
-                } else EjectTimer -= diff;
-            }
-
-            if (PhaseChangeTimer <= diff)
-            {
-                if (Phase1)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                    {
-                        Phase1 = false;
-
-                        TargetThreat = DoGetThreat(target);
-                        TargetGUID = target->GetGUID();
-                        target->CastSpell(me, SPELL_TAUNT_GURTOGG, true);
-                        if (DoGetThreat(target))
-                            DoModifyThreatPercent(target, -100);
-                        me->AddThreat(target, 50000000.0f);
-                        me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-                        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-                                                                // If VMaps are disabled, this spell can call the whole instance
-                        DoCast(me, SPELL_INSIGNIFIGANCE, true);
+                        if (Unit* oldTarget = me->GetVictim())
+                        {
+                            _oldTargetGUID = oldTarget->GetGUID();
+                            _oldThreat = GetThreat(oldTarget);
+                        }
+                        _targetGUID = target->GetGUID();
+                        DoCastSelf(SPELL_FEL_RAGE_SELF, true);
                         DoCast(target, SPELL_FEL_RAGE_TARGET, true);
                         DoCast(target, SPELL_FEL_RAGE_2, true);
-                        /* These spells do not work, comment them out for now.
-                        DoCast(target, SPELL_FEL_RAGE_2, true);
-                        DoCast(target, SPELL_FEL_RAGE_3, true);*/
+                        DoCast(target, SPELL_FEL_RAGE_3, true);
+                        DoCast(target, SPELL_FEL_GEYSER, true);
+                        DoCast(target, SPELL_FEL_RAGE_TARGET_2, true);
+                        target->CastSpell(target, SPELL_FEL_RAGE_P, true);
+                        target->CastSpell(target, SPELL_TAUNT_GURTOGG, true);
+                        DoCastAOE(SPELL_INSIGNIFIGANCE, true);
 
-                        //Cast this without triggered so that it appears in combat logs and shows visual.
-                        DoCast(me, SPELL_FEL_RAGE_SELF);
+                        events.ScheduleEvent(EVENT_CHARGE_PLAYER, Seconds(2), GROUP_PHASE_2, PHASE_2);
 
-                        Talk(SAY_SPECIAL);
-
-                        AcidGeyserTimer = 1000;
-                        PhaseChangeTimer = 30000;
+                        me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
                     }
-                }
-                else                                           // Encounter is a loop pretty much. Phase 1 -> Phase 2 -> Phase 1 -> Phase 2 till death or enrage
-                {
-                    if (TargetGUID)
-                        RevertThreatOnTarget(TargetGUID);
-                    TargetGUID.Clear();
-                    Phase1 = true;
-                    BloodboilTimer = 10000;
-                    BloodboilCount = 0;
-                    AcidicWoundTimer += 2000;
-                    ArcingSmashTimer += 2000;
-                    FelAcidTimer += 2000;
-                    EjectTimer += 2000;
-                    PhaseChangeTimer = 60000;
-                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
-                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
-                }
-            } else PhaseChangeTimer -= diff;
-
-            DoMeleeAttackIfReady();
+                    else // If no other targets are found, reset phase 1
+                    {
+                        events.SetPhase(PHASE_1);
+                        events.CancelEventGroup(GROUP_PHASE_2);
+                        ScheduleEvents();
+                        events.RescheduleEvent(EVENT_CHANGE_PHASE, Seconds(60));
+                    }
+                    break;
+                case EVENT_CHARGE_PLAYER:
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
+                        DoCast(target, SPELL_CHARGE);
+                    break;
+                case EVENT_EJECT_2:
+                    DoCastVictim(SPELL_EJECT_2);
+                    break;
+                case EVENT_FEL_ACID_BREATH_2:
+                    DoCastVictim(SPELL_FEL_ACID_BREATH_2);
+                    break;
+                case EVENT_ARCING_SMASH_2:
+                    DoCastVictim(SPELL_ARCING_SMASH_2);
+                    events.Repeat(Seconds(13));
+                    break;
+                case EVENT_BERSERK:
+                    DoCast(SPELL_BERSERK);
+                    roll_chance_i(50) ? Talk(SAY_ENRAGE) : DoPlaySoundToSet(me, SOUND_ID_ENRAGE);
+                    break;
+                default:
+                    break;
+            }
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
-    };
 
+        DoMeleeAttackIfReady();
+    }
+
+    void ChangePhase()
+    {
+        if (events.IsInPhase(PHASE_1))
+        {
+            events.SetPhase(PHASE_2);
+            events.CancelEventGroup(GROUP_PHASE_1);
+            events.ScheduleEvent(EVENT_CHANGE_PHASE, 30s);
+            ScheduleEvents();
+        }
+        else if (events.IsInPhase(PHASE_2))
+        {
+            events.SetPhase(PHASE_1);
+            events.CancelEventGroup(GROUP_PHASE_2);
+            events.ScheduleEvent(EVENT_CHANGE_PHASE, 1min);
+            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
+            ScheduleEvents();
+
+            // Attack the stored target
+            if (Unit* oldTarget = ObjectAccessor::GetUnit(*me, _oldTargetGUID))
+                if (Unit* currentTarget = ObjectAccessor::GetUnit(*me, _targetGUID))
+                {
+                    ModifyThreatByPercent(currentTarget, -100);
+                    AttackStart(oldTarget);
+                    AddThreat(oldTarget, _oldThreat);
+                    Initialize();
+                }
+        }
+    }
+
+private:
+    ObjectGuid _targetGUID;
+    ObjectGuid _oldTargetGUID;
+    float _oldThreat;
+};
+
+struct npc_fel_geyser : public PassiveAI
+{
+    npc_fel_geyser(Creature* creature) : PassiveAI(creature) { }
+
+    void Reset() override
+    {
+        DoCastSelf(SPELL_FEL_GEYSER_2, true);
+        DoCastSelf(SPELL_BIRTH, true);
+    }
 };
 
 // 42005 - Bloodboil
-class spell_gurtogg_bloodboil_bloodboil : public SpellScriptLoader
+class spell_gurtogg_bloodboil_bloodboil : public SpellScript
 {
-    public:
-        spell_gurtogg_bloodboil_bloodboil() : SpellScriptLoader("spell_gurtogg_bloodboil_bloodboil") { }
+    PrepareSpellScript(spell_gurtogg_bloodboil_bloodboil);
 
-        class spell_gurtogg_bloodboil_bloodboil_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gurtogg_bloodboil_bloodboil_SpellScript);
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.size() <= 5)
+            return;
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.size() <= 5)
-                    return;
+        // Sort the list of players
+        targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), false));
+        // Resize so we only get top 5
+        targets.resize(5);
+    }
 
-                // Sort the list of players
-                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), false));
-                // Resize so we only get top 5
-                targets.resize(5);
-            }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gurtogg_bloodboil_bloodboil::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
 
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gurtogg_bloodboil_bloodboil_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
+// 40618 - Insignificance
+class spell_gurtogg_bloodboil_insignificance : public SpellScript
+{
+    PrepareSpellScript(spell_gurtogg_bloodboil_insignificance);
 
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gurtogg_bloodboil_bloodboil_SpellScript();
-        }
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FEL_RAGE_TARGET });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_FEL_RAGE_TARGET));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gurtogg_bloodboil_insignificance::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
 };
 
 void AddSC_boss_gurtogg_bloodboil()
 {
-    new boss_gurtogg_bloodboil();
-    new spell_gurtogg_bloodboil_bloodboil();
+    RegisterBlackTempleCreatureAI(boss_gurtogg_bloodboil);
+    RegisterBlackTempleCreatureAI(npc_fel_geyser);
+    RegisterSpellScript(spell_gurtogg_bloodboil_bloodboil);
+    RegisterSpellScript(spell_gurtogg_bloodboil_insignificance);
 }

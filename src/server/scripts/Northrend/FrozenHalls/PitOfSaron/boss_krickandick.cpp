@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "pit_of_saron.h"
-#include "Vehicle.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 enum Spells
 {
@@ -109,7 +114,9 @@ enum KrickPhase
 
 enum Actions
 {
-    ACTION_OUTRO    = 1
+    ACTION_OUTRO    = 1,
+    ACTION_STORE_OLD_TARGET,
+    ACTION_RESET_THREAT
 };
 
 enum Points
@@ -139,13 +146,15 @@ class boss_ick : public CreatureScript
         {
             boss_ickAI(Creature* creature) : BossAI(creature, DATA_ICK)
             {
-                _tempThreat = 0;
+                _tempThreat = 0.0f;
             }
 
             void Reset() override
             {
                 events.Reset();
                 instance->SetBossState(DATA_ICK, NOT_STARTED);
+                _oldTargetGUID.Clear();
+                _tempThreat = 0.0f;
             }
 
             Creature* GetKrick()
@@ -153,17 +162,17 @@ class boss_ick : public CreatureScript
                 return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KRICK));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (Creature* krick = GetKrick())
                     krick->AI()->Talk(SAY_KRICK_AGGRO);
 
-                events.ScheduleEvent(EVENT_MIGHTY_KICK, 20000);
-                events.ScheduleEvent(EVENT_TOXIC_WASTE, 5000);
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 10000);
-                events.ScheduleEvent(EVENT_SPECIAL, urand(30000, 35000));
+                events.ScheduleEvent(EVENT_MIGHTY_KICK, 20s);
+                events.ScheduleEvent(EVENT_TOXIC_WASTE, 5s);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 10s);
+                events.ScheduleEvent(EVENT_SPECIAL, 30s, 35s);
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -185,27 +194,35 @@ class boss_ick : public CreatureScript
                 instance->SetBossState(DATA_ICK, DONE);
             }
 
-            void SetTempThreat(float threat)
+            void DoAction(int32 actionId) override
             {
-                _tempThreat = threat;
-            }
+                if (actionId == ACTION_STORE_OLD_TARGET)
+                {
+                    if (Unit* victim = me->GetVictim())
+                    {
+                        _oldTargetGUID = victim->GetGUID();
+                        _tempThreat = GetThreat(victim);
+                    }
+                }
+                else if (actionId == ACTION_RESET_THREAT)
+                {
+                    if (Unit* oldTarget = ObjectAccessor::GetUnit(*me, _oldTargetGUID))
+                    {
+                        if (Unit* current = me->GetVictim())
+                            ModifyThreatByPercent(current, -100);
 
-            void _ResetThreat(Unit* target)
-            {
-                DoModifyThreatPercent(target, -100);
-                me->AddThreat(target, _tempThreat);
+                        AddThreat(oldTarget, _tempThreat);
+                        AttackStart(oldTarget);
+                        _oldTargetGUID.Clear();
+                        _tempThreat = 0.0f;
+                    }
+                }
             }
 
             void UpdateAI(uint32 diff) override
             {
-                if (!me->IsInCombat())
+                if (!UpdateVictim())
                     return;
-
-                if (!me->GetVictim() && me->getThreatManager().isThreatListEmpty())
-                {
-                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
-                    return;
-                }
 
                 events.Update(diff);
 
@@ -220,22 +237,22 @@ class boss_ick : public CreatureScript
                             if (Creature* krick = GetKrick())
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                     krick->CastSpell(target, SPELL_TOXIC_WASTE);
-                            events.ScheduleEvent(EVENT_TOXIC_WASTE, urand(7000, 10000));
+                            events.ScheduleEvent(EVENT_TOXIC_WASTE, 7s, 10s);
                             break;
                         case EVENT_SHADOW_BOLT:
                             if (Creature* krick = GetKrick())
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                     krick->CastSpell(target, SPELL_SHADOW_BOLT);
-                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 15000);
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 15s);
                             return;
                         case EVENT_MIGHTY_KICK:
                             DoCastVictim(SPELL_MIGHTY_KICK);
-                            events.ScheduleEvent(EVENT_MIGHTY_KICK, 25000);
+                            events.ScheduleEvent(EVENT_MIGHTY_KICK, 25s);
                             return;
                         case EVENT_SPECIAL:
                             //select one of these three special events
                             events.ScheduleEvent(RAND(EVENT_EXPLOSIVE_BARRAGE, EVENT_POISON_NOVA, EVENT_PURSUIT), 1000);
-                            events.ScheduleEvent(EVENT_SPECIAL, urand(23000, 28000));
+                            events.ScheduleEvent(EVENT_SPECIAL, 23s, 28s);
                             break;
                         case EVENT_EXPLOSIVE_BARRAGE:
                             if (Creature* krick = GetKrick())
@@ -243,7 +260,7 @@ class boss_ick : public CreatureScript
                                 krick->AI()->Talk(SAY_KRICK_BARRAGE_1);
                                 krick->AI()->Talk(SAY_KRICK_BARRAGE_2);
                                 krick->CastSpell(krick, SPELL_EXPLOSIVE_BARRAGE_KRICK, true);
-                                DoCast(me, SPELL_EXPLOSIVE_BARRAGE_ICK);
+                                DoCastAOE(SPELL_EXPLOSIVE_BARRAGE_ICK);
                             }
                             events.DelayEvents(20000);
                             break;
@@ -252,12 +269,12 @@ class boss_ick : public CreatureScript
                                 krick->AI()->Talk(SAY_KRICK_POISON_NOVA);
 
                             Talk(SAY_ICK_POISON_NOVA);
-                            DoCast(me, SPELL_POISON_NOVA);
+                            DoCastAOE(SPELL_POISON_NOVA);
                             break;
                         case EVENT_PURSUIT:
                             if (Creature* krick = GetKrick())
                                 krick->AI()->Talk(SAY_KRICK_CHASE);
-                            DoCast(me, SPELL_PURSUIT);
+                            DoCastSelf(SPELL_PURSUIT, { SPELLVALUE_MAX_TARGETS, 1 });
                             break;
                         default:
                             break;
@@ -272,6 +289,7 @@ class boss_ick : public CreatureScript
 
         private:
             float _tempThreat;
+            ObjectGuid _oldTargetGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -374,7 +392,7 @@ class boss_krick : public CreatureScript
                             if (Creature* temp = ObjectAccessor::GetCreature(*me, _instanceScript->GetGuidData(DATA_JAINA_SYLVANAS_1)))
                                 temp->DespawnOrUnsummon();
 
-                            Creature* jainaOrSylvanas = NULL;
+                            Creature* jainaOrSylvanas = nullptr;
                             if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                                 jainaOrSylvanas = me->SummonCreature(NPC_JAINA_PART1, outroPos[2], TEMPSUMMON_MANUAL_DESPAWN);
                             else
@@ -474,7 +492,7 @@ class boss_krick : public CreatureScript
                                     jainaOrSylvanas->AI()->Talk(SAY_SYLVANAS_OUTRO_10);
                             }
                             // End of OUTRO. for now...
-                            _events.ScheduleEvent(EVENT_OUTRO_END, 3000);
+                            _events.ScheduleEvent(EVENT_OUTRO_END, 3s);
                             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                                 tyrannus->GetMotionMaster()->MovePoint(0, outroPos[7]);
                             break;
@@ -521,7 +539,7 @@ class spell_krick_explosive_barrage : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (caster->GetTypeId() == TYPEID_UNIT)
                     {
-                        Map::PlayerList const &players = caster->GetMap()->GetPlayers();
+                        Map::PlayerList const& players = caster->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             if (Player* player = itr->GetSource())
                                 if (player->IsWithinDist(caster, 60.0f))    // don't know correct range
@@ -626,18 +644,15 @@ class spell_krick_pursuit : public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                if (GetCaster())
-                    if (Creature* ick = GetCaster()->ToCreature())
-                    {
-                        if (Unit* target = ick->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                        {
-                            ick->AI()->Talk(SAY_ICK_CHASE_1, target);
-                            ick->AddAura(GetSpellInfo()->Id, target);
-                            ENSURE_AI(boss_ick::boss_ickAI, ick->AI())->SetTempThreat(ick->getThreatManager().getThreat(target));
-                            ick->AddThreat(target, float(GetEffectValue()));
-                            target->AddThreat(ick, float(GetEffectValue()));
-                        }
-                    }
+                Unit* target = GetHitUnit();
+                if (Creature* ick = GetCaster()->ToCreature())
+                {
+                    ick->AI()->Talk(SAY_ICK_CHASE_1, target);
+                    ick->AddAura(GetSpellInfo()->Id, target);
+                    ick->AI()->DoAction(ACTION_STORE_OLD_TARGET);
+                    ick->GetThreatManager().AddThreat(target, float(GetEffectValue()), GetSpellInfo(), true, true);
+                    ick->AI()->AttackStart(target);
+                }
             }
 
             void Register() override
@@ -654,7 +669,7 @@ class spell_krick_pursuit : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (Creature* creCaster = caster->ToCreature())
-                        ENSURE_AI(boss_ick::boss_ickAI, creCaster->AI())->_ResetThreat(GetTarget());
+                        creCaster->AI()->DoAction(ACTION_RESET_THREAT);
             }
 
             void Register() override

@@ -1,32 +1,33 @@
 /*
-* Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "DBCStores.h"
-#include "M2Structure.h"
-#include "M2Stores.h"
 #include "Common.h"
 #include "Containers.h"
 #include "Log.h"
+#include "M2Structure.h"
+#include "M2Stores.h"
 #include "World.h"
+#include <boost/filesystem/path.hpp>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
-#include <boost/filesystem/path.hpp>
 
+typedef std::vector<FlyByCamera> FlyByCameraCollection;
 std::unordered_map<uint32, FlyByCameraCollection> sFlyByCameraStore;
 
 // Convert the geomoetry from a spline value, to an actual WoW XYZ
@@ -90,10 +91,7 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
             // Add to vector
             FlyByCamera thisCam;
             thisCam.timeStamp = targTimestamps[i];
-            thisCam.locations.x = newPos.x;
-            thisCam.locations.y = newPos.y;
-            thisCam.locations.z = newPos.z;
-            thisCam.locations.w = 0.0f;
+            thisCam.locations.Relocate(newPos.x, newPos.y, newPos.z, 0.0f);
             targetcam.push_back(thisCam);
             targPositions++;
             currPos += sizeof(M2SplineKey<G3D::Vector3>);
@@ -127,9 +125,7 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
             // Add to vector
             FlyByCamera thisCam;
             thisCam.timeStamp = posTimestamps[i];
-            thisCam.locations.x = newPos.x;
-            thisCam.locations.y = newPos.y;
-            thisCam.locations.z = newPos.z;
+            thisCam.locations.Relocate(newPos.x, newPos.y, newPos.z);
 
             if (targetcam.size() > 0)
             {
@@ -149,28 +145,24 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
                     lastTarget = targetcam[j];
                 }
 
-                float x = lastTarget.locations.x;
-                float y = lastTarget.locations.y;
-                float z = lastTarget.locations.z;
+                float x, y, z;
+                lastTarget.locations.GetPosition(x, y, z);
 
                 // Now, the timestamps for target cam and position can be different. So, if they differ we interpolate
                 if (lastTarget.timeStamp != posTimestamps[i])
                 {
                     uint32 timeDiffTarget = nextTarget.timeStamp - lastTarget.timeStamp;
                     uint32 timeDiffThis = posTimestamps[i] - lastTarget.timeStamp;
-                    float xDiff = nextTarget.locations.x - lastTarget.locations.x;
-                    float yDiff = nextTarget.locations.y - lastTarget.locations.y;
-                    float zDiff = nextTarget.locations.z - lastTarget.locations.z;
-                    x = lastTarget.locations.x + (xDiff * (float(timeDiffThis) / float(timeDiffTarget)));
-                    y = lastTarget.locations.y + (yDiff * (float(timeDiffThis) / float(timeDiffTarget)));
-                    z = lastTarget.locations.z + (zDiff * (float(timeDiffThis) / float(timeDiffTarget)));
+                    float xDiff = nextTarget.locations.GetPositionX() - lastTarget.locations.GetPositionX();
+                    float yDiff = nextTarget.locations.GetPositionY() - lastTarget.locations.GetPositionY();
+                    float zDiff = nextTarget.locations.GetPositionZ() - lastTarget.locations.GetPositionZ();
+                    x = lastTarget.locations.GetPositionX() + (xDiff * (float(timeDiffThis) / float(timeDiffTarget)));
+                    y = lastTarget.locations.GetPositionY() + (yDiff * (float(timeDiffThis) / float(timeDiffTarget)));
+                    z = lastTarget.locations.GetPositionZ() + (zDiff * (float(timeDiffThis) / float(timeDiffTarget)));
                 }
-                float xDiff = x - thisCam.locations.x;
-                float yDiff = y - thisCam.locations.y;
-                thisCam.locations.w = std::atan2(yDiff, xDiff);
-
-                if (thisCam.locations.w < 0)
-                    thisCam.locations.w += 2 * float(M_PI);
+                float xDiff = x - thisCam.locations.GetPositionX();
+                float yDiff = y - thisCam.locations.GetPositionY();
+                thisCam.locations.SetOrientation(std::atan2(yDiff, xDiff));
             }
 
             cameras.push_back(thisCam);
@@ -189,78 +181,81 @@ void LoadM2Cameras(std::string const& dataPath)
     TC_LOG_INFO("server.loading", ">> Loading Cinematic Camera files");
 
     uint32 oldMSTime = getMSTime();
-    for (uint32 i = 0; i < sCinematicCameraStore.GetNumRows(); ++i)
+    for (CinematicCameraEntry const* dbcentry : sCinematicCameraStore)
     {
-        if (CinematicCameraEntry const* dbcentry = sCinematicCameraStore.LookupEntry(i))
+        std::string filenameWork = dataPath;
+        filenameWork.append(dbcentry->Model);
+
+        // Replace slashes (always to forward slash, because boost!)
+        std::replace(filenameWork.begin(), filenameWork.end(), '\\', '/');
+
+        boost::filesystem::path filename = filenameWork;
+
+        // Convert to native format
+        filename.make_preferred();
+
+        // Replace mdx to .m2
+        filename.replace_extension("m2");
+
+        std::ifstream m2file(filename.string().c_str(), std::ios::in | std::ios::binary);
+        if (!m2file.is_open())
+            continue;
+
+        // Get file size
+        m2file.seekg(0, std::ios::end);
+        std::streamoff const fileSize = m2file.tellg();
+
+        // Reject if not at least the size of the header
+        if (static_cast<uint32 const>(fileSize) < sizeof(M2Header))
         {
-            std::string filenameWork = dataPath;
-            filenameWork.append(dbcentry->Model);
-
-            // Replace slashes (always to forward slash, because boost!)
-            std::replace(filenameWork.begin(), filenameWork.end(), '\\', '/');
-
-            boost::filesystem::path filename = filenameWork;
-
-            // Convert to native format
-            filename.make_preferred();
-
-            // Replace mdx to .m2
-            filename.replace_extension("m2");
-
-            std::ifstream m2file(filename.string().c_str(), std::ios::in | std::ios::binary);
-            if (!m2file.is_open())
-                continue;
-
-            // Get file size
-            m2file.seekg(0, std::ios::end);
-            std::streamoff const fileSize = m2file.tellg();
-
-            // Reject if not at least the size of the header
-            if (static_cast<uint32 const>(fileSize) < sizeof(M2Header))
-            {
-                TC_LOG_ERROR("server.loading", "Camera file %s is damaged. File is smaller than header size", filename.string().c_str());
-                m2file.close();
-                continue;
-            }
-
-            // Read 4 bytes (signature)
-            m2file.seekg(0, std::ios::beg);
-            char fileCheck[5];
-            m2file.read(fileCheck, 4);
-            fileCheck[4] = 0;
-
-            // Check file has correct magic (MD20)
-            if (strcmp(fileCheck, "MD20"))
-            {
-                TC_LOG_ERROR("server.loading", "Camera file %s is damaged. File identifier not found", filename.string().c_str());
-                m2file.close();
-                continue;
-            }
-
-            // Now we have a good file, read it all into a vector of char's, then close the file.
-            std::vector<char> buffer(fileSize);
-            m2file.seekg(0, std::ios::beg);
-            if (!m2file.read(buffer.data(), fileSize))
-            {
-                m2file.close();
-                continue;
-            }
+            TC_LOG_ERROR("server.loading", "Camera file %s is damaged. File is smaller than header size", filename.string().c_str());
             m2file.close();
-
-            // Read header
-            M2Header const* header = reinterpret_cast<M2Header const*>(buffer.data());
-
-            if (header->ofsCameras + sizeof(M2Camera) > static_cast<uint32 const>(fileSize))
-            {
-                TC_LOG_ERROR("server.loading", "Camera file %s is damaged. Camera references position beyond file end", filename.string().c_str());
-                continue;
-            }
-
-            // Get camera(s) - Main header, then dump them.
-            M2Camera const* cam = reinterpret_cast<M2Camera const*>(buffer.data() + header->ofsCameras);
-            if (!readCamera(cam, fileSize, header, dbcentry))
-                TC_LOG_ERROR("server.loading", "Camera file %s is damaged. Camera references position beyond file end", filename.string().c_str());
+            continue;
         }
+
+        // Read 4 bytes (signature)
+        m2file.seekg(0, std::ios::beg);
+        char fileCheck[5];
+        m2file.read(fileCheck, 4);
+        fileCheck[4] = 0;
+
+        // Check file has correct magic (MD20)
+        if (strcmp(fileCheck, "MD20"))
+        {
+            TC_LOG_ERROR("server.loading", "Camera file %s is damaged. File identifier not found", filename.string().c_str());
+            m2file.close();
+            continue;
+        }
+
+        // Now we have a good file, read it all into a vector of char's, then close the file.
+        std::vector<char> buffer(fileSize);
+        m2file.seekg(0, std::ios::beg);
+        if (!m2file.read(buffer.data(), fileSize))
+        {
+            m2file.close();
+            continue;
+        }
+        m2file.close();
+
+        // Read header
+        M2Header const* header = reinterpret_cast<M2Header const*>(buffer.data());
+
+        if (header->ofsCameras + sizeof(M2Camera) > static_cast<uint32 const>(fileSize))
+        {
+            TC_LOG_ERROR("server.loading", "Camera file %s is damaged. Camera references position beyond file end", filename.string().c_str());
+            continue;
+        }
+
+        // Get camera(s) - Main header, then dump them.
+        M2Camera const* cam = reinterpret_cast<M2Camera const*>(buffer.data() + header->ofsCameras);
+        if (!readCamera(cam, fileSize, header, dbcentry))
+            TC_LOG_ERROR("server.loading", "Camera file %s is damaged. Camera references position beyond file end", filename.string().c_str());
     }
+
     TC_LOG_INFO("server.loading", ">> Loaded %u cinematic waypoint sets in %u ms", (uint32)sFlyByCameraStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+std::vector<FlyByCamera> const* GetFlyByCameras(uint32 cinematicCameraId)
+{
+    return Trinity::Containers::MapGetValuePtr(sFlyByCameraStore, cinematicCameraId);
 }

@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -85,10 +85,12 @@ function(IsDynamicLinkingRequired variable)
   set(${variable} ${IS_REQUIRED} PARENT_SCOPE)
 endfunction()
 
-# Stores the native variable name 
+# Stores the native variable name
 function(GetNativeSharedLibraryName module variable)
   if(WIN32)
     set(${variable} "${module}.dll" PARENT_SCOPE)
+  elseif(APPLE)
+    set(${variable} "lib${module}.dylib" PARENT_SCOPE)
   else()
     set(${variable} "lib${module}.so" PARENT_SCOPE)
   endif()

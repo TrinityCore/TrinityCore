@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,14 @@
 #ifndef DEF_NAXXRAMAS_H
 #define DEF_NAXXRAMAS_H
 
+#include "CreatureAIImpl.h"
+
+#define NaxxramasScriptName "instance_naxxramas"
 #define DataHeader "NAX"
 
 uint32 const EncounterCount     = 15;
 
-enum Encounter
+enum NAXEncounter
 {
     BOSS_ANUBREKHAN,
     BOSS_FAERLINA,
@@ -41,12 +44,9 @@ enum Encounter
     BOSS_KELTHUZAD
 };
 
-enum Data
+enum NAXData
 {
     DATA_GOTHIK_GATE,
-    DATA_HAD_ANUBREKHAN_GREET,
-    DATA_HAD_FAERLINA_GREET,
-    DATA_HAD_THADDIUS_GREET,
     DATA_HAD_SAPPHIRON_BIRTH,
 
     DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT,
@@ -58,7 +58,7 @@ enum Data
     DATA_KELTHUZAD_THRONE
 };
 
-enum Data64
+enum NAXData64
 {
     DATA_ANUBREKHAN,
     DATA_FAERLINA,
@@ -83,7 +83,7 @@ enum Data64
     DATA_LICH_KING
 };
 
-enum CreaturesIds
+enum NAXCreaturesIds
 {
     NPC_ANUBREKHAN              = 15956,
     NPC_FAERLINA                = 15953,
@@ -111,7 +111,7 @@ enum CreaturesIds
     NPC_FROGGER                 = 16027
 };
 
-enum GameObjectsIds
+enum NAXGameObjectsIds
 {
     GO_HORSEMEN_CHEST_HERO      = 193426,
     GO_HORSEMEN_CHEST           = 181366,
@@ -168,7 +168,7 @@ enum GameObjectsIds
     GO_NAXX_PORTAL_MILITARY     = 181578
 };
 
-enum InstanceEvents
+enum NAXInstanceEvents
 {
     // Dialogue that happens after Gothik's death.
     EVENT_DIALOGUE_GOTHIK_KORTHAZZ = 1,
@@ -195,7 +195,7 @@ enum InstanceEvents
     EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD4
 };
 
-enum InstanceTexts
+enum NAXInstanceTexts
 {
     // The Four Horsemen
     SAY_DIALOGUE_GOTHIK_HORSEMAN      = 5,
@@ -215,17 +215,12 @@ enum InstanceTexts
     SAY_DIALOGUE_SAPPHIRON_LICH_KING2 = 2
 };
 
-/*
-template<class AI>
-CreatureAI* GetNaxxramasAI(Creature* creature)
-{
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(NaxxramasScriptName))
-                return new AI(creature);
 
-    return NULL;
+template <class AI, class T>
+inline AI* GetNaxxramasAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, NaxxramasScriptName);
 }
-*/
+#define RegisterNaxxramasCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetNaxxramasAI)
 
 #endif

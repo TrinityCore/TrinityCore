@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,23 +29,19 @@
 
 #define DEFAULT_VISIBILITY_NOTIFY_PERIOD      1000
 
-class GridInfo
+class TC_GAME_API GridInfo
 {
 public:
-    GridInfo()
-        : i_timer(0), vis_Update(0, irand(0, DEFAULT_VISIBILITY_NOTIFY_PERIOD)),
-          i_unloadActiveLockCount(0), i_unloadExplicitLock(false), i_unloadReferenceLock(false) { }
-    GridInfo(time_t expiry, bool unload = true )
-        : i_timer(expiry), vis_Update(0, irand(0, DEFAULT_VISIBILITY_NOTIFY_PERIOD)),
-          i_unloadActiveLockCount(0), i_unloadExplicitLock(!unload), i_unloadReferenceLock(false) { }
-    const TimeTracker& getTimeTracker() const { return i_timer; }
+    GridInfo();
+    GridInfo(time_t expiry, bool unload = true);
+    TimeTracker const& getTimeTracker() const { return i_timer; }
     bool getUnloadLock() const { return i_unloadActiveLockCount || i_unloadExplicitLock || i_unloadReferenceLock; }
     void setUnloadExplicitLock(bool on) { i_unloadExplicitLock = on; }
     void setUnloadReferenceLock(bool on) { i_unloadReferenceLock = on; }
     void incUnloadActiveLock() { ++i_unloadActiveLockCount; }
     void decUnloadActiveLock() { if (i_unloadActiveLockCount) --i_unloadActiveLockCount; }
 
-    void setTimer(const TimeTracker& pTimer) { i_timer = pTimer; }
+    void setTimer(TimeTracker const& pTimer) { i_timer = pTimer; }
     void ResetTimeTracker(time_t interval) { i_timer.Reset(interval); }
     void UpdateTimeTracker(time_t diff) { i_timer.Update(diff); }
     PeriodicTimer& getRelocationTimer() { return vis_Update; }
@@ -110,7 +106,7 @@ class NGrid
         void setGridObjectDataLoaded(bool pLoaded) { i_GridObjectDataLoaded = pLoaded; }
 
         GridInfo* getGridInfoRef() { return &i_GridInfo; }
-        const TimeTracker& getTimeTracker() const { return i_GridInfo.getTimeTracker(); }
+        TimeTracker const& getTimeTracker() const { return i_GridInfo.getTimeTracker(); }
         bool getUnloadLock() const { return i_GridInfo.getUnloadLock(); }
         void setUnloadExplicitLock(bool on) { i_GridInfo.setUnloadExplicitLock(on); }
         void setUnloadReferenceLock(bool on) { i_GridInfo.setUnloadReferenceLock(on); }
@@ -191,4 +187,3 @@ class NGrid
         bool i_GridObjectDataLoaded;
 };
 #endif
-

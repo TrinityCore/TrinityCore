@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,33 @@
 #ifndef UpdateFetcher_h__
 #define UpdateFetcher_h__
 
-#include <DBUpdater.h>
-
-#include <functional>
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
+#include <set>
 #include <string>
-#include <memory>
+#include <unordered_map>
 #include <vector>
+
+namespace boost
+{
+    namespace filesystem
+    {
+        class path;
+    }
+}
+
+struct TC_DATABASE_API UpdateResult
+{
+    UpdateResult()
+        : updated(0), recent(0), archived(0) { }
+
+    UpdateResult(size_t const updated_, size_t const recent_, size_t const archived_)
+        : updated(updated_), recent(recent_), archived(archived_) { }
+
+    size_t updated;
+    size_t recent;
+    size_t archived;
+};
 
 class TC_DATABASE_API UpdateFetcher
 {
@@ -34,6 +55,7 @@ public:
         std::function<void(std::string const&)> const& apply,
         std::function<void(Path const& path)> const& applyFile,
         std::function<QueryResult(std::string const&)> const& retrieve);
+    ~UpdateFetcher();
 
     UpdateResult Update(bool const redundancyChecks, bool const allowRehash,
                   bool const archivedRedundancy, int32 const cleanDeadReferencesMaxCount) const;
@@ -80,23 +102,13 @@ private:
         }
     };
 
-    struct DirectoryEntry
-    {
-        DirectoryEntry(Path const& path_, State state_) : path(path_), state(state_) { }
-
-        Path const path;
-
-        State const state;
-    };
+    struct DirectoryEntry;
 
     typedef std::pair<Path, State> LocaleFileEntry;
 
     struct PathCompare
     {
-        inline bool operator() (LocaleFileEntry const& left, LocaleFileEntry const& right) const
-        {
-            return left.first.filename().string() < right.first.filename().string();
-        }
+        bool operator()(LocaleFileEntry const& left, LocaleFileEntry const& right) const;
     };
 
     typedef std::set<LocaleFileEntry, PathCompare> LocaleFileStorage;
@@ -121,7 +133,7 @@ private:
 
     void UpdateState(std::string const& name, State const state) const;
 
-    Path const _sourceDirectory;
+    std::unique_ptr<Path> const _sourceDirectory;
 
     std::function<void(std::string const&)> const _apply;
     std::function<void(Path const& path)> const _applyFile;

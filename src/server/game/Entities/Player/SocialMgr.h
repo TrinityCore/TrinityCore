@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,12 +19,11 @@
 #ifndef __TRINITY_SOCIALMGR_H
 #define __TRINITY_SOCIALMGR_H
 
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "Common.h"
 #include "ObjectGuid.h"
+#include <map>
 
-class SocialMgr;
-class PlayerSocial;
 class Player;
 class WorldPacket;
 
@@ -42,7 +41,9 @@ enum SocialFlag
     SOCIAL_FLAG_FRIEND      = 0x01,
     SOCIAL_FLAG_IGNORED     = 0x02,
     SOCIAL_FLAG_MUTED       = 0x04,                          // guessed
-    SOCIAL_FLAG_UNK         = 0x08                           // Unknown - does not appear to be RaF
+    SOCIAL_FLAG_UNK         = 0x08,                          // Unknown - does not appear to be RaF
+
+    SOCIAL_FLAG_ALL         = SOCIAL_FLAG_FRIEND | SOCIAL_FLAG_IGNORED | SOCIAL_FLAG_MUTED
 };
 
 struct FriendInfo
@@ -61,11 +62,8 @@ struct FriendInfo
     { }
 };
 
-typedef std::map<ObjectGuid::LowType, FriendInfo> PlayerSocialMap;
-typedef std::map<ObjectGuid::LowType, PlayerSocial> SocialMap;
-
 /// Results of friend related commands
-enum FriendsResult
+enum FriendsResult : uint8
 {
     FRIEND_DB_ERROR         = 0x00,
     FRIEND_LIST_FULL        = 0x01,
@@ -92,57 +90,73 @@ enum FriendsResult
     FRIEND_MUTE_ADDED       = 0x16,
     FRIEND_MUTE_REMOVED     = 0x17,
     FRIEND_MUTE_AMBIGUOUS   = 0x18,                         // That name is ambiguous, type more of the player's server name
-    FRIEND_UNK7             = 0x19,                         // no message at client
-    FRIEND_UNKNOWN          = 0x1A                          // Unknown friend response from server
+    FRIEND_UNK1             = 0x19,                         // no message at client
+    FRIEND_UNK2             = 0x1A,
+    FRIEND_UNK3             = 0x1B,
+    FRIEND_UNKNOWN          = 0x1C                          // Unknown friend response from server
 };
 
-#define SOCIALMGR_FRIEND_LIMIT  50
-#define SOCIALMGR_IGNORE_LIMIT  50
+#define SOCIALMGR_FRIEND_LIMIT  50u
+#define SOCIALMGR_IGNORE_LIMIT  50u
 
 class TC_GAME_API PlayerSocial
 {
     friend class SocialMgr;
+
     public:
         PlayerSocial();
         // adding/removing
-        bool AddToSocialList(ObjectGuid::LowType friendGuid, bool ignore);
-        void RemoveFromSocialList(ObjectGuid::LowType friend_guid, bool ignore);
-        void SetFriendNote(ObjectGuid::LowType friendGuid, std::string note);
+        bool AddToSocialList(ObjectGuid const& guid, SocialFlag flag);
+        void RemoveFromSocialList(ObjectGuid const& guid, SocialFlag flag);
+        void SetFriendNote(ObjectGuid const& guid, std::string const& note);
+
         // Packet send's
-        void SendSocialList(Player* player);
+        void SendSocialList(Player* player, uint32 flags);
+
         // Misc
-        bool HasFriend(ObjectGuid::LowType friend_guid);
-        bool HasIgnore(ObjectGuid::LowType ignore_guid);
-        ObjectGuid::LowType GetPlayerGUID() const { return m_playerGUID; }
-        void SetPlayerGUID(ObjectGuid::LowType guid) { m_playerGUID = guid; }
+        bool HasFriend(ObjectGuid const& friendGuid);
+        bool HasIgnore(ObjectGuid const& ignoreGuid);
+
+        ObjectGuid const& GetPlayerGUID() const { return _playerGUID; }
+        void SetPlayerGUID(ObjectGuid const& guid) { _playerGUID = guid; }
+
         uint32 GetNumberOfSocialsWithFlag(SocialFlag flag);
+
     private:
-        PlayerSocialMap m_playerSocialMap;
-        ObjectGuid::LowType m_playerGUID;
+        bool _HasContact(ObjectGuid const& guid, SocialFlag flags);
+
+        typedef std::map<ObjectGuid, FriendInfo> PlayerSocialMap;
+        PlayerSocialMap _playerSocialMap;
+
+        ObjectGuid _playerGUID;
 };
 
 class SocialMgr
 {
     private:
-        SocialMgr();
-        ~SocialMgr();
+        SocialMgr() { }
+        ~SocialMgr() { }
 
     public:
         static SocialMgr* instance();
 
         // Misc
-        void RemovePlayerSocial(ObjectGuid::LowType guid) { m_socialMap.erase(guid); }
+        void RemovePlayerSocial(ObjectGuid const& guid) { _socialMap.erase(guid); }
 
-        void GetFriendInfo(Player* player, ObjectGuid::LowType friendGUID, FriendInfo &friendInfo);
-        // Packet management
-        void MakeFriendStatusPacket(FriendsResult result, ObjectGuid::LowType friend_guid, WorldPacket* data);
-        void SendFriendStatus(Player* player, FriendsResult result, ObjectGuid::LowType friend_guid, bool broadcast);
-        void BroadcastToFriendListers(Player* player, WorldPacket* packet);
+        void GetFriendInfo(Player* player, ObjectGuid const& friendGUID, FriendInfo& friendInfo);
+
+        // Packet send's
+        void SendFriendStatus(Player* player, FriendsResult result, ObjectGuid const& friendGuid, bool broadcast = false);
+        void BroadcastToFriendListers(Player* player, WorldPacket const* packet);
+
         // Loading
-        PlayerSocial *LoadFromDB(PreparedQueryResult result, ObjectGuid::LowType guid);
+        PlayerSocial* LoadFromDB(PreparedQueryResult result, ObjectGuid const& guid);
+
     private:
-        SocialMap m_socialMap;
+        typedef std::map<ObjectGuid, PlayerSocial> SocialMap;
+        SocialMap _socialMap;
 };
 
 #define sSocialMgr SocialMgr::instance()
+
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,9 @@
 
 #include "PacketLog.h"
 #include "Config.h"
-#include "WorldPacket.h"
+#include "IpAddress.h"
 #include "Timer.h"
+#include "WorldPacket.h"
 
 #pragma pack(push, 1)
 
@@ -56,7 +57,7 @@ struct PacketHeader
 
 #pragma pack(pop)
 
-PacketLog::PacketLog() : _file(NULL)
+PacketLog::PacketLog() : _file(nullptr)
 {
     std::call_once(_initializeFlag, &PacketLog::Initialize, this);
 }
@@ -66,7 +67,7 @@ PacketLog::~PacketLog()
     if (_file)
         fclose(_file);
 
-    _file = NULL;
+    _file = nullptr;
 }
 
 PacketLog* PacketLog::instance()
@@ -95,7 +96,7 @@ void PacketLog::Initialize()
         header.Build = 12340;
         header.Locale[0] = 'e'; header.Locale[1] = 'n'; header.Locale[2] = 'U'; header.Locale[3] = 'S';
         std::memset(header.SessionKey, 0, sizeof(header.SessionKey));
-        header.SniffStartUnixtime = time(NULL);
+        header.SniffStartUnixtime = time(nullptr);
         header.SniffStartTicks = getMSTime();
         header.OptionalDataSize = 0;
 

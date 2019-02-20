@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef FORGE_OF_SOULS_H_
 #define FORGE_OF_SOULS_H_
 
+#include "CreatureAIImpl.h"
+
 #define FoSScriptName "instance_forge_of_souls"
 #define DataHeader    "FOS"
 
 uint32 const EncounterCount = 2;
 
-enum Data
+enum FOSData
 {
     // Encounter states and GUIDs
     DATA_BRONJAHM                   = 0,
@@ -33,7 +35,7 @@ enum Data
     DATA_TEAM_IN_INSTANCE           = 2
 };
 
-enum Creatures
+enum FOSCreatures
 {
     NPC_BRONJAHM                    = 36497,
     NPC_DEVOURER                    = 36502,
@@ -54,5 +56,11 @@ enum Creatures
     NPC_CHAMPION_2_ALLIANCE         = 37497,
     NPC_CRUCIBLE_OF_SOULS           = 37094
 };
+
+template <class AI, class T>
+inline AI* GetForgeOfSoulsAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, FoSScriptName);
+}
 
 #endif // FORGE_OF_SOULS_H_

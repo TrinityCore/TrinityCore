@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,9 +17,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
 #include "blackwing_lair.h"
+#include "Map.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
 
 enum Emotes
 {
@@ -191,15 +192,15 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
 
             events.ScheduleEvent(EVENT_SHIMMER, 0);
             events.ScheduleEvent(EVENT_BREATH_1, 30000);
             events.ScheduleEvent(EVENT_BREATH_2, 60000);
-            events.ScheduleEvent(EVENT_AFFLICTION, 10000);
-            events.ScheduleEvent(EVENT_FRENZY, 15000);
+            events.ScheduleEvent(EVENT_AFFLICTION, 10s);
+            events.ScheduleEvent(EVENT_FRENZY, 15s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -227,7 +228,7 @@ public:
                             DoCast(me, spell);
                             CurrentVurln_Spell = spell;
                             Talk(EMOTE_SHIMMER);
-                            events.ScheduleEvent(EVENT_SHIMMER, 45000);
+                            events.ScheduleEvent(EVENT_SHIMMER, 45s);
                             break;
                         }
                     case EVENT_BREATH_1:
@@ -240,7 +241,7 @@ public:
                             break;
                     case EVENT_AFFLICTION:
                         {
-                            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                            Map::PlayerList const& players = me->GetMap()->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             {
                                 if (Player* player = itr->GetSource()->ToPlayer())
@@ -259,11 +260,11 @@ public:
                                 }
                             }
                         }
-                        events.ScheduleEvent(EVENT_AFFLICTION, 10000);
+                        events.ScheduleEvent(EVENT_AFFLICTION, 10s);
                         break;
                     case EVENT_FRENZY:
                         DoCast(me, SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, urand(10000, 15000));
+                        events.ScheduleEvent(EVENT_FRENZY, 10s, 15s);
                         break;
                 }
 
@@ -290,7 +291,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_chromaggusAI>(creature);
+        return GetBlackwingLairAI<boss_chromaggusAI>(creature);
     }
 };
 

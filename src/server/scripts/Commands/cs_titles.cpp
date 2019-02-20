@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,11 +22,12 @@ Comment: All titles related commands
 Category: commandscripts
 EndScriptData */
 
-#include "Chat.h"
-#include "Language.h"
-#include "ObjectMgr.h"
-#include "Player.h"
 #include "ScriptMgr.h"
+#include "Chat.h"
+#include "DBCStores.h"
+#include "Language.h"
+#include "Player.h"
+#include "RBAC.h"
 
 class titles_commandscript : public CommandScript
 {
@@ -44,11 +45,11 @@ public:
             { "add",     rbac::RBAC_PERM_COMMAND_TITLES_ADD,     false, &HandleTitlesAddCommand,     "" },
             { "current", rbac::RBAC_PERM_COMMAND_TITLES_CURRENT, false, &HandleTitlesCurrentCommand, "" },
             { "remove",  rbac::RBAC_PERM_COMMAND_TITLES_REMOVE,  false, &HandleTitlesRemoveCommand,  "" },
-            { "set",     rbac::RBAC_PERM_COMMAND_TITLES_SET,     false, NULL,       "", titlesSetCommandTable },
+            { "set",     rbac::RBAC_PERM_COMMAND_TITLES_SET,     false, nullptr,       "", titlesSetCommandTable },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "titles", rbac::RBAC_PERM_COMMAND_TITLES, false, NULL, "", titlesCommandTable },
+            { "titles", rbac::RBAC_PERM_COMMAND_TITLES, false, nullptr, "", titlesCommandTable },
         };
         return commandTable;
     }

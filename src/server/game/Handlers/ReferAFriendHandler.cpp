@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,10 @@
  */
 
 #include "WorldSession.h"
-#include "Player.h"
-#include "ObjectMgr.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "World.h"
 
 void WorldSession::HandleGrantLevel(WorldPacket& recvData)
 {
@@ -60,7 +61,7 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
 
     WorldPacket data2(SMSG_PROPOSE_LEVEL_GRANT, 8);
     data2 << _player->GetPackGUID();
-    target->GetSession()->SendPacket(&data2);
+    target->SendDirectMessage(&data2);
 }
 
 void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,8 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "temple_of_ahnqiraj.h"
+#include "TemporarySummon.h"
 
 #define SOUND_SENTENCE_YOU 8588
 #define SOUND_SERVE_TO     8589
@@ -48,12 +50,12 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_fankrissAI(creature);
+        return GetAQ40AI<boss_fankrissAI>(creature);
     }
 
-    struct boss_fankrissAI : public ScriptedAI
+    struct boss_fankrissAI : public BossAI
     {
-        boss_fankrissAI(Creature* creature) : ScriptedAI(creature)
+        boss_fankrissAI(Creature* creature) : BossAI(creature, DATA_FRANKRIS)
         {
             Initialize();
         }
@@ -72,6 +74,7 @@ public:
         void Reset() override
         {
             Initialize();
+            _Reset();
         }
 
         void SummonSpawn(Unit* victim)
@@ -99,10 +102,6 @@ public:
             Creature* Spawn = DoSpawnCreature(15630, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
             if (Spawn)
                 Spawn->AI()->AttackStart(victim);
-        }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
         }
 
         void UpdateAI(uint32 diff) override
@@ -149,8 +148,8 @@ public:
                     {
                         DoCast(target, SPELL_ROOT);
 
-                        if (DoGetThreat(target))
-                            DoModifyThreatPercent(target, -100);
+                        if (GetThreat(target))
+                            ModifyThreatByPercent(target, -100);
 
                         Creature* Hatchling = nullptr;
                         switch (urand(0, 2))

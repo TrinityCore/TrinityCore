@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,19 +20,35 @@
 #define TRINITYCORE_LOG_H
 
 #include "Define.h"
-#include "Appender.h"
-#include "Logger.h"
+#include "AsioHacksFwd.h"
+#include "LogCommon.h"
 #include "StringFormat.h"
-#include "Common.h"
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/strand.hpp>
 
-#include <stdarg.h>
-#include <unordered_map>
-#include <string>
 #include <memory>
+#include <unordered_map>
+#include <vector>
+
+class Appender;
+class Logger;
+struct LogMessage;
+
+namespace Trinity
+{
+    namespace Asio
+    {
+        class IoContext;
+    }
+}
 
 #define LOGGER_ROOT "root"
+
+typedef Appender*(*AppenderCreatorFn)(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*>&& extraArgs);
+
+template <class AppenderImpl>
+Appender* CreateAppender(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*>&& extraArgs)
+{
+    return new AppenderImpl(id, name, level, flags, std::forward<std::vector<char const*>>(extraArgs));
+}
 
 class TC_COMMON_API Log
 {
@@ -41,12 +57,15 @@ class TC_COMMON_API Log
     private:
         Log();
         ~Log();
+        Log(Log const&) = delete;
+        Log(Log&&) = delete;
+        Log& operator=(Log const&) = delete;
+        Log& operator=(Log&&) = delete;
 
     public:
-
         static Log* instance();
 
-        void Initialize(boost::asio::io_service* ioService);
+        void Initialize(Trinity::Asio::IoContext* ioContext);
         void SetSynchronous();  // Not threadsafe - should only be called from main() after all threads are joined
         void LoadFromConfig();
         void Close();
@@ -56,8 +75,7 @@ class TC_COMMON_API Log
         template<typename Format, typename... Args>
         inline void outMessage(std::string const& filter, LogLevel const level, Format&& fmt, Args&&... args)
         {
-            write(Trinity::make_unique<LogMessage>(level, filter,
-                Trinity::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...)));
+            outMessage(filter, level, Trinity::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
         }
 
         template<typename Format, typename... Args>
@@ -66,13 +84,7 @@ class TC_COMMON_API Log
             if (!ShouldLog("commands.gm", LOG_LEVEL_INFO))
                 return;
 
-            std::unique_ptr<LogMessage> msg =
-                Trinity::make_unique<LogMessage>(LOG_LEVEL_INFO, "commands.gm",
-                    Trinity::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
-
-            msg->param1 = std::to_string(account);
-
-            write(std::move(msg));
+            outCommand(Trinity::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...), std::to_string(account));
         }
 
         void outCharDump(char const* str, uint32 account_id, uint64 guid, char const* name);
@@ -83,9 +95,7 @@ class TC_COMMON_API Log
         void RegisterAppender()
         {
             using Index = typename AppenderImpl::TypeIndex;
-            auto itr = appenderFactory.find(Index::value);
-            ASSERT(itr == appenderFactory.end());
-            appenderFactory[Index::value] = &CreateAppender<AppenderImpl>;
+            RegisterAppender(Index::value, &CreateAppender<AppenderImpl>);
         }
 
         std::string const& GetLogsDir() const { return m_logsDir; }
@@ -102,54 +112,22 @@ class TC_COMMON_API Log
         void CreateLoggerFromConfig(std::string const& name);
         void ReadAppendersFromConfig();
         void ReadLoggersFromConfig();
+        void RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn);
+        void outMessage(std::string const& filter, LogLevel level, std::string&& message);
+        void outCommand(std::string&& message, std::string&& param1);
 
-        AppenderCreatorMap appenderFactory;
-        AppenderMap appenders;
-        LoggerMap loggers;
+        std::unordered_map<uint8, AppenderCreatorFn> appenderFactory;
+        std::unordered_map<uint8, std::unique_ptr<Appender>> appenders;
+        std::unordered_map<std::string, std::unique_ptr<Logger>> loggers;
         uint8 AppenderId;
         LogLevel lowestLogLevel;
 
         std::string m_logsDir;
         std::string m_logsTimestamp;
 
-        boost::asio::io_service* _ioService;
-        boost::asio::strand* _strand;
+        Trinity::Asio::IoContext* _ioContext;
+        Trinity::Asio::Strand* _strand;
 };
-
-inline Logger const* Log::GetLoggerByType(std::string const& type) const
-{
-    LoggerMap::const_iterator it = loggers.find(type);
-    if (it != loggers.end())
-        return &(it->second);
-
-    if (type == LOGGER_ROOT)
-        return NULL;
-
-    std::string parentLogger = LOGGER_ROOT;
-    size_t found = type.find_last_of(".");
-    if (found != std::string::npos)
-        parentLogger = type.substr(0,found);
-
-    return GetLoggerByType(parentLogger);
-}
-
-inline bool Log::ShouldLog(std::string const& type, LogLevel level) const
-{
-    // TODO: Use cache to store "Type.sub1.sub2": "Type" equivalence, should
-    // Speed up in cases where requesting "Type.sub1.sub2" but only configured
-    // Logger "Type"
-
-    // Don't even look for a logger if the LogLevel is lower than lowest log levels across all loggers
-    if (level < lowestLogLevel)
-        return false;
-
-    Logger const* logger = GetLoggerByType(type);
-    if (!logger)
-        return false;
-
-    LogLevel logLevel = logger->getLogLevel();
-    return logLevel != LOG_LEVEL_DISABLED && logLevel <= level;
-}
 
 #define sLog Log::instance()
 
@@ -166,8 +144,10 @@ inline bool Log::ShouldLog(std::string const& type, LogLevel level) const
         } \
     }
 
-#if PLATFORM != PLATFORM_WINDOWS
-void check_args(const char*, ...) ATTR_PRINTF(1, 2);
+#ifdef PERFORMANCE_PROFILING
+#define TC_LOG_MESSAGE_BODY(filterType__, level__, ...) ((void)0)
+#elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+void check_args(char const*, ...) ATTR_PRINTF(1, 2);
 void check_args(std::string const&, ...);
 
 // This will catch format errors on build time

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,9 +23,15 @@ Category: Scholomance
 */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "scholomance.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -59,26 +65,26 @@ class boss_darkmaster_gandling : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_GANDLING)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_ACTIVE);
             }
 
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_GANDLING)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_ACTIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_ARCANEMISSILES, 4500);
-                events.ScheduleEvent(EVENT_SHADOWSHIELD, 12000);
-                events.ScheduleEvent(EVENT_CURSE, 2000);
-                events.ScheduleEvent(EVENT_SHADOW_PORTAL, 16000);
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_ARCANEMISSILES, 4500ms);
+                events.ScheduleEvent(EVENT_SHADOWSHIELD, 12s);
+                events.ScheduleEvent(EVENT_CURSE, 2s);
+                events.ScheduleEvent(EVENT_SHADOW_PORTAL, 15s);
 
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_GANDLING)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_READY);
             }
 
@@ -104,21 +110,21 @@ class boss_darkmaster_gandling : public CreatureScript
                     {
                         case EVENT_ARCANEMISSILES:
                             DoCastVictim(SPELL_ARCANEMISSILES, true);
-                            events.ScheduleEvent(EVENT_ARCANEMISSILES, 8000);
+                            events.ScheduleEvent(EVENT_ARCANEMISSILES, 8s);
                             break;
                         case EVENT_SHADOWSHIELD:
                             DoCast(me, SPELL_SHADOWSHIELD);
-                            events.ScheduleEvent(EVENT_SHADOWSHIELD, urand(14000, 28000));
+                            events.ScheduleEvent(EVENT_SHADOWSHIELD, 14s, 28s);
                             break;
                         case EVENT_CURSE:
                             DoCastVictim(SPELL_CURSE, true);
-                            events.ScheduleEvent(EVENT_CURSE, urand(15000, 27000));
+                            events.ScheduleEvent(EVENT_CURSE, 15s, 27s);
                             break;
                         case EVENT_SHADOW_PORTAL:
                             if (HealthAbovePct(3))
                             {
                                 DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_SHADOW_PORTAL, true);
-                                events.ScheduleEvent(EVENT_SHADOW_PORTAL, urand(17000, 27000));
+                                events.ScheduleEvent(EVENT_SHADOW_PORTAL, 17s, 27s);
                             }
                     }
 
@@ -131,7 +137,7 @@ class boss_darkmaster_gandling : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_darkmaster_gandlingAI>(creature);
+            return GetScholomanceAI<boss_darkmaster_gandlingAI>(creature);
         }
 };
 
@@ -165,17 +171,10 @@ class spell_shadow_portal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_shadow_portal_SpellScript);
 
-        public:
-            spell_shadow_portal_SpellScript()
-            {
-                _instance = nullptr;
-            }
-
-        private:
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
-                return _instance != nullptr;
+                return InstanceHasScript(GetCaster(), ScholomanceScriptName);
             }
 
             void HandleCast(SpellEffIndex /*effIndex*/)
@@ -232,7 +231,7 @@ class spell_shadow_portal : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_shadow_portal_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 
-            InstanceScript* _instance;
+            InstanceScript* _instance = nullptr;
         };
 
         SpellScript* GetSpellScript() const override
@@ -294,17 +293,10 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
         {
             PrepareSpellScript(spell_shadow_portal_rooms_SpellScript);
 
-        public:
-            spell_shadow_portal_rooms_SpellScript()
-            {
-                _instance = nullptr;
-            }
-
-        private:
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
-                return _instance != nullptr;
+                return InstanceHasScript(GetCaster(), ScholomanceScriptName);
             }
 
             void HandleSendEvent(SpellEffIndex effIndex)
@@ -353,7 +345,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                         break;
                 }
 
-                if (gate_to_close && (caster->GetMap()->GetId() == 289))
+                if (gate_to_close)
                 {
                     for (uint8 i = 0; i < 3; ++i)
                     {
@@ -374,7 +366,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                 OnEffectHit += SpellEffectFn(spell_shadow_portal_rooms_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
 
-            InstanceScript* _instance;
+            InstanceScript* _instance = nullptr;
         };
 
         SpellScript* GetSpellScript() const override

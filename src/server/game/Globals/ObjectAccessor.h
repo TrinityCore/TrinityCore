@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,27 +19,25 @@
 #ifndef TRINITY_OBJECTACCESSOR_H
 #define TRINITY_OBJECTACCESSOR_H
 
-#include <mutex>
-#include <set>
+#include "ObjectGuid.h"
 #include <unordered_map>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
 
-#include "Define.h"
-#include "GridDefines.h"
-#include "UpdateData.h"
-#include "Object.h"
-
-class Creature;
 class Corpse;
-class Unit;
-class GameObject;
+class Creature;
 class DynamicObject;
-class WorldObject;
-class Vehicle;
+class GameObject;
 class Map;
-class WorldRunnable;
+class Object;
+class Pet;
+class Player;
 class Transport;
+class Unit;
+class WorldObject;
+
+namespace boost
+{
+    class shared_mutex;
+}
 
 template <class T>
 class TC_GAME_API HashMapHolder
@@ -48,9 +46,6 @@ class TC_GAME_API HashMapHolder
     HashMapHolder() { }
 
 public:
-    static_assert(std::is_same<Player, T>::value
-        || std::is_same<Transport, T>::value,
-        "Only Player and Transport can be registered in global HashMapHolder");
 
     typedef std::unordered_map<ObjectGuid, T*> MapType;
 
@@ -85,6 +80,7 @@ namespace ObjectAccessor
     // ACCESS LIKE THAT IS NOT THREAD SAFE
     TC_GAME_API Player* FindPlayer(ObjectGuid const&);
     TC_GAME_API Player* FindPlayerByName(std::string const& name);
+    TC_GAME_API Player* FindPlayerByLowGUID(ObjectGuid::LowType lowguid);
 
     // this returns Player even if he is not in world, for example teleporting
     TC_GAME_API Player* FindConnectedPlayer(ObjectGuid const&);
@@ -115,4 +111,3 @@ namespace ObjectAccessor
 };
 
 #endif
-

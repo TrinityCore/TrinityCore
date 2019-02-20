@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,12 +23,18 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "Chat.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
+#include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "Language.h"
-#include "Player.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
+#include "RBAC.h"
+#include "World.h"
+#include "WorldSession.h"
 
 class message_commandscript : public CommandScript
 {
@@ -43,11 +49,11 @@ public:
         };
         static std::vector<ChatCommand> channelCommandTable =
         {
-            { "set", rbac::RBAC_PERM_COMMAND_CHANNEL_SET, true, NULL, "", channelSetCommandTable },
+            { "set", rbac::RBAC_PERM_COMMAND_CHANNEL_SET, true, nullptr, "", channelSetCommandTable },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "channel",        rbac::RBAC_PERM_COMMAND_CHANNEL,        true, NULL,                         "", channelCommandTable  },
+            { "channel",        rbac::RBAC_PERM_COMMAND_CHANNEL,        true, nullptr,                         "", channelCommandTable  },
             { "nameannounce",   rbac::RBAC_PERM_COMMAND_NAMEANNOUNCE,   true, &HandleNameAnnounceCommand,   "" },
             { "gmnameannounce", rbac::RBAC_PERM_COMMAND_GMNAMEANNOUNCE, true, &HandleGMNameAnnounceCommand, "" },
             { "announce",       rbac::RBAC_PERM_COMMAND_ANNOUNCE,       true, &HandleAnnounceCommand,       "" },
@@ -160,9 +166,7 @@ public:
         if (!*args)
             return false;
 
-        char buff[2048];
-        sprintf(buff, handler->GetTrinityString(LANG_SYSTEMMESSAGE), args);
-        sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
+        sWorld->SendServerMessage(SERVER_MSG_STRING, Trinity::StringFormat(handler->GetTrinityString(LANG_SYSTEMMESSAGE), args).c_str());
         return true;
     }
     // announce to logged in GMs
@@ -234,7 +238,7 @@ public:
 
         if (argStr == "remove")
         {
-            std::string name = strtok(NULL, " ");
+            std::string name = strtok(nullptr, " ");
             if (normalizePlayerName(name))
             {
                 if (Player* player = ObjectAccessor::FindPlayerByName(name))

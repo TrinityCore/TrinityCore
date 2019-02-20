@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,10 +24,12 @@ SDCategory: Halls of Lightning
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "halls_of_lightning.h"
-#include "Player.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 
 enum Texts
 {
@@ -119,21 +121,21 @@ public:
             events.ScheduleEvent(EVENT_FORGE_CAST, 2 * IN_MILLISECONDS, 0, PHASE_INTRO);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             events.SetPhase(PHASE_NORMAL);
             events.ScheduleEvent(EVENT_PAUSE,            3.5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
             events.ScheduleEvent(EVENT_SHATTERING_STOMP,   0 * IN_MILLISECONDS, 0, PHASE_NORMAL);
             events.ScheduleEvent(EVENT_SHATTER,            5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
-            _EnterCombat();
+            _JustEngagedWith();
         }
 
         void AttackStart(Unit* who) override
         {
             if (me->Attack(who, true))
             {
-                me->AddThreat(who, 0.0f);
+                AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
                 who->SetInCombatWith(me);
 
@@ -200,7 +202,7 @@ public:
                     summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
 
                 // Why healing when just summoned?
-                summoned->CastSpell(summoned, SPELL_HEAT, false, NULL, NULL, me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_HEAT, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()));
             }
         }
 
@@ -326,7 +328,7 @@ public:
                     // 4 - Wait for delay to expire
                     if (m_uiDelay_Timer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
                         {
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->SetInCombatWith(target);
@@ -365,9 +367,8 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_volkhanAI>(creature);
+        return GetHallsOfLightningAI<boss_volkhanAI>(creature);
     }
-
 };
 
 /*######
@@ -381,7 +382,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_molten_golemAI(creature);
+        return GetHallsOfLightningAI<npc_molten_golemAI>(creature);
     }
 
     struct npc_molten_golemAI : public ScriptedAI
@@ -409,7 +410,7 @@ public:
         {
             if (me->Attack(who, true))
             {
-                me->AddThreat(who, 0.0f);
+                AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
                 who->SetInCombatWith(me);
 
@@ -418,26 +419,26 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (uiDamage > me->GetHealth())
+            if (damage >= me->GetHealth())
             {
                 me->UpdateEntry(NPC_BRITTLE_GOLEM);
                 me->SetHealth(1);
-                uiDamage = 0;
+                damage = 0;
                 me->RemoveAllAuras();
                 me->AttackStop();
-                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);  //Set in DB
-                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //Set in DB
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // Set in DB
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // Set in DB
                 if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
-                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
-                    me->GetMotionMaster()->MovementExpired();
+
+                me->GetMotionMaster()->Clear();
                 m_bIsFrozen = true;
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell) override
+        void SpellHit(Unit* /*pCaster*/, SpellInfo const* pSpell) override
         {
             // This is the dummy effect of the spells
             if (pSpell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))
@@ -462,11 +463,11 @@ public:
                 {
                     case EVENT_BLAST:
                         DoCast(me, SPELL_BLAST_WAVE);
-                        events.ScheduleEvent(EVENT_BLAST, 20 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_BLAST, 20s);
                         break;
                     case EVENT_IMMOLATION:
                         DoCastVictim(SPELL_IMMOLATION_STRIKE);
-                        events.ScheduleEvent(EVENT_BLAST, 5 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_BLAST, 5s);
                         break;
                     default:
                         break;

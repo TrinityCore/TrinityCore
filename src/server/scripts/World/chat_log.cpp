@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,10 @@
 
 #include "ScriptMgr.h"
 #include "Channel.h"
-#include "Guild.h"
 #include "Group.h"
+#include "Guild.h"
+#include "Log.h"
+#include "Player.h"
 
 class ChatLogScript : public PlayerScript
 {

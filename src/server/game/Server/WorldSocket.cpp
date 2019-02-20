@@ -1,28 +1,35 @@
 /*
-* Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "WorldSocket.h"
 #include "BigNumber.h"
+#include "DatabaseEnv.h"
+#include "GameTime.h"
+#include "IPLocation.h"
 #include "Opcodes.h"
+#include "PacketLog.h"
+#include "Random.h"
+#include "RBAC.h"
+#include "Realm.h"
 #include "ScriptMgr.h"
 #include "SHA1.h"
-#include "PacketLog.h"
-
+#include "World.h"
+#include "WorldSession.h"
 #include <memory>
 
 class EncryptablePacket : public WorldPacket
@@ -39,7 +46,7 @@ private:
 using boost::asio::ip::tcp;
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
-    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _authed(false)
+    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _authed(false), _sendBufferSize(4096)
 {
     _headerBuffer.Resize(sizeof(ClientPktHeader));
 }
@@ -49,10 +56,8 @@ void WorldSocket::Start()
     std::string ip_address = GetRemoteIpAddress().to_string();
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
-    stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
-    _queryCallback = std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
 }
 
 void WorldSocket::CheckIpCallback(PreparedQueryResult result)
@@ -65,9 +70,6 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
             Field* fields = result->Fetch();
             if (fields[0].GetUInt64() != 0)
                 banned = true;
-
-            if (!fields[1].GetString().empty())
-                _ipCountry = fields[1].GetString();
 
         } while (result->NextRow());
 
@@ -87,7 +89,7 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
 bool WorldSocket::Update()
 {
     EncryptablePacket* queued;
-    MessageBuffer buffer;
+    MessageBuffer buffer(_sendBufferSize);
     while (_bufferQueue.Dequeue(queued))
     {
         ServerPktHeader header(queued->size() + 2, queued->GetOpcode());
@@ -97,7 +99,7 @@ bool WorldSocket::Update()
         if (buffer.GetRemainingSpace() < queued->size() + header.getHeaderLength())
         {
             QueuePacket(std::move(buffer));
-            buffer.Resize(4096);
+            buffer.Resize(_sendBufferSize);
         }
 
         if (buffer.GetRemainingSpace() >= queued->size() + header.getHeaderLength())
@@ -125,12 +127,7 @@ bool WorldSocket::Update()
     if (!BaseSocket::Update())
         return false;
 
-    if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-    {
-        auto callback = _queryCallback;
-        _queryCallback = nullptr;
-        callback(_queryFuture.get());
-    }
+    _queryProcessor.ProcessReadyQueries();
 
     return true;
 }
@@ -329,7 +326,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             {
                 return HandlePing(packet) ? ReadDataHandlerResult::Ok : ReadDataHandlerResult::Error;
             }
-            catch (ByteBufferPositionException const&)
+            catch (ByteBufferException const&)
             {
             }
             TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client %s sent malformed CMSG_PING", GetRemoteIpAddress().to_string().c_str());
@@ -351,14 +348,17 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
                 HandleAuthSession(packet);
                 return ReadDataHandlerResult::WaitingForQuery;
             }
-            catch (ByteBufferPositionException const&)
+            catch (ByteBufferException const&)
             {
             }
             TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client %s sent malformed CMSG_AUTH_SESSION", GetRemoteIpAddress().to_string().c_str());
             return ReadDataHandlerResult::Error;
         }
         case CMSG_KEEP_ALIVE:
+            sessionGuard.lock();
             LogOpcodeText(opcode, sessionGuard);
+            if (_worldSession)
+                _worldSession->ResetTimeOutTime(true);
             break;
         default:
         {
@@ -379,9 +379,8 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
                 break;
             }
 
-            // Our Idle timer will reset on any non PING opcodes.
-            // Catches people idling on the login screen and any lingering ingame connections.
-            _worldSession->ResetTimeOutTime();
+            // Our Idle timer will reset on any non PING opcodes on login screen, allowing us to catch people idling.
+            _worldSession->ResetTimeOutTime(false);
 
             // Copy the packet to the heap before enqueuing
             _worldSession->QueuePacket(new WorldPacket(std::move(packet)));
@@ -444,8 +443,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt->setInt32(0, int32(realm.Id.Realm));
     stmt->setString(1, authSession->Account);
 
-    _queryCallback = std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1)));
 }
 
 void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSession, PreparedQueryResult result)
@@ -511,7 +509,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     sha.UpdateData((uint8*)&t, 4);
     sha.UpdateData((uint8*)&authSession->LocalChallenge, 4);
     sha.UpdateData((uint8*)&_authSeed, 4);
-    sha.UpdateBigNumbers(&account.SessionKey, NULL);
+    sha.UpdateBigNumbers(&account.SessionKey, nullptr);
     sha.Finalize();
 
     if (memcmp(sha.GetDigest(), authSession->Digest, SHA_DIGEST_LENGTH) != 0)
@@ -521,6 +519,9 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
         DelayedCloseSocket();
         return;
     }
+
+    if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(address))
+        _ipCountry = location->CountryCode;
 
     ///- Re-check ip locking (same check as in auth).
     if (account.IsLockedToIP)
@@ -552,9 +553,9 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
     if (mutetime < 0)
     {
-        mutetime = time(NULL) + llabs(mutetime);
+        mutetime = GameTime::GetGameTime() + llabs(mutetime);
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
         stmt->setInt64(0, mutetime);
         stmt->setUInt32(1, account.Id);
         LoginDatabase.Execute(stmt);
@@ -603,8 +604,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     if (wardenActive)
         _worldSession->InitWarden(&account.SessionKey, account.OS);
 
-    _queryCallback = std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1);
-    _queryFuture = _worldSession->LoadPermissionsAsync();
+    _queryProcessor.AddQuery(_worldSession->LoadPermissionsAsync().WithPreparedCallback(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1)));
     AsyncRead();
 }
 

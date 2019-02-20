@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,13 +19,9 @@
 #ifndef QUERYRESULT_H
 #define QUERYRESULT_H
 
-#include <memory>
-#include "Field.h"
-
-#ifdef _WIN32
-  #include <winsock2.h>
-#endif
-#include <mysql.h>
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
+#include <vector>
 
 class TC_DATABASE_API ResultSet
 {
@@ -38,11 +34,7 @@ class TC_DATABASE_API ResultSet
         uint32 GetFieldCount() const { return _fieldCount; }
 
         Field* Fetch() const { return _currentRow; }
-        const Field & operator [] (uint32 index) const
-        {
-            ASSERT(index < _fieldCount);
-            return _currentRow[index];
-        }
+        Field const& operator[](std::size_t index) const;
 
     protected:
         uint64 _rowCount;
@@ -58,8 +50,6 @@ class TC_DATABASE_API ResultSet
         ResultSet& operator=(ResultSet const& right) = delete;
 };
 
-typedef std::shared_ptr<ResultSet> QueryResult;
-
 class TC_DATABASE_API PreparedResultSet
 {
     public:
@@ -70,18 +60,8 @@ class TC_DATABASE_API PreparedResultSet
         uint64 GetRowCount() const { return m_rowCount; }
         uint32 GetFieldCount() const { return m_fieldCount; }
 
-        Field* Fetch() const
-        {
-            ASSERT(m_rowPosition < m_rowCount);
-            return const_cast<Field*>(&m_rows[uint32(m_rowPosition) * m_fieldCount]);
-        }
-
-        Field const& operator[](uint32 index) const
-        {
-            ASSERT(m_rowPosition < m_rowCount);
-            ASSERT(index < m_fieldCount);
-            return m_rows[uint32(m_rowPosition) * m_fieldCount + index];
-        }
+        Field* Fetch() const;
+        Field const& operator[](std::size_t index) const;
 
     protected:
         std::vector<Field> m_rows;
@@ -94,9 +74,6 @@ class TC_DATABASE_API PreparedResultSet
         MYSQL_STMT* m_stmt;
         MYSQL_RES* m_metadataResult;    ///< Field metadata, returned by mysql_stmt_result_metadata
 
-        my_bool* m_isNull;
-        unsigned long* m_length;
-
         void CleanUp();
         bool _NextRow();
 
@@ -104,7 +81,4 @@ class TC_DATABASE_API PreparedResultSet
         PreparedResultSet& operator=(PreparedResultSet const& right) = delete;
 };
 
-typedef std::shared_ptr<PreparedResultSet> PreparedQueryResult;
-
 #endif
-

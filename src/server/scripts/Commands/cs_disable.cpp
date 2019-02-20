@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,14 +22,16 @@ Comment: All disable related commands
 Category: commandscripts
 EndScriptData */
 
-#include "DisableMgr.h"
+#include "ScriptMgr.h"
 #include "AchievementMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DisableMgr.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 #include "SpellMgr.h"
 
 class disable_commandscript : public CommandScript
@@ -63,12 +65,12 @@ public:
         };
         static std::vector<ChatCommand> disableCommandTable =
         {
-            { "add",    rbac::RBAC_PERM_COMMAND_DISABLE_ADD,    true, NULL, "", addDisableCommandTable },
-            { "remove", rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE, true, NULL, "", removeDisableCommandTable },
+            { "add",    rbac::RBAC_PERM_COMMAND_DISABLE_ADD,    true, nullptr, "", addDisableCommandTable },
+            { "remove", rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE, true, nullptr, "", removeDisableCommandTable },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "disable", rbac::RBAC_PERM_COMMAND_DISABLE, false, NULL, "", disableCommandTable },
+            { "disable", rbac::RBAC_PERM_COMMAND_DISABLE, false, nullptr, "", disableCommandTable },
         };
         return commandTable;
     }
@@ -79,10 +81,10 @@ public:
         if (!entryStr || !atoi(entryStr))
             return false;
 
-        char* flagsStr = strtok(NULL, " ");
+        char* flagsStr = strtok(nullptr, " ");
         uint8 flags = flagsStr ? uint8(atoi(flagsStr)) : 0;
 
-        char* commentStr = strtok(NULL, "");
+        char* commentStr = strtok(nullptr, "");
         if (!commentStr)
             return false;
 
@@ -185,8 +187,7 @@ public:
                 break;
         }
 
-        PreparedStatement* stmt = NULL;
-        stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
         stmt->setUInt32(0, entry);
         stmt->setUInt8(1, disableType);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -311,8 +312,7 @@ public:
                 break;
         }
 
-        PreparedStatement* stmt = NULL;
-        stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
         stmt->setUInt32(0, entry);
         stmt->setUInt8(1, disableType);
         PreparedQueryResult result = WorldDatabase.Query(stmt);

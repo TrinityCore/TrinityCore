@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,8 +23,9 @@ SDCategory: Instance Script
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "MotionMaster.h"
 #include "oculus.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum Spells
@@ -127,9 +128,9 @@ class boss_urom : public CreatureScript
                 me->GetMotionMaster()->MoveIdle();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 StartAttack();
             }
@@ -289,7 +290,7 @@ class boss_urom : public CreatureScript
             {
                 me->RemoveAllAuras();
                 me->CombatStop(false);
-                me->DeleteThreatList();
+                me->GetThreatManager().ClearAllThreat();
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override

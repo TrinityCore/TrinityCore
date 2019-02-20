@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,65 +20,82 @@
 #define _FORMATIONS_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include <unordered_map>
 #include <map>
 
+enum GroupAIFlags
+{
+    FLAG_AGGRO_NONE            = 0,                                                         // No creature group behavior
+    FLAG_MEMBERS_ASSIST_LEADER = 0x00000001,                                                // The member aggroes if the leader aggroes
+    FLAG_LEADER_ASSISTS_MEMBER = 0x00000002,                                                // The leader aggroes if the member aggroes
+    FLAG_MEMBERS_ASSIST_MEMBER = (FLAG_MEMBERS_ASSIST_LEADER | FLAG_LEADER_ASSISTS_MEMBER), // every member will assist if any member is attacked
+    FLAG_IDLE_IN_FORMATION     = 0x00000200,                                                // The member will follow the leader when pathing idly
+};
+
 class Creature;
 class CreatureGroup;
+class Unit;
+struct Position;
 
 struct FormationInfo
 {
-    uint32 leaderGUID;
-    float follow_dist;
-    float follow_angle;
-    uint8 groupAI;
-    uint32 point_1;
-    uint32 point_2;
+    ObjectGuid::LowType LeaderSpawnId;
+    float FollowDist;
+    float FollowAngle;
+    uint32 GroupAI;
+    uint32 LeaderWaypointIDs[2];
 };
-
-typedef std::unordered_map<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
 
 class TC_GAME_API FormationMgr
 {
     private:
-        FormationMgr() { }
+        FormationMgr();
         ~FormationMgr();
+
+        std::unordered_map<uint32 /*spawnID*/, FormationInfo> _creatureGroupMap;
 
     public:
         static FormationMgr* instance();
 
-        void AddCreatureToGroup(uint32 group_id, Creature* creature);
+        void AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creature* creature);
         void RemoveCreatureFromGroup(CreatureGroup* group, Creature* creature);
+
         void LoadCreatureFormations();
-        CreatureGroupInfoType CreatureGroupMap;
+        FormationInfo* GetFormationInfo(ObjectGuid::LowType spawnId);
+
+        void AddFormationMember(ObjectGuid::LowType spawnId, float followAng, float followDist, ObjectGuid::LowType leaderSpawnId, uint32 groupAI);
 };
 
 class TC_GAME_API CreatureGroup
 {
     private:
-        Creature* m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
-        typedef std::map<Creature*, FormationInfo*>  CreatureGroupMemberType;
-        CreatureGroupMemberType m_members;
+        Creature* _leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
+        std::unordered_map<Creature*, FormationInfo*> _members;
 
-        uint32 m_groupID;
-        bool m_Formed;
+        ObjectGuid::LowType _leaderSpawnId;
+        bool _formed;
+        bool _engaging;
 
     public:
         //Group cannot be created empty
-        explicit CreatureGroup(uint32 id) : m_leader(NULL), m_groupID(id), m_Formed(false) { }
-        ~CreatureGroup() { }
+        explicit CreatureGroup(ObjectGuid::LowType leaderSpawnId);
+        ~CreatureGroup();
 
-        Creature* getLeader() const { return m_leader; }
-        uint32 GetId() const { return m_groupID; }
-        bool isEmpty() const { return m_members.empty(); }
-        bool isFormed() const { return m_Formed; }
+        Creature* GetLeader() const { return _leader; }
+        ObjectGuid::LowType GetLeaderSpawnId() const { return _leaderSpawnId; }
+        bool IsEmpty() const { return _members.empty(); }
+        bool IsFormed() const { return _formed; }
+        bool IsLeader(Creature const* creature) const { return _leader == creature; }
 
+        bool HasMember(Creature* member) const { return _members.count(member) > 0; }
         void AddMember(Creature* member);
         void RemoveMember(Creature* member);
         void FormationReset(bool dismiss);
 
-        void LeaderMoveTo(float x, float y, float z);
-        void MemberAttackStart(Creature* member, Unit* target);
+        void LeaderMoveTo(Position const& destination, uint32 id = 0, uint32 moveType = 0, bool orientation = false);
+        void MemberEngagingTarget(Creature* member, Unit* target);
+        bool CanLeaderStartMoving() const;
 };
 
 #define sFormationMgr FormationMgr::instance()

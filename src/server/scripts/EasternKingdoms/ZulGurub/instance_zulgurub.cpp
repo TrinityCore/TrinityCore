@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,10 @@ SDCategory: Zul'Gurub
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "zulgurub.h"
 
 DoorData const doorData[] =
@@ -79,29 +82,16 @@ class instance_zulgurub : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
-                    case GO_FORCEFIELD:
-                        AddDoor(go, true);
-                        break;
                     case GO_GONG_OF_BETHEKK:
                         _goGongOfBethekkGUID = go->GetGUID();
                         if (GetBossState(DATA_ARLOKK) == DONE)
                             go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         else
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_FORCEFIELD:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;

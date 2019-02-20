@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,37 +19,44 @@
 #ifndef DEF_ZULAMAN_H
 #define DEF_ZULAMAN_H
 
+#include "CreatureAIImpl.h"
+
+#define ZulamanScriptName "instance_zulaman"
 #define DataHeader "ZA"
 
-enum DataTypes
+enum ZADataTypes
 {
-    DATA_GONGEVENT                      = 0,
-    DATA_NALORAKKEVENT                  = 1,
-    DATA_AKILZONEVENT                   = 2,
-    DATA_JANALAIEVENT                   = 3,
-    DATA_HALAZZIEVENT                   = 4,
-    DATA_HEXLORDEVENT                   = 5,
-    DATA_ZULJINEVENT                    = 6,
-    DATA_CHESTLOOTED                    = 7,
-    TYPE_RAND_VENDOR_1                  = 8,
-    TYPE_RAND_VENDOR_2                  = 9
+    BOSS_NALORAKK                       = 0,
+    BOSS_AKILZON                        = 1,
+    BOSS_JANALAI                        = 2,
+    BOSS_HALAZZI                        = 3,
+    BOSS_HEXLORD                        = 4,
+    BOSS_ZULJIN                         = 5,
+    MAX_ENCOUNTER,
+
+    DATA_GONGEVENT,
+    DATA_CHESTLOOTED,
+    TYPE_RAND_VENDOR_1,
+    TYPE_RAND_VENDOR_2
 };
 
-enum CreatureIds
+enum ZACreatureIds
 {
     NPC_HARRISON_JONES                  = 24358,
+    NPC_NALORAKK                        = 23576,
+    NPC_AKILZON                         = 23574,
     NPC_JANALAI                         = 23578,
-    NPC_ZULJIN                          = 23863,
-    NPC_HEXLORD                         = 24239,
     NPC_HALAZZI                         = 23577,
-    NPC_NALORAKK                        = 23576
+    NPC_HEXLORD                         = 24239,
+    NPC_ZULJIN                          = 23863
 };
 
-enum GameobjectIds
+enum ZAGameObjectIds
 {
-    GO_DOOR_HALAZZI                     = 186303,
-    GO_GATE_ZULJIN                      = 186304,
-    GO_GATE_HEXLORD                     = 186305,
+    GO_LYNX_TEMPLE_EXIT                 = 186303,
+    GO_LYNX_TEMPLE_ENTRANCE             = 186304,
+    GO_HEXLORD_ENTRANCE                 = 186305,
+    GO_WOODEN_DOOR                      = 186306,
     GO_MASSIVE_GATE                     = 186728,
     GO_DOOR_AKILZON                     = 186858,
     GO_DOOR_ZULJIN                      = 186859,
@@ -59,5 +66,11 @@ enum GameobjectIds
     GO_KRAZS_PACKAGE                    = 186667,
     GO_STRANGE_GONG                     = 187359
 };
+
+template <class AI, class T>
+inline AI* GetZulAmanAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, ZulamanScriptName);
+}
 
 #endif

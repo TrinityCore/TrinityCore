@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +23,7 @@
 #include "Database/DatabaseEnv.h"
 #include "WardenCheckMgr.h"
 #include "Warden.h"
+#include "World.h"
 
 WardenCheckMgr::WardenCheckMgr() { }
 
@@ -37,6 +38,8 @@ WardenCheckMgr::~WardenCheckMgr()
 
 void WardenCheckMgr::LoadWardenChecks()
 {
+    uint32 oldMSTime = getMSTime();
+
     // Check if Warden is enabled by config before loading anything
     if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
     {
@@ -140,11 +143,13 @@ void WardenCheckMgr::LoadWardenChecks()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u warden checks.", count);
+    TC_LOG_INFO("server.loading", ">> Loaded %u warden checks in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void WardenCheckMgr::LoadWardenOverrides()
 {
+    uint32 oldMSTime = getMSTime();
+
     // Check if Warden is enabled by config before loading anything
     if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
     {
@@ -186,7 +191,7 @@ void WardenCheckMgr::LoadWardenOverrides()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u warden action overrides.", count);
+    TC_LOG_INFO("server.loading", ">> Loaded %u warden action overrides in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 WardenCheckMgr* WardenCheckMgr::instance()
@@ -200,7 +205,7 @@ WardenCheck* WardenCheckMgr::GetWardenDataById(uint16 Id)
     if (Id < CheckStore.size())
         return CheckStore[Id];
 
-    return NULL;
+    return nullptr;
 }
 
 WardenCheckResult* WardenCheckMgr::GetWardenResultById(uint16 Id)
@@ -208,5 +213,5 @@ WardenCheckResult* WardenCheckMgr::GetWardenResultById(uint16 Id)
     CheckResultContainer::const_iterator itr = CheckResultStore.find(Id);
     if (itr != CheckResultStore.end())
         return itr->second;
-    return NULL;
+    return nullptr;
 }

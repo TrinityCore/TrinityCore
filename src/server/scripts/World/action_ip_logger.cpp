@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "Channel.h"
-#include "Guild.h"
-#include "Group.h"
+#include "DatabaseEnv.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 enum IPLoggingTypes
 {
@@ -144,7 +144,7 @@ class AccountActionIpLogger : public AccountScript
                 stmt->setUInt32(1, characterGuid);
                 stmt->setUInt8(2, aType);
                 stmt->setUInt32(3, playerGuid);
-                stmt->setString(4, systemNote.c_str());
+                stmt->setString(4, systemNote);
                 LoginDatabase.Execute(stmt);
             }
             else // ... but for failed login, we query last_attempt_ip from account table. Which we do with an unique query
@@ -155,7 +155,7 @@ class AccountActionIpLogger : public AccountScript
                 stmt->setUInt32(1, characterGuid);
                 stmt->setUInt8(2, aType);
                 stmt->setUInt32(3, playerGuid);
-                stmt->setString(4, systemNote.c_str());
+                stmt->setString(4, systemNote);
                 LoginDatabase.Execute(stmt);
             }
             return;
@@ -236,8 +236,8 @@ class CharacterActionIpLogger : public PlayerScript
             stmt->setUInt32(0, playerGuid);
             stmt->setUInt32(1, characterGuid);
             stmt->setUInt8(2, aType);
-            stmt->setString(3, currentIp.c_str()); // We query the ip here.
-            stmt->setString(4, systemNote.c_str());
+            stmt->setString(3, currentIp); // We query the ip here.
+            stmt->setString(4, systemNote);
             // Seeing as the time differences should be minimal, we do not get unixtime and the timestamp right now;
             // Rather, we let it be added with the SQL query.
 
@@ -297,7 +297,7 @@ public:
         stmt2->setUInt32(1, characterGuid);
         stmt2->setUInt8(2, aType);
         stmt2->setUInt32(3, playerGuid);
-        stmt2->setString(4, systemNote.c_str());
+        stmt2->setString(4, systemNote);
         // Seeing as the time differences should be minimal, we do not get unixtime and the timestamp right now;
         // Rather, we let it be added with the SQL query.
 

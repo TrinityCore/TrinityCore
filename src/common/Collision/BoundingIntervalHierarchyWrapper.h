@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,10 +19,10 @@
 #ifndef _BIH_WRAP
 #define _BIH_WRAP
 
-#include "G3D/Table.h"
-#include "G3D/Array.h"
-#include "G3D/Set.h"
 #include "BoundingIntervalHierarchy.h"
+#include <G3D/Table.h>
+#include <G3D/Array.h>
+#include <G3D/Set.h>
 
 
 template<class T, class BoundsFunc = BoundsTrait<T> >
@@ -80,7 +80,7 @@ public:
         uint32 Idx = 0;
         const T * temp;
         if (m_obj2Idx.getRemove(&obj, temp, Idx))
-            m_objects[Idx] = NULL;
+            m_objects[Idx] = nullptr;
         else
             m_objects_to_push.remove(&obj);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,8 +18,8 @@
 #ifndef BUILT_IN_CONFIG_H
 #define BUILT_IN_CONFIG_H
 
-#include <string>
 #include "Define.h"
+#include <string>
 
 /// Provides helper functions to access built-in values
 /// which can be overwritten in config

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,38 +16,35 @@
  */
 
 #include "Realm.h"
+#include "IpAddress.h"
+#include "IpNetwork.h"
+#include <boost/asio/ip/tcp.hpp>
 
-ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) const
+boost::asio::ip::tcp_endpoint Realm::GetAddressForClient(boost::asio::ip::address const& clientAddr) const
 {
-    ip::address realmIp;
+    boost::asio::ip::address realmIp;
 
     // Attempt to send best address for client
     if (clientAddr.is_loopback())
     {
         // Try guessing if realm is also connected locally
-        if (LocalAddress.is_loopback() || ExternalAddress.is_loopback())
+        if (LocalAddress->is_loopback() || ExternalAddress->is_loopback())
             realmIp = clientAddr;
         else
         {
             // Assume that user connecting from the machine that bnetserver is located on
             // has all realms available in his local network
-            realmIp = LocalAddress;
+            realmIp = *LocalAddress;
         }
     }
     else
     {
-        if (clientAddr.is_v4() &&
-            (clientAddr.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()) ==
-            (LocalAddress.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()))
-        {
-            realmIp = LocalAddress;
-        }
+        if (clientAddr.is_v4() && Trinity::Net::IsInNetwork(LocalAddress->to_v4(), LocalSubnetMask->to_v4(), clientAddr.to_v4()))
+            realmIp = *LocalAddress;
         else
-            realmIp = ExternalAddress;
+            realmIp = *ExternalAddress;
     }
 
-    ip::tcp::endpoint endpoint(realmIp, Port);
-
     // Return external IP
-    return endpoint;
+    return boost::asio::ip::tcp_endpoint(realmIp, Port);
 }

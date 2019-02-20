@@ -1,38 +1,45 @@
 /*
-* Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "Metric.h"
-#include "Log.h"
+#include "Common.h"
 #include "Config.h"
+#include "Log.h"
+#include "Strand.h"
 #include "Util.h"
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/asio/deadline_timer.hpp>
+#include <boost/asio/ip/tcp.hpp>
 
-void Metric::Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger)
+void Metric::Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
 {
-    _realmName = realmName;
-    _batchTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
-    _overallStatusTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
+    _dataStream = Trinity::make_unique<boost::asio::ip::tcp::iostream>();
+    _realmName = FormatInfluxDBTagValue(realmName);
+    _batchTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioContext);
+    _overallStatusTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioContext);
     _overallStatusLogger = overallStatusLogger;
     LoadFromConfigs();
 }
 
 bool Metric::Connect()
 {
-    _dataStream.connect(_hostname, _port);
-    auto error = _dataStream.error();
+    auto& stream = static_cast<boost::asio::ip::tcp::iostream&>(GetDataStream());
+    stream.connect(_hostname, _port);
+    auto error = stream.error();
     if (error)
     {
         TC_LOG_ERROR("metric", "Error connecting to '%s:%s', disabling Metric. Error message : %s",
@@ -40,7 +47,7 @@ bool Metric::Connect()
         _enabled = false;
         return false;
     }
-    _dataStream.clear();
+    stream.clear();
     return true;
 }
 
@@ -156,22 +163,22 @@ void Metric::SendBatch()
         return;
     }
 
-    if (!_dataStream.good() && !Connect())
+    if (!GetDataStream().good() && !Connect())
         return;
 
-    _dataStream << "POST " << "/write?db=" << _databaseName << " HTTP/1.1\r\n";
-    _dataStream << "Host: " << _hostname << ":" << _port << "\r\n";
-    _dataStream << "Accept: */*\r\n";
-    _dataStream << "Content-Type: application/octet-stream\r\n";
-    _dataStream << "Content-Transfer-Encoding: binary\r\n";
+    GetDataStream() << "POST " << "/write?db=" << _databaseName << " HTTP/1.1\r\n";
+    GetDataStream() << "Host: " << _hostname << ":" << _port << "\r\n";
+    GetDataStream() << "Accept: */*\r\n";
+    GetDataStream() << "Content-Type: application/octet-stream\r\n";
+    GetDataStream() << "Content-Transfer-Encoding: binary\r\n";
 
-    _dataStream << "Content-Length: " << std::to_string(batchedData.tellp()) << "\r\n\r\n";
-    _dataStream << batchedData.rdbuf();
+    GetDataStream() << "Content-Length: " << std::to_string(batchedData.tellp()) << "\r\n\r\n";
+    GetDataStream() << batchedData.rdbuf();
 
     std::string http_version;
-    _dataStream >> http_version;
+    GetDataStream() >> http_version;
     unsigned int status_code = 0;
-    _dataStream >> status_code;
+    GetDataStream() >> status_code;
     if (status_code != 204)
     {
         TC_LOG_ERROR("metric", "Error sending data, returned HTTP code: %u", status_code);
@@ -179,14 +186,12 @@ void Metric::SendBatch()
 
     // Read and ignore the status description
     std::string status_description;
-    std::getline(_dataStream, status_description);
+    std::getline(GetDataStream(), status_description);
     // Read headers
     std::string header;
-    while (std::getline(_dataStream, header) && header != "\r")
-    {
+    while (std::getline(GetDataStream(), header) && header != "\r")
         if (header == "Connection: close\r")
-            _dataStream.close();
-    }
+            static_cast<boost::asio::ip::tcp::iostream&>(GetDataStream()).close();
 
     ScheduleSend();
 }
@@ -200,7 +205,7 @@ void Metric::ScheduleSend()
     }
     else
     {
-        _dataStream.close();
+        static_cast<boost::asio::ip::tcp::iostream&>(GetDataStream()).close();
         MetricData* data;
         // Clear the queue
         while (_queuedData.Dequeue(data))
@@ -208,11 +213,17 @@ void Metric::ScheduleSend()
     }
 }
 
-void Metric::ForceSend()
+void Metric::Unload()
 {
-    // Send what's queued only if io_service is stopped (so only on shutdown)
-    if (_enabled && _batchTimer->get_io_service().stopped())
+    // Send what's queued only if IoContext is stopped (so only on shutdown)
+    if (_enabled && Trinity::Asio::get_io_context(*_batchTimer).stopped())
+    {
+        _enabled = false;
         SendBatch();
+    }
+
+    _batchTimer->cancel();
+    _overallStatusTimer->cancel();
 }
 
 void Metric::ScheduleOverallStatusLog()
@@ -228,8 +239,62 @@ void Metric::ScheduleOverallStatusLog()
     }
 }
 
+std::string Metric::FormatInfluxDBValue(bool value)
+{
+    return value ? "t" : "f";
+}
+
+template<class T>
+std::string Metric::FormatInfluxDBValue(T value)
+{
+    return std::to_string(value) + 'i';
+}
+
+std::string Metric::FormatInfluxDBValue(std::string const& value)
+{
+    return '"' + boost::replace_all_copy(value, "\"", "\\\"") + '"';
+}
+
+std::string Metric::FormatInfluxDBValue(char const* value)
+{
+    return FormatInfluxDBValue(std::string(value));
+}
+
+std::string Metric::FormatInfluxDBValue(double value)
+{
+    return std::to_string(value);
+}
+
+std::string Metric::FormatInfluxDBValue(float value)
+{
+    return FormatInfluxDBValue(double(value));
+}
+
+std::string Metric::FormatInfluxDBTagValue(std::string const& value)
+{
+    // ToDo: should handle '=' and ',' characters too
+    return boost::replace_all_copy(value, " ", "\\ ");
+}
+
+Metric::Metric()
+{
+}
+
+Metric::~Metric()
+{
+}
+
 Metric* Metric::instance()
 {
     static Metric instance;
     return &instance;
 }
+
+template TC_COMMON_API std::string Metric::FormatInfluxDBValue(int8);
+template TC_COMMON_API std::string Metric::FormatInfluxDBValue(uint8);
+template TC_COMMON_API std::string Metric::FormatInfluxDBValue(int16);
+template TC_COMMON_API std::string Metric::FormatInfluxDBValue(uint16);
+template TC_COMMON_API std::string Metric::FormatInfluxDBValue(int32);
+template TC_COMMON_API std::string Metric::FormatInfluxDBValue(uint32);
+template TC_COMMON_API std::string Metric::FormatInfluxDBValue(int64);
+template TC_COMMON_API std::string Metric::FormatInfluxDBValue(uint64);

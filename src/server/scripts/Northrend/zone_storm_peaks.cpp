@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,15 +16,18 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "CombatAI.h"
+#include "GameObject.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "TemporarySummon.h"
 #include "Vehicle.h"
-#include "CombatAI.h"
-#include "Player.h"
 #include "WorldSession.h"
 
 /////////////////////
@@ -45,11 +48,11 @@ class npc_injured_goblin : public CreatureScript
 public:
     npc_injured_goblin() : CreatureScript("npc_injured_goblin") { }
 
-    struct npc_injured_goblinAI : public npc_escortAI
+    struct npc_injured_goblinAI : public EscortAI
     {
-        npc_injured_goblinAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_injured_goblinAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -66,7 +69,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void Reset() override { }
 
@@ -77,36 +80,35 @@ public:
                 player->FailQuest(QUEST_BITTER_DEPARTURE);
         }
 
-       void UpdateAI(uint32 uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
             if (!UpdateVictim())
                 return;
             DoMeleeAttackIfReady();
         }
 
-       void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
                 CloseGossipMenuFor(player);
-                me->setFaction(113);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 Start(true, true, player->GetGUID());
             }
+            return false;
+        }
+
+        void QuestAccept(Player* /*player*/, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
+                Talk(SAY_QUEST_ACCEPT);
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_injured_goblinAI(creature);
-    }
-
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
-            creature->AI()->Talk(SAY_QUEST_ACCEPT);
-
-        return false;
     }
 };
 
@@ -125,38 +127,49 @@ class npc_roxi_ramrocket : public CreatureScript
 public:
     npc_roxi_ramrocket() : CreatureScript("npc_roxi_ramrocket") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    struct npc_roxi_ramrocketAI : public ScriptedAI
     {
-        //Quest Menu
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+        npc_roxi_ramrocketAI(Creature* creature) : ScriptedAI(creature) { }
 
-        //Trainer Menu
-        if ( creature->IsTrainer() )
-            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
-
-        //Vendor Menu
-        if ( creature->IsVendor() )
-            if (player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        switch (action)
+        bool GossipHello(Player* player) override
         {
-        case GOSSIP_ACTION_TRAIN:
-            player->GetSession()->SendTrainerList(creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_TRADE:
-            player->GetSession()->SendListInventory(creature->GetGUID());
-            break;
+            //Quest Menu
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            //Trainer Menu
+            if (me->IsTrainer())
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
+            //Vendor Menu
+            if (me->IsVendor())
+                if (player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
+                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            return true;
         }
-        return true;
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            switch (action)
+            {
+                case GOSSIP_ACTION_TRAIN:
+                    player->GetSession()->SendTrainerList(me);
+                    break;
+                case GOSSIP_ACTION_TRADE:
+                    player->GetSession()->SendListInventory(me->GetGUID());
+                    break;
+            }
+            return true;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_roxi_ramrocketAI(creature);
     }
 };
 
@@ -198,7 +211,7 @@ public:
             me->CastSpell(me, SPELL_ICE_PRISON, true);
         }
 
-        void JustRespawned() override
+        void JustAppeared() override
         {
             Reset();
         }
@@ -212,7 +225,7 @@ public:
                 me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->Id != SPELL_ICE_LANCE)
                 return;
@@ -266,7 +279,7 @@ public:
 
         void Reset() override
         {
-            events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
+            events.ScheduleEvent(EVENT_CHECK_AREA, 5s);
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -276,11 +289,12 @@ public:
 
             if (id == 15)
             // drake reached village
-            events.ScheduleEvent(EVENT_REACHED_HOME, 2000);
+            events.ScheduleEvent(EVENT_REACHED_HOME, 2s);
         }
 
         void UpdateAI(uint32 diff) override
         {
+            VehicleAI::UpdateAI(diff);
             events.Update(diff);
 
             switch (events.ExecuteEvent())
@@ -296,7 +310,7 @@ public:
                             }
                     }
                     else
-                        events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
+                        events.ScheduleEvent(EVENT_CHECK_AREA, 5s);
                     break;
                 case EVENT_REACHED_HOME:
                     if (Vehicle* vehicle = me->GetVehicleKit())
@@ -332,12 +346,12 @@ class npc_icefang : public CreatureScript
 public:
     npc_icefang() : CreatureScript("npc_icefang") { }
 
-    struct npc_icefangAI : public npc_escortAI
+    struct npc_icefangAI : public EscortAI
     {
-        npc_icefangAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_icefangAI(Creature* creature) : EscortAI(creature) { }
 
         void AttackStart(Unit* /*who*/) override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void EnterEvadeMode(EvadeReason /*why*/) override { }
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
@@ -349,13 +363,12 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override { }
         void JustDied(Unit* /*killer*/) override { }
-        void OnCharmed(bool /*apply*/) override { }
+        void OnCharmed(bool /*isNew*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
@@ -476,11 +489,12 @@ public:
             objectCounter = 0;
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
             playerGUID = player->GetGUID();
             events.ScheduleEvent(EVENT_SCRIPT_1, 100);
+            return false;
         }
 
         void UpdateAI(uint32 diff) override
@@ -516,7 +530,7 @@ public:
                             if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                                 voice->AI()->Talk(SAY_VOICE_1, player);
                         }
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_1, 7860.273f, -1383.622f, 1538.302f, -1.658062f, G3D::Quat(0.f, 0.f, -0.737277f, 0.6755905f), 0))
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_1, 7860.273f, -1383.622f, 1538.302f, -1.658062f, QuaternionData(0.f, 0.f, -0.737277f, 0.6755905f), 0))
                             objectGUID[objectCounter++] = go->GetGUID();
                         events.ScheduleEvent(EVENT_SCRIPT_5, 6000);
                         break;
@@ -524,7 +538,7 @@ public:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                             if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                                 voice->AI()->Talk(SAY_VOICE_2, player);
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_2, 7875.67f, -1387.266f, 1538.323f, -2.373644f, G3D::Quat(0.f, 0.f, -0.9271832f, 0.3746083f), 0))
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_2, 7875.67f, -1387.266f, 1538.323f, -2.373644f, QuaternionData(0.f, 0.f, -0.9271832f, 0.3746083f), 0))
                             objectGUID[objectCounter++] = go->GetGUID();
                         events.ScheduleEvent(EVENT_SCRIPT_6, 6000);
                         break;
@@ -532,7 +546,7 @@ public:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                             if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                                 voice->AI()->Talk(SAY_VOICE_3, player);
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_3, 7879.212f, -1401.175f, 1538.279f, 2.967041f, G3D::Quat(0.f, 0.f, 0.9961939f, 0.08716504f), 0))
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_3, 7879.212f, -1401.175f, 1538.279f, 2.967041f, QuaternionData(0.f, 0.f, 0.9961939f, 0.08716504f), 0))
                             objectGUID[objectCounter++] = go->GetGUID();
                         events.ScheduleEvent(EVENT_SCRIPT_7, 6000);
                         break;
@@ -540,7 +554,7 @@ public:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                             if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                                 voice->AI()->Talk(SAY_VOICE_4, player);
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_4, 7868.944f, -1411.18f, 1538.213f, 2.111848f, G3D::Quat(0.f, 0.f, 0.8703556f, 0.4924237f), 0))
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_4, 7868.944f, -1411.18f, 1538.213f, 2.111848f, QuaternionData(0.f, 0.f, 0.8703556f, 0.4924237f), 0))
                             objectGUID[objectCounter++] = go->GetGUID();
                         events.ScheduleEvent(EVENT_SCRIPT_8, 6000);
                         break;
@@ -548,7 +562,7 @@ public:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                             if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                                 voice->AI()->Talk(SAY_VOICE_5, player);
-                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_5, 7855.11f, -1406.839f, 1538.42f, 1.151916f, G3D::Quat(0.f, 0.f, 0.5446386f, 0.8386708f), 0))
+                        if (GameObject* go = me->SummonGameObject(OBJECT_TOL_SIGNAL_5, 7855.11f, -1406.839f, 1538.42f, 1.151916f, QuaternionData(0.f, 0.f, 0.5446386f, 0.8386708f), 0))
                             objectGUID[objectCounter] = go->GetGUID();
                         events.ScheduleEvent(EVENT_SCRIPT_9, 6000);
                         break;
@@ -604,6 +618,311 @@ public:
 };
 
 /*#####
+# Quest 13003 Thrusting Hodir's Spear
+#####*/
+
+enum WildWyrm
+{
+    PATH_WILD_WYRM                      = 30275 * 10,
+
+    // Phase 1
+    SPELL_PLAYER_MOUNT_WYRM             = 56672,
+    SPELL_FIGHT_WYRM                    = 56673,
+    SPELL_SPEAR_OF_HODIR                = 56671,
+    SPELL_GRIP                          = 56689,
+    SPELL_GRAB_ON                       = 60533,
+    SPELL_DODGE_CLAWS                   = 56704,
+    SPELL_THRUST_SPEAR                  = 56690,
+    SPELL_MIGHTY_SPEAR_THRUST           = 60586,
+    SPELL_CLAW_SWIPE_PERIODIC           = 60689,
+    SPELL_CLAW_SWIPE_DAMAGE             = 60776,
+    SPELL_FULL_HEAL_MANA                = 32432,
+    SPELL_LOW_HEALTH_TRIGGER            = 60596,
+
+    // Phase 2
+    SPELL_EJECT_PASSENGER_1             = 60603,
+    SPELL_PRY_JAWS_OPEN                 = 56706,
+    SPELL_FATAL_STRIKE                  = 60587,
+    SPELL_FATAL_STRIKE_DAMAGE           = 60881,
+    SPELL_JAWS_OF_DEATH_PERIODIC        = 56692,
+    SPELL_FLY_STATE_VISUAL              = 60865,
+
+    // Dead phase
+    SPELL_WYRM_KILL_CREDIT              = 56703,
+    SPELL_FALLING_DRAGON_FEIGN_DEATH    = 55795,
+    SPELL_EJECT_ALL_PASSENGERS          = 50630,
+
+    SAY_SWIPE                           = 0,
+    SAY_DODGED                          = 1,
+    SAY_PHASE_2                         = 2,
+    SAY_GRIP_WARN                       = 3,
+    SAY_STRIKE_MISS                     = 4,
+
+    ACTION_CLAW_SWIPE_WARN              = 1,
+    ACTION_CLAW_SWIPE_DODGE             = 2,
+    ACTION_GRIP_FAILING                 = 3,
+    ACTION_GRIP_LOST                    = 4,
+    ACTION_FATAL_STRIKE_MISS            = 5,
+
+    POINT_START_FIGHT                   = 1,
+    POINT_FALL                          = 2,
+
+    SEAT_INITIAL                        = 0,
+    SEAT_MOUTH                          = 1,
+
+    PHASE_INITIAL                       = 0,
+    PHASE_MOUTH                         = 1,
+    PHASE_DEAD                          = 2,
+    PHASE_MAX                           = 3
+};
+
+uint8 const ControllableSpellsCount = 4;
+uint32 const WyrmControlSpells[PHASE_MAX][ControllableSpellsCount] =
+{
+    { SPELL_GRAB_ON,       SPELL_DODGE_CLAWS, SPELL_THRUST_SPEAR, SPELL_MIGHTY_SPEAR_THRUST },
+    { SPELL_PRY_JAWS_OPEN, 0,                 SPELL_FATAL_STRIKE, 0                         },
+    { 0,                   0,                 0,                  0                         }
+};
+
+class npc_wild_wyrm : public CreatureScript
+{
+    public:
+        npc_wild_wyrm() : CreatureScript("npc_wild_wyrm") { }
+
+        struct npc_wild_wyrmAI : public VehicleAI
+        {
+            npc_wild_wyrmAI(Creature* creature) : VehicleAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _phase = PHASE_INITIAL;
+                _playerCheckTimer = 1 * IN_MILLISECONDS;
+            }
+
+            void InitSpellsForPhase()
+            {
+                ASSERT(_phase < PHASE_MAX);
+                for (uint8 i = 0; i < ControllableSpellsCount; ++i)
+                    me->m_spells[i] = WyrmControlSpells[_phase][i];
+            }
+
+            void Reset() override
+            {
+                Initialize();
+
+                _playerGuid.Clear();
+                _scheduler.CancelAll();
+
+                InitSpellsForPhase();
+
+                me->SetImmuneToPC(false);
+            }
+
+            void DoAction(int32 action) override
+            {
+                Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
+                if (!player)
+                    return;
+
+                switch (action)
+                {
+                    case ACTION_CLAW_SWIPE_WARN:
+                        Talk(SAY_SWIPE, player);
+                        break;
+                    case ACTION_CLAW_SWIPE_DODGE:
+                        Talk(SAY_DODGED, player);
+                        break;
+                    case ACTION_GRIP_FAILING:
+                        Talk(SAY_GRIP_WARN, player);
+                        break;
+                    case ACTION_GRIP_LOST:
+                        DoCastAOE(SPELL_EJECT_PASSENGER_1, true);
+                        EnterEvadeMode();
+                        break;
+                    case ACTION_FATAL_STRIKE_MISS:
+                        Talk(SAY_STRIKE_MISS, player);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+            {
+                if (_playerGuid || spellInfo->Id != SPELL_SPEAR_OF_HODIR)
+                    return;
+
+                _playerGuid = caster->GetGUID();
+                DoCastAOE(SPELL_FULL_HEAL_MANA, true);
+                me->SetImmuneToPC(true);
+
+                me->GetMotionMaster()->MovePoint(POINT_START_FIGHT, *caster);
+            }
+
+            void MovementInform(uint32 type, uint32 id) override
+            {
+                if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
+                    return;
+
+                switch (id)
+                {
+                    case POINT_START_FIGHT:
+                    {
+                        Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
+                        if (!player)
+                            return;
+
+                        DoCast(player, SPELL_PLAYER_MOUNT_WYRM);
+                        me->GetMotionMaster()->Clear();
+                        break;
+                    }
+                    case POINT_FALL:
+                        DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
+                        me->KillSelf();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            {
+                if (damage >= me->GetHealth())
+                {
+                    damage = me->GetHealth() - 1;
+
+                    if (_phase == PHASE_DEAD)
+                        return;
+
+                    _phase = PHASE_DEAD;
+                    _scheduler.CancelAll()
+                        .Async([this]
+                    {
+                        InitSpellsForPhase();
+
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid))
+                            player->VehicleSpellInitialize();
+
+                        DoCastAOE(SPELL_WYRM_KILL_CREDIT);
+                        DoCastAOE(SPELL_FALLING_DRAGON_FEIGN_DEATH);
+
+                        me->RemoveAurasDueToSpell(SPELL_JAWS_OF_DEATH_PERIODIC);
+                        me->RemoveAurasDueToSpell(SPELL_PRY_JAWS_OPEN);
+
+                        me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                        me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+
+                        me->GetMotionMaster()->MoveFall(POINT_FALL);
+                    });
+                }
+            }
+
+            void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
+            {
+                if (!apply || passenger->GetGUID() != _playerGuid)
+                    return;
+
+                if (seatId != SEAT_INITIAL)
+                    return;
+
+                me->CastSpell(nullptr, SPELL_GRIP, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_AURA_STACK, 50));
+                DoCastAOE(SPELL_CLAW_SWIPE_PERIODIC);
+
+                _scheduler.Async([this]
+                {
+                    me->GetMotionMaster()->MovePath(PATH_WILD_WYRM, true);
+                })
+                    .Schedule(Milliseconds(500), [this](TaskContext context)
+                {
+                    if (_phase == PHASE_MOUTH)
+                        return;
+
+                    if (me->HealthBelowPct(25))
+                    {
+                        _phase = PHASE_MOUTH;
+                        context.Async([this]
+                        {
+                            InitSpellsForPhase();
+                            DoCastAOE(SPELL_LOW_HEALTH_TRIGGER, true);
+                            me->RemoveAurasDueToSpell(SPELL_CLAW_SWIPE_PERIODIC);
+                            me->RemoveAurasDueToSpell(SPELL_GRIP);
+
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid))
+                                Talk(SAY_PHASE_2, player);
+
+                            DoCastAOE(SPELL_EJECT_PASSENGER_1, true);
+                            DoCastAOE(SPELL_JAWS_OF_DEATH_PERIODIC);
+                            DoCastAOE(SPELL_FLY_STATE_VISUAL);
+                        });
+                        return;
+                    }
+
+                    context.Repeat();
+                });
+            }
+
+            bool EvadeCheck() const
+            {
+                Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
+                if (!player)
+                    return false;
+
+                switch (_phase)
+                {
+                    case PHASE_INITIAL:
+                    case PHASE_MOUTH:
+                        if (!player->IsAlive())
+                            return false;
+                        break;
+                    case PHASE_DEAD:
+                        break;
+                    default:
+                        ABORT();
+                        break;
+                }
+
+                return true;
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!_playerGuid)
+                {
+                    if (UpdateVictim())
+                        DoMeleeAttackIfReady();
+                    return;
+                }
+
+                if (_playerCheckTimer <= diff)
+                {
+                    if (!EvadeCheck())
+                        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+
+                    _playerCheckTimer = 1 * IN_MILLISECONDS;
+                }
+                else
+                    _playerCheckTimer -= diff;
+
+                _scheduler.Update(diff);
+            }
+
+        private:
+            uint8 _phase;
+            uint32 _playerCheckTimer;
+            ObjectGuid _playerGuid;
+            TaskScheduler _scheduler;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_wild_wyrmAI(creature);
+        }
+};
+
+/*#####
 # Quest 13010 Krolmir, Hammer of Storms
 #####*/
 
@@ -628,7 +947,6 @@ enum JokkumScriptcast
     SAY_THORIM_4                     = 3,
     SPELL_JOKKUM_SUMMON              = 56541,
     SPELL_JOKKUM_KILL_CREDIT         = 56545,
-    SPELL_EJECT_ALL_PASSENGERS       = 50630,
     SPELL_PLAYER_CAST_VERANUS_SUMMON = 56650,
     SPELL_SUMMON_VERANUS_AND_THORIM  = 56649,
     EVENT_KROLMIR_1                  = 16,
@@ -652,9 +970,7 @@ class spell_jokkum_scriptcast : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_JOKKUM_SUMMON))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_JOKKUM_SUMMON });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -685,9 +1001,7 @@ class spell_veranus_summon : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_VERANUS_AND_THORIM))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_VERANUS_AND_THORIM });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -722,22 +1036,15 @@ class spell_close_rift : public SpellScriptLoader
         {
             PrepareAuraScript(spell_close_rift_AuraScript);
 
-        public:
-            spell_close_rift_AuraScript()
-            {
-                _counter = 0;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_DESPAWN_RIFT) != nullptr;
+                return ValidateSpellInfo({ SPELL_DESPAWN_RIFT });
             }
 
             void HandlePeriodic(AuraEffect const* /* aurEff */)
             {
                 if (++_counter == 5)
-                    GetTarget()->CastSpell((Unit*)NULL, SPELL_DESPAWN_RIFT, true);
+                    GetTarget()->CastSpell(nullptr, SPELL_DESPAWN_RIFT, true);
             }
 
             void Register() override
@@ -746,13 +1053,386 @@ class spell_close_rift : public SpellScriptLoader
             }
 
         private:
-            uint8 _counter;
+            uint8 _counter = 0;
 
         };
 
         AuraScript* GetAuraScript() const override
         {
             return new spell_close_rift_AuraScript();
+        }
+};
+
+// 60603 - Eject Passenger 1
+class spell_eject_passenger_wild_wyrm : public SpellScriptLoader
+{
+    public:
+        spell_eject_passenger_wild_wyrm() : SpellScriptLoader("spell_eject_passenger_wild_wyrm") { }
+
+        class spell_eject_passenger_wild_wyrm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_eject_passenger_wild_wyrm_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_FIGHT_WYRM });
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetHitUnit()->RemoveAurasDueToSpell(SPELL_FIGHT_WYRM);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_eject_passenger_wild_wyrm_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_eject_passenger_wild_wyrm_SpellScript();
+        }
+};
+
+// 56689 - Grip
+class spell_grip : public SpellScriptLoader
+{
+    public:
+        spell_grip() : SpellScriptLoader("spell_grip") { }
+
+        class spell_grip_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_grip_AuraScript);
+
+            void DummyTick(AuraEffect const* /*aurEff*/)
+            {
+                ++_tickNumber;
+
+                // each 15 ticks stack reduction increases by 2 (increases by 1 at each 7th and 15th tick)
+                // except for the first 15 ticks that remove 1 stack each
+                uint32 const period = ((_tickNumber - 1) % 15) + 1;
+                uint32 const sequence = (_tickNumber - 1) / 15;
+
+                uint32 stacksToRemove;
+                if (sequence == 0)
+                    stacksToRemove = 1;
+                else
+                {
+                    stacksToRemove = sequence * 2;
+                    if (period > 7)
+                        ++stacksToRemove;
+                }
+
+                // while we could do ModStackAmount(-stacksToRemove), this is how it's done in sniffs :)
+                for (uint32 i = 0; i < stacksToRemove; ++i)
+                    ModStackAmount(-1, AURA_REMOVE_BY_EXPIRE);
+
+                if (GetStackAmount() < 15 && !_warning)
+                {
+                    _warning = true;
+                    GetTarget()->GetAI()->DoAction(ACTION_GRIP_FAILING);
+                }
+                else if (GetStackAmount() > 30)
+                    _warning = false;
+            }
+
+            void HandleDrop(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                GetTarget()->GetAI()->DoAction(ACTION_GRIP_LOST);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_grip_AuraScript::DummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+
+                AfterEffectRemove += AuraEffectRemoveFn(spell_grip_AuraScript::HandleDrop, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+
+            // tick number in the AuraEffect gets reset each time we stack the aura, so keep track of it locally
+            uint32 _tickNumber = 0;
+
+            bool _warning = false;
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_grip_AuraScript();
+        }
+};
+
+// 60533 - Grab On
+class spell_grab_on : public SpellScriptLoader
+{
+    public:
+        spell_grab_on() : SpellScriptLoader("spell_grab_on") { }
+
+        class spell_grab_on_SpellScript : public SpellScript
+        {
+           PrepareSpellScript(spell_grab_on_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Aura* grip = GetCaster()->GetAura(SPELL_GRIP, GetCaster()->GetGUID()))
+                    grip->ModStackAmount(GetEffectValue(), AURA_REMOVE_BY_DEFAULT, false);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_grab_on_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_grab_on_SpellScript();
+        }
+};
+
+// 56690 - Thrust Spear
+// 60586 - Mighty Spear Thrust
+template <int8 StacksToLose>
+class spell_loosen_grip : public SpellScriptLoader
+{
+    public:
+        spell_loosen_grip(char const* ScriptName) : SpellScriptLoader(ScriptName) { }
+
+        template <int8 StacksLost>
+        class spell_loosen_grip_SpellScript : public SpellScript
+        {
+           PrepareSpellScript(spell_loosen_grip_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Aura* grip = GetCaster()->GetAura(SPELL_GRIP))
+                    grip->ModStackAmount(-StacksLost, AURA_REMOVE_BY_EXPIRE);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_loosen_grip_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_loosen_grip_SpellScript<StacksToLose>();
+        }
+};
+
+// 60596 - Low Health Trigger
+class spell_low_health_trigger : public SpellScriptLoader
+{
+    public:
+        spell_low_health_trigger() : SpellScriptLoader("spell_low_health_trigger") { }
+
+        class spell_low_health_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_low_health_trigger_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_0].CalcValue()) });
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetHitUnit()->CastSpell(nullptr, GetEffectValue(), true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_low_health_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_low_health_trigger_SpellScript();
+        }
+};
+
+// 60776 - Claw Swipe
+// 60864 - Jaws of Death
+class spell_jaws_of_death_claw_swipe_pct_damage : public SpellScriptLoader
+{
+    public:
+        spell_jaws_of_death_claw_swipe_pct_damage() : SpellScriptLoader("spell_jaws_of_death_claw_swipe_pct_damage") { }
+
+        class spell_jaws_of_death_claw_swipe_pct_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_jaws_of_death_claw_swipe_pct_damage_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                SetEffectValue(static_cast<int32>(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue())));
+            }
+
+            void Register() override
+            {
+                OnEffectLaunchTarget += SpellEffectFn(spell_jaws_of_death_claw_swipe_pct_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_jaws_of_death_claw_swipe_pct_damage_SpellScript();
+        }
+};
+
+// 56705 - Claw Swipe
+class spell_claw_swipe_check : public SpellScriptLoader
+{
+    public: spell_claw_swipe_check() : SpellScriptLoader("spell_claw_swipe_check") { }
+
+        class spell_claw_swipe_check_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_claw_swipe_check_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->GetAI()->DoAction(ACTION_CLAW_SWIPE_WARN);
+            }
+
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Vehicle* vehicle = GetTarget()->GetVehicleKit())
+                {
+                    if (Unit* player = vehicle->GetPassenger(SEAT_INITIAL))
+                    {
+                        if (player->HasAura(SPELL_DODGE_CLAWS))
+                        {
+                            GetTarget()->GetAI()->DoAction(ACTION_CLAW_SWIPE_DODGE);
+                            return;
+                        }
+                    }
+                }
+
+                GetTarget()->CastSpell(nullptr, aurEff->GetAmount(), false);
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_claw_swipe_check_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectApplyFn(spell_claw_swipe_check_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_claw_swipe_check_AuraScript();
+        }
+};
+
+// 60587 - Fatal Strike
+class spell_fatal_strike : public SpellScriptLoader
+{
+    public:
+        spell_fatal_strike() : SpellScriptLoader("spell_fatal_strike") { }
+
+        class spell_fatal_strike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_fatal_strike_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_FATAL_STRIKE_DAMAGE });
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                int32 chance = 0;
+                if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_PRY_JAWS_OPEN, EFFECT_0))
+                    chance = aurEff->GetAmount();
+
+                if (!roll_chance_i(chance))
+                {
+                    GetCaster()->GetAI()->DoAction(ACTION_FATAL_STRIKE_MISS);
+                    return;
+                }
+
+                GetCaster()->CastSpell(nullptr, SPELL_FATAL_STRIKE_DAMAGE, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_fatal_strike_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_fatal_strike_SpellScript();
+        }
+};
+
+// 55795 - Falling Dragon Feign Death
+class spell_falling_dragon_feign_death : public SpellScriptLoader
+{
+    public:
+        spell_falling_dragon_feign_death() : SpellScriptLoader("spell_falling_dragon_feign_death") { }
+
+        class spell_falling_dragon_feign_death_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_falling_dragon_feign_death_AuraScript);
+
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+                GetTarget()->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+            }
+
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+                GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_falling_dragon_feign_death_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectApplyFn(spell_falling_dragon_feign_death_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_falling_dragon_feign_death_AuraScript();
+        }
+};
+
+// 56672 - Player Mount Wyrm
+class spell_player_mount_wyrm : public SpellScriptLoader
+{
+    public:
+        spell_player_mount_wyrm() : SpellScriptLoader("spell_player_mount_wyrm") { }
+
+        class spell_player_mount_wyrm_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_player_mount_wyrm_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_FIGHT_WYRM });
+            }
+
+            void HandleDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->CastSpell(nullptr, SPELL_FIGHT_WYRM, true);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectApplyFn(spell_player_mount_wyrm_AuraScript::HandleDummy, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_player_mount_wyrm_AuraScript();
         }
 };
 
@@ -765,7 +1445,20 @@ void AddSC_storm_peaks()
     new npc_icefang();
     new npc_hyldsmeet_protodrake();
     new npc_brann_bronzebeard_keystone();
+    new npc_wild_wyrm();
+
     new spell_jokkum_scriptcast();
     new spell_veranus_summon();
     new spell_close_rift();
+    new spell_eject_passenger_wild_wyrm();
+    new spell_grip();
+    new spell_grab_on();
+    new spell_loosen_grip<5>("spell_thrust_spear");
+    new spell_loosen_grip<15>("spell_mighty_spear_thrust");
+    new spell_low_health_trigger();
+    new spell_jaws_of_death_claw_swipe_pct_damage();
+    new spell_claw_swipe_check();
+    new spell_fatal_strike();
+    new spell_falling_dragon_feign_death();
+    new spell_player_mount_wyrm();
 }

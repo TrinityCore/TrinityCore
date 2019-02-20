@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,8 +16,108 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseEnv.h"
+#include "QueryResult.h"
+#include "Errors.h"
+#include "Field.h"
 #include "Log.h"
+#ifdef _WIN32 // hack for broken mysql.h not including the correct winsock header for SOCKET definition, fixed in 5.7
+#include <winsock2.h>
+#endif
+#include <mysql.h>
+
+static uint32 SizeForType(MYSQL_FIELD* field)
+{
+    switch (field->type)
+    {
+        case MYSQL_TYPE_NULL:
+            return 0;
+        case MYSQL_TYPE_TINY:
+            return 1;
+        case MYSQL_TYPE_YEAR:
+        case MYSQL_TYPE_SHORT:
+            return 2;
+        case MYSQL_TYPE_INT24:
+        case MYSQL_TYPE_LONG:
+        case MYSQL_TYPE_FLOAT:
+            return 4;
+        case MYSQL_TYPE_DOUBLE:
+        case MYSQL_TYPE_LONGLONG:
+        case MYSQL_TYPE_BIT:
+            return 8;
+
+        case MYSQL_TYPE_TIMESTAMP:
+        case MYSQL_TYPE_DATE:
+        case MYSQL_TYPE_TIME:
+        case MYSQL_TYPE_DATETIME:
+            return sizeof(MYSQL_TIME);
+
+        case MYSQL_TYPE_TINY_BLOB:
+        case MYSQL_TYPE_MEDIUM_BLOB:
+        case MYSQL_TYPE_LONG_BLOB:
+        case MYSQL_TYPE_BLOB:
+        case MYSQL_TYPE_STRING:
+        case MYSQL_TYPE_VAR_STRING:
+            return field->max_length + 1;
+
+        case MYSQL_TYPE_DECIMAL:
+        case MYSQL_TYPE_NEWDECIMAL:
+            return 64;
+
+        case MYSQL_TYPE_GEOMETRY:
+            /*
+            Following types are not sent over the wire:
+            MYSQL_TYPE_ENUM:
+            MYSQL_TYPE_SET:
+            */
+        default:
+            TC_LOG_WARN("sql.sql", "SQL::SizeForType(): invalid field type %u", uint32(field->type));
+            return 0;
+    }
+}
+
+DatabaseFieldTypes MysqlTypeToFieldType(enum_field_types type)
+{
+    switch (type)
+    {
+        case MYSQL_TYPE_NULL:
+            return DatabaseFieldTypes::Null;
+        case MYSQL_TYPE_TINY:
+            return DatabaseFieldTypes::Int8;
+        case MYSQL_TYPE_YEAR:
+        case MYSQL_TYPE_SHORT:
+            return DatabaseFieldTypes::Int16;
+        case MYSQL_TYPE_INT24:
+        case MYSQL_TYPE_LONG:
+            return DatabaseFieldTypes::Int32;
+        case MYSQL_TYPE_LONGLONG:
+        case MYSQL_TYPE_BIT:
+            return DatabaseFieldTypes::Int64;
+        case MYSQL_TYPE_FLOAT:
+            return DatabaseFieldTypes::Float;
+        case MYSQL_TYPE_DOUBLE:
+            return DatabaseFieldTypes::Double;
+        case MYSQL_TYPE_DECIMAL:
+        case MYSQL_TYPE_NEWDECIMAL:
+            return DatabaseFieldTypes::Decimal;
+        case MYSQL_TYPE_TIMESTAMP:
+        case MYSQL_TYPE_DATE:
+        case MYSQL_TYPE_TIME:
+        case MYSQL_TYPE_DATETIME:
+            return DatabaseFieldTypes::Date;
+        case MYSQL_TYPE_TINY_BLOB:
+        case MYSQL_TYPE_MEDIUM_BLOB:
+        case MYSQL_TYPE_LONG_BLOB:
+        case MYSQL_TYPE_BLOB:
+        case MYSQL_TYPE_STRING:
+        case MYSQL_TYPE_VAR_STRING:
+            return DatabaseFieldTypes::Binary;
+        default:
+            TC_LOG_WARN("sql.sql", "MysqlTypeToFieldType(): invalid field type %u", uint32(type));
+            break;
+    }
+
+    return DatabaseFieldTypes::Null;
+}
 
 ResultSet::ResultSet(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount) :
 _rowCount(rowCount),
@@ -26,7 +126,7 @@ _result(result),
 _fields(fields)
 {
     _currentRow = new Field[_fieldCount];
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     for (uint32 i = 0; i < _fieldCount; i++)
         _currentRow[i].SetMetadata(&_fields[i], i);
 #endif
@@ -36,11 +136,9 @@ PreparedResultSet::PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES *result, uint64
 m_rowCount(rowCount),
 m_rowPosition(0),
 m_fieldCount(fieldCount),
-m_rBind(NULL),
+m_rBind(nullptr),
 m_stmt(stmt),
-m_metadataResult(result),
-m_isNull(NULL),
-m_length(NULL)
+m_metadataResult(result)
 {
     if (!m_metadataResult)
         return;
@@ -52,8 +150,12 @@ m_length(NULL)
     }
 
     m_rBind = new MYSQL_BIND[m_fieldCount];
-    m_isNull = new my_bool[m_fieldCount];
-    m_length = new unsigned long[m_fieldCount];
+
+    //- for future readers wondering where the fuck this is freed - mysql_stmt_bind_result moves pointers to these
+    // from m_rBind to m_stmt->bind and it is later freed by the `if (m_stmt->bind_result_done)` block just above here
+    // MYSQL_STMT lifetime is equal to connection lifetime
+    my_bool* m_isNull = new my_bool[m_fieldCount];
+    unsigned long* m_length = new unsigned long[m_fieldCount];
 
     memset(m_isNull, 0, sizeof(my_bool) * m_fieldCount);
     memset(m_rBind, 0, sizeof(MYSQL_BIND) * m_fieldCount);
@@ -76,14 +178,14 @@ m_length(NULL)
     std::size_t rowSize = 0;
     for (uint32 i = 0; i < m_fieldCount; ++i)
     {
-        uint32 size = Field::SizeForType(&field[i]);
+        uint32 size = SizeForType(&field[i]);
         rowSize += size;
 
         m_rBind[i].buffer_type = field[i].type;
         m_rBind[i].buffer_length = size;
         m_rBind[i].length = &m_length[i];
         m_rBind[i].is_null = &m_isNull[i];
-        m_rBind[i].error = NULL;
+        m_rBind[i].error = nullptr;
         m_rBind[i].is_unsigned = field[i].flags & UNSIGNED_FLAG;
     }
 
@@ -137,7 +239,7 @@ m_length(NULL)
 
                 m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue(
                     buffer,
-                    m_rBind[fIndex].buffer_type,
+                    MysqlTypeToFieldType(m_rBind[fIndex].buffer_type),
                     fetched_length);
 
                 // move buffer pointer to next part
@@ -147,11 +249,11 @@ m_length(NULL)
             {
                 m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue(
                     nullptr,
-                    m_rBind[fIndex].buffer_type,
+                    MysqlTypeToFieldType(m_rBind[fIndex].buffer_type),
                     *m_rBind[fIndex].length);
             }
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
             m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetMetadata(&field[fIndex], fIndex);
 #endif
         }
@@ -196,7 +298,7 @@ bool ResultSet::NextRow()
     }
 
     for (uint32 i = 0; i < _fieldCount; i++)
-        _currentRow[i].SetStructuredValue(row[i], _fields[i].type, lengths[i]);
+        _currentRow[i].SetStructuredValue(row[i], MysqlTypeToFieldType(_fields[i].type), lengths[i]);
 
     return true;
 }
@@ -227,14 +329,33 @@ void ResultSet::CleanUp()
     if (_currentRow)
     {
         delete [] _currentRow;
-        _currentRow = NULL;
+        _currentRow = nullptr;
     }
 
     if (_result)
     {
         mysql_free_result(_result);
-        _result = NULL;
+        _result = nullptr;
     }
+}
+
+Field const& ResultSet::operator[](std::size_t index) const
+{
+    ASSERT(index < _fieldCount);
+    return _currentRow[index];
+}
+
+Field* PreparedResultSet::Fetch() const
+{
+    ASSERT(m_rowPosition < m_rowCount);
+    return const_cast<Field*>(&m_rows[uint32(m_rowPosition) * m_fieldCount]);
+}
+
+Field const& PreparedResultSet::operator[](std::size_t index) const
+{
+    ASSERT(m_rowPosition < m_rowCount);
+    ASSERT(index < m_fieldCount);
+    return m_rows[uint32(m_rowPosition) * m_fieldCount + index];
 }
 
 void PreparedResultSet::CleanUp()

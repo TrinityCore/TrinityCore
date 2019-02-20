@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -17,9 +17,7 @@ if(CMAKE_COMPILER_IS_GNUCXX AND NOT MINGW)
 endif()
 
 if(WIN32)
-  set(sources_windows
-    ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.cpp
-    ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.h
+  list(APPEND sources_windows
     ${CMAKE_SOURCE_DIR}/src/common/Platform/ServiceWin32.cpp
     ${CMAKE_SOURCE_DIR}/src/common/Platform/ServiceWin32.h
   )

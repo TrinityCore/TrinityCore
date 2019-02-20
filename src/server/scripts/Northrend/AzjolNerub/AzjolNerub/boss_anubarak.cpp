@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "PassiveAI.h"
+#include "AreaBoundary.h"
 #include "azjol_nerub.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -123,9 +130,9 @@ public:
 
         bool CanAIAttack(Unit const* /*who*/) const override { return true; } // do not check boundary here
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            BossAI::EnterCombat(who);
+            BossAI::JustEngagedWith(who);
 
             if (GameObject* door = instance->GetGameObject(DATA_ANUBARAK_WALL))
                 door->SetGoState(GO_STATE_ACTIVE); // open door for now
@@ -136,7 +143,7 @@ public:
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
 
             events.SetPhase(PHASE_EMERGE);
-            events.ScheduleEvent(EVENT_CLOSE_DOOR, Seconds(5));
+            events.ScheduleEvent(EVENT_CLOSE_DOOR, 5s);
             events.ScheduleEvent(EVENT_POUND, randtime(Seconds(2), Seconds(4)), 0, PHASE_EMERGE);
             events.ScheduleEvent(EVENT_LEECHING_SWARM, randtime(Seconds(5), Seconds(7)), 0, PHASE_EMERGE);
             events.ScheduleEvent(EVENT_CARRION_BEETLES, randtime(Seconds(14), Seconds(17)), 0, PHASE_EMERGE);
@@ -150,7 +157,7 @@ public:
                 return;
             }
             _guardianTrigger = (*summoned.begin())->GetGUID();
-            
+
             if (Creature* trigger = DoSummon(NPC_WORLD_TRIGGER, me->GetPosition(), 0u, TEMPSUMMON_MANUAL_DESPAWN))
                 _assassinTrigger = trigger->GetGUID();
             else
@@ -294,9 +301,9 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            switch (type)
+            switch (id)
             {
                 case GUID_TYPE_PET:
                 {
@@ -308,7 +315,7 @@ public:
                 }
                 case GUID_TYPE_IMPALE:
                     _impaleTarget = guid;
-                    events.ScheduleEvent(EVENT_IMPALE, Seconds(4));
+                    events.ScheduleEvent(EVENT_IMPALE, 4s);
                     break;
             }
         }
@@ -361,7 +368,7 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveAurasDueToSpell(SPELL_LEECHING_SWARM);
                 DoCastSelf(SPELL_IMPALE_AURA, true);
-                
+
                 events.SetPhase(PHASE_SUBMERGE);
                 switch (_nextSubmerge)
                 {
@@ -379,12 +386,12 @@ public:
                         _assassinCount = 6;
                         _guardianCount = 2;
                         _venomancerCount = 2;
-                        events.ScheduleEvent(EVENT_DARTER, Seconds(0), 0, PHASE_SUBMERGE);
+                        events.ScheduleEvent(EVENT_DARTER, 0s, 0, PHASE_SUBMERGE);
                         break;
                 }
                 _petCount = _guardianCount + _venomancerCount;
                 if (_assassinCount)
-                    events.ScheduleEvent(EVENT_ASSASSIN, Seconds(0), 0, PHASE_SUBMERGE);
+                    events.ScheduleEvent(EVENT_ASSASSIN, 0s, 0, PHASE_SUBMERGE);
                 if (_guardianCount)
                     events.ScheduleEvent(EVENT_GUARDIAN, Seconds(4), 0, PHASE_SUBMERGE);
                 if (_venomancerCount)
@@ -405,7 +412,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_anub_arakAI>(creature);
+        return GetAzjolNerubAI<boss_anub_arakAI>(creature);
     }
 };
 
@@ -463,7 +470,7 @@ class npc_anubarak_anub_ar_darter : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anubarak_anub_ar_darterAI>(creature);
+            return GetAzjolNerubAI<npc_anubarak_anub_ar_darterAI>(creature);
         }
 };
 
@@ -476,15 +483,6 @@ class npc_anubarak_anub_ar_assassin : public CreatureScript
         {
             npc_anubarak_anub_ar_assassinAI(Creature* creature) : npc_anubarak_pet_template(creature, false), _backstabTimer(6 * IN_MILLISECONDS) { }
 
-            bool IsInBounds(Position const& jumpTo, CreatureBoundary const* boundary)
-            {
-                if (!boundary)
-                    return true;
-                for (CreatureBoundary::const_iterator it = boundary->cbegin(); it != boundary->cend(); ++it)
-                    if (!(*it)->IsWithinBoundary(&jumpTo))
-                        return false;
-                return true;
-            }
             Position GetRandomPositionAround(Creature* anubarak)
             {
                 static float DISTANCE_MIN = 10.0f;
@@ -501,7 +499,7 @@ class npc_anubarak_anub_ar_assassin : public CreatureScript
                     Position jumpTo;
                     do
                         jumpTo = GetRandomPositionAround(anubarak);
-                    while (!IsInBounds(jumpTo, boundary));
+                    while (!CreatureAI::IsInBounds(*boundary, &jumpTo));
                     me->GetMotionMaster()->MoveJump(jumpTo, 40.0f, 40.0f);
                     DoCastSelf(SPELL_ASSASSIN_VISUAL, true);
                 }
@@ -539,7 +537,7 @@ class npc_anubarak_anub_ar_assassin : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anubarak_anub_ar_assassinAI>(creature);
+            return GetAzjolNerubAI<npc_anubarak_anub_ar_assassinAI>(creature);
         }
 };
 
@@ -574,7 +572,7 @@ class npc_anubarak_anub_ar_guardian : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_anubarak_anub_ar_guardianAI>(creature);
+        return GetAzjolNerubAI<npc_anubarak_anub_ar_guardianAI>(creature);
     }
 };
 
@@ -609,7 +607,7 @@ class npc_anubarak_anub_ar_venomancer : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_anubarak_anub_ar_venomancerAI>(creature);
+        return GetAzjolNerubAI<npc_anubarak_anub_ar_venomancerAI>(creature);
     }
 };
 
@@ -637,7 +635,7 @@ class npc_anubarak_impale_target : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anubarak_impale_targetAI>(creature);
+            return GetAzjolNerubAI<npc_anubarak_impale_targetAI>(creature);
         }
 };
 
@@ -652,7 +650,7 @@ class spell_anubarak_pound : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_POUND_DAMAGE) != nullptr;
+                return ValidateSpellInfo({ SPELL_POUND_DAMAGE });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -685,7 +683,7 @@ class spell_anubarak_carrion_beetles : public SpellScriptLoader
 
                 bool Validate(SpellInfo const* /*spell*/) override
                 {
-                    return (sSpellMgr->GetSpellInfo(SPELL_CARRION_BEETLE) != nullptr);
+                    return ValidateSpellInfo({ SPELL_CARRION_BEETLE });
                 }
 
                 void HandlePeriodic(AuraEffect const* /*eff*/)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,16 +18,20 @@
 #ifndef TRANSPORTMGR_H
 #define TRANSPORTMGR_H
 
-#include <G3D/Quat.h>
-#include "Spline.h"
 #include "DBCStores.h"
 #include "ObjectGuid.h"
+#include <memory>
 
 struct KeyFrame;
 struct GameObjectTemplate;
 struct TransportTemplate;
 class Transport;
 class Map;
+
+namespace Movement
+{
+    template <typename length_type> class Spline;
+}
 
 typedef Movement::Spline<double>                 TransportSpline;
 typedef std::vector<KeyFrame>                    KeyFrameVec;
@@ -40,7 +44,7 @@ struct KeyFrame
 {
     explicit KeyFrame(TaxiPathNodeEntry const* node) : Index(0), Node(node), InitialOrientation(0.0f),
         DistSinceStop(-1.0f), DistUntilStop(-1.0f), DistFromPrev(-1.0f), TimeFrom(0.0f), TimeTo(0.0f),
-        Teleport(false), ArriveTime(0), DepartureTime(0), Spline(NULL), NextDistFromPrev(0.0f), NextArriveTime(0)
+        Teleport(false), ArriveTime(0), DepartureTime(0), Spline(nullptr), NextDistFromPrev(0.0f), NextArriveTime(0)
     {
     }
 
@@ -55,7 +59,7 @@ struct KeyFrame
     bool Teleport;
     uint32 ArriveTime;
     uint32 DepartureTime;
-    TransportSpline* Spline;
+    std::shared_ptr<TransportSpline> Spline;
 
     // Data needed for next frame
     float NextDistFromPrev;
@@ -91,15 +95,13 @@ struct TC_GAME_API TransportAnimation
     uint32 TotalTime;
 
     TransportAnimationEntry const* GetAnimNode(uint32 time) const;
-    G3D::Quat GetAnimRotation(uint32 time) const;
+    TransportRotationEntry const* GetAnimRotation(uint32 time) const;
 };
 
 typedef std::map<uint32, TransportAnimation> TransportAnimationContainer;
 
 class TC_GAME_API TransportMgr
 {
-        friend TC_GAME_API void LoadDBCStores(std::string const&);
-
     public:
         static TransportMgr* instance();
 
@@ -107,8 +109,10 @@ class TC_GAME_API TransportMgr
 
         void LoadTransportTemplates();
 
+        void LoadTransportAnimationAndRotation();
+
         // Creates a transport using given GameObject template entry
-        Transport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = 0, Map* map = NULL);
+        Transport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = 0, Map* map = nullptr);
 
         // Spawns all continent transports, used at core startup
         void SpawnContinentTransports();
@@ -121,7 +125,7 @@ class TC_GAME_API TransportMgr
             TransportTemplates::const_iterator itr = _transportTemplates.find(entry);
             if (itr != _transportTemplates.end())
                 return &itr->second;
-            return NULL;
+            return nullptr;
         }
 
         TransportAnimation const* GetTransportAnimInfo(uint32 entry) const
@@ -130,14 +134,14 @@ class TC_GAME_API TransportMgr
             if (itr != _transportAnimations.end())
                 return &itr->second;
 
-            return NULL;
+            return nullptr;
         }
 
     private:
         TransportMgr();
         ~TransportMgr();
-        TransportMgr(TransportMgr const&);
-        TransportMgr& operator=(TransportMgr const&);
+        TransportMgr(TransportMgr const&) = delete;
+        TransportMgr& operator=(TransportMgr const&) = delete;
 
         // Generates and precaches a path for transport to avoid generation each time transport instance is created
         void GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport);

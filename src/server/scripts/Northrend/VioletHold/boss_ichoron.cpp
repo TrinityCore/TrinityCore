@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
 #include "violet_hold.h"
 
@@ -98,9 +100,9 @@ class boss_ichoron : public CreatureScript
                 DoCast(me, SPELL_THREAT_PROC, true);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -162,10 +164,10 @@ class boss_ichoron : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+                _JustDied();
             }
 
             void JustSummoned(Creature* summon) override
@@ -240,7 +242,7 @@ class npc_ichor_globule : public CreatureScript
 
         struct npc_ichor_globuleAI : public ScriptedAI
         {
-            npc_ichor_globuleAI(Creature* creature) : ScriptedAI(creature)
+            npc_ichor_globuleAI(Creature* creature) : ScriptedAI(creature), _splashTriggered(false)
             {
                 _instance = creature->GetInstanceScript();
                 creature->SetReactState(REACT_PASSIVE);
@@ -272,14 +274,21 @@ class npc_ichor_globule : public CreatureScript
             // this feature should be still implemented
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
+                if (_splashTriggered)
+                    return;
+
                 if (damage >= me->GetHealth())
+                {
+                    _splashTriggered = true;
                     DoCastAOE(SPELL_SPLASH);
+                }
             }
 
             void UpdateAI(uint32 /*diff*/) override { }
 
         private:
             InstanceScript* _instance;
+            bool _splashTriggered;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -315,8 +324,8 @@ class spell_ichoron_drained : public SpellScriptLoader
                 GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                    if (GetTarget()->IsAIEnabled)
-                        GetTarget()->GetAI()->DoAction(ACTION_DRAINED);
+                    if (UnitAI* ai = GetTarget()->GetAI())
+                        ai->DoAction(ACTION_DRAINED);
             }
 
             void Register() override
@@ -344,9 +353,7 @@ class spell_ichoron_merge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHRINK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHRINK });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -391,8 +398,8 @@ class spell_ichoron_protective_bubble : public SpellScriptLoader
             {
                 //if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
                 if (GetAura()->GetCharges() <= 1)
-                    if (GetTarget()->IsAIEnabled)
-                        GetTarget()->GetAI()->DoAction(ACTION_PROTECTIVE_BUBBLE_SHATTERED);
+                    if (UnitAI* targetAI = GetTarget()->GetAI())
+                        targetAI->DoAction(ACTION_PROTECTIVE_BUBBLE_SHATTERED);
             }
 
             void Register() override
@@ -419,14 +426,15 @@ class spell_ichoron_splatter : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_2)
-                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_3)
-                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_4)
-                    || !sSpellMgr->GetSpellInfo(SPELL_WATER_GLOBULE_SUMMON_5)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SHRINK))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_WATER_GLOBULE_SUMMON_1,
+                    SPELL_WATER_GLOBULE_SUMMON_2,
+                    SPELL_WATER_GLOBULE_SUMMON_3,
+                    SPELL_WATER_GLOBULE_SUMMON_4,
+                    SPELL_WATER_GLOBULE_SUMMON_5,
+                    SPELL_SHRINK
+                });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,18 +18,22 @@
 #ifndef ZONE_SCRIPT_H_
 #define ZONE_SCRIPT_H_
 
-#include "Common.h"
-#include "Creature.h"
+#include "Define.h"
+#include "ObjectGuid.h"
 
+class Creature;
 class GameObject;
+class Unit;
+class WorldObject;
+struct CreatureData;
 
-class ZoneScript
+class TC_GAME_API ZoneScript
 {
     public:
         ZoneScript() { }
         virtual ~ZoneScript() { }
 
-        virtual uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) { return data->id; }
+        virtual uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data);
         virtual uint32 GetGameObjectEntry(ObjectGuid::LowType /*guidLow*/, uint32 entry) { return entry; }
 
         virtual void OnCreatureCreate(Creature* ) { }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Unit.h"
 
 enum Spells
 {
@@ -36,9 +37,7 @@ class spell_mark_of_malice : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_MALICE_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MARK_OF_MALICE_TRIGGERED });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -48,7 +47,7 @@ class spell_mark_of_malice : public SpellScriptLoader
                 if (aurEff->GetBase()->GetCharges() > 1)
                     return;
 
-                GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_MALICE_TRIGGERED, true);
+                GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_MALICE_TRIGGERED, aurEff);
             }
 
             void Register() override

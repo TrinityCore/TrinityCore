@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,9 +17,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
 
 /*######
 ## npc_galen_goodward
@@ -42,9 +43,9 @@ class npc_galen_goodward : public CreatureScript
 public:
     npc_galen_goodward() : CreatureScript("npc_galen_goodward") { }
 
-    struct npc_galen_goodwardAI : public npc_escortAI
+    struct npc_galen_goodwardAI : public EscortAI
     {
-        npc_galen_goodwardAI(Creature* creature) : npc_escortAI(creature)
+        npc_galen_goodwardAI(Creature* creature) : EscortAI(creature)
         {
             galensCageGUID.Clear();
             Reset();
@@ -55,30 +56,30 @@ public:
             periodicSay = 6000;
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 Talk(SAY_ATTACKED, who);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_GALENS_ESCAPE)
             {
                 Talk(SAY_QUEST_ACCEPTED, player);
-                npc_escortAI::Start(false, false, player->GetGUID(), quest);
+                EscortAI::Start(false, false, player->GetGUID(), quest);
             }
         }
 
-        void WaypointStart(uint32 uiPointId) override
+        void WaypointStarted(uint32 uiPointId, uint32 /*pathId*/) override
         {
             switch (uiPointId)
             {
-            case 0:
+                case 0:
                 {
-                    GameObject* cage = NULL;
+                    GameObject* cage = nullptr;
                     if (galensCageGUID)
-                        cage = me->GetMap()->GetGameObject(galensCageGUID);
+                        cage = ObjectAccessor::GetGameObject(*me, galensCageGUID);
                     else
                         cage = GetClosestGameObjectWithEntry(me, GO_GALENS_CAGE, INTERACTION_DISTANCE);
                     if (cage)
@@ -88,18 +89,18 @@ public:
                     }
                     break;
                 }
-            case 21:
-                Talk(EMOTE_DISAPPEAR);
-                break;
+                case 21:
+                    Talk(EMOTE_DISAPPEAR);
+                    break;
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
                 case 0:
-                    if (GameObject* cage = me->GetMap()->GetGameObject(galensCageGUID))
+                    if (GameObject* cage = ObjectAccessor::GetGameObject(*me, galensCageGUID))
                         cage->ResetDoorOrButton();
                     break;
                 case 20:
@@ -117,7 +118,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (HasEscortState(STATE_ESCORT_NONE))
                 return;

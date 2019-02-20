@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,17 +16,23 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "Vehicle.h"
-#include "ObjectMgr.h"
-#include "ScriptedEscortAI.h"
 #include "CombatAI.h"
+#include "CreatureTextMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "PassiveAI.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
-#include "CreatureTextMgr.h"
-#include "MoveSplineInit.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 /*######
 ##Quest 12848
@@ -125,18 +131,18 @@ public:
         {
             Initialize();
             events.Reset();
-            me->setFaction(7);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
+            me->SetFaction(FACTION_CREATURE);
+            me->SetImmuneToPC(true);
+            me->SetStandState(UNIT_STAND_STATE_KNEEL);
             me->LoadEquipment(0, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_ICY_TOUCH, 1000, GCD_CAST);
-            events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 3000, GCD_CAST);
-            events.ScheduleEvent(EVENT_BLOOD_STRIKE, 2000, GCD_CAST);
-            events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
+            events.ScheduleEvent(EVENT_ICY_TOUCH, 1s, GCD_CAST);
+            events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 3s, GCD_CAST);
+            events.ScheduleEvent(EVENT_BLOOD_STRIKE, 2s, GCD_CAST);
+            events.ScheduleEvent(EVENT_DEATH_COIL, 5s, GCD_CAST);
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -162,7 +168,7 @@ public:
             wait_timer = 5000;
             phase = PHASE_TO_EQUIP;
 
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
             me->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN_SELF);
             me->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN);
 
@@ -190,7 +196,7 @@ public:
                         TC_LOG_ERROR("scripts", "npc_unworthy_initiateAI: unable to find anchor!");
 
                     float dist = 99.0f;
-                    GameObject* prison = NULL;
+                    GameObject* prison = nullptr;
 
                     for (uint8 i = 0; i < 12; ++i)
                     {
@@ -231,8 +237,8 @@ public:
                         wait_timer -= diff;
                     else
                     {
-                        me->setFaction(14);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetFaction(FACTION_MONSTER);
+                        me->SetImmuneToPC(false);
                         phase = PHASE_ATTACKING;
 
                         if (Player* target = ObjectAccessor::GetPlayer(*me, playerGUID))
@@ -254,22 +260,22 @@ public:
                     case EVENT_ICY_TOUCH:
                         DoCastVictim(SPELL_ICY_TOUCH);
                         events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_ICY_TOUCH, 5000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_ICY_TOUCH, 5s, GCD_CAST);
                         break;
                     case EVENT_PLAGUE_STRIKE:
                         DoCastVictim(SPELL_PLAGUE_STRIKE);
                         events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 5000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 5s, GCD_CAST);
                         break;
                     case EVENT_BLOOD_STRIKE:
                         DoCastVictim(SPELL_BLOOD_STRIKE);
                         events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5s, GCD_CAST);
                         break;
                     case EVENT_DEATH_COIL:
                         DoCastVictim(SPELL_DEATH_COIL);
                         events.DelayEvents(1000, GCD_CAST);
-                        events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_DEATH_COIL, 5s, GCD_CAST);
                         break;
                     }
                 }
@@ -304,10 +310,9 @@ public:
 
         ObjectGuid prisonerGUID;
 
-        void SetGUID(ObjectGuid guid, int32 /*id*/) override
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
         {
-            if (!prisonerGUID)
-                prisonerGUID = guid;
+            prisonerGUID = guid;
         }
 
         ObjectGuid GetGUID(int32 /*id*/) const override
@@ -319,19 +324,28 @@ public:
 
 class go_acherus_soul_prison : public GameObjectScript
 {
-public:
-    go_acherus_soul_prison() : GameObjectScript("go_acherus_soul_prison") { }
+    public:
+        go_acherus_soul_prison() : GameObjectScript("go_acherus_soul_prison") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (Creature* anchor = go->FindNearestCreature(29521, 15))
-            if (ObjectGuid prisonerGUID = anchor->AI()->GetGUID())
-                if (Creature* prisoner = ObjectAccessor::GetCreature(*player, prisonerGUID))
-                    ENSURE_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
+        struct go_acherus_soul_prisonAI : public GameObjectAI
+        {
+            go_acherus_soul_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-        return false;
-    }
+            bool GossipHello(Player* player) override
+            {
+                if (Creature* anchor = me->FindNearestCreature(29521, 15))
+                    if (ObjectGuid prisonerGUID = anchor->AI()->GetGUID())
+                        if (Creature* prisoner = ObjectAccessor::GetCreature(*player, prisonerGUID))
+                            ENSURE_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
 
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_acherus_soul_prisonAI(go);
+        }
 };
 
  /*######
@@ -365,20 +379,20 @@ class npc_eye_of_acherus : public CreatureScript
             npc_eye_of_acherusAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-                if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
-                    owner->SendAutoRepeatCancel(me);
-
+                DoCastSelf(SPELL_EYE_VISUAL);
                 me->SetReactState(REACT_PASSIVE);
-
-                me->GetMotionMaster()->MovePoint(POINT_EYE_FALL, EyeOFAcherusFallPoint, false);
+                me->SetDisableGravity(true);
+                me->SetControlled(true, UNIT_STATE_ROOT);
 
                 Movement::MoveSplineInit init(me);
                 init.MoveTo(EyeOFAcherusFallPoint.GetPositionX(), EyeOFAcherusFallPoint.GetPositionY(), EyeOFAcherusFallPoint.GetPositionZ(), false);
                 init.SetFall();
-                init.Launch();
+                me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_EYE_FALL, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+
+                _events.ScheduleEvent(EVENT_MOVE_START, 7s);
             }
 
-            void OnCharmed(bool /*apply*/) override { }
+            void OnCharmed(bool /*isNew*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -390,9 +404,9 @@ class npc_eye_of_acherus : public CreatureScript
                     {
                         case EVENT_MOVE_START:
                         {
-                            DoCast(me, SPELL_EYE_FLIGHT_BOOST);
-
+                            DoCastSelf(SPELL_EYE_FLIGHT_BOOST);
                             me->SetControlled(false, UNIT_STATE_ROOT);
+
                             if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
                             {
                                 for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
@@ -412,7 +426,6 @@ class npc_eye_of_acherus : public CreatureScript
             {
                 if (movementType == WAYPOINT_MOTION_TYPE && pointId == POINT_EYE_MOVE_END - 1)
                 {
-                    me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
                     me->RemoveAllAuras();
 
                     if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
@@ -424,14 +437,7 @@ class npc_eye_of_acherus : public CreatureScript
                         Talk(TALK_CONTROL, owner);
                     }
                     me->SetDisableGravity(false);
-                    DoCast(me, SPELL_EYE_FLIGHT);
-                }
-
-                if (movementType == POINT_MOTION_TYPE && pointId == POINT_EYE_FALL)
-                {
-                    me->SetDisableGravity(true);
-                    me->SetControlled(true, UNIT_STATE_ROOT);
-                    _events.ScheduleEvent(EVENT_MOVE_START, 5000);
+                    DoCastSelf(SPELL_EYE_FLIGHT);
                 }
             }
 
@@ -465,55 +471,13 @@ enum Says_VBM
 
 enum Misc_VBN
 {
-    QUEST_DEATH_CHALLENGE       = 12733,
-    FACTION_HOSTILE             = 2068
+    QUEST_DEATH_CHALLENGE       = 12733
 };
 
 class npc_death_knight_initiate : public CreatureScript
 {
 public:
     npc_death_knight_initiate() : CreatureScript("npc_death_knight_initiate") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            CloseGossipMenuFor(player);
-
-            if (player->IsInCombat() || creature->IsInCombat())
-                return true;
-
-            if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiate::npc_death_knight_initiateAI, creature->AI()))
-            {
-                if (pInitiateAI->m_bIsDuelInProgress)
-                    return true;
-            }
-
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
-
-            player->CastSpell(creature, SPELL_DUEL, false);
-            player->CastSpell(player, SPELL_DUEL_FLAG, true);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && creature->IsFullHealth())
-        {
-            if (player->HealthBelowPct(10))
-                return true;
-
-            if (player->IsInCombat() || creature->IsInCombat())
-                return true;
-
-            AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        return true;
-    }
 
     struct npc_death_knight_initiateAI : public CombatAI
     {
@@ -544,7 +508,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo* pSpell) override
+        void SpellHit(Unit* pCaster, SpellInfo const* pSpell) override
         {
             if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL)
             {
@@ -556,7 +520,7 @@ public:
 
        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
         {
-            if (m_bIsDuelInProgress && pDoneBy->IsControlledByPlayer())
+            if (m_bIsDuelInProgress && pDoneBy && pDoneBy->IsControlledByPlayer())
             {
                 if (pDoneBy->GetGUID() != m_uiDuelerGUID && pDoneBy->GetOwnerGUID() != m_uiDuelerGUID) // other players cannot help
                     uiDamage = 0;
@@ -585,7 +549,7 @@ public:
                 {
                     if (m_uiDuelTimer <= uiDiff)
                     {
-                        me->setFaction(FACTION_HOSTILE);
+                        me->SetFaction(FACTION_UNDEAD_SCOURGE_2);
 
                         if (Unit* unit = ObjectAccessor::GetUnit(*me, m_uiDuelerGUID))
                             AttackStart(unit);
@@ -617,6 +581,45 @@ public:
 
             CombatAI::UpdateAI(uiDiff);
         }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_INFO_DEF)
+            {
+                CloseGossipMenuFor(player);
+
+                if (player->IsInCombat() || me->IsInCombat())
+                    return true;
+
+                if (m_bIsDuelInProgress)
+                    return true;
+
+                me->SetImmuneToPC(false);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+
+                player->CastSpell(me, SPELL_DUEL, false);
+                player->CastSpell(player, SPELL_DUEL_FLAG, true);
+            }
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && me->IsFullHealth())
+            {
+                if (player->HealthBelowPct(10))
+                    return true;
+
+                if (player->IsInCombat() || me->IsInCombat())
+                    return true;
+
+                AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            }
+            return true;
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -632,94 +635,71 @@ public:
 enum DarkRiderOfAcherus
 {
     SAY_DARK_RIDER              = 0,
-    SPELL_DESPAWN_HORSE         = 51918
+
+    EVENT_START_MOVING          = 1,
+    EVENT_DESPAWN_HORSE         = 2,
+    EVENT_END_SCRIPT            = 3,
+
+    SPELL_DESPAWN_HORSE         = 52267
 };
 
-class npc_dark_rider_of_acherus : public CreatureScript
+struct npc_dark_rider_of_acherus : public ScriptedAI
 {
-    public:
-        npc_dark_rider_of_acherus() : CreatureScript("npc_dark_rider_of_acherus") { }
+    npc_dark_rider_of_acherus(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_dark_rider_of_acherusAI : public ScriptedAI
+    void JustAppeared() override
+    {
+        if (TempSummon* summon = me->ToTempSummon())
+            _horseGUID = summon->GetSummonerGUID();
+
+        _events.ScheduleEvent(EVENT_START_MOVING, 1s);
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            npc_dark_rider_of_acherusAI(Creature* creature) : ScriptedAI(creature)
+            switch (eventId)
             {
-                Initialize();
+                case EVENT_START_MOVING:
+                    me->SetTarget(_horseGUID);
+                    me->SetWalk(true);
+                    if (Creature* horse = ObjectAccessor::GetCreature(*me, _horseGUID))
+                        me->GetMotionMaster()->MoveChase(horse);
+                    _events.ScheduleEvent(EVENT_DESPAWN_HORSE, 5s);
+                    break;
+                case EVENT_DESPAWN_HORSE:
+                    Talk(SAY_DARK_RIDER);
+                    if (Creature* horse = ObjectAccessor::GetCreature(*me, _horseGUID))
+                        DoCast(horse, SPELL_DESPAWN_HORSE, true);
+                    _events.ScheduleEvent(EVENT_END_SCRIPT, 2s);
+                    break;
+                case EVENT_END_SCRIPT:
+                    me->DespawnOrUnsummon();
+                    break;
+                default:
+                    break;
             }
-
-            void Initialize()
-            {
-                PhaseTimer = 4000;
-                Phase = 0;
-                Intro = false;
-                TargetGUID.Clear();
-            }
-
-            void Reset() override
-            {
-                Initialize();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!Intro || !TargetGUID)
-                    return;
-
-                if (PhaseTimer <= diff)
-                {
-                    switch (Phase)
-                    {
-                       case 0:
-                            Talk(SAY_DARK_RIDER);
-                            PhaseTimer = 5000;
-                            Phase = 1;
-                            break;
-                        case 1:
-                            if (Unit* target = ObjectAccessor::GetUnit(*me, TargetGUID))
-                                DoCast(target, SPELL_DESPAWN_HORSE, true);
-                            PhaseTimer = 3000;
-                            Phase = 2;
-                            break;
-                        case 2:
-                            me->SetVisible(false);
-                            PhaseTimer = 2000;
-                            Phase = 3;
-                            break;
-                        case 3:
-                            me->DespawnOrUnsummon();
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                else
-                    PhaseTimer -= diff;
-            }
-
-            void InitDespawnHorse(Unit* who)
-            {
-                if (!who)
-                    return;
-
-                TargetGUID = who->GetGUID();
-                me->SetWalk(true);
-                me->SetSpeedRate(MOVE_RUN, 0.4f);
-                me->GetMotionMaster()->MoveChase(who);
-                me->SetTarget(TargetGUID);
-                Intro = true;
-            }
-
-        private:
-            uint32 PhaseTimer;
-            uint32 Phase;
-            bool Intro;
-            ObjectGuid TargetGUID;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_dark_rider_of_acherusAI(creature);
         }
+    }
+
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_DESPAWN_HORSE && target->GetGUID() == _horseGUID)
+            if (Creature* creature = target->ToCreature())
+                creature->DespawnOrUnsummon(2s);
+    }
+
+private:
+    ObjectGuid _horseGUID;
+    EventMap _events;
 };
 
 /*######
@@ -732,7 +712,6 @@ enum SalanarTheHorseman
     GOSSIP_SALANAR_OPTION             = 0,
     SALANAR_SAY                       = 0,
     QUEST_INTO_REALM_OF_SHADOWS       = 12687,
-    NPC_DARK_RIDER_OF_ACHERUS         = 28654,
     NPC_SALANAR_IN_REALM_OF_SHADOWS   = 28788,
     SPELL_EFFECT_STOLEN_HORSE         = 52263,
     SPELL_DELIVER_STOLEN_HORSE        = 52264,
@@ -750,35 +729,14 @@ public:
     {
         npc_salanar_the_horsemanAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_SALANAR_MENU && gossipListId == GOSSIP_SALANAR_OPTION)
             {
                 player->CastSpell(player, SPELL_REALM_OF_SHADOWS, true);
                 player->PlayerTalkClass->SendCloseGossip();
             }
-        }
-
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
-        {
-            if (spell->Id == SPELL_DELIVER_STOLEN_HORSE)
-            {
-                if (caster->GetTypeId() == TYPEID_UNIT && caster->IsVehicle())
-                {
-                    if (Unit* charmer = caster->GetCharmer())
-                    {
-                        if (charmer->HasAura(SPELL_EFFECT_STOLEN_HORSE))
-                        {
-                            charmer->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
-                            caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                            caster->setFaction(35);
-                            DoCast(caster, SPELL_CALL_DARK_RIDER, true);
-                            if (Creature* Dark_Rider = me->FindNearestCreature(NPC_DARK_RIDER_OF_ACHERUS, 15))
-                                ENSURE_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
-                        }
-                    }
-                }
-            }
+            return false;
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -817,6 +775,62 @@ public:
     }
 };
 
+enum HorseSeats
+{
+    SEAT_ID_0   = 0
+};
+
+class spell_stable_master_repo : public AuraScript
+{
+    PrepareAuraScript(spell_stable_master_repo);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Creature* creature = GetTarget()->ToCreature();
+        if (!creature)
+            return;
+
+        if (Vehicle* vehicleKit = creature->GetVehicleKit())
+            if (Unit* passenger = vehicleKit->GetPassenger(SEAT_ID_0))
+                GetCaster()->EngageWithTarget(passenger);
+
+        creature->DespawnOrUnsummon(1s);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_stable_master_repo::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_deliver_stolen_horse : public SpellScript
+{
+    PrepareSpellScript(spell_deliver_stolen_horse);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DELIVER_STOLEN_HORSE, SPELL_EFFECT_STOLEN_HORSE });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
+
+        Unit* caster = GetCaster();
+        caster->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
+        caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+        caster->SetFaction(FACTION_FRIENDLY);
+
+        caster->CastSpell(caster, SPELL_CALL_DARK_RIDER, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_deliver_stolen_horse::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_KILL_CREDIT2);
+    }
+};
+
 /*######
 ## npc_ros_dark_rider
 ######*/
@@ -835,7 +849,7 @@ public:
     {
         npc_ros_dark_riderAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             me->ExitVehicle();
         }
@@ -856,14 +870,14 @@ public:
         void JustDied(Unit* killer) override
         {
             Creature* deathcharger = me->FindNearestCreature(28782, 30);
-            if (!deathcharger)
+            if (!deathcharger || !killer)
                 return;
 
             if (killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->IsVehicle())
             {
                 deathcharger->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 deathcharger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                deathcharger->setFaction(2096);
+                deathcharger->SetFaction(2096);
             }
         }
     };
@@ -1060,7 +1074,7 @@ class npc_scarlet_miner_cart : public CreatureScript
                 if (apply)
                 {
                     _playerGUID = who->GetGUID();
-                    me->CastSpell((Unit*)NULL, SPELL_SUMMON_MINER, true);
+                    me->CastSpell(nullptr, SPELL_SUMMON_MINER, true);
                 }
                 else
                 {
@@ -1096,9 +1110,9 @@ class npc_scarlet_miner : public CreatureScript
     public:
         npc_scarlet_miner() : CreatureScript("npc_scarlet_miner") { }
 
-        struct npc_scarlet_minerAI : public npc_escortAI
+        struct npc_scarlet_minerAI : public EscortAI
         {
-            npc_scarlet_minerAI(Creature* creature) : npc_escortAI(creature)
+            npc_scarlet_minerAI(Creature* creature) : EscortAI(creature)
             {
                 Initialize();
                 me->SetReactState(REACT_PASSIVE);
@@ -1127,7 +1141,7 @@ class npc_scarlet_miner : public CreatureScript
 
             void InitWaypoint()
             {
-                AddWaypoint(1, 2389.03f,     -5902.74f,     109.014f, 5000);
+                AddWaypoint(1, 2389.03f,     -5902.74f,     109.014f, 0.f, 5000);
                 AddWaypoint(2, 2341.812012f, -5900.484863f, 102.619743f);
                 AddWaypoint(3, 2306.561279f, -5901.738281f, 91.792419f);
                 AddWaypoint(4, 2300.098389f, -5912.618652f, 86.014885f);
@@ -1146,7 +1160,7 @@ class npc_scarlet_miner : public CreatureScript
                     AddWaypoint(14, 2172.516602f, -6146.752441f, 1.074235f);
                     AddWaypoint(15, 2138.918457f, -6158.920898f, 1.342926f);
                     AddWaypoint(16, 2129.866699f, -6174.107910f, 4.380779f);
-                    AddWaypoint(17, 2117.709473f, -6193.830078f, 13.3542f, 10000);
+                    AddWaypoint(17, 2117.709473f, -6193.830078f, 13.3542f, 0.f, 10000);
                 }
                 else
                 {
@@ -1154,18 +1168,18 @@ class npc_scarlet_miner : public CreatureScript
                     AddWaypoint(14, 2234.265625f, -6163.741211f, 0.916021f);
                     AddWaypoint(15, 2268.071777f, -6158.750977f, 1.822252f);
                     AddWaypoint(16, 2270.028320f, -6176.505859f, 6.340538f);
-                    AddWaypoint(17, 2271.739014f, -6195.401855f, 13.3542f, 10000);
+                    AddWaypoint(17, 2271.739014f, -6195.401855f, 13.3542f, 0.f, 10000);
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*id = 0*/) override
+            void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
             {
                 InitWaypoint();
                 Start(false, false, guid);
                 SetDespawnAtFar(false);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
             {
                 switch (waypointId)
                 {
@@ -1213,7 +1227,7 @@ class npc_scarlet_miner : public CreatureScript
                     else
                         IntroTimer -= diff;
                 }
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
             }
         };
 
@@ -1232,8 +1246,10 @@ void AddSC_the_scarlet_enclave_c1()
     new go_acherus_soul_prison();
     new npc_eye_of_acherus();
     new npc_death_knight_initiate();
+    RegisterCreatureAI(npc_dark_rider_of_acherus);
     new npc_salanar_the_horseman();
-    new npc_dark_rider_of_acherus();
+    RegisterAuraScript(spell_stable_master_repo);
+    RegisterSpellScript(spell_deliver_stolen_horse);
     new npc_ros_dark_rider();
     new npc_dkc1_gothik();
     new npc_scarlet_ghoul();

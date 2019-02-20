@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,8 +19,8 @@
 #ifndef _AUTH_BIGNUMBER_H
 #define _AUTH_BIGNUMBER_H
 
-#include <memory>
 #include "Define.h"
+#include <memory>
 #include <string>
 
 struct bignum_st;
@@ -99,4 +99,3 @@ class TC_COMMON_API BigNumber
 
 };
 #endif
-

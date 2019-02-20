@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 #ifndef TRINITYCORE_STRING_FORMAT_H
 #define TRINITYCORE_STRING_FORMAT_H
 
-#include "cppformat/format.h"
+#include "fmt/printf.h"
 
 namespace Trinity
 {
@@ -27,11 +27,19 @@ namespace Trinity
     template<typename Format, typename... Args>
     inline std::string StringFormat(Format&& fmt, Args&&... args)
     {
-        return fmt::sprintf(std::forward<Format>(fmt), std::forward<Args>(args)...);
+        try
+        {
+            return fmt::sprintf(std::forward<Format>(fmt), std::forward<Args>(args)...);
+        }
+        catch (const fmt::FormatError& formatError)
+        {
+            std::string error = "An error occurred formatting string \"" + std::string(fmt) + "\" : " + std::string(formatError.what());
+            return error;
+        }
     }
 
     /// Returns true if the given char pointer is null.
-    inline bool IsFormatEmptyOrNull(const char* fmt)
+    inline bool IsFormatEmptyOrNull(char const* fmt)
     {
         return fmt == nullptr;
     }

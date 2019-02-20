@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,27 +23,24 @@
 #define MAX_BAG_SIZE 36                                     // 2.0.12
 
 #include "Item.h"
-#include "ItemTemplate.h"
 
 class TC_GAME_API Bag : public Item
 {
     public:
-
         Bag();
         ~Bag();
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        bool Create(ObjectGuid::LowType guidlow, ObjectGuid::LowType itemid, Player const* owner) override;
+        bool Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner) override;
 
-        void Clear();
         void StoreItem(uint8 slot, Item* pItem, bool update);
         void RemoveItem(uint8 slot, bool update);
 
         Item* GetItemByPos(uint8 slot) const;
-        uint32 GetItemCount(uint32 item, Item* eItem = NULL) const;
-        uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = NULL) const;
+        uint32 GetItemCount(uint32 item, Item* eItem = nullptr) const;
+        uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = nullptr) const;
 
         uint8 GetSlotByItemGUID(ObjectGuid guid) const;
         bool IsEmpty() const;
@@ -60,6 +57,8 @@ class TC_GAME_API Bag : public Item
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
 
+        std::string GetDebugInfo() const override;
+
     protected:
 
         // Bag Storage space
@@ -71,4 +70,3 @@ inline Item* NewItemOrBag(ItemTemplate const* proto)
     return (proto->InventoryType == INVTYPE_BAG) ? new Bag : new Item;
 }
 #endif
-

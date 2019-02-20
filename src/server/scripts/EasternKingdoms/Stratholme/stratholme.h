@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,9 +18,12 @@
 #ifndef DEF_STRATHOLME_H
 #define DEF_STRATHOLME_H
 
+#include "CreatureAIImpl.h"
+
+#define StratholmeScriptName "instance_stratholme"
 #define DataHeader "STR"
 
-enum DataTypes
+enum STRDataTypes
 {
     TYPE_BARON_RUN                      = 1,
     TYPE_BARONESS                       = 2,
@@ -43,7 +45,7 @@ enum DataTypes
     TYPE_SH_AELMAR                      = 25
 };
 
-enum CreatureIds
+enum STRCreatureIds
 {
     NPC_CRYSTAL                         = 10415, // ziggurat crystal
     NPC_BARON                           = 10440, // ziggurat crystal
@@ -54,9 +56,17 @@ enum CreatureIds
     NPC_ABOM_VENOM                      = 10417,
     NPC_BLACK_GUARD                     = 10394,
     NPC_YSIDA                           = 16031,
+
+    // Scarlet side creatures
+    NPC_CRIMSON_GUARDSMAN               = 10418,
+    NPC_CRIMSON_CONJUROR                = 10419,
+    NPC_CRIMSON_INITATE                 = 10420,
+    NPC_CRIMSON_GALLANT                 = 10424,
+
+    NPC_TIMMY_THE_CRUEL                 = 10808
 };
 
-enum GameobjectIds
+enum STRGameobjectIds
 {
     GO_DOOR_HALAZZI                     = 186303,
     GO_SERVICE_ENTRANCE                 = 175368,
@@ -68,18 +78,36 @@ enum GameobjectIds
     GO_ZIGGURAT5                        = 175796,  // baron
     GO_PORT_GAUNTLET                    = 175374,  // port from gauntlet to slaugther
     GO_PORT_SLAUGTHER                   = 175373,  // port at slaugther
-    GO_PORT_ELDERS                      = 175377   // port at elders square
+    GO_PORT_ELDERS                      = 175377,  // port at elders square
+    GO_YSIDA_CAGE                       = 181071
 };
 
-enum QuestIds
+enum STRQuestIds
 {
     QUEST_DEAD_MAN_PLEA                 = 8945
 };
 
-enum SpellIds
+enum STRSpellIds
 {
-    SPELL_BARON_ULTIMATUM               = 27861
+    SPELL_BARON_ULTIMATUM               = 27861,
+    SPELL_PERM_FEIGN_DEATH              = 29266,
+    SPELL_YSIDA_SAVED                   = 31912,
+    SPELL_YSIDA_CREDIT_EFFECT           = 31913
 };
 
-#endif
+enum STRMisc
+{
+    //! amount of crusade monsters required to be killed in order for timmy the cruel to spawn
+    TIMMY_THE_CRUEL_CRUSADERS_REQUIRED  = 15,
+    MAX_ENCOUNTER                       = 6
+};
 
+template <class AI, class T>
+inline AI* GetStratholmeAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, StratholmeScriptName);
+}
+
+#define RegisterStratholmeCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetStratholmeAI)
+
+#endif

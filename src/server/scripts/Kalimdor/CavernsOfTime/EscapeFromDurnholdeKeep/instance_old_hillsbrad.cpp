@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,10 @@ SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
 #include "old_hillsbrad.h"
 #include "Player.h"
 
@@ -43,7 +45,7 @@ EndScriptData */
 class instance_old_hillsbrad : public InstanceMapScript
 {
 public:
-    instance_old_hillsbrad() : InstanceMapScript("instance_old_hillsbrad", 560) { }
+    instance_old_hillsbrad() : InstanceMapScript(OHScriptName, 560) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -83,7 +85,7 @@ public:
             }
 
             TC_LOG_DEBUG("scripts", "Instance Old Hillsbrad: GetPlayerInMap, but PlayerList is empty!");
-            return NULL;
+            return nullptr;
         }
 
         void UpdateQuestCredit()
@@ -165,7 +167,7 @@ public:
                             m_auiEncounter[4] = NOT_STARTED;
                             m_auiEncounter[5] = NOT_STARTED;
                         }
-                        else if (mThrallEventCount > 20)
+                        else
                         {
                             m_auiEncounter[1] = data;
                             m_auiEncounter[2] = data;

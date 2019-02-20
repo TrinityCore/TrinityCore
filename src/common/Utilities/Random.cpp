@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +16,13 @@
  */
 
 #include "Random.h"
-#include "Common.h"
 #include "Errors.h"
 #include "SFMT.h"
 #include <boost/thread/tss.hpp>
+#include <random>
 
 static boost::thread_specific_ptr<SFMTRand> sfmtRand;
+static SFMTEngine engine;
 
 static SFMTRand* GetRng()
 {
@@ -51,8 +52,8 @@ uint32 urand(uint32 min, uint32 max)
 uint32 urandms(uint32 min, uint32 max)
 {
     ASSERT(max >= min);
-    ASSERT(INT_MAX / IN_MILLISECONDS >= max);
-    return GetRng()->URandom(min * IN_MILLISECONDS, max * IN_MILLISECONDS);
+    ASSERT(std::numeric_limits<uint32>::max() / Milliseconds::period::den >= max);
+    return GetRng()->URandom(min * Milliseconds::period::den, max * Milliseconds::period::den);
 }
 
 float frand(float min, float max)
@@ -61,7 +62,7 @@ float frand(float min, float max)
     return float(GetRng()->Random() * (max - min) + min);
 }
 
-Milliseconds randtime(Milliseconds const& min, Milliseconds const& max)
+Milliseconds randtime(Milliseconds min, Milliseconds max)
 {
     long long diff = max.count() - min.count();
     ASSERT(diff >= 0);
@@ -84,8 +85,13 @@ double rand_chance()
     return GetRng()->Random() * 100.0;
 }
 
+uint32 urandweighted(size_t count, double const* chances)
+{
+    std::discrete_distribution<uint32> dd(chances, chances + count);
+    return dd(SFMTEngine::Instance());
+}
+
 SFMTEngine& SFMTEngine::Instance()
 {
-    static SFMTEngine engine;
     return engine;
 }

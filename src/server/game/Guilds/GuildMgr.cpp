@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "GuildMgr.h"
+#include "DatabaseEnv.h"
+#include "Guild.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "World.h"
 
 GuildMgr::GuildMgr() : NextGuildId(1)
 { }
@@ -54,7 +58,7 @@ Guild* GuildMgr::GetGuildById(ObjectGuid::LowType guildId) const
     if (itr != GuildStore.end())
         return itr->second;
 
-    return NULL;
+    return nullptr;
 }
 
 Guild* GuildMgr::GetGuildByName(const std::string& guildName) const
@@ -68,7 +72,7 @@ Guild* GuildMgr::GetGuildByName(const std::string& guildName) const
         if (search == gname)
             return itr->second;
     }
-    return NULL;
+    return nullptr;
 }
 
 std::string GuildMgr::GetGuildNameById(ObjectGuid::LowType guildId) const
@@ -91,7 +95,7 @@ Guild* GuildMgr::GetGuildByLeader(ObjectGuid guid) const
         if (itr->second->GetLeaderGUID() == guid)
             return itr->second;
 
-    return NULL;
+    return nullptr;
 }
 
 void GuildMgr::LoadGuilds()
@@ -179,10 +183,10 @@ void GuildMgr::LoadGuilds()
         CharacterDatabase.DirectExecute("DELETE gm FROM guild_member gm LEFT JOIN guild g ON gm.guildId = g.guildId WHERE g.guildId IS NULL");
         CharacterDatabase.DirectExecute("DELETE gm FROM guild_member_withdraw gm LEFT JOIN guild_member g ON gm.guid = g.guid WHERE g.guid IS NULL");
 
-                                                //           0        1        2     3      4        5       6       7       8       9       10
-        QueryResult result = CharacterDatabase.Query("SELECT guildid, gm.guid, rank, pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
-                                                //    11       12      13       14       15      16         17
-                                                     "w.money, c.name, c.level, c.class, c.zone, c.account, c.logout_time "
+                                                //           0        1         2      3      4        5       6       7       8       9       10
+        QueryResult result = CharacterDatabase.Query("SELECT guildid, gm.guid, `rank` , pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
+                                                //    11       12      13       14       15        16      17         18
+                                                     "w.money, c.name, c.level, c.class, c.gender, c.zone, c.account, c.logout_time "
                                                      "FROM guild_member gm "
                                                      "LEFT JOIN guild_member_withdraw w ON gm.guid = w.guid "
                                                      "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY guildid ASC");

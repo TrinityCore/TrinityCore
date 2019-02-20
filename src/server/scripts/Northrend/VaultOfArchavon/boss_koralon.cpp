@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "vault_of_archavon.h"
 
@@ -61,16 +60,16 @@ class boss_koralon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_BURNING_FURY);
 
-                events.ScheduleEvent(EVENT_BURNING_FURY, 20000);    /// @todo check timer
-                events.ScheduleEvent(EVENT_BURNING_BREATH, 15000);  // 1st after 15sec, then every 45sec
-                events.ScheduleEvent(EVENT_METEOR_FISTS, 75000);    // 1st after 75sec, then every 45sec
-                events.ScheduleEvent(EVENT_FLAME_CINDER, 30000);    /// @todo check timer
+                events.ScheduleEvent(EVENT_BURNING_FURY, 20s);    /// @todo check timer
+                events.ScheduleEvent(EVENT_BURNING_BREATH, 15s);  // 1st after 15sec, then every 45sec
+                events.ScheduleEvent(EVENT_METEOR_FISTS, 75s);    // 1st after 75sec, then every 45sec
+                events.ScheduleEvent(EVENT_FLAME_CINDER, 30s);    /// @todo check timer
 
-                _EnterCombat();
+                _JustEngagedWith();
             }
 
             void UpdateAI(uint32 diff) override
@@ -89,19 +88,19 @@ class boss_koralon : public CreatureScript
                     {
                         case EVENT_BURNING_FURY:
                             DoCast(me, SPELL_BURNING_FURY);
-                            events.ScheduleEvent(EVENT_BURNING_FURY, 20000);
+                            events.ScheduleEvent(EVENT_BURNING_FURY, 20s);
                             break;
                         case EVENT_BURNING_BREATH:
                             DoCast(me, SPELL_BURNING_BREATH);
-                            events.ScheduleEvent(EVENT_BURNING_BREATH, 45000);
+                            events.ScheduleEvent(EVENT_BURNING_BREATH, 45s);
                             break;
                         case EVENT_METEOR_FISTS:
                             DoCast(me, SPELL_METEOR_FISTS);
-                            events.ScheduleEvent(EVENT_METEOR_FISTS, 45000);
+                            events.ScheduleEvent(EVENT_METEOR_FISTS, 45s);
                             break;
                         case EVENT_FLAME_CINDER:
                             DoCast(me, SPELL_FLAME_CINDER_A);
-                            events.ScheduleEvent(EVENT_FLAME_CINDER, 30000);
+                            events.ScheduleEvent(EVENT_FLAME_CINDER, 30s);
                             break;
                         default:
                             break;
@@ -117,7 +116,7 @@ class boss_koralon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_koralonAI(creature);
+            return GetVaultOfArchavonAI<boss_koralonAI>(creature);
         }
 };
 
@@ -140,12 +139,12 @@ class npc_flame_warder : public CreatureScript
                 events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
 
-                events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 5000);
-                events.ScheduleEvent(EVENT_FW_METEOR_FISTS, 10000);
+                events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 5s);
+                events.ScheduleEvent(EVENT_FW_METEOR_FISTS, 10s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -161,11 +160,11 @@ class npc_flame_warder : public CreatureScript
                     {
                         case EVENT_FW_LAVA_BIRST:
                             DoCastVictim(SPELL_FW_LAVA_BIRST);
-                            events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 15000);
+                            events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 15s);
                             break;
                         case EVENT_FW_METEOR_FISTS:
                             DoCast(me, SPELL_FW_METEOR_FISTS);
-                            events.ScheduleEvent(EVENT_FW_METEOR_FISTS, 20000);
+                            events.ScheduleEvent(EVENT_FW_METEOR_FISTS, 20s);
                             break;
                         default:
                             break;
@@ -181,7 +180,7 @@ class npc_flame_warder : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_flame_warderAI(creature);
+            return GetVaultOfArchavonAI<npc_flame_warderAI>(creature);
         }
 };
 
@@ -196,15 +195,13 @@ class spell_koralon_meteor_fists : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_METEOR_FISTS_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_METEOR_FISTS_DAMAGE });
             }
 
             void TriggerFists(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_METEOR_FISTS_DAMAGE, true, NULL, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_METEOR_FISTS_DAMAGE, aurEff);
             }
 
             void Register() override
@@ -273,15 +270,13 @@ class spell_flame_warder_meteor_fists : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FW_METEOR_FISTS_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FW_METEOR_FISTS_DAMAGE });
             }
 
             void TriggerFists(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_FW_METEOR_FISTS_DAMAGE, true, NULL, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_FW_METEOR_FISTS_DAMAGE, aurEff);
             }
 
             void Register() override

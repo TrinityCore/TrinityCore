@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef GUNDRAK_H_
 #define GUNDRAK_H_
 
+#include "CreatureAIImpl.h"
+
 #define GundrakScriptName "instance_gundrak"
 #define DataHeader "GD"
 
 uint32 const EncounterCount = 5;
 
-enum DataTypes
+enum GDDataTypes
 {
     // Encounter Ids // Encounter States // Boss GUIDs
     DATA_SLAD_RAN                    = 0,
@@ -49,7 +51,7 @@ enum DataTypes
     DATA_STATUE_ACTIVATE             = 15,
 };
 
-enum CreatureIds
+enum GDCreatureIds
 {
     NPC_SLAD_RAN                     = 29304,
     NPC_MOORABI                      = 29305,
@@ -57,10 +59,11 @@ enum CreatureIds
     NPC_DRAKKARI_COLOSSUS            = 29307,
     NPC_RUIN_DWELLER                 = 29920,
     NPC_ECK_THE_FEROCIOUS            = 29932,
-    NPC_ALTAR_TRIGGER                = 30298
+    NPC_ALTAR_TRIGGER                = 30298,
+    NPC_RHINO_SPIRIT                 = 29791
 };
 
-enum GameObjectIds
+enum GDGameObjectIds
 {
     GO_SLAD_RAN_ALTAR                = 192518,
     GO_MOORABI_ALTAR                 = 192519,
@@ -78,22 +81,22 @@ enum GameObjectIds
     GO_COLLISION                     = 192633,
 };
 
-enum SpellIds
+enum GDSpellIds
 {
     SPELL_FIRE_BEAM_MAMMOTH          = 57068,
     SPELL_FIRE_BEAM_SNAKE            = 57071,
     SPELL_FIRE_BEAM_ELEMENTAL        = 57072
 };
 
-enum InstanceMisc
+enum GDInstanceMisc
 {
     TIMER_STATUE_ACTIVATION          = 3500
 };
 
-template<class AI>
-inline AI* GetGundrakAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetGundrakAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, GundrakScriptName);
+    return GetInstanceAI<AI>(obj, GundrakScriptName);
 }
 
 #endif // GUNDRAK_H_

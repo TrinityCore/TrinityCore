@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
-#include "sunwell_plateau.h"
 #include "SpellInfo.h"
+#include "sunwell_plateau.h"
 
 enum Quotes
 {
@@ -114,12 +115,12 @@ public:
         {
             Enraged = false;
 
-            if (Creature* temp =  ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ALYTHESS)))
+            if (Creature* temp = instance->GetCreature(DATA_ALYTHESS))
             {
                 if (temp->isDead())
                     temp->Respawn();
                 else if (temp->GetVictim())
-                    me->getThreatManager().addThreat(temp->GetVictim(), 0.0f);
+                    AddThreat(temp->GetVictim(), 0.0f);
             }
 
             if (!me->IsInCombat())
@@ -130,11 +131,11 @@ public:
             instance->SetBossState(DATA_EREDAR_TWINS, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             DoZoneInCombat();
 
-            Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ALYTHESS));
+            Creature* temp = instance->GetCreature(DATA_ALYTHESS);
             if (temp && temp->IsAlive() && !temp->GetVictim())
                 temp->AI()->AttackStart(who);
 
@@ -160,7 +161,7 @@ public:
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {
@@ -207,7 +208,7 @@ public:
         {
             if (!SisterDeath)
             {
-                Unit* Temp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ALYTHESS));
+                Unit* Temp = instance->GetCreature(DATA_ALYTHESS);
                 if (Temp && Temp->isDead())
                 {
                     Talk(YELL_SISTER_ALYTHESS_DEAD);
@@ -266,15 +267,15 @@ public:
 
             if (ShadowimageTimer <= diff)
             {
-                Unit* target = NULL;
-                Creature* temp = NULL;
+                Unit* target = nullptr;
+                Creature* temp = nullptr;
                 for (uint8 i = 0; i<3; ++i)
                 {
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     temp = DoSpawnCreature(NPC_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10000);
                     if (temp && target)
                     {
-                        temp->AddThreat(target, 1000000); //don't change target(healers)
+                        AddThreat(target, 1000000.0f, temp); //don't change target(healers)
                         temp->AI()->AttackStart(target);
                     }
                 }
@@ -366,12 +367,12 @@ public:
         {
             Enraged = false;
 
-            if (Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SACROLASH)))
+            if (Creature* temp = instance->GetCreature(DATA_SACROLASH))
             {
                 if (temp->isDead())
                     temp->Respawn();
                 else if (temp->GetVictim())
-                    me->getThreatManager().addThreat(temp->GetVictim(), 0.0f);
+                    AddThreat(temp->GetVictim(), 0.0f);
             }
 
             if (!me->IsInCombat())
@@ -382,11 +383,11 @@ public:
             instance->SetBossState(DATA_EREDAR_TWINS, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             DoZoneInCombat();
 
-            Creature* temp = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SACROLASH));
+            Creature* temp = instance->GetCreature(DATA_SACROLASH);
             if (temp && temp->IsAlive() && !temp->GetVictim())
                 temp->AI()->AttackStart(who);
 
@@ -436,7 +437,7 @@ public:
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {
@@ -486,7 +487,7 @@ public:
 
         uint32 IntroStep(uint32 step)
         {
-            Creature* Sacrolash = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SACROLASH));
+            Creature* Sacrolash = instance->GetCreature(DATA_SACROLASH);
             switch (step)
             {
                 case 0:
@@ -535,7 +536,7 @@ public:
 
             if (!SisterDeath)
             {
-                Unit* Temp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_SACROLASH));
+                Unit* Temp = instance->GetCreature(DATA_SACROLASH);
                 if (Temp && Temp->isDead())
                 {
                     Talk(YELL_SISTER_SACROLASH_DEAD);
@@ -546,10 +547,10 @@ public:
             }
             if (!me->GetVictim())
             {
-                Creature* sisiter = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SACROLASH));
+                Creature* sisiter = instance->GetCreature(DATA_SACROLASH);
                 if (sisiter && !sisiter->isDead() && sisiter->GetVictim())
                 {
-                    me->AddThreat(sisiter->GetVictim(), 0.0f);
+                    AddThreat(sisiter->GetVictim(), 0.0f);
                     DoStartNoMovement(sisiter->GetVictim());
                     me->Attack(sisiter->GetVictim(), false);
                 }
@@ -644,7 +645,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_shadow_imageAI(creature);
+        return GetSunwellPlateauAI<npc_shadow_imageAI>(creature);
     };
 
     struct npc_shadow_imageAI : public ScriptedAI
@@ -671,9 +672,9 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {

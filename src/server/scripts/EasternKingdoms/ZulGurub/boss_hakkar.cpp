@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@ Category: Zul'Gurub
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
@@ -83,24 +84,24 @@ class boss_hakkar : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90000);
-                events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 25000);
-                events.ScheduleEvent(EVENT_CAUSE_INSANITY, 17000);
-                events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 17000);
-                events.ScheduleEvent(EVENT_ENRAGE, 600000);
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90s);
+                events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 25s);
+                events.ScheduleEvent(EVENT_CAUSE_INSANITY, 15s);
+                events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 15s);
+                events.ScheduleEvent(EVENT_ENRAGE, 10min);
                 if (instance->GetBossState(DATA_JEKLIK) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, 4000);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, 4s);
                 if (instance->GetBossState(DATA_VENOXIS) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 7000);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 7s);
                 if (instance->GetBossState(DATA_MARLI) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12000);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s);
                 if (instance->GetBossState(DATA_THEKAL) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 8000);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 8s);
                 if (instance->GetBossState(DATA_ARLOKK) != DONE)
-                    events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, 18000);
+                    events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, 18s);
                 Talk(SAY_AGGRO);
             }
 
@@ -120,44 +121,44 @@ class boss_hakkar : public CreatureScript
                     {
                         case EVENT_BLOOD_SIPHON:
                             DoCastVictim(SPELL_BLOOD_SIPHON, true);
-                            events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90000);
+                            events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90s);
                             break;
                         case EVENT_CORRUPTED_BLOOD:
                             DoCastVictim(SPELL_CORRUPTED_BLOOD, true);
-                            events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, urand(30000, 45000));
+                            events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 30s, 45s);
                             break;
                         case EVENT_CAUSE_INSANITY:
                             // DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_CAUSE_INSANITY);
-                            // events.ScheduleEvent(EVENT_CAUSE_INSANITY, urand(35000, 45000));
+                            // events.ScheduleEvent(EVENT_CAUSE_INSANITY, 35s, 45s);
                             break;
                         case EVENT_WILL_OF_HAKKAR:
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_WILL_OF_HAKKAR);
-                            events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, urand(25000, 35000));
+                            events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 25s, 35s);
                             break;
                         case EVENT_ENRAGE:
                             if (!me->HasAura(SPELL_ENRAGE))
                                 DoCast(me, SPELL_ENRAGE);
-                            events.ScheduleEvent(EVENT_ENRAGE, 90000);
+                            events.ScheduleEvent(EVENT_ENRAGE, 90s);
                             break;
                         case EVENT_ASPECT_OF_JEKLIK:
                             DoCastVictim(SPELL_ASPECT_OF_JEKLIK, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, urand(10000, 14000));
+                            events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, 10s, 14s);
                             break;
                         case EVENT_ASPECT_OF_VENOXIS:
                             DoCastVictim(SPELL_ASPECT_OF_VENOXIS, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 8000);
+                            events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 8s);
                             break;
                         case EVENT_ASPECT_OF_MARLI:
                             DoCastVictim(SPELL_ASPECT_OF_MARLI, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 10000);
+                            events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 10s);
                             break;
                         case EVENT_ASPECT_OF_THEKAL:
                             DoCastVictim(SPELL_ASPECT_OF_THEKAL, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 15000);
+                            events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 15s);
                             break;
                         case EVENT_ASPECT_OF_ARLOKK:
                             DoCastVictim(SPELL_ASPECT_OF_ARLOKK, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, 10s, 15s);
                             break;
                         default:
                             break;
@@ -173,7 +174,7 @@ class boss_hakkar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_hakkarAI>(creature);
+            return GetZulGurubAI<boss_hakkarAI>(creature);
         }
 };
 
@@ -181,4 +182,3 @@ void AddSC_boss_hakkar()
 {
     new boss_hakkar();
 }
-

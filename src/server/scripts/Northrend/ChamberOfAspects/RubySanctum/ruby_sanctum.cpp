@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,11 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "ruby_sanctum.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
-#include "ruby_sanctum.h"
-#include "Player.h"
 
 enum Texts
 {
@@ -77,6 +79,7 @@ class npc_xerestrasza : public CreatureScript
                 if (action == ACTION_BALTHARUS_DEATH)
                 {
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     _isIntro = false;
 
                     Talk(SAY_XERESTRASZA_EVENT);
@@ -131,6 +134,7 @@ class npc_xerestrasza : public CreatureScript
                             me->SetFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
                             Talk(SAY_XERESTRASZA_EVENT_7);
                             me->setActive(false);
+                            me->SetFarVisible(false);
                             break;
                         default:
                             break;
@@ -150,20 +154,20 @@ class npc_xerestrasza : public CreatureScript
         }
 };
 
-class at_baltharus_plateau : public AreaTriggerScript
+class at_baltharus_plateau : public OnlyOnceAreaTriggerScript
 {
     public:
-        at_baltharus_plateau() : AreaTriggerScript("at_baltharus_plateau") { }
+        at_baltharus_plateau() : OnlyOnceAreaTriggerScript("at_baltharus_plateau") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             // Only trigger once
             if (InstanceScript* instance = player->GetInstanceScript())
             {
-                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_XERESTRASZA)))
+                if (Creature* xerestrasza = instance->GetCreature(DATA_XERESTRASZA))
                     xerestrasza->AI()->DoAction(ACTION_INTRO_BALTHARUS);
 
-                if (Creature* baltharus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_BALTHARUS_THE_WARBORN)))
+                if (Creature* baltharus = instance->GetCreature(DATA_BALTHARUS_THE_WARBORN))
                     baltharus->AI()->DoAction(ACTION_INTRO_BALTHARUS);
             }
 
@@ -183,9 +187,7 @@ class spell_ruby_sanctum_rallying_shout : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RALLY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RALLY });
             }
 
             void CountTargets(std::list<WorldObject*>& targets)
@@ -196,7 +198,11 @@ class spell_ruby_sanctum_rallying_shout : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (_targetCount && !GetCaster()->HasAura(SPELL_RALLY))
-                    GetCaster()->CastCustomSpell(SPELL_RALLY, SPELLVALUE_AURA_STACK, _targetCount, GetCaster(), TRIGGERED_FULL_MASK);
+                {
+                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                    args.AddSpellMod(SPELLVALUE_AURA_STACK, _targetCount);
+                    GetCaster()->CastSpell(GetCaster(), SPELL_RALLY, args);
+                }
             }
 
             void Register() override
@@ -205,7 +211,6 @@ class spell_ruby_sanctum_rallying_shout : public SpellScriptLoader
                 OnEffectHit += SpellEffectFn(spell_ruby_sanctum_rallying_shout_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 
-        private:
             uint32 _targetCount = 0;
         };
 

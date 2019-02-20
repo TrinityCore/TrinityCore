@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "scholomance.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -57,10 +58,10 @@ public:
             Summons.Summon(summoned);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 15000);
-            events.ScheduleEvent(EVENT_ILLUSION, 30000);
+            events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 15s);
+            events.ScheduleEvent(EVENT_ILLUSION, 30s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -84,15 +85,15 @@ public:
                 {
                     case EVENT_CURSE_OF_BLOOD:
                         DoCastVictim(SPELL_CURSE_OF_BLOOD);
-                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 30000);
+                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 30s);
                         break;
                     case EVENT_ILLUSION:
                         DoCast(SPELL_ILLUSION);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetDisplayId(11686);  // Invisible Model
-                        DoModifyThreatPercent(me->GetVictim(), -99);
-                        events.ScheduleEvent(EVENT_SET_VISIBILITY, 3000);
-                        events.ScheduleEvent(EVENT_ILLUSION, 25000);
+                        ModifyThreatByPercent(me->GetVictim(), -99);
+                        events.ScheduleEvent(EVENT_SET_VISIBILITY, 3s);
+                        events.ScheduleEvent(EVENT_ILLUSION, 25s);
                         break;
                     case EVENT_SET_VISIBILITY:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -116,7 +117,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_jandicebarovAI>(creature);
+        return GetScholomanceAI<boss_jandicebarovAI>(creature);
     }
 };
 

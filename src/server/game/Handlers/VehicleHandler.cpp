@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,18 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Vehicle.h"
-#include "Player.h"
+#include "DBCStructure.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
+#include "Vehicle.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_DISMISS_CONTROLLED_VEHICLE");
 
-    ObjectGuid vehicleGUID = _player->GetCharmGUID();
+    ObjectGuid vehicleGUID = _player->GetCharmedGUID();
 
     if (!vehicleGUID)                                       // something wrong here...
     {
@@ -130,13 +132,16 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket &data)
     ObjectGuid guid;
     data >> guid;
 
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::GetPlayer(*_player, guid))
     {
         if (!player->GetVehicleKit())
             return;
         if (!player->IsInRaidWith(_player))
             return;
         if (!player->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+            return;
+        // Dont' allow players to enter player vehicle on arena
+        if (!_player->FindMap() || _player->FindMap()->IsBattleArena())
             return;
 
         _player->EnterVehicle(player);

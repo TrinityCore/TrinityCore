@@ -1,5 +1,5 @@
- /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+/*
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,13 +28,13 @@ npc_shadowfang_prisoner
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "ScriptedEscortAI.h"
 #include "shadowfang_keep.h"
+#include "InstanceScript.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_shadowfang_prisoner
@@ -54,7 +54,6 @@ enum Yells
 enum Spells
 {
     SPELL_UNLOCK            = 6421,
-
     SPELL_DARK_OFFERING     = 7154
 };
 
@@ -68,46 +67,16 @@ class npc_shadowfang_prisoner : public CreatureScript
 public:
     npc_shadowfang_prisoner() : CreatureScript("npc_shadowfang_prisoner") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct npc_shadowfang_prisonerAI : public EscortAI
     {
-        return GetInstanceAI<npc_shadowfang_prisonerAI>(creature);
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            CloseGossipMenuFor(player);
-
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_shadowfang_prisoner::npc_shadowfang_prisonerAI, creature->AI()))
-                pEscortAI->Start(false, false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        InstanceScript* instance = creature->GetInstanceScript();
-
-        if (instance && instance->GetData(TYPE_FREE_NPC) != DONE && instance->GetData(TYPE_RETHILGORE) == DONE)
-            AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    struct npc_shadowfang_prisonerAI : public npc_escortAI
-    {
-        npc_shadowfang_prisonerAI(Creature* creature) : npc_escortAI(creature)
+        npc_shadowfang_prisonerAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -143,9 +112,34 @@ public:
         }
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                CloseGossipMenuFor(player);
+                Start(false, false);
+            }
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (instance->GetData(TYPE_FREE_NPC) != DONE && instance->GetData(TYPE_RETHILGORE) == DONE)
+                AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            return true;
+        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetShadowfangKeepAI<npc_shadowfang_prisonerAI>(creature);
+    }
 };
 
 class npc_arugal_voidwalker : public CreatureScript
@@ -155,7 +149,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_arugal_voidwalkerAI>(creature);
+        return GetShadowfangKeepAI<npc_arugal_voidwalkerAI>(creature);
     }
 
     struct npc_arugal_voidwalkerAI : public ScriptedAI
@@ -205,6 +199,123 @@ public:
 
 };
 
+enum ArugalSpells
+{
+    SPELL_TELE_UPPER    = 7587,
+    SPELL_TELE_SPAWN    = 7586,
+    SPELL_TELE_STAIRS   = 7136,
+    NUM_TELEPORT_SPELLS =    3,
+    SPELL_ARUGAL_CURSE  = 7621,
+    SPELL_THUNDERSHOCK  = 7803,
+    SPELL_VOIDBOLT      = 7588
+};
+
+enum ArugalTexts
+{
+    SAY_AGGRO       = 1, // You, too, shall serve!
+    SAY_TRANSFORM   = 2, // Release your rage!
+    SAY_SLAY        = 3  // Another falls!
+};
+
+enum ArugalEvents
+{
+    EVENT_VOID_BOLT = 1,
+    EVENT_TELEPORT,
+    EVENT_THUNDERSHOCK,
+    EVENT_CURSE
+};
+
+class boss_archmage_arugal : public CreatureScript
+{
+    public:
+        boss_archmage_arugal() : CreatureScript("boss_archmage_arugal") { }
+
+        struct boss_archmage_arugalAI : public BossAI
+        {
+            boss_archmage_arugalAI(Creature* creature) : BossAI(creature, BOSS_ARUGAL) { }
+
+            uint32 teleportSpells[NUM_TELEPORT_SPELLS] =
+            {
+                SPELL_TELE_SPAWN,
+                SPELL_TELE_UPPER,
+                SPELL_TELE_STAIRS
+            };
+
+            void KilledUnit(Unit* who) override
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
+            }
+
+            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            {
+                if (spell->Id == SPELL_ARUGAL_CURSE)
+                    Talk(SAY_TRANSFORM);
+            }
+
+            void JustEngagedWith(Unit* /*who*/) override
+            {
+                _JustEngagedWith();
+                Talk(SAY_AGGRO);
+                events.ScheduleEvent(EVENT_CURSE, 7s);
+                events.ScheduleEvent(EVENT_TELEPORT, 15s);
+                events.ScheduleEvent(EVENT_VOID_BOLT, 1s);
+                events.ScheduleEvent(EVENT_THUNDERSHOCK, 10s);
+            }
+
+            void AttackStart(Unit* who) override
+            {
+                AttackStartCaster(who, 100.0f); // void bolt range is 100.f
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CURSE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
+                                DoCast(target, SPELL_ARUGAL_CURSE);
+                            events.Repeat(Seconds(15));
+                            break;
+                        case EVENT_TELEPORT:
+                        {
+                            // ensure we never cast the same teleport twice in a row
+                            uint8 spellIndex = urand(1, NUM_TELEPORT_SPELLS-1);
+                            std::swap(teleportSpells[0], teleportSpells[spellIndex]);
+                            DoCast(teleportSpells[0]);
+                            events.Repeat(Seconds(20));
+                            break;
+                        }
+                        case EVENT_THUNDERSHOCK:
+                            DoCastAOE(SPELL_THUNDERSHOCK);
+                            events.Repeat(Seconds(30));
+                            break;
+                        case EVENT_VOID_BOLT:
+                            DoCastVictim(SPELL_VOIDBOLT);
+                            events.Repeat(Seconds(5));
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetShadowfangKeepAI<boss_archmage_arugalAI>(creature);
+        }
+};
+
 class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
 {
     public:
@@ -222,7 +333,7 @@ class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
 
             void HandleDummyTick(AuraEffect const* aurEff)
             {
-                GetTarget()->CastSpell((Unit*)NULL, aurEff->GetAmount(), true);
+                GetTarget()->CastSpell(nullptr, aurEff->GetAmount(), true);
             }
 
             void HandleUpdatePeriodic(AuraEffect* aurEff)
@@ -248,5 +359,6 @@ void AddSC_shadowfang_keep()
 {
     new npc_shadowfang_prisoner();
     new npc_arugal_voidwalker();
+    new boss_archmage_arugal();
     new spell_shadowfang_keep_haunting_spirits();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,46 +19,13 @@
 #define PacketUtilities_h__
 
 #include "ByteBuffer.h"
-#include <G3D/Vector2.h>
-#include <G3D/Vector3.h>
-#include <sstream>
-#include <array>
-
-inline ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector2 const& v)
-{
-    data << v.x << v.y;
-    return data;
-}
-
-inline ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector2& v)
-{
-    data >> v.x >> v.y;
-    return data;
-}
-
-inline ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v)
-{
-    data << v.x << v.y << v.z;
-    return data;
-}
-
-inline ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v)
-{
-    data >> v.x >> v.y >> v.z;
-    return data;
-}
 
 namespace WorldPackets
 {
     class PacketArrayMaxCapacityException : public ByteBufferException
     {
     public:
-        PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit)
-        {
-            std::ostringstream builder;
-            builder << "Attempted to read more array elements from packet " << requestedSize << " than allowed " << sizeLimit;
-            message().assign(builder.str());
-        }
+        PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit);
     };
 
     /**
@@ -129,6 +96,8 @@ namespace WorldPackets
         size_type _limit;
     };
 
+    void CheckCompactArrayMaskOverflow(std::size_t index, std::size_t limit);
+
     template <typename T>
     class CompactArray
     {
@@ -144,14 +113,14 @@ namespace WorldPackets
             right._mask = 0;
         }
 
-        CompactArray& operator= (CompactArray const& right)
+        CompactArray& operator=(CompactArray const& right)
         {
             _mask = right._mask;
             _contents = right._contents;
             return *this;
         }
 
-        CompactArray& operator= (CompactArray&& right)
+        CompactArray& operator=(CompactArray&& right)
         {
             _mask = right._mask;
             right._mask = 0;
@@ -160,12 +129,12 @@ namespace WorldPackets
         }
 
         uint32 GetMask() const { return _mask; }
-        T const& operator[](size_t index) const { return _contents.at(index); }
-        size_t GetSize() const { return _contents.size(); }
+        T const& operator[](std::size_t index) const { return _contents.at(index); }
+        std::size_t GetSize() const { return _contents.size(); }
 
-        void Insert(size_t index, T const& value)
+        void Insert(std::size_t index, T const& value)
         {
-            ASSERT(index < 0x20);
+            CheckCompactArrayMaskOverflow(index, sizeof(_mask) * 8);
 
             _mask |= 1 << index;
             if (_contents.size() <= index)
@@ -199,11 +168,9 @@ namespace WorldPackets
     {
         uint32 mask = v.GetMask();
         data << uint32(mask);
-        for (size_t i = 0; i < v.GetSize(); ++i)
-        {
+        for (std::size_t i = 0; i < v.GetSize(); ++i)
             if (mask & (1 << i))
                 data << v[i];
-        }
 
         return data;
     }
@@ -214,15 +181,9 @@ namespace WorldPackets
         uint32 mask;
         data >> mask;
 
-        for (size_t index = 0; mask != 0; mask >>= 1, ++index)
-        {
+        for (std::size_t index = 0; mask != 0; mask >>= 1, ++index)
             if ((mask & 1) != 0)
-            {
-                T value;
-                data >> value;
-                v.Insert(index, value);
-            }
-        }
+                v.Insert(index, data.read<T>());
 
         return data;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef DRAK_THARON_KEEP_H_
 #define DRAK_THARON_KEEP_H_
 
+#include "CreatureAIImpl.h"
+
 #define DrakTharonKeepScriptName "instance_drak_tharon_keep"
 #define DataHeader               "DTK"
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum DTKDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_TROLLGORE                      = 0,
@@ -50,7 +52,7 @@ enum DataTypes
     ACTION_CRYSTAL_HANDLER_DIED
 };
 
-enum CreatureIds
+enum DTKCreatureIds
 {
     NPC_TROLLGORE                       = 26630,
     NPC_NOVOS                           = 26631,
@@ -76,7 +78,7 @@ enum CreatureIds
     NPC_WORLD_TRIGGER                   = 22515
 };
 
-enum GameObjectIds
+enum DTKGameObjectIds
 {
     GO_NOVOS_CRYSTAL_1                  = 189299,
     GO_NOVOS_CRYSTAL_2                  = 189300,
@@ -84,10 +86,10 @@ enum GameObjectIds
     GO_NOVOS_CRYSTAL_4                  = 189302
 };
 
-template<class AI>
-AI* GetDrakTharonKeepAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetDrakTharonKeepAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, DrakTharonKeepScriptName);
+    return GetInstanceAI<AI>(obj, DrakTharonKeepScriptName);
 }
 
 #endif // DRAK_THARON_KEEP_H_

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@ SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "steam_vault.h"
 
@@ -57,7 +58,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_mekgineer_steamriggerAI>(creature);
+        return GetSteamVaultAI<boss_mekgineer_steamriggerAI>(creature);
     }
 
     struct boss_mekgineer_steamriggerAI : public ScriptedAI
@@ -107,7 +108,7 @@ public:
             Talk(SAY_SLAY);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -200,7 +201,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_steamrigger_mechanicAI>(creature);
+        return GetSteamVaultAI<npc_steamrigger_mechanicAI>(creature);
     }
 
     struct npc_steamrigger_mechanicAI : public ScriptedAI
@@ -230,7 +231,7 @@ public:
             //react only if attacked
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -238,7 +239,7 @@ public:
             {
                 if (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
                 {
-                    if (Creature* mekgineer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MEKGINEER_STEAMRIGGER)))
+                    if (Creature* mekgineer = instance->GetCreature(DATA_MEKGINEER_STEAMRIGGER))
                     {
                         if (me->IsWithinDistInMap(mekgineer, MAX_REPAIR_RANGE))
                         {

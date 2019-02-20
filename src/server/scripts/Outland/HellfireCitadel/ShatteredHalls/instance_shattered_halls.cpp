@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,13 +24,15 @@ SDCategory: Hellfire Citadel, Shattered Halls
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "Player.h"
-#include "SpellAuras.h"
+#include "ScriptedCreature.h"
 #include "shattered_halls.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 DoorData const doorData[] =
 {
@@ -42,7 +44,7 @@ DoorData const doorData[] =
 class instance_shattered_halls : public InstanceMapScript
 {
     public:
-        instance_shattered_halls() : InstanceMapScript("instance_shattered_halls", 540) { }
+        instance_shattered_halls() : InstanceMapScript(SHScriptName, 540) { }
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
@@ -92,35 +94,11 @@ class instance_shattered_halls : public InstanceMapScript
                     ex->SetDuration(executionTimer);
             }
 
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_GRAND_WARLOCK_CHAMBER_DOOR_1:
-                    case GO_GRAND_WARLOCK_CHAMBER_DOOR_2:
-                        AddDoor(go, true);
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_GRAND_WARLOCK_CHAMBER_DOOR_1:
-                    case GO_GRAND_WARLOCK_CHAMBER_DOOR_2:
-                        AddDoor(go, false);
-                    default:
-                        break;
-                }
-            }
-
             void OnCreatureCreate(Creature* creature) override
             {
                 if (!_team)
                 {
-                    Map::PlayerList const &players = instance->GetPlayers();
+                    Map::PlayerList const& players = instance->GetPlayers();
                     if (!players.isEmpty())
                         if (Player* player = players.begin()->GetSource())
                             _team = player->GetTeam();

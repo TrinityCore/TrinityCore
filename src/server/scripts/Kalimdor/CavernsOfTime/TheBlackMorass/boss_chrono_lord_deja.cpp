@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@ Category: Caverns of Time, The Black Morass
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "the_black_morass.h"
 
@@ -62,13 +63,13 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(18000, 23000));
-            events.ScheduleEvent(EVENT_TIME_LAPSE, urand(10000, 15000));
-            events.ScheduleEvent(EVENT_ARCANE_DISCHARGE, urand(20000, 30000));
+            events.ScheduleEvent(EVENT_ARCANE_BLAST, 18s, 23s);
+            events.ScheduleEvent(EVENT_TIME_LAPSE, 10s, 15s);
+            events.ScheduleEvent(EVENT_ARCANE_DISCHARGE, 20s, 30s);
             if (IsHeroic())
-                events.ScheduleEvent(EVENT_ATTRACTION, urand(25000, 35000));
+                events.ScheduleEvent(EVENT_ATTRACTION, 25s, 35s);
 
             Talk(SAY_AGGRO);
         }
@@ -82,7 +83,7 @@ public:
                 if (me->IsWithinDistInMap(who, 20.0f))
                 {
                     Talk(SAY_BANISH);
-                    me->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    Unit::DealDamage(me, who, who->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                 }
             }
 
@@ -106,10 +107,10 @@ public:
             if (!UpdateVictim())
                 return;
 
+            events.Update(diff);
+
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            events.Update(diff);
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -117,21 +118,21 @@ public:
                 {
                     case EVENT_ARCANE_BLAST:
                         DoCastVictim(SPELL_ARCANE_BLAST);
-                        events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(15000, 25000));
+                        events.ScheduleEvent(EVENT_ARCANE_BLAST, 15s, 25s);
                         break;
                     case EVENT_TIME_LAPSE:
                         Talk(SAY_BANISH);
                         DoCast(me, SPELL_TIME_LAPSE);
-                        events.ScheduleEvent(EVENT_TIME_LAPSE, urand(15000, 25000));
+                        events.ScheduleEvent(EVENT_TIME_LAPSE, 15s, 25s);
                         break;
                     case EVENT_ARCANE_DISCHARGE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_ARCANE_DISCHARGE);
-                        events.ScheduleEvent(EVENT_ARCANE_DISCHARGE, urand(20000, 30000));
+                        events.ScheduleEvent(EVENT_ARCANE_DISCHARGE, 20s, 30s);
                         break;
                     case EVENT_ATTRACTION: // Only in Heroic
                         DoCast(me, SPELL_ATTRACTION);
-                        events.ScheduleEvent(EVENT_ATTRACTION, urand(25000, 35000));
+                        events.ScheduleEvent(EVENT_ATTRACTION, 25s, 35s);
                         break;
                     default:
                         break;
@@ -147,7 +148,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_chrono_lord_dejaAI>(creature);
+        return GetBlackMorassAI<boss_chrono_lord_dejaAI>(creature);
     }
 };
 

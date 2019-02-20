@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,14 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PoolMgr.h"
 #include "Group.h"
 #include "icecrown_citadel.h"
-#include "SpellInfo.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "PoolMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum ScriptTexts
 {
@@ -53,62 +57,68 @@ enum ScriptTexts
 enum Spells
 {
     // Lady Deathwhisper
-    SPELL_MANA_BARRIER              = 70842,
-    SPELL_SHADOW_BOLT               = 71254,
-    SPELL_DEATH_AND_DECAY           = 71001,
-    SPELL_DOMINATE_MIND             = 71289,
-    SPELL_DOMINATE_MIND_SCALE       = 71290,
-    SPELL_FROSTBOLT                 = 71420,
-    SPELL_FROSTBOLT_VOLLEY          = 72905,
-    SPELL_TOUCH_OF_INSIGNIFICANCE   = 71204,
-    SPELL_SUMMON_SHADE              = 71363,
-    SPELL_SHADOW_CHANNELING         = 43897,
-    SPELL_DARK_TRANSFORMATION_T     = 70895,
-    SPELL_DARK_EMPOWERMENT_T        = 70896,
-    SPELL_DARK_MARTYRDOM_T          = 70897,
-    SPELL_SUMMON_SPIRITS            = 72478,
+    SPELL_MANA_BARRIER                = 70842,
+    SPELL_SHADOW_BOLT                 = 71254,
+    SPELL_DEATH_AND_DECAY             = 71001,
+    SPELL_DOMINATE_MIND               = 71289,
+    SPELL_DOMINATE_MIND_SCALE         = 71290,
+    SPELL_FROSTBOLT                   = 71420,
+    SPELL_FROSTBOLT_VOLLEY            = 72905,
+    SPELL_TOUCH_OF_INSIGNIFICANCE     = 71204,
+    SPELL_SUMMON_SHADE                = 71363,
+    SPELL_SHADOW_CHANNELING           = 43897,
+    SPELL_DARK_TRANSFORMATION_T       = 70895,
+    SPELL_DARK_EMPOWERMENT_T          = 70896,
+    SPELL_DARK_MARTYRDOM_T            = 70897,
+    SPELL_SUMMON_SPIRITS              = 72478,
 
     // Achievement
-    SPELL_FULL_HOUSE                = 72827, // does not exist in dbc but still can be used for criteria check
+    SPELL_FULL_HOUSE                  = 72827, // does not exist in dbc but still can be used for criteria check
 
     // Both Adds
-    SPELL_TELEPORT_VISUAL           = 41236,
-    SPELL_CLEAR_ALL_DEBUFFS         = 34098,
-    SPELL_FULL_HEAL                 = 17683,
-    SPELL_PERMANENT_FEIGN_DEATH     = 70628,
+    SPELL_TELEPORT_VISUAL             = 41236,
+    SPELL_CLEAR_ALL_DEBUFFS           = 34098,
+    SPELL_FULL_HEAL                   = 17683,
+    SPELL_PERMANENT_FEIGN_DEATH       = 70628,
 
     // Fanatics
-    SPELL_DARK_TRANSFORMATION       = 70900,
-    SPELL_NECROTIC_STRIKE           = 70659,
-    SPELL_SHADOW_CLEAVE             = 70670,
-    SPELL_VAMPIRIC_MIGHT            = 70674,
-    SPELL_FANATIC_S_DETERMINATION   = 71235,
-    SPELL_DARK_MARTYRDOM_FANATIC    = 71236,
+    SPELL_DARK_TRANSFORMATION         = 70900,
+    SPELL_NECROTIC_STRIKE             = 70659,
+    SPELL_SHADOW_CLEAVE               = 70670,
+    SPELL_VAMPIRIC_MIGHT              = 70674,
+    SPELL_FANATIC_S_DETERMINATION     = 71235,
+    SPELL_DARK_MARTYRDOM_FANATIC      = 71236,
+    SPELL_DARK_MARTYRDOM_FANATIC_25N  = 72495,
+    SPELL_DARK_MARTYRDOM_FANATIC_10H  = 72496,
+    SPELL_DARK_MARTYRDOM_FANATIC_25H  = 72497,
 
     //  Adherents
-    SPELL_DARK_EMPOWERMENT          = 70901,
-    SPELL_FROST_FEVER               = 67767,
-    SPELL_DEATHCHILL_BOLT           = 70594,
-    SPELL_DEATHCHILL_BLAST          = 70906,
-    SPELL_CURSE_OF_TORPOR           = 71237,
-    SPELL_SHROUD_OF_THE_OCCULT      = 70768,
-    SPELL_ADHERENT_S_DETERMINATION  = 71234,
-    SPELL_DARK_MARTYRDOM_ADHERENT   = 70903,
+    SPELL_DARK_EMPOWERMENT            = 70901,
+    SPELL_FROST_FEVER                 = 67767,
+    SPELL_DEATHCHILL_BOLT             = 70594,
+    SPELL_DEATHCHILL_BLAST            = 70906,
+    SPELL_CURSE_OF_TORPOR             = 71237,
+    SPELL_SHROUD_OF_THE_OCCULT        = 70768,
+    SPELL_ADHERENT_S_DETERMINATION    = 71234,
+    SPELL_DARK_MARTYRDOM_ADHERENT     = 70903,
+    SPELL_DARK_MARTYRDOM_ADHERENT_25N = 72498,
+    SPELL_DARK_MARTYRDOM_ADHERENT_10H = 72499,
+    SPELL_DARK_MARTYRDOM_ADHERENT_25H = 72500,
 
     // Vengeful Shade
-    SPELL_VENGEFUL_BLAST            = 71544,
-    SPELL_VENGEFUL_BLAST_PASSIVE    = 71494,
-    SPELL_VENGEFUL_BLAST_25N        = 72010,
-    SPELL_VENGEFUL_BLAST_10H        = 72011,
-    SPELL_VENGEFUL_BLAST_25H        = 72012,
+    SPELL_VENGEFUL_BLAST              = 71544,
+    SPELL_VENGEFUL_BLAST_PASSIVE      = 71494,
+    SPELL_VENGEFUL_BLAST_25N          = 72010,
+    SPELL_VENGEFUL_BLAST_10H          = 72011,
+    SPELL_VENGEFUL_BLAST_25H          = 72012,
 
     // Darnavan
-    SPELL_BLADESTORM                = 65947,
-    SPELL_CHARGE                    = 65927,
-    SPELL_INTIMIDATING_SHOUT        = 65930,
-    SPELL_MORTAL_STRIKE             = 65926,
-    SPELL_SHATTERING_THROW          = 65940,
-    SPELL_SUNDER_ARMOR              = 65936,
+    SPELL_BLADESTORM                  = 65947,
+    SPELL_CHARGE                      = 65927,
+    SPELL_INTIMIDATING_SHOUT          = 65930,
+    SPELL_MORTAL_STRIKE               = 65926,
+    SPELL_SHATTERING_THROW            = 65940,
+    SPELL_SUNDER_ARMOR                = 65936,
 };
 
 enum EventTypes
@@ -193,7 +203,7 @@ class boss_lady_deathwhisper : public CreatureScript
         struct boss_lady_deathwhisperAI : public BossAI
         {
             boss_lady_deathwhisperAI(Creature* creature) : BossAI(creature, DATA_LADY_DEATHWHISPER),
-                _dominateMindCount(RAID_MODE<uint8>(0, 1, 1, 3)), _introDone(false)
+                _dominateMindCount(RAID_MODE<uint8>(0, 1, 1, 3))
             {
                 Initialize();
             }
@@ -213,6 +223,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void Reset() override
             {
+                _Reset();
                 Initialize();
                 _phase = PHASE_ONE;
                 DoCastSelf(SPELL_SHADOW_CHANNELING);
@@ -226,43 +237,39 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (action != ACTION_START_INTRO)
                     return;
 
-                if (!_introDone)
+                Talk(SAY_INTRO_1);
+                _phase = PHASE_INTRO;
+                scheduler.Schedule(Seconds(10), GROUP_INTRO, [this](TaskContext context)
                 {
-                    _introDone = true;
-                    Talk(SAY_INTRO_1);
-                    _phase = PHASE_INTRO;
-                    scheduler.Schedule(Seconds(10), GROUP_INTRO, [this](TaskContext context)
+                    switch (context.GetRepeatCounter())
                     {
-                        switch (context.GetRepeatCounter())
-                        {
-                            case 0:
-                                Talk(SAY_INTRO_2);
-                                context.Repeat(Seconds(21));
-                                break;
-                            case 1:
-                                Talk(SAY_INTRO_3);
-                                context.Repeat(Seconds(11));
-                                break;
-                            case 2:
-                                Talk(SAY_INTRO_4);
-                                context.Repeat(Seconds(9));
-                                break;
-                            case 3:
-                                Talk(SAY_INTRO_5);
-                                context.Repeat(Seconds(21));
-                                break;
-                            case 4:
-                                Talk(SAY_INTRO_6);
-                                context.Repeat(Seconds(10));
-                                break;
-                            case 5:
-                                Talk(SAY_INTRO_7);
-                                return;
-                            default:
-                                break;
-                        }
-                    });
-                }
+                        case 0:
+                            Talk(SAY_INTRO_2);
+                            context.Repeat(Seconds(21));
+                            break;
+                        case 1:
+                            Talk(SAY_INTRO_3);
+                            context.Repeat(Seconds(11));
+                            break;
+                        case 2:
+                            Talk(SAY_INTRO_4);
+                            context.Repeat(Seconds(9));
+                            break;
+                        case 3:
+                            Talk(SAY_INTRO_5);
+                            context.Repeat(Seconds(21));
+                            break;
+                        case 4:
+                            Talk(SAY_INTRO_6);
+                            context.Repeat(Seconds(10));
+                            break;
+                        case 5:
+                            Talk(SAY_INTRO_7);
+                            return;
+                        default:
+                            break;
+                    }
+                });
             }
 
             void AttackStart(Unit* victim) override
@@ -274,7 +281,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     me->GetMotionMaster()->MoveChase(victim);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_LADY_DEATHWHISPER, who->ToPlayer()))
                 {
@@ -283,10 +290,10 @@ class boss_lady_deathwhisper : public CreatureScript
                     return;
                 }
 
+                _phase = PHASE_ONE;
                 me->SetCombatPulseDelay(5);
                 me->setActive(true);
                 DoZoneInCombat();
-                _phase = PHASE_ONE;
                 scheduler.CancelGroup(GROUP_INTRO);
                 // phase-independent events
                 scheduler
@@ -305,9 +312,10 @@ class boss_lady_deathwhisper : public CreatureScript
                         scheduler.Schedule(Seconds(27), [this](TaskContext dominate_mind)
                         {
                             Talk(SAY_DOMINATE_MIND);
-                            for (uint8 i = 0; i < _dominateMindCount; i++)
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_DOMINATE_MIND))
-                                    DoCast(target, SPELL_DOMINATE_MIND);
+                            std::list<Unit*> targets;
+                            SelectTargetList(targets, _dominateMindCount, SELECT_TARGET_RANDOM, 0, 0.0f, true, false, -SPELL_DOMINATE_MIND);
+                            for (Unit* target : targets)
+                              DoCast(target, SPELL_DOMINATE_MIND);
                             dominate_mind.Repeat(Seconds(40), Seconds(45));
                         });
                 // phase one only
@@ -354,19 +362,24 @@ class boss_lady_deathwhisper : public CreatureScript
                 {
                     if (darnavan->IsAlive())
                     {
-                        darnavan->setFaction(35);
+                        darnavan->SetFaction(FACTION_FRIENDLY);
                         darnavan->CombatStop(true);
                         darnavan->GetMotionMaster()->MoveIdle();
                         darnavan->SetReactState(REACT_PASSIVE);
                         darnavan->m_Events.AddEvent(new DaranavanMoveEvent(*darnavan), darnavan->m_Events.CalculateTime(10000));
                         darnavan->AI()->Talk(SAY_DARNAVAN_RESCUED);
+
+                        if (!killer)
+                            return;
+
                         if (Player* owner = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
                         {
                             if (Group* group = owner->GetGroup())
                             {
                                 for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
                                     if (Player* member = itr->GetSource())
-                                        member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
+                                        if (member->IsInMap(owner))
+                                            member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
                             }
                             else
                                 owner->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
@@ -402,7 +415,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     Talk(SAY_PHASE_2);
                     Talk(EMOTE_PHASE_2);
                     DoStartMovement(me->GetVictim());
-                    DoResetThreat();
+                    ResetThreatList();
                     damage -= me->GetPower(POWER_MANA);
                     me->SetPower(POWER_MANA, 0);
                     me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
@@ -427,7 +440,9 @@ class boss_lady_deathwhisper : public CreatureScript
                         })
                         .Schedule(Seconds(12), GROUP_TWO, [this](TaskContext summonShade)
                         {
-                            me->CastCustomSpell(SPELL_SUMMON_SPIRITS, SPELLVALUE_MAX_TARGETS, Is25ManRaid() ? 2 : 1);
+                            CastSpellExtraArgs args;
+                            args.AddSpellMod(SPELLVALUE_MAX_TARGETS, Is25ManRaid() ? 2 : 1);
+                            me->CastSpell(nullptr, SPELL_SUMMON_SPIRITS, args);
                             summonShade.Repeat();
                         });
 
@@ -445,7 +460,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_SUMMON_SPIRITS)
                     _nextVengefulShadeTargetGUID.push_back(target->GetGUID());
@@ -532,7 +547,7 @@ class boss_lady_deathwhisper : public CreatureScript
             }
 
             // helper for summoning wave mobs
-            void Summon(uint32 entry, const Position& pos)
+            void Summon(uint32 entry, Position const& pos)
             {
                 if (TempSummon* summon = me->SummonCreature(entry, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                     summon->CastSpell(summon, SPELL_TELEPORT_VISUAL);
@@ -572,7 +587,6 @@ class boss_lady_deathwhisper : public CreatureScript
             uint32 _waveCounter;
             uint8 const _dominateMindCount;
             uint8 _phase;
-            bool _introDone;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -634,6 +648,9 @@ class npc_cult_fanatic : public CreatureScript
                         DoCastSelf(SPELL_DARK_MARTYRDOM_FANATIC);
                         break;
                     case SPELL_DARK_MARTYRDOM_FANATIC:
+                    case SPELL_DARK_MARTYRDOM_FANATIC_25N:
+                    case SPELL_DARK_MARTYRDOM_FANATIC_10H:
+                    case SPELL_DARK_MARTYRDOM_FANATIC_25H:
                         _scheduler
                             .Schedule(Seconds(2), [this](TaskContext /*context*/)
                             {
@@ -733,6 +750,9 @@ class npc_cult_adherent : public CreatureScript
                         DoCastSelf(SPELL_DARK_MARTYRDOM_ADHERENT);
                         break;
                     case SPELL_DARK_MARTYRDOM_ADHERENT:
+                    case SPELL_DARK_MARTYRDOM_ADHERENT_25N:
+                    case SPELL_DARK_MARTYRDOM_ADHERENT_10H:
+                    case SPELL_DARK_MARTYRDOM_ADHERENT_25H:
                         _scheduler
                             .Schedule(Seconds(2), [this](TaskContext /*context*/)
                             {
@@ -804,7 +824,7 @@ class npc_vengeful_shade : public CreatureScript
                     });
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*type*/) override
+            void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
             {
                 _targetGUID = guid;
             }
@@ -864,23 +884,28 @@ class npc_darnavan : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, Seconds(10));
-                _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, Seconds(20), Seconds(25));
-                _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, Seconds(25), Seconds(30));
-                _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, Seconds(5), Seconds(8));
+                _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, 10s);
+                _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, 20s, 25s);
+                _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, 25s, 30s);
+                _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, 5s, 8s);
                 Initialize();
             }
 
             void JustDied(Unit* killer) override
             {
                 _events.Reset();
+
+                if (!killer)
+                    return;
+
                 if (Player* owner = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
                 {
                     if (Group* group = owner->GetGroup())
                     {
                         for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
                             if (Player* member = itr->GetSource())
-                                member->FailQuest(QUEST_DEPROGRAMMING);
+                                if (member->IsInMap(owner))
+                                    member->FailQuest(QUEST_DEPROGRAMMING);
                     }
                     else
                         owner->FailQuest(QUEST_DEPROGRAMMING);
@@ -895,7 +920,7 @@ class npc_darnavan : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
                 Talk(SAY_DARNAVAN_AGGRO);
             }
@@ -914,7 +939,7 @@ class npc_darnavan : public CreatureScript
                 {
                     DoCastVictim(SPELL_SHATTERING_THROW);
                     _canShatter = false;
-                    _events.ScheduleEvent(EVENT_DARNAVAN_SHATTERING_THROW, Seconds(30));
+                    _events.ScheduleEvent(EVENT_DARNAVAN_SHATTERING_THROW, 30s);
                     return;
                 }
 
@@ -922,7 +947,7 @@ class npc_darnavan : public CreatureScript
                 {
                     DoCastVictim(SPELL_CHARGE);
                     _canCharge = false;
-                    _events.ScheduleEvent(EVENT_DARNAVAN_CHARGE, Seconds(20));
+                    _events.ScheduleEvent(EVENT_DARNAVAN_CHARGE, 20s);
                     return;
                 }
 
@@ -932,7 +957,7 @@ class npc_darnavan : public CreatureScript
                     {
                         case EVENT_DARNAVAN_BLADESTORM:
                             DoCast(SPELL_BLADESTORM);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, Seconds(90), Seconds(100));
+                            _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, 90s, 100s);
                             break;
                         case EVENT_DARNAVAN_CHARGE:
                             _canCharge = true;
@@ -943,14 +968,14 @@ class npc_darnavan : public CreatureScript
                             break;
                         case EVENT_DARNAVAN_MORTAL_STRIKE:
                             DoCastVictim(SPELL_MORTAL_STRIKE);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, Seconds(15), Seconds(30));
+                            _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, 15s, 30s);
                             break;
                         case EVENT_DARNAVAN_SHATTERING_THROW:
                             _canShatter = true;
                             break;
                         case EVENT_DARNAVAN_SUNDER_ARMOR:
                             DoCastVictim(SPELL_SUNDER_ARMOR);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, Seconds(3), Seconds(7));
+                            _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, 3s, 7s);
                             break;
                     }
                 }
@@ -1002,12 +1027,12 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
         }
 };
 
-class at_lady_deathwhisper_entrance : public AreaTriggerScript
+class at_lady_deathwhisper_entrance : public OnlyOnceAreaTriggerScript
 {
     public:
-        at_lady_deathwhisper_entrance() : AreaTriggerScript("at_lady_deathwhisper_entrance") { }
+        at_lady_deathwhisper_entrance() : OnlyOnceAreaTriggerScript("at_lady_deathwhisper_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (instance->GetBossState(DATA_LADY_DEATHWHISPER) != DONE)
@@ -1029,9 +1054,7 @@ class spell_deathwhisper_dominated_mind : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DOMINATE_MIND_SCALE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DOMINATE_MIND_SCALE });
             }
 
             void HandleApply(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
@@ -1063,9 +1086,7 @@ class spell_deathwhisper_summon_spirits : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SHADE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_SHADE });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)

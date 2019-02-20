@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,9 +18,12 @@
 #ifndef DEF_DEADMINES_H
 #define DEF_DEADMINES_H
 
+#include "CreatureAIImpl.h"
+
+#define DMScriptName "instance_deadmines"
 #define DataHeader "DM"
 
-enum CannonState
+enum DMCannonState
 {
     CANNON_NOT_USED,
     CANNON_GUNPOWDER_USED,
@@ -30,18 +33,21 @@ enum CannonState
     EVENT_DONE
 };
 
-enum Data
+enum DMData
 {
     EVENT_STATE,
-    EVENT_RHAHKZOR
+    EVENT_RHAHKZOR,
+
+    DATA_MR_SMITE = 0,  // not currently used
+    DATA_VANCLEEF = 1
 };
 
-enum Data64
+enum DMData64
 {
     DATA_SMITE_CHEST
 };
 
-enum GameObjects
+enum DMGameObjects
 {
     GO_FACTORY_DOOR                                        = 13965,
     GO_IRONCLAD_DOOR                                       = 16397,
@@ -50,15 +56,24 @@ enum GameObjects
     GO_MR_SMITE_CHEST                                      = 144111
 };
 
-enum CreaturesIds
+enum DMCreaturesIds
 {
-    NPC_MR_SMITE   = 646
+    NPC_MR_SMITE   = 646,
+    NPC_BLACKGUARD = 636
 };
 
-enum InstanceTexts
+enum DMInstanceTexts
 {
     SAY_ALARM1 = 0,
     SAY_ALARM2 = 1
 };
+
+template <class AI, class T>
+inline AI* GetDeadminesAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, DMScriptName);
+}
+
+#define RegisterDeadminesCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetDeadminesAI)
 
 #endif

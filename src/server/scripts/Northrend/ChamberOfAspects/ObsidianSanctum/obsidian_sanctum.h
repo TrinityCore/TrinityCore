@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,14 @@
 #ifndef OBSIDIAN_SANCTUM_H_
 #define OBSIDIAN_SANCTUM_H_
 
+#include "CreatureAIImpl.h"
+
 #define OSScriptName "instance_obsidian_sanctum"
 #define DataHeader "OS"
 
 uint32 const EncounterCount = 5;
 
-enum DataTypes
+enum OSDataTypes
 {
     DATA_SARTHARION             = 0,
     DATA_TENEBRON               = 1,
@@ -33,7 +35,7 @@ enum DataTypes
     TWILIGHT_ACHIEVEMENTS       = 5
 };
 
-enum CreaturesIds
+enum OSCreaturesIds
 {
     NPC_SARTHARION              = 28860,
     NPC_TENEBRON                = 30452,
@@ -41,15 +43,15 @@ enum CreaturesIds
     NPC_VESPERON                = 30449
 };
 
-enum GameObjectIds
+enum OSGameObjectIds
 {
     GO_TWILIGHT_PORTAL          = 193988
 };
 
-template<class AI>
-AI* GetObsidianSanctumAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetObsidianSanctumAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, OSScriptName);
+    return GetInstanceAI<AI>(obj, OSScriptName);
 }
 
 #endif // OBSIDIAN_SANCTUM_H_
