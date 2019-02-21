@@ -195,9 +195,9 @@ struct npc_mgt_shattered_sun_sentry : public ScriptedAI
     void MovementInform(uint32 type, uint32 pointId) override
     {
         if (type == POINT_MOTION_TYPE && pointId == POINT_ID_PREPARE_SPLINE_PATH)
-            me->GetMotionMaster()->MoveSmoothPath(POINT_ID_REPEAT_PATH, ShatteredSunSentryPath, MAX_SHATTERED_SUN_SENTRY_SPLINE_POINTS, true);
+            me->GetMotionMaster()->MoveSmoothPath(MAX_SHATTERED_SUN_SENTRY_SPLINE_POINTS, ShatteredSunSentryPath, MAX_SHATTERED_SUN_SENTRY_SPLINE_POINTS, true);
 
-        if (type == EFFECT_MOTION_TYPE && pointId == POINT_ID_REPEAT_PATH)
+        if (type == EFFECT_MOTION_TYPE && pointId == MAX_SHATTERED_SUN_SENTRY_SPLINE_POINTS)
             me->GetMotionMaster()->MovePoint(POINT_ID_PREPARE_SPLINE_PATH, ShatteredSunSentryWaypoint1);
     }
 };
