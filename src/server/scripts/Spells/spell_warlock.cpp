@@ -1054,9 +1054,10 @@ class spell_warl_demonic_pact : public SpellScriptLoader
                 {
                     if (AuraEffect* aurEff = owner->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_DEMONIC_PACT, EFFECT_0))
                     {
-                        int32 bp0 = static_cast<int32>((aurEff->GetAmount() * owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) + 100.0f) / 100.0f);
+                        int32 bp = static_cast<int32>((aurEff->GetAmount() * owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) + 100.0f) / 100.0f);
                         CastSpellExtraArgs args(aurEff);
-                        args.AddSpellBP0(bp0);
+                        args.AddSpellBP0(bp);
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT1, bp);
                         owner->CastSpell(nullptr, SPELL_WARLOCK_DEMONIC_PACT_PROC, args);
                     }
                 }
