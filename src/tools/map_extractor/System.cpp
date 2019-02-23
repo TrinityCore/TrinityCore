@@ -81,7 +81,7 @@ struct LiquidTypeEntry
     uint8 MaterialID;
 };
 
-map_id *map_ids;
+std::vector<map_id> map_ids;
 std::unordered_map<uint32, LiquidMaterialEntry> LiquidMaterials;
 std::unordered_map<uint32, LiquidObjectEntry> LiquidObjects;
 std::unordered_map<uint32, LiquidTypeEntry> LiquidTypes;
@@ -316,7 +316,7 @@ uint32 ReadMapDBC()
     }
 
     size_t map_count = dbc.getRecordCount();
-    map_ids = new map_id[map_count];
+    map_ids.resize(map_count);
     for(uint32 x = 0; x < map_count; ++x)
     {
         map_ids[x].id = dbc.getRecord(x).getUInt(0);
@@ -1133,7 +1133,6 @@ void ExtractMapsFromMpq(uint32 build)
     }
 
     printf("\n");
-    delete[] map_ids;
 }
 
 bool ExtractFile(HANDLE fileInArchive, char const* filename)

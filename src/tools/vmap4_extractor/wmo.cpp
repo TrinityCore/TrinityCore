@@ -27,11 +27,9 @@
 #include <cstdio>
 #include <cstdlib>
 
-extern uint16 *LiqType;
-
 WMORoot::WMORoot(std::string const& filename)
-    : filename(filename), col(0), nTextures(0), nGroups(0), nP(0), nLights(0),
-    nModels(0), nDoodads(0), nDoodadSets(0), RootWMOID(0), liquidType(0)
+    : filename(filename), color(0), nTextures(0), nGroups(0), nPortals(0), nLights(0),
+    nDoodadNames(0), nDoodadDefs(0), nDoodadSets(0), RootWMOID(0), flags(0)
 {
     memset(bbcorn1, 0, sizeof(bbcorn1));
     memset(bbcorn2, 0, sizeof(bbcorn2));
@@ -65,16 +63,16 @@ bool WMORoot::open()
         {
             f.read(&nTextures, 4);
             f.read(&nGroups, 4);
-            f.read(&nP, 4);
+            f.read(&nPortals, 4);
             f.read(&nLights, 4);
-            f.read(&nModels, 4);
-            f.read(&nDoodads, 4);
+            f.read(&nDoodadNames, 4);
+            f.read(&nDoodadDefs, 4);
             f.read(&nDoodadSets, 4);
-            f.read(&col, 4);
+            f.read(&color, 4);
             f.read(&RootWMOID, 4);
             f.read(bbcorn1, 12);
             f.read(bbcorn2, 12);
-            f.read(&liquidType, 4);
+            f.read(&flags, 4);
         }
         else if (!strcmp(fourcc, "MODS"))
         {
@@ -207,7 +205,7 @@ bool WMOGroup::open(WMORoot* rootWMO)
             f.read(&groupWMOID, 4);
 
             // according to WoW.Dev Wiki:
-            if (rootWMO->liquidType & 4)
+            if (rootWMO->flags & 4)
                 groupLiquid = GetLiquidTypeId(groupLiquid);
             else if (groupLiquid == 15)
                 groupLiquid = 0;

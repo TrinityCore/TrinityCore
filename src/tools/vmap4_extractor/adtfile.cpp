@@ -126,7 +126,6 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
                 char* buf = new char[size];
                 _file.read(buf, size);
                 char* p = buf;
-                int t = 0;
                 while (p < buf + size)
                 {
                     std::string path(p);
@@ -151,7 +150,6 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
                 char* buf = new char[size];
                 _file.read(buf, size);
                 char* p = buf;
-                int q = 0;
                 while (p < buf + size)
                 {
                     std::string path(p);

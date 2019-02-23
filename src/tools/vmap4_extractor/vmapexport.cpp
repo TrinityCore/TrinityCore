@@ -121,9 +121,6 @@ struct LiquidTypeEntry
 
 std::map<uint32, map_info> map_ids;
 std::unordered_set<uint32> maps_that_are_parents;
-std::unordered_map<uint32, LiquidMaterialEntry> LiquidMaterials;
-std::unordered_map<uint32, LiquidObjectEntry> LiquidObjects;
-std::unordered_map<uint32, LiquidTypeEntry> LiquidTypes;
 char output_path[128]=".";
 char input_path[1024]=".";
 bool preciseVectorData = false;
