@@ -277,7 +277,7 @@ public:
         char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->name : unknown),
+            mapId, (mapEntry ? mapEntry->Name : unknown),
             zoneId, (zoneEntry ? zoneEntry->area_name : unknown),
             areaId, (areaEntry ? areaEntry->area_name : unknown),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
@@ -1848,7 +1848,7 @@ public:
         }
 
         if (target)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name,
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->Name,
                 (!zoneName.empty() ? zoneName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)),
                 (!areaName.empty() ? areaName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)));
 

@@ -2299,7 +2299,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
         if (method == INSTANCE_RESET_ALL)
         {
             // the "reset all instances" method can only reset normal maps
-            if (entry->map_type == MAP_RAID || diff == DUNGEON_DIFFICULTY_HEROIC)
+            if (entry->MapType == MAP_RAID || diff == DUNGEON_DIFFICULTY_HEROIC)
             {
                 ++itr;
                 continue;
@@ -2384,7 +2384,7 @@ InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
         return nullptr;
 
     Difficulty difficulty = GetDifficulty(mapEntry->IsRaid());
-    return GetBoundInstance(difficulty, mapEntry->MapID);
+    return GetBoundInstance(difficulty, mapEntry->ID);
 }
 
 InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)

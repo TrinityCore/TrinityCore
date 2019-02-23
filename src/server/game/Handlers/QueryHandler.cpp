@@ -262,14 +262,14 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
         // search entrance map for proper show entrance
         if (MapEntry const* corpseMapEntry = sMapStore.LookupEntry(mapID))
         {
-            if (corpseMapEntry->IsDungeon() && corpseMapEntry->entrance_map >= 0)
+            if (corpseMapEntry->IsDungeon() && corpseMapEntry->CorpseMapID >= 0)
             {
                 // if corpse map have entrance
-                if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->entrance_map))
+                if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->CorpseMapID))
                 {
-                    mapID = corpseMapEntry->entrance_map;
-                    x = corpseMapEntry->entrance_x;
-                    y = corpseMapEntry->entrance_y;
+                    mapID = corpseMapEntry->CorpseMapID;
+                    x = corpseMapEntry->Corpse.X;
+                    y = corpseMapEntry->Corpse.Y;
                     z = entranceMap->GetHeight(GetPlayer()->GetPhaseShift(), x, y, MAX_HEIGHT);
                 }
             }

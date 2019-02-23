@@ -852,7 +852,7 @@ public:
         if (visibleMapId)
         {
             MapEntry const* visibleMap = sMapStore.LookupEntry(visibleMapId);
-            if (!visibleMap || visibleMap->rootPhaseMap != int32(target->GetMapId()))
+            if (!visibleMap || visibleMap->ParentMapID != int32(target->GetMapId()))
             {
                 handler->SendSysMessage(LANG_PHASE_NOTFOUND);
                 handler->SetSentErrorMessage(true);

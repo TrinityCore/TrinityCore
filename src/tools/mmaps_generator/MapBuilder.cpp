@@ -648,6 +648,12 @@ namespace MMAP
                     continue;
                 }
 
+                if (!rcMedianFilterWalkableArea(m_rcContext, *tile.chf))
+                {
+                    printf("%s Failed filtering area!                  \n", tileString.c_str());
+                    continue;
+                }
+
                 if (!rcBuildDistanceField(m_rcContext, *tile.chf))
                 {
                     printf("%s Failed building distance field!         \n", tileString.c_str());

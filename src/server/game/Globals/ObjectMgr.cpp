@@ -2148,7 +2148,7 @@ void ObjectMgr::LoadCreatures()
                 TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with `terrainSwapMap` %u does not exist, set to -1", guid, data.id, data.terrainSwapMap);
                 data.terrainSwapMap = -1;
             }
-            else if (terrainSwapEntry->rootPhaseMap != int32(data.spawnPoint.GetMapId()))
+            else if (terrainSwapEntry->ParentMapID != int32(data.spawnPoint.GetMapId()))
             {
                 TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with `terrainSwapMap` %u which cannot be used on spawn map, set to -1", guid, data.id, data.terrainSwapMap);
                 data.terrainSwapMap = -1;
@@ -2465,7 +2465,7 @@ void ObjectMgr::LoadGameObjects()
                 TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: %u Entry: %u) with `terrainSwapMap` %u does not exist, set to -1", guid, data.id, data.terrainSwapMap);
                 data.terrainSwapMap = -1;
             }
-            else if (terrainSwapEntry->rootPhaseMap != int32(data.spawnPoint.GetMapId()))
+            else if (terrainSwapEntry->ParentMapID != int32(data.spawnPoint.GetMapId()))
             {
                 TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: %u Entry: %u) with `terrainSwapMap` %u which cannot be used on spawn map, set to -1", guid, data.id, data.terrainSwapMap);
                 data.terrainSwapMap = -1;
@@ -6823,18 +6823,18 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
             if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_GRAVEYARD, data.safeLocId, conditionSource))
                 continue;
 
-            if (int16(entry->map_id) == mapEntry->rootPhaseMap && !conditionObject->GetPhaseShift().HasVisibleMapId(entry->map_id))
+            if (int16(entry->map_id) == mapEntry->ParentMapID && !conditionObject->GetPhaseShift().HasVisibleMapId(entry->map_id))
                 continue;
         }
 
         // find now nearest graveyard at other map
-        if (MapId != entry->map_id && int16(entry->map_id) != mapEntry->rootPhaseMap)
+        if (MapId != entry->map_id && int16(entry->map_id) != mapEntry->ParentMapID)
         {
             // if find graveyard at different map from where entrance placed (or no entrance data), use any first
             if (!mapEntry
-                || mapEntry->entrance_map < 0
-                || uint32(mapEntry->entrance_map) != entry->map_id
-                || (mapEntry->entrance_x == 0 && mapEntry->entrance_y == 0))
+                || mapEntry->CorpseMapID < 0
+                || uint32(mapEntry->CorpseMapID) != entry->map_id
+                || (mapEntry->Corpse.X == 0 && mapEntry->Corpse.Y == 0))
             {
                 // not have any corrdinates for check distance anyway
                 entryFar = entry;
@@ -6842,8 +6842,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->x - mapEntry->entrance_x)*(entry->x - mapEntry->entrance_x)
-                +(entry->y - mapEntry->entrance_y)*(entry->y - mapEntry->entrance_y);
+            float dist2 = (entry->x - mapEntry->Corpse.X)*(entry->x - mapEntry->Corpse.X)
+                +(entry->y - mapEntry->Corpse.Y)*(entry->y - mapEntry->Corpse.Y);
             if (foundEntr)
             {
                 if (dist2 < distEntr)
@@ -7150,7 +7150,7 @@ AreaTriggerStruct const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
     bool useParentDbValue = false;
     uint32 parentId = 0;
     MapEntry const* mapEntry = sMapStore.LookupEntry(Map);
-    if (!mapEntry || mapEntry->entrance_map < 0)
+    if (!mapEntry || mapEntry->CorpseMapID < 0)
         return nullptr;
 
     if (mapEntry->IsDungeon())
@@ -7164,7 +7164,7 @@ AreaTriggerStruct const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
         useParentDbValue = true;
     }
 
-    uint32 entrance_map = uint32(mapEntry->entrance_map);
+    uint32 entrance_map = uint32(mapEntry->CorpseMapID);
     for (AreaTriggerContainer::const_iterator itr = _areaTriggerStore.begin(); itr != _areaTriggerStore.end(); ++itr)
         if ((!useParentDbValue && itr->second.target_mapId == entrance_map) || (useParentDbValue && itr->second.target_mapId == parentId))
         {
@@ -10057,8 +10057,8 @@ void ObjectMgr::LoadPhases()
         _phaseInfoById.emplace(std::make_pair(phase->ID, PhaseInfoStruct{ phase->ID, std::unordered_set<uint32>{} }));
 
     for (MapEntry const* map : sMapStore)
-        if (map->rootPhaseMap != -1)
-            _terrainSwapInfoById.emplace(std::make_pair(map->MapID, TerrainSwapInfo{ map->MapID, std::vector<uint32>{} }));
+        if (map->ParentMapID != -1)
+            _terrainSwapInfoById.emplace(std::make_pair(map->ID, TerrainSwapInfo{ map->ID, std::vector<uint32>{} }));
 
     TC_LOG_INFO("server.loading", "Loading Terrain World Map definitions...");
     LoadTerrainWorldMaps();

@@ -1530,7 +1530,7 @@ public:
         }
         if (!mEntry->IsDungeon())
         {
-            handler->PSendSysMessage("'%s' is not a dungeon map.", mEntry->name[LOCALE_enUS]);
+            handler->PSendSysMessage("'%s' is not a dungeon map.", mEntry->Name[LOCALE_enUS]);
             return true;
         }
         int32 difficulty = difficulty_str ? atoi(difficulty_str) : -1;
@@ -1539,32 +1539,32 @@ public:
             handler->PSendSysMessage("Invalid difficulty %d - specify in range [0,%d).", difficulty, MAX_RAID_DIFFICULTY);
             return false;
         }
-        if (difficulty >= 0 && !GetMapDifficultyData(mEntry->MapID, Difficulty(difficulty)))
+        if (difficulty >= 0 && !GetMapDifficultyData(mEntry->ID, Difficulty(difficulty)))
         {
-            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", difficulty, mEntry->name[LOCALE_enUS]);
+            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", difficulty, mEntry->Name[LOCALE_enUS]);
             return true;
         }
 
         if (difficulty == -1)
         {
-            handler->PSendSysMessage("Resetting all difficulties for '%s'.", mEntry->name[LOCALE_enUS]);
+            handler->PSendSysMessage("Resetting all difficulties for '%s'.", mEntry->Name[LOCALE_enUS]);
             for (uint8 diff = (mEntry->IsRaid() ? 0 : 1); diff < (mEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY); ++diff)
             {
-                if (GetMapDifficultyData(mEntry->MapID, Difficulty(diff)))
+                if (GetMapDifficultyData(mEntry->ID, Difficulty(diff)))
                 {
-                    handler->PSendSysMessage("Resetting difficulty %d for '%s'.", diff, mEntry->name[LOCALE_enUS]);
-                    sInstanceSaveMgr->ForceGlobalReset(mEntry->MapID, Difficulty(diff));
+                    handler->PSendSysMessage("Resetting difficulty %d for '%s'.", diff, mEntry->Name[LOCALE_enUS]);
+                    sInstanceSaveMgr->ForceGlobalReset(mEntry->ID, Difficulty(diff));
                 }
             }
         }
         else if (mEntry->IsNonRaidDungeon() && difficulty == DUNGEON_DIFFICULTY_NORMAL)
         {
-            handler->PSendSysMessage("'%s' does not have any permanent saves for difficulty %d.", mEntry->name[LOCALE_enUS], difficulty);
+            handler->PSendSysMessage("'%s' does not have any permanent saves for difficulty %d.", mEntry->Name[LOCALE_enUS], difficulty);
         }
         else
         {
-            handler->PSendSysMessage("Resetting difficulty %d for '%s'.", difficulty, mEntry->name[LOCALE_enUS]);
-            sInstanceSaveMgr->ForceGlobalReset(mEntry->MapID, Difficulty(difficulty));
+            handler->PSendSysMessage("Resetting difficulty %d for '%s'.", difficulty, mEntry->Name[LOCALE_enUS]);
+            sInstanceSaveMgr->ForceGlobalReset(mEntry->ID, Difficulty(difficulty));
         }
         return true;
     }

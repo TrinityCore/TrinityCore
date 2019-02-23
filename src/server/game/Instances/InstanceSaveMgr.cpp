@@ -101,7 +101,7 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
     {
         // initialize reset time
         // for normal instances if no creatures are killed the instance will reset in two hours
-        if (entry->map_type == MAP_RAID || difficulty > DUNGEON_DIFFICULTY_NORMAL)
+        if (entry->MapType == MAP_RAID || difficulty > DUNGEON_DIFFICULTY_NORMAL)
             resetTime = GetResetTimeFor(mapId, difficulty);
         else
         {
@@ -222,7 +222,7 @@ time_t InstanceSave::GetResetTimeForDB()
 {
     // only save the reset time for normal instances
     MapEntry const* entry = sMapStore.LookupEntry(GetMapId());
-    if (!entry || entry->map_type == MAP_RAID || GetDifficulty() == DUNGEON_DIFFICULTY_HEROIC)
+    if (!entry || entry->MapType == MAP_RAID || GetDifficulty() == DUNGEON_DIFFICULTY_HEROIC)
         return 0;
     else
         return GetResetTime();
@@ -631,7 +631,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
     if (!mapEntry->Instanceable())
         return;
-    TC_LOG_DEBUG("misc", "InstanceSaveManager::ResetOrWarnAll: Processing map %s (%u) on difficulty %u (warn? %u)", mapEntry->name, mapid, uint8(difficulty), warn);
+    TC_LOG_DEBUG("misc", "InstanceSaveManager::ResetOrWarnAll: Processing map %s (%u) on difficulty %u (warn? %u)", mapEntry->Name, mapid, uint8(difficulty), warn);
 
     time_t now = time(nullptr);
 

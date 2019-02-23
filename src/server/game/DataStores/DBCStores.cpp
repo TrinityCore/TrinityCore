@@ -902,8 +902,8 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
         return CONTENT_1_60;
 
     // no need enum all maps from phasing
-    if (mapEntry->rootPhaseMap >= 0)
-        mapid = mapEntry->rootPhaseMap;
+    if (mapEntry->ParentMapID >= 0)
+        mapid = mapEntry->ParentMapID;
 
     switch (mapid)
     {
@@ -1274,9 +1274,12 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
 
 std::vector<uint32> const* GetPhasesForGroup(uint32 group)
 {
-    return &sPhasesByGroup[group];
-}
+    auto itr = sPhasesByGroup.find(group);
+    if (itr != sPhasesByGroup.end())
+        return &itr->second;
 
+    return nullptr;
+}
 ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale)
 {
     if (locale >= TOTAL_LOCALES)

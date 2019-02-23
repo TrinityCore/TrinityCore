@@ -1641,9 +1641,9 @@ void World::SetInitialWorldSettings()
     std::unordered_map<uint32, std::vector<uint32>> mapData;
     for (MapEntry const* mapEntry : sMapStore)
     {
-        mapData.emplace(std::piecewise_construct, std::forward_as_tuple(mapEntry->MapID), std::forward_as_tuple());
-        if (mapEntry->rootPhaseMap != -1)
-            mapData[mapEntry->rootPhaseMap].push_back(mapEntry->MapID);
+        mapData.emplace(std::piecewise_construct, std::forward_as_tuple(mapEntry->ID), std::forward_as_tuple());
+        if (mapEntry->ParentMapID != -1)
+            mapData[mapEntry->ParentMapID].push_back(mapEntry->ID);
     }
 
     sMapMgr->InitializeParentMapData(mapData);

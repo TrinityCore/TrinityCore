@@ -161,7 +161,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     // resurrect character at enter into instance where his corpse exist after add to map
 
     if (mEntry->IsDungeon() && !GetPlayer()->IsAlive())
-        if (GetPlayer()->GetCorpseLocation().GetMapId() == mEntry->MapID)
+        if (GetPlayer()->GetCorpseLocation().GetMapId() == mEntry->ID)
         {
             GetPlayer()->ResurrectPlayer(0.5f, false);
             GetPlayer()->SpawnCorpseBones();
@@ -172,14 +172,14 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     {
         // check if this instance has a reset time and send it to player if so
         Difficulty diff = newMap->GetDifficulty();
-        if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->MapID, diff))
+        if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->ID, diff))
         {
             if (mapDiff->resetTime)
             {
-                if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->MapID, diff))
+                if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->ID, diff))
                 {
                     uint32 timeleft = uint32(timeReset - time(nullptr));
-                    GetPlayer()->SendInstanceResetWarning(mEntry->MapID, diff, timeleft, true);
+                    GetPlayer()->SendInstanceResetWarning(mEntry->ID, diff, timeleft, true);
                 }
             }
         }

@@ -1376,7 +1376,7 @@ void ScriptMgr::OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)
             MapEntry const* C = I->second->GetEntry(); \
             if (!C) \
                 continue; \
-            if (C->MapID == V->GetId()) \
+            if (C->ID == V->GetId()) \
             {
 
 #define SCR_MAP_END \

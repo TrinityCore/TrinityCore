@@ -130,7 +130,7 @@ void LoadDisables()
                     continue;
                 }
                 bool isFlagInvalid = false;
-                switch (mapEntry->map_type)
+                switch (mapEntry->MapType)
                 {
                     case MAP_COMMON:
                         if (flags)
@@ -194,7 +194,7 @@ void LoadDisables()
                     TC_LOG_ERROR("sql.sql", "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
-                switch (mapEntry->map_type)
+                switch (mapEntry->MapType)
                 {
                     case MAP_COMMON:
                         if (flags & VMAP::VMAP_DISABLE_AREAFLAG)
@@ -234,7 +234,7 @@ void LoadDisables()
                     TC_LOG_ERROR("sql.sql", "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
-                switch (mapEntry->map_type)
+                switch (mapEntry->MapType)
                 {
                     case MAP_COMMON:
                         TC_LOG_INFO("misc", "Pathfinding disabled for world map %u.", entry);
@@ -369,7 +369,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
                             return (disabledModes & RAID_STATUSFLAG_25MAN_HEROIC) != 0;
                     }
                 }
-                else if (mapEntry->map_type == MAP_COMMON)
+                else if (mapEntry->MapType == MAP_COMMON)
                     return true;
             }
             return false;

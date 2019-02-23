@@ -1665,7 +1665,7 @@ class TC_GAME_API ObjectMgr
         TerrainSwapInfo const* GetTerrainSwapInfo(uint32 terrainSwapId) const;
         std::unordered_map<uint32, std::vector<TerrainSwapInfo*>> const& GetTerrainSwaps() const { return _terrainSwapInfoByMap; }
 
-            private:
+   private:
         std::unordered_map<uint32, PhaseInfoStruct> _phaseInfoById;
         std::unordered_map<uint32, TerrainSwapInfo> _terrainSwapInfoById;
         std::unordered_map<uint32, std::vector<PhaseAreaInfo>> _phaseInfoByArea;

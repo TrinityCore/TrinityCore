@@ -8319,7 +8319,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 
         if (mountCapability->RequiredMap != -1 &&
             int32(GetMapId()) != mountCapability->RequiredMap &&
-            GetMap()->GetEntry()->rootPhaseMap != mountCapability->RequiredMap)
+            GetMap()->GetEntry()->ParentMapID != mountCapability->RequiredMap)
             continue;
 
         if (mountCapability->RequiredArea && !IsInArea(areaId, mountCapability->RequiredArea))

@@ -2523,7 +2523,7 @@ uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z) c
         areaId = gridAreaId;
 
     if (!areaId)
-        areaId = i_mapEntry->linked_zone;
+        areaId = i_mapEntry->AreaTableID;
 
     return areaId;
 }
@@ -2701,7 +2701,7 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
     }
 
     if (!data.areaId)
-        data.areaId = i_mapEntry->linked_zone;
+        data.areaId = i_mapEntry->AreaTableID;
 
     AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(data.areaId);
 
@@ -2829,7 +2829,7 @@ bool Map::CheckGridIntegrity(Creature* c, bool moved) const
 
 char const* Map::GetMapName() const
 {
-    return i_mapEntry ? i_mapEntry->name : "UNNAMEDMAP\x0";
+    return i_mapEntry ? i_mapEntry->Name : "UNNAMEDMAP\x0";
 }
 
 void Map::SendInitSelf(Player* player)
@@ -4119,7 +4119,7 @@ bool Map::Is25ManRaid() const
 
 uint32 Map::GetId() const
 {
-    return i_mapEntry->MapID;
+    return i_mapEntry->ID;
 }
 
 bool Map::IsRegularDifficulty() const
@@ -4162,7 +4162,7 @@ uint32 InstanceMap::GetMaxPlayers() const
     if (mapDiff && mapDiff->maxPlayers)
         return mapDiff->maxPlayers;
 
-    return GetEntry()->maxPlayers;
+    return GetEntry()->MaxPlayers;
 }
 
 uint32 InstanceMap::GetMaxResetDelay() const

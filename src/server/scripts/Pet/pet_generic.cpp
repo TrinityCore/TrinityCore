@@ -109,7 +109,7 @@ public:
         npc_pet_gen_egbertAI(Creature* creature) : NullCreatureAI(creature)
         {
             if (Unit* owner = me->GetCharmerOrOwner())
-                if (owner->GetMap()->GetEntry()->addon > 1)
+                if (owner->GetMap()->GetEntry()->ExpansionID > 1)
                     me->SetCanFly(true);
         }
 
