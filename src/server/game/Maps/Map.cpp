@@ -2325,12 +2325,12 @@ inline ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, uint8 R
         {
             if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(getArea(x, y)))
             {
-                uint32 overrideLiquid = area->LiquidTypeOverride[liquidEntry->Type];
-                if (!overrideLiquid && area->zone)
+                uint32 overrideLiquid = area->LiquidTypeID[liquidEntry->Type];
+                if (!overrideLiquid && area->ParentAreaID)
                 {
-                    area = sAreaTableStore.LookupEntry(area->zone);
+                    area = sAreaTableStore.LookupEntry(area->ParentAreaID);
                     if (area)
-                        overrideLiquid = area->LiquidTypeOverride[liquidEntry->Type];
+                        overrideLiquid = area->LiquidTypeID[liquidEntry->Type];
                 }
 
                 if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
@@ -2532,8 +2532,8 @@ uint32 Map::GetZoneId(PhaseShift const& phaseShift, float x, float y, float z) c
 {
     uint32 areaId = GetAreaId(phaseShift, x, y, z);
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
-        if (area->zone)
-            return area->zone;
+        if (area->ParentAreaID)
+            return area->ParentAreaID;
 
     return areaId;
 }
@@ -2542,8 +2542,8 @@ void Map::GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32&
 {
     areaid = zoneid = GetAreaId(phaseShift, x, y, z);
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaid))
-        if (area->zone)
-            zoneid = area->zone;
+        if (area->ParentAreaID)
+            zoneid = area->ParentAreaID;
 }
 
 ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, uint8 ReqLiquidType, LiquidData* data, float collisionHeight) const
@@ -2578,12 +2578,12 @@ ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float 
                 {
                     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId(phaseShift, x, y, z)))
                     {
-                        uint32 overrideLiquid = area->LiquidTypeOverride[liquidFlagType];
-                        if (!overrideLiquid && area->zone)
+                        uint32 overrideLiquid = area->LiquidTypeID[liquidFlagType];
+                        if (!overrideLiquid && area->ParentAreaID)
                         {
-                            area = sAreaTableStore.LookupEntry(area->zone);
+                            area = sAreaTableStore.LookupEntry(area->ParentAreaID);
                             if (area)
-                                overrideLiquid = area->LiquidTypeOverride[liquidFlagType];
+                                overrideLiquid = area->LiquidTypeID[liquidFlagType];
                         }
 
                         if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
@@ -2697,7 +2697,7 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
         data.outdoors = true;
         data.areaId = gridAreaId;
         if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(data.areaId))
-            data.outdoors = (areaEntry->flags & (AREA_FLAG_INSIDE | AREA_FLAG_OUTSIDE)) != AREA_FLAG_INSIDE;
+            data.outdoors = (areaEntry->Flags & (AREA_FLAG_INSIDE | AREA_FLAG_OUTSIDE)) != AREA_FLAG_INSIDE;
     }
 
     if (!data.areaId)
@@ -2719,12 +2719,12 @@ void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x,
 
         if (liquidType && liquidType < 21 && areaEntry)
         {
-            uint32 overrideLiquid = areaEntry->LiquidTypeOverride[liquidFlagType];
-            if (!overrideLiquid && areaEntry->zone)
+            uint32 overrideLiquid = areaEntry->LiquidTypeID[liquidFlagType];
+            if (!overrideLiquid && areaEntry->ParentAreaID)
             {
-                AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(areaEntry->zone);
+                AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID);
                 if (zoneEntry)
-                    overrideLiquid = zoneEntry->LiquidTypeOverride[liquidFlagType];
+                    overrideLiquid = zoneEntry->LiquidTypeID[liquidFlagType];
             }
 
             if (LiquidTypeEntry const* overrideData = sLiquidTypeStore.LookupEntry(overrideLiquid))

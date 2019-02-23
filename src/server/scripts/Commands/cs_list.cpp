@@ -681,7 +681,7 @@ public:
     static char const* GetZoneName(uint32 zoneId, LocaleConstant /*locale*/)
     {
         AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(zoneId);
-        return zoneEntry ? zoneEntry->area_name : "<unknown zone>";
+        return zoneEntry ? zoneEntry->AreaName : "<unknown zone>";
     }
     static bool HandleListRespawnsCommand(ChatHandler* handler, char const* args)
     {

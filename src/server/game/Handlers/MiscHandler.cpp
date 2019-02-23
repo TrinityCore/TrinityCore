@@ -310,7 +310,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
 
         std::string aname;
         if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(playerZoneId))
-            aname = areaEntry->area_name[GetSessionDbcLocale()];
+            aname = areaEntry->AreaName[GetSessionDbcLocale()];
 
         bool s_show = true;
         for (uint32 i = 0; i < strCount; ++i)
@@ -1630,7 +1630,7 @@ void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
     }
 
     AreaTableEntry const* atEntry = sAreaTableStore.LookupEntry(_player->GetAreaId());
-    if (!atEntry || !(atEntry->flags & AREA_FLAG_WINTERGRASP_2))
+    if (!atEntry || !(atEntry->Flags & AREA_FLAG_WINTERGRASP_2))
         return;
 
     _player->BuildPlayerRepop();

@@ -5077,7 +5077,7 @@ void Player::RepopAtGraveyard()
     AreaTableEntry const* zone = sAreaTableStore.LookupEntry(GetAreaId());
 
     // Such zones are considered unreachable as a ghost and the player must be automatically revived
-    if ((!IsAlive() && zone && zone->flags & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < (zone ? zone->MaxDepth : -500.0f))
+    if ((!IsAlive() && zone && zone->Flags & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < (zone ? zone->MinElevation : -500.0f))
     {
         ResurrectPlayer(0.5f);
         SpawnCorpseBones();
@@ -5115,7 +5115,7 @@ void Player::RepopAtGraveyard()
             SendDirectMessage(&data);
         }
     }
-    else if (GetPositionZ() < zone->MaxDepth)
+    else if (GetPositionZ() < zone->MinElevation)
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
 
     RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
@@ -5123,10 +5123,10 @@ void Player::RepopAtGraveyard()
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone) const
 {
-    if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->flags & AREA_FLAG_ARENA_INSTANCE)
+    if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->Flags & AREA_FLAG_ARENA_INSTANCE)
         return false;
 
-    if ((channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->flags & AREA_FLAG_SLAVE_CAPITAL)))
+    if ((channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->Flags & AREA_FLAG_SLAVE_CAPITAL)))
         return false;
 
     if ((channel->flags & CHANNEL_DBC_FLAG_GUILD_REQ) && GetGuildId())
@@ -6472,16 +6472,16 @@ void Player::CheckAreaExploreAndOutdoor()
         return;
     }
 
-    uint32 offset = areaEntry->exploreFlag / 32;
+    uint32 offset = areaEntry->AreaBit / 32;
 
     if (offset >= PLAYER_EXPLORED_ZONES_SIZE)
     {
         TC_LOG_ERROR("entities.player", "Player::CheckAreaExploreAndOutdoor: Wrong area flag %u in map data for (X: %f Y: %f) point to field PLAYER_EXPLORED_ZONES_1 + %u ( %u must be < %u ).",
-            areaEntry->exploreFlag, GetPositionX(), GetPositionY(), offset, offset, PLAYER_EXPLORED_ZONES_SIZE);
+            areaEntry->AreaBit, GetPositionX(), GetPositionY(), offset, offset, PLAYER_EXPLORED_ZONES_SIZE);
         return;
     }
 
-    uint32 val = (uint32)(1 << (areaEntry->exploreFlag % 32));
+    uint32 val = (uint32)(1 << (areaEntry->AreaBit % 32));
     uint32 currFields = GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
 
     if (!(currFields & val))
@@ -6490,7 +6490,7 @@ void Player::CheckAreaExploreAndOutdoor()
 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA);
 
-        if (areaEntry->area_level > 0)
+        if (areaEntry->ExplorationLevel > 0)
         {
             if (getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
             {
@@ -6498,7 +6498,7 @@ void Player::CheckAreaExploreAndOutdoor()
             }
             else
             {
-                int32 diff = int32(getLevel()) - areaEntry->area_level;
+                int32 diff = int32(getLevel()) - areaEntry->ExplorationLevel;
                 uint32 XP;
                 if (diff < -5)
                 {
@@ -6510,16 +6510,16 @@ void Player::CheckAreaExploreAndOutdoor()
                     if (exploration_percent < 0)
                         exploration_percent = 0;
 
-                    XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level)*exploration_percent/100*sWorld->getRate(RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr->GetBaseXP(areaEntry->ExplorationLevel)*exploration_percent/100*sWorld->getRate(RATE_XP_EXPLORE));
                 }
                 else
                 {
-                    XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level)*sWorld->getRate(RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr->GetBaseXP(areaEntry->ExplorationLevel)*sWorld->getRate(RATE_XP_EXPLORE));
                 }
 
                 if (sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO))
                 {
-                    uint32 minScaledXP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level)*sWorld->getRate(RATE_XP_EXPLORE)) * sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO) / 100;
+                    uint32 minScaledXP = uint32(sObjectMgr->GetBaseXP(areaEntry->ExplorationLevel)*sWorld->getRate(RATE_XP_EXPLORE)) * sWorld->getIntConfig(CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO) / 100;
                     XP = std::max(minScaledXP, XP);
                 }
 
@@ -7519,7 +7519,7 @@ void Player::UpdateArea(uint32 newArea)
     m_areaUpdateId = newArea;
 
     AreaTableEntry const* area = sAreaTableStore.LookupEntry(newArea);
-    pvpInfo.IsInFFAPvPArea = area && (area->flags & AREA_FLAG_ARENA);
+    pvpInfo.IsInFFAPvPArea = area && (area->Flags & AREA_FLAG_ARENA);
     UpdatePvPState(true);
 
     PhasingHandler::OnAreaChange(this);
@@ -7538,7 +7538,7 @@ void Player::UpdateArea(uint32 newArea)
         RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_SANCTUARY);
 
     uint32 const areaRestFlag = (GetTeam() == ALLIANCE) ? AREA_FLAG_REST_ZONE_ALLIANCE : AREA_FLAG_REST_ZONE_HORDE;
-    if (area && area->flags & areaRestFlag)
+    if (area && area->Flags & areaRestFlag)
         SetRestFlag(REST_FLAG_IN_FACTION_AREA);
     else
         RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
@@ -7579,17 +7579,17 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     // in PvP, any not controlled zone (except zone->team == 6, default case)
     // in PvE, only opposition team capital
-    switch (zone->team)
+    switch (zone->FactionGroupMask)
     {
         case AREATEAM_ALLY:
-            pvpInfo.IsInHostileArea = GetTeam() != ALLIANCE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetTeam() != ALLIANCE && (sWorld->IsPvPRealm() || zone->Flags & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_HORDE:
-            pvpInfo.IsInHostileArea = GetTeam() != HORDE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetTeam() != HORDE && (sWorld->IsPvPRealm() || zone->Flags & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_NONE:
             // overwrite for battlegrounds, maybe batter some zone flags but current known not 100% fit to this
-            pvpInfo.IsInHostileArea = sWorld->IsPvPRealm() || InBattleground() || zone->flags & AREA_FLAG_WINTERGRASP;
+            pvpInfo.IsInHostileArea = sWorld->IsPvPRealm() || InBattleground() || zone->Flags & AREA_FLAG_WINTERGRASP;
             break;
         default:                                            // 6 in fact
             pvpInfo.IsInHostileArea = false;
@@ -7599,7 +7599,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     // Treat players having a quest flagging for PvP as always in hostile area
     pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest();
 
-    if (zone->flags & AREA_FLAG_CAPITAL)                     // Is in a capital city
+    if (zone->Flags & AREA_FLAG_CAPITAL)                     // Is in a capital city
     {
         if (!pvpInfo.IsHostile || zone->IsSanctuary())
             SetRestFlag(REST_FLAG_IN_CITY);
@@ -27989,9 +27989,9 @@ std::string Player::GetMapAreaAndZoneString() const
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
     {
         int locale = GetSession()->GetSessionDbcLocale();
-        areaName = area->area_name[locale];
-        if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone))
-            zoneName = zone->area_name[locale];
+        areaName = area->AreaName[locale];
+        if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID))
+            zoneName = zone->AreaName[locale];
     }
 
     std::ostringstream str;

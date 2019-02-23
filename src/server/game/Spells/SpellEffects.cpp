@@ -3761,14 +3761,14 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
 
     // Players can only fight a duel in zones with this flag
     AreaTableEntry const* casterAreaEntry = sAreaTableStore.LookupEntry(caster->GetAreaId());
-    if (casterAreaEntry && !(casterAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
+    if (casterAreaEntry && !(casterAreaEntry->Flags & AREA_FLAG_ALLOW_DUELS))
     {
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
         return;
     }
 
     AreaTableEntry const* targetAreaEntry = sAreaTableStore.LookupEntry(target->GetAreaId());
-    if (targetAreaEntry && !(targetAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
+    if (targetAreaEntry && !(targetAreaEntry->Flags & AREA_FLAG_ALLOW_DUELS))
     {
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
         return;

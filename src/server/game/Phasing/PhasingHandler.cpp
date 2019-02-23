@@ -249,7 +249,7 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
             }
         }
 
-        areaEntry = sAreaTableStore.LookupEntry(areaEntry->zone);
+        areaEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID);
     }
 
     bool changed = phaseShift.Phases != oldPhases;

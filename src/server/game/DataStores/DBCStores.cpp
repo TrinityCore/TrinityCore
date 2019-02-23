@@ -1314,7 +1314,7 @@ bool IsInArea(uint32 objectAreaId, uint32 areaId)
         if (!objectArea)
             break;
 
-        objectAreaId = objectArea->zone;
+        objectAreaId = objectArea->ParentAreaID;
     } while (objectAreaId);
 
     return false;

@@ -88,7 +88,7 @@ public:
         AreaTableEntry const* zoneEntry = nullptr;
         for (AreaTableEntry const* entry : sAreaTableStore)
         {
-            if (strstr(entry->area_name, channelStr))
+            if (strstr(entry->AreaName, channelStr))
             {
                 zoneEntry = entry;
                 break;

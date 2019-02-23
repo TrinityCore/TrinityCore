@@ -630,43 +630,43 @@ struct AnimKitEntry
 
 struct AreaTableEntry
 {
-    uint32  ID;                                             // 0
-    uint32  mapid;                                          // 1
-    uint32  zone;                                           // 2 if 0 then it's zone, else it's zone id of this area
-    uint32  exploreFlag;                                    // 3
-    uint32  flags;                                          // 4,
-    //uint32 unk5;                                          // 5,
-    //uint32 unk6;                                          // 6,
-    //uint32 unk7;                                          // 7,
-    //uint32 unk8;                                          // 8,
-    //uint32 unk9;                                          // 9,
-    int32   area_level;                                     // 10
-    char*   area_name;                                      // 11
-    uint32  team;                                           // 12
-    uint32  LiquidTypeOverride[4];                          // 13-16 liquid override by type
-    float   MaxDepth;                                       // 17,
-    float   AmbientMultiplier;                              // 18 client only?
-    uint32  LightId;                                        // 19
-    uint32  MountFlags;                                     // 20
-    //uint32 unk21;                                         // 21 4.0.0
-    //uint32 unk22;                                         // 22 4.0.0
-    //uint32 unk23;                                         // 23 4.0.0
-    //uint32 unk24;                                         // 24 - worldStateId
-    //uint32 unk25                                          // 25
+    uint32 ID;                                              // 0
+    uint32 ContinentID;                                     // 1
+    uint32 ParentAreaID;                                    // 2 if 0 then it's zone, else it's zone id of this area
+    uint32 AreaBit;                                         // 3
+    uint32 Flags;                                           // 4,
+    uint32 SoundProviderPref;                               // 5,
+    uint32 SoundProviderPrefUnderwater;                     // 6,
+    uint32 AmbienceID;                                      // 7,
+    uint32 ZoneMusic;                                       // 8,
+    uint32 IntroSound;                                      // 9,
+    uint32 ExplorationLevel;                                // 10
+    char const* AreaName;                                   // 11
+    uint32 FactionGroupMask;                                // 12
+    uint32 LiquidTypeID[4];                                 // 13-16 liquid override by type
+    float MinElevation;                                     // 17,
+    float AmbientMultiplier;                                // 18 client only?
+    uint32 LightID;                                         // 19
+    uint32 MountFlags;                                      // 20
+    uint32 UwIntroSound;                                    // 21 4.0.0
+    uint32 UwZoneMusic;                                     // 22 4.0.0
+    uint32 UwAmbience;                                      // 23 4.0.0
+    uint32 World_pvp_ID;                                    // 24
+    int32 PvpCombatWorldStateID;                            // 25- worldStateId
 
     // helpers
     bool IsSanctuary() const
     {
-        if (mapid == 609)
+        if (ContinentID == 609)
             return true;
-        return (flags & AREA_FLAG_SANCTUARY) != 0;
+        return (Flags & AREA_FLAG_SANCTUARY) != 0;
     }
 
     bool IsFlyable() const
     {
-        if (flags & AREA_FLAG_OUTLAND)
+        if (Flags & AREA_FLAG_OUTLAND)
         {
-            if (!(flags & AREA_FLAG_NO_FLY_ZONE))
+            if (!(Flags & AREA_FLAG_NO_FLY_ZONE))
                 return true;
         }
 

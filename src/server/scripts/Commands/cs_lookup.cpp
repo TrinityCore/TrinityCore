@@ -104,7 +104,7 @@ public:
         // Search in AreaTable.dbc
         for (AreaTableEntry const* areaEntry : sAreaTableStore)
         {
-            std::string name = areaEntry->area_name;
+            std::string name = areaEntry->AreaName;
             if (name.empty())
                 continue;
 
