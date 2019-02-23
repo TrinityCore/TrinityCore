@@ -2454,11 +2454,7 @@ float Map::GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float
     float mapHeight = VMAP_INVALID_HEIGHT_VALUE;
     uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
     if (GridMap* gmap = m_parentTerrainMap->GetGrid(terrainMapId, x, y))
-    {
-        float gridHeight = gmap->getHeight(x, y);
-        if (G3D::fuzzyGe(z, gridHeight - GROUND_HEIGHT_TOLERANCE))
-            mapHeight = gridHeight;
-    }
+        float mapHeight = gmap->getHeight(x, y);
 
     float vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
     if (checkVMap)
@@ -2480,11 +2476,11 @@ float Map::GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float
             // or if the distance of the vmap height is less the land height distance
             if (vmapHeight > mapHeight || std::fabs(mapHeight - z) > std::fabs(vmapHeight - z))
                 return vmapHeight;
-            else
-                return mapHeight;                           // better use .map surface height
+
+            return mapHeight;                           // better use .map surface height
         }
-        else
-            return vmapHeight;                              // we have only vmapHeight (if have)
+
+        return vmapHeight;                              // we have only vmapHeight (if have)
     }
 
     return mapHeight;                               // explicitly use map data
