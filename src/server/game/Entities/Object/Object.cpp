@@ -1659,33 +1659,28 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
 
     if (Unit const* unit = ToUnit())
     {
-        if (!unit->CanFly())
-        {
-            bool canSwim = unit->CanSwim();
-            float ground_z = z;
-            float max_z;
-            if (canSwim)
-                max_z = GetMapWaterOrGroundLevel(x, y, z, &ground_z);
-            else
-                max_z = ground_z = GetMapHeight(x, y, z);
+        // Unit is flying, ignore.
+        if (unit->IsFlying())
+            return;
 
-            if (max_z > INVALID_HEIGHT)
-            {
-                // hovering units cannot go below their hover height
-                float hoverOffset = unit->GetHoverOffset();
-                max_z += hoverOffset;
-                ground_z += hoverOffset;
-
-                if (z > max_z)
-                    z = max_z;
-                else if (z < ground_z)
-                    z = ground_z;
-            }
-        }
+        bool canSwim = unit->CanSwim();
+        float ground_z = z;
+        float max_z;
+        if (canSwim)
+            max_z = GetMapWaterOrGroundLevel(x, y, z, &ground_z);
         else
+            max_z = ground_z = GetMapHeight(x, y, z);
+
+        if (max_z > INVALID_HEIGHT)
         {
-            float ground_z = GetMapHeight(x, y, z) + unit->GetHoverOffset();
-            if (z < ground_z)
+            // hovering units cannot go below their hover height
+            float hoverOffset = unit->GetHoverOffset();
+            max_z += hoverOffset;
+            ground_z += hoverOffset;
+
+            if (z > max_z && !unit->CanFly())
+                z = max_z;
+            else if (z < ground_z)
                 z = ground_z;
         }
     }
