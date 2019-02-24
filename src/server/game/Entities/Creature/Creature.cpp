@@ -1017,8 +1017,6 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 /*phaseMask*
         return false;
     }
 
-    UpdatePositionData();
-
     if (!CreateFromProto(guidlow, entry, data, vehId))
         return false;
 
@@ -1065,6 +1063,8 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 /*phaseMask*
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
     }
+
+    UpdatePositionData();
 
     return true;
 }
