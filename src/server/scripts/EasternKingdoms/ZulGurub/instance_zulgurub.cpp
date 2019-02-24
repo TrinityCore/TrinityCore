@@ -65,6 +65,7 @@ class instance_zulgurub : public InstanceMapScript
             void Initialize()
             {
                 _defeatedBossesCount = 0;
+                _killedGurubashiSpiritWarriorMask = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
