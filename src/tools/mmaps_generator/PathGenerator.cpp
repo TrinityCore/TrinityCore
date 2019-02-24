@@ -16,14 +16,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/filesystem.hpp>
-
-#include "PathCommon.h"
-#include "MapBuilder.h"
-#include "Timer.h"
 #include "Banner.h"
+#include "DBCFileLoader.h"
+#include "MapBuilder.h"
+#include "PathCommon.h"
+#include "Timer.h"
+#include <boost/filesystem.hpp>
+#include <unordered_map>
 
 using namespace MMAP;
+
+namespace
+{
+    std::unordered_map<uint32, uint8> _liquidTypes;
+}
+
+uint32 GetLiquidFlags(uint32 liquidId)
+{
+    auto itr = _liquidTypes.find(liquidId);
+    return itr != _liquidTypes.end() ? (1 << itr->second) : 0;
+}
 
 bool checkDirectories(bool debugOutput)
 {
@@ -239,6 +251,23 @@ int finish(char const* message, int returnValue)
     return returnValue;
 }
 
+std::unordered_map<uint32, uint8> LoadLiquid()
+{
+    DBCFileLoader liquidDbc;
+    std::unordered_map<uint32, uint8> liquidData;
+    // format string doesnt matter as long as it has correct length (only used for mapping to structures in worldserver)
+    if (liquidDbc.Load((boost::filesystem::path("dbc") / "LiquidType.dbc").string().c_str(), "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"))
+    {
+        for (uint32 x = 0; x < liquidDbc.GetNumRows(); ++x)
+        {
+            DBCFileLoader::Record record = liquidDbc.getRecord(x);
+            liquidData[record.getUInt(0)] = record.getUInt(3);
+        }
+    }
+
+    return liquidData;
+}
+
 int main(int argc, char** argv)
 {
     Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);
@@ -279,6 +308,10 @@ int main(int argc, char** argv)
 
     if (!checkDirectories(debugOutput))
         return silent ? -3 : finish("Press ENTER to close...", -3);
+
+    _liquidTypes = LoadLiquid();
+    if (_liquidTypes.empty())
+        return silent ? -5 : finish("Failed to load LiquidType.dbc", -5);
 
     MapBuilder builder(maxAngle, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath);

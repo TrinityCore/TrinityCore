@@ -792,6 +792,7 @@ class spell_pal_glyph_of_holy_light : public SpellScriptLoader
             {
                 uint32 const maxTargets = GetSpellInfo()->MaxAffectedTargets;
 
+                targets.remove(GetCaster());
                 if (targets.size() > maxTargets)
                 {
                     targets.sort(Trinity::HealthPctOrderPred());
@@ -833,8 +834,15 @@ class spell_pal_glyph_of_holy_light_dummy : public SpellScriptLoader
                 if (!healInfo || !healInfo->GetHeal())
                     return;
 
+                uint32 basePoints = healInfo->GetSpellInfo()->Effects[EFFECT_0].BasePoints + healInfo->GetSpellInfo()->Effects[EFFECT_0].DieSides;
+                uint32 healAmount;
+                if (healInfo->GetEffectiveHeal() >= basePoints)
+                    healAmount = healInfo->GetEffectiveHeal();
+                else
+                    healAmount = healInfo->GetHeal();
+
                 CastSpellExtraArgs args(aurEff);
-                args.AddSpellBP0(CalculatePct(healInfo->GetHeal(), aurEff->GetAmount()));
+                args.AddSpellBP0(CalculatePct(healAmount, aurEff->GetAmount()));
                 eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_GLYPH_OF_HOLY_LIGHT_HEAL, args);
             }
 
