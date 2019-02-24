@@ -285,7 +285,7 @@ class spell_romogg_chains_of_woe_teleport_dest : public SpellScript
         float angle = pos.GetAngle(caster);
         pos.m_positionX += cos(angle) * dist;
         pos.m_positionY += sin(angle) * dist;
-        pos.m_positionZ = caster->GetMap()->GetStaticHeight(caster->GetPhaseShift(), pos.m_positionX, pos.m_positionY, caster->GetPositionZ(), true);
+        pos.m_positionZ = caster->GetMap()->GetHeight(caster->GetPhaseShift(), pos.m_positionX, pos.m_positionY, caster->GetPositionZ() + 5.0f, true);
         dest.Relocate(pos);
     }
 
