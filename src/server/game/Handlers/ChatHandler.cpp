@@ -607,9 +607,8 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             targetName = recvData.ReadString(targetLen);
             break;
         }
-        case CHAT_MSG_PARTY:
         case CHAT_MSG_RAID:
-        case CHAT_MSG_OFFICER:
+        case CHAT_MSG_BATTLEGROUND:
         {
             uint32 prefixLen = recvData.ReadBits(5);
             uint32 msgLen = recvData.ReadBits(9);
@@ -617,8 +616,16 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             message = recvData.ReadString(msgLen);
             break;
         }
+        case CHAT_MSG_PARTY:
+        case CHAT_MSG_OFFICER:
+        {
+            uint32 prefixLen = recvData.ReadBits(5);
+            uint32 msgLen = recvData.ReadBits(9);
+            message = recvData.ReadString(msgLen);
+            prefix = recvData.ReadString(prefixLen);
+        }
+
         case CHAT_MSG_GUILD:
-        case CHAT_MSG_BATTLEGROUND:
         {
             uint32 msgLen = recvData.ReadBits(9);
             uint32 prefixLen = recvData.ReadBits(5);
