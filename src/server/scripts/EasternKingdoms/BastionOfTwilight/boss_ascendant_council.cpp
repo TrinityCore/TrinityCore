@@ -807,7 +807,7 @@ class npc_ignacious : public CreatureScript
                                     float x = pos.GetPositionX() + cos(angle) * i;
                                     float y = pos.GetPositionY() + sin(angle) * i;
                                     float z = pos.GetPositionZ();
-                                    float floor = me->GetMap()->GetHeight(me->GetPhaseShift(), x, y, z, true);
+                                    float floor = me->GetMapHeight(x, y, z);
                                     me->CastSpell(x, y, floor, SPELL_INFERNO_RUSH_SUMMON, true);
                                 }
                             }
