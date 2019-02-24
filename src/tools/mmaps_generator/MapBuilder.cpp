@@ -16,39 +16,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PathCommon.h"
 #include "MapBuilder.h"
-#include "MapTree.h"
-#include "DetourNavMeshBuilder.h"
-#include "DetourNavMesh.h"
 #include "IntermediateValues.h"
-
-#include <limits.h>
-
-#define MMAP_MAGIC 0x4d4d4150   // 'MMAP'
-#define MMAP_VERSION 8
-
-struct MmapTileHeader
-{
-    uint32 mmapMagic;
-    uint32 dtVersion;
-    uint32 mmapVersion;
-    uint32 size;
-    char usesLiquids;
-    char padding[3];
-
-    MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
-        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true), padding() {}
-};
-
-// All padding fields must be handled and initialized to ensure mmaps_generator will produce binary-identical *.mmtile files
-static_assert(sizeof(MmapTileHeader) == 20, "MmapTileHeader size is not correct, adjust the padding field size");
-static_assert(sizeof(MmapTileHeader) == (sizeof(MmapTileHeader::mmapMagic) +
-                                         sizeof(MmapTileHeader::dtVersion) +
-                                         sizeof(MmapTileHeader::mmapVersion) +
-                                         sizeof(MmapTileHeader::size) +
-                                         sizeof(MmapTileHeader::usesLiquids) +
-                                         sizeof(MmapTileHeader::padding)), "MmapTileHeader has uninitialized padding fields");
+#include "MapDefines.h"
+#include "MapTree.h"
+#include "ModelInstance.h"
+#include "PathCommon.h"
+#include "StringFormat.h"
+#include "VMapFactory.h"
+#include "VMapManager2.h"
+#include <DetourCommon.h>
+#include <DetourNavMesh.h>
+#include <DetourNavMeshBuilder.h>
+#include <climits>
 
 namespace MMAP
 {
@@ -610,7 +590,7 @@ namespace MMAP
 
                 // mark all walkable tiles, both liquids and solids
                 unsigned char* triFlags = new unsigned char[tTriCount];
-                memset(triFlags, NAV_GROUND, tTriCount*sizeof(unsigned char));
+                memset(triFlags, NAV_AREA_GROUND, tTriCount*sizeof(unsigned char));
                 rcClearUnwalkableTriangles(m_rcContext, tileCfg.walkableSlopeAngle, tVerts, tVertCount, tTris, tTriCount, triFlags);
                 rcRasterizeTriangles(m_rcContext, tVerts, tVertCount, tTris, triFlags, tTriCount, *tile.solid, config.walkableClimb);
                 delete[] triFlags;
@@ -633,6 +613,12 @@ namespace MMAP
                 if (!rcErodeWalkableArea(m_rcContext, config.walkableRadius, *tile.chf))
                 {
                     printf("%s Failed eroding area!                    \n", tileString);
+                    continue;
+                }
+
+                if (!rcMedianFilterWalkableArea(m_rcContext, *tile.chf))
+                {
+                    printf("%s Failed filtering area!                  \n", tileString);
                     continue;
                 }
 
@@ -716,8 +702,15 @@ namespace MMAP
         // set polygons as walkable
         // TODO: special flags for DYNAMIC polygons, ie surfaces that can be turned on and off
         for (int i = 0; i < iv.polyMesh->npolys; ++i)
-            if (iv.polyMesh->areas[i] & RC_WALKABLE_AREA)
-                iv.polyMesh->flags[i] = iv.polyMesh->areas[i];
+        {
+            if (uint8 area = iv.polyMesh->areas[i] & RC_WALKABLE_AREA)
+            {
+                if (area >= NAV_AREA_MAGMA_SLIME)
+                    iv.polyMesh->flags[i] = 1 << (63 - area);
+                else
+                    iv.polyMesh->flags[i] = NAV_GROUND; // TODO: these will be dynamic in future
+            }
+        }
 
         // setup mesh parameters
         dtNavMeshCreateParams params;

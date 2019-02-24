@@ -95,9 +95,7 @@ namespace VMAP
         private:
             std::string iDestDir;
             std::string iSrcDir;
-            bool (*iFilterMethod)(char *pName);
             G3D::Table<std::string, unsigned int > iUniqueNameIds;
-            unsigned int iCurrentUniqueNameId;
             MapData mapData;
             std::set<std::string> spawnedModelFiles;
 
@@ -111,8 +109,6 @@ namespace VMAP
             void exportGameobjectModels();
 
             bool convertRawFile(const std::string& pModelFilename);
-            void setModelNameFilterMethod(bool (*pFilterMethod)(char *pName)) { iFilterMethod = pFilterMethod; }
-            std::string getDirEntryNameFromModName(unsigned int pMapId, const std::string& pModPosName);
     };
 
 }                                                           // VMAP
