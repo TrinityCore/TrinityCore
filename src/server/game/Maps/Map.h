@@ -126,7 +126,8 @@ struct map_heightHeader
 struct map_liquidHeader
 {
     uint32 fourcc;
-    uint16 flags;
+    uint8 flags;
+    uint8 liquidFlags;
     uint16 liquidType;
     uint8  offsetX;
     uint8  offsetY;
@@ -156,7 +157,6 @@ enum ZLiquidStatus : uint32
 #define MAP_ALL_LIQUIDS   (MAP_LIQUID_TYPE_WATER | MAP_LIQUID_TYPE_OCEAN | MAP_LIQUID_TYPE_MAGMA | MAP_LIQUID_TYPE_SLIME)
 
 #define MAP_LIQUID_TYPE_DARK_WATER  0x10
-#define MAP_LIQUID_TYPE_WMO_WATER   0x20
 
 struct LiquidData
 {
@@ -214,7 +214,8 @@ class TC_GAME_API GridMap
     uint8* _liquidFlags;
     float* _liquidMap;
     uint16 _gridArea;
-    uint16 _liquidType;
+    uint16 _liquidGlobalEntry;
+    uint8 _liquidGlobalFlags;
     uint8 _liquidOffX;
     uint8 _liquidOffY;
     uint8 _liquidWidth;
@@ -711,6 +712,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
     private:
         Player* _GetScriptPlayerSourceOrTarget(Object* source, Object* target, ScriptInfo const* scriptInfo) const;
         Creature* _GetScriptCreatureSourceOrTarget(Object* source, Object* target, ScriptInfo const* scriptInfo, bool bReverse = false) const;
+        GameObject* _GetScriptGameObjectSourceOrTarget(Object* source, Object* target, ScriptInfo const* scriptInfo, bool bReverse = false) const;
         Unit* _GetScriptUnit(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const;
         Player* _GetScriptPlayer(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const;
         Creature* _GetScriptCreature(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const;

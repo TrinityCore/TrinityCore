@@ -17,12 +17,16 @@
  */
 
 #include "vmapexport.h"
+#include "Errors.h"
 #include "model.h"
 #include "wmo.h"
+#include "adtfile.h"
 #include "mpq_libmpq04.h"
-#include <cassert>
+#include "VMapDefinitions.h"
+#include <G3D/Quat.h>
 #include <algorithm>
 #include <cstdio>
+#include <limits>
 
 Model::Model(std::string &filename) : filename(filename), vertices(0), indices(0)
 {
@@ -76,7 +80,7 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
         printf("Can't create the output file '%s'\n", outfilename);
         return false;
     }
-    fwrite(szRawVMAPMagic, 8, 1, output);
+    fwrite(VMAP::RAW_VMAP_MAGIC, 8, 1, output);
     uint32 nVertices = header.nBoundingVertices;
     fwrite(&nVertices, sizeof(int), 1, output);
     uint32 nofgroups = 1;
@@ -132,39 +136,19 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
 }
 
 
-Vec3D fixCoordSystem(Vec3D v)
+Vec3D fixCoordSystem(Vec3D const& v)
 {
     return Vec3D(v.x, v.z, -v.y);
 }
 
-Vec3D fixCoordSystem2(Vec3D v)
+void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
 {
-    return Vec3D(v.x, v.z, v.y);
-}
-
-ModelInstance::ModelInstance(MPQFile& f, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE *pDirfile)
-    : id(0), scale(0), flags(0)
-{
-    float ff[3];
-    f.read(&id, 4);
-    f.read(ff, 12);
-    pos = fixCoords(Vec3D(ff[0], ff[1], ff[2]));
-    f.read(ff, 12);
-    rot = Vec3D(ff[0], ff[1], ff[2]);
-    f.read(&scale, 2);
-    f.read(&flags, 2);
-    // scale factor - divide by 1024. blizzard devs must be on crack, why not just use a float?
-    sc = scale / 1024.0f;
-
     char tempname[512];
     sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
     FILE* input = fopen(tempname, "r+b");
 
     if (!input)
-    {
-        //printf("ModelInstance::ModelInstance couldn't open %s\n", tempname);
         return;
-    }
 
     fseek(input, 8, SEEK_SET); // get the correct no of vertices
     int nVertices;
@@ -174,38 +158,111 @@ ModelInstance::ModelInstance(MPQFile& f, char const* ModelInstName, uint32 mapID
     if (count != 1 || nVertices == 0)
         return;
 
-    uint16 adtId = 0;// not used for models
-    uint32 flags = MOD_M2;
-    if (tileX == 65 && tileY == 65)
-        flags |= MOD_WORLDSPAWN;
+    // scale factor - divide by 1024. blizzard devs must be on crack, why not just use a float?
+    float sc = doodadDef.Scale / 1024.0f;
 
-    //write mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, name
+    Vec3D position = fixCoords(doodadDef.Position);
+
+    uint16 nameSet = 0;// not used for models
+    uint32 uniqueId = GenerateUniqueObjectId(doodadDef.UniqueId, 0);
+    uint32 tcflags = MOD_M2;
+    if (tileX == 65 && tileY == 65)
+        tcflags |= MOD_WORLDSPAWN;
+
+    //write mapID, tileX, tileY, Flags, NameSet, UniqueId, Pos, Rot, Scale, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
     fwrite(&tileX, sizeof(uint32), 1, pDirfile);
     fwrite(&tileY, sizeof(uint32), 1, pDirfile);
-    fwrite(&flags, sizeof(uint32), 1, pDirfile);
-    fwrite(&adtId, sizeof(uint16), 1, pDirfile);
-    fwrite(&id, sizeof(uint32), 1, pDirfile);
-    fwrite(&pos, sizeof(float), 3, pDirfile);
-    fwrite(&rot, sizeof(float), 3, pDirfile);
+    fwrite(&tcflags, sizeof(uint32), 1, pDirfile);
+    fwrite(&nameSet, sizeof(uint16), 1, pDirfile);
+    fwrite(&uniqueId, sizeof(uint32), 1, pDirfile);
+    fwrite(&position, sizeof(Vec3D), 1, pDirfile);
+    fwrite(&doodadDef.Rotation, sizeof(Vec3D), 1, pDirfile);
     fwrite(&sc, sizeof(float), 1, pDirfile);
     uint32 nlen = strlen(ModelInstName);
     fwrite(&nlen, sizeof(uint32), 1, pDirfile);
     fwrite(ModelInstName, sizeof(char), nlen, pDirfile);
-
-    /* int realx1 = (int) ((float) pos.x / 533.333333f);
-    int realy1 = (int) ((float) pos.z / 533.333333f);
-    int realx2 = (int) ((float) pos.x / 533.333333f);
-    int realy2 = (int) ((float) pos.z / 533.333333f);
-
-    fprintf(pDirfile,"%s/%s %f,%f,%f_%f,%f,%f %f %d %d %d,%d %d\n",
-        MapName,
-        ModelInstName,
-        (float) pos.x, (float) pos.y, (float) pos.z,
-        (float) rot.x, (float) rot.y, (float) rot.z,
-        sc,
-        nVertices,
-        realx1, realy1,
-        realx2, realy2
-        ); */
 }
+
+void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
+{
+    if (wmo.DoodadSet >= doodadData.Sets.size())
+        return;
+
+    G3D::Vector3 wmoPosition(wmo.Position.z, wmo.Position.x, wmo.Position.y);
+    G3D::Matrix3 wmoRotation = G3D::Matrix3::fromEulerAnglesZYX(G3D::toRadians(wmo.Rotation.y), G3D::toRadians(wmo.Rotation.x), G3D::toRadians(wmo.Rotation.z));
+
+    uint16 doodadId = 0;
+    WMO::MODS const& doodadSetData = doodadData.Sets[wmo.DoodadSet];
+    for (uint16 doodadIndex : doodadData.References)
+    {
+        if (doodadIndex < doodadSetData.StartIndex ||
+            doodadIndex >= doodadSetData.StartIndex + doodadSetData.Count)
+            continue;
+
+        WMO::MODD const& doodad = doodadData.Spawns[doodadIndex];
+
+        char ModelInstName[1024];
+        sprintf(ModelInstName, "%s", GetPlainName(&doodadData.Paths[doodad.NameIndex]));
+        uint32 nlen = strlen(ModelInstName);
+        fixnamen(ModelInstName, nlen);
+        fixname2(ModelInstName, nlen);
+        if (nlen > 3)
+        {
+            char const* extension = &ModelInstName[nlen - 4];
+            if (!strcmp(extension, ".mdx") || !strcmp(extension, ".mdl"))
+            {
+                ModelInstName[nlen - 2] = '2';
+                ModelInstName[nlen - 1] = '\0';
+            }
+        }
+
+        char tempname[512];
+        sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
+        FILE* input = fopen(tempname, "r+b");
+        if (!input)
+            continue;
+
+        fseek(input, 8, SEEK_SET); // get the correct no of vertices
+        int nVertices;
+        int count = fread(&nVertices, sizeof(int), 1, input);
+        fclose(input);
+
+        if (count != 1 || nVertices == 0)
+            continue;
+
+        ASSERT(doodadId < std::numeric_limits<uint16>::max());
+        ++doodadId;
+
+        G3D::Vector3 position = wmoPosition + (wmoRotation * G3D::Vector3(doodad.Position.x, doodad.Position.y, doodad.Position.z));
+
+        Vec3D rotation;
+        (G3D::Quat(doodad.Rotation.X, doodad.Rotation.Y, doodad.Rotation.Z, doodad.Rotation.W)
+            .toRotationMatrix() * wmoRotation)
+            .toEulerAnglesXYZ(rotation.z, rotation.x, rotation.y);
+
+        rotation.z = G3D::toDegrees(rotation.z);
+        rotation.x = G3D::toDegrees(rotation.x);
+        rotation.y = G3D::toDegrees(rotation.y);
+
+        uint16 nameSet = 0;     // not used for models
+        uint32 uniqueId = GenerateUniqueObjectId(wmo.UniqueId, doodadId);
+        uint32 tcflags = MOD_M2;
+        if (tileX == 65 && tileY == 65)
+            tcflags |= MOD_WORLDSPAWN;
+
+        //write mapID, tileX, tileY, Flags, NameSet, UniqueId, Pos, Rot, Scale, name
+        fwrite(&mapID, sizeof(uint32), 1, pDirfile);
+        fwrite(&tileX, sizeof(uint32), 1, pDirfile);
+        fwrite(&tileY, sizeof(uint32), 1, pDirfile);
+        fwrite(&tcflags, sizeof(uint32), 1, pDirfile);
+        fwrite(&nameSet, sizeof(uint16), 1, pDirfile);
+        fwrite(&uniqueId, sizeof(uint32), 1, pDirfile);
+        fwrite(&position, sizeof(Vec3D), 1, pDirfile);
+        fwrite(&rotation, sizeof(Vec3D), 1, pDirfile);
+        fwrite(&doodad.Scale, sizeof(float), 1, pDirfile);
+        fwrite(&nlen, sizeof(uint32), 1, pDirfile);
+        fwrite(ModelInstName, sizeof(char), nlen, pDirfile);
+    }
+}
+

@@ -30,14 +30,13 @@ public:
     WDTFile(char* file_name, char* file_name1);
     ~WDTFile(void);
 
-    bool init(char* map_id, unsigned int mapID);
+    bool init(uint32 mapId);
     ADTFile* GetMap(int x, int z);
 
-    std::string* gWmoInstansName;
-    int gnWMO;
+    std::vector<std::string> _wmoNames;
 
 private:
-    MPQFile WDT;
+    MPQFile _file;
     std::string filename;
 };
 
