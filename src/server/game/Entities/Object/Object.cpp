@@ -345,6 +345,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     bool hasAIAnimKit = false;
     bool hasMovementAnimKit = false;
     bool hasMeleeAnimKit = false;
+    bool hasHoverAnim = false;
+
+    if (Unit const* unit = ToUnit())
+        hasHoverAnim = unit->HasUnitMovementFlag(MOVEMENTFLAG_HOVER);
 
     uint32 stopFrameCount = 0;
     if (GameObject const* go = ToGameObject())
@@ -352,7 +356,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             stopFrameCount = go->GetGOValue()->Transport.StopFrames->size();
 
     // Bit content
-    data->WriteBit(0);
+    data->WriteBit(hasHoverAnim);
     data->WriteBit(0);
     data->WriteBit(flags & UPDATEFLAG_ROTATION);
     data->WriteBit(flags & UPDATEFLAG_ANIMKITS);

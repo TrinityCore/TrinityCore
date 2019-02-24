@@ -14409,10 +14409,15 @@ bool Unit::SetHover(bool enable, bool packetOnly /*= false*/)
         }
     }
 
-    if (enable)
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_HOVER, SMSG_MOVE_SET_HOVER).Send();
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        if (enable)
+            Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_HOVER, SMSG_MOVE_SET_HOVER).Send();
+        else
+            Movement::PacketSender(this, SMSG_SPLINE_MOVE_UNSET_HOVER, SMSG_MOVE_UNSET_HOVER).Send();
+    }
     else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_UNSET_HOVER, SMSG_MOVE_UNSET_HOVER).Send();
+        SendSetPlayHoverAnim(enable);
 
     return true;
 }
