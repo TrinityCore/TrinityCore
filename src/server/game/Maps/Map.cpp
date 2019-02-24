@@ -2451,10 +2451,8 @@ float Map::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y,
 float Map::GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float z, bool checkVMap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
 {
     // find raw .map surface under Z coordinates
-    float mapHeight = VMAP_INVALID_HEIGHT_VALUE;
     uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
-    if (GridMap* gmap = m_parentTerrainMap->GetGrid(terrainMapId, x, y))
-        float mapHeight = gmap->getHeight(x, y);
+    float const mapHeight = GetGridHeight(terrainMapId, x, y);
 
     float vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
     if (checkVMap)
@@ -2484,6 +2482,14 @@ float Map::GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float
     }
 
     return mapHeight;                               // explicitly use map data
+}
+
+float Map::GetGridHeight(uint32 mapId, float x, float y) const
+{
+    if (GridMap* gmap = m_parentTerrainMap->GetGrid(mapId, x, y))
+        return gmap->getHeight(x, y);
+
+    return VMAP_INVALID_HEIGHT_VALUE;
 }
 
 static inline bool IsInWMOInterior(uint32 mogpFlags)
