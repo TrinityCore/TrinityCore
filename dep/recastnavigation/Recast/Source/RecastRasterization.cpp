@@ -122,10 +122,6 @@ static bool addSpan(rcHeightfield& hf, const int x, const int y,
 		}
 		else
 		{
-			// Merge flags.
-			if (rcAbs((int)s->smax - (int)cur->smax) <= flagMergeThr)
-				s->area = rcMax(s->area, cur->area);
-
 			// Merge spans.
 			if (cur->smin < s->smin)
 				s->smin = cur->smin;

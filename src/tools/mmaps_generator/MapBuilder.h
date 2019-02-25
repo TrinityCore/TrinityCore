@@ -71,6 +71,27 @@ namespace MMAP
         rcPolyMeshDetail* dmesh;
     };
 
+    struct TileConfig
+    {
+        TileConfig(bool bigBaseUnit)
+        {
+            // these are WORLD UNIT based metrics
+            // this are basic unit dimentions
+            // value have to divide GRID_SIZE(533.3333f) ( aka: 0.5333, 0.2666, 0.3333, 0.1333, etc )
+            BASE_UNIT_DIM = bigBaseUnit ? 0.5333333f : 0.2666666f;
+
+            // All are in UNIT metrics!
+            VERTEX_PER_MAP = int(GRID_SIZE / BASE_UNIT_DIM + 0.5f);
+            VERTEX_PER_TILE = bigBaseUnit ? 40 : 80; // must divide VERTEX_PER_MAP
+            TILES_PER_MAP = VERTEX_PER_MAP / VERTEX_PER_TILE;
+        }
+
+        float BASE_UNIT_DIM;
+        int VERTEX_PER_MAP;
+        int VERTEX_PER_TILE;
+        int TILES_PER_MAP;
+    };
+
     class MapBuilder
     {
         public:
@@ -124,6 +145,8 @@ namespace MMAP
             bool shouldSkipMap(uint32 mapID);
             bool isTransportMap(uint32 mapID);
             bool shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY);
+
+            rcConfig GetMapSpecificConfig(uint32 mapID, float bmin[3], float bmax[3], const TileConfig &tileConfig);
 
             uint32 percentageDone(uint32 totalTiles, uint32 totalTilesDone);
 
