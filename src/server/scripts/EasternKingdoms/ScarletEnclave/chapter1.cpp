@@ -671,7 +671,7 @@ struct npc_dark_rider_of_acherus : public ScriptedAI
                 case EVENT_START_MOVING:
                     me->SetTarget(_horseGUID);
                     if (Creature* horse = ObjectAccessor::GetCreature(*me, _horseGUID))
-                        me->GetMotionMaster()->MoveChase(horse, {}, {}, true);
+                        me->GetMotionMaster()->MoveChase(horse);
                     _events.ScheduleEvent(EVENT_DESPAWN_HORSE, 5s);
                     break;
                 case EVENT_DESPAWN_HORSE:
