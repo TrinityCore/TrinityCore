@@ -197,15 +197,18 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<Gam
                         continue;
                     }
             }
-        }
 
-        if (!obj->LoadFromDB(guid, map, false, false))
-        {
+            if (!obj->LoadFromDB(guid, map, false, false))
+            {
+                delete obj;
+                continue;
+            }
+
+            AddObjectHelper(cell, m, count, map, obj);
+        }
+        else
             delete obj;
-            continue;
-        }
 
-        AddObjectHelper(cell, m, count, map, obj);
     }
 }
 

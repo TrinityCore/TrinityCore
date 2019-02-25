@@ -149,6 +149,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint
     ASSERT(map);
     SetMap(map);
 
+    UpdatePositionData();
     SetZoneScript();
     if (GetZoneScript())
     {
@@ -160,6 +161,8 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint
     // Set if this object can handle dynamic spawns
     if (!dynamic)
         SetRespawnCompatibilityMode();
+
+    guidlow = map->GenerateLowGuid<HighGuid::Transport>();
 
     if (!Transport::CreateTransport(guidlow, entry, map->GetId(), pos, animprogress))
         return false;
