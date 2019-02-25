@@ -21,6 +21,8 @@
 
 #include "StormLib.h"
 #include "Define.h"
+#include <map>
+#include <string>
 
 #define FILE_FORMAT_VERSION    18
 
@@ -45,20 +47,47 @@ struct file_MVER
     uint32 ver;
 };
 
+struct file_MWMO
+{
+    u_map_fcc fcc;
+    uint32 size;
+    char FileList[1];
+};
 
-class FileLoader{
+class FileChunk
+{
+public:
+    FileChunk(uint8* data_, uint32 size_) : data(data_), size(size_) { }
+    ~FileChunk();
+
+    uint8* data;
+    uint32 size;
+
+    template<class T>
+    T* As() { return (T*)data; }
+    void parseSubChunks();
+    std::multimap<std::string, FileChunk*> subchunks;
+    FileChunk* GetSubChunk(std::string const& name);
+};
+
+class ChunkedFile
+{
+public:
     uint8  *data;
     uint32  data_size;
-public:
-    virtual bool prepareLoadedData();
+
     uint8 *GetData()     {return data;}
     uint32 GetDataSize() {return data_size;}
 
-    file_MVER *version;
-    FileLoader();
-    ~FileLoader();
-    bool loadFile(HANDLE mpq, char *filename, bool log = true);
-    virtual void free();
+    ChunkedFile();
+    virtual ~ChunkedFile();
+    bool prepareLoadedData();
+    bool loadFile(HANDLE mpq, std::string const& fileName, bool log = true);
+    void free();
+
+    void parseChunks();
+    std::multimap<std::string, FileChunk*> chunks;
+    FileChunk* GetChunk(std::string const& name);
 };
 
 #pragma pack(pop)

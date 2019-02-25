@@ -65,6 +65,7 @@ struct ScriptInfo;
 struct SummonPropertiesEntry;
 enum Difficulty : uint8;
 namespace Trinity { struct ObjectUpdater; }
+namespace G3D { class Plane; }
 namespace VMAP { enum class ModelIgnoreFlags : uint32; }
 
 struct ScriptAction
@@ -112,6 +113,7 @@ struct map_areaHeader
 #define MAP_HEIGHT_NO_HEIGHT            0x0001
 #define MAP_HEIGHT_AS_INT16             0x0002
 #define MAP_HEIGHT_AS_INT8              0x0004
+#define MAP_HEIGHT_HAS_FLIGHT_BOUNDS    0x0008
 
 struct map_heightHeader
 {
@@ -200,6 +202,7 @@ class TC_GAME_API GridMap
         uint16* m_uint16_V8;
         uint8* m_uint8_V8;
     };
+    G3D::Plane* _minHeightPlanes;
     // Height level data
     float _gridHeight;
     float _gridIntHeightMultiplier;
@@ -246,6 +249,7 @@ public:
 
     uint16 getArea(float x, float y) const;
     inline float getHeight(float x, float y) const {return (this->*_gridGetHeight)(x, y);}
+    float getMinHeight(float x, float y) const;
     float getLiquidLevel(float x, float y) const;
     ZLiquidStatus GetLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = 0, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
     bool fileExists() const { return _fileExists; }
@@ -397,6 +401,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // some calls like isInWater should not use vmaps due to processor power
         // can return INVALID_HEIGHT if under z+2 z coord not found height
         float GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float z, bool checkVMap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
+        float GetMinHeight(float x, float y) const;
 
         void GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, uint8 reqLiquidType = MAP_ALL_LIQUIDS, float collisionHeight = 2.03128f) const; // DEFAULT_COLLISION_HEIGHT in Object.h
         ZLiquidStatus GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = nullptr, float collisionHeight = 2.03128f) const; // DEFAULT_COLLISION_HEIGHT in Object.h

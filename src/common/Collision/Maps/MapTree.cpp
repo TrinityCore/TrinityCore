@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -281,9 +281,16 @@ namespace VMAP
         }
         else
         {
-            if (!readChunk(tf, chunk, VMAP_MAGIC, 8))
-                result = LoadResult::VersionMismatch;
-            fclose(tf);
+            std::string tilefile = basePath + getTileFileName(mapID, tileX, tileY);
+            FILE* tf = fopen(tilefile.c_str(), "rb");
+            if (!tf)
+                result = LoadResult::FileNotFound;
+            else
+            {
+                if (!readChunk(tf, chunk, VMAP_MAGIC, 8))
+                    result = LoadResult::VersionMismatch;
+                fclose(tf);
+            }
         }
         fclose(rf);
         return result;
