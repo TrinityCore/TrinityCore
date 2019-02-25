@@ -95,6 +95,9 @@ public:
             return false;
         }
 
+        if (player->IsActiveQuest(entry))
+            return false;
+
         // ok, normal (creature/GO starting) quest
         if (player->CanAddQuest(quest, true))
             player->AddQuestAndCheckCompletion(quest, nullptr);
