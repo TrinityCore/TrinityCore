@@ -155,6 +155,39 @@ inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* t
     return creature;
 }
 
+inline GameObject* Map::_GetScriptGameObjectSourceOrTarget(Object* source, Object* target, ScriptInfo const* scriptInfo, bool bReverse) const
+{
+    GameObject* gameobject = nullptr;
+    if (!source && !target)
+        TC_LOG_ERROR("scripts", "%s source and target objects are NULL.", scriptInfo->GetDebugInfo().c_str());
+    else
+    {
+        if (bReverse)
+        {
+            // Check target first, then source.
+            if (target)
+                gameobject = target->ToGameObject();
+            if (!gameobject && source)
+                gameobject = source->ToGameObject();
+        }
+        else
+        {
+            // Check source first, then target.
+            if (source)
+                gameobject = source->ToGameObject();
+            if (!gameobject && target)
+                gameobject = target->ToGameObject();
+        }
+
+        if (!gameobject)
+            TC_LOG_ERROR("scripts", "%s neither source nor target are gameobjects (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
+                scriptInfo->GetDebugInfo().c_str(),
+                source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().GetCounter() : 0,
+                target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().GetCounter() : 0);
+    }
+    return gameobject;
+}
+
 inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const
 {
     Unit* unit = nullptr;
@@ -753,9 +786,11 @@ void Map::ScriptsProcess()
                 break;
 
             case SCRIPT_COMMAND_DESPAWN_SELF:
-                // Target or source must be Creature.
+                // First try with target or source creature, then with target or source gameobject
                 if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script, true))
                     cSource->DespawnOrUnsummon(step.script->DespawnSelf.DespawnDelay);
+                else if (GameObject* goSource = _GetScriptGameObjectSourceOrTarget(source, target, step.script, true))
+                    goSource->DespawnOrUnsummon(Milliseconds(step.script->DespawnSelf.DespawnDelay));
                 break;
 
             case SCRIPT_COMMAND_LOAD_PATH:
