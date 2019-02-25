@@ -178,7 +178,7 @@ namespace MMAP
         }
 
         // data used later
-        uint16 holes[16][16];
+        uint8 holes[16][16][8];
         memset(holes, 0, sizeof(holes));
         uint16 liquid_entry[16][16];
         memset(liquid_entry, 0, sizeof(liquid_entry));
@@ -207,10 +207,10 @@ namespace MMAP
                 heightMultiplier = (hheader.gridMaxHeight - hheader.gridHeight) / 255;
 
                 for (int i = 0; i < V9_SIZE_SQ; ++i)
-                    V9[i] = (float)v9[i]*heightMultiplier + hheader.gridHeight;
+                    V9[i] = (float)v9[i] * heightMultiplier + hheader.gridHeight;
 
                 for (int i = 0; i < V8_SIZE_SQ; ++i)
-                    V8[i] = (float)v8[i]*heightMultiplier + hheader.gridHeight;
+                    V8[i] = (float)v8[i] * heightMultiplier + hheader.gridHeight;
             }
             else if (hheader.flags & MAP_HEIGHT_AS_INT16)
             {
@@ -225,10 +225,10 @@ namespace MMAP
                 heightMultiplier = (hheader.gridMaxHeight - hheader.gridHeight) / 65535;
 
                 for (int i = 0; i < V9_SIZE_SQ; ++i)
-                    V9[i] = (float)v9[i]*heightMultiplier + hheader.gridHeight;
+                    V9[i] = (float)v9[i] * heightMultiplier + hheader.gridHeight;
 
                 for (int i = 0; i < V8_SIZE_SQ; ++i)
-                    V8[i] = (float)v8[i]*heightMultiplier + hheader.gridHeight;
+                    V8[i] = (float)v8[i] * heightMultiplier + hheader.gridHeight;
             }
             else
             {
@@ -616,18 +616,16 @@ namespace MMAP
     static uint16 holetab_v[4] = {0x000F, 0x00F0, 0x0F00, 0xF000};
 
     /**************************************************************************/
-    bool TerrainBuilder::isHole(int square, const uint16 holes[16][16])
+    bool TerrainBuilder::isHole(int square, uint8 const holes[16][16][8])
     {
         int row = square / 128;
         int col = square % 128;
         int cellRow = row / 8;     // 8 squares per cell
         int cellCol = col / 8;
-        int holeRow = row % 8 / 2;
-        int holeCol = (square - (row * 128 + cellCol * 8)) / 2;
+        int holeRow = row % 8;
+        int holeCol = (square - (row * 128 + cellCol * 8));
 
-        uint16 hole = holes[cellRow][cellCol];
-
-        return (hole & holetab_h[holeCol] & holetab_v[holeRow]) != 0;
+        return (holes[cellRow][cellCol][holeRow] & (1 << holeCol)) != 0;
     }
 
     /**************************************************************************/
