@@ -105,8 +105,7 @@ enum class CreatureChaseMovementType : uint8
 struct TC_GAME_API CreatureMovementData
 {
     CreatureMovementData() : Ground(CreatureGroundMovementType::Run), Flight(CreatureFlightMovementType::None),
-                             Swim(true), Rooted(false), Chase(CreatureChaseMovementType::Run)
-    {}
+                             Swim(true), Rooted(false), Chase(CreatureChaseMovementType::Run) { }
 
     CreatureGroundMovementType Ground;
     CreatureFlightMovementType Flight;
@@ -119,8 +118,7 @@ struct TC_GAME_API CreatureMovementData
     bool IsFlightAllowed() const { return Flight != CreatureFlightMovementType::None; }
     bool IsRooted() const { return Rooted; }
 
-    bool CanChaseWalking() const { return Chase == CreatureChaseMovementType::CanWalk; }
-    bool IsChaseWalking() const { return Chase == CreatureChaseMovementType::AlwaysWalk; }
+    CreatureChaseMovementType GetChase() const { return Chase; }
 
     std::string ToString() const;
 };

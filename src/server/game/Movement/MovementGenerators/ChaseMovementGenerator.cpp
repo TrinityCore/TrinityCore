@@ -201,13 +201,22 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
 
             owner->AddUnitState(UNIT_STATE_CHASE_MOVE);
 
-            bool walk = false;
-            if (cOwner)
+            bool walk;
+            if (cOwner && !cOwner->IsPet())
             {
-                if (cOwner->GetMovementTemplate().CanChaseWalking() && owner->IsWalking())
-                    walk = true;
-                if (cOwner->GetMovementTemplate().IsChaseWalking())
-                    walk = true;
+                switch (cOwner->GetMovementTemplate().GetChase())
+                {
+                    case CreatureChaseMovementType::CanWalk:
+                        if (owner->IsWalking())
+                            walk = true;
+                        break;
+                    case CreatureChaseMovementType::AlwaysWalk:
+                        walk = true;
+                        break;
+                    default:
+                        walk = false;
+                        break;
+                }
             }
 
             Movement::MoveSplineInit init(owner);
