@@ -20,6 +20,7 @@
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
@@ -325,7 +326,8 @@ enum Waypoints
 
 enum SeatIds : int8
 {
-    ROCKET_SEAT_LEFT = 5,
+    MKII_SEAT_CANNON  = 3,
+    ROCKET_SEAT_LEFT  = 5,
     ROCKET_SEAT_RIGHT = 6
 };
 
@@ -346,7 +348,7 @@ Position const VehicleRelocation[] =
     { 2763.820f, 2568.870f, 364.3136f }, // WP_MKII_P4_POS_3
     { 2761.215f, 2568.875f, 364.0636f }, // WP_MKII_P4_POS_4
     { 2744.610f, 2569.380f, 364.3136f }, // WP_MKII_P4_POS_5
-    { 2748.513f, 2569.051f, 364.3136f }  // WP_AERIAL_P4_POS
+    { 2744.62f,  2569.41f,  382.0f, 3.054326f }  // WP_AERIAL_P4_POS
 };
 
 Position const VX001SummonPos = { 2744.431f, 2569.385f, 364.3968f, 3.141593f };
@@ -455,6 +457,9 @@ class boss_mimiron : public CreatureScript
             {
                 if (instance->GetBossState(BOSS_MIMIRON) == DONE) // Mimiron will attempt to reset because he is not dead and will be set to friendly before despawning.
                     return;
+
+                if (Creature* aerial = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT)))
+                    aerial->AI()->EnterEvadeMode();
 
                 _Reset();
                 me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
@@ -615,7 +620,6 @@ class boss_mimiron : public CreatureScript
                             {
                                 if (Creature* aerial = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT)))
                                 {
-                                    aerial->GetMotionMaster()->MoveLand(0, (aerial->GetPositionX(), aerial->GetPositionY(), aerial->GetPositionZ()));
                                     aerial->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                                     aerial->CastSpell(vx001, SPELL_MOUNT_VX_001);
                                     aerial->CastSpell(aerial, SPELL_HALF_HEAL);
@@ -708,7 +712,7 @@ class boss_leviathan_mk_ii : public CreatureScript
                     if (events.IsInPhase(PHASE_LEVIATHAN_MK_II))
                     {
                         me->CastStop();
-                        if (Unit* turret = me->GetVehicleKit()->GetPassenger(3))
+                        if (Unit* turret = me->GetVehicleKit()->GetPassenger(MKII_SEAT_CANNON))
                             turret->KillSelf();
 
                         me->SetSpeedRate(MOVE_RUN, 1.5f);
@@ -1120,6 +1124,7 @@ class boss_aerial_command_unit : public CreatureScript
             boss_aerial_command_unitAI(Creature* creature) : BossAI(creature, BOSS_MIMIRON)
             {
                 me->SetReactState(REACT_PASSIVE);
+                me->SetDisableGravity(true);
                 fireFigther = false;
             }
 
@@ -1128,11 +1133,13 @@ class boss_aerial_command_unit : public CreatureScript
                 if (damage >= me->GetHealth())
                 {
                     damage = me->GetHealth() - 1; // Let creature fall to 1 hp, but do not let it die or damage itself with SetHealth().
-                    me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                    me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
-                    DoCast(me, SPELL_VEHICLE_DAMAGED, true);
-                    me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
+                    me->AttackStop();
+                    me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_HOVER | UNIT_BYTE1_FLAG_ALWAYS_STAND), true);
+                    me->SetHover(false);
+                    me->SetDisableGravity(true);
+
+                    DoCastSelf(SPELL_VEHICLE_DAMAGED, true);
 
                     if (events.IsInPhase(PHASE_AERIAL_COMMAND_UNIT))
                     {
@@ -1164,11 +1171,12 @@ class boss_aerial_command_unit : public CreatureScript
                         events.ScheduleEvent(EVENT_SUMMON_FIRE_BOTS, 1s, 0, PHASE_AERIAL_COMMAND_UNIT);
                         /* fallthrough */
                     case DO_START_AERIAL:
+                        me->SetAnimTier(UNIT_BYTE1_FLAG_HOVER, true);
+                        me->SetDisableGravity(false);
+                        me->SetHover(true);
                         me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                         me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->SetHover(true);
-                        me->SetDisableGravity(false);
 
                         events.SetPhase(PHASE_AERIAL_COMMAND_UNIT);
                         events.ScheduleEvent(EVENT_SUMMON_JUNK_BOT, 5s, 0, PHASE_AERIAL_COMMAND_UNIT);
@@ -1177,8 +1185,8 @@ class boss_aerial_command_unit : public CreatureScript
                         break;
                     case DO_DISABLE_AERIAL:
                         me->CastStop();
-                        me->AttackStop();
                         me->SetReactState(REACT_PASSIVE);
+                        me->AttackStop();
                         me->GetMotionMaster()->MoveFall();
                         events.DelayEvents(23000);
                         break;
@@ -1219,7 +1227,9 @@ class boss_aerial_command_unit : public CreatureScript
             {
                 if (type == POINT_MOTION_TYPE && point == WP_AERIAL_P4_POS)
                 {
+                    me->SetFacingTo(VehicleRelocation[WP_AERIAL_P4_POS].GetOrientation());
                     me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
 
                     if (Creature* mimiron = instance->GetCreature(BOSS_MIMIRON))
                         mimiron->AI()->DoAction(DO_ACTIVATE_V0L7R0N_1);
@@ -1413,6 +1423,7 @@ class npc_mimiron_computer : public CreatureScript
             npc_mimiron_computerAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
+                me->SetReactState(REACT_PASSIVE);
             }
 
             void DoAction(int32 action) override
@@ -1653,6 +1664,17 @@ class npc_mimiron_proximity_mine : public CreatureScript
         }
 };
 
+struct npc_mimiron_magnetic_core : public ScriptedAI
+{
+    npc_mimiron_magnetic_core(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        DoCastAOE(SPELL_MAGNETIC_CORE, true);
+    }
+};
+
 class go_mimiron_hardmode_button : public GameObjectScript
 {
     public:
@@ -1854,6 +1876,26 @@ class spell_mimiron_fire_search : public SpellScriptLoader
         {
             return new spell_mimiron_fire_search_SpellScript();
         }
+};
+
+// 64444 - Magnetic Core Summon
+class spell_mimiron_magnetic_core_summon : public SpellScript
+{
+    PrepareSpellScript(spell_mimiron_magnetic_core_summon);
+
+    void ModDest(SpellDestination& dest)
+    {
+        Unit* caster = GetCaster();
+        Position pos = caster->GetPosition();
+        float z = caster->GetMap()->GetHeight(caster->GetPhaseShift(), pos);
+        pos.m_positionZ = z;
+        dest.Relocate(pos);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_mimiron_magnetic_core_summon::ModDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+    }
 };
 
 // 64436 - Magnetic Core
@@ -2761,6 +2803,7 @@ void AddSC_boss_mimiron()
     new npc_mimiron_flames();
     new npc_mimiron_frost_bomb();
     new npc_mimiron_proximity_mine();
+    RegisterUlduarCreatureAI(npc_mimiron_magnetic_core);
 
     new go_mimiron_hardmode_button();
 
@@ -2768,6 +2811,7 @@ void AddSC_boss_mimiron()
     new spell_mimiron_clear_fires();
     new spell_mimiron_despawn_assault_bots();
     new spell_mimiron_fire_search();
+    RegisterSpellScript(spell_mimiron_magnetic_core_summon);
     new spell_mimiron_magnetic_core();
     new spell_mimiron_napalm_shell();
     new spell_mimiron_plasma_blast();
