@@ -201,7 +201,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
 
             owner->AddUnitState(UNIT_STATE_CHASE_MOVE);
 
-            bool walk;
+            bool walk = false;
             if (cOwner && !cOwner->IsPet())
             {
                 switch (cOwner->GetMovementTemplate().GetChase())
@@ -214,7 +214,6 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
                         walk = true;
                         break;
                     default:
-                        walk = false;
                         break;
                 }
             }
