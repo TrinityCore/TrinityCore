@@ -907,15 +907,6 @@ class boss_thaladred_the_darkener : public CreatureScript
                 advisorbase_ai::Reset();
             }
 
-            void AttackStart(Unit* who) override
-            {
-                if (!who || _inFakeDeath || me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
-                    return;
-
-                if (me->Attack(who, true))
-                    me->GetMotionMaster()->MoveChase(who, {}, {}, true);
-            }
-
             void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_THALADRED_AGGRO);
