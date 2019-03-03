@@ -1301,8 +1301,8 @@ dtStatus dtNavMeshQuery::initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef
 	m_query.raycastLimitSqr = FLT_MAX;
 	
 	// Validate input
-	if (!m_nav->isValidPolyRef(startRef) || !m_nav->isValidPolyRef(endRef)
-		|| !startPos || !dtVisfinite(startPos) ||
+	if (!m_nav->isValidPolyRef(startRef) || !m_nav->isValidPolyRef(endRef) ||
+		!startPos || !dtVisfinite(startPos) ||
 		!endPos || !dtVisfinite(endPos) || !filter)
 	{
 		return DT_FAILURE | DT_INVALID_PARAM;
