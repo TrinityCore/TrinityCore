@@ -62,4 +62,5 @@ gSOAP (a portable development toolkit for C and C++ XML Web services and XML dat
 
 recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
   https://github.com/recastnavigation/recastnavigation
-  Version: 14b2631527c4792e95b2c78ebfa8ac4cd3413363
+  Version: 3a619d773deb7e3a15ee215217c825995fe71312
+  Custom changes: https://github.com/TrinityCore/recastnavigation/tree/3.3.5
