@@ -120,8 +120,7 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     switch (owner->GetMovementTemplate().GetRandom())
     {
         case CreatureRandomMovementType::CanRun:
-            if (!owner->IsWalking())
-                walk = false;
+            walk = owner->IsWalking();
             break;
         case CreatureRandomMovementType::AlwaysRun:
             walk = false;
