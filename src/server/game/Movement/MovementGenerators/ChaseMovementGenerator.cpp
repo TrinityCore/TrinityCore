@@ -207,8 +207,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
                 switch (cOwner->GetMovementTemplate().GetChase())
                 {
                     case CreatureChaseMovementType::CanWalk:
-                        if (owner->IsWalking())
-                            walk = true;
+                        walk = owner->IsWalking();
                         break;
                     case CreatureChaseMovementType::AlwaysWalk:
                         walk = true;
