@@ -58,7 +58,8 @@ gSOAP (a portable development toolkit for C and C++ XML Web services and XML dat
 
 recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
   https://github.com/recastnavigation/recastnavigation
-  Version: 2c85309280dbc9c82029e7ab16dfb01b9235c74e
+  Version: 3a619d773deb7e3a15ee215217c825995fe71312
+  Custom changes: https://github.com/TrinityCore/recastnavigation/tree/3.3.5
 
 StormLib (a pack of modules, written in C++, which are able to read and also to write files from/to the MPQ archives)
   http://www.zezula.net/en/mpq/stormlib.html
