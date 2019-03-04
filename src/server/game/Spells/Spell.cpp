@@ -6287,6 +6287,9 @@ SpellCastResult Spell::CheckRange(bool strict) const
     if (m_spellInfo->RangeEntry && m_spellInfo->RangeEntry->type != SPELL_RANGE_MELEE && !strict)
         maxRange += std::min(MAX_SPELL_RANGE_TOLERANCE, maxRange*0.1f); // 10% but no more than MAX_SPELL_RANGE_TOLERANCE
 
+    // save the original values before squaring them
+    float origMinRange = minRange, origMaxRange = maxRange;
+
     // get square values for sqr distance checks
     minRange *= minRange;
     maxRange *= maxRange;
@@ -6307,10 +6310,10 @@ SpellCastResult Spell::CheckRange(bool strict) const
 
     if (GameObject* goTarget = m_targets.GetGOTarget())
     {
-        if (m_caster->GetExactDistSq(goTarget) > maxRange)
+        if (origMinRange > 0.0f && goTarget->IsInRange(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), origMinRange))
             return SPELL_FAILED_OUT_OF_RANGE;
 
-        if (minRange > 0.0f && m_caster->GetExactDistSq(goTarget) < minRange)
+        if (!goTarget->IsInRange(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), origMaxRange))
             return SPELL_FAILED_OUT_OF_RANGE;
     }
 
