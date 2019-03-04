@@ -159,22 +159,6 @@ enum SummonGroups
 
 #define MAX_HOME_POSITION_DISTANCE 70.0f
 
-class DelayedSpellCastEvent : public BasicEvent
-{
-    public:
-        DelayedSpellCastEvent(Unit* owner, uint32 spellId, bool triggered = false) :  _owner(owner), _spellId(spellId), _triggered(triggered) { }
-
-        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-        {
-            _owner->CastSpell(_owner, _spellId, _triggered);
-            return true;
-        }
-    private:
-        Unit* _owner;
-        uint32 _spellId;
-        bool _triggered;
-};
-
 class SquallLineImmunityRemovalEvent : public BasicEvent
 {
     public:
@@ -469,18 +453,30 @@ struct boss_alakir : public BossAI
                 break;
             case NPC_ICE_STORM:
                 summon->CastSpell(summon, SPELL_ICE_STORM_PRE_VISUAL);
-                summon->m_Events.AddEventAtOffset(new DelayedSpellCastEvent(summon, SPELL_ICE_STORM_AURA), 3s + 500ms);
+                //summon->m_Events.AddEventAtOffset(new DelayedSpellCastEvent(summon, SPELL_ICE_STORM_AURA), 3s + 500ms);
+                summon->m_Events.AddEventAtOffset([summon]()
+                {
+                    summon->CastSpell(summon, SPELL_ICE_STORM_AURA);
+
+                }, 3s + 500ms );
                 break;
             case NPC_SQUALL_LINE_VEHICLE_SW:
                 DoCastSelf(SPELL_SQUALL_LINE_SCRIPT);
                 summon->GetMotionMaster()->MoveCirclePath(me->GetPositionX(), me->GetPositionY(), SquallLineDistanceReferencePos.GetPositionZ(), me->GetExactDist2d(SquallLineDistanceReferencePos), true, 11);
                 // Delay the spell cast by 100ms to give the core time to place the accessories into the seats for the following spellscript to take effect
-                summon->m_Events.AddEventAtOffset(new DelayedSpellCastEvent(summon, SPELL_SQUALL_LINE_FORCE_CAST), 100ms);
+                summon->m_Events.AddEventAtOffset([summon]()
+                {
+                    summon->CastSpell(summon, SPELL_SQUALL_LINE_FORCE_CAST);
+                }, 100ms);
                 break;
             case NPC_SQUALL_LINE_VEHICLE_SE:
                 DoCastSelf(SPELL_SQUALL_LINE_SCRIPT);
                 summon->GetMotionMaster()->MoveCirclePath(me->GetPositionX(), me->GetPositionY(), SquallLineDistanceReferencePos.GetPositionZ(), me->GetExactDist2d(SquallLineDistanceReferencePos), false, 11);
-                summon->m_Events.AddEventAtOffset(new DelayedSpellCastEvent(summon, SPELL_SQUALL_LINE_FORCE_CAST), 100ms);
+                summon->m_Events.AddEventAtOffset([summon]()
+                {
+                    summon->CastSpell(summon, SPELL_SQUALL_LINE_FORCE_CAST);
+
+                }, 100ms);
                 break;
             case NPC_SQUALL_LINE_SW:
             case NPC_SQUALL_LINE_SE:
@@ -489,13 +485,25 @@ struct boss_alakir : public BossAI
                 break;
             case NPC_STORMLING_PRE_EFFECT:
                 summon->CastSpell(summon, SPELL_STORMLING_PRE_EFFECT_VISUAL);
-                summon->m_Events.AddEventAtOffset(new DelayedSpellCastEvent(summon, SPELL_STORMLING_SUMMON), 3s + 500ms);
+                summon->m_Events.AddEventAtOffset([summon]()
+                {
+                    summon->CastSpell(summon, SPELL_STORMLING_SUMMON);
+
+                }, 3s + 500ms);
                 break;
             case NPC_LIGHTNING_CLOUDS_BOTTOM:
-                summon->m_Events.AddEventAtOffset(new DelayedSpellCastEvent(summon, SPELL_LIGHTNING_CLOUDS_PERIODIC_DAMAGE_AURA), 5s);
+                summon->m_Events.AddEventAtOffset([summon]()
+                {
+                    summon->CastSpell(summon, SPELL_LIGHTNING_CLOUDS_PERIODIC_DAMAGE_AURA);
+
+                }, 5s);
                 break;
             case NPC_LIGHTNING_CLOUDS:
-                summon->m_Events.AddEventAtOffset(new DelayedSpellCastEvent(summon, SPELL_LIGHTNING_CLOUDS_PERIODIC_DAMAGE_AURA), 5s);
+                summon->m_Events.AddEventAtOffset([summon]()
+                {
+                    summon->CastSpell(summon, SPELL_LIGHTNING_CLOUDS_PERIODIC_DAMAGE_AURA);
+
+                }, 5s);
                 for (uint8 i = 0; i < 24; i++)
                     summon->CastSpell(LightningCloudsExtraVisualsPositions[i].GetPositionX(), LightningCloudsExtraVisualsPositions[i].GetPositionY(),
                         summon->GetPositionZ(), SPELL_LIGHTNING_CLOUDS_SUMMON_EXTRA_VISUALS);
