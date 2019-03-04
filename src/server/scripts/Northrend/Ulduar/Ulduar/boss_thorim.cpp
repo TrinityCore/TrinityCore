@@ -599,7 +599,7 @@ class boss_thorim : public CreatureScript
                 events.ScheduleEvent(EVENT_OUTRO_2, _hardMode ? 8000 : 11000);
                 events.ScheduleEvent(EVENT_OUTRO_3, _hardMode ? 19000 : 21000);
 
-                me->m_Events.AddEvent(new KeeperDespawnEvent(me), me->m_Events.CalculateTime(35000));
+                me->m_Events.AddEvent(new UlduarKeeperDespawnEvent(me), me->m_Events.CalculateTime(35000));
             }
 
             void MovementInform(uint32 type, uint32 id) override
@@ -1730,9 +1730,18 @@ class spell_thorim_frostbolt_volley : public SpellScriptLoader
         {
             PrepareSpellScript(spell_thorim_frostbolt_volley_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                unitList.remove_if(PlayerOrPetCheck());
+                targets.remove_if([](WorldObject* object) -> bool
+                {
+                    if (object->GetTypeId() == TYPEID_PLAYER)
+                        return false;
+
+                    if (Creature* creature = object->ToCreature())
+                        return !creature->IsPet();
+
+                    return true;
+                });
             }
 
             void Register() override
