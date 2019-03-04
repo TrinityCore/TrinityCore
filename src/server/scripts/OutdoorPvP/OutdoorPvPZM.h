@@ -96,16 +96,13 @@ enum ZM_TowerStateMask
     ZM_TOWERSTATE_H = 4
 };
 
-class OutdoorPvPZM;
-
 class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
 {
     public:
         OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type);
 
         void ChangeState() override;
-
-        void FillInitialWorldStates(WorldPacket & data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
         void UpdateTowerState();
 
@@ -127,64 +124,46 @@ class OPvPCapturePointZM_Graveyard : public OPvPCapturePoint
         OPvPCapturePointZM_Graveyard(OutdoorPvP* pvp);
 
         bool Update(uint32 diff) override;
-
         void ChangeState() override { }
-
-        void FillInitialWorldStates(WorldPacket & data) override;
-
-        void UpdateTowerState();
-
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         int32 HandleOpenGo(Player* player, GameObject* go) override;
-
-        void SetBeaconState(uint32 controlling_team); // not good atm
-
         bool HandleGossipOption(Player* player, Creature* creature, uint32 gossipid) override;
-
         bool HandleDropFlag(Player* player, uint32 spellId) override;
-
         bool CanTalkTo(Player* player, Creature* creature, GossipMenuItems const& gso) override;
 
+        void UpdateTowerState();
+        void SetBeaconState(uint32 controlling_team); // not good atm
         uint32 GetGraveyardState() const;
-
-    private:
-        uint32 m_GraveyardState;
 
     protected:
         uint32 m_BothControllingFaction;
-
         ObjectGuid m_FlagCarrierGUID;
+        uint32 m_GraveyardState;
 };
 
+/// @todo flag carrier death/leave/mount/activitychange should give back the gossip options
 class OutdoorPvPZM : public OutdoorPvP
 {
     public:
         OutdoorPvPZM();
 
         bool SetupOutdoorPvP() override;
-
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
-
         bool Update(uint32 diff) override;
-
-        void FillInitialWorldStates(WorldPacket &data) override;
-
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void SendRemoveWorldStates(Player* player) override;
-
         void HandleKillImpl(Player* player, Unit* killed) override;
 
         uint32 GetAllianceTowersControlled() const;
         void SetAllianceTowersControlled(uint32 count);
-
         uint32 GetHordeTowersControlled() const;
         void SetHordeTowersControlled(uint32 count);
 
     private:
-        OPvPCapturePointZM_Graveyard * m_Graveyard;
-
+        OPvPCapturePointZM_Graveyard* m_Graveyard;
         uint32 m_AllianceTowersControlled;
         uint32 m_HordeTowersControlled;
 };
 
-/// @todo flag carrier death/leave/mount/activitychange should give back the gossip options
 #endif
