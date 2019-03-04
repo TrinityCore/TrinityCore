@@ -212,11 +212,10 @@ class spell_spawn_blood_pool : public SpellScript
     void SetDest(SpellDestination& dest)
     {
         Unit* caster = GetCaster();
-        LiquidData liquidStatus;
-        ZLiquidStatus status = caster->GetMap()->GetLiquidStatus(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), MAP_ALL_LIQUIDS, &liquidStatus, caster->GetCollisionHeight());
-
         Position summonPos = caster->GetPosition();
-        summonPos.m_positionZ = liquidStatus.level;
+        LiquidData liquidStatus;
+        if (caster->GetMap()->GetLiquidStatus(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), MAP_ALL_LIQUIDS, &liquidStatus, caster->GetCollisionHeight()))
+            summonPos.m_positionZ = liquidStatus.level;
         dest.Relocate(summonPos);
     }
 
