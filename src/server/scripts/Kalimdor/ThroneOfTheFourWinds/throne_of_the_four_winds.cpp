@@ -87,22 +87,27 @@ class at_totfw_catch_fall : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
+            InstanceScript* instance = player->GetInstanceScript();
+            if (!instance)
+                return true;
 
-            if (InstanceScript* instance = player->GetInstanceScript())
+            if (Creature* anshal = instance->GetCreature(DATA_ANSHAL))
+                anshal->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
+            else if (Creature* nezir = instance->GetCreature(DATA_NEZIR))
+                nezir->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
+            else if (Creature* rohash = instance->GetCreature(DATA_ROHASH))
+                rohash->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
+
+            if (instance->GetBossState(DATA_ALAKIR) != IN_PROGRESS)
             {
-                if (Creature* anshal = instance->GetCreature(DATA_ANSHAL))
-                    anshal->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
-                else if (Creature* nezir = instance->GetCreature(DATA_NEZIR))
-                    nezir->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
-                else if (Creature* rohash = instance->GetCreature(DATA_ROHASH))
-                    rohash->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
-
-                if (instance->GetBossState(DATA_ALAKIR) == IN_PROGRESS)
-                    return true;
+                if (Creature* trigger = player->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f, true))
+                    trigger->CastSpell(player, SPELL_CATCH_FALL, true);
             }
-
-            if (Creature* trigger = player->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f, true))
-                trigger->CastSpell(player, SPELL_CATCH_FALL, true);
+            else
+            {
+                player->KillSelf();
+                player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
+            }
 
             return true;
         }
