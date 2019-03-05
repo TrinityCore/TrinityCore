@@ -2799,12 +2799,22 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                             int32 origDuration = duration;
                             duration = 0;
                             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                            {
                                 if (AuraEffect const* eff = m_spellAura->GetEffect(i))
+                                {
                                     if (int32 amplitude = eff->GetAmplitude())  // amplitude is hastened by UNIT_MOD_CAST_SPEED
                                     {
-                                        int32 ticks = origDuration / amplitude + (origDuration % amplitude > amplitude / 2 ? 1 : 0);
+                                        float preciseTicks = (float)origDuration / float(amplitude);
+                                        int32 ticks = origDuration / amplitude;
+
+                                        // additional ticks are being added by rounding up
+                                        if (preciseTicks - ticks >= 0.5f)
+                                            ticks = int32(std::ceil(preciseTicks));
+
                                         duration = std::max(ticks * amplitude, duration);
                                     }
+                                }
+                            }
 
                             // if there is no periodic effect
                             if (!duration)
