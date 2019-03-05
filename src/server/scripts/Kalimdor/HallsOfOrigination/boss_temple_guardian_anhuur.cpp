@@ -207,10 +207,7 @@ public:
                 {
                     case EVENT_BURNING_LIGHT:
                     {
-                        Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me));
-                        if (!unit)
-                            unit = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-                        DoCast(unit, SPELL_BURNING_LIGHT);
+                        DoCastAOE(SPELL_BURNING_LIGHT);
                         events.ScheduleEvent(EVENT_SEARING_LIGHT, Seconds(2)); // No phase.
                         break;
                     }
