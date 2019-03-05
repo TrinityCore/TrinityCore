@@ -26,6 +26,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "WorldStatePackets.h"
 
 void BattlegroundAVScore::BuildObjectivesBlock(WorldPacket& data)
 {
@@ -1029,32 +1030,34 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     UpdatePlayerScore(player, (IsTower(node)) ? SCORE_TOWERS_ASSAULTED : SCORE_GRAVEYARDS_ASSAULTED, 1);
 }
 
-void BattlegroundAV::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundAV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    for (uint8 i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
+    for (uint8 itr = BG_AV_NODES_FIRSTAID_STATION; itr < BG_AV_NODES_MAX; ++itr)
     {
-        uint16 owner = m_Nodes[i].Owner;
-        BG_AV_States state = m_Nodes[i].State;
+        uint16 owner = m_Nodes[itr].Owner;
+        BG_AV_States state = m_Nodes[itr].State;
 
-        data << uint32(BGAVNodeInfo[i].WorldStateIds.AllianceAssault) << uint32(owner == ALLIANCE && state == POINT_ASSAULTED);
-        data << uint32(BGAVNodeInfo[i].WorldStateIds.AllianceControl) << uint32(owner == ALLIANCE && state >= POINT_DESTROYED);
-        data << uint32(BGAVNodeInfo[i].WorldStateIds.HordeAssault) << uint32(owner == HORDE && state == POINT_ASSAULTED);
-        data << uint32(BGAVNodeInfo[i].WorldStateIds.HordeControl) << uint32(owner == HORDE && state >= POINT_DESTROYED);
+        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.AllianceAssault, (owner == ALLIANCE && state == POINT_ASSAULTED) ? 1 : 0);
+        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.AllianceControl, (owner == ALLIANCE && state >= POINT_DESTROYED) ? 1 : 0);
+        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.HordeAssault, (owner == HORDE && state == POINT_ASSAULTED) ? 1 : 0);
+        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.HordeControl, (owner == HORDE && state >= POINT_DESTROYED) ? 1 : 0);
     }
 
-    data << uint32(AV_SNOWFALL_N) << uint32(m_Nodes[BG_AV_NODES_SNOWFALL_GRAVE].Owner == AV_NEUTRAL_TEAM);
+    packet.Worldstates.emplace_back(AV_SNOWFALL_N, (m_Nodes[BG_AV_NODES_SNOWFALL_GRAVE].Owner == AV_NEUTRAL_TEAM ? 1 : 0));
+    packet.Worldstates.emplace_back(AV_Alliance_Score, m_Team_Scores[0]);
+    packet.Worldstates.emplace_back(AV_Horde_Score, m_Team_Scores[1]);
 
-    data << uint32(AV_Alliance_Score)  << uint32(m_Team_Scores[0]);
-    data << uint32(AV_Horde_Score) << uint32(m_Team_Scores[1]);
-    if (GetStatus() == STATUS_IN_PROGRESS){ //only if game started the teamscores are displayed
-        data << uint32(AV_SHOW_A_SCORE) << uint32(1);
-        data << uint32(AV_SHOW_H_SCORE) << uint32(1);
+    // only if game started the teamscores are displayed
+    if (GetStatus() == STATUS_IN_PROGRESS) {
+        packet.Worldstates.emplace_back(AV_SHOW_A_SCORE, 1);
+        packet.Worldstates.emplace_back(AV_SHOW_H_SCORE, 1);
     }
     else
     {
-        data << uint32(AV_SHOW_A_SCORE) << uint32(0);
-        data << uint32(AV_SHOW_H_SCORE) << uint32(0);
+        packet.Worldstates.emplace_back(AV_SHOW_A_SCORE, 0);
+        packet.Worldstates.emplace_back(AV_SHOW_H_SCORE, 0);
     }
+
     SendMineWorldStates(AV_NORTH_MINE);
     SendMineWorldStates(AV_SOUTH_MINE);
 }

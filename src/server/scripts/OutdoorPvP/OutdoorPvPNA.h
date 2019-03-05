@@ -148,7 +148,6 @@ enum HalaaStates
 
 class Unit;
 class Creature;
-class OutdoorPvPNA;
 
 class OPvPCapturePointNA : public OPvPCapturePoint
 {
@@ -156,47 +155,31 @@ class OPvPCapturePointNA : public OPvPCapturePoint
         OPvPCapturePointNA(OutdoorPvP* pvp);
 
         bool Update(uint32 diff) override;
-
         void ChangeState() override;
-
-        void FillInitialWorldStates(WorldPacket & data) override;
-
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go) override;
-
         int32 HandleOpenGo(Player* player, GameObject* go) override;
 
         uint32 GetAliveGuardsCount();
         uint32 GetControllingFaction() const;
-
-    protected:
-        // called when a faction takes control
-        void FactionTakeOver(uint32 team);
-
+        void FactionTakeOver(uint32 team); // called when a faction takes control
         void DeSpawnNPCs();
         void DeSpawnGOs();
-
         void SpawnNPCsForTeam(uint32 team);
         void SpawnGOsForTeam(uint32 team);
-
         void UpdateWyvernRoostWorldState(uint32 roost);
         void UpdateHalaaWorldState();
 
     private:
         bool m_capturable;
-
         uint32 m_GuardsAlive;
-
         uint32 m_ControllingFaction;
-
         uint32 m_WyvernStateNorth;
         uint32 m_WyvernStateSouth;
         uint32 m_WyvernStateEast;
         uint32 m_WyvernStateWest;
-
         uint32 m_HalaaState;
-
         uint32 m_RespawnTimer;
-
         uint32 m_GuardCheckTimer;
 };
 
@@ -206,20 +189,15 @@ class OutdoorPvPNA : public OutdoorPvP
         OutdoorPvPNA();
 
         bool SetupOutdoorPvP() override;
-
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
-
         bool Update(uint32 diff) override;
-
-        void FillInitialWorldStates(WorldPacket &data) override;
-
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void SendRemoveWorldStates(Player* player) override;
-
         void HandleKillImpl(Player* player, Unit* killed) override;
 
     private:
-        OPvPCapturePointNA * m_obj;
+        OPvPCapturePointNA* m_obj;
 };
 
 #endif

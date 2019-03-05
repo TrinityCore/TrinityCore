@@ -15,39 +15,30 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapManager.h"
-#include "ScriptMgr.h"
 #include "OutdoorPvPEP.h"
-#include "WorldPacket.h"
-#include "Player.h"
-#include "GameObject.h"
-#include "ObjectMgr.h"
-#include "ObjectAccessor.h"
-#include "OutdoorPvPMgr.h"
 #include "Creature.h"
+#include "GameObject.h"
 #include "GossipDef.h"
+#include "MapManager.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "OutdoorPvPMgr.h"
+#include "ScriptMgr.h"
+#include "Player.h"
+#include "WorldStatePackets.h"
 
 uint32 const EP_AllianceBuffs[4] = { 11413, 11414, 11415, 1386 };
-
 uint32 const EP_HordeBuffs[4] = { 30880, 30683, 30682, 29520 };
-
 uint32 const EP_GraveyardZone = 139;
-
 uint32 const EP_GraveyardId = 927;
-
 uint8 const EPBuffZonesNum = 3;
-
 uint32 const EP_EWT_CM = 17690;
 uint32 const EP_CGT_CM = 17689;
 uint32 const EP_NPT_CM = 17696;
 uint32 const EP_PWT_CM = 17698;
-
 uint32 const EPBuffZones[EPBuffZonesNum] = { 139, 2017, 2057 };
-
-/*
-uint32 const EPTowerPlayerEnterEvents[EP_TOWER_NUM] = { 10691, 10699, 10701, 10705 };
-uint32 const EPTowerPlayerLeaveEvents[EP_TOWER_NUM] = { 10692, 10698, 10700, 10704 };
-*/
+//uint32 const EPTowerPlayerEnterEvents[EP_TOWER_NUM] = { 10691, 10699, 10701, 10705 };
+//uint32 const EPTowerPlayerLeaveEvents[EP_TOWER_NUM] = { 10692, 10698, 10700, 10704 };
 
 go_type const EPCapturePoints[EP_TOWER_NUM] =
 {
@@ -94,8 +85,7 @@ creature_type const EP_PWT_FlightMaster = { 17209, 0, { 2987.5f, -3049.11f, 120.
 // after spawning, modify the faction so that only the controller will be able to use it with SetUInt32Value(GAMEOBJECT_FACTION, faction_id);
 go_type const EP_NPT_LordaeronShrine = { 181682, 0, { 3167.72f, -4355.91f, 138.785f, 1.69297f }, { 0.0f, 0.0f, 0.748956f, 0.66262f } };
 
-OPvPCapturePointEP_EWT::OPvPCapturePointEP_EWT(OutdoorPvP* pvp)
-: OPvPCapturePoint(pvp), m_TowerState(EP_TS_N), m_UnitsSummonedSide(0)
+OPvPCapturePointEP_EWT::OPvPCapturePointEP_EWT(OutdoorPvP* pvp) : OPvPCapturePoint(pvp), m_TowerState(EP_TS_N), m_UnitsSummonedSide(0)
 {
     SetCapturePointData(EPCapturePoints[EP_EWT].entry, EPCapturePoints[EP_EWT].map, EPCapturePoints[EP_EWT].pos, EPCapturePoints[EP_EWT].rot);
     AddObject(EP_EWT_FLAGS, EPTowerFlags[EP_EWT].entry, EPTowerFlags[EP_EWT].map, EPTowerFlags[EP_EWT].pos, EPTowerFlags[EP_EWT].rot);
@@ -154,13 +144,13 @@ void OPvPCapturePointEP_EWT::ChangeState()
         SendObjectiveComplete(EP_EWT_CM, ObjectGuid::Empty);
 }
 
-void OPvPCapturePointEP_EWT::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointEP_EWT::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << EP_EWT_A << uint32((m_TowerState & EP_TS_A) != 0);
-    data << EP_EWT_H << uint32((m_TowerState & EP_TS_H) != 0);
-    data << EP_EWT_N_A << uint32((m_TowerState & EP_TS_N_A) != 0);
-    data << EP_EWT_N_H << uint32((m_TowerState & EP_TS_N_H) != 0);
-    data << EP_EWT_N << uint32((m_TowerState & EP_TS_N) != 0);
+    packet.Worldstates.emplace_back(EP_EWT_A, (m_TowerState & EP_TS_A) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_EWT_H, (m_TowerState & EP_TS_H) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_EWT_N_A, (m_TowerState & EP_TS_N_A) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_EWT_N_H, (m_TowerState & EP_TS_N_H) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_EWT_N, (m_TowerState & EP_TS_N) != 0 ? 1 : 0);
 }
 
 void OPvPCapturePointEP_EWT::UpdateTowerState()
@@ -262,13 +252,13 @@ void OPvPCapturePointEP_NPT::ChangeState()
         SendObjectiveComplete(EP_NPT_CM, ObjectGuid::Empty);
 }
 
-void OPvPCapturePointEP_NPT::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointEP_NPT::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << EP_NPT_A << uint32((m_TowerState & EP_TS_A) != 0);
-    data << EP_NPT_H << uint32((m_TowerState & EP_TS_H) != 0);
-    data << EP_NPT_N_A << uint32((m_TowerState & EP_TS_N_A) != 0);
-    data << EP_NPT_N_H << uint32((m_TowerState & EP_TS_N_H) != 0);
-    data << EP_NPT_N << uint32((m_TowerState & EP_TS_N) != 0);
+    packet.Worldstates.emplace_back(EP_NPT_A, (m_TowerState & EP_TS_A) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_NPT_H, (m_TowerState & EP_TS_H) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_NPT_N_A, (m_TowerState & EP_TS_N_A) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_NPT_N_H, (m_TowerState & EP_TS_N_H) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_NPT_N, (m_TowerState & EP_TS_N) != 0 ? 1 : 0);
 }
 
 void OPvPCapturePointEP_NPT::UpdateTowerState()
@@ -357,13 +347,13 @@ void OPvPCapturePointEP_CGT::ChangeState()
         SendObjectiveComplete(EP_CGT_CM, ObjectGuid::Empty);
 }
 
-void OPvPCapturePointEP_CGT::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointEP_CGT::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << EP_CGT_A << uint32((m_TowerState & EP_TS_A) != 0);
-    data << EP_CGT_H << uint32((m_TowerState & EP_TS_H) != 0);
-    data << EP_CGT_N_A << uint32((m_TowerState & EP_TS_N_A) != 0);
-    data << EP_CGT_N_H << uint32((m_TowerState & EP_TS_N_H) != 0);
-    data << EP_CGT_N << uint32((m_TowerState & EP_TS_N) != 0);
+    packet.Worldstates.emplace_back(EP_CGT_A, (m_TowerState & EP_TS_A) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_CGT_H, (m_TowerState & EP_TS_H) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_CGT_N_A, (m_TowerState & EP_TS_N_A) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_CGT_N_H, (m_TowerState & EP_TS_N_H) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_CGT_N, (m_TowerState & EP_TS_N) != 0 ? 1 : 0);
 }
 
 void OPvPCapturePointEP_CGT::UpdateTowerState()
@@ -456,13 +446,13 @@ void OPvPCapturePointEP_PWT::ChangeState()
         SendObjectiveComplete(EP_PWT_CM, ObjectGuid::Empty);
 }
 
-void OPvPCapturePointEP_PWT::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointEP_PWT::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << EP_PWT_A << uint32((m_TowerState & EP_TS_A) != 0);
-    data << EP_PWT_H << uint32((m_TowerState & EP_TS_H) != 0);
-    data << EP_PWT_N_A << uint32((m_TowerState & EP_TS_N_A) != 0);
-    data << EP_PWT_N_H << uint32((m_TowerState & EP_TS_N_H) != 0);
-    data << EP_PWT_N << uint32((m_TowerState & EP_TS_N) != 0);
+    packet.Worldstates.emplace_back(EP_PWT_A, (m_TowerState & EP_TS_A) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_PWT_H, (m_TowerState & EP_TS_H) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_PWT_N_A, (m_TowerState & EP_TS_N_A) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_PWT_N_H, (m_TowerState & EP_TS_N_H) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(EP_PWT_N, (m_TowerState & EP_TS_N) != 0 ? 1 : 0);
 }
 
 void OPvPCapturePointEP_PWT::UpdateTowerState()
@@ -628,13 +618,13 @@ void OutdoorPvPEP::SetControlledState(uint32 index, uint32 state)
     EP_Controls[index] = state;
 }
 
-void OutdoorPvPEP::FillInitialWorldStates(WorldPacket & data)
+void OutdoorPvPEP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << EP_UI_TOWER_COUNT_A << m_AllianceTowersControlled;
-    data << EP_UI_TOWER_COUNT_H << m_HordeTowersControlled;
+    packet.Worldstates.emplace_back(EP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
+    packet.Worldstates.emplace_back(EP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
 
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        itr->second->FillInitialWorldStates(data);
+        itr->second->FillInitialWorldStates(packet);
 }
 
 void OutdoorPvPEP::SendRemoveWorldStates(Player* player)

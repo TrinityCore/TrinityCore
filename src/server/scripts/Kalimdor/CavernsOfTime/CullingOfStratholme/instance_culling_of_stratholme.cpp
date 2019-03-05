@@ -15,18 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "culling_of_stratholme.h"
 #include "CreatureAI.h"
 #include "CreatureTextMgr.h"
-#include "culling_of_stratholme.h"
 #include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
+#include "WorldStatePackets.h"
 
 /* Culling of Stratholme encounters:
 0 - Meathook
@@ -71,13 +72,13 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 _infiniteCouterState = NOT_STARTED;
             }
 
-            void FillInitialWorldStates(WorldPacket& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
-                data << uint32(WORLDSTATE_SHOW_CRATES) << uint32(1);
-                data << uint32(WORLDSTATE_CRATES_REVEALED) << uint32(_crateCount);
-                data << uint32(WORLDSTATE_WAVE_COUNT) << uint32(0);
-                data << uint32(WORLDSTATE_TIME_GUARDIAN) << uint32(25);
-                data << uint32(WORLDSTATE_TIME_GUARDIAN_SHOW) << uint32(0);
+                packet.Worldstates.emplace_back(WORLDSTATE_SHOW_CRATES, 1);
+                packet.Worldstates.emplace_back(WORLDSTATE_CRATES_REVEALED, _crateCount);
+                packet.Worldstates.emplace_back(WORLDSTATE_WAVE_COUNT, 0);
+                packet.Worldstates.emplace_back(WORLDSTATE_TIME_GUARDIAN, 25);
+                packet.Worldstates.emplace_back(WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
             }
 
             void OnCreatureCreate(Creature* creature) override
