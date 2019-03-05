@@ -54,9 +54,7 @@ enum Spells
 {
     // Fight phase
     SPELL_DIVINE_RECKONING       = 75592,
-    SPELL_BURNING_LIGHT          = 75115, // Forces victim to summon Searing Light dummy at its location.
-
-    // Shield phase
+    SPELL_BURNING_LIGHT          = 75115,
     SPELL_TELEPORT               = 74969,
     SPELL_SHIELD_OF_LIGHT        = 74938,
     SPELL_REVERBERATING_HYMN     = 75322,
@@ -497,6 +495,59 @@ class spell_anhuur_handle_beacons : public SpellScriptLoader
         }
 };
 
+class CasterVictimCheck
+{
+    public:
+        CasterVictimCheck(Unit* _caster) : caster(_caster)  { }
+
+        bool operator()(WorldObject* object)
+        {
+            Unit* unit = object->ToUnit();
+            if (!unit)
+                return true;
+
+            if (caster->GetVictim() && caster->GetVictim() == unit)
+                return true;
+
+            return false;
+        }
+    private:
+        Unit* caster;
+
+};
+
+class spell_anhuur_burning_light_forcecast : public SpellScriptLoader
+{
+    public:
+        spell_anhuur_burning_light_forcecast() : SpellScriptLoader("spell_anhuur_burning_light_forcecast") { }
+
+        class spell_anhuur_burning_light_forcecast_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_anhuur_burning_light_forcecast_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.size() > 1)
+                    targets.remove_if(CasterVictimCheck(GetCaster()));
+
+                if (targets.empty())
+                    return;
+
+                Trinity::Containers::RandomResize(targets, 1);
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anhuur_burning_light_forcecast_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_anhuur_burning_light_forcecast_SpellScript();
+        }
+};
+
 void AddSC_boss_temple_guardian_anhuur()
 {
     new boss_temple_guardian_anhuur();
@@ -505,4 +556,5 @@ void AddSC_boss_temple_guardian_anhuur()
     new spell_anhuur_reverberating_hymn();
     new spell_anhuur_disable_beacon_beams();
     new spell_anhuur_handle_beacons();
+    new spell_anhuur_burning_light_forcecast();
 }
