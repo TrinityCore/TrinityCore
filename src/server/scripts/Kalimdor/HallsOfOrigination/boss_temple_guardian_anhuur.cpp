@@ -155,12 +155,12 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
+            // One-hit cases
+            if (damage >= me->GetHealth())
+                return;
+
             // Already in shield phase? 2 shields are enough.
             if (events.IsInPhase(PHASE_SHIELD) || _countShield == 2)
-                return;
-            
-            // About to die? One-hit cases...
-            if (int64(me->GetHealth()) - int64(damage) <= 0)
                 return;
 
             // Shield phase happens at 66% and 33% health remaining.
@@ -206,11 +206,9 @@ public:
                 switch (eventId)
                 {
                     case EVENT_BURNING_LIGHT:
-                    {
                         DoCastAOE(SPELL_BURNING_LIGHT);
                         events.ScheduleEvent(EVENT_SEARING_LIGHT, Seconds(2)); // No phase.
                         break;
-                    }
                     case EVENT_SEARING_LIGHT:
                         HandleSearingLight();
                         events.ScheduleEvent(EVENT_BURNING_LIGHT, Seconds(10), 0, PHASE_FIGHT);
