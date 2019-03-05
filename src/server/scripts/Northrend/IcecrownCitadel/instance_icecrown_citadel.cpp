@@ -15,19 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "icecrown_citadel.h"
 #include "AreaBoundary.h"
 #include "CreatureAI.h"
-#include "icecrown_citadel.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "TransportMgr.h"
-#include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 enum EventIds
 {
@@ -166,13 +166,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void FillInitialWorldStates(WorldPacket& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
-                data << uint32(WORLDSTATE_SHOW_TIMER)         << uint32(BloodQuickeningState == IN_PROGRESS);
-                data << uint32(WORLDSTATE_EXECUTION_TIME)     << uint32(BloodQuickeningMinutes);
-                data << uint32(WORLDSTATE_SHOW_ATTEMPTS)      << uint32(instance->IsHeroic());
-                data << uint32(WORLDSTATE_ATTEMPTS_REMAINING) << uint32(HeroicAttempts);
-                data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(MaxHeroicAttempts);
+                packet.Worldstates.emplace_back(WORLDSTATE_SHOW_TIMER, BloodQuickeningState == IN_PROGRESS ? 1 : 0);
+                packet.Worldstates.emplace_back(WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
+                packet.Worldstates.emplace_back(WORLDSTATE_SHOW_ATTEMPTS, instance->IsHeroic() ? 1 : 0);
+                packet.Worldstates.emplace_back(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
+                packet.Worldstates.emplace_back(WORLDSTATE_ATTEMPTS_MAX, MaxHeroicAttempts);
             }
 
             void OnPlayerEnter(Player* player) override
