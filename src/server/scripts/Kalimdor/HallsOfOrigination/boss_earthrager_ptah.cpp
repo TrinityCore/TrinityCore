@@ -15,9 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// To-do:
-// - Script "Sand Vortex", heroic mode ability.
-
 #include "halls_of_origination.h"
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -56,7 +53,7 @@ enum Events
     EVENT_SUMMON_JEWELED_SCARAB,
 
     // Tumultuous Earthstorm
-    EVENT_START_MOVEMENT,
+    EVENT_START_MOVEMENT
 };
 
 enum Spells
@@ -86,6 +83,11 @@ enum Phases
 enum Sounds
 {
     SOUND_PTAH_EARTHQUAKE           = 18908
+};
+
+enum Data
+{
+    DATA_LAST_CONSUME_TARGET = 0
 };
 
 // 39428 Earthrager Ptah
@@ -362,9 +364,9 @@ class npc_ptah_tumultuous_earthstorm : public CreatureScript
                 _guid = passenger->GetGUID();
             }
 
-            ObjectGuid GetLastPassengerGuid()
+            ObjectGuid GetGUID(int32 type) const override
             {
-                return _guid;
+                return (type == DATA_LAST_CONSUME_TARGET ? _guid : ObjectGuid::Empty);
             }
 
             void UpdateAI(uint32 diff) override
@@ -497,9 +499,7 @@ class ConsumeEntryCheck
         bool operator()(WorldObject* object)
         {
             if (Unit* target = object->ToUnit())
-            {
                 return target->movespline->isParabolic() || target->HasAura(SPELL_CONSUME_DAMAGE);
-            }
 
             return false;
         }
@@ -512,18 +512,20 @@ class ConsumeKnockbackCheck
 
         bool operator()(WorldObject* object)
         {
-            if (Unit* target = object->ToUnit())
+            Unit* target = object->ToUnit();
+            if (!target)
+                return true;
+
+            Creature* caster = _caster->ToCreature();
+            if (!caster)
+                return true;
+
+            if (caster->IsAIEnabled && target->GetTypeId() == TYPEID_PLAYER)
             {
-                if (Creature* caster = _caster->ToCreature())
-                {
-                    if (!caster->IsAIEnabled)
-                        return true;
-
-                    ObjectGuid guid = CAST_AI(npc_ptah_tumultuous_earthstorm::npc_ptah_tumultuous_earthstormAI, caster->AI())->GetLastPassengerGuid();
-
-                    return target->GetGUID() != guid;
-                }
+                ObjectGuid guid = caster->AI()->GetGUID(DATA_LAST_CONSUME_TARGET);
+                return target->GetGUID() != guid;
             }
+
             return false;
         }
     private:
@@ -540,17 +542,12 @@ class spell_earthrager_ptah_consume: public SpellScriptLoader
         {
             PrepareSpellScript(spell_earthrager_ptah_consume_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_CONSUME_DAMAGE });
-            }
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
                     return;
 
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_CONSUME_DAMAGE));
+                targets.remove_if(ConsumeEntryCheck());
             }
 
             void FilterTargetsKnockback(std::list<WorldObject*>& targets)
