@@ -1976,25 +1976,6 @@ class spell_feludius_glaciate : public SpellScript
     }
 };
 
-class spell_feludius_fire_proc_check : public AuraScript
-{
-    PrepareAuraScript(spell_feludius_fire_proc_check);
-
-    bool CheckProc(ProcEventInfo& eventInfo)
-    {
-        if (SpellInfo const* spell = eventInfo.GetSpellInfo())
-            if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_INFERNO_RUSH_TRIGGERED, eventInfo.GetActor()))
-                return (spell->Id == spellId);
-
-        return false;
-    }
-
-    void Register() override
-    {
-        DoCheckProc += AuraCheckProcFn(spell_feludius_fire_proc_check::CheckProc);
-    }
-};
-
 class spell_feludius_heart_of_ice : public AuraScript
 {
     PrepareAuraScript(spell_feludius_heart_of_ice);
@@ -2219,6 +2200,32 @@ class spell_ignacious_inferno_leap : public SpellScript
     void Register()
     {
         AfterCast += SpellCastFn(spell_ignacious_inferno_leap::HandleInfernoRush);
+    }
+};
+
+class spell_ignacious_inferno_rush : public SpellScript
+{
+    PrepareSpellScript(spell_ignacious_inferno_rush);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_WATERLOGGED,
+                SPELL_FROZEN
+            });
+    }
+
+    void HandleAuraRemoval(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_FROZEN, target));
+        target->RemoveAurasDueToSpell(SPELL_WATERLOGGED);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_ignacious_inferno_rush::HandleAuraRemoval, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -2837,7 +2844,6 @@ void AddSC_boss_ascendant_council()
     RegisterSpellScript(spell_feludius_water_bomb_targeting);
     RegisterSpellScript(spell_feludius_water_bomb);
     RegisterSpellScript(spell_feludius_glaciate);
-    RegisterAuraScript(spell_feludius_fire_proc_check);
     RegisterAuraScript(spell_feludius_heart_of_ice);
     RegisterSpellAndAuraScriptPair(spell_feludius_frost_imbued, spell_feludius_frost_imbued_AuraScript);
     RegisterSpellScript(spell_feludius_frozen_orb_targeting);
@@ -2845,6 +2851,7 @@ void AddSC_boss_ascendant_council()
     RegisterAuraScript(spell_ignacious_burning_blood);
     RegisterSpellAndAuraScriptPair(spell_ignacious_flame_imbued, spell_ignacious_flame_imbued_AuraScript);
     RegisterSpellScript(spell_ignacious_inferno_leap);
+    RegisterSpellScript(spell_ignacious_inferno_rush);
     RegisterSpellScript(spell_ignacious_flame_strike);
     RegisterSpellScript(spell_arion_lashing_winds);
     RegisterSpellScript(spell_arion_thundershock);
