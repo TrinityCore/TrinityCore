@@ -1227,14 +1227,6 @@ class spell_valiona_blackout_dummy : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if (targets.size() <= 1)
-                    return;
-
-                targets.remove_if(EngulfingMagicCheck());
-
-                if (targets.empty())
-                    return;
-
                 Trinity::Containers::RandomResize(targets, 1);
             }
 
