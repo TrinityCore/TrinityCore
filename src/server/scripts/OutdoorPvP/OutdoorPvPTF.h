@@ -67,16 +67,13 @@ class OPvPCapturePointTF : public OPvPCapturePoint
         OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type);
 
         bool Update(uint32 diff) override;
-
         void ChangeState() override;
-
-        void FillInitialWorldStates(WorldPacket & data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
         void UpdateTowerState();
 
     protected:
         OutdoorPvPTF_TowerType m_TowerType;
-
         uint32 m_TowerState;
 };
 
@@ -86,32 +83,24 @@ class OutdoorPvPTF : public OutdoorPvP
         OutdoorPvPTF();
 
         bool SetupOutdoorPvP() override;
-
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
-
         bool Update(uint32 diff) override;
-
-        void FillInitialWorldStates(WorldPacket &data) override;
-
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void SendRemoveWorldStates(Player* player) override;
 
         uint32 GetAllianceTowersControlled() const;
         void SetAllianceTowersControlled(uint32 count);
-
         uint32 GetHordeTowersControlled() const;
         void SetHordeTowersControlled(uint32 count);
-
         bool IsLocked() const;
 
     private:
         bool m_IsLocked;
         uint32 m_LockTimer;
         uint32 m_LockTimerUpdate;
-
         uint32 m_AllianceTowersControlled;
         uint32 m_HordeTowersControlled;
-
         uint32 hours_left, second_digit, first_digit;
 };
 

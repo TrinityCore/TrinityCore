@@ -15,15 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "halls_of_reflection.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
-#include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 Position const JainaSpawnPos           = { 5236.659f, 1929.894f, 707.7781f, 0.8726646f }; // Jaina Spawn Position
 Position const SylvanasSpawnPos        = { 5236.667f, 1929.906f, 707.7781f, 0.8377581f }; // Sylvanas Spawn Position (sniffed)
@@ -290,10 +290,10 @@ class instance_halls_of_reflection : public InstanceMapScript
                 }
             }
 
-            void FillInitialWorldStates(WorldPacket& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
-                data << uint32(WORLD_STATE_HOR_WAVES_ENABLED) << uint32(_introState == DONE && GetBossState(DATA_MARWYN) != DONE);
-                data << uint32(WORLD_STATE_HOR_WAVE_COUNT) << uint32(_waveCount);
+                packet.Worldstates.emplace_back(WORLD_STATE_HOR_WAVES_ENABLED, (_introState == DONE && GetBossState(DATA_MARWYN) != DONE) ? 1 : 0);
+                packet.Worldstates.emplace_back(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
             }
 
             bool SetBossState(uint32 type, EncounterState state) override

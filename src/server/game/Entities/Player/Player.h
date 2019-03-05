@@ -1852,7 +1852,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData const& eqset);
         void DeleteEquipmentSet(uint64 setGuid);
 
-        void SendInitWorldStates(uint32 zone, uint32 area);
+        void SendInitWorldStates(uint32 zoneId, uint32 areaId);
         void SendUpdateWorldState(uint32 variable, uint32 value) const;
         void SendDirectMessage(WorldPacket const* data) const;
         void SendBGWeekendWorldStates() const;
