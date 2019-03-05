@@ -1412,22 +1412,22 @@ bool WorldObject::IsInMap(const WorldObject* obj) const
 
 bool WorldObject::IsWithinDist3d(float x, float y, float z, float dist) const
 {
-    return IsInDist(x, y, z, dist + GetCombatReach());
+    return IsInDist(x, y, z, dist);
 }
 
 bool WorldObject::IsWithinDist3d(Position const* pos, float dist) const
 {
-    return IsInDist(pos, dist + GetCombatReach());
+    return IsInDist(pos, dist);
 }
 
 bool WorldObject::IsWithinDist2d(float x, float y, float dist) const
 {
-    return IsInDist2d(x, y, dist + GetCombatReach());
+    return IsInDist2d(x, y, dist);
 }
 
 bool WorldObject::IsWithinDist2d(Position const* pos, float dist) const
 {
-    return IsInDist2d(pos, dist + GetCombatReach());
+    return IsInDist2d(pos, dist);
 }
 
 bool WorldObject::IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D /*= true*/) const
