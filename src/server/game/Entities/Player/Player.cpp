@@ -25243,7 +25243,7 @@ bool Player::CanSeeSpellClickOn(Creature const* c) const
 
     auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(c->GetEntry());
     if (clickBounds.begin() == clickBounds.end())
-        return true;
+        return false;
 
     for (auto const& clickPair : clickBounds)
     {
