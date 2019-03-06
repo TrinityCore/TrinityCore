@@ -3842,12 +3842,19 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     ApplySpellFix({
+        51597, // Summon Scourged Captive
         56606, // Ride Jokkum
         61791  // Ride Vehicle (Yogg-Saron)
     }, [](SpellInfo* spellInfo)
     {
         /// @todo: remove this when basepoints of all Ride Vehicle auras are calculated correctly
         spellInfo->Effects[EFFECT_0].BasePoints = 1;
+    });
+    
+    // Summon Scourged Captive
+    ApplySpellFix({ 51597 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].DieSides = 0;
     });
 
     // Black Magic
