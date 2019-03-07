@@ -356,6 +356,7 @@ enum Daegarnn
     NPC_PRISONER_1                  = 24253,  // looks the same but has different abilities
     NPC_PRISONER_2                  = 24254,
     NPC_PRISONER_3                  = 24255,
+    SAY_TEXT                        = 0
 };
 
 static float afSummon[] = {838.81f, -4678.06f, -94.182f};
@@ -382,10 +383,19 @@ public:
 
         bool bEventInProgress;
         ObjectGuid uiPlayerGUID;
+        TaskScheduler _scheduler;
 
         void Reset() override
         {
             Initialize();
+            _scheduler.Schedule(40s, [this](TaskContext sayContext)
+            {
+                if (!bEventInProgress)
+                {
+                    Talk(SAY_TEXT);
+                    sayContext.Repeat(40s);
+                }
+            });
         }
 
         void StartEvent(ObjectGuid uiGUID)
@@ -395,7 +405,17 @@ public:
 
             uiPlayerGUID = uiGUID;
 
+            bEventInProgress = true;
             SummonGladiator(NPC_FIRJUS);
+        }
+        
+        void UpdateAI(uint32 diff) override
+        {
+            if (bEventInProgress && !UpdateVictim())
+                return;
+
+            _scheduler.Update(diff);
+            DoMeleeAttackIfReady();
         }
 
         void JustSummoned(Creature* summon) override
