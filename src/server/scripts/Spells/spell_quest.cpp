@@ -1466,6 +1466,10 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
 };
 
 // ID - 50287 Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random (cast from Azure Dragons and Azure Drakes on death)
+enum q12372Creatures
+{
+    NPC_WYRMREST_DEFENDER = 27629
+};
 class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
 {
     public:
@@ -1477,7 +1481,8 @@ class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (Creature* defender = GetHitCreature())
+                Creature* defender = GetHitCreature();
+                if (defender && defender->GetEntry() == NPC_WYRMREST_DEFENDER)
                     defender->AI()->Talk(WHISPER_ON_HIT_BY_FORCE_WHISPER, defender->GetCharmerOrOwner());
             }
 
