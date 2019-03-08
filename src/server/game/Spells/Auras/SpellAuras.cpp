@@ -1169,9 +1169,6 @@ bool Aura::IsSingleTargetWith(Aura const* aura) const
             break;
     }
 
-    if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE) && aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
-        return true;
-
     return false;
 }
 
