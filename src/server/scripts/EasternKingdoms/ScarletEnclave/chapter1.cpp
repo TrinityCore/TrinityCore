@@ -883,6 +883,48 @@ public:
 
 };
 
+enum GiftOfTheHarvester
+{
+    SPELL_GIFT_OF_THE_HARVESTER = 52479,
+    SPELL_MINER_GHOUL_TRANSFORM = 52490,
+    SPELL_MINER_GHOST_TRANSFORM = 52505
+};
+
+struct gift_of_the_harvesterAI : public GameObjectAI
+{
+    gift_of_the_harvesterAI(GameObject* go) : GameObjectAI(go) { }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+
+        _scheduler.Schedule(2s, [this](TaskContext /*context*/)
+        {
+            me->SendCustomAnim(0);
+            me->CastSpell(nullptr, SPELL_GIFT_OF_THE_HARVESTER, true);
+        });
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+struct spell_gift_of_the_harvester : public SpellScript
+{
+    PrepareSpellScript(spell_gift_of_the_harvester);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        uint32 spellId = urand(0, 1) ? SPELL_MINER_GHOUL_TRANSFORM : SPELL_MINER_GHOST_TRANSFORM;
+        GetOriginalCaster()->CastSpell(GetHitUnit(), spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gift_of_the_harvester::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // correct way: 52312 52314 52555 ...
 enum Creatures_SG
 {
@@ -1250,6 +1292,8 @@ void AddSC_the_scarlet_enclave_c1()
     RegisterAuraScript(spell_stable_master_repo);
     RegisterSpellScript(spell_deliver_stolen_horse);
     new npc_ros_dark_rider();
+    RegisterGameObjectAI(gift_of_the_harvesterAI);
+    RegisterSpellScript(spell_gift_of_the_harvester);
     new npc_dkc1_gothik();
     new npc_scarlet_ghoul();
     new npc_scarlet_miner();
