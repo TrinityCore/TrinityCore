@@ -11188,6 +11188,9 @@ void Unit::SetStunned(bool apply)
 {
     if (apply)
     {
+        if (m_rootTimes > 0) // blizzard internal check?
+            m_rootTimes++;
+
         SetTarget(ObjectGuid::Empty);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
@@ -11201,10 +11204,19 @@ void Unit::SetStunned(bool apply)
         if (GetTypeId() == TYPEID_PLAYER)
             SetStandState(UNIT_STAND_STATE_STAND);
 
-        WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8);
-        data << GetPackGUID();
-        data << uint32(0);
-        SendMessageToSet(&data, true);
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
+            data << GetPackGUID();
+            data << m_rootTimes;
+            SendMessageToSet(&data, true);
+        }
+        else
+        {
+            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
+            data << GetPackGUID();
+            SendMessageToSet(&data, true);
+        }
 
         CastStop();
     }
@@ -11220,10 +11232,19 @@ void Unit::SetStunned(bool apply)
 
         if (!HasUnitState(UNIT_STATE_ROOT))         // prevent moving if it also has root effect
         {
-            WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 8+4);
-            data << GetPackGUID();
-            data << uint32(0);
-            SendMessageToSet(&data, true);
+            if (GetTypeId() == TYPEID_PLAYER)
+            {
+                WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
+                data << GetPackGUID();
+                data << ++m_rootTimes;
+                SendMessageToSet(&data, true);
+            }
+            else
+            {
+                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
+                data << GetPackGUID();
+                SendMessageToSet(&data, true);
+            }
 
             RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
