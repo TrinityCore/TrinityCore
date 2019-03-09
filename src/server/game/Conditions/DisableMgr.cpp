@@ -20,6 +20,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "Player.h"
@@ -84,7 +85,7 @@ void LoadDisables()
         }
 
         uint32 entry = fields[1].GetUInt32();
-        uint8 flags = fields[2].GetUInt8();
+        uint16 flags = fields[2].GetUInt16();
         std::string params_0 = fields[3].GetString();
         std::string params_1 = fields[4].GetString();
 
@@ -293,6 +294,18 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
                     (ref->GetTypeId() == TYPEID_UNIT && ((spellFlags & SPELL_DISABLE_CREATURE) || (ref->ToUnit()->IsPet() && (spellFlags & SPELL_DISABLE_PET)))) ||
                     (ref->GetTypeId() == TYPEID_GAMEOBJECT && (spellFlags & SPELL_DISABLE_GAMEOBJECT)))
                 {
+                    if (spellFlags & (SPELL_DISABLE_ARENAS | SPELL_DISABLE_BATTLEGROUNDS))
+                    {
+                        if (Map const* map = ref->GetMap())
+                        {
+                            if (spellFlags & SPELL_DISABLE_ARENAS && map->IsBattleArena())
+                                return true;                                    // Current map is Arena and this spell is disabled here
+
+                            if (spellFlags & SPELL_DISABLE_BATTLEGROUNDS && map->IsBattleground())
+                                return true;                                    // Current map is a Battleground and this spell is disabled here
+                        }
+                    }
+
                     if (spellFlags & SPELL_DISABLE_MAP)
                     {
                         std::unordered_set<uint32> const& mapIds = itr->second.params[0];
