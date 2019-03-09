@@ -467,7 +467,7 @@ struct npc_daegarn : public ScriptedAI
             _scheduler.CancelAll();
             _summons.DespawnAll();
 
-            _scheduler.Schedule(5s, [this](TaskContext context)
+            _scheduler.Schedule(20s, [this](TaskContext context)
             {
                 bool reset = true;
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
