@@ -12,14 +12,14 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 30718;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `comment`, `BroadcastTextId`) VALUES 
-(30718, 0, 0, "I will take pleasure in gutting you!, I will take pleasure in gutting you!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30498),
-(30718, 0, 1, "I will feed you to the dogs!, I will feed you to the dogs!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30499),
-(30718, 0, 2, "Your entrails will make a fine necklace., Your entrails will make a fine necklace.", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30500),
-(30718, 0, 3, "Die,, maggot!, Die,, maggot!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30501),
-(30718, 0, 4, "You come to die!, You come to die!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30502),
-(30718, 0, 5, "I spit on you!, I spit on you!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30503),
-(30718, 0, 6, "Sniveling pig!, Sniveling pig!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30504),
-(30718, 0, 7, "Ugglin oo bjorr!, Ugglin oo bjorr!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30505),
-(30718, 0, 8, "Haraak foln!, Haraak foln!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30506),
-(30718, 0, 9, "You come to die!, You come to die!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30507),
-(30718, 0, 10, "I'll eat your heart!, I'll eat your heart!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30508);
+(30718, 0, 0, "I will take pleasure in gutting you!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30498),
+(30718, 0, 1, "I will feed you to the dogs!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30499),
+(30718, 0, 2, "Your entrails will make a fine necklace.", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30500),
+(30718, 0, 3, "Die,, maggot!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30501),
+(30718, 0, 4, "You come to die!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30502),
+(30718, 0, 5, "I spit on you!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30503),
+(30718, 0, 6, "Sniveling pig!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30504),
+(30718, 0, 7, "Ugglin oo bjorr!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30505),
+(30718, 0, 8, "Haraak foln!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30506),
+(30718, 0, 9, "You come to die!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30507),
+(30718, 0, 10, "I'll eat your heart!", 12, 0, 100, 0, 0, 0, 'Slumbering Mjordin', 30508);
