@@ -319,12 +319,12 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
                 {
                     if (spellFlags & (SPELL_DISABLE_ARENAS | SPELL_DISABLE_BATTLEGROUNDS))
                     {
-                        if (MapEntry const* mapEntry = sMapStore.LookupEntry(ref->GetMapId()))
+                        if (Map const* map = ref->GetMap()))
                         {
-                            if (spellFlags & SPELL_DISABLE_ARENAS && mapEntry->IsBattleArena())
+                            if (spellFlags & SPELL_DISABLE_ARENAS && map->IsBattleArena())
                                 return true;                                    // Current map is Arena and this spell is disabled here
 
-                            if (spellFlags & SPELL_DISABLE_BATTLEGROUNDS && mapEntry->IsBattleground())
+                            if (spellFlags & SPELL_DISABLE_BATTLEGROUNDS && map->IsBattleground())
                                 return true;                                    // Current map is a Battleground and this spell is disabled here
                         }
                     }
