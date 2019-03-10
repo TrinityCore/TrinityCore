@@ -22,10 +22,11 @@
 #include "ZoneScript.h"
 
 class Player;
+
 enum BattlefieldBattleId : uint8;
 enum BattlefieldZoneId : uint32;
 enum PvPTeamId : uint8;
-enum TeamId;
+enum TeamId : uint8;
 
 class TC_GAME_API Battlefield : public ZoneScript
 {

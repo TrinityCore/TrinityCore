@@ -758,7 +758,7 @@ enum Language
 
 #define LANGUAGES_COUNT   19
 
-enum TeamId
+enum TeamId : uint8
 {
     TEAM_ALLIANCE = 0,
     TEAM_HORDE,
