@@ -1935,7 +1935,6 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 * @param group Id of group to summon.
 * @param list  List to store pointers to summoned creatures.
 */
-
 void Map::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= nullptr*/)
 {
     std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetId(), SUMMONER_TYPE_MAP, group);
