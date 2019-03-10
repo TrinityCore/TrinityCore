@@ -2442,7 +2442,11 @@ float Map::GetWaterOrGroundLevel(uint32 phasemask, float x, float y, float z, fl
 float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
 {
     // find raw .map surface under Z coordinates
-    float const mapHeight = GetGridHeight(x, y);
+    float mapHeight = VMAP_INVALID_HEIGHT_VALUE;
+    float gridHeight = GetGridHeight(x, y);
+    if (G3D::fuzzyGe(z, gridHeight - GROUND_HEIGHT_TOLERANCE))
+        mapHeight = gridHeight;
+
     float vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
     if (checkVMap)
     {

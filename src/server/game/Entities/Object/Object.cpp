@@ -1414,7 +1414,7 @@ void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
         z = new_z + (isType(TYPEMASK_UNIT) ? static_cast<Unit const*>(this)->GetHoverOffset() : 0.0f);
 }
 
-void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
+void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z, float* groundZ) const
 {
     // TODO: Allow transports to be part of dynamic vmap tree
     if (GetTransport())
@@ -1422,29 +1422,40 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
 
     if (Unit const* unit = ToUnit())
     {
-        // Unit is flying, ignore.
-        if (unit->IsFlying())
-            return;
-
-        bool canSwim = unit->CanSwim();
-        float ground_z = z;
-        float max_z;
-        if (canSwim)
-            max_z = GetMapWaterOrGroundLevel(x, y, z, &ground_z);
-        else
-            max_z = ground_z = GetMapHeight(x, y, z);
-
-        if (max_z > INVALID_HEIGHT)
+        if (!unit->CanFly())
         {
-            // hovering units cannot go below their hover height
-            float hoverOffset = unit->GetHoverOffset();
-            max_z += hoverOffset;
-            ground_z += hoverOffset;
+            bool canSwim = unit->CanSwim();
+            float ground_z = z;
+            float max_z;
+            if (canSwim)
+                max_z = GetMapWaterOrGroundLevel(x, y, z, &ground_z);
+            else
+                max_z = ground_z = GetMapHeight(x, y, z);
 
-            if (z > max_z && !unit->CanFly())
-                z = max_z;
-            else if (z < ground_z)
+            if (max_z > INVALID_HEIGHT)
+            {
+                // hovering units cannot go below their hover height
+                float hoverOffset = unit->GetHoverOffset();
+                max_z += hoverOffset;
+                ground_z += hoverOffset;
+
+                if (z > max_z)
+                    z = max_z;
+                else if (z < ground_z)
+                    z = ground_z;
+            }
+
+            if (groundZ)
+                *groundZ = ground_z;
+        }
+        else
+        {
+            float ground_z = GetMapHeight(x, y, z) + unit->GetHoverOffset();
+            if (z < ground_z)
                 z = ground_z;
+
+            if (groundZ)
+               *groundZ = ground_z;
         }
     }
     else
@@ -1452,6 +1463,9 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         float ground_z = GetMapHeight(x, y, z);
         if (ground_z > INVALID_HEIGHT)
             z = ground_z;
+
+        if (groundZ)
+            *groundZ = ground_z;
     }
 }
 
@@ -3278,10 +3292,27 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         }
     }
 
+    float groundZ = VMAP_INVALID_HEIGHT_VALUE;
     Trinity::NormalizeMapCoord(pos.m_positionX);
     Trinity::NormalizeMapCoord(pos.m_positionY);
-    UpdateAllowedPositionZ(destx, desty, pos.m_positionZ);
+    UpdateAllowedPositionZ(destx, desty, pos.m_positionZ, &groundZ);
     pos.SetOrientation(GetOrientation());
+
+    // position has no ground under it (or is too far away)
+    if (groundZ <= INVALID_HEIGHT)
+    {
+        if (Unit const* unit = ToUnit())
+        {
+            // flying, ignore.
+            if (unit->IsFlying())
+                return;
+
+            // fall back to gridHeight if any
+            float gridHeight = GetMap()->GetGridHeight(pos.m_positionX, pos.m_positionY);
+            if (gridHeight > INVALID_HEIGHT)
+                pos.m_positionZ = gridHeight + unit->GetHoverOffset();
+        }
+    }
 }
 
 void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
