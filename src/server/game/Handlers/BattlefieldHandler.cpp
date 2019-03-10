@@ -16,41 +16,41 @@
  */
 
 #include "WorldSession.h"
+#include "BattlefieldPackets.h"
 #include "SharedDefines.h"
-#include "WorldPacket.h"
 
-void WorldSession::SendBattlefieldInvitePlayerToWar(BattlefieldBattleId battleId, uint32 zoneId, uint32 acceptTime)
+void WorldSession::SendBattlefieldInvitePlayerToWar(BattlefieldBattleId /*battleId*/, uint32 /*zoneId*/, uint32 /*acceptTime*/)
 {
 }
 
-void WorldSession::SendBattlefieldInvitePlayerToQueue(BattlefieldBattleId battleId)
+void WorldSession::SendBattlefieldInvitePlayerToQueue(BattlefieldBattleId /*battleId*/)
 {
 }
 
-void WorldSession::SendBattlefieldQueueInviteResponse(BattlefieldBattleId battleId, uint32 zoneId, bool canQueue, bool full)
+void WorldSession::SendBattlefieldQueueInviteResponse(BattlefieldBattleId /*battleId*/, uint32 /*zoneId*/, bool /*canQueue*/, bool /*full*/)
 {
 }
 
-void WorldSession::SendBattlefieldEntered(BattlefieldBattleId battleId)
+void WorldSession::SendBattlefieldEntered(BattlefieldBattleId /*battleId*/)
 {
 }
 
-void WorldSession::SendBattlefieldLeaveMessage(BattlefieldBattleId battleId, BattlefieldLeaveReason reason /*= BATTLEFIELD_LEAVE_REASON_EXITED*/)
+void WorldSession::SendBattlefieldLeaveMessage(BattlefieldBattleId /*battleId*/, BattlefieldLeaveReason /*reason = BATTLEFIELD_LEAVE_REASON_EXITED*/)
 {
 }
 
-void WorldSession::SendBattlefieldEjectPending(BattlefieldBattleId battleId, bool remove)
+void WorldSession::SendBattlefieldEjectPending(BattlefieldBattleId /*battleId*/, bool /*remove*/)
 {
 }
 
-void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPackets::Battlefield::BattlefieldMgrEntryInviteResponse& entryInviteResponse)
+void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPackets::Battlefield::BattlefieldMgrEntryInviteResponse& /*entryInviteResponse*/)
 {
 }
 
-void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPackets::Battlefield::BattlefieldMgrQueueInviteResponse& queueInviteResponse)
+void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPackets::Battlefield::BattlefieldMgrQueueInviteResponse& /*queueInviteResponse*/)
 {
 }
 
-void WorldSession::HandleBattlefieldExitRequest(WorldPackets::Battlefield::BattlefieldMgrExitRequest& exitRequest)
+void WorldSession::HandleBattlefieldExitRequest(WorldPackets::Battlefield::BattlefieldMgrExitRequest& /*exitRequest*/)
 {
 }
