@@ -892,6 +892,10 @@ void GameObject::DespawnOrUnsummon(Milliseconds delay, Seconds forceRespawnTime)
 
 void GameObject::Delete()
 {
+    // If nearby linked trap exists, despawn it
+    if (GameObject* linkedTrap = GetLinkedTrap())
+        linkedTrap->DespawnOrUnsummon();
+
     SetLootState(GO_NOT_READY);
     RemoveFromOwner();
 
