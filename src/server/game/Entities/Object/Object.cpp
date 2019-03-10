@@ -1418,7 +1418,12 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z, float* grou
 {
     // TODO: Allow transports to be part of dynamic vmap tree
     if (GetTransport())
+    {
+        if (groundZ)
+            *groundZ = z;
+
         return;
+    }
 
     if (Unit const* unit = ToUnit())
     {
