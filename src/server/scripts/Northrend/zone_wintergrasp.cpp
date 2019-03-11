@@ -320,9 +320,21 @@ class spell_wintergrasp_defender_teleport : public SpellScript
     {
         if (Player* target = GetExplTargetUnit()->ToPlayer())
         {
-            if (Battlefield* wintergrasp = sBattlefieldMgr->GetEnabledBattlefield(target->GetZoneId()))
-                if ((wintergrasp->GetControllingTeam() != PVP_TEAM_NEUTRAL && target->GetTeamId() != wintergrasp->GetControllingTeamId()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
-                    return SPELL_FAILED_BAD_TARGETS;
+            if (target->GetZoneId() == BATTLEFIELD_ZONEID_WINTERGRASP)
+            {
+                if (Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefield(target->GetZoneId()))
+                {
+                    if (wintergrasp->GetControllingTeam() != PVP_TEAM_NEUTRAL && target->GetTeamId() != wintergrasp->GetControllingTeamId())
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    if (target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    return SPELL_CAST_OK;
+                }
+
+                return SPELL_FAILED_DONT_REPORT;
+            }
         }
 
         return SPELL_CAST_OK;
