@@ -19,14 +19,10 @@
 #define TRINITY_BATTLEFIELD_H_
 
 #include "Common.h"
+#include "SharedDefines.h"
 #include "ZoneScript.h"
 
 class Player;
-
-enum BattlefieldBattleId : uint8;
-enum BattlefieldZoneId : uint32;
-enum PvPTeamId : uint8;
-enum TeamId : uint8;
 
 class TC_GAME_API Battlefield : public ZoneScript
 {

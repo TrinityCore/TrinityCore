@@ -758,7 +758,7 @@ enum Language
 
 #define LANGUAGES_COUNT   19
 
-enum TeamId : uint8
+enum TeamId
 {
     TEAM_ALLIANCE = 0,
     TEAM_HORDE,
@@ -3436,11 +3436,11 @@ enum BanReturn
     BAN_EXISTS
 };
 
-enum PvPTeamId : uint8
+enum PvPTeamId
 {
-    PVP_TEAM_HORDE    = 0, // Battleground: Horde,    Arena: Green
-    PVP_TEAM_ALLIANCE = 1, // Battleground: Alliance, Arena: Gold
-    PVP_TEAM_NEUTRAL  = 2  // Battleground: Neutral,  Arena: None
+    PVP_TEAM_HORDE    = 0, // Battleground/Battlefield: Horde,    Arena: Green
+    PVP_TEAM_ALLIANCE = 1, // Battleground/Battlefield: Alliance, Arena: Gold
+    PVP_TEAM_NEUTRAL  = 2  // Battleground/Battlefield: Neutral,  Arena: None
 };
 
 static uint8 constexpr PVP_TEAMS_COUNT = 2;

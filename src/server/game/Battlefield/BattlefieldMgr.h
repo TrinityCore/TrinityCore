@@ -19,13 +19,13 @@
 #define TRINITY_BATTLEFIELD_MGR_H_
 
 #include "Common.h"
+#include "SharedDefines.h"
 #include <memory>
 #include <unordered_map>
 
 class Battlefield;
 class Player;
 class ZoneScript;
-enum BattlefieldBattleId : uint8;
 
 static uint32 constexpr BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL = 1000;
 
