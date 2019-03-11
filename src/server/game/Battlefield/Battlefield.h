@@ -47,6 +47,7 @@ public:
     virtual void Update(uint32 diff);
     virtual void HandlePlayerEnterZone(Player* player, uint32 zoneId);
     virtual void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
+    virtual void HandleKill(Player* /*killer*/, Unit* /*victim*/) { }
 
 private:
     Battlefield(Battlefield const&) = delete;
