@@ -559,9 +559,13 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground:
         battlefield->HandleAddPlayerToResurrectionQueue(_player, areaSpiritHealerQueue.HealerGuid);
 }
 
-void WorldSession::HandleHearthAndResurrect(WorldPackets::Battleground::HearthAndResurrect& hearthAndResurrect)
+void WorldSession::HandleHearthAndResurrect(WorldPackets::Battleground::HearthAndResurrect& /*hearthAndResurrect*/)
 {
     if (_player->IsInFlight())
+        return;
+
+    AreaTableEntry const* atEntry = sAreaTableStore.LookupEntry(_player->GetAreaId());
+    if (!atEntry || !(atEntry->flags & AREA_FLAG_CAN_HEARTH_AND_RESURRECT))
         return;
 
     if (Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(_player->GetZoneId()))
@@ -569,10 +573,6 @@ void WorldSession::HandleHearthAndResurrect(WorldPackets::Battleground::HearthAn
         // TODO
         return;
     }
-
-    AreaTableEntry const* atEntry = sAreaTableStore.LookupEntry(_player->GetAreaId());
-    if (!atEntry || !(atEntry->flags & AREA_FLAG_WINTERGRASP_2))
-        return;
 
     _player->BuildPlayerRepop();
     _player->ResurrectPlayer(1.0f);

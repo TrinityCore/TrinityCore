@@ -61,14 +61,14 @@ void Battlefield::HandlePlayerLeaveZone(Player* /*player*/)
 {
 }
 
-void Battlefield::HandleAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid source)
+void Battlefield::HandleAreaSpiritHealerQueryOpcode(Player* /*player*/, ObjectGuid /*source*/)
 {
 }
 
-void Battlefield::HandleAddPlayerToResurrectionQueue(Player* player, ObjectGuid source)
+void Battlefield::HandleAddPlayerToResurrectionQueue(Player* /*player*/, ObjectGuid /*source*/)
 {
 }
 
-void Battlefield::HandleRemovePlayerFromResurrectionQueue(Player* player)
+void Battlefield::HandleRemovePlayerFromResurrectionQueue(Player* /*player*/)
 {
 }
