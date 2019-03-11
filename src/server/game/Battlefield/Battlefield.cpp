@@ -21,28 +21,6 @@ Battlefield::Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId)
 {
 }
 
-PvPTeamId Battlefield::GetAttackingTeam() const
-{
-    switch (GetControllingTeam())
-    {
-        case PVP_TEAM_HORDE: return PVP_TEAM_ALLIANCE;
-        case PVP_TEAM_ALLIANCE: return PVP_TEAM_HORDE;
-        case PVP_TEAM_NEUTRAL: return PVP_TEAM_NEUTRAL;
-        default: break;
-    }
-    return PVP_TEAM_NEUTRAL;
-}
-
-TeamId Battlefield::GetControllingTeamId() const
-{
-    return TeamIdByPvPTeamId(GetControllingTeam());
-}
-
-TeamId Battlefield::GetAttackingTeamId() const
-{
-    return TeamIdByPvPTeamId(GetAttackingTeam());
-}
-
 bool Battlefield::Initialize(bool enabled)
 {
     _enabled = enabled;
@@ -71,4 +49,35 @@ void Battlefield::HandleAddPlayerToResurrectionQueue(Player* /*player*/, ObjectG
 
 void Battlefield::HandleRemovePlayerFromResurrectionQueue(Player* /*player*/)
 {
+}
+
+PvPTeamId Battlefield::GetAttackingTeam() const
+{
+    switch (GetControllingTeam())
+    {
+        case PVP_TEAM_HORDE:
+            return PVP_TEAM_ALLIANCE;
+        case PVP_TEAM_ALLIANCE:
+            return PVP_TEAM_HORDE;
+        case PVP_TEAM_NEUTRAL:
+            return PVP_TEAM_NEUTRAL;
+        default:
+            break;
+    }
+    return PVP_TEAM_NEUTRAL;
+}
+
+TeamId Battlefield::GetControllingTeamId() const
+{
+    return TeamIdByPvPTeamId(GetControllingTeam());
+}
+
+TeamId Battlefield::GetAttackingTeamId() const
+{
+    return TeamIdByPvPTeamId(GetAttackingTeam());
+}
+
+WorldSafeLocsEntry const* Battlefield::GetClosestGraveyard(Player* /*who*/) const
+{
+    return nullptr;
 }

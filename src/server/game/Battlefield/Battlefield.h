@@ -25,25 +25,13 @@
 class ObjectGuid;
 class Player;
 class Unit;
+struct WorldSafeLocsEntry;
 
 class TC_GAME_API Battlefield : public ZoneScript
 {
 public:
     explicit Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId);
     virtual ~Battlefield() { }
-
-    BattlefieldBattleId GetId() const { return _battleId; }
-    uint32 GetZoneId() const { return _zoneId; }
-    bool IsEnabled() const { return _enabled; }
-    bool IsWarTime() const { return _active; }
-    // enum PvPTeamId
-    PvPTeamId GetControllingTeam() const { return _controllingTeam; }
-    // enum PvPTeamId
-    PvPTeamId GetAttackingTeam() const;
-    // enum TeamId
-    TeamId GetControllingTeamId() const;
-    // enum TeamId
-    TeamId GetAttackingTeamId() const;
 
     // Called on battlefield creation
     virtual bool Initialize(bool enabled);
@@ -67,6 +55,20 @@ public:
     virtual bool IsFlyingMountAllowed() const { return true; }
     // Is the referenced SpellArea spellId allowed for the referenced player and newArea?
     virtual bool IsSpellAreaAllowed(uint32 /*spellId*/, Player const* /*player*/, uint32 /*newArea*/) const { return false; }
+
+    BattlefieldBattleId GetId() const { return _battleId; }
+    uint32 GetZoneId() const { return _zoneId; }
+    bool IsEnabled() const { return _enabled; }
+    bool IsWarTime() const { return _active; }
+    // enum PvPTeamId
+    PvPTeamId GetControllingTeam() const { return _controllingTeam; }
+    // enum PvPTeamId
+    PvPTeamId GetAttackingTeam() const;
+    // enum TeamId
+    TeamId GetControllingTeamId() const;
+    // enum TeamId
+    TeamId GetAttackingTeamId() const;
+    WorldSafeLocsEntry const* GetClosestGraveyard(Player* who) const;
 
 private:
     Battlefield(Battlefield const&) = delete;
