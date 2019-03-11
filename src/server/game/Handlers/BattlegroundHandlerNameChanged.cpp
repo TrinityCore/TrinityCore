@@ -346,7 +346,7 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket &recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
+void WorldSession::HandleBattlefieldPortOpcode(WorldPacket &recvData)
 {
     uint8 type;                                             // arenatype if arena
     uint8 unk2;                                             // unk, can be 0x0 (may be if was invited?) and 0x1
@@ -773,7 +773,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
     sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, arenatype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
+void WorldSession::HandleReportPVPAFK(WorldPacket& recvData)
 {
     ObjectGuid playerGuid;
     recvData >> playerGuid;

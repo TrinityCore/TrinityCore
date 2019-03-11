@@ -22,6 +22,7 @@
 #include "SharedDefines.h"
 #include "ZoneScript.h"
 
+class ObjectGuid;
 class Player;
 class Unit;
 
@@ -44,17 +45,28 @@ public:
     // enum TeamId
     TeamId GetAttackingTeamId() const;
 
+    // Called on battlefield creation
     virtual bool Initialize(bool enabled);
     virtual void Update(uint32 diff);
-    virtual void HandlePlayerEnterZone(Player* player, uint32 zoneId);
-    virtual void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
+    // Called when a player enters the battlefield zone
+    virtual void HandlePlayerEnterZone(Player* player);
+    // Called when a player leaves the battlefield zone
+    virtual void HandlePlayerLeaveZone(Player* player);
+    // Called when a player inside the battlefield zone kills a unit
     virtual void HandleKill(Player* /*killer*/, Unit* /*victim*/) { }
+    // Called when a player queries a gossip from a spirit healer
+    virtual void HandleAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid source);
+    // Called when a player moves into a resurrection queue
+    virtual void HandleAddPlayerToResurrectionQueue(Player* player, ObjectGuid source);
+    // Called when a player moves out of a resurrection queue
+    virtual void HandleRemovePlayerFromResurrectionQueue(Player* player);
+
     // Can players inside the battlefield zone use ground mounts?
     virtual bool IsMountAllowed() const { return true; }
     // Can players inside the battlefield zone use flying mounts?
     virtual bool IsFlyingMountAllowed() const { return true; }
     // Is the referenced SpellArea spellId allowed for the referenced player and newArea?
-    virtual bool IsSpellAreaAllowed(uint32 spellId, Player const* player, uint32 newArea) const { return false; }
+    virtual bool IsSpellAreaAllowed(uint32 /*spellId*/, Player const* /*player*/, uint32 /*newArea*/) const { return false; }
 
 private:
     Battlefield(Battlefield const&) = delete;

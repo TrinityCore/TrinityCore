@@ -854,7 +854,7 @@ void OpcodeTable::Initialize()
     /*0x2D2*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_PLAY_SOUND,                STATUS_NEVER);
     /*0x2D3*/ DEFINE_HANDLER(CMSG_BATTLEFIELD_STATUS,                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleBattlefieldStatusOpcode   );
     /*0x2D4*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_BATTLEFIELD_STATUS,        STATUS_NEVER);
-    /*0x2D5*/ DEFINE_HANDLER(CMSG_BATTLEFIELD_PORT,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleBattleFieldPortOpcode     );
+    /*0x2D5*/ DEFINE_HANDLER(CMSG_BATTLEFIELD_PORT,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleBattlefieldPortOpcode     );
     /*0x2D6*/ DEFINE_HANDLER(MSG_INSPECT_HONOR_STATS,                      STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleInspectHonorStatsOpcode   );
     /*0x2D7*/ DEFINE_HANDLER(CMSG_BATTLEMASTER_HELLO,                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleBattlemasterHelloOpcode   );
     /*0x2D8*/ DEFINE_HANDLER(CMSG_MOVE_START_SWIM_CHEAT,                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -1125,7 +1125,7 @@ void OpcodeTable::Initialize()
     /*0x3E1*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_COMSAT_DISCONNECT,         STATUS_NEVER);
     /*0x3E2*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_COMSAT_CONNECT_FAIL,       STATUS_NEVER);
     /*0x3E3*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_VOICE_CHAT_STATUS,         STATUS_NEVER);
-    /*0x3E4*/ DEFINE_HANDLER(CMSG_REPORT_PVP_AFK,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleReportPvPAFK              );
+    /*0x3E4*/ DEFINE_HANDLER(CMSG_REPORT_PVP_AFK,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleReportPVPAFK              );
     /*0x3E5*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_REPORT_PVP_AFK_RESULT,     STATUS_NEVER);
     /*0x3E6*/ DEFINE_HANDLER(CMSG_GUILD_BANKER_ACTIVATE,                   STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildBankerActivate       );
     /*0x3E7*/ DEFINE_HANDLER(CMSG_GUILD_BANK_QUERY_TAB,                    STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildBankQueryTab         );

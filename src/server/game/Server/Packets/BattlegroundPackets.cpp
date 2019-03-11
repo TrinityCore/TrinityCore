@@ -15,15 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
-
-#include "BattlefieldPackets.h"
 #include "BattlegroundPackets.h"
-#include "NPCPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "WorldStatePackets.h"
 
-#endif // AllPackets_h__
+void WorldPackets::Battleground::AreaSpiritHealerQuery::Read()
+{
+    _worldPacket >> HealerGuid;
+}
+
+void WorldPackets::Battleground::AreaSpiritHealerQueue::Read()
+{
+    _worldPacket >> HealerGuid;
+}

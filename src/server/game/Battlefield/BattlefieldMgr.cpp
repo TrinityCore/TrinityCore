@@ -108,7 +108,7 @@ void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneId)
     if (itr == _battlefieldContainer.end())
         return;
 
-    itr->second->HandlePlayerEnterZone(player, zoneId);
+    itr->second->HandlePlayerEnterZone(player);
 }
 
 void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneId)
@@ -117,7 +117,7 @@ void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneId)
     if (itr == _battlefieldContainer.end())
         return;
 
-    itr->second->HandlePlayerLeaveZone(player, zoneId);
+    itr->second->HandlePlayerLeaveZone(player);
 }
 
 void BattlefieldMgr::Update(uint32 diff)

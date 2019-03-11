@@ -53,10 +53,22 @@ void Battlefield::Update(uint32 /*diff*/)
 {
 }
 
-void Battlefield::HandlePlayerEnterZone(Player* /*player*/, uint32 /*zoneId*/)
+void Battlefield::HandlePlayerEnterZone(Player* /*player*/)
 {
 }
 
-void Battlefield::HandlePlayerLeaveZone(Player* /*player*/, uint32 /*zoneId*/)
+void Battlefield::HandlePlayerLeaveZone(Player* /*player*/)
+{
+}
+
+void Battlefield::HandleAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid source)
+{
+}
+
+void Battlefield::HandleAddPlayerToResurrectionQueue(Player* player, ObjectGuid source)
+{
+}
+
+void Battlefield::HandleRemovePlayerFromResurrectionQueue(Player* player)
 {
 }
