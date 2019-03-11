@@ -20,7 +20,16 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include "Timer.h"
 #include "ZoneScript.h"
+
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
 
 class ObjectGuid;
 class Player;
@@ -36,6 +45,7 @@ public:
     // Called on battlefield creation
     virtual bool Initialize(bool enabled);
     virtual void Update(uint32 diff);
+
     // Called when a player enters the battlefield zone
     virtual void HandlePlayerEnterZone(Player* player);
     // Called when a player leaves the battlefield zone
@@ -49,6 +59,9 @@ public:
     // Called when a player moves out of a resurrection queue
     virtual void HandleRemovePlayerFromResurrectionQueue(Player* player);
 
+    virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
+    virtual void SendGlobalWorldStates(Player const* /*player*/) const { }
+
     // Can players inside the battlefield zone use ground mounts?
     virtual bool IsMountAllowed() const { return true; }
     // Can players inside the battlefield zone use flying mounts?
@@ -58,8 +71,6 @@ public:
 
     BattlefieldBattleId GetId() const { return _battleId; }
     uint32 GetZoneId() const { return _zoneId; }
-    bool IsEnabled() const { return _enabled; }
-    bool IsWarTime() const { return _active; }
     // enum PvPTeamId
     PvPTeamId GetControllingTeam() const { return _controllingTeam; }
     // enum PvPTeamId
@@ -68,7 +79,12 @@ public:
     TeamId GetControllingTeamId() const;
     // enum TeamId
     TeamId GetAttackingTeamId() const;
+    // Battle timer
+    uint32 GetTimer() const { return _timer.GetTimer(); }
     WorldSafeLocsEntry const* GetClosestGraveyard(Player* who) const;
+
+    bool IsEnabled() const { return _enabled; }
+    bool IsWarTime() const { return _active; }
 
 private:
     Battlefield(Battlefield const&) = delete;
@@ -80,6 +96,7 @@ private:
     bool _enabled;
     bool _active;
     PvPTeamId _controllingTeam;
+    CountdownTimer _timer;
 };
 
 #endif

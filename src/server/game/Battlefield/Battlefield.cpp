@@ -17,7 +17,7 @@
 
 #include "Battlefield.h"
 
-Battlefield::Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId) : _battleId(battleId), _zoneId(zoneId), _enabled(false), _active(false), _controllingTeam(PVP_TEAM_NEUTRAL)
+Battlefield::Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId) : _battleId(battleId), _zoneId(zoneId), _enabled(false), _active(false), _controllingTeam(PVP_TEAM_NEUTRAL), _timer(0)
 {
 }
 
@@ -48,6 +48,10 @@ void Battlefield::HandleAddPlayerToResurrectionQueue(Player* /*player*/, ObjectG
 }
 
 void Battlefield::HandleRemovePlayerFromResurrectionQueue(Player* /*player*/)
+{
+}
+
+void Battlefield::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
 }
 

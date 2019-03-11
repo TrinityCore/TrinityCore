@@ -16,10 +16,24 @@
  */
 
 #include "BattlefieldWG.h"
+#include "GameTime.h"
 #include "Player.h"
 
 BattlefieldWintergrasp::BattlefieldWintergrasp() : Battlefield(BATTLEFIELD_BATTLEID_WINTERGRASP, BATTLEFIELD_ZONEID_WINTERGRASP)
 {
+}
+
+void BattlefieldWintergrasp::SendGlobalWorldStates(Player const* player) const
+{
+    if (!IsEnabled())
+        return;
+
+    player->SendUpdateWorldState(WORLDSTATE_WINTERGRASP_SHOW_NOWAR_TIMER, IsWarTime() ? 0 : 1);
+
+    uint32 timer = 0;
+    if (IsWarTime())
+        timer = GetTimer() / 1000;
+    player->SendUpdateWorldState(WORLDSTATE_WINTERGRASP_TIME_TO_NEXT_BATTLE, GameTime::GetGameTime() + timer);
 }
 
 bool BattlefieldWintergrasp::IsSpellAreaAllowed(uint32 spellId, Player const* player, uint32 /*newArea*/) const
