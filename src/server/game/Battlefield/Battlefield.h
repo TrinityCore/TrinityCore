@@ -50,9 +50,9 @@ public:
     virtual void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
     virtual void HandleKill(Player* /*killer*/, Unit* /*victim*/) { }
     // Can players inside the battlefield zone use ground mounts?
-    virtual bool CanMount() const { return true; }
+    virtual bool IsMountAllowed() const { return true; }
     // Can players inside the battlefield zone use flying mounts?
-    virtual bool CanFlyMount() const { return true; }
+    virtual bool IsFlyingMountAllowed() const { return true; }
     // Is the referenced SpellArea spellId allowed for the referenced player and newArea?
     virtual bool IsSpellAreaAllowed(uint32 spellId, Player const* player, uint32 newArea) const { return false; }
 

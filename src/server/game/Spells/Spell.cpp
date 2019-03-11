@@ -5907,7 +5907,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 {
                     if (Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(m_originalCaster->GetZoneId()))
                     {
-                        if (battlefield && !battlefield->CanFlyMount())
+                        if (battlefield && !battlefield->IsFlyingMountAllowed())
                             return SPELL_FAILED_NOT_HERE;
                     }
                     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_originalCaster->GetAreaId()))
