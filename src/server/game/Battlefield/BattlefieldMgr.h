@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include <functional>
 #include <memory>
 #include <unordered_map>
 
@@ -34,20 +35,22 @@ class TC_GAME_API BattlefieldMgr
 public:
     static BattlefieldMgr* instance();
 
+    // create battlefields
+    void Initialize();
+    void Update(uint32 diff);
+    void ForEach(std::function<void(Battlefield*)> const& action);
+
+    // called when a player enters a battlefield area
+    void HandlePlayerEnterZone(Player* player, uint32 zoneId);
+    // called when player leaves a battlefield area
+    void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
+
     Battlefield* GetBattlefield(uint32 zoneId) const;
     Battlefield* GetBattlefield(BattlefieldBattleId battleId) const;
     ZoneScript* GetZoneScript(uint32 zoneId) const;
     ZoneScript* GetZoneScript(BattlefieldBattleId battleId) const;
     Battlefield* GetEnabledBattlefield(uint32 zoneId) const;
     Battlefield* GetEnabledBattlefield(BattlefieldBattleId battleId) const;
-
-    // create battlefields
-    void Initialize();
-    // called when a player enters a battlefield area
-    void HandlePlayerEnterZone(Player* player, uint32 zoneId);
-    // called when player leaves a battlefield area
-    void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
-    void Update(uint32 diff);
 
 private:
     typedef std::unique_ptr<Battlefield> BattleFieldPointer;

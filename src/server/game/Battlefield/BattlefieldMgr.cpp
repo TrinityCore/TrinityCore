@@ -53,6 +53,44 @@ void BattlefieldMgr::Initialize()
     }
 }
 
+void BattlefieldMgr::Update(uint32 diff)
+{
+    _updateTimer += diff;
+    if (_updateTimer <= BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL)
+        return;
+
+    for (BattlefieldContainer::value_type const& value : _battlefieldContainer)
+    {
+        if (value.second->IsEnabled())
+            value.second->Update(_updateTimer);
+    }
+    _updateTimer = 0;
+}
+
+void BattlefieldMgr::ForEach(std::function<void(Battlefield*)> const& action)
+{
+    for (BattlefieldContainer::value_type const& value : _battlefieldContainer)
+        action(value.second.get());
+}
+
+void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneId)
+{
+    auto itr = _battlefieldContainer.find(zoneId);
+    if (itr == _battlefieldContainer.end())
+        return;
+
+    itr->second->HandlePlayerEnterZone(player);
+}
+
+void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneId)
+{
+    auto itr = _battlefieldContainer.find(zoneId);
+    if (itr == _battlefieldContainer.end())
+        return;
+
+    itr->second->HandlePlayerLeaveZone(player);
+}
+
 Battlefield* BattlefieldMgr::GetBattlefield(uint32 zoneId) const
 {
     auto itr = _battlefieldContainer.find(zoneId);
@@ -100,36 +138,4 @@ Battlefield* BattlefieldMgr::GetEnabledBattlefield(BattlefieldBattleId battleId)
         return a.second->GetId() == battleId && a.second->IsEnabled();
     });
     return itr != _battlefieldContainer.end() ? itr->second.get() : nullptr;
-}
-
-void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneId)
-{
-    auto itr = _battlefieldContainer.find(zoneId);
-    if (itr == _battlefieldContainer.end())
-        return;
-
-    itr->second->HandlePlayerEnterZone(player);
-}
-
-void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneId)
-{
-    auto itr = _battlefieldContainer.find(zoneId);
-    if (itr == _battlefieldContainer.end())
-        return;
-
-    itr->second->HandlePlayerLeaveZone(player);
-}
-
-void BattlefieldMgr::Update(uint32 diff)
-{
-    _updateTimer += diff;
-    if (_updateTimer <= BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL)
-        return;
-
-    std::for_each(_battlefieldContainer.begin(), _battlefieldContainer.end(), [this](BattlefieldContainer::value_type const& a)
-    {
-        if (a.second->IsEnabled())
-            a.second->Update(_updateTimer);
-    });
-    _updateTimer = 0;
 }
