@@ -51,10 +51,6 @@ void Battlefield::HandleRemovePlayerFromResurrectionQueue(Player* /*player*/)
 {
 }
 
-void Battlefield::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-}
-
 PvPTeamId Battlefield::GetAttackingTeam() const
 {
     switch (GetControllingTeam())
