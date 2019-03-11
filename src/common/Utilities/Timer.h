@@ -216,4 +216,37 @@ private:
     int32 i_expireTime;
 };
 
+struct CountdownTimer
+{
+public:
+
+    CountdownTimer(uint32 initialValue = 0) : _timer(initialValue) { }
+
+    void Update(uint32 diff)
+    {
+        if (_timer <= diff)
+            _timer = 0;
+        else
+            _timer -= diff;
+    }
+
+    bool Passed() const
+    {
+        return _timer == 0;
+    }
+
+    void Reset(uint32 value)
+    {
+        _timer = value;
+    }
+
+    uint32 GetTimer() const
+    {
+        return _timer;
+    }
+
+private:
+    uint32 _timer;
+};
+
 #endif
