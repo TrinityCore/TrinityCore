@@ -20,7 +20,6 @@
 #include "BattlefieldWG.h"
 #include "Log.h"
 #include "Player.h"
-#include "SharedDefines.h"
 #include "World.h"
 #include "ZoneScript.h"
 #include <algorithm>

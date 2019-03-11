@@ -16,8 +16,35 @@
  */
 
 #include "BattlefieldWG.h"
+#include "Player.h"
 #include "SharedDefines.h"
 
 BattlefieldWintergrasp::BattlefieldWintergrasp() : Battlefield(BATTLEFIELD_BATTLEID_WINTERGRASP, BATTLEFIELD_ZONEID_WINTERGRASP)
 {
+}
+
+bool BattlefieldWintergrasp::IsSpellAreaAllowed(uint32 spellId, Player const* player, uint32 /*newArea*/) const
+{
+    if (!player)
+        return false;
+
+    switch (spellId)
+    {
+        case SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA:
+            if (CanFlyMount())
+                return false;
+            if (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY))
+                return false;
+            break;
+        case SPELL_WINTERGRASP_ESSENCE_OF_WINTERGRASP:
+            return IsEnabled() && (player->GetTeamId() == GetControllingTeamId()) && !IsWarTime();
+        case SPELL_WINTERGRASP_ESSENCE_OF_WINTERGRASP_NORTHREND:
+            return false;
+        case SPELL_WINTERGRASP_BATTLEGROUND_DAMPENING:
+            return IsEnabled() && IsWarTime();
+        default:
+            break;
+    }
+
+    return true;
 }

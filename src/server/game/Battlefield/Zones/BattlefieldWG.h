@@ -96,7 +96,9 @@ enum WintergraspSpells
     SPELL_WINTERGRASP_VICTORY_AURA = 60044,
     SPELL_WINTERGRASP_WINTERGRASP_WATER = 36444,
     SPELL_WINTERGRASP_ESSENCE_OF_WINTERGRASP = 58045,
+    SPELL_WINTERGRASP_ESSENCE_OF_WINTERGRASP_NORTHREND = 57940,
     SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA = 58730,
+    SPELL_WINTERGRASP_BATTLEGROUND_DAMPENING = 74411,
 
     // Phasing spells
     SPELL_WINTERGRASP_HORDE_CONTROLS_FACTORY_PHASE_SHIFT = 56618, // ADDS PHASE 16
@@ -110,6 +112,8 @@ class TC_GAME_API BattlefieldWintergrasp : public Battlefield
 public:
     explicit BattlefieldWintergrasp();
     ~BattlefieldWintergrasp() { }
+
+    bool IsSpellAreaAllowed(uint32 spellId, Player const* player, uint32 newArea) const override;
 
 private:
     BattlefieldWintergrasp(BattlefieldWintergrasp const&) = delete;

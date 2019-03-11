@@ -17,8 +17,8 @@
  */
 
 #include "SpellMgr.h"
+#include "Battlefield.h"
 #include "BattlefieldMgr.h"
-#include "BattlefieldWG.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "Containers.h"
@@ -721,75 +721,36 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
 
     if (player)
     {
-        if (Battleground* bg = player->GetBattleground())
-            return bg->IsSpellAllowed(spellId, player);
+        if (Battleground* battleground = player->GetBattleground())
+            return battleground->IsSpellAllowed(spellId, player);
+
+        if (Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(newZone))
+            return battlefield->IsSpellAreaAllowed(spellId, player, newArea);
     }
 
     // Extra conditions
     switch (spellId)
     {
         case 58600: // No fly Zone - Dalaran
-        {
-            if (!player)
+            if (!player || !player->IsAlive())
                 return false;
 
-            AreaTableEntry const* pArea = sAreaTableStore.LookupEntry(player->GetAreaId());
-            if (!(pArea && pArea->flags & AREA_FLAG_NO_FLY_ZONE))
-                return false;
+            if (AreaTableEntry const* currentAreaTableEntry = sAreaTableStore.LookupEntry(player->GetAreaId()))
+            {
+                if (!(currentAreaTableEntry->flags & AREA_FLAG_NO_FLY_ZONE))
+                    return false;
+            }
+
             if (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY))
                 return false;
             break;
-        }
-        case 58730: // No fly Zone - Wintergrasp
-        {
+        case 57940: // SPELL_WINTERGRASP_ESSENCE_OF_WINTERGRASP_NORTHREND
             if (!player)
                 return false;
 
-            Battlefield* Bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId());
-            if (!Bf || Bf->CanFlyIn() || (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)))
-                return false;
+            if (Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefield(BATTLEFIELD_BATTLEID_WINTERGRASP))
+                return wintergrasp->IsEnabled() && !wintergrasp->IsWarTime() && player->GetTeamId() == wintergrasp->GetControllingTeamId();
             break;
-        }
-        case 56618: // Horde Controls Factory Phase Shift
-        case 56617: // Alliance Controls Factory Phase Shift
-        {
-            if (!player)
-                return false;
-
-            Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId());
-
-            if (!bf || bf->GetTypeId() != BATTLEFIELD_WG)
-                return false;
-
-            // team that controls the workshop in the specified area
-            uint32 team = bf->GetData(newArea);
-
-            if (team == TEAM_HORDE)
-                return spellId == 56618;
-            else if (team == TEAM_ALLIANCE)
-                return spellId == 56617;
-            break;
-        }
-        case 57940: // Essence of Wintergrasp - Northrend
-        case 58045: // Essence of Wintergrasp - Wintergrasp
-        {
-            if (!player)
-                return false;
-
-            if (Battlefield* battlefieldWG = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
-                return battlefieldWG->IsEnabled() && (player->GetTeamId() == battlefieldWG->GetDefenderTeam()) && !battlefieldWG->IsWarTime();
-            break;
-        }
-        case 74411: // Battleground - Dampening
-        {
-            if (!player)
-                return false;
-
-            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId()))
-                return bf->IsWarTime();
-            break;
-        }
-
     }
 
     return true;
