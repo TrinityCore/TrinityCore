@@ -38,11 +38,19 @@ public:
     uint32 GetZoneId() const { return _zoneId; }
     bool IsEnabled() const { return _enabled; }
     bool IsWarTime() const { return _active; }
+    // enum PvPTeamId
     PvPTeamId GetControllingTeam() const { return _controllingTeam; }
+    // enum PvPTeamId
     PvPTeamId GetAttackingTeam() const;
+    // enum TeamId
     TeamId GetControllingTeamId() const;
+    // enum TeamId
     TeamId GetAttackingTeamId() const;
 
+    // Can players inside the battlefield zone use ground mounts?
+    virtual bool CanMount() const { return true; }
+    // Can players inside the battlefield zone use flying mounts?
+    virtual bool CanFlyMount() const { return true; }
     virtual bool Initialize(bool enabled);
     virtual void Update(uint32 diff);
     virtual void HandlePlayerEnterZone(Player* player, uint32 zoneId);
