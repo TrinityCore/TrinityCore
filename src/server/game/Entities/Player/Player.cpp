@@ -6695,6 +6695,42 @@ void Player::RewardReputation(Quest const* quest)
     }
 }
 
+/*
+ *  If in a battleground or battlefield player dies, and an enemy removes the insignia, the player's bones is lootable
+ *  Called by remove insignia spell effect
+ */
+void Player::RemovePVPInsignia(Player* looter)
+{
+    // If player is not in battleground and not in battlefield
+    if (!GetBattlegroundId() && !sBattlefieldMgr->GetEnabledBattlefield(GetZoneId()))
+        return;
+
+    // If not released spirit, do it !
+    if (m_deathTimer > 0)
+    {
+        m_deathTimer = 0;
+        BuildPlayerRepop();
+        RepopAtGraveyard();
+    }
+
+    _corpseLocation.WorldRelocate();
+
+    // We have to convert player corpse to bones, not to be able to resurrect there
+    // SpawnCorpseBones isn't handy, 'cos it saves player
+    Corpse* bones = GetMap()->ConvertCorpseToBones(GetGUID(), true);
+    if (!bones)
+        return;
+
+    // Now we must make bones lootable, and send player loot
+    bones->SetFlag(CORPSE_FIELD_DYNAMIC_FLAGS, CORPSE_DYNFLAG_LOOTABLE);
+
+    // We store the level of our player in the gold field
+    // We retrieve this information at Player::SendLoot()
+    bones->loot.gold = getLevel();
+    bones->lootRecipient = looter;
+    looter->SendLoot(bones->GetGUID(), LOOT_INSIGNIA);
+}
+
 void Player::UpdateHonorFields()
 {
     /// called when rewarding honor and at each save
@@ -8319,40 +8355,6 @@ bool Player::CheckAmmoCompatibility(ItemTemplate const* ammo_proto) const
     }
 
     return true;
-}
-
-/*  If in a battleground a player dies, and an enemy removes the insignia, the player's bones is lootable
-    Called by remove insignia spell effect    */
-void Player::RemovedInsignia(Player* looterPlr)
-{
-    // If player is not in battleground and not in wintergrasp
-    if (!GetBattlegroundId() && GetZoneId() != AREA_WINTERGRASP)
-        return;
-
-    // If not released spirit, do it !
-    if (m_deathTimer > 0)
-    {
-        m_deathTimer = 0;
-        BuildPlayerRepop();
-        RepopAtGraveyard();
-    }
-
-    _corpseLocation.WorldRelocate();
-
-    // We have to convert player corpse to bones, not to be able to resurrect there
-    // SpawnCorpseBones isn't handy, 'cos it saves player while he in BG
-    Corpse* bones = GetMap()->ConvertCorpseToBones(GetGUID(), true);
-    if (!bones)
-        return;
-
-    // Now we must make bones lootable, and send player loot
-    bones->SetFlag(CORPSE_FIELD_DYNAMIC_FLAGS, CORPSE_DYNFLAG_LOOTABLE);
-
-    // We store the level of our player in the gold field
-    // We retrieve this information at Player::SendLoot()
-    bones->loot.gold = getLevel();
-    bones->lootRecipient = looterPlr;
-    looterPlr->SendLoot(bones->GetGUID(), LOOT_INSIGNIA);
 }
 
 void Player::SendLootRelease(ObjectGuid guid) const
