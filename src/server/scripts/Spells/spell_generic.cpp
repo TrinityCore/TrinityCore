@@ -23,6 +23,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "DBCStores.h"
@@ -2113,7 +2115,12 @@ class spell_gen_mount : public SpellScriptLoader
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_mount150);
                     uint32 zoneid, areaid;
                     target->GetZoneAndAreaId(zoneid, areaid);
-                    bool const canFly = spellInfo && (spellInfo->CheckLocation(target->GetMapId(), zoneid, areaid, target) == SPELL_CAST_OK);
+                    bool canFly = spellInfo && (spellInfo->CheckLocation(target->GetMapId(), zoneid, areaid, target) == SPELL_CAST_OK);
+
+                    // Check Battlefield flying mount status
+                    Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(target->GetZoneId());
+                    if (canFly && battlefield && !battlefield->IsFlyingMountAllowed())
+                        canFly = false;
 
                     uint32 mount = 0;
                     switch (target->GetBaseSkillValue(SKILL_RIDING))
