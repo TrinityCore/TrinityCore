@@ -3647,16 +3647,6 @@ AuctionHouseBot.Class.Container.ItemLevel.Max = 0
 AuctionHouseBot.forceIncludeItems = ""
 
 #
-#    AuctionHouseBot.forceExcludeItems
-#       Description: Exclude these items even if they would pass the filters
-#                    List of ids with delimiter ','
-#       Example:     "21878,27774,27811,28117,28122,43949" (this removes old items)
-#       Default:     ""
-#
-
-AuctionHouseBot.forceExcludeItems = "6343,6345,6376"
-
-#
 #    AuctionHouseBot.Class.RandomStackRatio.*
 #       Description: Used to determine how often a stack of the class will be single or randomly-size stacked when posted
 #                    Value needs to be between 0 and 100, no decimal.  Anything higher than 100 will be treated as 100
