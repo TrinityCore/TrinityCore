@@ -150,7 +150,7 @@ void AuctionBotConfig::GetConfigFromFile()
     std::string ahBotExcludes = sConfigMgr->GetStringDefault("AuctionHouseBot.forceExcludeItems", "");
     if (!ahBotExcludes.empty())
     {
-        TC_LOG_WARN("server.loading", "AuctionHouseBot.forceExcludeItems will be deleted soon. Please, use `disables` table instead.");
+        TC_LOG_WARN("server.loading", "AuctionHouseBot.forceExcludeItems will be deleted soon. Please, use `disables` table instead with `sourceType`=9, `flags`=2 and `entry`=<item id>.");
         SetAHBotExcludes(ahBotExcludes);
     }
 
