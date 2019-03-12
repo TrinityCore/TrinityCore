@@ -37,3 +37,8 @@ DELETE FROM `spell_area` WHERE `spell` = 56617 AND `area` = 4538 AND `quest_star
 DELETE FROM `spell_area` WHERE `spell` = 56617 AND `area` = 4539 AND `quest_start` = 0 AND `aura_spell` = 0 AND `racemask` = 0 AND `gender` = 2;
 DELETE FROM `spell_area` WHERE `spell` = 56617 AND `area` = 4611 AND `quest_start` = 0 AND `aura_spell` = 0 AND `racemask` = 0 AND `gender` = 2;
 DELETE FROM `spell_area` WHERE `spell` = 56617 AND `area` = 4612 AND `quest_start` = 0 AND `aura_spell` = 0 AND `racemask` = 0 AND `gender` = 2;
+
+-- Add 'spell_wintergrasp_waiting_to_resurrect'
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_wintergrasp_waiting_to_resurrect';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(2584, 'spell_wintergrasp_waiting_to_resurrect');

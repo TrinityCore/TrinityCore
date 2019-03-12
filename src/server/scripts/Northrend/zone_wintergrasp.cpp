@@ -411,6 +411,33 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
     }
 };
 
+// 2584 - Waiting to Resurrect
+class spell_wintergrasp_waiting_to_resurrect : public AuraScript
+{
+    PrepareAuraScript(spell_wintergrasp_waiting_to_resurrect);
+
+    bool Load() override
+    {
+        Unit* owner = GetUnitOwner();
+        return owner && owner->GetTypeId() == TYPEID_PLAYER && owner->GetZoneId() == BATTLEFIELD_ZONEID_WINTERGRASP;
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* owner = GetUnitOwner();
+        if (!owner)
+            return;
+
+        if (Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefield(owner->GetZoneId()))
+            wintergrasp->HandleRemovePlayerFromResurrectionQueue(owner->ToPlayer());
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_wintergrasp_waiting_to_resurrect::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
 {
     public:
@@ -472,6 +499,7 @@ void AddSC_wintergrasp()
     RegisterSpellScript(spell_wintergrasp_defender_teleport);
     RegisterSpellScript(spell_wintergrasp_defender_teleport_trigger);
     RegisterAuraScript(spell_wintergrasp_tenacity_refresh);
+    RegisterAuraScript(spell_wintergrasp_waiting_to_resurrect);
     new achievement_wg_didnt_stand_a_chance();
     new condition_is_wintergrasp_horde();
     new condition_is_wintergrasp_alliance();
