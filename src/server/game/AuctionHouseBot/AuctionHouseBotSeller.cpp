@@ -20,7 +20,6 @@
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
-#include "DisableMgr.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
@@ -63,6 +62,7 @@ bool AuctionBotSeller::Initialize()
     }
 
     TC_LOG_DEBUG("ahbot", "Forced Inclusion %u items", (uint32)includeItems.size());
+    TC_LOG_DEBUG("ahbot", "Forced Exclusion %u items", (uint32)excludeItems.size());
 
     TC_LOG_DEBUG("ahbot", "Loading npc vendor items for filter..");
     CreatureTemplateContainer const& creatures = sObjectMgr->GetCreatureTemplates();
@@ -118,9 +118,6 @@ bool AuctionBotSeller::Initialize()
 
         // forced exclude filter
         if (excludeItems.count(itemId))
-            continue;
-
-        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ITEM, itemId, nullptr, ITEM_DISABLE_AUCTIONHOUSE_BOT))
             continue;
 
         // forced include filter
