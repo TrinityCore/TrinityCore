@@ -150,7 +150,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
                         continue;
                     }
 
-                    if (strcmp(creatureInfo->AIName.c_str(),"SmartAI"))
+                    if (creatureInfo->AIName != "SmartAI")
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) is not using SmartAI, skipped loading.", uint32(temp.entryOrGuid));
                         continue;
@@ -166,7 +166,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
                         continue;
                     }
 
-                    if (strcmp(gameObjectInfo->AIName.c_str(),"SmartGameObjectAI"))
+                    if (gameObjectInfo->AIName != "SmartGameObjectAI")
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry (%u) is not using SmartGameObjectAI, skipped loading.", uint32(temp.entryOrGuid));
                         continue;
@@ -209,7 +209,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
                         continue;
                     }
 
-                    if (strcmp(creatureInfo->AIName.c_str(),"SmartAI"))
+                    if (creatureInfo->AIName != "SmartAI")
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) guid (%u) is not using SmartAI, skipped loading.", creature->id, uint32(std::abs(temp.entryOrGuid)));
                         continue;
@@ -232,7 +232,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
                         continue;
                     }
 
-                    if (strcmp(gameObjectInfo->AIName.c_str(),"SmartGameObjectAI"))
+                    if (gameObjectInfo->AIName != "SmartGameObjectAI")
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry (%u) guid (%u) is not using SmartGameObjectAI, skipped loading.", gameObject->id, uint32(std::abs(temp.entryOrGuid)));
                         continue;
