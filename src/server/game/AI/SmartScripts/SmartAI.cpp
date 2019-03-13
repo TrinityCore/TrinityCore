@@ -715,9 +715,6 @@ ObjectGuid SmartAI::GetGUID(int32 /*id*/) const
 
 void SmartAI::SetRun(bool run)
 {
-    if (run == mRun)
-        return;
-
     me->SetWalk(!run);
     mRun = run;
     for (auto& node : _path.nodes)
