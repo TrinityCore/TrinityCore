@@ -996,7 +996,7 @@ void SmartGameObjectAI::UpdateAI(uint32 diff)
 void SmartGameObjectAI::InitializeAI()
 {
     GetScript()->OnInitialize(me);
-    //Reset();
+    Reset();
 }
 
 void SmartGameObjectAI::Reset()

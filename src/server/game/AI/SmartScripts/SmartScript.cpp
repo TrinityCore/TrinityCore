@@ -180,6 +180,7 @@ void SmartScript::OnReset()
     ProcessEventsFor(SMART_EVENT_RESET);
     mLastInvoker.Clear();
     mCounterList.clear();
+    ProcessEventsFor(SMART_EVENT_RESPAWN);
 }
 
 void SmartScript::ResetBaseObject()
