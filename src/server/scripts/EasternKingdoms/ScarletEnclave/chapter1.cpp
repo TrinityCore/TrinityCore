@@ -916,6 +916,15 @@ struct spell_gift_of_the_harvester : public SpellScript
 {
     PrepareSpellScript(spell_gift_of_the_harvester);
 
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+                {
+                    SPELL_MINER_GHOUL_TRANSFORM,
+                    SPELL_MINER_GHOST_TRANSFORM
+                });
+    }
+
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         uint32 spellId = urand(0, 1) ? SPELL_MINER_GHOUL_TRANSFORM : SPELL_MINER_GHOST_TRANSFORM;
