@@ -26,35 +26,34 @@ uint32 const EncounterCount = 6;
 
 enum ZADataTypes
 {
-    // BossState
-    DATA_AKILZONEVENT                = 0,
-    DATA_NALORAKKEVENT               = 1,
-    DATA_JANALAIEVENT                = 2,
-    DATA_HALAZZIEVENT                = 3,
-    DATA_HEXLORDEVENT                = 4,
-    DATA_DAAKARAEVENT                = 5,
+    // Bosss
+    DATA_ALKILZON           = 0,
+    DATA_NALORAKK           = 1,
+    DATA_JANALAI            = 2,
+    DATA_HALAZZI            = 3,
+    DATA_HEXLORD_MALACRASS  = 4,
+    DATA_DAAKARA            = 5,
 
-    // Data64
-    DATA_HEXLORD_TRIGGER,
-
+    // Additional Data
+    DATA_VOLJIN,
+    DATA_HEXLORD_MALACRASS_TRIGGER,
     DATA_STRANGE_GONG,
     DATA_MASSIVE_GATE,
-
-    // SetData
-    DATA_ZULAMAN_STATE
+    DATA_ZULAMAN_SPEEDRUN_STATE,
 };
 
 enum ZACreatureIds
 {
-    NPC_AKILZON                 = 23574,
-    NPC_NALORAKK                = 23576,
-    NPC_JANALAI                 = 23578,
-    NPC_HALAZZI                 = 23577,
-    NPC_HEXLORD                 = 24239,
-    NPC_DAAKARA                 = 23863,
+    // Bosses
+    BOSS_AKILZON                    = 23574,
+    BOSS_NALORAKK                   = 23576,
+    BOSS_JANALAI                    = 23578,
+    BOSS_HALAZZI                    = 23577,
+    BOSS_HEXLORD_MALACRASS          = 24239,
+    BOSS_DAAKARA                    = 23863,
 
-    NPC_VOLJIN                  = 52924,
-    NPC_HEXLORD_TRIGGER         = 24363
+    NPC_VOLJIN                      = 52924,
+    NPC_HEXLORD_MALACRASS_TRIGGER   = 24363
 };
 
 enum ZAGameObjectIds
@@ -65,8 +64,8 @@ enum ZAGameObjectIds
 
 enum ZAEvents
 {
-    EVENT_START_ZULAMAN         = 15897,
-    EVENT_UPDATE_ZULAMAN_TIMER  = 1,
+    EVENT_START_ZULAMAN             = 15897,
+    EVENT_UPDATE_SPEED_RUN_TIMER    = 1,
 };
 
 enum ZAAction
@@ -85,5 +84,7 @@ inline AI* GetZulAmanAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ZulAmanScriptName);
 }
+
+#define RegisterZulAamanCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetZulAmanAI)
 
 #endif

@@ -19,21 +19,8 @@
 #include "ScriptedCreature.h"
 #include "zulaman.h"
 
-enum Says
+enum Texts
 {
-    SAY_INTRO                       = 0,
-    SAY_AGGRO                       = 1,
-    SAY_PLAYER_KILL                 = 2,
-    SAY_FIRE_BREATH                 = 3,
-    SAY_TRANSFORMS_BEAR             = 4,
-    SAY_TRANSFORMS_EAGLE            = 5,
-    SAY_TRANSFORMS_LYNX             = 6,
-    SAY_TRANSFORMS_DRAGONHAWK       = 7,
-    SAY_ABSORBS_BEAR_SPIRIT         = 8,
-    SAY_ABSORBS_EAGLE_SPIRIT        = 9,
-    SAY_ABSORBS_LYNX_SPIRIT         = 10,
-    SAY_ABSORBS_DRAGONHAWK_SPIRIT   = 11,
-    SAY_DEATH                       = 12
 };
 
 enum Spells
@@ -44,69 +31,54 @@ enum Events
 {
 };
 
-class boss_daakara : public CreatureScript
+struct boss_daakaraAI : public BossAI
 {
-    public:
-        boss_daakara() : CreatureScript("boss_daakara") { }
+    boss_daakaraAI(Creature* creature) : BossAI(creature, DATA_DAAKARA) { }
 
-        struct boss_daakaraAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+        /*
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_daakaraAI(Creature* creature) : BossAI(creature, DATA_DAAKARAEVENT) { }
-
-            void Reset() override
+            switch (eventId)
             {
-                _Reset();
+                default:
+                    break;
             }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                Talk(SAY_AGGRO);
-                _JustEngagedWith();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                Talk(SAY_DEATH);
-                _JustDied();
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_PLAYER_KILL);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-                /*
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        default:
-                            break;
-                    }
-                }
-                */
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetZulAmanAI<boss_daakaraAI>(creature);
         }
+        */
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_daakara()
 {
-    new boss_daakara();
+    RegisterZulAamanCreatureAI(boss_daakaraAI);
 }
