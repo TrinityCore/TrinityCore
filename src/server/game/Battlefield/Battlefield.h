@@ -81,6 +81,7 @@ public:
     TeamId GetAttackingTeamId() const;
     // Battle timer
     uint32 GetTimer() const { return _timer.GetTimer(); }
+    // Closest available graveyard for Player's TeamId
     WorldSafeLocsEntry const* GetClosestGraveyard(Player* who) const;
 
     bool IsEnabled() const { return _enabled; }
