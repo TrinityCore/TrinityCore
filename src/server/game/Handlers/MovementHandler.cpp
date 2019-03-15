@@ -16,23 +16,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
+#include "Battleground.h"
+#include "Common.h"
 #include "Corpse.h"
-#include "Player.h"
+#include "DBCStores.h"
+#include "GameTime.h"
+#include "InstanceSaveMgr.h"
+#include "Log.h"
 #include "MapManager.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
 #include "MoveSpline.h"
-#include "Transport.h"
-#include "Battleground.h"
-#include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "Transport.h"
 #include "Vehicle.h"
-#include "GameTime.h"
+#include "WorldPacket.h"
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
@@ -129,21 +132,6 @@ void WorldSession::HandleMoveWorldportAck()
 
     player->SendInitialPacketsAfterAddToMap();
 
-    // flight fast teleport case
-    if (player->IsInFlight())
-    {
-        if (!player->InBattleground())
-        {
-            // short preparations to continue flight
-            MovementGenerator* movementGenerator = player->GetMotionMaster()->GetCurrentMovementGenerator();
-            movementGenerator->Initialize(player);
-            return;
-        }
-
-        // battleground state prepare, stop flight
-        player->FinishTaxiFlight();
-    }
-
     if (!player->IsAlive() && player->GetTeleportOptions() & TELE_REVIVE_AT_TELEPORT)
         player->ResurrectPlayer(0.5f);
 
@@ -157,7 +145,35 @@ void WorldSession::HandleMoveWorldportAck()
         }
     }
 
-    bool allowMount = !mEntry->IsDungeon() || mEntry->IsBattlegroundOrArena();
+    uint32 newzone, newarea;
+    player->GetZoneAndAreaId(newzone, newarea);
+
+    Battlefield* battlefield = nullptr;
+    if (newzone == BATTLEFIELD_ZONEID_WINTERGRASP)
+        battlefield = sBattlefieldMgr->GetEnabledBattlefield(newzone);
+
+    if (player->IsInFlight())
+    {
+        // If player was in flight before teleporting, assume the teleport is part of the flight path
+        if (!player->InBattleground() && !battlefield)
+        {
+            MovementGenerator* movementGenerator = player->GetMotionMaster()->GetCurrentMovementGenerator();
+            movementGenerator->Initialize(player);
+            return;
+        }
+
+        // stop flight
+        player->FinishTaxiFlight();
+    }
+
+    bool mountAllowed = false;
+    if (!mEntry->IsDungeon() && !mEntry->IsBattlegroundOrArena() && !battlefield)
+        mountAllowed = true;
+    else if (mEntry->IsBattlegroundOrArena())
+        mountAllowed = true;
+    else if (battlefield && battlefield->IsMountAllowed())
+        mountAllowed = !battlefield->IsWarTime();
+
     if (mInstance)
     {
         // check if this instance has a reset time and send it to player if so
@@ -179,15 +195,14 @@ void WorldSession::HandleMoveWorldportAck()
             player->m_InstanceValid = false;
 
         // instance mounting is handled in InstanceTemplate
-        allowMount = mInstance->AllowMount;
+        mountAllowed = mInstance->AllowMount;
     }
 
     // mount allow check
-    if (!allowMount)
+    if (!mountAllowed)
         player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     // update zone immediately, otherwise leave channel will cause crash in mtmap
-    uint32 newzone, newarea;
     player->GetZoneAndAreaId(newzone, newarea);
     player->UpdateZone(newzone, newarea);
 
