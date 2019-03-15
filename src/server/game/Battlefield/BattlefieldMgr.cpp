@@ -40,11 +40,10 @@ BattlefieldMgr* BattlefieldMgr::instance()
 
 void BattlefieldMgr::Initialize()
 {
-    BattlefieldWintergrasp* wintergrasp = new BattlefieldWintergrasp();
+    BattlefieldPointer wintergrasp = std::make_unique<BattlefieldWintergrasp>();
     if (!wintergrasp->Initialize(/*sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE)*/ false))
     {
         TC_LOG_ERROR("server.loading", ">> Wintergrasp initialization failed!");
-        delete wintergrasp;
     }
     else
     {
