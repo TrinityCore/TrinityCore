@@ -41,27 +41,27 @@ public:
         return commandTable;
     }
 
-    static bool HandleBattlefieldStart(ChatHandler* handler, char const* args)
+    static bool HandleBattlefieldStart(ChatHandler* /*handler*/, char const* /*args*/)
     {
         return true;
     }
 
-    static bool HandleBattlefieldEnd(ChatHandler* handler, char const* args)
+    static bool HandleBattlefieldEnd(ChatHandler* /*handler*/, char const* /*args*/)
     {
         return true;
     }
 
-    static bool HandleBattlefieldEnable(ChatHandler* handler, char const* args)
+    static bool HandleBattlefieldEnable(ChatHandler* /*handler*/, char const* /*args*/)
     {
         return true;
     }
 
-    static bool HandleBattlefieldSwitch(ChatHandler* handler, char const* args)
+    static bool HandleBattlefieldSwitch(ChatHandler* /*handler*/, char const* /*args*/)
     {
         return true;
     }
 
-    static bool HandleBattlefieldTimer(ChatHandler* handler, char const* args)
+    static bool HandleBattlefieldTimer(ChatHandler* /*handler*/, char const* /*args*/)
     {
         return true;
     }
