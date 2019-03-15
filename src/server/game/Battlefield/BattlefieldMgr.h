@@ -53,8 +53,8 @@ public:
     Battlefield* GetEnabledBattlefield(BattlefieldBattleId battleId) const;
 
 private:
-    typedef std::unique_ptr<Battlefield> BattleFieldPointer;
-    typedef std::unordered_map<uint32/*zoneId*/, BattleFieldPointer> BattlefieldContainer;
+    typedef std::unique_ptr<Battlefield> BattlefieldPointer;
+    typedef std::unordered_map<uint32 /*zoneId*/, BattlefieldPointer> BattlefieldContainer;
 
     explicit BattlefieldMgr();
     ~BattlefieldMgr();
