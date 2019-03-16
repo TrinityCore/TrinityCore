@@ -58,6 +58,7 @@ public:
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, gameobjectData);
             _remainingSpeedRunTime = 0;
+            _savagesAtGateTriggered = false;
             _speedRunState = NOT_STARTED;
         }
 
@@ -132,6 +133,16 @@ public:
                             if (guardian->IsAIEnabled)
                                 guardian->AI()->DoAction(ACTION_ALERT_AMANISHI_GUARDIANS);
                     }
+                    break;
+                case DATA_TRIGGER_AMANISHI_SAVAGES:
+                    if (_savagesAtGateTriggered)
+                        return;
+                    for (ObjectGuid guid : _amanishiSavageGUIDs)
+                    {
+                        if (Creature* savage = instance->GetCreature(guid))
+                            savage->GetMotionMaster()->MovePath(savage->GetSpawnId() * 10, false);
+                    }
+                    _savagesAtGateTriggered = true;
                     break;
                 default:
                     break;
@@ -231,6 +242,7 @@ public:
         GuidVector _amanishiSavageGUIDs;
         uint32 _remainingSpeedRunTime;
         uint32 _speedRunState;
+        bool _savagesAtGateTriggered;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

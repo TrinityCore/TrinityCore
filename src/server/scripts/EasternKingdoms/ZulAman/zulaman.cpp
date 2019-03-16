@@ -313,6 +313,7 @@ enum AmanishiGuardianEvents
     EVENT_MOVE_TO_GATE = 1,
     EVENT_FACE_TO_ENTRANCE,
     EVENT_SAY_ALERT,
+    EVENT_TRIGGER_SAVAGES,
     EVENT_MAKE_ATTACKABLE,
     EVENT_REND
 };
@@ -349,6 +350,8 @@ struct npc_zulaman_amanishi_guardian : public ScriptedAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_REND, 5s, 7s);
+        if (InstanceScript* instance = me->GetInstanceScript())
+            instance->SetData(DATA_TRIGGER_AMANISHI_SAVAGES, IN_PROGRESS);
     }
 
     void EnterEvadeMode(EvadeReason why) override
