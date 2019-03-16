@@ -49,23 +49,22 @@ enum BattlefieldBuildingState : uint8
     BATTLEFIELD_BUILDING_STATE_ALLIANCE_DESTROYED
 };
 
-class BattlefieldBuildingInfo
+struct BattlefieldBuildingInfo
 {
-public:
-    explicit BattlefieldBuildingInfo(uint8 type, uint32 gameObjectEntry, uint32 worldState);
+    BattlefieldBuildingInfo(BattlefieldBuildingType type, uint32 gameObjectEntry, uint32 worldState) : Type(type), GameObjectEntry(gameObjectEntry),
+        WorldState(worldState)
+    {
+    }
 
-    uint8 Type;
+    BattlefieldBuildingType Type;
     uint32 GameObjectEntry;
     uint32 WorldState;
-
-private:
-    BattlefieldBuildingInfo(BattlefieldBuildingInfo const&) = delete;
 };
 
 class TC_GAME_API BattlefieldBuilding
 {
 public:
-    explicit BattlefieldBuilding(Battlefield* battlefield, uint32 entry, uint32 worldState);
+    explicit BattlefieldBuilding(Battlefield* battlefield, BattlefieldBuildingType type, uint32 gameObjectEntry, uint32 worldState);
 
     ObjectGuid const GetGameObjectGUID() const { return _gameObjectGUID; }
     uint32 GetGameObjectEntry() const { return _info.GameObjectEntry; }
@@ -79,7 +78,6 @@ private:
     // constant information
     Battlefield* _battlefield;
     BattlefieldBuildingInfo const _info;
-    BattlefieldBuildingType _type;
 
     BattlefieldBuildingState _state;
     ObjectGuid _gameObjectGUID;
