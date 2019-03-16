@@ -35,9 +35,9 @@ enum Events
 {
 };
 
-struct boss_halazziAI : public BossAI
+struct boss_halazzi : public BossAI
 {
-    boss_halazziAI(Creature* creature) : BossAI(creature, DATA_HALAZZI)
+    boss_halazzi(Creature* creature) : BossAI(creature, DATA_HALAZZI)
     {
         Initialize();
     }
@@ -72,5 +72,5 @@ struct boss_halazziAI : public BossAI
 
 void AddSC_boss_halazzi()
 {
-    RegisterZulAamanCreatureAI(boss_halazziAI);
+    RegisterZulAamanCreatureAI(boss_halazzi);
 }

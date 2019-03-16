@@ -31,9 +31,9 @@ enum Events
 {
 };
 
-struct boss_daakaraAI : public BossAI
+struct boss_daakara : public BossAI
 {
-    boss_daakaraAI(Creature* creature) : BossAI(creature, DATA_DAAKARA) { }
+    boss_daakara(Creature* creature) : BossAI(creature, DATA_DAAKARA) { }
 
     void Reset() override
     {
@@ -80,5 +80,5 @@ struct boss_daakaraAI : public BossAI
 
 void AddSC_boss_daakara()
 {
-    RegisterZulAamanCreatureAI(boss_daakaraAI);
+    RegisterZulAamanCreatureAI(boss_daakara);
 }
