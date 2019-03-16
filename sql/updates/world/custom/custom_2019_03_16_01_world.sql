@@ -1,7 +1,7 @@
 -- Pathing for  Entry: 23889 'TDB FORMAT' 
 SET @NPC := 291939;
 SET @PATH := @NPC * 10;
-UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=154.2913,`position_y`=1515.59,`position_z`=21.2338 WHERE `guid`=@NPC;
+UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=154.2913,`position_y`=1515.59,`position_z`=21.2338 WHERE `guid`=@NPC;
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,154.2913,1515.59,21.2338,0,0,1,0,100,0),
@@ -17,7 +17,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 -- Pathing for  Entry: 23889 'TDB FORMAT' 
 SET @NPC := 291947;
 SET @PATH := @NPC * 10;
-UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=89.21932,`position_y`=1529.004,`position_z`=21.23377 WHERE `guid`=@NPC;
+UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=89.21932,`position_y`=1529.004,`position_z`=21.23377 WHERE `guid`=@NPC;
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,89.21932,1529.004,21.23377,0,0,1,0,100,0),
@@ -33,7 +33,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 -- Pathing for  Entry: 23889 'TDB FORMAT' 
 SET @NPC := 291946;
 SET @PATH := @NPC * 10;
-UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=166.3321,`position_y`=1526.035,`position_z`=21.23378 WHERE `guid`=@NPC;
+UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=166.3321,`position_y`=1526.035,`position_z`=21.23378 WHERE `guid`=@NPC;
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,166.3321,1526.035,21.23378,0,0,1,0,100,0),
@@ -49,7 +49,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 -- Pathing for  Entry: 23889 'TDB FORMAT' 
 SET @NPC := 291944;
 SET @PATH := @NPC * 10;
-UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=157.6418,`position_y`=1527.899,`position_z`=21.23381 WHERE `guid`=@NPC;
+UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=157.6418,`position_y`=1527.899,`position_z`=21.23381 WHERE `guid`=@NPC;
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,157.6418,1527.899,21.23381,0,0,1,0,100,0),
@@ -63,7 +63,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 -- Pathing for  Entry: 23889 'TDB FORMAT' 
 SET @NPC := 291948;
 SET @PATH := @NPC * 10;
-UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=122.6295,`position_y`=1525.514,`position_z`=21.2338 WHERE `guid`=@NPC;
+UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=122.6295,`position_y`=1525.514,`position_z`=21.2338 WHERE `guid`=@NPC;
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,122.6295,1525.514,21.2338,0,0,1,0,100,0),
@@ -76,7 +76,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 -- Pathing for  Entry: 23889 'TDB FORMAT' 
 SET @NPC := 291945;
 SET @PATH := @NPC * 10;
-UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=108.2463,`position_y`=1523.122,`position_z`=21.2338 WHERE `guid`=@NPC;
+UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=108.2463,`position_y`=1523.122,`position_z`=21.2338 WHERE `guid`=@NPC;
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,108.2463,1523.122,21.2338,0,0,1,0,100,0),
@@ -90,7 +90,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 -- Pathing for  Entry: 23889 'TDB FORMAT' 
 SET @NPC := 291943;
 SET @PATH := @NPC * 10;
-UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=130.1109,`position_y`=1525.499,`position_z`=21.23379 WHERE `guid`=@NPC;
+UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=130.1109,`position_y`=1525.499,`position_z`=21.23379 WHERE `guid`=@NPC;
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,130.1109,1525.499,21.23379,0,0,1,0,100,0),
@@ -103,7 +103,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 -- Pathing for  Entry: 23889 'TDB FORMAT' 
 SET @NPC := 291949;
 SET @PATH := @NPC * 10;
-UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=81.98914,`position_y`=1514.848,`position_z`=21.23375 WHERE `guid`=@NPC;
+UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=81.98914,`position_y`=1514.848,`position_z`=21.23375 WHERE `guid`=@NPC;
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,81.98914,1514.848,21.23375,0,0,1,0,100,0),
