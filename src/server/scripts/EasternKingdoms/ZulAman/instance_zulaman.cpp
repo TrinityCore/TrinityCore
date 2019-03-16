@@ -35,12 +35,15 @@ ObjectData const creatureData[] =
     { 0,                                0                               } // END
 };
 
-ObjectData const cameobjectData[] =
+ObjectData const gameobjectData[] =
 {
     { GO_STRANGE_GONG,                  DATA_STRANGE_GONG               },
     { GO_MASSIVE_GATE,                  DATA_MASSIVE_GATE               },
     { 0,                                0                               } // END
 };
+
+Position const AmanishiGuardianDistanceCheckPos = { 120.223f, 1585.766f, 43.43f  };
+Position const AmanishiSavageDistanceCheckPos   = { 122.176f, 1528.203f, 21.233f };
 
 class instance_zulaman : public InstanceMapScript
 {
@@ -53,7 +56,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadObjectData(creatureData, cameobjectData);
+            LoadObjectData(creatureData, gameobjectData);
             _remainingSpeedRunTime = 0;
             _speedRunState = NOT_STARTED;
         }
@@ -66,15 +69,27 @@ public:
 
         void OnCreatureCreate(Creature* creature) override
         {
-            /*
+            InstanceScript::OnCreatureCreate(creature);
+
             switch (creature->GetEntry())
             {
+                case NPC_AMANISHI_GUARDIAN:
+                    if (creature->GetExactDist2d(AmanishiGuardianDistanceCheckPos) < 30.0f)
+                        _amanishiGuardianGUIDs.push_back(creature->GetGUID());
+                    break;
+                case NPC_AMANISHI_SAVAGE:
+                    if (creature->GetExactDist2d(AmanishiSavageDistanceCheckPos) < 100.0f)
+                        _amanishiSavageGUIDs.push_back(creature->GetGUID());
+                    break;
+                default:
+                    break;
             }
-            */
         }
 
         void OnGameObjectCreate(GameObject* go) override
         {
+            InstanceScript::OnGameObjectCreate(go);
+
             switch (go->GetEntry())
             {
                 case GO_MASSIVE_GATE:
@@ -100,7 +115,6 @@ public:
             switch (type)
             {
                 case DATA_ZULAMAN_SPEEDRUN_STATE:
-                {
                     if (data == IN_PROGRESS)
                     {
                         _remainingSpeedRunTime = 15;
@@ -111,7 +125,14 @@ public:
                         SaveToDB();
                     }
                     break;
-                }
+                case DATA_TRIGGER_AMANISHI_GUARDIANS:
+                    for (ObjectGuid guid : _amanishiGuardianGUIDs)
+                    {
+                        if (Creature* guardian = instance->GetCreature(guid))
+                            if (guardian->IsAIEnabled)
+                                guardian->AI()->DoAction(ACTION_ALERT_AMANISHI_GUARDIANS);
+                    }
+                    break;
                 default:
                     break;
             }
@@ -146,12 +167,10 @@ public:
         {
             switch (eventId)
             {
-                case EVENT_START_ZULAMAN:
+                case EVENT_RIUAL_OF_POWER:
                     if (Creature* voljin = GetCreature(DATA_VOLJIN))
-                    {
                         if (voljin->IsAIEnabled)
-                            voljin->AI()->DoAction(ACTION_START_ZULAMAN);
-                    }
+                            voljin->AI()->DoAction(ACTION_OPEN_MASSIVE_GATES);
                     break;
                 default:
                     break;
@@ -208,6 +227,8 @@ public:
 
     protected:
         EventMap events;
+        GuidVector _amanishiGuardianGUIDs;
+        GuidVector _amanishiSavageGUIDs;
         uint32 _remainingSpeedRunTime;
         uint32 _speedRunState;
     };

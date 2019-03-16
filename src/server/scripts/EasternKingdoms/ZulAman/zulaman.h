@@ -40,6 +40,8 @@ enum ZADataTypes
     DATA_STRANGE_GONG,
     DATA_MASSIVE_GATE,
     DATA_ZULAMAN_SPEEDRUN_STATE,
+    DATA_TRIGGER_AMANISHI_GUARDIANS,
+    DATA_TRIGGER_AMANISHI_SAVAGES,
 };
 
 enum ZACreatureIds
@@ -53,24 +55,27 @@ enum ZACreatureIds
     BOSS_DAAKARA                    = 23863,
 
     NPC_VOLJIN                      = 52924,
-    NPC_HEXLORD_MALACRASS_TRIGGER   = 24363
+    NPC_HEXLORD_MALACRASS_TRIGGER   = 24363,
+    NPC_AMANISHI_GUARDIAN           = 23597,
+    NPC_AMANISHI_SAVAGE             = 23889
 };
 
 enum ZAGameObjectIds
 {
-    GO_STRANGE_GONG             = 187359,
-    GO_MASSIVE_GATE             = 186728,
+    GO_STRANGE_GONG = 187359,
+    GO_MASSIVE_GATE = 186728,
 };
 
 enum ZAEvents
 {
-    EVENT_START_ZULAMAN             = 15897,
+    EVENT_RIUAL_OF_POWER            = 15897,
     EVENT_UPDATE_SPEED_RUN_TIMER    = 1,
 };
 
-enum ZAAction
+enum ZAActions
 {
-    ACTION_START_ZULAMAN        = 1
+    ACTION_OPEN_MASSIVE_GATES       = 1,
+    ACTION_ALERT_AMANISHI_GUARDIANS = 1
 };
 
 enum ZAWorldStates
