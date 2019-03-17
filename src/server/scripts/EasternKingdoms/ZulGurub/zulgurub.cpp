@@ -302,6 +302,7 @@ struct npc_zulgurub_venomguard_destroyer : public ScriptedAI
                 case EVENT_BREATH_OF_HETHISS:
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
+                    me->StopMoving();
                     DoCastSelf(SPELL_BREATH_OF_HETHISS);
                     _events.ScheduleEvent(EVENT_RESTORE_REACT_STATE, 4s + 500ms);
                     _events.Repeat(14s, 15s);
