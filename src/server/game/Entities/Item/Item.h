@@ -104,7 +104,6 @@ class TC_GAME_API Item : public Object
         bool CanBeTraded(bool mail = false, bool trade = false) const;
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
-        bool HasSignature() const;
 
         bool HasEnchantRequiredSkill(Player const* player) const;
         uint32 GetEnchantRequiredLevel() const;
