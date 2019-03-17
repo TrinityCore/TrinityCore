@@ -278,13 +278,13 @@ void WorldSession::ComputeNewClockDelta()
 {
     using namespace boost::accumulators;
 
-    accumulator_set<uint32, features<tag::mean, tag::median, tag::variance(lazy)> > acc;
+    accumulator_set<uint32, features<tag::mean, tag::median, tag::variance(lazy)> > latencyAccumulator;
 
     for (auto pair : timeSyncClockDeltaQueue)
-        acc(pair.second);
+        latencyAccumulator(pair.second);
 
-    uint32 latencyMedian = static_cast<uint32>(std::round(median(acc)));
-    uint32 latencyStandardDeviation = static_cast<uint32>(std::round(sqrt(variance(acc))));
+    uint32 latencyMedian = static_cast<uint32>(std::round(median(latencyAccumulator)));
+    uint32 latencyStandardDeviation = static_cast<uint32>(std::round(sqrt(variance(latencyAccumulator))));
 
     accumulator_set<int64, features<tag::mean> > clockDeltasAfterFiltering;
     uint32 sampleSizeAfterFiltering = 0;
@@ -307,7 +307,6 @@ void WorldSession::ComputeNewClockDelta()
         std::pair<int64, uint32> back = timeSyncClockDeltaQueue.back();
         timeSyncClockDelta = back.first;
     }
-
 }
 
 /// Update the WorldSession (triggered by World update)
