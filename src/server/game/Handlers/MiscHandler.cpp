@@ -1250,7 +1250,12 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     using the following relation:
     serverTime = clockDelta + clientTime
     */
-    _player->m_timeSyncClockDelta = (int64) (_player->m_timeSyncServer + lagDelay) - (int64) clientTimestamp;
+    int64 clockDelta = (int64)(m_timeSyncServer + lagDelay) - (int64)clientTimestamp;
+    timeSyncClockDeltaQueue.push_back(std::pair<int64, uint32>(clockDelta, roundTripDuration));
+    ComputeNewClockDelta();
+
+    TC_LOG_ERROR("custom", "CMSG_TIME_SYNC_RESP. roundTripDuration %u", roundTripDuration);
+    TC_LOG_ERROR("custom", "CMSG_TIME_SYNC_RESP. new delta: %i for player  %s", timeSyncClockDelta, _player->GetName().c_str());
 }
 
 void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)

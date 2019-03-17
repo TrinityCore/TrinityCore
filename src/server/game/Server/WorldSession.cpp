@@ -53,6 +53,9 @@
 #include "WorldPacket.h"
 #include "WorldSocket.h"
 #include <zlib.h>
+#include <boost/accumulators/statistics/variance.hpp>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics.hpp>
 
 namespace {
 
@@ -131,7 +134,9 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     _RBACData(nullptr),
     expireTime(60000), // 1 min after socket loss, session is deleted
     forceExit(false),
-    m_currentBankerGUID()
+    m_currentBankerGUID(),
+    timeSyncClockDeltaQueue(boost::circular_buffer<std::pair<int64, uint32>>(6)),
+    timeSyncClockDelta(0)
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
@@ -263,6 +268,56 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
     TC_LOG_TRACE("network.opcode", "Unprocessed tail data (read stop at %u from %u) Opcode %s from %s",
         uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
     packet->print_storage();
+}
+
+void WorldSession::ComputeNewClockDelta()
+{
+    using namespace boost::accumulators;
+
+    accumulator_set<uint32, features<tag::mean, tag::median, tag::variance(lazy)> > acc;
+
+    // timeSyncClockDeltaQueue: <clockDelta,latency>
+    for (auto pair : timeSyncClockDeltaQueue)
+        acc(pair.second);
+
+    TC_LOG_ERROR("custom", "-------------------------------------------");
+    TC_LOG_ERROR("custom", "queue content BEFORE");
+    for (std::pair<int64, uint32> pair : timeSyncClockDeltaQueue)
+        TC_LOG_ERROR("custom", "%i / %u", pair.first, pair.second);
+
+    TC_LOG_ERROR("custom", "mean: %f", mean(acc));
+    TC_LOG_ERROR("custom", "median: %f", median(acc));
+    TC_LOG_ERROR("custom", "variance: %f", variance(acc));
+    TC_LOG_ERROR("custom", "std deviation: %f", sqrt(variance(acc)));
+
+    uint32 latencyMedian = static_cast<uint32>(std::round(median(acc)));
+    uint32 latencyStandardDeviation = static_cast<uint32>(std::round(sqrt(variance(acc))));
+    accumulator_set<int64, features<tag::mean> > clockDeltasAfterFiltering;
+    TC_LOG_ERROR("custom", "queue content AFTER");
+    uint32 sampleSizeAfterFiltering = 0;
+    for (auto pair : timeSyncClockDeltaQueue)
+    {
+        if (std::fabs(pair.second - latencyMedian) <= latencyStandardDeviation) {
+            clockDeltasAfterFiltering(pair.first);
+            sampleSizeAfterFiltering++;
+            TC_LOG_ERROR("custom", "%i / %u", pair.first, pair.second);
+        }
+    }
+
+    if (sampleSizeAfterFiltering != 0)
+    {
+        int64 meanClockDelta = static_cast<int64>(std::round(mean(clockDeltasAfterFiltering)));
+        TC_LOG_ERROR("custom", "meanClockDelta: %i", meanClockDelta);
+        if (std::fabs(meanClockDelta - timeSyncClockDelta) > 50)
+            timeSyncClockDelta = meanClockDelta;
+    }
+    else if (timeSyncClockDelta == 0)
+    {
+        TC_LOG_ERROR("custom", "using fallback clockDelta");
+        std::pair<int64, uint32> back = timeSyncClockDeltaQueue.back();
+        timeSyncClockDelta = back.first;
+    }
+
 }
 
 /// Update the WorldSession (triggered by World update)

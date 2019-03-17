@@ -32,6 +32,7 @@
 #include "SharedDefines.h"
 #include <string>
 #include <unordered_map>
+#include <boost/circular_buffer.hpp>
 
 class BigNumber;
 class Creature;
@@ -1076,6 +1077,10 @@ class TC_GAME_API WorldSession
         uint32 expireTime;
         bool forceExit;
         ObjectGuid m_currentBankerGUID;
+
+        boost::circular_buffer<std::pair<int64, uint32>> timeSyncClockDeltaQueue;
+        int64 timeSyncClockDelta;
+        void ComputeNewClockDelta();
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;
