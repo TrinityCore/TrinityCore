@@ -2535,7 +2535,10 @@ float Map::GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float
 {
     // find raw .map surface under Z coordinates
     uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
-    float const mapHeight = GetGridHeight(terrainMapId, x, y);
+    float mapHeight = VMAP_INVALID_HEIGHT_VALUE;
+    float gridHeight = GetGridHeight(terrainMapId, x, y);
+    if (G3D::fuzzyGe(z, gridHeight - GROUND_HEIGHT_TOLERANCE))
+        mapHeight = gridHeight;
 
     float vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
     if (checkVMap)
