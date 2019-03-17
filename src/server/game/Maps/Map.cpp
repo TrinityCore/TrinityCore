@@ -753,8 +753,11 @@ void Map::Update(uint32 t_diff)
         {
             //player->Update(t_diff);
             WorldSession* session = player->GetSession();
+
             MapSessionFilter updater(session);
             session->Update(t_diff, updater);
+
+            session->UpdateForPlayersOnMap(t_diff);
         }
     }
 

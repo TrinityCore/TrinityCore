@@ -458,17 +458,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     if (m_Socket && m_Socket->IsOpen() && _warden)
         _warden->Update();
 
-    if (_player && _player->IsInWorld())
-    {
-        if (m_timeSyncTimer > 0)
-        {
-            if (diff >= m_timeSyncTimer)
-                SendTimeSync();
-            else
-                m_timeSyncTimer -= diff;
-        }
-    }
-
     ProcessQueryCallbacks();
 
     //check if we are safe to proceed with logout
@@ -494,6 +483,20 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
         if (!m_Socket)
             return false;                                       //Will remove this session from the world session map
+    }
+
+    return true;
+}
+
+bool WorldSession::UpdateForPlayersOnMap(uint32 diff)
+{
+    // Send time sync packet every 10s.
+    if (m_timeSyncTimer > 0)
+    {
+        if (diff >= m_timeSyncTimer)
+            SendTimeSync();
+        else
+            m_timeSyncTimer -= diff;
     }
 
     return true;
