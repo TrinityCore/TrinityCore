@@ -1239,7 +1239,7 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     // we are going to make 2 assumptions:
     // 1) we assume that the request processing time equals 0.
     // 2) we assume that the packet took as much time to travel from server to client than it took to travel from client to server.
-    uint32 roundTripDuration = getMSTimeDiff(serverTimeAtSent, getMSTime());
+    uint32 roundTripDuration = getMSTimeDiff(serverTimeAtSent, GameTime::GetGameTimeMS());
     uint32 lagDelay = roundTripDuration / 2;
 
     /*
