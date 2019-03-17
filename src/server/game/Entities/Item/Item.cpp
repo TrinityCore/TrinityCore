@@ -734,14 +734,21 @@ bool Item::HasSignature() const
 {
     const ItemTemplate * temp = GetTemplate();
 
-    if (temp->Stackable == 1)
-        if (temp->Class == ITEM_CLASS_CONTAINER ||
-            temp->Class == ITEM_CLASS_WEAPON ||
-            temp->Class == ITEM_CLASS_ARMOR ||
-            temp->Class == ITEM_CLASS_GEM ||
-            temp->Class == ITEM_CLASS_TRADE_GOODS ||
-            temp->Class == ITEM_CLASS_QUIVER)
+    if (temp->Stackable > 1)
+        return false;
+
+    if (temp->Class == ITEM_CLASS_CONTAINER ||
+        temp->Class == ITEM_CLASS_WEAPON ||
+        temp->Class == ITEM_CLASS_ARMOR ||
+        temp->Class == ITEM_CLASS_GEM ||
+        temp->Class == ITEM_CLASS_TRADE_GOODS ||
+        temp->Class == ITEM_CLASS_QUIVER ||
+        temp->Class == ITEM_CLASS_MISC)
+    {
+        if (temp->ItemId != 6265 /*Soul Shard*/ &&
+            temp->ItemId != 6948 /*Hearthstone*/)
             return true;
+    }
     return false;
 }
 
