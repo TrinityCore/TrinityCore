@@ -364,8 +364,24 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
         case CMSG_TIME_SYNC_RESP:
             sessionGuard.lock(); // is this necessary?
             LogOpcodeText(opcode, sessionGuard);
-            _worldSession->HandleTimeSyncResp(packet);
-            break;
+            try
+            {
+                if (_worldSession)
+                {
+                    _worldSession->HandleTimeSyncResp(packet);
+                    return ReadDataHandlerResult::Ok;
+                }
+                else
+                {
+                    TC_LOG_ERROR("network", "WorldSocket::HandlePing: peer sent CMSG_TIME_SYNC_RESP, but is not authenticated or got recently kicked, address = %s", GetRemoteIpAddress().to_string().c_str());
+                    return ReadDataHandlerResult::Error;
+                }
+            }
+            catch (ByteBufferException const&)
+            {
+            }
+            TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client %s sent malformed CMSG_TIME_SYNC_RESP", GetRemoteIpAddress().to_string().c_str());
+            return ReadDataHandlerResult::Error;
 
         default:
         {
