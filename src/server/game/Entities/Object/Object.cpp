@@ -2187,12 +2187,10 @@ void WorldObject::SetZoneScript()
             m_zoneScript = (ZoneScript*)((InstanceMap*)map)->GetInstanceScript();
         else if (!map->IsBattlegroundOrArena())
         {
-            uint32 zoneId = GetMap()->GetZoneId(GetPhaseShift(), GetPosition());
-
-            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(zoneId))
+            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
                 m_zoneScript = bf;
             else
-                m_zoneScript = sOutdoorPvPMgr->GetZoneScript(zoneId);
+                m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
         }
     }
 }
