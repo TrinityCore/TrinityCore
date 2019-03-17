@@ -1083,7 +1083,7 @@ class TC_GAME_API WorldSession
         bool forceExit;
         ObjectGuid m_currentBankerGUID;
 
-        boost::circular_buffer<std::pair<int64, uint32>> timeSyncClockDeltaQueue;
+        boost::circular_buffer<std::pair<int64, uint32>> timeSyncClockDeltaQueue; // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
         int64 timeSyncClockDelta;
         void ComputeNewClockDelta();
 

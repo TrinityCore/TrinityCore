@@ -280,7 +280,6 @@ void WorldSession::ComputeNewClockDelta()
 
     accumulator_set<uint32, features<tag::mean, tag::median, tag::variance(lazy)> > acc;
 
-    // timeSyncClockDeltaQueue: <clockDelta,latency>
     for (auto pair : timeSyncClockDeltaQueue)
         acc(pair.second);
 
