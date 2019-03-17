@@ -299,7 +299,7 @@ void WorldSession::ComputeNewClockDelta()
     if (sampleSizeAfterFiltering != 0)
     {
         int64 meanClockDelta = static_cast<int64>(std::round(mean(clockDeltasAfterFiltering)));
-        if (std::fabs(meanClockDelta - timeSyncClockDelta) > 50)
+        if (std::fabs(meanClockDelta - timeSyncClockDelta) > 25)
             timeSyncClockDelta = meanClockDelta;
     }
     else if (timeSyncClockDelta == 0)
@@ -1620,7 +1620,7 @@ void WorldSession::SendTimeSync()
 
     pendingTimeSyncRequests[m_timeSyncNextCounter] = GameTime::GetGameTimeMS();
 
-    // Schedule next sync in 10 sec
-    m_timeSyncTimer = 10000;
+    // Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
+    m_timeSyncTimer = m_timeSyncNextCounter == 0 ? 5000 : 10000;
     m_timeSyncNextCounter++;
 }
