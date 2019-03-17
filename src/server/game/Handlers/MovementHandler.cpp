@@ -363,7 +363,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     /* process position-change */
     WorldPacket data(opcode, recvData.size());
     int64 movementTime = (int64) movementInfo.time + timeSyncClockDelta;
-    if (movementTime < 0 || movementTime > 0xFFFFFFFF)
+    if (timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
     {
         TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
         movementInfo.time = GameTime::GetGameTimeMS();
