@@ -450,6 +450,10 @@ class TC_GAME_API WorldSession
         uint32 GetRecruiterId() const { return recruiterId; }
         bool IsARecruiter() const { return isRecruiter; }
 
+        // Time Synchronisation
+        void ResetTimeSync();
+        void SendTimeSync();
+
     public:                                                 // opcodes handlers
 
         void Handle_NULL(WorldPacket& recvPacket);          // not used
@@ -1081,6 +1085,11 @@ class TC_GAME_API WorldSession
         boost::circular_buffer<std::pair<int64, uint32>> timeSyncClockDeltaQueue;
         int64 timeSyncClockDelta;
         void ComputeNewClockDelta();
+
+        uint32 m_timeSyncCounter;
+        uint32 m_timeSyncTimer;
+        uint32 m_timeSyncServer;
+
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;

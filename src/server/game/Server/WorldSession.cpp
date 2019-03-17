@@ -140,6 +140,10 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
+    m_timeSyncCounter = 0;
+    m_timeSyncTimer = 0;
+    m_timeSyncServer = 0;
+
     if (sock)
     {
         m_Address = sock->GetRemoteIpAddress().to_string();
@@ -453,6 +457,17 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     if (m_Socket && m_Socket->IsOpen() && _warden)
         _warden->Update();
+
+    if (_player && _player->IsInWorld())
+    {
+        if (m_timeSyncTimer > 0)
+        {
+            if (diff >= m_timeSyncTimer)
+                SendTimeSync();
+            else
+                m_timeSyncTimer -= diff;
+        }
+    }
 
     ProcessQueryCallbacks();
 
@@ -1601,4 +1616,21 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
 
 WorldSession::DosProtection::DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY))
 {
+}
+
+void WorldSession::ResetTimeSync()
+{
+    m_timeSyncCounter = 0;
+    m_timeSyncTimer = 0;
+}
+
+void WorldSession::SendTimeSync()
+{
+    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
+    data << uint32(m_timeSyncCounter++);
+    SendPacket(&data);
+
+    // Schedule next sync in 10 sec
+    m_timeSyncTimer = 10000;
+    m_timeSyncServer = GameTime::GetGameTimeMS();
 }

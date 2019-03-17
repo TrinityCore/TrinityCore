@@ -1229,7 +1229,7 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     uint32 counter, clientTimestamp;
     recvData >> counter >> clientTimestamp;
 
-    if (counter != _player->m_timeSyncCounter - 1)
+    if (counter != m_timeSyncCounter - 1)
     {
         TC_LOG_DEBUG("network", "Wrong time sync counter from player %s (cheater?)", _player->GetName().c_str());
         // todo: send a new one?
@@ -1237,8 +1237,11 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     }
 
     // time it took for the request to travel to the client, for the client to process it and reply and for response to travel back to the server.
-    uint32 roundTripDuration = getMSTimeDiff(_player->m_timeSyncServer, getMSTime());
-    uint32 lagDelay = roundTripDuration / 2; // we assume that the request processing time equals 0.
+    // we are going to make 2 assumptions:
+    // 1) we assume that the request processing time equals 0.
+    // 2) we assume that the packet took as much time to travel from server to client than it took to travel from client to server.
+    uint32 roundTripDuration = getMSTimeDiff(m_timeSyncServer, getMSTime());
+    uint32 lagDelay = roundTripDuration / 2;
 
     /*
     clockDelta = serverTime - clientTime
