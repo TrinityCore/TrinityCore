@@ -1086,9 +1086,9 @@ class TC_GAME_API WorldSession
         int64 timeSyncClockDelta;
         void ComputeNewClockDelta();
 
-        uint32 m_timeSyncCounter;
+        std::map<uint32, uint32> pendingTimeSyncRequests; // key: counter. value: server time when packet with that counter was sent.
+        uint32 m_timeSyncNextCounter;
         uint32 m_timeSyncTimer;
-        uint32 m_timeSyncServer;
 
 
         WorldSession(WorldSession const& right) = delete;

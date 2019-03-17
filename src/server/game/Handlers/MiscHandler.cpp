@@ -1229,18 +1229,17 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     uint32 counter, clientTimestamp;
     recvData >> counter >> clientTimestamp;
 
-    if (counter != m_timeSyncCounter - 1)
-    {
-        TC_LOG_DEBUG("network", "Wrong time sync counter from player %s (cheater?)", _player->GetName().c_str());
-        // todo: send a new one?
+    if (pendingTimeSyncRequests.count(counter) == 0)
         return;
-    }
+
+    uint32 serverTimeAtSent = pendingTimeSyncRequests.at(counter);
+    pendingTimeSyncRequests.erase(counter);
 
     // time it took for the request to travel to the client, for the client to process it and reply and for response to travel back to the server.
     // we are going to make 2 assumptions:
     // 1) we assume that the request processing time equals 0.
     // 2) we assume that the packet took as much time to travel from server to client than it took to travel from client to server.
-    uint32 roundTripDuration = getMSTimeDiff(m_timeSyncServer, getMSTime());
+    uint32 roundTripDuration = getMSTimeDiff(serverTimeAtSent, getMSTime());
     uint32 lagDelay = roundTripDuration / 2;
 
     /*
@@ -1253,10 +1252,11 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     using the following relation:
     serverTime = clockDelta + clientTime
     */
-    int64 clockDelta = (int64)(m_timeSyncServer + lagDelay) - (int64)clientTimestamp;
+    int64 clockDelta = (int64)(serverTimeAtSent + lagDelay) - (int64)clientTimestamp;
     timeSyncClockDeltaQueue.push_back(std::pair<int64, uint32>(clockDelta, roundTripDuration));
     ComputeNewClockDelta();
 
+    TC_LOG_ERROR("custom", "CMSG_TIME_SYNC_RESP. counter %u clientTimestamp %u serverTimeAtSent %u", counter, clientTimestamp, serverTimeAtSent);
     TC_LOG_ERROR("custom", "CMSG_TIME_SYNC_RESP. roundTripDuration %u", roundTripDuration);
     TC_LOG_ERROR("custom", "CMSG_TIME_SYNC_RESP. new delta: %i for player  %s", timeSyncClockDelta, _player->GetName().c_str());
 }

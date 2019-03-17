@@ -136,13 +136,13 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     forceExit(false),
     m_currentBankerGUID(),
     timeSyncClockDeltaQueue(boost::circular_buffer<std::pair<int64, uint32>>(6)),
-    timeSyncClockDelta(0)
+    timeSyncClockDelta(0),
+    pendingTimeSyncRequests()
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
-    m_timeSyncCounter = 0;
+    m_timeSyncNextCounter = 0;
     m_timeSyncTimer = 0;
-    m_timeSyncServer = 0;
 
     if (sock)
     {
@@ -1620,17 +1620,19 @@ WorldSession::DosProtection::DosProtection(WorldSession* s) : Session(s), _polic
 
 void WorldSession::ResetTimeSync()
 {
-    m_timeSyncCounter = 0;
-    m_timeSyncTimer = 0;
+    m_timeSyncNextCounter = 0;
+    pendingTimeSyncRequests.clear();
 }
 
 void WorldSession::SendTimeSync()
 {
     WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
-    data << uint32(m_timeSyncCounter++);
+    data << uint32(m_timeSyncNextCounter);
     SendPacket(&data);
+
+    pendingTimeSyncRequests[m_timeSyncNextCounter] = GameTime::GetGameTimeMS();
 
     // Schedule next sync in 10 sec
     m_timeSyncTimer = 10000;
-    m_timeSyncServer = GameTime::GetGameTimeMS();
+    m_timeSyncNextCounter++;
 }
