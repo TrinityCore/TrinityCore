@@ -793,11 +793,10 @@ void GameObject::Update(uint32 diff)
             if (!m_respawnDelayTime)
                 return;
 
-            // ToDo: Decide if we should properly despawn these. Maybe they expect to be able to manually respawn from script?
             if (!m_spawnedByDefault)
             {
                 m_respawnTime = 0;
-                DestroyForNearbyPlayers(); // old UpdateObjectVisibility()
+                Delete();
                 return;
             }
 
