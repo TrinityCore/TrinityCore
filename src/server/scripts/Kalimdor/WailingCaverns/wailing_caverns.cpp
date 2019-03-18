@@ -245,7 +245,10 @@ public:
                                 if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
                                     naralex->AI()->Talk(EMOTE_HORRENDOUS_VISION);
                                 me->SummonCreature(NPC_MUTANUS_THE_DEVOURER, 150.872f, 262.905f, -103.503f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                Talk(SAY_MUTANUS_THE_DEVOURER);
+
+                                Creature* mutanus = me->FindNearestCreature(NPC_MUTANUS_THE_DEVOURER, 50.0f);
+                                Talk(SAY_MUTANUS_THE_DEVOURER, mutanus);
+
                                 instance->SetData(TYPE_MUTANUS_THE_DEVOURER, IN_PROGRESS);
                             }
                             else
