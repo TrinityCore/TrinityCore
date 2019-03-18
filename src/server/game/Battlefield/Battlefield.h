@@ -88,8 +88,6 @@ public:
     bool IsWarTime() const { return _active; }
 
 private:
-    Battlefield(Battlefield const&) = delete;
-
     // constant information
     BattlefieldBattleId _battleId;
     uint32 _zoneId;

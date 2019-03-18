@@ -16,14 +16,52 @@
  */
 
 #include "BattlefieldEntities.h"
-#include "Battlefield.h"
 #include "Errors.h"
 
-BattlefieldBuilding::BattlefieldBuilding(Battlefield* battlefield, BattlefieldBuildingType type, uint32 gameObjectEntry, uint32 worldState) : _info(type, gameObjectEntry, worldState)
+BattlefieldEntity::BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityType type, uint32 entry, uint32 worldState) :
+    Battle(battlefield), Info(type, entry, worldState)
 {
-    ASSERT(battlefield, "BattlefieldBuilding::BattlefieldBuilding: Tried to construct a building without a battlefield! (%u, %u)", gameObjectEntry, worldState);
+    ASSERT(battlefield, "BattlefieldBuilding::BattlefieldEntity: Tried to construct an entity without a battlefield! (type: %u, entry: %u, worldState: %u)", type, entry, worldState);
+}
 
-    _battlefield = battlefield;
-    _state = BATTLEFIELD_BUILDING_STATE_NONE;
-    _teamControl = PVP_TEAM_NEUTRAL;
+BattlefieldBuilding::BattlefieldBuilding(Battlefield* battlefield, uint32 entry, uint32 worldState, BattlefieldBuildingType type) :
+    BattlefieldEntity(battlefield, BATTLEFIELD_ENTITY_TYPE_BUILDING, entry, worldState), BuildingType(type), State(BATTLEFIELD_BUILDING_STATE_NONE)
+{
+}
+
+PvPTeamId BattlefieldBuilding::GetPvPTeamId() const
+{
+    switch (State)
+    {
+        case BATTLEFIELD_BUILDING_STATE_HORDE_INTACT:
+        case BATTLEFIELD_BUILDING_STATE_HORDE_DAMAGED:
+        case BATTLEFIELD_BUILDING_STATE_HORDE_DESTROYED:
+            return PVP_TEAM_HORDE;
+        case BATTLEFIELD_BUILDING_STATE_ALLIANCE_INTACT:
+        case BATTLEFIELD_BUILDING_STATE_ALLIANCE_DAMAGED:
+        case BATTLEFIELD_BUILDING_STATE_ALLIANCE_DESTROYED:
+            return PVP_TEAM_ALLIANCE;
+        default:
+            return PVP_TEAM_NEUTRAL;
+    }
+}
+
+BattlefieldCapturePoint::BattlefieldCapturePoint(Battlefield* battlefield, uint32 entry, uint32 worldState) :
+    BattlefieldEntity(battlefield, BATTLEFIELD_ENTITY_TYPE_CAPTUREPOINT, entry, worldState), State(BATTLEFIELD_CAPTUREPOINT_STATE_NEUTRAL)
+{
+}
+
+PvPTeamId BattlefieldCapturePoint::GetPvPTeamId() const
+{
+    switch (State)
+    {
+        case BATTLEFIELD_CAPTUREPOINT_STATE_HORDE:
+        case BATTLEFIELD_CAPTUREPOINT_STATE_HORDE_ALLIANCE_CHALLENGE:
+            return PVP_TEAM_HORDE;
+        case BATTLEFIELD_CAPTUREPOINT_STATE_ALLIANCE:
+        case BATTLEFIELD_CAPTUREPOINT_STATE_ALLIANCE_HORDE_CHALLENGE:
+            return PVP_TEAM_ALLIANCE;
+        default:
+            return PVP_TEAM_NEUTRAL;
+    }
 }
