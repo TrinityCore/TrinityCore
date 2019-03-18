@@ -57,6 +57,7 @@ private:
     typedef std::unordered_map<uint32 /*zoneId*/, BattlefieldPointer> BattlefieldContainer;
 
     explicit BattlefieldMgr();
+    BattlefieldMgr(BattlefieldMgr const&) = delete;
     ~BattlefieldMgr();
 
     // contains all initialized battlefields

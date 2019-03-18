@@ -145,6 +145,9 @@ public:
 
     bool IsFlyingMountAllowed() const override { return IsWarTime(); }
     bool IsSpellAreaAllowed(uint32 spellId, Player const* player, uint32 newArea) const override;
+
+private:
+    BattlefieldWintergrasp(BattlefieldWintergrasp const&) = delete;
 };
 
 #endif
