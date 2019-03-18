@@ -19,11 +19,11 @@
 #define TRINITY_BATTLEFIELD_ENTITIES_H_
 
 #include "Common.h"
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 
 class Battlefield;
 class GameObject;
-class ObjectGuid;
 
 enum BattlefieldBuildingType : uint8
 {

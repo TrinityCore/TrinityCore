@@ -18,7 +18,6 @@
 #include "BattlefieldEntities.h"
 #include "Battlefield.h"
 #include "Errors.h"
-#include "ObjectGuid.h"
 
 BattlefieldBuilding::BattlefieldBuilding(Battlefield* battlefield, BattlefieldBuildingType type, uint32 gameObjectEntry, uint32 worldState) : _info(type, gameObjectEntry, worldState)
 {
