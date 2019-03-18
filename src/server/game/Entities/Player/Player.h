@@ -308,14 +308,6 @@ struct EnchantDuration
 typedef std::list<EnchantDuration> EnchantDurationList;
 typedef std::list<Item*> ItemDurationList;
 
-enum PlayerMovementType
-{
-    MOVE_ROOT       = 1,
-    MOVE_UNROOT     = 2,
-    MOVE_WATER_WALK = 3,
-    MOVE_LAND_WALK  = 4
-};
-
 enum DrunkenState
 {
     DRUNKEN_SOBER   = 0,
@@ -1670,6 +1662,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();
         void RepopAtGraveyard();
+        void SetIsRepopPending(bool pending) { m_isRepopPending = pending; }
+        bool IsRepopPending() const { return m_isRepopPending; }
 
         void RemoveGhoul();
 
@@ -1684,8 +1678,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateMirrorTimers();
         void StopMirrorTimers();
         bool IsMirrorTimerActive(MirrorTimerType type) const;
-
-        void SetMovement(PlayerMovementType pType);
 
         bool CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone) const;
 
@@ -1950,6 +1942,17 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetMovedUnit(Unit* target);
 
+        void InsertIntoClientControlSet(ObjectGuid guid);
+        void RemoveFromClientControlSet(ObjectGuid guid);
+        bool IsInClientControlSet(ObjectGuid guid);
+
+        bool m_pendingNewAllowedMover;
+    private:
+        // describe all units that this unit has client control over. Example, a player on a vehicle has client control over himself and the vehicle at the same time.
+        GuidSet m_allowedClientControl;
+
+    public:
+
         void SetSeer(WorldObject* target) { m_seer = target; }
         void SetViewpoint(WorldObject* target, bool apply);
         WorldObject* GetViewpoint() const;
@@ -2132,12 +2135,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AddWhisperWhiteList(ObjectGuid guid) { WhisperList.push_back(guid); }
         bool IsInWhisperWhiteList(ObjectGuid guid);
         void RemoveFromWhisperWhiteList(ObjectGuid guid) { WhisperList.remove(guid); }
-
-        bool SetDisableGravity(bool disable, bool packetOnly /* = false */) override;
-        bool SetCanFly(bool apply, bool packetOnly = false) override;
-        bool SetWaterWalking(bool apply, bool packetOnly = false) override;
-        bool SetFeatherFall(bool apply, bool packetOnly = false) override;
-        bool SetHover(bool enable, bool packetOnly = false) override;
 
         bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 
@@ -2450,6 +2447,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_DelayedOperations;
         bool m_bCanDelayTeleport;
         bool m_bHasDelayedTeleport;
+
+        // Used to resurect a dead player into a ghost by 2 non consecutive steps
+        bool m_isRepopPending;
 
         // Temporary removed pet cache
         uint32 m_temporaryUnsummonedPetNumber;

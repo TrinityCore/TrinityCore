@@ -255,8 +255,6 @@ void Transport::AddPassenger(WorldObject* passenger)
     if (_passengers.insert(passenger).second)
     {
         passenger->SetTransport(this);
-        passenger->m_movementInfo.AddMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-        passenger->m_movementInfo.transport.guid = GetGUID();
         TC_LOG_DEBUG("entities.transport", "Object %s boarded transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
         if (Player* plr = passenger->ToPlayer())
@@ -285,8 +283,6 @@ void Transport::RemovePassenger(WorldObject* passenger)
     if (erased || _staticPassengers.erase(passenger)) // static passenger can remove itself in case of grid unload
     {
         passenger->SetTransport(nullptr);
-        passenger->m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-        passenger->m_movementInfo.transport.Reset();
         TC_LOG_DEBUG("entities.transport", "Object %s removed from transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
         if (Player* plr = passenger->ToPlayer())
@@ -315,13 +311,11 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
     data->spawnPoint.GetPosition(x, y, z, o);
 
     creature->SetTransport(this);
-    creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-    creature->m_movementInfo.transport.guid = GetGUID();
-    creature->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+    creature->SetTransOffset(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
     creature->Relocate(x, y, z, o);
     creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
-    creature->SetTransportHomePosition(creature->m_movementInfo.transport.pos);
+    creature->SetTransportHomePosition(creature->GetMovementInfo().transport.pos);
 
     /// @HACK - transport models are not added to map's dynamic LoS calculations
     ///         because the current GameObjectModel cannot be moved without recreating
@@ -365,8 +359,7 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
     data->spawnPoint.GetPosition(x, y, z, o);
 
     go->SetTransport(this);
-    go->m_movementInfo.transport.guid = GetGUID();
-    go->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+    go->SetTransOffset(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
     go->Relocate(x, y, z, o);
     go->RelocateStationaryPosition(x, y, z, o);
@@ -479,9 +472,7 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
 
     summon->SetTransport(this);
-    summon->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-    summon->m_movementInfo.transport.guid = GetGUID();
-    summon->m_movementInfo.transport.pos.Relocate(pos);
+    summon->SetTransOffset(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
     summon->Relocate(x, y, z, o);
     summon->SetHomePosition(x, y, z, o);
     summon->SetTransportHomePosition(pos);
@@ -635,7 +626,7 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
                         continue;
 
                 float destX, destY, destZ, destO;
-                (*itr)->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
+                (*itr)->GetMovementInfo().transport.pos.GetPosition(destX, destY, destZ, destO);
                 TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);
 
                 (*itr)->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO,
@@ -668,7 +659,7 @@ void Transport::DelayedTeleportTransport()
         WorldObject* obj = (*_passengerTeleportItr++);
 
         float destX, destY, destZ, destO;
-        obj->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
+        obj->GetMovementInfo().transport.pos.GetPosition(destX, destY, destZ, destO);
         TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);
 
         switch (obj->GetTypeId())
@@ -708,7 +699,7 @@ void Transport::UpdatePassengerPositions(PassengerSet& passengers)
         // Do not use Unit::UpdatePosition here, we don't want to remove auras
         // as if regular movement occurred
         float x, y, z, o;
-        passenger->m_movementInfo.transport.pos.GetPosition(x, y, z, o);
+        passenger->GetMovementInfo().transport.pos.GetPosition(x, y, z, o);
         CalculatePassengerPosition(x, y, z, &o);
         switch (passenger->GetTypeId())
         {

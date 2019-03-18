@@ -4667,7 +4667,7 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
         if (m_targets.HasDst())
             destTarget->GetPosition(x, y);
         else
-            return;
+            return; // log into warn a message for this case?
     }
     else //if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_KNOCK_BACK)
         m_caster->GetPosition(x, y);
@@ -4685,8 +4685,7 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
 
     float speedxy = m_spellInfo->Effects[effIndex].MiscValue / 10.f;
     float speedz = damage/ 10.f;
-    //1891: Disengage
-    unitTarget->JumpTo(speedxy, speedz, m_spellInfo->SpellIconID != 1891);
+    unitTarget->JumpTo(speedxy, speedz, false);
 
     // changes fall time
     if (m_caster->GetTypeId() == TYPEID_PLAYER)

@@ -42,11 +42,9 @@ public:
             { "casttime",       rbac::RBAC_PERM_COMMAND_CHEAT_CASTTIME,  false, &HandleCasttimeCheatCommand,  "" },
             { "cooldown",       rbac::RBAC_PERM_COMMAND_CHEAT_COOLDOWN,  false, &HandleCoolDownCheatCommand,  "" },
             { "power",          rbac::RBAC_PERM_COMMAND_CHEAT_POWER,     false, &HandlePowerCheatCommand,     "" },
-            { "waterwalk",      rbac::RBAC_PERM_COMMAND_CHEAT_WATERWALK, false, &HandleWaterWalkCheatCommand, "" },
             { "status",         rbac::RBAC_PERM_COMMAND_CHEAT_STATUS,    false, &HandleCheatStatusCommand,    "" },
             { "taxi",           rbac::RBAC_PERM_COMMAND_CHEAT_TAXI,      false, &HandleTaxiCheatCommand,      "" },
             { "explore",        rbac::RBAC_PERM_COMMAND_CHEAT_EXPLORE,   false, &HandleExploreCheatCommand,   "" },
-
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -164,31 +162,6 @@ public:
         handler->PSendSysMessage(LANG_COMMAND_CHEAT_TAXINODES, player->isTaxiCheater() ? enabled : disabled);
 
         return true;
-    }
-
-    static bool HandleWaterWalkCheatCommand(ChatHandler* handler, char const* args)
-    {
-        std::string argstr = (char*)args;
-
-        if (!*args)
-            argstr = (handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_WATERWALK)) ? "off" : "on";
-
-        if (argstr == "off")
-        {
-            handler->GetSession()->GetPlayer()->SetCommandStatusOff(CHEAT_WATERWALK);
-            handler->GetSession()->GetPlayer()->SetMovement(MOVE_LAND_WALK);                // OFF
-            handler->SendSysMessage("Waterwalking is OFF. You can't walk on water.");
-            return true;
-        }
-        else if (argstr == "on")
-        {
-            handler->GetSession()->GetPlayer()->SetCommandStatusOn(CHEAT_WATERWALK);
-            handler->GetSession()->GetPlayer()->SetMovement(MOVE_WATER_WALK);               // ON
-            handler->SendSysMessage("Waterwalking is ON. You can walk on water.");
-            return true;
-        }
-
-        return false;
     }
 
     static bool HandleTaxiCheatCommand(ChatHandler* handler, char const* args)

@@ -488,6 +488,21 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         uint32  LastUsedScriptID;
 
+
+        void SetFallTime(uint32 time) { m_movementInfo.SetFallTime(time); }
+
+        void AddUnitMovementFlag(uint32 f) { m_movementInfo.flags |= f; }
+        void RemoveUnitMovementFlag(uint32 f) { m_movementInfo.flags &= ~f; }
+        bool HasUnitMovementFlag(uint32 f) const { return (m_movementInfo.flags & f) == f; }
+        uint32 GetUnitMovementFlags() const { return m_movementInfo.flags; }
+        void SetUnitMovementFlags(uint32 f) { m_movementInfo.flags = f; }
+
+        void AddExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 |= f; }
+        void RemoveExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 &= ~f; }
+        bool HasExtraUnitMovementFlag(uint16 f) const { return (m_movementInfo.flags2 & f) == f; }
+        uint16 GetExtraUnitMovementFlags() const { return m_movementInfo.flags2; }
+        void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.flags2 = f; }
+
         // Transports
         Transport* GetTransport() const { return m_transport; }
         float GetTransOffsetX() const { return m_movementInfo.transport.pos.GetPositionX(); }
@@ -498,9 +513,11 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 GetTransTime()   const { return m_movementInfo.transport.time; }
         int8 GetTransSeat()     const { return m_movementInfo.transport.seat; }
         virtual ObjectGuid GetTransGUID() const;
-        void SetTransport(Transport* t) { m_transport = t; }
-
-        MovementInfo m_movementInfo;
+        void SetTransport(Transport* t);
+        void SetTransOffset(float x, float y, float z, float o = 0.0f) { m_movementInfo.transport.pos.Relocate(x, y, z, o); }
+        void SetTransTime(uint32 time) { m_movementInfo.transport.time = time; }
+        void SetTransSeat(int8 seat) { m_movementInfo.transport.seat = seat; }
+        void SetTransGUID(ObjectGuid guid) { m_movementInfo.transport.guid = guid; }
 
         virtual float GetStationaryX() const { return GetPositionX(); }
         virtual float GetStationaryY() const { return GetPositionY(); }
@@ -508,6 +525,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual float GetStationaryO() const { return GetOrientation(); }
 
         float GetFloorZ() const;
+        // Return the current positional/physical state of the object
+        MovementInfo GetMovementInfo() const;
+        virtual float ComputeCollisionHeight() const { return 0.0f; }
         virtual float GetCollisionHeight() const { return 0.0f; }
 
         float GetMapWaterOrGroundLevel(float x, float y, float z, float* ground = nullptr) const;
@@ -525,6 +545,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Optional<float> m_visibilityDistanceOverride;
         bool const m_isWorldObject;
         ZoneScript* m_zoneScript;
+
+        MovementInfo m_movementInfo;
 
         // transports
         Transport* m_transport;

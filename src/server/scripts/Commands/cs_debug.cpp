@@ -73,6 +73,16 @@ public:
             { "setphaseshift", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SETPHASESHIFT, false, &HandleDebugSendSetPhaseShiftCommand,   "" },
             { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "" },
         };
+        static std::vector<ChatCommand> debugMoveflagCommandTable =
+        {
+            { "root",           rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS, false, &HandleRootCheatCommand, "" },
+            { "waterwalk",      rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS, false, &HandleWaterWalkCheatCommand, "" },
+            { "hover",          rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS, false, &HandleHoverCheatCommand, "" },
+            { "canfly",         rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS, false, &HandleCanFlyCheatCommand, "" },
+            { "cantranswimfly", rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS, false, &HandleCanTransitionBetweenSwimAndFlyCheatCommand, "" },
+            { "featherfall",    rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS, false, &HandleFeatherFallCheatCommand, "" },
+            { "disablegravity", rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS, false, &HandleDisableGravityCheatCommand, "" },
+        };
         static std::vector<ChatCommand> debugCommandTable =
         {
             { "setbit",        rbac::RBAC_PERM_COMMAND_DEBUG_SETBIT,        false, &HandleDebugSet32BitCommand,         "" },
@@ -100,6 +110,7 @@ public:
             { "itemexpire",    rbac::RBAC_PERM_COMMAND_DEBUG_ITEMEXPIRE,    false, &HandleDebugItemExpireCommand,       "" },
             { "areatriggers",  rbac::RBAC_PERM_COMMAND_DEBUG_AREATRIGGERS,  false, &HandleDebugAreaTriggersCommand,     "" },
             { "los",           rbac::RBAC_PERM_COMMAND_DEBUG_LOS,           false, &HandleDebugLoSCommand,              "" },
+            { "moveflag",      rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS,     false, nullptr,                             "", debugMoveflagCommandTable },
             { "moveflags",     rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS,     false, &HandleDebugMoveflagsCommand,        "" },
             { "transport",     rbac::RBAC_PERM_COMMAND_DEBUG_TRANSPORT,     false, &HandleDebugTransportCommand,        "" },
             { "loadcells",     rbac::RBAC_PERM_COMMAND_DEBUG_LOADCELLS,     false, &HandleDebugLoadCellsCommand,        "" },
@@ -1848,6 +1859,216 @@ public:
     {
         handler->SendSysMessage("This command does nothing right now. Edit your local core (cs_debug.cpp) to make it do whatever you need for testing.");
         return true;
+    }
+
+    static bool HandleWaterWalkCheatCommand(ChatHandler* handler, char const* args)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        if (unit == nullptr)
+            unit = handler->GetSession()->GetPlayer();
+
+        if (unit == nullptr)
+            return false;
+
+        std::string argstr = (char*)args;
+
+        if (!*args)
+            argstr = unit->IsWaterWalking() ? "off" : "on";
+
+        if (argstr == "off")
+        {
+            unit->SetWaterWalking(false);
+            handler->SendSysMessage("Waterwalking is OFF on the selected unit (or self if no target).");
+            return true;
+        }
+        else if (argstr == "on")
+        {
+            unit->SetWaterWalking(true);
+            handler->SendSysMessage("Waterwalking is ON on the selected unit (or self if no target).");
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool HandleDisableGravityCheatCommand(ChatHandler* handler, const char* args)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        if (unit == nullptr)
+            unit = handler->GetSession()->GetPlayer();
+
+        if (unit == nullptr)
+            return false;
+
+        std::string argstr = (char*)args;
+
+        if (!*args)
+            argstr = unit->IsLevitating() ? "off" : "on";
+
+        if (argstr == "off")
+        {
+            unit->SetDisableGravity(false);
+            handler->SendSysMessage("DisableGravity is OFF on the selected unit (or self if no target).");
+            return true;
+        }
+        else if (argstr == "on")
+        {
+            unit->SetDisableGravity(true);
+            handler->SendSysMessage("DisableGravity is ON on the selected unit (or self if no target).");
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool HandleRootCheatCommand(ChatHandler* handler, const char* args)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        if (unit == nullptr)
+            unit = handler->GetSession()->GetPlayer();
+
+        if (unit == nullptr)
+            return false;
+
+        std::string argstr = (char*)args;
+
+        if (!*args)
+            argstr = unit->IsRooted() ? "off" : "on";
+
+        if (argstr == "off")
+        {
+            unit->SetRooted(false);
+            handler->SendSysMessage("Root is OFF on the selected unit (or self if no target).");
+            return true;
+        }
+        else if (argstr == "on")
+        {
+            unit->SetRooted(true);
+            handler->SendSysMessage("Root is ON on the selected unit (or self if no target).");
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool HandleHoverCheatCommand(ChatHandler* handler, const char* args)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        if (unit == nullptr)
+            unit = handler->GetSession()->GetPlayer();
+
+        if (unit == nullptr)
+            return false;
+
+        std::string argstr = (char*)args;
+
+        if (!*args)
+            argstr = unit->IsHovering() ? "off" : "on";
+
+        if (argstr == "off")
+        {
+            unit->SetHover(false);
+            handler->SendSysMessage("Hover is OFF on the selected unit (or self if no target).");
+            return true;
+        }
+        else if (argstr == "on")
+        {
+            unit->SetHover(true);
+            handler->SendSysMessage("Hover is ON on the selected unit (or self if no target).");
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool HandleCanTransitionBetweenSwimAndFlyCheatCommand(ChatHandler* handler, const char* args)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        if (unit == nullptr)
+            unit = handler->GetSession()->GetPlayer();
+
+        if (unit == nullptr)
+            return false;
+
+        std::string argstr = (char*)args;
+
+        if (!*args)
+            argstr = unit->CanTransitionBetweenSwimAndFly() ? "off" : "on";
+
+        if (argstr == "off")
+        {
+            unit->SetCanTransitionBetweenSwimAndFly(false);
+            handler->SendSysMessage("CanTransitionBetweenSwimAndFly is OFF on the selected unit (or self if no target).");
+            return true;
+        }
+        else if (argstr == "on")
+        {
+            unit->SetCanTransitionBetweenSwimAndFly(true);
+            handler->SendSysMessage("CanTransitionBetweenSwimAndFly is ON on the selected unit (or self if no target).");
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool HandleCanFlyCheatCommand(ChatHandler* handler, const char* args)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        if (unit == nullptr)
+            unit = handler->GetSession()->GetPlayer();
+
+        if (unit == nullptr)
+            return false;
+
+        std::string argstr = (char*)args;
+
+        if (!*args)
+            argstr = unit->HasCanFly() ? "off" : "on";
+
+        if (argstr == "off")
+        {
+            unit->SetCanFly(false);
+            handler->SendSysMessage("CanFly is OFF on the selected unit (or self if no target).");
+            return true;
+        }
+        else if (argstr == "on")
+        {
+            unit->SetCanFly(true);
+            handler->SendSysMessage("CanFly is ON on the selected unit (or self if no target).");
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool HandleFeatherFallCheatCommand(ChatHandler* handler, const char* args)
+    {
+        Unit* unit = handler->getSelectedUnit();
+        if (unit == nullptr)
+            unit = handler->GetSession()->GetPlayer();
+
+        if (unit == nullptr)
+            return false;
+
+        std::string argstr = (char*)args;
+
+        if (!*args)
+            argstr = unit->IsFallingSlow() ? "off" : "on";
+
+        if (argstr == "off")
+        {
+            unit->SetFeatherFall(false);
+            handler->SendSysMessage("FeatherFall is OFF on the selected unit (or self if no target).");
+            return true;
+        }
+        else if (argstr == "on")
+        {
+            unit->SetFeatherFall(true);
+            handler->SendSysMessage("FeatherFall is ON on the selected unit (or self if no target).");
+            return true;
+        }
+
+        return false;
     }
 };
 

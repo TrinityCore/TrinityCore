@@ -238,8 +238,8 @@ private:
 class TC_GAME_API SpellEffectInfo
 {
     SpellInfo const* _spellInfo;
-    uint8 _effIndex;
 public:
+    uint8 _effIndex;
     uint32    Effect;
     uint32    ApplyAuraName;
     uint32    Amplitude;

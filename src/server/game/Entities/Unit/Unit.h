@@ -30,6 +30,7 @@
 #include <map>
 #include <memory>
 #include <stack>
+#include <queue>
 
 #define VISUAL_WAYPOINT 1 // Creature Entry ID used for waypoints show, visible only for GMs
 #define WORLD_TRIGGER 12999
@@ -260,23 +261,56 @@ enum UnitState : uint32
     UNIT_STATE_ALL_STATE           = 0xffffffff
 };
 
-enum UnitMoveType
-{
-    MOVE_WALK           = 0,
-    MOVE_RUN            = 1,
-    MOVE_RUN_BACK       = 2,
-    MOVE_SWIM           = 3,
-    MOVE_SWIM_BACK      = 4,
-    MOVE_TURN_RATE      = 5,
-    MOVE_FLIGHT         = 6,
-    MOVE_FLIGHT_BACK    = 7,
-    MOVE_PITCH_RATE     = 8
-};
-
-#define MAX_MOVE_TYPE     9
-
 TC_GAME_API extern float baseMoveSpeed[MAX_MOVE_TYPE];
 TC_GAME_API extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];
+
+#define MOVEMENT_PACKET_TIME_DELAY 0
+
+enum MovementChangeType
+{
+    INVALID,
+
+    ROOT,
+    WATER_WALK,
+    SET_HOVER,
+    SET_CAN_FLY,
+    SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY,
+    FEATHER_FALL,
+    GRAVITY_DISABLE,
+
+    SPEED_CHANGE_WALK,
+    SPEED_CHANGE_RUN,
+    SPEED_CHANGE_RUN_BACK,
+    SPEED_CHANGE_SWIM,
+    SPEED_CHANGE_SWIM_BACK,
+    RATE_CHANGE_TURN,
+    SPEED_CHANGE_FLIGHT_SPEED,
+    SPEED_CHANGE_FLIGHT_BACK_SPEED,
+    RATE_CHANGE_PITCH,
+
+    SET_COLLISION_HGT,
+    TELEPORT,
+    KNOCK_BACK
+};
+
+struct PlayerMovementPendingChange
+{
+    uint32 movementCounter = 0;
+    MovementChangeType movementChangeType = INVALID;
+    uint32 time = 0;
+
+    float newValue = 0.0f; // used if speed or height change
+    bool apply = false; // used if movement flag change
+    struct KnockbackInfo
+    {
+        float vcos = 0.0f;
+        float vsin = 0.0f;
+        float speedXY = 0.0f;
+        float speedZ = 0.0f;
+    } knockbackInfo; // used if knockback
+
+    PlayerMovementPendingChange();
+};
 
 enum CombatRating
 {
@@ -739,6 +773,7 @@ enum PlayerTotemType
 
 class TC_GAME_API Unit : public WorldObject
 {
+    friend class WorldSession;
     public:
         typedef std::set<Unit*> AttackerSet;
         typedef std::set<Unit*> ControlList;
@@ -1069,7 +1104,7 @@ class TC_GAME_API Unit : public WorldObject
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
         bool IsFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR); }
-        bool IsRooted() const { return HasAuraType(SPELL_AURA_MOD_ROOT); }
+        //bool IsRooted() const { return HasAuraType(SPELL_AURA_MOD_ROOT); } // todo: delete this because name conflict?
         bool IsPolymorphed() const;
         bool IsFrozen() const { return HasAuraState(AURA_STATE_FROZEN); }
 
@@ -1119,16 +1154,45 @@ class TC_GAME_API Unit : public WorldObject
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = nullptr);
         void SendMovementFlagUpdate(bool self = false);
 
-        bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY); }
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING); }
-        bool IsHovering() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_HOVER); }
         virtual bool SetWalk(bool enable);
-        virtual bool SetDisableGravity(bool disable, bool packetOnly = false);
         virtual bool SetSwim(bool enable);
-        virtual bool SetCanFly(bool enable, bool packetOnly = false);
-        virtual bool SetWaterWalking(bool enable, bool packetOnly = false);
-        virtual bool SetFeatherFall(bool enable, bool packetOnly = false);
-        virtual bool SetHover(bool enable, bool packetOnly = false);
+
+    private:
+        void SetRootedReal(bool apply);
+        void SetWaterWalkingReal(bool apply);
+        void SetHoverReal(bool apply);
+        void SetCanFlyReal(bool apply);
+        void SetCanTransitionBetweenSwimAndFlyReal(bool apply);
+        void SetFeatherFallReal(bool apply);
+        void SetDisableGravityReal(bool apply);
+        void SetCollisionHeightReal(float newValue) { collisionHeight = newValue; }
+
+    public:
+        void SetRooted(bool apply);
+        bool IsRooted() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_ROOT); } // name conflict with IsRooted
+
+        void SetWaterWalking(bool apply);
+        bool IsWaterWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WATERWALKING); }
+
+        void SetHover(bool apply);
+        bool IsHovering() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_HOVER); }
+
+        void SetCanFly(bool apply);
+        bool HasCanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); } // name conflict with method CanFly() but not exactly the same purpose?
+
+        void SetCanTransitionBetweenSwimAndFly(bool apply);
+        bool CanTransitionBetweenSwimAndFly() const { return m_movementInfo.HasExtraMovementFlag(MOVEMENTFLAG2_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY); }
+
+        void SetFeatherFall(bool apply);
+        bool IsFallingSlow() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW); }
+
+        void SetDisableGravity(bool apply);
+        bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY); }
+
+        bool SetCollisionHeight(float newValue);
+        float GetCollisionHeight() const override { return collisionHeight; }
+        float ComputeCollisionHeight() const override;
 
         void SetInFront(WorldObject const* target);
         void SetFacingTo(float const ori, bool force = true);
@@ -1199,6 +1263,8 @@ class TC_GAME_API Unit : public WorldObject
         Player* GetPlayerMovingMe() const { return m_playerMovingMe; }
         // only set for direct client control (possess effects, vehicles and similar)
         Player* m_playerMovingMe;
+        // reflects direct client control (examples: a player MC another player or a creature (possess effects). a player takes control of a vehicle. etc...)
+        bool IsMovedByPlayer() const { return m_playerMovingMe != NULL; }
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* player);
         void RemovePlayerFromVision(Player* player);
@@ -1535,7 +1601,10 @@ class TC_GAME_API Unit : public WorldObject
         float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
         void SetSpeed(UnitMoveType mtype, float newValue);
         void SetSpeedRate(UnitMoveType mtype, float rate);
+    private:
+        void SetSpeedRateReal(UnitMoveType mtype, float rate);
 
+	public:
         float CalculateSpellpowerCoefficientLevelPenalty(SpellInfo const* spellInfo) const;
 
         void FollowerAdded(AbstractFollower* f) { m_followingMe.insert(f); }
@@ -1550,18 +1619,6 @@ class TC_GAME_API Unit : public WorldObject
         void StopMoving();
         void PauseMovement(uint32 timer = 0, uint8 slot = 0, bool forced = true); // timer in ms
         void ResumeMovement(uint32 timer = 0, uint8 slot = 0); // timer in ms
-
-        void AddUnitMovementFlag(uint32 f) { m_movementInfo.flags |= f; }
-        void RemoveUnitMovementFlag(uint32 f) { m_movementInfo.flags &= ~f; }
-        bool HasUnitMovementFlag(uint32 f) const { return (m_movementInfo.flags & f) == f; }
-        uint32 GetUnitMovementFlags() const { return m_movementInfo.flags; }
-        void SetUnitMovementFlags(uint32 f) { m_movementInfo.flags = f; }
-
-        void AddExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 |= f; }
-        void RemoveExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 &= ~f; }
-        uint16 HasExtraUnitMovementFlag(uint16 f) const { return m_movementInfo.flags2 & f; }
-        uint16 GetExtraUnitMovementFlags() const { return m_movementInfo.flags2; }
-        void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.flags2 = f; }
 
         void SetControlled(bool apply, UnitState state);
         void ApplyControlStatesIfNeeded();
@@ -1627,8 +1684,9 @@ class TC_GAME_API Unit : public WorldObject
         void _ExitVehicle(Position const* exitPosition = nullptr);
         void _EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp = nullptr);
 
-        void BuildMovementPacket(ByteBuffer* data) const;
-        static void BuildMovementPacket(Position const& pos, Position const& transportPos, MovementInfo const& movementInfo, ByteBuffer* data);
+        // should only be used by packet handlers to validate and apply incoming MovementInfos from clients. Do not use internally to modify m_movementInfo
+        void UpdateMovementInfo(MovementInfo movementInfo);
+        void ValidateMovementInfo(MovementInfo* mi);
 
         bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
         bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
@@ -1641,6 +1699,18 @@ class TC_GAME_API Unit : public WorldObject
         {
             return HasUnitMovementFlag(MOVEMENTFLAG_HOVER) ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f;
         }
+
+        uint32 GetMovementCounterAndInc() { return m_movementCounter++; }
+        uint32 GetMovementCounter() const { return m_movementCounter; }
+        void SetLastMoveClientTimestamp(uint32 timestamp) { lastMoveClientTimestamp = timestamp; }
+        void SetLastMoveServerTimestamp(uint32 timestamp) { lastMoveServerTimestamp = timestamp; }
+        uint32 GetLastMoveClientTimestamp() const { return lastMoveClientTimestamp; }
+        uint32 GetLastMoveServerTimestamp() const { return lastMoveServerTimestamp; }
+
+        PlayerMovementPendingChange PopPendingMovementChange();
+        void PushPendingMovementChange(PlayerMovementPendingChange newChange);
+        bool HasPendingMovementChange() const { return !m_pendingMovementChanges.empty(); }
+        bool HasPendingMovementChange(MovementChangeType changeType) const;
 
         void RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker);
 
@@ -1681,8 +1751,6 @@ class TC_GAME_API Unit : public WorldObject
         virtual void Yell(uint32 textId, WorldObject const* target = nullptr);
         virtual void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false);
         virtual void Whisper(uint32 textId, Player* target, bool isBossWhisper = false);
-
-        float GetCollisionHeight() const override;
 
         std::string GetDebugInfo() const override;
     protected:
@@ -1739,6 +1807,7 @@ class TC_GAME_API Unit : public WorldObject
         VisibleAuraMap m_visibleAuras;
 
         float m_speed_rate[MAX_MOVE_TYPE];
+        float collisionHeight; // @todo: initialize this value using dbc data at unit creation
 
         Unit* m_charmer; // Unit that is charming ME
         Unit* m_charmed; // Unit that is being charmed BY ME
@@ -1771,6 +1840,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
+        void CheckPendingMovementAcks();
 
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;
@@ -1781,7 +1851,18 @@ class TC_GAME_API Unit : public WorldObject
         void SetFeared(bool apply);
         void SetConfused(bool apply);
         void SetStunned(bool apply);
-        void SetRooted(bool apply);
+
+        /* Player Movement fields START*/
+        // Timestamp on client clock of the moment the most recently processed movement packet was SENT by the client
+        uint32 lastMoveClientTimestamp;
+
+        // Timestamp on server clock of the moment the most recently processed movement packet was RECEIVED from the client
+        uint32 lastMoveServerTimestamp;
+
+        // when a player controls this unit, and when change is made to this unit which requires an ack from the client to be acted (change of speed for example), this movementCounter is incremented
+        uint32 m_movementCounter;
+        std::deque<PlayerMovementPendingChange> m_pendingMovementChanges;
+        /* Player Movement fields END*/
 
         uint32 m_rootTimes;
 

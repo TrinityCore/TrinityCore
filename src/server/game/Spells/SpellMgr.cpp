@@ -4901,6 +4901,28 @@ void SpellMgr::LoadSpellInfoCorrections()
         // allows those to calculate proper crit chance, that needs to be passed on to triggered spell
         if (spellInfo->HasAttribute(SPELL_ATTR4_INHERIT_CRIT_FROM_AURA) && spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE)
             spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
+
+        // Fix the order of application of spells effects for spells that affects all spells with one spell effect that removes Client Control and one spell effect that changes the unit's movement speed (example: Fear, Blind, ...).
+        uint8 clientControlSpellEffectIdx = MAX_SPELL_EFFECTS;
+        uint8 changeOfSpeedSpellEffectIdx = MAX_SPELL_EFFECTS;
+        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        {
+            if (spellInfo->Effects[j].IsAura(SPELL_AURA_MOD_CONFUSE) || spellInfo->Effects[j].IsAura(SPELL_AURA_MOD_CHARM) || spellInfo->Effects[j].IsAura(SPELL_AURA_MOD_FEAR))
+                clientControlSpellEffectIdx = j;
+            else if (spellInfo->Effects[j].IsAura(SPELL_AURA_MOD_INCREASE_SPEED) || spellInfo->Effects[j].IsAura(SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED) || spellInfo->Effects[j].IsAura(SPELL_AURA_MOD_DECREASE_SPEED))
+                changeOfSpeedSpellEffectIdx = j;
+        }
+
+        if (clientControlSpellEffectIdx != MAX_SPELL_EFFECTS && changeOfSpeedSpellEffectIdx != MAX_SPELL_EFFECTS && changeOfSpeedSpellEffectIdx > clientControlSpellEffectIdx)
+        {
+            // swap the order of the two effects
+            SpellEffectInfo spellEffectInfoFirst = spellInfo->Effects[changeOfSpeedSpellEffectIdx];
+            SpellEffectInfo spellEffectInfoSecond = spellInfo->Effects[clientControlSpellEffectIdx];
+            spellInfo->Effects[clientControlSpellEffectIdx] = spellEffectInfoFirst;
+            spellInfo->Effects[clientControlSpellEffectIdx]._effIndex = clientControlSpellEffectIdx;
+            spellInfo->Effects[changeOfSpeedSpellEffectIdx] = spellEffectInfoSecond;
+            spellInfo->Effects[changeOfSpeedSpellEffectIdx]._effIndex = changeOfSpeedSpellEffectIdx;
+        }
     }
 
     if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(121)))

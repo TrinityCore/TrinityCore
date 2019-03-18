@@ -2088,6 +2088,7 @@ class spell_igb_overheat : public SpellScriptLoader
                     {
                         if (Player* player = passenger->ToPlayer())
                         {
+                            // @todo: please clean up this hack. Do not construct and send a SMSG_CLIENT_CONTROL_UPDATE packet from here. Use appropriate wrapper.
                             WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, GetUnitOwner()->GetPackGUID().size() + 1);
                             data << GetUnitOwner()->GetPackGUID();
                             data << uint8(value);
@@ -2165,7 +2166,7 @@ class spell_igb_teleport_to_enemy_ship : public SpellScriptLoader
                 float x, y, z, o;
                 dest->GetPosition(x, y, z, o);
                 target->GetTransport()->CalculatePassengerOffset(x, y, z, &o);
-                target->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+                target->SetTransOffset(x, y, z, o);
             }
 
             void Register() override
