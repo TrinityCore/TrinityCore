@@ -65,3 +65,21 @@ PvPTeamId BattlefieldCapturePoint::GetPvPTeamId() const
             return PVP_TEAM_NEUTRAL;
     }
 }
+
+BattlefieldGraveyard::BattlefieldGraveyard(Battlefield* battlefield, uint32 entry, uint32 worldState) :
+    BattlefieldEntity(battlefield, BATTLEFIELD_ENTITY_TYPE_GRAVEYARD, entry, worldState), State(BATTLEFIELD_GRAVEYARD_STATE_NEUTRAL)
+{
+}
+
+PvPTeamId BattlefieldGraveyard::GetPvPTeamId() const
+{
+    switch (State)
+    {
+        case BATTLEFIELD_GRAVEYARD_STATE_HORDE:
+            return PVP_TEAM_HORDE;
+        case BATTLEFIELD_GRAVEYARD_STATE_ALLIANCE:
+            return PVP_TEAM_ALLIANCE;
+        default:
+            return PVP_TEAM_NEUTRAL;
+    }
+}

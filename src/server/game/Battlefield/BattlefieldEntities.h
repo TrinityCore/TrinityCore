@@ -28,7 +28,8 @@ class GameObject;
 enum BattlefieldEntityType : uint8
 {
     BATTLEFIELD_ENTITY_TYPE_BUILDING = 0,
-    BATTLEFIELD_ENTITY_TYPE_CAPTUREPOINT
+    BATTLEFIELD_ENTITY_TYPE_CAPTUREPOINT,
+    BATTLEFIELD_ENTITY_TYPE_GRAVEYARD
 };
 
 enum BattlefieldBuildingType : uint8
@@ -66,13 +67,20 @@ enum BattlefieldCapturePointState : uint8
     BATTLEFIELD_CAPTUREPOINT_STATE_HORDE_ALLIANCE_CHALLENGE
 };
 
+enum BattlefieldGraveyardState : uint8
+{
+    BATTLEFIELD_GRAVEYARD_STATE_NEUTRAL = 0,
+    BATTLEFIELD_GRAVEYARD_STATE_ALLIANCE,
+    BATTLEFIELD_GRAVEYARD_STATE_HORDE,
+};
+
 struct BattlefieldEntityInfo
 {
     BattlefieldEntityInfo(BattlefieldEntityType type, uint32 entry, uint32 worldState) :
-        EntityType(type), GameObjectEntry(entry), WorldState(worldState) { }
+        EntityType(type), Entry(entry), WorldState(worldState) { }
 
     BattlefieldEntityType EntityType;
-    uint32 GameObjectEntry;
+    uint32 Entry;
     uint32 WorldState;
 };
 
@@ -82,9 +90,15 @@ public:
     explicit BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityType type, uint32 entry, uint32 worldState);
     virtual ~BattlefieldEntity() { }
 
+    virtual void Update(uint32 /*diff*/) { }
+    virtual PvPTeamId GetPvPTeamId() const { return PVP_TEAM_NEUTRAL; }
+
+    uint32 GetObjectEntry() const { return Info.Entry; }
+    ObjectGuid const GetObjectGUID() const { return ObjectGUID; }
+
     Battlefield* Battle;
     BattlefieldEntityInfo const Info;
-    ObjectGuid GameObjectGUID;
+    ObjectGuid ObjectGUID;
 };
 
 class BattlefieldBuilding : public BattlefieldEntity
@@ -93,12 +107,11 @@ public:
     explicit BattlefieldBuilding(Battlefield* battlefield, uint32 entry, uint32 worldState, BattlefieldBuildingType type);
     virtual ~BattlefieldBuilding() { }
 
-    uint32 GetGameObjectEntry() const { return Info.GameObjectEntry; }
+    PvPTeamId GetPvPTeamId() const override;
+
     bool IsIntact() const { return State == BATTLEFIELD_BUILDING_STATE_NEUTRAL_DESTROYED || State == BATTLEFIELD_BUILDING_STATE_HORDE_DESTROYED || State == BATTLEFIELD_BUILDING_STATE_ALLIANCE_DESTROYED; }
     bool IsDestroyed() const { return State == BATTLEFIELD_BUILDING_STATE_NEUTRAL_DESTROYED || State == BATTLEFIELD_BUILDING_STATE_HORDE_DESTROYED || State == BATTLEFIELD_BUILDING_STATE_ALLIANCE_DESTROYED; }
     bool IsDamaged() const { return State == BATTLEFIELD_BUILDING_STATE_NEUTRAL_DAMAGED || State == BATTLEFIELD_BUILDING_STATE_HORDE_DAMAGED || State == BATTLEFIELD_BUILDING_STATE_ALLIANCE_DAMAGED; }
-    ObjectGuid const GetGameObjectGUID() const { return GameObjectGUID; }
-    PvPTeamId GetPvPTeamId() const;
 
 protected:
     BattlefieldBuildingType BuildingType;
@@ -111,13 +124,22 @@ public:
     explicit BattlefieldCapturePoint(Battlefield* battlefield, uint32 entry, uint32 worldState);
     virtual ~BattlefieldCapturePoint() { }
 
-    virtual void Update(uint32 /*diff*/) { }
-
-    uint32 GetGameObjectEntry() const { return Info.GameObjectEntry; }
-    PvPTeamId GetPvPTeamId() const;
+    PvPTeamId GetPvPTeamId() const override;
 
 protected:
     BattlefieldCapturePointState State;
+};
+
+class BattlefieldGraveyard : public BattlefieldEntity
+{
+public:
+    explicit BattlefieldGraveyard(Battlefield* battlefield, uint32 entry, uint32 worldState);
+    virtual ~BattlefieldGraveyard() { }
+
+    PvPTeamId GetPvPTeamId() const override;
+
+protected:
+    BattlefieldGraveyardState State;
 };
 
 #endif
