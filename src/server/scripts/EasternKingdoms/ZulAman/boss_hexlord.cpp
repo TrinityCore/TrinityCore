@@ -37,9 +37,9 @@ enum Events
 {
 };
 
-struct boss_hex_lord_malacrass : public BossAI
+struct boss_hexlord_malacrass : public BossAI
 {
-    boss_hex_lord_malacrass(Creature* creature) : BossAI(creature, DATA_HEXLORD_MALACRASS)
+    boss_hexlord_malacrass(Creature* creature) : BossAI(creature, DATA_HEXLORD_MALACRASS)
     {
         Initialize();
     }
@@ -76,5 +76,5 @@ struct boss_hex_lord_malacrass : public BossAI
 
 void AddSC_boss_hex_lord_malacrass()
 {
-    RegisterZulAamanCreatureAI(boss_hex_lord_malacrass);
+    RegisterZulAamanCreatureAI(boss_hexlord_malacrass);
 }
