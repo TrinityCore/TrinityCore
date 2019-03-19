@@ -16,7 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "EventMap.h"
+#include "Map.h"
+#include "Player.h"
 #include "Transport.h"
+#include "Unit.h"
+#include "Weather.h"
 #include "ObjectMgr.h"
 
 enum DeeprunTram
@@ -84,7 +89,67 @@ class world_map_deeprun_tram: public WorldMapScript
         bool _initializedTrams;
 };
 
+enum Gilneas
+{
+    MAP_GILNEAS             = 654,
+    ZONE_ID_GILNEAS         = 4714,
+    ZONE_ID_GILNEAS_CITY    = 4755,
+
+    EVENT_CAST_CATACLYSM    = 1,
+
+    SPELL_CATACLYSM_1       = 68953,
+    SPELL_CATACLYSM_2       = 80134,
+    SPELL_CATACLYSM_3       = 80133
+};
+
+class world_map_gilneas: public WorldMapScript
+{
+    public:
+        world_map_gilneas() : WorldMapScript("world_map_gilneas", MAP_GILNEAS) { }
+
+        void OnCreate(Map* map) override
+        {
+            map->SetZoneWeather(ZONE_ID_GILNEAS, WEATHER_STATE_RAIN_DRIZZLE, 0.3f);
+            map->SetZoneWeather(ZONE_ID_GILNEAS_CITY, WEATHER_STATE_FINE, 1.0f);
+            _events.ScheduleEvent(EVENT_CAST_CATACLYSM, 1ms);
+        }
+
+        void OnUpdate(Map* map, uint32 diff) override
+        {
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_CAST_CATACLYSM:
+                    {
+                        Map::PlayerList const& players = map->GetPlayers();
+
+                        for (auto const& i : players)
+                        {
+                            if (Player* player = i.GetSource())
+                            {
+                                player->CastSpell(player, SPELL_CATACLYSM_1);
+                                player->CastSpell(player, SPELL_CATACLYSM_2);
+                                player->CastSpell(player, SPELL_CATACLYSM_3);
+                            }
+                        }
+                        _events.Repeat(1min, 2min);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap _events;
+};
+
 void AddSC_world_map_scripts()
 {
     new world_map_deeprun_tram();
+    new world_map_gilneas();
 }
