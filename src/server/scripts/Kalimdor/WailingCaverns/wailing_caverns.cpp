@@ -33,6 +33,7 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 #include "wailing_caverns.h"
 
 /*######
