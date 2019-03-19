@@ -1556,7 +1556,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
         }
 
         // set the "Crafted by ..." property of the item
-        if (pItem->GetTemplate()->GetMaxStackSize() == 1 && m_spellInfo->HasAttribute(SPELL_ATTR0_TRADESPELL))
+        if (pItem->GetTemplate()->HasSignature())
             pItem->SetGuidValue(ITEM_FIELD_CREATOR, player->GetGUID());
 
         // send info to the client
