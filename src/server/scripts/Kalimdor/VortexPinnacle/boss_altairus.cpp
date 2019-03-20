@@ -53,8 +53,7 @@ enum Texts
 enum Events
 {
     EVENT_CALL_THE_WIND = 1,
-    EVENT_CHILLING_BREATH,
-    EVENT_LIGHTNING_BLAST
+    EVENT_CHILLING_BREATH
 };
 
 enum Points
@@ -112,9 +111,7 @@ struct boss_altairus : public BossAI
         _JustEngagedWith();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_CALL_THE_WIND, 6s);
-
-        events.ScheduleEvent(EVENT_CHILLING_BREATH, 15000);
-        events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 1000);
+        events.ScheduleEvent(EVENT_CHILLING_BREATH, 10s, 14s);
 
         if (Creature* stalker = DoSummon(NPC_INVISIBLE_STALKER, InvisibleStalkerPos))
         {
@@ -213,10 +210,7 @@ struct boss_altairus : public BossAI
                 case EVENT_CHILLING_BREATH:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_CHILLING_BREATH);
-                    events.ScheduleEvent(EVENT_CHILLING_BREATH, 13000);
-                    break;
-                case EVENT_LIGHTNING_BLAST:
-                    events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 5000);
+                    events.Repeat(10s, 14s);
                     break;
                 default:
                     break;
