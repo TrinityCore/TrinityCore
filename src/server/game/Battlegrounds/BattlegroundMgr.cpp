@@ -873,7 +873,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
     TC_LOG_INFO("server.loading", ">> Loaded %u battlegrounds in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid guid, Player* player, BattlegroundTypeId bgTypeId)
+void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid guid, Player* player, BattlegroundTypeId bgTypeId, bool hideWindow /*= true*/)
 {
     if (!player)
         return;
@@ -912,7 +912,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
     data->WriteBit(guid[3]);
     data->WriteBit(0);                                      // unk
     data->WriteBit(guid[5]);
-    data->WriteBit(1);                                      // hide battleground list window
+    data->WriteBit(hideWindow);                             // hide battleground list window
 
     data->FlushBits();
 

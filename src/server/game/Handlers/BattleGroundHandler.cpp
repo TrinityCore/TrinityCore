@@ -72,7 +72,7 @@ void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 void WorldSession::SendBattleGroundList(ObjectGuid guid, BattlegroundTypeId bgTypeId)
 {
     WorldPacket data;
-    sBattlegroundMgr->BuildBattlegroundListPacket(&data, guid, _player, bgTypeId);
+    sBattlegroundMgr->BuildBattlegroundListPacket(&data, guid, _player, bgTypeId, false);
     SendPacket(&data);
 }
 
