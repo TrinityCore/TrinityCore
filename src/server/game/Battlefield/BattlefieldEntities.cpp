@@ -18,14 +18,12 @@
 #include "BattlefieldEntities.h"
 #include "Errors.h"
 
-BattlefieldEntity::BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityType type, uint32 entry, uint32 worldState) :
-    Battle(battlefield), Info(type, entry, worldState)
+BattlefieldEntity::BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityInfo const info) : Battle(battlefield), Info(info)
 {
-    ASSERT(battlefield, "BattlefieldBuilding::BattlefieldEntity: Tried to construct an entity without a battlefield! (type: %u, entry: %u, worldState: %u)", type, entry, worldState);
+    ASSERT(battlefield, "BattlefieldBuilding::BattlefieldEntity: Tried to construct an entity without a battlefield! (type: %u, entry: %u, worldState: %u)", info.EntityType, info.Entry, info.WorldState);
 }
 
-BattlefieldBuilding::BattlefieldBuilding(Battlefield* battlefield, uint32 entry, uint32 worldState, BattlefieldBuildingType type) :
-    BattlefieldEntity(battlefield, BATTLEFIELD_ENTITY_TYPE_BUILDING, entry, worldState), BuildingType(type), State(BATTLEFIELD_BUILDING_STATE_NONE)
+BattlefieldBuilding::BattlefieldBuilding(Battlefield* battlefield, BattlefieldBuildingInfo const info) : BattlefieldEntity(battlefield, info.Info), BuildingType(info.Type), State(BATTLEFIELD_BUILDING_STATE_NEUTRAL_INTACT)
 {
 }
 
@@ -46,8 +44,7 @@ PvPTeamId BattlefieldBuilding::GetPvPTeamId() const
     }
 }
 
-BattlefieldCapturePoint::BattlefieldCapturePoint(Battlefield* battlefield, uint32 entry, uint32 worldState) :
-    BattlefieldEntity(battlefield, BATTLEFIELD_ENTITY_TYPE_CAPTUREPOINT, entry, worldState), State(BATTLEFIELD_CAPTUREPOINT_STATE_NEUTRAL)
+BattlefieldCapturePoint::BattlefieldCapturePoint(Battlefield* battlefield, BattlefieldEntityInfo const info) : BattlefieldEntity(battlefield, info), State(BATTLEFIELD_CAPTUREPOINT_STATE_NEUTRAL)
 {
 }
 
@@ -66,8 +63,7 @@ PvPTeamId BattlefieldCapturePoint::GetPvPTeamId() const
     }
 }
 
-BattlefieldGraveyard::BattlefieldGraveyard(Battlefield* battlefield, uint32 entry, uint32 worldState) :
-    BattlefieldEntity(battlefield, BATTLEFIELD_ENTITY_TYPE_GRAVEYARD, entry, worldState), State(BATTLEFIELD_GRAVEYARD_STATE_NEUTRAL)
+BattlefieldGraveyard::BattlefieldGraveyard(Battlefield* battlefield, BattlefieldEntityInfo const info) : BattlefieldEntity(battlefield, info), State(BATTLEFIELD_GRAVEYARD_STATE_NEUTRAL)
 {
 }
 
