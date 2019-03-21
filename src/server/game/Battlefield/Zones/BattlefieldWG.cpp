@@ -54,8 +54,8 @@ BattlefieldWintergrasp::BattlefieldWintergrasp() : Battlefield(BATTLEFIELD_BATTL
 {
     for (auto itr = wintergraspBuildingInfo.begin(); itr != wintergraspBuildingInfo.end(); ++itr)
     {
-        WintergraspBuilding* building = new WintergraspBuilding(this, *itr);
-        _buildings.emplace(itr->Info.Entry, building);
+        WintergraspBuildingPointer building = std::make_unique<WintergraspBuilding>(this, *itr);
+        _buildings.emplace(itr->Info.Entry, std::move(building));
     }
 }
 
