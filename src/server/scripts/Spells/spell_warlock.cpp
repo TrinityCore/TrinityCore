@@ -79,6 +79,7 @@ enum WarlockSpells
     SPELL_WARLOCK_SHADOW_TRANCE                     = 17941,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
     SPELL_WARLOCK_SHADOW_WARD                       = 6229,
+    SPELL_WARLOCK_SOUL_HARVEST_ENERGIZE             = 101977,
     SPELL_WARLOCK_SOUL_SHARD                        = 87388,
     SPELL_WARLOCK_SOUL_SHARD_ENERGIZE               = 95810,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
@@ -1627,6 +1628,36 @@ class spell_warl_fel_armor : public SpellScriptLoader
         }
 };
 
+class spell_warl_soul_harvest : public AuraScript
+{
+    PrepareAuraScript(spell_warl_soul_harvest);
+
+    bool Load() override
+    {
+        _tickCounts = 0;
+        return true;
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_SOUL_HARVEST_ENERGIZE });
+    }
+
+    void HandleDummy(AuraEffect const* aurEff)
+    {
+        _tickCounts++;
+        if (!(_tickCounts % 3))
+            GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SOUL_HARVEST_ENERGIZE, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_soul_harvest::HandleDummy, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+private:
+    uint8 _tickCounts;
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_aftermath();
@@ -1656,6 +1687,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_seed_of_corruption();
     new spell_warl_shadow_trance_proc();
     new spell_warl_shadow_ward();
+    RegisterAuraScript(spell_warl_soul_harvest);
     new spell_warl_soul_leech();
     new spell_warl_soul_swap();
     new spell_warl_soul_swap_dot_marker();
