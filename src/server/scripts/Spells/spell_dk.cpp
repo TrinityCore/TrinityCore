@@ -1791,6 +1791,25 @@ class spell_dk_ebon_plaguebringer : public AuraScript
     }
 };
 
+class spell_dk_ghoul_taunt : public SpellScript
+{
+    PrepareSpellScript(spell_dk_ghoul_taunt);
+
+    void HandleTaunt(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitCreature() && (GetHitCreature()->IsDungeonBoss() || GetHitCreature()->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_BOSS_MOB))
+        {
+            PreventHitDefaultEffect(EFFECT_0);
+            PreventHitDefaultEffect(EFFECT_1);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_ghoul_taunt::HandleTaunt, EFFECT_0, SPELL_EFFECT_ATTACK_ME);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterAuraScript(spell_dk_anti_magic_shell);
@@ -1818,6 +1837,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterAuraScript(spell_dk_disease);
     RegisterAuraScript(spell_dk_ebon_plaguebringer);
     RegisterSpellScript(spell_dk_ghoul_explode);
+    RegisterSpellScript(spell_dk_ghoul_taunt);
     RegisterSpellScript(spell_dk_howling_blast);
     RegisterAuraScript(spell_dk_icebound_fortitude);
     RegisterAuraScript(spell_dk_improved_blood_presence);
