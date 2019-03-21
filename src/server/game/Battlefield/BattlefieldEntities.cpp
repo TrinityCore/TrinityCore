@@ -17,10 +17,16 @@
 
 #include "BattlefieldEntities.h"
 #include "Errors.h"
+#include "Object.h"
 
 BattlefieldEntity::BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityInfo const info) : Battle(battlefield), Info(info)
 {
     ASSERT(battlefield, "BattlefieldBuilding::BattlefieldEntity: Tried to construct an entity without a battlefield! (type: %u, entry: %u, worldState: %u)", info.EntityType, info.Entry, info.WorldState);
+}
+
+void BattlefieldEntity::Initialize(WorldObject* object)
+{
+    ObjectGUID = object->GetGUID();
 }
 
 BattlefieldBuilding::BattlefieldBuilding(Battlefield* battlefield, BattlefieldBuildingInfo const info) : BattlefieldEntity(battlefield, info.Info), BuildingType(info.Type), State(BATTLEFIELD_BUILDING_STATE_NEUTRAL_INTACT)

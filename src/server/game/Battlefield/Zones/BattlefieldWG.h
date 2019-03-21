@@ -19,6 +19,9 @@
 #define TRINITY_BATTLEFIELD_WG_
 
 #include "Battlefield.h"
+#include "BattlefieldEntities.h"
+#include <memory>
+#include <unordered_map>
 
 enum WintergraspNPCEntries
 {
@@ -62,6 +65,35 @@ enum WintergraspNPCEntries
 
     NPC_WINTERGRASP_PVP_KILL_HORDE = 39019,
     NPC_WINTERGRASP_PVP_KILL_ALLIANCE = 31086
+};
+
+enum WintergraspGameObjects
+{
+    GO_WINTERGRASP_FORTRESS_WALL_1 = 190219,
+    GO_WINTERGRASP_FORTRESS_WALL_2 = 190220,
+    GO_WINTERGRASP_FORTRESS_WALL_3 = 190369,
+    GO_WINTERGRASP_FORTRESS_WALL_4 = 190370,
+    GO_WINTERGRASP_FORTRESS_WALL_5 = 190371,
+    GO_WINTERGRASP_FORTRESS_WALL_6 = 190372,
+    GO_WINTERGRASP_FORTRESS_WALL_7 = 190374,
+    GO_WINTERGRASP_FORTRESS_GATE = 190375,
+    GO_WINTERGRASP_FORTRESS_WALL_8 = 190376,
+    GO_WINTERGRASP_FORTRESS_WALL_9 = 191795,
+    GO_WINTERGRASP_FORTRESS_WALL_10 = 191796,
+    GO_WINTERGRASP_FORTRESS_INTERIOR_WALL_1 = 191797,
+    GO_WINTERGRASP_FORTRESS_INTERIOR_WALL_2 = 191798,
+    GO_WINTERGRASP_FORTRESS_WALL_11 = 191799,
+    GO_WINTERGRASP_FORTRESS_WALL_12 = 191800,
+    GO_WINTERGRASP_FORTRESS_WALL_13 = 191801,
+    GO_WINTERGRASP_FORTRESS_WALL_14 = 191802,
+    GO_WINTERGRASP_FORTRESS_WALL_15 = 191803,
+    GO_WINTERGRASP_FORTRESS_WALL_16 = 191804,
+    GO_WINTERGRASP_FORTRESS_INTERIOR_WALL_3 = 191805,
+    GO_WINTERGRASP_FORTRESS_WALL_17 = 191806,
+    GO_WINTERGRASP_FORTRESS_WALL_18 = 191807,
+    GO_WINTERGRASP_FORTRESS_WALL_19 = 191808,
+    GO_WINTERGRASP_FORTRESS_WALL_20 = 191809,
+    GO_WINTERGRASP_FORTRESS_VAULT_GATE = 191810
 };
 
 enum WintergraspSpells
@@ -109,6 +141,32 @@ enum WintergraspSpells
 
 enum WintergraspWorldstates
 {
+    WORLDSTATE_WINTERGRASP_FORTRESS_GATE = 3763,
+    WORLDSTATE_WINTERGRASP_FORTRESS_VAULT_GATE = 3773,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_1 = 3749,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_2 = 3750,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_3 = 3753,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_4 = 3758,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_5 = 3754,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_6 = 3757,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_7 = 3755,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_8 = 3756,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_9 = 3764,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_10 = 3772,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_11 = 3762,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_12 = 3766,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_13 = 3770,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_14 = 3751,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_15 = 3752,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_16 = 3767,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_17 = 3769,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_18 = 3759,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_19 = 3760,
+    WORLDSTATE_WINTERGRASP_FORTRESS_WALL_20 = 3761,
+    WORLDSTATE_WINTERGRASP_FORTRESS_INTERIOR_WALL_1 = 3765,
+    WORLDSTATE_WINTERGRASP_FORTRESS_INTERIOR_WALL_2 = 3771,
+    WORLDSTATE_WINTERGRASP_FORTRESS_INTERIOR_WALL_3 = 3768,
+
     WORLDSTATE_WINTERGRASP_WORKSHOP_NE = 3701,
     WORLDSTATE_WINTERGRASP_WORKSHOP_NW = 3700,
     WORLDSTATE_WINTERGRASP_WORKSHOP_SE = 3703,
@@ -135,19 +193,38 @@ enum WintergraspWorldstates
     WORLDSTATE_WINTERGRASP_TIME_TO_NEXT_BATTLE = 4354
 };
 
+class GameObject;
+class WorldObject;
+
+class WintergraspBuilding : public BattlefieldBuilding
+{
+public:
+    explicit WintergraspBuilding(Battlefield* battlefield, BattlefieldBuildingInfo const info);
+    ~WintergraspBuilding() { }
+
+    void Initialize(WorldObject* object) override;
+};
+
 class TC_GAME_API BattlefieldWintergrasp : public Battlefield
 {
 public:
     explicit BattlefieldWintergrasp();
-    ~BattlefieldWintergrasp() { }
+    ~BattlefieldWintergrasp();
 
+    void OnGameObjectCreate(GameObject* object) override;
     void SendGlobalWorldStates(Player const* player) const override;
 
     bool IsFlyingMountAllowed() const override { return IsWarTime(); }
     bool IsSpellAreaAllowed(uint32 spellId, Player const* player, uint32 newArea) const override;
 
 private:
+    typedef std::unique_ptr<WintergraspBuilding> WintergraspBuildingPointer;
+    typedef std::unordered_map<uint32 /*entry*/, WintergraspBuildingPointer> WintergraspBuildingContainer;
+
     BattlefieldWintergrasp(BattlefieldWintergrasp const&) = delete;
+    BattlefieldWintergrasp& operator=(BattlefieldWintergrasp const&) = delete;
+
+    WintergraspBuildingContainer _buildings;
 };
 
 #endif

@@ -21,10 +21,9 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
-#include <memory>
 
 class Battlefield;
-class GameObject;
+class WorldObject;
 
 enum BattlefieldEntityType : uint8
 {
@@ -91,7 +90,7 @@ public:
     explicit BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityInfo const info);
     virtual ~BattlefieldEntity() { }
 
-    virtual void Initialize(ObjectGuid const referenceGUID) { ObjectGUID = referenceGUID; }
+    virtual void Initialize(WorldObject* object);
     virtual void Update(uint32 /*diff*/) { }
     virtual PvPTeamId GetPvPTeamId() const { return PVP_TEAM_NEUTRAL; }
 
@@ -105,6 +104,7 @@ public:
 
 struct BattlefieldBuildingInfo
 {
+    BattlefieldBuildingInfo(uint32 entry, uint32 worldState, BattlefieldBuildingType type) : BattlefieldBuildingInfo(BattlefieldEntityInfo(BATTLEFIELD_ENTITY_TYPE_BUILDING, entry, worldState), type) { }
     BattlefieldBuildingInfo(BattlefieldEntityInfo const info, BattlefieldBuildingType type) : Info(info), Type(type) { }
 
     BattlefieldEntityInfo Info;
@@ -154,7 +154,5 @@ public:
 protected:
     BattlefieldGraveyardState State;
 };
-
-typedef std::unique_ptr<BattlefieldBuilding> BattlefieldBuildingPointer;
 
 #endif
