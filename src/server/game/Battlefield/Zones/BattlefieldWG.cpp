@@ -19,8 +19,6 @@
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Player.h"
-#include <tuple>
-#include <utility>
 #include <vector>
 
 static std::vector<BattlefieldBuildingInfo> const wintergraspBuildingInfo =
@@ -55,7 +53,10 @@ static std::vector<BattlefieldBuildingInfo> const wintergraspBuildingInfo =
 BattlefieldWintergrasp::BattlefieldWintergrasp() : Battlefield(BATTLEFIELD_BATTLEID_WINTERGRASP, BATTLEFIELD_ZONEID_WINTERGRASP)
 {
     for (auto itr = wintergraspBuildingInfo.begin(); itr != wintergraspBuildingInfo.end(); ++itr)
-        _buildings.emplace(std::piecewise_construct, std::forward_as_tuple(itr->Info.Entry), std::forward_as_tuple(this, *itr));
+    {
+        WintergraspBuilding* building = new WintergraspBuilding(this, *itr);
+        _buildings.emplace(itr->Info.Entry, building);
+    }
 }
 
 BattlefieldWintergrasp::~BattlefieldWintergrasp()
