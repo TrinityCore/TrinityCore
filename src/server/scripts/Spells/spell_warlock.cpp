@@ -1627,11 +1627,6 @@ class spell_warl_soul_harvest : public AuraScript
 {
     PrepareAuraScript(spell_warl_soul_harvest);
 
-    bool Load() override
-    {
-        return true;
-    }
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WARLOCK_SOUL_HARVEST_ENERGIZE });
