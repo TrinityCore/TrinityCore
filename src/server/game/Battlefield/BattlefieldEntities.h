@@ -90,7 +90,8 @@ public:
     explicit BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityInfo const info);
     virtual ~BattlefieldEntity() { }
 
-    virtual void Initialize(WorldObject* object);
+    virtual void OnObjectCreate(WorldObject* object);
+    virtual void OnObjectRemove(WorldObject* object);
     virtual void Update(uint32 /*diff*/) { }
     virtual PvPTeamId GetPvPTeamId() const { return PVP_TEAM_NEUTRAL; }
 

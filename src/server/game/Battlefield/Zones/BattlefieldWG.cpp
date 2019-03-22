@@ -93,7 +93,44 @@ void BattlefieldWintergrasp::OnGameObjectCreate(GameObject* object)
         case GO_WINTERGRASP_FORTRESS_INTERIOR_WALL_2:
         case GO_WINTERGRASP_FORTRESS_INTERIOR_WALL_3:
             if (WintergraspBuildingPointer& building = _buildings[object->GetEntry()])
-                building->Initialize(object);
+                building->OnObjectCreate(object);
+            break;
+        default:
+            break;
+    }
+}
+
+void BattlefieldWintergrasp::OnGameObjectRemove(GameObject* object)
+{
+    switch (object->GetEntry())
+    {
+        case GO_WINTERGRASP_FORTRESS_GATE:
+        case GO_WINTERGRASP_FORTRESS_VAULT_GATE:
+        case GO_WINTERGRASP_FORTRESS_WALL_1:
+        case GO_WINTERGRASP_FORTRESS_WALL_2:
+        case GO_WINTERGRASP_FORTRESS_WALL_3:
+        case GO_WINTERGRASP_FORTRESS_WALL_4:
+        case GO_WINTERGRASP_FORTRESS_WALL_5:
+        case GO_WINTERGRASP_FORTRESS_WALL_6:
+        case GO_WINTERGRASP_FORTRESS_WALL_7:
+        case GO_WINTERGRASP_FORTRESS_WALL_8:
+        case GO_WINTERGRASP_FORTRESS_WALL_9:
+        case GO_WINTERGRASP_FORTRESS_WALL_10:
+        case GO_WINTERGRASP_FORTRESS_WALL_11:
+        case GO_WINTERGRASP_FORTRESS_WALL_12:
+        case GO_WINTERGRASP_FORTRESS_WALL_13:
+        case GO_WINTERGRASP_FORTRESS_WALL_14:
+        case GO_WINTERGRASP_FORTRESS_WALL_15:
+        case GO_WINTERGRASP_FORTRESS_WALL_16:
+        case GO_WINTERGRASP_FORTRESS_WALL_17:
+        case GO_WINTERGRASP_FORTRESS_WALL_18:
+        case GO_WINTERGRASP_FORTRESS_WALL_19:
+        case GO_WINTERGRASP_FORTRESS_WALL_20:
+        case GO_WINTERGRASP_FORTRESS_INTERIOR_WALL_1:
+        case GO_WINTERGRASP_FORTRESS_INTERIOR_WALL_2:
+        case GO_WINTERGRASP_FORTRESS_INTERIOR_WALL_3:
+            if (WintergraspBuildingPointer& building = _buildings[object->GetEntry()])
+                building->OnObjectRemove(object);
             break;
         default:
             break;
@@ -110,6 +147,7 @@ void BattlefieldWintergrasp::SendGlobalWorldStates(Player const* player) const
     uint32 timer = 0;
     if (IsWarTime())
         timer = GetTimer() / 1000;
+
     player->SendUpdateWorldState(WORLDSTATE_WINTERGRASP_TIME_TO_NEXT_BATTLE, GameTime::GetGameTime() + timer);
 }
 
@@ -143,10 +181,18 @@ WintergraspBuilding::WintergraspBuilding(Battlefield* battlefield, BattlefieldBu
 {
 }
 
-void WintergraspBuilding::Initialize(WorldObject* object)
+void WintergraspBuilding::OnObjectCreate(WorldObject* object)
 {
     if (object->GetTypeId() != TYPEID_GAMEOBJECT)
         return;
 
-    BattlefieldBuilding::Initialize(object);
+    BattlefieldBuilding::OnObjectCreate(object);
+}
+
+void WintergraspBuilding::OnObjectRemove(WorldObject* object)
+{
+    if (object->GetTypeId() != TYPEID_GAMEOBJECT)
+        return;
+
+    BattlefieldBuilding::OnObjectRemove(object);
 }

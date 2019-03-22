@@ -24,9 +24,14 @@ BattlefieldEntity::BattlefieldEntity(Battlefield* battlefield, BattlefieldEntity
     ASSERT(battlefield, "BattlefieldBuilding::BattlefieldEntity: Tried to construct an entity without a battlefield! (type: %u, entry: %u, worldState: %u)", info.EntityType, info.Entry, info.WorldState);
 }
 
-void BattlefieldEntity::Initialize(WorldObject* object)
+void BattlefieldEntity::OnObjectCreate(WorldObject* object)
 {
     ObjectGUID = object->GetGUID();
+}
+
+void BattlefieldEntity::OnObjectRemove(WorldObject* /*object*/)
+{
+    ObjectGUID.Clear();
 }
 
 BattlefieldBuilding::BattlefieldBuilding(Battlefield* battlefield, BattlefieldBuildingInfo const info) : BattlefieldEntity(battlefield, info.Info), BuildingType(info.Type), State(BATTLEFIELD_BUILDING_STATE_NEUTRAL_INTACT)

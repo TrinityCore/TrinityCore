@@ -202,7 +202,8 @@ public:
     explicit WintergraspBuilding(Battlefield* battlefield, BattlefieldBuildingInfo const info);
     ~WintergraspBuilding() { }
 
-    void Initialize(WorldObject* object) override;
+    void OnObjectCreate(WorldObject* object) override;
+    void OnObjectRemove(WorldObject* object) override;
 };
 
 class TC_GAME_API BattlefieldWintergrasp : public Battlefield
@@ -212,6 +213,7 @@ public:
     ~BattlefieldWintergrasp();
 
     void OnGameObjectCreate(GameObject* object) override;
+    void OnGameObjectRemove(GameObject* object) override;
     void SendGlobalWorldStates(Player const* player) const override;
 
     bool IsFlyingMountAllowed() const override { return IsWarTime(); }
