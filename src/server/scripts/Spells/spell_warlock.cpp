@@ -77,6 +77,7 @@ enum WarlockSpells
     SPELL_WARLOCK_NETHER_TALENT                     = 91713,
     SPELL_WARLOCK_RAIN_OF_FIRE                      = 42223,
     SPELL_WARLOCK_SHADOW_TRANCE                     = 17941,
+    SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED      = 27285,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
     SPELL_WARLOCK_SHADOW_WARD                       = 6229,
     SPELL_WARLOCK_SOUL_HARVEST_ENERGIZE             = 101977,
@@ -1020,33 +1021,27 @@ class spell_warl_seduction : public SpellScriptLoader
         }
 };
 
-// 27285 - Seed of Corruption
-/// Updated 4.3.4
-class spell_warl_seed_of_corruption : public SpellScriptLoader
+// 27243 - Seed of Corruption
+class spell_warl_seed_of_corruption : public AuraScript
 {
-    public:
-        spell_warl_seed_of_corruption() : SpellScriptLoader("spell_warl_seed_of_corruption") { }
+    PrepareAuraScript(spell_warl_seed_of_corruption);
 
-        class spell_warl_seed_of_corruption_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_seed_of_corruption_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED });
+    }
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (GetExplTargetUnit())
-                    targets.remove(GetExplTargetUnit());
-            }
+    void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(GetTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, true, nullptr, aurEff);
+    }
 
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_seed_of_corruption_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warl_seed_of_corruption_SpellScript();
-        }
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_warl_seed_of_corruption::OnAuraRemoveHandler, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // -18094 - Nightfall
@@ -1680,7 +1675,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_life_tap();
     new spell_warl_nether_ward_overrride();
     new spell_warl_seduction();
-    new spell_warl_seed_of_corruption();
+    RegisterAuraScript(spell_warl_seed_of_corruption);
     new spell_warl_shadow_trance_proc();
     new spell_warl_shadow_ward();
     RegisterAuraScript(spell_warl_soul_harvest);
