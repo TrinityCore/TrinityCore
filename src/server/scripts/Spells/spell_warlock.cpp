@@ -1634,7 +1634,6 @@ class spell_warl_soul_harvest : public AuraScript
 
     bool Load() override
     {
-        _tickCounts = 0;
         return true;
     }
 
@@ -1645,8 +1644,7 @@ class spell_warl_soul_harvest : public AuraScript
 
     void HandleDummy(AuraEffect const* aurEff)
     {
-        _tickCounts++;
-        if (!(_tickCounts % 3))
+        if (!(aurEff->GetTickNumber() % 3))
             GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SOUL_HARVEST_ENERGIZE, true, nullptr, aurEff);
     }
 
@@ -1654,8 +1652,6 @@ class spell_warl_soul_harvest : public AuraScript
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_soul_harvest::HandleDummy, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
-private:
-    uint8 _tickCounts;
 };
 
 void AddSC_warlock_spell_scripts()
