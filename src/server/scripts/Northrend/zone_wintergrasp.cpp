@@ -35,7 +35,7 @@
 #include "Timer.h"
 #include "Unit.h"
 #include "Vehicle.h"
-#include <array>
+#include <vector>
 
 enum ZoneWintergraspNPCTexts
 {
@@ -115,8 +115,7 @@ enum ZoneWintergraspQuestIds
     QUEST_A_RARE_HERB_ALLIANCE_DEF                = 13156,
 };
 
-static size_t constexpr MAX_WINTERGRASP_VEHICLES = 4;
-static std::array<uint32, MAX_WINTERGRASP_VEHICLES> constexpr wintergraspVehicleIds =
+static std::vector<uint32> const wintergraspVehicleIds =
 {
     NPC_WINTERGRASP_CATAPULT,
     NPC_WINTERGRASP_DEMOLISHER,
