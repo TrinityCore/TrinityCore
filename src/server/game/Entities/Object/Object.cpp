@@ -3308,8 +3308,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     {
         if (Unit const* unit = ToUnit())
         {
-            // flying, ignore.
-            if (unit->IsFlying())
+            // unit can fly, ignore.
+            if (unit->CanFly())
                 return;
 
             // fall back to gridHeight if any
