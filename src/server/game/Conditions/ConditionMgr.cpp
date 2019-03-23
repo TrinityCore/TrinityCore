@@ -135,7 +135,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Quest state mask",     true,  true, false },
     { "Objective Complete",   true, false, false },
     { "Map Difficulty",       true, false, false },
-    { nullptr,               false, false, false },
+    { "Is Gamemaster",        true, false, false },
     { "Object Entry or Guid", true, true,  true  },
     { "Object TypeMask",      true, false, false },
 };
@@ -547,6 +547,17 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             condMeets = object->GetMap()->GetDifficultyID() == ConditionValue1;
             break;
         }
+        case CONDITION_GAMEMASTER:
+        {
+            if (Player* player = object->ToPlayer())
+            {
+                if (ConditionValue1 == 1)
+                    condMeets = player->CanBeGameMaster();
+                else
+                    condMeets = player->IsGameMaster();
+            }
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -744,6 +755,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             break;
         case CONDITION_DIFFICULTY_ID:
             mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_GAMEMASTER:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2423,6 +2437,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_TERRAIN_SWAP:
         case CONDITION_CHARMED:
         case CONDITION_TAXI:
+        case CONDITION_GAMEMASTER:
             break;
         case CONDITION_DIFFICULTY_ID:
             if (!sDifficultyStore.LookupEntry(cond->ConditionValue1))
