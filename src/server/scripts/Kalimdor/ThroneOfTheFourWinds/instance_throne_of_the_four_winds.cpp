@@ -53,6 +53,7 @@ enum Events
     EVENT_ENERGIZE = 1,
     EVENT_ANNOUNCE_ALMOST_FULL_STRENGTH,
     EVENT_CONCLAVE_AT_FULL_STRENGTH,
+    EVENT_BERSERK_CONCLAVE
 };
 
 Position const EnergizeWorldTriggerPos = { -287.795f, 816.681f, 199.5723f };
@@ -172,6 +173,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                             events.ScheduleEvent(EVENT_ENERGIZE, 1ms);
                             events.ScheduleEvent(EVENT_ANNOUNCE_ALMOST_FULL_STRENGTH, 80s);
                             events.ScheduleEvent(EVENT_CONCLAVE_AT_FULL_STRENGTH, 90s);
+                            events.ScheduleEvent(EVENT_BERSERK_CONCLAVE, 8min);
                         }
                         else
                         {
@@ -185,6 +187,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                             events.CancelEvent(EVENT_ENERGIZE);
                             events.CancelEvent(EVENT_ANNOUNCE_ALMOST_FULL_STRENGTH);
                             events.CancelEvent(EVENT_CONCLAVE_AT_FULL_STRENGTH);
+                            events.CancelEvent(EVENT_BERSERK_CONCLAVE);
 
                             for (ObjectGuid guid : _hurricaneGUIDs)
                             {
@@ -315,6 +318,16 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                             events.RescheduleEvent(EVENT_ENERGIZE, 23s + 500ms);
                             events.ScheduleEvent(EVENT_ANNOUNCE_ALMOST_FULL_STRENGTH, 1min + 43s + 500ms);
                             events.Repeat(1min + 53s + 500ms);
+                            break;
+                        case EVENT_BERSERK_CONCLAVE:
+                            if (Creature* anshal = GetCreature(DATA_ANSHAL))
+                                anshal->CastSpell(anshal, SPELL_BERSERK, true);
+
+                            if (Creature* nezir = GetCreature(DATA_NEZIR))
+                                nezir->CastSpell(nezir, SPELL_BERSERK, true);
+
+                            if (Creature* rohash = GetCreature(DATA_ROHASH))
+                                rohash->CastSpell(rohash, SPELL_BERSERK, true);
                             break;
                         default:
                             break;

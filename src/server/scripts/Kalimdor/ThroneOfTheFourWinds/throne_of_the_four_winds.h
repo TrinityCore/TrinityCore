@@ -91,7 +91,10 @@ enum TFWSpells
     SPELL_WIND_BLAST_SPEED_BUFF = 93106,
 
     // Players
-    SPELL_SERENITY              = 89750
+    SPELL_SERENITY              = 89750,
+
+    // Bosses
+    SPELL_BERSERK               = 26662
 };
 
 enum TFWGameObjectIds

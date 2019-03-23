@@ -127,6 +127,7 @@ enum Events
     EVENT_LIGHTNING_ROD_PERIODIC,
     EVENT_LIGHTNING_PERIODIC,
     EVENT_STATIC_SHOCK,
+    EVENT_BERSERK,
 
     // Ice Storm
     EVENT_PING_ICE_STORM_TRIGGERS,
@@ -314,6 +315,7 @@ struct boss_alakir : public BossAI
         events.ScheduleEvent(EVENT_LIGHTNING_STRIKE, 9s, 0, PHASE_ONE);
         events.ScheduleEvent(EVENT_ICE_STORM, 5s, 0, PHASE_ONE);
         events.ScheduleEvent(EVENT_SQUALL_LINE, 10s);
+        events.ScheduleEvent(EVENT_BERSERK, 10min);
 
         if (IsHeroic())
             events.ScheduleEvent(EVENT_STATIC_SHOCK, 5s, 0, PHASE_ONE);
@@ -587,6 +589,9 @@ struct boss_alakir : public BossAI
                     break;
                 case EVENT_LIGHTNING_PERIODIC:
                     DoCastSelf(SPELL_LIGHTNING);
+                    break;
+                case EVENT_BERSERK:
+                    DoCastSelf(SPELL_BERSERK);
                     break;
                 default:
                     break;
