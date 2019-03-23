@@ -131,6 +131,7 @@ enum Events
     EVENT_CHECK_BLOOD_OF_THE_OLD_GOD_BUFF,
     EVENT_DARKENED_CREATIONS,
     EVENT_SUMMON_SPIKED_TENTACLE,
+    EVENT_BERSERK,
 
     // Corrupting Adherent / Blood of the Old God
     EVENT_ENGAGE_PLAYERS,
@@ -310,6 +311,7 @@ struct boss_chogall : public BossAI
         events.ScheduleEvent(EVENT_SHADOWS_ORDERS, 20s + 800ms, 0, PHASE_1);
         events.ScheduleEvent(EVENT_SUMMON_CORRUPTING_ADHERENT, 2min + 4s, 0, PHASE_1);
         events.ScheduleEvent(EVENT_CONVERSION, 11s, 0, PHASE_1);
+        events.ScheduleEvent(EVENT_BERSERK, 10min);
 
         if (instance->GetData(DATA_FULL_HEROIC_ID) && IsHeroic())
             _allowDeath = false;
@@ -537,6 +539,9 @@ struct boss_chogall : public BossAI
                 case EVENT_SUMMON_SPIKED_TENTACLE:
                     DoCastAOE(SPELL_SUMMON_SPIKED_TENTACLE_TRIGGER);
                     events.Repeat(20s);
+                    break;
+                case EVENT_BERSERK:
+                    DoCastSelf(SPELL_BERSERK, true);
                     break;
                 default:
                     break;

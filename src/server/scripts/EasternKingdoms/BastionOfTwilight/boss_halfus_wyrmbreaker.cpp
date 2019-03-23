@@ -64,6 +64,7 @@ enum Events
     EVENT_SHADOW_NOVA = 1,
     EVENT_FURIOUS_ROAR,
     EVENT_RESET_ACHIEVEMT,
+    EVENT_BERSERK,
 
     // Proto-Behemoth
     EVENT_FIREBALL,
@@ -185,6 +186,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
 
                 if (Creature* protoBehemoth = instance->GetCreature(DATA_PROTO_BEHEMOTH))
                     protoBehemoth->AI()->DoZoneInCombat();
@@ -335,6 +337,9 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                             break;
                         case EVENT_RESET_ACHIEVEMT:
                             _theOnlyEscapeAchievementState = NOT_STARTED;
+                            break;
+                        case EVENT_BERSERK:
+                            DoCastSelf(SPELL_BERSERK, true);
                             break;
                         default:
                             break;

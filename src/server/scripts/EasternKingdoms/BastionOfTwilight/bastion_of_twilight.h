@@ -160,6 +160,11 @@ enum BoTGameObjects
     GO_GRIM_BATOL_RAID_TRAP_DOOR        = 205898
 };
 
+enum BoTSpells
+{
+    SPELL_BERSERK                       = 26662
+};
+
 enum BoTActions
 {
     // Halfus Wyrmbreaker
@@ -183,7 +188,7 @@ enum BoTActions
     ACTION_TALK_ASCENDANT_COUNCIL_INTRO_1   = 3,
     ACTION_TALK_ASCENDANT_COUNCIL_INTRO_2   = 4,
     ACTION_TALK_ASCENDANT_COUNCIL_INTRO_3   = 5,
-    ACTION_TALK_CHOGALL_INTRO               = 6,
+    ACTION_TALK_CHOGALL_INTRO               = 6
 };
 
 enum BoTEvents

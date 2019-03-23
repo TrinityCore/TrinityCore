@@ -115,6 +115,7 @@ enum Events
     EVENT_LAND,
     EVENT_ATTACK_PLAYERS,
     EVENT_RESPOND_TO_SIBLING,
+    EVENT_BERSERK,
 
     // Theralion
     EVENT_TWILIGHT_BLAST,
@@ -245,6 +246,7 @@ class boss_theralion : public CreatureScript
             {
                 _JustEngagedWith();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
 
                 if (Creature* valiona = instance->GetCreature(DATA_VALIONA))
                     valiona->AI()->AttackStart(who);
@@ -445,6 +447,9 @@ class boss_theralion : public CreatureScript
                             Talk(SAY_ANNOUNCE_ENGULFING_MAGIC);
                             events.Repeat(Seconds(40));
                             break;
+                        case EVENT_BERSERK:
+                            DoCastSelf(SPELL_BERSERK, true);
+                            break;
                         default:
                             break;
                     }
@@ -497,6 +502,7 @@ class boss_valiona : public CreatureScript
                 events.SetPhase(PHASE_GROUND);
                 events.ScheduleEvent(EVENT_BLACKOUT, Seconds(10) + Milliseconds(500));
                 events.ScheduleEvent(EVENT_DEVOURING_FLAMES, Seconds(25));
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
 
                 if (IsHeroic())
                     DoCastSelf(SPELL_TWILIGHT_SHIFT, true);
@@ -778,6 +784,9 @@ class boss_valiona : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* target = me->GetVictim())
                                 AttackStart(target);
+                            break;
+                        case EVENT_BERSERK:
+                            DoCastSelf(SPELL_BERSERK, true);
                             break;
                         default:
                             break;
