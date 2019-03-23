@@ -824,6 +824,7 @@ struct TC_GAME_API ItemTemplate
     bool IsVellum() const { return GetFlags3() & ITEM_FLAG3_CAN_STORE_ENCHANTS; }
     bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && (GetFlags() & ITEM_FLAG_CONJURED); }
     bool IsCraftingReagent() const { return (GetFlags2() & ITEM_FLAG2_USED_IN_A_TRADESKILL) != 0; }
+    bool HasSignature() const;
 
     bool IsWeapon() const { return GetClass() == ITEM_CLASS_WEAPON; }
 

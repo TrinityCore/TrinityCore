@@ -51,6 +51,15 @@ char const* ItemTemplate::GetName(LocaleConstant locale) const
     return ExtendedData->Display[locale];
 }
 
+bool ItemTemplate::HasSignature() const
+{
+    return GetMaxStackSize() == 1 &&
+        GetClass() != ITEM_CLASS_CONSUMABLE &&
+        GetClass() != ITEM_CLASS_QUEST &&
+        (GetFlags() & ITEM_FLAG_NO_CREATOR) == 0 &&
+        GetId() != 6948; /*Hearthstone*/
+}
+
 bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
     switch (GetInventoryType())
