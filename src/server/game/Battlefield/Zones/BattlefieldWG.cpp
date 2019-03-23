@@ -196,3 +196,43 @@ void WintergraspBuilding::OnObjectRemove(WorldObject* object)
 
     BattlefieldBuilding::OnObjectRemove(object);
 }
+
+WintergraspCapturePoint::WintergraspCapturePoint(Battlefield* battlefield, BattlefieldEntityInfo const info) : BattlefieldCapturePoint(battlefield, info)
+{
+}
+
+void WintergraspCapturePoint::OnObjectCreate(WorldObject* object)
+{
+    if (object->GetTypeId() != TYPEID_GAMEOBJECT)
+        return;
+
+    BattlefieldCapturePoint::OnObjectCreate(object);
+}
+
+void WintergraspCapturePoint::OnObjectRemove(WorldObject* object)
+{
+    if (object->GetTypeId() != TYPEID_GAMEOBJECT)
+        return;
+
+    BattlefieldCapturePoint::OnObjectRemove(object);
+}
+
+WintergraspGraveyard::WintergraspGraveyard(Battlefield* battlefield, BattlefieldEntityInfo const info) : BattlefieldGraveyard(battlefield, info)
+{
+}
+
+void WintergraspGraveyard::OnObjectCreate(WorldObject* object)
+{
+    if (object->GetTypeId() != TYPEID_UNIT)
+        return;
+
+    BattlefieldGraveyard::OnObjectCreate(object);
+}
+
+void WintergraspGraveyard::OnObjectRemove(WorldObject* object)
+{
+    if (object->GetTypeId() != TYPEID_UNIT)
+        return;
+
+    BattlefieldGraveyard::OnObjectRemove(object);
+}

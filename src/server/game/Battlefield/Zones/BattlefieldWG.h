@@ -206,6 +206,26 @@ public:
     void OnObjectRemove(WorldObject* object) override;
 };
 
+class WintergraspCapturePoint : public BattlefieldCapturePoint
+{
+public:
+    explicit WintergraspCapturePoint(Battlefield* battlefield, BattlefieldEntityInfo const info);
+    ~WintergraspCapturePoint() { }
+
+    void OnObjectCreate(WorldObject* object) override;
+    void OnObjectRemove(WorldObject* object) override;
+};
+
+class WintergraspGraveyard : public BattlefieldGraveyard
+{
+public:
+    explicit WintergraspGraveyard(Battlefield* battlefield, BattlefieldEntityInfo const info);
+    ~WintergraspGraveyard() { }
+
+    void OnObjectCreate(WorldObject* object) override;
+    void OnObjectRemove(WorldObject* object) override;
+};
+
 class TC_GAME_API BattlefieldWintergrasp : public Battlefield
 {
 public:
@@ -222,6 +242,8 @@ public:
 private:
     typedef std::unique_ptr<WintergraspBuilding> WintergraspBuildingPointer;
     typedef std::unordered_map<uint32 /*entry*/, WintergraspBuildingPointer> WintergraspBuildingContainer;
+    typedef std::unique_ptr<WintergraspCapturePoint> WintergraspCapturePointPointer;
+    typedef std::unordered_map<uint32 /*entry*/, WintergraspCapturePointPointer> WintergraspCapturePointContainer;
 
     BattlefieldWintergrasp(BattlefieldWintergrasp const&) = delete;
     BattlefieldWintergrasp& operator=(BattlefieldWintergrasp const&) = delete;

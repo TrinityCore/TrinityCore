@@ -22,6 +22,8 @@
 #include "SharedDefines.h"
 #include "Timer.h"
 #include "ZoneScript.h"
+#include <memory>
+#include <unordered_map>
 
 namespace WorldPackets
 {
@@ -31,6 +33,7 @@ namespace WorldPackets
     }
 }
 
+class BattlefieldGraveyard;
 class ObjectGuid;
 class Player;
 class Unit;
@@ -88,7 +91,11 @@ public:
     bool IsWarTime() const { return _active; }
 
 private:
+    typedef std::unique_ptr<BattlefieldGraveyard> BattlefieldGraveyardPointer;
+    typedef std::unordered_map<uint32 /*id*/, BattlefieldGraveyard> BattlefieldGraveyardContainer;
+
     Battlefield(Battlefield const&) = delete;
+    Battlefield& operator=(Battlefield const&) = delete;
 
     // constant information
     BattlefieldBattleId _battleId;
