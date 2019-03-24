@@ -23,6 +23,15 @@
 
 #include "Packets/QueryPackets.h"
 
+bool ItemTemplate::HasSignature() const
+{
+    return GetMaxStackSize() == 1 &&
+        Class != ITEM_CLASS_CONSUMABLE &&
+        Class != ITEM_CLASS_QUEST &&
+        (Flags & ITEM_FLAG_NO_CREATOR) == 0 &&
+        ItemId != 6948; /*Hearthstone*/
+}
+
 bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
     switch (InventoryType)
