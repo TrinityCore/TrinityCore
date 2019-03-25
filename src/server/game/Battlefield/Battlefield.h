@@ -92,7 +92,7 @@ public:
 
 private:
     typedef std::unique_ptr<BattlefieldGraveyard> BattlefieldGraveyardPointer;
-    typedef std::unordered_map<uint32 /*id*/, BattlefieldGraveyard> BattlefieldGraveyardContainer;
+    typedef std::unordered_map<uint8 /*id*/, BattlefieldGraveyard> BattlefieldGraveyardContainer;
 
     Battlefield(Battlefield const&) = delete;
     Battlefield& operator=(Battlefield const&) = delete;

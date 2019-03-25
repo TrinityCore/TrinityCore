@@ -21,7 +21,7 @@
 
 BattlefieldEntity::BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityInfo const info) : Battle(battlefield), Info(info)
 {
-    ASSERT(battlefield, "BattlefieldBuilding::BattlefieldEntity: Tried to construct an entity without a battlefield! (type: %u, entry: %u, worldState: %u)", info.EntityType, info.Entry, info.WorldState);
+    ASSERT(battlefield, "BattlefieldBuilding::BattlefieldEntity: Tried to construct an entity without a battlefield! (type: %u, worldState: %u)", info.EntityType, info.WorldState);
 }
 
 void BattlefieldEntity::OnObjectCreate(WorldObject* object)
@@ -74,7 +74,7 @@ PvPTeamId BattlefieldCapturePoint::GetPvPTeamId() const
     }
 }
 
-BattlefieldGraveyard::BattlefieldGraveyard(Battlefield* battlefield, BattlefieldEntityInfo const info) : BattlefieldEntity(battlefield, info), State(BATTLEFIELD_GRAVEYARD_STATE_NEUTRAL)
+BattlefieldGraveyard::BattlefieldGraveyard(Battlefield* battlefield, BattlefieldGraveyardInfo const info) : BattlefieldEntity(battlefield, info.Info), Id(info.Id), TextId(info.TextId), State(BATTLEFIELD_GRAVEYARD_STATE_NEUTRAL)
 {
 }
 

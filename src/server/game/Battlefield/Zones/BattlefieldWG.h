@@ -219,7 +219,7 @@ public:
 class WintergraspGraveyard : public BattlefieldGraveyard
 {
 public:
-    explicit WintergraspGraveyard(Battlefield* battlefield, BattlefieldEntityInfo const info);
+    explicit WintergraspGraveyard(Battlefield* battlefield, BattlefieldGraveyardInfo const info);
     ~WintergraspGraveyard() { }
 
     void OnObjectCreate(WorldObject* object) override;

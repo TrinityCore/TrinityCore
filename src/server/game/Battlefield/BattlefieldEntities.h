@@ -21,6 +21,8 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
+#include <initializer_list>
+#include <unordered_set>
 
 class Battlefield;
 class WorldObject;
@@ -76,17 +78,24 @@ enum BattlefieldGraveyardState : uint8
 
 struct BattlefieldEntityInfo
 {
-    BattlefieldEntityInfo(BattlefieldEntityType type, uint32 entry, uint32 worldState) : EntityType(type), Entry(entry), WorldState(worldState) { }
+    BattlefieldEntityInfo(BattlefieldEntityType type, uint32 worldState) : EntityType(type), WorldState(worldState) { }
+    BattlefieldEntityInfo(BattlefieldEntityType type, uint32 worldState, uint32 entry) : EntityType(type), WorldState(worldState), ObjectEntries({ entry }) { }
+    BattlefieldEntityInfo(BattlefieldEntityType type, uint32 worldState, std::initializer_list<uint32> entryList) : EntityType(type), WorldState(worldState), ObjectEntries(entryList) { }
+
+    uint32 GetSingleObjectEntry() const { return ObjectEntries.empty() ? 0 : *ObjectEntries.begin(); }
+    bool ValidateObjectEntry(uint32 entry) const { return ObjectEntries.find(entry) != ObjectEntries.end(); }
 
     BattlefieldEntityType EntityType;
-    uint32 Entry;
     uint32 WorldState;
+    std::unordered_set<uint32> ObjectEntries;
 };
 
 class BattlefieldEntity
 {
 public:
-    explicit BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityType type, uint32 entry, uint32 worldState) : BattlefieldEntity(battlefield, BattlefieldEntityInfo(type, entry, worldState)) { }
+    explicit BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityType type, uint32 worldState) : BattlefieldEntity(battlefield, BattlefieldEntityInfo(type, worldState)) { }
+    explicit BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityType type, uint32 worldState, uint32 entry) : BattlefieldEntity(battlefield, BattlefieldEntityInfo(type, worldState, entry)) { }
+    explicit BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityType type, uint32 worldState, std::initializer_list<uint32> entryList) : BattlefieldEntity(battlefield, BattlefieldEntityInfo(type, worldState, entryList)) { }
     explicit BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityInfo const info);
     virtual ~BattlefieldEntity() { }
 
@@ -95,17 +104,16 @@ public:
     virtual void Update(uint32 /*diff*/) { }
     virtual PvPTeamId GetPvPTeamId() const { return PVP_TEAM_NEUTRAL; }
 
-    uint32 GetObjectEntry() const { return Info.Entry; }
-    ObjectGuid const GetObjectGUID() const { return ObjectGUID; }
+    bool ValidateObjectEntry(uint32 entry) const { return Info.ValidateObjectEntry(entry); }
 
     Battlefield* Battle;
-    BattlefieldEntityInfo const Info;
+    BattlefieldEntityInfo Info;
     ObjectGuid ObjectGUID;
 };
 
 struct BattlefieldBuildingInfo
 {
-    BattlefieldBuildingInfo(uint32 entry, uint32 worldState, BattlefieldBuildingType type) : BattlefieldBuildingInfo(BattlefieldEntityInfo(BATTLEFIELD_ENTITY_TYPE_BUILDING, entry, worldState), type) { }
+    BattlefieldBuildingInfo(uint32 worldState, uint32 entry, BattlefieldBuildingType type) : BattlefieldBuildingInfo(BattlefieldEntityInfo(BATTLEFIELD_ENTITY_TYPE_BUILDING, worldState, entry), type) { }
     BattlefieldBuildingInfo(BattlefieldEntityInfo const info, BattlefieldBuildingType type) : Info(info), Type(type) { }
 
     BattlefieldEntityInfo Info;
@@ -115,7 +123,7 @@ struct BattlefieldBuildingInfo
 class BattlefieldBuilding : public BattlefieldEntity
 {
 public:
-    explicit BattlefieldBuilding(Battlefield* battlefield, uint32 entry, uint32 worldState, BattlefieldBuildingType type) : BattlefieldBuilding(battlefield, BattlefieldBuildingInfo(BattlefieldEntityInfo(BATTLEFIELD_ENTITY_TYPE_BUILDING, entry, worldState), type)) { }
+    explicit BattlefieldBuilding(Battlefield* battlefield, uint32 worldState, uint32 entry, BattlefieldBuildingType type) : BattlefieldBuilding(battlefield, BattlefieldBuildingInfo(worldState, entry, type)) { }
     explicit BattlefieldBuilding(Battlefield* battlefield, BattlefieldBuildingInfo const info);
     virtual ~BattlefieldBuilding() { }
 
@@ -133,7 +141,7 @@ protected:
 class BattlefieldCapturePoint : public BattlefieldEntity
 {
 public:
-    explicit BattlefieldCapturePoint(Battlefield* battlefield, uint32 entry, uint32 worldState) : BattlefieldCapturePoint(battlefield, BattlefieldEntityInfo(BATTLEFIELD_ENTITY_TYPE_CAPTUREPOINT, entry, worldState)) { }
+    explicit BattlefieldCapturePoint(Battlefield* battlefield, uint32 worldState, uint32 entry) : BattlefieldCapturePoint(battlefield, BattlefieldEntityInfo(BATTLEFIELD_ENTITY_TYPE_CAPTUREPOINT, worldState, entry)) { }
     explicit BattlefieldCapturePoint(Battlefield* battlefield, BattlefieldEntityInfo const info);
     virtual ~BattlefieldCapturePoint() { }
 
@@ -143,16 +151,28 @@ protected:
     BattlefieldCapturePointState State;
 };
 
+struct BattlefieldGraveyardInfo
+{
+    BattlefieldGraveyardInfo(uint32 worldState, uint8 id, uint32 textId) : BattlefieldGraveyardInfo(BattlefieldEntityInfo(BATTLEFIELD_ENTITY_TYPE_GRAVEYARD, worldState), id, textId) { }
+    BattlefieldGraveyardInfo(BattlefieldEntityInfo const info, uint8 id, uint32 textId) : Info(info), Id(id), TextId(textId) { }
+
+    BattlefieldEntityInfo Info;
+    uint8 Id;
+    uint32 TextId;
+};
+
 class BattlefieldGraveyard : public BattlefieldEntity
 {
 public:
-    explicit BattlefieldGraveyard(Battlefield* battlefield, uint32 entry, uint32 worldState) : BattlefieldGraveyard(battlefield, BattlefieldEntityInfo(BATTLEFIELD_ENTITY_TYPE_GRAVEYARD, entry, worldState)) { }
-    explicit BattlefieldGraveyard(Battlefield* battlefield, BattlefieldEntityInfo const info);
+    explicit BattlefieldGraveyard(Battlefield* battlefield, uint32 worldState, uint8 id, uint32 textId) : BattlefieldGraveyard(battlefield, BattlefieldGraveyardInfo(worldState, id, textId)) { }
+    explicit BattlefieldGraveyard(Battlefield* battlefield, BattlefieldGraveyardInfo const info);
     virtual ~BattlefieldGraveyard() { }
 
     PvPTeamId GetPvPTeamId() const override;
 
 protected:
+    uint8 Id;
+    uint32 TextId;
     BattlefieldGraveyardState State;
 };
 
