@@ -2065,6 +2065,14 @@ GM.InWhoList.Level = 3
 GM.StartLevel = 1
 
 #
+#    GM.AllowAchievements
+#        Description: Allow GM accounts to have achievements.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+GM.AllowAchievements = 1
+
+#
 #    GM.AllowInvite
 #        Description: Allow players to invite GM characters.
 #        Default:     0 - (Disabled)

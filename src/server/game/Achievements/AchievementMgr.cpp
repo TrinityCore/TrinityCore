@@ -511,8 +511,8 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaCondition condi
 {
     TC_LOG_DEBUG("achievement", "AchievementMgr::ResetAchievementCriteria(%u, %u, %u)", condition, value, evenIfCriteriaComplete);
 
-    // disable for gamemasters with GM-mode enabled
-    if (m_player->IsGameMaster())
+    // disable for gamemasters with GM-mode enabled or when achievements for GM are disabled
+    if (m_player->IsGameMaster() || (m_player->CanBeGameMaster() && !sWorld->getBoolConfig(CONFIG_ALLOW_GM_ACHIEVEMENTS)))
         return;
 
     AchievementCriteriaEntryList const* achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByCondition(condition, value);
@@ -758,8 +758,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
         return;
     }
 
-    // disable for gamemasters with GM-mode enabled
-    if (m_player->IsGameMaster())
+    // disable for gamemasters with GM-mode enabled or when achievements for GM are disabled
+    if (m_player->IsGameMaster() || (m_player->CanBeGameMaster() && !sWorld->getBoolConfig(CONFIG_ALLOW_GM_ACHIEVEMENTS)))
     {
         TC_LOG_DEBUG("achievement", "UpdateAchievementCriteria: [Player %s GM mode on] %s, %s (%u), %u, %u"
             , m_player->GetName().c_str(), m_player->GetGUID().ToString().c_str(), AchievementGlobalMgr::GetCriteriaTypeString(type), type, miscValue1, miscValue2);
@@ -1511,8 +1511,8 @@ void AchievementMgr::RemoveTimedAchievement(AchievementCriteriaTimedTypes type, 
 
 void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 {
-    // disable for gamemasters with GM-mode enabled
-    if (m_player->IsGameMaster())
+    // disable for gamemasters with GM-mode enabled or when achievements for GM are disabled
+    if (m_player->IsGameMaster() || (m_player->CanBeGameMaster() && !sWorld->getBoolConfig(CONFIG_ALLOW_GM_ACHIEVEMENTS)))
         return;
 
     if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
