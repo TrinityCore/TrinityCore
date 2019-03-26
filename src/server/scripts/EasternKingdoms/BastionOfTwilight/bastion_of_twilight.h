@@ -160,11 +160,6 @@ enum BoTGameObjects
     GO_GRIM_BATOL_RAID_TRAP_DOOR        = 205898
 };
 
-enum BoTSpells
-{
-    SPELL_BERSERK                       = 26662
-};
-
 enum BoTActions
 {
     // Halfus Wyrmbreaker
@@ -199,7 +194,8 @@ enum BoTEvents
 
 enum BoTSpells
 {
-    SPELL_DANCING_FLAMES_VISUAL = 83962
+    SPELL_DANCING_FLAMES_VISUAL = 83962,
+    SPELL_BERSERK               = 26662
 };
 
 template<class AI>
