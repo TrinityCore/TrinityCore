@@ -46,7 +46,7 @@ public:
     typedef std::unordered_map<uint8 /*id*/, BattlefieldGraveyardPointer> BattlefieldGraveyardContainer;
 
     explicit Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId);
-    virtual ~Battlefield() { }
+    virtual ~Battlefield();
 
     // Called on battlefield creation
     virtual bool Initialize(bool enabled);

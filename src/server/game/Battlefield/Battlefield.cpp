@@ -22,6 +22,10 @@ Battlefield::Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId)
 {
 }
 
+Battlefield::~Battlefield()
+{
+}
+
 bool Battlefield::Initialize(bool enabled)
 {
     _enabled = enabled;
