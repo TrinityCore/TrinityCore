@@ -43,7 +43,7 @@ class TC_GAME_API Battlefield : public ZoneScript
 {
 public:
     typedef std::unique_ptr<BattlefieldGraveyard> BattlefieldGraveyardPointer;
-    typedef std::unordered_map<uint8 /*id*/, BattlefieldGraveyard> BattlefieldGraveyardContainer;
+    typedef std::unordered_map<uint8 /*id*/, BattlefieldGraveyardPointer> BattlefieldGraveyardContainer;
 
     explicit Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId);
     virtual ~Battlefield() { }
