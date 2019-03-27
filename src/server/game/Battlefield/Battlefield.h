@@ -42,6 +42,9 @@ struct WorldSafeLocsEntry;
 class TC_GAME_API Battlefield : public ZoneScript
 {
 public:
+    typedef std::unique_ptr<BattlefieldGraveyard> BattlefieldGraveyardPointer;
+    typedef std::unordered_map<uint8 /*id*/, BattlefieldGraveyard> BattlefieldGraveyardContainer;
+
     explicit Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId);
     virtual ~Battlefield() { }
 
@@ -72,6 +75,8 @@ public:
     // Is the referenced SpellArea spellId allowed for the referenced player and newArea?
     virtual bool IsSpellAreaAllowed(uint32 /*spellId*/, Player const* /*player*/, uint32 /*newArea*/) const { return false; }
 
+    void EmplaceGraveyard(uint8 id, BattlefieldGraveyardPointer&& pointer);
+
     BattlefieldBattleId GetId() const { return _battleId; }
     uint32 GetZoneId() const { return _zoneId; }
     // enum PvPTeamId
@@ -91,9 +96,6 @@ public:
     bool IsWarTime() const { return _active; }
 
 private:
-    typedef std::unique_ptr<BattlefieldGraveyard> BattlefieldGraveyardPointer;
-    typedef std::unordered_map<uint8 /*id*/, BattlefieldGraveyard> BattlefieldGraveyardContainer;
-
     Battlefield(Battlefield const&) = delete;
     Battlefield& operator=(Battlefield const&) = delete;
 
@@ -105,6 +107,7 @@ private:
     bool _active;
     PvPTeamId _controllingTeam;
     CountdownTimer _timer;
+    BattlefieldGraveyardContainer _graveyards;
 };
 
 #endif

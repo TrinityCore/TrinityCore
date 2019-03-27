@@ -67,6 +67,17 @@ enum WintergraspNPCEntries
     NPC_WINTERGRASP_PVP_KILL_ALLIANCE = 31086
 };
 
+enum WintergraspGossipText
+{
+    GOSSIP_WINTERGRASP_GRAVEYARD_NE = 20071,
+    GOSSIP_WINTERGRASP_GRAVEYARD_NW = 20072,
+    GOSSIP_WINTERGRASP_GRAVEYARD_SE = 20074,
+    GOSSIP_WINTERGRASP_GRAVEYARD_SW = 20073,
+    GOSSIP_WINTERGRASP_GRAVEYARD_KEEP = 20070,
+    GOSSIP_WINTERGRASP_GRAVEYARD_HORDE = 20075,
+    GOSSIP_WINTERGRASP_GRAVEYARD_ALLIANCE = 20076
+};
+
 enum WintergraspGameObjects
 {
     GO_WINTERGRASP_FORTRESS_WALL_1 = 190219,
@@ -193,6 +204,17 @@ enum WintergraspWorldstates
     WORLDSTATE_WINTERGRASP_TIME_TO_NEXT_BATTLE = 4354
 };
 
+enum WintergraspGraveyardIds : uint8
+{
+    GRAVEYARDID_WORKSHOP_NE = 0,
+    GRAVEYARDID_WORKSHOP_NW,
+    GRAVEYARDID_WORKSHOP_SE,
+    GRAVEYARDID_WORKSHOP_SW,
+    GRAVEYARDID_KEEP,
+    GRAVEYARDID_HORDE,
+    GRAVEYARDID_ALLIANCE
+};
+
 class GameObject;
 class WorldObject;
 
@@ -244,6 +266,7 @@ private:
     typedef std::unordered_map<uint32 /*entry*/, WintergraspBuildingPointer> WintergraspBuildingContainer;
     typedef std::unique_ptr<WintergraspCapturePoint> WintergraspCapturePointPointer;
     typedef std::unordered_map<uint32 /*entry*/, WintergraspCapturePointPointer> WintergraspCapturePointContainer;
+    typedef std::unique_ptr<WintergraspGraveyard> WintergraspGraveyardPointer;
 
     BattlefieldWintergrasp(BattlefieldWintergrasp const&) = delete;
     BattlefieldWintergrasp& operator=(BattlefieldWintergrasp const&) = delete;

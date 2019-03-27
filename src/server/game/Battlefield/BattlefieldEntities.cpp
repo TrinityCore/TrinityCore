@@ -74,7 +74,7 @@ PvPTeamId BattlefieldCapturePoint::GetPvPTeamId() const
     }
 }
 
-BattlefieldGraveyard::BattlefieldGraveyard(Battlefield* battlefield, BattlefieldGraveyardInfo const info) : BattlefieldEntity(battlefield, info.Info), Id(info.Id), TextId(info.TextId), State(BATTLEFIELD_GRAVEYARD_STATE_NEUTRAL)
+BattlefieldGraveyard::BattlefieldGraveyard(Battlefield* battlefield, BattlefieldGraveyardInfo const info) : BattlefieldEntity(battlefield, info.Info), Id(info.Id), WorldSafeLocsEntryId(info.WorldSafeLocsEntryId), TextId(info.TextId), State(BATTLEFIELD_GRAVEYARD_STATE_NEUTRAL)
 {
 }
 

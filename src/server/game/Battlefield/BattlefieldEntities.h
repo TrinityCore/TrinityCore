@@ -78,6 +78,7 @@ enum BattlefieldGraveyardState : uint8
 
 struct BattlefieldEntityInfo
 {
+    BattlefieldEntityInfo(BattlefieldEntityType type) : EntityType(type), WorldState(0) { }
     BattlefieldEntityInfo(BattlefieldEntityType type, uint32 worldState) : EntityType(type), WorldState(worldState) { }
     BattlefieldEntityInfo(BattlefieldEntityType type, uint32 worldState, uint32 entry) : EntityType(type), WorldState(worldState), ObjectEntries({ entry }) { }
     BattlefieldEntityInfo(BattlefieldEntityType type, uint32 worldState, std::initializer_list<uint32> entryList) : EntityType(type), WorldState(worldState), ObjectEntries(entryList) { }
@@ -93,9 +94,6 @@ struct BattlefieldEntityInfo
 class BattlefieldEntity
 {
 public:
-    explicit BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityType type, uint32 worldState) : BattlefieldEntity(battlefield, BattlefieldEntityInfo(type, worldState)) { }
-    explicit BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityType type, uint32 worldState, uint32 entry) : BattlefieldEntity(battlefield, BattlefieldEntityInfo(type, worldState, entry)) { }
-    explicit BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityType type, uint32 worldState, std::initializer_list<uint32> entryList) : BattlefieldEntity(battlefield, BattlefieldEntityInfo(type, worldState, entryList)) { }
     explicit BattlefieldEntity(Battlefield* battlefield, BattlefieldEntityInfo const info);
     virtual ~BattlefieldEntity() { }
 
@@ -123,7 +121,6 @@ struct BattlefieldBuildingInfo
 class BattlefieldBuilding : public BattlefieldEntity
 {
 public:
-    explicit BattlefieldBuilding(Battlefield* battlefield, uint32 worldState, uint32 entry, BattlefieldBuildingType type) : BattlefieldBuilding(battlefield, BattlefieldBuildingInfo(worldState, entry, type)) { }
     explicit BattlefieldBuilding(Battlefield* battlefield, BattlefieldBuildingInfo const info);
     virtual ~BattlefieldBuilding() { }
 
@@ -153,18 +150,19 @@ protected:
 
 struct BattlefieldGraveyardInfo
 {
-    BattlefieldGraveyardInfo(uint32 worldState, uint8 id, uint32 textId) : BattlefieldGraveyardInfo(BattlefieldEntityInfo(BATTLEFIELD_ENTITY_TYPE_GRAVEYARD, worldState), id, textId) { }
-    BattlefieldGraveyardInfo(BattlefieldEntityInfo const info, uint8 id, uint32 textId) : Info(info), Id(id), TextId(textId) { }
+    BattlefieldGraveyardInfo(std::initializer_list<uint32> entryList, uint8 id, uint16 worldSafeLocsEntryId, uint32 textId) : BattlefieldGraveyardInfo(0, entryList, id, worldSafeLocsEntryId, textId) { }
+    BattlefieldGraveyardInfo(uint32 worldState, std::initializer_list<uint32> entryList, uint8 id, uint16 worldSafeLocsEntryId, uint32 textId) : BattlefieldGraveyardInfo(BattlefieldEntityInfo(BATTLEFIELD_ENTITY_TYPE_GRAVEYARD, worldState, entryList), id, worldSafeLocsEntryId, textId) { }
+    BattlefieldGraveyardInfo(BattlefieldEntityInfo const info, uint8 id, uint16 worldSafeLocsEntryId, uint32 textId) : Info(info), Id(id), WorldSafeLocsEntryId(worldSafeLocsEntryId), TextId(textId) { }
 
     BattlefieldEntityInfo Info;
     uint8 Id;
+    uint16 WorldSafeLocsEntryId;
     uint32 TextId;
 };
 
 class BattlefieldGraveyard : public BattlefieldEntity
 {
 public:
-    explicit BattlefieldGraveyard(Battlefield* battlefield, uint32 worldState, uint8 id, uint32 textId) : BattlefieldGraveyard(battlefield, BattlefieldGraveyardInfo(worldState, id, textId)) { }
     explicit BattlefieldGraveyard(Battlefield* battlefield, BattlefieldGraveyardInfo const info);
     virtual ~BattlefieldGraveyard() { }
 
@@ -172,6 +170,7 @@ public:
 
 protected:
     uint8 Id;
+    uint16 WorldSafeLocsEntryId;
     uint32 TextId;
     BattlefieldGraveyardState State;
 };

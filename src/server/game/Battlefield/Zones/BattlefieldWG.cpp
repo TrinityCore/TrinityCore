@@ -50,12 +50,29 @@ static std::vector<BattlefieldBuildingInfo> const wintergraspBuildingInfo =
     { WORLDSTATE_WINTERGRASP_FORTRESS_INTERIOR_WALL_3, GO_WINTERGRASP_FORTRESS_INTERIOR_WALL_3, BATTLEFIELD_BUILDING_TYPE_WALL }
 };
 
+static std::vector<BattlefieldGraveyardInfo> const wintergraspGraveyardInfo =
+{
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_WORKSHOP_NE, 1329, GOSSIP_WINTERGRASP_GRAVEYARD_NE },
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_WORKSHOP_NW, 1330, GOSSIP_WINTERGRASP_GRAVEYARD_NW },
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_WORKSHOP_SE, 1333, GOSSIP_WINTERGRASP_GRAVEYARD_SE },
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_WORKSHOP_SW, 1334, GOSSIP_WINTERGRASP_GRAVEYARD_SW },
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_KEEP,        1285, GOSSIP_WINTERGRASP_GRAVEYARD_KEEP },
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_HORDE,       1331, GOSSIP_WINTERGRASP_GRAVEYARD_HORDE },
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_ALLIANCE,    1332, GOSSIP_WINTERGRASP_GRAVEYARD_ALLIANCE }
+};
+
 BattlefieldWintergrasp::BattlefieldWintergrasp() : Battlefield(BATTLEFIELD_BATTLEID_WINTERGRASP, BATTLEFIELD_ZONEID_WINTERGRASP)
 {
     for (auto itr = wintergraspBuildingInfo.begin(); itr != wintergraspBuildingInfo.end(); ++itr)
     {
         WintergraspBuildingPointer building = std::make_unique<WintergraspBuilding>(this, *itr);
         _buildings.emplace(itr->Info.GetSingleObjectEntry(), std::move(building));
+    }
+
+    for (auto itr = wintergraspGraveyardInfo.begin(); itr != wintergraspGraveyardInfo.end(); ++itr)
+    {
+        WintergraspGraveyardPointer graveyard = std::make_unique<WintergraspGraveyard>(this, *itr);
+        EmplaceGraveyard(itr->Id, std::move(graveyard));
     }
 }
 

@@ -16,6 +16,7 @@
  */
 
 #include "Battlefield.h"
+#include "BattlefieldEntities.h"
 
 Battlefield::Battlefield(BattlefieldBattleId battleId, BattlefieldZoneId zoneId) : _battleId(battleId), _zoneId(zoneId), _enabled(false), _active(false), _controllingTeam(PVP_TEAM_NEUTRAL), _timer(0)
 {
@@ -49,6 +50,11 @@ void Battlefield::HandleAddPlayerToResurrectionQueue(Player* /*player*/, ObjectG
 
 void Battlefield::HandleRemovePlayerFromResurrectionQueue(Player* /*player*/)
 {
+}
+
+void Battlefield::EmplaceGraveyard(uint8 id, BattlefieldGraveyardPointer&& pointer)
+{
+    _graveyards.emplace(id, pointer);
 }
 
 PvPTeamId Battlefield::GetAttackingTeam() const
