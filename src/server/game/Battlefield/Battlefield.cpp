@@ -54,7 +54,7 @@ void Battlefield::HandleRemovePlayerFromResurrectionQueue(Player* /*player*/)
 
 void Battlefield::EmplaceGraveyard(uint8 id, BattlefieldGraveyardPointer&& pointer)
 {
-    _graveyards.emplace(id, pointer);
+    _graveyards.emplace(id, std::move(pointer));
 }
 
 PvPTeamId Battlefield::GetAttackingTeam() const
