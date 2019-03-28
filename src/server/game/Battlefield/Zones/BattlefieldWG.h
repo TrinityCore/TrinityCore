@@ -206,7 +206,7 @@ enum WintergraspWorldstates
 
 enum WintergraspGraveyardIds : uint8
 {
-    GRAVEYARD_WORKSHOP_NE = 0,
+    GRAVEYARD_WORKSHOP_NE = 1,
     GRAVEYARD_WORKSHOP_NW,
     GRAVEYARD_WORKSHOP_SE,
     GRAVEYARD_WORKSHOP_SW,
