@@ -76,6 +76,7 @@ public:
     virtual bool IsSpellAreaAllowed(uint32 /*spellId*/, Player const* /*player*/, uint32 /*newArea*/) const { return false; }
 
     void EmplaceGraveyard(uint8 id, BattlefieldGraveyardPointer&& pointer);
+    BattlefieldGraveyardPointer& GetGraveyard(uint8 graveyardId);
 
     BattlefieldBattleId GetId() const { return _battleId; }
     uint32 GetZoneId() const { return _zoneId; }
@@ -89,8 +90,8 @@ public:
     TeamId GetAttackingTeamId() const;
     // Battle timer
     uint32 GetTimer() const { return _timer.GetTimer(); }
-    // Closest available graveyard for Player's TeamId
-    WorldSafeLocsEntry const* GetClosestGraveyard(Player* who) const;
+    // Closest available graveyard WorldSafeLocsEntry for Player's TeamId
+    WorldSafeLocsEntry const* GetClosestGraveyardLocation(Player* who) const;
 
     bool IsEnabled() const { return _enabled; }
     bool IsWarTime() const { return _active; }

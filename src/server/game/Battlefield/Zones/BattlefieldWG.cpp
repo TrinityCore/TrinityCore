@@ -16,6 +16,7 @@
  */
 
 #include "BattlefieldWG.h"
+#include "Creature.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Player.h"
@@ -52,13 +53,13 @@ static std::vector<BattlefieldBuildingInfo> const wintergraspBuildingInfo =
 
 static std::vector<BattlefieldGraveyardInfo> const wintergraspGraveyardInfo =
 {
-    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_WORKSHOP_NE, 1329, GOSSIP_WINTERGRASP_GRAVEYARD_NE },
-    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_WORKSHOP_NW, 1330, GOSSIP_WINTERGRASP_GRAVEYARD_NW },
-    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_WORKSHOP_SE, 1333, GOSSIP_WINTERGRASP_GRAVEYARD_SE },
-    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_WORKSHOP_SW, 1334, GOSSIP_WINTERGRASP_GRAVEYARD_SW },
-    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_KEEP,        1285, GOSSIP_WINTERGRASP_GRAVEYARD_KEEP },
-    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_HORDE,       1331, GOSSIP_WINTERGRASP_GRAVEYARD_HORDE },
-    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARDID_ALLIANCE,    1332, GOSSIP_WINTERGRASP_GRAVEYARD_ALLIANCE }
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARD_WORKSHOP_NE, 1329, GOSSIP_WINTERGRASP_GRAVEYARD_NE },
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARD_WORKSHOP_NW, 1330, GOSSIP_WINTERGRASP_GRAVEYARD_NW },
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARD_WORKSHOP_SE, 1333, GOSSIP_WINTERGRASP_GRAVEYARD_SE },
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARD_WORKSHOP_SW, 1334, GOSSIP_WINTERGRASP_GRAVEYARD_SW },
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARD_KEEP,        1285, GOSSIP_WINTERGRASP_GRAVEYARD_KEEP },
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARD_HORDE,       1331, GOSSIP_WINTERGRASP_GRAVEYARD_HORDE },
+    { { NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE, NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE }, GRAVEYARD_ALLIANCE,    1332, GOSSIP_WINTERGRASP_GRAVEYARD_ALLIANCE }
 };
 
 BattlefieldWintergrasp::BattlefieldWintergrasp() : Battlefield(BATTLEFIELD_BATTLEID_WINTERGRASP, BATTLEFIELD_ZONEID_WINTERGRASP)
@@ -78,6 +79,36 @@ BattlefieldWintergrasp::BattlefieldWintergrasp() : Battlefield(BATTLEFIELD_BATTL
 
 BattlefieldWintergrasp::~BattlefieldWintergrasp()
 {
+}
+
+void BattlefieldWintergrasp::OnCreatureCreate(Creature* object)
+{
+    switch (object->GetEntry())
+    {
+        case NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE:
+        case NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE:
+            if (uint8 graveyardId = GetWintergraspGraveyardId(object))
+                if (BattlefieldGraveyardPointer& graveyard = GetGraveyard(graveyardId))
+                    graveyard->OnObjectCreate(object);
+            break;
+        default:
+            break;
+    }
+}
+
+void BattlefieldWintergrasp::OnCreatureRemove(Creature* object)
+{
+    switch (object->GetEntry())
+    {
+        case NPC_WINTERGRASP_TAUNKA_SPIRIT_GUIDE:
+        case NPC_WINTERGRASP_DWARVEN_SPIRIT_GUIDE:
+            if (uint8 graveyardId = GetWintergraspGraveyardId(object))
+                if (BattlefieldGraveyardPointer& graveyard = GetGraveyard(graveyardId))
+                    graveyard->OnObjectRemove(object);
+            break;
+        default:
+            break;
+    }
 }
 
 void BattlefieldWintergrasp::OnGameObjectCreate(GameObject* object)
@@ -192,6 +223,39 @@ bool BattlefieldWintergrasp::IsSpellAreaAllowed(uint32 spellId, Player const* pl
     }
 
     return true;
+}
+
+uint8 BattlefieldWintergrasp::GetWintergraspGraveyardId(Creature* creature) const
+{
+    switch (creature->GetSpawnId())
+    {
+        case 88315: // Horde base spirit
+            return GRAVEYARD_HORDE;
+        case 88321: // Alliance base spirit
+            return GRAVEYARD_ALLIANCE;
+        case 88319: // Broken Temple graveyard areaId != Broken Temple workshop areaId
+        case 88313:
+            return GRAVEYARD_WORKSHOP_NW;
+        default:
+            switch (creature->GetAreaId())
+            {
+                case AREA_WINTERGRASP_FORTRESS:
+                    return GRAVEYARD_KEEP;
+                case AREA_THE_SUNKEN_RING:
+                    return GRAVEYARD_WORKSHOP_NE;
+                case AREA_THE_BROKEN_TEMPLE:
+                    return GRAVEYARD_WORKSHOP_NW;
+                case AREA_WESTPARK_WORKSHOP:
+                    return GRAVEYARD_WORKSHOP_SW;
+                case AREA_EASTPARK_WORKSHOP:
+                    return GRAVEYARD_WORKSHOP_SE;
+                default:
+                    break;
+            }
+            break;
+    }
+
+    return 0;
 }
 
 WintergraspBuilding::WintergraspBuilding(Battlefield* battlefield, BattlefieldBuildingInfo const info) : BattlefieldBuilding(battlefield, info)

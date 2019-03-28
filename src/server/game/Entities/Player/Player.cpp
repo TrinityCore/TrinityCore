@@ -4995,7 +4995,7 @@ void Player::RepopAtGraveyard()
     else
     {
         if (Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(GetZoneId()))
-            ClosestGraveyard = battlefield->GetClosestGraveyard(this);
+            ClosestGraveyard = battlefield->GetClosestGraveyardLocation(this);
         else
             ClosestGraveyard = sObjectMgr->GetClosestGraveyard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
     }

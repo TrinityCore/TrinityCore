@@ -1709,7 +1709,7 @@ public:
             else
             {
                 if (Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(player->GetZoneId()))
-                    nearestLoc = battlefield->GetClosestGraveyard(player);
+                    nearestLoc = battlefield->GetClosestGraveyardLocation(player);
                 else
                     nearestLoc = sObjectMgr->GetClosestGraveyard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
             }

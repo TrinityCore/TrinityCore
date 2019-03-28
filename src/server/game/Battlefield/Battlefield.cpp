@@ -61,6 +61,11 @@ void Battlefield::EmplaceGraveyard(uint8 id, BattlefieldGraveyardPointer&& point
     _graveyards.emplace(id, std::move(pointer));
 }
 
+Battlefield::BattlefieldGraveyardPointer& Battlefield::GetGraveyard(uint8 graveyardId)
+{
+    return _graveyards[graveyardId];
+}
+
 PvPTeamId Battlefield::GetAttackingTeam() const
 {
     switch (GetControllingTeam())
@@ -87,7 +92,7 @@ TeamId Battlefield::GetAttackingTeamId() const
     return TeamIdByPvPTeamId(GetAttackingTeam());
 }
 
-WorldSafeLocsEntry const* Battlefield::GetClosestGraveyard(Player* /*who*/) const
+WorldSafeLocsEntry const* Battlefield::GetClosestGraveyardLocation(Player* /*who*/) const
 {
     return nullptr;
 }

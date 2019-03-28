@@ -206,15 +206,27 @@ enum WintergraspWorldstates
 
 enum WintergraspGraveyardIds : uint8
 {
-    GRAVEYARDID_WORKSHOP_NE = 0,
-    GRAVEYARDID_WORKSHOP_NW,
-    GRAVEYARDID_WORKSHOP_SE,
-    GRAVEYARDID_WORKSHOP_SW,
-    GRAVEYARDID_KEEP,
-    GRAVEYARDID_HORDE,
-    GRAVEYARDID_ALLIANCE
+    GRAVEYARD_WORKSHOP_NE = 0,
+    GRAVEYARD_WORKSHOP_NW,
+    GRAVEYARD_WORKSHOP_SE,
+    GRAVEYARD_WORKSHOP_SW,
+    GRAVEYARD_KEEP,
+    GRAVEYARD_HORDE,
+    GRAVEYARD_ALLIANCE
 };
 
+enum WintergraspAreaIds
+{
+    AREA_WINTERGRASP_FORTRESS = 4575,
+    AREA_THE_SUNKEN_RING = 4538,
+    AREA_THE_BROKEN_TEMPLE = 4539,
+    AREA_WESTPARK_WORKSHOP = 4611,
+    AREA_EASTPARK_WORKSHOP = 4612,
+    AREA_WINTERGRASP = 4197,
+    AREA_THE_CHILLED_QUAGMIRE = 4589
+};
+
+class Creature;
 class GameObject;
 class WorldObject;
 
@@ -254,6 +266,8 @@ public:
     explicit BattlefieldWintergrasp();
     ~BattlefieldWintergrasp();
 
+    void OnCreatureCreate(Creature* object) override;
+    void OnCreatureRemove(Creature* object) override;
     void OnGameObjectCreate(GameObject* object) override;
     void OnGameObjectRemove(GameObject* object) override;
     void SendGlobalWorldStates(Player const* player) const override;
@@ -270,6 +284,8 @@ private:
 
     BattlefieldWintergrasp(BattlefieldWintergrasp const&) = delete;
     BattlefieldWintergrasp& operator=(BattlefieldWintergrasp const&) = delete;
+
+    uint8 GetWintergraspGraveyardId(Creature* creature) const;
 
     WintergraspBuildingContainer _buildings;
 };
