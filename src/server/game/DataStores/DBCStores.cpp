@@ -561,9 +561,11 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // fill data
-    sMapDifficultyMap[MAKE_PAIR32(0, 0)] = MapDifficulty(0, 0, false);//map 0 is missing from MapDifficulty.dbc use this till its ported to sql
+    sMapDifficultyMap[MAKE_PAIR32(0, 0)] = MapDifficulty(0, 0, false); // map 0 is missing from MapDifficulty.dbc use this till its ported to sql
     for (MapDifficultyEntry const* entry : sMapDifficultyStore)
         sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] > 0);
+
+    sMapDifficultyMap.erase(MAKE_PAIR32(189, 1)); // Scarlet Monastry has a incorrect heroic entry so we drop it
 
     for (NameGenEntry const* entry : sNameGenStore)
         sGenNameVectoArraysMap[entry->race].stringVectorArray[entry->gender].push_back(std::string(entry->name));

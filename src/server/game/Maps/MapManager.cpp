@@ -150,34 +150,40 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
 Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck)
 {
     MapEntry const* entry = sMapStore.LookupEntry(mapid);
+
+    // No entry found in Map.dbc
     if (!entry)
         return Map::CANNOT_ENTER_NO_ENTRY;
 
+    // Non-instanced maps can always be entered
     if (!entry->IsDungeon())
         return Map::CAN_ENTER;
 
     InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapid);
+
+    // Cannot enter instance maps when no instance_template entry is present
     if (!instance)
         return Map::CANNOT_ENTER_UNINSTANCED_DUNGEON;
 
-    Difficulty targetDifficulty, requestedDifficulty;
-    targetDifficulty = requestedDifficulty = player->GetDifficulty(entry->IsRaid());
-    // Get the highest available difficulty if current setting is higher than the instance allows
+    // Cannot enter instance if MapDifficulty data for highest available difficulty does not exist
+    Difficulty targetDifficulty = player->GetDifficulty(entry->IsRaid());
     MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(entry->ID, targetDifficulty);
     if (!mapDiff)
         return Map::CANNOT_ENTER_DIFFICULTY_UNAVAILABLE;
 
-    //Bypass checks for GMs
+    // Game Masters can always enter
     if (player->IsGameMaster())
         return Map::CAN_ENTER;
 
     char const* mapName = entry->Name;
-
     Group* group = player->GetGroup();
-    if (entry->IsRaid()) // can only enter in a raid group
+
+    // Cannot enter raid maps when not in a raid-group. Ignore rule when CONFIG_INSTANCE_IGNORE_RAID = true
+    if (entry->IsRaid())
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
             return Map::CANNOT_ENTER_NOT_IN_RAID;
 
+    // Cannot enter instance if player's corpse is in a different instance
     if (!player->IsAlive())
     {
         if (player->HasCorpse())
@@ -202,7 +208,7 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
             TC_LOG_DEBUG("maps", "Map::CanPlayerEnter - player '%s' is dead but does not have a corpse!", player->GetName().c_str());
     }
 
-    //Get instance where player's group is bound & its map
+    // Get instance where player's group is bound & its map
     if (!loginCheck && group)
     {
         InstanceGroupBind* boundInstance = group->GetBoundInstance(entry);
@@ -212,7 +218,7 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
                     return denyReason;
     }
 
-    // players are only allowed to enter 5 instances per hour
+    // Players are only allowed to enter 5 instances per hour
     if (entry->IsDungeon() && (!player->GetGroup() || (player->GetGroup() && !player->GetGroup()->isLFGGroup())))
     {
         uint32 instanceIdToCheck = 0;
@@ -224,7 +230,7 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
             return Map::CANNOT_ENTER_TOO_MANY_INSTANCES;
     }
 
-    //Other requirements
+    // Other requirements
     if (player->Satisfy(sObjectMgr->GetAccessRequirement(mapid, targetDifficulty), mapid, true))
         return Map::CAN_ENTER;
     else

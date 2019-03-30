@@ -447,18 +447,19 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         enum EnterState
         {
             CAN_ENTER = 0,
-            CANNOT_ENTER_ALREADY_IN_MAP = 1, // Player is already in the map
-            CANNOT_ENTER_NO_ENTRY, // No map entry was found for the target map ID
-            CANNOT_ENTER_UNINSTANCED_DUNGEON, // No instance template was found for dungeon map
-            CANNOT_ENTER_DIFFICULTY_UNAVAILABLE, // Requested instance difficulty is not available for target map
-            CANNOT_ENTER_NOT_IN_RAID, // Target instance is a raid instance and the player is not in a raid group
-            CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE, // Player is dead and their corpse is not in target instance
-            CANNOT_ENTER_INSTANCE_BIND_MISMATCH, // Player's permanent instance save is not compatible with their group's current instance bind
-            CANNOT_ENTER_TOO_MANY_INSTANCES, // Player has entered too many instances recently
-            CANNOT_ENTER_MAX_PLAYERS, // Target map already has the maximum number of players allowed
-            CANNOT_ENTER_ZONE_IN_COMBAT, // A boss encounter is currently in progress on the target map
+            CANNOT_ENTER_ALREADY_IN_MAP = 1,            // Player is already in the map
+            CANNOT_ENTER_NO_ENTRY,                      // No map entry was found for the target map ID
+            CANNOT_ENTER_UNINSTANCED_DUNGEON,           // No instance template was found for dungeon map
+            CANNOT_ENTER_DIFFICULTY_UNAVAILABLE,        // Requested instance difficulty is not available for target map
+            CANNOT_ENTER_NOT_IN_RAID,                   // Target instance is a raid instance and the player is not in a raid group
+            CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE,  // Player is dead and their corpse is not in target instance
+            CANNOT_ENTER_INSTANCE_BIND_MISMATCH,        // Player's permanent instance save is not compatible with their group's current instance bind
+            CANNOT_ENTER_TOO_MANY_INSTANCES,            // Player has entered too many instances recently
+            CANNOT_ENTER_MAX_PLAYERS,                   // Target map already has the maximum number of players allowed
+            CANNOT_ENTER_ZONE_IN_COMBAT,                // A boss encounter is currently in progress on the target map
             CANNOT_ENTER_UNSPECIFIED_REASON
         };
+
         virtual EnterState CannotEnter(Player* /*player*/) { return CAN_ENTER; }
         char const* GetMapName() const;
 

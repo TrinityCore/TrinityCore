@@ -474,7 +474,7 @@ struct AccessRequirement
     uint32 quest_A;
     uint32 quest_H;
     uint32 achievement;
-    std::string questFailedText;
+    uint8 heroicExclusive;
 };
 
 struct BroadcastText
