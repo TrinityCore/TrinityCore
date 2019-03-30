@@ -356,7 +356,7 @@ void WorldSession::SendLfgUpdateParty(const lfg::LfgUpdateData& updateData)
     {
         case lfg::LFG_UPDATETYPE_ADDED_TO_QUEUE:                // Rolecheck Success
             queued = true;
-            // no break on purpose
+            /* fallthrough */
         case lfg::LFG_UPDATETYPE_PROPOSAL_BEGIN:
             join = true;
             break;
