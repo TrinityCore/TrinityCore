@@ -526,15 +526,18 @@ class npc_greymanes_horse : public CreatureScript
                                 {
                                     if (Creature* krennan = passenger->ToCreature())
                                     {
-                                        for (Unit* attacker : me->getAttackers())
-                                        {
-                                            if (!attacker)
-                                                continue;
+                                        std::vector<Unit*> storedAttackers;
 
+                                        for (Unit* attacker : me->getAttackers())
+                                            storedAttackers.push_back(attacker);
+
+                                        for (Unit* attacker : storedAttackers)
+                                        {
                                             if (Creature* creature = attacker->ToCreature())
                                                 if (creature->IsAIEnabled)
                                                     creature->AI()->EnterEvadeMode();
                                         }
+
                                         player->ExitVehicle();
                                         krennan->AddUnitState(UNIT_STATE_ROOT);
                                         krennan->ExitVehicle();
@@ -650,18 +653,23 @@ class npc_crowleys_horse : public CreatureScript
                             me->GetMotionMaster()->MovePath(PATH_ID_CROWLEYS_HORSE_2, false);
                             break;
                         case EVENT_DISMOUNT_PLAYER:
-                            for (Unit* attacker : me->getAttackers())
-                            {
-                                if (!attacker)
-                                    continue;
+                        {
+                            std::vector<Unit*> storedAttackers;
 
+                            for (Unit* attacker : me->getAttackers())
+                                storedAttackers.push_back(attacker);
+
+                            for (Unit* attacker : storedAttackers)
+                            {
                                 if (Creature* creature = attacker->ToCreature())
                                     if (creature->IsAIEnabled)
                                         creature->AI()->EnterEvadeMode();
                             }
+
                             me->RemoveAurasDueToSpell(VEHICLE_SPELL_RIDE_HARDCODED);
                             me->DespawnOrUnsummon(Seconds(5));
                             break;
+                        }
                         case EVENT_MOVE_OFF_PATH:
                             me->SetControlled(false, UNIT_STATE_ROOT);
                             _currentPath = PATH_ID_CROWLEYS_HORSE_3;
