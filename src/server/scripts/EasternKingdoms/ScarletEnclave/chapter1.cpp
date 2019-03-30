@@ -929,7 +929,9 @@ struct spell_gift_of_the_harvester : public SpellScript
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         uint32 spellId = RAND(SPELL_MINER_GHOUL_TRANSFORM, SPELL_MINER_GHOST_TRANSFORM);
-        GetCaster()->CastSpell(GetHitUnit(), spellId, true);
+
+        if (GameObject* caster = GetGObjCaster())
+            caster->CastSpell(GetHitUnit(), spellId, true);
     }
 
     void Register() override
