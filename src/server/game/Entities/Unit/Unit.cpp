@@ -6727,7 +6727,7 @@ float Unit::SpellCritChanceTaken(Unit const* caster, Spell* spell, AuraEffect co
         }
         case SPELL_DAMAGE_CLASS_MELEE:
 
-        /// Intentional fallback. Calculate critical strike chance for both Ranged and Melee spells
+        /* fallthrough - Calculate critical strike chance for both Ranged and Melee spells*/
         case SPELL_DAMAGE_CLASS_RANGED:
             if (caster)
                 crit_chance = GetUnitCriticalChanceTaken(caster, attackType, crit_chance);

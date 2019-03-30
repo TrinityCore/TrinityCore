@@ -149,6 +149,8 @@ class boss_shattered_executioner : public CreatureScript
                             /* fallthrough */
                         case 1:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_3);
+                            /* fallthrough */
+                        default:
                             break;
                     }
                 }

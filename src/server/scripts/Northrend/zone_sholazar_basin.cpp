@@ -534,7 +534,7 @@ public:
                         break;
                     }
                 }
-                    /* fallthrough */
+                /* fallthrough */
                 case EVENT_MISS:
                 {
                     shooter->CastSpell(wilhelm, SPELL_MISS_APPLE);
