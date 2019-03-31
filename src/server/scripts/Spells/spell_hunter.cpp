@@ -55,6 +55,7 @@ enum HunterSpells
     SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
     SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN        = 90967,
     SPELL_HUNTER_LOCK_AND_LOAD                      = 56453,
+    SPELL_HUNTER_MARKED_FOR_DEATH_TRIGGERED         = 88691,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
     SPELL_HUNTER_MULTISHOT                          = 2643,
@@ -1663,6 +1664,34 @@ class spell_hun_camouflage_triggered : public AuraScript
     }
 };
 
+// -53241 - Marked for Death
+class spell_hun_marked_for_death : public AuraScript
+{
+    PrepareAuraScript(spell_hun_marked_for_death);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_MARKED_FOR_DEATH_TRIGGERED });
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return (roll_chance_i(GetEffect(EFFECT_0)->GetAmount()));
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_HUNTER_MARKED_FOR_DEATH_TRIGGERED, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_hun_marked_for_death::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_hun_marked_for_death::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_ancient_hysteria();
@@ -1680,6 +1709,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_invigoration();
     new spell_hun_last_stand_pet();
     new spell_hun_lock_and_load();
+    RegisterAuraScript(spell_hun_marked_for_death);
     new spell_hun_master_marksman();
     new spell_hun_masters_call();
     new spell_hun_misdirection();
