@@ -40,6 +40,9 @@ enum HunterSpells
     SPELL_HUNTER_CALL_PET_3                         = 83243,
     SPELL_HUNTER_CALL_PET_4                         = 83244,
     SPELL_HUNTER_CALL_PET_5                         = 83245,
+    SPELL_HUNTER_CAMOUFLAGE_DURATION                = 51755,
+    SPELL_HUNTER_CAMOUFLAGE_PERIODIC                = 80326,
+    SPELL_HUNTER_CAMOUFLAGE_PERIODIC_TRIGGERED      = 80326,
     SPELL_HUNTER_CHIMERA_SHOT                       = 53209,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
     SPELL_HUNTER_FIRE                               = 82926,
@@ -50,6 +53,7 @@ enum HunterSpells
     SPELL_HUNTER_IMPROVED_SERPENT_STING_R2          = 82834,
     SPELL_HUNTER_INSANITY                           = 95809,
     SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
+    SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN        = 90967,
     SPELL_HUNTER_LOCK_AND_LOAD                      = 56453,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
@@ -1519,7 +1523,143 @@ class spell_hun_trap_launcher : public AuraScript
     void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_hun_trap_launcher::AfterApply, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED, AURA_EFFECT_HANDLE_REAL);
-        AfterEffectApply += AuraEffectApplyFn(spell_hun_trap_launcher::AfterRemove, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hun_trap_launcher::AfterRemove, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 63067 - Glyph of Kill Shot
+class spell_hun_glyph_of_kill_shot : public AuraScript
+{
+    PrepareAuraScript(spell_hun_glyph_of_kill_shot);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN });
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return (!GetTarget()->HasAura(SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN));
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        Unit* victim = eventInfo.GetProcTarget();
+        if (!victim)
+            return;
+
+        uint32 spellId = 0;
+        if (SpellInfo const* spell = eventInfo.GetSpellInfo())
+            spellId = spell->Id;
+
+        if (!victim->isDead() && spellId)
+        {
+            GetTarget()->GetSpellHistory()->ResetCooldown(spellId, true);
+            GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN, true, nullptr, aurEff);
+        }
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_hun_glyph_of_kill_shot::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_hun_glyph_of_kill_shot::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 51753 - Camouflage
+class spell_hun_camouflage : public SpellScript
+{
+    PrepareSpellScript(spell_hun_camouflage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_CAMOUFLAGE_DURATION });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            caster->CastSpell(caster, SPELL_HUNTER_CAMOUFLAGE_DURATION, true);
+
+            if (Player* player = caster->ToPlayer())
+                if (Pet* pet = player->GetPet())
+                    pet->CastSpell(pet, SPELL_HUNTER_CAMOUFLAGE_DURATION, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_camouflage::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 51755 - Camouflage
+class spell_hun_camouflage_duration : public AuraScript
+{
+    PrepareAuraScript(spell_hun_camouflage_duration);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HUNTER_CAMOUFLAGE_PERIODIC,
+                SPELL_HUNTER_CAMOUFLAGE_PERIODIC_TRIGGERED
+            });
+    }
+
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_CAMOUFLAGE_PERIODIC, true, nullptr, aurEff);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_HUNTER_CAMOUFLAGE_PERIODIC);
+        GetTarget()->RemoveAurasDueToSpell(SPELL_HUNTER_CAMOUFLAGE_PERIODIC_TRIGGERED);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_camouflage_duration::AfterApply, EFFECT_0, SPELL_AURA_INTERFERE_TARGETTING, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hun_camouflage_duration::AfterRemove, EFFECT_0, SPELL_AURA_INTERFERE_TARGETTING, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 80325 - Camouflage
+class spell_hun_camouflage_triggered : public AuraScript
+{
+    PrepareAuraScript(spell_hun_camouflage_triggered);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HUNTER_CAMOUFLAGE_PERIODIC,
+                SPELL_HUNTER_CAMOUFLAGE_DURATION
+            });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_HUNTER_CAMOUFLAGE_PERIODIC);
+        GetTarget()->RemoveAurasDueToSpell(SPELL_HUNTER_CAMOUFLAGE_DURATION);
+
+        if (Player* player = GetTarget()->ToPlayer())
+        {
+            if (Pet* pet = player->GetPet())
+            {
+                pet->RemoveAurasDueToSpell(SPELL_HUNTER_CAMOUFLAGE_PERIODIC);
+                pet->RemoveAurasDueToSpell(SPELL_HUNTER_CAMOUFLAGE_DURATION);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hun_camouflage_triggered::AfterRemove, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1527,10 +1667,14 @@ void AddSC_hunter_spell_scripts()
 {
     new spell_hun_ancient_hysteria();
     new spell_hun_bombardment();
+    RegisterSpellScript(spell_hun_camouflage);
+    RegisterAuraScript(spell_hun_camouflage_duration);
+    RegisterAuraScript(spell_hun_camouflage_triggered);
     new spell_hun_chimera_shot();
     new spell_hun_cobra_shot();
     new spell_hun_disengage();
     new spell_hun_fire();
+    RegisterAuraScript(spell_hun_glyph_of_kill_shot);
     new spell_hun_improved_mend_pet();
     new spell_hun_improved_serpent_sting();
     new spell_hun_invigoration();
