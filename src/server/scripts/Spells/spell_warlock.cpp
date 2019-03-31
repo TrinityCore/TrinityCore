@@ -38,6 +38,7 @@ enum WarlockSpells
     SPELL_WARLOCK_AFTERMATH_STUN                    = 85387,
     SPELL_WARLOCK_BANE_OF_DOOM_EFFECT               = 18662,
     SPELL_WARLOCK_CREATE_HEALTHSTONE                = 34130,
+    SPELL_WARLOCK_CORRUPTION_TRIGGERED              = 87389,
     SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT              = 18662,
     SPELL_WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST         = 62388,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
@@ -55,7 +56,6 @@ enum WarlockSpells
     SPELL_WARLOCK_DRAIN_LIFE                        = 689,
     SPELL_WARLOCK_DRAIN_LIFE_HEAL                   = 89653,
     SPELL_WARLOCK_DRAIN_LIFE_SOULBURN               = 89420,
-    SPELL_WARLOCK_SOULBURN_DRAIN_LIFE               = 74434,
     SPELL_WARLOCK_FEL_ARMOR_HEAL                    = 96379,
     SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
     SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME              = 63311,
@@ -64,6 +64,7 @@ enum WarlockSpells
     SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
     SPELL_WARLOCK_HAUNT                             = 48181,
     SPELL_WARLOCK_HAUNT_HEAL                        = 48210,
+    SPELL_WARLOCK_HEALTHSTONE                       = 6262,
     SPELL_WARLOCK_IMMOLATE                          = 348,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1    = 60955,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
@@ -77,9 +78,16 @@ enum WarlockSpells
     SPELL_WARLOCK_NETHER_TALENT                     = 91713,
     SPELL_WARLOCK_RAIN_OF_FIRE                      = 42223,
     SPELL_WARLOCK_SHADOW_TRANCE                     = 17941,
-    SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED      = 27285,
+    SPELL_WARLOCK_SEARING_PAIN                      = 5676,
+    SPELL_WARLOCK_SEED_OF_CORRUPTION                = 27243,
+    SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED      = 87385,
+    SPELL_WARLOCK_SEED_OF_CORRUPTION_VISUAL         = 37826,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
     SPELL_WARLOCK_SHADOW_WARD                       = 6229,
+    SPELL_WARLOCK_SOULBURN_HEALTHSTONE              = 79437,
+    SPELL_WARLOCK_SOULBURN_DEMONIC_CIRCLE           = 79438,
+    SPELL_WARLOCK_SOULBURN_SEARING_PAIN             = 79440,
+    SPELL_WARLOCK_SOULBURN_DUMMY_SEED_OF_CORRUPTION = 93313,
     SPELL_WARLOCK_SOUL_HARVEST_ENERGIZE             = 101977,
     SPELL_WARLOCK_SOUL_SHARD                        = 87388,
     SPELL_WARLOCK_SOUL_SHARD_ENERGIZE               = 95810,
@@ -98,6 +106,7 @@ enum WarlockSpellIcons
     WARLOCK_ICON_ID_MANA_FEED                       = 1982,
 	WARLOCK_ICON_ID_DEATHS_EMBRACE                  = 3223,
 	WARLOCK_ICON_ID_SOUL_SIPHON                     = 5001,
+    WARLOCK_ICON_ID_SOULBURN_SEED_OF_CORRUPTION     = 1932
 };
 
 enum WarlockSkillIds
@@ -1028,14 +1037,30 @@ class spell_warl_seed_of_corruption : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED });
+        return ValidateSpellInfo(
+            {
+                SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED,
+                SPELL_WARLOCK_SEED_OF_CORRUPTION_VISUAL,
+                SPELL_WARLOCK_SOUL_SHARD
+            });
     }
 
     void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(GetTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, true, nullptr, aurEff);
+        {
+            caster->CastSpell(GetTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, true, nullptr, aurEff);
+            caster->CastSpell(GetTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_VISUAL, true, nullptr, aurEff);
+
+            //if (AuraEffect* dummy = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_SOULBURN_SEED_OF_CORRUPTION, EFFECT_0))
+            //    caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD, true, nullptr, aurEff);
+        }
+        // else if (AuraEffect* dummy = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_SOULBURN_SEED_OF_CORRUPTION, EFFECT_0))
+        //caster->CastSpell(target, SPELL_WARLOCK_CORRUPTION_TRIGGERED, true, nullptr, aurEff);
     }
 
     void Register() override
@@ -1446,16 +1471,8 @@ class spell_warl_drain_life : public SpellScriptLoader
                 return ValidateSpellInfo(
                     {
                         SPELL_WARLOCK_DRAIN_LIFE_HEAL,
-                        SPELL_WARLOCK_DRAIN_LIFE_SOULBURN,
-                        SPELL_WARLOCK_SOULBURN_DRAIN_LIFE
+                        SPELL_WARLOCK_DRAIN_LIFE_SOULBURN
                     });
-            }
-
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetSpellInfo()->Id == SPELL_WARLOCK_DRAIN_LIFE_SOULBURN)
-                    if (Unit* caster = GetCaster())
-                        caster->RemoveAurasDueToSpell(SPELL_WARLOCK_SOULBURN_DRAIN_LIFE);
             }
 
             void HandlePeriodic(AuraEffect const* aurEff)
@@ -1477,7 +1494,6 @@ class spell_warl_drain_life : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_warl_drain_life_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_life_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
@@ -1644,6 +1660,73 @@ class spell_warl_soul_harvest : public AuraScript
     }
 };
 
+// 74434 - Soulburn
+class spell_warl_soulburn : public AuraScript
+{
+    PrepareAuraScript(spell_warl_soulburn);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_WARLOCK_SOULBURN_HEALTHSTONE,
+                SPELL_WARLOCK_SOULBURN_SEARING_PAIN,
+                SPELL_WARLOCK_SOULBURN_DEMONIC_CIRCLE,
+                SPELL_WARLOCK_SOULBURN_DUMMY_SEED_OF_CORRUPTION,
+                SPELL_WARLOCK_HEALTHSTONE,
+                SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT,
+                SPELL_WARLOCK_SEARING_PAIN,
+                SPELL_WARLOCK_SEED_OF_CORRUPTION
+            });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(SPELL_WARLOCK_SOULBURN_DUMMY_SEED_OF_CORRUPTION);
+
+        SpellInfo const* spell = eventInfo.GetSpellInfo();
+        if (!spell)
+            return;
+
+        switch (spell->Id)
+        {
+            case SPELL_WARLOCK_HEALTHSTONE:
+                target->CastSpell(target, SPELL_WARLOCK_SOULBURN_HEALTHSTONE, true, nullptr, aurEff);
+                break;
+            case SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT:
+                target->CastSpell(target, SPELL_WARLOCK_SOULBURN_DEMONIC_CIRCLE, true, nullptr, aurEff);
+                break;
+            case SPELL_WARLOCK_SEARING_PAIN:
+                target->CastSpell(target, SPELL_WARLOCK_SOULBURN_SEARING_PAIN, true, nullptr, aurEff);
+                break;
+            case SPELL_WARLOCK_SEED_OF_CORRUPTION:
+                // todo: handle me
+                break;
+            default:
+                break;
+        }
+    }
+
+    void HandleSeedOfCorruptionDummyApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (AuraEffect* dummy = GetTarget()->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_SOULBURN_SEED_OF_CORRUPTION, EFFECT_0))
+            GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SOULBURN_DUMMY_SEED_OF_CORRUPTION);
+    }
+
+    void HandleSeedOfCorruptionDummyRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_WARLOCK_SOULBURN_DUMMY_SEED_OF_CORRUPTION);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warl_soulburn::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+        AfterEffectApply += AuraEffectApplyFn(spell_warl_soulburn::HandleSeedOfCorruptionDummyApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_warl_soulburn::HandleSeedOfCorruptionDummyRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_aftermath();
@@ -1673,6 +1756,7 @@ void AddSC_warlock_spell_scripts()
     RegisterAuraScript(spell_warl_seed_of_corruption);
     new spell_warl_shadow_trance_proc();
     new spell_warl_shadow_ward();
+    RegisterAuraScript(spell_warl_soulburn);
     RegisterAuraScript(spell_warl_soul_harvest);
     new spell_warl_soul_leech();
     new spell_warl_soul_swap();
