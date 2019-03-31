@@ -526,7 +526,15 @@ public:
         uint32 accountId;
         if (accountName)
         {
-            if (!Utf8ToUpperOnlyLatin(*accountName) || !(accountId = AccountMgr::GetId(*accountName)))
+            if (!Utf8ToUpperOnlyLatin(*accountName))
+            {
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName->c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            accountId = AccountMgr::GetId(*accountName);
+            if (!accountId)
             {
                 handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName->c_str());
                 handler->SetSentErrorMessage(true);

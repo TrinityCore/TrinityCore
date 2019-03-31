@@ -592,7 +592,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     m_cast_count = 0;
     m_glyphIndex = 0;
     m_triggeredByAuraSpell  = nullptr;
-    unitCaster = nullptr;
+    UnitCaster = nullptr;
     _spellAura = nullptr;
     _dynObjAura = nullptr;
 
@@ -4988,7 +4988,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
     itemTarget = pItemTarget;
     gameObjTarget = pGOTarget;
     destTarget = &m_destTargets[i]._position;
-    unitCaster = m_originalCaster ? m_originalCaster : m_caster->ToUnit();
+    UnitCaster = m_originalCaster ? m_originalCaster : m_caster->ToUnit();
 
     uint8 effect = m_spellInfo->Effects[i].Effect;
     ASSERT(effect < TOTAL_SPELL_EFFECTS); // checked at startup
@@ -7456,12 +7456,12 @@ void Spell::HandleLaunchPhase()
 
             if (usesAmmo && !ammoTaken)
             {
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
                 {
-                    if (!(mask & 1 << i))
+                    if (!(mask & 1 << j))
                         continue;
 
-                    switch (m_spellInfo->Effects[i].Effect)
+                    switch (m_spellInfo->Effects[j].Effect)
                     {
                         case SPELL_EFFECT_SCHOOL_DAMAGE:
                         case SPELL_EFFECT_WEAPON_DAMAGE:
