@@ -42,7 +42,7 @@ enum HunterSpells
     SPELL_HUNTER_CALL_PET_5                         = 83245,
     SPELL_HUNTER_CAMOUFLAGE_DURATION                = 51755,
     SPELL_HUNTER_CAMOUFLAGE_PERIODIC                = 80326,
-    SPELL_HUNTER_CAMOUFLAGE_PERIODIC_TRIGGERED      = 80326,
+    SPELL_HUNTER_CAMOUFLAGE_PERIODIC_TRIGGERED      = 80325,
     SPELL_HUNTER_CHIMERA_SHOT                       = 53209,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
     SPELL_HUNTER_FIRE                               = 82926,
