@@ -594,7 +594,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
             {
                 case ACTION_GATE_OPENED:
                     _gateIsOpen = true;
-                    // intentional missing break
+                    /* fallthrough */
                 case ACTION_ACQUIRE_TARGET:
                     if (Player* target = FindEligibleTarget(me, _gateIsOpen))
                     {
