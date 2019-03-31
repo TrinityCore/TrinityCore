@@ -147,52 +147,41 @@ enum MiscSpells
 };
 
 // -31571 - Arcane Potency
-class spell_mage_arcane_potency : public SpellScriptLoader
+class spell_mage_arcane_potency : public AuraScript
 {
-    public:
-        spell_mage_arcane_potency () : SpellScriptLoader("spell_mage_arcane_potency") { }
+    PrepareAuraScript(spell_mage_arcane_potency);
 
-        class spell_mage_arcane_potency_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_arcane_potency_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_MAGE_ARCANE_POTENCY_RANK_1,
-                    SPELL_MAGE_ARCANE_POTENCY_RANK_2,
-                    SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_1,
-                    SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_2
-                });
-            }
+                SPELL_MAGE_ARCANE_POTENCY_RANK_1,
+                SPELL_MAGE_ARCANE_POTENCY_RANK_2,
+                SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_1,
+                SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_2
+            });
+    }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                uint32 spellId = 0;
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        uint32 spellId = 0;
 
-                if (GetSpellInfo()->Id == SPELL_MAGE_ARCANE_POTENCY_RANK_1)
-                    spellId = SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_1;
-                else if (GetSpellInfo()->Id == SPELL_MAGE_ARCANE_POTENCY_RANK_2)
-                    spellId = SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_2;
-                if (!spellId)
-                    return;
+        if (GetSpellInfo()->Id == SPELL_MAGE_ARCANE_POTENCY_RANK_1)
+            spellId = SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_1;
+        else if (GetSpellInfo()->Id == SPELL_MAGE_ARCANE_POTENCY_RANK_2)
+            spellId = SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_2;
+        if (!spellId)
+            return;
 
-                GetTarget()->CastSpell(GetTarget(), spellId, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), spellId, true, nullptr, aurEff);
 
-            }
+    }
 
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_mage_arcane_potency_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_mage_arcane_potency_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_arcane_potency::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 enum MageSpellIcons
@@ -2158,7 +2147,7 @@ class spell_mage_fingers_of_frost_charges : public AuraScript
 
 void AddSC_mage_spell_scripts()
 {
-    new spell_mage_arcane_potency();
+    RegisterAuraScript(spell_mage_arcane_potency);
     new spell_mage_blast_wave();
     new spell_mage_blazing_speed();
     new spell_mage_blizzard();
