@@ -221,7 +221,7 @@ size_t utf8length(std::string& utf8str)
     {
         return utf8::distance(utf8str.c_str(), utf8str.c_str()+utf8str.size());
     }
-    catch(std::exception)
+    catch(std::exception const&)
     {
         utf8str.clear();
         return 0;
@@ -243,7 +243,7 @@ void utf8truncate(std::string& utf8str, size_t len)
         char* oend = utf8::utf16to8(wstr.c_str(), wstr.c_str()+wstr.size(), &utf8str[0]);
         utf8str.resize(oend-(&utf8str[0]));                 // remove unused tail
     }
-    catch(std::exception)
+    catch(std::exception const&)
     {
         utf8str.clear();
     }
@@ -258,7 +258,7 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
         wsize -= out.remaining(); // remaining unused space
         wstr[wsize] = L'\0';
     }
-    catch(std::exception)
+    catch(std::exception const&)
     {
         // Replace the converted string with an error message if there is enough space
         // Otherwise just return an empty string
@@ -290,7 +290,7 @@ bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr)
     {
         utf8::utf8to16(utf8str.c_str(), utf8str.c_str()+utf8str.size(), std::back_inserter(wstr));
     }
-    catch(std::exception)
+    catch(std::exception const&)
     {
         wstr.clear();
         return false;
@@ -313,7 +313,7 @@ bool WStrToUtf8(wchar_t* wstr, size_t size, std::string& utf8str)
         }
         utf8str = utf8str2;
     }
-    catch(std::exception)
+    catch(std::exception const&)
     {
         utf8str.clear();
         return false;
@@ -336,7 +336,7 @@ bool WStrToUtf8(std::wstring const& wstr, std::string& utf8str)
         }
         utf8str = utf8str2;
     }
-    catch(std::exception)
+    catch(std::exception const&)
     {
         utf8str.clear();
         return false;
