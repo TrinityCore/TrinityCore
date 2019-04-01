@@ -194,19 +194,6 @@ class TC_SHARED_API ByteBuffer
             return value;
         }
 
-        // Reads a byte (if needed) in-place
-        void ReadByteSeq(uint8& b)
-        {
-            if (b != 0)
-                b ^= read<uint8>();
-        }
-
-        void WriteByteSeq(uint8 b)
-        {
-            if (b != 0)
-                append<uint8>(b ^ 1);
-        }
-
         template <typename T>
         void put(std::size_t pos, T value)
         {
