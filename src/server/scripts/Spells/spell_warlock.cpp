@@ -1468,11 +1468,7 @@ class spell_warl_drain_life : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) 
             {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_WARLOCK_DRAIN_LIFE_HEAL,
-                        SPELL_WARLOCK_DRAIN_LIFE_SOULBURN
-                    });
+                return ValidateSpellInfo({ SPELL_WARLOCK_DRAIN_LIFE_HEAL });
             }
 
             void HandlePeriodic(AuraEffect const* aurEff)
