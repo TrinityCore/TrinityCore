@@ -7025,6 +7025,20 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
             }
         }
 
+        // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
+        AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
+        for (AuraEffect const* aurEff : mSpellPowerPct)
+        {
+            int32 spellGroupVal = GetHighestExclusiveSameEffectSpellGroupValue(aurEff, SPELL_AURA_MOD_SPELL_POWER_PCT);
+            if (abs(spellGroupVal) >= abs(aurEff->GetAmount()))
+            {
+                AddPct(DoneAdvertisedBenefit, spellGroupVal);
+                break;
+            }
+            else
+                AddPct(DoneAdvertisedBenefit, aurEff->GetAmount());
+        }
+
         // ... and attack power
         DoneAdvertisedBenefit += static_cast<int32>(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER, schoolMask)));
     }
@@ -7675,6 +7689,20 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
             // stat used dependent from misc value (stat index)
             Stats usedStat = Stats((*i)->GetSpellInfo()->Effects[(*i)->GetEffIndex()].MiscValue);
             advertisedBenefit += int32(CalculatePct(GetStat(usedStat), (*i)->GetAmount()));
+        }
+
+        // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
+        AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
+        for (AuraEffect const* aurEff : mSpellPowerPct)
+        {
+            int32 spellGroupVal = GetHighestExclusiveSameEffectSpellGroupValue(aurEff, SPELL_AURA_MOD_SPELL_POWER_PCT);
+            if (abs(spellGroupVal) >= abs(aurEff->GetAmount()))
+            {
+                AddPct(advertisedBenefit, spellGroupVal);
+                break;
+            }
+            else
+                AddPct(advertisedBenefit, aurEff->GetAmount());
         }
 
         // ... and attack power
