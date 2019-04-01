@@ -2066,11 +2066,11 @@ GM.StartLevel = 1
 
 #
 #    GM.AllowAchievements
-#        Description: Allow GM accounts to have achievements.
+#        Description: Allow GM accounts to earn achievements when .gm off is disabled.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-GM.AllowAchievements = 1
+GM.AllowAchievements = 0
 
 #
 #    GM.AllowInvite
