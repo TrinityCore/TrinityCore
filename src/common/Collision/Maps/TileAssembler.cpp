@@ -353,7 +353,10 @@ namespace VMAP
 
         char ident[8];
         if (fread(ident, 1, 8, model_list) != 8 || memcmp(ident, VMAP::RAW_VMAP_MAGIC, 8) != 0)
+        {
+            fclose(model_list);
             return;
+        }
 
         FILE* model_list_copy = fopen((iDestDir + "/" + GAMEOBJECT_MODELS).c_str(), "wb");
         if (!model_list_copy)
