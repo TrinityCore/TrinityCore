@@ -67,7 +67,7 @@ public:
     void Reset() override
     {
         // DoCastSelf doesn't add aura after reset
-        me->AddAura(SPELL_UNHOLY_AURA, me);
+        DoCastSelf(SPELL_UNHOLY_AURA, true);
 
         // needed until re-write of instance scripts is done
         if (instance->GetData(TYPE_RAMSTEIN) == DONE)
@@ -154,20 +154,24 @@ private:
     bool RaiseDead;
 };
 
-// Death Pact 3 (17472) needs to be casted by the skeletons
-struct npc_summoned_skeleton : public ScriptedAI
+class spell_rivendare_death_pact_2 : public SpellScript
 {
-    npc_summoned_skeleton(Creature* creature) : ScriptedAI(creature) { }
+    PrepareSpellScript(spell_rivendare_death_pact_2);
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void OnHit(SpellEffIndex /*effIndex*/)
     {
-        if (spell->Id == SPELL_DEATH_PACT_2)
-            DoCastSelf(SPELL_DEATH_PACT_3, true);
+        Unit* sceleton = GetCaster()->GetVictim();
+        sceleton->CastSpell(sceleton, SPELL_DEATH_PACT_3, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rivendare_death_pact_2::OnHit, EFFECT_0, SPELL_SCRIPT_HOOK_EFFECT_HIT);
     }
 };
 
 void AddSC_boss_baron_rivendare()
 {
     RegisterStratholmeCreatureAI(boss_baron_rivendare);
-    RegisterStratholmeCreatureAI(npc_summoned_skeleton);
+    RegisterSpellScript(spell_rivendare_death_pact_2);
 }

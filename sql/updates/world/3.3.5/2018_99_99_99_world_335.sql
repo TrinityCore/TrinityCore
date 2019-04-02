@@ -20,5 +20,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 17698, 0, 0, 31, 0, 3, 11197, 0, 0, 0, 0, 'Baron Rivendare (Stratholme) - Death Pact (Heal)'),
 (13, 1, 17471, 0, 0, 31, 0, 3, 11197, 0, 0, 0, 0, 'Baron Rivendare (Stratholme) - Death Pact (Periodic aura)');
 
--- Baron Rivendare (Stratholme) - Skeletons should die after beeing affected by Death Pact
-UPDATE `creature_template` SET `ScriptName` = 'npc_summoned_skeleton' WHERE `entry` = 11197;
+-- Baron Rivendare (Stratholme) - Death Pact
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+('17471', 'spell_rivendare_death_pact_2');
