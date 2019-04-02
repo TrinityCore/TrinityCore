@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,9 +66,6 @@ public:
 
     void Reset() override
     {
-        // DoCastSelf doesn't add aura after reset
-        DoCastSelf(SPELL_UNHOLY_AURA, true);
-
         // needed until re-write of instance scripts is done
         if (instance->GetData(TYPE_RAMSTEIN) == DONE)
             instance->SetData(TYPE_BARON, NOT_STARTED);
@@ -101,6 +98,8 @@ public:
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
+            if (!me->HasAura(SPELL_UNHOLY_AURA))
+                DoCastSelf(SPELL_UNHOLY_AURA);
             return;
 
         events.Update(diff);
@@ -154,24 +153,20 @@ private:
     bool RaiseDead;
 };
 
-class spell_rivendare_death_pact_2 : public SpellScript
+// Death Pact 3 (17472) needs to be casted by the skeletons
+struct npc_summoned_skeleton : public ScriptedAI
 {
-    PrepareSpellScript(spell_rivendare_death_pact_2);
+    npc_summoned_skeleton(Creature* creature) : ScriptedAI(creature) { }
 
-    void OnHit(SpellEffIndex /*effIndex*/)
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {
-        Unit* sceleton = GetCaster()->GetVictim();
-        sceleton->CastSpell(sceleton, SPELL_DEATH_PACT_3, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_rivendare_death_pact_2::OnHit, EFFECT_0, SPELL_SCRIPT_HOOK_EFFECT_HIT);
+        if (spell->Id == SPELL_DEATH_PACT_2)
+            DoCastSelf(SPELL_DEATH_PACT_3, true);
     }
 };
 
 void AddSC_boss_baron_rivendare()
 {
     RegisterStratholmeCreatureAI(boss_baron_rivendare);
-    RegisterSpellScript(spell_rivendare_death_pact_2);
+    RegisterStratholmeCreatureAI(npc_summoned_skeleton);
 }
