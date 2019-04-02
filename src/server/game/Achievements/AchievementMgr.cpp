@@ -511,7 +511,6 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaCondition condi
 {
     TC_LOG_DEBUG("achievement", "AchievementMgr::ResetAchievementCriteria(%u, %u, %u)", condition, value, evenIfCriteriaComplete);
 
-    // disable for gamemasters with GM-mode enabled or when achievements for GM are disabled
     if (!CanEarnAchievement(m_player))
         return;
 
@@ -758,7 +757,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
         return;
     }
 
-    // disable for gamemasters with GM-mode enabled or when achievements for GM are disabled
     if (!CanEarnAchievement(m_player))
     {
         TC_LOG_DEBUG("achievement", "UpdateAchievementCriteria: [Player %s GM mode on] %s, %s (%u), %u, %u"
@@ -2005,6 +2003,7 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
 
 bool AchievementMgr::CanEarnAchievement(Player const* player) const
 {
+    // disable for gamemasters with GM-mode enabled or when achievements for GM are disabled
     return !(player->IsGameMaster() || (player->CanBeGameMaster() && !sWorld->getBoolConfig(CONFIG_ALLOW_GM_ACHIEVEMENTS)));
 }
 
