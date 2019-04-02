@@ -1509,7 +1509,6 @@ void AchievementMgr::RemoveTimedAchievement(AchievementCriteriaTimedTypes type, 
 
 void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 {
-    // disable for gamemasters with GM-mode enabled or when achievements for GM are disabled
     if (!CanEarnAchievement(m_player))
         return;
 
