@@ -44,7 +44,7 @@ DELETE FROM `quest_template_addon` WHERE `ID` IN (1011);
 UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 1011 WHERE `ID`=4581;
 
 -- Carendin Summons
-UPDATE `quest_template` SET `AllowableRaces` = 690 WHERE `Id` = 10605;
+UPDATE `quest_template` SET `AllowableRaces` = 512 WHERE `Id` = 10605;
 UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 1472 WHERE `ID`=10605;
 
 -- To Winterspring! & Starfall
