@@ -36,7 +36,7 @@ namespace
 {
     struct DisableData
     {
-        uint8 flags;
+        uint16 flags;
         std::set<uint32> params[2];                             // params0, params1
     };
 
@@ -311,7 +311,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
     {
         case DISABLE_TYPE_SPELL:
         {
-            uint8 spellFlags = itr->second.flags;
+            uint16 spellFlags = itr->second.flags;
             if (ref)
             {
                 if ((ref->GetTypeId() == TYPEID_PLAYER && (spellFlags & SPELL_DISABLE_PLAYER)) ||
