@@ -38,6 +38,10 @@ class WorldPacket : public ByteBuffer
         {
         }
 
+        WorldPacket(WorldPacket&& packet, uint32  recvdTime) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), m_recvdTime(recvdTime)
+        {
+        }
+
         WorldPacket(WorldPacket const& right) : ByteBuffer(right), m_opcode(right.m_opcode)
         {
         }
@@ -76,8 +80,11 @@ class WorldPacket : public ByteBuffer
         uint16 GetOpcode() const { return m_opcode; }
         void SetOpcode(uint16 opcode) { m_opcode = opcode; }
 
+        uint32 GetReceivedTime() const { return m_recvdTime; }
+
     protected:
         uint16 m_opcode;
+        uint32 m_recvdTime; // only set for a specific set of opcodes, for performance reasons.
 };
 
 #endif
