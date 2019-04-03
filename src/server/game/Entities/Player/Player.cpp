@@ -15455,8 +15455,12 @@ bool Player::SatisfyQuestBreadcrumbQuest(Quest const* qInfo, bool msg) const
 {
     uint32 breadcrumbTargetQuestId = std::abs(qInfo->GetBreadcrumbForQuestId());
 
-    // If this is a breadcrumb quest and the target quest has already been accepted or rewarded, return false.
-    if (breadcrumbTargetQuestId && GetQuestStatus(breadcrumbTargetQuestId) != QUEST_STATUS_NONE)
+    //If this is not a breadcrumb quest.
+    if (!breadcrumbTargetQuestId)
+        return true;
+
+    // If the target quest has already been accepted or rewarded.
+    if (GetQuestStatus(breadcrumbTargetQuestId) != QUEST_STATUS_NONE)
     {
         if (msg)
         {
@@ -15468,7 +15472,8 @@ bool Player::SatisfyQuestBreadcrumbQuest(Quest const* qInfo, bool msg) const
         return false;
     }
 
-    return true;
+    //Check if the target quest is locked behind an exclusive group.
+    return SatisfyQuestExclusiveGroup(sObjectMgr->GetQuestTemplate(breadcrumbTargetQuestId), msg);
 }
 
 bool Player::SatisfyQuestDependentBreadcrumbQuests(Quest const* qInfo, bool msg) const
