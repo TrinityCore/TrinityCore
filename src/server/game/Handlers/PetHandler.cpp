@@ -643,21 +643,21 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPackets::Pet::PetSpellAutoc
         if (controlled->GetEntry() == pet->GetEntry() && controlled->IsAlive())
             pets.push_back(controlled);
 
-    for (Unit* pet : pets)
+    for (Unit* petControlled : pets)
     {
         // do not add not learned spells/ passive spells
-        if (!pet->HasSpell(packet.SpellID) || !spellInfo->IsAutocastable())
+        if (!petControlled->HasSpell(packet.SpellID) || !spellInfo->IsAutocastable())
             return;
 
-        CharmInfo* charmInfo = pet->GetCharmInfo();
+        CharmInfo* charmInfo = petControlled->GetCharmInfo();
         if (!charmInfo)
         {
-            TC_LOG_ERROR("entities.pet", "WorldSession::HandlePetSpellAutocastOpcode: object (%s) is considered pet-like but doesn't have a charminfo!", pet->GetGUID().ToString().c_str());
+            TC_LOG_ERROR("entities.pet", "WorldSession::HandlePetSpellAutocastOpcode: object (%s) is considered pet-like but doesn't have a charminfo!", petControlled->GetGUID().ToString().c_str());
             return;
         }
 
-        if (pet->IsPet())
-            pet->ToPet()->ToggleAutocast(spellInfo, packet.AutocastEnabled);
+        if (petControlled->IsPet())
+            petControlled->ToPet()->ToggleAutocast(spellInfo, packet.AutocastEnabled);
         else
             charmInfo->ToggleCreatureAutocast(spellInfo, packet.AutocastEnabled);
 

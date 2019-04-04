@@ -984,8 +984,8 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
         if (!dungeons.empty())
         {
             uint32 rDungeonId = (*dungeons.begin());
-            LFGDungeonData const* dungeon = GetLFGDungeon(rDungeonId);
-            if (dungeon && dungeon->type == LFG_TYPE_RANDOM)
+            LFGDungeonData const* dungeonEntry = GetLFGDungeon(rDungeonId);
+            if (dungeonEntry && dungeonEntry->type == LFG_TYPE_RANDOM)
                 player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
         }
     }
