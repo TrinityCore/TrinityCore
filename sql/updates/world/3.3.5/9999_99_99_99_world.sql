@@ -270,8 +270,47 @@ INSERT INTO `quest_template_addon` (`ID`,`BreadcrumbForQuestId`) VALUES (4324, 4
 DELETE FROM `quest_template_addon` WHERE `ID` IN (9609);
 INSERT INTO `quest_template_addon` (`ID`,`BreadcrumbForQuestId`) VALUES (9609, 1396);
 
+-- Taking a Stand
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 12503 WHERE `Id` IN (12795);
+UPDATE `quest_template_addon` SET `PrevQuestID` = 0 WHERE `ID` IN (12503, 12596);
+
+-- The Exiles of Ulduar
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 12930 WHERE `Id` IN (12885);
+
+-- Assist Exarch Orelis
+UPDATE `quest_template_addon` SET `PrevQuestID` = 0 WHERE `ID` = 10241;
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 10241 WHERE `ID` = 11038;
+
+-- Off To Area 52 / Out of This World Produce! / A Strange Vision / Parts for the Rocket-Chief / A Mystifying Vision
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 10186 WHERE `ID` IN (10183, 11036, 11037, 11040, 11042);
+
+-- Horde Warlock Voidwalker questlines
+UPDATE `quest_template_addon` SET `NextQuestId` = 0, `ExclusiveGroup` = 0 WHERE `ID` IN (10789,1478,1473,1471,10790,1506,1501,1504,10788,9529,9619);
+UPDATE `quest_template_addon` SET `PrevQuestId` = 1473 WHERE `ID` = 1471;
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 1473 WHERE `ID` IN (10789, 1478);
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 1501 WHERE `ID` IN (10790, 1506);
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 9529 WHERE `ID` IN (10788);
+
+-- Horde Mage level 10 quests
+-- Speak with Anastasia (1881) b-> The Balnir Farmstead (1882)
+-- Speak with Un'thuwa (1883) b-> Ju-Ju Heaps (1884)
+-- Fetch! (9402) -> The Purest Water (9403) -> Recently Living (9404)
+UPDATE `quest_template_addon` SET `NextQuestId` = 0, `ExclusiveGroup` = 0 WHERE `ID` IN (1881,1883,9402);
+UPDATE `quest_template_addon` SET `PrevQuestId` = 0 WHERE `ID` IN (1884);
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 1882 WHERE `ID` IN (1881);
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 1884 WHERE `ID` IN (1883);
+UPDATE `quest_template_addon` SET `ExclusiveGroup` = 1882 WHERE `ID` IN (1882,1884,9402);
+
+-- Alliance Mage level 10 quests
+-- Speak with Jennea (1860) b-> Mirror Lake (1861)
+-- Speak with Bink (1879) b-> Mage-tastic Gizmonitor (1880)
+-- Control (9595)
+UPDATE `quest_template` SET `AllowableRaces` = 1101  WHERE `Id` = 1861;
+UPDATE `quest_template_addon` SET `NextQuestId` = 0, `ExclusiveGroup` = 0 WHERE `ID` IN (1860,1879);
+UPDATE `quest_template_addon` SET `PrevQuestId` = 0 WHERE `ID` IN (1880);
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 1861 WHERE `ID` IN (1860);
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 1880 WHERE `ID` IN (1879);
+UPDATE `quest_template_addon` SET `NextQuestId` = 0, `ExclusiveGroup` = 1861 WHERE `ID` IN (1861,1880,9595);
+
 -- TODO
 -- SI:7 / Erion's Behest / Kingly Shakedown
--- Halgar's Summons
--- Speak with Un'thuwa
--- To Hulfdan!
