@@ -21,4 +21,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 17471, 0, 0, 31, 0, 3, 11197, 0, 0, 0, 0, 'Baron Rivendare (Stratholme) - Death Pact (Periodic aura)');
 
 -- Baron Rivendare (Stratholme) - Skeletons should die after beeing affected by Death Pact
-UPDATE `creature_template` SET `ScriptName` = 'npc_summoned_skeleton' WHERE `entry` = 11197; 
+UPDATE `creature_template` SET `ScriptName` = 'npc_summoned_skeleton' WHERE `entry` = 11197;
+
+-- Baron Rivendare (Stratholme) - Adding Unholy Aura
+DELETE FROM `creature_addon` WHERE `guid` IN (54241);
+UPDATE `creature_template_addon` SET `auras`= 17467 WHERE `entry` IN (10440);

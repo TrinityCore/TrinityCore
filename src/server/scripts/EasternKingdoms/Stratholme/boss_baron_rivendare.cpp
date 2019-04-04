@@ -98,11 +98,7 @@ public:
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
-        {
-            if (!me->HasAura(SPELL_UNHOLY_AURA))
-                DoCastSelf(SPELL_UNHOLY_AURA);
             return;
-        }
 
         events.Update(diff);
 
