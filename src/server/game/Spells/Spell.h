@@ -618,7 +618,7 @@ class TC_GAME_API Spell
         SpellMissInfo targetMissInfo;
         SpellEffectHandleMode effectHandleMode;
         // used in effects handlers
-        Unit* UnitCaster;
+        Unit* unitCaster;
         UnitAura* _spellAura;
         DynObjAura* _dynObjAura;
 

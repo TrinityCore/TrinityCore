@@ -592,7 +592,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     m_cast_count = 0;
     m_glyphIndex = 0;
     m_triggeredByAuraSpell  = nullptr;
-    UnitCaster = nullptr;
+    unitCaster = nullptr;
     _spellAura = nullptr;
     _dynObjAura = nullptr;
 
@@ -4988,7 +4988,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
     itemTarget = pItemTarget;
     gameObjTarget = pGOTarget;
     destTarget = &m_destTargets[i]._position;
-    UnitCaster = m_originalCaster ? m_originalCaster : m_caster->ToUnit();
+    unitCaster = m_originalCaster ? m_originalCaster : m_caster->ToUnit();
 
     uint8 effect = m_spellInfo->Effects[i].Effect;
     ASSERT(effect < TOTAL_SPELL_EFFECTS); // checked at startup
