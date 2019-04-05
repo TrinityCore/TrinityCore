@@ -365,8 +365,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
 
     /* process position-change */
     WorldPacket data(opcode, recvData.size());
-    int64 movementTime = (int64) movementInfo.time + timeSyncClockDelta;
-    if (timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
+    int64 movementTime = (int64) movementInfo.time + _timeSyncClockDelta;
+    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
     {
         TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
         movementInfo.time = GameTime::GetGameTimeMS();
@@ -653,11 +653,11 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     uint32 counter, clientTimestamp;
     recvData >> counter >> clientTimestamp;
 
-    if (pendingTimeSyncRequests.count(counter) == 0)
+    if (_pendingTimeSyncRequests.count(counter) == 0)
         return;
 
-    uint32 serverTimeAtSent = pendingTimeSyncRequests.at(counter);
-    pendingTimeSyncRequests.erase(counter);
+    uint32 serverTimeAtSent = _pendingTimeSyncRequests.at(counter);
+    _pendingTimeSyncRequests.erase(counter);
 
     // time it took for the request to travel to the client, for the client to process it and reply and for response to travel back to the server.
     // we are going to make 2 assumptions:
@@ -677,7 +677,7 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     serverTime = clockDelta + clientTime
     */
     int64 clockDelta = (int64)(serverTimeAtSent + lagDelay) - (int64)clientTimestamp;
-    timeSyncClockDeltaQueue.push_back(std::pair<int64, uint32>(clockDelta, roundTripDuration));
+    _timeSyncClockDeltaQueue.push_back(std::pair<int64, uint32>(clockDelta, roundTripDuration));
     ComputeNewClockDelta();
 }
 
@@ -690,7 +690,7 @@ void WorldSession::ComputeNewClockDelta()
 
     accumulator_set<uint32, features<tag::mean, tag::median, tag::variance(lazy)> > latencyAccumulator;
 
-    for (auto pair : timeSyncClockDeltaQueue)
+    for (auto pair : _timeSyncClockDeltaQueue)
         latencyAccumulator(pair.second);
 
     uint32 latencyMedian = static_cast<uint32>(std::round(median(latencyAccumulator)));
@@ -698,7 +698,7 @@ void WorldSession::ComputeNewClockDelta()
 
     accumulator_set<int64, features<tag::mean> > clockDeltasAfterFiltering;
     uint32 sampleSizeAfterFiltering = 0;
-    for (auto pair : timeSyncClockDeltaQueue)
+    for (auto pair : _timeSyncClockDeltaQueue)
     {
         if (std::fabs(pair.second - latencyMedian) <= latencyStandardDeviation) {
             clockDeltasAfterFiltering(pair.first);
@@ -709,12 +709,12 @@ void WorldSession::ComputeNewClockDelta()
     if (sampleSizeAfterFiltering != 0)
     {
         int64 meanClockDelta = static_cast<int64>(std::round(mean(clockDeltasAfterFiltering)));
-        if (std::fabs(meanClockDelta - timeSyncClockDelta) > 25)
-            timeSyncClockDelta = meanClockDelta;
+        if (std::fabs(meanClockDelta - _timeSyncClockDelta) > 25)
+            _timeSyncClockDelta = meanClockDelta;
     }
-    else if (timeSyncClockDelta == 0)
+    else if (_timeSyncClockDelta == 0)
     {
-        std::pair<int64, uint32> back = timeSyncClockDeltaQueue.back();
-        timeSyncClockDelta = back.first;
+        std::pair<int64, uint32> back = _timeSyncClockDeltaQueue.back();
+        _timeSyncClockDelta = back.first;
     }
 }

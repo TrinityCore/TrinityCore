@@ -132,14 +132,14 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     expireTime(60000), // 1 min after socket loss, session is deleted
     forceExit(false),
     m_currentBankerGUID(),
-    timeSyncClockDeltaQueue(boost::circular_buffer<std::pair<int64, uint32>>(6)),
-    timeSyncClockDelta(0),
-    pendingTimeSyncRequests()
+    _timeSyncClockDeltaQueue(boost::circular_buffer<std::pair<int64, uint32>>(6)),
+    _timeSyncClockDelta(0),
+    _pendingTimeSyncRequests()
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
-    m_timeSyncNextCounter = 0;
-    m_timeSyncTimer = 0;
+    _timeSyncNextCounter = 0;
+    _timeSyncTimer = 0;
 
     if (sock)
     {
@@ -438,12 +438,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 bool WorldSession::UpdateForPlayersOnMap(uint32 diff)
 {
     // Send time sync packet every 10s.
-    if (m_timeSyncTimer > 0)
+    if (_timeSyncTimer > 0)
     {
-        if (diff >= m_timeSyncTimer)
+        if (diff >= _timeSyncTimer)
             SendTimeSync();
         else
-            m_timeSyncTimer -= diff;
+            _timeSyncTimer -= diff;
     }
 
     return true;
@@ -1570,19 +1570,19 @@ WorldSession::DosProtection::DosProtection(WorldSession* s) : Session(s), _polic
 
 void WorldSession::ResetTimeSync()
 {
-    m_timeSyncNextCounter = 0;
-    pendingTimeSyncRequests.clear();
+    _timeSyncNextCounter = 0;
+    _pendingTimeSyncRequests.clear();
 }
 
 void WorldSession::SendTimeSync()
 {
     WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
-    data << uint32(m_timeSyncNextCounter);
+    data << uint32(_timeSyncNextCounter);
     SendPacket(&data);
 
-    pendingTimeSyncRequests[m_timeSyncNextCounter] = GameTime::GetGameTimeMS();
+    _pendingTimeSyncRequests[_timeSyncNextCounter] = GameTime::GetGameTimeMS();
 
     // Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
-    m_timeSyncTimer = m_timeSyncNextCounter == 0 ? 5000 : 10000;
-    m_timeSyncNextCounter++;
+    _timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000;
+    _timeSyncNextCounter++;
 }
