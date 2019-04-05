@@ -53,9 +53,6 @@
 #include "WorldPacket.h"
 #include "WorldSocket.h"
 #include <zlib.h>
-#include <boost/accumulators/statistics/variance.hpp>
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics.hpp>
 
 namespace {
 
@@ -272,41 +269,6 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
     TC_LOG_TRACE("network.opcode", "Unprocessed tail data (read stop at %u from %u) Opcode %s from %s",
         uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
     packet->print_storage();
-}
-
-void WorldSession::ComputeNewClockDelta()
-{
-    using namespace boost::accumulators;
-
-    accumulator_set<uint32, features<tag::mean, tag::median, tag::variance(lazy)> > latencyAccumulator;
-
-    for (auto pair : timeSyncClockDeltaQueue)
-        latencyAccumulator(pair.second);
-
-    uint32 latencyMedian = static_cast<uint32>(std::round(median(latencyAccumulator)));
-    uint32 latencyStandardDeviation = static_cast<uint32>(std::round(sqrt(variance(latencyAccumulator))));
-
-    accumulator_set<int64, features<tag::mean> > clockDeltasAfterFiltering;
-    uint32 sampleSizeAfterFiltering = 0;
-    for (auto pair : timeSyncClockDeltaQueue)
-    {
-        if (std::fabs(pair.second - latencyMedian) <= latencyStandardDeviation) {
-            clockDeltasAfterFiltering(pair.first);
-            sampleSizeAfterFiltering++;
-        }
-    }
-
-    if (sampleSizeAfterFiltering != 0)
-    {
-        int64 meanClockDelta = static_cast<int64>(std::round(mean(clockDeltasAfterFiltering)));
-        if (std::fabs(meanClockDelta - timeSyncClockDelta) > 25)
-            timeSyncClockDelta = meanClockDelta;
-    }
-    else if (timeSyncClockDelta == 0)
-    {
-        std::pair<int64, uint32> back = timeSyncClockDeltaQueue.back();
-        timeSyncClockDelta = back.first;
-    }
 }
 
 /// Update the WorldSession (triggered by World update)

@@ -1222,41 +1222,6 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
     GetPlayer()->SetUInt32Value(PLAYER_CHOSEN_TITLE, title);
 }
 
-void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
-{
-    TC_LOG_DEBUG("network", "CMSG_TIME_SYNC_RESP");
-
-    uint32 counter, clientTimestamp;
-    recvData >> counter >> clientTimestamp;
-
-    if (pendingTimeSyncRequests.count(counter) == 0)
-        return;
-
-    uint32 serverTimeAtSent = pendingTimeSyncRequests.at(counter);
-    pendingTimeSyncRequests.erase(counter);
-
-    // time it took for the request to travel to the client, for the client to process it and reply and for response to travel back to the server.
-    // we are going to make 2 assumptions:
-    // 1) we assume that the request processing time equals 0.
-    // 2) we assume that the packet took as much time to travel from server to client than it took to travel from client to server.
-    uint32 roundTripDuration = getMSTimeDiff(serverTimeAtSent, recvData.GetReceivedTime());
-    uint32 lagDelay = roundTripDuration / 2;
-
-    /*
-    clockDelta = serverTime - clientTime
-    where
-    serverTime: time that was displayed on the clock of the SERVER at the moment when the client processed the SMSG_TIME_SYNC_REQUEST packet.
-    clientTime:  time that was displayed on the clock of the CLIENT at the moment when the client processed the SMSG_TIME_SYNC_REQUEST packet.
-
-    Once clockDelta has been computed, we can compute the time of an event on server clock when we know the time of that same event on the client clock,
-    using the following relation:
-    serverTime = clockDelta + clientTime
-    */
-    int64 clockDelta = (int64)(serverTimeAtSent + lagDelay) - (int64)clientTimestamp;
-    timeSyncClockDeltaQueue.push_back(std::pair<int64, uint32>(clockDelta, roundTripDuration));
-    ComputeNewClockDelta();
-}
-
 void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_RESET_INSTANCES");
