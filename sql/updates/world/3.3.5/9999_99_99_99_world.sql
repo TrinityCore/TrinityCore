@@ -2,10 +2,10 @@ ALTER TABLE `quest_template_addon`
 ADD COLUMN `BreadcrumbForQuestId` MEDIUMINT(8) NOT NULL DEFAULT '0' AFTER `ExclusiveGroup`;
 
 -- Assisting Arch Druid Runetotem
-UPDATE `quest_template_addon` SET `NextQuestID` = 0, `BreadcrumbForQuestId` = 3761 WHERE `ID` IN (936, 3762, 3784);
+UPDATE `quest_template_addon` SET `NextQuestID` = 0,`ExclusiveGroup`=0,`BreadcrumbForQuestId` = 3761 WHERE `ID` IN (936, 3762, 3784);
 
 -- Assisting Arch Druid Staghelm
-UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 3764 WHERE `ID` IN (3763, 3789, 3790, 10520);
+UPDATE `quest_template_addon` SET `ExclusiveGroup`=0, `BreadcrumbForQuestId` = 3764 WHERE `ID` IN (3763, 3789, 3790, 10520);
 
 -- Lost Deathstalkers
 DELETE FROM `quest_template_addon` WHERE `ID` IN (428,429);
@@ -45,7 +45,7 @@ UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 1472 WHERE `ID`=10605
 
 
 -- Seeking Strahad (Horde)
-UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 1801 WHERE `ID` IN (2996,3001);
+UPDATE `quest_template_addon` SET `ExclusiveGroup`=0,`BreadcrumbForQuestId` = 1801 WHERE `ID` IN (2996,3001);
 
 -- Seeking Strahad (Alliance)
 DELETE FROM `quest_template_addon` WHERE `ID` IN (1758);
@@ -61,7 +61,7 @@ DELETE FROM `quest_template_addon` WHERE `ID` IN (730);
 INSERT INTO `quest_template_addon` (`ID`,`BreadcrumbForQuestId`) VALUES (730,729);
 
 -- Yorus Barleybrew
-UPDATE `quest_template_addon` SET `NextQuestID`=0, `BreadcrumbForQuestId` = 1699 WHERE `ID` IN (1698,10371);
+UPDATE `quest_template_addon` SET `NextQuestID`=0, `ExclusiveGroup`=0, `BreadcrumbForQuestId` = 1699 WHERE `ID` IN (1698,10371);
 
 -- Speak with Ruga
 UPDATE `quest_template_addon` SET `PrevQuestId`=0 WHERE `ID`=1824;
@@ -72,10 +72,10 @@ DELETE FROM `quest_template_addon` WHERE `ID` IN (6605);
 INSERT INTO `quest_template_addon` (`ID`,`BreadcrumbForQuestId`) VALUES (6605,4505);
 
 -- A Call to Arms: The Plaguelands! (horde)
-UPDATE `quest_template_addon` SET `BreadcrumbForQuestId`=5096 WHERE `ID` IN (5093, 5094, 5095, 10374);
+UPDATE `quest_template_addon` SET `ExclusiveGroup`=0,`BreadcrumbForQuestId`=5096 WHERE `ID` IN (5093, 5094, 5095, 10374);
 
 -- A Call to Arms: The Plaguelands! (alliance)
-UPDATE `quest_template_addon` SET `BreadcrumbForQuestId`=5092 WHERE `ID` IN (5066, 5090, 5091, 10373);
+UPDATE `quest_template_addon` SET `ExclusiveGroup`=0,`BreadcrumbForQuestId`=5092 WHERE `ID` IN (5066, 5090, 5091, 10373);
 
 -- Trouble in Winterspring!
 DELETE FROM `quest_template_addon` WHERE `ID` IN (5082, 6603);
@@ -86,11 +86,10 @@ DELETE FROM `quest_template_addon` WHERE `ID` IN (1418);
 INSERT INTO `quest_template_addon` (`ID`,`BreadcrumbForQuestId`) VALUES (1418,1420);
 
 -- Taking Back Silithus
-UPDATE `quest_template_addon` SET `BreadcrumbForQuestId`=8280 WHERE `ID` IN (8275,8276);
+UPDATE `quest_template_addon` SET `ExclusiveGroup`=0,`BreadcrumbForQuestId`=8280 WHERE `ID` IN (8275,8276);
 
 -- To Winterspring! & Starfall
-UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 5244 WHERE `ID` = 5249;
-UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 5244 WHERE `ID` = 5250;
+UPDATE `quest_template_addon` SET `ExclusiveGroup`=0,`BreadcrumbForQuestId` = 5244 WHERE `ID` IN (5249,5250);
 
 -- Tinkee Steamboil
 UPDATE `quest_template_addon` SET `PrevQuestID`=4810 WHERE `ID`=4734;
@@ -147,13 +146,13 @@ INSERT INTO `quest_template_addon` (`ID`,`BreadcrumbForQuestId`) VALUES (2923,29
 
 -- Knowledge of the Orb of Orahil
 UPDATE `quest_template` SET `AllowableRaces` = 690  WHERE `Id` IN (4967);
-UPDATE `quest_template_addon` SET `BreadcrumbForQuestId`=1799 WHERE `ID` IN (4965,4967,4968,4969);
+UPDATE `quest_template_addon` SET `ExclusiveGroup`=0,`BreadcrumbForQuestId`=1799 WHERE `ID` IN (4965,4967,4968,4969);
 
 -- In Search of Menara Voidrender
-UPDATE `quest_template_addon` SET `BreadcrumbForQuestId`=1796 WHERE `ID` IN (4736,4737,4738,4739);
+UPDATE `quest_template_addon` SET `ExclusiveGroup`=0,`BreadcrumbForQuestId`=1796 WHERE `ID` IN (4736,4737,4738,4739);
 
 -- Gakin's Summons / The Slaughtered Lamb
-UPDATE `quest_template_addon` SET `BreadcrumbForQuestId`=1688 WHERE `ID` IN (1685, 1715);
+UPDATE `quest_template_addon` SET `ExclusiveGroup`=0,`BreadcrumbForQuestId`=1688 WHERE `ID` IN (1685, 1715);
 
 -- Gakin's Summons
 UPDATE `quest_template_addon` SET `PrevQuestID`=0 WHERE `ID`=1716;
@@ -162,7 +161,7 @@ UPDATE `quest_template_addon` SET `BreadcrumbForQuestId`=1716 WHERE `ID` = 1717;
 -- Jonespyre's Request
 UPDATE `quest_template` SET `AllowableRaces` = 1101  WHERE `Id` = 3787;
 UPDATE `quest_template_addon` SET `PrevQuestID`=3785 WHERE `ID` = 3791;
-UPDATE `quest_template_addon` SET `BreadcrumbForQuestId`=3791 WHERE `ID` IN (3787,3788);
+UPDATE `quest_template_addon` SET `ExclusiveGroup`=0, `BreadcrumbForQuestId`=3791 WHERE `ID` IN (3787,3788);
 
 -- Malin's Request
 DELETE FROM `quest_template_addon` WHERE `ID` IN (690,691);
@@ -282,7 +281,7 @@ UPDATE `quest_template_addon` SET `PrevQuestID` = 0 WHERE `ID` = 10241;
 UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 10241 WHERE `ID` = 11038;
 
 -- Off To Area 52 / Out of This World Produce! / A Strange Vision / Parts for the Rocket-Chief / A Mystifying Vision
-UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 10186 WHERE `ID` IN (10183, 11036, 11037, 11040, 11042);
+UPDATE `quest_template_addon` SET `ExclusiveGroup` = 0,`BreadcrumbForQuestId` = 10186 WHERE `ID` IN (10183, 11036, 11037, 11040, 11042);
 
 -- Horde Warlock Voidwalker questlines
 UPDATE `quest_template_addon` SET `NextQuestId` = 0, `ExclusiveGroup` = 0 WHERE `ID` IN (10789,1478,1473,1471,10790,1506,1501,1504,10788,9529,9619);
@@ -312,5 +311,17 @@ UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 1861 WHERE `ID` IN (1
 UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 1880 WHERE `ID` IN (1879);
 UPDATE `quest_template_addon` SET `NextQuestId` = 0, `ExclusiveGroup` = 1861 WHERE `ID` IN (1861,1880,9595);
 
--- TODO
 -- SI:7 / Erion's Behest / Kingly Shakedown
+UPDATE `quest_template_addon` SET `NextQuestId` = 0,`ExclusiveGroup`=0,`BreadcrumbForQuestId` = 2260 WHERE `ID` IN (2259);
+UPDATE `quest_template_addon` SET `NextQuestId` = 0,`ExclusiveGroup`=0,`BreadcrumbForQuestId` = 2298 WHERE `ID` IN (2299);
+UPDATE `quest_template_addon` SET `NextQuestId` = 0,`ExclusiveGroup`=0,`BreadcrumbForQuestId` = 2281 WHERE `ID` IN (2260,2298,2300);
+
+-- Alliance Rogue level 10 quests
+-- Road to Salvation (2218) b-> Simple Subterfugin' (2238) -> Onin's Report (2239)
+-- Seek out SI:7 (2205) b-> Snatch and Grab (2206)
+-- The Apple Falls (2241) b-> Destiny Calls (2242)
+UPDATE `quest_template_addon` SET `PrevQuestId` = 0,`ExclusiveGroup`= 2206 WHERE `ID` IN (2206,2238,2242);
+UPDATE `quest_template_addon` SET `NextQuestId` = 0,`ExclusiveGroup`= 0 WHERE `ID` IN (2218,2205,2241);
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 2238 WHERE `ID` IN (2218);
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 2206 WHERE `ID` IN (2205);
+UPDATE `quest_template_addon` SET `BreadcrumbForQuestId` = 2242 WHERE `ID` IN (2241);

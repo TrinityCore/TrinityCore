@@ -4995,9 +4995,16 @@ void ObjectMgr::LoadQuests()
         {
             auto targetQuestItr = _questTemplates.find(breadcrumbForQuestId);
             if (targetQuestItr == _questTemplates.end())
-                TC_LOG_ERROR("sql.sql", "Quest %u is a breadcrumb for quest %i, but no such quest exists", qinfo->GetQuestId(), breadcrumbForQuestId);
-            else
-                targetQuestItr->second.DependentBreadcrumbQuests.push_back(qinfo->GetQuestId());
+            {
+                TC_LOG_FATAL("sql.sql", "Quest %u is a breadcrumb for quest %u, but no such quest exists", qinfo->_id, breadcrumbForQuestId);
+                exit(1);
+            }
+            if (targetQuestItr->second._prevQuestId == qinfo->_id)
+                TC_LOG_ERROR("sql.sql", "Quest %u is a breadcrumb, should not unlock quest %u (1)", qinfo->_id, targetQuestItr->second._prevQuestId);
+            if (qinfo->_nextQuestId)
+                TC_LOG_ERROR("sql.sql", "Quest %u is a breadcrumb, should not unlock quest %u (2)", qinfo->_id, qinfo->_nextQuestId);
+            if (qinfo->_exclusiveGroup)
+                TC_LOG_ERROR("sql.sql", "Quest %u is a breadcrumb in exclusive group %i", qinfo->_id, qinfo->_exclusiveGroup);
         }
 
         if (qinfo->_exclusiveGroup)
@@ -5025,6 +5032,36 @@ void ObjectMgr::LoadQuests()
 
             if (addFlag)
                 qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_COMPLETED_AT_START);
+        }
+    }
+
+    // Disallow any breadcrumb loops and inform quests of their breadcrumbs
+    for (auto& questPair : _questTemplates)
+    {
+        // skip post-loading checks for disabled quests
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, questPair.first, nullptr))
+            continue;
+
+        Quest* qinfo = &questPair.second;
+        uint32   qid = qinfo->GetQuestId();
+        uint32 breadcrumbForQuestId = std::abs(qinfo->_breadcrumbForQuestId);
+        std::set<uint32> questSet;
+
+        while(breadcrumbForQuestId)
+        {
+            //a previously visited quest was found as a breadcrumb quest
+            //breadcrumb loop found!
+            if (!questSet.insert(qinfo->_id).second)
+            {
+                TC_LOG_FATAL("sql.sql", "Breadcrumb quests %u and %u are in a loop", qid, breadcrumbForQuestId);
+                exit(1);
+            }
+
+            qinfo = const_cast<Quest*>(sObjectMgr->GetQuestTemplate(breadcrumbForQuestId));
+            //every quest has a list of every breadcrumb towards it
+            qinfo->DependentBreadcrumbQuests.push_back(qid);
+
+            breadcrumbForQuestId = qinfo->GetBreadcrumbForQuestId();
         }
     }
 

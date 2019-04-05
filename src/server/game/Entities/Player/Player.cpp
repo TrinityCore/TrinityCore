@@ -14635,7 +14635,7 @@ Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const* quest) const
     return nullptr;
 }
 
-bool Player::CanSeeStartQuest(Quest const* quest)
+bool Player::CanSeeStartQuest(Quest const* quest) const
 {
     if (!DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this) && SatisfyQuestClass(quest, false) && SatisfyQuestRace(quest, false) &&
         SatisfyQuestSkill(quest, false) && SatisfyQuestExclusiveGroup(quest, false) && SatisfyQuestReputation(quest, false) &&
@@ -14649,7 +14649,7 @@ bool Player::CanSeeStartQuest(Quest const* quest)
     return false;
 }
 
-bool Player::CanTakeQuest(Quest const* quest, bool msg)
+bool Player::CanTakeQuest(Quest const* quest, bool msg) const
 {
     return !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this)
         && SatisfyQuestStatus(quest, msg) && SatisfyQuestExclusiveGroup(quest, msg)
@@ -15459,21 +15459,20 @@ bool Player::SatisfyQuestBreadcrumbQuest(Quest const* qInfo, bool msg) const
     if (!breadcrumbTargetQuestId)
         return true;
 
-    // If the target quest has already been accepted or rewarded.
-    if (GetQuestStatus(breadcrumbTargetQuestId) != QUEST_STATUS_NONE)
+    // If the target quest is not available
+    if (!CanTakeQuest(sObjectMgr->GetQuestTemplate(breadcrumbTargetQuestId), false))
     {
         if (msg)
         {
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
-            TC_LOG_DEBUG("misc", "Player::SatisfyQuestBreadcrumbQuest: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because player '%s' (%s) has already accepted/turned in the breadcrumb target.",
-                qInfo->GetQuestId(), GetName().c_str(), GetGUID().ToString().c_str());
+            TC_LOG_DEBUG("misc", "Player::SatisfyQuestBreadcrumbQuest: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because target quest (QuestID: %u) is not available to player '%s' (%s).",
+                qInfo->GetQuestId(), breadcrumbTargetQuestId, GetName().c_str(), GetGUID().ToString().c_str());
         }
 
         return false;
     }
 
-    //Check if the target quest is locked behind an exclusive group.
-    return SatisfyQuestExclusiveGroup(sObjectMgr->GetQuestTemplate(breadcrumbTargetQuestId), msg);
+    return true;
 }
 
 bool Player::SatisfyQuestDependentBreadcrumbQuests(Quest const* qInfo, bool msg) const
@@ -15538,7 +15537,7 @@ bool Player::SatisfyQuestRace(Quest const* qInfo, bool msg) const
     return true;
 }
 
-bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
+bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg) const
 {
     uint32 fIdMin = qInfo->GetRequiredMinRepFaction();      //Min required rep
     if (fIdMin && GetReputationMgr().GetReputation(fIdMin) < qInfo->GetRequiredMinRepValue())
@@ -15606,9 +15605,9 @@ bool Player::SatisfyQuestStatus(Quest const* qInfo, bool msg) const
     return true;
 }
 
-bool Player::SatisfyQuestConditions(Quest const* qInfo, bool msg)
+bool Player::SatisfyQuestConditions(Quest const* qInfo, bool msg) const
 {
-    if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_QUEST_AVAILABLE, qInfo->GetQuestId(), this))
+    if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_QUEST_AVAILABLE, qInfo->GetQuestId(), const_cast<Player*>(this)))
     {
         if (msg)
         {
