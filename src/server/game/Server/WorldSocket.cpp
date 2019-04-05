@@ -365,7 +365,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             // todo: handle this packet in the same way of CMSG_TIME_SYNC_RESP
 
         case CMSG_TIME_SYNC_RESP:
-            packetToQueue = new WorldPacket(std::move(packet), getMSTime());
+            packetToQueue = new WorldPacket(std::move(packet), std::chrono::steady_clock::now());
             break;
 
         default:
