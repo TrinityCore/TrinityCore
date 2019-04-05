@@ -1580,7 +1580,7 @@ void WorldSession::SendTimeSync()
     data << uint32(_timeSyncNextCounter);
     SendPacket(&data);
 
-    _pendingTimeSyncRequests[_timeSyncNextCounter] = GameTime::GetGameTimeMS();
+    _pendingTimeSyncRequests[_timeSyncNextCounter] = getMSTime();
 
     // Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
     _timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000;
