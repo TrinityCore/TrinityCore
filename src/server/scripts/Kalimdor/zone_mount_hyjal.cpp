@@ -473,6 +473,120 @@ private:
     EventMap _events;
 };
 
+
+enum RagingFirestorm
+{
+    NPC_GROVE_WARDEN    = 39941,
+    NPC_LAINA_NIGHTSKY  = 39927,
+    SPELL_SUMMON_TREES  = 74565,
+    SPELL_GOUT_OF_FLAME = 80549,
+
+    EVENT_GOUT_OF_FLAME = 1
+};
+
+Position const GroveWardenSummonPositions[] =
+{
+    { 5041.51f, -1730.29f, 1323.29f, 1.6057f },
+    { 5031.45f, -1734.11f, 1322.15f, 1.6057f },
+    { 5033.78f, -1732.86f, 1322.35f, 1.6057f },
+    { 5034.65f, -1729.32f, 1322.3f,  1.6057f },
+    { 5042.12f, -1734.71f, 1323.35f, 1.6057f },
+    { 5033.48f, -1737.55f, 1322.51f, 1.6057f }
+};
+
+Position const GroveWardenWaypointPosition1 = { 5026.774f, -1657.001f, 1326.92f };
+Position const GroveWardenWaypointPosition2 = { 5028.423f, -1645.738f, 1327.722f };
+
+struct npc_mh_raging_firestorm : public ScriptedAI
+{
+    npc_mh_raging_firestorm(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        _allowWardenCombat = me->GetExactDist2d(GroveWardenWaypointPosition1) < 140.0f;
+    }
+
+    void AttackStart(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_UNIT && victim->GetEntry() == NPC_GROVE_WARDEN && victim->GetExactDist2d(me) > me->GetCombatReach())
+            return;
+
+        ScriptedAI::AttackStart(victim);
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+        if (_allowWardenCombat)
+            SummonGroveWarden();
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        _summons.Summon(summon);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_GOUT_OF_FLAME, 8s, 10s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_GOUT_OF_FLAME:
+                    DoCastVictim(SPELL_GOUT_OF_FLAME);
+                    _events.Repeat(21s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    bool _allowWardenCombat;
+
+    void SummonGroveWarden()
+    {
+        uint8 spawnIndex = urand(0, 5);
+        if (Creature* warden = DoSummon(NPC_GROVE_WARDEN, GroveWardenSummonPositions[spawnIndex], 20000))
+        {
+            warden->SetDisplayId(warden->GetCreatureTemplate()->Modelid1);
+            Position waypointPos = GroveWardenWaypointPosition1;
+            Position homePos = me->GetHomePosition();
+            if (me->GetExactDist2d(GroveWardenWaypointPosition1) < me->GetExactDist2d(GroveWardenWaypointPosition2))
+                waypointPos = GroveWardenWaypointPosition2;
+
+            if (Creature* laina = warden->FindNearestCreature(NPC_LAINA_NIGHTSKY, 20.0f, true))
+                warden->CastSpell(laina, SPELL_SUMMON_TREES);
+
+            warden->m_Events.AddEventAtOffset([warden, waypointPos, homePos]()
+            {
+                Movement::MoveSplineInit init(warden);
+                init.MoveTo(waypointPos.GetPositionX(), waypointPos.GetPositionY(), waypointPos.GetPositionZ());
+                if (int32 travelTime = init.Launch())
+                    warden->m_Events.AddEventAtOffset([warden, homePos]()
+                {
+                    warden->GetMotionMaster()->MovePoint(POINT_NONE, homePos);
+                }, Milliseconds(travelTime));
+            }, 2s + 500ms);
+        }
+    }
+};
+
 class spell_mh_summon_emerald_flameweaver : public SpellScript
 {
     PrepareSpellScript(spell_mh_summon_emerald_flameweaver);
@@ -529,6 +643,7 @@ void AddSC_mount_hyjal()
     RegisterCreatureAI(npc_mh_faerie_dragon);
     RegisterCreatureAI(npc_mh_twilight_inciter);
     RegisterCreatureAI(npc_mh_emerald_flameweaver);
+    RegisterCreatureAI(npc_mh_raging_firestorm);
     RegisterSpellScript(spell_mh_summon_emerald_flameweaver);
     RegisterSpellScript(spell_mh_ragnaros);
     RegisterAuraScript(spell_mh_flamebreaker);
