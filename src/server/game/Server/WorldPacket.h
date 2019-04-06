@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
+#include <chrono>
 
 class WorldPacket : public ByteBuffer
 {

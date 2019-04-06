@@ -31,6 +31,7 @@
 #include "QueryCallbackProcessor.h"
 #include "SharedDefines.h"
 #include <string>
+#include <map>
 #include <unordered_map>
 #include <boost/circular_buffer.hpp>
 
