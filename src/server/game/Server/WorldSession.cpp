@@ -405,7 +405,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     if (m_Socket && m_Socket->IsOpen() && _warden)
         _warden->Update();
 
-    if (!updater.ProcessLogout()) // <=> updater is of type MapSessionFilter
+    if (!updater.ProcessUnsafe()) // <=> updater is of type MapSessionFilter
     {
         // Send time sync packet every 10s.
         if (_timeSyncTimer > 0)
@@ -421,7 +421,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     //check if we are safe to proceed with logout
     //logout procedure should happen only in World::UpdateSessions() method!!!
-    if (updater.ProcessLogout())
+    if (updater.ProcessUnsafe())
     {
         ///- If necessary, log the player out
         if (ShouldLogOut(currentTime) && !m_playerLoading)
