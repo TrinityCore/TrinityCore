@@ -524,11 +524,6 @@ struct npc_mh_raging_firestorm : public ScriptedAI
             SummonGroveWarden();
     }
 
-    void JustSummoned(Creature* summon) override
-    {
-        _summons.Summon(summon);
-    }
-
     void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_GOUT_OF_FLAME, 8s, 10s);
