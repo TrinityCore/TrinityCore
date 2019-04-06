@@ -1083,7 +1083,12 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Posit
         TC_LOG_ERROR("entities.unit", "Creature::Create(): given coordinates for creature (guidlow " UI64FMTD ", entry %d) are not valid (X: %f, Y: %f, Z: %f, O: %f)", guidlow, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
         return false;
     }
-    UpdatePositionData();
+    {
+        // area/zone id is needed immediately for ZoneScript::GetCreatureEntry hook before it is known which creature template to load (no model/scale available yet)
+        PositionFullTerrainStatus data;
+        GetMap()->GetFullTerrainStatusForPosition(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), data, map_liquidHeaderTypeFlags::AllLiquids, DEFAULT_COLLISION_HEIGHT);
+        ProcessPositionDataChanged(data);
+    }
 
     // Allow players to see those units while dead, do it here (mayby altered by addon auras)
     if (cinfo->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE)
