@@ -4481,7 +4481,7 @@ void Map::LoadRespawnTimes()
             uint64 respawnTime = fields[1].GetUInt64();
 
             if (CreatureData const* cdata = sObjectMgr->GetCreatureData(loguid))
-                SaveRespawnTime(SPAWN_TYPE_CREATURE, loguid, cdata->id, time_t(respawnTime), GetZoneId(PhasingHandler::GetEmptyPhaseShift(), cdata->spawnPoint), Trinity::ComputeGridCoord(cdata->spawnPoint.GetPositionX(), cdata->spawnPoint.GetPositionY()).GetId(), false);
+                SaveRespawnTime(SPAWN_TYPE_CREATURE, loguid, cdata->id, time_t(respawnTime), cdata->zoneId, Trinity::ComputeGridCoord(cdata->spawnPoint.GetPositionX(), cdata->spawnPoint.GetPositionY()).GetId(), false);
 
         } while (result->NextRow());
     }
@@ -4498,7 +4498,7 @@ void Map::LoadRespawnTimes()
             uint64 respawnTime = fields[1].GetUInt64();
 
             if (GameObjectData const* godata = sObjectMgr->GetGameObjectData(loguid))
-                SaveRespawnTime(SPAWN_TYPE_GAMEOBJECT, loguid, godata->id, time_t(respawnTime), GetZoneId(PhasingHandler::GetEmptyPhaseShift(), godata->spawnPoint), Trinity::ComputeGridCoord(godata->spawnPoint.GetPositionX(), godata->spawnPoint.GetPositionY()).GetId(), false);
+                SaveRespawnTime(SPAWN_TYPE_GAMEOBJECT, loguid, godata->id, time_t(respawnTime), godata->zoneId, Trinity::ComputeGridCoord(godata->spawnPoint.GetPositionX(), godata->spawnPoint.GetPositionY()).GetId(), false);
 
         } while (result->NextRow());
     }
