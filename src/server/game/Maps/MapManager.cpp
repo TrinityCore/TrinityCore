@@ -103,16 +103,18 @@ Map* MapManager::CreateBaseMap_i(MapEntry const* mapEntry)
     if (mapEntry->Instanceable())
         map = new MapInstanced(mapEntry->ID, i_gridCleanUpDelay);
     else
-    {
         map = new Map(mapEntry->ID, i_gridCleanUpDelay, 0, REGULAR_DIFFICULTY);
-        map->LoadRespawnTimes();
-        map->LoadCorpseData();
-    }
 
     i_maps[mapEntry->ID] = map;
 
     for (uint32 childMapId : _parentMapData[mapEntry->ID])
         map->AddChildTerrainMap(CreateBaseMap_i(sMapStore.AssertEntry(childMapId)));
+
+    if (!mapEntry->Instanceable())
+    {
+        map->LoadRespawnTimes();
+        map->LoadCorpseData();
+    }
 
     return map;
 }
