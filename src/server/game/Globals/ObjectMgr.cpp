@@ -9027,7 +9027,7 @@ void ObjectMgr::LoadTrainers()
             if (spell.ReqSkillLine && !sSkillLineStore.LookupEntry(spell.ReqSkillLine))
             {
                 TC_LOG_ERROR("sql.sql", "Table `trainer_spell` references non-existing skill (ReqSkillLine: %u) for TrainerId %u and SpellId %u, ignoring",
-                    spell.ReqSkillLine, spell.SpellId, trainerId);
+                    spell.ReqSkillLine, trainerId, spell.SpellId);
                 continue;
             }
 
