@@ -2156,7 +2156,7 @@ void ObjectMgr::LoadCreatures()
             }
         }
 
-        if (!sAreaTableStore.LookupEntry(data.zoneId))
+        if (data.zoneId && !sAreaTableStore.LookupEntry(data.zoneId))
         {
             TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with `zoneId` %u which does not exist in AreaTable.dbc. Set to 0. Recommend to calculate the Zone ID during startup.", guid, data.id, data.zoneId);
             data.zoneId = 0;
@@ -2479,7 +2479,7 @@ void ObjectMgr::LoadGameObjects()
         }
 
         data.zoneId = fields[22].GetUInt32();
-        if (!sAreaTableStore.LookupEntry(data.zoneId))
+        if (data.zoneId && !sAreaTableStore.LookupEntry(data.zoneId))
         {
             TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: %u Entry: %u) with `zoneId` %u which does not exist in AreaTable.dbc. Set to 0. Recommend to calculate the Zone ID during startup.", guid, data.id, data.zoneId);
             data.zoneId = 0;
