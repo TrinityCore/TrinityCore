@@ -1374,9 +1374,8 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffectInfo const& spellEffectIn
                 pos.m_positionX = m_preGeneratedPath->GetActualEndPosition().x;
                 pos.m_positionY = m_preGeneratedPath->GetActualEndPosition().y;
                 pos.m_positionZ = m_preGeneratedPath->GetActualEndPosition().z;
+                dest.Relocate(pos);
             }
-
-            dest.Relocate(pos);
             break;
         }
         case TARGET_DEST_CASTER_GROUND:

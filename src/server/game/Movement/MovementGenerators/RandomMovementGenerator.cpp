@@ -107,7 +107,7 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     }
 
     bool result = _path->CalculatePath(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ());
-    if (!result || (_path->GetPathType() & PATHFIND_NOPATH))
+    if (!result || (_path->GetPathType() & PATHFIND_NOPATH) || (_path->GetPathType() & PATHFIND_SHORTCUT))
     {
         _timer.Reset(100);
         return;
