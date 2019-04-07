@@ -203,14 +203,18 @@ void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const floa
 
 bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h)
 {
+	const float EPS = 1e-6f;
 	float v0[3], v1[3], v2[3];
 
-	dtVsub(v0, c,a);
-	dtVsub(v1, b,a);
-	dtVsub(v2, p,a);
+	dtVsub(v0, c, a);
+	dtVsub(v1, b, a);
+	dtVsub(v2, p, a);
 
 	// Compute scaled barycentric coordinates
 	float denom = v0[0] * v1[2] - v0[2] * v1[0];
+	if (fabsf(denom) < EPS)
+		return false;
+
 	float u = v1[2] * v2[0] - v1[0] * v2[2];
 	float v = v0[0] * v2[2] - v0[2] * v2[0];
 
@@ -220,21 +224,9 @@ bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b
 		v = -v;
 	}
 
-	// The (sloppy) epsilon is needed to allow to get height of points which
-	// are interpolated along the edges of the triangles.
-	float epsilon = - 1e-4f * denom;
-
 	// If point lies inside the triangle, return interpolated ycoord.
-	if (u >= epsilon && v >= epsilon && (u+v) <= denom - epsilon) {
-
-		if (denom == 0.f && u == 0.f && v == 0.f)
-			h = a[1];
-		else
-			h = a[1] + (v0[1]*u + v1[1]*v) / denom;
-
-		if (!dtMathIsfinite(h))
-			return false;
-
+	if (u >= 0.0f && v >= 0.0f && (u + v) <= denom) {
+		h = a[1] + (v0[1] * u + v1[1] * v) / denom;
 		return true;
 	}
 	return false;

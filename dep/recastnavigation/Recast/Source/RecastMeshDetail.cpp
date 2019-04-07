@@ -1141,7 +1141,8 @@ static void getHeightData(rcContext* ctx, const rcCompactHeightfield& chf,
 static unsigned char getEdgeFlags(const float* va, const float* vb,
 								  const float* vpoly, const int npoly)
 {
-	// Return true if edge (va,vb) is part of the polygon.
+	// The flag returned by this function matches dtDetailTriEdgeFlags in Detour.
+	// Figure out if edge (va,vb) is part of the polygon boundary.
 	static const float thrSqr = rcSqr(0.001f);
 	for (int i = 0, j = npoly-1; i < npoly; j=i++)
 	{

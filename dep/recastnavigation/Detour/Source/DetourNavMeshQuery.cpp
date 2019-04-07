@@ -514,88 +514,14 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 dtStatus dtNavMeshQuery::closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const
 {
 	dtAssert(m_nav);
-	const dtMeshTile* tile = 0;
-	const dtPoly* poly = 0;
-	if (dtStatusFailed(m_nav->getTileAndPolyByRef(ref, &tile, &poly)))
+	if (!m_nav->isValidPolyRef(ref) ||
+		!pos || !dtVisfinite(pos) ||
+		!closest)
+	{
 		return DT_FAILURE | DT_INVALID_PARAM;
-	if (!tile)
-		return DT_FAILURE | DT_INVALID_PARAM;
-
-	if (!pos || !dtVisfinite(pos) || !closest)
-		return DT_FAILURE | DT_INVALID_PARAM;
-	
-	// Off-mesh connections don't have detail polygons.
-	if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
-	{
-		const float* v0 = &tile->verts[poly->verts[0]*3];
-		const float* v1 = &tile->verts[poly->verts[1]*3];
-		const float d0 = dtVdist(pos, v0);
-		const float d1 = dtVdist(pos, v1);
-		const float u = d0 / (d0+d1);
-		dtVlerp(closest, v0, v1, u);
-		if (posOverPoly)
-			*posOverPoly = false;
-		return DT_SUCCESS;
 	}
 
-	const unsigned int ip = (unsigned int)(poly - tile->polys);
-	const dtPolyDetail* pd = &tile->detailMeshes[ip];
-
-	// Clamp point to be inside the polygon.
-	float verts[DT_VERTS_PER_POLYGON*3];	
-	float edged[DT_VERTS_PER_POLYGON];
-	float edget[DT_VERTS_PER_POLYGON];
-	const int nv = poly->vertCount;
-	for (int i = 0; i < nv; ++i)
-		dtVcopy(&verts[i*3], &tile->verts[poly->verts[i]*3]);
-	
-	dtVcopy(closest, pos);
-	if (!dtDistancePtPolyEdgesSqr(pos, verts, nv, edged, edget))
-	{
-		// Point is outside the polygon, dtClamp to nearest edge.
-		float dmin = edged[0];
-		int imin = 0;
-		for (int i = 1; i < nv; ++i)
-		{
-			if (edged[i] < dmin)
-			{
-				dmin = edged[i];
-				imin = i;
-			}
-		}
-		const float* va = &verts[imin*3];
-		const float* vb = &verts[((imin+1)%nv)*3];
-		dtVlerp(closest, va, vb, edget[imin]);
-
-		if (posOverPoly)
-			*posOverPoly = false;
-	}
-	else
-	{
-		if (posOverPoly)
-			*posOverPoly = true;
-	}
-
-	// Find height at the location.
-	for (int j = 0; j < pd->triCount; ++j)
-	{
-		const unsigned char* t = &tile->detailTris[(pd->triBase+j)*4];
-		const float* v[3];
-		for (int k = 0; k < 3; ++k)
-		{
-			if (t[k] < poly->vertCount)
-				v[k] = &tile->verts[poly->verts[t[k]]*3];
-			else
-				v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->vertCount))*3];
-		}
-		float h;
-		if (dtClosestHeightPointTriangle(closest, v[0], v[1], v[2], h))
-		{
-			closest[1] = h;
-			break;
-		}
-	}
-	
+	m_nav->closestPointOnPoly(ref, pos, closest, posOverPoly);
 	return DT_SUCCESS;
 }
 
@@ -662,7 +588,7 @@ dtStatus dtNavMeshQuery::closestPointOnPolyBoundary(dtPolyRef ref, const float* 
 
 /// @par
 ///
-/// Will return #DT_FAILURE if the provided position is outside the xz-bounds 
+/// Will return #DT_FAILURE | DT_INVALID_PARAM if the provided position is outside the xz-bounds 
 /// of the polygon.
 /// 
 dtStatus dtNavMeshQuery::getPolyHeight(dtPolyRef ref, const float* pos, float* height) const
@@ -676,44 +602,25 @@ dtStatus dtNavMeshQuery::getPolyHeight(dtPolyRef ref, const float* pos, float* h
 
 	if (!pos || !dtVisfinite2D(pos))
 		return DT_FAILURE | DT_INVALID_PARAM;
-	
+
+	// We used to return success for offmesh connections, but the
+	// getPolyHeight in DetourNavMesh does not do this, so special
+	// case it here.
 	if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 	{
 		const float* v0 = &tile->verts[poly->verts[0]*3];
 		const float* v1 = &tile->verts[poly->verts[1]*3];
-		const float d0 = dtVdist2D(pos, v0);
-		const float d1 = dtVdist2D(pos, v1);
-		const float u = d0 / (d0+d1);
+		float t;
+		dtDistancePtSegSqr2D(pos, v0, v1, t);
 		if (height)
-			*height = v0[1] + (v1[1] - v0[1]) * u;
+			*height = v0[1] + (v1[1] - v0[1])*t;
+
 		return DT_SUCCESS;
 	}
-	else
-	{
-		const unsigned int ip = (unsigned int)(poly - tile->polys);
-		const dtPolyDetail* pd = &tile->detailMeshes[ip];
-		for (int j = 0; j < pd->triCount; ++j)
-		{
-			const unsigned char* t = &tile->detailTris[(pd->triBase+j)*4];
-			const float* v[3];
-			for (int k = 0; k < 3; ++k)
-			{
-				if (t[k] < poly->vertCount)
-					v[k] = &tile->verts[poly->verts[t[k]]*3];
-				else
-					v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->vertCount))*3];
-			}
-			float h;
-			if (dtClosestHeightPointTriangle(pos, v[0], v[1], v[2], h))
-			{
-				if (height)
-					*height = h;
-				return DT_SUCCESS;
-			}
-		}
-	}
-	
-	return DT_FAILURE | DT_INVALID_PARAM;
+
+	return m_nav->getPolyHeight(tile, poly, pos, height)
+		? DT_SUCCESS
+		: DT_FAILURE | DT_INVALID_PARAM;
 }
 
 class dtFindNearestPolyQuery : public dtPolyQuery
