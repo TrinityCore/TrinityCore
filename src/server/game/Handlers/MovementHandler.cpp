@@ -709,7 +709,7 @@ void WorldSession::ComputeNewClockDelta()
     if (sampleSizeAfterFiltering != 0)
     {
         int64 meanClockDelta = static_cast<int64>(std::round(mean(clockDeltasAfterFiltering)));
-        if (std::fabs(meanClockDelta - _timeSyncClockDelta) > 25)
+        if (std::abs(meanClockDelta - _timeSyncClockDelta) > 25)
             _timeSyncClockDelta = meanClockDelta;
     }
     else if (_timeSyncClockDelta == 0)
