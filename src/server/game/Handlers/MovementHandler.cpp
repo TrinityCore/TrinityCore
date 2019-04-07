@@ -700,7 +700,7 @@ void WorldSession::ComputeNewClockDelta()
     uint32 sampleSizeAfterFiltering = 0;
     for (auto pair : _timeSyncClockDeltaQueue)
     {
-        if (std::fabs(pair.second - latencyMedian) <= latencyStandardDeviation) {
+        if (pair.second < latencyStandardDeviation + latencyMedian) {
             clockDeltasAfterFiltering(pair.first);
             sampleSizeAfterFiltering++;
         }
