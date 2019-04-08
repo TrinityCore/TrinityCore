@@ -1729,7 +1729,6 @@ class spell_darkmoon_island_ring_toss : public SpellScript
 
         if (!_hasHit)
         {
-            printf("no hit! \n");
             Position destination = GetExplTargetDest()->GetPosition();
             caster->CastSpell(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ(), SPELL_RING_TOSS_MISS, true);
         }
