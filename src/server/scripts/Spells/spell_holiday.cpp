@@ -1614,6 +1614,140 @@ class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
         }
 };
 
+enum DarkmoonDeathmatch
+{
+    AREA_ID_DARKMOON_DEATHMATCH = 5877,
+
+    SPELL_ENTER_DEATHMATCH_1    = 108919,
+    SPELL_ENTER_DEATHMATCH_2    = 113212,
+    SPELL_ENTER_DEATHMATCH_3    = 113213,
+    SPELL_ENTER_DEATHMATCH_4    = 113216,
+    SPELL_ENTER_DEATHMATCH_5    = 113219,
+    SPELL_ENTER_DEATHMATCH_6    = 113224,
+    SPELL_ENTER_DEATHMATCH_7    = 113227,
+    SPELL_ENTER_DEATHMATCH_8    = 113228,
+    SPELL_EXIT_DEATHMATCH       = 108923,
+
+};
+
+uint32 enterDeathMatchSpells[] =
+{
+    SPELL_ENTER_DEATHMATCH_1,
+    SPELL_ENTER_DEATHMATCH_2,
+    SPELL_ENTER_DEATHMATCH_3,
+    SPELL_ENTER_DEATHMATCH_4,
+    SPELL_ENTER_DEATHMATCH_5,
+    SPELL_ENTER_DEATHMATCH_6,
+    SPELL_ENTER_DEATHMATCH_7,
+    SPELL_ENTER_DEATHMATCH_8
+};
+
+class spell_darkmoon_island_deathmatch : public SpellScript
+{
+    PrepareSpellScript(spell_darkmoon_island_deathmatch);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_ENTER_DEATHMATCH_1,
+                SPELL_ENTER_DEATHMATCH_2,
+                SPELL_ENTER_DEATHMATCH_3,
+                SPELL_ENTER_DEATHMATCH_4,
+                SPELL_ENTER_DEATHMATCH_5,
+                SPELL_ENTER_DEATHMATCH_6,
+                SPELL_ENTER_DEATHMATCH_7,
+                SPELL_ENTER_DEATHMATCH_8,
+                SPELL_EXIT_DEATHMATCH
+            });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (target->GetAreaId() == AREA_ID_DARKMOON_DEATHMATCH)
+            target->CastSpell(target, SPELL_EXIT_DEATHMATCH);
+        else
+        {
+            uint8 i = urand(0, 7);
+            target->CastSpell(target, enterDeathMatchSpells[i]);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_darkmoon_island_deathmatch::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum RingToss
+{
+    SPELL_RING_TOSS_HIT     = 101699,
+    SPELL_RING_TOSS_MISS    = 101698,
+    SPELL_RING_TOSS_AURA    = 102058
+};
+
+class spell_darkmoon_island_ring_toss : public SpellScript
+{
+    PrepareSpellScript(spell_darkmoon_island_ring_toss);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_RING_TOSS_HIT,
+                SPELL_RING_TOSS_MISS,
+                SPELL_RING_TOSS_AURA
+            });
+    }
+
+    bool Load() override
+    {
+        _hasHit = false;
+        return true;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* target = GetHitUnit();
+        Position destination = GetExplTargetDest()->GetPosition();
+
+        if (target->GetExactDist2d(destination) <= 1.0f)
+            caster->CastSpell(target, SPELL_RING_TOSS_HIT, true);
+        else
+            caster->CastSpell(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ(), SPELL_RING_TOSS_MISS, true);
+        _hasHit = true;
+    }
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+
+        if (!_hasHit)
+        {
+            printf("no hit! \n");
+            Position destination = GetExplTargetDest()->GetPosition();
+            caster->CastSpell(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ(), SPELL_RING_TOSS_MISS, true);
+        }
+
+        if (!caster->GetPower(POWER_ALTERNATE_POWER))
+            caster->RemoveAurasDueToSpell(SPELL_RING_TOSS_AURA);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_darkmoon_island_ring_toss::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        AfterCast += SpellCastFn(spell_darkmoon_island_ring_toss::HandleAfterCast);
+    }
+
+private:
+    bool _hasHit;
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -1664,4 +1798,7 @@ void AddSC_holiday_spell_scripts()
     // Midsummer Fire Festival
     new spell_midsummer_braziers_hit();
     new spell_gen_ribbon_pole_dancer_check();
+    // Darkmoon Island
+    RegisterSpellScript(spell_darkmoon_island_deathmatch);
+    RegisterSpellScript(spell_darkmoon_island_ring_toss);
 }
