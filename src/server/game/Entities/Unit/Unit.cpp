@@ -12196,13 +12196,8 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
     if (GetTypeId() == TYPEID_UNIT)
     {
-        if (MovementGenerator* movementGenerator = GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
-            movementGenerator->Pause(0);
-
         GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
-
-        StopMoving();
-
+        PauseMovement(0, MOTION_SLOT_IDLE);
         ToCreature()->AI()->OnCharmed(true);
     }
     else if (Player* player = ToPlayer())
@@ -12319,7 +12314,6 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     else
         RestoreFaction();
 
-    ///@todo Handle SLOT_IDLE motion resume
     GetMotionMaster()->InitDefault();
 
     if (Creature* creature = ToCreature())
