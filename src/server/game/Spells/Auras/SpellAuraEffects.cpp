@@ -6373,7 +6373,10 @@ void AuraEffect::HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode,
         return;
 
     if (apply)
+    {
         aurApp->GetTarget()->SetMaxPower(POWER_ALTERNATE_POWER, powerEntry->MaxPower);
+        aurApp->GetTarget()->SetPower(POWER_ALTERNATE_POWER, powerEntry->StartPower);
+    }
     else
         aurApp->GetTarget()->SetMaxPower(POWER_ALTERNATE_POWER, 0);
 }

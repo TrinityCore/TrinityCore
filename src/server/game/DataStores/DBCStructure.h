@@ -2499,7 +2499,7 @@ struct UnitPowerBarEntry
     uint32  Id;
     uint32  MinPower;
     uint32  MaxPower;
-    //uint32  Unk0;
+    uint32  StartPower;
     //uint32  Unk1;
     //float   Unk2;
     //float   Unk3;
