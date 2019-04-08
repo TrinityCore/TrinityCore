@@ -4,7 +4,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 'spell_darkmoon_island_ring_toss');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(108941, 'spell_darkmoon_deathmatch'),
+(108941, 'spell_darkmoon_island_deathmatch'),
 (101695, 'spell_darkmoon_island_ring_toss');
 
 DELETE FROM `gameobject_template` WHERE `entry`= 209292;
