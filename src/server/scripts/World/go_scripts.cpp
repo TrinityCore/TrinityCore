@@ -1905,6 +1905,16 @@ public:
     }
 };
 
+struct go_generic_firework : public GameObjectAI
+{
+    go_generic_firework(GameObject* go) : GameObjectAI(go) { }
+
+    void InitializeAI() override
+    {
+        me->DespawnOrUnsummon(Milliseconds(urandms(10, 30)), 6s);
+    }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine();
@@ -1946,4 +1956,5 @@ void AddSC_go_scripts()
     new go_darkmoon_faire_music();
     new go_pirate_day_music();
     new go_bells();
+    RegisterGameObjectAI(go_generic_firework);
 }
