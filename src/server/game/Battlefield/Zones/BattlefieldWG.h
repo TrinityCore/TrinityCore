@@ -280,7 +280,7 @@ public:
     void OnGameObjectRemove(GameObject* object) override;
     void SendGlobalWorldStates(Player const* player) const override;
 
-    bool IsFlyingMountAllowed() const override { return IsWarTime(); }
+    bool IsFlyingMountAllowed() const override { return !IsEnabled() || (IsEnabled() && !IsWarTime()); }
     bool IsSpellAreaAllowed(uint32 spellId, Player const* player, uint32 newArea) const override;
 
 private:

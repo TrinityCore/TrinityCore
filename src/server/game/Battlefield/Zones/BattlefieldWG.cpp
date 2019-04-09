@@ -207,9 +207,7 @@ bool BattlefieldWintergrasp::IsSpellAreaAllowed(uint32 spellId, Player const* pl
     switch (spellId)
     {
         case SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA:
-            if (IsFlyingMountAllowed())
-                return false;
-            if (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY))
+            if (IsFlyingMountAllowed() || (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)))
                 return false;
             break;
         case SPELL_WINTERGRASP_ESSENCE_OF_WINTERGRASP:
