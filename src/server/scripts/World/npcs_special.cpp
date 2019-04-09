@@ -3147,6 +3147,119 @@ class npc_druid_treant : public CreatureScript
         }
 };
 
+enum WhackAGnoll
+{
+    NPC_DARKMOON_FAIRE_GNOLL        = 54444,
+    NPC_DARKMOON_FAIRE_GNOLL_BABY   = 54466,
+    NPC_DARKMOON_FAIRE_GNOLL_BONUS  = 54549,
+
+    SPELL_WHACK                     = 102022,
+    SPELL_WHACK_A_GNOLL_SPAWN       = 102136,
+    SPELL_WHACK_A_GNOLL_KILL_CREDIT = 101835,
+    SPELL_WRONG_WHACK               = 101679,
+    SPELL_EXPLODE_SMALL             = 101640,
+    SPELL_EXPLODE_BIG               = 101655,
+
+    SOUND_ID_LAUGHTER               = 11816,
+    SOUND_ID_SUBMERGE               = 4791,
+    AI_ANIM_KIT_SUBMERGE            = 529,
+
+    EVENT_REGULAR_SUBMERGE = 1,
+    EVENT_TRIGGERED_SUBMERGE
+};
+
+struct npc_darkmoon_island_gnoll : public ScriptedAI
+{
+    npc_darkmoon_island_gnoll(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        _hit = false;
+    }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        DoCastSelf(SPELL_WHACK_A_GNOLL_SPAWN);
+        _events.ScheduleEvent(EVENT_REGULAR_SUBMERGE, 3s + 500ms);
+    }
+
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    {
+        if (_hit)
+            return;
+
+        if (spell->Id == SPELL_WHACK)
+        {
+            _events.CancelEvent(EVENT_REGULAR_SUBMERGE);
+
+            switch (me->GetEntry())
+            {
+                case NPC_DARKMOON_FAIRE_GNOLL:
+                    //DoCast(caster, SPELL_WHACK_A_GNOLL_KILL_CREDIT, true);
+                    caster->CastSpell(caster, SPELL_WHACK_A_GNOLL_KILL_CREDIT, true);
+                    DoCastSelf(SPELL_EXPLODE_SMALL);
+                    me->KillSelf();
+                    me->DespawnOrUnsummon(2s);
+                    break;
+                case NPC_DARKMOON_FAIRE_GNOLL_BONUS:
+                    for (uint8 i = 0; i < 3; i++)
+                        caster->CastSpell(caster, SPELL_WHACK_A_GNOLL_KILL_CREDIT, true);
+                        //DoCast(caster, SPELL_WHACK_A_GNOLL_KILL_CREDIT, true);
+                    DoCastSelf(SPELL_EXPLODE_BIG);
+                    me->KillSelf();
+                    me->DespawnOrUnsummon(2s);
+                    break;
+                case NPC_DARKMOON_FAIRE_GNOLL_BABY:
+                    caster->CastSpell(caster, SPELL_WRONG_WHACK, true);
+                    //DoCast(caster, SPELL_WRONG_WHACK, true);
+                    if (Player* player = caster->ToPlayer())
+                        me->PlayDirectSound(SOUND_ID_LAUGHTER, player);
+                    _events.ScheduleEvent(EVENT_TRIGGERED_SUBMERGE, 3s + 600ms);
+                    break;
+                default:
+                    break;
+            }
+
+            _hit = true;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_REGULAR_SUBMERGE:
+                    _hit = true;
+                    me->SetAIAnimKitId(AI_ANIM_KIT_SUBMERGE);
+
+                    if (TempSummon* summon = me->ToTempSummon())
+                        if (Unit* summoner = summon->GetSummoner())
+                            if (Player* player = summoner->ToPlayer())
+                                me->PlayDirectSound(SOUND_ID_SUBMERGE, player);
+                    me->DespawnOrUnsummon(1s + 500ms);
+                    break;
+                case EVENT_TRIGGERED_SUBMERGE:
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED_NEW);
+                    me->DespawnOrUnsummon(2s + 500ms);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    bool _hit;
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -3176,4 +3289,5 @@ void AddSC_npcs_special()
     new npc_bountiful_table();
     new npc_mage_orb();
     new npc_druid_treant();
+    RegisterCreatureAI(npc_darkmoon_island_gnoll);
 }

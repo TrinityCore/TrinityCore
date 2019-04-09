@@ -1747,6 +1747,197 @@ private:
     bool _hasHit;
 };
 
+enum WhackAGnoll
+{
+    SPELL_WHACK_SUMMON_NORMAL               = 102036,
+    SPELL_WHACK_SUMMON_BABY                 = 102043,
+    SPELL_WHACK_SUMMON_BONUS                = 102044,
+    SPELL_GNOLL_AURA_OKAY_TO_HIT            = 101996,
+    SPELL_WHACK_A_GNOLL_ACTION_BAR_REMOVED  = 102137,
+    SPELL_WHACK_A_GNOLL_ACTION_BAR          = 110230,
+    SPELL_WHACK_TRIGGERED                   = 102022,
+    SPELL_WHACK_ROOT                        = 101829
+};
+
+class spell_darkmoon_island_whack_summon_aura : public AuraScript
+{
+    PrepareAuraScript(spell_darkmoon_island_whack_summon_aura);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GNOLL_AURA_OKAY_TO_HIT });
+    }
+
+    void OnPeriodic(AuraEffect const* aurEff)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_GNOLL_AURA_OKAY_TO_HIT, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_darkmoon_island_whack_summon_aura::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+class GnollHolderTargetSelector
+{
+    public:
+        GnollHolderTargetSelector(Unit* caster) : _caster(caster) { }
+
+        bool operator() (WorldObject* target)
+        {
+            return !_caster->CanSeeOrDetect(target);
+        }
+
+    private:
+        Unit* _caster;
+};
+
+class spell_darkmoon_island_gnoll_aura_okay_to_hit : public SpellScript
+{
+    PrepareSpellScript(spell_darkmoon_island_gnoll_aura_okay_to_hit);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_WHACK_SUMMON_NORMAL,
+                SPELL_WHACK_SUMMON_BABY,
+                SPELL_WHACK_SUMMON_BONUS
+            });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(GnollHolderTargetSelector(GetCaster()));
+
+        if (targets.size())
+            Trinity::Containers::RandomResize(targets, 1);
+
+    }
+
+    void HandleSummon(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        uint32 summonSpellId = SPELL_WHACK_SUMMON_NORMAL;
+        if (roll_chance_i(50))
+            summonSpellId = RAND(SPELL_WHACK_SUMMON_BABY, SPELL_WHACK_SUMMON_BONUS);
+
+        caster->CastSpell(GetHitUnit(), summonSpellId, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_darkmoon_island_gnoll_aura_okay_to_hit::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_darkmoon_island_gnoll_aura_okay_to_hit::HandleSummon, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+class spell_darkmoon_island_whack_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_darkmoon_island_whack_dummy);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_WHACK_TRIGGERED,
+                SPELL_WHACK_ROOT,
+            });
+    }
+
+    void HandleDummy()
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_WHACK_ROOT, true);
+        caster->CastSpell(caster, SPELL_WHACK_TRIGGERED);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_darkmoon_island_whack_dummy::HandleDummy);
+    }
+};
+
+class spell_darkmoon_island_whack : public SpellScript
+{
+    PrepareSpellScript(spell_darkmoon_island_whack);
+
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(GnollHolderTargetSelector(GetCaster()));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_darkmoon_island_whack::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENTRY);
+    }
+};
+
+class spell_darkmoon_island_whack_a_gnoll : public AuraScript
+{
+    PrepareAuraScript(spell_darkmoon_island_whack_a_gnoll);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_WHACK_A_GNOLL_ACTION_BAR,
+                SPELL_WHACK_A_GNOLL_ACTION_BAR_REMOVED
+            });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(GetSpellInfo()->Effects[EFFECT_1].TriggerSpell);
+        target->RemoveAurasDueToSpell(SPELL_WHACK_A_GNOLL_ACTION_BAR);
+        target->CastSpell(target, SPELL_WHACK_A_GNOLL_ACTION_BAR_REMOVED, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_darkmoon_island_whack_a_gnoll::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_darkmoon_island_whack_a_gnoll_player_action_bar_removed : public SpellScript
+{
+    PrepareSpellScript(spell_darkmoon_island_whack_a_gnoll_player_action_bar_removed);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(GnollHolderTargetSelector(GetCaster()));
+    }
+
+    void DespawnUnits(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetHitCreature())
+            creature->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_darkmoon_island_whack_a_gnoll_player_action_bar_removed::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_darkmoon_island_whack_a_gnoll_player_action_bar_removed::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_darkmoon_island_whack_a_gnoll_player_action_bar_removed::DespawnUnits, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_darkmoon_island_whack_a_gnoll_player_action_bar_removed::DespawnUnits, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -1800,4 +1991,10 @@ void AddSC_holiday_spell_scripts()
     // Darkmoon Island
     RegisterSpellScript(spell_darkmoon_island_deathmatch);
     RegisterSpellScript(spell_darkmoon_island_ring_toss);
+    RegisterAuraScript(spell_darkmoon_island_whack_summon_aura);
+    RegisterSpellScript(spell_darkmoon_island_gnoll_aura_okay_to_hit);
+    RegisterSpellScript(spell_darkmoon_island_whack_dummy);
+    RegisterSpellScript(spell_darkmoon_island_whack);
+    RegisterAuraScript(spell_darkmoon_island_whack_a_gnoll);
+    RegisterSpellScript(spell_darkmoon_island_whack_a_gnoll_player_action_bar_removed);
 }

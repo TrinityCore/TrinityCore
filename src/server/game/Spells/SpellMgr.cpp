@@ -5201,6 +5201,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].BasePoints = 7;
     });
 
+    ApplySpellFix({ 102022 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
