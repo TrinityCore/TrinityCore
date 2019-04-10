@@ -529,6 +529,7 @@ class TC_GAME_API Quest
         int32  GetPrevQuestId() const { return _prevQuestID; }
         uint32  GetNextQuestId() const { return _nextQuestID; }
         int32  GetExclusiveGroup() const { return _exclusiveGroup; }
+        int32  GetBreadcrumbForQuestId() const { return _breadcrumbForQuestId; }
         uint32 GetNextQuestInChain() const { return _nextQuestInChain; }
         int32  GetRewArenaPoints() const {return _rewardArenaPoints; }
         uint32 GetXPDifficulty() const { return _rewardXPDifficulty; }
@@ -638,6 +639,7 @@ class TC_GAME_API Quest
         void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
         std::vector<uint32> DependentPreviousQuests;
+        std::vector<uint32> DependentBreadcrumbQuests;
         std::array<WorldPacket, TOTAL_LOCALES> QueryData;
 
     private:
@@ -720,6 +722,7 @@ class TC_GAME_API Quest
         int32  _prevQuestID          = 0;
         uint32  _nextQuestID         = 0;
         int32  _exclusiveGroup       = 0;
+        int32  _breadcrumbForQuestId = 0;
         uint32 _rewardMailTemplateId = 0;
         uint32 _rewardMailDelay      = 0;
         uint32 _requiredSkillId      = 0;
