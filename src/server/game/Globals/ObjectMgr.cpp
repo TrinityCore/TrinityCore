@@ -4997,7 +4997,10 @@ void ObjectMgr::LoadQuests()
         if (uint32 breadcrumbForQuestId = std::abs(qinfo->_breadcrumbForQuestId))
         {
             if (_questTemplates.find(breadcrumbForQuestId) == _questTemplates.end())
+            {
                 TC_LOG_ERROR("sql.sql", "Quest %u is a breadcrumb for quest %u, but no such quest exists", qinfo->_id, breadcrumbForQuestId);
+                qinfo->_breadcrumbForQuestId = 0;
+            }
             if (qinfo->_nextQuestId)
                 TC_LOG_ERROR("sql.sql", "Quest %u is a breadcrumb, should not unlock quest %u", qinfo->_id, qinfo->_nextQuestId);
             if (qinfo->_exclusiveGroup)
@@ -5056,8 +5059,6 @@ void ObjectMgr::LoadQuests()
             }
 
             qinfo = const_cast<Quest*>(sObjectMgr->GetQuestTemplate(breadcrumbForQuestId));
-            if (!qinfo)
-                break;
 
             //every quest has a list of every breadcrumb towards it
             qinfo->DependentBreadcrumbQuests.push_back(qid);

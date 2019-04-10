@@ -15460,20 +15460,18 @@ bool Player::SatisfyQuestBreadcrumbQuest(Quest const* qInfo, bool msg) const
         return true;
 
     // If the target quest is not available
-    if (const Quest* targetQuest = sObjectMgr->GetQuestTemplate(breadcrumbTargetQuestId))
+    if (!CanTakeQuest(sObjectMgr->GetQuestTemplate(breadcrumbTargetQuestId), false))
     {
-        if (!CanTakeQuest(targetQuest, false))
+        if (msg)
         {
-            if (msg)
-            {
-                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
-                TC_LOG_DEBUG("misc", "Player::SatisfyQuestBreadcrumbQuest: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because target quest (QuestID: %u) is not available to player '%s' (%s).",
-                    qInfo->GetQuestId(), breadcrumbTargetQuestId, GetName().c_str(), GetGUID().ToString().c_str());
-            }
-
-            return false;
+            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+            TC_LOG_DEBUG("misc", "Player::SatisfyQuestBreadcrumbQuest: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because target quest (QuestID: %u) is not available to player '%s' (%s).",
+                qInfo->GetQuestId(), breadcrumbTargetQuestId, GetName().c_str(), GetGUID().ToString().c_str());
         }
+
+        return false;
     }
+
     return true;
 }
 
