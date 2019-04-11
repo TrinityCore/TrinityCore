@@ -178,16 +178,17 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
     _prevQuestId = fields[4].GetInt32();
     _nextQuestId = fields[5].GetUInt32();
     _exclusiveGroup = fields[6].GetInt32();
-    _rewardMailTemplateId = fields[7].GetUInt32();
-    _rewardMailDelay = fields[8].GetUInt32();
-    _requiredSkillId = fields[9].GetUInt16();
-    _requiredSkillPoints = fields[10].GetUInt16();
-    _requiredMinRepFaction = fields[11].GetUInt16();
-    _requiredMaxRepFaction = fields[12].GetUInt16();
-    _requiredMinRepValue = fields[13].GetInt32();
-    _requiredMaxRepValue = fields[14].GetInt32();
-    _startItemCount = fields[15].GetUInt8();
-    _specialFlags = fields[16].GetUInt8();
+    _breadcrumbForQuestId = fields[7].GetInt32();
+    _rewardMailTemplateId = fields[8].GetUInt32();
+    _rewardMailDelay = fields[9].GetUInt32();
+    _requiredSkillId = fields[10].GetUInt16();
+    _requiredSkillPoints = fields[11].GetUInt16();
+    _requiredMinRepFaction = fields[12].GetUInt16();
+    _requiredMaxRepFaction = fields[13].GetUInt16();
+    _requiredMinRepValue = fields[14].GetInt32();
+    _requiredMaxRepValue = fields[15].GetInt32();
+    _startItemCount = fields[16].GetUInt8();
+    _specialFlags = fields[17].GetUInt8();
 
     if (_specialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         _flags |= QUEST_FLAGS_AUTO_ACCEPT;

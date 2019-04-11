@@ -769,7 +769,7 @@ struct npc_hadronox_foeAI : public ScriptedAI
                         me->GetMotionMaster()->MovePoint(MOVE_DOWNSTAIRS_2, downstairsMoves2[_mySpawn]);
                         break;
                     }
-                    // intentional missing break
+                    /* fallthrough */
                 case MOVE_HADRONOX:
                 case MOVE_HADRONOX_REAL:
                 {

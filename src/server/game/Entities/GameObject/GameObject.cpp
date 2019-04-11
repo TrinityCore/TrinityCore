@@ -513,6 +513,7 @@ void GameObject::Update(uint32 diff)
             }
             // NO BREAK for switch (m_lootState)
         }
+        /* fallthrough */
         case GO_READY:
         {
             if (m_respawnCompatibilityMode)
@@ -1417,7 +1418,7 @@ void GameObject::Use(Unit* user)
     if (Player* playerUser = user->ToPlayer())
     {
         if (!m_goInfo->IsUsableMounted())
-            playerUser->Dismount();
+            playerUser->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
         playerUser->PlayerTalkClass->ClearMenus();
         if (AI()->GossipHello(playerUser))
