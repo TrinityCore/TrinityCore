@@ -14643,7 +14643,7 @@ Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const* quest) const
     return nullptr;
 }
 
-bool Player::CanSeeStartQuest(Quest const* quest)
+bool Player::CanSeeStartQuest(Quest const* quest) const
 {
     if (!DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this) && SatisfyQuestClass(quest, false) && SatisfyQuestRace(quest, false) &&
         SatisfyQuestSkill(quest, false) && SatisfyQuestExclusiveGroup(quest, false) && SatisfyQuestReputation(quest, false) &&
@@ -14657,7 +14657,7 @@ bool Player::CanSeeStartQuest(Quest const* quest)
     return false;
 }
 
-bool Player::CanTakeQuest(Quest const* quest, bool msg)
+bool Player::CanTakeQuest(Quest const* quest, bool msg) const
 {
     return !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this)
         && SatisfyQuestStatus(quest, msg) && SatisfyQuestExclusiveGroup(quest, msg)
@@ -15370,7 +15370,8 @@ bool Player::SatisfyQuestLog(bool msg) const
 
 bool Player::SatisfyQuestDependentQuests(Quest const* qInfo, bool msg) const
 {
-    return SatisfyQuestPreviousQuest(qInfo, msg) && SatisfyQuestDependentPreviousQuests(qInfo, msg);
+    return SatisfyQuestPreviousQuest(qInfo, msg) && SatisfyQuestDependentPreviousQuests(qInfo, msg) &&
+           SatisfyQuestBreadcrumbQuest(qInfo, msg) && SatisfyQuestDependentBreadcrumbQuests(qInfo, msg);
 }
 
 bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg) const
@@ -15458,6 +15459,51 @@ bool Player::SatisfyQuestDependentPreviousQuests(Quest const* qInfo, bool msg) c
     return false;
 }
 
+bool Player::SatisfyQuestBreadcrumbQuest(Quest const* qInfo, bool msg) const
+{
+    uint32 breadcrumbTargetQuestId = std::abs(qInfo->GetBreadcrumbForQuestId());
+
+    //If this is not a breadcrumb quest.
+    if (!breadcrumbTargetQuestId)
+        return true;
+
+    // If the target quest is not available
+    if (!CanTakeQuest(sObjectMgr->GetQuestTemplate(breadcrumbTargetQuestId), false))
+    {
+        if (msg)
+        {
+            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+            TC_LOG_DEBUG("misc", "Player::SatisfyQuestBreadcrumbQuest: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because target quest (QuestID: %u) is not available to player '%s' (%s).",
+                qInfo->GetQuestId(), breadcrumbTargetQuestId, GetName().c_str(), GetGUID().ToString().c_str());
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
+bool Player::SatisfyQuestDependentBreadcrumbQuests(Quest const* qInfo, bool msg) const
+{
+    for (uint32 breadcrumbQuestId : qInfo->DependentBreadcrumbQuests)
+    {
+        QuestStatus status = GetQuestStatus(breadcrumbQuestId);
+        // If any of the breadcrumb quests are in the quest log, return false.
+        if (status == QUEST_STATUS_INCOMPLETE || status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_FAILED)
+        {
+            if (msg)
+            {
+                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+                TC_LOG_DEBUG("misc", "Player::SatisfyQuestDependentBreadcrumbQuests: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because player '%s' (%s) has a breadcrumb quest towards this quest in the quest log.",
+                    qInfo->GetQuestId(), GetName().c_str(), GetGUID().ToString().c_str());
+            }
+
+            return false;
+        }
+    }
+    return true;
+}
+
 bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
 {
     uint32 reqClass = qInfo->GetRequiredClasses();
@@ -15499,7 +15545,7 @@ bool Player::SatisfyQuestRace(Quest const* qInfo, bool msg) const
     return true;
 }
 
-bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
+bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg) const
 {
     uint32 fIdMin = qInfo->GetRequiredMinRepFaction();      //Min required rep
     if (fIdMin && GetReputationMgr().GetReputation(fIdMin) < qInfo->GetRequiredMinRepValue())
@@ -15567,9 +15613,9 @@ bool Player::SatisfyQuestStatus(Quest const* qInfo, bool msg) const
     return true;
 }
 
-bool Player::SatisfyQuestConditions(Quest const* qInfo, bool msg)
+bool Player::SatisfyQuestConditions(Quest const* qInfo, bool msg) const
 {
-    if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_QUEST_AVAILABLE, qInfo->GetQuestId(), this))
+    if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_QUEST_AVAILABLE, qInfo->GetQuestId(), const_cast<Player*>(this)))
     {
         if (msg)
         {
