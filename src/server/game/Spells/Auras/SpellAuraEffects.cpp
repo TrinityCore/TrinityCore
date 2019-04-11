@@ -5005,7 +5005,13 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
 
 void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const
 {
-    uint32 triggerSpellId = GetSpellInfo()->Effects[GetEffIndex()].TriggerSpell;
+    uint32 triggerSpellId = GetSpellInfo()->Effects[m_effIndex].TriggerSpell;
+    if (triggerSpellId == 0)
+    {
+        TC_LOG_DEBUG("spells.nospell", "AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell %u [EffectIndex: %u] does not have triggered spell.", GetId(), m_effIndex);
+        return;
+    }
+
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
     {
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? caster : target)
@@ -5019,12 +5025,18 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
         }
     }
     else
-        TC_LOG_WARN("spells.nospell", "AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell %u has non-existent spell %u in EffectTriggered[%d] and is therefore not triggered.", GetId(), triggerSpellId, GetEffIndex());
+        TC_LOG_ERROR("spells.nospell", "AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell %u has non-existent spell %u in EffectTriggered[%d] and is therefore not triggered.", GetId(), triggerSpellId, m_effIndex);
 }
 
 void AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit* caster) const
 {
     uint32 triggerSpellId = GetSpellInfo()->Effects[m_effIndex].TriggerSpell;
+    if (triggerSpellId == 0)
+    {
+        TC_LOG_DEBUG("spells.nospell", "AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick: Spell %u [EffectIndex: %u] does not have triggered spell.", GetId(), m_effIndex);
+        return;
+    }
+
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
     {
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) ? caster : target)
@@ -5040,7 +5052,7 @@ void AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit*
         }
     }
     else
-        TC_LOG_WARN("spells","AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick: Spell %u has non-existent spell %u in EffectTriggered[%d] and is therefore not triggered.", GetId(), triggerSpellId, GetEffIndex());
+        TC_LOG_ERROR("spells.nospell","AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick: Spell %u has non-existent spell %u in EffectTriggered[%d] and is therefore not triggered.", GetId(), triggerSpellId, m_effIndex);
 }
 
 void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
@@ -5586,14 +5598,20 @@ void AuraEffect::HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEve
     Unit* triggerCaster = aurApp->GetTarget();
     Unit* triggerTarget = eventInfo.GetProcTarget();
 
-    uint32 triggerSpellId = GetSpellInfo()->Effects[GetEffIndex()].TriggerSpell;
+    uint32 triggerSpellId = GetSpellInfo()->Effects[m_effIndex].TriggerSpell;
+    if (triggerSpellId == 0)
+    {
+        TC_LOG_DEBUG("spells.nospell", "AuraEffect::HandleProcTriggerSpellAuraProc: Spell %u [EffectIndex: %u] does not have triggered spell.", GetId(), m_effIndex);
+        return;
+    }
+
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
     {
         TC_LOG_DEBUG("spells", "AuraEffect::HandleProcTriggerSpellAuraProc: Triggering spell %u from aura %u proc", triggeredSpellInfo->Id, GetId());
         triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo->Id, this);
     }
     else
-        TC_LOG_ERROR("spells.nospell.auraproc","AuraEffect::HandleProcTriggerSpellAuraProc: Could not trigger spell %u from aura %u proc, because the spell does not have an entry in Spell.dbc.", triggerSpellId, GetId());
+        TC_LOG_ERROR("spells.nospell","AuraEffect::HandleProcTriggerSpellAuraProc: Spell %u has non-existent spell %u in EffectTriggered[%d] and is therefore not triggered.", GetId(), triggerSpellId, m_effIndex);
 }
 
 void AuraEffect::HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
@@ -5602,6 +5620,12 @@ void AuraEffect::HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp
     Unit* triggerTarget = eventInfo.GetProcTarget();
 
     uint32 triggerSpellId = GetSpellInfo()->Effects[m_effIndex].TriggerSpell;
+    if (triggerSpellId == 0)
+    {
+        TC_LOG_DEBUG("spells.nospell", "AuraEffect::HandleProcTriggerSpellAuraProc: Spell %u [EffectIndex: %u] does not have triggered spell.", GetId(), m_effIndex);
+        return;
+    }
+
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
     {
         CastSpellExtraArgs args(this);
@@ -5610,7 +5634,7 @@ void AuraEffect::HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp
         TC_LOG_DEBUG("spells", "AuraEffect::HandleProcTriggerSpellWithValueAuraProc: Triggering spell %u with value %d from aura %u proc", triggeredSpellInfo->Id, GetAmount(), GetId());
     }
     else
-        TC_LOG_ERROR("spells.nospell.valueauraproc","AuraEffect::HandleProcTriggerSpellWithValueAuraProc: Could not trigger spell %u from aura %u proc, because the spell does not have an entry in Spell.dbc.", triggerSpellId, GetId());
+        TC_LOG_ERROR("spells.nospell","AuraEffect::HandleProcTriggerSpellWithValueAuraProc: Spell %u has non-existent spell %u in EffectTriggered[%d] and is therefore not triggered.", GetId(), triggerSpellId, m_effIndex);
 }
 
 void AuraEffect::HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
