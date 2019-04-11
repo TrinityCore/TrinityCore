@@ -474,7 +474,7 @@ struct npc_daegarn : public ScriptedAI
                 {
                     if (player->IsAlive() && player->IsEngaged())
                     {
-                        for (auto itr = _summons.begin(); !reset && itr != _summons.end(); ++itr)
+                        for (auto itr = _summons.begin(); reset && itr != _summons.end(); ++itr)
                         {
                             Creature* summon = ObjectAccessor::GetCreature(*me, *_summons.begin());
                             if (summon && player->IsEngagedBy(summon))
