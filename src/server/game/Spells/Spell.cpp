@@ -6310,10 +6310,7 @@ SpellCastResult Spell::CheckRange(bool strict) const
 
     if (GameObject* goTarget = m_targets.GetGOTarget())
     {
-        if (origMinRange > 0.0f && goTarget->IsInRange(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), origMinRange))
-            return SPELL_FAILED_OUT_OF_RANGE;
-
-        if (!goTarget->IsInRange(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), origMaxRange))
+        if (!goTarget->IsAtInteractDistance(m_caster->ToPlayer(), m_spellInfo))
             return SPELL_FAILED_OUT_OF_RANGE;
     }
 
