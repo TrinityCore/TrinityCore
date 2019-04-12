@@ -2694,7 +2694,7 @@ SpellInfo const* GameObject::GetSpellForLock(Player const* player) const
         for (auto&& playerSpell : player->GetSpellMap())
             if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(playerSpell.first))
                 for (auto&& effect : spell->Effects)
-                    if (effect.Effect == SPELL_EFFECT_OPEN_LOCK && effect.MiscValue == lock->Index[i])
+                    if (effect.Effect == SPELL_EFFECT_OPEN_LOCK && ((uint32) effect.MiscValue) == lock->Index[i])
                         if (effect.CalcValue(player) >= int32(lock->Skill[i]))
                             return spell;
     }
