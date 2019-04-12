@@ -155,8 +155,9 @@ uint32 MySQLConnection::Open()
     else
     {
         TC_LOG_ERROR("sql.sql", "Could not connect to MySQL database at %s: %s", m_connectionInfo.host.c_str(), mysql_error(mysqlInit));
+        uint32 errorCode = mysql_errno(mysqlInit);
         mysql_close(mysqlInit);
-        return mysql_errno(mysqlInit);
+        return errorCode;
     }
 }
 
