@@ -128,6 +128,7 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
 
     uint32 friendsCount = 0;
     uint32 ignoredCount = 0;
+    uint32 totalCount = 0;
 
     WorldPacket data(SMSG_CONTACT_LIST, (4 + 4 + _playerSocialMap.size() * 25)); // just can guess size
     data << uint32(flags);                                    // 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
@@ -148,6 +149,7 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
             if (++ignoredCount >= SOCIALMGR_IGNORE_LIMIT)
                 continue;
 
+        ++totalCount;
         sSocialMgr->GetFriendInfo(player, v.first, v.second);
 
         data << uint64(v.first);                              // player guid
@@ -165,7 +167,7 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
         }
     }
 
-    data.put<uint32>(countPos, friendsCount + ignoredCount);
+    data.put<uint32>(countPos, totalCount);
 
     player->SendDirectMessage(&data);
 }
