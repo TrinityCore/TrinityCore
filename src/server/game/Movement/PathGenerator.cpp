@@ -469,6 +469,13 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
     else
         _type = PATHFIND_INCOMPLETE;
 
+    if (_type & PATHFIND_INCOMPLETE && _sourceUnit->CanFly())
+    {
+        BuildShortcut();
+        _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+        return;
+    }
+
     // generate the point-path out of our up-to-date poly-path
     BuildPointPath(startPoint, endPoint);
 }
