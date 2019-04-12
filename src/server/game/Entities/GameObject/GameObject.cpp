@@ -2590,7 +2590,6 @@ bool GameObject::IsAtInteractDistance(Player const* player, SpellInfo const* spe
 {
     if (spell || (spell = GetSpellForLock(player)))
     {
-        float minRange = spell->GetMinRange(spell->IsPositive());
         float maxRange = spell->GetMaxRange(spell->IsPositive());
 
         if (GetGoType() == GAMEOBJECT_TYPE_SPELL_FOCUS)
