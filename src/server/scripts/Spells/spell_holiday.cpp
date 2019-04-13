@@ -1786,7 +1786,14 @@ class GnollHolderTargetSelector
 
         bool operator() (WorldObject* target)
         {
-            return !_caster->CanSeeOrDetect(target);
+            if (target->GetTypeId() != TYPEID_UNIT)
+                return true;
+
+            if (TempSummon* summon = target->ToUnit()->ToTempSummon())
+                if (summon->GetSummoner() == _caster)
+                    return false;
+
+            return true;
         }
 
     private:
@@ -1868,7 +1875,6 @@ class spell_darkmoon_island_whack_dummy : public SpellScript
 class spell_darkmoon_island_whack : public SpellScript
 {
     PrepareSpellScript(spell_darkmoon_island_whack);
-
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
