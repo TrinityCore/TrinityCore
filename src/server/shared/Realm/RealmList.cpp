@@ -20,6 +20,7 @@
 #include "BattlenetRpcErrorCodes.h"
 #include "BigNumber.h"
 #include "DatabaseEnv.h"
+#include "DeadlineTimer.h"
 #include "Errors.h"
 #include "IoContext.h"
 #include "Log.h"
@@ -28,7 +29,6 @@
 #include "Util.h"
 #include "game_utilities_service.pb.h"
 #include "RealmList.pb.h"
-#include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
@@ -53,7 +53,7 @@ RealmList* RealmList::Instance()
 void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInterval)
 {
     _updateInterval = updateInterval;
-    _updateTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioContext);
+    _updateTimer = Trinity::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
     _resolver = Trinity::make_unique<boost::asio::ip::tcp::resolver>(ioContext);
 
     // Get the content of the realmlist table in the database
