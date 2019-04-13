@@ -28,12 +28,15 @@ uint32 const EncounterCount = 6;
 enum BWDDataTypes
 {
     // Bosses
-    DATA_MAGMAW                     = 0,
-    DATA_OMNOTRON_DEFENSE_SYSTEM    = 1,
-    DATA_CHIMAERON                  = 2,
-    DATA_ATRAMEDES                  = 3,
-    DATA_MALORIAK                   = 4,
-    DATA_NEFARIANS_END              = 5
+    DATA_MAGMAW                                     = 0,
+    DATA_OMNOTRON_DEFENSE_SYSTEM                    = 1,
+    DATA_CHIMAERON                                  = 2,
+    DATA_ATRAMEDES                                  = 3,
+    DATA_MALORIAK                                   = 4,
+    DATA_NEFARIANS_END                              = 5,
+
+    // Encounter Data
+    DATA_PREPARE_MASSIVE_CRASH_AND_GET_TARGET_GUID
 };
 
 enum BWDCreatureIds
@@ -57,10 +60,28 @@ enum BWDCreatureIds
     NPC_EXPOSED_HEAD_OF_MAGMAW_2                    = 48270,
     NPC_PILLAR_OF_FLAME                             = 41843,
     NPC_LAVA_PARASITE                               = 41806,
+    NPC_MASSIVE_CRASH                               = 47330,
+    NPC_ROOM_STALKER                                = 47196,
+    NPC_MAGMAW_SPIKE_STALKER                        = 41767,
 };
 
 enum BWDGameObjectIds
 {
+};
+
+enum BWDMisc
+{
+    MASSIVE_CRASH_SIDE_LEFT     = 0,
+    MASSIVE_CRASH_SIDE_RIGHT    = 1
+};
+
+enum BWDSpells
+{
+    // Room Stalker
+    SPELL_LIGHT_SHOW            = 87949,
+
+    // Massive Crash
+    SPELL_MASSIVE_CRASH_DAMAGE  = 88287,
 };
 
 template <class AI, class T>
