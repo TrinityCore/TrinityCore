@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -276,9 +276,9 @@ public:
         for (uint16 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
         {
             if (flag != 0)
-                handler->GetSession()->GetPlayer()->SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0xFFFFFFFF);
+                handler->GetSession()->GetPlayer()->SetFlag(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + i, 0xFFFFFFFF);
             else
-                handler->GetSession()->GetPlayer()->SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0);
+                handler->GetSession()->GetPlayer()->SetFlag(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + i, 0);
         }
 
         return true;

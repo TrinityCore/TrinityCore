@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -119,6 +119,9 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     if (!i_path || i_path->nodes.empty())
         return false;
+
+    if (Stopped())
+        return true;
 
     bool transportPath = creature->GetTransport() != nullptr;
 
@@ -404,6 +407,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* player)
     }
 
     player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
+    player->RestoreDisplayId();
 }
 
 #define PLAYER_FLIGHT_SPEED 30.0f

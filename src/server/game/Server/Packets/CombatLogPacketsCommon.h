@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,31 +41,34 @@ namespace WorldPackets
             int64 Health = 0;
             int32 AttackPower = 0;
             int32 SpellPower = 0;
+            int32 Armor = 0;
             std::vector<SpellLogPowerData> PowerData;
 
             void Initialize(Unit const* unit);
             void Initialize(Spell const* spell);
         };
 
-        struct SandboxScalingData
+        struct ContentTuningParams
         {
-            enum SandboxScalingDataType : uint32
+            enum ContentTuningType : uint32
             {
-                TYPE_PLAYER_TO_PLAYER               = 1, // NYI
-                TYPE_CREATURE_TO_PLAYER_DAMAGE      = 2,
-                TYPE_PLAYER_TO_CREATURE_DAMAGE      = 3,
+                TYPE_PLAYER_TO_PLAYER               = 7, // NYI
+                TYPE_PLAYER_TO_PLAYER_HEALING       = 8,
+                TYPE_CREATURE_TO_PLAYER_DAMAGE      = 1,
+                TYPE_PLAYER_TO_CREATURE_DAMAGE      = 2,
                 TYPE_CREATURE_TO_CREATURE_DAMAGE    = 4
             };
 
             uint32 Type = 0;
             int16 PlayerLevelDelta = 0;
             uint16 PlayerItemLevel = 0;
+            uint16 ScalingHealthItemLevelCurveID = 0;
             uint8 TargetLevel = 0;
             uint8 Expansion = 0;
-            uint8 Class = 0;
             uint8 TargetMinScalingLevel = 0;
             uint8 TargetMaxScalingLevel = 0;
             int8 TargetScalingLevelDelta = 0;
+            bool ScalesWithItemLevel = false;
 
             template<class T, class U>
             bool GenerateDataForUnits(T* attacker, U* target);
@@ -126,6 +129,6 @@ namespace WorldPackets
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SandboxScalingData const& sandboxScalingData);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::ContentTuningParams const& contentTuningParams);
 
 #endif // CombatLogPacketsCommon_h__

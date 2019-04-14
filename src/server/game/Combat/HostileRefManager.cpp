@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -133,6 +133,26 @@ void HostileRefManager::deleteReferencesForFaction(uint32 faction)
     {
         HostileReference* nextRef = ref->next();
         if (ref->GetSource()->GetOwner()->GetFactionTemplateEntry()->Faction == faction)
+        {
+            ref->removeReference();
+            delete ref;
+        }
+        ref = nextRef;
+    }
+}
+
+//=================================================
+// delete all references out of specified range
+
+void HostileRefManager::deleteReferencesOutOfRange(float range)
+{
+    HostileReference* ref = getFirst();
+    range = range*range;
+    while (ref)
+    {
+        HostileReference* nextRef = ref->next();
+        Unit* owner = ref->GetSource()->GetOwner();
+        if (!owner->isActiveObject() && owner->GetExactDist2dSq(GetOwner()) > range)
         {
             ref->removeReference();
             delete ref;

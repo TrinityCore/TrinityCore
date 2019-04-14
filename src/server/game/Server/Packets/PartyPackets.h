@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,8 +48,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
-            int32 ProposedRoles = 0;
+            uint8 PartyIndex = 0;
+            uint32 ProposedRoles = 0;
             std::string TargetName;
             std::string TargetRealm;
             ObjectGuid TargetGUID;
@@ -85,9 +85,9 @@ namespace WorldPackets
             std::string InviterRealmNameNormalized;
 
             // Lfg
-            int32 ProposedRoles = 0;
-            int32 LfgCompletedMask = 0;
-            std::vector<int32> LfgSlots;
+            uint32 ProposedRoles = 0;
+            uint32 LfgCompletedMask = 0;
+            std::vector<uint32> LfgSlots;
         };
 
         class PartyInviteResponse final : public ClientPacket
@@ -97,9 +97,9 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             bool Accept = false;
-            Optional<int32> RolesDesired;
+            Optional<uint32> RolesDesired;
         };
 
         class PartyUninvite final : public ClientPacket
@@ -109,7 +109,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             ObjectGuid TargetGUID;
             std::string Reason;
         };
@@ -327,7 +327,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             std::map<uint8, ObjectGuid> TargetIcons;
         };
 
@@ -359,7 +359,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Target;
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             bool Apply = false;
         };
 
@@ -405,7 +405,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             bool IsReady = false;
         };
 
@@ -486,13 +486,14 @@ namespace WorldPackets
         {
             ObjectGuid GUID;
             std::string Name;
+            std::string VoiceStateID;   // same as bgs.protocol.club.v1.MemberVoiceState.id
             uint8 Class = 0;
-
             uint8 Status = 0u;
             uint8 Subgroup = 0u;
             uint8 Flags = 0u;
             uint8 RolesAssigned = 0u;
             bool FromSocialQueue = false;
+            bool VoiceChatSilenced = false;
         };
 
         struct PartyLFGInfo
@@ -554,7 +555,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             bool EveryoneIsAssistant = false;
         };
 
@@ -599,7 +600,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int8 PartyIndex = 0;
+            uint8 PartyIndex = 0;
             uint32 ActiveMarkers = 0u;
 
             std::vector<RaidMarker*> RaidMarkers;

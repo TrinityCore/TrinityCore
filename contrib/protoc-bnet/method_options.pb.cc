@@ -20,6 +20,9 @@ namespace Battlenet {
 
 namespace {
 
+const ::google::protobuf::Descriptor* BGSMethodOptions_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  BGSMethodOptions_reflection_ = NULL;
 
 }  // namespace
 
@@ -30,6 +33,21 @@ void protobuf_AssignDesc_method_5foptions_2eproto() {
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "method_options.proto");
   GOOGLE_CHECK(file != NULL);
+  BGSMethodOptions_descriptor_ = file->message_type(0);
+  static const int BGSMethodOptions_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, id_),
+  };
+  BGSMethodOptions_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      BGSMethodOptions_descriptor_,
+      BGSMethodOptions::default_instance_,
+      BGSMethodOptions_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(BGSMethodOptions));
 }
 
 namespace {
@@ -42,11 +60,15 @@ inline void protobuf_AssignDescriptorsOnce() {
 
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    BGSMethodOptions_descriptor_, &BGSMethodOptions::default_instance());
 }
 
 }  // namespace
 
 void protobuf_ShutdownFile_method_5foptions_2eproto() {
+  delete BGSMethodOptions::default_instance_;
+  delete BGSMethodOptions_reflection_;
 }
 
 void protobuf_AddDesc_method_5foptions_2eproto() {
@@ -58,14 +80,19 @@ void protobuf_AddDesc_method_5foptions_2eproto() {
   ::google::protobuf::protobuf_AddDesc_google_2fprotobuf_2fdescriptor_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\024method_options.proto\022\tBattlenet\032 googl"
-    "e/protobuf/descriptor.proto:3\n\tmethod_id"
-    "\022\036.google.protobuf.MethodOptions\030\320\206\003 \001(\r"
-    "B\002H\002", 124);
+    "e/protobuf/descriptor.proto\"\036\n\020BGSMethod"
+    "Options\022\n\n\002id\030\001 \001(\r:U\n\016method_options\022\036."
+    "google.protobuf.MethodOptions\030\220\277\005 \001(\0132\033."
+    "Battlenet.BGSMethodOptionsB%\n\rbnet.proto"
+    "colB\022MethodOptionsProtoH\002", 225);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "method_options.proto", &protobuf_RegisterTypes);
-  ::google::protobuf::internal::ExtensionSet::RegisterExtension(
+  BGSMethodOptions::default_instance_ = new BGSMethodOptions();
+  ::google::protobuf::internal::ExtensionSet::RegisterMessageExtension(
     &::google::protobuf::MethodOptions::default_instance(),
-    50000, 13, false, false);
+    90000, 11, false, false,
+    &::Battlenet::BGSMethodOptions::default_instance());
+  BGSMethodOptions::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_method_5foptions_2eproto);
 }
 
@@ -75,9 +102,82 @@ struct StaticDescriptorInitializer_method_5foptions_2eproto {
     protobuf_AddDesc_method_5foptions_2eproto();
   }
 } static_descriptor_initializer_method_5foptions_2eproto_;
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int BGSMethodOptions::kIdFieldNumber;
+#endif  // !_MSC_VER
+
+BGSMethodOptions::BGSMethodOptions()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Battlenet.BGSMethodOptions)
+}
+
+void BGSMethodOptions::InitAsDefaultInstance() {
+}
+
+BGSMethodOptions::BGSMethodOptions(const BGSMethodOptions& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:Battlenet.BGSMethodOptions)
+}
+
+void BGSMethodOptions::SharedCtor() {
+  _cached_size_ = 0;
+  id_ = 0u;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+BGSMethodOptions::~BGSMethodOptions() {
+  // @@protoc_insertion_point(destructor:Battlenet.BGSMethodOptions)
+  SharedDtor();
+}
+
+void BGSMethodOptions::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void BGSMethodOptions::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* BGSMethodOptions::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return BGSMethodOptions_descriptor_;
+}
+
+const BGSMethodOptions& BGSMethodOptions::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_method_5foptions_2eproto();
+  return *default_instance_;
+}
+
+BGSMethodOptions* BGSMethodOptions::default_instance_ = NULL;
+
+BGSMethodOptions* BGSMethodOptions::New() const {
+  return new BGSMethodOptions;
+}
+
+void BGSMethodOptions::Swap(BGSMethodOptions* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata BGSMethodOptions::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = BGSMethodOptions_descriptor_;
+  metadata.reflection = BGSMethodOptions_reflection_;
+  return metadata;
+}
+
 ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::MethodOptions,
-    ::google::protobuf::internal::PrimitiveTypeTraits< ::google::protobuf::uint32 >, 13, false >
-  method_id(kMethodIdFieldNumber, 0u);
+    ::google::protobuf::internal::MessageTypeTraits< ::Battlenet::BGSMethodOptions >, 11, false >
+  method_options(kMethodOptionsFieldNumber, ::Battlenet::BGSMethodOptions::default_instance());
 
 // @@protoc_insertion_point(namespace_scope)
 

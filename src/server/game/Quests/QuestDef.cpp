@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,38 +37,40 @@ Quest::Quest(Field* questRecord)
     ID = questRecord[0].GetUInt32();
     Type = questRecord[1].GetUInt8();
     Level = questRecord[2].GetInt32();
-    MaxScalingLevel = questRecord[3].GetInt32();
-    PackageID = questRecord[4].GetUInt32();
-    MinLevel = questRecord[5].GetInt32();
-    QuestSortID = questRecord[6].GetInt16();
-    QuestInfoID = questRecord[7].GetUInt16();
-    SuggestedPlayers = questRecord[8].GetUInt8();
-    NextQuestInChain = questRecord[9].GetUInt32();
-    RewardXPDifficulty = questRecord[10].GetUInt32();
-    RewardXPMultiplier = questRecord[11].GetFloat();
-    RewardMoney = questRecord[12].GetUInt32();
-    RewardMoneyDifficulty = questRecord[13].GetUInt32();
-    RewardMoneyMultiplier = questRecord[14].GetFloat();
-    RewardBonusMoney = questRecord[15].GetUInt32();
+    ScalingFactionGroup = questRecord[3].GetInt32();
+    MaxScalingLevel = questRecord[4].GetInt32();
+    PackageID = questRecord[5].GetUInt32();
+    MinLevel = questRecord[6].GetInt32();
+    QuestSortID = questRecord[7].GetInt16();
+    QuestInfoID = questRecord[8].GetUInt16();
+    SuggestedPlayers = questRecord[9].GetUInt8();
+    NextQuestInChain = questRecord[10].GetUInt32();
+    RewardXPDifficulty = questRecord[11].GetUInt32();
+    RewardXPMultiplier = questRecord[12].GetFloat();
+    RewardMoney = questRecord[13].GetUInt32();
+    RewardMoneyDifficulty = questRecord[14].GetUInt32();
+    RewardMoneyMultiplier = questRecord[15].GetFloat();
+    RewardBonusMoney = questRecord[16].GetUInt32();
     for (uint32 i = 0; i < QUEST_REWARD_DISPLAY_SPELL_COUNT; ++i)
-        RewardDisplaySpell[i] = questRecord[16 + i].GetUInt32();
+        RewardDisplaySpell[i] = questRecord[17 + i].GetUInt32();
 
-    RewardSpell = questRecord[19].GetUInt32();
-    RewardHonor = questRecord[20].GetUInt32();
-    RewardKillHonor = questRecord[21].GetUInt32();
-    SourceItemId = questRecord[22].GetUInt32();
-    RewardArtifactXPDifficulty = questRecord[23].GetUInt32();
-    RewardArtifactXPMultiplier = questRecord[24].GetFloat();
-    RewardArtifactCategoryID = questRecord[25].GetUInt32();
-    Flags = questRecord[26].GetUInt32();
-    FlagsEx = questRecord[27].GetUInt32();
+    RewardSpell = questRecord[20].GetUInt32();
+    RewardHonor = questRecord[21].GetUInt32();
+    RewardKillHonor = questRecord[22].GetUInt32();
+    SourceItemId = questRecord[23].GetUInt32();
+    RewardArtifactXPDifficulty = questRecord[24].GetUInt32();
+    RewardArtifactXPMultiplier = questRecord[25].GetFloat();
+    RewardArtifactCategoryID = questRecord[26].GetUInt32();
+    Flags = questRecord[27].GetUInt32();
+    FlagsEx = questRecord[28].GetUInt32();
+    FlagsEx2 = questRecord[29].GetUInt32();
 
     for (uint32 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
     {
-        RewardItemId[i] = questRecord[28 + i * 4].GetUInt32();
-        RewardItemCount[i] = questRecord[29 + i * 4].GetUInt32();
-        ItemDrop[i] = questRecord[30 + i * 4].GetUInt32();
-        ItemDropQuantity[i] = questRecord[31 + i * 4].GetUInt32();
+        RewardItemId[i] = questRecord[30 + i * 4].GetUInt32();
+        RewardItemCount[i] = questRecord[31 + i * 4].GetUInt32();
+        ItemDrop[i] = questRecord[32 + i * 4].GetUInt32();
+        ItemDropQuantity[i] = questRecord[33 + i * 4].GetUInt32();
 
         if (RewardItemId[i])
             ++_rewItemsCount;
@@ -76,63 +78,64 @@ Quest::Quest(Field* questRecord)
 
     for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
     {
-        RewardChoiceItemId[i] = questRecord[44 + i * 3].GetUInt32();
-        RewardChoiceItemCount[i] = questRecord[45 + i * 3].GetUInt32();
-        RewardChoiceItemDisplayId[i] = questRecord[46 + i * 3].GetUInt32();
+        RewardChoiceItemId[i] = questRecord[46 + i * 3].GetUInt32();
+        RewardChoiceItemCount[i] = questRecord[47 + i * 3].GetUInt32();
+        RewardChoiceItemDisplayId[i] = questRecord[48 + i * 3].GetUInt32();
 
         if (RewardChoiceItemId[i])
             ++_rewChoiceItemsCount;
     }
 
-    POIContinent = questRecord[62].GetUInt32();
-    POIx = questRecord[63].GetFloat();
-    POIy = questRecord[64].GetFloat();
-    POIPriority = questRecord[65].GetUInt32();
+    POIContinent = questRecord[64].GetUInt32();
+    POIx = questRecord[65].GetFloat();
+    POIy = questRecord[66].GetFloat();
+    POIPriority = questRecord[67].GetUInt32();
 
-    RewardTitleId = questRecord[66].GetUInt32();
-    RewardArenaPoints = questRecord[67].GetUInt32();
-    RewardSkillId = questRecord[68].GetUInt32();
-    RewardSkillPoints = questRecord[69].GetUInt32();
+    RewardTitleId = questRecord[68].GetUInt32();
+    RewardArenaPoints = questRecord[69].GetUInt32();
+    RewardSkillId = questRecord[70].GetUInt32();
+    RewardSkillPoints = questRecord[71].GetUInt32();
 
-    QuestGiverPortrait = questRecord[70].GetUInt32();
-    QuestTurnInPortrait = questRecord[71].GetUInt32();
+    QuestGiverPortrait = questRecord[72].GetUInt32();
+    QuestGiverPortraitMount = questRecord[73].GetUInt32();
+    QuestTurnInPortrait = questRecord[74].GetUInt32();
 
     for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
     {
-        RewardFactionId[i] = questRecord[72 + i * 4].GetUInt32();
-        RewardFactionValue[i] = questRecord[73 + i * 4].GetInt32();
-        RewardFactionOverride[i] = questRecord[74 + i * 4].GetInt32();
-        RewardFactionCapIn[i] = questRecord[75 + i * 4].GetUInt32();
+        RewardFactionId[i] = questRecord[75 + i * 4].GetUInt32();
+        RewardFactionValue[i] = questRecord[76 + i * 4].GetInt32();
+        RewardFactionOverride[i] = questRecord[77 + i * 4].GetInt32();
+        RewardFactionCapIn[i] = questRecord[78 + i * 4].GetUInt32();
     }
 
-    RewardReputationMask = questRecord[92].GetUInt32();
+    RewardReputationMask = questRecord[95].GetUInt32();
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
     {
-        RewardCurrencyId[i] = questRecord[93 + i * 2].GetUInt32();
-        RewardCurrencyCount[i] = questRecord[94 + i * 2].GetUInt32();
+        RewardCurrencyId[i] = questRecord[96 + i * 2].GetUInt32();
+        RewardCurrencyCount[i] = questRecord[97 + i * 2].GetUInt32();
 
         if (RewardCurrencyId[i])
             ++_rewCurrencyCount;
     }
 
-    SoundAccept = questRecord[101].GetUInt32();
-    SoundTurnIn = questRecord[102].GetUInt32();
-    AreaGroupID = questRecord[103].GetUInt32();
-    LimitTime = questRecord[104].GetUInt32();
-    AllowableRaces = questRecord[105].GetUInt64();
-    QuestRewardID = questRecord[106].GetUInt32();
-    Expansion = questRecord[107].GetInt32();
+    SoundAccept = questRecord[104].GetUInt32();
+    SoundTurnIn = questRecord[105].GetUInt32();
+    AreaGroupID = questRecord[106].GetUInt32();
+    LimitTime = questRecord[107].GetUInt32();
+    AllowableRaces = questRecord[108].GetUInt64();
+    TreasurePickerID = questRecord[109].GetInt32();
+    Expansion = questRecord[110].GetInt32();
 
-    LogTitle = questRecord[108].GetString();
-    LogDescription = questRecord[109].GetString();
-    QuestDescription = questRecord[110].GetString();
-    AreaDescription = questRecord[111].GetString();
-    PortraitGiverText = questRecord[112].GetString();
-    PortraitGiverName = questRecord[113].GetString();
-    PortraitTurnInText = questRecord[114].GetString();
-    PortraitTurnInName = questRecord[115].GetString();
-    QuestCompletionLog = questRecord[116].GetString();
+    LogTitle = questRecord[111].GetString();
+    LogDescription = questRecord[112].GetString();
+    QuestDescription = questRecord[113].GetString();
+    AreaDescription = questRecord[114].GetString();
+    PortraitGiverText = questRecord[115].GetString();
+    PortraitGiverName = questRecord[116].GetString();
+    PortraitTurnInText = questRecord[117].GetString();
+    PortraitTurnInName = questRecord[118].GetString();
+    QuestCompletionLog = questRecord[119].GetString();
 
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
     {
@@ -255,20 +258,20 @@ void Quest::LoadQuestObjectiveVisualEffect(Field* fields)
     }
 }
 
-uint32 Quest::XPValue(uint32 playerLevel) const
+uint32 Quest::XPValue(Player const* player) const
 {
-    if (playerLevel)
+    if (player)
     {
-        uint32 questLevel = uint32(Level == -1 ? playerLevel : Level);
+        uint32 questLevel = player->GetQuestLevel(this);
         QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(questLevel);
         if (!questXp || RewardXPDifficulty >= 10)
             return 0;
 
         float multiplier = 1.0f;
-        if (questLevel != playerLevel)
-            multiplier = sXpGameTable.GetRow(std::min(playerLevel, questLevel))->Divisor / sXpGameTable.GetRow(playerLevel)->Divisor;
+        if (questLevel != player->getLevel())
+            multiplier = sXpGameTable.GetRow(std::min<int32>(player->getLevel(), questLevel))->Divisor / sXpGameTable.GetRow(player->getLevel())->Divisor;
 
-        int32 diffFactor = 2 * (questLevel - playerLevel) + 20;
+        int32 diffFactor = 2 * (questLevel + (Level == -1 ? 0 : 5) - player->getLevel()) + 10;
         if (diffFactor < 1)
             diffFactor = 1;
         else if (diffFactor > 10)
@@ -290,11 +293,9 @@ uint32 Quest::XPValue(uint32 playerLevel) const
     return 0;
 }
 
-uint32 Quest::MoneyValue(uint8 playerLevel) const
+uint32 Quest::MoneyValue(Player const* player) const
 {
-    uint8 level = Level == -1 ? playerLevel : Level;
-
-    if (QuestMoneyRewardEntry const* money = sQuestMoneyRewardStore.LookupEntry(level))
+    if (QuestMoneyRewardEntry const* money = sQuestMoneyRewardStore.LookupEntry(player->GetQuestLevel(this)))
         return money->Difficulty[GetRewMoneyDifficulty()] * GetMoneyMultiplier();
     else
         return 0;
@@ -315,11 +316,11 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
     rewards.SpellCompletionID       = GetRewSpell();
     rewards.SkillLineID             = GetRewardSkillId();
     rewards.NumSkillUps             = GetRewardSkillPoints();
-    rewards.RewardID                = GetRewardId();
+    rewards.TreasurePickerID        = GetTreasurePickerId();
 
     for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
     {
-        rewards.ChoiceItems[i].ItemID = RewardChoiceItemId[i];
+        rewards.ChoiceItems[i].Item.ItemID = RewardChoiceItemId[i];
         rewards.ChoiceItems[i].Quantity = RewardChoiceItemCount[i];
     }
 

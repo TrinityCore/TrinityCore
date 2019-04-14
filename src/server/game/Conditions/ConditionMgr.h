@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -71,7 +71,7 @@ enum ConditionTypes
     CONDITION_RACE                     = 16,                   // race             0              0                  true if player's race is equal to race
     CONDITION_ACHIEVEMENT              = 17,                   // achievement_id   0              0                  true if achievement is complete
     CONDITION_TITLE                    = 18,                   // title id         0              0                  true if player has title
-    CONDITION_SPAWNMASK                = 19,                   // spawnMask        0              0                  true if in spawnMask
+    CONDITION_SPAWNMASK_DEPRECATED     = 19,                   // DEPRECATED
     CONDITION_GENDER                   = 20,                   // gender           0              0                  true if player's gender is equal to gender
     CONDITION_UNIT_STATE               = 21,                   // unitState        0              0                  true if unit has unitState
     CONDITION_MAPID                    = 22,                   // map_id           0              0                  true if in map_id
@@ -101,7 +101,8 @@ enum ConditionTypes
     CONDITION_TAXI                     = 46,                   // 0                0              0                  true if player is on taxi
     CONDITION_QUESTSTATE               = 47,                   // quest_id         state_mask     0                  true if player is in any of the provided quest states for the quest (1 = not taken, 2 = completed, 8 = in progress, 32 = failed, 64 = rewarded)
     CONDITION_QUEST_OBJECTIVE_COMPLETE = 48,                   // ID               0              0                  true if player has ID objective complete, but quest not yet rewarded
-    CONDITION_MAX                      = 49                    // MAX
+    CONDITION_DIFFICULTY_ID            = 49,                   // Difficulty       0              0                  true is map has difficulty id
+    CONDITION_MAX
 };
 
 /*! Documentation on implementing a new ConditionSourceType:

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,10 @@
 
 #include "Position.h"
 #include "Define.h"
+#include "DBCEnums.h"
 #include <boost/graph/adjacency_list.hpp>
+#include <unordered_map>
+#include <vector>
 
 class Player;
 struct TaxiNodesEntry;
@@ -32,6 +35,7 @@ public:
 
     void Initialize();
     std::size_t GetCompleteNodeRoute(TaxiNodesEntry const* from, TaxiNodesEntry const* to, Player const* player, std::vector<uint32>& shortestPath);
+    void GetReachableNodesMask(TaxiNodesEntry const* from, TaxiMask* mask);
 
 private:
     struct EdgeCost
@@ -53,10 +57,10 @@ private:
     vertex_descriptor GetVertexIDFromNodeID(TaxiNodesEntry const* node);
     uint32 GetNodeIDFromVertexID(vertex_descriptor vertexID);
     vertex_descriptor CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesEntry const* node);
-    std::size_t GetVertexCount();
 
     Graph m_graph;
-    std::vector<TaxiNodesEntry const*> m_vertices;
+    std::vector<TaxiNodesEntry const*> m_nodesByVertex;
+    std::unordered_map<uint32, vertex_descriptor> m_verticesByNode;
 
     TaxiPathGraph(TaxiPathGraph const&) = delete;
     TaxiPathGraph& operator=(TaxiPathGraph const&) = delete;

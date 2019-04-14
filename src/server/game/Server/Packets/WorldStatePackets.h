@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,10 +29,10 @@ namespace WorldPackets
         public:
             struct WorldStateInfo
             {
-                WorldStateInfo(uint32 variableID, int32 value)
+                WorldStateInfo(int32 variableID, int32 value)
                     : VariableID(variableID), Value(value) { }
 
-                uint32 VariableID;
+                int32 VariableID;
                 int32 Value;
             };
 
@@ -40,9 +40,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 AreaID    = 0; ///< ZoneId
-            uint32 SubareaID = 0; ///< AreaId
-            uint32 MapID     = 0; ///< MapId
+            int32 AreaID    = 0; ///< ZoneId
+            int32 SubareaID = 0; ///< AreaId
+            int32 MapID     = 0; ///< MapId
 
             std::vector<WorldStateInfo> Worldstates;
         };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -125,6 +125,13 @@ DWORD CASC::GetFileSize(FileHandle const& file, PDWORD fileSizeHigh)
 DWORD CASC::GetFilePointer(FileHandle const& file)
 {
     return ::CascSetFilePointer(file.get(), 0, nullptr, FILE_CURRENT);
+}
+
+bool CASC::SetFilePointer(FileHandle const& file, LONGLONG position)
+{
+    LONG parts[2];
+    memcpy(parts, &position, sizeof(parts));
+    return ::CascSetFilePointer(file.get(), parts[0], &parts[1], FILE_BEGIN) != CASC_INVALID_POS;
 }
 
 bool CASC::ReadFile(FileHandle const& file, void* buffer, DWORD bytes, PDWORD bytesRead)

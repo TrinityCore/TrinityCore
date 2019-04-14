@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -311,10 +311,15 @@ WorldPacket const* WorldPackets::LFG::LFGQueueStatus::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards const& lfgPlayerRewards)
 {
-    data << int32(lfgPlayerRewards.RewardItem);
-    data << uint32(lfgPlayerRewards.RewardItemQuantity);
-    data << int32(lfgPlayerRewards.BonusCurrency);
-    data.WriteBit(lfgPlayerRewards.IsCurrency);
+    data.WriteBit(lfgPlayerRewards.RewardItem.is_initialized());
+    data.WriteBit(lfgPlayerRewards.RewardCurrency.is_initialized());
+    if (lfgPlayerRewards.RewardItem)
+        data << *lfgPlayerRewards.RewardItem;
+
+    data << uint32(lfgPlayerRewards.Quantity);
+    data << int32(lfgPlayerRewards.BonusQuantity);
+    if (lfgPlayerRewards.RewardCurrency)
+        data << int32(*lfgPlayerRewards.RewardCurrency);
 
     return data;
 }

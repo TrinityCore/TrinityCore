@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -97,8 +97,8 @@ Group::~Group()
     }
 
     // this may unload some instance saves
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-        for (BoundInstancesMap::iterator itr2 = m_boundInstances[i].begin(); itr2 != m_boundInstances[i].end(); ++itr2)
+    for (auto difficultyItr = m_boundInstances.begin(); difficultyItr != m_boundInstances.end(); ++difficultyItr)
+        for (auto itr2 = difficultyItr->second.begin(); itr2 != difficultyItr->second.end(); ++itr2)
             itr2->second.save->RemoveGroup(this);
 
     // Sub group counters clean up
@@ -708,9 +708,9 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid, int8 partyIndex)
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
         // Remove the groups permanent instance bindings
-        for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+        for (auto difficultyItr = m_boundInstances.begin(); difficultyItr != m_boundInstances.end(); ++difficultyItr)
         {
-            for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end();)
+            for (auto itr = difficultyItr->second.begin(); itr != difficultyItr->second.end();)
             {
                 // Do not unbind saves of instances that already had map created (a newLeader entered)
                 // forcing a new instance with another leader requires group disbanding (confirmed on retail)
@@ -722,7 +722,7 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid, int8 partyIndex)
                     trans->Append(stmt);
 
                     itr->second.save->RemoveGroup(this);
-                    m_boundInstances[i].erase(itr++);
+                    difficultyItr->second.erase(itr++);
                 }
                 else
                     ++itr;
@@ -762,9 +762,9 @@ void Group::ConvertLeaderInstancesToGroup(Player* player, Group* group, bool swi
 {
     // copy all binds to the group, when changing leader it's assumed the character
     // will not have any solo binds
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (auto difficultyItr = player->m_boundInstances.begin(); difficultyItr != player->m_boundInstances.end(); ++difficultyItr)
     {
-        for (Player::BoundInstancesMap::iterator itr = player->m_boundInstances[i].begin(); itr != player->m_boundInstances[i].end();)
+        for (auto itr = difficultyItr->second.begin(); itr != difficultyItr->second.end();)
         {
             if (!switchLeader || !group->GetBoundInstance(itr->second.save->GetDifficultyID(), itr->first))
                 if (itr->second.extendState) // not expired
@@ -774,7 +774,7 @@ void Group::ConvertLeaderInstancesToGroup(Player* player, Group* group, bool swi
             if (switchLeader && !itr->second.perm)
             {
                 // increments itr in call
-                player->UnbindInstance(itr, Difficulty(i), false);
+                player->UnbindInstance(itr, difficultyItr, false);
             }
             else
                 ++itr;
@@ -1283,7 +1283,8 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                 else
                 {
                     item->is_blocked = false;
-                    player->SendEquipError(msg, NULL, NULL, roll->itemid);
+                    item->rollWinnerGUID = player->GetGUID();
+                    player->SendEquipError(msg, nullptr, nullptr, roll->itemid);
                 }
             }
         }
@@ -1335,7 +1336,8 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     else
                     {
                         item->is_blocked = false;
-                        player->SendEquipError(msg, NULL, NULL, roll->itemid);
+                        item->rollWinnerGUID = player->GetGUID();
+                        player->SendEquipError(msg, nullptr, nullptr, roll->itemid);
                     }
                 }
                 else if (rollvote == DISENCHANT)
@@ -1360,7 +1362,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                         for (uint32 i = 0; i < max_slot; ++i)
                         {
                             LootItem* lootItem = loot.LootItemInSlot(i, player);
-                            player->SendEquipError(msg, NULL, NULL, lootItem->itemid);
+                            player->SendEquipError(msg, nullptr, nullptr, lootItem->itemid);
                             player->SendItemRetrievalMail(lootItem->itemid, lootItem->count);
                         }
                     }
@@ -2014,7 +2016,11 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
             diff = GetLegacyRaidDifficultyID();
     }
 
-    for (BoundInstancesMap::iterator itr = m_boundInstances[diff].begin(); itr != m_boundInstances[diff].end();)
+    auto difficultyItr = m_boundInstances.find(diff);
+    if (difficultyItr == m_boundInstances.end())
+        return;
+
+    for (auto itr = difficultyItr->second.begin(); itr != difficultyItr->second.end();)
     {
         InstanceSave* instanceSave = itr->second.save;
         const MapEntry* entry = sMapStore.LookupEntry(itr->first);
@@ -2080,9 +2086,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
             }
 
 
-            // i don't know for sure if hash_map iterators
-            m_boundInstances[diff].erase(itr);
-            itr = m_boundInstances[diff].begin();
+            itr = difficultyItr->second.erase(itr);
             // this unloads the instance save unless online players are bound to it
             // (eg. permanent binds or GM solo binds)
             instanceSave->RemoveGroup(this);
@@ -2118,11 +2122,15 @@ InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)
     // some instances only have one difficulty
     sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty);
 
-    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapId);
-    if (itr != m_boundInstances[difficulty].end())
+    auto difficultyItr = m_boundInstances.find(difficulty);
+    if (difficultyItr == m_boundInstances.end())
+        return nullptr;
+
+    auto itr = difficultyItr->second.find(mapId);
+    if (itr != difficultyItr->second.end())
         return &itr->second;
     else
-        return NULL;
+        return nullptr;
 }
 
 InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, bool load)
@@ -2160,8 +2168,12 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
 
 void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
 {
-    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapid);
-    if (itr != m_boundInstances[difficulty].end())
+    auto difficultyItr = m_boundInstances.find(Difficulty(difficulty));
+    if (difficultyItr == m_boundInstances.end())
+        return;
+
+    auto itr = difficultyItr->second.find(mapid);
+    if (itr != difficultyItr->second.end())
     {
         if (!unload)
         {
@@ -2174,7 +2186,7 @@ void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
         }
 
         itr->second.save->RemoveGroup(this);                // save can become invalid
-        m_boundInstances[difficulty].erase(itr);
+        difficultyItr->second.erase(itr);
     }
 }
 
@@ -2601,9 +2613,14 @@ void Group::DelinkMember(ObjectGuid guid)
     }
 }
 
-Group::BoundInstancesMap& Group::GetBoundInstances(Difficulty difficulty)
+Group::BoundInstancesMap::iterator Group::GetBoundInstances(Difficulty difficulty)
 {
-    return m_boundInstances[difficulty];
+    return m_boundInstances.find(difficulty);
+}
+
+Group::BoundInstancesMap::iterator Group::GetBoundInstanceEnd()
+{
+    return m_boundInstances.end();
 }
 
 void Group::_initRaidSubGroupsCounter()

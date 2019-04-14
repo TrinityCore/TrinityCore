@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -109,6 +109,7 @@ namespace WorldPackets
             int32 QuestID                   = 0;
             int32 QuestType                 = 0; // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
             int32 QuestLevel                = 0; // may be -1, static data, in other cases must be used dynamic level: Player::GetQuestLevel (0 is not known, but assuming this is no longer valid for quest intended for client)
+            int32 QuestScalingFactionGroup  = 0;
             int32 QuestMaxScalingLevel      = 255;
             int32 QuestPackageID            = 0;
             int32 QuestMinLevel             = 0;
@@ -132,6 +133,7 @@ namespace WorldPackets
             int32 StartItem                 = 0;
             uint32 Flags                    = 0;
             uint32 FlagsEx                  = 0;
+            uint32 FlagsEx2                 = 0;
             int32 POIContinent              = 0;
             float POIx                      = 0.0f;
             float POIy                      = 0.0f;
@@ -146,6 +148,7 @@ namespace WorldPackets
             int32 RewardSkillLineID         = 0; // reward skill id
             int32 RewardNumSkillUps         = 0; // reward skill points
             int32 PortraitGiver             = 0; // quest giver entry ?
+            int32 PortraitGiverMount        = 0;
             int32 PortraitTurnIn            = 0; // quest turn in entry ?
             std::string PortraitGiverText;
             std::string PortraitGiverName;
@@ -157,7 +160,7 @@ namespace WorldPackets
             int32 CompleteSoundKitID        = 0;
             int32 AreaGroupID               = 0;
             int32 TimeAllowed               = 0;
-            int32 QuestRewardID             = 0;
+            int32 TreasurePickerID          = 0;
             int32 Expansion                 = 0;
             std::vector<QuestObjective> Objectives;
             int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = { };
@@ -225,7 +228,7 @@ namespace WorldPackets
 
         struct QuestChoiceItem
         {
-            int32 ItemID    = 0;
+            Item::ItemInstance Item;
             int32 Quantity  = 0;
         };
 
@@ -244,7 +247,7 @@ namespace WorldPackets
             int32 SpellCompletionID         = 0;
             int32 SkillLineID               = 0;
             int32 NumSkillUps               = 0;
-            int32 RewardID                  = 0;
+            int32 TreasurePickerID          = 0;
             QuestChoiceItem ChoiceItems[QUEST_REWARD_CHOICES_COUNT];
             int32 ItemID[QUEST_REWARD_ITEM_COUNT] = { };
             int32 ItemQty[QUEST_REWARD_ITEM_COUNT] = { };
@@ -285,6 +288,7 @@ namespace WorldPackets
 
             int32 PortraitTurnIn = 0;
             int32 PortraitGiver = 0;
+            int32 PortraitGiverMount = 0;
             std::string QuestTitle;
             std::string RewardText;
             std::string PortraitGiverText;
@@ -365,6 +369,7 @@ namespace WorldPackets
             std::vector<int32> LearnSpells;
             int32 PortraitTurnIn = 0;
             int32 PortraitGiver = 0;
+            int32 PortraitGiverMount = 0;
             int32 QuestStartItemID = 0;
             std::string PortraitGiverText;
             std::string PortraitGiverName;
@@ -663,6 +668,9 @@ namespace WorldPackets
         {
             int32 ResponseID = 0;
             int32 ChoiceArtFileID = 0;
+            int32 Flags = 0;
+            uint32 WidgetSetID = 0;
+            uint8 GroupID = 0;
             std::string Answer;
             std::string Header;
             std::string Description;
@@ -684,6 +692,7 @@ namespace WorldPackets
             std::vector<PlayerChoiceResponse> Responses;
             bool CloseChoiceFrame = false;
             bool HideWarboardHeader = false;
+            bool KeepOpenAfterChoice = false;
         };
 
         class ChoiceResponse final : public ClientPacket

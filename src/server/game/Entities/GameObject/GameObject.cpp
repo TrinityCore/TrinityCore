@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -61,7 +61,8 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
 
-    m_updateFlag = (UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION);
+    m_updateFlag.Stationary = true;
+    m_updateFlag.Rotation = true;
 
     m_valuesCount = GAMEOBJECT_END;
     _dynamicValuesCount = GAMEOBJECT_DYNAMIC_END;
@@ -238,7 +239,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     else
     {
         guid = ObjectGuid::Create<HighGuid::Transport>(map->GenerateLowGuid<HighGuid::Transport>());
-        m_updateFlag |= UPDATEFLAG_TRANSPORT;
+        m_updateFlag.ServerTime = true;
     }
 
     Object::_Create(guid);
@@ -271,7 +272,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
         if (m_goTemplateAddon->WorldEffectID)
         {
-            m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
+            m_updateFlag.GameObject = true;
             SetWorldEffectID(m_goTemplateAddon->WorldEffectID);
         }
     }
@@ -291,6 +292,8 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     m_prevGoState = goState;
     SetGoState(goState);
     SetGoArtKit(artKit);
+
+    SetUInt32Value(GAMEOBJECT_STATE_ANIM_ID, sAnimationDataStore.GetNumRows());
 
     switch (goInfo->type)
     {
@@ -360,6 +363,9 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         case GAMEOBJECT_TYPE_PHASEABLE_MO:
             SetByteValue(GAMEOBJECT_FLAGS, 1, m_goInfo->phaseableMO.AreaNameSet & 0xF);
             break;
+        case GAMEOBJECT_TYPE_CAPTURE_POINT:
+            SetUInt32Value(GAMEOBJECT_SPELL_VISUAL_ID, m_goInfo->capturePoint.SpellVisual1);
+            break;
         default:
             SetGoAnimProgress(animProgress);
             break;
@@ -373,7 +379,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
     if (gameObjectAddon && gameObjectAddon->WorldEffectID)
     {
-        m_updateFlag |= UPDATEFLAG_GAMEOBJECT;
+        m_updateFlag.GameObject = true;
         SetWorldEffectID(gameObjectAddon->WorldEffectID);
     }
 
@@ -393,6 +399,18 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
                 delete linkedGo;
         }
     }
+
+    // Check if GameObject is Infinite
+    if (goInfo->IsInfiniteGameObject())
+        SetVisibilityDistanceOverride(VisibilityDistanceType::Infinite);
+
+    // Check if GameObject is Gigantic
+    if (goInfo->IsGiganticGameObject())
+        SetVisibilityDistanceOverride(VisibilityDistanceType::Gigantic);
+
+    // Check if GameObject is Large
+    if (goInfo->IsLargeGameObject())
+        SetVisibilityDistanceOverride(VisibilityDistanceType::Large);
 
     return true;
 }
@@ -908,10 +926,10 @@ void GameObject::SaveToDB()
         return;
     }
 
-    SaveToDB(GetMapId(), data->spawnMask);
+    SaveToDB(GetMapId(), data->spawnDifficulties);
 }
 
-void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
+void GameObject::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties)
 {
     const GameObjectTemplate* goI = GetGOInfo();
 
@@ -935,7 +953,7 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
     data.animprogress = GetGoAnimProgress();
     data.go_state = GetGoState();
-    data.spawnMask = spawnMask;
+    data.spawnDifficulties = spawnDifficulties;
     data.artKit = GetGoArtKit();
 
     data.phaseId = GetDBPhase() > 0 ? GetDBPhase() : data.phaseId;
@@ -954,7 +972,7 @@ void GameObject::SaveToDB(uint32 mapid, uint64 spawnMask)
     stmt->setUInt64(index++, m_spawnId);
     stmt->setUInt32(index++, GetEntry());
     stmt->setUInt16(index++, uint16(mapid));
-    stmt->setUInt64(index++, spawnMask);
+    stmt->setString(index++, StringJoin(data.spawnDifficulties, ","));
     stmt->setUInt32(index++, data.phaseId);
     stmt->setUInt32(index++, data.phaseGroup);
     stmt->setFloat(index++, GetPositionX());

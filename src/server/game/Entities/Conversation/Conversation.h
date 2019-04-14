@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,8 +47,11 @@ struct ConversationDynamicFieldActor
     union
     {
         ObjectGuid ActorGuid;
-
-        ConversationActorTemplate ActorTemplate;
+        struct
+        {
+            uint32 CreatureId;
+            uint32 CreatureModelId;
+        } ActorTemplate;
 
         struct
         {
@@ -75,6 +78,7 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         void Update(uint32 diff) override;
         void Remove();
         int32 GetDuration() const { return _duration; }
+        uint32 GetTextureKitId() const { return _textureKitId; }
 
         static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* spellInfo = nullptr);
         bool Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* spellInfo = nullptr);
@@ -95,6 +99,7 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         Position _stationaryPosition;
         ObjectGuid _creatorGuid;
         uint32 _duration;
+        uint32 _textureKitId;
         GuidUnorderedSet _participants;
 };
 

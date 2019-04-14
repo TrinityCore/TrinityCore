@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -280,7 +280,7 @@ WorldPacket const* WorldPackets::Item::ReadItemResultFailed::Write()
 {
     _worldPacket << Item;
     _worldPacket << uint32(Delay);
-    _worldPacket.WriteBits(Subcode, 3);
+    _worldPacket.WriteBits(Subcode, 2);
 
     _worldPacket.FlushBits();
 

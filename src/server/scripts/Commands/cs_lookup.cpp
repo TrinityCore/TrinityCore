@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -658,7 +658,11 @@ public:
                             }
 
                             if (handler->GetSession())
-                                handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, qInfo->GetQuestId(), qInfo->GetQuestId(), qInfo->GetQuestLevel(), title.c_str(), statusStr);
+                                handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, qInfo->GetQuestId(), qInfo->GetQuestId(),
+                                    handler->GetSession()->GetPlayer()->GetQuestLevel(qInfo),
+                                    handler->GetSession()->GetPlayer()->GetQuestMinLevel(qInfo),
+                                    qInfo->GetQuestMaxScalingLevel(), qInfo->GetQuestScalingFactionGroup(),
+                                    title.c_str(), statusStr);
                             else
                                 handler->PSendSysMessage(LANG_QUEST_LIST_CONSOLE, qInfo->GetQuestId(), title.c_str(), statusStr);
 
@@ -706,7 +710,11 @@ public:
                 }
 
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, qInfo->GetQuestId(), qInfo->GetQuestId(), qInfo->GetQuestLevel(), title.c_str(), statusStr);
+                    handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, qInfo->GetQuestId(), qInfo->GetQuestId(),
+                        handler->GetSession()->GetPlayer()->GetQuestLevel(qInfo),
+                        handler->GetSession()->GetPlayer()->GetQuestMinLevel(qInfo),
+                        qInfo->GetQuestMaxScalingLevel(), qInfo->GetQuestScalingFactionGroup(),
+                        title.c_str(), statusStr);
                 else
                     handler->PSendSysMessage(LANG_QUEST_LIST_CONSOLE, qInfo->GetQuestId(), title.c_str(), statusStr);
 

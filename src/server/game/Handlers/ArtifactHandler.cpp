@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,9 +35,11 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
     if (!artifact)
         return;
 
+    uint32 currentArtifactTier = artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER);
+
     uint64 xpCost = 0;
     if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(artifact->GetTotalPurchasedArtifactPowers() + 1))
-        xpCost = uint64(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) == 1 ? cost->XP2 : cost->XP);
+        xpCost = uint64(currentArtifactTier == MAX_ARTIFACT_TIER ? cost->XP2 : cost->XP);
 
     if (xpCost > artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP))
         return;
@@ -53,32 +55,47 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
     if (!artifactPowerEntry)
         return;
 
-    if (artifactAddPower.PowerChoices[0].Rank != artifactPower->PurchasedRank + 1 ||
-        artifactAddPower.PowerChoices[0].Rank > artifactPowerEntry->MaxPurchasableRank)
+    if (artifactPowerEntry->Tier > currentArtifactTier)
         return;
 
-    if (std::unordered_set<uint32> const* artifactPowerLinks = sDB2Manager.GetArtifactPowerLinks(artifactPower->ArtifactPowerId))
+    uint32 maxRank = artifactPowerEntry->MaxPurchasableRank;
+    if (artifactPowerEntry->Tier < currentArtifactTier)
     {
-        bool hasAnyLink = false;
-        for (uint32 artifactPowerLinkId : *artifactPowerLinks)
+        if (artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_FINAL)
+            maxRank = 1;
+        else if (artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_MAX_RANK_WITH_TIER)
+            maxRank += currentArtifactTier - artifactPowerEntry->Tier;
+    }
+
+    if (artifactAddPower.PowerChoices[0].Rank != artifactPower->PurchasedRank + 1 ||
+        artifactAddPower.PowerChoices[0].Rank > maxRank)
+        return;
+
+    if (!(artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_NO_LINK_REQUIRED))
+    {
+        if (std::unordered_set<uint32> const* artifactPowerLinks = sDB2Manager.GetArtifactPowerLinks(artifactPower->ArtifactPowerId))
         {
-            ArtifactPowerEntry const* artifactPowerLink = sArtifactPowerStore.LookupEntry(artifactPowerLinkId);
-            if (!artifactPowerLink)
-                continue;
-
-            ItemDynamicFieldArtifactPowers const* artifactPowerLinkLearned = artifact->GetArtifactPower(artifactPowerLinkId);
-            if (!artifactPowerLinkLearned)
-                continue;
-
-            if (artifactPowerLinkLearned->PurchasedRank >= artifactPowerLink->MaxPurchasableRank)
+            bool hasAnyLink = false;
+            for (uint32 artifactPowerLinkId : *artifactPowerLinks)
             {
-                hasAnyLink = true;
-                break;
-            }
-        }
+                ArtifactPowerEntry const* artifactPowerLink = sArtifactPowerStore.LookupEntry(artifactPowerLinkId);
+                if (!artifactPowerLink)
+                    continue;
 
-        if (!hasAnyLink)
-            return;
+                ItemDynamicFieldArtifactPowers const* artifactPowerLinkLearned = artifact->GetArtifactPower(artifactPowerLinkId);
+                if (!artifactPowerLinkLearned)
+                    continue;
+
+                if (artifactPowerLinkLearned->PurchasedRank >= artifactPowerLink->MaxPurchasableRank)
+                {
+                    hasAnyLink = true;
+                    break;
+                }
+            }
+
+            if (!hasAnyLink)
+                return;
+        }
     }
 
     ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(artifactPower->ArtifactPowerId, artifactPower->CurrentRankWithBonus + 1 - 1); // need data for next rank, but -1 because of how db2 data is structured
@@ -115,6 +132,31 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
 
     artifact->SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP) - xpCost);
     artifact->SetState(ITEM_CHANGED, _player);
+
+    uint32 totalPurchasedArtifactPower = artifact->GetTotalPurchasedArtifactPowers();
+    uint32 artifactTier = 0;
+
+    for (ArtifactTierEntry const* tier : sArtifactTierStore)
+    {
+        if (artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_FINAL && artifactPowerEntry->Tier < MAX_ARTIFACT_TIER)
+        {
+            artifactTier = artifactPowerEntry->Tier + 1;
+            break;
+        }
+
+        if (totalPurchasedArtifactPower < tier->MaxNumTraits)
+        {
+            artifactTier = tier->ArtifactTier;
+            break;
+        }
+    }
+
+    artifactTier = std::max(artifactTier, currentArtifactTier);
+
+    for (uint32 i = currentArtifactTier; i <= artifactTier; ++i)
+        artifact->InitArtifactPowers(artifact->GetTemplate()->GetArtifactID(), uint8(i));
+
+    artifact->SetModifier(ITEM_MODIFIER_ARTIFACT_TIER, artifactTier);
 }
 
 void WorldSession::HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance)
@@ -157,7 +199,7 @@ void WorldSession::HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactS
 
         // change druid form appearance
         if (artifactAppearance->OverrideShapeshiftDisplayID && artifactAppearance->OverrideShapeshiftFormID && _player->GetShapeshiftForm() == ShapeshiftForm(artifactAppearance->OverrideShapeshiftFormID))
-            _player->RestoreDisplayId();
+            _player->RestoreDisplayId(_player->IsMounted());
     }
 }
 

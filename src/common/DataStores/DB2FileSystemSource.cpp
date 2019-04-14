@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,6 +43,11 @@ bool DB2FileSystemSource::Read(void* buffer, std::size_t numBytes)
 std::size_t DB2FileSystemSource::GetPosition() const
 {
     return ftell(_file);
+}
+
+bool DB2FileSystemSource::SetPosition(std::size_t position)
+{
+    return fseek(_file, position, SEEK_SET) == 0;
 }
 
 std::size_t DB2FileSystemSource::GetFileSize() const

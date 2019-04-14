@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -56,7 +56,7 @@ namespace WorldPackets
             int32 NumChoices = 0;
             int32 StaticType = 0;
             uint32 Muid = 0;
-            std::string Choicetext[10];
+            std::array<std::string, 10> Choicetext;
         };
 
         class QueryPetitionResponse final : public ServerPacket

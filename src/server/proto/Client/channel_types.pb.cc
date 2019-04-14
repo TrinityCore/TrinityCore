@@ -262,51 +262,51 @@ void protobuf_AddDesc_channel_5ftypes_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-  ::bgs::protocol::channel::v1::protobuf_AddDesc_client_2fv1_2fchannel_5fid_2eproto();
+  ::bgs::protocol::channel::v1::protobuf_AddDesc_api_2fclient_2fv1_2fchannel_5fid_2eproto();
   ::bgs::protocol::protobuf_AddDesc_attribute_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_entity_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_invitation_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\023channel_types.proto\022\027bgs.protocol.chan"
-    "nel.v1\032\032client/v1/channel_id.proto\032\025attr"
-    "ibute_types.proto\032\022entity_types.proto\032\026i"
-    "nvitation_types.proto\032\017rpc_types.proto\"<"
-    "\n\007Message\022*\n\tattribute\030\001 \003(\0132\027.bgs.proto"
-    "col.Attribute*\005\010d\020\220N\"\333\001\n\023ListChannelsOpt"
-    "ions\022\026\n\013start_index\030\001 \001(\r:\0010\022\027\n\013max_resu"
-    "lts\030\002 \001(\r:\00216\022\014\n\004name\030\003 \001(\t\022\017\n\007program\030\004"
-    " \001(\007\022\016\n\006locale\030\005 \001(\007\022\025\n\rcapacity_full\030\006 "
-    "\001(\r\0227\n\020attribute_filter\030\007 \002(\0132\035.bgs.prot"
-    "ocol.AttributeFilter\022\024\n\014channel_type\030\010 \001"
-    "(\t\"\217\001\n\022ChannelDescription\022*\n\nchannel_id\030"
-    "\001 \002(\0132\026.bgs.protocol.EntityId\022\027\n\017current"
-    "_members\030\002 \001(\r\0224\n\005state\030\003 \001(\0132%.bgs.prot"
-    "ocol.channel.v1.ChannelState\"\200\001\n\013Channel"
-    "Info\022@\n\013description\030\001 \002(\0132+.bgs.protocol"
-    ".channel.v1.ChannelDescription\022/\n\006member"
-    "\030\002 \003(\0132\037.bgs.protocol.channel.v1.Member\""
-    "\202\004\n\014ChannelState\022\023\n\013max_members\030\001 \001(\r\022\023\n"
-    "\013min_members\030\002 \001(\r\022*\n\tattribute\030\003 \003(\0132\027."
-    "bgs.protocol.Attribute\022,\n\ninvitation\030\004 \003"
-    "(\0132\030.bgs.protocol.Invitation\022\016\n\006reason\030\006"
-    " \001(\r\022]\n\rprivacy_level\030\007 \001(\01622.bgs.protoc"
-    "ol.channel.v1.ChannelState.PrivacyLevel:"
-    "\022PRIVACY_LEVEL_OPEN\022\014\n\004name\030\010 \001(\t\022\035\n\014cha"
-    "nnel_type\030\n \001(\t:\007default\022\022\n\007program\030\013 \001("
-    "\007:\0010\022#\n\025subscribe_to_presence\030\r \001(\010:\004tru"
-    "e\"\221\001\n\014PrivacyLevel\022\026\n\022PRIVACY_LEVEL_OPEN"
-    "\020\001\022,\n(PRIVACY_LEVEL_OPEN_INVITATION_AND_"
-    "FRIEND\020\002\022!\n\035PRIVACY_LEVEL_OPEN_INVITATIO"
-    "N\020\003\022\030\n\024PRIVACY_LEVEL_CLOSED\020\004*\005\010d\020\220N\"\'\n\021"
-    "MemberAccountInfo\022\022\n\nbattle_tag\030\003 \001(\t\"\234\001"
-    "\n\013MemberState\022*\n\tattribute\030\001 \003(\0132\027.bgs.p"
-    "rotocol.Attribute\022\020\n\004role\030\002 \003(\rB\002\020\001\022\025\n\np"
-    "rivileges\030\003 \001(\004:\0010\0228\n\004info\030\004 \001(\0132*.bgs.p"
-    "rotocol.channel.v1.MemberAccountInfo\"g\n\006"
-    "Member\022(\n\010identity\030\001 \002(\0132\026.bgs.protocol."
-    "Identity\0223\n\005state\030\002 \002(\0132$.bgs.protocol.c"
-    "hannel.v1.MemberStateB\002H\001P\000", 1547);
+    "nel.v1\032\036api/client/v1/channel_id.proto\032\025"
+    "attribute_types.proto\032\022entity_types.prot"
+    "o\032\026invitation_types.proto\032\017rpc_types.pro"
+    "to\"<\n\007Message\022*\n\tattribute\030\001 \003(\0132\027.bgs.p"
+    "rotocol.Attribute*\005\010d\020\220N\"\333\001\n\023ListChannel"
+    "sOptions\022\026\n\013start_index\030\001 \001(\r:\0010\022\027\n\013max_"
+    "results\030\002 \001(\r:\00216\022\014\n\004name\030\003 \001(\t\022\017\n\007progr"
+    "am\030\004 \001(\007\022\016\n\006locale\030\005 \001(\007\022\025\n\rcapacity_ful"
+    "l\030\006 \001(\r\0227\n\020attribute_filter\030\007 \002(\0132\035.bgs."
+    "protocol.AttributeFilter\022\024\n\014channel_type"
+    "\030\010 \001(\t\"\217\001\n\022ChannelDescription\022*\n\nchannel"
+    "_id\030\001 \002(\0132\026.bgs.protocol.EntityId\022\027\n\017cur"
+    "rent_members\030\002 \001(\r\0224\n\005state\030\003 \001(\0132%.bgs."
+    "protocol.channel.v1.ChannelState\"\200\001\n\013Cha"
+    "nnelInfo\022@\n\013description\030\001 \002(\0132+.bgs.prot"
+    "ocol.channel.v1.ChannelDescription\022/\n\006me"
+    "mber\030\002 \003(\0132\037.bgs.protocol.channel.v1.Mem"
+    "ber\"\377\003\n\014ChannelState\022\023\n\013max_members\030\001 \001("
+    "\r\022\023\n\013min_members\030\002 \001(\r\022*\n\tattribute\030\003 \003("
+    "\0132\027.bgs.protocol.Attribute\022,\n\ninvitation"
+    "\030\004 \003(\0132\030.bgs.protocol.Invitation\022\016\n\006reas"
+    "on\030\006 \001(\r\022]\n\rprivacy_level\030\007 \001(\01622.bgs.pr"
+    "otocol.channel.v1.ChannelState.PrivacyLe"
+    "vel:\022PRIVACY_LEVEL_OPEN\022\014\n\004name\030\010 \001(\t\022\035\n"
+    "\014channel_type\030\n \001(\t:\007default\022\017\n\007program\030"
+    "\013 \001(\007\022#\n\025subscribe_to_presence\030\r \001(\010:\004tr"
+    "ue\"\221\001\n\014PrivacyLevel\022\026\n\022PRIVACY_LEVEL_OPE"
+    "N\020\001\022,\n(PRIVACY_LEVEL_OPEN_INVITATION_AND"
+    "_FRIEND\020\002\022!\n\035PRIVACY_LEVEL_OPEN_INVITATI"
+    "ON\020\003\022\030\n\024PRIVACY_LEVEL_CLOSED\020\004*\005\010d\020\220N\"\'\n"
+    "\021MemberAccountInfo\022\022\n\nbattle_tag\030\003 \001(\t\"\234"
+    "\001\n\013MemberState\022*\n\tattribute\030\001 \003(\0132\027.bgs."
+    "protocol.Attribute\022\020\n\004role\030\002 \003(\rB\002\020\001\022\025\n\n"
+    "privileges\030\003 \001(\004:\0010\0228\n\004info\030\004 \001(\0132*.bgs."
+    "protocol.channel.v1.MemberAccountInfo\"g\n"
+    "\006Member\022(\n\010identity\030\001 \002(\0132\026.bgs.protocol"
+    ".Identity\0223\n\005state\030\002 \002(\0132$.bgs.protocol."
+    "channel.v1.MemberStateB\002H\001P\000", 1548);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "channel_types.proto", &protobuf_RegisterTypes);
   Message::default_instance_ = new Message();
@@ -2007,7 +2007,7 @@ bool ChannelState::MergePartialFromCodedStream(
         break;
       }
 
-      // optional fixed32 program = 11 [default = 0];
+      // optional fixed32 program = 11;
       case 11: {
         if (tag == 93) {
          parse_program:
@@ -2120,7 +2120,7 @@ void ChannelState::SerializeWithCachedSizes(
       10, this->channel_type(), output);
   }
 
-  // optional fixed32 program = 11 [default = 0];
+  // optional fixed32 program = 11;
   if (has_program()) {
     ::google::protobuf::internal::WireFormatLite::WriteFixed32(11, this->program(), output);
   }
@@ -2201,7 +2201,7 @@ void ChannelState::SerializeWithCachedSizes(
         10, this->channel_type(), target);
   }
 
-  // optional fixed32 program = 11 [default = 0];
+  // optional fixed32 program = 11;
   if (has_program()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteFixed32ToArray(11, this->program(), target);
   }
@@ -2270,7 +2270,7 @@ int ChannelState::ByteSize() const {
 
   }
   if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
-    // optional fixed32 program = 11 [default = 0];
+    // optional fixed32 program = 11;
     if (has_program()) {
       total_size += 1 + 4;
     }

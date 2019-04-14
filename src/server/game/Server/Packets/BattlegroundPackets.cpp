@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,9 +67,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
     data << uint32(playerData.HealingDone);
     data << uint32(playerData.Stats.size());
     data << int32(playerData.PrimaryTalentTree);
-    data << int32(playerData.PrimaryTalentTreeNameIndex);
+    data << int32(playerData.Sex);
     data << int32(playerData.Race);
-    data << uint32(playerData.Prestige);
+    data << int32(playerData.Class);
+    data << int32(playerData.CreatureID);
+    data << int32(playerData.HonorLevel);
     if (!playerData.Stats.empty())
         data.append(playerData.Stats.data(), playerData.Stats.size());
 
@@ -89,13 +91,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
         data << uint32(*playerData.PreMatchRating);
 
     if (playerData.RatingChange)
-        data << uint32(*playerData.RatingChange);
+        data << int32(*playerData.RatingChange);
 
     if (playerData.PreMatchMMR)
         data << uint32(*playerData.PreMatchMMR);
 
     if (playerData.MmrChange)
-        data << uint32(*playerData.MmrChange);
+        data << int32(*playerData.MmrChange);
 
     return data;
 }

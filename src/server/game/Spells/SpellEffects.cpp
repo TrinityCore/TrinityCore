@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -330,6 +330,12 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectGiveHonor,                                //253 SPELL_EFFECT_GIVE_HONOR
     &Spell::EffectNULL,                                     //254 SPELL_EFFECT_254
     &Spell::EffectLearnTransmogSet,                         //255 SPELL_EFFECT_LEARN_TRANSMOG_SET
+    &Spell::EffectNULL,                                     //256 SPELL_EFFECT_256
+    &Spell::EffectNULL,                                     //257 SPELL_EFFECT_257
+    &Spell::EffectNULL,                                     //258 SPELL_EFFECT_MODIFY_KEYSTONE
+    &Spell::EffectNULL,                                     //259 SPELL_EFFECT_RESPEC_AZERITE_EMPOWERED_ITEM
+    &Spell::EffectNULL,                                     //260 SPELL_EFFECT_SUMMON_STABLED_PET
+    &Spell::EffectNULL,                                     //261 SPELL_EFFECT_SCRAP_ITEM
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
@@ -410,7 +416,8 @@ void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
         m_caster->CalcAbsorbResist(damageInfo);
 
         SpellNonMeleeDamage log(m_caster, unitTarget, m_spellInfo->Id, m_SpellVisual, m_spellInfo->GetSchoolMask(), m_castId);
-        log.damage = damage;
+        log.damage = damageInfo.GetDamage();
+        log.originalDamage = damage;
         log.absorb = damageInfo.GetAbsorb();
         log.resist = damageInfo.GetResist();
 
@@ -2365,7 +2372,7 @@ void Spell::EffectLearnSkill(SpellEffIndex /*effIndex*/)
     if (unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (damage < 0)
+    if (damage < 1)
         return;
 
     uint32 skillid = effectInfo->MiscValue;
@@ -2378,7 +2385,7 @@ void Spell::EffectLearnSkill(SpellEffIndex /*effIndex*/)
         return;
 
     uint16 skillval = unitTarget->ToPlayer()->GetPureSkillValue(skillid);
-    unitTarget->ToPlayer()->SetSkill(skillid, effectInfo->CalcValue(), std::max<uint16>(skillval, 1), tier->Value[damage - 1]);
+    unitTarget->ToPlayer()->SetSkill(skillid, damage, std::max<uint16>(skillval, 1), tier->Value[damage - 1]);
 }
 
 void Spell::EffectPlayMovie(SpellEffIndex /*effIndex*/)
@@ -4182,12 +4189,41 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
     creature->SetFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-    int32 reqValue = targetLevel < 10 ? 0 : targetLevel < 20 ? (targetLevel-10)*10 : targetLevel*5;
+    if (skill == SKILL_SKINNING)
+    {
+        int32 reqValue;
+        if (targetLevel <= 10)
+            reqValue = 1;
+        else if (targetLevel < 20)
+            reqValue = (targetLevel - 10) * 10;
+        else if (targetLevel <= 73)
+            reqValue = targetLevel * 5;
+        else if (targetLevel < 80)
+            reqValue = targetLevel * 10 - 365;
+        else if (targetLevel <= 84)
+            reqValue = targetLevel * 5 + 35;
+        else if (targetLevel <= 87)
+            reqValue = targetLevel * 15 - 805;
+        else if (targetLevel <= 92)
+            reqValue = (targetLevel - 62) * 20;
+        else if (targetLevel <= 104)
+            reqValue = targetLevel * 5 + 175;
+        else if (targetLevel <= 107)
+            reqValue = targetLevel * 15 - 905;
+        else if (targetLevel <= 112)
+            reqValue = (targetLevel - 72) * 20;
+        else if (targetLevel <= 122)
+            reqValue = (targetLevel - 32) * 10;
+        else
+            reqValue = 900;
 
-    int32 skillValue = m_caster->ToPlayer()->GetPureSkillValue(skill);
+        // TODO: Specialize skillid for each expansion
+        // new db field?
+        // tied to one of existing expansion fields in creature_template?
 
-    // Double chances for elites
-    m_caster->ToPlayer()->UpdateGatherSkill(skill, skillValue, reqValue, creature->isElite() ? 2 : 1);
+        // Double chances for elites
+        m_caster->ToPlayer()->UpdateGatherSkill(skill, damage, reqValue, creature->isElite() ? 2 : 1);
+    }
 }
 
 void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
@@ -5432,7 +5468,7 @@ void Spell::EffectUnlockGuildVaultTab(SpellEffIndex /*effIndex*/)
     // Safety checks done in Spell::CheckCast
     Player* caster = m_caster->ToPlayer();
     if (Guild* guild = caster->GetGuild())
-        guild->HandleBuyBankTab(caster->GetSession(), effectInfo->BasePoints - 1); // Bank tabs start at zero internally
+        guild->HandleBuyBankTab(caster->GetSession(), damage - 1); // Bank tabs start at zero internally
 }
 
 void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
@@ -5497,7 +5533,7 @@ void Spell::EffectRemoveTalent(SpellEffIndex /*effIndex*/)
     player->SendTalentsInfoData();
 }
 
-void Spell::EffectDestroyItem(SpellEffIndex effIndex)
+void Spell::EffectDestroyItem(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -5506,13 +5542,11 @@ void Spell::EffectDestroyItem(SpellEffIndex effIndex)
         return;
 
     Player* player = unitTarget->ToPlayer();
-    SpellEffectInfo const* effect = GetEffect(effIndex);
-    uint32 itemId = effect->ItemType;
-    if (Item* item = player->GetItemByEntry(itemId))
+    if (Item* item = player->GetItemByEntry(effectInfo->ItemType))
         player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
 
-void Spell::EffectLearnGarrisonBuilding(SpellEffIndex effIndex)
+void Spell::EffectLearnGarrisonBuilding(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -5521,10 +5555,10 @@ void Spell::EffectLearnGarrisonBuilding(SpellEffIndex effIndex)
         return;
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
-        garrison->LearnBlueprint(GetEffect(effIndex)->MiscValue);
+        garrison->LearnBlueprint(effectInfo->MiscValue);
 }
 
-void Spell::EffectCreateGarrison(SpellEffIndex effIndex)
+void Spell::EffectCreateGarrison(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -5532,7 +5566,7 @@ void Spell::EffectCreateGarrison(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->CreateGarrison(GetEffect(effIndex)->MiscValue);
+    unitTarget->ToPlayer()->CreateGarrison(effectInfo->MiscValue);
 }
 
 void Spell::EffectCreateConversation(SpellEffIndex /*effIndex*/)
@@ -5546,7 +5580,7 @@ void Spell::EffectCreateConversation(SpellEffIndex /*effIndex*/)
     Conversation::CreateConversation(effectInfo->MiscValue, GetCaster(), destTarget->GetPosition(), { GetCaster()->GetGUID() }, GetSpellInfo());
 }
 
-void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
+void Spell::EffectAddGarrisonFollower(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -5555,7 +5589,7 @@ void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
         return;
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
-        garrison->AddFollower(GetEffect(effIndex)->MiscValue);
+        garrison->AddFollower(effectInfo->MiscValue);
 }
 
 void Spell::EffectCreateHeirloomItem(SpellEffIndex effIndex)
@@ -5578,7 +5612,7 @@ void Spell::EffectCreateHeirloomItem(SpellEffIndex effIndex)
     ExecuteLogEffectCreateItem(effIndex, m_misc.Raw.Data[0]);
 }
 
-void Spell::EffectActivateGarrisonBuilding(SpellEffIndex effIndex)
+void Spell::EffectActivateGarrisonBuilding(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -5587,10 +5621,10 @@ void Spell::EffectActivateGarrisonBuilding(SpellEffIndex effIndex)
         return;
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
-        garrison->ActivateBuilding(GetEffect(effIndex)->MiscValue);
+        garrison->ActivateBuilding(effectInfo->MiscValue);
 }
 
-void Spell::EffectHealBattlePetPct(SpellEffIndex effIndex)
+void Spell::EffectHealBattlePetPct(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -5599,7 +5633,7 @@ void Spell::EffectHealBattlePetPct(SpellEffIndex effIndex)
         return;
 
     if (BattlePetMgr* battlePetMgr = unitTarget->ToPlayer()->GetSession()->GetBattlePetMgr())
-        battlePetMgr->HealBattlePetsPct(GetEffect(effIndex)->BasePoints);
+        battlePetMgr->HealBattlePetsPct(damage);
 }
 
 void Spell::EffectEnableBattlePets(SpellEffIndex /*effIndex*/)

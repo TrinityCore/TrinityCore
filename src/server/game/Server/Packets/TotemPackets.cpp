@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@ void WorldPackets::Totem::TotemDestroyed::Read()
 
 WorldPacket const* WorldPackets::Totem::TotemCreated::Write()
 {
-    _worldPacket << Slot;
+    _worldPacket << uint8(Slot);
     _worldPacket << Totem;
     _worldPacket << int32(Duration);
     _worldPacket << int32(SpellID);

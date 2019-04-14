@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "Common.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "PacketUtilities.h"
 #include "SharedDefines.h"
 
@@ -53,7 +54,7 @@ namespace WorldPackets
         class ChatMessageWhisper final : public ClientPacket
         {
         public:
-            ChatMessageWhisper(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            ChatMessageWhisper(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_WHISPER, std::move(packet)) { }
 
             void Read() override;
 
@@ -66,7 +67,7 @@ namespace WorldPackets
         class ChatMessageChannel final : public ClientPacket
         {
         public:
-            ChatMessageChannel(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            ChatMessageChannel(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_CHANNEL, std::move(packet)) { }
 
             void Read() override;
 
@@ -75,46 +76,35 @@ namespace WorldPackets
             std::string Target;
         };
 
-        // CMSG_CHAT_ADDON_MESSAGE_GUILD
-        // CMSG_CHAT_ADDON_MESSAGE_OFFICER
-        // CMSG_CHAT_ADDON_MESSAGE_PARTY
-        // CMSG_CHAT_ADDON_MESSAGE_RAID
-        // CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT
+        struct ChatAddonMessageParams
+        {
+            std::string Prefix;
+            std::string Text;
+            ChatMsg Type = CHAT_MSG_PARTY;
+            bool IsLogged = false;
+        };
+
+        // CMSG_CHAT_ADDON_MESSAGE
         class ChatAddonMessage final : public ClientPacket
         {
         public:
-            ChatAddonMessage(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            ChatAddonMessage(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE, std::move(packet)) { }
 
             void Read() override;
 
-            std::string Prefix;
-            std::string Text;
-        };
-
-        // CMSG_CHAT_ADDON_MESSAGE_WHISPER
-        class ChatAddonMessageWhisper final : public ClientPacket
-        {
-        public:
-            ChatAddonMessageWhisper(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE_WHISPER, std::move(packet)) { }
-
-            void Read() override;
-
-            std::string Prefix;
-            std::string Target;
-            std::string Text;
+            ChatAddonMessageParams Params;
         };
 
         // CMSG_CHAT_ADDON_MESSAGE_CHANNEL
-        class ChatAddonMessageChannel final : public ClientPacket
+        class ChatAddonMessageTargeted final : public ClientPacket
         {
         public:
-            ChatAddonMessageChannel(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE_CHANNEL, std::move(packet)) { }
+            ChatAddonMessageTargeted(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE_TARGETED, std::move(packet)) { }
 
             void Read() override;
 
-            std::string Text;
             std::string Target;
-            std::string Prefix;
+            ChatAddonMessageParams Params;
         };
 
         class ChatMessageDND final : public ClientPacket
@@ -161,7 +151,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 SlashCmd = 0;     ///< @see enum ChatMsg
-            uint8 _Language = LANG_UNIVERSAL;
+            uint32 _Language = LANG_UNIVERSAL;
             ObjectGuid SenderGUID;
             ObjectGuid SenderGuildGUID;
             ObjectGuid SenderAccountGUID;
@@ -177,6 +167,7 @@ namespace WorldPackets
             uint32 AchievementID = 0;
             uint8 _ChatFlags = 0;   ///< @see enum ChatFlags
             float DisplayTime = 0.0f;
+            Optional<uint32> Unused_801;
             bool HideChatLog = false;
             bool FakeSenderName = false;
         };

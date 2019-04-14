@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1457,6 +1457,15 @@ void SpellMgr::LoadSpellProcs()
     isTriggerAura[SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER] = true;
     isTriggerAura[SPELL_AURA_MOD_SPELL_CRIT_CHANCE] = true;
     isTriggerAura[SPELL_AURA_ABILITY_IGNORE_AURASTATE] = true;
+    isTriggerAura[SPELL_AURA_MOD_INVISIBILITY] = true;
+    isTriggerAura[SPELL_AURA_FORCE_REACTION] = true;
+    isTriggerAura[SPELL_AURA_MOD_TAUNT] = true;
+    isTriggerAura[SPELL_AURA_MOD_DETAUNT] = true;
+    isTriggerAura[SPELL_AURA_MOD_DAMAGE_PERCENT_DONE] = true;
+    isTriggerAura[SPELL_AURA_MOD_ATTACK_POWER_PCT] = true;
+    isTriggerAura[SPELL_AURA_MOD_HIT_CHANCE] = true;
+    isTriggerAura[SPELL_AURA_MOD_WEAPON_CRIT_PERCENT] = true;
+    isTriggerAura[SPELL_AURA_MOD_BLOCK_PERCENT] = true;
     isTriggerAura[SPELL_AURA_MOD_ROOT_2] = true;
 
     isAlwaysTriggeredAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
@@ -1466,6 +1475,7 @@ void SpellMgr::LoadSpellProcs()
     isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOT] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_STUN] = true;
     isAlwaysTriggeredAura[SPELL_AURA_TRANSFORM] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_INVISIBILITY] = true;
     isAlwaysTriggeredAura[SPELL_AURA_SPELL_MAGNET] = true;
     isAlwaysTriggeredAura[SPELL_AURA_SCHOOL_ABSORB] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_STEALTH] = true;
@@ -1478,6 +1488,7 @@ void SpellMgr::LoadSpellProcs()
     spellTypeMask[SPELL_AURA_MOD_ROOT_2] = PROC_SPELL_TYPE_DAMAGE;
     spellTypeMask[SPELL_AURA_MOD_STUN] = PROC_SPELL_TYPE_DAMAGE;
     spellTypeMask[SPELL_AURA_TRANSFORM] = PROC_SPELL_TYPE_DAMAGE;
+    spellTypeMask[SPELL_AURA_MOD_INVISIBILITY] = PROC_SPELL_TYPE_DAMAGE;
 
     // This generates default procs to retain compatibility with previous proc system
     TC_LOG_INFO("server.loading", "Generating spell proc data from SpellMap...");
@@ -1561,14 +1572,30 @@ void SpellMgr::LoadSpellProcs()
         procEntry.SpellPhaseMask  = PROC_SPELL_PHASE_HIT;
         procEntry.HitMask         = PROC_HIT_NONE; // uses default proc @see SpellMgr::CanSpellTriggerProcOnEvent
 
-        // Reflect auras should only proc off reflects
         for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
         {
-            if (effect && (effect->IsAura(SPELL_AURA_REFLECT_SPELLS) || effect->IsAura(SPELL_AURA_REFLECT_SPELLS_SCHOOL)))
+            if (!effect || !effect->IsAura())
+                continue;
+
+            switch (effect->ApplyAuraName)
             {
-                procEntry.HitMask = PROC_HIT_REFLECT;
-                break;
+                // Reflect auras should only proc off reflects
+                case SPELL_AURA_REFLECT_SPELLS:
+                case SPELL_AURA_REFLECT_SPELLS_SCHOOL:
+                    procEntry.HitMask = PROC_HIT_REFLECT;
+                    break;
+                // Only drop charge on crit
+                case SPELL_AURA_MOD_WEAPON_CRIT_PERCENT:
+                    procEntry.HitMask = PROC_HIT_CRITICAL;
+                    break;
+                // Only drop charge on block
+                case SPELL_AURA_MOD_BLOCK_PERCENT:
+                    procEntry.HitMask = PROC_HIT_BLOCK;
+                    break;
+                default:
+                    continue;
             }
+            break;
         }
 
         procEntry.AttributesMask  = 0;
@@ -2041,7 +2068,7 @@ void SpellMgr::LoadSpellAreas()
         spellArea.questEndStatus      = fields[4].GetUInt32();
         spellArea.questEnd            = fields[5].GetUInt32();
         spellArea.auraSpell           = fields[6].GetInt32();
-        spellArea.raceMask            = fields[7].GetUInt32();
+        spellArea.raceMask            = fields[7].GetUInt64();
         spellArea.gender              = Gender(fields[8].GetUInt8());
         spellArea.flags               = fields[9].GetUInt8();
 
@@ -2162,7 +2189,7 @@ void SpellMgr::LoadSpellAreas()
 
         if (spellArea.raceMask && (spellArea.raceMask & RACEMASK_ALL_PLAYABLE) == 0)
         {
-            TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_area` has wrong race mask (%u) requirement.", spell, spellArea.raceMask);
+            TC_LOG_ERROR("sql.sql", "The spell %u listed in `spell_area` has wrong race mask (" UI64FMTD ") requirement.", spell, spellArea.raceMask);
             continue;
         }
 
@@ -2209,7 +2236,7 @@ void SpellMgr::LoadSpellInfoStore()
     uint32 oldMSTime = getMSTime();
 
     UnloadSpellInfoStore();
-    mSpellInfoMap.resize(sSpellStore.GetNumRows(), NULL);
+    mSpellInfoMap.resize(sSpellNameStore.GetNumRows(), NULL);
     std::unordered_map<uint32, SpellInfoLoadHelper> loadData;
 
     std::unordered_map<int32, SpellEffectEntryMap> effectsBySpell;
@@ -2286,11 +2313,11 @@ void SpellMgr::LoadSpellInfoStore()
     for (SpellXSpellVisualEntry const* visual : sSpellXSpellVisualStore)
         visualsBySpell[visual->SpellID][visual->DifficultyID].push_back(visual);
 
-    for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sSpellNameStore.GetNumRows(); ++i)
     {
-        if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
+        if (SpellNameEntry const* spellNameEntry = sSpellNameStore.LookupEntry(i))
         {
-            loadData[i].Entry = spellEntry;
+            loadData[i].Entry = spellNameEntry;
             mSpellInfoMap[i] = new SpellInfo(loadData[i], effectsBySpell[i], std::move(visualsBySpell[i]));
         }
     }
@@ -2850,7 +2877,9 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     ApplySpellFix({
         50661, // Weakened Resolve
-        68979  // Unleashed Souls
+        68979, // Unleashed Souls
+        48714, // Compelled
+        7853,  // The Art of Being a Water Terror: Force Cast on Player
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
@@ -3304,6 +3333,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 24314 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AuraInterruptFlags[0] |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
+    });
+
+    // Travel Form (dummy) - cannot be cast indoors.
+    ApplySpellFix({ 783 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_OUTDOORS_ONLY;
     });
 
     // Tree of Life (Passive)

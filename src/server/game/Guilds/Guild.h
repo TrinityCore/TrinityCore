@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -816,7 +816,7 @@ class TC_GAME_API Guild
 
         // Broadcasts
         void BroadcastToGuild(WorldSession* session, bool officerOnly, std::string const& msg, uint32 language = LANG_UNIVERSAL) const;
-        void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::string const& msg, std::string const& prefix) const;
+        void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::string const& msg, std::string const& prefix, bool isLogged) const;
         void BroadcastPacketToRank(WorldPacket const* packet, uint8 rankId) const;
         void BroadcastPacket(WorldPacket const* packet) const;
         void BroadcastPacketIfTrackingAchievement(WorldPacket const* packet, uint32 criteriaId) const;

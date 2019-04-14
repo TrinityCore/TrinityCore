@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -111,7 +111,7 @@ WorldPacket const* WorldPackets::Achievement::AchievementEarned::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Achievement::ServerFirstAchievement::Write()
+WorldPacket const* WorldPackets::Achievement::BroadcastAchievement::Write()
 {
     _worldPacket.WriteBits(Name.length(), 7);
     _worldPacket.WriteBit(GuildAchievement);

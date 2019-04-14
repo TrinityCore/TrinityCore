@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -103,12 +103,6 @@ struct GtCombatRatingsMultByILvl
     float JewelryMultiplier = 0.0f;
 };
 
-uint8 constexpr PRESTIGE_COLUMN_COUNT = 33;
-struct GtHonorLevelEntry
-{
-    float Prestige[PRESTIGE_COLUMN_COUNT] = { };
-};
-
 struct GtHpPerStaEntry
 {
     float Health = 0.0f;
@@ -176,6 +170,7 @@ struct GtSpellScalingEntry
     float Gem2 = 0.0f;
     float Gem3 = 0.0f;
     float Health = 0.0f;
+    float DamageReplaceStat = 0.0f;
 };
 
 struct GtXpEntry
@@ -214,7 +209,6 @@ TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>             sBarberShopC
 TC_GAME_API extern GameTable<GtBaseMPEntry>                         sBaseMPGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>             sCombatRatingsMultByILvlGameTable;
-TC_GAME_API extern GameTable<GtHonorLevelEntry>                     sHonorLevelGameTable;
 TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable;
 TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
 TC_GAME_API extern GameTable<GtNpcDamageByClassEntry>               sNpcDamageByClassGameTable[MAX_EXPANSIONS];
@@ -290,6 +284,7 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
         case CLASS_DEMON_HUNTER:
             return row->DemonHunter;
         case -1:
+        case -7:
             return row->Item;
         case -2:
             return row->Consumable;
@@ -301,6 +296,8 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Gem3;
         case -6:
             return row->Health;
+        case -8:
+            return row->DamageReplaceStat;
         default:
             break;
     }

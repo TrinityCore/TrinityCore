@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,32 +25,31 @@ void WorldPackets::Petition::QueryPetition::Read()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Petition::PetitionInfo const& petitionInfo)
 {
-    data << petitionInfo.PetitionID;
+    data << int32(petitionInfo.PetitionID);
     data << petitionInfo.Petitioner;
-
-    data << petitionInfo.MinSignatures;
-    data << petitionInfo.MaxSignatures;
-    data << petitionInfo.DeadLine;
-    data << petitionInfo.IssueDate;
-    data << petitionInfo.AllowedGuildID;
-    data << petitionInfo.AllowedClasses;
-    data << petitionInfo.AllowedRaces;
-    data << petitionInfo.AllowedGender;
-    data << petitionInfo.AllowedMinLevel;
-    data << petitionInfo.AllowedMaxLevel;
-    data << petitionInfo.NumChoices;
-    data << petitionInfo.StaticType;
-    data << petitionInfo.Muid;
+    data << int32(petitionInfo.MinSignatures);
+    data << int32(petitionInfo.MaxSignatures);
+    data << int32(petitionInfo.DeadLine);
+    data << int32(petitionInfo.IssueDate);
+    data << int32(petitionInfo.AllowedGuildID);
+    data << int32(petitionInfo.AllowedClasses);
+    data << int32(petitionInfo.AllowedRaces);
+    data << int16(petitionInfo.AllowedGender);
+    data << int32(petitionInfo.AllowedMinLevel);
+    data << int32(petitionInfo.AllowedMaxLevel);
+    data << int32(petitionInfo.NumChoices);
+    data << int32(petitionInfo.StaticType);
+    data << uint32(petitionInfo.Muid);
 
     data.WriteBits(petitionInfo.Title.length(), 7);
     data.WriteBits(petitionInfo.BodyText.length(), 12);
 
-    for (uint8 i = 0; i < 10; i++)
+    for (std::size_t i = 0; i < petitionInfo.Choicetext.size(); ++i)
         data.WriteBits(petitionInfo.Choicetext[i].length(), 6);
 
     data.FlushBits();
 
-    for (uint8 i = 0; i < 10; i++)
+    for (std::size_t i = 0; i < petitionInfo.Choicetext.size(); ++i)
         data.WriteString(petitionInfo.Choicetext[i]);
 
     data.WriteString(petitionInfo.Title);
@@ -61,7 +60,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Petition::PetitionInfo co
 
 WorldPacket const* WorldPackets::Petition::QueryPetitionResponse::Write()
 {
-    _worldPacket << PetitionID;
+    _worldPacket << uint32(PetitionID);
     _worldPacket.WriteBit(Allow);
     _worldPacket.FlushBits();
 
@@ -102,13 +101,13 @@ WorldPacket const* WorldPackets::Petition::ServerPetitionShowSignatures::Write()
     _worldPacket << Item;
     _worldPacket << Owner;
     _worldPacket << OwnerAccountID;
-    _worldPacket << PetitionID;
+    _worldPacket << int32(PetitionID);
 
     _worldPacket << uint32(Signatures.size());
-    for (PetitionSignature signature : Signatures)
+    for (PetitionSignature const& signature : Signatures)
     {
         _worldPacket << signature.Signer;
-        _worldPacket << signature.Choice;
+        _worldPacket << int32(signature.Choice);
     }
 
     return &_worldPacket;

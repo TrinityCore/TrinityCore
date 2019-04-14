@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -346,7 +346,8 @@ WorldPacket const* WorldPackets::Misc::LevelUpInfo::Write()
     for (int32 stat : StatDelta)
         _worldPacket << stat;
 
-    _worldPacket << int32(Cp);
+    _worldPacket << int32(NumNewTalents);
+    _worldPacket << int32(NumNewPvpTalentSlots);
 
     return &_worldPacket;
 }
@@ -404,11 +405,11 @@ WorldPacket const* WorldPackets::Misc::PhaseShiftChange::Write()
 
     _worldPacket << uint32(PreloadMapIDs.size() * 2);           // size in bytes
     for (uint16 preloadMapId : PreloadMapIDs)
-        _worldPacket << uint16(preloadMapId);                            // Inactive terrain swap map id
+        _worldPacket << uint16(preloadMapId);                   // Inactive terrain swap map id
 
-    _worldPacket << uint32(UiWorldMapAreaIDSwaps.size() * 2);   // size in bytes
-    for (uint16 uiWorldMapAreaIDSwap : UiWorldMapAreaIDSwaps)
-        _worldPacket << uint16(uiWorldMapAreaIDSwap);          // UI map id, WorldMapArea.db2, controls map display
+    _worldPacket << uint32(UiMapPhaseIDs.size() * 2);           // size in bytes
+    for (uint16 uiMapPhaseId : UiMapPhaseIDs)
+        _worldPacket << uint16(uiMapPhaseId);                   // phase id, controls only map display (visible on all maps)
 
     return &_worldPacket;
 }

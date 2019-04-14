@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -62,6 +62,10 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
             if (v.second != PLAYERSPELL_REMOVED)
                 inspectResult.Talents.push_back(v.first);
         }
+
+        PlayerPvpTalentMap const& pvpTalents = player->GetPvpTalentMap(player->GetActiveTalentGroup());
+        for (std::size_t i = 0; i < pvpTalents.size(); ++i)
+            inspectResult.PvpTalents[i] = pvpTalents[i];
     }
 
     if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
@@ -97,9 +101,9 @@ void WorldSession::HandleRequestHonorStatsOpcode(WorldPackets::Inspect::RequestH
 
     WorldPackets::Inspect::InspectHonorStats honorStats;
     honorStats.PlayerGUID  = request.TargetGUID;
-    honorStats.LifetimeHK  = player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
-    honorStats.YesterdayHK = player->GetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS);
-    honorStats.TodayHK     = player->GetUInt16Value(PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS);
+    honorStats.LifetimeHK  = player->GetUInt32Value(ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
+    honorStats.YesterdayHK = player->GetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS);
+    honorStats.TodayHK     = player->GetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS);
     honorStats.LifetimeMaxRank = 0; /// @todo
 
     SendPacket(honorStats.Write());

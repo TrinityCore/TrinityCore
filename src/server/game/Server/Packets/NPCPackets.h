@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -131,9 +131,9 @@ namespace WorldPackets
         struct TrainerListSpell
         {
             int32 SpellID       = 0;
-            int32 MoneyCost     = 0;
-            int32 ReqSkillLine  = 0;
-            int32 ReqSkillRank  = 0;
+            uint32 MoneyCost    = 0;
+            uint32 ReqSkillLine = 0;
+            uint32 ReqSkillRank = 0;
             std::array<int32, 3> ReqAbility = { };
             uint8 Usable        = 0;
             uint8 ReqLevel      = 0;
@@ -180,6 +180,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            int32 ID            = 0;
             uint32 Flags        = 0;
             TaggedPosition<Position::XY> Pos;
             int32 Icon          = 0;

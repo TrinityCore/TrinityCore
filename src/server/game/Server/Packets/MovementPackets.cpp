@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -213,6 +213,16 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineSp
     data << uint32(spellEffectExtraData.SpellVisualID);
     data << uint32(spellEffectExtraData.ProgressCurveID);
     data << uint32(spellEffectExtraData.ParabolicCurveID);
+    data << float(spellEffectExtraData.JumpGravity);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineJumpExtraData const& jumpExtraData)
+{
+    data << float(jumpExtraData.JumpGravity);
+    data << uint32(jumpExtraData.StartTime);
+    data << uint32(jumpExtraData.Duration);
 
     return data;
 }
@@ -224,8 +234,7 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     data << uint32(movementSpline.TierTransStartTime);
     data << int32(movementSpline.Elapsed);
     data << uint32(movementSpline.MoveTime);
-    data << float(movementSpline.JumpGravity);
-    data << uint32(movementSpline.SpecialTime);
+    data << uint32(movementSpline.FadeObjectTime);
     data << uint8(movementSpline.Mode);
     data << uint8(movementSpline.VehicleExitVoluntary);
     data << movementSpline.TransportGUID;
@@ -235,6 +244,7 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
     data.WriteBits(movementSpline.PackedDeltas.size(), 16);
     data.WriteBit(movementSpline.SplineFilter.is_initialized());
     data.WriteBit(movementSpline.SpellEffectExtraData.is_initialized());
+    data.WriteBit(movementSpline.JumpExtraData.is_initialized());
     data.FlushBits();
 
     if (movementSpline.SplineFilter)
@@ -261,6 +271,9 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
 
     if (movementSpline.SpellEffectExtraData)
         data << *movementSpline.SpellEffectExtraData;
+
+    if (movementSpline.JumpExtraData)
+        data << *movementSpline.JumpExtraData;
 
     return data;
 }
@@ -300,12 +313,12 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         data << float(1.0f);                                                    // DurationModifier
         data << float(1.0f);                                                    // NextDurationModifier
         data.WriteBits(moveSpline.facing.type, 2);                              // Face
-        bool HasJumpGravity = data.WriteBit(moveSpline.splineflags.parabolic || moveSpline.splineflags.animation);                 // HasJumpGravity
-        bool HasSpecialTime = data.WriteBit(moveSpline.splineflags.parabolic && moveSpline.effect_start_time < moveSpline.Duration()); // HasSpecialTime
+        bool hasFadeObjectTime = data.WriteBit(moveSpline.splineflags.fadeObject && moveSpline.effect_start_time < moveSpline.Duration());
         data.WriteBits(moveSpline.getPath().size(), 16);
         data.WriteBits(uint8(moveSpline.spline.mode()), 2);                     // Mode
         data.WriteBit(0);                                                       // HasSplineFilter
         data.WriteBit(moveSpline.spell_effect_extra.is_initialized());          // HasSpellEffectExtraData
+        data.WriteBit(moveSpline.splineflags.parabolic);                        // HasJumpExtraData
         data.FlushBits();
 
         //if (HasSplineFilterKey)
@@ -341,11 +354,8 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
                 break;
         }
 
-        if (HasJumpGravity)
-            data << float(moveSpline.vertical_acceleration);                    // JumpGravity
-
-        if (HasSpecialTime)
-            data << uint32(moveSpline.effect_start_time);                       // SpecialTime
+        if (hasFadeObjectTime)
+            data << uint32(moveSpline.effect_start_time);                       // FadeObjectTime
 
         data.append(moveSpline.getPath().data(), moveSpline.getPath().size());
 
@@ -355,6 +365,14 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
             data << uint32(moveSpline.spell_effect_extra->SpellVisualId);
             data << uint32(moveSpline.spell_effect_extra->ProgressCurveId);
             data << uint32(moveSpline.spell_effect_extra->ParabolicCurveId);
+            data << float(moveSpline.vertical_acceleration);
+        }
+
+        if (moveSpline.splineflags.parabolic)
+        {
+            data << float(moveSpline.vertical_acceleration);
+            data << uint32(moveSpline.effect_start_time);
+            data << uint32(0);                                                  // Duration (override)
         }
     }
 }
@@ -388,12 +406,13 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
 
     if (splineFlags.parabolic)
     {
-        movementSpline.JumpGravity = moveSpline.vertical_acceleration;
-        movementSpline.SpecialTime = moveSpline.effect_start_time;
+        movementSpline.JumpExtraData = boost::in_place();
+        movementSpline.JumpExtraData->JumpGravity = moveSpline.vertical_acceleration;
+        movementSpline.JumpExtraData->StartTime = moveSpline.effect_start_time;
     }
 
     if (splineFlags.fadeObject)
-        movementSpline.SpecialTime = moveSpline.effect_start_time;
+        movementSpline.FadeObjectTime = moveSpline.effect_start_time;
 
     if (moveSpline.spell_effect_extra)
     {
@@ -402,6 +421,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
         movementSpline.SpellEffectExtraData->SpellVisualID = moveSpline.spell_effect_extra->SpellVisualId;
         movementSpline.SpellEffectExtraData->ProgressCurveID = moveSpline.spell_effect_extra->ProgressCurveId;
         movementSpline.SpellEffectExtraData->ParabolicCurveID = moveSpline.spell_effect_extra->ParabolicCurveId;
+        movementSpline.SpellEffectExtraData->JumpGravity = moveSpline.vertical_acceleration;
     }
 
     ::Movement::Spline<int32> const& spline = moveSpline.spline;

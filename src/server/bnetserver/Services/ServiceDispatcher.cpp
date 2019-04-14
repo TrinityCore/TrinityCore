@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,13 +21,13 @@ Battlenet::ServiceDispatcher::ServiceDispatcher()
 {
     AddService<Services::Account>();
     AddService<Services::Authentication>();
-    AddService<Service<challenge::v1::ChallengeService>>();
-    AddService<Service<channel::v1::ChannelService>>();
+    AddService<Service<club::v1::membership::ClubMembershipService>>();
     AddService<Services::Connection>();
     AddService<Service<friends::v1::FriendsService>>();
     AddService<Services::GameUtilities>();
     AddService<Service<presence::v1::PresenceService>>();
     AddService<Service<report::v1::ReportService>>();
+    AddService<Service<report::v2::ReportService>>();
     AddService<Service<resources::v1::ResourcesService>>();
     AddService<Service<user_manager::v1::UserManagerService>>();
 }

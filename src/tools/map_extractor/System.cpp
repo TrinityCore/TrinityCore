@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1247,6 +1247,9 @@ void ExtractGameTables()
         "GameTables\\ArmorMitigationByLvl.txt",
         "GameTables\\ArtifactKnowledgeMultiplier.txt",
         "GameTables\\ArtifactLevelXP.txt",
+        "GameTables\\AzeriteBaseExperiencePerLevel.txt",
+        "GameTables\\AzeriteKnowledgeMultiplier.txt",
+        "GameTables\\AzeriteLevelToItemLevel.txt",
         "GameTables\\BarberShopCostBase.txt",
         "GameTables\\BaseMp.txt",
         "GameTables\\BattlePetTypeDamageMod.txt",
@@ -1257,6 +1260,8 @@ void ExtractGameTables()
         "GameTables\\CombatRatingsMultByILvl.txt",
         "GameTables\\HonorLevel.txt",
         "GameTables\\HpPerSta.txt",
+        "GameTables\\ItemLevelByLevel.txt",
+        "GameTables\\ItemLevelSquish.txt",
         "GameTables\\ItemSocketCostPerLevel.txt",
         "GameTables\\NpcDamageByClass.txt",
         "GameTables\\NpcDamageByClassExp1.txt",
@@ -1265,6 +1270,7 @@ void ExtractGameTables()
         "GameTables\\NpcDamageByClassExp4.txt",
         "GameTables\\NpcDamageByClassExp5.txt",
         "GameTables\\NpcDamageByClassExp6.txt",
+        "GameTables\\NpcDamageByClassExp7.txt",
         "GameTables\\NPCManaCostScaler.txt",
         "GameTables\\NpcTotalHp.txt",
         "GameTables\\NpcTotalHpExp1.txt",
@@ -1273,8 +1279,10 @@ void ExtractGameTables()
         "GameTables\\NpcTotalHpExp4.txt",
         "GameTables\\NpcTotalHpExp5.txt",
         "GameTables\\NpcTotalHpExp6.txt",
+        "GameTables\\NpcTotalHpExp7.txt",
         "GameTables\\SandboxScaling.txt",
         "GameTables\\SpellScaling.txt",
+        "GameTables\\StaminaMultByILvl.txt",
         "GameTables\\xp.txt",
         nullptr
     };

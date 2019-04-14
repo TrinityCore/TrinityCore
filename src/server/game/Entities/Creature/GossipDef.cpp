@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -286,6 +286,7 @@ void PlayerMenu::SendPointOfInterest(uint32 id) const
     }
 
     WorldPackets::NPC::GossipPOI packet;
+    packet.ID = pointOfInterest->ID;
     packet.Name = pointOfInterest->Name;
 
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
@@ -438,10 +439,11 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     packet.InformUnit = _session->GetPlayer()->GetDivider();
     packet.QuestID = quest->GetQuestId();
     packet.PortraitGiver = quest->GetQuestGiverPortrait();
+    packet.PortraitGiverMount = quest->GetQuestGiverPortraitMount();
     packet.PortraitTurnIn = quest->GetQuestTurnInPortrait();
     packet.AutoLaunched = autoLaunched;
     packet.DisplayPopup = displayPopup;
-    packet.QuestFlags[0] = quest->GetFlags();
+    packet.QuestFlags[0] = quest->GetFlags() & (sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? ~QUEST_FLAGS_AUTO_ACCEPT : ~0);
     packet.QuestFlags[1] = quest->GetFlagsEx();
     packet.SuggestedPartyMembers = quest->GetSuggestedPlayers();
 
@@ -512,6 +514,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.QuestID = quest->GetQuestId();
     packet.Info.QuestType = quest->GetQuestType();
     packet.Info.QuestLevel = quest->GetQuestLevel();
+    packet.Info.QuestScalingFactionGroup = quest->GetQuestScalingFactionGroup();
     packet.Info.QuestMaxScalingLevel = quest->GetQuestMaxScalingLevel();
     packet.Info.QuestPackageID = quest->GetQuestPackageID();
     packet.Info.QuestMinLevel = quest->GetMinLevel();
@@ -543,12 +546,14 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.StartItem = quest->GetSrcItemId();
     packet.Info.Flags = quest->GetFlags();
     packet.Info.FlagsEx = quest->GetFlagsEx();
+    packet.Info.FlagsEx2 = quest->GetFlagsEx2();
     packet.Info.RewardTitle = quest->GetRewTitle();
     packet.Info.RewardArenaPoints = quest->GetRewArenaPoints();
     packet.Info.RewardSkillLineID = quest->GetRewardSkillId();
     packet.Info.RewardNumSkillUps = quest->GetRewardSkillPoints();
     packet.Info.RewardFactionFlags = quest->GetRewardReputationMask();
     packet.Info.PortraitGiver = quest->GetQuestGiverPortrait();
+    packet.Info.PortraitGiverMount = quest->GetQuestGiverPortraitMount();
     packet.Info.PortraitTurnIn = quest->GetQuestTurnInPortrait();
 
     for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
@@ -585,7 +590,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.POIPriority = quest->GetPOIPriority();
 
     packet.Info.AllowableRaces = quest->GetAllowableRaces();
-    packet.Info.QuestRewardID = quest->GetRewardId();
+    packet.Info.TreasurePickerID = quest->GetTreasurePickerId();
     packet.Info.Expansion = quest->GetExpansion();
 
     for (QuestObjective const& questObjective : quest->GetObjectives())
@@ -666,6 +671,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
 
     packet.PortraitTurnIn = quest->GetQuestTurnInPortrait();
     packet.PortraitGiver = quest->GetQuestGiverPortrait();
+    packet.PortraitGiverMount = quest->GetQuestGiverPortraitMount();
     packet.QuestPackageID = quest->GetQuestPackageID();
 
     _session->SendPacket(packet.Write());

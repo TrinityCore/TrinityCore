@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,6 +38,7 @@
 #include "SpellMgr.h"
 #include "TradeData.h"
 #include "UpdateData.h"
+#include "World.h"
 #include "WorldSession.h"
 
 void AddItemsSetItem(Player* player, Item* item)
@@ -274,8 +275,6 @@ Item::Item()
     m_objectType |= TYPEMASK_ITEM;
     m_objectTypeId = TYPEID_ITEM;
 
-    m_updateFlag = 0;
-
     m_valuesCount = ITEM_END;
     _dynamicValuesCount = ITEM_DYNAMIC_END;
     m_slot = 0;
@@ -315,14 +314,8 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
 
     for (std::size_t i = 0; i < itemProto->Effects.size(); ++i)
-    {
         if (i < 5)
             SetSpellCharges(i, itemProto->Effects[i]->Charges);
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemProto->Effects[i]->SpellID))
-            if (owner && spellInfo->HasEffect(SPELL_EFFECT_GIVE_ARTIFACT_POWER))
-                if (uint32 artifactKnowledgeLevel = owner->GetCurrency(CURRENCY_TYPE_ARTIFACT_KNOWLEDGE))
-                    SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, artifactKnowledgeLevel + 1);
-    }
 
     SetUInt32Value(ITEM_FIELD_DURATION, itemProto->GetDuration());
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
@@ -346,6 +339,8 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
                 break;
             }
         }
+
+        CheckArtifactRelicSlotUnlock(owner ? owner : GetOwner());
     }
 
     return true;
@@ -536,6 +531,7 @@ void Item::SaveToDB(SQLTransaction& trans)
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 stmt->setUInt64(1, GetUInt64Value(ITEM_FIELD_ARTIFACT_XP));
                 stmt->setUInt32(2, GetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID));
+                stmt->setUInt32(3, GetModifier(ITEM_MODIFIER_ARTIFACT_TIER));
                 trans->Append(stmt);
 
                 for (ItemDynamicFieldArtifactPowers const& artifactPower : GetArtifactPowers())
@@ -794,11 +790,15 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     return true;
 }
 
-void Item::LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers)
+void Item::LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, uint32 artifactTier, std::vector<ItemDynamicFieldArtifactPowers>& powers)
 {
-    InitArtifactPowers(GetTemplate()->GetArtifactID(), 0);
+    for (uint8 i = 0; i <= artifactTier; ++i)
+        InitArtifactPowers(GetTemplate()->GetArtifactID(), i);
+
     SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, xp);
     SetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID, artifactAppearanceId);
+    SetModifier(ITEM_MODIFIER_ARTIFACT_TIER, artifactTier);
+
     if (ArtifactAppearanceEntry const* artifactAppearance = sArtifactAppearanceStore.LookupEntry(artifactAppearanceId))
         SetAppearanceModId(artifactAppearance->ItemAppearanceModifierID);
 
@@ -856,6 +856,23 @@ void Item::LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceI
         power.CurrentRankWithBonus = totalPurchasedRanks + 1;
         SetArtifactPower(&power);
     }
+
+    CheckArtifactRelicSlotUnlock(owner ? owner : GetOwner());
+}
+
+void Item::CheckArtifactRelicSlotUnlock(Player const* owner)
+{
+    if (!owner)
+        return;
+
+    uint8 artifactId = GetTemplate()->GetArtifactID();
+    if (!artifactId)
+        return;
+
+    for (ArtifactUnlockEntry const* artifactUnlock : sArtifactUnlockStore)
+        if (artifactUnlock->ArtifactID == artifactId)
+            if (owner->MeetPlayerCondition(artifactUnlock->PlayerConditionID))
+                AddBonuses(artifactUnlock->ItemBonusListID);
 }
 
 /*static*/
@@ -1684,7 +1701,7 @@ bool Item::HasStats() const
     ItemTemplate const* proto = GetTemplate();
     Player const* owner = GetOwner();
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if ((owner ? GetItemStatValue(i, owner) : proto->GetItemStatValue(i)) != 0)
+        if ((owner ? GetItemStatValue(i, owner) : proto->GetItemStatAllocation(i)) != 0)
             return true;
 
     return false;
@@ -1696,7 +1713,7 @@ bool Item::HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusD
         return true;
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (bonus->ItemStatValue[i] != 0)
+        if (bonus->ItemStatAllocation[i] != 0)
             return true;
 
     return false;
@@ -2206,9 +2223,9 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
         else
             level = std::min(std::max(int32(level), ssd->MinLevel), ssd->MaxLevel);
 
-        if (SandboxScalingEntry const* sandbox = sSandboxScalingStore.LookupEntry(bonusData.SandboxScalingId))
-            if ((sandbox->Flags & 2 || sandbox->MinLevel || sandbox->MaxLevel) && !(sandbox->Flags & 4))
-                level = std::min(std::max(int32(level), sandbox->MinLevel), sandbox->MaxLevel);
+        if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(bonusData.ContentTuningId))
+            if ((contentTuning->Flags & 2 || contentTuning->MinLevel || contentTuning->MaxLevel) && !(contentTuning->Flags & 4))
+                level = std::min(std::max(int32(level), contentTuning->MinLevel), contentTuning->MaxLevel);
 
         if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->PlayerLevelToItemLevelCurveID, level)))
             itemLevel = heirloomIlvl;
@@ -2251,7 +2268,7 @@ int32 Item::GetItemStatValue(uint32 index, Player const* owner) const
         return int32(std::floor(statValue + 0.5f));
     }
 
-    return _bonusData.ItemStatValue[index];
+    return 0;
 }
 
 ItemDisenchantLootEntry const* Item::GetDisenchantLoot(Player const* owner) const
@@ -2371,6 +2388,9 @@ uint16 Item::GetVisibleItemVisual(Player const* owner) const
 
 void Item::AddBonuses(uint32 bonusListID)
 {
+    if (HasDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID))
+        return;
+
     if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))
     {
         AddDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID);
@@ -2426,7 +2446,7 @@ void Item::InitArtifactPowers(uint8 artifactId, uint8 artifactTier)
         memset(&powerData, 0, sizeof(powerData));
         powerData.ArtifactPowerId = artifactPower->ID;
         powerData.PurchasedRank = 0;
-        powerData.CurrentRankWithBonus = (artifactPower->Flags & ARTIFACT_POWER_FLAG_FIRST) ? 1 : 0;
+        powerData.CurrentRankWithBonus = (artifactPower->Flags & ARTIFACT_POWER_FLAG_FIRST) == ARTIFACT_POWER_FLAG_FIRST ? 1 : 0;
         SetArtifactPower(&powerData, true);
     }
 }
@@ -2534,24 +2554,19 @@ void Item::GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCatego
 
     if (artifactCategoryId)
     {
-        if (ArtifactCategoryEntry const* artifactCategory = sArtifactCategoryStore.LookupEntry(artifactCategoryId))
-        {
-            uint32 artifactKnowledgeLevel = 1;
-            if (sourceItem && sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL))
-                artifactKnowledgeLevel = sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL);
-            else
-                artifactKnowledgeLevel = owner->GetCurrency(artifactCategory->XpMultCurrencyID) + 1;
+        uint32 artifactKnowledgeLevel = 1;
+        if (sourceItem && sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL))
+            artifactKnowledgeLevel = sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL);
 
-            if (GtArtifactKnowledgeMultiplierEntry const* artifactKnowledge = sArtifactKnowledgeMultiplierGameTable.GetRow(artifactKnowledgeLevel))
-                amount = uint64(amount * artifactKnowledge->Multiplier);
+        if (GtArtifactKnowledgeMultiplierEntry const* artifactKnowledge = sArtifactKnowledgeMultiplierGameTable.GetRow(artifactKnowledgeLevel))
+            amount = uint64(amount * artifactKnowledge->Multiplier);
 
-            if (amount >= 5000)
-                amount = 50 * (amount / 50);
-            else if (amount >= 1000)
-                amount = 25 * (amount / 25);
-            else if (amount >= 50)
-                amount = 5 * (amount / 5);
-        }
+        if (amount >= 5000)
+            amount = 50 * (amount / 50);
+        else if (amount >= 1000)
+            amount = 25 * (amount / 25);
+        else if (amount >= 50)
+            amount = 5 * (amount / 5);
     }
 
     SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, GetUInt64Value(ITEM_FIELD_ARTIFACT_XP) + amount);
@@ -2573,9 +2588,9 @@ void Item::SetFixedLevel(uint8 level)
     {
         level = std::min(std::max(int32(level), ssd->MinLevel), ssd->MaxLevel);
 
-        if (SandboxScalingEntry const* sandbox = sSandboxScalingStore.LookupEntry(_bonusData.SandboxScalingId))
-            if ((sandbox->Flags & 2 || sandbox->MinLevel || sandbox->MaxLevel) && !(sandbox->Flags & 4))
-                level = std::min(std::max(int32(level), sandbox->MinLevel), sandbox->MaxLevel);
+        if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(_bonusData.ContentTuningId))
+            if ((contentTuning->Flags & 2 || contentTuning->MinLevel || contentTuning->MaxLevel) && !(contentTuning->Flags & 4))
+                level = std::min(std::max(int32(level), contentTuning->MinLevel), contentTuning->MaxLevel);
 
         SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, level);
     }
@@ -2600,9 +2615,6 @@ void BonusData::Initialize(ItemTemplate const* proto)
         ItemStatType[i] = proto->GetItemStatType(i);
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        ItemStatValue[i] = proto->GetItemStatValue(i);
-
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         ItemStatAllocation[i] = proto->GetItemStatAllocation(i);
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
@@ -2621,7 +2633,7 @@ void BonusData::Initialize(ItemTemplate const* proto)
     AppearanceModID = 0;
     RepairCostMultiplier = 1.0f;
     ScalingStatDistribution = proto->GetScalingStatDistribution();
-    SandboxScalingId = 0;
+    ContentTuningId = 0;
     RelicType = -1;
     HasItemLevelBonus = false;
     HasFixedLevel = false;
@@ -2709,7 +2721,7 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[3])
             if (values[1] < _state.ScalingStatDistributionPriority)
             {
                 ScalingStatDistribution = static_cast<uint32>(values[0]);
-                SandboxScalingId = static_cast<uint32>(values[2]);
+                ContentTuningId = static_cast<uint32>(values[2]);
                 _state.ScalingStatDistributionPriority = values[1];
                 HasFixedLevel = type == ITEM_BONUS_SCALING_STAT_DISTRIBUTION_FIXED;
             }

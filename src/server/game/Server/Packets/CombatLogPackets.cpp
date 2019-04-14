@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,6 +26,7 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
     *this << int32(SpellID);
     *this << int32(SpellXSpellVisualID);
     *this << int32(Damage);
+    *this << int32(OriginalDamage);
     *this << int32(Overkill);
     *this << uint8(SchoolMask);
     *this << int32(Absorbed);
@@ -35,11 +36,11 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
     WriteBits(Flags, 7);
     WriteBit(false); // Debug info
     WriteLogDataBit();
-    WriteBit(SandboxScaling.is_initialized());
+    WriteBit(ContentTuning.is_initialized());
     FlushBits();
     WriteLogData();
-    if (SandboxScaling)
-        *this << *SandboxScaling;
+    if (ContentTuning)
+        *this << *ContentTuning;
 
     return &_worldPacket;
 }
@@ -61,12 +62,12 @@ WorldPacket const* WorldPackets::CombatLog::EnvironmentalDamageLog::Write()
 WorldPacket const* WorldPackets::CombatLog::SpellExecuteLog::Write()
 {
     *this << Caster;
-    *this << SpellID;
+    *this << int32(SpellID);
     *this << uint32(Effects.size());
 
     for (SpellLogEffect const& effect : Effects)
     {
-        *this << effect.Effect;
+        *this << int32(effect.Effect);
 
         *this << uint32(effect.PowerDrainTargets.size());
         *this << uint32(effect.ExtraAttacksTargets.size());
@@ -78,32 +79,32 @@ WorldPacket const* WorldPackets::CombatLog::SpellExecuteLog::Write()
         for (SpellLogEffectPowerDrainParams const& powerDrainTarget : effect.PowerDrainTargets)
         {
             *this << powerDrainTarget.Victim;
-            *this << powerDrainTarget.Points;
-            *this << powerDrainTarget.PowerType;
-            *this << powerDrainTarget.Amplitude;
+            *this << uint32(powerDrainTarget.Points);
+            *this << uint32(powerDrainTarget.PowerType);
+            *this << float(powerDrainTarget.Amplitude);
         }
 
         for (SpellLogEffectExtraAttacksParams const& extraAttacksTarget : effect.ExtraAttacksTargets)
         {
             *this << extraAttacksTarget.Victim;
-            *this << extraAttacksTarget.NumAttacks;
+            *this << uint32(extraAttacksTarget.NumAttacks);
         }
 
         for (SpellLogEffectDurabilityDamageParams const& durabilityDamageTarget : effect.DurabilityDamageTargets)
         {
             *this << durabilityDamageTarget.Victim;
-            *this << durabilityDamageTarget.ItemID;
-            *this << durabilityDamageTarget.Amount;
+            *this << int32(durabilityDamageTarget.ItemID);
+            *this << int32(durabilityDamageTarget.Amount);
         }
 
         for (SpellLogEffectGenericVictimParams const& genericVictimTarget : effect.GenericVictimTargets)
             *this << genericVictimTarget.Victim;
 
         for (SpellLogEffectTradeSkillItemParams const& tradeSkillTarget : effect.TradeSkillTargets)
-            *this << tradeSkillTarget.ItemID;
+            *this << int32(tradeSkillTarget.ItemID);
 
         for (SpellLogEffectFeedPetParams const& feedPetTarget : effect.FeedPetTargets)
-            *this << feedPetTarget.ItemID;
+            *this << int32(feedPetTarget.ItemID);
     }
 
     WriteLogDataBit();
@@ -119,13 +120,14 @@ WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
     *this << CasterGUID;
     *this << int32(SpellID);
     *this << int32(Health);
+    *this << int32(OriginalHeal);
     *this << int32(OverHeal);
     *this << int32(Absorbed);
     WriteBit(Crit);
     WriteBit(CritRollMade.is_initialized());
     WriteBit(CritRollNeeded.is_initialized());
     WriteLogDataBit();
-    WriteBit(SandboxScaling.is_initialized());
+    WriteBit(ContentTuning.is_initialized());
     FlushBits();
 
     WriteLogData();
@@ -136,8 +138,8 @@ WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
     if (CritRollNeeded)
         *this << *CritRollNeeded;
 
-    if (SandboxScaling)
-        *this << *SandboxScaling;
+    if (ContentTuning)
+        *this << *ContentTuning;
 
     return &_worldPacket;
 }
@@ -155,24 +157,24 @@ WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
     {
         *this << int32(effect.Effect);
         *this << int32(effect.Amount);
+        *this << int32(effect.OriginalDamage);
         *this << int32(effect.OverHealOrKill);
         *this << int32(effect.SchoolMaskOrPower);
         *this << int32(effect.AbsorbedOrAmplitude);
         *this << int32(effect.Resisted);
         WriteBit(effect.Crit);
         WriteBit(effect.DebugInfo.is_initialized());
-        WriteBit(effect.SandboxScaling.is_initialized());
+        WriteBit(effect.ContentTuning.is_initialized());
         FlushBits();
 
-        if (effect.SandboxScaling)
-            *this << *effect.SandboxScaling;
+        if (effect.ContentTuning)
+            *this << *effect.ContentTuning;
 
         if (effect.DebugInfo)
         {
             *this << float(effect.DebugInfo->CritRollMade);
             *this << float(effect.DebugInfo->CritRollNeeded);
         }
-
     }
 
     WriteLogData();
@@ -280,6 +282,7 @@ WorldPacket const* WorldPackets::CombatLog::SpellDamageShield::Write()
     *this << Defender;
     *this << int32(SpellID);
     *this << int32(TotalDamage);
+    *this << int32(OriginalDamage);
     *this << int32(OverKill);
     *this << int32(SchoolMask);
     *this << int32(LogAbsorbed);
@@ -297,6 +300,7 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     attackRoundInfo << AttackerGUID;
     attackRoundInfo << VictimGUID;
     attackRoundInfo << int32(Damage);
+    attackRoundInfo << int32(OriginalDamage);
     attackRoundInfo << int32(OverDamage);
     attackRoundInfo << uint8(SubDmg.is_initialized());
     if (SubDmg)
@@ -338,15 +342,16 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     if (HitInfo & (HITINFO_BLOCK | HITINFO_UNK12))
         attackRoundInfo << float(Unk);
 
-    attackRoundInfo << uint8(SandboxScaling.Type);
-    attackRoundInfo << uint8(SandboxScaling.TargetLevel);
-    attackRoundInfo << uint8(SandboxScaling.Expansion);
-    attackRoundInfo << uint8(SandboxScaling.Class);
-    attackRoundInfo << uint8(SandboxScaling.TargetMinScalingLevel);
-    attackRoundInfo << uint8(SandboxScaling.TargetMaxScalingLevel);
-    attackRoundInfo << int16(SandboxScaling.PlayerLevelDelta);
-    attackRoundInfo << int8(SandboxScaling.TargetScalingLevelDelta);
-    attackRoundInfo << uint16(SandboxScaling.PlayerItemLevel);
+    attackRoundInfo << uint8(ContentTuning.Type);
+    attackRoundInfo << uint8(ContentTuning.TargetLevel);
+    attackRoundInfo << uint8(ContentTuning.Expansion);
+    attackRoundInfo << uint8(ContentTuning.TargetMinScalingLevel);
+    attackRoundInfo << uint8(ContentTuning.TargetMaxScalingLevel);
+    attackRoundInfo << int16(ContentTuning.PlayerLevelDelta);
+    attackRoundInfo << int8(ContentTuning.TargetScalingLevelDelta);
+    attackRoundInfo << uint16(ContentTuning.PlayerItemLevel);
+    attackRoundInfo << uint16(ContentTuning.ScalingHealthItemLevelCurveID);
+    attackRoundInfo << uint8(ContentTuning.ScalesWithItemLevel ? 1 : 0);
 
     WriteLogDataBit();
     FlushBits();

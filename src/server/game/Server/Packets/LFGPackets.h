@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "PacketUtilities.h"
+#include "ItemPacketsCommon.h"
 #include "LFGPacketsCommon.h"
 #include "Optional.h"
 
@@ -325,13 +326,24 @@ namespace WorldPackets
         struct LFGPlayerRewards
         {
             LFGPlayerRewards() { }
-            LFGPlayerRewards(int32 rewardItem, uint32 rewardItemQuantity, int32 bonusCurrency, bool isCurrency)
-                : RewardItem(rewardItem), RewardItemQuantity(rewardItemQuantity), BonusCurrency(bonusCurrency), IsCurrency(isCurrency) { }
+            LFGPlayerRewards(int32 id, uint32 quantity, int32 bonusQuantity, bool isCurrency)
+                : Quantity(quantity), BonusQuantity(bonusQuantity)
+            {
+                if (!isCurrency)
+                {
+                    RewardItem = boost::in_place();
+                    RewardItem->ItemID = id;
+                }
+                else
+                {
+                    RewardCurrency = id;
+                }
+            }
 
-            int32 RewardItem = 0;
-            uint32 RewardItemQuantity = 0;
-            int32 BonusCurrency = 0;
-            bool IsCurrency = false;
+            Optional<Item::ItemInstance> RewardItem;
+            Optional<int32> RewardCurrency;
+            uint32 Quantity = 0;
+            int32 BonusQuantity = 0;
         };
 
         class LFGPlayerReward final : public ServerPacket

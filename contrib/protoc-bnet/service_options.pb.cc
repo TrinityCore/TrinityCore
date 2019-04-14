@@ -20,6 +20,12 @@ namespace Battlenet {
 
 namespace {
 
+const ::google::protobuf::Descriptor* BGSServiceOptions_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  BGSServiceOptions_reflection_ = NULL;
+const ::google::protobuf::Descriptor* SDKServiceOptions_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  SDKServiceOptions_reflection_ = NULL;
 
 }  // namespace
 
@@ -30,6 +36,40 @@ void protobuf_AssignDesc_service_5foptions_2eproto() {
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "service_options.proto");
   GOOGLE_CHECK(file != NULL);
+  BGSServiceOptions_descriptor_ = file->message_type(0);
+  static const int BGSServiceOptions_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, descriptor_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, version_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, shard_name_),
+  };
+  BGSServiceOptions_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      BGSServiceOptions_descriptor_,
+      BGSServiceOptions::default_instance_,
+      BGSServiceOptions_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(BGSServiceOptions));
+  SDKServiceOptions_descriptor_ = file->message_type(1);
+  static const int SDKServiceOptions_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKServiceOptions, inbound_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKServiceOptions, outbound_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKServiceOptions, use_client_id_),
+  };
+  SDKServiceOptions_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      SDKServiceOptions_descriptor_,
+      SDKServiceOptions::default_instance_,
+      SDKServiceOptions_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKServiceOptions, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SDKServiceOptions, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(SDKServiceOptions));
 }
 
 namespace {
@@ -42,11 +82,19 @@ inline void protobuf_AssignDescriptorsOnce() {
 
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    BGSServiceOptions_descriptor_, &BGSServiceOptions::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    SDKServiceOptions_descriptor_, &SDKServiceOptions::default_instance());
 }
 
 }  // namespace
 
 void protobuf_ShutdownFile_service_5foptions_2eproto() {
+  delete BGSServiceOptions::default_instance_;
+  delete BGSServiceOptions_reflection_;
+  delete SDKServiceOptions::default_instance_;
+  delete SDKServiceOptions_reflection_;
 }
 
 void protobuf_AddDesc_service_5foptions_2eproto() {
@@ -58,19 +106,31 @@ void protobuf_AddDesc_service_5foptions_2eproto() {
   ::google::protobuf::protobuf_AddDesc_google_2fprotobuf_2fdescriptor_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\025service_options.proto\022\tBattlenet\032 goog"
-    "le/protobuf/descriptor.proto:R\n(original"
-    "_fully_qualified_descriptor_name\022\037.googl"
-    "e.protobuf.ServiceOptions\030\351\007 \001(\t:5\n\nserv"
-    "ice_id\022\037.google.protobuf.ServiceOptions\030"
-    "\320\206\003 \001(\rB\002H\002", 211);
+    "le/protobuf/descriptor.proto\"Q\n\021BGSServi"
+    "ceOptions\022\027\n\017descriptor_name\030\001 \001(\t\022\017\n\007ve"
+    "rsion\030\004 \001(\r\022\022\n\nshard_name\030\005 \001(\t\"M\n\021SDKSe"
+    "rviceOptions\022\017\n\007inbound\030\001 \001(\010\022\020\n\010outboun"
+    "d\030\002 \001(\010\022\025\n\ruse_client_id\030\003 \001(\010:X\n\017servic"
+    "e_options\022\037.google.protobuf.ServiceOptio"
+    "ns\030\220\277\005 \001(\0132\034.Battlenet.BGSServiceOptions"
+    ":\\\n\023sdk_service_options\022\037.google.protobu"
+    "f.ServiceOptions\030\221\277\005 \001(\0132\034.Battlenet.SDK"
+    "ServiceOptionsB&\n\rbnet.protocolB\023Service"
+    "OptionsProtoH\002", 454);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "service_options.proto", &protobuf_RegisterTypes);
-  ::google::protobuf::internal::ExtensionSet::RegisterExtension(
+  BGSServiceOptions::default_instance_ = new BGSServiceOptions();
+  SDKServiceOptions::default_instance_ = new SDKServiceOptions();
+  ::google::protobuf::internal::ExtensionSet::RegisterMessageExtension(
     &::google::protobuf::ServiceOptions::default_instance(),
-    1001, 9, false, false);
-  ::google::protobuf::internal::ExtensionSet::RegisterExtension(
+    90000, 11, false, false,
+    &::Battlenet::BGSServiceOptions::default_instance());
+  ::google::protobuf::internal::ExtensionSet::RegisterMessageExtension(
     &::google::protobuf::ServiceOptions::default_instance(),
-    50000, 13, false, false);
+    90001, 11, false, false,
+    &::Battlenet::SDKServiceOptions::default_instance());
+  BGSServiceOptions::default_instance_->InitAsDefaultInstance();
+  SDKServiceOptions::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_service_5foptions_2eproto);
 }
 
@@ -80,13 +140,173 @@ struct StaticDescriptorInitializer_service_5foptions_2eproto {
     protobuf_AddDesc_service_5foptions_2eproto();
   }
 } static_descriptor_initializer_service_5foptions_2eproto_;
-const ::std::string original_fully_qualified_descriptor_name_default("");
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int BGSServiceOptions::kDescriptorNameFieldNumber;
+const int BGSServiceOptions::kVersionFieldNumber;
+const int BGSServiceOptions::kShardNameFieldNumber;
+#endif  // !_MSC_VER
+
+BGSServiceOptions::BGSServiceOptions()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Battlenet.BGSServiceOptions)
+}
+
+void BGSServiceOptions::InitAsDefaultInstance() {
+}
+
+BGSServiceOptions::BGSServiceOptions(const BGSServiceOptions& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:Battlenet.BGSServiceOptions)
+}
+
+void BGSServiceOptions::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  descriptor_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  version_ = 0u;
+  shard_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+BGSServiceOptions::~BGSServiceOptions() {
+  // @@protoc_insertion_point(destructor:Battlenet.BGSServiceOptions)
+  SharedDtor();
+}
+
+void BGSServiceOptions::SharedDtor() {
+  if (descriptor_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete descriptor_name_;
+  }
+  if (shard_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete shard_name_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void BGSServiceOptions::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* BGSServiceOptions::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return BGSServiceOptions_descriptor_;
+}
+
+const BGSServiceOptions& BGSServiceOptions::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_service_5foptions_2eproto();
+  return *default_instance_;
+}
+
+BGSServiceOptions* BGSServiceOptions::default_instance_ = NULL;
+
+BGSServiceOptions* BGSServiceOptions::New() const {
+  return new BGSServiceOptions;
+}
+
+void BGSServiceOptions::Swap(BGSServiceOptions* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata BGSServiceOptions::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = BGSServiceOptions_descriptor_;
+  metadata.reflection = BGSServiceOptions_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int SDKServiceOptions::kInboundFieldNumber;
+const int SDKServiceOptions::kOutboundFieldNumber;
+const int SDKServiceOptions::kUseClientIdFieldNumber;
+#endif  // !_MSC_VER
+
+SDKServiceOptions::SDKServiceOptions()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:Battlenet.SDKServiceOptions)
+}
+
+void SDKServiceOptions::InitAsDefaultInstance() {
+}
+
+SDKServiceOptions::SDKServiceOptions(const SDKServiceOptions& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:Battlenet.SDKServiceOptions)
+}
+
+void SDKServiceOptions::SharedCtor() {
+  _cached_size_ = 0;
+  inbound_ = false;
+  outbound_ = false;
+  use_client_id_ = false;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+SDKServiceOptions::~SDKServiceOptions() {
+  // @@protoc_insertion_point(destructor:Battlenet.SDKServiceOptions)
+  SharedDtor();
+}
+
+void SDKServiceOptions::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void SDKServiceOptions::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SDKServiceOptions::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return SDKServiceOptions_descriptor_;
+}
+
+const SDKServiceOptions& SDKServiceOptions::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_service_5foptions_2eproto();
+  return *default_instance_;
+}
+
+SDKServiceOptions* SDKServiceOptions::default_instance_ = NULL;
+
+SDKServiceOptions* SDKServiceOptions::New() const {
+  return new SDKServiceOptions;
+}
+
+void SDKServiceOptions::Swap(SDKServiceOptions* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata SDKServiceOptions::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = SDKServiceOptions_descriptor_;
+  metadata.reflection = SDKServiceOptions_reflection_;
+  return metadata;
+}
+
 ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::ServiceOptions,
-    ::google::protobuf::internal::StringTypeTraits, 9, false >
-  original_fully_qualified_descriptor_name(kOriginalFullyQualifiedDescriptorNameFieldNumber, original_fully_qualified_descriptor_name_default);
+    ::google::protobuf::internal::MessageTypeTraits< ::Battlenet::BGSServiceOptions >, 11, false >
+  service_options(kServiceOptionsFieldNumber, ::Battlenet::BGSServiceOptions::default_instance());
 ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::ServiceOptions,
-    ::google::protobuf::internal::PrimitiveTypeTraits< ::google::protobuf::uint32 >, 13, false >
-  service_id(kServiceIdFieldNumber, 0u);
+    ::google::protobuf::internal::MessageTypeTraits< ::Battlenet::SDKServiceOptions >, 11, false >
+  sdk_service_options(kSdkServiceOptionsFieldNumber, ::Battlenet::SDKServiceOptions::default_instance());
 
 // @@protoc_insertion_point(namespace_scope)
 

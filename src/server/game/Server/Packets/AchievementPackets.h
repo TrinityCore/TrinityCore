@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -101,7 +101,7 @@ namespace WorldPackets
         class AchievementDeleted final : public ServerPacket
         {
         public:
-            AchievementDeleted() : ServerPacket(SMSG_ACHIEVEMENT_DELETED, 4) { }
+            AchievementDeleted() : ServerPacket(SMSG_ACHIEVEMENT_DELETED, 8) { }
 
             WorldPacket const* Write() override;
 
@@ -125,10 +125,10 @@ namespace WorldPackets
             ObjectGuid Sender;
         };
 
-        class ServerFirstAchievement final : public ServerPacket
+        class BroadcastAchievement final : public ServerPacket
         {
         public:
-            ServerFirstAchievement() : ServerPacket(SMSG_SERVER_FIRST_ACHIEVEMENT) { }
+            BroadcastAchievement() : ServerPacket(SMSG_BROADCAST_ACHIEVEMENT) { }
 
             WorldPacket const* Write() override;
 

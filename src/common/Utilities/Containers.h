@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -102,7 +102,7 @@ namespace Trinity
          * Note: container cannot be empty
          */
         template<class C>
-        inline auto SelectRandomWeightedContainerElement(C const& container, std::vector<double> weights) -> decltype(std::begin(container))
+        inline auto SelectRandomWeightedContainerElement(C const& container, std::vector<double> const& weights) -> decltype(std::begin(container))
         {
             auto it = std::begin(container);
             std::advance(it, urandweighted(weights.size(), weights.data()));

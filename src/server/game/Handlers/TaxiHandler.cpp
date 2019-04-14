@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -107,6 +107,16 @@ void WorldSession::SendTaxiMenu(Creature* unit)
 
     GetPlayer()->m_taxi.AppendTaximaskTo(data, lastTaxiCheaterState);
 
+    TaxiMask reachableNodes;
+    std::fill(reachableNodes.begin(), reachableNodes.end(), 0);
+    sTaxiPathGraph.GetReachableNodesMask(sTaxiNodesStore.LookupEntry(curloc), &reachableNodes);
+
+    for (std::size_t i = 0; i < TaxiMaskSize; ++i)
+    {
+        data.CanLandNodes[i] &= reachableNodes[i];
+        data.CanUseNodes[i] &= reachableNodes[i];
+    }
+
     SendPacket(data.Write());
 
     GetPlayer()->SetTaxiCheater(lastTaxiCheaterState);
@@ -162,6 +172,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
     if (!unit)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleActivateTaxiOpcode - %s not found or you can't interact with it.", activateTaxi.Vendor.ToString().c_str());
+        SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
         return;
     }
 

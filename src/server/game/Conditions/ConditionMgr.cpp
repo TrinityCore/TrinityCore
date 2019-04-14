@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -121,7 +121,8 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Pet type",             true, false, false },
     { "On Taxi",             false, false, false },
     { "Quest state mask",     true,  true, false },
-    { "Objective Complete",   true,  false, false }
+    { "Objective Complete",   true, false, false },
+    { "Map Difficulty",       true, false, false }
 };
 
 // Checks if object meets the condition
@@ -423,11 +424,6 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 condMeets = player->HasTitle(ConditionValue1);
             break;
         }
-        case CONDITION_SPAWNMASK:
-        {
-            condMeets = ((UI64LIT(1) << object->GetMap()->GetSpawnMode()) & ConditionValue1) != 0;
-            break;
-        }
         case CONDITION_UNIT_STATE:
         {
             if (Unit* unit = object->ToUnit())
@@ -521,6 +517,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
 
                 condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(*obj));
             }
+            break;
+        }
+        case CONDITION_DIFFICULTY_ID:
+        {
+            condMeets = object->GetMap()->GetDifficultyID() == ConditionValue1;
             break;
         }
         default:
@@ -680,9 +681,6 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
         case CONDITION_TITLE:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
-        case CONDITION_SPAWNMASK:
-            mask |= GRID_MAP_TYPE_MASK_ALL;
-            break;
         case CONDITION_GENDER:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
@@ -721,6 +719,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             break;
         case CONDITION_QUEST_OBJECTIVE_COMPLETE:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_DIFFICULTY_ID:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -2001,7 +2002,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_CLASS:
         {
-            if (!(cond->ConditionValue1 & CLASSMASK_ALL_PLAYABLE))
+            if (cond->ConditionValue1 & ~CLASSMASK_ALL_PLAYABLE)
             {
                 TC_LOG_ERROR("sql.sql", "%s has non existing classmask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~CLASSMASK_ALL_PLAYABLE);
                 return false;
@@ -2010,9 +2011,9 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_RACE:
         {
-            if (!(cond->ConditionValue1 & RACEMASK_ALL_PLAYABLE))
+            if (cond->ConditionValue1 & ~RACEMASK_ALL_PLAYABLE)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing racemask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~RACEMASK_ALL_PLAYABLE);
+                TC_LOG_ERROR("sql.sql", "%s has non existing racemask (" UI64FMTD "), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~RACEMASK_ALL_PLAYABLE);
                 return false;
             }
             break;
@@ -2261,15 +2262,10 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             break;
         }
-        case CONDITION_SPAWNMASK:
+        case CONDITION_SPAWNMASK_DEPRECATED:
         {
-            /// @todo: ConditionValue need to be extended to uint64
-            if (uint64(cond->ConditionValue1) >= (UI64LIT(1) << MAX_DIFFICULTY))
-            {
-                TC_LOG_ERROR("sql.sql", "%s has non existing SpawnMask in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
-                return false;
-            }
-            break;
+            TC_LOG_ERROR("sql.sql", "%s using deprecated condition type CONDITION_SPAWNMASK.", cond->ToString(true).c_str());
+            return false;
         }
         case CONDITION_UNIT_STATE:
         {
@@ -2345,6 +2341,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_TERRAIN_SWAP:
         case CONDITION_CHARMED:
         case CONDITION_TAXI:
+            break;
+        case CONDITION_DIFFICULTY_ID:
+            if (!sDifficultyStore.LookupEntry(cond->ConditionValue1))
+            {
+                TC_LOG_ERROR("sql.sql", "%s has non existing difficulty in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
             break;
         default:
             TC_LOG_ERROR("sql.sql", "%s Invalid ConditionType in `condition` table, ignoring.", cond->ToString().c_str());
@@ -2587,10 +2590,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         }
     }
 
-    if (condition->PvpMedal && !((1 << (condition->PvpMedal - 1)) & player->GetUInt32Value(PLAYER_FIELD_PVP_MEDALS)))
+    if (condition->PvpMedal && !((1 << (condition->PvpMedal - 1)) & player->GetUInt32Value(ACTIVE_PLAYER_FIELD_PVP_MEDALS)))
         return false;
 
-    if (condition->LifetimeMaxPVPRank && player->GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK) != condition->LifetimeMaxPVPRank)
+    if (condition->LifetimeMaxPVPRank && player->GetByteValue(ACTIVE_PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK) != condition->LifetimeMaxPVPRank)
         return false;
 
     if (condition->MovementFlags[0] && !(player->GetUnitMovementFlags() & condition->MovementFlags[0]))
@@ -2644,7 +2647,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         results.fill(true);
         for (std::size_t i = 0; i < PrevQuestCount::value; ++i)
             if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(condition->PrevQuestID[i]))
-                results[i] = (player->GetUInt32Value(PLAYER_FIELD_QUEST_COMPLETED + ((questBit - 1) >> 5)) & (1 << ((questBit - 1) & 31))) != 0;
+                results[i] = (player->GetUInt32Value(ACTIVE_PLAYER_FIELD_QUEST_COMPLETED + ((questBit - 1) >> 5)) & (1 << ((questBit - 1) & 31))) != 0;
 
         if (!PlayerConditionLogic(condition->PrevQuestLogic, results))
             return false;
@@ -2728,7 +2731,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         for (std::size_t i = 0; i < ExploredCount::value; ++i)
         {
             if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(condition->Explored[i]))
-                if (area->AreaBit != -1 && !(player->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + area->AreaBit / 32) & (1 << (uint32(area->AreaBit) % 32))))
+                if (area->AreaBit != -1 && !(player->GetUInt32Value(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + area->AreaBit / 32) & (1 << (uint32(area->AreaBit) % 32))))
                     return false;
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,9 +65,8 @@ WorldPacket const* WorldPackets::Pet::PetStableList::Write()
         _worldPacket << int32(pet.CreatureID);
         _worldPacket << int32(pet.DisplayID);
         _worldPacket << int32(pet.ExperienceLevel);
-        _worldPacket << int32(pet.PetFlags);
-
-        _worldPacket << int8(pet.PetName.length());
+        _worldPacket << uint8(pet.PetFlags);
+        _worldPacket.WriteBits(pet.PetName.length(), 8);
         _worldPacket.WriteString(pet.PetName);
     }
 
@@ -92,21 +91,18 @@ WorldPacket const* WorldPackets::Pet::PetUnlearnedSpells::Write()
 
 WorldPacket const* WorldPackets::Pet::PetNameInvalid::Write()
 {
+    _worldPacket << uint8(Result);
     _worldPacket << RenameData.PetGUID;
     _worldPacket << int32(RenameData.PetNumber);
 
     _worldPacket << uint8(RenameData.NewName.length());
 
     _worldPacket.WriteBit(RenameData.DeclinedNames.is_initialized());
-    _worldPacket.FlushBits();
 
     if (RenameData.DeclinedNames)
     {
         for (int32 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
-        {
             _worldPacket.WriteBits(RenameData.DeclinedNames->name[i].length(), 7);
-            _worldPacket.FlushBits();
-        }
 
         for (int32 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
             _worldPacket << RenameData.DeclinedNames->name[i];
@@ -121,8 +117,7 @@ void WorldPackets::Pet::PetRename::Read()
     _worldPacket >> RenameData.PetGUID;
     _worldPacket >> RenameData.PetNumber;
 
-    int8 nameLen = 0;
-    _worldPacket >> nameLen;
+    uint8 nameLen = _worldPacket.ReadBits(8);
 
     if (_worldPacket.ReadBit())
     {

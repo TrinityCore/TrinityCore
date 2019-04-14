@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,32 +47,30 @@ void WorldPackets::Chat::ChatMessageChannel::Read()
     Text = _worldPacket.ReadString(textLen);
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Chat::ChatAddonMessageParams& params)
+{
+    uint32 prefixLen = data.ReadBits(5);
+    uint32 textLen = data.ReadBits(8);
+    params.IsLogged = data.ReadBit();
+    params.Type = ChatMsg(data.read<int32>());
+    params.Prefix = data.ReadString(prefixLen);
+    params.Text = data.ReadString(textLen);
+
+    return data;
+}
+
 void WorldPackets::Chat::ChatAddonMessage::Read()
 {
-    uint32 prefixLen = _worldPacket.ReadBits(5);
-    uint32 textLen = _worldPacket.ReadBits(9);
-    Prefix = _worldPacket.ReadString(prefixLen);
-    Text = _worldPacket.ReadString(textLen);
+    _worldPacket >> Params;
 }
 
-void WorldPackets::Chat::ChatAddonMessageWhisper::Read()
+void WorldPackets::Chat::ChatAddonMessageTargeted::Read()
 {
     uint32 targetLen = _worldPacket.ReadBits(9);
-    uint32 prefixLen = _worldPacket.ReadBits(5);
-    uint32 textLen = _worldPacket.ReadBits(9);
-    Target = _worldPacket.ReadString(targetLen);
-    Prefix = _worldPacket.ReadString(prefixLen);
-    Text = _worldPacket.ReadString(textLen);
-}
+    _worldPacket.ResetBitPos();
 
-void WorldPackets::Chat::ChatAddonMessageChannel::Read()
-{
-    uint32 targetLen = _worldPacket.ReadBits(9);
-    uint32 prefixLen = _worldPacket.ReadBits(5);
-    uint32 textLen = _worldPacket.ReadBits(9);
+    _worldPacket >> Params;
     Target = _worldPacket.ReadString(targetLen);
-    Prefix = _worldPacket.ReadString(prefixLen);
-    Text = _worldPacket.ReadString(textLen);
 }
 
 void WorldPackets::Chat::ChatMessageDND::Read()
@@ -162,17 +160,17 @@ void WorldPackets::Chat::Chat::SetReceiver(WorldObject const* receiver, LocaleCo
 
 WorldPacket const* WorldPackets::Chat::Chat::Write()
 {
-    _worldPacket << SlashCmd;
-    _worldPacket << _Language;
+    _worldPacket << uint8(SlashCmd);
+    _worldPacket << uint32(_Language);
     _worldPacket << SenderGUID;
     _worldPacket << SenderGuildGUID;
     _worldPacket << SenderAccountGUID;
     _worldPacket << TargetGUID;
-    _worldPacket << TargetVirtualAddress;
-    _worldPacket << SenderVirtualAddress;
+    _worldPacket << uint32(TargetVirtualAddress);
+    _worldPacket << uint32(SenderVirtualAddress);
     _worldPacket << PartyGUID;
-    _worldPacket << AchievementID;
-    _worldPacket << DisplayTime;
+    _worldPacket << uint32(AchievementID);
+    _worldPacket << float(DisplayTime);
     _worldPacket.WriteBits(SenderName.length(), 11);
     _worldPacket.WriteBits(TargetName.length(), 11);
     _worldPacket.WriteBits(Prefix.length(), 5);
@@ -181,6 +179,7 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteBits(_ChatFlags, 11);
     _worldPacket.WriteBit(HideChatLog);
     _worldPacket.WriteBit(FakeSenderName);
+    _worldPacket.WriteBit(Unused_801.is_initialized());
     _worldPacket.FlushBits();
 
     _worldPacket.WriteString(SenderName);
@@ -188,6 +187,9 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteString(Prefix);
     _worldPacket.WriteString(_Channel);
     _worldPacket.WriteString(ChatText);
+
+    if (Unused_801)
+        _worldPacket << uint32(*Unused_801);
 
     return &_worldPacket;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -466,7 +466,7 @@ void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& selfRes)
     if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
         return; // silent return, client should display error by itself and not send this opcode
 
-    std::vector<uint32> const& selfResSpells = _player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS);
+    std::vector<uint32> const& selfResSpells = _player->GetDynamicValues(ACTIVE_PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS);
     if (std::find(selfResSpells.begin(), selfResSpells.end(), selfRes.SpellID) == selfResSpells.end())
         return;
 
@@ -474,7 +474,7 @@ void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& selfRes)
     if (spellInfo)
         _player->CastSpell(_player, spellInfo, false, nullptr);
 
-    _player->RemoveDynamicValue(PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS, selfRes.SpellID);
+    _player->RemoveDynamicValue(ACTIVE_PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS, selfRes.SpellID);
 }
 
 void WorldSession::HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick)

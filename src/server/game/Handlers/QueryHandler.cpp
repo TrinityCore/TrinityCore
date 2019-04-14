@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -95,10 +95,12 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
             stats.ProxyCreatureID[i] = creatureInfo->KillCredit[i];
 
-        stats.CreatureDisplayID[0] = creatureInfo->Modelid1;
-        stats.CreatureDisplayID[1] = creatureInfo->Modelid2;
-        stats.CreatureDisplayID[2] = creatureInfo->Modelid3;
-        stats.CreatureDisplayID[3] = creatureInfo->Modelid4;
+        std::transform(creatureInfo->Models.begin(), creatureInfo->Models.end(), std::back_inserter(stats.Display.CreatureDisplay),
+            [&stats](CreatureModel const& model) -> WorldPackets::Query::CreatureXDisplay
+        {
+            stats.Display.TotalProbability += model.Probability;
+            return { model.CreatureDisplayID, model.DisplayScale, model.Probability };
+        });
 
         stats.HpMulti = creatureInfo->ModHealth;
         stats.EnergyMulti = creatureInfo->ModMana;
@@ -107,14 +109,14 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.RequiredExpansion = creatureInfo->RequiredExpansion;
         stats.HealthScalingExpansion = creatureInfo->HealthScalingExpansion;
         stats.VignetteID = creatureInfo->VignetteID;
+        stats.Class = creatureInfo->unit_class;
 
         stats.Title = creatureInfo->SubName;
         stats.TitleAlt = creatureInfo->TitleAlt;
         stats.CursorName = creatureInfo->IconName;
 
         if (std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID))
-            for (uint32 item : *items)
-                stats.QuestItems.push_back(item);
+            stats.QuestItems.insert(stats.QuestItems.begin(), items->begin(), items->end());
 
         LocaleConstant localeConstant = GetSessionDbLocaleIndex();
         if (localeConstant != LOCALE_enUS)
@@ -368,13 +370,12 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& quest
                     questPOIBlobData.QuestObjectiveID   = data->QuestObjectiveID;
                     questPOIBlobData.QuestObjectID      = data->QuestObjectID;
                     questPOIBlobData.MapID              = data->MapID;
-                    questPOIBlobData.WorldMapAreaID     = data->WorldMapAreaID;
-                    questPOIBlobData.Floor              = data->Floor;
+                    questPOIBlobData.UiMapID            = data->UiMapID;
                     questPOIBlobData.Priority           = data->Priority;
                     questPOIBlobData.Flags              = data->Flags;
                     questPOIBlobData.WorldEffectID      = data->WorldEffectID;
                     questPOIBlobData.PlayerConditionID  = data->PlayerConditionID;
-                    questPOIBlobData.UnkWoD1            = data->UnkWoD1;
+                    questPOIBlobData.SpawnTrackingID    = data->SpawnTrackingID;
                     questPOIBlobData.AlwaysAllowMergingBlobs = data->AlwaysAllowMergingBlobs;
 
                     for (QuestPOIPoint const& point : data->points)

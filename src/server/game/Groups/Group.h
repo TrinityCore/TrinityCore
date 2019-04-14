@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -234,7 +234,7 @@ class TC_GAME_API Group
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
 
-        typedef std::unordered_map< uint32 /*mapId*/, InstanceGroupBind> BoundInstancesMap;
+        typedef std::unordered_map<Difficulty, std::unordered_map<uint32 /*mapId*/, InstanceGroupBind>> BoundInstancesMap;
     protected:
         typedef MemberSlotList::iterator member_witerator;
         typedef std::set<Player*> InvitesList;
@@ -408,7 +408,8 @@ class TC_GAME_API Group
         InstanceGroupBind* GetBoundInstance(Map* aMap);
         InstanceGroupBind* GetBoundInstance(MapEntry const* mapEntry);
         InstanceGroupBind* GetBoundInstance(Difficulty difficulty, uint32 mapId);
-        BoundInstancesMap& GetBoundInstances(Difficulty difficulty);
+        BoundInstancesMap::iterator GetBoundInstances(Difficulty difficulty);
+        BoundInstancesMap::iterator GetBoundInstanceEnd();
 
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
@@ -442,7 +443,7 @@ class TC_GAME_API Group
         ObjectGuid          m_looterGuid;
         ObjectGuid          m_masterLooterGuid;
         Rolls               RollId;
-        BoundInstancesMap   m_boundInstances[MAX_DIFFICULTY];
+        BoundInstancesMap   m_boundInstances;
         uint8*              m_subGroupsCounts;
         ObjectGuid          m_guid;
         uint32              m_maxEnchantingLevel;

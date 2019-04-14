@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@ EndScriptData */
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
+#include "ChannelPackets.h"
 #include "Chat.h"
 #include "ChatPackets.h"
 #include "Conversation.h"
@@ -479,12 +480,10 @@ public:
         char const* name = "test";
         uint8 code = atoi(args);
 
-        WorldPacket data(SMSG_CHANNEL_NOTIFY, (1+10));
-        data << code;                                           // notify type
-        data << name;                                           // channel name
-        data << uint32(0);
-        data << uint32(0);
-        handler->GetSession()->SendPacket(&data);
+        WorldPackets::Channel::ChannelNotify channelNotify;
+        channelNotify.Type = code;
+        channelNotify._Channel = name;
+        handler->GetSession()->SendPacket(channelNotify.Write());
         return true;
     }
 
@@ -986,7 +985,7 @@ public:
 
         if (m)
             if (uint32 um = (uint32)atoi(m))
-                phaseShift.AddUiWorldMapAreaIdSwap(um);
+                phaseShift.AddUiMapPhaseId(um);
 
         PhasingHandler::SendToPlayer(handler->GetSession()->GetPlayer(), phaseShift);
         return true;

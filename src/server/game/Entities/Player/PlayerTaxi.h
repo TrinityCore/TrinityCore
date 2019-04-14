@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,13 +44,13 @@ class TC_GAME_API PlayerTaxi
 
         bool IsTaximaskNodeKnown(uint32 nodeidx) const
         {
-            uint8  field   = uint8((nodeidx - 1) / 8);
+            uint32 field   = uint32((nodeidx - 1) / 8);
             uint32 submask = 1 << ((nodeidx-1) % 8);
             return (m_taximask[field] & submask) == submask;
         }
         bool SetTaximaskNode(uint32 nodeidx)
         {
-            uint8  field   = uint8((nodeidx - 1) / 8);
+            uint32 field   = uint32((nodeidx - 1) / 8);
             uint32 submask = 1 << ((nodeidx-  1) % 8);
             if ((m_taximask[field] & submask) != submask)
             {

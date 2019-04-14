@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -125,7 +125,7 @@ namespace WorldPackets
             uint32 CreatureID = 0;
             uint32 DisplayID = 0;
             uint32 ExperienceLevel = 0;
-            uint32 PetFlags = 0;
+            uint8 PetFlags = 0;
             std::string PetName;
         };
 

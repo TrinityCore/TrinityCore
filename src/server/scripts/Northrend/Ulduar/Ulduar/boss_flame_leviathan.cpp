@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -586,7 +586,7 @@ class boss_flame_leviathan_seat : public CreatureScript
             boss_flame_leviathan_seatAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetReactState(REACT_PASSIVE);
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+                me->SetDisplayFromModel(1);
                 instance = creature->GetInstanceScript();
             }
 
@@ -1626,8 +1626,6 @@ class FlameLeviathanPursuedTargetSelector
     };
 
     public:
-        explicit FlameLeviathanPursuedTargetSelector(Unit* unit) : _me(unit) { };
-
         bool operator()(WorldObject* target) const
         {
             //! No players, only vehicles. Pursue is never cast on players.
@@ -1656,9 +1654,6 @@ class FlameLeviathanPursuedTargetSelector
 
             return !playerFound;
         }
-
-    private:
-        Unit const* _me;
 };
 
 class spell_pursue : public SpellScriptLoader
@@ -1679,7 +1674,7 @@ class spell_pursue : public SpellScriptLoader
         private:
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(FlameLeviathanPursuedTargetSelector(GetCaster()));
+                targets.remove_if(FlameLeviathanPursuedTargetSelector());
                 if (!targets.empty())
                 {
                     //! In the end, only one target should be selected

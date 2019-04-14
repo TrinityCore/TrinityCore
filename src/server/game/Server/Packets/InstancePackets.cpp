@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,23 +31,13 @@ WorldPacket const* WorldPackets::Instance::UpdateInstanceOwnership::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Instance::InstanceInfo::Write()
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Instance::InstanceLock const& lockInfos)
 {
-    _worldPacket << int32(LockList.size());
-
-    for (InstanceLockInfos const& lockInfos : LockList)
-        _worldPacket << lockInfos;
-
-    return &_worldPacket;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Instance::InstanceLockInfos const& lockInfos)
-{
-    data << lockInfos.MapID;
-    data << lockInfos.DifficultyID;
-    data << lockInfos.InstanceID;
-    data << lockInfos.TimeRemaining;
-    data << lockInfos.CompletedMask;
+    data << uint32(lockInfos.MapID);
+    data << uint32(lockInfos.DifficultyID);
+    data << uint64(lockInfos.InstanceID);
+    data << uint32(lockInfos.TimeRemaining);
+    data << uint32(lockInfos.CompletedMask);
 
     data.WriteBit(lockInfos.Locked);
     data.WriteBit(lockInfos.Extended);
@@ -55,6 +45,16 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Instance::InstanceLockInf
     data.FlushBits();
 
     return data;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceInfo::Write()
+{
+    _worldPacket << int32(LockList.size());
+
+    for (InstanceLock const& instanceLock : LockList)
+        _worldPacket << instanceLock;
+
+    return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Instance::InstanceReset::Write()

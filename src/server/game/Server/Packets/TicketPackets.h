@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -178,6 +178,11 @@ namespace WorldPackets
                 std::string Comment;
             };
 
+            struct SupportTicketCommunityMessage
+            {
+                bool IsPlayerUsingVoice = false;
+            };
+
             SupportTicketSubmitComplaint(WorldPacket&& packet) : ClientPacket(CMSG_SUPPORT_TICKET_SUBMIT_COMPLAINT, std::move(packet)) { }
 
             void Read() override;
@@ -193,7 +198,7 @@ namespace WorldPackets
             Optional<SupportTicketGuildInfo> GuildInfo;
             Optional<SupportTicketLFGListSearchResult> LFGListSearchResult;
             Optional<SupportTicketLFGListApplicant> LFGListApplicant;
-
+            Optional<SupportTicketCommunityMessage> CommunityMessage;
         };
 
         class Complaint final : public ClientPacket

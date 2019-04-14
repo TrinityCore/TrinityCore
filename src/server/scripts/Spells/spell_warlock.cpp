@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,6 @@
 
 #include "ScriptMgr.h"
 #include "AreaTrigger.h"
-#include "AreaTriggerTemplate.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "ObjectAccessor.h"

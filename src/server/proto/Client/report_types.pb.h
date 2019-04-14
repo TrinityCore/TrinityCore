@@ -54,7 +54,7 @@ class Report;
 
 enum SpamReport_SpamSource {
   SpamReport_SpamSource_OTHER = 1,
-  SpamReport_SpamSource_FRIEND_INVITE = 2,
+  SpamReport_SpamSource_FRIEND_INVITATION = 2,
   SpamReport_SpamSource_WHISPER = 3,
   SpamReport_SpamSource_CHAT = 4
 };
@@ -139,17 +139,17 @@ class TC_PROTO_API ReportType : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional string note = 1;
-  inline bool has_note() const;
-  inline void clear_note();
-  static const int kNoteFieldNumber = 1;
-  inline const ::std::string& note() const;
-  inline void set_note(const ::std::string& value);
-  inline void set_note(const char* value);
-  inline void set_note(const char* value, size_t size);
-  inline ::std::string* mutable_note();
-  inline ::std::string* release_note();
-  inline void set_allocated_note(::std::string* note);
+  // optional string user_description = 1;
+  inline bool has_user_description() const;
+  inline void clear_user_description();
+  static const int kUserDescriptionFieldNumber = 1;
+  inline const ::std::string& user_description() const;
+  inline void set_user_description(const ::std::string& value);
+  inline void set_user_description(const char* value);
+  inline void set_user_description(const char* value, size_t size);
+  inline ::std::string* mutable_user_description();
+  inline ::std::string* release_user_description();
+  inline void set_allocated_user_description(::std::string* user_description);
 
   // optional .bgs.protocol.report.v1.CustomReport custom_report = 10;
   inline bool has_custom_report() const;
@@ -217,8 +217,8 @@ class TC_PROTO_API ReportType : public ::google::protobuf::Message {
   inline TypeCase type_case() const;
   // @@protoc_insertion_point(class_scope:bgs.protocol.report.v1.ReportType)
  private:
-  inline void set_has_note();
-  inline void clear_has_note();
+  inline void set_has_user_description();
+  inline void clear_has_user_description();
   inline void set_has_custom_report();
   inline void set_has_spam_report();
   inline void set_has_harassment_report();
@@ -235,7 +235,7 @@ class TC_PROTO_API ReportType : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::std::string* note_;
+  ::std::string* user_description_;
   union TypeUnion {
     ::bgs::protocol::report::v1::CustomReport* custom_report_;
     ::bgs::protocol::report::v1::SpamReport* spam_report_;
@@ -321,17 +321,17 @@ class TC_PROTO_API CustomReport : public ::google::protobuf::Message {
   inline ::std::string* release_type();
   inline void set_allocated_type(::std::string* type);
 
-  // optional string programId = 2;
-  inline bool has_programid() const;
-  inline void clear_programid();
+  // optional string program_id = 2 [deprecated = true];
+  inline bool has_program_id() const PROTOBUF_DEPRECATED;
+  inline void clear_program_id() PROTOBUF_DEPRECATED;
   static const int kProgramIdFieldNumber = 2;
-  inline const ::std::string& programid() const;
-  inline void set_programid(const ::std::string& value);
-  inline void set_programid(const char* value);
-  inline void set_programid(const char* value, size_t size);
-  inline ::std::string* mutable_programid();
-  inline ::std::string* release_programid();
-  inline void set_allocated_programid(::std::string* programid);
+  inline const ::std::string& program_id() const PROTOBUF_DEPRECATED;
+  inline void set_program_id(const ::std::string& value) PROTOBUF_DEPRECATED;
+  inline void set_program_id(const char* value) PROTOBUF_DEPRECATED;
+  inline void set_program_id(const char* value, size_t size) PROTOBUF_DEPRECATED;
+  inline ::std::string* mutable_program_id() PROTOBUF_DEPRECATED;
+  inline ::std::string* release_program_id() PROTOBUF_DEPRECATED;
+  inline void set_allocated_program_id(::std::string* program_id) PROTOBUF_DEPRECATED;
 
   // repeated .bgs.protocol.Attribute attribute = 3;
   inline int attribute_size() const;
@@ -349,15 +349,15 @@ class TC_PROTO_API CustomReport : public ::google::protobuf::Message {
  private:
   inline void set_has_type();
   inline void clear_has_type();
-  inline void set_has_programid();
-  inline void clear_has_programid();
+  inline void set_has_program_id();
+  inline void clear_has_program_id();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::std::string* type_;
-  ::std::string* programid_;
+  ::std::string* program_id_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
   friend void TC_PROTO_API protobuf_AddDesc_report_5ftypes_2eproto();
   friend void protobuf_AssignDesc_report_5ftypes_2eproto();
@@ -421,7 +421,7 @@ class TC_PROTO_API SpamReport : public ::google::protobuf::Message {
 
   typedef SpamReport_SpamSource SpamSource;
   static const SpamSource OTHER = SpamReport_SpamSource_OTHER;
-  static const SpamSource FRIEND_INVITE = SpamReport_SpamSource_FRIEND_INVITE;
+  static const SpamSource FRIEND_INVITATION = SpamReport_SpamSource_FRIEND_INVITATION;
   static const SpamSource WHISPER = SpamReport_SpamSource_WHISPER;
   static const SpamSource CHAT = SpamReport_SpamSource_CHAT;
   static inline bool SpamSource_IsValid(int value) {
@@ -1084,80 +1084,80 @@ class TC_PROTO_API Report : public ::google::protobuf::Message {
 
 // ReportType
 
-// optional string note = 1;
-inline bool ReportType::has_note() const {
+// optional string user_description = 1;
+inline bool ReportType::has_user_description() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void ReportType::set_has_note() {
+inline void ReportType::set_has_user_description() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void ReportType::clear_has_note() {
+inline void ReportType::clear_has_user_description() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void ReportType::clear_note() {
-  if (note_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    note_->clear();
+inline void ReportType::clear_user_description() {
+  if (user_description_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    user_description_->clear();
   }
-  clear_has_note();
+  clear_has_user_description();
 }
-inline const ::std::string& ReportType::note() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.report.v1.ReportType.note)
-  return *note_;
+inline const ::std::string& ReportType::user_description() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.report.v1.ReportType.user_description)
+  return *user_description_;
 }
-inline void ReportType::set_note(const ::std::string& value) {
-  set_has_note();
-  if (note_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    note_ = new ::std::string;
+inline void ReportType::set_user_description(const ::std::string& value) {
+  set_has_user_description();
+  if (user_description_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    user_description_ = new ::std::string;
   }
-  note_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.report.v1.ReportType.note)
+  user_description_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.report.v1.ReportType.user_description)
 }
-inline void ReportType::set_note(const char* value) {
-  set_has_note();
-  if (note_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    note_ = new ::std::string;
+inline void ReportType::set_user_description(const char* value) {
+  set_has_user_description();
+  if (user_description_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    user_description_ = new ::std::string;
   }
-  note_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.report.v1.ReportType.note)
+  user_description_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.report.v1.ReportType.user_description)
 }
-inline void ReportType::set_note(const char* value, size_t size) {
-  set_has_note();
-  if (note_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    note_ = new ::std::string;
+inline void ReportType::set_user_description(const char* value, size_t size) {
+  set_has_user_description();
+  if (user_description_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    user_description_ = new ::std::string;
   }
-  note_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.report.v1.ReportType.note)
+  user_description_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.report.v1.ReportType.user_description)
 }
-inline ::std::string* ReportType::mutable_note() {
-  set_has_note();
-  if (note_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    note_ = new ::std::string;
+inline ::std::string* ReportType::mutable_user_description() {
+  set_has_user_description();
+  if (user_description_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    user_description_ = new ::std::string;
   }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.report.v1.ReportType.note)
-  return note_;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.report.v1.ReportType.user_description)
+  return user_description_;
 }
-inline ::std::string* ReportType::release_note() {
-  clear_has_note();
-  if (note_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+inline ::std::string* ReportType::release_user_description() {
+  clear_has_user_description();
+  if (user_description_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     return NULL;
   } else {
-    ::std::string* temp = note_;
-    note_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    ::std::string* temp = user_description_;
+    user_description_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
     return temp;
   }
 }
-inline void ReportType::set_allocated_note(::std::string* note) {
-  if (note_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete note_;
+inline void ReportType::set_allocated_user_description(::std::string* user_description) {
+  if (user_description_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete user_description_;
   }
-  if (note) {
-    set_has_note();
-    note_ = note;
+  if (user_description) {
+    set_has_user_description();
+    user_description_ = user_description;
   } else {
-    clear_has_note();
-    note_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    clear_has_user_description();
+    user_description_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v1.ReportType.note)
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v1.ReportType.user_description)
 }
 
 // optional .bgs.protocol.report.v1.CustomReport custom_report = 10;
@@ -1550,80 +1550,80 @@ inline void CustomReport::set_allocated_type(::std::string* type) {
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v1.CustomReport.type)
 }
 
-// optional string programId = 2;
-inline bool CustomReport::has_programid() const {
+// optional string program_id = 2 [deprecated = true];
+inline bool CustomReport::has_program_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void CustomReport::set_has_programid() {
+inline void CustomReport::set_has_program_id() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void CustomReport::clear_has_programid() {
+inline void CustomReport::clear_has_program_id() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void CustomReport::clear_programid() {
-  if (programid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    programid_->clear();
+inline void CustomReport::clear_program_id() {
+  if (program_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    program_id_->clear();
   }
-  clear_has_programid();
+  clear_has_program_id();
 }
-inline const ::std::string& CustomReport::programid() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.report.v1.CustomReport.programId)
-  return *programid_;
+inline const ::std::string& CustomReport::program_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.report.v1.CustomReport.program_id)
+  return *program_id_;
 }
-inline void CustomReport::set_programid(const ::std::string& value) {
-  set_has_programid();
-  if (programid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    programid_ = new ::std::string;
+inline void CustomReport::set_program_id(const ::std::string& value) {
+  set_has_program_id();
+  if (program_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    program_id_ = new ::std::string;
   }
-  programid_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.report.v1.CustomReport.programId)
+  program_id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.report.v1.CustomReport.program_id)
 }
-inline void CustomReport::set_programid(const char* value) {
-  set_has_programid();
-  if (programid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    programid_ = new ::std::string;
+inline void CustomReport::set_program_id(const char* value) {
+  set_has_program_id();
+  if (program_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    program_id_ = new ::std::string;
   }
-  programid_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.report.v1.CustomReport.programId)
+  program_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.report.v1.CustomReport.program_id)
 }
-inline void CustomReport::set_programid(const char* value, size_t size) {
-  set_has_programid();
-  if (programid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    programid_ = new ::std::string;
+inline void CustomReport::set_program_id(const char* value, size_t size) {
+  set_has_program_id();
+  if (program_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    program_id_ = new ::std::string;
   }
-  programid_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.report.v1.CustomReport.programId)
+  program_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.report.v1.CustomReport.program_id)
 }
-inline ::std::string* CustomReport::mutable_programid() {
-  set_has_programid();
-  if (programid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    programid_ = new ::std::string;
+inline ::std::string* CustomReport::mutable_program_id() {
+  set_has_program_id();
+  if (program_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    program_id_ = new ::std::string;
   }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.report.v1.CustomReport.programId)
-  return programid_;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.report.v1.CustomReport.program_id)
+  return program_id_;
 }
-inline ::std::string* CustomReport::release_programid() {
-  clear_has_programid();
-  if (programid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+inline ::std::string* CustomReport::release_program_id() {
+  clear_has_program_id();
+  if (program_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     return NULL;
   } else {
-    ::std::string* temp = programid_;
-    programid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    ::std::string* temp = program_id_;
+    program_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
     return temp;
   }
 }
-inline void CustomReport::set_allocated_programid(::std::string* programid) {
-  if (programid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete programid_;
+inline void CustomReport::set_allocated_program_id(::std::string* program_id) {
+  if (program_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete program_id_;
   }
-  if (programid) {
-    set_has_programid();
-    programid_ = programid;
+  if (program_id) {
+    set_has_program_id();
+    program_id_ = program_id;
   } else {
-    clear_has_programid();
-    programid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    clear_has_program_id();
+    program_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v1.CustomReport.programId)
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v1.CustomReport.program_id)
 }
 
 // repeated .bgs.protocol.Attribute attribute = 3;

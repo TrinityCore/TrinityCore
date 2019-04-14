@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -147,8 +147,8 @@ void ScenarioMgr::LoadScenarioPOI()
 
     uint32 count = 0;
 
-    //                                                      0            1        2     6          7           8       9       10         11               12
-    QueryResult result = WorldDatabase.Query("SELECT CriteriaTreeID, BlobIndex, Idx1, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID FROM scenario_poi ORDER BY CriteriaTreeID, Idx1");
+    //                                                      0            1        2     3       4         5       6          7               8
+    QueryResult result = WorldDatabase.Query("SELECT CriteriaTreeID, BlobIndex, Idx1, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID FROM scenario_poi ORDER BY CriteriaTreeID, Idx1");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 scenario POI definitions. DB table `scenario_poi` is empty.");
@@ -188,24 +188,23 @@ void ScenarioMgr::LoadScenarioPOI()
     {
         Field* fields = result->Fetch();
 
-        int32 CriteriaTreeID = fields[0].GetInt32();
-        int32 BlobIndex = fields[1].GetInt32();
-        int32 Idx1 = fields[2].GetInt32();
-        int32 MapID = fields[3].GetInt32();
-        int32 WorldMapAreaId = fields[4].GetInt32();
-        int32 Floor = fields[5].GetInt32();
-        int32 Priority = fields[6].GetInt32();
-        int32 Flags = fields[7].GetInt32();
-        int32 WorldEffectID = fields[8].GetInt32();
-        int32 PlayerConditionID = fields[9].GetInt32();
+        int32 criteriaTreeID = fields[0].GetInt32();
+        int32 blobIndex = fields[1].GetInt32();
+        int32 idx1 = fields[2].GetInt32();
+        int32 mapID = fields[3].GetInt32();
+        int32 uiMapID = fields[4].GetInt32();
+        int32 priority = fields[5].GetInt32();
+        int32 flags = fields[6].GetInt32();
+        int32 worldEffectID = fields[7].GetInt32();
+        int32 playerConditionID = fields[8].GetInt32();
 
-        if (!sCriteriaMgr->GetCriteriaTree(CriteriaTreeID))
-            TC_LOG_ERROR("sql.sql", "`scenario_poi` CriteriaTreeID (%u) Idx1 (%u) does not correspond to a valid criteria tree", CriteriaTreeID, Idx1);
+        if (!sCriteriaMgr->GetCriteriaTree(criteriaTreeID))
+            TC_LOG_ERROR("sql.sql", "`scenario_poi` CriteriaTreeID (%u) Idx1 (%u) does not correspond to a valid criteria tree", criteriaTreeID, idx1);
 
-        if (CriteriaTreeID < int32(POIs.size()) && Idx1 < int32(POIs[CriteriaTreeID].size()))
-            _scenarioPOIStore[CriteriaTreeID].emplace_back(BlobIndex, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, POIs[CriteriaTreeID][Idx1]);
+        if (criteriaTreeID < int32(POIs.size()) && idx1 < int32(POIs[criteriaTreeID].size()))
+            _scenarioPOIStore[criteriaTreeID].emplace_back(blobIndex, mapID, uiMapID, priority, flags, worldEffectID, playerConditionID, POIs[criteriaTreeID][idx1]);
         else
-            TC_LOG_ERROR("server.loading", "Table scenario_poi references unknown scenario poi points for criteria tree id %i POI id %i", CriteriaTreeID, BlobIndex);
+            TC_LOG_ERROR("server.loading", "Table scenario_poi references unknown scenario poi points for criteria tree id %i POI id %i", criteriaTreeID, blobIndex);
 
         ++count;
     } while (result->NextRow());

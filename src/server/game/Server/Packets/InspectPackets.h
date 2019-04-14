@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #pragma once
 
 #include "Packet.h"
+#include "DBCEnums.h"
 #include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
@@ -56,6 +57,7 @@ namespace WorldPackets
             bool Usable = false;
             std::vector<InspectEnchantData> Enchants;
             std::vector<Item::ItemGemData> Gems;
+            std::vector<int32> AzeritePowers;
         };
 
         struct InspectGuildData
@@ -68,7 +70,10 @@ namespace WorldPackets
         class InspectResult final : public ServerPacket
         {
         public:
-            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 45) { }
+            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 45)
+            {
+                PvpTalents.fill(0);
+            }
 
             WorldPacket const* Write() override;
 
@@ -76,11 +81,12 @@ namespace WorldPackets
             std::vector<InspectItemData> Items;
             std::vector<uint16> Glyphs;
             std::vector<uint16> Talents;
-            std::vector<uint16> PvpTalents;
+            std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents;
             int32 ClassID = CLASS_NONE;
             int32 GenderID = GENDER_NONE;
             Optional<InspectGuildData> GuildData;
             int32 SpecializationID = 0;
+            Optional<int32> AzeriteLevel;
         };
 
         class RequestHonorStats final : public ClientPacket
@@ -128,7 +134,9 @@ namespace WorldPackets
             int32 SeasonWon        = 0;
             int32 WeeklyBestRating = 0;
             int32 Unk710           = 0;
+            int32 Unk801_1         = 0;
             uint8 Bracket          = 0;
+            bool Unk801_2          = false;
         };
 
         class InspectPVPResponse final : public ServerPacket

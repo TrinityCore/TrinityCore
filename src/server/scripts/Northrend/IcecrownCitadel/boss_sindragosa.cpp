@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1162,7 +1162,7 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
                 unitList.remove_if(UnchainedMagicTargetSelector());
-                uint32 maxSize = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 6 : 2);
+                uint32 maxSize = uint32(GetCaster()->GetMap()->Is25ManRaid() ? 6 : 2);
                 if (unitList.size() > maxSize)
                     Trinity::Containers::RandomResize(unitList, maxSize);
             }

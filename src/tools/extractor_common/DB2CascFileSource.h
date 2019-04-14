@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,6 +28,7 @@ struct DB2CascFileSource : public DB2FileSource
     bool IsOpen() const override;
     bool Read(void* buffer, std::size_t numBytes) override;
     std::size_t GetPosition() const override;
+    bool SetPosition(std::size_t position) override;
     std::size_t GetFileSize() const override;
     char const* GetFileName() const override;
 

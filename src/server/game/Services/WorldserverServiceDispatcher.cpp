@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,13 +22,13 @@ Battlenet::WorldserverServiceDispatcher::WorldserverServiceDispatcher()
 {
     AddService<WorldserverService<account::v1::AccountService>>();
     AddService<WorldserverService<authentication::v1::AuthenticationService>>();
-    AddService<WorldserverService<challenge::v1::ChallengeService>>();
-    AddService<WorldserverService<channel::v1::ChannelService>>();
+    AddService<WorldserverService<club::v1::membership::ClubMembershipService>>();
     AddService<WorldserverService<connection::v1::ConnectionService>>();
     AddService<WorldserverService<friends::v1::FriendsService>>();
     AddService<GameUtilitiesService>();
     AddService<WorldserverService<presence::v1::PresenceService>>();
     AddService<WorldserverService<report::v1::ReportService>>();
+    AddService<WorldserverService<report::v2::ReportService>>();
     AddService<WorldserverService<resources::v1::ResourcesService>>();
     AddService<WorldserverService<user_manager::v1::UserManagerService>>();
 }

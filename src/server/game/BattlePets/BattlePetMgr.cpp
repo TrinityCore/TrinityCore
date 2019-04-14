@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -444,7 +444,7 @@ void BattlePetMgr::SummonPet(ObjectGuid guid)
         return;
 
     // TODO: set proper CreatureID for spell DEFAULT_SUMMON_BATTLE_PET_SPELL (default EffectMiscValueA is 40721 - Murkimus the Gladiator)
-    _owner->GetPlayer()->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_ID, guid);
+    _owner->GetPlayer()->SetGuidValue(ACTIVE_PLAYER_FIELD_SUMMONED_BATTLE_PET_ID, guid);
     _owner->GetPlayer()->CastSpell(_owner->GetPlayer(), speciesEntry->SummonSpellID ? speciesEntry->SummonSpellID : uint32(DEFAULT_SUMMON_BATTLE_PET_SPELL));
 
     // TODO: set pet level, quality... update fields
@@ -454,10 +454,10 @@ void BattlePetMgr::DismissPet()
 {
     Player* ownerPlayer = _owner->GetPlayer();
     Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*ownerPlayer, ownerPlayer->GetCritterGUID());
-    if (pet && ownerPlayer->GetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_ID) == pet->GetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID))
+    if (pet && ownerPlayer->GetGuidValue(ACTIVE_PLAYER_FIELD_SUMMONED_BATTLE_PET_ID) == pet->GetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID))
     {
         pet->DespawnOrUnsummon();
-        ownerPlayer->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_ID, ObjectGuid::Empty);
+        ownerPlayer->SetGuidValue(ACTIVE_PLAYER_FIELD_SUMMONED_BATTLE_PET_ID, ObjectGuid::Empty);
     }
 }
 

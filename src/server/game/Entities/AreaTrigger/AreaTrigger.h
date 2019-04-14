@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,15 +20,12 @@
 
 #include "Object.h"
 #include "MapObject.h"
+#include "AreaTriggerTemplate.h"
 
-class AreaTriggerTemplate;
-class AreaTriggerMiscTemplate;
+class AuraEffect;
+class AreaTriggerAI;
 class SpellInfo;
 class Unit;
-class AreaTriggerAI;
-class AuraEffect;
-
-struct AreaTriggerPolygonVertice;
 
 namespace G3D
 {
@@ -60,7 +57,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
     public:
         static AreaTrigger* CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty, AuraEffect const* aurEff = nullptr);
 
-        void Update(uint32 p_time) override;
+        void Update(uint32 diff) override;
         void Remove();
         bool IsRemoved() const { return _isRemoved; }
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
@@ -91,6 +88,10 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         ::Movement::Spline<int32> const& GetSpline() const { return *_spline; }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
+        void InitCircularMovement(AreaTriggerCircularMovementInfo const& cmi, uint32 timeToTarget);
+        bool HasCircularMovement() const;
+        Optional<AreaTriggerCircularMovementInfo> const& GetCircularMovementInfo() const { return _circularMovementInfo; }
+
         void UpdateShape();
 
     protected:
@@ -109,7 +110,11 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void UndoActions(Unit* unit);
 
         void UpdatePolygonOrientation();
+        void UpdateCircularMovementPosition(uint32 diff);
         void UpdateSplinePosition(uint32 diff);
+
+        Position const* GetCircularMovementCenterPosition() const;
+        Position CalculateCircularMovementPosition() const;
 
         void DebugVisualizePosition(); // Debug purpose only
 
@@ -131,6 +136,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         bool _reachedDestination;
         int32 _lastSplineIndex;
         uint32 _movementTime;
+
+        Optional<AreaTriggerCircularMovementInfo> _circularMovementInfo;
 
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;

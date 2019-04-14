@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -368,6 +368,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 147
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 148
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_RANDOM},      // 149
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 150 TARGET_UNIT_OWN_CRITTER
 };
 
 SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* _effect)
@@ -377,7 +378,6 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, uint8 effIndex, Spe
     Effect = _effect ? _effect->Effect : 0;
     ApplyAuraName = _effect ? _effect->EffectAura : 0;
     ApplyAuraPeriod = _effect ? _effect->EffectAuraPeriod : 0;
-    DieSides = _effect ? _effect->EffectDieSides : 0;
     RealPointsPerLevel = _effect ? _effect->EffectRealPointsPerLevel : 0.0f;
     BasePoints = _effect ? _effect->EffectBasePoints : 0;
     PointsPerResource = _effect ? _effect->EffectPointsPerResource : 0.0f;
@@ -461,10 +461,57 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
 int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, int32 itemLevel /*= -1*/) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
-    int32 basePoints = bp ? *bp : BasePoints;
+    // TODO: this needs to be a float, not rounded
+    int32 basePoints = CalcBaseValue(caster, target, itemLevel);
+    float value = bp ? *bp : basePoints;
     float comboDamage = PointsPerResource;
 
+    if (Scaling.Variance)
+    {
+        float delta = fabs(Scaling.Variance * 0.5f);
+        float valueVariance = frand(-delta, delta);
+        value += basePoints * valueVariance;
+
+        if (variance)
+            *variance = valueVariance;
+    }
+
     // base amount modification based on spell lvl vs caster lvl
+    if (Scaling.Coefficient != 0.0f)
+    {
+        if (Scaling.ResourceCoefficient)
+            comboDamage = Scaling.ResourceCoefficient * value;
+    }
+    else
+    {
+        if (GetScalingExpectedStat() == ExpectedStatType::None)
+        {
+            int32 level = caster ? int32(caster->getLevel()) : 0;
+            if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
+                level = int32(_spellInfo->MaxLevel);
+            level -= int32(_spellInfo->BaseLevel);
+            if (level < 0)
+                level = 0;
+            value += level * basePointsPerLevel;
+        }
+    }
+
+    // random damage
+    if (caster)
+    {
+        // bonus amount from combo points
+        if (caster->m_playerMovingMe && comboDamage)
+            if (uint32 comboPoints = caster->m_playerMovingMe->GetComboPoints())
+                value += comboDamage * comboPoints;
+
+        value = caster->ApplyEffectModifiers(_spellInfo, EffectIndex, value);
+    }
+
+    return int32(round(value));
+}
+
+int32 SpellEffectInfo::CalcBaseValue(Unit const* caster, Unit const* target, int32 itemLevel) const
+{
     if (Scaling.Coefficient != 0.0f)
     {
         uint32 level = _spellInfo->SpellLevel;
@@ -488,148 +535,56 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
             if (!_spellInfo->Scaling.Class)
                 return 0;
 
-            if (!_spellInfo->Scaling.ScalesFromItemLevel)
+            uint32 effectiveItemLevel = itemLevel != -1 ? uint32(itemLevel) : 1u;
+            if (_spellInfo->Scaling.ScalesFromItemLevel || _spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL))
             {
-                if (!_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL))
-                    value = GetSpellScalingColumnForClass(sSpellScalingGameTable.GetRow(level), _spellInfo->Scaling.Class);
-                else
+                if (_spellInfo->Scaling.ScalesFromItemLevel)
+                    effectiveItemLevel = _spellInfo->Scaling.ScalesFromItemLevel;
+
+                if (_spellInfo->Scaling.Class == -8)
                 {
-                    uint32 effectiveItemLevel = itemLevel != -1 ? uint32(itemLevel) : 1u;
-                    value = GetRandomPropertyPoints(effectiveItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
-                    if (IsAura() && ApplyAuraName == SPELL_AURA_MOD_RATING)
-                        if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
-                            value *= ratingMult->ArmorMultiplier;
+                    RandPropPointsEntry const* randPropPoints = sRandPropPointsStore.LookupEntry(effectiveItemLevel);
+                    if (!randPropPoints)
+                        randPropPoints = sRandPropPointsStore.AssertEntry(sRandPropPointsStore.GetNumRows() - 1);
+
+                    value = randPropPoints->DamageReplaceStat;
                 }
+                else
+                    value = GetRandomPropertyPoints(effectiveItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
             }
             else
-                value = GetRandomPropertyPoints(_spellInfo->Scaling.ScalesFromItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+                value = GetSpellScalingColumnForClass(sSpellScalingGameTable.GetRow(level), _spellInfo->Scaling.Class);
+
+            if (_spellInfo->Scaling.Class == -7)
+            {
+                // todo: get inventorytype here
+                if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(effectiveItemLevel))
+                    value *= ratingMult->ArmorMultiplier;
+            }
         }
 
         value *= Scaling.Coefficient;
         if (value != 0.0f && value < 1.0f)
             value = 1.0f;
 
-        if (Scaling.Variance)
-        {
-            float delta = fabs(Scaling.Variance * 0.5f);
-            float valueVariance = frand(-delta, delta);
-            value += value * valueVariance;
-
-            if (variance)
-                *variance = valueVariance;
-        }
-
-        basePoints = int32(round(value));
-
-        if (Scaling.ResourceCoefficient)
-            comboDamage = Scaling.ResourceCoefficient * value;
+        return int32(round(value));
     }
     else
     {
-        if (caster)
+        float value = BasePoints;
+        ExpectedStatType stat = GetScalingExpectedStat();
+        if (stat != ExpectedStatType::None)
         {
-            int32 level = int32(caster->getLevel());
-            if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
-                level = int32(_spellInfo->MaxLevel);
-            else if (level < int32(_spellInfo->BaseLevel))
-                level = int32(_spellInfo->BaseLevel);
-            level -= int32(_spellInfo->SpellLevel);
-            basePoints += int32(level * basePointsPerLevel);
+            if (_spellInfo->HasAttribute(SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION))
+                stat = ExpectedStatType::CreatureAutoAttackDps;
+
+            // TODO - add expansion and content tuning id args?
+            int32 level = caster ? int32(caster->getLevel()) : 1;
+            value = sDB2Manager.EvaluateExpectedStat(stat, level, -2, 0, CLASS_NONE) * BasePoints / 100.0f;
         }
 
-        // roll in a range <1;EffectDieSides> as of patch 3.3.3
-        int32 randomPoints = int32(DieSides);
-        switch (randomPoints)
-        {
-            case 0: break;
-            case 1: basePoints += 1; break;                     // range 1..1
-            default:
-            {
-                // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
-                int32 randvalue = (randomPoints >= 1)
-                    ? irand(1, randomPoints)
-                    : irand(randomPoints, 1);
-
-                basePoints += randvalue;
-                break;
-            }
-        }
+        return int32(round(value));
     }
-
-    float value = float(basePoints);
-
-    // random damage
-    if (caster)
-    {
-        // bonus amount from combo points
-        if (caster->m_playerMovingMe && comboDamage)
-            if (uint32 comboPoints = caster->m_playerMovingMe->GetComboPoints())
-                value += comboDamage * comboPoints;
-
-        value = caster->ApplyEffectModifiers(_spellInfo, EffectIndex, value);
-
-        // amount multiplication based on caster's level
-        if (!caster->IsControlledByPlayer() &&
-            _spellInfo->SpellLevel && _spellInfo->SpellLevel != caster->getLevel() &&
-            !basePointsPerLevel && (_spellInfo->HasAttribute(SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)))
-        {
-            bool canEffectScale = false;
-            switch (Effect)
-            {
-                case SPELL_EFFECT_SCHOOL_DAMAGE:
-                case SPELL_EFFECT_DUMMY:
-                case SPELL_EFFECT_POWER_DRAIN:
-                case SPELL_EFFECT_HEALTH_LEECH:
-                case SPELL_EFFECT_HEAL:
-                case SPELL_EFFECT_WEAPON_DAMAGE:
-                case SPELL_EFFECT_POWER_BURN:
-                case SPELL_EFFECT_SCRIPT_EFFECT:
-                case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-                case SPELL_EFFECT_FORCE_CAST_WITH_VALUE:
-                case SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE:
-                case SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE:
-                    canEffectScale = true;
-                    break;
-                default:
-                    break;
-            }
-
-            switch (ApplyAuraName)
-            {
-                case SPELL_AURA_PERIODIC_DAMAGE:
-                case SPELL_AURA_DUMMY:
-                case SPELL_AURA_PERIODIC_HEAL:
-                case SPELL_AURA_DAMAGE_SHIELD:
-                case SPELL_AURA_PROC_TRIGGER_DAMAGE:
-                case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_PERIODIC_MANA_LEECH:
-                case SPELL_AURA_SCHOOL_ABSORB:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
-                    canEffectScale = true;
-                    break;
-                default:
-                    break;
-            }
-
-            if (canEffectScale)
-            {
-                GtNpcManaCostScalerEntry const* spellScaler = sNpcManaCostScalerGameTable.GetRow(_spellInfo->SpellLevel);
-                GtNpcManaCostScalerEntry const* casterScaler = sNpcManaCostScalerGameTable.GetRow(caster->getLevel());
-                if (spellScaler && casterScaler)
-                    value *= casterScaler->Scaler / spellScaler->Scaler;
-            }
-        }
-    }
-
-    return int32(value);
-}
-
-int32 SpellEffectInfo::CalcBaseValue(int32 value) const
-{
-    if (DieSides == 0)
-        return value;
-    else
-        return value - 1;
 }
 
 float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
@@ -721,6 +676,94 @@ SpellEffectImplicitTargetTypes SpellEffectInfo::GetImplicitTargetType() const
 SpellTargetObjectTypes SpellEffectInfo::GetUsedTargetObjectType() const
 {
     return _data[Effect].UsedTargetObjectType;
+}
+
+ExpectedStatType SpellEffectInfo::GetScalingExpectedStat() const
+{
+    switch (Effect)
+    {
+        case SPELL_EFFECT_SCHOOL_DAMAGE:
+        case SPELL_EFFECT_ENVIRONMENTAL_DAMAGE:
+        case SPELL_EFFECT_HEALTH_LEECH:
+        case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+        case SPELL_EFFECT_WEAPON_DAMAGE:
+            return ExpectedStatType::CreatureSpellDamage;
+        case SPELL_EFFECT_HEAL:
+        case SPELL_EFFECT_HEAL_MECHANICAL:
+            return ExpectedStatType::PlayerHealth;
+        case SPELL_EFFECT_ENERGIZE:
+        case SPELL_EFFECT_POWER_BURN:
+            if (!MiscValue)
+                return ExpectedStatType::PlayerMana;
+            return ExpectedStatType::None;
+        case SPELL_EFFECT_POWER_DRAIN:
+            return ExpectedStatType::PlayerMana;
+        case SPELL_EFFECT_APPLY_AURA:
+        case SPELL_EFFECT_PERSISTENT_AREA_AURA:
+        case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
+        case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
+        case SPELL_EFFECT_APPLY_AREA_AURA_PET:
+        case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
+        case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+        case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
+        case SPELL_EFFECT_APPLY_AURA_ON_PET:
+        case SPELL_EFFECT_202:
+            switch (ApplyAuraName)
+            {
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_MOD_DAMAGE_DONE:
+                case SPELL_AURA_DAMAGE_SHIELD:
+                case SPELL_AURA_PROC_TRIGGER_DAMAGE:
+                case SPELL_AURA_PERIODIC_LEECH:
+                case SPELL_AURA_MOD_DAMAGE_DONE_CREATURE:
+                case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
+                case SPELL_AURA_MOD_MELEE_ATTACK_POWER_VERSUS:
+                case SPELL_AURA_MOD_RANGED_ATTACK_POWER_VERSUS:
+                case SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS:
+                    return ExpectedStatType::CreatureSpellDamage;
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_MOD_DAMAGE_TAKEN:
+                case SPELL_AURA_MOD_INCREASE_HEALTH:
+                case SPELL_AURA_SCHOOL_ABSORB:
+                case SPELL_AURA_MOD_REGEN:
+                case SPELL_AURA_MANA_SHIELD:
+                case SPELL_AURA_MOD_HEALING:
+                case SPELL_AURA_MOD_HEALING_DONE:
+                case SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT:
+                case SPELL_AURA_MOD_MAX_HEALTH:
+                case SPELL_AURA_MOD_INCREASE_HEALTH_2:
+                case SPELL_AURA_SCHOOL_HEAL_ABSORB:
+                    return ExpectedStatType::PlayerHealth;
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                    return ExpectedStatType::PlayerMana;
+                case SPELL_AURA_MOD_STAT:
+                case SPELL_AURA_MOD_ATTACK_POWER:
+                case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
+                    return ExpectedStatType::PlayerPrimaryStat;
+                case SPELL_AURA_MOD_RATING:
+                    return ExpectedStatType::PlayerSecondaryStat;
+                case SPELL_AURA_MOD_RESISTANCE:
+                case SPELL_AURA_MOD_BASE_RESISTANCE:
+                case SPELL_AURA_MOD_TARGET_RESISTANCE:
+                case SPELL_AURA_MOD_BONUS_ARMOR:
+                    return ExpectedStatType::ArmorConstant;
+                case SPELL_AURA_PERIODIC_ENERGIZE:
+                case SPELL_AURA_MOD_INCREASE_ENERGY:
+                case SPELL_AURA_MOD_POWER_COST_SCHOOL:
+                case SPELL_AURA_MOD_POWER_REGEN:
+                case SPELL_AURA_POWER_BURN:
+                case SPELL_AURA_MOD_MAX_POWER:
+                    if (!MiscValue)
+                        return ExpectedStatType::PlayerMana;
+                    return ExpectedStatType::None;
+                default:
+                    break;
+            }
+        default:
+            break;
+    }
+
+    return ExpectedStatType::None;
 }
 
 SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
@@ -982,6 +1025,12 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 253 SPELL_EFFECT_GIVE_HONOR
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 254 SPELL_EFFECT_254
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 255 SPELL_EFFECT_LEARN_TRANSMOG_SET
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 256 SPELL_EFFECT_256
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 257 SPELL_EFFECT_257
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 258 SPELL_EFFECT_MODIFY_KEYSTONE
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 259 SPELL_EFFECT_RESPEC_AZERITE_EMPOWERED_ITEM
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 260 SPELL_EFFECT_SUMMON_STABLED_PET
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 261 SPELL_EFFECT_SCRAP_ITEM
 };
 
 SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const& effectsMap, SpellVisualMap&& visuals)
@@ -1042,7 +1091,7 @@ SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const&
     // SpellAuraOptionsEntry
     SpellAuraOptionsEntry const* _options = data.AuraOptions;
     SpellProcsPerMinuteEntry const* _ppm = _options ? sSpellProcsPerMinuteStore.LookupEntry(_options->SpellProcsPerMinuteID) : nullptr;
-    ProcFlags = _options ? _options->ProcTypeMask : 0;
+    ProcFlags = _options ? _options->ProcTypeMask[0] : 0;
     ProcChance = _options ? _options->ProcChance : 0;
     ProcCharges = _options ? _options->ProcCharges : 0;
     ProcCooldown = _options ? _options->ProcCategoryRecovery : 0;
@@ -1832,10 +1881,31 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // continent limitation (virtual continent)
     if (HasAttribute(SPELL_ATTR4_CAST_ONLY_IN_OUTLAND))
     {
-        uint32 v_map = sDB2Manager.GetVirtualMapForMapAndZone(map_id, zone_id);
-        MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
-        if (!mapEntry || mapEntry->ExpansionID < 1 || !mapEntry->IsContinent())
+        uint32 mountFlags = 0;
+        if (player && player->HasAuraType(SPELL_AURA_MOUNT_RESTRICTIONS))
+        {
+            for (AuraEffect const* auraEffect : player->GetAuraEffectsByType(SPELL_AURA_MOUNT_RESTRICTIONS))
+                mountFlags |= auraEffect->GetMiscValue();
+        }
+        else if (AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(area_id))
+            mountFlags = areaTable->MountFlags;
+
+        if (!(mountFlags & AREA_MOUNT_FLAG_FLYING_ALLOWED))
             return SPELL_FAILED_INCORRECT_AREA;
+
+        if (player)
+        {
+            uint32 mapToCheck = map_id;
+            if (MapEntry const* mapEntry = sMapStore.LookupEntry(map_id))
+                mapToCheck = mapEntry->CosmeticParentMapID;
+
+            if ((mapToCheck == 1116 || mapToCheck == 1464) && !player->HasSpell(191645)) // Draenor Pathfinder
+                return SPELL_FAILED_INCORRECT_AREA;
+            else if (mapToCheck == 1220 && !player->HasSpell(233368)) // Broken Isles Pathfinder
+                return SPELL_FAILED_INCORRECT_AREA;
+            else if ((mapToCheck == 1642 || mapToCheck == 1643) && !player->HasSpell(278833)) // Battle for Azeroth Pathfinder
+                return SPELL_FAILED_INCORRECT_AREA;
+        }
     }
 
     // raid instance limitation
@@ -3851,9 +3921,9 @@ inline float CalcPPMCritMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster
     if (caster->GetTypeId() != TYPEID_PLAYER)
         return 0.0f;
 
-    float crit = caster->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
-    float rangedCrit = caster->GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
-    float spellCrit = caster->GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1);
+    float crit = caster->GetFloatValue(ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE);
+    float rangedCrit = caster->GetFloatValue(ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE);
+    float spellCrit = caster->GetFloatValue(ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1);
 
     switch (mod->Param)
     {

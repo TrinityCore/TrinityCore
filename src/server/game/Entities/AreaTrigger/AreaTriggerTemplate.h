@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,8 @@
 #define TRINITYCORE_AREATRIGGER_TEMPLATE_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
+#include "Optional.h"
 #include "Position.h"
 #include <vector>
 
@@ -34,10 +36,11 @@ enum AreaTriggerFlags
     AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN        = 0x00010, // NYI
     AREATRIGGER_FLAG_UNK1                       = 0x00020,
     AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH_YAW  = 0x00040, // NYI
-    AREATRIGGER_FLAG_UNK2                       = 0x00080,
+    AREATRIGGER_FLAG_HAS_ANIM_ID                = 0x00080,
     AREATRIGGER_FLAG_UNK3                       = 0x00100,
-    AREATRIGGER_FLAG_UNK4                       = 0x00200,
-    AREATRIGGER_FLAG_UNK5                       = 0x00400
+    AREATRIGGER_FLAG_HAS_ANIM_KIT_ID            = 0x00200,
+    AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT      = 0x00400,
+    AREATRIGGER_FLAG_UNK5                       = 0x00800,
 };
 
 enum AreaTriggerTypes
@@ -90,6 +93,21 @@ struct AreaTriggerScaleInfo
         int32 AsInt32;
         float AsFloat;
     } ExtraScale[MAX_AREATRIGGER_SCALE];
+};
+
+struct AreaTriggerCircularMovementInfo
+{
+    Optional<ObjectGuid> PathTarget;
+    Optional<TaggedPosition<Position::XYZ>> Center;
+    bool CounterClockwise = false;
+    bool CanLoop = false;
+    uint32 TimeToTarget = 0;
+    int32 ElapsedTimeForMovement = 0;
+    uint32 StartDelay = 0;
+    float Radius = 0.0f;
+    float BlendFromRadius = 0.0f;
+    float InitialAngle = 0.0f;
+    float ZOffset = 0.0f;
 };
 
 class AreaTriggerTemplate
@@ -173,12 +191,16 @@ public:
     uint32 MorphCurveId;
     uint32 FacingCurveId;
 
+    int32 AnimId;
+    int32 AnimKitId;
+
     uint32 DecalPropertiesId;
 
     uint32 TimeToTarget;
     uint32 TimeToTargetScale;
 
     AreaTriggerScaleInfo ScaleInfo;
+    AreaTriggerCircularMovementInfo CircularMovementInfo;
 
     AreaTriggerTemplate const* Template;
     std::vector<Position> SplinePoints;

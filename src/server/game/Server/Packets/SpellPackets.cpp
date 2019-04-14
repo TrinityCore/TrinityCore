@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,6 +33,7 @@ void WorldPackets::Spells::PetCancelAura::Read()
 void WorldPackets::Spells::CancelChannelling::Read()
 {
     _worldPacket >> ChannelSpell;
+    _worldPacket >> Reason;
 }
 
 WorldPacket const* WorldPackets::Spells::CategoryCooldown::Write()
@@ -99,16 +100,17 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::AuraDataInfo cons
     data << uint32(auraData.ActiveFlags);
     data << uint16(auraData.CastLevel);
     data << uint8(auraData.Applications);
+    data << int32(auraData.ContentTuningID);
     data.WriteBit(auraData.CastUnit.is_initialized());
     data.WriteBit(auraData.Duration.is_initialized());
     data.WriteBit(auraData.Remaining.is_initialized());
     data.WriteBit(auraData.TimeMod.is_initialized());
     data.WriteBits(auraData.Points.size(), 6);
     data.WriteBits(auraData.EstimatedPoints.size(), 6);
-    data.WriteBit(auraData.SandboxScaling.is_initialized());
+    data.WriteBit(auraData.ContentTuning.is_initialized());
 
-    if (auraData.SandboxScaling)
-        data << *auraData.SandboxScaling;
+    if (auraData.ContentTuning)
+        data << *auraData.ContentTuning;
 
     if (auraData.CastUnit)
         data << *auraData.CastUnit;
@@ -211,7 +213,7 @@ ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::SpellCastReques
     buffer >> request.SpellID;
     buffer >> request.SpellXSpellVisualID;
     buffer >> request.MissileTrajectory;
-    buffer >> request.Charmer;
+    buffer >> request.CraftingNPC;
     request.SendCastFlags = buffer.ReadBits(5);
     bool hasMoveUpdate = buffer.ReadBit();
     request.Weight.resize(buffer.ReadBits(2));
@@ -366,13 +368,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     data << int32(spellCastData.SpellID);
     data << uint32(spellCastData.SpellXSpellVisualID);
     data << uint32(spellCastData.CastFlags);
+    data << uint32(spellCastData.CastFlagsEx);
     data << uint32(spellCastData.CastTime);
     data << spellCastData.MissileTrajectory;
     data << int32(spellCastData.Ammo.DisplayID);
     data << uint8(spellCastData.DestLocSpellCastIndex);
     data << spellCastData.Immunities;
     data << spellCastData.Predict;
-    data.WriteBits(spellCastData.CastFlagsEx, 23);
     data.WriteBits(spellCastData.HitTargets.size(), 16);
     data.WriteBits(spellCastData.MissTargets.size(), 16);
     data.WriteBits(spellCastData.MissStatus.size(), 16);
@@ -716,6 +718,7 @@ WorldPacket const* WorldPackets::Spells::PlayOrphanSpellVisual::Write()
     _worldPacket << int32(SpellVisualID);
     _worldPacket << float(TravelSpeed);
     _worldPacket << float(UnkZero);
+    _worldPacket << float(Unk801);
     _worldPacket.WriteBit(SpeedAsTime);
     _worldPacket.FlushBits();
 
@@ -726,12 +729,14 @@ WorldPacket const* WorldPackets::Spells::PlaySpellVisual::Write()
 {
     _worldPacket << Source;
     _worldPacket << Target;
+    _worldPacket << Unk801_1;
     _worldPacket << TargetPosition;
-    _worldPacket << SpellVisualID;
-    _worldPacket << TravelSpeed;
-    _worldPacket << MissReason;
-    _worldPacket << ReflectStatus;
-    _worldPacket << Orientation;
+    _worldPacket << uint32(SpellVisualID);
+    _worldPacket << float(TravelSpeed);
+    _worldPacket << uint16(MissReason);
+    _worldPacket << uint16(ReflectStatus);
+    _worldPacket << float(Orientation);
+    _worldPacket << float(Unk801_2);
     _worldPacket.WriteBit(SpeedAsTime);
     _worldPacket.FlushBits();
 
@@ -871,6 +876,13 @@ void WorldPackets::Spells::SpellClick::Read()
 WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
 {
     _worldPacket << Runes;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::AddRunePower::Write()
+{
+    _worldPacket << uint32(AddedRunesMask);
 
     return &_worldPacket;
 }

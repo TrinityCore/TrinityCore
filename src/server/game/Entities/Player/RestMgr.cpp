@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,17 +44,17 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
 
             rest_rested_offset = REST_RESTED_XP;
             rest_state_offset = REST_STATE_XP;
-            next_level_xp_field = PLAYER_NEXT_LEVEL_XP;
+            next_level_xp_field = ACTIVE_PLAYER_FIELD_NEXT_LEVEL_XP;
             affectedByRaF = true;
             break;
         case REST_TYPE_HONOR:
             // Reset restBonus (Honor only) for players with max honor level.
-            if (_player->IsMaxHonorLevelAndPrestige())
+            if (_player->IsMaxHonorLevel())
                 restBonus = 0;
 
             rest_rested_offset = REST_RESTED_HONOR;
             rest_state_offset = REST_STATE_HONOR;
-            next_level_xp_field = PLAYER_FIELD_HONOR_NEXT_LEVEL;
+            next_level_xp_field = ACTIVE_PLAYER_FIELD_HONOR_NEXT_LEVEL;
             break;
         default:
             return;
@@ -72,17 +72,17 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
 
     // update data for client
     if (affectedByRaF && _player->GetsRecruitAFriendBonus(true) && (_player->GetSession()->IsARecruiter() || _player->GetSession()->GetRecruiterId() != 0))
-        _player->SetUInt32Value(PLAYER_FIELD_REST_INFO + rest_state_offset, REST_STATE_RAF_LINKED);
+        _player->SetUInt32Value(ACTIVE_PLAYER_FIELD_REST_INFO + rest_state_offset, REST_STATE_RAF_LINKED);
     else
     {
         if (_restBonus[restType] > 10)
-            _player->SetUInt32Value(PLAYER_FIELD_REST_INFO + rest_state_offset, REST_STATE_RESTED);
+            _player->SetUInt32Value(ACTIVE_PLAYER_FIELD_REST_INFO + rest_state_offset, REST_STATE_RESTED);
         else if (_restBonus[restType] <= 1)
-            _player->SetUInt32Value(PLAYER_FIELD_REST_INFO + rest_state_offset, REST_STATE_NOT_RAF_LINKED);
+            _player->SetUInt32Value(ACTIVE_PLAYER_FIELD_REST_INFO + rest_state_offset, REST_STATE_NOT_RAF_LINKED);
     }
 
     // RestTickUpdate
-    _player->SetUInt32Value(PLAYER_FIELD_REST_INFO + rest_rested_offset, uint32(_restBonus[restType]));
+    _player->SetUInt32Value(ACTIVE_PLAYER_FIELD_REST_INFO + rest_rested_offset, uint32(_restBonus[restType]));
 }
 
 void RestMgr::AddRestBonus(RestTypes restType, float restBonus)
@@ -153,8 +153,8 @@ void RestMgr::Update(time_t now)
 void RestMgr::LoadRestBonus(RestTypes restType, PlayerRestState state, float restBonus)
 {
     _restBonus[restType] = restBonus;
-    _player->SetUInt32Value(PLAYER_FIELD_REST_INFO + restType * 2, state);
-    _player->SetUInt32Value(PLAYER_FIELD_REST_INFO + restType * 2 + 1, uint32(restBonus));
+    _player->SetUInt32Value(ACTIVE_PLAYER_FIELD_REST_INFO + restType * 2, state);
+    _player->SetUInt32Value(ACTIVE_PLAYER_FIELD_REST_INFO + restType * 2 + 1, uint32(restBonus));
 }
 
 float RestMgr::CalcExtraPerSec(RestTypes restType, float bubble) const
@@ -162,9 +162,9 @@ float RestMgr::CalcExtraPerSec(RestTypes restType, float bubble) const
     switch (restType)
     {
         case REST_TYPE_HONOR:
-            return float(_player->GetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL)) / 72000.0f * bubble;
+            return float(_player->GetUInt32Value(ACTIVE_PLAYER_FIELD_HONOR_NEXT_LEVEL)) / 72000.0f * bubble;
         case REST_TYPE_XP:
-            return float(_player->GetUInt32Value(PLAYER_NEXT_LEVEL_XP)) / 72000.0f * bubble;
+            return float(_player->GetUInt32Value(ACTIVE_PLAYER_FIELD_NEXT_LEVEL_XP)) / 72000.0f * bubble;
         default:
             return 0.0f;
     }

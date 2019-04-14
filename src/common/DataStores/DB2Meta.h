@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,9 +20,18 @@
 
 #include "Define.h"
 
+struct TC_COMMON_API DB2MetaField
+{
+    DB2MetaField(DBCFormer type, uint8 arraySize, bool isSigned);
+
+    DBCFormer Type;
+    uint8 ArraySize;
+    bool IsSigned;
+};
+
 struct TC_COMMON_API DB2Meta
 {
-    DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, char const* types, uint8 const* arraySizes, int32 parentIndexField);
+    DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, DB2MetaField const* fields, int32 parentIndexField);
 
     bool HasIndexFieldInData() const;
 
@@ -37,21 +46,13 @@ struct TC_COMMON_API DB2Meta
     uint32 GetDbIndexField() const;
     uint32 GetDbFieldCount() const;
 
+    bool IsSignedField(uint32 field) const;
+
     int32 IndexField;
     int32 ParentIndexField;
     uint32 FieldCount;
     uint32 LayoutHash;
-    char const* Types;
-    uint8 const* ArraySizes;
-};
-
-struct TC_COMMON_API DB2FieldMeta
-{
-    DB2FieldMeta(bool isSigned, DBCFormer type, char const* name);
-
-    bool IsSigned;
-    DBCFormer Type;
-    char const* Name;
+    DB2MetaField const* Fields;
 };
 
 #endif // DB2Meta_h__

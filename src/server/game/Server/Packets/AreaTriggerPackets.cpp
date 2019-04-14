@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,26 +31,26 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::AreaTrigger::AreaTriggerS
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::AreaTrigger::AreaTriggerUnkTypeInfo const& areaTriggerUnkType)
+ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerCircularMovementInfo const& areaTriggerCircularMovement)
 {
-    data.WriteBit(areaTriggerUnkType.AreaTriggerUnkGUID.is_initialized());
-    data.WriteBit(areaTriggerUnkType.Center.is_initialized());
-    data.WriteBit(areaTriggerUnkType.UnkBit1);
-    data.WriteBit(areaTriggerUnkType.UnkBit2);
+    data.WriteBit(areaTriggerCircularMovement.PathTarget.is_initialized());
+    data.WriteBit(areaTriggerCircularMovement.Center.is_initialized());
+    data.WriteBit(areaTriggerCircularMovement.CounterClockwise);
+    data.WriteBit(areaTriggerCircularMovement.CanLoop);
 
-    data << uint32(areaTriggerUnkType.UnkUInt1);
-    data << int32(areaTriggerUnkType.UnkInt1);
-    data << uint32(areaTriggerUnkType.UnkUInt2);
-    data << float(areaTriggerUnkType.Radius);
-    data << float(areaTriggerUnkType.BlendFromRadius);
-    data << float(areaTriggerUnkType.InitialAngel);
-    data << float(areaTriggerUnkType.ZOffset);
+    data << uint32(areaTriggerCircularMovement.TimeToTarget);
+    data << int32(areaTriggerCircularMovement.ElapsedTimeForMovement);
+    data << uint32(areaTriggerCircularMovement.StartDelay);
+    data << float(areaTriggerCircularMovement.Radius);
+    data << float(areaTriggerCircularMovement.BlendFromRadius);
+    data << float(areaTriggerCircularMovement.InitialAngle);
+    data << float(areaTriggerCircularMovement.ZOffset);
 
-    if (areaTriggerUnkType.AreaTriggerUnkGUID)
-        data << *areaTriggerUnkType.AreaTriggerUnkGUID;
+    if (areaTriggerCircularMovement.PathTarget)
+        data << *areaTriggerCircularMovement.PathTarget;
 
-    if (areaTriggerUnkType.Center)
-        data << *areaTriggerUnkType.Center;
+    if (areaTriggerCircularMovement.Center)
+        data << *areaTriggerCircularMovement.Center;
 
     return data;
 }
@@ -74,24 +74,16 @@ WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerDenied::Write()
 WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerRePath::Write()
 {
     _worldPacket << TriggerGUID;
-    _worldPacket << AreaTriggerSpline;
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerReShape::Write()
-{
-    _worldPacket << TriggerGUID;
 
     _worldPacket.WriteBit(AreaTriggerSpline.is_initialized());
-    _worldPacket.WriteBit(AreaTriggerUnkType.is_initialized());
+    _worldPacket.WriteBit(AreaTriggerCircularMovement.is_initialized());
     _worldPacket.FlushBits();
 
     if (AreaTriggerSpline)
         _worldPacket << *AreaTriggerSpline;
 
-    if (AreaTriggerUnkType)
-        _worldPacket << *AreaTriggerUnkType;
+    if (AreaTriggerCircularMovement)
+        _worldPacket << *AreaTriggerCircularMovement;
 
     return &_worldPacket;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,6 +37,8 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
 
     _worldPacket << uint32(BpayStoreProductDeliveryDelay);
 
+    _worldPacket << uint32(ClubsPresenceUpdateTimer);
+
     _worldPacket.WriteBit(VoiceEnabled);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
     _worldPacket.WriteBit(ScrollOfResurrectionEnabled);
@@ -49,16 +51,22 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(RecruitAFriendSendingEnabled);
     _worldPacket.WriteBit(CharUndeleteEnabled);
     _worldPacket.WriteBit(RestrictedAccount);
+    _worldPacket.WriteBit(CommerceSystemEnabled);
     _worldPacket.WriteBit(TutorialsEnabled);
     _worldPacket.WriteBit(NPETutorialsEnabled);
     _worldPacket.WriteBit(TwitterEnabled);
-    _worldPacket.WriteBit(CommerceSystemEnabled);
     _worldPacket.WriteBit(Unk67);
     _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.WriteBit(KioskModeEnabled);
     _worldPacket.WriteBit(CompetitiveModeEnabled);
     _worldPacket.WriteBit(RaceClassExpansionLevels.is_initialized());
     _worldPacket.WriteBit(TokenBalanceEnabled);
+    _worldPacket.WriteBit(WarModeFeatureEnabled);
+    _worldPacket.WriteBit(ClubsEnabled);
+    _worldPacket.WriteBit(ClubsBattleNetClubTypeAllowed);
+    _worldPacket.WriteBit(ClubsCharacterClubTypeAllowed);
+    _worldPacket.WriteBit(VoiceChatDisabledByParentalControl);
+    _worldPacket.WriteBit(VoiceChatMutedByParentalControl);
 
     _worldPacket.FlushBits();
 
@@ -102,6 +110,12 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
             _worldPacket.append(RaceClassExpansionLevels->data(), RaceClassExpansionLevels->size());
     }
 
+    {
+        _worldPacket.WriteBit(VoiceChatManagerSettings.Enabled);
+        _worldPacket << VoiceChatManagerSettings.BnetAccountGuid;
+        _worldPacket << VoiceChatManagerSettings.GuildGuid;
+    }
+
     if (EuropaTicketSystemStatus)
     {
         _worldPacket.WriteBit(EuropaTicketSystemStatus->TicketsEnabled);
@@ -141,7 +155,12 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket << int32(TokenPollTimeSeconds);
     _worldPacket << int32(TokenRedeemIndex);
     _worldPacket << int64(TokenBalanceAmount);
+    _worldPacket << int32(MaxCharactersPerRealm);
     _worldPacket << uint32(BpayStoreProductDeliveryDelay);
+    _worldPacket << int32(ActiveCharacterUpgradeBoostType);
+    _worldPacket << int32(ActiveClassTrialBoostType);
+    _worldPacket << int32(MinimumExpansionLevel);
+    _worldPacket << int32(MaximumExpansionLevel);
 
     return &_worldPacket;
 }

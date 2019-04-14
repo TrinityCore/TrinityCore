@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -83,8 +83,8 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target))
             return false;
 
-        target->SetUInt32Value(PLAYER_FIELD_KILLS, 0);
-        target->SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 0);
+        target->SetUInt32Value(ACTIVE_PLAYER_FIELD_KILLS, 0);
+        target->SetUInt32Value(ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 0);
         target->UpdateCriteria(CRITERIA_TYPE_EARN_HONORABLE_KILL);
 
         return true;
@@ -117,7 +117,7 @@ public:
         player->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
         //-1 is default value
-        player->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));
+        player->SetUInt32Value(ACTIVE_PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));
         return true;
     }
 
@@ -143,7 +143,7 @@ public:
         target->InitStatsForLevel(true);
         target->InitTaxiNodesForLevel();
         target->InitTalentForLevel();
-        target->SetUInt32Value(PLAYER_XP, 0);
+        target->SetUInt32Value(ACTIVE_PLAYER_FIELD_XP, 0);
 
         target->_ApplyAllLevelScaleItemMods(true);
 

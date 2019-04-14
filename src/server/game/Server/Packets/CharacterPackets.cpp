@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -140,6 +140,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharacters
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharactersResult::CharacterInfo const& charInfo)
 {
     data << charInfo.Guid;
+    data << uint64(charInfo.GuildClubMemberID);
     data << uint8(charInfo.ListPosition);
     data << uint8(charInfo.Race);
     data << uint8(charInfo.Class);
@@ -201,9 +202,9 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
 
     _worldPacket.WriteBit(Success);
     _worldPacket.WriteBit(IsDeletedCharacters);
-    _worldPacket.WriteBit(IsDemonHunterCreationAllowed);
+    _worldPacket.WriteBit(IsTestDemonHunterCreationAllowed);
     _worldPacket.WriteBit(HasDemonHunterOnRealm);
-    _worldPacket.WriteBit(Unknown7x);
+    _worldPacket.WriteBit(IsDemonHunterCreationAllowed);
     _worldPacket.WriteBit(DisabledClassesMask.is_initialized());
     _worldPacket.WriteBit(IsAlliedRacesCreationAllowed);
     _worldPacket << uint32(Characters.size());
@@ -227,6 +228,7 @@ void WorldPackets::Character::CreateCharacter::Read()
     CreateInfo.reset(new CharacterCreateInfo());
     uint32 nameLength = _worldPacket.ReadBits(6);
     bool const hasTemplateSet = _worldPacket.ReadBit();
+    CreateInfo->IsTrialBoost = _worldPacket.ReadBit();
 
     _worldPacket >> CreateInfo->Race;
     _worldPacket >> CreateInfo->Class;
@@ -246,6 +248,7 @@ void WorldPackets::Character::CreateCharacter::Read()
 WorldPacket const* WorldPackets::Character::CreateChar::Write()
 {
     _worldPacket << uint8(Code);
+    _worldPacket << Guid;
     return &_worldPacket;
 }
 

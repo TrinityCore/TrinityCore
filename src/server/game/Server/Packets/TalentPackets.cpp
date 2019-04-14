@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,20 @@
 
 #include "TalentPackets.h"
 
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Talent::PvPTalent& pvpTalent)
+{
+    data >> pvpTalent.PvPTalentID;
+    data >> pvpTalent.Slot;
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Talent::PvPTalent const& pvpTalent)
+{
+    data << uint16(pvpTalent.PvPTalentID);
+    data << uint8(pvpTalent.Slot);
+    return data;
+}
+
 WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 {
     _worldPacket << uint8(Info.ActiveGroup);
@@ -27,13 +41,13 @@ WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
     {
         _worldPacket << uint32(talentGroupInfo.SpecID);
         _worldPacket << uint32(talentGroupInfo.TalentIDs.size());
-        _worldPacket << uint32(talentGroupInfo.PvPTalentIDs.size());
+        _worldPacket << uint32(talentGroupInfo.PvPTalents.size());
 
-        for (uint16 talentID : talentGroupInfo.TalentIDs)
-            _worldPacket << uint16(talentID);
+        for (uint16 talent : talentGroupInfo.TalentIDs)
+            _worldPacket << uint16(talent);
 
-        for (uint16 talentID : talentGroupInfo.PvPTalentIDs)
-            _worldPacket << uint16(talentID);
+        for (PvPTalent talent : talentGroupInfo.PvPTalents)
+            _worldPacket << talent;
     }
 
     return &_worldPacket;
@@ -92,7 +106,7 @@ WorldPacket const* WorldPackets::Talent::ActiveGlyphs::Write()
 
 void WorldPackets::Talent::LearnPvpTalents::Read()
 {
-    Talents.resize(_worldPacket.ReadBits(6));
+    Talents.resize(_worldPacket.read<uint32>());
     for (uint32 i = 0; i < Talents.size(); ++i)
         _worldPacket >> Talents[i];
 }
@@ -102,8 +116,8 @@ WorldPacket const* WorldPackets::Talent::LearnPvpTalentsFailed::Write()
     _worldPacket.WriteBits(Reason, 4);
     _worldPacket << int32(SpellID);
     _worldPacket << uint32(Talents.size());
-    if (!Talents.empty())
-        _worldPacket.append(Talents.data(), Talents.size());
+    for (PvPTalent pvpTalent : Talents)
+        _worldPacket << pvpTalent;
 
     return &_worldPacket;
 }

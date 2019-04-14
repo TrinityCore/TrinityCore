@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,6 +38,11 @@ bool DB2CascFileSource::Read(void* buffer, std::size_t numBytes)
 std::size_t DB2CascFileSource::GetPosition() const
 {
     return CASC::GetFilePointer(_fileHandle);
+}
+
+bool DB2CascFileSource::SetPosition(std::size_t position)
+{
+    return CASC::SetFilePointer(_fileHandle, position);
 }
 
 std::size_t DB2CascFileSource::GetFileSize() const

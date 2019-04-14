@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -79,8 +79,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
         WorldPackets::Calendar::CalendarSendCalendarEventInfo eventInfo;
         eventInfo.EventID = event->GetEventId();
         eventInfo.Date = event->GetDate();
-        Guild* guild = sGuildMgr->GetGuildById(event->GetGuildId());
-        eventInfo.EventGuildID = guild ? guild->GetGUID() : ObjectGuid::Empty;
+        eventInfo.EventClubID = event->GetGuildId();
         eventInfo.EventName = event->GetTitle();
         eventInfo.EventType = event->GetType();
         eventInfo.Flags = event->GetFlags();
@@ -92,20 +91,23 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
 
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
     {
-        Player::BoundInstancesMap boundInstances = _player->GetBoundInstances(Difficulty(i));
-        for (auto const& boundInstance : boundInstances)
+        auto boundInstances = _player->GetBoundInstances(Difficulty(i));
+        if (boundInstances != _player->m_boundInstances.end())
         {
-            if (boundInstance.second.perm)
+            for (auto const& boundInstance : boundInstances->second)
             {
-                WorldPackets::Calendar::CalendarSendCalendarRaidLockoutInfo lockoutInfo;
+                if (boundInstance.second.perm)
+                {
+                    WorldPackets::Calendar::CalendarSendCalendarRaidLockoutInfo lockoutInfo;
 
-                InstanceSave const* save = boundInstance.second.save;
-                lockoutInfo.MapID = save->GetMapId();
-                lockoutInfo.DifficultyID = save->GetDifficultyID();
-                lockoutInfo.ExpireTime = save->GetResetTime() - currTime;
-                lockoutInfo.InstanceID = save->GetInstanceId(); // instance save id as unique instance copy id
+                    InstanceSave const* save = boundInstance.second.save;
+                    lockoutInfo.MapID = save->GetMapId();
+                    lockoutInfo.DifficultyID = save->GetDifficultyID();
+                    lockoutInfo.ExpireTime = save->GetResetTime() - currTime;
+                    lockoutInfo.InstanceID = save->GetInstanceId(); // instance save id as unique instance copy id
 
-                packet.RaidLockouts.push_back(lockoutInfo);
+                    packet.RaidLockouts.push_back(lockoutInfo);
+                }
             }
         }
     }
@@ -121,10 +123,10 @@ void WorldSession::HandleCalendarGetEvent(WorldPackets::Calendar::CalendarGetEve
         sCalendarMgr->SendCalendarCommandResult(_player->GetGUID(), CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarGuildFilter(WorldPackets::Calendar::CalendarGuildFilter& calendarGuildFilter)
+void WorldSession::HandleCalendarCommunityFilter(WorldPackets::Calendar::CalendarCommunityFilter& calendarCommunityFilter)
 {
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
-        guild->MassInviteToEvent(this, calendarGuildFilter.MinLevel, calendarGuildFilter.MaxLevel, calendarGuildFilter.MaxRankOrder);
+        guild->MassInviteToEvent(this, calendarCommunityFilter.MinLevel, calendarCommunityFilter.MaxLevel, calendarCommunityFilter.MaxRankOrder);
 }
 
 void WorldSession::HandleCalendarAddEvent(WorldPackets::Calendar::CalendarAddEvent& calendarAddEvent)

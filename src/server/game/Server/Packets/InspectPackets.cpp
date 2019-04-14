@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,6 +35,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectItemData 
 {
     data << itemData.CreatorGUID;
     data << uint8(itemData.Index);
+    data << uint32(itemData.AzeritePowers.size());
+    if (!itemData.AzeritePowers.empty())
+        data.append(itemData.AzeritePowers.data(), itemData.AzeritePowers.size());
+
     data << itemData.Item;
     data.WriteBit(itemData.Usable);
     data.WriteBits(itemData.Enchants.size(), 4);
@@ -76,10 +80,11 @@ WorldPackets::Inspect::InspectItemData::InspectItemData(::Item const* item, uint
     {
         if (gemData.ItemId)
         {
-            WorldPackets::Item::ItemGemData gem;
+            Gems.emplace_back();
+
+            WorldPackets::Item::ItemGemData& gem = Gems.back();
             gem.Slot = i;
             gem.Item.Initialize(&gemData);
-            Gems.push_back(gem);
         }
         ++i;
     }
@@ -103,6 +108,7 @@ WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
         _worldPacket.append(PvpTalents.data(), PvpTalents.size());
 
     _worldPacket.WriteBit(GuildData.is_initialized());
+    _worldPacket.WriteBit(AzeriteLevel.is_initialized());
     _worldPacket.FlushBits();
 
     for (size_t i = 0; i < Items.size(); ++i)
@@ -110,6 +116,9 @@ WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
 
     if (GuildData)
         _worldPacket << *GuildData;
+
+    if (AzeriteLevel)
+        _worldPacket << int32(*AzeriteLevel);
 
     return &_worldPacket;
 }
@@ -138,6 +147,7 @@ void WorldPackets::Inspect::InspectPVPRequest::Read()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::PVPBracketData const& bracket)
 {
+    data << uint8(bracket.Bracket);
     data << int32(bracket.Rating);
     data << int32(bracket.Rank);
     data << int32(bracket.WeeklyPlayed);
@@ -146,7 +156,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::PVPBracketData c
     data << int32(bracket.SeasonWon);
     data << int32(bracket.WeeklyBestRating);
     data << int32(bracket.Unk710);
-    data << uint8(bracket.Bracket);
+    data << int32(bracket.Unk801_1);
+    data.WriteBit(bracket.Unk801_2);
+    data.FlushBits();
 
     return data;
 }

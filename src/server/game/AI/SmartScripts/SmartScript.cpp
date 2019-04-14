@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -412,10 +412,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {
                         if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(e.action.morphOrMount.creature))
                         {
-                            uint32 displayId = ObjectMgr::ChooseDisplayId(ci);
-                            (*itr)->ToCreature()->SetDisplayId(displayId);
+                            CreatureModel const* model = ObjectMgr::ChooseDisplayId(ci);
+                            (*itr)->ToCreature()->SetDisplayId(model->CreatureDisplayID, model->DisplayScale);
                             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry %u, %s set displayid to %u",
-                                (*itr)->GetEntry(), (*itr)->GetGUID().ToString().c_str(), displayId);
+                                (*itr)->GetEntry(), (*itr)->GetGUID().ToString().c_str(), model->CreatureDisplayID);
                         }
                     }
                     //if no param1, then use value from param2 (modelId)
@@ -1291,7 +1291,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (e.action.morphOrMount.creature > 0)
                     {
                         if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(e.action.morphOrMount.creature))
-                            (*itr)->ToUnit()->Mount(ObjectMgr::ChooseDisplayId(cInfo));
+                            (*itr)->ToUnit()->Mount(ObjectMgr::ChooseDisplayId(cInfo)->CreatureDisplayID);
                     }
                     else
                         (*itr)->ToUnit()->Mount(e.action.morphOrMount.model);
@@ -3876,9 +3876,29 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
         {
             if (obj && obj->GetMap()->IsDungeon())
             {
-                if ((1 << (obj->GetMap()->GetSpawnMode()+1)) & (*i).event.event_flags)
+                // TODO: fix it for new maps and difficulties
+                switch (obj->GetMap()->GetDifficultyID())
                 {
-                    mEvents.push_back((*i));
+                    case DIFFICULTY_NORMAL:
+                    case DIFFICULTY_10_N:
+                        if (i->event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_0)
+                            mEvents.emplace_back(std::move(*i));
+                        break;
+                    case DIFFICULTY_HEROIC:
+                    case DIFFICULTY_25_N:
+                        if (i->event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_1)
+                            mEvents.emplace_back(std::move(*i));
+                        break;
+                    case DIFFICULTY_10_HC:
+                        if (i->event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_2)
+                            mEvents.emplace_back(std::move(*i));
+                        break;
+                    case DIFFICULTY_25_HC:
+                        if (i->event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_3)
+                            mEvents.emplace_back(std::move(*i));
+                        break;
+                    default:
+                        break;
                 }
             }
             continue;
@@ -3895,24 +3915,24 @@ void SmartScript::GetScript()
         e = sSmartScriptMgr->GetScript(-((int32)me->GetSpawnId()), mScriptType);
         if (e.empty())
             e = sSmartScriptMgr->GetScript((int32)me->GetEntry(), mScriptType);
-        FillScript(e, me, nullptr, nullptr);
+        FillScript(std::move(e), me, nullptr, nullptr);
     }
     else if (go)
     {
         e = sSmartScriptMgr->GetScript(-((int32)go->GetSpawnId()), mScriptType);
         if (e.empty())
             e = sSmartScriptMgr->GetScript((int32)go->GetEntry(), mScriptType);
-        FillScript(e, go, nullptr, nullptr);
+        FillScript(std::move(e), go, nullptr, nullptr);
     }
     else if (trigger)
     {
         e = sSmartScriptMgr->GetScript((int32)trigger->ID, mScriptType);
-        FillScript(e, nullptr, trigger, nullptr);
+        FillScript(std::move(e), nullptr, trigger, nullptr);
     }
     else if (sceneTemplate)
     {
         e = sSmartScriptMgr->GetScript(sceneTemplate->SceneId, mScriptType);
-        FillScript(e, nullptr, nullptr, sceneTemplate);
+        FillScript(std::move(e), nullptr, nullptr, sceneTemplate);
     }
 }
 

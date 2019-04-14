@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -135,7 +135,12 @@ bool ConfigMgr::GetBoolDefault(std::string const& name, bool def) const
     return StringToBool(val);
 }
 
-int ConfigMgr::GetIntDefault(std::string const& name, int def) const
+int32 ConfigMgr::GetIntDefault(std::string const& name, int32 def) const
+{
+    return GetValueDefault(name, def);
+}
+
+int64 ConfigMgr::GetInt64Default(std::string const& name, int64 def) const
 {
     return GetValueDefault(name, def);
 }

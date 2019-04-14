@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1289,9 +1289,10 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
         {
             playerData.IsInWorld = true;
             playerData.PrimaryTalentTree = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
-            playerData.PrimaryTalentTreeNameIndex = 0;
+            playerData.Sex = player->getGender();
             playerData.Race = player->getRace();
-            playerData.Prestige = player->GetPrestigeLevel();
+            playerData.Class = player->getClass();
+            playerData.HonorLevel = player->GetHonorLevel();
         }
 
         pvpLogData.Players.push_back(playerData);

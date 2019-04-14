@@ -2,6 +2,21 @@
 
 [![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Average time to resolve an issue") [![Percentage of issues still open](https://isitmaintained.com/badge/open/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Percentage of issues still open")
 
+--------------
+
+
+* [Build Status](#build-status)
+* [Introduction](#introduction)
+* [Requirements](#requirements)
+* [Install](#install)
+* [Reporting issues](#reporting-issues)
+* [Submitting fixes](#submitting-fixes)
+* [Copyright](#copyright)
+* [Authors &amp; Contributors](#authors--contributors)
+* [Links](#links)
+
+
+
 ## Build Status
 
 master | 3.3.5

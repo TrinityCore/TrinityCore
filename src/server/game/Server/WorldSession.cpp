@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -572,9 +572,9 @@ void WorldSession::LogoutPlayer(bool save)
             for (int j = BUYBACK_SLOT_START; j < BUYBACK_SLOT_END; ++j)
             {
                 eslot = j - BUYBACK_SLOT_START;
-                _player->SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (j * 4), ObjectGuid::Empty);
-                _player->SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, 0);
-                _player->SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP_1 + eslot, 0);
+                _player->SetGuidValue(ACTIVE_PLAYER_FIELD_INV_SLOT_HEAD + (j * 4), ObjectGuid::Empty);
+                _player->SetUInt32Value(ACTIVE_PLAYER_FIELD_BUYBACK_PRICE + eslot, 0);
+                _player->SetUInt32Value(ACTIVE_PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
             }
             _player->SaveToDB();
         }
@@ -1228,11 +1228,8 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_QUEST_GIVER_STATUS_MULTIPLE_QUERY:    //   0               2.5
         case CMSG_BEGIN_TRADE:                          //   0               2.5
         case CMSG_INITIATE_TRADE:                       //   0               3
-        case CMSG_CHAT_ADDON_MESSAGE_GUILD:             //   0               3.5
-        case CMSG_CHAT_ADDON_MESSAGE_OFFICER:           //   0               3.5
-        case CMSG_CHAT_ADDON_MESSAGE_PARTY:             //   0               3.5
-        case CMSG_CHAT_ADDON_MESSAGE_RAID:              //   0               3.5
-        case CMSG_CHAT_ADDON_MESSAGE_WHISPER:           //   0               3.5
+        case CMSG_CHAT_ADDON_MESSAGE:                   //   0               3.5
+        case CMSG_CHAT_ADDON_MESSAGE_TARGETED:          //   0               3.5
         case CMSG_CHAT_MESSAGE_AFK:                     //   0               3.5
         case CMSG_CHAT_MESSAGE_CHANNEL:                 //   0               3.5
         case CMSG_CHAT_MESSAGE_DND:                     //   0               3.5

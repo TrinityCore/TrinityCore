@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -201,8 +201,16 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
     bool hasGuildInfo = _worldPacket.ReadBit();
     bool hasLFGListSearchResult = _worldPacket.ReadBit();
     bool hasLFGListApplicant = _worldPacket.ReadBit();
+    bool hasClubMessage = _worldPacket.ReadBit();
 
     _worldPacket.ResetBitPos();
+
+    if (hasClubMessage)
+    {
+        CommunityMessage = boost::in_place();
+        CommunityMessage->IsPlayerUsingVoice = _worldPacket.ReadBit();
+        _worldPacket.ResetBitPos();
+    }
 
     if (hasMailInfo)
         _worldPacket >> MailInfo;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,12 +24,15 @@
 #include "AccountService.h"
 #include "AuthenticationService.h"
 #include "challenge_service.pb.h"
-#include "channel_service.pb.h"
+#include "club_membership_listener.pb.h"
+#include "club_membership_service.pb.h"
 #include "ConnectionService.h"
 #include "friends_service.pb.h"
 #include "GameUtilitiesService.h"
+#include "presence_listener.pb.h"
 #include "presence_service.pb.h"
 #include "report_service.pb.h"
+#include "api/client/v2/report_service.pb.h"
 #include "resource_service.pb.h"
 #include "user_manager_service.pb.h"
 

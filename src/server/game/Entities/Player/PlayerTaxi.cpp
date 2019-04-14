@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -111,13 +111,13 @@ void PlayerTaxi::AppendTaximaskTo(WorldPackets::Taxi::ShowTaxiNodes& data, bool 
 {
     if (all)
     {
-        data.CanLandNodes = &sTaxiNodesMask;              // all existed nodes
-        data.CanUseNodes = &sTaxiNodesMask;
+        data.CanLandNodes = sTaxiNodesMask;              // all existed nodes
+        data.CanUseNodes = sTaxiNodesMask;
     }
     else
     {
-        data.CanLandNodes = &m_taximask;                  // known nodes
-        data.CanUseNodes = &m_taximask;
+        data.CanLandNodes = m_taximask;                  // known nodes
+        data.CanUseNodes = m_taximask;
     }
 }
 

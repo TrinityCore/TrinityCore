@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -146,9 +146,6 @@ void WorldSession::HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlay
             case CMSG_CHAT_CHANNEL_MODERATOR:
                 channel->SetModerator(GetPlayer(), packet.Name);
                 break;
-            case CMSG_CHAT_CHANNEL_MUTE:
-                channel->SetMute(GetPlayer(), packet.Name);
-                break;
             case CMSG_CHAT_CHANNEL_SET_OWNER:
                 channel->SetOwner(GetPlayer(), packet.Name);
                 break;
@@ -160,9 +157,6 @@ void WorldSession::HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlay
                 break;
             case CMSG_CHAT_CHANNEL_UNMODERATOR:
                 channel->UnsetModerator(GetPlayer(), packet.Name);
-                break;
-            case CMSG_CHAT_CHANNEL_UNMUTE:
-                channel->UnsetMute(GetPlayer(), packet.Name);
                 break;
             case CMSG_CHAT_CHANNEL_UNSILENCE_ALL:
                 channel->UnsilenceAll(GetPlayer(), packet.Name);

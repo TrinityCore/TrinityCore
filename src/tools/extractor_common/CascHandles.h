@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,6 +55,7 @@ namespace CASC
     FileHandle OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors = false);
     DWORD GetFileSize(FileHandle const& file, PDWORD fileSizeHigh);
     DWORD GetFilePointer(FileHandle const& file);
+    bool SetFilePointer(FileHandle const& file, LONGLONG position);
     bool ReadFile(FileHandle const& file, void* buffer, DWORD bytes, PDWORD bytesRead);
 }
 

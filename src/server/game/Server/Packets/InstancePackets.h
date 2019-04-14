@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,7 +47,7 @@ namespace WorldPackets
                                     // but it has been deperecated in favor of simply checking group leader, being inside an instance or using dungeon finder
         };
 
-        struct InstanceLockInfos
+        struct InstanceLock
         {
             uint64 InstanceID = 0u;
             uint32 MapID = 0u;
@@ -66,7 +66,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<InstanceLockInfos> LockList;
+            std::vector<InstanceLock> LockList;
         };
 
         class ResetInstances final : public ClientPacket
@@ -90,7 +90,7 @@ namespace WorldPackets
         class InstanceResetFailed final : public ServerPacket
         {
         public:
-            InstanceResetFailed() : ServerPacket(SMSG_INSTANCE_RESET_FAILED, 4 + 4) { }
+            InstanceResetFailed() : ServerPacket(SMSG_INSTANCE_RESET_FAILED, 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -247,7 +247,5 @@ namespace WorldPackets
         };
     }
 }
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Instance::InstanceLockInfos const& lockInfos);
 
 #endif // InstancePackets_h__

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,7 @@
 #include "GameObjectModel.h"
 #include "Log.h"
 #include "MapTree.h"
+#include "ModelIgnoreFlags.h"
 #include "ModelInstance.h"
 #include "RegularGrid.h"
 #include "Timer.h"
@@ -142,7 +143,7 @@ struct DynamicTreeIntersectionCallback
 
     bool operator()(G3D::Ray const& r, GameObjectModel const& obj, float& distance)
     {
-        _didHit = obj.intersectRay(r, distance, true, _phaseShift);
+        _didHit = obj.intersectRay(r, distance, true, _phaseShift, VMAP::ModelIgnoreFlags::Nothing);
         return _didHit;
     }
 

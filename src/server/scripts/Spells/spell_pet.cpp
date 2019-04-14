@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -300,8 +300,8 @@ public:
 
                 if (Unit* owner = pet->ToPet()->GetOwner())
                 {
-                    int32 fire  = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
-                    int32 shadow = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
+                    int32 fire  = owner->GetInt32Value(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE) - owner->GetInt32Value(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
+                    int32 shadow = owner->GetInt32Value(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) - owner->GetInt32Value(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
                     int32 maximum  = (fire > shadow) ? fire : shadow;
                     if (maximum < 0)
                         maximum = 0;
@@ -328,8 +328,8 @@ public:
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         //the damage bonus used for pets is either fire or shadow damage, whatever is higher
-                        int32 fire  = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
-                        int32 shadow = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
+                        int32 fire  = owner->GetInt32Value(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE) - owner->GetInt32Value(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
+                        int32 shadow = owner->GetInt32Value(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) - owner->GetInt32Value(ACTIVE_PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
                         int32 maximum  = (fire > shadow) ? fire : shadow;
                         float bonusDamage = 0.0f;
 
@@ -450,7 +450,7 @@ public:
                 if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_FIRE), 40);
+                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_FIRE), 40);
                         amount += ownerBonus;
                     }
         }
@@ -496,7 +496,7 @@ public:
                 if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_FROST), 40);
+                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_FROST), 40);
                         amount += ownerBonus;
                     }
         }
@@ -507,7 +507,7 @@ public:
                 if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_ARCANE), 40);
+                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_ARCANE), 40);
                         amount += ownerBonus;
                     }
         }
@@ -518,7 +518,7 @@ public:
                 if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_NATURE), 40);
+                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_NATURE), 40);
                         amount += ownerBonus;
                     }
         }
@@ -559,7 +559,7 @@ public:
                 if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_SHADOW), 40);
+                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_SHADOW), 40);
                         amount += ownerBonus;
                     }
         }
@@ -1025,7 +1025,7 @@ public:
                 if (!owner)
                     return;
 
-                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_FROST), 40);
+                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_FROST), 40);
                 amount += ownerBonus;
             }
         }
@@ -1041,7 +1041,7 @@ public:
                 if (!owner)
                     return;
 
-                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_FIRE), 40);
+                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_FIRE), 40);
                 amount += ownerBonus;
             }
         }
@@ -1057,7 +1057,7 @@ public:
                 if (!owner)
                     return;
 
-                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_NATURE), 40);
+                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_NATURE), 40);
                 amount += ownerBonus;
             }
         }
@@ -1103,7 +1103,7 @@ public:
                 if (!owner)
                     return;
 
-                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_SHADOW), 40);
+                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_SHADOW), 40);
                 amount += ownerBonus;
             }
         }
@@ -1119,7 +1119,7 @@ public:
                 if (!owner)
                     return;
 
-                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_ARCANE), 40);
+                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_ARCANE), 40);
                 amount += ownerBonus;
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -57,6 +57,8 @@ namespace WorldPackets
             void Read() override;
 
             int32 ChannelSpell = 0;
+            int32 Reason = 0;       // 40 = /run SpellStopCasting(), 16 = movement/AURA_INTERRUPT_FLAG_MOVE, 41 = turning/AURA_INTERRUPT_FLAG_TURNING
+                                    // does not match SpellCastResult enum
         };
 
         class CancelGrowthAura final : public ClientPacket
@@ -177,7 +179,8 @@ namespace WorldPackets
             uint32 ActiveFlags = 0;
             uint16 CastLevel = 1;
             uint8 Applications = 1;
-            Optional<SandboxScalingData> SandboxScaling;
+            int32 ContentTuningID = 0;
+            Optional<ContentTuningParams> ContentTuning;
             Optional<ObjectGuid> CastUnit;
             Optional<int32> Duration;
             Optional<int32> Remaining;
@@ -245,7 +248,7 @@ namespace WorldPackets
             MissileTrajectoryRequest MissileTrajectory;
             Optional<MovementInfo> MoveUpdate;
             std::vector<SpellWeight> Weight;
-            ObjectGuid Charmer;
+            ObjectGuid CraftingNPC;
             int32 Misc[2] = { };
         };
 
@@ -613,7 +616,7 @@ namespace WorldPackets
         class SetSpellCharges final : public ServerPacket
         {
         public:
-            SetSpellCharges() : ServerPacket(SMSG_SET_SPELL_CHARGES, 1 + 4 + 4) { }
+            SetSpellCharges() : ServerPacket(SMSG_SET_SPELL_CHARGES, 4 + 4 + 1 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -697,6 +700,7 @@ namespace WorldPackets
             bool SpeedAsTime = false;
             float TravelSpeed = 0.0f;
             float UnkZero = 0.0f; // Always zero
+            float Unk801 = 0.0f;
             TaggedPosition<Position::XYZ> SourceRotation; // Vector of rotations, Orientation is z
             TaggedPosition<Position::XYZ> TargetLocation; // Exclusive with Target
         };
@@ -710,6 +714,7 @@ namespace WorldPackets
 
             ObjectGuid Source;
             ObjectGuid Target; // Exclusive with TargetPosition
+            ObjectGuid Unk801_1;
             uint16 MissReason = 0;
             uint32 SpellVisualID = 0;
             bool SpeedAsTime = false;
@@ -717,6 +722,7 @@ namespace WorldPackets
             float TravelSpeed = 0.0f;
             TaggedPosition<Position::XYZ> TargetPosition; // Exclusive with Target
             float Orientation = 0.0f;
+            float Unk801_2 = 0.0f;
         };
 
         class PlaySpellVisualKit final : public ServerPacket
@@ -892,6 +898,16 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             RuneData Runes;
+        };
+
+        class AddRunePower final : public ServerPacket
+        {
+        public:
+            AddRunePower() : ServerPacket(SMSG_ADD_RUNE_POWER, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 AddedRunesMask = 0;
         };
 
         class MissileTrajectoryCollision final : public ClientPacket

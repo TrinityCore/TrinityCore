@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -108,7 +108,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::GuildFinder::GuildPostDat
     data << int32(post.Availability);
     data << int32(post.ClassRoles);
     data << int32(post.LevelRange);
-    data << uint32(post.SecondsRemaining);
+    data << int32(post.SecondsRemaining);
     data.WriteString(post.Comment);
     return data;
 }

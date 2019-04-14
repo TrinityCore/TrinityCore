@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,14 +55,14 @@ void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTal
 {
     WorldPackets::Talent::LearnPvpTalentsFailed learnPvpTalentsFailed;
     bool anythingLearned = false;
-    for (uint32 talentId : packet.Talents)
+    for (WorldPackets::Talent::PvPTalent pvpTalent : packet.Talents)
     {
-        if (TalentLearnResult result = _player->LearnPvpTalent(talentId, &learnPvpTalentsFailed.SpellID))
+        if (TalentLearnResult result = _player->LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, &learnPvpTalentsFailed.SpellID))
         {
             if (!learnPvpTalentsFailed.Reason)
                 learnPvpTalentsFailed.Reason = result;
 
-            learnPvpTalentsFailed.Talents.push_back(talentId);
+            learnPvpTalentsFailed.Talents.push_back(pvpTalent);
         }
         else
             anythingLearned = true;

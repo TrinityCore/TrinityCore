@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,9 +22,11 @@
 #include "Common.h"
 #include "GridReference.h"
 #include "GridRefManager.h"
+#include "ModelIgnoreFlags.h"
 #include "MovementInfo.h"
 #include "ObjectDefines.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "PhaseShift.h"
 #include "Position.h"
 #include "SharedDefines.h"
@@ -53,6 +55,33 @@ class ZoneScript;
 struct QuaternionData;
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
+
+struct CreateObjectBits
+{
+    bool NoBirthAnim : 1;
+    bool EnablePortals : 1;
+    bool PlayHoverAnim : 1;
+    bool MovementUpdate : 1;
+    bool MovementTransport : 1;
+    bool Stationary : 1;
+    bool CombatVictim : 1;
+    bool ServerTime : 1;
+    bool Vehicle : 1;
+    bool AnimKit : 1;
+    bool Rotation : 1;
+    bool AreaTrigger : 1;
+    bool GameObject : 1;
+    bool SmoothPhasing : 1;
+    bool ThisIsYou : 1;
+    bool SceneObject : 1;
+    bool ActivePlayer : 1;
+    bool Conversation : 1;
+
+    void Clear()
+    {
+        memset(this, 0, sizeof(CreateObjectBits));
+    }
+};
 
 namespace UpdateMask
 {
@@ -188,6 +217,7 @@ class TC_GAME_API Object
 
         std::vector<uint32> const& GetDynamicValues(uint16 index) const;
         uint32 GetDynamicValue(uint16 index, uint16 offset) const;
+        bool HasDynamicValue(uint16 index, uint32 value);
         void AddDynamicValue(uint16 index, uint32 value);
         void RemoveDynamicValue(uint16 index, uint32 value);
         void ClearDynamicValue(uint16 index);
@@ -297,14 +327,14 @@ class TC_GAME_API Object
         uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
         uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
 
-        void BuildMovementUpdate(ByteBuffer* data, uint32 flags) const;
+        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const;
         virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
         virtual void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
 
         uint16 m_objectType;
 
         TypeID m_objectTypeId;
-        uint32 m_updateFlag;
+        CreateObjectBits m_updateFlag;
 
         union
         {
@@ -448,8 +478,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         // use only if you will sure about placing both object at same map
         bool IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D = true) const;
         bool IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D = true) const;
-        bool IsWithinLOS(float x, float y, float z) const;
-        bool IsWithinLOSInMap(WorldObject const* obj) const;
+        bool IsWithinLOS(float x, float y, float z, VMAP::ModelIgnoreFlags ignoreFlags = VMAP::ModelIgnoreFlags::Nothing) const;
+        bool IsWithinLOSInMap(WorldObject const* obj, VMAP::ModelIgnoreFlags ignoreFlags = VMAP::ModelIgnoreFlags::Nothing) const;
         Position GetHitSpherePointFor(Position const& dest) const;
         void GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const;
         bool GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D = true) const;
@@ -543,6 +573,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         bool isActiveObject() const { return m_isActive; }
         void setActive(bool isActiveObject);
+        bool IsVisibilityOverridden() const { return m_visibilityDistanceOverride.is_initialized(); }
+        void SetVisibilityDistanceOverride(VisibilityDistanceType type);
         void SetWorldObject(bool apply);
         bool IsPermanentWorldObject() const { return m_isWorldObject; }
         bool IsWorldObject() const;
@@ -575,6 +607,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
     protected:
         std::string m_name;
         bool m_isActive;
+        Optional<float> m_visibilityDistanceOverride;
         const bool m_isWorldObject;
         ZoneScript* m_zoneScript;
 

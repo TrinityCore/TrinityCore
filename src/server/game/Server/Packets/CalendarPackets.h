@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "CalendarMgr.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "PacketUtilities.h"
 
 namespace WorldPackets
@@ -45,13 +46,14 @@ namespace WorldPackets
             uint64 EventID = 0;
         };
 
-        class CalendarGuildFilter final : public ClientPacket
+        class CalendarCommunityFilter final : public ClientPacket
         {
         public:
-            CalendarGuildFilter(WorldPacket&& packet) : ClientPacket(CMSG_CALENDAR_GUILD_FILTER, std::move(packet)) { }
+            CalendarCommunityFilter(WorldPacket&& packet) : ClientPacket(CMSG_CALENDAR_COMMUNITY_FILTER, std::move(packet)) { }
 
             void Read() override;
 
+            uint64 ClubID = 0;
             uint8 MinLevel = 1;
             uint8 MaxLevel = 100;
             uint8 MaxRankOrder = 0;
@@ -62,10 +64,14 @@ namespace WorldPackets
             ObjectGuid Guid;
             uint8 Status = 0;
             uint8 Moderator = 0;
+            Optional<ObjectGuid> Unused_801_1;
+            Optional<uint64> Unused_801_2;
+            Optional<uint64> Unused_801_3;
         };
 
         struct CalendarAddEventInfo
         {
+            uint64 ClubID = 0;
             std::string Title;
             std::string Description;
             uint8 EventType = 0;
@@ -88,6 +94,7 @@ namespace WorldPackets
 
         struct CalendarUpdateEventInfo
         {
+            uint64 ClubID = 0;
             uint64 EventID = 0;
             uint64 ModeratorID = 0;
             std::string Title;
@@ -118,6 +125,7 @@ namespace WorldPackets
 
             uint64 ModeratorID = 0;
             uint64 EventID = 0;
+            uint64 ClubID = 0;
             uint32 Flags = 0;
         };
 
@@ -130,6 +138,7 @@ namespace WorldPackets
 
             uint64 ModeratorID = 0;
             uint64 EventID = 0;
+            uint64 EventClubID = 0;
             time_t Date = time_t(0);
         };
 
@@ -176,7 +185,7 @@ namespace WorldPackets
             time_t Date = time_t(0);
             uint32 Flags = 0;
             int32 TextureID = 0;
-            ObjectGuid EventGuildID;
+            uint64 EventClubID = 0;
             ObjectGuid OwnerGuid;
         };
 
@@ -213,7 +222,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid OwnerGuid;
-            ObjectGuid EventGuildID;
+            uint64 EventClubID = 0;
             uint64 EventID = 0;
             time_t Date = time_t(0);
             time_t LockDate = time_t(0);
@@ -234,7 +243,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid OwnerGuid;
-            ObjectGuid EventGuildID;
+            uint64 EventClubID = 0;
             ObjectGuid InvitedByGuid;
             uint64 InviteID = 0;
             uint64 EventID = 0;
@@ -258,6 +267,7 @@ namespace WorldPackets
             bool IsSignUp = false;
             bool Creating = true;
             uint64 EventID = 0;
+            uint64 ClubID = 0;
             std::string Name;
         };
 
@@ -343,6 +353,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            uint64 EventClubID = 0;
             uint64 EventID = 0;
             time_t Date = time_t(0);
             uint32 Flags = 0;
@@ -395,6 +406,7 @@ namespace WorldPackets
 
             bool Tentative = false;
             uint64 EventID = 0;
+            uint64 ClubID = 0;
         };
 
         class CalendarRemoveInvite final : public ClientPacket

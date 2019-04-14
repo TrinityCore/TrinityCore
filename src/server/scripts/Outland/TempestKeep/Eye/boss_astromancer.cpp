@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -150,7 +150,7 @@ class boss_high_astromancer_solarian : public CreatureScript
             {
                 Initialize();
                 _Reset();
-                me->SetArmor(defaultarmor);
+                me->SetArmor(defaultarmor, 0);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetVisible(true);
                 me->SetObjectScale(defaultsize);
@@ -403,7 +403,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     me->SetVisible(true);
                     Talk(SAY_VOIDA);
                     Talk(SAY_VOIDB);
-                    me->SetArmor(WV_ARMOR);
+                    me->SetArmor(WV_ARMOR, 0);
                     me->SetDisplayId(MODEL_VOIDWALKER);
                     me->SetObjectScale(defaultsize*2.5f);
                 }

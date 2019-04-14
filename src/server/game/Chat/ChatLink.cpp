@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,8 @@
 //                                                                        - client, item icon shift click
 // |color|Hitemset:itemset_id|h[name]|h|r
 // |color|Hplayer:name|h[name]|h|r                                        - client, in some messages, at click copy only name instead link
-// |color|Hquest:quest_id:quest_level|h[name]|h|r                         - client, quest list name shift-click
+// |color|Hquest:quest_id:quest_level:min_level:max_level:scaling_faction|h[name]|h|r
+//                                                                        - client, quest list name shift-click
 // |color|Hskill:skill_id|h[name]|h|r
 // |color|Hspell:spell_id|h[name]|h|r                                     - client, spellbook spell icon shift-click
 // |color|Htalent:talent_id, rank|h[name]|h|r                              - client, talent icon shift-click
@@ -395,8 +396,8 @@ bool ItemChatLink::ValidateName(char* buffer, char const* context)
     return false;
 }
 
-// |color|Hquest:quest_id:quest_level|h[name]|h|r
-// |cff808080|Hquest:2278:47|h[The Platinum Discs]|h|r
+// |color|Hquest:quest_id:quest_level:min_level:max_level:scaling_faction|h[name]|h|r
+// |cffffff00|Hquest:51101:-1:110:120:5|h[The Wounded King]|h|r
 bool QuestChatLink::Initialize(std::istringstream& iss)
 {
     // Read quest id
@@ -426,6 +427,21 @@ bool QuestChatLink::Initialize(std::istringstream& iss)
     if (_questLevel >= STRONG_MAX_LEVEL)
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): quest level %d is too big", iss.str().c_str(), _questLevel);
+        return false;
+    }
+    if (!ReadInt32(iss, _minLevel))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading quest min level", iss.str().c_str());
+        return false;
+    }
+    if (!ReadInt32(iss, _maxLevel))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading quest max level", iss.str().c_str());
+        return false;
+    }
+    if (!ReadInt32(iss, _scalingFaction))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading quest scaling faction", iss.str().c_str());
         return false;
     }
     return true;

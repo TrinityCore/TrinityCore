@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #define SystemPackets_h__
 
 #include "Packet.h"
+#include "ObjectGuid.h"
 #include "Optional.h"
 
 namespace WorldPackets
@@ -80,6 +81,13 @@ namespace WorldPackets
                 float ThrottleDfBestPriority = 0.0f;
             };
 
+            struct VoiceChatProxySettings
+            {
+                bool Enabled = false;
+                ObjectGuid BnetAccountGuid;
+                ObjectGuid GuildGuid;
+            };
+
             FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 48) { }
 
             WorldPacket const* Write() override;
@@ -103,6 +111,7 @@ namespace WorldPackets
             uint32 TokenRedeemIndex                      = 0;
             int64 TokenBalanceAmount                     = 0;
             uint32 BpayStoreProductDeliveryDelay         = 0;
+            uint32 ClubsPresenceUpdateTimer              = 0;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
@@ -110,16 +119,22 @@ namespace WorldPackets
             bool CommerceSystemEnabled               = false;
             bool Unk67                               = false;
             bool WillKickFromWorld                   = false;
-
             bool RestrictedAccount                   = false;
             bool TutorialsEnabled                    = false;
             bool NPETutorialsEnabled                 = false;
             bool KioskModeEnabled                    = false;
             bool CompetitiveModeEnabled              = false;
             bool TokenBalanceEnabled                 = false;
+            bool WarModeFeatureEnabled               = false;
+            bool ClubsEnabled                        = false;
+            bool ClubsBattleNetClubTypeAllowed       = false;
+            bool ClubsCharacterClubTypeAllowed       = false;
+            bool VoiceChatDisabledByParentalControl  = false;
+            bool VoiceChatMutedByParentalControl     = false;
 
             Optional<std::vector<uint8>> RaceClassExpansionLevels;
             SocialQueueConfig QuickJoinConfig;
+            VoiceChatProxySettings VoiceChatManagerSettings;
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket
@@ -147,7 +162,12 @@ namespace WorldPackets
             int32 TokenPollTimeSeconds               = 0;     // NYI
             int32 TokenRedeemIndex                   = 0;     // NYI
             int64 TokenBalanceAmount                 = 0;     // NYI
+            int32 MaxCharactersPerRealm              = 0;
             uint32 BpayStoreProductDeliveryDelay     = 0;     // NYI
+            int32 ActiveCharacterUpgradeBoostType    = 0;     // NYI
+            int32 ActiveClassTrialBoostType          = 0;     // NYI
+            int32 MinimumExpansionLevel              = 0;
+            int32 MaximumExpansionLevel              = 0;
         };
 
         class MOTD final : public ServerPacket

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,6 +24,10 @@
 
 namespace Trainer
 {
+    bool Spell::IsCastable() const
+    {
+        return sSpellMgr->AssertSpellInfo(SpellId)->HasEffect(SPELL_EFFECT_LEARN_SPELL);
+    }
 
     Trainer::Trainer(uint32 id, Type type, std::string greeting, std::vector<Spell> spells) : _id(id), _type(type), _spells(std::move(spells))
     {
@@ -136,9 +140,30 @@ namespace Trainer
             return SpellState::Unavailable;
 
         // check ranks
-        if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(trainerSpell->LearnedSpellId))
-            if (!player->HasSpell(previousRankSpellId))
-                return SpellState::Unavailable;
+        bool hasLearnSpellEffect = false;
+        bool knowsAllLearnedSpells = true;
+        for (SpellEffectInfo const* spellEffect : sSpellMgr->AssertSpellInfo(trainerSpell->SpellId)->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        {
+            if (!spellEffect || !spellEffect->IsEffect(SPELL_EFFECT_LEARN_SPELL))
+                continue;
+
+            hasLearnSpellEffect = true;
+            if (!player->HasSpell(spellEffect->TriggerSpell))
+                knowsAllLearnedSpells = false;
+
+            if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(spellEffect->TriggerSpell))
+                if (!player->HasSpell(previousRankSpellId))
+                    return SpellState::Unavailable;
+        }
+
+        if (!hasLearnSpellEffect)
+        {
+            if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(trainerSpell->SpellId))
+                if (!player->HasSpell(previousRankSpellId))
+                    return SpellState::Unavailable;
+        }
+        else if (knowsAllLearnedSpells)
+            return SpellState::Known;
 
         // check additional spell requirement
         for (auto const& requirePair : sSpellMgr->GetSpellsRequiredForSpellBounds(trainerSpell->SpellId))

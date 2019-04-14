@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -90,13 +90,16 @@ protected:
 class TC_GAME_API QuestChatLink : public ChatLink
 {
 public:
-    QuestChatLink() : ChatLink(), _quest(nullptr), _questLevel(0) { }
+    QuestChatLink() : ChatLink(), _quest(nullptr), _questLevel(0), _minLevel(0), _maxLevel(0), _scalingFaction(0) { }
     virtual bool Initialize(std::istringstream& iss) override;
     virtual bool ValidateName(char* buffer, const char* context) override;
 
 protected:
     Quest const* _quest;
     int32 _questLevel;
+    int32 _minLevel;
+    int32 _maxLevel;
+    int32 _scalingFaction;
 };
 
 // SpellChatLink - link to quest
