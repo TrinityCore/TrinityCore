@@ -354,8 +354,8 @@ class spell_death_knight_initiate_visual : public SpellScript
 
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
-        Unit* target = GetHitUnit();
-        if (!target || target->GetTypeId() != TYPEID_UNIT)
+        Creature* target = GetHitCreature();
+        if (!target)
             return;
 
         uint32 spellId;
