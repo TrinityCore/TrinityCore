@@ -101,7 +101,7 @@ class spell_q1846_bending_shinbone : public SpellScript
     {
         Item* target = GetHitItem();
         Unit* caster = GetCaster();
-        if (!target && GetCaster()->GetTypeId() != TYPEID_PLAYER)
+        if (!target && caster->GetTypeId() != TYPEID_PLAYER)
             return;
 
         uint32 const spellId = roll_chance_i(20) ? SPELL_BENDING_SHINBONE1 : SPELL_BENDING_SHINBONE2;

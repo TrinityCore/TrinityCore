@@ -1775,7 +1775,7 @@ class spell_gen_5000_gold : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Player* target = GetHitPlayer())
-            target->ToPlayer()->ModifyMoney(5000 * GOLD);
+            target->ModifyMoney(5000 * GOLD);
     }
 
     void Register() override
