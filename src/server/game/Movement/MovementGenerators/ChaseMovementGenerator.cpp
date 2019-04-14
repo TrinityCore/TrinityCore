@@ -90,7 +90,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
 
     // our target might have gone away
     Unit* const target = GetTarget();
-    if (!target || !target->IsInWorld())
+    if (!target || !target->IsInWorld() || !target->IsAlive())
         return false;
 
     // the owner might be unable to move (rooted or casting), pause movement
