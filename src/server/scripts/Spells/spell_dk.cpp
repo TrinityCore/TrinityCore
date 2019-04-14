@@ -1270,6 +1270,52 @@ class spell_dk_glyph_of_scourge_strike : public SpellScriptLoader
         }
 };
 
+// 69961 - Glyph of Scourge Strike
+class spell_dk_glyph_of_scourge_strike_script : public SpellScript
+{
+    PrepareSpellScript(spell_dk_glyph_of_scourge_strike_script);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (!caster || !target)
+            return;
+
+        Unit::AuraEffectList const& mPeriodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+        for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
+        {
+            AuraEffect const* aurEff = *i;
+            SpellInfo const* spellInfo = aurEff->GetSpellInfo();
+            // search our Blood Plague and Frost Fever on target
+            if (spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && spellInfo->SpellFamilyFlags[2] & 0x2 &&
+                aurEff->GetCasterGUID() == caster->GetGUID())
+            {
+                uint32 countMin = aurEff->GetBase()->GetMaxDuration();
+                uint32 countMax = spellInfo->GetMaxDuration();
+
+                // this Glyph
+                countMax += 9000;
+                // talent Epidemic
+                if (AuraEffect const* epidemic = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 234, EFFECT_0))
+                    countMax += epidemic->GetAmount();
+
+                if (countMin < countMax)
+                {
+                    aurEff->GetBase()->SetDuration(aurEff->GetBase()->GetDuration() + 3000);
+                    aurEff->GetBase()->SetMaxDuration(countMin + 3000);
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_glyph_of_scourge_strike_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 49016 - Hysteria
 class spell_dk_hysteria : public AuraScript
 {
@@ -3029,6 +3075,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_ghoul_explode();
     new spell_dk_glyph_of_death_grip();
     new spell_dk_glyph_of_scourge_strike();
+    RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
     RegisterAuraScript(spell_dk_hysteria);
     new spell_dk_hungering_cold();
     new spell_dk_icebound_fortitude();
