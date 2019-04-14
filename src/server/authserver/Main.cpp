@@ -37,7 +37,6 @@
 #include "IPLocation.h"
 #include "MySQLThreading.h"
 #include "ProcessPriority.h"
-#include "RealmList.h"
 #include "Util.h"
 #include <boost/asio/signal_set.hpp>
 #include <boost/program_options.hpp>
