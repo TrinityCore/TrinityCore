@@ -1027,7 +1027,7 @@ void MotionMaster::LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id/*
 void MotionMaster::Pop(bool active, bool movementInform)
 {
     MovementGenerator* pointer = *_generators.begin();
-    _generators.erase(pointer);
+    _generators.erase(_generators.begin());
     Delete(pointer, active, movementInform);
 }
 
@@ -1121,18 +1121,15 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
                 AddFlag(MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING);
             break;
         case MOTION_SLOT_ACTIVE:
+        {
+            auto insertPosition = _generators.begin();
+
             if (!_generators.empty())
             {
                 if (movement->Priority >= (*_generators.begin())->Priority)
                 {
                     MovementGenerator* pointer = *_generators.begin();
-                    if (movement->Priority == pointer->Priority)
-                    {
-                        _generators.erase(pointer);
-                        Delete(pointer, true, false);
-                    }
-                    else
-                        pointer->Deactivate(_owner);
+                    pointer->Deactivate(_owner);
                 }
                 else
                 {
@@ -1141,20 +1138,16 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
                         return a->Priority == movement->Priority;
                     });
 
-                    if (itr != _generators.end())
-                    {
-                        MovementGenerator* pointer = *itr;
-                        _generators.erase(pointer);
-                        Delete(pointer, false, false);
-                    }
+                    insertPosition = itr;
                 }
             }
             else
                 _defaultGenerator->Deactivate(_owner);
 
-            _generators.emplace(movement);
+            _generators.emplace_hint(insertPosition, movement);
             AddBaseUnitState(movement);
             break;
+        }
         default:
             break;
     }
