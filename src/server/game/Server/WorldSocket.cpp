@@ -355,14 +355,12 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client %s sent malformed CMSG_AUTH_SESSION", GetRemoteIpAddress().to_string().c_str());
             return ReadDataHandlerResult::Error;
         }
-        case CMSG_KEEP_ALIVE:
+        case CMSG_KEEP_ALIVE: // todo: handle this packet in the same way of CMSG_TIME_SYNC_RESP
             sessionGuard.lock();
             LogOpcodeText(opcode, sessionGuard);
             if (_worldSession)
                 _worldSession->ResetTimeOutTime(true);
-            break;
-
-            // todo: handle this packet in the same way of CMSG_TIME_SYNC_RESP
+            return ReadDataHandlerResult::Ok;
 
         case CMSG_TIME_SYNC_RESP:
             packetToQueue = new WorldPacket(std::move(packet), std::chrono::steady_clock::now());
