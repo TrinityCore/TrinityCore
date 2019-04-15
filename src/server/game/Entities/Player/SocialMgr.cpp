@@ -142,21 +142,31 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
 {
     ASSERT(player);
 
+    uint32 friendsCount = 0;
+    uint32 ignoredCount = 0;
+
     WorldPackets::Social::ContactList contactList;
-    contactList.Flags = flags;
+    contactList.Flags = flags;                              // 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
 
     for (PlayerSocialMap::value_type& v : _playerSocialMap)
     {
-        if (!(v.second.Flags & flags))
+        uint8 contactFlags = v.second.Flags;
+        if (!(contactFlags & flags))
             continue;
+
+        // Check client limit for friends list
+        if (contactFlags & SOCIAL_FLAG_FRIEND)
+            if (++friendsCount > SOCIALMGR_FRIEND_LIMIT)
+                continue;
+
+        // Check client limit for ignore list
+        if (contactFlags & SOCIAL_FLAG_IGNORED)
+            if (++ignoredCount > SOCIALMGR_IGNORE_LIMIT)
+                continue;
 
         sSocialMgr->GetFriendInfo(player, v.first, v.second);
 
         contactList.Contacts.emplace_back(v.first, v.second);
-
-        // client's friends list and ignore list limit
-        if (contactList.Contacts.size() >= (((flags & SOCIAL_FLAG_FRIEND) != 0) ? SOCIALMGR_FRIEND_LIMIT : SOCIALMGR_IGNORE_LIMIT))
-            break;
     }
 
     player->SendDirectMessage(contactList.Write());
