@@ -1800,7 +1800,7 @@ class spell_sha_stoneclaw_totem : public SpellScript
             if (totem && totem->IsTotem())
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetHitDamage());
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetEffectValue());
                 GetCaster()->CastSpell(totem, SPELL_SHAMAN_STONECLAW_TOTEM, args);
             }
         }
@@ -1809,7 +1809,7 @@ class spell_sha_stoneclaw_totem : public SpellScript
         if (AuraEffect* aur = target->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_STONECLAW_TOTEM, 0))
         {
             CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-            args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetHitDamage() * aur->GetAmount());
+            args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetEffectValue() * aur->GetAmount());
             GetCaster()->CastSpell(target, SPELL_SHAMAN_STONECLAW_TOTEM, args);
         }
     }
