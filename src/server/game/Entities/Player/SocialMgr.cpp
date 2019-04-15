@@ -142,11 +142,11 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
             continue;
 
         if (contactFlags & SOCIAL_FLAG_FRIEND)
-            if (++friendsCount >= SOCIALMGR_FRIEND_LIMIT)
+            if (++friendsCount > SOCIALMGR_FRIEND_LIMIT)
                 continue;
 
         if (contactFlags & SOCIAL_FLAG_IGNORED)
-            if (++ignoredCount >= SOCIALMGR_IGNORE_LIMIT)
+            if (++ignoredCount > SOCIALMGR_IGNORE_LIMIT)
                 continue;
 
         ++totalCount;
