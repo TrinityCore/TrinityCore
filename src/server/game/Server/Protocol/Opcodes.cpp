@@ -863,7 +863,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_TAXI_QUERY_AVAILABLE_NODES,                         STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleTaxiQueryAvailableNodesOpcode);
     DEFINE_HANDLER(CMSG_TAXI_REQUEST_EARLY_LANDING,                         STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleTaxiRequestEarlyLanding);
     DEFINE_HANDLER(CMSG_TIME_ADJUSTMENT_RESPONSE,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
-    DEFINE_HANDLER(CMSG_TIME_SYNC_RESPONSE,                                 STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleTimeSyncResponse);
+    DEFINE_HANDLER(CMSG_TIME_SYNC_RESPONSE,                                 STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleTimeSyncResponse);
     DEFINE_HANDLER(CMSG_TIME_SYNC_RESPONSE_DROPPED,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_TIME_SYNC_RESPONSE_FAILED,                          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_TOGGLE_DIFFICULTY,                                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);

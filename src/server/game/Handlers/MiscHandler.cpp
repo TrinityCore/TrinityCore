@@ -857,29 +857,6 @@ void WorldSession::HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packe
     GetPlayer()->SetChosenTitle(packet.TitleID);
 }
 
-void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet)
-{
-    // Prevent crashing server if queue is empty
-    if (_player->m_timeSyncQueue.empty())
-    {
-        TC_LOG_ERROR("network", "Received CMSG_TIME_SYNC_RESPONSE from player %s without requesting it (hacker?)", _player->GetName().c_str());
-        return;
-    }
-
-    if (packet.SequenceIndex != _player->m_timeSyncQueue.front())
-        TC_LOG_ERROR("network", "Wrong time sync counter from player %s (cheater?)", _player->GetName().c_str());
-
-    TC_LOG_DEBUG("network", "Time sync received: counter %u, client ticks %u, time since last sync %u", packet.SequenceIndex, packet.ClientTime, packet.ClientTime - _player->m_timeSyncClient);
-
-    uint32 ourTicks = packet.ClientTime + (GameTime::GetGameTimeMS() - _player->m_timeSyncServer);
-
-    // diff should be small
-    TC_LOG_DEBUG("network", "Our ticks: %u, diff %u, latency %u", ourTicks, ourTicks - packet.ClientTime, GetLatency());
-
-    _player->m_timeSyncClient = packet.ClientTime;
-    _player->m_timeSyncQueue.pop();
-}
-
 void WorldSession::HandleResetInstancesOpcode(WorldPackets::Instance::ResetInstances& /*packet*/)
 {
     if (Group* group = _player->GetGroup())

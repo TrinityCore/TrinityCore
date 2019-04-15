@@ -322,10 +322,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_ChampioningFaction = 0;
 
-    m_timeSyncTimer = 0;
-    m_timeSyncClient = 0;
-    m_timeSyncServer = GameTime::GetGameTimeMS();
-
     for (uint8 i = 0; i < MAX_POWERS_PER_CLASS; ++i)
         m_powerFraction[i] = 0;
 
@@ -1130,14 +1126,6 @@ void Player::Update(uint32 p_time)
         }
         else
             m_zoneUpdateTimer -= p_time;
-    }
-
-    if (m_timeSyncTimer > 0 && !IsBeingTeleportedFar())
-    {
-        if (p_time >= m_timeSyncTimer)
-            SendTimeSync();
-        else
-            m_timeSyncTimer -= p_time;
     }
 
     if (IsAlive())
@@ -24295,10 +24283,10 @@ void Player::SendInitialPacketsBeforeAddToMap()
     if (!(m_teleport_options & TELE_TO_SEAMLESS))
     {
         m_movementCounter = 0;
-        ResetTimeSync();
+        GetSession()->ResetTimeSync();
     }
 
-    SendTimeSync();
+    GetSession()->SendTimeSync();
 
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
     GetSocial()->SendSocialList(this, SOCIAL_FLAG_ALL);
@@ -27800,30 +27788,6 @@ void Player::LoadActions(PreparedQueryResult result)
     _LoadActions(result);
 
     SendActionButtons(1);
-}
-
-void Player::ResetTimeSync()
-{
-    m_timeSyncTimer = 0;
-    m_timeSyncClient = 0;
-    m_timeSyncServer = GameTime::GetGameTimeMS();
-}
-
-void Player::SendTimeSync()
-{
-    m_timeSyncQueue.push(m_movementCounter++);
-
-    WorldPackets::Misc::TimeSyncRequest packet;
-    packet.SequenceIndex = m_timeSyncQueue.back();
-    SendDirectMessage(packet.Write());
-
-    // Schedule next sync in 10 sec
-    m_timeSyncTimer = 10000;
-    m_timeSyncServer = GameTime::GetGameTimeMS();
-
-    if (m_timeSyncQueue.size() > 3)
-        TC_LOG_ERROR("network", "Player::SendTimeSync: Did not receive CMSG_TIME_SYNC_RESP for over 30 seconds from '%s' (%s), possible cheater",
-            GetName().c_str(), GetGUID().ToString().c_str());
 }
 
 void Player::SetReputation(uint32 factionentry, int32 value)

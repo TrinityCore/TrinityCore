@@ -183,6 +183,8 @@ namespace WorldPackets
 
             void Read() override;
 
+            std::chrono::steady_clock::time_point GetReceivedTime() const { return _worldPacket.GetReceivedTime(); }
+
             uint32 ClientTime = 0; // Client ticks in ms
             uint32 SequenceIndex = 0; // Same index as in request
         };

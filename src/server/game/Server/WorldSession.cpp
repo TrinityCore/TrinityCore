@@ -128,7 +128,6 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
     m_sessionDbLocaleIndex(locale),
     m_latency(0),
-    m_clientTimeDelay(0),
     _tutorialsChanged(TUTORIALS_FLAG_NONE),
     _filterAddonMessages(false),
     recruiterId(recruiter),
@@ -137,10 +136,16 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
     expireTime(60000), // 1 min after socket loss, session is deleted
     forceExit(false),
     m_currentBankerGUID(),
+    _timeSyncClockDeltaQueue(6),
+    _timeSyncClockDelta(0),
+    _pendingTimeSyncRequests(),
     _battlePetMgr(std::make_unique<BattlePetMgr>(this)),
     _collectionMgr(std::make_unique<CollectionMgr>(this))
 {
     memset(_tutorials, 0, sizeof(_tutorials));
+
+    _timeSyncNextCounter = 0;
+    _timeSyncTimer = 0;
 
     if (sock)
     {
@@ -452,6 +457,18 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     if (m_Socket[CONNECTION_TYPE_REALM] && m_Socket[CONNECTION_TYPE_REALM]->IsOpen() && _warden)
         _warden->Update();
+
+    if (!updater.ProcessUnsafe()) // <=> updater is of type MapSessionFilter
+    {
+        // Send time sync packet every 10s.
+        if (_timeSyncTimer > 0)
+        {
+            if (diff >= _timeSyncTimer)
+                SendTimeSync();
+            else
+                _timeSyncTimer -= diff;
+        }
+    }
 
     ProcessQueryCallbacks();
 
@@ -1456,4 +1473,35 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
 
 WorldSession::DosProtection::DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY))
 {
+}
+
+void WorldSession::ResetTimeSync()
+{
+    _timeSyncNextCounter = 0;
+    _pendingTimeSyncRequests.clear();
+}
+
+void WorldSession::SendTimeSync()
+{
+    WorldPackets::Misc::TimeSyncRequest timeSyncRequest;
+    timeSyncRequest.SequenceIndex = _timeSyncNextCounter;
+    SendPacket(timeSyncRequest.Write());
+
+    _pendingTimeSyncRequests[_timeSyncNextCounter] = getMSTime();
+
+    // Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
+    _timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000;
+    _timeSyncNextCounter++;
+}
+
+uint32 WorldSession::AdjustClientMovementTime(uint32 time) const
+{
+    int64 movementTime = int64(time) + _timeSyncClockDelta;
+    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
+    {
+        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
+        return GameTime::GetGameTimeMS();
+    }
+    else
+        return uint32(movementTime);
 }

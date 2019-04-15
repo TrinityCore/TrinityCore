@@ -34,7 +34,9 @@
 #include "Packet.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
+#include <boost/circular_buffer.hpp>
 #include <array>
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -894,8 +896,8 @@ public:
     explicit PacketFilter(WorldSession* pSession) : m_pSession(pSession) { }
     virtual ~PacketFilter() { }
 
-    virtual bool Process(WorldPacket* /*packet*/) = 0;
-    virtual bool ProcessUnsafe() const { return false; }
+    virtual bool Process(WorldPacket* /*packet*/) { return true; }
+    virtual bool ProcessUnsafe() const { return true; }
 
 protected:
     WorldSession* const m_pSession;
@@ -912,7 +914,9 @@ public:
     explicit MapSessionFilter(WorldSession* pSession) : PacketFilter(pSession) { }
     ~MapSessionFilter() { }
 
-    bool Process(WorldPacket* packet) override;
+    virtual bool Process(WorldPacket* packet) override;
+    //in Map::Update() we do not process player logout!
+    virtual bool ProcessUnsafe() const override { return false; }
 };
 
 //class used to filer only thread-unsafe packets from queue
@@ -1122,7 +1126,6 @@ class TC_GAME_API WorldSession
 
         uint32 GetLatency() const { return m_latency; }
         void SetLatency(uint32 latency) { m_latency = latency; }
-        void ResetClientTimeDelay() { m_clientTimeDelay = 0; }
 
         std::atomic<time_t> m_timeOutTime;
 
@@ -1133,6 +1136,11 @@ class TC_GAME_API WorldSession
         // Recruit-A-Friend Handling
         uint32 GetRecruiterId() const { return recruiterId; }
         bool IsARecruiter() const { return isRecruiter; }
+
+        // Time Synchronisation
+        void ResetTimeSync();
+        void SendTimeSync();
+        uint32 AdjustClientMovementTime(uint32 time) const;
 
         // Battle Pets
         BattlePetMgr* GetBattlePetMgr() const { return _battlePetMgr.get(); }
@@ -1587,7 +1595,7 @@ class TC_GAME_API WorldSession
         void HandleSetDungeonDifficultyOpcode(WorldPackets::Misc::SetDungeonDifficulty& setDungeonDifficulty);
         void HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDifficulty& setRaidDifficulty);
         void HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packet);
-        void HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet);
+        void HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& timeSyncResponse);
         void HandleWhoIsOpcode(WorldPackets::Who::WhoIsRequest& packet);
         void HandleResetInstancesOpcode(WorldPackets::Instance::ResetInstances& packet);
         void HandleInstanceLockResponse(WorldPackets::Instance::InstanceLockResponse& packet);
@@ -1900,7 +1908,6 @@ class TC_GAME_API WorldSession
         LocaleConstant m_sessionDbcLocale;
         LocaleConstant m_sessionDbLocaleIndex;
         std::atomic<uint32> m_latency;
-        std::atomic<uint32> m_clientTimeDelay;
         AccountData _accountData[NUM_ACCOUNT_DATA_TYPES];
         uint32 _tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
         uint8 _tutorialsChanged;
@@ -1913,6 +1920,14 @@ class TC_GAME_API WorldSession
         uint32 expireTime;
         bool forceExit;
         ObjectGuid m_currentBankerGUID;
+
+        boost::circular_buffer<std::pair<int64, uint32>> _timeSyncClockDeltaQueue; // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
+        int64 _timeSyncClockDelta;
+        void ComputeNewClockDelta();
+
+        std::map<uint32, uint32> _pendingTimeSyncRequests; // key: counter. value: server time when packet with that counter was sent.
+        uint32 _timeSyncNextCounter;
+        uint32 _timeSyncTimer;
 
         std::unique_ptr<BattlePetMgr> _battlePetMgr;
 

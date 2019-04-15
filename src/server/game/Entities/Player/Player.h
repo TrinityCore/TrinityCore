@@ -2933,9 +2933,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         ItemDurationList m_itemDuration;
         GuidUnorderedSet m_itemSoulboundTradeable;
 
-        void ResetTimeSync();
-        void SendTimeSync();
-
         std::unique_ptr<ResurrectionData> _resurrectionData;
 
         WorldSession* m_session;
@@ -3062,11 +3059,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unique_ptr<QuestObjectiveCriteriaMgr> m_questObjectiveCriteriaMgr;
 
         uint32 m_ChampioningFaction;
-
-        std::queue<uint32> m_timeSyncQueue;
-        uint32 m_timeSyncTimer;
-        uint32 m_timeSyncClient;
-        uint32 m_timeSyncServer;
 
         InstanceTimeMap _instanceResetTimes;
         uint32 _pendingBindId;
