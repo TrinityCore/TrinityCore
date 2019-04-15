@@ -385,8 +385,7 @@ class spell_death_knight_initiate_visual : public SpellScript
         }
 
         target->CastSpell(target, spellId, true);
-        Creature* npc = target->ToCreature();
-        npc->LoadEquipment();
+        target->LoadEquipment();
     }
 
     void Register() override
