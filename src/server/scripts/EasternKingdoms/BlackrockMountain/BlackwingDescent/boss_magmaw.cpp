@@ -111,7 +111,7 @@ Position const ExposedHeadOfMagmawPos = { -299.0f, -28.9861f, 191.0293f, 4.11897
 
 struct boss_magmaw : public BossAI
 {
-    boss_magmaw(Creature* creature) : BossAI(creature, DATA_MAGMAW), _vehicle(me->GetVehicleKit())
+    boss_magmaw(Creature* creature) : BossAI(creature, DATA_MAGMAW)
     {
         Initialize();
     }
@@ -248,6 +248,9 @@ struct boss_magmaw : public BossAI
                 events.Reset();
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
+                me->RemoveAurasDueToSpell(SPELL_MASSIVE_CRASH);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                 if (Creature* spikeStalker = me->FindNearestCreature(NPC_MAGMAW_SPIKE_STALKER, 50.0f))
                     me->SetFacingToObject(spikeStalker);
                 events.ScheduleEvent(EVENT_IMPALE_SELF, 1s);
@@ -408,16 +411,6 @@ private:
         }, 1s + 200ms);
     }
 
-    Creature* GetExposedHeadOfMagmaw()
-    {
-        if (Unit* passenger = _vehicle->GetPassenger(SEAT_EXPOSED_HEAD_OF_MAGMAW_1))
-            if (passenger->GetTypeId() == TYPEID_UNIT)
-                return passenger->ToCreature();
-
-        return nullptr;
-    }
-
-    Vehicle const* _vehicle;
     Creature* _exposedHead1;
     Creature* _exposedHead2;
     Creature* _pincer1;

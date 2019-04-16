@@ -1312,7 +1312,7 @@ bool SpellInfo::IsPassiveStackableWithRanks() const
 
 bool SpellInfo::IsMultiSlotAura() const
 {
-    return IsPassive() || Id == 55849 || Id == 40075 || Id == 44413; // Power Spark, Fel Flak Fire, Incanter's Absorption
+    return IsPassive() || Id == 55849 || Id == 40075 || Id == 44413 || Id == 79010; // Power Spark, Fel Flak Fire, Incanter's Absorption, Point of Vulnerability
 }
 
 bool SpellInfo::IsStackableOnOneSlotWithDifferentCasters() const
