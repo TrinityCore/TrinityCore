@@ -363,12 +363,7 @@ void MotionMaster::Remove(MovementGenerator* movement, MovementSlot slot/* = MOT
             {
                 auto itr = _generators.find(movement);
                 if (itr != _generators.end())
-                {
-                    MovementGenerator* pointer = *itr;
-                    bool const top = GetCurrentMovementGenerator() == pointer;
-                    _generators.erase(pointer);
-                    Delete(pointer, top, false);
-                }
+                    Remove(itr, GetCurrentMovementGenerator() == *itr, false);
             }
             break;
         default:
@@ -409,12 +404,7 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
                 });
 
                 if (itr != _generators.end())
-                {
-                    MovementGenerator* pointer = *itr;
-                    bool const top = GetCurrentMovementGenerator() == pointer;
-                    _generators.erase(pointer);
-                    Delete(pointer, top, false);
-                }
+                    Remove(itr, GetCurrentMovementGenerator() == *itr, false);
             }
             break;
         default:
@@ -1024,11 +1014,16 @@ void MotionMaster::LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id/*
 
 /******************** Private methods ********************/
 
+void MotionMaster::Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform)
+{
+    MovementGenerator* pointer = *iterator;
+    _generators.erase(iterator);
+    Delete(pointer, active, movementInform);
+}
+
 void MotionMaster::Pop(bool active, bool movementInform)
 {
-    MovementGenerator* pointer = *_generators.begin();
-    _generators.erase(pointer);
-    Delete(pointer, active, movementInform);
+    Remove(_generators.begin(), active, movementInform);
 }
 
 void MotionMaster::DirectInitialize()
@@ -1125,14 +1120,11 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
             {
                 if (movement->Priority >= (*_generators.begin())->Priority)
                 {
-                    MovementGenerator* pointer = *_generators.begin();
-                    if (movement->Priority == pointer->Priority)
-                    {
-                        _generators.erase(pointer);
-                        Delete(pointer, true, false);
-                    }
+                    auto itr = _generators.begin();
+                    if (movement->Priority == (*itr)->Priority)
+                        Remove(itr, true, false);
                     else
-                        pointer->Deactivate(_owner);
+                        (*itr)->Deactivate(_owner);
                 }
                 else
                 {
@@ -1142,11 +1134,7 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
                     });
 
                     if (itr != _generators.end())
-                    {
-                        MovementGenerator* pointer = *itr;
-                        _generators.erase(pointer);
-                        Delete(pointer, false, false);
-                    }
+                        Remove(itr, false, false);
                 }
             }
             else
