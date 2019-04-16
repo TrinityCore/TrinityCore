@@ -89,6 +89,7 @@ enum PaladinSpells
     SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1            = 53375,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS                 = 20154,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE          = 25742,
+    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE_AOE      = 101423,
     SPELL_PALADIN_SEAL_OF_TRUTH                         = 31801,
     SPELL_PALADIN_SEAL_OF_TRUTH_DAMAGE                  = 42463,
     SPELL_PALADIN_SEAL_OF_JUSTICE                       = 20164,
@@ -110,7 +111,8 @@ enum PaladinSpellIcons
     PALADIN_ICON_ID_ETERNAL_GLORY                = 2944,
     PALADIN_ICON_ID_GLYPH_OF_THE_LONG_WORD       = 4127,
     PALADIN_ICON_ID_GLYPH_OF_LIGHT_OF_DAWN       = 5154,
-    PALADIN_ICON_ID_GLYPH_OF_EXORCISM            = 292
+    PALADIN_ICON_ID_GLYPH_OF_EXORCISM            = 292,
+    PALADIN_ICON_ID_SEALS_OF_COMMAND             = 561
 };
 
 enum PaladinCreatures
@@ -1139,47 +1141,45 @@ class spell_pal_templar_s_verdict : public SpellScriptLoader
 
 // 20154 - Seal of Righteousness - melee proc dummy (addition ${$MWS*(0.011*$AP+0.022*$SPH)} damage)
 /// Updated 4.3.4
-class spell_pal_seal_of_righteousness : public SpellScriptLoader
+class spell_pal_seal_of_righteousness : public AuraScript
 {
-    public:
-        spell_pal_seal_of_righteousness() : SpellScriptLoader("spell_pal_seal_of_righteousness") { }
+    PrepareAuraScript(spell_pal_seal_of_righteousness);
 
-        class spell_pal_seal_of_righteousness_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_seal_of_righteousness_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
             {
-                return ValidateSpellInfo({ SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE });
-            }
+                SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE,
+                SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE_AOE
+            });
+    }
 
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                return eventInfo.GetProcTarget() != nullptr;
-            }
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcTarget() != nullptr;
+    }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
 
-                float ap = GetTarget()->GetTotalAttackPowerValue(BASE_ATTACK);
-                int32 holy = GetTarget()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
-                holy += eventInfo.GetProcTarget()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
-                int32 bp = int32((ap * 0.011f + 0.022f * holy) * GetTarget()->GetAttackTime(BASE_ATTACK) / 1000);
-                GetTarget()->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
-            }
+        float ap = target->GetTotalAttackPowerValue(BASE_ATTACK);
+        int32 holy = target->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
+        holy += eventInfo.GetProcTarget()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
+        int32 bp = int32((ap * 0.011f + 0.022f * holy) * target->GetAttackTime(BASE_ATTACK) / 1000);
 
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_pal_seal_of_righteousness_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_pal_seal_of_righteousness_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
+        if (target->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_SEALS_OF_COMMAND, EFFECT_1))
+            target->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE_AOE, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+        else
+            target->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+    }
 
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_seal_of_righteousness_AuraScript();
-        }
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pal_seal_of_righteousness::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pal_seal_of_righteousness::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 76669 - Illuminated Healing
@@ -2099,7 +2099,7 @@ void AddSC_paladin_spell_scripts()
     RegisterAuraScript(spell_pal_long_arm_of_the_law);
     new spell_pal_righteous_defense();
     RegisterAuraScript(spell_pal_sacred_shield);
-    new spell_pal_seal_of_righteousness();
+    RegisterAuraScript(spell_pal_seal_of_righteousness);
     RegisterAuraScript(spell_pal_seal_of_truth);
     new spell_pal_shield_of_the_righteous();
     RegisterAuraScript(spell_pal_selfless_healer);
