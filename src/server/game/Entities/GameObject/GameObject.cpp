@@ -40,6 +40,8 @@
 #include "Transport.h"
 #include "UpdateFieldFlags.h"
 #include "World.h"
+#include <G3D/Box.h>
+#include <G3D/CoordinateFrame.h>
 #include <G3D/Quat.h>
 
 void GameObjectTemplate::InitializeQueryData()
@@ -972,7 +974,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     data.id = GetEntry();
     data.spawnPoint.WorldRelocate(this);
     data.phaseMask = phaseMask;
-    data.rotation = QuaternionData(m_localRotation.x, m_localRotation.y, m_localRotation.z, m_localRotation.w);
+    data.rotation = m_localRotation;
     data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
     data.animprogress = GetGoAnimProgress();
     data.goState = GetGoState();
@@ -2105,7 +2107,10 @@ void GameObject::SetLocalRotation(float qx, float qy, float qz, float qw)
 {
     G3D::Quat rotation(qx, qy, qz, qw);
     rotation.unitize();
-    m_localRotation = rotation;
+    m_localRotation.x = rotation.x;
+    m_localRotation.y = rotation.y;
+    m_localRotation.z = rotation.z;
+    m_localRotation.w = rotation.w;
     UpdatePackedRotation();
 }
 
@@ -2123,11 +2128,21 @@ void GameObject::SetLocalRotationAngles(float z_rot, float y_rot, float x_rot)
     SetLocalRotation(quat.x, quat.y, quat.z, quat.w);
 }
 
-G3D::Quat GameObject::GetWorldRotation() const
+QuaternionData GameObject::GetWorldRotation() const
 {
+    QuaternionData localRotation = GetLocalRotation();
     if (Transport* transport = GetTransport())
-        return GetLocalRotation() * transport->GetWorldRotation();
-    return GetLocalRotation();
+    {
+        QuaternionData worldRotation = transport->GetWorldRotation();
+
+        G3D::Quat worldRotationQuat(worldRotation.x, worldRotation.y, worldRotation.z, worldRotation.w);
+        G3D::Quat localRotationQuat(localRotation.x, localRotation.y, localRotation.z, localRotation.w);
+
+        G3D::Quat resultRotation = localRotationQuat * worldRotationQuat;
+
+        return QuaternionData(resultRotation.x, resultRotation.y, resultRotation.z, resultRotation.w);
+    }
+    return localRotation;
 }
 
 void GameObject::ModifyHealth(int32 change, WorldObject* attackerOrHealer /*= nullptr*/, uint32 spellId /*= 0*/)
@@ -2658,7 +2673,10 @@ bool GameObject::IsAtInteractDistance(Position const& pos, float radius) const
         float maxY = displayInfo->maxY * scale + radius;
         float maxZ = displayInfo->maxZ * scale + radius;
 
-        return G3D::CoordinateFrame { { GetLocalRotation() }, { GetPositionX(), GetPositionY(), GetPositionZ() } }
+        QuaternionData localRotation = GetLocalRotation();
+        G3D::Quat localRotationQuat(localRotation.x, localRotation.y, localRotation.z, localRotation.w);
+
+        return G3D::CoordinateFrame { { localRotationQuat }, { GetPositionX(), GetPositionY(), GetPositionZ() } }
                 .toWorldSpace(G3D::Box { { minX, minY, minZ }, { maxX, maxY, maxZ } })
                 .contains({ pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() });
     }

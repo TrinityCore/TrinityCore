@@ -25,9 +25,6 @@
 #include "Loot.h"
 #include "MapObject.h"
 #include "SharedDefines.h"
-#include <G3D/Box.h>
-#include <G3D/CoordinateFrame.h>
-#include <G3D/Quat.h>
 
 class GameObjectAI;
 class GameObjectModel;
@@ -110,10 +107,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetLocalRotationAngles(float z_rot, float y_rot, float x_rot);
         void SetLocalRotation(float qx, float qy, float qz, float qw);
         void SetParentRotation(QuaternionData const& rotation);      // transforms(rotates) transport's path
-        G3D::Quat const& GetLocalRotation() const { return m_localRotation; }
+        QuaternionData const& GetLocalRotation() const { return m_localRotation; }
         int64 GetPackedLocalRotation() const { return m_packedRotation; }
 
-        G3D::Quat GetWorldRotation() const;
+        QuaternionData GetWorldRotation() const;
 
         // overwrite WorldObject function for proper name localization
         std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const override;
@@ -328,7 +325,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectValue m_goValue;
 
         int64 m_packedRotation;
-        G3D::Quat m_localRotation;
+        QuaternionData m_localRotation;
         Position m_stationaryPosition;
 
         ObjectGuid m_lootRecipient;
