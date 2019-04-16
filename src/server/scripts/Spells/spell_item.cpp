@@ -666,8 +666,6 @@ class spell_item_goblin_weather_machine : public SpellScript
     void HandleScript(SpellEffIndex /* effIndex */)
     {
         Unit* target = GetHitUnit();
-        if (!target)
-            return;
 
         uint32 spellId = RAND(SPELL_PERSONALIZED_WEATHER1, SPELL_PERSONALIZED_WEATHER2, SPELL_PERSONALIZED_WEATHER3,
                               SPELL_PERSONALIZED_WEATHER4);
