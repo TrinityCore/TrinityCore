@@ -6576,6 +6576,9 @@ void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers po
     // needs to be called after sending spell log
     victim->ModifyPower(powerType, damage);
 
+    if (powerType == POWER_HOLY_POWER && GetTypeId() == TYPEID_PLAYER)
+        ToPlayer()->ResetHolyPowerRegenerationTimer();
+
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     victim->getHostileRefManager().threatAssist(this, float(damage) * 0.5f, spellInfo);
 }

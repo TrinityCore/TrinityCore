@@ -2380,6 +2380,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetTransportSpawnID() const { return _transportSpawnID; }
         void SetTransportSpawnID(uint32 spawnId) { _transportSpawnID = spawnId; }
 
+        void ResetHolyPowerRegenerationTimer() { m_holyPowerRegenTimerCount = 0; }
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
