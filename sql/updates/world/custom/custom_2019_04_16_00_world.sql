@@ -11,4 +11,4 @@ SET @FAMILY_FLAGS2 := 0 | 0x00000400 | 0x00004000 | 0x00040000;
 
 DELETE FROM `spell_proc` WHERE `SpellId`= 53651;
 INSERT INTO `spell_proc` (`SpellId`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `AttributesMask`) VALUES
-(53651, 10, @FAMILY_FLAGS0, @FAMILY_FLAGS1, @FAMILY_FLAGS2, 0, 0, 2, 0, 0);
+(53651, 10, @FAMILY_FLAGS0, @FAMILY_FLAGS1, @FAMILY_FLAGS2, 0, 2, 0, 0, 0);
