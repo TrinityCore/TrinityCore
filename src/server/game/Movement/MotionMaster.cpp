@@ -361,7 +361,8 @@ void MotionMaster::Remove(MovementGenerator* movement, MovementSlot slot/* = MOT
         case MOTION_SLOT_ACTIVE:
             if (!_generators.empty())
             {
-                auto itr = _generators.find(movement);
+                auto bounds = _generators.equal_range(movement);
+                auto itr = std::find(bounds.first, bounds.second, movement);
                 if (itr != _generators.end())
                     Remove(itr, GetCurrentMovementGenerator() == *itr, false);
             }
