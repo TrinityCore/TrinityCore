@@ -2610,10 +2610,6 @@ bool GameObject::IsAtInteractDistance(Player const* player, SpellInfo const* spe
         if (GetGoType() == GAMEOBJECT_TYPE_SPELL_FOCUS)
             return maxRange * maxRange >= GetExactDistSq(player);
 
-        // Not yet decompiled
-        if (GetGoType() == GAMEOBJECT_TYPE_DOOR)
-            return true;
-
         if (GameObjectDisplayInfoEntry const* displayInfo = sGameObjectDisplayInfoStore.LookupEntry(GetGOInfo()->displayId))
             return IsAtInteractDistance(*player, maxRange);
     }
@@ -2645,6 +2641,7 @@ bool GameObject::IsAtInteractDistance(Player const* player, SpellInfo const* spe
         case GAMEOBJECT_TYPE_MAP_OBJECT:
         case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+        case GAMEOBJECT_TYPE_DOOR:
         default:
             distance = 5.0f;
             break;
