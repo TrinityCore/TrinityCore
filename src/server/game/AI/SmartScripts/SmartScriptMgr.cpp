@@ -1662,6 +1662,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
             break;
         }
+        case SMART_ACTION_PLAY_CINEMATIC:
+        {
+            if (!sCinematicSequencesStore.LookupEntry(e.action.cinematic.entry))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: SMART_ACTION_PLAY_CINEMATIC Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.cinematic.entry);
+                return false;
+            }
+
+            break;
+        }
         case SMART_ACTION_SET_MOVEMENT_SPEED:
         {
             if (e.action.movementSpeed.movementType >= MAX_MOVE_TYPE)

@@ -598,7 +598,7 @@ enum SMART_ACTION
     SMART_ACTION_DESPAWN_SPAWNGROUP                 = 132,    // Group ID, min secs, max secs, spawnflags
     SMART_ACTION_RESPAWN_BY_SPAWNID                 = 133,    // spawnType, spawnId
     SMART_ACTION_INVOKER_CAST                       = 134,    // spellID, castFlags
-    SMART_ACTION_PLAY_CINEMATIC                     = 135,    // reserved for future uses
+    SMART_ACTION_PLAY_CINEMATIC                     = 135,    // entry, cinematic
     SMART_ACTION_SET_MOVEMENT_SPEED                 = 136,    // movementType, speedInteger, speedFraction
     SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 137,    // spellVisualKitId, kitType (unknown values, copypaste from packet dumps), duration
     SMART_ACTION_CREATE_CONVERSATION                = 143,    // conversation_template.id
@@ -1182,6 +1182,11 @@ struct SmartAction
         {
             uint32 sceneId;
         } scene;
+
+        struct
+        {
+            uint32 entry;
+        } cinematic;
 
         struct
         {
