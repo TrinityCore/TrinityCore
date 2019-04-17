@@ -583,7 +583,8 @@ enum SMART_ACTION
     SMART_ACTION_RESPAWN_BY_SPAWNID                 = 133,    // spawnType, spawnId
     SMART_ACTION_INVOKER_CAST                       = 134,    // spellID, castFlags
 
-    SMART_ACTION_END                                = 135
+    SMART_ACTION_PLAY_CINEMATIC                     = 135,    // don't use on 3.3.5a
+    SMART_ACTION_END                                = 136
 };
 
 struct SmartAction
