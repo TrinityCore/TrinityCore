@@ -391,7 +391,7 @@ enum FlamesFromAbove
     GO_EMERALD_FLAME                        = 203065
 };
 
-Position const EmeraldFlameweaverSummonPos = { 5725.01f, -3305.924f, 1625.791f, 6.019073f };
+Position const EmeraldFlameweaverSummonPos = { 5725.01f, -3305.924f, 1625.708f };
 
 Position const EmeraldFlameweaverPath1[] =
 {
