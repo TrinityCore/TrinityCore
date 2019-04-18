@@ -1035,6 +1035,12 @@ class spell_warl_seed_of_corruption : public AuraScript
 {
     PrepareAuraScript(spell_warl_seed_of_corruption);
 
+    bool Load() override
+    {
+        _affectedBySoulburn = false;
+        return true;
+    }
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1045,27 +1051,75 @@ class spell_warl_seed_of_corruption : public AuraScript
             });
     }
 
-    void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void HandleSoulburnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        Unit* caster = GetCaster();
+        Unit* unit = GetCaster();
+        Player* caster = unit->ToPlayer();
+        if (!caster)
+            return;
+
+        if (caster->GetLastSoulburnSpell() == GetSpellInfo())
+        {
+            _affectedBySoulburn = true;
+            caster->SetLastSoulburnSpell(nullptr);
+        }
+    }
+
+    void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* unit = GetCaster();
+        Player* caster = unit->ToPlayer();
+        Unit* target = GetTarget();
         if (!caster)
             return;
 
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
         {
-            caster->CastSpell(GetTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, true, nullptr, aurEff);
-            caster->CastSpell(GetTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_VISUAL, true, nullptr, aurEff);
+            if (_affectedBySoulburn)
+            {
+                caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD, true, nullptr, aurEff);
+                caster->CastSpell(target, SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, true, nullptr, aurEff);
+            }
+            else
+                caster->CastSpell(target, SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, true);
 
-            //if (AuraEffect* dummy = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_SOULBURN_SEED_OF_CORRUPTION, EFFECT_0))
-            //    caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_WARLOCK_SEED_OF_CORRUPTION_VISUAL, true);
         }
-        // else if (AuraEffect* dummy = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_SOULBURN_SEED_OF_CORRUPTION, EFFECT_0))
-        //caster->CastSpell(target, SPELL_WARLOCK_CORRUPTION_TRIGGERED, true, nullptr, aurEff);
     }
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_warl_seed_of_corruption::OnAuraRemoveHandler, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_warl_seed_of_corruption::HandleSoulburnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_warl_seed_of_corruption::HandleRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+private:
+    bool _affectedBySoulburn;
+};
+
+// 87385 - Seed of Corruption (explosion damage)
+class spell_warl_seed_of_corruption_aoe : public SpellScript
+{
+    PrepareSpellScript(spell_warl_seed_of_corruption_aoe);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_WARLOCK_CORRUPTION_TRIGGERED,
+                SPELL_WARLOCK_SEED_OF_CORRUPTION
+            });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (GetSpell()->IsTriggeredByAura(sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_SEED_OF_CORRUPTION)))
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(GetHitUnit(), SPELL_WARLOCK_CORRUPTION_TRIGGERED, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_seed_of_corruption_aoe::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1676,16 +1730,23 @@ class spell_warl_soulburn : public AuraScript
             });
     }
 
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (!spellInfo || GetTarget()->GetTypeId() != TYPEID_PLAYER)
+            return false;
+
+        return true;
+    }
+
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         Unit* target = GetTarget();
         target->RemoveAurasDueToSpell(SPELL_WARLOCK_SOULBURN_DUMMY_SEED_OF_CORRUPTION);
 
-        SpellInfo const* spell = eventInfo.GetSpellInfo();
-        if (!spell)
-            return;
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
 
-        switch (spell->Id)
+        switch (spellInfo->Id)
         {
             case SPELL_WARLOCK_HEALTHSTONE:
                 target->CastSpell(target, SPELL_WARLOCK_SOULBURN_HEALTHSTONE, true, nullptr, aurEff);
@@ -1697,7 +1758,7 @@ class spell_warl_soulburn : public AuraScript
                 target->CastSpell(target, SPELL_WARLOCK_SOULBURN_SEARING_PAIN, true, nullptr, aurEff);
                 break;
             case SPELL_WARLOCK_SEED_OF_CORRUPTION:
-                // todo: handle me
+                target->ToPlayer()->SetLastSoulburnSpell(spellInfo);
                 break;
             default:
                 break;
@@ -1717,6 +1778,7 @@ class spell_warl_soulburn : public AuraScript
 
     void Register() override
     {
+        DoCheckProc += AuraCheckProcFn(spell_warl_soulburn::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_warl_soulburn::HandleProc, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
         AfterEffectApply += AuraEffectApplyFn(spell_warl_soulburn::HandleSeedOfCorruptionDummyApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_warl_soulburn::HandleSeedOfCorruptionDummyRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
@@ -1750,6 +1812,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_nether_ward_overrride();
     new spell_warl_seduction();
     RegisterAuraScript(spell_warl_seed_of_corruption);
+    RegisterSpellScript(spell_warl_seed_of_corruption_aoe);
     new spell_warl_shadow_trance_proc();
     new spell_warl_shadow_ward();
     RegisterAuraScript(spell_warl_soulburn);

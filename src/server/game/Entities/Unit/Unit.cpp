@@ -7211,6 +7211,14 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             break;
                         }
                         break;
+                    case SPELLFAMILY_WARLOCK:
+                    {
+                        // Searing Pain - Soulburn bonus
+                        if (spellProto->SpellFamilyFlags[0] & 0x00000100)
+                            if (HasAura(74434))
+                                return 100.0f;
+                        break;
+                    }
                 }
             }
             break;

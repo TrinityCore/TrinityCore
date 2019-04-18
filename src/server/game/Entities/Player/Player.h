@@ -1963,6 +1963,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateWeaponsSkillsToMaxSkillsForLevel();             // for .levelup
         void ModifySkillBonus(uint32 skillid, int32 val, bool talent);
 
+        void SetLastSoulburnSpell(SpellInfo const* spell) { m_lastSoulburnSpell = spell; }
+        SpellInfo const* GetLastSoulburnSpell() const { return m_lastSoulburnSpell; }
+
         /*********************************************************/
         /***                  PVP SYSTEM                       ***/
         /*********************************************************/
@@ -2675,6 +2678,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool m_needsZoneUpdate;
 
         std::array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> _CUFProfiles;
+
+        SpellInfo const* m_lastSoulburnSpell;
 
     private:
         // internal common parts for CanStore/StoreItem functions
