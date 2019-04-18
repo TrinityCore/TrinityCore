@@ -3727,7 +3727,7 @@ class spell_item_mirrens_drinking_hat : public SpellScript
 {
     PrepareSpellScript(spell_item_mirrens_drinking_hat);
 
-    void HandleScriptEffect(SpellEffIndex effIndex)
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
         uint32 spellId;
         switch (urand(1, 6))
