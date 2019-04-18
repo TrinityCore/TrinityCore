@@ -536,14 +536,14 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         /// @todo check the exact cases
         TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::BuildPointPath FAILED! path sized %d returned\n", pointCount);
         BuildShortcut();
-        _type = PATHFIND_NOPATH;
+        _type = PathType(_type | PATHFIND_NOPATH);
         return;
     }
     else if (pointCount == _pointPathLimit)
     {
         TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::BuildPointPath FAILED! path sized %d returned, lower than limit set to %d", pointCount, _pointPathLimit);
         BuildShortcut();
-        _type = PATHFIND_SHORT;
+        _type = PathType(_type | PATHFIND_SHORT);
         return;
     }
 

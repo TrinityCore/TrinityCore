@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.24, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.25, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	5.7.24-0ubuntu0.16.04.1
+-- Server version	5.7.25-0ubuntu0.16.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -2815,6 +2815,7 @@ CREATE TABLE `quest_template_addon` (
   `PrevQuestID` mediumint(8) NOT NULL DEFAULT '0',
   `NextQuestID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `ExclusiveGroup` mediumint(8) NOT NULL DEFAULT '0',
+  `BreadcrumbForQuestId` mediumint(8) NOT NULL DEFAULT '0',
   `RewardMailTemplateID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RewardMailDelay` int(10) unsigned NOT NULL DEFAULT '0',
   `RequiredSkillID` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -3825,4 +3826,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-19  7:18:01
+-- Dump completed on 2019-04-15  6:16:12
