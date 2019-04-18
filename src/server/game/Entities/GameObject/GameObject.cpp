@@ -1119,6 +1119,10 @@ void GameObject::DeleteFromDB()
     stmt->setUInt32(1, LINKED_RESPAWN_CREATURE_TO_GO);
     trans->Append(stmt);
 
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT_ADDON);
+    stmt->setUInt32(0, m_spawnId);
+    trans->Append(stmt);
+
     WorldDatabase.CommitTransaction(trans);
 }
 
