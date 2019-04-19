@@ -50,6 +50,7 @@ Copied events should probably have a new owner
 #include "Opcodes.h"
 #include "Player.h"
 #include "SocialMgr.h"
+#include "Util.h"
 #include "World.h"
 
 void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGetCalendar& /*calendarGetCalendar*/)
@@ -135,6 +136,8 @@ void WorldSession::HandleCalendarAddEvent(WorldPackets::Calendar::CalendarAddEve
 {
     ObjectGuid guid = _player->GetGUID();
 
+    calendarAddEvent.EventInfo.Time = uint32(LocalTimeToUTCTime(calendarAddEvent.EventInfo.Time));
+
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
     if (calendarAddEvent.EventInfo.Time < (GameTime::GetGameTime() - time_t(86400L)))
@@ -180,6 +183,8 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPackets::Calendar::CalendarUpd
     ObjectGuid guid = _player->GetGUID();
     time_t oldEventTime = time_t(0);
 
+    calendarUpdateEvent.EventInfo.Time = uint32(LocalTimeToUTCTime(calendarUpdateEvent.EventInfo.Time));
+
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
     if (calendarUpdateEvent.EventInfo.Time < (GameTime::GetGameTime() - time_t(86400L)))
@@ -212,6 +217,8 @@ void WorldSession::HandleCalendarRemoveEvent(WorldPackets::Calendar::CalendarRem
 void WorldSession::HandleCalendarCopyEvent(WorldPackets::Calendar::CalendarCopyEvent& calendarCopyEvent)
 {
     ObjectGuid guid = _player->GetGUID();
+
+    calendarCopyEvent.Date = uint32(LocalTimeToUTCTime(calendarCopyEvent.Date));
 
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
