@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1319,7 +1319,7 @@ public:
 
         void Reset() override
         {
-            me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+            me->SetDisplayId(me->GetCreatureTemplate()->GetFirstInvisibleModel()->CreatureDisplayID);
             _events.ScheduleEvent(EVENT_FIRE, 500);
         }
 
@@ -1444,7 +1444,6 @@ public:
         {
             _events.Reset();
             me->SetReactState(REACT_PASSIVE);
-            me->setActive(true);
             Initialize();
 
             if (Creature* creature = me->FindNearestCreature(NPC_JI_FIREPAW, me->GetVisibilityRange(), true))
@@ -1681,7 +1680,6 @@ public:
         void Reset() override
         {
             Initialize();
-            me->setActive(true);
         }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
@@ -2072,7 +2070,6 @@ public:
         {
             _events.Reset();
             Initialize();
-            me->setActive(true);
             me->SetReactState(REACT_PASSIVE);
             PhasingHandler::AddPhase(me, 543, true);
         }
