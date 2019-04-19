@@ -18,9 +18,15 @@ if(WIN32)
       if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
         set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
       else()
-        list(APPEND BOOST_LIBRARYDIR
-          ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1
-          ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0 )
+		if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.20)
+			list(APPEND BOOST_LIBRARYDIR
+			  ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1
+			  ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0 )
+		else()
+			list(APPEND BOOST_LIBRARYDIR
+			  ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.2
+			  ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1 )
+		endif()
       endif()
     endif()
   else()
