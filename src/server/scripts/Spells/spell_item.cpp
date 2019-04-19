@@ -3715,6 +3715,7 @@ class spell_item_taunt_flag_targeting : public SpellScript
     }
 };
 
+// 29830 - Mirren's Drinking Hat
 enum MirrensDrinkingHat
 {
     SPELL_LOCH_MODAN_LAGER      = 29827,
@@ -3722,7 +3723,6 @@ enum MirrensDrinkingHat
     SPELL_AERIE_PEAK_PALE_ALE   = 29829
 };
 
-// 29830 - Mirren's Drinking Hat
 class spell_item_mirrens_drinking_hat : public SpellScript
 {
     PrepareSpellScript(spell_item_mirrens_drinking_hat);
