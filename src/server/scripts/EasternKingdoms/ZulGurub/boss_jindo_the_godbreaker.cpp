@@ -343,7 +343,10 @@ struct boss_jindo_the_godbreaker : public BossAI
                         return;
 
                     if (Creature* shadow = map->SummonCreature(NPC_GURUBASHI_SHADOW, summon->GetHomePosition()))
+                    {
+                        shadow->SetReactState(REACT_PASSIVE);
                         shadow->GetMotionMaster()->MoveRandom(8.0f);
+                    }
 
                     if (Creature* spirit = map->SummonCreature(NPC_GURUBASHI_SPIRIT, summon->GetHomePosition()))
                         spirit->GetMotionMaster()->MoveRandom(8.0f);
@@ -490,9 +493,16 @@ private:
             return;
 
         // We need to summon the creatures via map to avoid them to use Jin'do's PhaseShift
-        map->SummonCreature(NPC_JINDO_THE_GODBREAKER, JindoTheGodBreakerSpiritWorldSummonPos);
-        map->SummonCreature(NPC_SPIRIT_OF_HAKKAR, HakkarSummonPos);
-        map->SummonCreature(NPC_SHADOW_OF_HAKKAR, HakkarSummonPos);
+
+        if (Creature* jindo = map->SummonCreature(NPC_JINDO_THE_GODBREAKER, JindoTheGodBreakerSpiritWorldSummonPos))
+            jindo->SetReactState(REACT_PASSIVE);
+
+        if (Creature* spirit = map->SummonCreature(NPC_SPIRIT_OF_HAKKAR, HakkarSummonPos))
+            spirit->SetReactState(REACT_PASSIVE);
+
+        if (Creature* shadow = map->SummonCreature(NPC_SHADOW_OF_HAKKAR, HakkarSummonPos))
+            shadow->SetReactState(REACT_PASSIVE);
+
         map->SummonCreatureGroup(urand(SUMMON_GROUP_HAKKARS_CHAINS_1, SUMMON_GROUP_HAKKARS_CHAINS_3));
         map->SummonCreatureGroup(SUMMON_GROUP_TWISTED_SHADOW);
         map->SummonCreatureGroup(SUMMON_GROUP_SPIRIT_PORTAL);
