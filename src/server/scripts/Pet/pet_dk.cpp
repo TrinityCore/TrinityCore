@@ -30,10 +30,18 @@
 
 enum DeathKnightSpells
 {
-    SPELL_DK_SUMMON_GARGOYLE_1      = 49206,
-    SPELL_DK_SUMMON_GARGOYLE_2      = 50514,
-    SPELL_DK_DISMISS_GARGOYLE       = 50515,
-    SPELL_DK_SANCTUARY              = 54661
+    SPELL_DK_SUMMON_GARGOYLE_1          = 49206,
+    SPELL_DK_SUMMON_GARGOYLE_2          = 50514,
+    SPELL_DK_DISMISS_GARGOYLE           = 50515,
+    SPELL_DK_SANCTUARY                  = 54661,
+
+    // Dancing Rune Weapon
+    SPELL_DK_DANCING_RUNE_WEAPON        = 49028,
+    SPELL_COPY_WEAPON                   = 63416,
+    SPELL_DK_RUNE_WEAPON_MARK           = 50474,
+    SPELL_DK_DANCING_RUNE_WEAPON_VISUAL = 53160,
+    SPELL_FAKE_AGGRO_RADIUS_8_YARD      = 49812,
+    SPELL_AGGRO_8_YD_PBAE               = 49813
 };
 
 class npc_pet_dk_ebon_gargoyle : public CreatureScript
@@ -137,6 +145,81 @@ class npc_pet_dk_guardian : public CreatureScript
         }
 };
 
+enum DancingRuneWeapon
+{
+    DATA_INITIAL_TARGET_GUID    = 1,
+
+    EVENT_ENGAGE_VICTIM         = 1
+};
+
+struct npc_pet_dk_rune_weapon : public ScriptedAI
+{
+    npc_pet_dk_rune_weapon(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        // Prevent early victim engage
+        me->SetReactState(REACT_PASSIVE);
+        _events.ScheduleEvent(EVENT_ENGAGE_VICTIM, 1s);
+    }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        DoCast(summoner, SPELL_COPY_WEAPON, true);
+        DoCast(summoner, SPELL_DK_RUNE_WEAPON_MARK, true);
+        DoCast(me, SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
+        DoCast(me, SPELL_FAKE_AGGRO_RADIUS_8_YARD, true);
+
+        me->GetThreatManager().RegisterRedirectThreat(SPELL_DK_DANCING_RUNE_WEAPON, summoner->GetGUID(), 100);
+    }
+
+    void SetGUID(ObjectGuid const& guid, int32 id) override
+    {
+        if (id == DATA_INITIAL_TARGET_GUID)
+        {
+            _targetGUID = guid;
+            if (Unit *target = ObjectAccessor::GetUnit(*me, _targetGUID))
+                AttackStart(target);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (me->IsInCombat() && (!me->GetVictim() || !me->IsValidAttackTarget(me->GetVictim())))
+            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+
+        _events.Update(diff);
+
+        while (uint32 _eventId = _events.ExecuteEvent())
+        {
+            switch (_eventId)
+            {
+                case EVENT_ENGAGE_VICTIM:
+                    me->SetReactState(REACT_AGGRESSIVE);
+            }
+        }
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (me->IsInEvadeMode() || !me->IsAlive())
+            return;
+
+        Unit* owner = me->GetCharmerOrOwner();
+
+        me->CombatStop(true);
+        if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
+        {
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+        }
+    }
+
+private:
+    ObjectGuid _targetGUID;
+    EventMap _events;
+};
+
 class spell_pet_dk_gargoyle_strike : public SpellScript
 {
     PrepareSpellScript(spell_pet_dk_gargoyle_strike);
@@ -163,5 +246,6 @@ void AddSC_deathknight_pet_scripts()
 {
     new npc_pet_dk_ebon_gargoyle();
     new npc_pet_dk_guardian();
+    RegisterCreatureAI(npc_pet_dk_rune_weapon);
     RegisterSpellScript(spell_pet_dk_gargoyle_strike);
 }
