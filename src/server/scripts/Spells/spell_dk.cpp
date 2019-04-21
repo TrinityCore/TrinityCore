@@ -103,6 +103,7 @@ enum DeathKnightSpells
 
 enum DeathKnightSpellIcons
 {
+    DK_ICON_ID_EPIDEMIC                         = 234,
     DK_ICON_ID_IMPROVED_DEATH_STRIKE            = 2751
 };
 
@@ -1295,7 +1296,7 @@ class spell_dk_glyph_of_scourge_strike_script : public SpellScript
                 // this Glyph
                 countMax += 9000;
                 // talent Epidemic
-                if (AuraEffect const* epidemic = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 234, EFFECT_0))
+                if (AuraEffect const* epidemic = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_EPIDEMIC, EFFECT_0))
                     countMax += epidemic->GetAmount();
 
                 if (countMin < countMax)

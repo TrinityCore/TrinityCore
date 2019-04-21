@@ -88,7 +88,7 @@ LogsDir = ""
 #    CharacterDatabaseInfo
 #        Description: Database connection settings for the world server.
 #        Example:     "hostname;port;username;password;database"
-#                     ".;somenumber;username;password;database" - (Use named pipes on Windows
+#                     ".;some_number;username;password;database" - (Use named pipes on Windows
 #                                                                 "enable-named-pipe" to [mysqld]
 #                                                                 section my.ini)
 #                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
@@ -97,11 +97,11 @@ LogsDir = ""
 #                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
 #
-#    Don't change hostname unless you are hosting mysql on a different machine, if you need help
-#    with configuration allowing to connect from diferent machine than the one running server
+#    Don't change hostname unless you are hosting MySQL on a different machine, if you need help
+#    with configuration allowing to connect from different machine than the one running server
 #    search for TCE00016 on forum.
-#    Don't open port on firewall to external connections (it belongs to mysql, not to wow server).
-#    The username you choose must have permisions to create/alter/rename tables.
+#    Don't open port on firewall to external connections (it belongs to MySQL, not to wow server).
+#    The username you choose must have permissions to create/alter/rename tables.
 
 LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
 WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
@@ -199,7 +199,7 @@ SourceDirectory  = ""
 
 #
 #    MySQLExecutable
-#        Description: The path to your mysql cli binary.
+#        Description: The path to your MySQL CLI binary.
 #                     If the path is left empty, built-in path from cmake is used.
 #        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
 #                     "mysql.exe"
@@ -292,7 +292,7 @@ GridUnload = 1
 #        Description: Load all grids for base maps upon load. Requires GridUnload to be 0.
 #                     This will take around 5GB of ram upon server load, and will take some time
 #                     to initially load the server.
-#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#        Default:     0 - (Don't preload all base maps, dynamically load as used)
 #                     1 - (Preload all grids in all base maps upon load)
 
 BaseMapLoadAllGrids = 0
@@ -301,7 +301,7 @@ BaseMapLoadAllGrids = 0
 #    InstanceMapLoadAllGrids
 #        Description: Load all grids for instance maps upon load. Requires GridUnload to be 0.
 #                     Upon loading an instance map, all creatures/objects in the map will be pre-loaded
-#        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
+#        Default:     0 - (Don't preload all base maps, dynamically load as used)
 #                     1 - (Preload all grids in the instance upon load)
 
 InstanceMapLoadAllGrids = 0
@@ -497,7 +497,7 @@ PersistentCharacterCleanFlags = 0
 
 #
 #    Auction.GetAllScanDelay
-#        Description: Sets the minimum time in seconds, a single player character can perform a getall scan.
+#        Description: Sets the minimum time in seconds, a single player character can perform a GetAll scan.
 #                     The value is only held in memory so a server restart will clear it.
 #                     Setting this to zero, will disable GetAll functions completely.
 #        Default:     900 - (GetAll scan limited to once every 15mins per player character)
@@ -549,7 +549,7 @@ PacketLogFile = ""
 #                     4  - (NORMAL)
 #                     6  - (RP)
 #                     8  - (RPPVP)
-#                     16 - (FFA_PVP, Free for all pvp mode like arena PvP in all zones except rest
+#                     16 - (FFA_PVP, Free for all PvP mode like arena PvP in all zones except rest
 #                          activated places and sanctuaries)
 
 GameType = 0
@@ -977,14 +977,14 @@ Instance.UnloadDelay = 1800000
 #
 #    InstancesResetAnnounce
 #        Description: Announce the reset of one instance to whole party.
-#        Default:     false - (Disabled, don't show, blizzlike)
+#        Default:     false - (Disabled, don't show, Blizzlike)
 #                     true  - (Enabled, show)
 
 InstancesResetAnnounce = false
 
 #
 #    Quests.EnableQuestTracker
-#        Description: Store datas in the database about quest completion and abandonment to help finding out bugged quests.
+#        Description: Store data in the database about quest completion and abandonment to help finding bugged quests.
 #        Default:     0  - (Disabled)
 #                     1  - (Enabled)
 
@@ -1415,7 +1415,7 @@ HotSwap.EnableInstall = 1
 #
 #    HotSwap.EnablePrefixCorrection
 #        Description: Allows the core to automatic set the CMAKE_INSTALL_PREFIX
-#                     to it's current location in the filesystem.
+#                     to its current location in the file system.
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
@@ -1436,7 +1436,7 @@ HotSwap.ReCompilerBuildType = ""
 # WARDEN SETTINGS
 #
 #    Warden.Enabled
-#        Description: Enable Warden anticheat system.
+#        Description: Enable Warden anti-cheat system.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
@@ -1654,7 +1654,7 @@ Rate.Corpse.Decay.Looted = 0.5
 #    Rate.Creature.Elite.RARE.Damage
 #    Rate.Creature.Elite.RAREELITE.Damage
 #    Rate.Creature.Elite.WORLDBOSS.Damage
-#        Description: Mulitplier for creature melee damage.
+#        Description: Multiplier for creature melee damage.
 #        Default:     1 - (Rate.Creature.Normal.Damage)
 #                     1 - (Rate.Creature.Elite.Elite.Damage)
 #                     1 - (Rate.Creature.Elite.RARE.Damage)
@@ -1674,7 +1674,7 @@ Rate.Creature.Elite.WORLDBOSS.Damage = 1
 #    Rate.Creature.Elite.RARE.SpellDamage
 #    Rate.Creature.Elite.RAREELITE.SpellDamage
 #    Rate.Creature.Elite.WORLDBOSS.SpellDamage
-#        Description: Mulitplier for creature spell damage.
+#        Description: Multiplier for creature spell damage.
 #        Default:     1 - (Rate.Creature.Normal.SpellDamage)
 #                     1 - (Rate.Creature.Elite.Elite.SpellDamage)
 #                     1 - (Rate.Creature.Elite.RARE.SpellDamage)
@@ -1693,7 +1693,7 @@ Rate.Creature.Elite.WORLDBOSS.SpellDamage = 1
 #    Rate.Creature.Elite.RARE.HP
 #    Rate.Creature.Elite.RAREELITE.HP
 #    Rate.Creature.Elite.WORLDBOSS.HP
-#        Description: Mulitplier for creature health.
+#        Description: Multiplier for creature health.
 #        Default:     1 - (Rate.Creature.Normal.HP)
 #                     1 - (Rate.Creature.Elite.Elite.HP)
 #                     1 - (Rate.Creature.Elite.RARE.HP)
@@ -1795,7 +1795,7 @@ Respawn.WarningFrequency = 1800
 #
 #    Respawn.GuidAlertLevel
 #        Description: The point at which the highest guid for creatures or gameobjects in any map must reach
-#                     before the alert logic is enabled. A restart will then be triggered for 30 mins from that
+#                     before the alert logic is enabled. A restart will then be triggered for 30 min. from that
 #                     point. The maximum guid per map is 16,777,216. So, it must be less than this value.
 #        Default:     16000000 - 16 million
 
@@ -1829,7 +1829,7 @@ Respawn.DynamicMode = 0
 
 #
 #    Respawn.DynamicEscortNPC
-#        Description: This switch controls the dynamic respawn system for escort NPCs not in instancable maps (base maps only).
+#        Description: This switch controls the dynamic respawn system for escort NPCs not in instanceable maps (base maps only).
 #                     This will cause the respawn timer to begin when an escort event begins, and potentially
 #                     allow multiple instances of the NPC to be alive at the same time (when combined with Respawn.DynamicMode > 0)
 #                     1 - Enabled
@@ -1864,7 +1864,7 @@ Respawn.DynamicRateGameObject = 10
 
 #
 #    Respawn.DynamicMinimumGameObject
-#        Description: The minimum respawn time for a gameobject under dynamic scaling.
+#        Description: The minimum respawn time for a GameObject under dynamic scaling.
 #        Default:     10 - (10 seconds)
 
 Respawn.DynamicMinimumGameObject = 10
@@ -1887,7 +1887,7 @@ ChatFakeMessagePreventing = 1
 
 #
 #    ChatStrictLinkChecking.Severity
-#        Description: Check chat messages for ingame links to spells, items, quests, etc.
+#        Description: Check chat messages for in-game links to spells, items, quests, etc.
 #        Default:     0 - (Only verify that link format looks valid without checking the text)
 #                     1 - (Check if color, entry and name don't contradict each other. For this to
 #                         work correctly, please assure that you have extracted locale DBCs of
@@ -2745,7 +2745,7 @@ Arena.RatingDiscardTimer = 600000
 
 #
 #    Arena.RatedUpdateTimer
-#        Description: Time (in milliseconds) between checks for matchups in rated arena.
+#        Description: Time (in milliseconds) between checks for match-ups in rated arena.
 #        Default:     5000 - (5 seconds)
 
 Arena.RatedUpdateTimer = 5000
@@ -2962,7 +2962,7 @@ SOAP.Port = 7878
 #        Description: Character deletion behavior.
 #        Default:     0 - (Completely remove character from the database)
 #                     1 - (Unlink the character from account and free up the name, Appears as
-#                         deleted ingame)
+#                         deleted in-game)
 
 CharDelete.Method = 0
 
@@ -3027,7 +3027,7 @@ PlayerStart.AllReputation = 0
 #                     2 - (Monday)
 #                     4 - (Tuesday)
 #                     8 - (Wednesday)
-#                     16 - (Thrusday)
+#                     16 - (Thursday)
 #                     32 - (Friday)
 #                     64 - (Saturday)
 #                     65 - (Weekend only)
@@ -3146,7 +3146,7 @@ Guild.AllowMultipleGuildMaster = 0
 
 #
 #     ShowKickInWorld
-#        Description: Determines whether a message is broadcasted to the entire server when a
+#        Description: Determines whether a message is broadcast to the entire server when a
 #                     player gets kicked.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
@@ -3154,7 +3154,7 @@ Guild.AllowMultipleGuildMaster = 0
 ShowKickInWorld = 0
 
 #     ShowMuteInWorld
-#        Description: Determines whether a message is broadcasted to the entire server when a
+#        Description: Determines whether a message is broadcast to the entire server when a
 #                     player gets muted.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
@@ -3163,7 +3163,7 @@ ShowMuteInWorld = 0
 
 #
 #     ShowBanInWorld
-#        Description: Determines whether a message is broadcasted to the entire server when a
+#        Description: Determines whether a message is broadcast to the entire server when a
 #                     player gets banned.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
@@ -3412,7 +3412,7 @@ AuctionHouseBot.Bind.Quest = 0
 
 #
 #    AuctionHouseBot.LockBox.Enabled
-#       Description: Enable or not lockbox in auctionhouse
+#       Description: Enable or disable lockboxes in the AuctionHouse.
 #       Default      0 - (Disabled)
 #                    1 - (Enabled)
 
@@ -3453,21 +3453,21 @@ AuctionHouseBot.BidPrice.Max = 0.9
 
 #
 #    AuctionHouseBot.Alliance.Price.Ratio
-#       Description: Percentage by which the price of items selled on Alliance Auction House is incremented / decreased
+#       Description: Percentage by which the price of items sold on Alliance Auction House is incremented / decreased
 #       Default:     100 - (Not modify)
 
 AuctionHouseBot.Alliance.Price.Ratio = 100
 
 #
 #    AuctionHouseBot.Horde.Price.Ratio
-#       Description: Percentage by which the price of items selled on Horde Auction House is incremented / decreased
+#       Description: Percentage by which the price of items sold on Horde Auction House is incremented / decreased
 #       Default:     100 - (Not modify)
 
 AuctionHouseBot.Horde.Price.Ratio = 100
 
 #
 #    AuctionHouseBot.Neutral.Price.Ratio
-#       Description: Percentage by which the price of items selled on Neutral Auction House is incremented / decreased
+#       Description: Percentage by which the price of items sold on Neutral Auction House is incremented / decreased
 #       Default:     100 - (Not modify)
 
 AuctionHouseBot.Neutral.Price.Ratio = 100
@@ -3548,8 +3548,8 @@ AuctionHouseBot.Items.Amount.Yellow = 0
 
 #
 #    AuctionHouseBot.Class.*
-#       Description: Here you can set the class of items you prefer to be show on AH
-#                    These value are sorted by preference, from 0 (disabled) to 10 (max. preference)
+#       Description: Here you can set the class of items you prefer to be shown on AH
+#                    These values are sorted by preference, from 0 (disabled) to 10 (max. preference)
 #       Default:     Consumable: 6
 #                    Container: 4
 #                    Weapon: 8
@@ -3588,8 +3588,8 @@ AuctionHouseBot.Class.Glyph = 3
 ###################################################################################################
 # AUCTION HOUSE BOT ITEM FINE TUNING
 #
-#    The following are usefull for limiting what character levels can
-#    benefit from the auction house
+#    The following settings are useful for limiting which character levels
+#    can benefit from the auction house
 #
 #    AuctionHouseBot.Class.Misc.Mount.ReqLevel.*
 #       Description: Prevent seller from listing mounts below/above this required level
@@ -3632,7 +3632,7 @@ AuctionHouseBot.Class.TradeGood.ItemLevel.Max = 0
 
 #
 #    AuctionHouseBot.Class.Container.ItemLevel.*
-#       Description: Prevent seller from listing contianers below/above this item level
+#       Description: Prevent seller from listing containers below/above this item level
 #       Default:     0
 
 AuctionHouseBot.Class.Container.ItemLevel.Min = 0
@@ -3662,7 +3662,7 @@ AuctionHouseBot.forceExcludeItems = "6343,6345,6376"
 #                    Value needs to be between 0 and 100, no decimal.  Anything higher than 100 will be treated as 100
 #       Examples:    100 = stacks will always be random in size
 #                    50 = half the time the stacks are random, the other half being single stack
-#                    0 = stacks will always single size
+#                    0 = stacks will always be single size
 #       Default:     Consumable: 20 (20% random stack size, 80% single stack size)
 #                    Container: 0 (100% single stack size)
 #                    Weapon: 0 (100% single stack size)
@@ -3728,7 +3728,7 @@ AuctionHouseBot.Buyer.ChanceFactor = 2
 
 #
 #    AuctionHouseBot.Buyer.Baseprice.QUALITY
-#       Description: Base sellprices in copper for non priced items for each quality.
+#       Description: Base sell prices in copper for non priced items for each quality.
 #                    The default values are based on average item prices of each quality.
 #       Defaults:    Gray   3504
 #                    White  5429
@@ -3769,7 +3769,7 @@ AuctionHouseBot.Buyer.ChanceMultiplier.Yellow = 100
 #
 #    AuctionHouseBot.Buyer.Recheck.Interval
 #       Description: This specifies the time interval (in minutes) between two evaluations of the same sold item.
-#                    The smaller this value is, the more chances you give for an item to be bought by ahbot.
+#                    The smaller this value is, the more chances you give for an item to be bought by AHBot.
 #       Default:     20 (20min.)
 
 AuctionHouseBot.Buyer.Recheck.Interval = 20
@@ -3807,7 +3807,7 @@ Eluna.ScriptPath = "lua_scripts"
 ###################################################################################################
 # LOGGING SYSTEM SETTINGS
 #
-#  Appender config values: Given a appender "name"
+#  Appender config values: Given an appender "name"
 #    Appender.name
 #        Description: Defines 'where to log'.
 #        Format:      Type,LogLevel,Flags,optional1,optional2,optional3
@@ -3866,9 +3866,9 @@ Eluna.ScriptPath = "lua_scripts"
 #                     MaxFileSize: Maximum file size of the log file before creating a new log file
 #                     (read as optional3 if Type = File)
 #                         Size is measured in bytes expressed in a 64-bit unsigned integer.
-#                         Maximum value is 4294967295 (4 gb). Leave blank for no limit.
+#                         Maximum value is 4294967295 (4 GB). Leave blank for no limit.
 #                         NOTE: Does not work with dynamic filenames.
-#                         Example:  536870912 (512 mb)
+#                         Example:  536870912 (512 MB)
 #
 
 Appender.Console=1,3,0
@@ -3955,7 +3955,7 @@ Logger.eluna=1,Console Eluna
 
 #
 #    Log.Async.Enable
-#        Description: Enables asyncronous message logging.
+#        Description: Enables asynchronous message logging.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
