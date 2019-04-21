@@ -196,7 +196,7 @@ struct npc_pet_dk_rune_weapon : public ScriptedAI
         if (!me->IsInCombat())
         {
             Unit* owner = me->GetCharmerOrOwner();
-            Unit* ownerTarget;
+            Unit* ownerTarget = nullptr;
             if (Player *playerOwner = owner->ToPlayer())
                 ownerTarget = playerOwner->GetSelectedUnit();
 
