@@ -902,7 +902,7 @@ public:
                 return;
 
             // final heal
-            OnRemoveEffect(GetTarget(), aurEff, GetStackAmount());
+            OnRemoveEffect(GetUnitOwner(), aurEff, GetStackAmount());
         }
 
         void HandleDispel(DispelInfo* dispelInfo)
