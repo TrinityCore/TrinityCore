@@ -27,6 +27,7 @@
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "ObjectAccessor.h"
 
 enum DeathKnightSpells
 {
