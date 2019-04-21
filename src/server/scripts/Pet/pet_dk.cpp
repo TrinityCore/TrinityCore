@@ -42,7 +42,7 @@ enum DeathKnightSpells
     SPELL_DK_RUNE_WEAPON_MARK           = 50474,
     SPELL_DK_DANCING_RUNE_WEAPON_VISUAL = 53160,
     SPELL_FAKE_AGGRO_RADIUS_8_YARD      = 49812,
-    SPELL_AGGRO_8_YD_PBAE               = 49813
+    SPELL_RUNE_WEAPON_SCALING_02        = 51906
 };
 
 class npc_pet_dk_ebon_gargoyle : public CreatureScript
@@ -150,7 +150,8 @@ enum DancingRuneWeapon
 {
     DATA_INITIAL_TARGET_GUID    = 1,
 
-    EVENT_ENGAGE_VICTIM         = 1
+    EVENT_ENGAGE_VICTIM         = 1,
+    EVENT_SPELL_CAST_2          = 2
 };
 
 struct npc_pet_dk_rune_weapon : public ScriptedAI
@@ -159,17 +160,20 @@ struct npc_pet_dk_rune_weapon : public ScriptedAI
 
     void InitializeAI() override
     {
-        // Prevent early victim engage
+        // prevent early victim engage
         me->SetReactState(REACT_PASSIVE);
-        _events.ScheduleEvent(EVENT_ENGAGE_VICTIM, 1s);
     }
 
     void IsSummonedBy(Unit* summoner) override
     {
         DoCast(summoner, SPELL_COPY_WEAPON, true);
         DoCast(summoner, SPELL_DK_RUNE_WEAPON_MARK, true);
-        DoCast(me, SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
-        DoCast(me, SPELL_FAKE_AGGRO_RADIUS_8_YARD, true);
+        DoCastSelf(SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
+        DoCastSelf(SPELL_FAKE_AGGRO_RADIUS_8_YARD, true);
+        DoCastSelf(SPELL_RUNE_WEAPON_SCALING_02, true);
+
+        _events.ScheduleEvent(EVENT_ENGAGE_VICTIM, 1s);
+        _events.ScheduleEvent(EVENT_SPELL_CAST_2, 6s);
 
         me->GetThreatManager().RegisterRedirectThreat(SPELL_DK_DANCING_RUNE_WEAPON, summoner->GetGUID(), 100);
     }
@@ -186,8 +190,27 @@ struct npc_pet_dk_rune_weapon : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (me->IsInCombat() && (!me->GetVictim() || !me->IsValidAttackTarget(me->GetVictim())))
+        if (me->IsInCombat() && !me->GetVictim())
             EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+
+        if (!me->IsInCombat())
+        {
+            Unit* owner = me->GetCharmerOrOwner();
+            Unit* ownerTarget;
+            if (Player *playerOwner = owner->ToPlayer())
+                ownerTarget = playerOwner->GetSelectedUnit();
+
+            // recognize which victim will be choosen
+            if (ownerTarget && !ownerTarget->HasBreakableByDamageCrowdControlAura(ownerTarget))
+            {
+                if (ownerTarget->GetTypeId() == TYPEID_PLAYER)
+                    AttackStart(ownerTarget);
+                else if (ownerTarget->GetTypeId() != TYPEID_PLAYER && ownerTarget->GetThreatManager().IsThreatenedBy(owner))
+                    AttackStart(ownerTarget);
+                else
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+            }
+        }
 
         _events.Update(diff);
 
@@ -197,23 +220,16 @@ struct npc_pet_dk_rune_weapon : public ScriptedAI
             {
                 case EVENT_ENGAGE_VICTIM:
                     me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                case EVENT_SPELL_CAST_2:
+                    // every 6 seconds
+                    DoCastSelf(SPELL_DK_DANCING_RUNE_WEAPON_VISUAL, true);
+                    _events.ScheduleEvent(EVENT_SPELL_CAST_2, 6s);
+                    break;
             }
         }
-    }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
-    {
-        if (me->IsInEvadeMode() || !me->IsAlive())
-            return;
-
-        Unit* owner = me->GetCharmerOrOwner();
-
-        me->CombatStop(true);
-        if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
-        {
-            me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
-        }
+        DoMeleeAttackIfReady();
     }
 
 private:

@@ -99,7 +99,7 @@ enum DeathKnightSpells
     SPELL_DK_RUNIC_RETURN                       = 61258,
     SPELL_DK_WANDERING_PLAGUE_DAMAGE            = 50526,
     SPELL_DK_DEATH_COIL_R1                      = 47541,
-    SPELL_DK_DEATH_GRIP_INITIAL                 = 49576,
+    SPELL_DK_DEATH_GRIP_INITIAL                 = 49576
 };
 
 enum DeathKnightSpellIcons

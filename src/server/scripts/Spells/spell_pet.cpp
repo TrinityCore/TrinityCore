@@ -1697,67 +1697,53 @@ public:
     }
 };
 
-class spell_dk_rune_weapon_scaling_02 : public SpellScriptLoader
+class spell_dk_rune_weapon_scaling_02 : public AuraScript
 {
-public:
-    spell_dk_rune_weapon_scaling_02() : SpellScriptLoader("spell_dk_rune_weapon_scaling_02") { }
+    PrepareAuraScript(spell_dk_rune_weapon_scaling_02);
 
-    class spell_dk_rune_weapon_scaling_02_AuraScript : public AuraScript
+    bool Load() override
     {
-        PrepareAuraScript(spell_dk_rune_weapon_scaling_02_AuraScript);
+        return !(!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER);
+    }
 
-        bool Load() override
+    void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /* canBeRecalculated */)
+    {
+        if (Unit* pet = GetUnitOwner())
         {
-            if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
-                return false;
-            return true;
-        }
-
-        void CalculateDamageDoneAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
-        {
-            if (Unit* pet = GetUnitOwner())
-            {
-                Unit* owner = pet->GetOwner();
-                if (!owner)
-                    return;
-
-                if (pet->IsGuardian())
-                    ((Guardian*)pet)->SetBonusDamage(owner->GetTotalAttackPowerValue(BASE_ATTACK));
-
-                for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
-                    amount += owner->CalculateDamage(BASE_ATTACK, true, true, i);
-            }
-        }
-
-        void CalculateAmountMeleeHaste(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
-        {
-            if (!GetCaster() || !GetCaster()->GetOwner())
+            Unit* owner = pet->GetOwner();
+            if (!owner)
                 return;
-            if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
-            {
-                // For others recalculate it from:
-                float HasteMelee = 0.0f;
-                // Increase hit from SPELL_AURA_MOD_HIT_CHANCE
-                HasteMelee += (1-owner->m_modAttackSpeedPct[BASE_ATTACK])*100;
 
-                amount += int32(HasteMelee);
-            }
+            if (pet->IsGuardian())
+                ((Guardian*)pet)->SetBonusDamage(owner->GetTotalAttackPowerValue(BASE_ATTACK));
+
+            amount += owner->CalculateDamage(BASE_ATTACK, true, true);
         }
+    }
 
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_rune_weapon_scaling_02_AuraScript::CalculateDamageDoneAmount, EFFECT_0, SPELL_AURA_MOD_DAMAGE_DONE);
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_rune_weapon_scaling_02_AuraScript::CalculateAmountMeleeHaste, EFFECT_1, SPELL_AURA_MELEE_SLOW);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void CalculateAmountMeleeHaste(AuraEffect const* /* aurEff */, int32& amount, bool& /* canBeRecalculated */)
     {
-        return new spell_dk_rune_weapon_scaling_02_AuraScript();
+        if (!GetCaster() || !GetCaster()->GetOwner())
+            return;
+        if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
+        {
+            // For others recalculate it from:
+            float HasteMelee = 0.0f;
+            // Increase hit from SPELL_AURA_MOD_HIT_CHANCE
+            HasteMelee += (1-owner->m_modAttackSpeedPct[BASE_ATTACK])*100;
+
+            amount += int32(HasteMelee);
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_rune_weapon_scaling_02::CalculateDamageDoneAmount, EFFECT_0, SPELL_AURA_MOD_DAMAGE_DONE);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_rune_weapon_scaling_02::CalculateAmountMeleeHaste, EFFECT_1, SPELL_AURA_MELEE_SLOW);
     }
 };
 
 void AddSC_pet_spell_scripts()
 {
-    new spell_gen_pet_calculate();
+    RegisterAuraScript(spell_dk_rune_weapon_scaling_02);
 }
