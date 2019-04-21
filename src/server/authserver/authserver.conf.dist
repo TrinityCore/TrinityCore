@@ -99,7 +99,7 @@ RealmsStateUpdateDelay = 20
 
 #
 #    WrongPass.MaxCount
-#        Description: Number of login attemps with wrong password before the account or IP will be
+#        Description: Number of login attempts with wrong password before the account or IP will be
 #                     banned.
 #        Default:     0  - (Disabled)
 #                     1+ - (Enabled)
@@ -132,7 +132,7 @@ WrongPass.Logging = 0
 
 #
 #    StrictVersionCheck
-#        Description: Prevent modified clients from connnecting
+#        Description: Prevent modified clients from connecting
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 #
@@ -157,7 +157,7 @@ SourceDirectory  = ""
 
 #
 #    MySQLExecutable
-#        Description: The path to your mysql cli binary.
+#        Description: The path to your MySQL CLI binary.
 #                     If the path is left empty, built-in path from cmake is used.
 #        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
 #                     "mysql.exe"
@@ -184,7 +184,7 @@ IPLocationFile = ""
 #    LoginDatabaseInfo
 #        Description: Database connection settings for the realm server.
 #        Example:     "hostname;port;username;password;database"
-#                     ".;somenumber;username;password;database" - (Use named pipes on Windows
+#                     ".;some_number;username;password;database" - (Use named pipes on Windows
 #                                                                 "enable-named-pipe" to [mysqld]
 #                                                                 section my.ini)
 #                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
@@ -279,7 +279,7 @@ Updates.CleanDeadRefMaxCount = 3
 #
 #  LOGGING SYSTEM SETTINGS
 #
-#  Appender config values: Given a appender "name"
+#  Appender config values: Given an appender "name"
 #    Appender.name
 #        Description: Defines 'where to log'
 #        Format:      Type,LogLevel,Flags,optional1,optional2,optional3
@@ -336,9 +336,9 @@ Updates.CleanDeadRefMaxCount = 3
 #                     MaxFileSize: Maximum file size of the log file before creating a new log file
 #                     (read as optional3 if Type = File)
 #                         Size is measured in bytes expressed in a 64-bit unsigned integer.
-#                         Maximum value is 4294967295 (4 gb). Leave blank for no limit.
+#                         Maximum value is 4294967295 (4 GB). Leave blank for no limit.
 #                         NOTE: Does not work with dynamic filenames.
-#                         Example:  536870912 (512 mb)
+#                         Example:  536870912 (512 MB)
 #
 
 Appender.Console=1,2,0
