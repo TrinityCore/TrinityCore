@@ -53,7 +53,7 @@ enum Events
 {
     EVENT_SPAWN_START_SPIDERS = 1, // Phase 1
     EVENT_POISON_VOLLEY       = 2, // Phase All
-    EVENT_HATCH_SPIDER_EGG        = 3, // Phase All
+    EVENT_HATCH_SPIDER_EGG    = 3, // Phase All
     EVENT_CHARGE_PLAYER       = 4, // Phase 3
     EVENT_ASPECT_OF_MARLI     = 5, // Phase 2
     EVENT_TRANSFORM           = 6, // Phase 2
