@@ -91,11 +91,6 @@ class boss_marli : public CreatureScript
             public:
                 boss_marliAI(Creature* creature) : BossAI(creature, DATA_MARLI) { }
 
-                void Initialize()
-                {
-                    _hatchedEggs = std::set<GameObject*>();
-                }
-
                 void Reset() override
                 {
                     if (events.IsInPhase(PHASE_THREE))
@@ -104,9 +99,9 @@ class boss_marli : public CreatureScript
                         {
                             go->Respawn();
                         });
-                    
+
+                    _hatchedEggs.clear();
                     _Reset();
-                    Initialize();
                 }
 
                 void SpellHitTarget(GameObject* target, SpellInfo const* /*spellInfo*/) override
