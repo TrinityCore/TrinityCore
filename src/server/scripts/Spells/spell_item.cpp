@@ -3717,9 +3717,9 @@ class spell_item_taunt_flag_targeting : public SpellScript
 
 enum MirrensDrinkingHat
 {
-    ITEM_LOCH_MODAN_LAGER       = 23584,
-    ITEM_STOUTHAMMER_LITE       = 23585,
-    ITEM_AERIE_PEAK_PALE_ALE    = 23586
+    SPELL_LOCH_MODAN_LAGER      = 29827,
+    SPELL_STOUTHAMMER_LITE      = 29828,
+    SPELL_AERIE_PEAK_PALE_ALE   = 29829
 };
 
 // 29830 - Mirren's Drinking Hat
@@ -3727,23 +3727,24 @@ class spell_item_mirrens_drinking_hat : public SpellScript
 {
     PrepareSpellScript(spell_item_mirrens_drinking_hat);
 
-    void HandleScriptEffect(SpellEffIndex effIndex)
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
-        uint32 itemId;
+        uint32 spellId;
         switch (urand(1, 6))
         {
             case 1:
             case 2:
             case 3:
-                itemId = ITEM_LOCH_MODAN_LAGER; break;
+                spellId = SPELL_LOCH_MODAN_LAGER; break;
             case 4:
             case 5:
-                itemId = ITEM_STOUTHAMMER_LITE; break;
+                spellId = SPELL_STOUTHAMMER_LITE; break;
             case 6:
-                itemId = ITEM_AERIE_PEAK_PALE_ALE; break;
+                spellId = SPELL_AERIE_PEAK_PALE_ALE; break;
         }
-        if (itemId)
-            CreateItem(effIndex, itemId);
+
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, spellId);
     }
 
     void Register() override
