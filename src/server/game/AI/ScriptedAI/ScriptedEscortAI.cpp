@@ -84,6 +84,8 @@ void EscortAI::InitializeAI()
 
     if (me->GetFaction() != me->GetCreatureTemplate()->faction)
         me->RestoreFaction();
+    
+    Reset();
 }
 
 void EscortAI::ReturnToLastPoint()
