@@ -36,33 +36,35 @@ enum BWDDataTypes
     DATA_NEFARIANS_END                              = 5,
 
     // Encounter Data
-    DATA_PREPARE_MASSIVE_CRASH_AND_GET_TARGET_GUID
+    DATA_PREPARE_MASSIVE_CRASH_AND_GET_TARGET_GUID,
+    DATA_NEFARIAN_MAGMAW,
 };
 
 enum BWDCreatureIds
 {
     // Bosses
-    BOSS_MAGMAW                                     = 41570,
-    BOSS_MAGMATRON                                  = 42178,
-    BOSS_ARCANOTRON                                 = 42166,
-    BOSS_TOXITRON                                   = 42180,
-    BOSS_ELECTRON                                   = 42179,
-    BOSS_CHIMAERON                                  = 43296,
-    BOSS_ATRAMEDES                                  = 41442,
-    BOSS_MALORIAK                                   = 41378,
-    BOSS_NEFARIAN                                   = 41376,
+    BOSS_MAGMAW                     = 41570,
+    BOSS_MAGMATRON                  = 42178,
+    BOSS_ARCANOTRON                 = 42166,
+    BOSS_TOXITRON                   = 42180,
+    BOSS_ELECTRON                   = 42179,
+    BOSS_CHIMAERON                  = 43296,
+    BOSS_ATRAMEDES                  = 41442,
+    BOSS_MALORIAK                   = 41378,
+    BOSS_NEFARIAN                   = 41376,
 
     // Encounter related creatures
     /*Magmaw*/
-    NPC_MAGMAWS_PINCER_1                            = 41620,
-    NPC_MAGMAWS_PINCER_2                            = 41789,
-    NPC_EXPOSED_HEAD_OF_MAGMAW                      = 42347,
-    NPC_EXPOSED_HEAD_OF_MAGMAW_2                    = 48270,
-    NPC_PILLAR_OF_FLAME                             = 41843,
-    NPC_LAVA_PARASITE                               = 41806,
-    NPC_MASSIVE_CRASH                               = 47330,
-    NPC_ROOM_STALKER                                = 47196,
-    NPC_MAGMAW_SPIKE_STALKER                        = 41767,
+    NPC_MAGMAWS_PINCER_1            = 41620,
+    NPC_MAGMAWS_PINCER_2            = 41789,
+    NPC_EXPOSED_HEAD_OF_MAGMAW      = 42347,
+    NPC_EXPOSED_HEAD_OF_MAGMAW_2    = 48270,
+    NPC_PILLAR_OF_FLAME             = 41843,
+    NPC_LAVA_PARASITE               = 41806,
+    NPC_MASSIVE_CRASH               = 47330,
+    NPC_ROOM_STALKER                = 47196,
+    NPC_MAGMAW_SPIKE_STALKER        = 41767,
+    NPC_NEFARIAN_MAGMAW             = 49427
 };
 
 enum BWDGameObjectIds

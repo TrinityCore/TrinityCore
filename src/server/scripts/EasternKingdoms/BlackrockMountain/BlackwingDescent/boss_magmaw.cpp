@@ -78,7 +78,7 @@ enum Events
     EVENT_EJECT_PASSENGER_1,
     EVENT_EXPOSE_HEAD,
     EVENT_HIDE_HEAD,
-    EVENT_FINISH_IMPALE_SELF,
+    EVENT_FINISH_IMPALE_SELF
 };
 
 enum Actions
@@ -91,15 +91,26 @@ enum Texts
     // Magmaw
     SAY_ANNOUNCE_LAVA_PARASITES = 0,
     SAY_ANNOUNCE_EXPOSE_PINCERS = 1,
-    SAY_ANNOUNCE_EXPOSED_HEAD   = 2
+    SAY_ANNOUNCE_EXPOSED_HEAD   = 2,
+
+    // Nefarian
+    SAY_INTRO_1                 = 0,
+    SAY_INTRO_2                 = 1,
+    SAY_MAGMAW_LOW_HEALTH       = 2,
+    SAY_MAGMAW_DEFEATED         = 3
 };
 
 enum VehicleSeats
 {
+    // Magmaw
     SEAT_MAGMAWS_PINCER_1           = 0,
     SEAT_MAGMAWS_PINCER_2           = 1,
+    SEAT_MANGLE                     = 2,
     SEAT_EXPOSED_HEAD_OF_MAGMAW_1   = 3,
     SEAT_EXPOSED_HEAD_OF_MAGMAW_2   = 4,
+
+    // Magmaw's Pincer
+    SEAT_PINCER                     = 0
 };
 
 enum Data
@@ -107,7 +118,15 @@ enum Data
     DATA_FREE_PINCER = 0
 };
 
-Position const ExposedHeadOfMagmawPos = { -299.0f, -28.9861f, 191.0293f, 4.118977f };
+enum MovePoints
+{
+    POINT_NONE = 0
+};
+
+Position const ExposedHeadOfMagmawPos   = { -299.0f,    -28.9861f,  191.0293f, 4.118977f };
+Position const MagmawVehicleExitPos     = { -311.4653f, -48.59722f, 212.8065f, 1.064651f };
+Position const NefarianIntroSummonPos   = { -390.1042f, 40.88411f,  207.8586f, 0.196609f };
+Position const NefarianIntroFlightPos   = { -315.9445f, -6.895832f, 246.8446f };
 
 struct boss_magmaw : public BossAI
 {
@@ -125,6 +144,7 @@ struct boss_magmaw : public BossAI
         _pincer2 = nullptr;
         _hasExposedHead = false;
         _headEngaged = false;
+        _lowHealthTextTriggered = !IsHeroic();
     }
 
     void Reset() override
@@ -149,6 +169,22 @@ struct boss_magmaw : public BossAI
 
         _exposedHead1->SetInCombatWithZone();
         _exposedHead2->SetInCombatWithZone();
+
+        if (IsHeroic())
+        {
+            if (Creature* nefarian = DoSummon(NPC_NEFARIAN_MAGMAW, NefarianIntroSummonPos, 0, TEMPSUMMON_MANUAL_DESPAWN))
+            {
+                nefarian->GetMotionMaster()->MovePoint(POINT_NONE, NefarianIntroFlightPos);
+                nefarian->m_Events.AddEventAtOffset([nefarian]()
+                {
+                    nefarian->AI()->Talk(SAY_INTRO_1);
+                    nefarian->m_Events.AddEventAtOffset([nefarian]()
+                    {
+                        nefarian->AI()->Talk(SAY_INTRO_2);
+                    }, 16s);
+                }, 11s);
+            }
+        }
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -157,6 +193,11 @@ struct boss_magmaw : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         if (_headEngaged)
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, _exposedHead1);
+
+        DoCastSelf(SPELL_EJECT_PASSENGER_3, true);
+        _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
+        _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
+
         instance->SetData(DATA_MAGMAW, FAIL);
         summons.DespawnAll();
         _DespawnAtEvade();
@@ -206,7 +247,7 @@ struct boss_magmaw : public BossAI
                 break;
             }
             case SPELL_IMPALE_SELF:
-                DoCastSelf(SPELL_EJECT_PASSENGER_3);
+                DoCastSelf(SPELL_EJECT_PASSENGER_3, true);
                 Talk(SAY_ANNOUNCE_EXPOSED_HEAD);
                 me->RemoveAurasDueToSpell(SPELL_CHAIN_VISUAL_1);
                 me->RemoveAurasDueToSpell(SPELL_CHAIN_VISUAL_2);
@@ -216,12 +257,6 @@ struct boss_magmaw : public BossAI
             default:
                 break;
         }
-    }
-
-    void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
-    {
-        if (!passenger)
-            return;
     }
 
     ObjectGuid GetGUID(int32 type) const override
@@ -240,6 +275,23 @@ struct boss_magmaw : public BossAI
         return ObjectGuid::Empty;
     }
 
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(30, damage) && !_lowHealthTextTriggered)
+        {
+            // Todo: Nefarian text
+            _lowHealthTextTriggered = true;
+        }
+
+        if (damage >= me->GetHealth())
+        {
+            // Make sure we eject all passengers nicely before we die so they wont end up in the lava
+            DoCastSelf(SPELL_EJECT_PASSENGER_3, true);
+            _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
+            _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
+        }
+    }
+
     void DoAction(int32 action) override
     {
         switch (action)
@@ -248,11 +300,15 @@ struct boss_magmaw : public BossAI
                 events.Reset();
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
+                me->CastStop();
                 me->RemoveAurasDueToSpell(SPELL_MASSIVE_CRASH);
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
-                if (Creature* spikeStalker = me->FindNearestCreature(NPC_MAGMAW_SPIKE_STALKER, 50.0f))
+                me->RemoveAurasDueToSpell(SPELL_PILLAR_OF_FLAME_MISSILE_PERIODIC);
+
+                if (Creature* spikeStalker = me->FindNearestCreature(NPC_MAGMAW_SPIKE_STALKER, 60.0f))
                     me->SetFacingToObject(spikeStalker);
+
                 events.ScheduleEvent(EVENT_IMPALE_SELF, 1s);
                 events.ScheduleEvent(EVENT_EJECT_PASSENGER_1, 2s + 300ms);
                 events.ScheduleEvent(EVENT_EXPOSE_HEAD, 4s + 700ms);
@@ -312,8 +368,8 @@ struct boss_magmaw : public BossAI
                     break;
                 case EVENT_MASSIVE_CRASH:
                     DoCast(SPELL_MASSIVE_CRASH);
-                    _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1);
-                    _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1);
+                    _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
+                    _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
                     break;
                 case EVENT_ANNOUNCE_PINCERS_EXPOSED:
                     Talk(SAY_ANNOUNCE_EXPOSE_PINCERS);
@@ -327,8 +383,8 @@ struct boss_magmaw : public BossAI
                     DoCastSelf(SPELL_IMPALE_SELF);
                     break;
                 case EVENT_EJECT_PASSENGER_1:
-                    _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1);
-                    _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1);
+                    _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
+                    _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
                     break;
                 case EVENT_EXPOSE_HEAD:
                     if (!_headEngaged)
@@ -418,6 +474,7 @@ private:
     uint8 _magmaProjectileCount;
     bool _hasExposedHead;
     bool _headEngaged;
+    bool _lowHealthTextTriggered;
 };
 
 class IsOnVehicleCheck
@@ -615,12 +672,13 @@ class spell_magmaw_launch_hook : public AuraScript
     {
         Unit* target = GetTarget();
 
-        if (target->HasAura(SPELL_LAUNCH_HOOK_1) /*&&*/ || target->HasAura(SPELL_LAUNCH_HOOK_2))
+        if (target->HasAura(SPELL_LAUNCH_HOOK_1) && target->HasAura(SPELL_LAUNCH_HOOK_2))
         {
             if (InstanceScript* instance = target->GetInstanceScript())
                 if (Creature* magmaw = instance->GetCreature(DATA_MAGMAW))
                     magmaw->AI()->DoAction(ACTION_IMPALE_MAGMAW);
 
+            target->RemoveAllAuras();
             target->CastSpell(target, SPELL_CHAIN_VISUAL_1);
             target->CastSpell(target, SPELL_CHAIN_VISUAL_2);
         }
@@ -629,6 +687,44 @@ class spell_magmaw_launch_hook : public AuraScript
     void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_magmaw_launch_hook::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_magmaw_eject_passenger_1 : public SpellScript
+{
+    PrepareSpellScript(spell_magmaw_eject_passenger_1);
+
+    void EjectPassenger(SpellEffIndex /*effIndex*/)
+    {
+        if (Vehicle* vehicle = GetHitUnit()->GetVehicleKit())
+        {
+            if (Unit* passenger = vehicle->GetPassenger(SEAT_PINCER))
+                passenger->_ExitVehicle(&MagmawVehicleExitPos);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_magmaw_eject_passenger_1::EjectPassenger, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_magmaw_eject_passenger_3 : public SpellScript
+{
+    PrepareSpellScript(spell_magmaw_eject_passenger_3);
+
+    void EjectPassenger(SpellEffIndex /*effIndex*/)
+    {
+        if (Vehicle* vehicle = GetHitUnit()->GetVehicleKit())
+        {
+            if (Unit* passenger = vehicle->GetPassenger(SEAT_MANGLE))
+                passenger->_ExitVehicle(&MagmawVehicleExitPos);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_magmaw_eject_passenger_3::EjectPassenger, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -641,4 +737,6 @@ void AddSC_boss_magmaw()
     RegisterSpellScript(spell_magmaw_pillar_of_flame_forcecast);
     RegisterSpellScript(spell_magmaw_ride_vehicle);
     RegisterAuraScript(spell_magmaw_launch_hook);
+    RegisterSpellScript(spell_magmaw_eject_passenger_1);
+    RegisterSpellScript(spell_magmaw_eject_passenger_3);
 }
