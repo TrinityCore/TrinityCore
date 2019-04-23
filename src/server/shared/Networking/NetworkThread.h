@@ -19,12 +19,12 @@
 #define NetworkThread_h__
 
 #include "Define.h"
+#include "DeadlineTimer.h"
 #include "Errors.h"
 #include "IoContext.h"
 #include "Log.h"
 #include "Timer.h"
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/deadline_timer.hpp>
 #include <atomic>
 #include <chrono>
 #include <memory>
@@ -173,7 +173,7 @@ private:
 
     Trinity::Asio::IoContext _ioContext;
     tcp::socket _acceptSocket;
-    boost::asio::deadline_timer _updateTimer;
+    Trinity::Asio::DeadlineTimer _updateTimer;
 };
 
 #endif // NetworkThread_h__

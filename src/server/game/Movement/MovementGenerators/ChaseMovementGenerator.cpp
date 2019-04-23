@@ -184,8 +184,8 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
             if (owner->IsHovering())
                 owner->UpdateAllowedPositionZ(x, y, z);
 
-            bool success = _path->CalculatePath(x, y, z);
-            if (!success || (_path->GetPathType() & PATHFIND_NOPATH))
+            bool success = _path->CalculatePath(x, y, z, owner->CanFly());
+            if (!success || (_path->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE)))
             {
                 if (cOwner)
                     cOwner->SetCannotReachTarget(true);
