@@ -693,10 +693,17 @@ void GameObject::Update(uint32 diff)
             if (!m_respawnDelayTime)
                 return;
 
+            if (!m_spawnId)
+             {
+                 m_respawnTime = 0;
+                 Delete();
+                 return;
+             }
+
             if (!m_spawnedByDefault)
             {
                 m_respawnTime = 0;
-                Delete();
+                DestroyForNearbyPlayers();
                 return;
             }
 
