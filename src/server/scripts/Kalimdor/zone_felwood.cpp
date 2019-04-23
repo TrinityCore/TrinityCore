@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -215,8 +215,7 @@ public: spell_beesbees() : SpellScriptLoader("spell_beesbees") { }
 enum RuumbosSillyDance
 {
     NPC_DRIZZLE  = 47556,
-    NPC_FERLI    = 47558,
-    MAP_KALIMDOR = 1
+    NPC_FERLI    = 47558
 };
 
 Position const DrizzleSpawnPos = { 3852.52f, -1321.92f, 213.3353f, 5.72468f };

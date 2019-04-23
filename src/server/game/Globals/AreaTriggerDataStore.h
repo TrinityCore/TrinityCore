@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,15 +23,35 @@
 class AreaTriggerTemplate;
 class AreaTriggerMiscTemplate;
 
+struct AreaTriggerData
+{
+    uint32 id;
+    float position_x;
+    float position_y;
+    float position_z;
+    uint32 map_id;
+    uint64 spawn_mask;
+    uint32 scriptId;
+    ObjectGuid::LowType guid;
+};
+
 class TC_GAME_API AreaTriggerDataStore
 {
 public:
+    typedef std::list<AreaTriggerData> AreaTriggerDataList;
+    typedef std::unordered_map<uint32, AreaTriggerDataList> AreaTriggerDataContainer;
+
     void LoadAreaTriggerTemplates();
+    void LoadAreaTriggers();
 
     AreaTriggerTemplate const* GetAreaTriggerTemplate(uint32 areaTriggerId) const;
     AreaTriggerMiscTemplate const* GetAreaTriggerMiscTemplate(uint32 spellMiscValue) const;
+    AreaTriggerDataList const* GetStaticAreaTriggersByMap(uint32 map_id) const;
 
     static AreaTriggerDataStore* Instance();
+
+private:
+    AreaTriggerDataContainer _areaTriggerData;
 };
 
 #define sAreaTriggerDataStore AreaTriggerDataStore::Instance()

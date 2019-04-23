@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -406,6 +406,29 @@ void BattlegroundAV::PostUpdateImpl(uint32 diff)
                 else
                      EventPlayerDestroyedPoint(i);
             }
+    }
+
+    if (GetStatus() == STATUS_WAIT_JOIN)
+    {
+        m_CheatersCheckTimer -= diff;
+        if (m_CheatersCheckTimer <= 0)
+        {
+            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            {
+                Player* player = ObjectAccessor::FindPlayer(itr->first);
+                if (!player || !player->IsInWorld())
+                    continue;
+
+                if (player->GetPositionZ() < 50)
+                {
+                    if (player->GetBGTeam() == HORDE)
+                        player->TeleportTo(30, -1439.26f, -606.68f, 51.23f, player->GetOrientation(), 0);
+                    else
+                        player->TeleportTo(30, 871.65f, -491.23f, 96.53f, player->GetOrientation(), 0);
+                }
+            }
+            m_CheatersCheckTimer = 4000;
+        }
     }
 }
 
@@ -1476,6 +1499,8 @@ void BattlegroundAV::DefendNode(BG_AV_Nodes node, uint16 team)
 
 void BattlegroundAV::ResetBGSubclass()
 {
+    m_CheatersCheckTimer = 0;
+
     for (uint8 i=0; i<2; i++) //forloop for both teams (it just make 0 == alliance and 1 == horde also for both mines 0=north 1=south
     {
         for (uint8 j=0; j<9; j++)
@@ -1504,7 +1529,7 @@ void BattlegroundAV::ResetBGSubclass()
             DelCreature(i);
 }
 
-bool BattlegroundAV::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue)
+/*bool BattlegroundAV::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue)
 {
     uint32 team = source->GetTeam();
     switch (criteriaId)
@@ -1565,7 +1590,7 @@ bool BattlegroundAV::CheckAchievementCriteriaMeet(uint32 criteriaId, Player cons
     }
 
     return Battleground::CheckAchievementCriteriaMeet(criteriaId, source, target, miscValue);
-}
+}*/
 
 uint32 BattlegroundAV::GetPrematureWinner()
 {
@@ -1578,4 +1603,63 @@ uint32 BattlegroundAV::GetPrematureWinner()
         return HORDE;
 
     return Battleground::GetPrematureWinner();
+}
+
+bool BattlegroundAV::IsBothMinesControlledByTeam(uint32 team) const
+{
+    for (uint8 mine = 0; mine < 2; mine++)
+        if (m_Mine_Owner[mine] != team)
+            return false;
+
+    return true;
+}
+
+bool BattlegroundAV::IsAllTowersControlledAndCaptainAlive(uint32 team) const
+{
+    if (team == ALLIANCE)
+    {
+        for (BG_AV_Nodes i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_STONEHEART_BUNKER; ++i) // alliance towers controlled
+        {
+            if (m_Nodes[i].State == POINT_CONTROLED)
+            {
+                if (m_Nodes[i].Owner != ALLIANCE)
+                    return false;
+            }
+            else
+                return false;
+        }
+
+        for (BG_AV_Nodes i = BG_AV_NODES_ICEBLOOD_TOWER; i <= BG_AV_NODES_FROSTWOLF_WTOWER; ++i) // horde towers destroyed
+            if (m_Nodes[i].State != POINT_DESTROYED)
+                return false;
+
+        if (!m_CaptainAlive[0])
+            return false;
+
+        return true;
+    }
+    else if (team == HORDE)
+    {
+        for (BG_AV_Nodes i = BG_AV_NODES_ICEBLOOD_TOWER; i <= BG_AV_NODES_FROSTWOLF_WTOWER; ++i) // horde towers controlled
+        {
+            if (m_Nodes[i].State == POINT_CONTROLED)
+            {
+                if (m_Nodes[i].Owner != HORDE)
+                    return false;
+            }
+            else
+                return false;
+        }
+
+        for (BG_AV_Nodes i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_STONEHEART_BUNKER; ++i) // alliance towers destroyed
+            if (m_Nodes[i].State != POINT_DESTROYED)
+                return false;
+
+        if (!m_CaptainAlive[1])
+            return false;
+
+        return true;
+    }
+
+    return false;
 }

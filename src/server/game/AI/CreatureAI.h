@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,8 +29,10 @@ class Creature;
 class DynamicObject;
 class GameObject;
 class PlayerAI;
+class Spell;
 class WorldObject;
 struct Position;
+struct SpellDestination;
 
 typedef std::set<AreaBoundary const*> CreatureBoundary;
 
@@ -105,6 +107,12 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called if IsVisible(Unit* who) is true at each who move, reaction at visibility zone enter
         void MoveInLineOfSight_Safe(Unit* who);
 
+        bool CanSeeEvenInPassiveMode() { return m_canSeeEvenInPassiveMode; }
+        void SetCanSeeEvenInPassiveMode(bool canSeeEvenInPassiveMode) { m_canSeeEvenInPassiveMode = canSeeEvenInPassiveMode; }
+
+        // Called in Creature::Update when deathstate = DEAD.
+        virtual bool CanRespawn() { return true; }
+
         // Trigger Creature "Alert" state (creature can see stealthed unit)
         void TriggerAlert(Unit const* who) const;
 
@@ -123,6 +131,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called when the creature summon successfully other creature
         virtual void JustSummoned(Creature* /*summon*/) { }
         virtual void IsSummonedBy(Unit* /*summoner*/) { }
+        virtual void IsSummonedBy(Spell const* /*summonSpell*/) { }
 
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) { }
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
@@ -145,9 +154,25 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) { }
 
+        // Called when spell hits a destination
+        virtual void SpellHitDest(SpellDestination const* /*dest*/, SpellInfo const* /*spellInfo*/) { }
+
+        // Called when spell miss a target
+        virtual void SpellMissTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/, SpellMissInfo /*missInfo*/) { }
+
+        // Called when successful cast a spell
+        virtual void OnSpellCasted(SpellInfo const* /*spellInfo*/) { }
+
+        // Called when a spell is finished
+        virtual void OnSpellFinished(SpellInfo const* /*spellInfo*/) { }
+
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         virtual void AttackedBy(Unit* /*attacker*/) { }
         virtual bool IsEscorted() const { return false; }
+
+        // Called when check LOS
+        virtual bool CanBeTargetedOutOfLOS() { return false; }
+        virtual bool CanTargetOutOfLOS() { return false; }
 
         // Called when creature is spawned or respawned
         virtual void JustRespawned() { }
@@ -176,6 +201,15 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         // Called when owner attacks something
         virtual void OwnerAttacked(Unit* /*target*/) { }
+
+        // Called when a creature regen one of his power
+        virtual void RegeneratePower(Powers /*power*/, int32& /*value*/) { }
+
+        // Called when the Creature reach splineIndex
+        virtual void OnSplineIndexReached(int /*splineIndex*/) { }
+
+        // Called when the Creature reach spline end
+        virtual void OnSplineEndReached() { }
 
         /// == Triggered Actions Requested ==================
 
@@ -224,6 +258,7 @@ class TC_GAME_API CreatureAI : public UnitAI
 
     private:
         bool m_MoveInLineOfSight_locked;
+        bool m_canSeeEvenInPassiveMode;
 };
 
 enum Permitions

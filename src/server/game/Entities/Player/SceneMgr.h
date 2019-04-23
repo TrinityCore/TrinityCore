@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,7 +35,7 @@ class Player;
 struct Position;
 struct SceneTemplate;
 
-typedef std::map<uint32, SceneTemplate const*> SceneTemplateByInstance;
+typedef std::map<uint32, SceneTemplate> SceneTemplateByInstance;
 
 class TC_GAME_API SceneMgr
 {
@@ -45,7 +45,7 @@ public:
     Player* GetPlayer() const { return _player; }
 
     uint32 PlayScene(uint32 sceneId, Position const* position = nullptr);
-    uint32 PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Position const* position = nullptr);
+    uint32 PlaySceneByTemplate(SceneTemplate const sceneTemplate, Position const* position = nullptr);
     uint32 PlaySceneByPackageId(uint32 sceneScriptPackageId, uint32 playbackflags = SCENEFLAG_UNK16, Position const* position = nullptr);
     void CancelScene(uint32 sceneInstanceID, bool removeFromMap = true);
 
@@ -60,16 +60,17 @@ public:
     }
 
     bool HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId = 0) const;
+    bool HasSceneWithPackageId(uint32 sceneScriptPackageId) const;
 
-    void AddInstanceIdToSceneMap(uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
+    void AddInstanceIdToSceneMap(uint32 sceneInstanceID, SceneTemplate const sceneTemplate);
     void CancelSceneBySceneId(uint32 sceneId);
     void CancelSceneByPackageId(uint32 sceneScriptPackageId);
     void RemoveSceneInstanceId(uint32 sceneInstanceID);
     void RemoveAurasDueToSceneId(uint32 sceneId);
 
-    SceneTemplate const* GetSceneTemplateFromInstanceId(uint32 sceneInstanceID);
-    uint32 GetActiveSceneCount(uint32 sceneScriptPackageId = 0);
-    SceneTemplateByInstance const& GetSceneTemplateByInstanceMap() const { return _scenesByInstance; }
+    SceneTemplate const* GetSceneTemplateFromInstanceId(uint32 sceneInstanceID)  const;
+    uint32 GetActiveSceneCount(uint32 sceneScriptPackageId = 0)  const;
+    SceneTemplateByInstance const& GetSceneByInstanceMap() const { return _scenesByInstance; }
 
     uint32 GetNewStandaloneSceneInstanceID() { return ++_standaloneSceneInstanceID; }
 

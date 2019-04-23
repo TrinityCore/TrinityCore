@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,6 +44,11 @@ namespace WorldPackets
 
         struct CharacterCreateInfo
         {
+            CharacterCreateInfo() { }
+            CharacterCreateInfo(std::string name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face,
+                uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId) : Race(race), Class(cclass), Sex(gender), Skin(skin),Face(face),
+                                                                                      HairStyle(hairStyle), HairColor(hairColor), FacialHairStyle(facialHair), OutfitId(outfitId), Name(name){ }
+
             /// User specified variables
             uint8 Race            = RACE_NONE;
             uint8 Class           = CLASS_NONE;
@@ -60,7 +65,8 @@ namespace WorldPackets
             std::string Name;
 
             /// Server side data
-            uint8 CharCount  = 0;
+            uint8 CharCount = 0;
+            bool withStartOutfit = true;
         };
 
         struct CharacterRenameInfo

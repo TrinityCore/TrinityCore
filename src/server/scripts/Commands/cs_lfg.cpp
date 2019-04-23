@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,6 +55,8 @@ public:
             {   "queue", rbac::RBAC_PERM_COMMAND_LFG_QUEUE,   true,  &HandleLfgQueueInfoCommand,  "" },
             {   "clean", rbac::RBAC_PERM_COMMAND_LFG_CLEAN,   true,  &HandleLfgCleanCommand,      "" },
             { "options", rbac::RBAC_PERM_COMMAND_LFG_OPTIONS, true,  &HandleLfgOptionsCommand,    "" },
+            {   "debug", rbac::RBAC_PERM_COMMAND_LFG_DEBUG,   true,  &HandleLfgDebugCommand,      "" },
+            {    "join", rbac::RBAC_PERM_COMMAND_LFG,         false, &HandleLfgJoinCommand,       "" },
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -159,6 +161,33 @@ public:
     {
         handler->PSendSysMessage(LANG_LFG_CLEAN);
         sLFGMgr->Clean();
+        return true;
+    }
+
+    static bool HandleLfgDebugCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        sLFGMgr->ToggleTesting();
+        handler->PSendSysMessage(sLFGMgr->IsTesting() ? LANG_DEBUG_LFG_ON : LANG_DEBUG_LFG_OFF);
+        return true;
+    }
+
+    static bool HandleLfgJoinCommand(ChatHandler* handler, char const* args)
+    {
+        CommandArgs cmdArgs = CommandArgs(handler, args, { CommandArgs::ARG_UINT, CommandArgs::ARG_UINT_OPTIONAL });
+
+        if (!cmdArgs.ValidArgs())
+            return false;
+
+        lfg::LfgDungeonSet newDungeons;
+        uint32 dungeon = cmdArgs.GetNextArg<uint32>();
+        if (sLFGDungeonsStore.LookupEntry(dungeon))
+            newDungeons.insert(dungeon);
+
+        uint8 role = lfg::PLAYER_ROLE_DAMAGE;
+        if (cmdArgs.Count() > 1)
+            role = uint8(cmdArgs.GetNextArg<uint32>());
+
+        sLFGMgr->JoinLfg(handler->getSelectedPlayerOrSelf(), role, newDungeons);
         return true;
     }
 };

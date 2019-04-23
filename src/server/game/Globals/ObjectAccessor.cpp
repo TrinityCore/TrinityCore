@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -119,6 +119,7 @@ WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid con
         case HighGuid::DynamicObject: return GetDynamicObject(p, guid);
         case HighGuid::AreaTrigger:   return GetAreaTrigger(p, guid);
         case HighGuid::Corpse:        return GetCorpse(p, guid);
+        case HighGuid::SceneObject:   return GetSceneObject(p, guid);
         case HighGuid::Conversation:  return GetConversation(p, guid);
         default:                      return nullptr;
     }
@@ -157,6 +158,10 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid con
         case HighGuid::AreaTrigger:
             if (typemask & TYPEMASK_AREATRIGGER)
                 return GetAreaTrigger(p, guid);
+            break;
+        case HighGuid::SceneObject:
+            if (typemask & TYPEMASK_SCENEOBJECT)
+                return GetSceneObject(p, guid);
             break;
         case HighGuid::Conversation:
             if (typemask & TYPEMASK_CONVERSATION)
@@ -199,6 +204,11 @@ DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, ObjectGuid
 AreaTrigger* ObjectAccessor::GetAreaTrigger(WorldObject const& u, ObjectGuid const& guid)
 {
     return u.GetMap()->GetAreaTrigger(guid);
+}
+
+SceneObject* ObjectAccessor::GetSceneObject(WorldObject const& u, ObjectGuid const& guid)
+{
+    return u.GetMap()->GetSceneObject(guid);
 }
 
 Conversation* ObjectAccessor::GetConversation(WorldObject const& u, ObjectGuid const& guid)

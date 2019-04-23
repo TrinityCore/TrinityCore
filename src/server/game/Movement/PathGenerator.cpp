@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -61,15 +61,28 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     float x, y, z;
     _sourceUnit->GetPosition(x, y, z);
 
-    if (!Trinity::IsValidMapCoord(destX, destY, destZ) || !Trinity::IsValidMapCoord(x, y, z))
-        return false;
+    G3D::Vector3 start(x, y, z);
+    G3D::Vector3 dest(destX, destY, destZ);
 
+    return CalculatePath(start, dest, forceDest, straightLine);
+}
+
+bool PathGenerator::CalculatePath(Position startPos, Position destPos, bool forceDest, bool straightLine)
+{
+    G3D::Vector3 start(startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ());
+    G3D::Vector3 dest(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ());
+
+    return CalculatePath(start, dest, forceDest, straightLine);
+}
+
+bool PathGenerator::CalculatePath(G3D::Vector3 start, G3D::Vector3 dest, bool forceDest, bool straightLine)
+{
     TC_METRIC_EVENT("mmap_events", "CalculatePath", "");
 
-    G3D::Vector3 dest(destX, destY, destZ);
-    SetEndPosition(dest);
+    if (!Trinity::IsValidMapCoord(start.x , start.y, start.z) || !Trinity::IsValidMapCoord(dest.x, dest.y, dest.z))
+        return false;
 
-    G3D::Vector3 start(x, y, z);
+    SetEndPosition(dest);
     SetStartPosition(start);
 
     _forceDestination = forceDest;

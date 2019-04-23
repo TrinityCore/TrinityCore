@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -83,6 +83,9 @@ public:
             TC_LOG_INFO("network", "Failed to open acceptor %s", errorCode.message().c_str());
             return false;
         }
+
+        // Opening a socket acceptor with the SO_REUSEADDR option enabled.
+        _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
 
         _acceptor.bind(_endpoint, errorCode);
         if (errorCode)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -297,6 +297,30 @@ namespace WorldPackets
             Optional<float> FlightBackSpeed;
             Optional<float> RunBackSpeed;
             Optional<float> PitchRate;
+        };
+
+        class MoveApplyMovementForce final : public ServerPacket
+        {
+        public:
+            MoveApplyMovementForce() : ServerPacket(SMSG_MOVE_APPLY_MOVEMENT_FORCE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            int32 SequenceIndex = 0;
+            MovementForce Force;
+        };
+
+        class MoveRemoveMovementForce final : public ServerPacket
+        {
+        public:
+            MoveRemoveMovementForce() : ServerPacket(SMSG_MOVE_REMOVE_MOVEMENT_FORCE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            int32 SequenceIndex = 0;
+            ObjectGuid ID;
         };
 
         class MoveUpdateApplyMovementForce final : public ServerPacket
@@ -616,5 +640,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo);
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo::TransportInfo& transportInfo);
 ByteBuffer& operator<<(ByteBuffer& data, MovementInfo::TransportInfo const& transportInfo);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Movement::MovementAck& movementAck);
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce const& movementForce);
 
 #endif // MovementPackets_h__

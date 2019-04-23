@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -245,8 +245,10 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                         ASSERT(pet->GetTypeId() == TYPEID_UNIT);
                         if (pet->IsPet())
                         {
-                            if (((Pet*)pet)->getPetType() == HUNTER_PET)
+                            if (((Pet*)pet)->IsHunterPet())
+                            {
                                 GetPlayer()->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);
+                            }
                             else
                                 //dismissing a summoned pet is like killing them (this prevents returning a soulshard...)
                                 pet->setDeathState(CORPSE);
@@ -265,6 +267,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
 
                     charmInfo->SetIsCommandAttack(false);
                     charmInfo->SetIsAtStay(true);
+                    charmInfo->SetIsCommandFollow(false);
                     charmInfo->SetIsFollowing(false);
                     charmInfo->SetIsReturning(false);
                     charmInfo->SaveStayPosition();
@@ -281,6 +284,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     // no break;
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete
+                case REACT_ASSIST:                          //
                     if (pet->GetTypeId() == TYPEID_UNIT)
                         pet->ToCreature()->SetReactState(ReactStates(spellid));
                     break;
@@ -522,7 +526,7 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
 
     Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
                                                             // check it!
-    if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET ||
+    if (!pet || !pet->IsPet() || !((Pet*)pet)->IsHunterPet() ||
         !pet->HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ||
         pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
         return;
@@ -725,3 +729,88 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
 
     SendPacket(petNameInvalid.Write());
 }
+
+void WorldSession::UpdatePetSlot(uint32 petNumberA, uint8 oldPetSlot, uint8 newPetSlot)
+{
+    uint32 petNumberB = 0;
+    Pet* pet = _player->GetPet();
+
+    // first check check new PetSlot if another pet already exists there
+    PlayerPetData* playerPetDataA = _player->GetPlayerPetDataById(petNumberA);
+    PlayerPetData* playerPetDataB = _player->GetPlayerPetDataBySlot(newPetSlot);
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    // If Slot is already in use
+    if (playerPetDataB)
+    {
+        petNumberB = playerPetDataB->PetId;
+
+        // Check if current pet is the pet to swap
+        if (pet && pet->GetCharmInfo()->GetPetNumber() == petNumberB)
+        {
+            pet->SetSlot(oldPetSlot);
+            _player->RemovePet(pet, PET_SAVE_DISMISS);
+        }
+        else
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_SLOT);
+            stmt->setUInt32(0, oldPetSlot);
+            stmt->setUInt64(1, _player->GetGUID().GetCounter());
+            stmt->setUInt32(2, newPetSlot);
+            trans->Append(stmt);
+
+        }
+
+        playerPetDataB->Slot = oldPetSlot;
+    }
+
+    // Check if current pet is the pet to swap
+    if (pet && pet->GetCharmInfo()->GetPetNumber() == petNumberA)
+    {
+        pet->SetSlot(newPetSlot);
+        _player->RemovePet(pet, PET_SAVE_DISMISS);
+    }
+    else
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
+        stmt->setUInt32(0, newPetSlot);
+        stmt->setUInt64(1, _player->GetGUID().GetCounter());
+        stmt->setUInt32(2, petNumberA);
+        trans->Append(stmt);
+    }
+
+    playerPetDataA->Slot = newPetSlot;
+
+    CharacterDatabase.CommitTransaction(trans);
+
+    SendPetSlotUpdated(petNumberA, newPetSlot, petNumberB, oldPetSlot);
+    SendPetStableResult(STABLE_SUCCESS_STABLE);
+}
+
+void WorldSession::SendPetSlotUpdated(int32 petNumberA, int32 petSlotA, int32 petNumberB, int32 petSlotB)
+{
+    WorldPackets::Pet::PetSlotUpdated petSlotUpdated;
+    petSlotUpdated.PetNumberA = petNumberA;
+    petSlotUpdated.PetSlotA = petSlotA;
+    petSlotUpdated.PetNumberB = petNumberB;
+    petSlotUpdated.PetSlotB = petSlotB;
+
+    SendPacket(petSlotUpdated.Write());
+}
+
+void WorldSession::SendPetAdded(int32 petSlot, int32 petNumber, int32 creatureID, int32 displayID, int32 level, std::string name)
+{
+    WorldPackets::Pet::PetAdded pet;
+
+    pet.NewPet.PetSlot = petSlot;;
+    pet.NewPet.PetNumber = petNumber;
+    pet.NewPet.CreatureID = creatureID;
+    pet.NewPet.DisplayID = displayID;
+    pet.NewPet.ExperienceLevel = level;
+    pet.NewPet.PetFlags = 0;
+    pet.NewPet.PetName = name;
+
+    SendPacket(pet.Write());
+}
+

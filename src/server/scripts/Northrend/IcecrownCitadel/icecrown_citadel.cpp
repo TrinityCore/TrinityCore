@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2021,7 +2021,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
                     return;
 
                 Position pos = caster->GetNearPosition(5.0f, 0.0f);
-                //pos.m_positionZ = caster->GetBaseMap()->GetHeight(caster->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), caster->GetPositionZ(), true, 50.0f);
+                //pos.m_positionZ = caster->GetMap()->GetHeight(caster->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), caster->GetPositionZ(), true, 50.0f);
                 //pos.m_positionZ += 0.05f;
                 caster->SetHomePosition(pos);
                 caster->GetMotionMaster()->MoveLand(POINT_LAND, pos);

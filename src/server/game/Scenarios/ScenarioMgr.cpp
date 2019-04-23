@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,7 +34,14 @@ InstanceScenario* ScenarioMgr::CreateInstanceScenario(Map const* map, TeamId tea
     auto dbDataItr = _scenarioDBData.find(std::make_pair(map->GetId(), map->GetDifficultyID()));
     // No scenario registered for this map and difficulty in the database
     if (dbDataItr == _scenarioDBData.end())
-        return nullptr;
+    {
+        // We then search for global scenario
+        dbDataItr = _scenarioDBData.find(std::make_pair(map->GetId(), 0));
+
+        // No more luck, return
+        if (dbDataItr == _scenarioDBData.end())
+            return nullptr;
+    }
 
     uint32 scenarioID = 0;
     switch (team)

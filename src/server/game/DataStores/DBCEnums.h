@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -135,7 +135,12 @@ enum AreaFlags
     AREA_FLAG_OUTSIDE               = 0x04000000,                // used for determinating spell related inside/outside questions in Map::IsOutdoors
     AREA_FLAG_CAN_HEARTH_AND_RESURRECT = 0x08000000,             // Can Hearth And Resurrect From Area
     AREA_FLAG_NO_FLY_ZONE           = 0x20000000,                // Marks zones where you cannot fly
-    AREA_FLAG_UNK9                  = 0x40000000
+    AREA_FLAG_SUB_ZONE              = 0x40000000,                // Usef for all the sub-zones (mostly when parent != 0)
+};
+
+enum AreaFlags2
+{
+    AREA_FLAG_GARRISON  = 0x20,
 };
 
 enum AreaMountFlags
@@ -167,6 +172,22 @@ enum ArtifactPowerFlag : uint8
 #define MAX_ARTIFACT_TIER 1
 
 #define BATTLE_PET_SPECIES_MAX_ID 2480
+
+enum BattlePetSpeciesFlags
+{
+    BATTLE_PET_SPECIES_FLAG_NOT_CAPTURABLE  = 0x400
+};
+
+enum BattlePetSpeciesSourceType
+{
+    BATTLE_PET_SPECIES_SOURCE_LOOT          = 0,
+    BATTLE_PET_SPECIES_SOURCE_QUEST         = 1,
+    BATTLE_PET_SPECIES_SOURCE_VENDOR        = 2,
+    BATTLE_PET_SPECIES_SOURCE_PROFESSION    = 3,
+    BATTLE_PET_SPECIES_SOURCE_WILD_PET      = 4,
+    BATTLE_PET_SPECIES_SOURCE_ACHIEVEMENT   = 5,
+    BATTLE_PET_SPECIES_SOURCE_WORLD_EVENT   = 6,
+};
 
 enum ChrSpecializationFlag
 {
@@ -257,6 +278,7 @@ enum CriteriaAdditionalCondition
     //CRITERIA_ADDITIONAL_CONDITION_UNK87                         = 87, // Achievement id
     CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES            = 91,
     CRITERIA_ADDITIONAL_CONDITION_EXPANSION                     = 92,
+    CRITERIA_ADDITIONAL_CONDITION_REPUTATION                    = 95,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY       = 144,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY     = 145,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_LEVEL       = 146,
@@ -517,7 +539,8 @@ enum CriteriaTreeFlags : uint16
     CRITERIA_TREE_FLAG_SHOW_CURRENCY_ICON   = 0x0008,
     CRITERIA_TREE_FLAG_ALLIANCE_ONLY        = 0x0200,
     CRITERIA_TREE_FLAG_HORDE_ONLY           = 0x0400,
-    CRITERIA_TREE_FLAG_SHOW_REQUIRED_COUNT  = 0x0800
+    CRITERIA_TREE_FLAG_SHOW_REQUIRED_COUNT  = 0x0800,
+    CRITERIA_TREE_FLAG_NOT_LINKED_TO_ACH    = 0x1000
 };
 
 enum CriteriaTreeOperator : uint8
@@ -704,6 +727,11 @@ enum MapFlags
     MAP_FLAG_GARRISON               = 0x4000000
 };
 
+enum MapFlags2
+{
+    MAP_FLAG2_WORLD_PVP             = 0x40,
+};
+
 enum AbilytyLearnType
 {
     SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
@@ -767,7 +795,7 @@ enum ItemBonusType
     ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL          = 18
 };
 
-enum class ItemContext : uint8
+enum ItemContext : uint8
 {
     NONE                    = 0,
     Dungeon_Normal          = 1,
@@ -884,6 +912,20 @@ enum ItemSpecStat
     ITEM_SPEC_STAT_RELIC_HOLY       = 39,
 
     ITEM_SPEC_STAT_NONE             = 40
+};
+
+enum JournalEncounterFlags : uint8
+{
+    JOURNAL_ENCOUNTER_FLAG_UNK2     = 0x02,
+    JOURNAL_ENCOUNTER_FLAG_ALLIANCE = 0x04, // This encounter can be see by alliance only
+    JOURNAL_ENCOUNTER_FLAG_HORDE    = 0x08,
+    JOURNAL_ENCOUNTER_FLAG_LEGION_WB= 0x16,
+};
+
+enum LfgDungeons : uint32
+{
+    LFG_DUNGEON_TIME_WALKING_BLACK_TEMPLE   = 1533,
+    LFG_DUNGEON_TIME_WALKING_ULDUAR         = 1677
 };
 
 enum MapDifficultyFlags : uint8
@@ -1079,7 +1121,8 @@ enum TaxiNodeFlags
 {
     TAXI_NODE_FLAG_ALLIANCE             = 0x01,
     TAXI_NODE_FLAG_HORDE                = 0x02,
-    TAXI_NODE_FLAG_USE_FAVORITE_MOUNT   = 0x10
+    TAXI_NODE_FLAG_USE_FAVORITE_MOUNT   = 0x10,
+    TAXI_NODE_FLAG_ARGUS                = 0x20
 };
 
 enum TaxiPathNodeFlags
@@ -1160,9 +1203,58 @@ enum VehicleSeatFlagsB
 // CurrencyTypes.dbc
 enum CurrencyTypes
 {
-    CURRENCY_TYPE_JUSTICE_POINTS        = 395,
-    CURRENCY_TYPE_VALOR_POINTS          = 396,
-    CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
+    CURRENCY_TYPE_DALARAN_JEWEL                     = 61,
+    CURRENCY_TYPE_EPICUREAN                         = 81,
+    CURRENCY_TYPE_CHAMPION_SEAL                     = 241,
+    CURRENCY_TYPE_ILLUSTROUS_JEWEL                  = 361,
+    CURRENCY_TYPE_ARCHAEOLOGY_DWARF                 = 384,
+    CURRENCY_TYPE_ARCHAEOLOGY_TROLL                 = 385,
+    CURRENCY_TYPE_CONQUEST_POINTS                   = 390,
+    CURRENCY_TYPE_TOL_BARAD                         = 391,
+    CURRENCY_TYPE_HONOR_POINTS                      = 392,
+    CURRENCY_TYPE_ARCHAEOLOGY_FOSSIL                = 393,
+    CURRENCY_TYPE_ARCHAEOLOGY_NIGHT_ELF             = 394,
+    CURRENCY_TYPE_JUSTICE_POINTS                    = 395,
+    CURRENCY_TYPE_VALOR_POINTS                      = 396,
+    CURRENCY_TYPE_ARCHAEOLOGY_ORC                   = 397,
+    CURRENCY_TYPE_ARCHAEOLOGY_DRAENEI               = 398,
+    CURRENCY_TYPE_ARCHAEOLOGY_VRYKUL                = 399,
+    CURRENCY_TYPE_ARCHAEOLOGY_NERUBIAN              = 400,
+    CURRENCY_TYPE_ARCHAEOLOGY_TOLVIR                = 401,
+    CURRENCY_TYPE_IRONPAW                           = 402,
+    CURRENCY_TYPE_WORLD_TREE                        = 416,
+    CURRENCY_TYPE_CONQUEST_META_ARENA_BG            = 483,
+    CURRENCY_TYPE_CONQUEST_META_RBG                 = 484,
+    CURRENCY_TYPE_DARKMOON_TICKET                   = 515,
+    CURRENCY_TYPE_MOTE_OF_DARKNESS                  = 614,
+    CURRENCY_TYPE_CORRUPTED_ESSENCE                 = 615,
+    CURRENCY_TYPE_ARCHAEOLOGY_PANDAREN              = 676,
+    CURRENCY_TYPE_ARCHAEOLOGY_MOGU                  = 677,
+    CURRENCY_TYPE_ELDER_CHARM_GOOD_FORTUNE          = 697,
+    CURRENCY_TYPE_ZEN_JEWEL                         = 698,
+    CURRENCY_TYPE_LESSER_CHARM_GOOD_FORTUNE         = 738,
+    CURRENCY_TYPE_MOGU_RUNE_FATE                    = 752,
+    CURRENCY_TYPE_ARCHAEOLOGY_MANTID                = 754,
+    CURRENCY_TYPE_WARFORGED_SEAL                    = 776,
+    CURRENCY_TYPE_TIMELESS_COIN                     = 777,
+    CURRENCY_TYPE_BLOODY_COIN                       = 789,
+    CURRENCY_TYPE_BLACK_IRON_FRAGEMENT              = 810,
+    CURRENCY_TYPE_DRAENOR_CLANS_ARCHAEOLOGY         = 821,
+    CURRENCY_TYPE_APEXIS_CRYSTALS                   = 823,
+    CURRENCY_TYPE_GARRISON_RESSOURCES               = 824,
+    CURRENCY_TYPE_OGRE_ARCHAEOLOGY_FRAGEMENT        = 828,
+    CURRENCY_TYPE_ARAKKOA_ARCHAEOLOGY               = 829,
+    CURRENCY_TYPE_UNUSED                            = 830,
+    CURRENCY_TYPE_UNUSED_2                          = 897,
+    CURRENCY_TYPE_SECRET_OF_DRAENOR_ALCHEMY         = 910,
+    CURRENCY_TYPE_ARTIFACT_FRAGEMENT                = 944,
+    CURRENCY_TYPE_DINGY_IRON_COINS                  = 980,
+    CURRENCY_TYPE_SEAL_OF_TEMPERED_FATE             = 994,
+    CURRENCY_TYPE_SECRET_OF_DRAENOR_TAILORING       = 999,
+    CURRENCY_TYPE_SECRET_OF_DRAENOR_JEWELCRAFTING   = 1008,
+    CURRENCY_TYPE_SECRET_OF_DRAENOR_LEATHERWORKING  = 1017,
+    CURRENCY_TYPE_SECRET_OF_DRAENOR_BLACKSMITHING   = 1020,
+    CURRENCY_TYPE_OIL                               = 1101,
 };
 
 enum WorldMapTransformsFlags

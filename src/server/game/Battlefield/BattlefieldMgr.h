@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,9 +33,9 @@ class TC_GAME_API BattlefieldMgr
         void InitBattlefield();
 
         // called when a player enters an battlefield area
-        void HandlePlayerEnterZone(Player* player, uint32 zoneId);
+        void HandlePlayerEnterZone(Player* player, Area* zone);
         // called when player leaves an battlefield area
-        void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
+        void HandlePlayerLeaveZone(Player* player, Area* zone);
 
         // return assigned battlefield
         Battlefield* GetBattlefieldToZoneId(uint32 zoneId);

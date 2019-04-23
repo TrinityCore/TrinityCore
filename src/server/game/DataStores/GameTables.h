@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,11 +21,6 @@
 #include "SharedDefines.h"
 #include "Common.h"
 #include <vector>
-
-struct GtArmorMitigationByLvlEntry
-{
-    float Mitigation = 0.0f;
-};
 
 struct GtArtifactKnowledgeMultiplierEntry
 {
@@ -101,6 +96,16 @@ struct GtCombatRatingsMultByILvl
     float WeaponMultiplier = 0.0f;
     float TrinketMultiplier = 0.0f;
     float JewelryMultiplier = 0.0f;
+};
+
+struct GtChallengeModeDamage
+{
+    float Scalar;
+};
+
+struct GtChallengeModeHealth
+{
+    float Scalar;
 };
 
 struct GtHpPerStaEntry
@@ -202,13 +207,14 @@ private:
     std::vector<T> _data;
 };
 
-TC_GAME_API extern GameTable<GtArmorMitigationByLvlEntry>           sArmorMitigationByLvlGameTable;
 TC_GAME_API extern GameTable<GtArtifactKnowledgeMultiplierEntry>    sArtifactKnowledgeMultiplierGameTable;
 TC_GAME_API extern GameTable<GtArtifactLevelXPEntry>                sArtifactLevelXPGameTable;
 TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>             sBarberShopCostBaseGameTable;
 TC_GAME_API extern GameTable<GtBaseMPEntry>                         sBaseMPGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>             sCombatRatingsMultByILvlGameTable;
+TC_GAME_API extern GameTable<GtChallengeModeDamage>                 sChallengeModeDamage;
+TC_GAME_API extern GameTable<GtChallengeModeHealth>                 sChallengeModeHealth;
 TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable;
 TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
 TC_GAME_API extern GameTable<GtNpcDamageByClassEntry>               sNpcDamageByClassGameTable[MAX_EXPANSIONS];

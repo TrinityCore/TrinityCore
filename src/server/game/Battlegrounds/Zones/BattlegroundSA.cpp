@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -370,7 +370,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             SetStatus(STATUS_IN_PROGRESS);
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if (Player* p = ObjectAccessor::FindPlayer(itr->first))
-                    p->RemoveAurasDueToSpell(SPELL_PREPARATION);
+                    p->RemoveAurasDueToSpell(SPELL_BG_PREPARATION);
         }
         if (TotalTime >= 30000)
         {
@@ -513,7 +513,7 @@ void BattlegroundSA::TeleportPlayers()
             player->ResetAllPowers();
             player->CombatStopWithPets(true);
 
-            player->CastSpell(player, SPELL_PREPARATION, true);
+            player->CastSpell(player, SPELL_BG_PREPARATION, true);
 
             TeleportToEntrancePosition(player);
         }
@@ -1055,7 +1055,7 @@ bool BattlegroundSA::IsSpellAllowed(uint32 spellId, Player const* /*player*/) co
             return Attackers == TEAM_HORDE;
         case SPELL_HORDE_CONTROL_PHASE_SHIFT:
             return Attackers == TEAM_ALLIANCE;
-        case SPELL_PREPARATION:
+        case SPELL_BG_PREPARATION:
             return Status == BG_SA_WARMUP || Status == BG_SA_SECOND_WARMUP;
         default:
            break;

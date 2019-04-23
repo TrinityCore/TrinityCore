@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+# Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -16,7 +16,7 @@ set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
 # Set projectname (must be done AFTER setting configurationtypes)
-project(TrinityCore)
+project(BFACore)
 
 # CMake policies (can not be handled elsewhere)
 cmake_policy(SET CMP0005 OLD)

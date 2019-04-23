@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,6 +55,7 @@ class TC_GAME_API Vehicle : public TransportBase
         SeatMap::const_iterator GetNextEmptySeat(int8 seatId, bool next) const;
         uint8 GetAvailableSeatCount() const;
 
+        bool AddPassenger(uint32 passengerEntry, int8 seatId = -1);
         bool AddPassenger(Unit* passenger, int8 seatId = -1);
         void EjectPassenger(Unit* passenger, Unit* controller);
         Vehicle* RemovePassenger(Unit* passenger);
@@ -71,6 +72,12 @@ class TC_GAME_API Vehicle : public TransportBase
         VehicleSeatEntry const* GetSeatForPassenger(Unit const* passenger) const;
 
         void RemovePendingEventsForPassenger(Unit* passenger);
+
+        inline bool ArePassengersSpawnedByAI() const { return _passengersSpawnedByAI; }
+        void SetPassengersSpawnedByAI(bool passengersSpawnedByAI) { _passengersSpawnedByAI = passengersSpawnedByAI; }
+
+        inline bool CanBeCastedByPassengers() const { return _canBeCastedByPassengers; }
+        void SetCanBeCastedByPassengers(bool canBeCastedByPassengers) { _canBeCastedByPassengers = canBeCastedByPassengers; }
 
     protected:
         friend class VehicleJoinEvent;
@@ -116,17 +123,20 @@ class TC_GAME_API Vehicle : public TransportBase
 
         typedef std::list<VehicleJoinEvent*> PendingJoinEventContainer;
         PendingJoinEventContainer _pendingJoinEvents;       ///< Collection of delayed join events for prospective passengers
+
+        bool _passengersSpawnedByAI;
+        bool _canBeCastedByPassengers;
 };
 
 class TC_GAME_API VehicleJoinEvent : public BasicEvent
 {
     friend class Vehicle;
     protected:
-        VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) { }
+        VehicleJoinEvent(Unit* v, Unit* u) : VehicleTargetBase(v), Passenger(u), Seat(VehicleTargetBase->GetVehicleKit()->Seats.end()) { ASSERT(VehicleTargetBase->GetVehicleKit()); }
         bool Execute(uint64, uint32) override;
         void Abort(uint64) override;
 
-        Vehicle* Target;
+        Unit* VehicleTargetBase;
         Unit* Passenger;
         SeatMap::iterator Seat;
 };

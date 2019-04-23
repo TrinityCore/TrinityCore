@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,12 +18,14 @@
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "BattlegroundAV.h"
 #include "CreatureTextMgr.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
+#include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -181,7 +183,7 @@ public:
 
                 Creature* lastSpawnedGuard = SpawnedGUID.IsEmpty() ? NULL : GetSummonedGuard();
 
-                // prevent calling Unit::GetUnit at next MoveInLineOfSight call - speedup
+                // prevent calling ObjectAccessor::GetUnit at next MoveInLineOfSight call - speedup
                 if (!lastSpawnedGuard)
                     SpawnedGUID.Clear();
 
@@ -352,103 +354,6 @@ public:
             ENSURE_AI(npc_chicken_cluck::npc_chicken_cluckAI, creature->AI())->Reset();
 
         return true;
-    }
-};
-
-/*######
-## npc_dancing_flames
-######*/
-
-enum DancingFlames
-{
-    SPELL_BRAZIER           = 45423,
-    SPELL_SEDUCTION         = 47057,
-    SPELL_FIERY_AURA        = 45427
-};
-
-class npc_dancing_flames : public CreatureScript
-{
-public:
-    npc_dancing_flames() : CreatureScript("npc_dancing_flames") { }
-
-    struct npc_dancing_flamesAI : public ScriptedAI
-    {
-        npc_dancing_flamesAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            Active = true;
-            CanIteract = 3500;
-        }
-
-        bool Active;
-        uint32 CanIteract;
-
-        void Reset() override
-        {
-            Initialize();
-            DoCast(me, SPELL_BRAZIER, true);
-            DoCast(me, SPELL_FIERY_AURA, false);
-            float x, y, z;
-            me->GetPosition(x, y, z);
-            me->Relocate(x, y, z + 0.94f);
-            me->SetDisableGravity(true);
-            me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!Active)
-            {
-                if (CanIteract <= diff)
-                {
-                    Active = true;
-                    CanIteract = 3500;
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-                }
-                else
-                    CanIteract -= diff;
-            }
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void ReceiveEmote(Player* player, uint32 emote) override
-        {
-            if (me->IsWithinLOS(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()) && me->IsWithinDistInMap(player, 30.0f))
-            {
-                me->SetInFront(player);
-                Active = false;
-
-                switch (emote)
-                {
-                    case TEXT_EMOTE_KISS:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_SHY);
-                        break;
-                    case TEXT_EMOTE_WAVE:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-                        break;
-                    case TEXT_EMOTE_BOW:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
-                        break;
-                    case TEXT_EMOTE_JOKE:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                        break;
-                    case TEXT_EMOTE_DANCE:
-                        if (!player->HasAura(SPELL_SEDUCTION))
-                            DoCast(player, SPELL_SEDUCTION, true);
-                        break;
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_dancing_flamesAI(creature);
     }
 };
 
@@ -1478,40 +1383,6 @@ public:
     }
 };
 
-/*####
-## npc_brewfest_reveler
-####*/
-
-enum BrewfestReveler
-{
-    SPELL_BREWFEST_TOAST = 41586
-};
-
-class npc_brewfest_reveler : public CreatureScript
-{
-    public:
-        npc_brewfest_reveler() : CreatureScript("npc_brewfest_reveler") { }
-
-        struct npc_brewfest_revelerAI : public ScriptedAI
-        {
-            npc_brewfest_revelerAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void ReceiveEmote(Player* player, uint32 emote) override
-            {
-                if (!IsHolidayActive(HOLIDAY_BREWFEST))
-                    return;
-
-                if (emote == TEXT_EMOTE_DANCE)
-                    me->CastSpell(player, SPELL_BREWFEST_TOAST, false);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_brewfest_revelerAI(creature);
-        }
-};
-
 enum TrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
@@ -2049,7 +1920,7 @@ public:
 
                 float displacement = 0.7f;
                 for (uint8 i = 0; i < 4; i++)
-                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), QuaternionData::fromEulerAnglesZYX(me->GetOrientation(), 0.0f, 0.0f), 1);
+                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), QuaternionData(), 1);
             }
             else
                 //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);
@@ -2061,108 +1932,6 @@ public:
     {
         return new npc_fireworkAI(creature);
     }
-};
-
-/*#####
-# npc_spring_rabbit
-#####*/
-
-enum rabbitSpells
-{
-    SPELL_SPRING_FLING          = 61875,
-    SPELL_SPRING_RABBIT_JUMP    = 61724,
-    SPELL_SPRING_RABBIT_WANDER  = 61726,
-    SPELL_SUMMON_BABY_BUNNY     = 61727,
-    SPELL_SPRING_RABBIT_IN_LOVE = 61728,
-    NPC_SPRING_RABBIT           = 32791
-};
-
-class npc_spring_rabbit : public CreatureScript
-{
-public:
-    npc_spring_rabbit() : CreatureScript("npc_spring_rabbit") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_spring_rabbitAI(creature);
-    }
-
-    struct npc_spring_rabbitAI : public ScriptedAI
-    {
-        npc_spring_rabbitAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            inLove = false;
-            rabbitGUID.Clear();
-            jumpTimer = urand(5000, 10000);
-            bunnyTimer = urand(10000, 20000);
-            searchTimer = urand(5000, 10000);
-        }
-
-        bool inLove;
-        uint32 jumpTimer;
-        uint32 bunnyTimer;
-        uint32 searchTimer;
-        ObjectGuid rabbitGUID;
-
-        void Reset() override
-        {
-            Initialize();
-            if (Unit* owner = me->GetOwner())
-                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-        }
-
-        void EnterCombat(Unit* /*who*/) override { }
-
-        void DoAction(int32 /*param*/) override
-        {
-            inLove = true;
-            if (Unit* owner = me->GetOwner())
-                owner->CastSpell(owner, SPELL_SPRING_FLING, true);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (inLove)
-            {
-                if (jumpTimer <= diff)
-                {
-                    if (Unit* rabbit = ObjectAccessor::GetUnit(*me, rabbitGUID))
-                        DoCast(rabbit, SPELL_SPRING_RABBIT_JUMP);
-                    jumpTimer = urand(5000, 10000);
-                } else jumpTimer -= diff;
-
-                if (bunnyTimer <= diff)
-                {
-                    DoCast(SPELL_SUMMON_BABY_BUNNY);
-                    bunnyTimer = urand(20000, 40000);
-                } else bunnyTimer -= diff;
-            }
-            else
-            {
-                if (searchTimer <= diff)
-                {
-                    if (Creature* rabbit = me->FindNearestCreature(NPC_SPRING_RABBIT, 10.0f))
-                    {
-                        if (rabbit == me || rabbit->HasAura(SPELL_SPRING_RABBIT_IN_LOVE))
-                            return;
-
-                        me->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, me);
-                        DoAction(1);
-                        rabbit->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, rabbit);
-                        rabbit->AI()->DoAction(1);
-                        rabbit->CastSpell(rabbit, SPELL_SPRING_RABBIT_JUMP, true);
-                        rabbitGUID = rabbit->GetGUID();
-                    }
-                    searchTimer = urand(5000, 10000);
-                } else searchTimer -= diff;
-            }
-        }
-    };
 };
 
 class npc_imp_in_a_ball : public CreatureScript
@@ -2404,224 +2173,165 @@ ArgentPonyBannerSpells const bannerSpells[5] =
     { SPELL_STORMWIND_PENNANT, SPELL_THUNDERBLUFF_PENNANT }
 };
 
-class npc_argent_squire_gruntling : public CreatureScript
+struct npc_argent_squire_gruntling : public ScriptedAI
 {
-public:
-    npc_argent_squire_gruntling() : CreatureScript("npc_argent_squire_gruntling") { }
+    npc_argent_squire_gruntling(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_argent_squire_gruntlingAI : public ScriptedAI
+    void Reset() override
     {
-        npc_argent_squire_gruntlingAI(Creature* creature) : ScriptedAI(creature)
-        {
-            ScheduleTasks();
-        }
-
-        void ScheduleTasks()
-        {
-            _scheduler
-                .Schedule(Seconds(1), [this](TaskContext /*context*/)
-                {
-                    if (Aura* ownerTired = me->GetOwner()->GetAura(SPELL_TIRED_PLAYER))
+        me->GetScheduler()
+            .Schedule(Seconds(1), [this](TaskContext /*context*/)
+            {
+                if (Unit* owner = me->GetOwner())
+                    if (Aura* ownerTired = owner->GetAura(SPELL_TIRED_PLAYER))
                         if (Aura* squireTired = me->AddAura(IsArgentSquire() ? SPELL_AURA_TIRED_S : SPELL_AURA_TIRED_G, me))
                             squireTired->SetDuration(ownerTired->GetDuration());
-                })
-                .Schedule(Seconds(1), [this](TaskContext context)
-                {
-                    if ((me->HasAura(SPELL_AURA_TIRED_S) || me->HasAura(SPELL_AURA_TIRED_G)) && me->HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
-                    context.Repeat();
-                });
-        }
-
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            switch (gossipListId)
+            })
+            .Schedule(Seconds(1), [this](TaskContext context)
             {
-                case GOSSIP_OPTION_BANK:
-                {
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER);
-                    uint32 _bankAura = IsArgentSquire() ? SPELL_AURA_BANK_S : SPELL_AURA_BANK_G;
-                    if (!me->HasAura(_bankAura))
-                        DoCastSelf(_bankAura);
-
-                    if (!player->HasAura(SPELL_TIRED_PLAYER))
-                        player->CastSpell(player, SPELL_TIRED_PLAYER, true);
-                    break;
-                }
-                case GOSSIP_OPTION_SHOP:
-                {
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
-                    uint32 _shopAura = IsArgentSquire() ? SPELL_AURA_SHOP_S : SPELL_AURA_SHOP_G;
-                    if (!me->HasAura(_shopAura))
-                        DoCastSelf(_shopAura);
-
-                    if (!player->HasAura(SPELL_TIRED_PLAYER))
-                        player->CastSpell(player, SPELL_TIRED_PLAYER, true);
-                    break;
-                }
-                case GOSSIP_OPTION_MAIL:
-                {
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_MAILBOX);
-                    player->GetSession()->SendShowMailBox(me->GetGUID());
-
-                    uint32 _mailAura = IsArgentSquire() ? SPELL_AURA_POSTMAN_S : SPELL_AURA_POSTMAN_G;
-                    if (!me->HasAura(_mailAura))
-                        DoCastSelf(_mailAura);
-
-                    if (!player->HasAura(SPELL_TIRED_PLAYER))
-                        player->CastSpell(player, SPELL_TIRED_PLAYER, true);
-                    break;
-                }
-                case GOSSIP_OPTION_DARNASSUS_SENJIN_PENNANT:
-                case GOSSIP_OPTION_EXODAR_UNDERCITY_PENNANT:
-                case GOSSIP_OPTION_GNOMEREGAN_ORGRIMMAR_PENNANT:
-                case GOSSIP_OPTION_IRONFORGE_SILVERMOON_PENNANT:
-                case GOSSIP_OPTION_STORMWIND_THUNDERBLUFF_PENNANT:
-                    if (IsArgentSquire())
-                        DoCastSelf(bannerSpells[gossipListId - 3].spellSquire, true);
-                    else
-                        DoCastSelf(bannerSpells[gossipListId - 3].spellGruntling, true);
-                    break;
-            }
-            player->PlayerTalkClass->SendCloseGossip();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _scheduler.Update(diff);
-        }
-
-        bool IsArgentSquire() const { return me->GetEntry() == NPC_ARGENT_SQUIRE; }
-
-    private:
-        TaskScheduler _scheduler;
-    };
-
-    CreatureAI* GetAI(Creature *creature) const override
-    {
-        return new npc_argent_squire_gruntlingAI(creature);
+                if ((me->HasAura(SPELL_AURA_TIRED_S) || me->HasAura(SPELL_AURA_TIRED_G)) && me->HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
+                context.Repeat();
+            });
     }
-};
 
-enum BountifulTable
-{
-    SEAT_TURKEY_CHAIR                       = 0,
-    SEAT_CRANBERRY_CHAIR                    = 1,
-    SEAT_STUFFING_CHAIR                     = 2,
-    SEAT_SWEET_POTATO_CHAIR                 = 3,
-    SEAT_PIE_CHAIR                          = 4,
-    SEAT_FOOD_HOLDER                        = 5,
-    SEAT_PLATE_HOLDER                       = 6,
-    NPC_THE_TURKEY_CHAIR                    = 34812,
-    NPC_THE_CRANBERRY_CHAIR                 = 34823,
-    NPC_THE_STUFFING_CHAIR                  = 34819,
-    NPC_THE_SWEET_POTATO_CHAIR              = 34824,
-    NPC_THE_PIE_CHAIR                       = 34822,
-    SPELL_CRANBERRY_SERVER                  = 61793,
-    SPELL_PIE_SERVER                        = 61794,
-    SPELL_STUFFING_SERVER                   = 61795,
-    SPELL_TURKEY_SERVER                     = 61796,
-    SPELL_SWEET_POTATOES_SERVER             = 61797
-};
-
-typedef std::unordered_map<uint32 /*Entry*/, uint32 /*Spell*/> ChairSpells;
-ChairSpells const _chairSpells =
-{
-    { NPC_THE_CRANBERRY_CHAIR, SPELL_CRANBERRY_SERVER },
-    { NPC_THE_PIE_CHAIR, SPELL_PIE_SERVER },
-    { NPC_THE_STUFFING_CHAIR, SPELL_STUFFING_SERVER },
-    { NPC_THE_TURKEY_CHAIR, SPELL_TURKEY_SERVER },
-    { NPC_THE_SWEET_POTATO_CHAIR, SPELL_SWEET_POTATOES_SERVER },
-};
-
-class CastFoodSpell : public BasicEvent
-{
-    public:
-        CastFoodSpell(Unit* owner, uint32 spellId) : _owner(owner), _spellId(spellId) { }
-
-        bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
+    void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    {
+        switch (gossipListId)
         {
-            _owner->CastSpell(_owner, _spellId, true);
-            return false;
-        }
+            case GOSSIP_OPTION_BANK:
+            {
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER);
+                uint32 _bankAura = IsArgentSquire() ? SPELL_AURA_BANK_S : SPELL_AURA_BANK_G;
+                if (!me->HasAura(_bankAura))
+                    DoCastSelf(_bankAura);
 
-    private:
-        Unit* _owner;
-        uint32 _spellId;
+                if (!player->HasAura(SPELL_TIRED_PLAYER))
+                    player->CastSpell(player, SPELL_TIRED_PLAYER, true);
+                break;
+            }
+            case GOSSIP_OPTION_SHOP:
+            {
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
+                uint32 _shopAura = IsArgentSquire() ? SPELL_AURA_SHOP_S : SPELL_AURA_SHOP_G;
+                if (!me->HasAura(_shopAura))
+                    DoCastSelf(_shopAura);
+
+                if (!player->HasAura(SPELL_TIRED_PLAYER))
+                    player->CastSpell(player, SPELL_TIRED_PLAYER, true);
+                break;
+            }
+            case GOSSIP_OPTION_MAIL:
+            {
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_MAILBOX);
+                player->GetSession()->SendShowMailBox(me->GetGUID());
+
+                uint32 _mailAura = IsArgentSquire() ? SPELL_AURA_POSTMAN_S : SPELL_AURA_POSTMAN_G;
+                if (!me->HasAura(_mailAura))
+                    DoCastSelf(_mailAura);
+
+                if (!player->HasAura(SPELL_TIRED_PLAYER))
+                    player->CastSpell(player, SPELL_TIRED_PLAYER, true);
+                break;
+            }
+            case GOSSIP_OPTION_DARNASSUS_SENJIN_PENNANT:
+            case GOSSIP_OPTION_EXODAR_UNDERCITY_PENNANT:
+            case GOSSIP_OPTION_GNOMEREGAN_ORGRIMMAR_PENNANT:
+            case GOSSIP_OPTION_IRONFORGE_SILVERMOON_PENNANT:
+            case GOSSIP_OPTION_STORMWIND_THUNDERBLUFF_PENNANT:
+                if (IsArgentSquire())
+                    DoCastSelf(bannerSpells[gossipListId - 3].spellSquire, true);
+                else
+                    DoCastSelf(bannerSpells[gossipListId - 3].spellGruntling, true);
+                break;
+        }
+        player->PlayerTalkClass->SendCloseGossip();
+    }
+
+    bool IsArgentSquire() const { return me->GetEntry() == NPC_ARGENT_SQUIRE; }
 };
 
-class npc_bountiful_table : public CreatureScript
+class npc_creature_damage_limit : public CreatureScript
 {
 public:
-    npc_bountiful_table() : CreatureScript("npc_bountiful_table") { }
+    npc_creature_damage_limit() : CreatureScript("npc_creature_damage_limit") { }
 
-    struct npc_bountiful_tableAI : public PassiveAI
+    struct npc_creature_damage_limitAI : public ScriptedAI
     {
-        npc_bountiful_tableAI(Creature* creature) : PassiveAI(creature) { }
+        npc_creature_damage_limitAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void PassengerBoarded(Unit* who, int8 seatId, bool /*apply*/) override
+        void DamageTaken(Unit* doneBy, uint32& damage) override
         {
-            float x = 0.0f;
-            float y = 0.0f;
-            float z = 0.0f;
-            float o = 0.0f;
+            uint32 healthPctLimit = me->GetScriptParam(0).numericValue;
 
-            switch (seatId)
-            {
-                case SEAT_TURKEY_CHAIR:
-                    x = 3.87f;
-                    y = 2.07f;
-                    o = 3.700098f;
-                    break;
-                case SEAT_CRANBERRY_CHAIR:
-                    x = 3.87f;
-                    y = -2.07f;
-                    o = 2.460914f;
-                    break;
-                case SEAT_STUFFING_CHAIR:
-                    x = -2.52f;
-                    break;
-                case SEAT_SWEET_POTATO_CHAIR:
-                    x = -0.09f;
-                    y = -3.24f;
-                    o = 1.186824f;
-                    break;
-                case SEAT_PIE_CHAIR:
-                    x = -0.18f;
-                    y = 3.24f;
-                    o = 5.009095f;
-                    break;
-                case SEAT_FOOD_HOLDER:
-                case SEAT_PLATE_HOLDER:
-                    if (Vehicle* holders = who->GetVehicleKit())
-                        holders->InstallAllAccessories(true);
-                    return;
-                default:
-                    break;
-            }
-
-            Movement::MoveSplineInit init(who);
-            init.DisableTransportPathTransformations();
-            init.MoveTo(x, y, z, false);
-            init.SetFacing(o);
-            init.Launch();
-            who->m_Events.AddEvent(new CastFoodSpell(who, _chairSpells.at(who->GetEntry())), who->m_Events.CalculateTime(1000));
-            if (Creature* creature = who->ToCreature())
-                creature->SetDisplayFromModel(0);
+            if (doneBy->GetTypeId() == TYPEID_UNIT)
+                if (me->HealthBelowPctDamaged(healthPctLimit, damage))
+                    damage = 0;
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_bountiful_tableAI(creature);
+        return new npc_creature_damage_limitAI(creature);
     }
+};
+
+#define REGZAR_TEXT_NEED " supplies are needed for the next upgrade!"
+#define REGZAR_TEXT_MAX "You're already at 1500 supplies!"
+
+class npc_regzar : public CreatureScript
+{
+public:
+    npc_regzar() : CreatureScript("npc_regzar") { }
+
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) override
+    {
+        Battleground* AV_BattleGround = player->GetBattleground();
+        if (AV_BattleGround == nullptr || AV_BattleGround->GetTypeID(true) != BattlegroundTypeId::BATTLEGROUND_AV)
+            return false;
+
+        BattlegroundAV* AlteracBG = (BattlegroundAV*)AV_BattleGround;
+
+        int32 ressource = AlteracBG->GetTeamQuestStatus(player->GetTeamId(), 0);
+        if (ressource >= 1500)
+            ressource = -1;
+        else
+            ressource = 500 - (ressource % 500);
+
+        std::ostringstream stream;
+
+        if (ressource == -1)
+            stream << REGZAR_TEXT_MAX;
+        else
+            stream << ressource << REGZAR_TEXT_NEED;
+
+        // creature->MonsterYell(stream.str().c_str(), Language::LANG_ORCISH, 0);
+
+        return true;
+    }
+};
+
+class npc_allied_race_infos : public CreatureScript
+{
+public:
+    npc_allied_race_infos(const char* name, uint32 raceId) : CreatureScript(name), _raceId(raceId) { }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+    {
+        WorldPackets::Misc::OpenAlliedRaceDetailsGiver openAlliedRaceDetailsGiver;
+        openAlliedRaceDetailsGiver.Guid = creature->GetGUID();
+        openAlliedRaceDetailsGiver.RaceId = _raceId;
+        player->SendDirectMessage(openAlliedRaceDetailsGiver.Write());
+        return true;
+    }
+
+    uint32 _raceId;
 };
 
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
     new npc_chicken_cluck();
-    new npc_dancing_flames();
     new npc_torch_tossing_target_bunny_controller();
     new npc_midsummer_bunny_pole();
     new npc_doctor();
@@ -2631,14 +2341,17 @@ void AddSC_npcs_special()
     new npc_sayge();
     new npc_steam_tonk();
     new npc_tonk_mine();
-    new npc_brewfest_reveler();
     new npc_training_dummy();
     new npc_wormhole();
     new npc_experience();
     new npc_firework();
-    new npc_spring_rabbit();
     new npc_imp_in_a_ball();
     new npc_train_wrecker();
-    new npc_argent_squire_gruntling();
-    new npc_bountiful_table();
+    RegisterCreatureAI(npc_argent_squire_gruntling);
+    new npc_creature_damage_limit();
+    new npc_regzar();
+    new npc_allied_race_infos("npc_allied_race_infos_nightborne", 27);
+    new npc_allied_race_infos("npc_allied_race_infos_tauren", 28);
+    new npc_allied_race_infos("npc_allied_race_infos_voidelf", 29);
+    new npc_allied_race_infos("npc_allied_race_infos_draenei", 30);
 }

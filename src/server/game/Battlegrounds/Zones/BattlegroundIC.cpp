@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -331,7 +331,7 @@ bool BattlegroundIC::SetupBattleground()
         }
     }
 
-    for (uint8 i = 2; i < MAX_NORMAL_NPCS_SPAWNS; ++i)
+    for (uint8 i = 1; i < MAX_NORMAL_NPCS_SPAWNS; ++i) // 7.x.x spawn mask
     {
         if (!AddCreature(BG_IC_NpcSpawnlocs[i].entry, BG_IC_NpcSpawnlocs[i].type, BG_IC_NpcSpawnlocs[i].x, BG_IC_NpcSpawnlocs[i].y, BG_IC_NpcSpawnlocs[i].z, BG_IC_NpcSpawnlocs[i].o, BG_IC_NpcSpawnlocs[i].team, RESPAWN_ONE_DAY))
         {

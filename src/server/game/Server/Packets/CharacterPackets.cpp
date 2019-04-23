@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,12 +66,6 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
 
     if (atLoginFlags & AT_LOGIN_RESURRECT)
         playerFlags &= ~PLAYER_FLAGS_GHOST;
-
-    if (playerFlags & PLAYER_FLAGS_HIDE_HELM)
-        Flags |= CHARACTER_FLAG_HIDE_HELM;
-
-    if (playerFlags & PLAYER_FLAGS_HIDE_CLOAK)
-        Flags |= CHARACTER_FLAG_HIDE_CLOAK;
 
     if (playerFlags & PLAYER_FLAGS_GHOST)
         Flags |= CHARACTER_FLAG_GHOST;

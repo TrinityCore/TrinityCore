@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,15 +23,16 @@
 #include "World.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
+#include "ArchaeologyMgr.h"
+#include "Area.h"
 #include "AreaTriggerDataStore.h"
-#include "ArenaTeamMgr.h"
 #include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
 #include "AuthenticationPackets.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattlenetRpcErrorCodes.h"
-#include "BattlePetMgr.h"
+#include "BattlePetDataStore.h"
 #include "BlackMarketMgr.h"
 #include "CalendarMgr.h"
 #include "Channel.h"
@@ -91,6 +92,7 @@
 #include "WaypointManager.h"
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
+#include "WorldQuestMgr.h"
 #include "WorldSession.h"
 #include "WorldSocket.h"
 
@@ -802,9 +804,6 @@ void World::LoadConfigSettings(bool reload)
     }
 
     m_int_configs[CONFIG_CHARTER_COST_GUILD] = sConfigMgr->GetIntDefault("Guild.CharterCost", 1000);
-    m_int_configs[CONFIG_CHARTER_COST_ARENA_2v2] = sConfigMgr->GetIntDefault("ArenaTeam.CharterCost.2v2", 800000);
-    m_int_configs[CONFIG_CHARTER_COST_ARENA_3v3] = sConfigMgr->GetIntDefault("ArenaTeam.CharterCost.3v3", 1200000);
-    m_int_configs[CONFIG_CHARTER_COST_ARENA_5v5] = sConfigMgr->GetIntDefault("ArenaTeam.CharterCost.5v5", 2000000);
 
     m_int_configs[CONFIG_CHARACTER_CREATING_DISABLED] = sConfigMgr->GetIntDefault("CharacterCreating.Disabled", 0);
     m_int64_configs[CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK] = sConfigMgr->GetInt64Default("CharacterCreating.Disabled.RaceMask", 0);
@@ -972,6 +971,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_INSTANCE_IGNORE_LEVEL] = sConfigMgr->GetBoolDefault("Instance.IgnoreLevel", false);
     m_bool_configs[CONFIG_INSTANCE_IGNORE_RAID]  = sConfigMgr->GetBoolDefault("Instance.IgnoreRaid", false);
+    m_bool_configs[CONFIG_IGNORE_DUNGEONS_BIND] = sConfigMgr->GetBoolDefault("Instance.IgnoreDungeonsBind", true);
 
     m_bool_configs[CONFIG_CAST_UNSTUCK] = sConfigMgr->GetBoolDefault("CastUnstuck", true);
     m_int_configs[CONFIG_INSTANCE_RESET_TIME_HOUR]  = sConfigMgr->GetIntDefault("Instance.ResetTimeHour", 4);
@@ -1381,6 +1381,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED]         = sConfigMgr->GetBoolDefault("FeatureSystem.BpayStore.Enabled", false);
     m_bool_configs[CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED] = sConfigMgr->GetBoolDefault("FeatureSystem.CharacterUndelete.Enabled", false);
     m_int_configs[CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_COOLDOWN] = sConfigMgr->GetIntDefault("FeatureSystem.CharacterUndelete.Cooldown", 2592000);
+    m_bool_configs[CONFIG_FEATURE_SYSTEM_WAR_MODE_ENABLED] = sConfigMgr->GetBoolDefault("FeatureSystem.WarMode.Enabled", false);
 
     // Dungeon finder
     m_int_configs[CONFIG_LFG_OPTIONSMASK] = sConfigMgr->GetIntDefault("DungeonFinder.OptionsMask", 1);
@@ -1465,9 +1466,6 @@ void World::LoadConfigSettings(bool reload)
     // AHBot
     m_int_configs[CONFIG_AHBOT_UPDATE_INTERVAL] = sConfigMgr->GetIntDefault("AuctionHouseBot.Update.Interval", 20);
 
-    m_bool_configs[CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA] = sConfigMgr->GetBoolDefault("Calculate.Creature.Zone.Area.Data", false);
-    m_bool_configs[CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA] = sConfigMgr->GetBoolDefault("Calculate.Gameoject.Zone.Area.Data", false);
-
     // Black Market
     m_bool_configs[CONFIG_BLACKMARKET_ENABLED] = sConfigMgr->GetBoolDefault("BlackMarket.Enabled", true);
 
@@ -1491,6 +1489,8 @@ void World::LoadConfigSettings(bool reload)
     // Check Invalid Position
     m_bool_configs[CONFIG_CREATURE_CHECK_INVALID_POSITION] = sConfigMgr->GetBoolDefault("Creature.CheckInvalidPosition", false);
     m_bool_configs[CONFIG_GAME_OBJECT_CHECK_INVALID_POSITION] = sConfigMgr->GetBoolDefault("GameObject.CheckInvalidPosition", false);
+
+    m_bool_configs[CONFIG_LEGACY_BUFF_ENABLED] = sConfigMgr->GetBoolDefault("LegacyBuffEnabled", true);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
@@ -1716,7 +1716,7 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Item set names...");                // must be after LoadItemPrototypes
     sObjectMgr->LoadItemTemplateAddon();
 
-    TC_LOG_INFO("misc", "Loading Item Scripts...");                 // must be after LoadItemPrototypes
+    TC_LOG_INFO("misc", "Loading Item Scripts...");                            // must be after LoadItemPrototypes
     sObjectMgr->LoadItemScriptNames();
 
     TC_LOG_INFO("server.loading", "Loading Creature Model Based Info Data...");
@@ -1724,6 +1724,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Creature templates...");
     sObjectMgr->LoadCreatureTemplates();
+
+    TC_LOG_INFO("server.loading", "Loading Creature template journals...");
+    sObjectMgr->LoadCreatureTemplateJournals();                                // must be after LoadCreatureTemplates
 
     TC_LOG_INFO("server.loading", "Loading Equipment templates...");           // must be after LoadCreatureTemplates
     sObjectMgr->LoadEquipmentTemplates();
@@ -1733,6 +1736,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Creature template scaling...");
     sObjectMgr->LoadCreatureScalingData();
+
+    TC_LOG_INFO("server.loading", "Loading Script Params...");
+    sObjectMgr->LoadScriptParams();
 
     TC_LOG_INFO("server.loading", "Loading Reputation Reward Rates...");
     sObjectMgr->LoadReputationRewardRate();
@@ -1800,6 +1806,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Objects Pooling Data...");
     sPoolMgr->LoadFromDB();
 
+    TC_LOG_INFO("server.loading", "Filling pools data from Areas...");
+    sAreaMgr->FillGatheringNodePools();
+
     TC_LOG_INFO("server.loading", "Loading Game Event Data...");               // must be after loading pools fully
     sGameEventMgr->LoadFromDB();
 
@@ -1857,6 +1866,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Player Create Data...");
     sObjectMgr->LoadPlayerInfo();
 
+    TC_LOG_INFO("server.loading", "Loading Pet OwnerBenefit Data...");
+    sObjectMgr->LoadPetOwnerBenefit();
+
     TC_LOG_INFO("server.loading", "Loading Exploration BaseXP Data...");
     sObjectMgr->LoadExplorationBaseXP();
 
@@ -1865,6 +1877,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
     sAreaTriggerDataStore->LoadAreaTriggerTemplates();
+
+    TC_LOG_INFO("server.loading", "Loading AreaTriggers...");
+    sAreaTriggerDataStore->LoadAreaTriggers();
 
     TC_LOG_INFO("server.loading", "Loading Conversation Templates...");
     sConversationDataStore->LoadConversationTemplates();
@@ -1882,9 +1897,6 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading the max pet number...");
     sObjectMgr->LoadPetNumber();
-
-    TC_LOG_INFO("server.loading", "Loading pet level stats...");
-    sObjectMgr->LoadPetLevelInfo();
 
     TC_LOG_INFO("server.loading", "Loading Player level dependent mail rewards...");
     sObjectMgr->LoadMailLevelRewards();
@@ -1946,9 +1958,6 @@ void World::SetInitialWorldSettings()
 
     sGuildFinderMgr->LoadFromDB();
 
-    TC_LOG_INFO("server.loading", "Loading ArenaTeams...");
-    sArenaTeamMgr->LoadArenaTeams();
-
     TC_LOG_INFO("server.loading", "Loading Groups...");
     sGroupMgr->LoadGroups();
 
@@ -1978,6 +1987,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Vendors...");
     sObjectMgr->LoadVendors();                                  // must be after load CreatureTemplate and ItemTemplate
+
+    TC_LOG_INFO("server.loading", "Loading Trainers...");
+    sObjectMgr->LoadTrainerSpell();                              // must be after load CreatureTemplate
 
     TC_LOG_INFO("server.loading", "Loading Waypoints...");
     sWaypointMgr->Load();
@@ -2053,6 +2065,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Creature Text Locales...");
     sCreatureTextMgr->LoadCreatureTextLocales();
 
+    TC_LOG_INFO("server.loading", "Loading Archaeology Digsites...");
+    sArchaeologyMgr->LoadDigsites();
+
     TC_LOG_INFO("server.loading", "Initializing Scripts...");
     sScriptMgr->Initialize();
     sScriptMgr->OnConfigLoad(false);                                // must be done after the ScriptMgr has been properly initialized
@@ -2065,6 +2080,15 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
+
+    TC_LOG_INFO("server.loading", "Loading Quest task...");
+    sObjectMgr->LoadQuestTasks();
+
+    TC_LOG_INFO("server.loading", "Loading Zones script names...");
+    sObjectMgr->LoadZoneScriptNames();
+
+    TC_LOG_INFO("server.loading", "Loading Garrison script names...");
+    sObjectMgr->LoadGarrisonScriptNames();
 
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
@@ -2093,6 +2117,8 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_GUILDSAVE].SetInterval(getIntConfig(CONFIG_GUILD_SAVE_INTERVAL) * MINUTE * IN_MILLISECONDS);
 
     m_timers[WUPDATE_BLACKMARKET].SetInterval(10 * IN_MILLISECONDS);
+
+    m_timers[WUPDATE_WORLD_QUEST].SetInterval(1 * MINUTE * IN_MILLISECONDS);
 
     blackmarket_timer = 0;
 
@@ -2193,7 +2219,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadRealmNames();
 
     TC_LOG_INFO("server.loading", "Loading battle pets info...");
-    BattlePetMgr::Initialize();
+    sBattlePetDataStore->Initialize();
 
     TC_LOG_INFO("server.loading", "Loading scenarios");
     sScenarioMgr->LoadDB2Data();
@@ -2201,6 +2227,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading scenario poi data");
     sScenarioMgr->LoadScenarioPOI();
+
+    TC_LOG_INFO("server.loading", "Loading active world quests...");
+    sWorldQuestMgr->LoadActiveWorldQuests();
 
     // Preload all cells, if required for the base maps
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
@@ -2221,7 +2250,7 @@ void World::SetInitialWorldSettings()
 
     TC_METRIC_EVENT("events", "World initialized", "World initialized in " + std::to_string(startupDuration / 60000) + " minutes " + std::to_string((startupDuration % 60000) / 1000) + " seconds");
 
-    sLog->SetRealmId(realm.Id.Realm);
+    sLog->SetRealmId(realm.Id.Realm, realm.Name);
 }
 
 void World::ResetTimeDiffRecord()
@@ -2358,6 +2387,8 @@ void World::Update(uint32 diff)
     {
         m_timers[WUPDATE_BLACKMARKET].Reset();
 
+        sBlackMarketMgr->Update();
+
         ///- Update blackmarket, refresh auctions if necessary
         if ((blackmarket_timer *  m_timers[WUPDATE_BLACKMARKET].GetInterval() >=
             getIntConfig(CONFIG_BLACKMARKET_UPDATE_PERIOD) * HOUR * IN_MILLISECONDS)
@@ -2367,10 +2398,7 @@ void World::Update(uint32 diff)
             blackmarket_timer = 1; // timer is 0 on startup
         }
         else
-        {
             ++blackmarket_timer;
-            sBlackMarketMgr->Update();
-        }
     }
 
     /// <li> Handle AHBot operations
@@ -2385,6 +2413,12 @@ void World::Update(uint32 diff)
     {
         sScriptReloadMgr->Update();
         m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
+    }
+
+    if (m_timers[WUPDATE_WORLD_QUEST].Passed())
+    {
+        sWorldQuestMgr->Update();
+        m_timers[WUPDATE_WORLD_QUEST].Reset();
     }
 
     /// <li> Handle session updates when the timer has passed
@@ -2408,6 +2442,8 @@ void World::Update(uint32 diff)
         stmt->setUInt32(3, uint32(m_startTime));
 
         LoginDatabase.Execute(stmt);
+
+        TC_LOG_INFO("metric", "Online Players : %u", GetActiveSessionCount());
     }
 
     /// <li> Clean logs table
@@ -3442,10 +3478,7 @@ void World::UpdateAreaDependentAuras()
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second && itr->second->GetPlayer() && itr->second->GetPlayer()->IsInWorld())
-        {
-            itr->second->GetPlayer()->UpdateAreaDependentAuras(itr->second->GetPlayer()->GetAreaId());
-            itr->second->GetPlayer()->UpdateZoneDependentAuras(itr->second->GetPlayer()->GetZoneId());
-        }
+            itr->second->GetPlayer()->UpdateAreaDependentAuras();
 }
 
 void World::LoadWorldStates()
@@ -3473,11 +3506,6 @@ void World::LoadWorldStates()
 
     TC_LOG_INFO("server.loading", ">> Loaded %u world states in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
-}
-
-bool World::IsPvPRealm() const
-{
-    return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP);
 }
 
 bool World::IsFFAPvPRealm() const

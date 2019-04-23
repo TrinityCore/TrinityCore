@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ArenaHelper.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundAB.h"
 #include "BattlegroundAV.h"
@@ -30,6 +31,8 @@
 #include "BattlegroundRV.h"
 #include "BattlegroundSA.h"
 #include "BattlegroundTP.h"
+#include "BattlegroundTTP.h"
+#include "BattlegroundTVA.h"
 #include "BattlegroundWS.h"
 #include "Common.h"
 #include "Containers.h"
@@ -352,6 +355,12 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
         case BATTLEGROUND_BFG:
             bg = new BattlegroundBFG(*(BattlegroundBFG*)bg_template);
             break;
+        case BATTLEGROUND_TTP:
+            bg = new BattlegroundTTP(*(BattlegroundTTP*)bg_template);
+            break;
+        case BATTLEGROUND_TVA:
+            bg = new BattlegroundTVA(*(BattlegroundTVA*)bg_template);
+            break;
         case BATTLEGROUND_RB:
         case BATTLEGROUND_AA:
         default:
@@ -378,13 +387,13 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
         uint32 maxPlayersPerTeam = 0;
         switch (arenaType)
         {
-            case ARENA_TYPE_2v2:
+            case SLOT_ARENA_2V2:
                 maxPlayersPerTeam = 2;
                 break;
-            case ARENA_TYPE_3v3:
+            case SLOT_ARENA_3V3:
                 maxPlayersPerTeam = 3;
                 break;
-            case ARENA_TYPE_5v5:
+            case SLOT_ARENA_5V5:
                 maxPlayersPerTeam = 5;
                 break;
         }
@@ -450,6 +459,12 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
                 break;
             case BATTLEGROUND_BFG:
                 bg = new BattlegroundBFG;
+                break;
+            case BATTLEGROUND_TTP:
+                bg = new BattlegroundTTP;
+                break;
+            case BATTLEGROUND_TVA:
+                bg = new BattlegroundTVA;
                 break;
             default:
                 return false;
@@ -630,7 +645,9 @@ bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
             || bgTypeId == BATTLEGROUND_NA
             || bgTypeId == BATTLEGROUND_DS
             || bgTypeId == BATTLEGROUND_RV
-            || bgTypeId == BATTLEGROUND_RL;
+            || bgTypeId == BATTLEGROUND_RL
+            || bgTypeId == BATTLEGROUND_TTP
+            || bgTypeId == BATTLEGROUND_TVA;
 }
 
 BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgTypeId, uint8 arenaType)
@@ -661,13 +678,15 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
         case BATTLEGROUND_NA:
         case BATTLEGROUND_RL:
         case BATTLEGROUND_RV:
+        case BATTLEGROUND_TTP:
+        case BATTLEGROUND_TVA:
             switch (arenaType)
             {
-                case ARENA_TYPE_2v2:
+                case ArenaType::Arena2v2:
                     return BATTLEGROUND_QUEUE_2v2;
-                case ARENA_TYPE_3v3:
+                case ArenaType::Arena3v3:
                     return BATTLEGROUND_QUEUE_3v3;
-                case ARENA_TYPE_5v5:
+                case ArenaType::Arena5v5:
                     return BATTLEGROUND_QUEUE_5v5;
                 default:
                     return BATTLEGROUND_QUEUE_NONE;
@@ -713,11 +732,11 @@ uint8 BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId bgQueueTypeId)
     switch (bgQueueTypeId)
     {
         case BATTLEGROUND_QUEUE_2v2:
-            return ARENA_TYPE_2v2;
+            return SLOT_ARENA_2V2;
         case BATTLEGROUND_QUEUE_3v3:
-            return ARENA_TYPE_3v3;
+            return SLOT_ARENA_3V3;
         case BATTLEGROUND_QUEUE_5v5:
-            return ARENA_TYPE_5v5;
+            return SLOT_ARENA_5V5;
         default:
             return 0;
     }

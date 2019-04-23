@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -75,6 +75,13 @@ template <class T, class U>
 inline T CalculatePct(T base, U pct)
 {
     return T(base * static_cast<float>(pct) / 100.0f);
+}
+
+template <class T>
+inline float GetPctOf(T value, T max)
+{
+    ASSERT(max && value <= max);
+    return float(static_cast<float>(value) / static_cast<float>(max) * 100.0f);
 }
 
 template <class T, class U>

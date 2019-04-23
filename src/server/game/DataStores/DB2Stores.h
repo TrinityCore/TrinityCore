@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,6 +35,7 @@
 class DB2HotfixGeneratorBase;
 
 TC_GAME_API extern DB2Storage<AchievementEntry>                     sAchievementStore;
+TC_GAME_API extern DB2Storage<AdventureJournalEntry>                sAdventureJournalStore;
 TC_GAME_API extern DB2Storage<AnimationDataEntry>                   sAnimationDataStore;
 TC_GAME_API extern DB2Storage<AnimKitEntry>                         sAnimKitStore;
 TC_GAME_API extern DB2Storage<AreaTableEntry>                       sAreaTableStore;
@@ -52,10 +53,15 @@ TC_GAME_API extern DB2Storage<AuctionHouseEntry>                    sAuctionHous
 TC_GAME_API extern DB2Storage<BankBagSlotPricesEntry>               sBankBagSlotPricesStore;
 TC_GAME_API extern DB2Storage<BannedAddonsEntry>                    sBannedAddonsStore;
 TC_GAME_API extern DB2Storage<BarberShopStyleEntry>                 sBarberShopStyleStore;
+TC_GAME_API extern DB2Storage<BattlePetAbilityEntry>                sBattlePetAbilityStore;
+TC_GAME_API extern DB2Storage<BattlePetAbilityEffectEntry>          sBattlePetAbilityEffectStore;
+TC_GAME_API extern DB2Storage<BattlePetAbilityStateEntry>           sBattlePetAbilityStateStore;
+TC_GAME_API extern DB2Storage<BattlePetAbilityTurnEntry>            sBattlePetAbilityTurnStore;
 TC_GAME_API extern DB2Storage<BattlePetBreedQualityEntry>           sBattlePetBreedQualityStore;
 TC_GAME_API extern DB2Storage<BattlePetBreedStateEntry>             sBattlePetBreedStateStore;
 TC_GAME_API extern DB2Storage<BattlePetSpeciesEntry>                sBattlePetSpeciesStore;
 TC_GAME_API extern DB2Storage<BattlePetSpeciesStateEntry>           sBattlePetSpeciesStateStore;
+TC_GAME_API extern DB2Storage<BattlePetSpeciesXAbilityEntry>        sBattlePetSpeciesXAbilityEntry;
 TC_GAME_API extern DB2Storage<BattlemasterListEntry>                sBattlemasterListStore;
 TC_GAME_API extern DB2Storage<BroadcastTextEntry>                   sBroadcastTextStore;
 TC_GAME_API extern DB2Storage<CharStartOutfitEntry>                 sCharStartOutfitStore;
@@ -93,13 +99,19 @@ TC_GAME_API extern DB2Storage<GarrBuildingEntry>                    sGarrBuildin
 TC_GAME_API extern DB2Storage<GarrBuildingPlotInstEntry>            sGarrBuildingPlotInstStore;
 TC_GAME_API extern DB2Storage<GarrClassSpecEntry>                   sGarrClassSpecStore;
 TC_GAME_API extern DB2Storage<GarrFollowerEntry>                    sGarrFollowerStore;
+TC_GAME_API extern DB2Storage<GarrFollowerLevelXPEntry>             sGarrFollowerLevelXPStore;
+TC_GAME_API extern DB2Storage<GarrFollowerQualityEntry>             sGarrFollowerQualityStore;
+TC_GAME_API extern DB2Storage<GarrFollowerTypeEntry>                sGarrFollowerTypeStore;
 TC_GAME_API extern DB2Storage<GarrFollowerXAbilityEntry>            sGarrFollowerXAbilityStore;
+TC_GAME_API extern DB2Storage<GarrMissionEntry>                     sGarrMissionStore;
+TC_GAME_API extern DB2Storage<GarrPlotBuildingEntry>                sGarrPlotBuildingStore;
 TC_GAME_API extern DB2Storage<GarrPlotEntry>                        sGarrPlotStore;
 TC_GAME_API extern DB2Storage<GarrPlotBuildingEntry>                sGarrPlotBuildingStore;
 TC_GAME_API extern DB2Storage<GarrPlotInstanceEntry>                sGarrPlotInstanceStore;
 TC_GAME_API extern DB2Storage<GarrSiteLevelEntry>                   sGarrSiteLevelStore;
 TC_GAME_API extern DB2Storage<GarrSiteLevelPlotInstEntry>           sGarrSiteLevelPlotInstStore;
 TC_GAME_API extern DB2Storage<GemPropertiesEntry>                   sGemPropertiesStore;
+TC_GAME_API extern DB2Storage<GlobalStringsEntry>                   sGlobalStringsStore;
 TC_GAME_API extern DB2Storage<GlyphPropertiesEntry>                 sGlyphPropertiesStore;
 TC_GAME_API extern DB2Storage<GuildColorBackgroundEntry>            sGuildColorBackgroundStore;
 TC_GAME_API extern DB2Storage<GuildColorBorderEntry>                sGuildColorBorderStore;
@@ -136,11 +148,15 @@ TC_GAME_API extern DB2Storage<ItemSparseEntry>                      sItemSparseS
 TC_GAME_API extern DB2Storage<ItemSpecEntry>                        sItemSpecStore;
 TC_GAME_API extern DB2Storage<ItemSpecOverrideEntry>                sItemSpecOverrideStore;
 TC_GAME_API extern DB2Storage<ItemUpgradeEntry>                     sItemUpgradeStore;
+TC_GAME_API extern DB2Storage<JournalEncounterEntry>                sJournalEncounterStore;
+TC_GAME_API extern DB2Storage<JournalEncounterItemEntry>            sJournalEncounterItemStore;
+TC_GAME_API extern DB2Storage<JournalInstanceEntry>                 sJournalInstanceStore;
 TC_GAME_API extern DB2Storage<LFGDungeonsEntry>                     sLFGDungeonsStore;
 TC_GAME_API extern DB2Storage<LiquidTypeEntry>                      sLiquidTypeStore;
 TC_GAME_API extern DB2Storage<LockEntry>                            sLockStore;
 TC_GAME_API extern DB2Storage<MailTemplateEntry>                    sMailTemplateStore;
 TC_GAME_API extern DB2Storage<MapEntry>                             sMapStore;
+TC_GAME_API extern DB2Storage<MapChallengeModeEntry>                sMapChallengeModeStore;
 TC_GAME_API extern DB2Storage<ModifierTreeEntry>                    sModifierTreeStore;
 TC_GAME_API extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
 TC_GAME_API extern DB2Storage<MountEntry>                           sMountStore;
@@ -153,11 +169,17 @@ TC_GAME_API extern DB2Storage<PvpTalentEntry>                       sPvpTalentSt
 TC_GAME_API extern DB2Storage<PvpTalentCategoryEntry>               sPvpTalentCategoryStore;
 TC_GAME_API extern DB2Storage<PvpTalentSlotUnlockEntry>             sPvpTalentSlotUnlockStore;
 TC_GAME_API extern DB2Storage<QuestFactionRewardEntry>              sQuestFactionRewardStore;
+TC_GAME_API extern DB2Storage<QuestV2CliTaskEntry>                  sQuestV2CliTaskStore;
 TC_GAME_API extern DB2Storage<QuestMoneyRewardEntry>                sQuestMoneyRewardStore;
+TC_GAME_API extern DB2Storage<QuestPOIPointEntry>                   sQuestPOIPointStore;
+TC_GAME_API extern DB2Storage<QuestPOIBlobEntry>                    sQuestPOIBlobStore;
 TC_GAME_API extern DB2Storage<QuestSortEntry>                       sQuestSortStore;
 TC_GAME_API extern DB2Storage<QuestXPEntry>                         sQuestXPStore;
 TC_GAME_API extern DB2Storage<RandPropPointsEntry>                  sRandPropPointsStore;
 TC_GAME_API extern DB2Storage<RewardPackEntry>                      sRewardPackStore;
+TC_GAME_API extern DB2Storage<ResearchBranchEntry>                  sResearchBranchStore;
+TC_GAME_API extern DB2Storage<ResearchSiteEntry>                    sResearchSiteStore;
+TC_GAME_API extern DB2Storage<ResearchProjectEntry>                 sResearchProjectStore;
 TC_GAME_API extern DB2Storage<ScalingStatDistributionEntry>         sScalingStatDistributionStore;
 TC_GAME_API extern DB2Storage<ScenarioEntry>                        sScenarioStore;
 TC_GAME_API extern DB2Storage<ScenarioStepEntry>                    sScenarioStepStore;
@@ -267,6 +289,7 @@ public:
     std::vector<ArtifactPowerEntry const*> GetArtifactPowers(uint8 artifactId) const;
     std::unordered_set<uint32> const* GetArtifactPowerLinks(uint32 artifactPowerId) const;
     ArtifactPowerRankEntry const* GetArtifactPowerRank(uint32 artifactPowerId, uint8 rank) const;
+    BattlePetSpeciesEntry const* GetBattlePetSpeciesByCreatureID(uint32 CreatureID) const;
     static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
     bool HasCharacterFacialHairStyle(uint8 race, uint8 gender, uint8 variationId) const;
     bool HasCharSections(uint8 race, uint8 gender, CharBaseSectionVariation variation) const;
@@ -288,6 +311,9 @@ public:
     ItemBonusList const* GetItemBonusList(uint32 bonusListId) const;
     uint32 GetItemBonusListForItemLevelDelta(int16 delta) const;
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemContext) const;
+    bool HasItemContext(uint32 itemId) const;
+    bool HasItemContext(uint32 itemId, uint32 itemContext) const;
+    std::vector<int32> GetItemBonusTreeVector(uint32 itemId, uint32 itemContext) const;
     ItemChildEquipmentEntry const* GetItemChildEquipment(uint32 itemId) const;
     ItemClassEntry const* GetItemClassByOldEnum(uint32 itemClass) const;
     bool HasItemCurrencyCost(uint32 itemId) const;
@@ -297,6 +323,9 @@ public:
     ItemModifiedAppearanceEntry const* GetDefaultItemModifiedAppearance(uint32 itemId) const;
     std::vector<ItemSetSpellEntry const*> const* GetItemSetSpells(uint32 itemSetId) const;
     std::vector<ItemSpecOverrideEntry const*> const* GetItemSpecOverrides(uint32 itemId) const;
+    JournalInstanceEntry const* GetJournalInstanceByMapId(uint32 mapId);
+    std::vector<JournalEncounterItemEntry const*> const* GetJournalItemsByEncounter(uint32 encounterId);
+    std::vector<JournalEncounterEntry const*> const* GetJournalEncounterByJournalInstanceId(uint32 instanceId);
     static LFGDungeonsEntry const* GetLfgDungeon(uint32 mapId, Difficulty difficulty);
     static uint32 GetDefaultMapLight(uint32 mapId);
     static uint32 GetLiquidFlags(uint32 liquidType);

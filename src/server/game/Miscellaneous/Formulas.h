@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -45,6 +45,28 @@ namespace Trinity
             return EXPANSION_WARLORDS_OF_DRAENOR;
         else
             return CURRENT_EXPANSION;
+    }
+
+    inline float GetDamageMultiplierForExpansion(uint32 playerLevel, uint32 creatureLevel)
+    {
+        uint32 expansion = GetExpansionForLevel(creatureLevel);
+        if (playerLevel > GetMaxLevelForExpansion(expansion))
+        {
+            switch (expansion)
+            {
+                case EXPANSION_CLASSIC:
+                case EXPANSION_THE_BURNING_CRUSADE:
+                    return 20.0f;
+                case EXPANSION_WRATH_OF_THE_LICH_KING:
+                    return 25.0f;
+                case EXPANSION_CATACLYSM:
+                    return 13.5f;
+                default:
+                    break;
+            }
+        }
+
+        return 1.0f;
     }
 
     namespace Honor
@@ -197,7 +219,8 @@ namespace Trinity
                     xpMod *= creature->GetCreatureTemplate()->ModExperience;
                 }
 
-                xpMod *= isBattleGround ? sWorld->getRate(RATE_XP_BG_KILL) : sWorld->getRate(RATE_XP_KILL);
+                float killXpRate = player->GetPersonnalXpRate() ? player->GetPersonnalXpRate() : sWorld->getRate(RATE_XP_QUEST);
+                xpMod *= isBattleGround ? sWorld->getRate(RATE_XP_BG_KILL) : killXpRate;
                 if (creature && creature->m_PlayerDamageReq) // if players dealt less than 50% of the damage and were credited anyway (due to CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ), scale XP gained appropriately (linear scaling)
                     xpMod *= 1.0f - 2.0f*creature->m_PlayerDamageReq / creature->GetMaxHealth();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,8 +22,10 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include <vector>
+#include <boost/property_tree/ptree.hpp>
 
 class AccountMgr;
+class Area;
 class AreaTrigger;
 class AreaTriggerAI;
 class AuctionHouseObject;
@@ -39,6 +41,8 @@ class CreatureAI;
 class DynamicObject;
 class GameObject;
 class GameObjectAI;
+class Garrison;
+class GarrisonAI;
 class Guild;
 class GridMap;
 class Group;
@@ -52,6 +56,7 @@ class Player;
 class Quest;
 class ScriptMgr;
 class Spell;
+class SpellInfo;
 class SpellScript;
 class SpellCastTargets;
 class Transport;
@@ -62,6 +67,8 @@ class WorldPacket;
 class WorldSocket;
 class WorldObject;
 class WorldSession;
+class RestResponse;
+class ZoneScript;
 
 struct AreaTriggerEntry;
 struct AuctionEntry;
@@ -78,11 +85,13 @@ struct SceneTemplate;
 enum BattlegroundTypeId : uint32;
 enum Difficulty : uint8;
 enum DuelCompleteType : uint8;
+enum Powers : int8;
 enum QuestStatus : uint8;
 enum RemoveMethod : uint8;
 enum ShutdownExitCode : uint32;
 enum ShutdownMask : uint32;
 enum SpellEffIndex : uint8;
+enum SpellSchoolMask : uint16;
 enum WeatherState : uint32;
 enum XPColorChar : uint8;
 
@@ -95,7 +104,7 @@ enum XPColorChar : uint8;
     MailScript
     SessionScript
     CollisionScript
-    ArenaTeamScript
+    ArenaGroupScript
 
 */
 
@@ -401,7 +410,7 @@ class TC_GAME_API UnitScript : public ScriptObject
         virtual void OnHeal(Unit* /*healer*/, Unit* /*reciever*/, uint32& /*gain*/) { }
 
         // Called when a unit deals damage to another unit
-        virtual void OnDamage(Unit* /*attacker*/, Unit* /*victim*/, uint32& /*damage*/) { }
+        virtual void OnDamage(Unit* /*attacker*/, Unit* /*victim*/, uint32& /*damage*/, SpellInfo const* /*spellProto*/) { }
 
         // Called when DoT's Tick Damage is being Dealt
         virtual void ModifyPeriodicDamageAurasTick(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
@@ -410,7 +419,7 @@ class TC_GAME_API UnitScript : public ScriptObject
         virtual void ModifyMeleeDamage(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
 
         // Called when Spell Damage is being Dealt
-        virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
+        virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/, SpellInfo const* /*spellInfo*/) { }
 };
 
 class TC_GAME_API CreatureScript : public UnitScript, public UpdatableScript<Creature>
@@ -615,6 +624,9 @@ class TC_GAME_API VehicleScript : public ScriptObject
 
         // Called after a passenger is removed from a vehicle.
         virtual void OnRemovePassenger(Vehicle* /*veh*/, Unit* /*passenger*/) { }
+
+        // Called when a CreatureAI object is needed for the creature.
+        virtual CreatureAI* GetAI(Creature* /*creature*/) const { return nullptr; }
 };
 
 class TC_GAME_API DynamicObjectScript : public ScriptObject, public UpdatableScript<DynamicObject>
@@ -674,6 +686,9 @@ class TC_GAME_API PlayerScript : public UnitScript
         // Called when a player is killed by a creature
         virtual void OnPlayerKilledByCreature(Creature* /*killer*/, Player* /*killed*/) { }
 
+        // Called when a player die
+        virtual void OnDeath(Player* /*player*/) { }
+
         // Called when a player's level changes (after the level is applied)
         virtual void OnLevelChanged(Player* /*player*/, uint8 /*oldLevel*/) { }
 
@@ -723,8 +738,14 @@ class TC_GAME_API PlayerScript : public UnitScript
         // Called in Spell::Cast.
         virtual void OnSpellCast(Player* /*player*/, Spell* /*spell*/, bool /*skipCheck*/) { }
 
+        // Called in Spell::Cast after spell is actually casted
+        virtual void OnSuccessfulSpellCast(Player* /*player*/, Spell* /*spell*/) { }
+
         // Called when a player logs in.
         virtual void OnLogin(Player* /*player*/, bool /*firstLogin*/) { }
+
+        // Called at each player update
+        virtual void OnUpdate(Player* /*player*/, uint32 /*diff*/) { }
 
         // Called when a player logs out.
         virtual void OnLogout(Player* /*player*/) { }
@@ -745,19 +766,61 @@ class TC_GAME_API PlayerScript : public UnitScript
         virtual void OnBindToInstance(Player* /*player*/, Difficulty /*difficulty*/, uint32 /*mapId*/, bool /*permanent*/, uint8 /*extendState*/) { }
 
         // Called when a player switches to a new zone
-        virtual void OnUpdateZone(Player* /*player*/, uint32 /*newZone*/, uint32 /*newArea*/) { }
+        virtual void OnUpdateZone(Player* /*player*/, Area* /*newArea*/, Area* /*oldArea*/) { }
+
+        // Called when a player switches to a new area
+        virtual void OnUpdateArea(Player* /*player*/, Area* /*newArea*/, Area* /*oldArea*/) { }
 
         // Called when a player changes to a new map (after moving to new map)
         virtual void OnMapChanged(Player* /*player*/) { }
 
+        // Called when player accepts some quest
+        virtual void OnQuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
+
+        // Called when player has quest removed from questlog (active or rewarded)
+        virtual void OnQuestAbandon(Player* /*player*/, Quest const* /*quest*/) { }
+
+        // Called when a player validates some quest objective
+        virtual void OnObjectiveValidate(Player* /*player*/, uint32 /*questId*/, uint32 /*objectiveId*/) { }
+
+        // Called when player completes some quest
+        virtual void OnQuestComplete(Player* /*player*/, Quest const* /*quest*/) { }
+
+        // Called when player rewards some quest
+        virtual void OnQuestReward(Player* /*player*/, Quest const* /*quest*/) { }
+
         // Called after a player's quest status has been changed
         virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/) { }
+
+        // Called when a player power change
+        virtual void OnModifyPower(Player* /*player*/, Powers /*power*/, int32 /*oldValue*/, int32& /*newValue*/, bool /*regen*/, bool /*after*/) { }
+
+        // Called when a player take damage
+        virtual void OnTakeDamage(Player* /*player*/, uint32 /*damage*/, SpellSchoolMask /*schoolMask*/) { }
+
+        // Called when a player start a standalone scene
+        virtual void OnSceneStart(Player* /*player*/, uint32 /*scenePackageId*/, uint32 /*sceneInstanceID*/) { }
+
+        // Called when a player receive a scene triggered event
+        virtual void OnSceneTriggerEvent(Player* /*player*/, uint32 /*sceneInstanceID*/, std::string /*event*/) { }
+
+        // Called when a player cancels some scene
+        virtual void OnSceneCancel(Player* /*player*/, uint32 /*sceneInstanceID*/) { }
+
+        // Called when a player complete some scene
+        virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/) { }
 
         // Called when a player completes a movie
         virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }
 
         // Called when a player choose a response from a PlayerChoice
         virtual void OnPlayerChoiceResponse(Player* /*player*/, uint32 /*choiceId*/, uint32 /*responseId*/) { }
+
+        // Called when a cooldown start for that player
+        virtual void OnCooldownStart(Player* /*player*/, SpellInfo const* /*spellInfo*/, uint32 /*itemId*/, int32& /*cooldown*/, uint32& /*categoryId*/, int32& /*categoryCooldown*/) { }
+
+        // Called when a charge recovery cooldown start for that player
+        virtual void OnChargeRecoveryTimeStart(Player* /*player*/, uint32 /*chargeCategoryId*/, int32& /*chargeRecoveryTime*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -785,6 +848,20 @@ class TC_GAME_API AccountScript : public ScriptObject
 
         // Called when Password failed to change for Account
         virtual void OnFailedPasswordChange(uint32 /*accountId*/) {}
+};
+
+class TC_GAME_API RestScript : public ScriptObject
+{
+    protected:
+        RestScript(const char* url);
+
+    public:
+
+        // Called when Rest request received with GET method for this URL
+        virtual void OnGet(RestResponse& /*response*/) { }
+
+        // Called when Rest request received with POST method for this URL
+        virtual void OnPost(boost::property_tree::ptree /*tree*/, RestResponse& /*response*/) { }
 };
 
 class TC_GAME_API GuildScript : public ScriptObject
@@ -864,6 +941,18 @@ class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
         virtual AreaTriggerAI* GetAI(AreaTrigger* /*at*/) const { return nullptr; }
 };
 
+class TC_GAME_API GarrisonScript : public ScriptObject
+{
+    protected:
+
+        GarrisonScript(const char* name);
+
+    public:
+
+        // Called when a GarrisonAI object is needed for the garrison.
+        virtual GarrisonAI* GetAI(Garrison* /*gar*/) const { return nullptr; }
+};
+
 class TC_GAME_API ConversationScript : public ScriptObject
 {
     protected:
@@ -893,6 +982,9 @@ class TC_GAME_API SceneScript : public ScriptObject
 
         // Called when a scene is completed
         virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+
+        // Called when a scene is either canceled or completed
+        virtual void OnSceneEnd(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
 };
 
 class TC_GAME_API QuestScript : public ScriptObject
@@ -1118,6 +1210,7 @@ class TC_GAME_API ScriptMgr
         void OnPVPKill(Player* killer, Player* killed);
         void OnCreatureKill(Player* killer, Creature* killed);
         void OnPlayerKilledByCreature(Creature* killer, Player* killed);
+        void OnPlayerDeath(Player* player);
         void OnPlayerLevelChanged(Player* player, uint8 oldLevel);
         void OnPlayerFreeTalentPointsChanged(Player* player, uint32 newPoints);
         void OnPlayerTalentsReset(Player* player, bool noCost);
@@ -1136,17 +1229,33 @@ class TC_GAME_API ScriptMgr
         void OnPlayerClearEmote(Player* player);
         void OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, ObjectGuid guid);
         void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck);
+        void OnPlayerSuccessfulSpellCast(Player* player, Spell* spell);
         void OnPlayerLogin(Player* player, bool firstLogin);
+        void OnPlayerUpdate(Player* player, uint32 diff);
         void OnPlayerLogout(Player* player);
         void OnPlayerCreate(Player* player);
         void OnPlayerDelete(ObjectGuid guid, uint32 accountId);
         void OnPlayerFailedDelete(ObjectGuid guid, uint32 accountId);
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent, uint8 extendState);
-        void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
+        void OnPlayerUpdateZone(Player* player, Area* newArea, Area* oldArea);
+        void OnPlayerUpdateArea(Player* player, Area* newArea, Area* oldArea);
+        void OnQuestAccept(Player* player, const Quest* quest);
+        void OnQuestReward(Player* player, const Quest* quest);
+        void OnObjectiveValidate(Player* player, uint32 questID, uint32 objectiveID);
+        void OnQuestComplete(Player* player, const Quest* quest);
+        void OnQuestAbandon(Player* player, const Quest* quest);
         void OnQuestStatusChange(Player* player, uint32 questId);
+        void OnModifyPower(Player* player, Powers power, int32 oldValue, int32& newValue, bool regen, bool after);
+        void OnPlayerTakeDamage(Player* player, uint32 damage, SpellSchoolMask schoolMask);
+        void OnSceneStart(Player* player, uint32 scenePackageId, uint32 sceneInstanceId);
+        void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string event);
+        void OnSceneCancel(Player* player, uint32 sceneInstanceId);
+        void OnSceneComplete(Player* player, uint32 sceneInstanceId);
         void OnMovieComplete(Player* player, uint32 movieId);
         void OnPlayerChoiceResponse(Player* player, uint32 choiceId, uint32 responseId);
+        void OnCooldownStart(Player* player, SpellInfo const* spellInfo, uint32 itemId, int32& cooldown, uint32& categoryId, int32& categoryCooldown);
+        void OnChargeRecoveryTimeStart(Player* player, uint32 chargeCategoryId, int32& chargeRecoveryTime);
 
     public: /* AccountScript */
 
@@ -1156,6 +1265,11 @@ class TC_GAME_API ScriptMgr
         void OnFailedEmailChange(uint32 accountId);
         void OnPasswordChange(uint32 accountId);
         void OnFailedPasswordChange(uint32 accountId);
+
+    public: /* RestScript */
+
+        void OnRestGetReceived(std::string url, RestResponse& response);
+        void OnRestPostReceived(std::string url, boost::property_tree::ptree tree, RestResponse& response);
 
     public: /* GuildScript */
 
@@ -1183,14 +1297,18 @@ class TC_GAME_API ScriptMgr
     public: /* UnitScript */
 
         void OnHeal(Unit* healer, Unit* reciever, uint32& gain);
-        void OnDamage(Unit* attacker, Unit* victim, uint32& damage);
+        void OnDamage(Unit* attacker, Unit* victim, uint32& damage, SpellInfo const* spellProto);
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
-        void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
+        void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage, SpellInfo const* spellInfo);
 
     public: /* AreaTriggerEntityScript */
 
         AreaTriggerAI* GetAreaTriggerAI(AreaTrigger* areaTrigger);
+
+    public: /* GarrisonScript */
+
+        GarrisonAI* GetGarrisonAI(Garrison* garrison);
 
     public: /* ConversationScript */
 
@@ -1207,6 +1325,9 @@ class TC_GAME_API ScriptMgr
 
         void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus);
         void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 oldAmount, int32 newAmount);
+
+    public: /* ZoneScript */
+        ZoneScript* GetZoneScript(uint32 scriptId);
 
     private:
         uint32 _scriptCount;
@@ -1279,6 +1400,24 @@ class GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
         AreaTriggerAI* GetAI(AreaTrigger* at) const override { return new AI(at); }
 };
 #define RegisterAreaTriggerAI(ai_name) new GenericAreaTriggerEntityScript<ai_name>(#ai_name)
+
+template <class AI>
+class GenericGarrisonScript : public GarrisonScript
+{
+    public:
+        GenericGarrisonScript(char const* name) : GarrisonScript(name) { }
+        GarrisonAI* GetAI(Garrison* gar) const override { return new AI(gar); }
+};
+#define RegisterGarrisonAI(ai_name) new GenericGarrisonScript<ai_name>(#ai_name)
+
+template <class AI>
+class GenericInstanceMapScript : public InstanceMapScript
+{
+    public:
+        GenericInstanceMapScript(char const* name, uint32 mapId) : InstanceMapScript(name, mapId) { }
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override { return new AI(map); }
+};
+#define RegisterInstanceScript(ai_name, mapId) new GenericInstanceMapScript<ai_name>(#ai_name, mapId)
 
 #define sScriptMgr ScriptMgr::instance()
 

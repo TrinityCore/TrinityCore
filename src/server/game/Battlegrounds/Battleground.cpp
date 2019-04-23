@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -90,11 +90,11 @@ Battleground::Battleground()
     m_StartMaxDist      = 0.0f;
     ScriptId            = 0;
 
-    m_ArenaTeamIds[TEAM_ALLIANCE]   = 0;
-    m_ArenaTeamIds[TEAM_HORDE]      = 0;
+    m_ArenaGroupIds[TEAM_ALLIANCE]   = 0;
+    m_ArenaGroupIds[TEAM_HORDE]      = 0;
 
-    m_ArenaTeamMMR[TEAM_ALLIANCE]   = 0;
-    m_ArenaTeamMMR[TEAM_HORDE]      = 0;
+    m_ArenaGroupMMR[TEAM_ALLIANCE]   = 0;
+    m_ArenaGroupMMR[TEAM_HORDE]      = 0;
 
     m_BgRaids[TEAM_ALLIANCE]         = NULL;
     m_BgRaids[TEAM_HORDE]            = NULL;
@@ -413,14 +413,15 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     {
         uint32 countdownMaxForBGType = isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX;
 
-        WorldPacket data(SMSG_START_TIMER, 4+4+4);
-        data << uint32(0); // unk
-        data << uint32(countdownMaxForBGType - (GetElapsedTime() / 1000));
-        data << uint32(countdownMaxForBGType);
+        WorldPackets::Misc::StartTimer startTimer;
+        startTimer.Type = WorldPackets::Misc::StartTimer::TIMER_TYPE_BATTLEGROUND;
+        startTimer.TimeLeft = countdownMaxForBGType - (GetElapsedTime() / 1000);
+        startTimer.TotalTime = countdownMaxForBGType;
+        WorldPacket const* startTimerPacket = startTimer.Write();
 
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                player->SendDirectMessage(&data);
+                player->SendDirectMessage(startTimerPacket);
 
         m_CountdownTimer = 0;
     }
@@ -519,7 +520,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 {
-                    player->RemoveAurasDueToSpell(SPELL_PREPARATION);
+                    player->RemoveAurasDueToSpell(SPELL_BG_PREPARATION);
                     player->ResetAllPowers();
                 }
             // Announce BG starting
@@ -678,11 +679,21 @@ void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
         if (!player)
             continue;
 
+        if (player->GetNativeTeam() != TeamID)
+            continue;
+
         uint32 repGain = Reputation;
         AddPct(repGain, player->GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN));
         AddPct(repGain, player->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction_id));
         player->GetReputationMgr().ModifyReputation(factionEntry, repGain);
     }
+}
+
+void Battleground::RewardChestToTeam(uint32 TeamID)
+{
+    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+        if (Player* player = _GetPlayerForTeam(TeamID, itr, "RewardChestToTeam"))
+            player->AddItem(player->GetNativeTeam() == ALLIANCE ? ITEM_BG_ALLIANCE_CHEST : ITEM_BG_HORDE_CHEST, 1);
 }
 
 void Battleground::UpdateWorldState(uint32 variable, uint32 value, bool hidden /*= false*/)
@@ -752,6 +763,8 @@ void Battleground::EndBattleground(uint32 winner)
     BuildPvPLogDataPacket(pvpLogData);
 
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
+
+    RewardChestToTeam(winner);
 
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
@@ -900,6 +913,8 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
         player->RemoveAurasByType(SPELL_AURA_MOUNTED);
+        player->RemoveAurasByType(SPELL_AURA_SWITCH_TEAM);
+        player->RemoveAurasByType(SPELL_AURA_MOD_FACTION);
 
         if (!player->IsAlive())                              // resurrect on exit
         {
@@ -930,7 +945,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
                 bgTypeId = BATTLEGROUND_AA;                   // set the bg type to all arenas (it will be used for queue refreshing)
 
                 // unsummon current and summon old pet if there was one and there isn't a current pet
-                player->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT);
+                player->RemovePet(nullptr, PET_SAVE_DISMISS);
                 player->ResummonPetTemporaryUnSummonedIfAny();
             }
 
@@ -1022,7 +1037,7 @@ void Battleground::StartBattleground()
     sBattlegroundMgr->AddBattleground(this);
 
     if (m_IsRated)
-        TC_LOG_DEBUG("bg.arena", "Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE]);
+        TC_LOG_DEBUG("bg.arena", "Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaGroupIds[TEAM_ALLIANCE], m_ArenaGroupIds[TEAM_HORDE]);
 }
 
 void Battleground::TeleportPlayerToExploitLocation(Player* player)
@@ -1082,14 +1097,27 @@ void Battleground::AddPlayer(Player* player)
     {
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
-            player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
+            player->CastSpell(player, SPELL_BG_PREPARATION, true);   // reduces all mana cost of spells.
 
             int32 countdownMaxForBGType = isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX;
-            WorldPacket data(SMSG_START_TIMER, 4+4+4);
-            data << uint32(0); // unk
-            data << uint32(countdownMaxForBGType - (GetElapsedTime() / 1000));
-            data << uint32(countdownMaxForBGType);
-            player->SendDirectMessage(&data);
+
+            WorldPackets::Misc::StartTimer startTimer;
+            startTimer.Type = WorldPackets::Misc::StartTimer::TIMER_TYPE_BATTLEGROUND;
+            startTimer.TimeLeft = countdownMaxForBGType - (GetElapsedTime() / 1000);
+            startTimer.TotalTime = countdownMaxForBGType;
+
+            player->SendDirectMessage(startTimer.Write());
+        }
+
+        if (player->HasAura(SPELL_MERCENARY_CONTRACT_HORDE))
+        {
+            player->CastSpell(player, SPELL_MERCENARY_HORDE_1, true);
+            player->CastSpell(player, SPELL_MERCENARY_HORDE_2, true);
+        }
+        else if (player->HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE))
+        {
+            player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_1, true);
+            player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_2, true);
         }
     }
 

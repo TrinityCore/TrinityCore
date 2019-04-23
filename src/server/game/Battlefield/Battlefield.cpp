@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,6 +38,7 @@
 
 Battlefield::Battlefield()
 {
+    _scriptType = ZONE_SCRIPT_TYPE_BATTLEFIELD;
     m_Timer = 0;
     m_IsEnabled = true;
     m_isActive = false;
@@ -74,7 +75,7 @@ Battlefield::~Battlefield()
 }
 
 // Called when a player enters the zone
-void Battlefield::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
+void Battlefield::HandlePlayerEnterZone(Player* player, Area* /*zone*/)
 {
     // If battle is started,
     // If not full of players > invite player to join the war
@@ -103,7 +104,7 @@ void Battlefield::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
 }
 
 // Called when a player leave the zone
-void Battlefield::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
+void Battlefield::HandlePlayerLeaveZone(Player* player, Area* /*zone*/)
 {
     if (IsWarTime())
     {

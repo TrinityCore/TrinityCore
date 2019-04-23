@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,7 +54,7 @@ void GarrisonMgr::Initialize()
     {
         if (GarrAbilityEntry const* ability = sGarrAbilityStore.LookupEntry(followerAbility->GarrAbilityID))
         {
-            if (ability->GarrFollowerTypeID != FOLLOWER_TYPE_GARRISON)
+            if (ability->GarrFollowerTypeID != FOLLOWER_TYPE_GARRISON && ability->GarrFollowerTypeID != FOLLOWER_TYPE_CLASS_HALL)
                 continue;
 
             if (!(ability->Flags & GARRISON_ABILITY_CANNOT_ROLL) && ability->Flags & GARRISON_ABILITY_FLAG_TRAIT)
@@ -153,6 +153,17 @@ uint64 GarrisonMgr::GenerateFollowerDbId()
     }
 
     return _followerDbIdGenerator++;
+}
+
+uint64 GarrisonMgr::GenerateMissionDbId()
+{
+    if (_missionDbIdGenerator >= std::numeric_limits<uint64>::max())
+    {
+        TC_LOG_ERROR("misc", "Garrison mission db id overflow! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+
+    return _missionDbIdGenerator++;
 }
 
 uint32 const AbilitiesForQuality[][2] =
@@ -329,10 +340,451 @@ std::list<GarrAbilityEntry const*> GarrisonMgr::GetClassSpecAbilities(GarrFollow
     return abilities;
 }
 
+uint32 GarrisonMgr::GetMissionSuccessChance(Garrison* /*garrison*/, uint32 /*missionId*/)
+{
+    uint32 winChance = 100;
+
+    /*GarrMissionEntry const* l_MissionTemplate = sGarrMissionStore.LookupEntry(p_MissionRecID);
+
+    std::vector<uint32>                     l_Encounters;
+    std::vector<std::pair<uint32, uint32>>  l_EncoutersMechanics;
+    std::vector<GarrisonFollower*>          l_MissionFollowers = GetMissionFollowers(p_MissionRecID);
+    std::vector<uint32>                     l_PassiveEffects = GetBuildingsPassiveAbilityEffects();
+    std::map<uint64, double>                l_FollowersBiasMap;
+    std::vector<uint32>                     l_CounterAbilityUsed; 
+
+    for (uint32 l_I = 0; l_I < sGarrMissionXEncouterStore.GetNumRows(); ++l_I)
+    {
+        GarrMissionXEncouterEntry const* l_Encounter = sGarrMissionXEncouterStore.LookupEntry(l_I);
+
+        if (l_Encounter && l_Encounter->MissionID == p_MissionRecID)
+            l_Encounters.push_back(l_Encounter->EncounterID);
+    }
+
+    for (uint32 l_I = 0; l_I < l_Encounters.size(); l_I++)
+    {
+        for (uint32 l_Y = 0; l_Y < sGarrEncouterXMechanicStore.GetNumRows(); ++l_Y)
+        {
+            GarrEncouterXMechanicEntry const* l_EncounterMechanic = sGarrEncouterXMechanicStore.LookupEntry(l_Y);
+
+            if (l_EncounterMechanic && l_EncounterMechanic->EncounterID == l_Encounters[l_I])
+                l_EncoutersMechanics.push_back(std::make_pair(l_Encounters[l_I], l_EncounterMechanic->MechanicID));
+        }
+    }
+
+    for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
+    {
+        double l_FollowerBias = (l_MissionFollowers[l_Y]->Level - l_MissionTemplate->RequiredLevel) * 0.33333334;
+
+        if (l_MissionTemplate->RequiredLevel == Globals::MaxFollowerLevel)
+        {
+            if (l_MissionTemplate->RequiredItemLevel > 0)
+            {
+                uint32 l_TotalFollowerItemLevel = l_MissionFollowers[l_Y]->ItemLevelArmor + l_MissionFollowers[l_Y]->ItemLevelWeapon;
+                l_FollowerBias = (((l_TotalFollowerItemLevel >> 1) - l_MissionTemplate->RequiredItemLevel) * 0.06666667) + l_FollowerBias;
+            }
+        }
+
+        if (l_FollowerBias < -1.0)
+            l_FollowerBias = -1.0;
+        else if (l_FollowerBias > 1.0)
+            l_FollowerBias = 1.0;
+
+        l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] = l_FollowerBias;
+
+        #ifdef GARRISON_CHEST_FORMULA_DEBUG
+            printf("Follower %u bias %Lf\n", l_MissionFollowers[l_Y]->FollowerID, l_FollowerBias);
+        #endif // GARRISON_CHEST_FORMULA_DEBUG
+    }
+
+    double l_Float8 = 100.0;
+    double l_FloatC = 150.0;
+
+    double l_V8 = l_MissionTemplate->RequiredFollowersCount * l_Float8;
+    double l_V60 = l_MissionTemplate->RequiredFollowersCount * l_Float8;
+
+    for (uint32 l_I = 0; l_I < l_EncoutersMechanics.size(); ++l_I)
+    {
+        GarrMechanicEntry     const* l_MechanicEntry     = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
+        GarrMechanicTypeEntry const* l_MechanicTypeEntry = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
+
+        if (l_MechanicTypeEntry && l_MechanicTypeEntry->Type != MechanicTypes::Ability)
+        {
+            l_V8 = l_V60;
+        }
+        else
+        {
+            l_V8  = l_MechanicEntry->Unk2 + l_V60;
+            l_V60 = l_MechanicEntry->Unk2 + l_V60;
+        }
+    }
+
+    double l_CurrentAdditionalWinChance = 0;
+
+    double l_V11 = 100.0 / l_V8;
+    double l_V62 = 100.0 / l_V8;
+
+    /// OK 100%
+    #pragma region Followers Bias
+    for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
+    {
+        double l_Seil = 0;
+
+        if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] >= 0.0)
+            l_Seil = (l_FloatC - l_Float8) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + l_Float8;
+        else
+            l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + 1.0) * l_Float8;
+
+        l_V8 = (l_Seil * l_V11) + l_CurrentAdditionalWinChance; ///< l_V8 is never read 01/18/16
+        l_CurrentAdditionalWinChance = (l_Seil * l_V11) + l_CurrentAdditionalWinChance;
+
+        #ifdef GARRISON_CHEST_FORMULA_DEBUG
+            printf("Added %.2f to success due to follower %u bias.\n", (l_Seil * l_V11), l_MissionFollowers[l_Y]->FollowerID);
+        #endif // GARRISON_CHEST_FORMULA_DEBUG
+    }
+    #pragma endregion
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// OK 100%
+    #pragma region Counter mechanic
+    for (uint32 l_I = 0; l_I < l_EncoutersMechanics.size(); ++l_I)
+    {
+        GarrMechanicEntry     const* l_MechanicEntry     = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
+        GarrMechanicTypeEntry const* l_MechanicTypeEntry = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
+
+        if (l_MechanicTypeEntry->Type == MechanicTypes::Ability)
+        {
+            double l_Unk1 = l_MechanicEntry->Unk2; ///< l_Unk1 is never read 01/18/16
+            double l_Unk2 = l_MechanicEntry->Unk2;
+
+            if (l_MissionFollowers.size() > 0)
+            {
+                for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
+                {
+                    for (uint32 l_Z = 0; l_Z < l_MissionFollowers[l_Y]->Abilities.size(); l_Z++)
+                    {
+                        uint32 l_CurrentAbilityID = l_MissionFollowers[l_Y]->Abilities[l_Z];
+
+                        for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
+                        {
+                            GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
+
+                            if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
+                                continue;
+
+                            if (l_AbilityEffectEntry->CounterMechanicTypeID == l_MechanicTypeEntry->ID && !(l_AbilityEffectEntry->Unk3 & 1))
+                            {
+                                l_Unk1 = l_Unk2; ///< l_Unk1 is never read 01/18/16
+                                if (l_Unk2 != 0.0)
+                                {
+                                    float l_Seil = 0;
+
+                                    if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] >= 0.0)
+                                        l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + l_AbilityEffectEntry->ModMin;
+                                    else
+                                        l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + 1.0) * l_AbilityEffectEntry->ModMin;
+
+                                    l_Unk1 = l_MechanicEntry->Unk2;
+
+                                    if (l_Seil <= l_Unk1)
+                                        l_Unk1 = l_Seil;
+
+                                    l_Unk2 = l_Unk2 - l_Unk1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (l_Unk2 < 0.0)
+                l_Unk2 = 0.0;
+
+            l_Unk1 = l_MechanicEntry->Unk2;
+            l_Unk1 = (l_Unk1 - l_Unk2) * l_V62;
+            l_CurrentAdditionalWinChance = l_Unk1 + l_CurrentAdditionalWinChance;
+
+            #ifdef GARRISON_CHEST_FORMULA_DEBUG
+                printf("Added %.2f to success due to followers countering boss mechanic %u.\n", l_Unk1, l_EncoutersMechanics[l_I].second);
+            #endif // GARRISON_CHEST_FORMULA_DEBUG
+        }
+    }
+    #pragma endregion
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// UNTESTED
+    #pragma region Race Ability Counter
+    for (uint32 l_I = 0; l_I < l_EncoutersMechanics.size(); ++l_I)
+    {
+        GarrMechanicEntry     const* l_MechanicEntry     = sGarrMechanicStore.LookupEntry(l_EncoutersMechanics[l_I].second);
+        GarrMechanicTypeEntry const* l_MechanicTypeEntry = sGarrMechanicTypeStore.LookupEntry(l_MechanicEntry->MechanicTypeID);
+
+        if (l_MechanicTypeEntry->Type == MechanicTypes::Racial)
+        {
+            for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
+            {
+                for (uint32 l_Z = 0; l_Z < l_MissionFollowers[l_Y]->Abilities.size(); l_Z++)
+                {
+                    uint32 l_CurrentAbilityID = l_MissionFollowers[l_Y]->Abilities[l_Z];
+
+                    for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
+                    {
+                        GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
+
+                        if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
+                            continue;
+
+                        if (l_AbilityEffectEntry->CounterMechanicTypeID == l_MissionTemplate->GarrMechanicTypeRecID)
+                        {
+                            double l_Seil = 0;
+
+                            if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] >= 0.0)
+                                l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + l_AbilityEffectEntry->ModMin;
+                            else
+                                l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + 1.0) * l_AbilityEffectEntry->ModMin;
+
+                            l_CurrentAdditionalWinChance = (l_Seil * l_V62) + l_CurrentAdditionalWinChance;
+
+                            #ifdef GARRISON_CHEST_FORMULA_DEBUG
+                                printf("Added %.2f to success due to follower %u enemy race ability %d.\n", (l_Seil * l_V62), 0, l_CurrentAbilityID);
+                            #endif // GARRISON_CHEST_FORMULA_DEBUG
+                        }
+                    }
+                }
+            }
+        }
+    }
+    #pragma endregion 
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// OK 100%
+    #pragma region Environment Ability
+    for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
+    {
+        for (uint32 l_Z = 0; l_Z < l_MissionFollowers[l_Y]->Abilities.size(); l_Z++)
+        {
+            uint32 l_CurrentAbilityID = l_MissionFollowers[l_Y]->Abilities[l_Z];
+
+            for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
+            {
+                GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
+
+                if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
+                    continue;
+
+                if (l_AbilityEffectEntry->CounterMechanicTypeID == l_MissionTemplate->GarrMechanicTypeRecID)
+                {
+                    double l_Seil = 0;
+
+                    if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] >= 0.0)
+                        l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + l_AbilityEffectEntry->ModMin;
+                    else
+                        l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + 1.0) * l_AbilityEffectEntry->ModMin;
+
+                    l_CurrentAdditionalWinChance = (l_Seil * l_V62) + l_CurrentAdditionalWinChance;
+
+                    #ifdef GARRISON_CHEST_FORMULA_DEBUG
+                        printf("Added %.2f to success due to follower %u environment ability %u.\n", (l_Seil * l_V62), l_MissionFollowers[l_Y]->FollowerID, l_CurrentAbilityID);
+                    #endif // GARRISON_CHEST_FORMULA_DEBUG
+                }
+            }
+        }
+    }
+    #pragma endregion 
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// OK 100%
+    #pragma region Follower Trait
+    double l_MissionDuration = GetMissionDuration(p_MissionRecID);
+    double l_MissionTravelTime = GetMissionTravelDuration(p_MissionRecID);
+
+    for (uint32 l_Y = 0; l_Y < l_MissionFollowers.size(); ++l_Y)
+    {
+        for (uint32 l_Z = 0; l_Z < l_MissionFollowers[l_Y]->Abilities.size(); l_Z++)
+        {
+            uint32 l_CurrentAbilityID = l_MissionFollowers[l_Y]->Abilities[l_Z];
+
+            for (uint32 l_EffectI = 0; l_EffectI < sGarrAbilityEffectStore.GetNumRows(); l_EffectI++)
+            {
+                GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_EffectI);
+
+                if (!l_AbilityEffectEntry || l_AbilityEffectEntry->AbilityID != l_CurrentAbilityID)
+                    continue;
+
+                bool l_Proc = false;
+
+                switch (l_AbilityEffectEntry->EffectType)
+                {
+                    /// Proc if MissionFollowerCount == 1
+                    case AbilityEffectTypes::ModWinRateSolo:
+                        l_Proc = l_MissionFollowers.size() == 1;
+                        break;
+
+                    /// Proc every time, no condition
+                    case AbilityEffectTypes::ModWinRate:
+                        l_Proc = true;
+                        break;
+
+                    /// Proc if Find(MissionFollowers[Class], MiscValueA) != NULL
+                    case AbilityEffectTypes::ModWinRateClass:
+                        for (uint32 l_W = 0; l_W < l_MissionFollowers.size(); ++l_W)
+                        {
+                            if (l_W != l_Y)
+                            {
+                                GarrFollowerEntry const* l_FollowerTemplate = sGarrFollowerStore.LookupEntry(l_MissionFollowers[l_W]->FollowerID);
+
+                                if (l_FollowerTemplate && l_FollowerTemplate->CreatureID[GetGarrisonFactionIndex()] == l_AbilityEffectEntry->MiscValueA)
+                                {
+                                    l_Proc = true;
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+
+                    /// Proc if Duration > (3600 * MiscValueB)
+                    case AbilityEffectTypes::ModWinRateDurationMore:
+                        l_Proc = l_MissionDuration > (3600 * l_AbilityEffectEntry->MiscValueB);
+                        break;
+
+                    /// Proc if Duration < (3600 * MiscValueB)
+                    case AbilityEffectTypes::ModWinRateDurationLess:
+                        l_Proc = l_MissionDuration < (3600 * l_AbilityEffectEntry->MiscValueB);
+                        break;
+
+                    /// Proc if TravelDuration > (3600 * MiscValueB)
+                    case AbilityEffectTypes::ModWinRateTravelDurationMore:
+                        l_Proc = l_MissionTravelTime > (3600 * l_AbilityEffectEntry->MiscValueB);
+                        break;
+
+                    /// Proc if TravelDuration < (3600 * MiscValueB)
+                    case AbilityEffectTypes::ModWinRateTravelDurationLess:
+                        l_Proc = l_MissionTravelTime < (3600 * l_AbilityEffectEntry->MiscValueB);
+                        break;
+
+                    case AbilityEffectTypes::ModUnk0:
+                    case AbilityEffectTypes::ModTravelTime:
+                    case AbilityEffectTypes::ModXpGain:
+                    case AbilityEffectTypes::ModGarrCurrencyDrop:
+                    case AbilityEffectTypes::ModUnk11:
+                    case AbilityEffectTypes::ModDummyProduction:
+                    case AbilityEffectTypes::ModBronzeTreasureDrop:
+                    case AbilityEffectTypes::ModSilverTreasureDrop:
+                    case AbilityEffectTypes::ModGoldTreasureDrop:
+                    case AbilityEffectTypes::ModChestDropRate:
+                    case AbilityEffectTypes::ModMissionDuration:
+                        break;
+
+                    default:
+                        break;
+
+                }
+
+                if (!l_Proc)
+                    break;
+
+                double l_Seil = 0.0;
+
+                if (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] >= 0.0)
+                    l_Seil = (l_AbilityEffectEntry->ModMax - l_AbilityEffectEntry->ModMin) * l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + l_AbilityEffectEntry->ModMin;
+                else
+                    l_Seil = (l_FollowersBiasMap[l_MissionFollowers[l_Y]->DatabaseID] + 1.0) * l_AbilityEffectEntry->ModMin;
+
+                l_CurrentAdditionalWinChance = (l_Seil * l_V62) + l_CurrentAdditionalWinChance;
+
+                #ifdef GARRISON_CHEST_FORMULA_DEBUG
+                    printf("Added %.2f to success due to follower %u trait %u.\n", (l_Seil * l_V62), l_MissionFollowers[l_Y]->FollowerID, l_AbilityEffectEntry->EffectType);
+                #endif // GARRISON_CHEST_FORMULA_DEBUG
+            }
+        }
+    }
+    #pragma endregion 
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// UNTESTED
+    #pragma region Passive Effect
+    for (uint32 l_Y = 0; l_Y < l_PassiveEffects.size(); ++l_Y)
+    {
+        GarrAbilityEffectEntry const* l_AbilityEffectEntry = sGarrAbilityEffectStore.LookupEntry(l_PassiveEffects[l_Y]);
+
+        if (!l_AbilityEffectEntry)
+            continue;
+
+        if (l_AbilityEffectEntry->EffectType == AbilityEffectTypes::ModWinRate)
+        {
+            l_CurrentAdditionalWinChance = (l_AbilityEffectEntry->ModMin * l_V62) + l_CurrentAdditionalWinChance;
+
+            #ifdef GARRISON_CHEST_FORMULA_DEBUG
+                printf("Added %.2f to success due to passive effect %u.\n", l_AbilityEffectEntry->ModMin * l_V62, l_AbilityEffectEntry->AbilityID);
+            #endif // GARRISON_CHEST_FORMULA_DEBUG
+        }
+    }
+    #pragma endregion 
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    l_CurrentAdditionalWinChance = (((100.0 - l_MissionTemplate->BaseBonusChance) * l_CurrentAdditionalWinChance) * 0.0099999998) + l_MissionTemplate->BaseBonusChance;
+
+    if (l_CurrentAdditionalWinChance > 100.0)
+        l_CurrentAdditionalWinChance = 100.0;
+
+    #ifdef GARRISON_CHEST_FORMULA_DEBUG
+        printf("Total success chance: %.2f.\n", l_CurrentAdditionalWinChance);
+    #endif // GARRISON_CHEST_FORMULA_DEBUG*/
+
+    return winChance;
+}
+
+uint32 GarrisonMgr::GetClassByMissionType(uint32 missionType)
+{
+    switch (missionType)
+    {
+        case GarrisonMission::Type::ArtifactMonk:           return CLASS_MONK;
+        case GarrisonMission::Type::ArtifactShaman:         return CLASS_SHAMAN;
+        case GarrisonMission::Type::ArtifactDruid:          return CLASS_DRUID;
+        case GarrisonMission::Type::ArtifactMage:           return CLASS_MAGE;
+        case GarrisonMission::Type::ArtifactHunter:         return CLASS_HUNTER;
+        case GarrisonMission::Type::ArtifactPaladin:        return CLASS_PALADIN;
+        case GarrisonMission::Type::ArtifactWarlock:        return CLASS_WARLOCK;
+        case GarrisonMission::Type::ArtifactDemonHunter:    return CLASS_DEMON_HUNTER;
+        case GarrisonMission::Type::ArtifactRogue:          return CLASS_ROGUE;
+        case GarrisonMission::Type::ArtifactPriest:         return CLASS_PRIEST;
+        case GarrisonMission::Type::ArtifactDeathKnight:    return CLASS_DEATH_KNIGHT;
+        case GarrisonMission::Type::ArtifactWarrior:        return CLASS_WARRIOR;
+        default:
+            return CLASS_NONE;
+    }
+}
+
+uint32 GarrisonMgr::GetFactionByMissionType(uint32 missionType)
+{
+    switch (missionType)
+    {
+        case GarrisonMission::Type::ZoneSupportAlliance:    return TEAM_ALLIANCE;
+        case GarrisonMission::Type::ZoneSupportHorde:       return TEAM_HORDE;
+        default:
+            return TEAM_OTHER;
+    }
+}
+
 void GarrisonMgr::InitializeDbIdSequences()
 {
     if (QueryResult result = CharacterDatabase.Query("SELECT MAX(dbId) FROM character_garrison_followers"))
         _followerDbIdGenerator = (*result)[0].GetUInt64() + 1;
+
+    if (QueryResult result = CharacterDatabase.Query("SELECT MAX(dbId) FROM character_garrison_missions"))
+        _missionDbIdGenerator = (*result)[0].GetUInt64() + 1;
 }
 
 void GarrisonMgr::LoadPlotFinalizeGOInfo()

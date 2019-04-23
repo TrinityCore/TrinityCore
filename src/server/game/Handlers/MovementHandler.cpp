@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,6 +47,9 @@ void WorldSession::HandleMoveWorldportAck()
     // ignore unexpected far teleports
     if (!GetPlayer()->IsBeingTeleportedFar())
         return;
+
+    // We must calculate this before SetSemaphoreTeleportFar(false)
+    uint32 castOnArrivalSpellId = GetPlayer()->GetOnArrivalCastSpellTeleport();
 
     bool seamlessTeleport = GetPlayer()->IsBeingTeleportedSeamlessly();
     GetPlayer()->SetSemaphoreTeleportFar(false);
@@ -140,8 +143,7 @@ void WorldSession::HandleMoveWorldportAck()
     else
     {
         GetPlayer()->UpdateVisibilityForPlayer();
-        if (Garrison* garrison = GetPlayer()->GetGarrison())
-            garrison->SendRemoteInfo();
+        GetPlayer()->SendGarrisonRemoteInfo();
     }
 
     // flight fast teleport case
@@ -202,9 +204,7 @@ void WorldSession::HandleMoveWorldportAck()
         _player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     // update zone immediately, otherwise leave channel will cause crash in mtmap
-    uint32 newzone, newarea;
-    GetPlayer()->GetZoneAndAreaId(newzone, newarea);
-    GetPlayer()->UpdateZone(newzone, newarea);
+    GetPlayer()->UpdateArea(GetPlayer()->GetAreaIdFromPosition());
 
     // honorless target
     if (GetPlayer()->pvpInfo.IsHostile)
@@ -216,6 +216,13 @@ void WorldSession::HandleMoveWorldportAck()
 
     // resummon pet
     GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
+
+    // now that the player has been relocated, it's time to cast the arrival spell (if any)
+    if (castOnArrivalSpellId != 0)
+    {
+        GetPlayer()->CastSpell(GetPlayer(), castOnArrivalSpellId, true);
+        GetPlayer()->ResetOnArrivalCastSpellTeleport();
+    }
 
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
@@ -264,13 +271,10 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
     WorldLocation const& dest = plMover->GetTeleportDest();
 
     plMover->UpdatePosition(dest, true);
-
-    uint32 newzone, newarea;
-    plMover->GetZoneAndAreaId(newzone, newarea);
-    plMover->UpdateZone(newzone, newarea);
+    plMover->UpdateArea(plMover->GetAreaIdFromPosition());
 
     // new zone
-    if (old_zone != newzone)
+    if (old_zone != plMover->GetZoneId())
     {
         // honorless target
         if (plMover->pvpInfo.IsHostile)
@@ -419,7 +423,23 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
 
         plrMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
-        if (movementInfo.pos.GetPositionZ() < plrMover->GetMap()->GetMinHeight(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY()))
+        // TODO : Fix GetMap()->GetMinHeight for Vash'jir
+        float minHeight = -500.0f;
+        switch (plrMover->GetAreaId())
+        {
+            case 4815:
+            case 4816:
+            case 5144:
+            case 5145:
+            case 5146:
+                minHeight = -2000.0f;
+                break;
+            default:
+                minHeight = plrMover->GetMap()->GetMinHeight(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY());
+                break;
+        }
+
+        if (movementInfo.pos.GetPositionZ() < minHeight)
         {
             if (!(plrMover->GetBattleground() && plrMover->GetBattleground()->HandlePlayerUnderMap(_player)))
             {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,6 +50,7 @@ EndContentData */
 #include "GameObjectAI.h"
 #include "Log.h"
 #include "Map.h"
+#include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -1499,6 +1500,23 @@ public:
     }
 };
 
+class go_allied_race_infos : public GameObjectScript
+{
+public:
+    go_allied_race_infos(const char* name, uint32 raceId) : GameObjectScript(name), _raceId(raceId) { }
+
+    bool OnGossipHello(Player* player, GameObject* go) override
+    {
+        WorldPackets::Misc::OpenAlliedRaceDetailsGiver openAlliedRaceDetailsGiver;
+        openAlliedRaceDetailsGiver.Guid = go->GetGUID();
+        openAlliedRaceDetailsGiver.RaceId = _raceId;
+        player->SendDirectMessage(openAlliedRaceDetailsGiver.Write());
+        return false;
+    }
+
+    uint32 _raceId;
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine();
@@ -1540,4 +1558,8 @@ void AddSC_go_scripts()
     new go_midsummer_music();
     new go_darkmoon_faire_music();
     new go_pirate_day_music();
+    new go_allied_race_infos("go_allied_race_infos_nightborne", 27);
+    new go_allied_race_infos("go_allied_race_infos_tauren",     28);
+    new go_allied_race_infos("go_allied_race_infos_voidelf",    29);
+    new go_allied_race_infos("go_allied_race_infos_draenei",    30);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -781,6 +781,16 @@ enum RBACPermissions
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN 3.3.5 BRANCH AS WELL!
     //
     // custom permissions 1000+
+    // ashamane permissions 2000+
+    RBAC_PERM_COMMAND_DEBUG_MOVEMENT_FORCE                   = 2000,
+    RBAC_PERM_COMMAND_DEBUG_APPLY_MOVEMENT_FORCE             = 2001,
+    RBAC_PERM_COMMAND_DEBUG_REMOVE_MOVEMENT_FORCE            = 2002,
+    RBAC_PERM_COMMAND_LIST_QUESTS                            = 2003,
+    RBAC_PERM_COMMAND_BLACKMARKET                            = 2004,
+    RBAC_PERM_COMMAND_BLACKMARKET_SET_DURATION               = 2005,
+    RBAC_PERM_COMMAND_NPC_RELOAD                             = 2006,
+    RBAC_PERM_COMMAND_LFG_DEBUG                              = 2007,
+    RBAC_PERM_COMMAND_TICKET_ADDON                           = 2008,
     RBAC_PERM_MAX
 };
 

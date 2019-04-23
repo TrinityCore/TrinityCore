@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,6 +34,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
+#include <cwctype>
 
 Channel::Channel(uint32 channelId, uint32 team /*= 0*/, AreaTableEntry const* zoneEntry /*= nullptr*/) :
     _announceEnabled(false),                                               // no join/leave announces
@@ -177,6 +178,23 @@ void Channel::CleanOldChannelsInDB()
 
         TC_LOG_DEBUG("chat.system", "Cleaned out unused custom chat channels.");
     }
+}
+
+std::string Channel::GetLowerName() const
+{
+    std::string lowername = _channelName;
+    std::transform(lowername.begin(), lowername.end(), lowername.begin(), ::tolower);
+    return lowername;
+}
+
+bool Channel::IsWorld() const
+{
+    if (GetLowerName() == "world" ||
+        GetLowerName() == "world_es" ||
+        GetLowerName() == "world_fr")
+        return true;
+
+    return false;
 }
 
 void Channel::JoinChannel(Player* player, std::string const& pass)
@@ -994,8 +1012,22 @@ void Channel::SetMute(ObjectGuid const& guid, bool set)
     }
 }
 
+void Channel::SendToAllInChannel(std::string senderName, std::string message, bool showGMLogo)
+{
+    auto builder = [&](LocaleConstant /*locale*/)
+    {
+        WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
+        packet->Initialize(CHAT_MSG_CHANNEL, LANG_UNIVERSAL, nullptr, nullptr, message, 0, GetName(), DEFAULT_LOCALE, "", (showGMLogo ? CHAT_FLAG_GM : CHAT_FLAG_NONE));
+        packet->SenderName = senderName;
+
+        return packet;
+    };
+
+    SendToAll(builder);
+}
+
 template <class Builder>
-void Channel::SendToAll(Builder& builder, ObjectGuid const& guid) const
+void Channel::SendToAll(Builder& builder, ObjectGuid const& guid /*= ObjectGuid::Empty*/) const
 {
     Trinity::LocalizedPacketDo<Builder> localizer(builder);
 

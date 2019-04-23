@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,12 +44,13 @@ public:
     {
         static std::vector<ChatCommand> instanceCommandTable =
         {
-            { "listbinds",    rbac::RBAC_PERM_COMMAND_INSTANCE_LISTBINDS,     false, &HandleInstanceListBindsCommand,    "" },
-            { "unbind",       rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,        false, &HandleInstanceUnbindCommand,       "" },
-            { "stats",        rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,          true, &HandleInstanceStatsCommand,        "" },
-            { "savedata",     rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,      false, &HandleInstanceSaveDataCommand,     "" },
-            { "setbossstate", rbac::RBAC_PERM_COMMAND_INSTANCE_SET_BOSS_STATE, true, &HandleInstanceSetBossStateCommand, "" },
-            { "getbossstate", rbac::RBAC_PERM_COMMAND_INSTANCE_GET_BOSS_STATE, true, &HandleInstanceGetBossStateCommand, "" },
+            { "listbinds",          rbac::RBAC_PERM_COMMAND_INSTANCE_LISTBINDS,     false, &HandleInstanceListBindsCommand,    "" },
+            { "unbind",             rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,        false, &HandleInstanceUnbindCommand,       "" },
+            { "stats",              rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,          true, &HandleInstanceStatsCommand,        "" },
+            { "savedata",           rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,      false, &HandleInstanceSaveDataCommand,     "" },
+            { "setbossstate",       rbac::RBAC_PERM_COMMAND_INSTANCE_SET_BOSS_STATE, true, &HandleInstanceSetBossStateCommand, "" },
+            { "getbossstate",       rbac::RBAC_PERM_COMMAND_INSTANCE_GET_BOSS_STATE, true, &HandleInstanceGetBossStateCommand, "" },
+            { "complete_challenge", rbac::RBAC_PERM_COMMAND_INSTANCE_SET_BOSS_STATE,false, &HandleInstanceCompleteChallengeModeCommand, "" },
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -332,6 +333,36 @@ public:
         int32 state = map->GetInstanceScript()->GetBossState(encounterId);
         std::string stateName = InstanceScript::GetBossStateName(state);
         handler->PSendSysMessage(LANG_COMMAND_INST_GET_BOSS_STATE, encounterId, state, stateName.c_str());
+        return true;
+    }
+
+    static bool HandleInstanceCompleteChallengeModeCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Player* player = handler->getSelectedPlayerOrSelf();
+
+        if (!player)
+        {
+            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        InstanceMap* map = player->GetMap()->ToInstanceMap();
+        if (!map)
+        {
+            handler->PSendSysMessage(LANG_NOT_DUNGEON);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!map->GetInstanceScript())
+        {
+            handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        map->GetInstanceScript()->CompleteChallengeMode();
         return true;
     }
 };

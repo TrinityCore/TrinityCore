@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -290,6 +290,6 @@ class BattlegroundWS : public Battleground
         int32 _flagSpellForceTimer;
         bool _bothFlagsKept;
         uint8 _flagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
-        uint8 _minutesElapsed;
+        uint32 m_EndTimestamp;
 };
 #endif

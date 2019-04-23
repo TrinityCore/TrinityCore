@@ -1,2 +1,0 @@
---
-UPDATE `quest_template` SET `OfferRewardText` = 'Very good, very good! You''ve done well, $N. Perhaps the interest that is being shown in you is deserved, after all.$b$bThat''ll be for the others to decide--assuming your imp doesn''t overpower you and nip your career in the bud. For now, I''m satisfied that you''ll probably survive your first few months as a %C.$b$bA word about the imp, $N. As a $R knows, don''t let its size fool you, its magic can be very dangerous.' WHERE `id` = 1599;

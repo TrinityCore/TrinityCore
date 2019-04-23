@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,7 +33,8 @@
 #include "Util.h"
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
-UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE), _lastShootPos()
+UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE),
+_lastShootPos(), _passengersSpawnedByAI(false), _canBeCastedByPassengers(false)
 {
     for (int8 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
@@ -89,6 +90,9 @@ void Vehicle::Install()
 
 void Vehicle::InstallAllAccessories(bool evading)
 {
+    if (ArePassengersSpawnedByAI())
+        return;
+
     if (GetBase()->GetTypeId() == TYPEID_PLAYER || !evading)
         RemoveAllPassengers();   // We might have aura's saved in the DB with now invalid casters - remove
 
@@ -241,7 +245,7 @@ void Vehicle::RemoveAllPassengers()
         {
             VehicleJoinEvent* e = _pendingJoinEvents.front();
             e->ScheduleAbort();
-            e->Target = eventVehicle;
+            e->VehicleTargetBase = eventVehicle ? eventVehicle->GetBase(): nullptr;
             _pendingJoinEvents.pop_front();
         }
     }
@@ -385,6 +389,15 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     /// @VehicleJoinEvent::Abort
 }
 
+bool Vehicle::AddPassenger(uint32 passengerEntry, int8 seatId /*= -1*/)
+{
+    if (Unit* base = GetBase())
+        if (Creature* summon = base->SummonCreature(passengerEntry, base->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN))
+            return summon->CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, seatId + 1, base, false);
+
+    return false;
+}
+
 /**
  * @fn bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
  *
@@ -418,7 +431,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     // exits the vehicle will dismiss. That's why the actual adding the passenger to the vehicle is scheduled
     // asynchronously, so it can be cancelled easily in case the vehicle is uninstalled meanwhile.
     SeatMap::iterator seat;
-    VehicleJoinEvent* e = new VehicleJoinEvent(this, unit);
+    VehicleJoinEvent* e = new VehicleJoinEvent(this->GetBase(), unit);
     unit->m_Events.AddEvent(e, unit->m_Events.CalculateTime(0));
 
     if (seatId < 0) // no specific seat requirement
@@ -760,8 +773,10 @@ void Vehicle::RemovePendingEventsForPassenger(Unit* passenger)
 bool VehicleJoinEvent::Execute(uint64, uint32)
 {
     ASSERT(Passenger->IsInWorld());
-    ASSERT(Target && Target->GetBase()->IsInWorld());
-    ASSERT(Target->GetBase()->HasAuraTypeWithCaster(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID()));
+    ASSERT(VehicleTargetBase && VehicleTargetBase->IsInWorld());
+    Vehicle* Target = VehicleTargetBase->GetVehicleKit();
+    ASSERT(Target);
+    ASSERT(VehicleTargetBase->HasAuraTypeWithCaster(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID()));
 
     Target->RemovePendingEventsForSeat(Seat->first);
     Target->RemovePendingEventsForPassenger(Passenger);
@@ -858,8 +873,9 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 void VehicleJoinEvent::Abort(uint64)
 {
     /// Check if the Vehicle was already uninstalled, in which case all auras were removed already
-    if (Target)
+    if (VehicleTargetBase && VehicleTargetBase->GetVehicleKit())
     {
+        Vehicle* Target = VehicleTargetBase->GetVehicleKit();
         TC_LOG_DEBUG("entities.vehicle", "Passenger %s, Entry: %u, board on vehicle %s, Entry: %u SeatId: %d cancelled",
             Passenger->GetGUID().ToString().c_str(), Passenger->GetEntry(), Target->GetBase()->GetGUID().ToString().c_str(), Target->GetBase()->GetEntry(), (int32)Seat->first);
 

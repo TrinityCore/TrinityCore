@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -182,6 +182,38 @@ void WorldPackets::Pet::PetCancelAura::Read()
 WorldPacket const* WorldPackets::Pet::SetPetSpecialization::Write()
 {
     _worldPacket << uint16(SpecID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Pet::PetSlotUpdated::Write()
+{
+    _worldPacket << int32(PetNumberA);
+    _worldPacket << int32(PetSlotA);
+    _worldPacket << int32(PetNumberB);
+    _worldPacket << int32(PetSlotB);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Pet::PetAdded::Write()
+{
+    _worldPacket << int32(NewPet.PetSlot);
+    _worldPacket << int32(NewPet.PetNumber);
+    _worldPacket << int32(NewPet.CreatureID);
+    _worldPacket << int32(NewPet.DisplayID);
+    _worldPacket << int32(NewPet.ExperienceLevel);
+    _worldPacket << int8(NewPet.PetFlags);
+
+    _worldPacket.WriteBits(NewPet.PetName.length(), 8);
+    _worldPacket.WriteString(NewPet.PetName);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Pet::PetTameFailure::Write()
+{
+    _worldPacket << uint8(Reason);
 
     return &_worldPacket;
 }

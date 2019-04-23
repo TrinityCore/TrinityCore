@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -916,15 +916,13 @@ class npc_orb_carrier : public CreatureScript
                 ASSERT(creature->GetVehicleKit());
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 /// According to sniffs this spell is cast every 1 or 2 seconds.
                 /// However, refreshing it looks bad, so just cast the spell if
                 /// we are not channeling it.
                 if (!me->HasUnitState(UNIT_STATE_CASTING))
                     me->CastSpell((Unit*)nullptr, SPELL_TRACK_ROTATION, false);
-
-                scheduler.Update(diff);
 
                 /// Workaround: This is here because even though the above spell has SPELL_ATTR1_CHANNEL_TRACK_TARGET,
                 /// we are having two creatures involded here. This attribute is handled clientside, meaning the client
@@ -945,7 +943,7 @@ class npc_orb_carrier : public CreatureScript
                         if (northOrb && northOrb->GetTypeId() == TYPEID_UNIT)
                             northOrb->ToCreature()->AI()->Talk(EMOTE_WARN_LASER);
 
-                        scheduler.Schedule(Seconds(5), [this](TaskContext /*context*/)
+                        me->GetScheduler().Schedule(Seconds(5), [this](TaskContext /*context*/)
                         {
                             DoAction(ACTION_SHOOT);
                         });
@@ -977,7 +975,6 @@ class npc_orb_carrier : public CreatureScript
             }
         private:
             InstanceScript* _instance;
-            TaskScheduler scheduler;
 
             void TriggerCutter(Unit* caster, Unit* target)
             {
@@ -1284,7 +1281,7 @@ class npc_living_inferno : public CreatureScript
 
                 // SMSG_SPELL_GO for the living ember stuff isn't even sent to the client - Blizzard on drugs.
                 if (me->GetMap()->GetDifficultyID() == DIFFICULTY_25_HC)
-                    scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+                    me->GetScheduler().Schedule(Seconds(3), [this](TaskContext /*context*/)
                     {
                         me->CastSpell(me, SPELL_SPAWN_LIVING_EMBERS, true);
                     });
@@ -1300,15 +1297,6 @@ class npc_living_inferno : public CreatureScript
             {
                 me->DespawnOrUnsummon(1);
             }
-
-            void UpdateAI(uint32 diff) override
-            {
-                scheduler.Update(diff);
-                ScriptedAI::UpdateAI(diff);
-            }
-
-        private:
-            TaskScheduler scheduler;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

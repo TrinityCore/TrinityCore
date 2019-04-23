@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -58,6 +58,10 @@ public:
             { "complaintticket",    rbac::RBAC_PERM_COMMAND_GO_COMPLAINT_TICKET,    false, &HandleGoTicketCommand<ComplaintTicket>,     "" },
             { "suggestionticket",   rbac::RBAC_PERM_COMMAND_GO_SUGGESTION_TICKET,   false, &HandleGoTicketCommand<SuggestionTicket>,    "" },
             { "offset",             rbac::RBAC_PERM_COMMAND_GO_OFFSET,              false, &HandleGoOffsetCommand,                      "" },
+            { "z",                  rbac::RBAC_PERM_COMMAND_GO_XYZ,                 false, &HandleGoZCommand,                           "" },
+            { "forward",            rbac::RBAC_PERM_COMMAND_GO_XYZ,                 false, &HandleGoForwardCommand,                     "" },
+            { "script_wp",          rbac::RBAC_PERM_COMMAND_GO_XYZ,                 false, &HandleGoScriptWPCommand,                    "" },
+            { "",                   rbac::RBAC_PERM_COMMAND_GO_XYZ,                 false, &HandleGoXYZCommand,                         "" },
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -673,6 +677,167 @@ public:
             player->SaveRecallPosition();
 
         player->TeleportTo(player->GetMapId(), x, y, z, o);
+        return true;
+    }
+
+    //teleport at coordinates, including Z and orientation
+    static bool HandleGoZCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        char* goZ = NULL;
+
+        bool relative = false;
+        bool add = false;
+
+        if (*args == '+' || *args == '-')
+        {
+            relative = true;
+            add = (*args == '+');
+            goZ = strtok((char*)(args + 1), " ");
+        }
+        else
+            goZ = strtok((char*)args, " ");
+
+        if (!goZ)
+            return false;
+
+        float x = player->GetPositionX();
+        float y = player->GetPositionY();
+        uint32 mapId = player->GetMapId();
+
+        float z = 0.0f;
+        float paramZ = (float)atof(goZ);
+
+        if (relative)
+        {
+            if (add)
+                z = player->GetPositionZ() + paramZ;
+            else
+                z = player->GetPositionZ() - paramZ;
+        }
+        else
+            z = paramZ;
+
+        if (!MapManager::IsValidMapCoord(mapId, x, y, z))
+        {
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // stop flight if need
+        if (player->IsInFlight())
+        {
+            player->GetMotionMaster()->MovementExpired();
+            player->CleanupAfterTaxiFlight();
+        }
+        // save only in non-flight case
+        else
+            player->SaveRecallPosition();
+
+        player->TeleportTo(mapId, x, y, z, player->GetOrientation());
+        return true;
+    }
+
+    static bool HandleGoForwardCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        char* goDistance = NULL;
+
+        goDistance = strtok((char*)args, " ");
+
+        if (!goDistance)
+            return false;
+
+        float x = player->GetPositionX();
+        float y = player->GetPositionY();
+        float z = player->GetPositionZ();
+        float o = player->GetOrientation();
+        uint32 mapId = player->GetMapId();
+
+        float dist = (float)atof(goDistance);
+
+        x = x + (dist * cos(o));
+        y = y + (dist * sin(o));
+
+        if (!MapManager::IsValidMapCoord(mapId, x, y, z))
+        {
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // stop flight if need
+        if (player->IsInFlight())
+        {
+            player->GetMotionMaster()->MovementExpired();
+            player->CleanupAfterTaxiFlight();
+        }
+        // save only in non-flight case
+        else
+            player->SaveRecallPosition();
+
+        player->TeleportTo(mapId, x, y, z, o);
+        return true;
+    }
+
+    static bool HandleGoScriptWPCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        char* npcEntryStr = strtok((char*)args, " ");
+        char* waypointIdStr = strtok(NULL, " ");
+
+        if (!npcEntryStr || !waypointIdStr)
+            return false;
+
+        uint32 npcEntry     = atoi(npcEntryStr);
+        uint32 waypointId   = atoi(waypointIdStr);
+
+        QueryResult result = WorldDatabase.PQuery("SELECT location_x, location_y, location_z FROM script_waypoint WHERE entry = %u AND pointid = %u", npcEntry, waypointId);
+
+        if (!result)
+            return false;
+
+        if (result->GetRowCount() > 1)
+            return false;
+
+        Field* fields = result->Fetch();
+        float x = fields[0].GetFloat();
+        float y = fields[1].GetFloat();
+        float z = fields[2].GetFloat();
+
+        uint32 mapId = player->GetMapId();
+
+        if (!MapManager::IsValidMapCoord(mapId, x, y, z))
+        {
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // stop flight if need
+        if (player->IsInFlight())
+        {
+            player->GetMotionMaster()->MovementExpired();
+            player->CleanupAfterTaxiFlight();
+        }
+        // save only in non-flight case
+        else
+            player->SaveRecallPosition();
+
+        player->TeleportTo(mapId, x, y, z, player->GetOrientation());
         return true;
     }
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -137,7 +137,7 @@ class TC_DATABASE_API Field
 
     private:
         #ifdef TRINITY_DEBUG
-        void LogWrongType(char* getter) const;
+        void LogWrongType(char const* getter) const;
         void SetMetadata(MYSQL_FIELD* field, uint32 fieldIndex);
         Metadata meta;
         #endif

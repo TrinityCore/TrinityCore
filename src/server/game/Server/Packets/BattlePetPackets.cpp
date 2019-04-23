@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,7 +28,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetSlot 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet const& pet)
+ByteBuffer& operator<<(ByteBuffer& data, ::BattlePet const& pet)
 {
     data << pet.Guid;
     data << uint32(pet.Species);
@@ -72,7 +72,7 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetJournal::Write()
     for (BattlePetSlot const& slot : Slots)
         _worldPacket << slot;
 
-    for (BattlePet const& pet : Pets)
+    for (::BattlePet const& pet : Pets)
         _worldPacket << pet;
 
     return &_worldPacket;

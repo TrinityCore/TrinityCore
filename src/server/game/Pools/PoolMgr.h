@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://www.mangosproject.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,8 @@
 #include <set>
 #include <unordered_map>
 #include <vector>
+
+#define MAX_DB_POOL_ID 0xFFFFF
 
 class Creature;
 class GameObject;
@@ -118,6 +120,10 @@ class TC_GAME_API PoolMgr
         void LoadFromDB();
         void LoadQuestPools();
         void SaveQuestsToDB();
+
+        void AddPoolTemplate(uint32 pool_id, uint32 maxLimit);
+        void AddGameObjectToPool(uint32 pool_id, ObjectGuid::LowType guid, uint32 chance);
+        void AddPoolToPool(uint32 mother_pool_id, uint32 pool_id, uint32 chance);
 
         void Initialize();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,7 +35,7 @@ class TC_GAME_API Totem : public Minion
         virtual ~Totem() { }
         void Update(uint32 time) override;
         void InitStats(uint32 duration) override;
-        void InitSummon() override;
+        void InitSummon(Spell const* summonSpell = nullptr) override;
         void UnSummon(uint32 msTime = 0) override;
         uint32 GetSpell(uint8 slot = 0) const { return m_spells[slot]; }
         uint32 GetTotemDuration() const { return m_duration; }

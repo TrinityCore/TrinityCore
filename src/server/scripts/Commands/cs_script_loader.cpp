@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@ void AddSC_arena_commandscript();
 void AddSC_ban_commandscript();
 void AddSC_battlenet_account_commandscript();
 void AddSC_bf_commandscript();
+void AddSC_blackmarket_commandscript();
 void AddSC_cast_commandscript();
 void AddSC_character_commandscript();
 void AddSC_cheat_commandscript();
@@ -30,6 +31,7 @@ void AddSC_debug_commandscript();
 void AddSC_deserter_commandscript();
 void AddSC_disable_commandscript();
 void AddSC_event_commandscript();
+void AddSC_garrison_commandscript();
 void AddSC_gm_commandscript();
 void AddSC_go_commandscript();
 void AddSC_gobject_commandscript();
@@ -70,6 +72,7 @@ void AddCommandsScripts()
     AddSC_ban_commandscript();
     AddSC_battlenet_account_commandscript();
     AddSC_bf_commandscript();
+    AddSC_blackmarket_commandscript();
     AddSC_cast_commandscript();
     AddSC_character_commandscript();
     AddSC_cheat_commandscript();
@@ -77,6 +80,7 @@ void AddCommandsScripts()
     AddSC_deserter_commandscript();
     AddSC_disable_commandscript();
     AddSC_event_commandscript();
+    AddSC_garrison_commandscript();
     AddSC_gm_commandscript();
     AddSC_go_commandscript();
     AddSC_gobject_commandscript();

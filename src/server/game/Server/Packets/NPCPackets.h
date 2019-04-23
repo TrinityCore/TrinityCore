@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -239,6 +239,18 @@ namespace WorldPackets
 
             void Read() override;
 
+            ObjectGuid StableMaster;
+        };
+
+        class SetPetSlot final : public ClientPacket
+        {
+        public:
+            SetPetSlot(WorldPacket&& packet) : ClientPacket(CMSG_SET_PET_SLOT, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 PetNumber;
+            uint8 DestSlot;
             ObjectGuid StableMaster;
         };
     }

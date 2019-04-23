@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -293,9 +293,40 @@ void BattlegroundEY::UpdatePointStatuses()
 
                 /// @workaround The original AreaTrigger is covered by a bigger one and not triggered on client side.
                 if (point == FEL_REAVER && m_PointOwnedByTeam[point] == player->GetTeam())
+                {
                     if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
-                        if (player->GetDistance(2044.0f, 1729.729f, 1190.03f) < 3.0f)
+                    {
+                        if (player->GetDistance2d(2044, 1730) < 2)
                             EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_FEL_REAVER);
+                    }
+                }
+
+                if (point == BLOOD_ELF && m_PointOwnedByTeam[point] == player->GetBGTeam())
+                {
+                    if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
+                    {
+                        if (player->GetDistance2d(2048, 1393) < 2)
+                            EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_BLOOD_ELF);
+                    }
+                }
+
+                if (point == MAGE_TOWER && m_PointOwnedByTeam[point] == player->GetBGTeam())
+                {
+                    if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
+                    {
+                        if (player->GetDistance2d(2284, 1731) < 2)
+                            EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_BLOOD_ELF);
+                    }
+                }
+
+                if (point == DRAENEI_RUINS && m_PointOwnedByTeam[point] == player->GetBGTeam())
+                {
+                    if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
+                    {
+                        if (player->GetDistance2d(2286, 1402) < 2)
+                            EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_BLOOD_ELF);
+                    }
+                }
             }
         }
     }
@@ -446,8 +477,8 @@ void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 bool BattlegroundEY::SetupBattleground()
 {
         // doors
-    if (!AddObject(BG_EY_OBJECT_DOOR_A, BG_OBJECT_A_DOOR_EY_ENTRY, 2527.6f, 1596.91f, 1262.13f, -3.12414f, -0.173642f, -0.001515f, 0.98477f, -0.008594f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_EY_OBJECT_DOOR_H, BG_OBJECT_H_DOOR_EY_ENTRY, 1803.21f, 1539.49f, 1261.09f, 3.14159f, 0.173648f, 0, 0.984808f, 0, RESPAWN_IMMEDIATELY)
+    if (!AddObject(BG_EY_OBJECT_DOOR_A, BG_OBJECT_A_DOOR_EY_ENTRY, 2527.6f, 1596.91f, 1240.7f, -3.12414f, -0.173642f, -0.001515f, 0.98477f, -0.008594f, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_EY_OBJECT_DOOR_H, BG_OBJECT_H_DOOR_EY_ENTRY, 1803.21f, 1539.49f, 1242.19f, 3.14159f, 0.173648f, 0, 0.984808f, 0, RESPAWN_IMMEDIATELY)
         // banners (alliance)
         || !AddObject(BG_EY_OBJECT_A_BANNER_FEL_REAVER_CENTER, BG_OBJECT_A_BANNER_EY_ENTRY, 2057.46f, 1735.07f, 1187.91f, -0.925024f, 0, 0, 0.446198f, -0.894934f, RESPAWN_ONE_DAY)
         || !AddObject(BG_EY_OBJECT_A_BANNER_FEL_REAVER_LEFT, BG_OBJECT_A_BANNER_EY_ENTRY, 2032.25f, 1729.53f, 1190.33f, 1.8675f, 0, 0, 0.803857f, 0.594823f, RESPAWN_ONE_DAY)
@@ -868,8 +899,9 @@ void BattlegroundEY::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
     packet.Worldstates.emplace_back(uint32(BLOOD_ELF_UNCONTROL), int32(m_PointState[BLOOD_ELF] != EY_POINT_UNDER_CONTROL));
     packet.Worldstates.emplace_back(uint32(NETHERSTORM_FLAG), int32(m_FlagState == BG_EY_FLAG_STATE_ON_BASE));
 
-    packet.Worldstates.emplace_back(0xAD2, 0x1);
-    packet.Worldstates.emplace_back(0xAD1, 0x1);
+    packet.Worldstates.emplace_back(uint32(EY_ACTIVATE_HORDE_RESOURCES), int32(true));
+    packet.Worldstates.emplace_back(uint32(EY_ACTIVATE_ALLIANCE_RESOURCES), int32(true));
+    packet.Worldstates.emplace_back(uint32(EY_MAX_RESOURCES), int32(BG_EY_MAX_TEAM_SCORE));
 
     packet.Worldstates.emplace_back(0xABE, int32(GetTeamScore(TEAM_HORDE)));
     packet.Worldstates.emplace_back(0xABD, int32(GetTeamScore(TEAM_ALLIANCE)));

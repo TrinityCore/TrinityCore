@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -62,6 +62,12 @@ npc_escortAI::npc_escortAI(Creature* creature) : ScriptedAI(creature),
 Player* npc_escortAI::GetPlayerForEscort()
 {
     return ObjectAccessor::GetPlayer(*me, m_uiPlayerGUID);
+}
+
+void npc_escortAI::TalkToEscortPlayer(uint8 id)
+{
+    if (Player* player = GetPlayerForEscort())
+        Talk(id, player);
 }
 
 //see followerAI
@@ -218,6 +224,7 @@ void npc_escortAI::UpdateAI(uint32 diff)
                     if (DespawnAtEnd)
                     {
                         TC_LOG_DEBUG("scripts", "EscortAI reached end of waypoints");
+                        LastWaypointReached();
 
                         if (m_bCanReturnToStart)
                         {
@@ -390,7 +397,8 @@ void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 wait
 
     _path.nodes.push_back(std::move(wp));
 
-    LastWP = id;
+    // WP start at 0, so Last = size() - 1
+    LastWP = _path.nodes.size() - 1;
 
     // i think SD2 no longer uses this function
     ScriptWP = true;
@@ -410,7 +418,8 @@ void npc_escortAI::FillPointMovementListForCreature()
     if (!movePoints)
         return;
 
-    LastWP = movePoints->back().uiPointId;
+    // WP start at 0, so Last = size() - 1
+    LastWP = movePoints->size() - 1;
 
     for (const ScriptPointMove &point : *movePoints)
     {

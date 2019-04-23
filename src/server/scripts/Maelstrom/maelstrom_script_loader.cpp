@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 // This is where scripts' loading functions should be declared:
 void AddSC_kezan();
+void AddSC_lost_isle();
+
 void AddSC_instance_stonecore(); // Stonecore
 void AddSC_stonecore();
 void AddSC_boss_corborus();
@@ -24,15 +26,23 @@ void AddSC_boss_slabhide();
 void AddSC_boss_ozruk();
 void AddSC_boss_high_priestess_azil();
 
+// Zones
+void AddSC_deepholm();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddMaelstromScripts()
 {
     AddSC_kezan();
+    AddSC_lost_isle();
+
     AddSC_instance_stonecore(); // Stonecore
     AddSC_stonecore();
     AddSC_boss_corborus();
     AddSC_boss_slabhide();
     AddSC_boss_ozruk();
     AddSC_boss_high_priestess_azil();
+
+    // Zones
+    AddSC_deepholm();
 }

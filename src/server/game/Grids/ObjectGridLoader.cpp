@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@
 #include "DynamicObject.h"
 #include "Corpse.h"
 #include "AreaTrigger.h"
+#include "SceneObject.h"
 #include "Conversation.h"
 #include "World.h"
 #include "CellImpl.h"
@@ -140,6 +141,13 @@ void ObjectGridLoader::Visit(GameObjectMapType &m)
     LoadHelper(cell_guids.gameobjects, cellCoord, m, i_gameObjects, i_map);
 }
 
+void ObjectGridLoader::Visit(AreaTriggerMapType &m)
+{
+    CellCoord cellCoord = i_cell.GetCellCoord();
+    CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId());
+    LoadHelper(cell_guids.areatriggers, cellCoord, m, i_areaTriggers, i_map);
+}
+
 void ObjectGridLoader::Visit(CreatureMapType &m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
@@ -168,7 +176,7 @@ void ObjectWorldLoader::Visit(CorpseMapType& /*m*/)
 
 void ObjectGridLoader::LoadN(void)
 {
-    i_gameObjects = 0; i_creatures = 0; i_corpses = 0;
+    i_gameObjects = 0; i_creatures = 0; i_corpses = 0; i_areaTriggers = 0;
     i_cell.data.Part.cell_y = 0;
     for (uint32 x = 0; x < MAX_NUMBER_OF_CELLS; ++x)
     {
@@ -191,7 +199,7 @@ void ObjectGridLoader::LoadN(void)
             }
         }
     }
-    TC_LOG_DEBUG("maps", "%u GameObjects, %u Creatures, and %u Corpses/Bones loaded for grid %u on map %u", i_gameObjects, i_creatures, i_corpses, i_grid.GetGridId(), i_map->GetId());
+    TC_LOG_DEBUG("maps", "%u GameObjects, %u Creatures, %u Corpses/Bones and %u AreaTriggers loaded for grid %u on map %u", i_gameObjects, i_creatures, i_corpses, i_areaTriggers, i_grid.GetGridId(), i_map->GetId());
 }
 
 template<class T>
@@ -240,6 +248,7 @@ void ObjectGridCleaner::Visit(GridRefManager<T> &m)
 template void ObjectGridUnloader::Visit(CreatureMapType &);
 template void ObjectGridUnloader::Visit(GameObjectMapType &);
 template void ObjectGridUnloader::Visit(DynamicObjectMapType &);
+template void ObjectGridUnloader::Visit(SceneObjectMapType &);
 template void ObjectGridUnloader::Visit(ConversationMapType &);
 
 template void ObjectGridUnloader::Visit(AreaTriggerMapType &);
@@ -248,4 +257,5 @@ template void ObjectGridCleaner::Visit<GameObject>(GameObjectMapType &);
 template void ObjectGridCleaner::Visit<DynamicObject>(DynamicObjectMapType &);
 template void ObjectGridCleaner::Visit<Corpse>(CorpseMapType &);
 template void ObjectGridCleaner::Visit<AreaTrigger>(AreaTriggerMapType &);
+template void ObjectGridCleaner::Visit<SceneObject>(SceneObjectMapType &);
 template void ObjectGridCleaner::Visit<Conversation>(ConversationMapType &);

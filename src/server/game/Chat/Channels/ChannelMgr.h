@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -44,6 +44,8 @@ class TC_GAME_API ChannelMgr
         Channel* GetChannel(uint32 channelId, std::string const& name, Player* player, bool notify = true, AreaTableEntry const* zoneEntry = nullptr) const;
         void LeftChannel(std::string const& name);
         void LeftChannel(uint32 channelId, AreaTableEntry const* zoneEntry);
+
+        bool SendToAllInChannel(std::string senderName, std::string channelName, std::string message, bool showGMLogo);
 
     private:
         CustomChannelContainer _customChannels;

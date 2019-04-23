@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -420,6 +420,10 @@ void FlightPathMovementGenerator::DoReset(Player* player)
 
     Movement::MoveSplineInit init(player);
     uint32 end = GetPathAtMapEnd();
+
+    if (i_currentNode > end)
+        i_currentNode = end;
+
     for (uint32 i = i_currentNode; i != end; ++i)
     {
         G3D::Vector3 vertice(i_path[i]->Loc.X, i_path[i]->Loc.Y, i_path[i]->Loc.Z);
@@ -430,7 +434,7 @@ void FlightPathMovementGenerator::DoReset(Player* player)
     init.SetSmooth();
     init.SetUncompressed();
     init.SetWalk(true);
-    init.SetVelocity(PLAYER_FLIGHT_SPEED);
+    init.SetVelocity(PLAYER_FLIGHT_SPEED * player->GetTotalAuraMultiplier(SPELL_AURA_MOD_TAXI_FLIGHT_SPEED));
     init.Launch();
 }
 

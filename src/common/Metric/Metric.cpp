@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,19 +18,19 @@
 #include "Metric.h"
 #include "Common.h"
 #include "Config.h"
-#include "DeadlineTimer.h"
 #include "Log.h"
 #include "Strand.h"
 #include "Util.h"
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
 void Metric::Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
 {
     _dataStream = Trinity::make_unique<boost::asio::ip::tcp::iostream>();
     _realmName = FormatInfluxDBTagValue(realmName);
-    _batchTimer = Trinity::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
-    _overallStatusTimer = Trinity::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
+    _batchTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioContext);
+    _overallStatusTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioContext);
     _overallStatusLogger = overallStatusLogger;
     LoadFromConfigs();
 }

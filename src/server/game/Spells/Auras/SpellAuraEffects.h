@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,6 +34,8 @@ class TC_GAME_API AuraEffect
     friend Aura::~Aura();
 
     public:
+        Ashamane::AnyData Variables;
+
         ~AuraEffect();
         AuraEffect(Aura* base, uint32 effIndex, int32 *baseAmount, Unit* caster);
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
@@ -52,7 +54,8 @@ class TC_GAME_API AuraEffect
         int32 GetMiscValue() const { return GetSpellEffectInfo()->MiscValue; }
         AuraType GetAuraType() const { return (AuraType)GetSpellEffectInfo()->ApplyAuraName; }
         int32 GetAmount() const { return m_amount; }
-        void SetAmount(int32 amount) { m_amount = amount; m_canBeRecalculated = false;}
+        void SetAmount(int32 amount) { m_amount = amount; m_canBeRecalculated = false; }
+        void ModAmount(int32 amount) { SetAmount(m_amount + amount); }
 
         int32 GetPeriodicTimer() const { return m_periodicTimer; }
         void SetPeriodicTimer(int32 periodicTimer) { m_periodicTimer = periodicTimer; }
@@ -176,6 +179,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraModSkill(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  movement
         void HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraMountedVisual(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -234,11 +238,14 @@ class TC_GAME_API AuraEffect
         void HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModResistenceOfStatPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModStatBonusArmor(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModStatBonusArmorPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverrideAttackPowerBySpellPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModVersatilityByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraLeech(AuraApplication const* auraApp, uint8 mode, bool apply) const;
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -314,8 +321,14 @@ class TC_GAME_API AuraEffect
         void HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandlePlayScene(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleOverrideZonePvpType(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleProfilCamera(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleLinkedSummon(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModMovementforcesSpeedPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleTriggerSpellOnPowerAmount(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleTriggerSpellOnPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleSwitchTeam(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;
@@ -336,8 +349,8 @@ class TC_GAME_API AuraEffect
         void HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
-        // pvp talents
-        void HandleAuraPvpTalents(AuraApplication const* auraApp, uint8 mode, bool apply) const;
+        // war mode
+        void HandleAuraWarMode(AuraApplication const* auraApp, uint8 mode, bool apply) const;
 };
 
 namespace Trinity

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,25 +46,29 @@ namespace boost
 
             typedef basic_endpoint<tcp> tcp_endpoint;
         }
-#if BOOST_VERSION >= 107000
-        class executor;
 
-        namespace ip
-        {
-            template <typename InternetProtocol, typename Executor>
-            class basic_resolver;
+#if BOOST_VERSION >= 106600
+        template <typename Time, typename TimeTraits>
+        class basic_deadline_timer;
 
-            typedef basic_resolver<tcp, executor> tcp_resolver;
-        }
-#elif BOOST_VERSION >= 106600
+        typedef basic_deadline_timer<posix_time::ptime, time_traits<posix_time::ptime>> deadline_timer;
+
         namespace ip
         {
             template <typename InternetProtocol>
             class basic_resolver;
 
             typedef basic_resolver<tcp> tcp_resolver;
-        }
+    }
 #else
+        template <typename TimeType, typename TimeTraits>
+        class deadline_timer_service;
+
+        template <typename Time, typename TimeTraits, typename TimerService>
+        class basic_deadline_timer;
+
+        typedef basic_deadline_timer<posix_time::ptime, time_traits<posix_time::ptime>, deadline_timer_service<posix_time::ptime, time_traits<posix_time::ptime>>> deadline_timer;
+
         namespace ip
         {
             template <typename InternetProtocol>

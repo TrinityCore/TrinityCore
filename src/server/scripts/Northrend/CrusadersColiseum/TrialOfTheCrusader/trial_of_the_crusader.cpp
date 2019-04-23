@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -829,7 +829,7 @@ class npc_tirion_toc : public CreatureScript
                         case 6000:
                             me->SummonCreature(NPC_TIRION_FORDRING, EndSpawnLoc[0]);
                             me->SummonCreature(NPC_ARGENT_MAGE, EndSpawnLoc[1]);
-                            me->SummonGameObject(GO_PORTAL_TO_DALARAN, EndSpawnLoc[2], QuaternionData::fromEulerAnglesZYX(EndSpawnLoc[2].GetOrientation(), 0.0f, 0.0f), 0);
+                            me->SummonGameObject(GO_PORTAL_TO_DALARAN, EndSpawnLoc[2], QuaternionData(), 0);
                             _updateTimer = 20*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 6005);
                             break;

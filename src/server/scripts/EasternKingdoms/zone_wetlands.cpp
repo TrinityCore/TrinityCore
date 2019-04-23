@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,6 +32,10 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "ScriptedGossip.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_tapoke_slim_jahn
@@ -168,6 +172,41 @@ public:
     }
 };
 
+enum MarshFire
+{
+    NPC_MARSH_FIRE       = 41628,
+    QUEST_FOR_PEATS_SAKE = 25939
+};
+
+class spell_water_blast : public SpellScript
+{
+    PrepareSpellScript(spell_water_blast);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (!GetHitUnit() || !GetCaster()->IsPlayer() || !GetHitUnit()->ToCreature())
+            return;
+
+        GetCaster()->ToPlayer()->RewardPlayerAndGroupAtEvent(NPC_MARSH_FIRE, GetCaster());
+        //GetHitUnit()->ToCreature()->DisappearAndDie();
+    }
+
+    void SelectTarget(WorldObject*& target)
+    {
+        target = GetCaster()->FindNearestCreature(NPC_MARSH_FIRE, 10.0f, true);
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_water_blast::SelectTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_water_blast::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+
+
+
+
 /*######
 ## AddSC
 ######*/
@@ -176,4 +215,5 @@ void AddSC_wetlands()
 {
     new npc_tapoke_slim_jahn();
     new npc_mikhail();
+    RegisterSpellScript(spell_water_blast);
 }

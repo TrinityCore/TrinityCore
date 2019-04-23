@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -181,6 +181,29 @@ void Trinity::WorldObjectSearcher<Check>::Visit(AreaTriggerMapType &m)
 }
 
 template<class Check>
+void Trinity::WorldObjectSearcher<Check>::Visit(SceneObjectMapType &m)
+{
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_SCENEOBJECT))
+        return;
+
+    // already found
+    if (i_object)
+        return;
+
+    for (SceneObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
+    {
+        if (!itr->GetSource()->IsInPhase(_searcher))
+            continue;
+
+        if (i_check(itr->GetSource()))
+        {
+            i_object = itr->GetSource();
+            return;
+        }
+    }
+}
+
+template<class Check>
 void Trinity::WorldObjectSearcher<Check>::Visit(ConversationMapType &m)
 {
     if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
@@ -300,6 +323,22 @@ void Trinity::WorldObjectLastSearcher<Check>::Visit(AreaTriggerMapType &m)
 }
 
 template<class Check>
+void Trinity::WorldObjectLastSearcher<Check>::Visit(SceneObjectMapType &m)
+{
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_SCENEOBJECT))
+        return;
+
+    for (SceneObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
+    {
+        if (!itr->GetSource()->IsInPhase(_searcher))
+            continue;
+
+        if (i_check(itr->GetSource()))
+            i_object = itr->GetSource();
+    }
+}
+
+template<class Check>
 void Trinity::WorldObjectLastSearcher<Check>::Visit(ConversationMapType &m)
 {
     if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
@@ -377,6 +416,17 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(AreaTriggerMapType &m)
         return;
 
     for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+        if (i_check(itr->GetSource()))
+            Insert(itr->GetSource());
+}
+
+template<class Check>
+void Trinity::WorldObjectListSearcher<Check>::Visit(SceneObjectMapType &m)
+{
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_SCENEOBJECT))
+        return;
+
+    for (SceneObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
         if (i_check(itr->GetSource()))
             Insert(itr->GetSource());
 }
@@ -605,6 +655,93 @@ void Trinity::PlayerLastSearcher<Check>::Visit(PlayerMapType& m)
 
         if (i_check(itr->GetSource()))
             i_object = itr->GetSource();
+    }
+}
+
+template<class Check>
+void Trinity::AreaTriggerListSearcher<Check>::Visit(AreaTriggerMapType& p_AreaTriggerMap)
+{
+    for (AreaTriggerMapType::iterator itr = p_AreaTriggerMap.begin(); itr != p_AreaTriggerMap.end(); ++itr)
+    {
+        if (!itr->GetSource()->IsInPhase(i_searcher))
+            continue;
+
+        if (i_check(itr->GetSource()))
+            m_AreaTriggers.push_back(itr->GetSource());
+    }
+}
+
+template<class Check>
+void Trinity::AreaTriggerSearcher<Check>::Visit(AreaTriggerMapType& p_AreaTriggerMap)
+{
+    for (AreaTriggerMapType::iterator itr = p_AreaTriggerMap.begin(); itr != p_AreaTriggerMap.end(); ++itr)
+    {
+        if (!itr->GetSource()->IsInPhase(i_searcher))
+            continue;
+
+        if (i_check(itr->GetSource()))
+        {
+            i_object = itr->GetSource();
+            return;
+        }
+    }
+}
+
+template<class Check>
+void Trinity::SceneObjectVectorSearcher<Check>::Visit(SceneObjectMapType& p_SceneObjectMap)
+{
+    for (SceneObjectMapType::iterator itr = p_SceneObjectMap.begin(); itr != p_SceneObjectMap.end(); ++itr)
+    {
+        if (!itr->GetSource()->IsInPhase(i_searcher))
+            continue;
+
+        if (i_check(itr->GetSource()))
+            m_SceneObjects.push_back(itr->GetSource());
+    }
+}
+
+template<class Check>
+void Trinity::SceneObjectSearcher<Check>::Visit(SceneObjectMapType& p_SceneObjectMap)
+{
+    for (SceneObjectMapType::iterator itr = p_SceneObjectMap.begin(); itr != p_SceneObjectMap.end(); ++itr)
+    {
+        if (!itr->GetSource()->IsInPhase(i_searcher))
+            continue;
+
+        if (i_check(itr->GetSource()))
+        {
+            i_object = itr->GetSource();
+            return;
+        }
+    }
+}
+
+template<class Check>
+void Trinity::ConversationVectorSearcher<Check>::Visit(ConversationMapType& p_ConversationMap)
+{
+    for (ConversationMapType::iterator itr = p_ConversationMap.begin(); itr != p_ConversationMap.end(); ++itr)
+    {
+        if (!itr->GetSource()->IsInPhase(i_searcher))
+            continue;
+
+        if (i_check(itr->GetSource()))
+            m_Conversations.push_back(itr->GetSource());
+    }
+}
+
+template<class Check>
+void Trinity::ConversationSearcher<Check>::Visit(ConversationMapType& p_ConversationMap)
+{
+    for (ConversationMapType::iterator itr = p_ConversationMap.begin(); itr != p_ConversationMap.end(); ++itr)
+    {
+        if (!itr->GetSource()->IsInPhase(i_searcher))
+            continue;
+
+        if (i_check(itr->GetSource()))
+        {
+            i_object = itr->GetSource();
+            return;
+        }
     }
 }
 

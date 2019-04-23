@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,7 +44,7 @@ void LFGPlayerScript::OnLogout(Player* player)
     if (!player->GetGroup())
         sLFGMgr->LeaveLfg(player->GetGUID());
     else if (player->GetSession()->PlayerDisconnected())
-        sLFGMgr->LeaveLfg(player->GetGUID(), true);
+        sLFGMgr->LeaveLfg(player->GetGUID(), {}, true);
 }
 
 void LFGPlayerScript::OnLogin(Player* player, bool /*loginFirst*/)
@@ -67,7 +67,7 @@ void LFGPlayerScript::OnLogin(Player* player, bool /*loginFirst*/)
         }
     }
 
-    sLFGMgr->SetTeam(player->GetGUID(), player->GetTeam());
+    sLFGMgr->SetTeam(player->GetGUID(), player->GetTeamId());
     /// @todo - Restore LfgPlayerData and send proper status to player if it was in a group
 }
 
@@ -84,11 +84,16 @@ void LFGPlayerScript::OnMapChanged(Player* player)
         // crashes or other undefined behaviour
         if (!group)
         {
-            sLFGMgr->LeaveLfg(player->GetGUID());
-            player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
-            player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, 0.0f);
+            sLFGMgr->KickPlayer(player);
             TC_LOG_ERROR("lfg", "LFGPlayerScript::OnMapChanged, Player %s (%s) is in LFG dungeon map but does not have a valid group! "
                 "Teleporting to homebind.", player->GetName().c_str(), player->GetGUID().ToString().c_str());
+            return;
+        }
+
+        LFGDungeonsEntry const* dungeonEntry = sLFGDungeonsStore.LookupEntry(sLFGMgr->GetDungeon(group->GetGUID()));
+        if (!dungeonEntry)
+        {
+            sLFGMgr->KickPlayer(player);
             return;
         }
 
@@ -98,11 +103,13 @@ void LFGPlayerScript::OnMapChanged(Player* player)
 
         if (sLFGMgr->selectedRandomLfgDungeon(player->GetGUID()))
             player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);
+
+        player->SetEffectiveLevelAndMaxItemLevel(dungeonEntry->MentorCharLevel, dungeonEntry->MentorItemLevel);
     }
     else
     {
         Group* group = player->GetGroup();
-        if (group && group->GetMembersCount() == 1)
+        if (!sLFGMgr->IsTesting() && group && group->GetMembersCount() == 1)
         {
             sLFGMgr->LeaveLfg(group->GetGUID());
             group->Disband();
@@ -110,6 +117,7 @@ void LFGPlayerScript::OnMapChanged(Player* player)
                 player->GetName().c_str(), player->GetGUID().ToString().c_str());
         }
         player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
+        player->SetEffectiveLevelAndMaxItemLevel(0, 0);
     }
 }
 

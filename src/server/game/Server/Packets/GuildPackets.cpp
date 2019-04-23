@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -631,7 +631,7 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Guild::GuildBankSwapItems::Read()
+void WorldPackets::Guild::GuildBankSwapItemsLegacy::Read()
 {
     _worldPacket >> Banker;
     _worldPacket >> BankTab;
@@ -649,6 +649,61 @@ void WorldPackets::Guild::GuildBankSwapItems::Read()
     _worldPacket.ResetBitPos();
     BankOnly = _worldPacket.ReadBit();
     AutoStore = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Guild::GuildBankSwapItems::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+    _worldPacket >> PlayerSlot;
+
+    bool hasPlayerBag = _worldPacket.ReadBit();
+    _worldPacket.ResetBitPos();
+
+    if (hasPlayerBag)
+        _worldPacket >> PlayerBag;
+}
+
+void WorldPackets::Guild::GuildBankSwapItemsBankBank::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+    _worldPacket >> NewBankTab;
+    _worldPacket >> NewBankSlot;
+}
+
+void WorldPackets::Guild::GuildBankSwapItemsAuto::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+}
+
+void WorldPackets::Guild::GuildBankSwapItemsCount::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+    _worldPacket >> PlayerSlot;
+    _worldPacket >> StackCount;
+
+    bool hasPlayerBag = _worldPacket.ReadBit();
+    _worldPacket.ResetBitPos();
+
+    if (hasPlayerBag)
+        _worldPacket >> PlayerBag;
+}
+
+void WorldPackets::Guild::GuildBankSwapItemsBankBankCount::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+    _worldPacket >> NewBankTab;
+    _worldPacket >> NewBankSlot;
+    _worldPacket >> StackCount;
 }
 
 void WorldPackets::Guild::GuildBankLogQuery::Read()

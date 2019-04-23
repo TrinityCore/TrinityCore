@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,6 +30,13 @@
 #include <set>
 
 class TaskContext;
+class Unit;
+class GameObject;
+
+#define GetContextUnit()        context.GetUnit()
+#define GetContextCreature()    context.GetUnit()->ToCreature()
+#define GetContextPlayer()      context.GetUnit()->ToPlayer()
+#define GetContextGameObject()  context.GetGameObject()
 
 /// The TaskScheduler class provides the ability to schedule std::function's in the near future.
 /// Use TaskScheduler::Update to update the scheduler.
@@ -179,11 +186,25 @@ class TC_COMMON_API TaskScheduler
 
 public:
     TaskScheduler()
-        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(EmptyValidator) { }
+        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(EmptyValidator), _schedulerUnit(nullptr), _schedulerGob(nullptr) { }
 
     template<typename P>
     TaskScheduler(P&& predicate)
-        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(std::forward<P>(predicate)) { }
+        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(std::forward<P>(predicate)), _schedulerUnit(nullptr), _schedulerGob(nullptr) { }
+
+    TaskScheduler(Unit* unit)
+        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(EmptyValidator), _schedulerUnit(unit), _schedulerGob(nullptr) { }
+
+    TaskScheduler(GameObject* gob)
+        : self_reference(this, [](TaskScheduler const*) {}), _now(clock_t::now()), _predicate(EmptyValidator), _schedulerUnit(nullptr), _schedulerGob(gob) { }
+
+    template<typename P>
+    TaskScheduler(Unit* unit, P&& predicate)
+        : self_reference(this, [](TaskScheduler const*) { }), _now(clock_t::now()), _predicate(std::forward<P>(predicate)), _schedulerUnit(unit), _schedulerGob(nullptr) { }
+
+    template<typename P>
+    TaskScheduler(GameObject* gob, P&& predicate)
+        : self_reference(this, [](TaskScheduler const*) {}), _now(clock_t::now()), _predicate(std::forward<P>(predicate)), _schedulerUnit(nullptr), _schedulerGob(gob) { }
 
     TaskScheduler(TaskScheduler const&) = delete;
     TaskScheduler(TaskScheduler&&) = delete;
@@ -259,6 +280,26 @@ public:
         task_handler_t const& task)
     {
         return Schedule(RandomDurationBetween(min, max), group, task);
+    }
+
+    /// Schedule an event with a fixed rate.
+    /// Never call this from within a task context! Use TaskContext::Schedule instead!
+    template<class _Rep, class _Period>
+    void Schedule(std::initializer_list<std::chrono::duration<_Rep, _Period>> const& times,
+        task_handler_t const& task)
+    {
+        for (auto time : times)
+            ScheduleAt(_now, time, task);
+    }
+
+    /// Schedule an event with a fixed rate.
+    /// Never call this from within a task context! Use TaskContext::Schedule instead!
+    template<class _Rep, class _Period>
+    void Schedule(std::initializer_list<std::chrono::duration<_Rep, _Period>> const& times,
+        group_t const group, task_handler_t const& task)
+    {
+        for (auto time: times)
+            ScheduleAt(_now, time, group, task);
     }
 
     /// Cancels all tasks.
@@ -367,6 +408,12 @@ public:
         return RescheduleGroup(group, RandomDurationBetween(min, max));
     }
 
+    /// Allow to retrieve Unit currently updating TaskScheduler
+    Unit* GetSchedulerUnit() const { return _schedulerUnit; }
+
+    /// Allow to retrieve GameObject currently updating TaskScheduler
+    GameObject* GetSchedulerGameObject() const { return _schedulerGob; }
+
 private:
     /// Insert a new task to the enqueued tasks.
     TaskScheduler& InsertTask(TaskContainer task);
@@ -404,6 +451,9 @@ private:
 
     /// Dispatch remaining tasks
     void Dispatch(success_t const& callback);
+
+    Unit* _schedulerUnit;
+    GameObject* _schedulerGob;
 };
 
 class TC_COMMON_API TaskContext
@@ -425,19 +475,22 @@ class TC_COMMON_API TaskContext
 public:
     // Empty constructor
     TaskContext()
-        : _task(), _owner(), _consumed(std::make_shared<bool>(true)) { }
+        : _task(), _owner(), _consumed(std::make_shared<bool>(true)), _contextUnit(nullptr), _contextGob(nullptr) { }
 
     // Construct from task and owner
-    explicit TaskContext(TaskScheduler::TaskContainer&& task, std::weak_ptr<TaskScheduler>&& owner)
-        : _task(task), _owner(owner), _consumed(std::make_shared<bool>(false)) { }
+    explicit TaskContext(TaskScheduler::TaskContainer&& task, std::weak_ptr<TaskScheduler>&& owner, Unit* schedulerUnit, GameObject* schedulerGob)
+        : _task(task), _owner(owner), _consumed(std::make_shared<bool>(false)),
+            _contextUnit(schedulerUnit), _contextGob(schedulerGob) { }
 
     // Copy construct
     TaskContext(TaskContext const& right)
-        : _task(right._task), _owner(right._owner), _consumed(right._consumed) { }
+        : _task(right._task), _owner(right._owner), _consumed(right._consumed),
+            _contextUnit(right._contextUnit), _contextGob(right._contextGob) { }
 
     // Move construct
     TaskContext(TaskContext&& right)
-        : _task(std::move(right._task)), _owner(std::move(right._owner)), _consumed(std::move(right._consumed)) { }
+        : _task(std::move(right._task)), _owner(std::move(right._owner)), _consumed(std::move(right._consumed)),
+            _contextUnit(std::move(right._contextUnit)), _contextGob(std::move(right._contextGob)) { }
 
     // Copy assign
     TaskContext& operator= (TaskContext const& right)
@@ -445,6 +498,8 @@ public:
         _task = right._task;
         _owner = right._owner;
         _consumed = right._consumed;
+        _contextUnit = right._contextUnit;
+        _contextGob = right._contextGob;
         return *this;
     }
 
@@ -454,6 +509,8 @@ public:
         _task = std::move(right._task);
         _owner = std::move(right._owner);
         _consumed = std::move(right._consumed);
+        _contextUnit = std::move(right._contextUnit);
+        _contextGob = std::move(right._contextGob);
         return *this;
     }
 
@@ -637,12 +694,21 @@ public:
         return RescheduleGroup(group, TaskScheduler::RandomDurationBetween(min, max));
     }
 
+    /// Allow to retrieve Unit currently updating TaskScheduler
+    Unit* GetUnit() const { return _contextUnit; }
+
+    /// Allow to retrieve GameObject currently updating TaskScheduler
+    GameObject* GetGameObject() const { return _contextGob; }
+
 private:
     /// Asserts if the task was consumed already.
     void AssertOnConsumed() const;
 
     /// Invokes the associated hook of the task.
     void Invoke();
+
+    Unit* _contextUnit;
+    GameObject* _contextGob;
 };
 
 #endif /// _TASK_SCHEDULER_H_

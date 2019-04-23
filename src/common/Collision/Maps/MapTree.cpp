@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -276,10 +276,7 @@ namespace VMAP
         }
         FILE* tf = OpenMapTileFile(basePath, mapID, tileX, tileY, vm).File;
         if (!tf)
-        {
-            fclose(rf);
             return LoadResult::FileNotFound;
-        }
         else
         {
             std::string tilefile = basePath + getTileFileName(mapID, tileX, tileY);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -293,7 +293,7 @@ bool Field::IsNumeric() const
 
 #ifdef TRINITY_DEBUG
 
-void Field::LogWrongType(char* getter) const
+void Field::LogWrongType(char const* getter) const
 {
     TC_LOG_WARN("sql.sql", "Warning: %s on %s field %s.%s (%s.%s) at index %u.",
         getter, meta.Type, meta.TableAlias, meta.Alias, meta.TableName, meta.Name, meta.Index);

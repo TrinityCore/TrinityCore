@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -71,11 +71,10 @@ class BlackMarketEntry
 {
 public:
 
-    void Update(time_t newTimeOfUpdate);
-    void Initialize(int32 marketId, uint32 duration)
+    void Initialize(int32 marketId)
     {
         _marketId = marketId;
-        _secondsRemaining = duration;
+        _startTime = time(nullptr);
     }
 
     BlackMarketTemplate const* GetTemplate() const;
@@ -89,6 +88,11 @@ public:
 
     ObjectGuid::LowType GetBidder() const { return _bidder; }
     void SetBidder(ObjectGuid::LowType bidder) { _bidder = bidder; }
+
+    uint32 GetStartTime() const { return _startTime; }
+    void SetStartTime(uint32 startTime) { _startTime = startTime; }
+
+    uint32 GetDuration() const { return GetTemplate()->Duration; }
 
     uint32 GetSecondsRemaining() const; // Get seconds remaining relative to now
     time_t GetExpirationTime() const;
@@ -113,7 +117,7 @@ private:
     uint64 _currentBid = 0;
     int32 _numBids = 0;
     ObjectGuid::LowType _bidder = 0;
-    uint32 _secondsRemaining = 0;
+    uint32 _startTime = 0;
     bool _mailSent = false;
 };
 

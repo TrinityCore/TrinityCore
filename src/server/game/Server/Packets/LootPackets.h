@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -280,6 +280,24 @@ namespace WorldPackets
             AELootTargetsAck() : ServerPacket(SMSG_AE_LOOT_TARGET_ACK, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class DisplayToast final : public ServerPacket
+        {
+        public:
+            DisplayToast() : ServerPacket(SMSG_DISPLAY_TOAST) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 EntityId = 0;
+            uint32 ToastType = 0;
+            uint64 Quantity = 1;
+            int32 RandomPropertiesID = 0;
+            uint32 QuestID = 0;
+            uint8 ToastMethod = 1; // TOAST_METHOD_POPUP
+            bool IsBonusRoll = false;
+            bool Mailed = false;
+            std::vector<uint32> bonusListIDs;
         };
     }
 }

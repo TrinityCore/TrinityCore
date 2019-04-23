@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -53,7 +53,7 @@ class TC_GAME_API Bag : public Item
         // overwrite virtual Item::SaveToDB
         void SaveToDB(SQLTransaction& trans) override;
         // overwrite virtual Item::LoadFromDB
-        bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry) override;
+        bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry, Player const* owner = nullptr) override;
         // overwrite virtual Item::DeleteFromDB
         void DeleteFromDB(SQLTransaction& trans) override;
 

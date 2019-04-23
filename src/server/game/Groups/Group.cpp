@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ArenaHelper.h"
 #include "Group.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
@@ -866,6 +867,173 @@ void Group::Disband(bool hideDestroy /* = false */)
 }
 
 /*********************************************************/
+/***                  ARENA SYSTEM                     ***/
+/*********************************************************/
+void Group::OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRating, uint8 slot, int32 MatchmakerRatingChange)
+{
+    // Called for offline player after ending rated arena match!
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (itr->guid == guid)
+        {
+            if (Player* p = ObjectAccessor::FindPlayer(guid))
+            {
+                // update personal rating
+                int32 mod = ArenaHelper::GetRatingMod(p->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
+                p->SetArenaPersonalRating(slot, std::max(0, (int)p->GetArenaPersonalRating(slot) + mod));
+
+                // update matchmaker rating
+                p->SetArenaMatchMakerRating(slot, std::max(0, (int)p->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange));
+
+                // update personal played stats
+                p->IncrementWeekGames(slot);
+                p->IncrementSeasonGames(slot);
+                return;
+            }
+        }
+    }
+}
+
+void Group::MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slot, int32 MatchmakerRatingChange)
+{
+    // Called for each participant of a match after losing
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (itr->guid == player->GetGUID())
+        {
+            // Update personal rating
+            int32 mod = ArenaHelper::GetRatingMod(player->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
+            player->SetArenaPersonalRating(slot, std::max(0, (int)player->GetArenaPersonalRating(slot) + mod));
+
+            // Update matchmaker rating
+            player->SetArenaMatchMakerRating(slot, std::max(0, (int)player->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange));
+
+            // Update personal played stats
+            player->IncrementWeekGames(slot);
+            player->IncrementSeasonGames(slot);
+            return;
+        }
+    }
+}
+
+uint32 Group::GetRating(uint8 slot)
+{
+    uint32 rating = 0;
+    uint32 count = 0;
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
+        {
+            rating += player->GetArenaPersonalRating(slot);
+            ++count;
+        }
+    }
+
+    if (!count)
+        count = 1;
+
+    rating /= count;
+    return rating;
+}
+
+uint32 Group::GetAverageMMR(uint8 slot)
+{
+    uint32 rating = 0;
+    uint32 count = 0;
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
+        {
+            rating += player->GetArenaMatchMakerRating(slot);
+            ++count;
+        }
+    }
+
+    if (!count)
+        count = 1;
+
+    rating /= count;
+    return rating;
+}
+
+void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot)
+{
+    // Called when the team has won
+    // Change in Matchmaker rating
+    int32 mod = ArenaHelper::GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, true);
+
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
+        {
+            // Change in Team Rating
+            rating_change = ArenaHelper::GetRatingMod(player->GetArenaPersonalRating(slot), Opponent_MMRating, true);
+
+            if (player->GetArenaPersonalRating(slot) < 1000)
+                rating_change = 96;
+
+            if (player->GetBattleground())
+                for (auto playerScore : player->GetBattleground()->GetPlayerScores())
+                    if (playerScore.first == itr->guid)
+                        playerScore.second->RatingChange = rating_change;
+
+            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
+            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
+
+            player->IncrementWeekWins(slot);
+            player->IncrementSeasonWins(slot);
+            player->IncrementWeekGames(slot);
+            player->IncrementSeasonGames(slot);
+        }
+    }
+}
+
+void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot)
+{
+    // Called when the team has lost
+    // Change in Matchmaker Rating
+    int32 mod = ArenaHelper::GetMatchmakerRatingMod(Own_MMRating, Opponent_MMRating, false);
+
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
+        {
+            // Change in Team Rating
+            rating_change = ArenaHelper::GetRatingMod(player->GetArenaMatchMakerRating(slot), Opponent_MMRating, false);
+
+            if (player->GetBattleground())
+                for (auto playerScore : player->GetBattleground()->GetPlayerScores())
+                    if (playerScore.first == itr->guid)
+                        playerScore.second->RatingChange = rating_change;
+
+            player->SetArenaPersonalRating(slot, std::max(0, (int)player->GetArenaPersonalRating(slot) + rating_change));
+            player->SetArenaMatchMakerRating(slot, std::max(0, (int)player->GetArenaMatchMakerRating(slot) + mod));
+
+            player->IncrementWeekGames(slot);
+            player->IncrementSeasonGames(slot);
+        }
+    }
+}
+
+void Group::FinishGame(int32 rating_change, uint8 slot)
+{
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
+        {
+            if (player->GetBattleground())
+                for (auto playerScore : player->GetBattleground()->GetPlayerScores())
+                    if (playerScore.first == itr->guid)
+                        playerScore.second->RatingChange = rating_change;
+
+            player->SetArenaPersonalRating(slot, std::max(0, (int)player->GetArenaPersonalRating(slot) + rating_change));
+            player->IncrementWeekGames(slot);
+            player->IncrementSeasonGames(slot);
+        }
+    }
+}
+
+/*********************************************************/
 /***                   LOOT SYSTEM                     ***/
 /*********************************************************/
 void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r) const
@@ -1347,7 +1515,12 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     roll->getLoot()->unlootedCount--;
                     player->UpdateCriteria(CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
 
-                    ItemDisenchantLootEntry const* disenchant = ASSERT_NOTNULL(roll->GetItemDisenchantLoot(player));
+                    ItemDisenchantLootEntry const* disenchant = roll->GetItemDisenchantLoot(player);
+                    if (!disenchant)
+                    {
+                        TC_LOG_ERROR("misc", "Group::CountTheRoll: disenchant error for slot %u", roll->itemSlot);
+                        return;
+                    }
 
                     ItemPosCountVec dest;
                     InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
@@ -1789,7 +1962,7 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
     }
 }
 
-GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid)
+GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool /*isRated*/, uint32 /*arenaSlot*/, ObjectGuid& errorGuid)
 {
     // check if this group is LFG group
     if (isLFGGroup())
@@ -1815,7 +1988,6 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     if (!bracketEntry)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
-    uint32 arenaTeamId = reference->GetArenaTeamId(arenaSlot);
     uint32 team = reference->GetTeam();
 
     BattlegroundQueueTypeId bgQueueTypeIdRandom = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RB, 0);
@@ -1838,9 +2010,6 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         PVPDifficultyEntry const* memberBracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bracketEntry->MapID, member->getLevel());
         if (memberBracketEntry != bracketEntry)
             return ERR_BATTLEGROUND_JOIN_RANGE_INDEX;
-        // don't let join rated matches if the arena team id doesn't match
-        if (isRated && member->GetArenaTeamId(arenaSlot) != arenaTeamId)
-            return ERR_BATTLEGROUND_JOIN_FAILED;
         // don't let join if someone from the group is already in that bg queue
         if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeId))
             return ERR_BATTLEGROUND_JOIN_FAILED;            // not blizz-like
@@ -2587,7 +2756,7 @@ void Group::SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags fla
 Group::Rolls::iterator Group::GetRoll(ObjectGuid lootObjectGuid, uint8 lootListId)
 {
     for (Rolls::iterator iter = RollId.begin(); iter != RollId.end(); ++iter)
-        if ((**iter)->GetGUID() == lootObjectGuid && (*iter)->itemSlot == lootListId && (*iter)->isValid())
+        if ((*iter)->isValid() && (**iter)->GetGUID() == lootObjectGuid && (*iter)->itemSlot == lootListId)
             return iter;
 
     return RollId.end();

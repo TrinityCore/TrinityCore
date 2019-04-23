@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -71,14 +71,14 @@ bool OutdoorPvPSI::Update(uint32 /*diff*/)
     return false;
 }
 
-void OutdoorPvPSI::HandlePlayerEnterZone(Player* player, uint32 zone)
+void OutdoorPvPSI::HandlePlayerEnterZone(Player* player, Area* zone)
 {
     if (player->GetTeam() == m_LastController)
         player->CastSpell(player, SI_CENARION_FAVOR, true);
     OutdoorPvP::HandlePlayerEnterZone(player, zone);
 }
 
-void OutdoorPvPSI::HandlePlayerLeaveZone(Player* player, uint32 zone)
+void OutdoorPvPSI::HandlePlayerLeaveZone(Player* player, Area* zone)
 {
     // remove buffs
     player->RemoveAurasDueToSpell(SI_CENARION_FAVOR);
@@ -157,7 +157,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
             {
                 // he dropped it further, summon mound
                 Map* map = player->GetMap();
-                if (GameObject* go = GameObject::CreateGameObject(SI_SILITHYST_MOUND, map, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
+                if (GameObject* go = GameObject::CreateGameObject(SI_SILITHYST_MOUND, map, *player, QuaternionData(), 255, GO_STATE_READY))
                 {
                     PhasingHandler::InheritPhaseShift(go, player);
                     go->SetRespawnTime(0);

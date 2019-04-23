@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,14 +37,14 @@ BattlegroundAB::BattlegroundAB()
     BgObjects.resize(BG_AB_OBJECT_MAX);
     BgCreatures.resize(BG_AB_ALL_NODES_COUNT + 5);//+5 for aura triggers
 
+    for (int index = 0; index < BG_AB_DYNAMIC_NODES_COUNT; index++)
+        m_BannerWorldState[index] = AB_NEUTRAL;
+
     for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
     {
         m_Nodes[i] = 0;
         m_prevNodes[i] = 0;
         m_NodeTimers[i] = 0;
-        m_BannerTimers[i].timer = 0;
-        m_BannerTimers[i].type = 0;
-        m_BannerTimers[i].teamIndex = 0;
     }
 
     for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
@@ -69,18 +69,6 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
 
         for (int node = 0; node < BG_AB_DYNAMIC_NODES_COUNT; ++node)
         {
-            // 3 sec delay to spawn new banner instead previous despawned one
-            if (m_BannerTimers[node].timer)
-            {
-                if (m_BannerTimers[node].timer > diff)
-                    m_BannerTimers[node].timer -= diff;
-                else
-                {
-                    m_BannerTimers[node].timer = 0;
-                    _CreateBanner(node, m_BannerTimers[node].type, m_BannerTimers[node].teamIndex, false);
-                }
-            }
-
             // 1-minute to occupy a node from contested state
             if (m_NodeTimers[node])
             {
@@ -93,14 +81,12 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                     uint8 teamIndex = m_Nodes[node]-1;
                     m_prevNodes[node] = m_Nodes[node];
                     m_Nodes[node] += 2;
-                    // burn current contested banner
-                    _DelBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex);
                     // create new occupied banner
-                    _CreateBanner(node, BG_AB_NODE_TYPE_OCCUPIED, teamIndex, true);
+                    _ChangeBanner(node, BG_AB_NODE_TYPE_OCCUPIED, teamIndex, true);
                     _SendNodeUpdate(node);
                     _NodeOccupied(node, (teamIndex == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
-                    // Message to chatlog
 
+                    // Message to chatlog
                     if (teamIndex == TEAM_ALLIANCE)
                     {
                         SendBroadcastText(ABNodes[node].TextAllianceTaken, CHAT_MSG_BG_SYSTEM_ALLIANCE);
@@ -183,7 +169,7 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
 void BattlegroundAB::StartingEventCloseDoors()
 {
     // despawn banners, auras and buffs
-    for (int obj = BG_AB_OBJECT_BANNER_NEUTRAL; obj < BG_AB_DYNAMIC_NODES_COUNT * 8; ++obj)
+    for (int obj = BG_AB_OBJECT_BANNER; obj < BG_AB_DYNAMIC_NODES_COUNT; ++obj)
         SpawnBGObject(obj, RESPAWN_ONE_DAY);
     for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT * 3; ++i)
         SpawnBGObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + i, RESPAWN_ONE_DAY);
@@ -202,8 +188,13 @@ void BattlegroundAB::StartingEventCloseDoors()
 void BattlegroundAB::StartingEventOpenDoors()
 {
     // spawn neutral banners
-    for (int banner = BG_AB_OBJECT_BANNER_NEUTRAL, i = 0; i < 5; banner += 8, ++i)
+    for (int banner = BG_AB_OBJECT_BANNER; banner < 5; ++banner)
+    {
         SpawnBGObject(banner, RESPAWN_IMMEDIATELY);
+        if (GameObject* AB_banner = GetBGObject(banner))
+            AB_banner->SetUInt32Value(GAMEOBJECT_SPELL_VISUAL_ID, SPELL_VISUAL_NEUTRAL);
+    }
+
     for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
     {
         //randomly select buff to spawn
@@ -265,38 +256,53 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 
 /*  type: 0-neutral, 1-contested, 3-occupied
     teamIndex: 0-ally, 1-horde                        */
-void BattlegroundAB::_CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay)
+void BattlegroundAB::_ChangeBanner(uint8 node, uint8 type, uint8 teamIndex, bool /*delay*/)
 {
-    // Just put it into the queue
-    if (delay)
-    {
-        m_BannerTimers[node].timer = 2000;
-        m_BannerTimers[node].type = type;
-        m_BannerTimers[node].teamIndex = teamIndex;
+    GameObject* AB_banner = GetBGObject(node);
+    if (AB_banner == nullptr)
         return;
+
+
+    ArathiBannerWorldState worldstateValue = AB_NEUTRAL;
+
+    uint32 SpellVisualID = SPELL_VISUAL_NEUTRAL;
+
+    if (type == BG_AB_NODE_TYPE_CONTESTED)
+    {
+        if (teamIndex == TEAM_ALLIANCE)
+        {
+            SpellVisualID = SPELL_VISUAL_ALLIANCE_CONTESTED;
+            worldstateValue = AB_ALLIANCE_CONTESTED;
+        }
+		else
+        {
+            SpellVisualID = SPELL_VISUAL_HORDE_CONTESTED;
+            worldstateValue = AB_HORDE_CONTESTED;
+        }
+
     }
 
-    uint8 obj = node*8 + type + teamIndex;
+    if (type == BG_AB_NODE_TYPE_OCCUPIED)
+    {
+        if (teamIndex == TEAM_ALLIANCE)
+        {
+            SpellVisualID = SPELL_VISUAL_ALLIANCE_OCCUPIED;
+            worldstateValue = AB_ALLIANCE_OCCUPIED;
+        }
+		else
+        {
+            SpellVisualID = SPELL_VISUAL_HORDE_OCCUPIED;
+            worldstateValue = AB_HORDE_OCCUPIED;
+        }
+    }
 
-    SpawnBGObject(obj, RESPAWN_IMMEDIATELY);
 
-    // handle aura with banner
-    if (!type)
-        return;
-    obj = node * 8 + ((type == BG_AB_NODE_TYPE_OCCUPIED) ? (5 + teamIndex) : 7);
-    SpawnBGObject(obj, RESPAWN_IMMEDIATELY);
-}
+    // Update the visual of the banner
+    AB_banner->SetUInt32Value(GAMEOBJECT_SPELL_VISUAL_ID, SpellVisualID);
 
-void BattlegroundAB::_DelBanner(uint8 node, uint8 type, uint8 teamIndex)
-{
-    uint8 obj = node*8 + type + teamIndex;
-    SpawnBGObject(obj, RESPAWN_ONE_DAY);
-
-    // handle aura with banner
-    if (!type)
-        return;
-    obj = node * 8 + ((type == BG_AB_NODE_TYPE_OCCUPIED) ? (5 + teamIndex) : 7);
-    SpawnBGObject(obj, RESPAWN_ONE_DAY);
+    // Update the worldstate
+    m_BannerWorldState[node] = worldstateValue;
+    UpdateWorldState(AB_banner->GetGOInfo()->capturePoint.worldState1, worldstateValue);
 }
 
 void BattlegroundAB::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
@@ -329,6 +335,17 @@ void BattlegroundAB::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
     packet.Worldstates.emplace_back(uint32(BG_AB_OP_RESOURCES_ALLY), int32(m_TeamScores[TEAM_ALLIANCE]));
     packet.Worldstates.emplace_back(uint32(BG_AB_OP_RESOURCES_HORDE), int32(m_TeamScores[TEAM_HORDE]));
 
+    // Banner world states
+    for (int obj = BG_AB_OBJECT_BANNER; obj < BG_AB_DYNAMIC_NODES_COUNT; ++obj)
+    {
+        GameObject* AB_banner = GetBGObject(obj);
+        if (AB_banner == nullptr)
+            continue;
+
+        packet.Worldstates.emplace_back(uint32(AB_banner->GetGOInfo()->capturePoint.worldState1), int32(m_BannerWorldState[obj]));
+    }
+
+
     // other unknown
     packet.Worldstates.emplace_back(uint32(0x745), 0x2);
 }
@@ -359,7 +376,7 @@ void BattlegroundAB::_SendNodeUpdate(uint8 node)
 
 void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
 {
-    if (!AddSpiritGuide(node, BG_AB_SpiritGuidePos[node], GetTeamIndexByTeamId(team)))
+    if (!AddSpiritGuide(node, BG_AB_SpiritGuidePos[node][0], BG_AB_SpiritGuidePos[node][1], BG_AB_SpiritGuidePos[node][2], BG_AB_SpiritGuidePos[node][3], GetTeamIndexByTeamId(team)))
         TC_LOG_ERROR("bg.battleground", "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
 
     if (node >= BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
@@ -377,7 +394,7 @@ void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
 
     Creature* trigger = !BgCreatures[node + 7] ? GetBGCreature(node + 7) : NULL; // 0-6 spirit guides
     if (!trigger)
-        trigger = AddCreature(WORLD_TRIGGER, node+7, BG_AB_NodePositions[node], GetTeamIndexByTeamId(team));
+        trigger = AddCreature(WORLD_TRIGGER, node+7, BG_AB_NodePositions[node][0], BG_AB_NodePositions[node][1], BG_AB_NodePositions[node][2], BG_AB_NodePositions[node][3], GetTeamIndexByTeamId(team));
 
     //add bonus honor aura trigger creature when node is accupied
     //cast bonus aura (+50% honor in 25yards)
@@ -412,11 +429,11 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
         return;
 
     uint8 node = BG_AB_NODE_STABLES;
-    GameObject* obj = GetBgMap()->GetGameObject(BgObjects[node*8+7]);
+    GameObject* obj = GetBgMap()->GetGameObject(BgObjects[node]);
     while ((node < BG_AB_DYNAMIC_NODES_COUNT) && ((!obj) || (!source->IsWithinDistInMap(obj, 10))))
     {
         ++node;
-        obj = GetBgMap()->GetGameObject(BgObjects[node*8+BG_AB_OBJECT_AURA_CONTESTED]);
+        obj = GetBgMap()->GetGameObject(BgObjects[node]);
     }
 
     if (node == BG_AB_DYNAMIC_NODES_COUNT)
@@ -439,10 +456,8 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
         UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + 1;
-        // burn current neutral banner
-        _DelBanner(node, BG_AB_NODE_TYPE_NEUTRAL, 0);
         // create new contested banner
-        _CreateBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex, true);
+        _ChangeBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex, true);
         _SendNodeUpdate(node);
         m_NodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
 
@@ -462,10 +477,8 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
             UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
             m_prevNodes[node] = m_Nodes[node];
             m_Nodes[node] = teamIndex + BG_AB_NODE_TYPE_CONTESTED;
-            // burn current contested banner
-            _DelBanner(node, BG_AB_NODE_TYPE_CONTESTED, !teamIndex);
             // create new contested banner
-            _CreateBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex, true);
+            _ChangeBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex, true);
             _SendNodeUpdate(node);
             m_NodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
 
@@ -480,10 +493,8 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
             UpdatePlayerScore(source, SCORE_BASES_DEFENDED, 1);
             m_prevNodes[node] = m_Nodes[node];
             m_Nodes[node] = teamIndex + BG_AB_NODE_TYPE_OCCUPIED;
-            // burn current contested banner
-            _DelBanner(node, BG_AB_NODE_TYPE_CONTESTED, !teamIndex);
             // create new occupied banner
-            _CreateBanner(node, BG_AB_NODE_TYPE_OCCUPIED, teamIndex, true);
+            _ChangeBanner(node, BG_AB_NODE_TYPE_OCCUPIED, teamIndex, true);
             _SendNodeUpdate(node);
             m_NodeTimers[node] = 0;
             _NodeOccupied(node, (teamIndex == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
@@ -501,10 +512,8 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
         UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + BG_AB_NODE_TYPE_CONTESTED;
-        // burn current occupied banner
-        _DelBanner(node, BG_AB_NODE_TYPE_OCCUPIED, !teamIndex);
         // create new contested banner
-        _CreateBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex, true);
+        _ChangeBanner(node, BG_AB_NODE_TYPE_CONTESTED, teamIndex, true);
         _SendNodeUpdate(node);
         _NodeDeOccupied(node);
         m_NodeTimers[node] = BG_AB_FLAG_CAPTURING_TIME;
@@ -549,20 +558,15 @@ uint32 BattlegroundAB::GetPrematureWinner()
 
 bool BattlegroundAB::SetupBattleground()
 {
-    for (int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
+    if (!AddObject(BG_AB_OBJECT_BANNER, BG_AB_OBJECTID_NODE_BANNER_0, BG_AB_NodePositions[0][0], BG_AB_NodePositions[0][1], BG_AB_NodePositions[0][2], BG_AB_NodePositions[0][3], 0, 0, std::sin(BG_AB_NodePositions[0][3]/2), std::cos(BG_AB_NodePositions[0][3]/2), RESPAWN_ONE_DAY)
+        || !AddObject(BG_AB_OBJECT_BANNER + 1, BG_AB_OBJECTID_NODE_BANNER_1, BG_AB_NodePositions[1][0], BG_AB_NodePositions[1][1], BG_AB_NodePositions[1][2], BG_AB_NodePositions[1][3], 0, 0, std::sin(BG_AB_NodePositions[1][3] / 2), std::cos(BG_AB_NodePositions[1][3] / 2), RESPAWN_ONE_DAY)
+        || !AddObject(BG_AB_OBJECT_BANNER + 2, BG_AB_OBJECTID_NODE_BANNER_2, BG_AB_NodePositions[2][0], BG_AB_NodePositions[2][1], BG_AB_NodePositions[2][2], BG_AB_NodePositions[2][3], 0, 0, std::sin(BG_AB_NodePositions[2][3] / 2), std::cos(BG_AB_NodePositions[2][3] / 2), RESPAWN_ONE_DAY)
+        || !AddObject(BG_AB_OBJECT_BANNER + 3, BG_AB_OBJECTID_NODE_BANNER_3, BG_AB_NodePositions[3][0], BG_AB_NodePositions[3][1], BG_AB_NodePositions[3][2], BG_AB_NodePositions[3][3], 0, 0, std::sin(BG_AB_NodePositions[3][3] / 2), std::cos(BG_AB_NodePositions[3][3] / 2), RESPAWN_ONE_DAY)
+        || !AddObject(BG_AB_OBJECT_BANNER + 4, BG_AB_OBJECTID_NODE_BANNER_4, BG_AB_NodePositions[4][0], BG_AB_NodePositions[4][1], BG_AB_NodePositions[4][2], BG_AB_NodePositions[4][3], 0, 0, std::sin(BG_AB_NodePositions[4][3] / 2), std::cos(BG_AB_NodePositions[4][3] / 2), RESPAWN_ONE_DAY))
     {
-        if (!AddObject(BG_AB_OBJECT_BANNER_NEUTRAL + 8*i, BG_AB_OBJECTID_NODE_BANNER_0 + i, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_BANNER_CONT_A + 8*i, BG_AB_OBJECTID_BANNER_CONT_A, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_BANNER_CONT_H + 8*i, BG_AB_OBJECTID_BANNER_CONT_H, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_BANNER_ALLY + 8*i, BG_AB_OBJECTID_BANNER_A, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_BANNER_HORDE + 8*i, BG_AB_OBJECTID_BANNER_H, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_AURA_ALLY + 8*i, BG_AB_OBJECTID_AURA_A, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_AURA_HORDE + 8*i, BG_AB_OBJECTID_AURA_H, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY)
-            || !AddObject(BG_AB_OBJECT_AURA_CONTESTED + 8*i, BG_AB_OBJECTID_AURA_C, BG_AB_NodePositions[i], 0, 0, std::sin(BG_AB_NodePositions[i].GetOrientation()/2), std::cos(BG_AB_NodePositions[i].GetOrientation()/2), RESPAWN_ONE_DAY))
-        {
-            TC_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn some object Battleground not created!");
-            return false;
-        }
+
+        TC_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn some object Battleground not created!");
+        return false;
     }
 
     if (!AddObject(BG_AB_OBJECT_GATE_A, BG_AB_OBJECTID_GATE_A, BG_AB_DoorPositions[0][0], BG_AB_DoorPositions[0][1], BG_AB_DoorPositions[0][2], BG_AB_DoorPositions[0][3], BG_AB_DoorPositions[0][4], BG_AB_DoorPositions[0][5], BG_AB_DoorPositions[0][6], BG_AB_DoorPositions[0][7], RESPAWN_IMMEDIATELY)
@@ -609,7 +613,6 @@ void BattlegroundAB::Reset()
         m_Nodes[i] = 0;
         m_prevNodes[i] = 0;
         m_NodeTimers[i] = 0;
-        m_BannerTimers[i].timer = 0;
     }
 
     for (uint8 i = 0; i < BG_AB_ALL_NODES_COUNT + 5; ++i)//+5 for aura triggers

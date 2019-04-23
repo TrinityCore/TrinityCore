@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,31 +53,22 @@ class boss_moragg : public CreatureScript
                 instance->SetData(DATA_HANDLE_CELLS, DATA_MORAGG);
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                scheduler.Update(diff,
-                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
-            }
-
             void ScheduleTasks() override
             {
-                scheduler.Async([this]
+                me->GetScheduler().Async([this]
                 {
                     DoCast(me, DUNGEON_MODE(SPELL_RAY_OF_PAIN, SPELL_RAY_OF_PAIN_H));
                     DoCast(me, DUNGEON_MODE(SPELL_RAY_OF_SUFFERING, SPELL_RAY_OF_SUFFERING_H));
                 });
 
-                scheduler.Schedule(Seconds(15), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(15), [this](TaskContext task)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         DoCast(target, SPELL_OPTIC_LINK);
                     task.Repeat(Seconds(25));
                 });
 
-                scheduler.Schedule(Seconds(5), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(5), [this](TaskContext task)
                 {
                     DoCastVictim(SPELL_CORROSIVE_SALIVA);
                     task.Repeat(Seconds(10));

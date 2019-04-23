@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -76,6 +76,18 @@ namespace WorldPackets
             uint32 UnkInt               = 0; // send CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE
             uint32 Result               = 0;
             uint32 UnkInt2              = 0;
+        };
+
+        class WowTokenBuyStart final : public ClientPacket
+        {
+        public:
+            WowTokenBuyStart(WorldPacket&& packet) : ClientPacket(CMSG_BUY_WOW_TOKEN_START, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 UnkInt32 = 0;
+            ObjectGuid BuyerGuid;
+            uint64 CurrentMarketPrice = 0;
         };
     }
 }

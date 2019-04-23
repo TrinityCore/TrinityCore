@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -84,6 +84,12 @@ enum PermissionTypes
     NONE_PERMISSION             = 6
 };
 
+enum LootItemType
+{
+    LOOT_ITEM_TYPE_CURRENCY = 0,
+    LOOT_ITEM_TYPE_ITEM     = 2,
+};
+
 enum LootType : uint8
 {
     LOOT_NONE                   = 0,
@@ -130,9 +136,32 @@ enum LootSlotType
     LOOT_SLOT_TYPE_OWNER        = 4                         // ignore binding confirmation and etc, for single player looting
 };
 
+enum ToastType
+{
+    TOAST_ITEM           = 0,
+    TOAST_CURRENCY       = 1,
+    TOAST_GOLD           = 2,
+};
+
+enum ToastDisplayMethod : uint8
+{
+    TOAST_METHOD_NONE                   = 0,
+    TOAST_METHOD_POPUP                  = 1,
+    TOAST_METHOD_NOTIFICATION           = 2,
+    TOAST_METHOD_POPUP_2                = 3,
+    TOAST_METHOD_ROLL_UPGRADE           = 5,
+    TOAST_METHOD_ROLL_UPGRADE_2         = 6,
+    TOAST_METHOD_PVP_FACTION            = 9,
+    TOAST_METHOD_GARRISON_CACHE         = 10,
+    TOAST_METHOD_UPGRADE                = 12,
+    TOAST_METHOD_LEGENDARY              = 13,
+    TOAST_METHOD_WORLD_QUEST_REWARD     = 16,
+};
+
 struct TC_GAME_API LootItem
 {
     uint32  itemid;
+    uint8   type;
     uint32  randomSuffix;
     ItemRandomEnchantmentId randomPropertyId;
     int32   upgradeId;
@@ -140,8 +169,9 @@ struct TC_GAME_API LootItem
     uint8   context;
     ConditionContainer conditions;                               // additional loot condition
     GuidSet allowedGUIDs;
-    ObjectGuid rollWinnerGUID;									 // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
-    uint8   count             : 8;
+    ObjectGuid rollWinnerGUID;
+    uint32  count;
+    bool    currency          : 1;
     bool    is_looted         : 1;
     bool    is_blocked        : 1;
     bool    freeforall        : 1;                          // free for all
@@ -156,7 +186,7 @@ struct TC_GAME_API LootItem
     explicit LootItem(LootStoreItem const& li);
 
     // Empty constructor for creating an empty LootItem to be filled in with DB data
-    LootItem() : itemid(0), randomSuffix(0), randomPropertyId(), upgradeId(0), context(0), count(0), is_looted(false), is_blocked(false),
+    LootItem() : itemid(0), type(LOOT_ITEM_TYPE_ITEM), randomSuffix(0), randomPropertyId(), upgradeId(0), context(0), count(0), is_looted(false), is_blocked(false),
                  freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false),
                  canSave(true){ };
 
@@ -209,6 +239,7 @@ public:
 
 struct TC_GAME_API Loot
 {
+    NotNormalLootItemMap const& GetPlayerCurrencies() const { return PlayerCurrencies; }
     NotNormalLootItemMap const& GetPlayerQuestItems() const { return PlayerQuestItems; }
     NotNormalLootItemMap const& GetPlayerFFAItems() const { return PlayerFFAItems; }
     NotNormalLootItemMap const& GetPlayerNonQuestNonFFAConditionalItems() const { return PlayerNonQuestNonFFAConditionalItems; }
@@ -216,7 +247,7 @@ struct TC_GAME_API Loot
     std::vector<LootItem> items;
     std::vector<LootItem> quest_items;
     uint32 gold;
-    uint8 unlootedCount;
+    uint32 unlootedCount;
     ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
     uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
@@ -253,14 +284,15 @@ struct TC_GAME_API Loot
     void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
-    bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT);
+    bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT, bool specOnly = false);
 
     // Inserts the item into the loot (called by LootTemplate processors)
-    void AddItem(LootStoreItem const & item);
+    void AddItem(LootStoreItem const & item, Player const* player = nullptr, bool specOnly = false);
 
     LootItem const* GetItemInSlot(uint32 lootSlot) const;
-    LootItem* LootItemInSlot(uint32 lootslot, Player* player, NotNormalLootItem** qitem = NULL, NotNormalLootItem** ffaitem = NULL, NotNormalLootItem** conditem = NULL);
+    LootItem* LootItemInSlot(uint32 lootslot, Player* player, NotNormalLootItem** qitem = nullptr, NotNormalLootItem** ffaitem = nullptr, NotNormalLootItem** conditem = nullptr, NotNormalLootItem** currency = nullptr);
     uint32 GetMaxSlotInLootFor(Player* player) const;
+    uint8 GetItemContext() const { return _itemContext; }
     bool hasItemForAll() const;
     bool hasItemFor(Player* player) const;
     bool hasOverThresholdItem() const;
@@ -270,12 +302,15 @@ struct TC_GAME_API Loot
 
 private:
 
+    LootSlotType GetUITypeByPermission(LootItem const& item, PermissionTypes permission, LootSlotType slotType) const;
     void FillNotNormalLootFor(Player* player, bool presentAtLooting);
+    NotNormalLootItemList* FillCurrencyLoot(Player* player);
     NotNormalLootItemList* FillFFALoot(Player* player);
     NotNormalLootItemList* FillQuestLoot(Player* player);
     NotNormalLootItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
 
     GuidSet PlayersLooting;
+    NotNormalLootItemMap PlayerCurrencies;
     NotNormalLootItemMap PlayerQuestItems;
     NotNormalLootItemMap PlayerFFAItems;
     NotNormalLootItemMap PlayerNonQuestNonFFAConditionalItems;
@@ -294,13 +329,13 @@ public:
     struct ResultValue
     {
         Item* item;
-        uint8 count;
+        uint32 count;
         LootType lootType;
     };
 
     typedef std::vector<ResultValue> OrderedStorage;
 
-    void Add(Item* item, uint8 count, LootType lootType);
+    void Add(Item* item, uint32 count, LootType lootType);
 
     OrderedStorage::const_iterator begin() const;
     OrderedStorage::const_iterator end() const;

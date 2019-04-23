@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,10 +37,10 @@ namespace WorldPackets
 class TC_GAME_API PhasingHandler
 {
 public:
-    static void AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility);
-    static void RemovePhase(WorldObject* object, uint32 phaseId, bool updateVisibility);
-    static void AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, bool updateVisibility);
-    static void RemovePhaseGroup(WorldObject* object, uint32 phaseGroupId, bool updateVisibility);
+    static void AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility = true);
+    static void RemovePhase(WorldObject* object, uint32 phaseId, bool updateVisibility = true);
+    static void AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, bool updateVisibility = true);
+    static void RemovePhaseGroup(WorldObject* object, uint32 phaseGroupId, bool updateVisibility = true);
 
     static void AddVisibleMapId(WorldObject* object, uint32 visibleMapId);
     static void RemoveVisibleMapId(WorldObject* object, uint32 visibleMapId);

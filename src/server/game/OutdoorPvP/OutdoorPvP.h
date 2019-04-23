@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -286,10 +286,10 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
 
         void BroadcastPacket(WorldPacket const* data) const;
 
-        virtual void HandlePlayerEnterZone(Player* player, uint32 zone);
-        virtual void HandlePlayerLeaveZone(Player* player, uint32 zone);
+        virtual void HandlePlayerEnterZone(Player* player, Area* zone);
+        virtual void HandlePlayerLeaveZone(Player* player, Area* zone);
 
-        virtual void HandlePlayerResurrects(Player* player, uint32 zone);
+        virtual void HandlePlayerResurrects(Player* player, Area* zone);
 
         void AddCapturePoint(OPvPCapturePoint* cp);
 

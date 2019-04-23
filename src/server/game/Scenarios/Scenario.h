@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -71,6 +71,8 @@ class TC_GAME_API Scenario : public CriteriaHandler
         void SendScenarioState(Player* player);
         void SendBootPlayer(Player* player);
 
+        void SendScenarioEvent(Player* player, uint32 eventId);
+
     protected:
         GuidUnorderedSet _players;
 
@@ -93,6 +95,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
 
         CriteriaList const& GetCriteriaByType(CriteriaTypes type) const override;
         ScenarioData const* _data;
+        Ashamane::AnyData Variables;
 
     private:
         ScenarioStepEntry const* _currentstep;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -72,37 +72,28 @@ class boss_cyanigosa : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                scheduler.Update(diff,
-                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
-            }
-
             void ScheduleTasks() override
             {
-                scheduler.Schedule(Seconds(10), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(10), [this](TaskContext task)
                 {
                     DoCastAOE(SPELL_ARCANE_VACUUM);
                     task.Repeat();
                 });
 
-                scheduler.Schedule(Seconds(15), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(15), [this](TaskContext task)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                         DoCast(target, SPELL_BLIZZARD);
                     task.Repeat();
                 });
 
-                scheduler.Schedule(Seconds(20), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(20), [this](TaskContext task)
                 {
                     DoCastVictim(SPELL_TAIL_SWEEP);
                     task.Repeat();
                 });
 
-                scheduler.Schedule(Seconds(25), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(25), [this](TaskContext task)
                 {
                     DoCastVictim(SPELL_UNCONTROLLABLE_ENERGY);
                     task.Repeat();
@@ -110,7 +101,7 @@ class boss_cyanigosa : public CreatureScript
 
                 if (IsHeroic())
                 {
-                    scheduler.Schedule(Seconds(30), [this](TaskContext task)
+                    me->GetScheduler().Schedule(Seconds(30), [this](TaskContext task)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                             DoCast(target, SPELL_MANA_DESTRUCTION);

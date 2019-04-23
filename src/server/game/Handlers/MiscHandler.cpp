@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -76,8 +76,29 @@ void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet
         GetPlayer()->KillPlayer();
     }
 
+    GetPlayer()->RemovePet(nullptr, PET_SAVE_DISMISS, true);
+
+    // If we are inside an instance, check if player should resurect at instance beginning
+    if (InstanceTemplate const* instanceTemplate = sObjectMgr->GetInstanceTemplate(GetPlayer()->GetMapId()))
+        if (instanceTemplate->InsideResurrection)
+            if (InstanceScript* instanceScript = GetPlayer()->GetInstanceScript())
+            {
+                Position resurectPosition;
+
+                if (WorldSafeLocsEntry const* entranceLocation = sWorldSafeLocsStore.LookupEntry(instanceScript->GetEntranceLocation()))
+                    resurectPosition.Relocate(entranceLocation->Loc.X, entranceLocation->Loc.Y, entranceLocation->Loc.Z, entranceLocation->Facing);
+                else if (AreaTriggerTeleportStruct const* areaTrigger = sObjectMgr->GetMapEntranceTrigger(GetPlayer()->GetMapId()))
+                    resurectPosition.Relocate(areaTrigger->target_X, areaTrigger->target_Y, areaTrigger->target_Z, areaTrigger->target_Orientation);
+
+                if (!resurectPosition.IsPositionEmpty())
+                {
+                    GetPlayer()->NearTeleportTo(resurectPosition);
+                    GetPlayer()->ResurrectPlayer(75.0f);
+                    return;
+                }
+            }
+
     //this is spirit release confirm?
-    GetPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
     GetPlayer()->BuildPlayerRepop();
     GetPlayer()->RepopAtGraveyard();
 }
@@ -508,6 +529,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
         {
             for (uint32 questId : *quests)
             {
+                player->AreaExploredOrEventHappens(questId);
+
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
                 if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                 {
@@ -546,104 +569,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
         if (pvp->HandleAreaTrigger(_player, packet.AreaTriggerID, packet.Entered))
             return;
 
-    AreaTriggerStruct const* at = sObjectMgr->GetAreaTrigger(packet.AreaTriggerID);
-    if (!at)
-        return;
-
-    bool teleported = false;
-    if (player->GetMapId() != at->target_mapId)
-    {
-        if (Map::EnterState denyReason = sMapMgr->PlayerCannotEnter(at->target_mapId, player, false))
-        {
-            bool reviveAtTrigger = false; // should we revive the player if he is trying to enter the correct instance?
-            switch (denyReason)
-            {
-                case Map::CANNOT_ENTER_NO_ENTRY:
-                    TC_LOG_DEBUG("maps", "MAP: Player '%s' attempted to enter map with id %d which has no entry", player->GetName().c_str(), at->target_mapId);
-                    break;
-                case Map::CANNOT_ENTER_UNINSTANCED_DUNGEON:
-                    TC_LOG_DEBUG("maps", "MAP: Player '%s' attempted to enter dungeon map %d but no instance template was found", player->GetName().c_str(), at->target_mapId);
-                    break;
-                case Map::CANNOT_ENTER_DIFFICULTY_UNAVAILABLE:
-                    TC_LOG_DEBUG("maps", "MAP: Player '%s' attempted to enter instance map %d but the requested difficulty was not found", player->GetName().c_str(), at->target_mapId);
-                    if (MapEntry const* entry = sMapStore.LookupEntry(at->target_mapId))
-                        player->SendTransferAborted(entry->ID, TRANSFER_ABORT_DIFFICULTY, player->GetDifficultyID(entry));
-                    break;
-                case Map::CANNOT_ENTER_NOT_IN_RAID:
-                    TC_LOG_DEBUG("maps", "MAP: Player '%s' must be in a raid group to enter map %d", player->GetName().c_str(), at->target_mapId);
-                    player->SendRaidGroupOnlyMessage(RAID_GROUP_ERR_ONLY, 0);
-                    reviveAtTrigger = true;
-                    break;
-                case Map::CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE:
-                    player->GetSession()->SendPacket(WorldPackets::AreaTrigger::AreaTriggerNoCorpse().Write());
-                    TC_LOG_DEBUG("maps", "MAP: Player '%s' does not have a corpse in instance map %d and cannot enter", player->GetName().c_str(), at->target_mapId);
-                    break;
-                case Map::CANNOT_ENTER_INSTANCE_BIND_MISMATCH:
-                    if (MapEntry const* entry = sMapStore.LookupEntry(at->target_mapId))
-                    {
-                        char const* mapName = entry->MapName->Str[player->GetSession()->GetSessionDbcLocale()];
-                        TC_LOG_DEBUG("maps", "MAP: Player '%s' cannot enter instance map '%s' because their permanent bind is incompatible with their group's", player->GetName().c_str(), mapName);
-                        // is there a special opcode for this?
-                        // @todo figure out how to get player localized difficulty string (e.g. "10 player", "Heroic" etc)
-                        ChatHandler(player->GetSession()).PSendSysMessage(player->GetSession()->GetTrinityString(LANG_INSTANCE_BIND_MISMATCH), mapName);
-                    }
-                    reviveAtTrigger = true;
-                    break;
-                case Map::CANNOT_ENTER_TOO_MANY_INSTANCES:
-                    player->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_TOO_MANY_INSTANCES);
-                    TC_LOG_DEBUG("maps", "MAP: Player '%s' cannot enter instance map %d because he has exceeded the maximum number of instances per hour.", player->GetName().c_str(), at->target_mapId);
-                    reviveAtTrigger = true;
-                    break;
-                case Map::CANNOT_ENTER_MAX_PLAYERS:
-                    player->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_MAX_PLAYERS);
-                    reviveAtTrigger = true;
-                    break;
-                case Map::CANNOT_ENTER_ZONE_IN_COMBAT:
-                    player->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_ZONE_IN_COMBAT);
-                    reviveAtTrigger = true;
-                    break;
-                default:
-                    break;
-            }
-
-            if (reviveAtTrigger) // check if the player is touching the areatrigger leading to the map his corpse is on
-                if (!player->IsAlive() && player->HasCorpse())
-                    if (player->GetCorpseLocation().GetMapId() == at->target_mapId)
-                    {
-                        player->ResurrectPlayer(0.5f);
-                        player->SpawnCorpseBones();
-                    }
-
-            return;
-        }
-
-        if (Group* group = player->GetGroup())
-            if (group->isLFGGroup() && player->GetMap()->IsDungeon())
-                teleported = player->TeleportToBGEntryPoint();
-    }
-
-    if (!teleported)
-    {
-        WorldSafeLocsEntry const* entranceLocation = nullptr;
-        InstanceSave* instanceSave = player->GetInstanceSave(at->target_mapId);
-        if (instanceSave)
-        {
-            // Check if we can contact the instancescript of the instance for an updated entrance location
-            if (Map* map = sMapMgr->FindMap(at->target_mapId, player->GetInstanceSave(at->target_mapId)->GetInstanceId()))
-                if (InstanceMap* instanceMap = map->ToInstanceMap())
-                    if (InstanceScript* instanceScript = instanceMap->GetInstanceScript())
-                        entranceLocation = sWorldSafeLocsStore.LookupEntry(instanceScript->GetEntranceLocation());
-
-            // Finally check with the instancesave for an entrance location if we did not get a valid one from the instancescript
-            if (!entranceLocation)
-                entranceLocation = sWorldSafeLocsStore.LookupEntry(instanceSave->GetEntranceLocation());
-        }
-
-        if (entranceLocation)
-            player->TeleportTo(entranceLocation->MapID, entranceLocation->Loc.X, entranceLocation->Loc.Y, entranceLocation->Loc.Z, entranceLocation->Facing * M_PI / 180, TELE_TO_NOT_LEAVE_TRANSPORT);
-        else
-            player->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
-    }
+    if (AreaTriggerTeleportStruct const* at = sObjectMgr->GetAreaTrigger(int64(packet.AreaTriggerID)))
+        player->TeleportTo(at);
 }
 
 void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet)
@@ -742,6 +669,18 @@ void WorldSession::HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& /*pack
     uint32 movie = _player->GetMovie();
     if (!movie)
         return;
+
+    auto itr = std::find_if(_player->MovieDelayedActions.begin(), _player->MovieDelayedActions.end(), [movie](const std::pair<uint32, std::function<void()>>& elem) -> bool
+    {
+        return elem.first == movie;
+    });
+
+    if (itr != _player->MovieDelayedActions.end())
+    {
+        (*itr).second();
+        (*itr).second = nullptr;
+        _player->MovieDelayedActions.erase(itr);
+    }
 
     _player->SetMovie(0);
     sScriptMgr->OnMovieComplete(_player, movie);
@@ -1084,6 +1023,40 @@ void WorldSession::HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& /*viol
     // do something?
 }
 
+void WorldSession::HandlePlayerSelectFactionOpcode(WorldPackets::Misc::PlayerSelectFaction& playerSelectFaction)
+{
+    if (_player->getRace() != RACE_PANDAREN_NEUTRAL)
+        return;
+
+    if (playerSelectFaction.SelectedFaction == WorldPackets::Misc::PlayerSelectFaction::Values::Horde)
+    {
+        _player->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE, RACE_PANDAREN_HORDE);
+        _player->setFactionForRace(RACE_PANDAREN_HORDE);
+        _player->SaveToDB();
+        WorldLocation location(1, 1366.730f, -4371.248f, 26.070f, 3.1266f);
+        _player->TeleportTo(location);
+        _player->SetHomebind(location, 363);
+        _player->LearnSpell(669, false); // Language Orcish
+        _player->LearnSpell(108127, false); // Language Pandaren
+    }
+    else if (playerSelectFaction.SelectedFaction == WorldPackets::Misc::PlayerSelectFaction::Values::Alliance)
+    {
+        _player->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE, RACE_PANDAREN_ALLIANCE);
+        _player->setFactionForRace(RACE_PANDAREN_ALLIANCE);
+        _player->SaveToDB();
+        WorldLocation location(0, -9096.236f, 411.380f, 92.257f, 3.649f);
+        _player->TeleportTo(location);
+        _player->SetHomebind(location, 9);
+        _player->LearnSpell(668, false); // Language Common
+        _player->LearnSpell(108127, false); // Language Pandaren
+    }
+
+    if (_player->GetQuestStatus(31450) == QUEST_STATUS_INCOMPLETE)
+        _player->KilledMonsterCredit(64594);
+
+    _player->SendMovieStart(116);
+}
+
 void WorldSession::HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed)
 {
     TC_LOG_ERROR("network", "Object update failed for %s for player %s (%s)", objectUpdateFailed.ObjectGUID.ToString().c_str(), GetPlayerName().c_str(), _player->GetGUID().ToString().c_str());
@@ -1135,6 +1108,26 @@ void WorldSession::SendLoadCUFProfiles()
     SendPacket(loadCUFProfiles.Write());
 }
 
+void WorldSession::HandleResearchHistory(WorldPackets::Misc::ResearchHistory& /*resHistory*/)
+{
+    Player* player = GetPlayer();
+    ArchaeologyHistoryMap history = player->GetArchaeologyMgr().GetHistory();
+
+    WorldPackets::Misc::ResearchSetupHistory rHistory;
+
+    rHistory.ResearchHistory.resize(history.size());
+
+    for (auto itr : history)
+    {
+        rHistory.researchHistory.id = itr.first;
+        rHistory.researchHistory.time = itr.second.time;
+        rHistory.researchHistory.count = itr.second.count;
+        rHistory.ResearchHistory.push_back(rHistory.researchHistory);
+    }
+
+    SendPacket(rHistory.Write());
+}
+
 void WorldSession::HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::SetAdvancedCombatLogging& setAdvancedCombatLogging)
 {
     _player->SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
@@ -1156,4 +1149,60 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
 {
     if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
         _player->PlayerTalkClass->GetInteractionData().Reset();
+}
+
+void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::Misc::AdventureJournalOpenQuest& packet)
+{
+    if (AdventureJournalEntry const* entry = sAdventureJournalStore.LookupEntry(packet.AdventureJournalID))
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(entry->QuestID))
+            if (!_player->hasQuest(entry->QuestID))
+                if (_player->CanTakeQuest(quest, true))
+                    if (WorldSession* session = _player->GetSession())
+                    {
+                        PlayerMenu menu(session);
+                        menu.SendQuestGiverQuestDetails(quest, _player->GetGUID(), true, false);
+                    }
+}
+
+void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::AdventureJournalStartQuest& packet)
+{
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID))
+        if (!_player->hasQuest(packet.QuestID))
+            _player->AddQuest(quest, nullptr);
+}
+
+void WorldSession::HandleSelectFactionOpcode(WorldPackets::Misc::FactionSelect& selectFaction)
+{
+    if (_player->getRace() != RACE_PANDAREN_NEUTRAL)
+        return;
+
+    if (selectFaction.FactionChoice == JOIN_ALLIANCE)
+    {
+        _player->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_ALLIANCE);
+        _player->setFactionForRace(RACE_PANDAREN_ALLIANCE);
+        _player->SaveToDB();
+        _player->LearnSpell(668, false);            // Language Common
+        _player->LearnSpell(108130, false);         // Language Pandaren Alliance
+        _player->CastSpell(_player, 113244, true);  // Faction Choice Trigger Spell: Alliance
+    }
+    else if (selectFaction.FactionChoice == JOIN_HORDE)
+    {
+        _player->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_HORDE);
+        _player->setFactionForRace(RACE_PANDAREN_HORDE);
+        _player->SaveToDB();
+        _player->LearnSpell(669, false);            // Language Orcish
+        _player->LearnSpell(108131, false);         // Language Pandaren Horde
+        _player->CastSpell(_player, 113245, true);  // Faction Choice Trigger Spell: Horde
+    }
+}
+
+void WorldSession::HandleSetWarModeOpcode(WorldPackets::Misc::SetWarMode& warMode)
+{
+    if (_player->GetZoneId() != ZONE_STORMWIND_CITY && _player->GetZoneId() != ZONE_ORGRIMMAR)
+        return;
+
+    if (warMode.Enabled)
+        _player->AddAura(269083);
+    else
+        _player->RemoveAurasDueToSpell(269083);
 }

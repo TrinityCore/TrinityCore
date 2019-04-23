@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -107,7 +107,7 @@ namespace VMAP
     class TC_COMMON_API WorldModel
     {
         public:
-            WorldModel(): Flags(0), RootWMOID(0) { }
+            WorldModel(): RootWMOID(0) { }
 
             //! pass group models to WorldModel and create BIH. Passed vector is swapped with old geometry!
             void setGroupModels(std::vector<GroupModel> &models);

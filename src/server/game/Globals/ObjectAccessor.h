@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,6 +32,7 @@ class Map;
 class Object;
 class Pet;
 class Player;
+class SceneObject;
 class Transport;
 class Unit;
 class WorldObject;
@@ -72,6 +73,7 @@ namespace ObjectAccessor
     TC_GAME_API Transport* GetTransport(ObjectGuid const& guid);
     TC_GAME_API DynamicObject* GetDynamicObject(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API AreaTrigger* GetAreaTrigger(WorldObject const& u, ObjectGuid const& guid);
+    TC_GAME_API SceneObject* GetSceneObject(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API Conversation* GetConversation(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API Unit* GetUnit(WorldObject const&, ObjectGuid const& guid);
     TC_GAME_API Creature* GetCreature(WorldObject const& u, ObjectGuid const& guid);

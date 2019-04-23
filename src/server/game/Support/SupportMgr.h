@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,6 +47,30 @@ enum SupportSpamType
     SUPPORT_SPAM_TYPE_MAIL     = 0,
     SUPPORT_SPAM_TYPE_CHAT     = 1,
     SUPPORT_SPAM_TYPE_CALENDAR = 2
+};
+
+enum GMTicketResponse : uint8
+{
+    GMTICKET_RESPONSE_ALREADY_EXIST         = 1,
+    GMTICKET_RESPONSE_CREATE_SUCCESS        = 2,
+    GMTICKET_RESPONSE_CREATE_ERROR          = 3,
+    GMTICKET_RESPONSE_UPDATE_SUCCESS        = 4,
+    GMTICKET_RESPONSE_UPDATE_ERROR          = 5,
+    GMTICKET_RESPONSE_TICKET_DELETED        = 9
+};
+
+enum GMTicketEscalationStatus
+{
+    TICKET_UNASSIGNED                       = 0,
+    TICKET_ASSIGNED                         = 1,
+    TICKET_IN_ESCALATION_QUEUE              = 2,
+    TICKET_ESCALATED_ASSIGNED               = 3
+};
+
+enum GMTicketOpenedByGMStatus
+{
+    GMTICKET_OPENEDBYGM_STATUS_NOT_OPENED   = 0,
+    GMTICKET_OPENEDBYGM_STATUS_OPENED       = 1
 };
 
 using ChatLog = WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLog;
@@ -177,6 +201,9 @@ public:
     using Ticket::FormatViewMessageString;
     std::string FormatViewMessageString(ChatHandler& handler, bool detailed = false) const override;
 
+    // Custom addon ticket
+    void WriteData(std::vector<std::string>& data, std::string & message) const;
+
 private:
     std::string _note;
 };
@@ -198,6 +225,7 @@ public:
     T* GetTicket(uint32 ticketId);
 
     ComplaintTicketList GetComplaintsByPlayerGuid(ObjectGuid playerGuid) const;
+    SuggestionTicket* GetOpenSuggestionByPlayerGuid(ObjectGuid playerGuid) const;
 
     void Initialize();
 
@@ -223,6 +251,9 @@ public:
     void AddTicket(BugTicket* ticket);
     void AddTicket(ComplaintTicket* ticket);
     void AddTicket(SuggestionTicket* ticket);
+
+    // Custom addon method
+    void SendTicket(WorldSession* session, SuggestionTicket* ticket) const;
 
     template<typename T>
     void RemoveTicket(uint32 ticketId);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,7 +65,7 @@ class TC_GAME_API Arena : public Battleground
         void CheckWinConditions() override;
         void EndBattleground(uint32 winner) override;
 
-        ArenaTeamScore _arenaTeamScores[BG_TEAMS_COUNT];
+        ArenaGroupScore _ArenaGroupScores[BG_TEAMS_COUNT];
 };
 
 #endif // TRINITY_ARENA_H

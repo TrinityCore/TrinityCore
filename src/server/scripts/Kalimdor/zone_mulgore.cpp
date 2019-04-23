@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,66 +16,135 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
+#include "WaypointMovementGenerator.h"
 
-/*######
-## npc_eagle_spirit
-######*/
-
-enum EagleSpirit
+enum eAgitatedEarthSpirit
 {
-    SPELL_EJECT_ALL_PASSENGERS = 50630,
-    SPELL_SPIRIT_FORM          = 69324
+    SPELL_SOOTHE_EARTH_SPIRIT       = 69453,
+    SPELL_ROCK_BARRAGE              = 81305,
+    NPC_EARTH_SPIRIT_CREDIT_BUNNY   = 36872
 };
 
-Position const EagleSpiritflightPath[] =
+// 36845 - Agitated Earth Spirit
+struct npc_agitated_earth_spirit : public ScriptedAI
 {
-    { -2884.155f, -71.08681f, 242.0678f },
-    { -2720.592f, -111.0035f, 242.5955f },
-    { -2683.951f, -382.9010f, 231.1792f },
-    { -2619.148f, -484.9288f, 231.1792f },
-    { -2543.868f, -525.3333f, 231.1792f },
-    { -2465.321f, -502.4896f, 190.7347f },
-    { -2343.872f, -401.8281f, -8.320873f }
-};
-size_t const EagleSpiritflightPathSize = std::extent<decltype(EagleSpiritflightPath)>::value;
+    npc_agitated_earth_spirit(Creature* creature) : ScriptedAI(creature) { }
 
-class npc_eagle_spirit : public CreatureScript
-{
-public:
-    npc_eagle_spirit() : CreatureScript("npc_eagle_spirit") { }
-
-    struct npc_eagle_spirit_AI : public ScriptedAI
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
     {
-        npc_eagle_spirit_AI(Creature* creature) : ScriptedAI(creature) { }
-
-        void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply) override
+        if (spell->Id == SPELL_SOOTHE_EARTH_SPIRIT)
         {
-            if (!apply)
-                return;
-
-            me->GetMotionMaster()->MoveSmoothPath(uint32(EagleSpiritflightPathSize), EagleSpiritflightPath, EagleSpiritflightPathSize, false, true);
-            me->CastSpell(me, SPELL_SPIRIT_FORM);
+            Position pos;
+            caster->GetNearPoint(caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, MIN_MELEE_REACH, caster->GetAngle(me));
+            me->GetMotionMaster()->MovePoint(1, pos);
+            _playerGUID = caster->GetGUID();
         }
+    }
 
-        void MovementInform(uint32 type, uint32 pointId) override
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type == POINT_MOTION_TYPE && pointId == 1)
         {
-            if (type == EFFECT_MOTION_TYPE && pointId == EagleSpiritflightPathSize)
+            switch (urand(0, 1))
             {
-                DoCast(SPELL_EJECT_ALL_PASSENGERS);
+                case 0:
+                {
+                    me->setFaction(35);
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        player->KilledMonsterCredit(NPC_EARTH_SPIRIT_CREDIT_BUNNY);
+
+                    me->GetScheduler().Schedule(1s, [](TaskContext context)
+                    {
+                        GetContextCreature()->DisappearAndDie();
+                    });
+
+                    break;
+                }
+                case 1:
+                    me->setFaction(14);
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                        AttackStart(player);
+                    break;
             }
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_eagle_spirit_AI(creature);
     }
+
+    void EnterCombat(Unit* /*victim*/) override
+    {
+        me->GetScheduler().Schedule(4s, 5s, [this](TaskContext context)
+        {
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+            {
+                GetContextUnit()->CastSpell(target, SPELL_ROCK_BARRAGE, false);
+                context.Repeat(18s, 21s);
+            }
+        });
+    }
+
+private:
+    ObjectGuid _playerGUID;
+};
+
+enum eKyleTheFrenzied
+{
+    SPELL_LUNCH_FOR_KYLE    = 42222,
+    NPC_KYLE_THE_FRENZIED   = 23616,
+    NPC_KYLE_THE_FRIENDLY   = 23622
+};
+
+// 23616
+struct npc_kyle_the_frenzied : public ScriptedAI
+{
+    npc_kyle_the_frenzied(Creature* creature) : ScriptedAI(creature) { }
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_LUNCH_FOR_KYLE)
+        {
+            Position pos;
+            caster->GetNearPoint(caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 0.5f, caster->GetAngle(me));
+            me->GetMotionMaster()->MovePoint(1, pos);
+            _playerGUID = caster->GetGUID();
+        }
+    }
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type == POINT_MOTION_TYPE && pointId == 1)
+        {
+            // Wait 15 seconds then resume path
+            if (WaypointMovementGenerator<Creature>* move = dynamic_cast<WaypointMovementGenerator<Creature>*>(me->GetMotionMaster()->top()))
+                move->GetTrackerTimer().Reset(15000);
+            Talk(0);
+            me->GetScheduler().Schedule(4s, [this](TaskContext /*context*/)
+            {
+                Talk(1);
+            });
+            me->GetScheduler().Schedule(9s, [this](TaskContext context)
+            {
+                Creature* ctxCrea = GetContextCreature();
+                Talk(2);
+                ctxCrea->UpdateEntry(NPC_KYLE_THE_FRIENDLY);
+                ctxCrea->HandleEmoteCommand(EMOTE_STATE_DANCE);
+                if (Player* player = ObjectAccessor::GetPlayer(*ctxCrea, _playerGUID))
+                    player->KilledMonsterCredit(NPC_KYLE_THE_FRENZIED);
+            });
+            me->GetScheduler().Schedule(15s, [](TaskContext context)
+            {
+                Creature* ctxCrea = GetContextCreature();
+                ctxCrea->UpdateEntry(NPC_KYLE_THE_FRENZIED);
+                ctxCrea->HandleEmoteCommand(EMOTE_STATE_NONE);
+            });
+        }
+    }
+private:
+    ObjectGuid _playerGUID;
 };
 
 void AddSC_mulgore()
 {
-    new npc_eagle_spirit();
+    RegisterCreatureAI(npc_agitated_earth_spirit);
+    RegisterCreatureAI(npc_kyle_the_frenzied);
 }

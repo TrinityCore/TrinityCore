@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -282,6 +282,32 @@ public:
         }
 
         return true;
+    }
+
+    static bool HandleAllSpellCheatCommand(ChatHandler* handler, const char* args)
+    {
+        if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
+            return false;
+
+        std::string argstr = (char*)args;
+
+        if (!*args)
+            argstr = (handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_ALL)) ? "off" : "on";
+
+        if (argstr == "off")
+        {
+            handler->GetSession()->GetPlayer()->SetCommandStatusOff(CHEAT_ALL);
+            handler->SendSysMessage("All spell cheats are OFF. You will take damage, your spells will have a casttime, a cooldown and a power cost.");
+            return true;
+        }
+        else if (argstr == "on")
+        {
+            handler->GetSession()->GetPlayer()->SetCommandStatusOn(CHEAT_ALL);
+            handler->SendSysMessage("All spell cheats are ON. You won't take damage, your spells won't have a casttime, a cooldown and a power cost.");
+            return true;
+        }
+
+        return false;
     }
 };
 

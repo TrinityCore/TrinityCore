@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "LootPackets.h"
+#include "Loot.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Loot::LootItemData const& lootItem)
 {
@@ -204,6 +205,54 @@ WorldPacket const* WorldPackets::Loot::LootRollsComplete::Write()
 WorldPacket const* WorldPackets::Loot::AELootTargets::Write()
 {
     _worldPacket << uint32(Count);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Loot::DisplayToast::Write()
+{
+    _worldPacket << Quantity;
+    _worldPacket << ToastMethod;
+    _worldPacket << QuestID;
+
+    _worldPacket.WriteBit(IsBonusRoll);
+
+    _worldPacket.WriteBits(ToastType, 2);
+
+    if (ToastType == TOAST_ITEM)
+    {
+        _worldPacket.WriteBit(Mailed);
+        _worldPacket.FlushBits();
+
+        // item instance
+        bool hasItemBonus = !bonusListIDs.empty();
+        _worldPacket << EntityId;
+        _worldPacket << uint32(0); // RandomPropertiesSeed
+        _worldPacket << uint32(RandomPropertiesID);
+        _worldPacket.WriteBit(hasItemBonus);
+        _worldPacket.WriteBit(false); // HasModifications
+        if (hasItemBonus)
+        {
+            _worldPacket << uint8(1); // Indexes (works in case of 1 bonus, possibly should be bit mask of indexes?)
+
+            uint32 bonusCount = bonusListIDs.size();
+            _worldPacket << uint32(bonusCount);
+            for (uint32 j = 0; j < bonusCount; ++j)
+                _worldPacket << uint32(bonusListIDs[j]);
+        }
+
+        _worldPacket.FlushBits();
+
+        _worldPacket << uint32(0); // SpecializationID
+        _worldPacket << uint32(0);
+    }
+    else if (ToastType == TOAST_CURRENCY)
+    {
+        _worldPacket.FlushBits();
+        _worldPacket << EntityId;
+    }
+    else
+        _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

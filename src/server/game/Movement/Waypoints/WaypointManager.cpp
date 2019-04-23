@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@ WaypointMgr::WaypointMgr() { }
 
 void WaypointMgr::Load()
 {
+    _waypointStore.clear();
     uint32 oldMSTime = getMSTime();
 
     //                                                0    1         2           3          4            5           6        7      8           9

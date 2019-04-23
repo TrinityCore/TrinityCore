@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -127,7 +127,7 @@ public:
         pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel());
 
         player->SetMinion(pet, true);
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+        pet->SavePetToDB(PET_SAVE_NEW_PET);
         player->PetSpellInitialize();
 
         return true;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,7 @@
 #include "WorldSession.h"
 #include "Opcodes.h"
 
-void WorldSession::SendNotInArenaTeamPacket(uint8 type)
+void WorldSession::SendNotInArenaGroupPacket(uint8 type)
 {
     WorldPacket data(SMSG_ARENA_ERROR, 4+1);
     uint32 error = 0;

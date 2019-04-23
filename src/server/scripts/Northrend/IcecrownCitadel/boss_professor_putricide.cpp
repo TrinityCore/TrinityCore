@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -250,8 +250,7 @@ class boss_professor_putricide : public CreatureScript
                 if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                     me->GetMotionMaster()->MovementExpired();
 
-                if (instance->GetBossState(DATA_ROTFACE) == DONE && instance->GetBossState(DATA_FESTERGUT) == DONE)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                DoAction(ACTION_CHECK_BOSS);
             }
 
             void EnterCombat(Unit* who) override
@@ -426,6 +425,10 @@ class boss_professor_putricide : public CreatureScript
             {
                 switch (action)
                 {
+                    case ACTION_CHECK_BOSS:
+                        if (instance->GetBossState(DATA_ROTFACE) == DONE && instance->GetBossState(DATA_FESTERGUT) == DONE)
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                        break;
                     case ACTION_FESTERGUT_COMBAT:
                         SetPhase(PHASE_FESTERGUT);
                         me->SetSpeedRate(MOVE_RUN, _baseSpeed*2.0f);

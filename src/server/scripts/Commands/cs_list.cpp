@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,6 +48,7 @@ public:
             { "auras",    rbac::RBAC_PERM_COMMAND_LIST_AURAS,   false, &HandleListAurasCommand,    "" },
             { "mail",     rbac::RBAC_PERM_COMMAND_LIST_MAIL,     true, &HandleListMailCommand,     "" },
             { "scenes",   rbac::RBAC_PERM_COMMAND_LIST_SCENES,  false, &HandleListScenesCommand,   "" },
+            { "quests",   rbac::RBAC_PERM_COMMAND_LIST_QUESTS,  false, &HandleListQuestsCommand,   "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -419,7 +420,7 @@ public:
         return true;
     }
 
-    static bool HandleListAurasCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleListAurasCommand(ChatHandler* handler, char const* args)
     {
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
@@ -428,6 +429,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+
+        std::string param = (char*)args;
 
         char const* talentStr = handler->GetTrinityString(LANG_TALENT);
         char const* passiveStr = handler->GetTrinityString(LANG_PASSIVE);
@@ -452,16 +455,19 @@ public:
                 aura->GetCasterGUID().ToString().c_str());
         }
 
-        for (uint16 i = 0; i < TOTAL_AURAS; ++i)
+        if (param == "all")
         {
-            Unit::AuraEffectList const& auraList = unit->GetAuraEffectsByType(AuraType(i));
-            if (auraList.empty())
-                continue;
+            for (uint16 i = 0; i < TOTAL_AURAS; ++i)
+            {
+                Unit::AuraEffectList const& auraList = unit->GetAuraEffectsByType(AuraType(i));
+                if (auraList.empty())
+                    continue;
 
-            handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, std::to_string(auraList.size()).c_str(), i);
+                handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, std::to_string(auraList.size()).c_str(), i);
 
-            for (Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
-                handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(), (*itr)->GetAmount());
+                for (Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
+                    handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(), (*itr)->GetAmount());
+            }
         }
 
         return true;
@@ -594,13 +600,34 @@ public:
             return false;
         }
 
-        SceneTemplateByInstance const& instanceByPackageMap = target->GetSceneMgr().GetSceneTemplateByInstanceMap();
+        SceneTemplateByInstance const& instanceByPackageMap = target->GetSceneMgr().GetSceneByInstanceMap();
 
         handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_LIST, target->GetSceneMgr().GetActiveSceneCount());
 
         for (auto instanceByPackage : instanceByPackageMap)
-            handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_DETAIL, instanceByPackage.second->ScenePackageId, instanceByPackage.first);
+            handler->PSendSysMessage(LANG_DEBUG_SCENE_OBJECT_DETAIL, instanceByPackage.second.ScenePackageId, instanceByPackage.first);
 
+        return true;
+    }
+
+    static bool HandleListQuestsCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Player* target = handler->getSelectedPlayerOrSelf();
+
+        uint32 activeQuestCount = 0;
+        for (uint16 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+        {
+            uint32 questId = target->GetQuestSlotQuestId(i);
+
+            if (questId == 0)
+                continue;
+
+            ++activeQuestCount;
+            QuestStatus status = target->GetQuestStatus(questId);
+            handler->PSendSysMessage(LANG_LIST_QUESTS_DETAIL, questId, target->GetQuestStatusString(status).c_str());
+        }
+
+        handler->PSendSysMessage(LANG_LIST_QUESTS, activeQuestCount);
         return true;
     }
 };

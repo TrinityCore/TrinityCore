@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -135,6 +135,11 @@ void WorldPackets::Battleground::BattlemasterJoinArena::Read()
 {
     _worldPacket >> TeamSizeIndex;
     _worldPacket >> Roles;
+}
+
+void WorldPackets::Battleground::BattlemasterJoinArenaSkirmish::Read()
+{
+    _worldPacket.clear();
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::BattlefieldStatusHeader const& header)
@@ -285,5 +290,25 @@ WorldPacket const* WorldPackets::Battleground::BattlegroundPlayerLeft::Write()
 WorldPacket const* WorldPackets::Battleground::DestroyArenaUnit::Write()
 {
     _worldPacket << Guid;
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Battleground::RatedBattleFieldInfo::Write()
+{
+    for (RatedInfo& info : Infos)
+    {
+        _worldPacket << uint32(info.ArenaPersonalRating);
+        _worldPacket << uint32(20);
+        _worldPacket << uint32(info.SeasonGames);
+        _worldPacket << uint32(info.SeasonWins);
+        _worldPacket << uint32(21);
+        _worldPacket << uint32(22);
+        _worldPacket << uint32(info.WeekGames);
+        _worldPacket << uint32(info.WeekWins);
+        _worldPacket << uint32(info.BestRatingOfWeek);
+        _worldPacket << uint32(info.ProjectedConquestCap);
+        _worldPacket << uint32(info.BestRatingOfSeason);
+    }
+
     return &_worldPacket;
 }

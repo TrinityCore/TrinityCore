@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,6 +31,7 @@
 #include "BattlePetPackets.h"
 #include "BlackMarketPackets.h"
 #include "CalendarPackets.h"
+#include "ChallengeModePackets.h"
 #include "ChannelPackets.h"
 #include "CharacterPackets.h"
 #include "ChatPackets.h"
@@ -57,6 +58,7 @@
 #include "PacketUtilities.h"
 #include "PartyPackets.h"
 #include "PetPackets.h"
+#include "PetBattlePackets.h"
 #include "PetitionPackets.h"
 #include "PetPackets.h"
 #include "QueryPackets.h"

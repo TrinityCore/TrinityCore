@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -940,7 +940,10 @@ enum TrinityStrings
 
     // 1205-2002 - free
 
-    // Ticket Strings 2003-2028
+    // Ticket Strings 2000-2028
+    LANG_COMMAND_TICKETNEW              = 2000,
+    LANG_COMMAND_TICKETUPDATED          = 2001,
+    LANG_COMMAND_TICKETPLAYERABANDON    = 2002,
     LANG_COMMAND_TICKETCLOSED           = 2003,
     LANG_COMMAND_TICKETDELETED          = 2004,
     LANG_COMMAND_TICKETNOTEXIST         = 2005,
@@ -1046,6 +1049,8 @@ enum TrinityStrings
     LANG_NPCINFO_UNIT_FIELD_FLAGS_2     = 5070,
     LANG_NPCINFO_UNIT_FIELD_FLAGS_3     = 5071,
     LANG_NPCINFO_NPC_FLAGS              = 5072,
+    LANG_NPC_RELOADED                   = 5073,
+    LANG_NPCS_RELOADED                  = 5074,
 
     // Room for more Trinity strings      5073-9999
 
@@ -1135,6 +1140,12 @@ enum TrinityStrings
     LANG_SHUTDOWN_CANCELLED                       = 11018,
     LANG_YOU_CHANGE_POWER                         = 11019,
     LANG_YOUR_POWER_CHANGED                       = 11020,
-    LANG_INVALID_POWER_NAME                       = 11021
+    LANG_INVALID_POWER_NAME                       = 11021,
+
+    LANG_LIST_QUESTS                              = 11022,
+    LANG_LIST_QUESTS_DETAIL                       = 11023,
+
+    LANG_DEBUG_LFG_ON                             = 11024,
+    LANG_DEBUG_LFG_OFF                            = 11025,
 };
 #endif

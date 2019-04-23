@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -622,14 +622,12 @@ namespace WorldPackets
 
         struct WorldQuestUpdateInfo
         {
-            WorldQuestUpdateInfo(int32 lastUpdate, uint32 questID, uint32 timer, int32 variableID, int32 value) :
-                LastUpdate(lastUpdate), QuestID(questID), Timer(timer), VariableID(variableID), Value(value) { }
-            int32 LastUpdate;
-            uint32 QuestID;
-            uint32 Timer;
+            int32 LastUpdate = 0;
+            uint32 QuestID = 0;
+            uint32 Timer = 0;
             // WorldState
-            int32 VariableID;
-            int32 Value;
+            int32 VariableID = 0;
+            int32 Value = 0;
         };
 
         class WorldQuestUpdate final : public ServerPacket
@@ -639,7 +637,44 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<WorldQuestUpdateInfo> WorldQuestUpdates;
+            std::vector<WorldPackets::Quest::WorldQuestUpdateInfo> WorldQuestUpdates;
+        };
+
+        class QueryTreasurePicker final : public ClientPacket
+        {
+        public:
+            QueryTreasurePicker(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_TREASURE_PICKER, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 QuestID;
+            uint32 Unk;
+        };
+
+        class QueryTreasurePickerResponse final : public ServerPacket
+        {
+        public:
+            QueryTreasurePickerResponse() : ServerPacket(SMSG_QUERY_TREASURE_PICKER_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            struct CurrencyReward
+            {
+                uint32 CurrencyID = 0;
+                uint32 Quantity = 0;
+            };
+
+            struct ItemReward
+            {
+                WorldPackets::Item::ItemInstance Item;
+                uint32 Quantity = 0;
+            };
+
+            uint32 QuestID;
+            uint32 Unk1 = 0;
+            uint64 Money = 0;
+            std::vector<CurrencyReward> CurrencyRewards;
+            std::vector<ItemReward> ItemRewards;
         };
 
         struct PlayerChoiceResponseRewardEntry

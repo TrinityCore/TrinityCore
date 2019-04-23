@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,6 +38,18 @@ namespace WorldPackets
             uint8 Slot = 0;
         };
 
+        class AutoBankReagent final : public ClientPacket
+        {
+        public:
+            AutoBankReagent(WorldPacket&& packet) : ClientPacket(CMSG_AUTOBANK_REAGENT, std::move(packet)) { }
+
+            void Read() override;
+
+            WorldPackets::Item::InvUpdate Inv;
+            uint8 Bag = 0;
+            uint8 Slot = 0;
+        };
+
         class AutoStoreBankItem final : public ClientPacket
         {
         public:
@@ -50,10 +62,32 @@ namespace WorldPackets
             uint8 Slot = 0;
         };
 
+        class AutoStoreBankReagent final : public ClientPacket
+        {
+        public:
+            AutoStoreBankReagent(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_BANK_REAGENT, std::move(packet)) { }
+
+            void Read() override;
+
+            WorldPackets::Item::InvUpdate Inv;
+            uint8 Bag = 0;
+            uint8 Slot = 0;
+        };
+
         class BuyBankSlot final : public ClientPacket
         {
         public:
             BuyBankSlot(WorldPacket&& packet) : ClientPacket(CMSG_BUY_BANK_SLOT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Guid;
+        };
+
+        class DepositReagentBank final : public ClientPacket
+        {
+        public:
+            DepositReagentBank(WorldPacket&& packet) : ClientPacket(CMSG_DEPOSIT_REAGENT_BANK, std::move(packet)) { }
 
             void Read() override;
 

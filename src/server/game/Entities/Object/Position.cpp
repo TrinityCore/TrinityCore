@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -199,6 +199,32 @@ float Position::NormalizeOrientation(float o)
     }
     return std::fmod(o, 2.0f * static_cast<float>(M_PI));
 }
+
+float Position::NormalizePitch(float o)
+{
+    if (o > -M_PI && o < M_PI)
+        return o;
+
+    o = NormalizeOrientation(o + M_PI) - M_PI;
+
+    return o;
+}
+
+bool Position::IsNearPosition(Position const* checkPos, float range) const
+{
+    float l_PosX = GetPositionX();
+    float l_PosY = GetPositionY();
+    float l_PosZ = GetPositionZ();
+
+    if ((l_PosX <= (checkPos->m_positionX + range) && l_PosX >= (checkPos->m_positionX - range)) &&
+        (l_PosY <= (checkPos->m_positionY + range) && l_PosY >= (checkPos->m_positionY - range)) &&
+        (l_PosZ <= (checkPos->m_positionZ + range) && l_PosZ >= (checkPos->m_positionZ - range)))
+        return true;
+
+    return false;
+}
+
+Position const Position::Empty = Position();
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XY> const& streamer)
 {

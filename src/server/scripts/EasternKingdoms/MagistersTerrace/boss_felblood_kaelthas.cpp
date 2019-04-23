@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -42,7 +42,6 @@ enum Says
     SAY_RECAST_GRAVITY          = 5,
     SAY_DEATH                   = 6
 };
-
 
 enum Spells
 {
@@ -185,9 +184,8 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
-            if (!HasTaunted && me->IsWithinDistInMap(who, 40.0f))
+            if (who->IsPlayer() && !HasTaunted && me->IsWithinDistInMap(who, 40.0f))
             {
                 Talk(SAY_AGGRO);
                 HasTaunted = true;
@@ -539,6 +537,7 @@ public:
                 me->StopMoving();
                 me->RemoveAllAurasOnDeath();
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
+                me->ModifyAuraState(AURA_STATE_HEALTHLESS_25_PERCENT, false);
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->ClearAllReactives();

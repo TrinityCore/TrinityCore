@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,19 +37,20 @@ struct LootItem;
 struct TC_GAME_API LootStoreItem
 {
     uint32  itemid;                                         // id of the item
+    uint8   type;                                           // 0 = item, 1 = currency
     uint32  reference;                                      // referenced TemplateleId
     float   chance;                                         // chance to drop for both quest and non-quest items, chance to be used for refs
     uint16  lootmode;
     bool    needs_quest;                                    // quest drop (quest is required for item to drop)
     uint8   groupid;
-    uint8   mincount;                                       // mincount for drop items
-    uint8   maxcount;                                       // max drop count for the item mincount or Ref multiplicator
+    uint32  mincount;                                       // mincount for drop items
+    uint32  maxcount;                                       // max drop count for the item mincount or Ref multiplicator
     ConditionContainer conditions;                               // additional loot condition
 
     // Constructor
     // displayid is filled in IsValid() which must be called after
-    LootStoreItem(uint32 _itemid, uint32 _reference, float _chance, bool _needs_quest, uint16 _lootmode, uint8 _groupid, uint8 _mincount, uint8 _maxcount)
-        : itemid(_itemid), reference(_reference), chance(_chance), lootmode(_lootmode),
+    LootStoreItem(uint32 _itemid, uint8 _type, uint32 _reference, float _chance, bool _needs_quest, uint16 _lootmode, uint8 _groupid, uint32 _mincount, uint32 _maxcount)
+        : itemid(_itemid), type(_type), reference(_reference), chance(_chance), lootmode(_lootmode),
         needs_quest(_needs_quest), groupid(_groupid), mincount(_mincount), maxcount(_maxcount)
          { }
 
@@ -111,7 +112,7 @@ class TC_GAME_API LootTemplate
         // Adds an entry to the group (at loading stage)
         void AddEntry(LootStoreItem* item);
         // Rolls for every item in the template and adds the rolled items the the loot
-        void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId = 0) const;
+        void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId = 0, Player const* player = nullptr, bool specOnly = false) const;
         void CopyConditions(const ConditionContainer& conditions);
         void CopyConditions(LootItem* li) const;
 

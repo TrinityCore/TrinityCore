@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+* Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -98,7 +98,7 @@ bool BattlefieldTB::SetupBattlefield()
         TolBaradCapturePoint* capturePoint = new TolBaradCapturePoint(this, GetDefenderTeam());
 
         //Spawn flag pole
-        if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, QuaternionData::fromEulerAnglesZYX(TBCapturePoints[i].pos.GetOrientation(), 0.0f, 0.0f)))
+        if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, QuaternionData()))
         {
             go->SetGoArtKit(GetDefenderTeam() == TEAM_ALLIANCE ? TB_GO_ARTKIT_FLAG_ALLIANCE : TB_GO_ARTKIT_FLAG_HORDE);
             capturePoint->SetCapturePointData(go);
@@ -108,7 +108,7 @@ bool BattlefieldTB::SetupBattlefield()
 
     // Spawn towers
     for (uint8 i = 0; i < TB_TOWERS_COUNT; i++)
-        if (GameObject* go = SpawnGameObject(TBTowers[i].entry, TBTowers[i].pos, QuaternionData::fromEulerAnglesZYX(TBTowers[i].pos.GetOrientation(), 0.0f, 0.0f)))
+        if (GameObject* go = SpawnGameObject(TBTowers[i].entry, TBTowers[i].pos, QuaternionData()))
             Towers.insert(go->GetGUID());
 
     // Init Graveyards
@@ -391,7 +391,7 @@ void BattlefieldTB::SendInitWorldStatesToAll()
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         if (Player* player = itr->GetSource()->ToPlayer())
             if (player->GetZoneId() == 5389) // ZONE_TOL_BARAD_PENINSULA
-                player->SendInitWorldStates(5389, player->GetAreaId());
+                player->SendInitWorldStates();
 }
 
 void BattlefieldTB::OnStartGrouping()
@@ -512,7 +512,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
             TolBaradCapturePoint* capturePoint = new TolBaradCapturePoint(this, GetDefenderTeam());
 
             //Spawn flag pole
-            if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, QuaternionData::fromEulerAnglesZYX(TBCapturePoints[i].pos.GetOrientation(), 0.0f, 0.0f)))
+            if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, QuaternionData()))
             {
                 go->SetGoArtKit(GetDefenderTeam() == TEAM_ALLIANCE ? TB_GO_ARTKIT_FLAG_ALLIANCE : TB_GO_ARTKIT_FLAG_HORDE);
                 capturePoint->SetCapturePointData(go);
@@ -549,7 +549,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
 
         // Spawn portals
         for (uint8 i = 0; i < TB_PORTAL_MAX; i++)
-            if (GameObject* go = SpawnGameObject(TBPortalEntry[GetDefenderTeam()], TBPortals[i], QuaternionData::fromEulerAnglesZYX(TBPortals[i].GetOrientation(), 0.0f, 0.0f)))
+            if (GameObject* go = SpawnGameObject(TBPortalEntry[GetDefenderTeam()], TBPortals[i], QuaternionData()))
                 TemporaryGOs.insert(go->GetGUID());
 
         // Update towers
@@ -575,7 +575,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
 
     // Spawn banners
     for (uint8 i = 0; i < TB_BANNER_MAX; i++)
-        if (GameObject* go = SpawnGameObject(TBBannerEntry[GetDefenderTeam()], TBBanners[i], QuaternionData::fromEulerAnglesZYX(TBBanners[i].GetOrientation(), 0.0f, 0.0f)))
+        if (GameObject* go = SpawnGameObject(TBBannerEntry[GetDefenderTeam()], TBBanners[i], QuaternionData()))
             TemporaryGOs.insert(go->GetGUID());
 
     // Set graveyard controls
@@ -613,8 +613,9 @@ void BattlefieldTB::OnCreatureCreate(Creature* creature)
             creature->CastSpell(creature, SPELL_THICK_LAYER_OF_RUST, true);
             break;
         case NPC_SIEGE_ENGINE_TURRET:
-            if (Unit* vehiclebase = creature->GetCharmerOrOwner()->GetVehicleBase())
-                creature->EnterVehicle(vehiclebase);
+            if (Unit* charmerOrOwner = creature->GetCharmerOrOwner())
+                if (Unit* vehiclebase = charmerOrOwner->GetVehicleBase())
+                    creature->EnterVehicle(vehiclebase);
             break;
         case NPC_TOWER_RANGE_FINDER:
             creature->CastSpell(creature, SPELL_TOWER_RANGE_FINDER_PERIODIC, true);

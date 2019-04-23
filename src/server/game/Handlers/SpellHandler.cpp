@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -275,8 +275,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
         caster = _player;
     }
 
-    // check known spell or raid marker spell (which not requires player to know it)
-    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasEffect(SPELL_EFFECT_CHANGE_RAID_MARKER) && !spellInfo->HasAttribute(SPELL_ATTR8_RAID_MARKER))
+    // check known spell or raid marker spell (which not requires player to know it) or current archaeology project crafting
+    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasEffect(SPELL_EFFECT_CHANGE_RAID_MARKER) && !spellInfo->HasAttribute(SPELL_ATTR8_RAID_MARKER) && !caster->ToPlayer()->GetArchaeologyMgr().IsCurrentArtifactSpell(spellInfo->Id))
         return;
 
     // Check possible spell cast overrides
@@ -351,6 +351,10 @@ void WorldSession::HandleCancelAuraOpcode(WorldPackets::Spells::CancelAura& canc
     // don't allow cancelling passive auras (some of them are visible)
     if (!spellInfo->IsPositive() || spellInfo->IsPassive())
         return;
+
+    if (spellInfo->Id == SPELL_MERCENARY_CONTRACT_HORDE || spellInfo->Id == SPELL_MERCENARY_CONTRACT_ALLIANCE)
+        if (_player->InBattlegroundQueue())
+            return;
 
     _player->RemoveOwnedAura(cancelAura.SpellID, cancelAura.CasterGUID, 0, AURA_REMOVE_BY_CANCEL);
 
@@ -550,10 +554,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
         for (EquipmentSlots slot : itemSlots)
         {
             uint32 itemDisplayId;
-            if ((slot == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM)) ||
-                (slot == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK)))
-                itemDisplayId = 0;
-            else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+            if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot)) 
                 itemDisplayId = item->GetDisplayId(player);
             else
                 itemDisplayId = 0;

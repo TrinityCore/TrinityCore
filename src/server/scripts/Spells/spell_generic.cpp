@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2676,7 +2676,7 @@ class spell_gen_pet_summoned : public SpellScriptLoader
                 {
                     PetType newPetType = (player->getClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
                     Pet* newPet = new Pet(player, newPetType);
-                    if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber(), true))
+                    if (newPet->LoadPetData(player, 0, player->GetLastPetNumber(), true))
                     {
                         // revive the pet if it is dead
                         if (newPet->getDeathState() == DEAD)
@@ -3232,7 +3232,7 @@ class spell_gen_summon_elemental : public SpellScriptLoader
                 if (GetCaster())
                     if (Unit* owner = GetCaster()->GetOwner())
                         if (owner->GetTypeId() == TYPEID_PLAYER) /// @todo this check is maybe wrong
-                            owner->ToPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+                            owner->ToPlayer()->RemovePet(nullptr, PET_SAVE_DISMISS, true);
             }
 
             void Register() override
@@ -3712,7 +3712,7 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
                         break;
                 }
 
-                float avgILvl = caster->ToPlayer()->GetAverageItemLevel();
+                float avgILvl = caster->ToPlayer()->GetAverageItemLevelEquipped();
                 if (avgILvl < baseItemLevel)
                     return;                     /// @todo Research possibility of scaling down
 
@@ -3934,10 +3934,10 @@ class spell_gen_gm_freeze : public SpellScriptLoader
                     {
                         if (Pet* pet = player->GetPet())
                         {
-                            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+                            pet->SavePetToDB(PET_SAVE_CURRENT_STATE);
                             // not let dismiss dead pet
                             if (pet->IsAlive())
-                                player->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+                                player->RemovePet(pet, PET_SAVE_DISMISS);
                         }
                     }
                 }
@@ -4420,7 +4420,7 @@ class spell_gen_pony_mount_check : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_gen_pony_mount_check_AuraScript();
         }
@@ -4652,6 +4652,159 @@ class spell_gen_impatient_mind : public SpellScriptLoader
         }
 };
 
+enum EredarBloodmage
+{
+    SPELL_BLOOD_SIPHON_DAMAGE  = 235232,
+    SPELL_BLOOD_SIPHON_HEAL    = 235262
+};
+
+// 235222
+class spell_gen_eredar_bloodmage_blood_siphon : public AuraScript
+{
+    PrepareAuraScript(spell_gen_eredar_bloodmage_blood_siphon);
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        GetCaster()->CastSpell(GetTarget(), aurEff->GetAmount(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_eredar_bloodmage_blood_siphon::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 235232 - Blood Siphon (damage)
+class spell_gen_eredar_bloodmage_blood_siphon_damage : public SpellScript
+{
+    PrepareSpellScript(spell_gen_eredar_bloodmage_blood_siphon_damage);
+
+    void CalculateDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (!target)
+            return;
+
+        int32 healthPctDmg = target->CountPctFromCurHealth(GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints);
+        SetHitDamage(healthPctDmg);
+        target->CastCustomSpell(GetCaster(), SPELL_BLOOD_SIPHON_HEAL, &healthPctDmg, 0, 0, true);
+
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_eredar_bloodmage_blood_siphon_damage::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 83958 - Mobile Bank
+class spell_gen_mobile_bank : public SpellScript
+{
+    PrepareSpellScript(spell_gen_mobile_bank);
+
+    enum
+    {
+        GOB_MOBILE_BANK = 206602
+    };
+
+    void SpawnChest(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster()->IsPlayer() && GetCaster()->ToPlayer()->GetGuildId())
+            GetCaster()->SummonGameObject(GOB_MOBILE_BANK, GetCaster()->GetPositionWithDistInFront(2.f), QuaternionData::fromEulerAnglesZYX(GetCaster()->GetOrientation() - float(M_PI), 0.f, 0.f), 5 * MINUTE * IN_MILLISECONDS);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_mobile_bank::SpawnChest, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// Arcane Pulse (Nightborne racial) - 260364
+class spell_arcane_pulse : public SpellScript
+{
+    PrepareSpellScript(spell_arcane_pulse);
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        float damage = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 2.f;
+
+        if (!damage)
+            damage = float(GetCaster()->GetTotalSpellPowerValue(SPELL_SCHOOL_MASK_ALL, false)) * 0.75f;
+
+        SetHitDamage(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_arcane_pulse::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+enum SpatialRiftSpells
+{
+    SPELL_SPATIAL_RIFT_AT           = 256948,
+    SPELL_SPATIAL_RIFT_TELEPORT     = 257034,
+    SPELL_SPATIAL_RIFT_DESPAWN_AT   = 257040
+};
+
+// Spatial Rift teleport (Void Elf racial) - 257040
+class spell_spatial_rift_despawn : public SpellScript
+{
+    PrepareSpellScript(spell_spatial_rift_despawn);
+
+    void OnDespawnAreaTrigger(SpellEffIndex /*effIndex*/)
+    {
+        if (AreaTrigger* at = GetCaster()->GetAreaTrigger(SPELL_SPATIAL_RIFT_AT))
+        {
+            GetCaster()->CastSpell(at->GetPosition(), SPELL_SPATIAL_RIFT_TELEPORT, true);
+            at->SetDuration(0);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_spatial_rift_despawn::OnDespawnAreaTrigger, EFFECT_0, SPELL_EFFECT_DESPAWN_AREATRIGGER);
+    }
+};
+
+// Light's Judgement - 256893  (Lightforged Draenei Racial)
+class spell_light_judgement : public SpellScript
+{
+    PrepareSpellScript(spell_light_judgement);
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            SetHitDamage(6.25f * caster->GetUInt32Value(UNIT_FIELD_ATTACK_POWER));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_light_judgement::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// Light's Reckoning - 255652 (Lightforged Draenei Racial)
+class playerscript_light_reckoning : public PlayerScript
+{
+public:
+    playerscript_light_reckoning() : PlayerScript("playerscript_light_reckoning") { }
+
+    enum
+    {
+        SPELL_LIGHT_RECKONING = 255652
+    };
+
+    void OnDeath(Player* player) override
+    {
+        if (player->HasAura(SPELL_LIGHT_RECKONING))
+            if (SpellInfo const* info = sSpellMgr->GetSpellInfo(SPELL_LIGHT_RECKONING))
+                if (SpellEffectInfo const* effectInfo = info->GetEffect(EFFECT_0))
+                    player->CastSpell(player, effectInfo->TriggerSpell, true);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4758,4 +4911,11 @@ void AddSC_generic_spell_scripts()
     new spell_gen_azgalor_rain_of_fire_hellfire_citadel();
     new spell_gen_face_rage();
     new spell_gen_impatient_mind();
+    RegisterAuraScript(spell_gen_eredar_bloodmage_blood_siphon);
+    RegisterSpellScript(spell_gen_eredar_bloodmage_blood_siphon_damage);
+    RegisterSpellScript(spell_gen_mobile_bank);
+    RegisterSpellScript(spell_arcane_pulse);
+    RegisterSpellScript(spell_spatial_rift_despawn);
+    RegisterSpellScript(spell_light_judgement);
+    new playerscript_light_reckoning();
 }

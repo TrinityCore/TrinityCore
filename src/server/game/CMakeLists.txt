@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+# Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -34,12 +34,15 @@ add_library(game-interface INTERFACE)
 
 target_include_directories(game-interface
   INTERFACE
-    ${PUBLIC_INCLUDES})
+    ${PUBLIC_INCLUDES}
+    ${DUKGLUE_HEADERS})
 
 target_link_libraries(game-interface
   INTERFACE
     shared
-    Detour)
+    Detour
+    duktape
+    dukglue)
 
 add_library(game
   ${PRIVATE_SOURCES})

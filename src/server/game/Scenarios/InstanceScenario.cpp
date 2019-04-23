@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,9 +16,11 @@
  */
 
 #include "InstanceScenario.h"
+#include "ChallengeModeMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "InstanceSaveMgr.h"
+#include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -150,6 +152,28 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
 
             if (IsCompletedCriteriaTree(tree))
                 SetStepState(step, SCENARIO_STEP_DONE);
+        }
+    }
+}
+
+void InstanceScenario::CompleteScenario()
+{
+    Scenario::CompleteScenario();
+
+    if (InstanceMap* iMap = const_cast<Map*>(_map)->ToInstanceMap())
+    {
+        if (InstanceScript* instance = iMap->GetInstanceScript())
+        {
+            if (instance->IsChallengeModeStarted())
+            {
+                instance->CompleteChallengeMode();
+            }
+            else if (_map->IsMythic())
+            {
+                Map::PlayerList const &players = _map->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    itr->GetSource()->AddChallengeKey(sChallengeModeMgr->GetRandomChallengeId());
+            }
         }
     }
 }

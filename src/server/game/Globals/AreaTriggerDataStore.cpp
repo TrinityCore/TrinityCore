@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "AreaTriggerDataStore.h"
 #include "AreaTriggerTemplate.h"
+#include "AreaTriggerPackets.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
@@ -36,6 +37,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
     std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesByAreaTrigger;
     std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesTargetByAreaTrigger;
     std::unordered_map<uint32, std::vector<Position>> splinesBySpellMisc;
+    std::unordered_map<uint32, std::vector<Position>> rollpitchyawBySpellMisc;
     std::unordered_map<uint32, std::vector<AreaTriggerAction>> actionsByAreaTrigger;
 
     //                                                            0              1           2            3
@@ -111,6 +113,23 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
     else
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates splines. DB table `spell_areatrigger_splines` is empty.");
+    }
+
+    //                                                          0            1  2  3  4        5        6
+    if (QueryResult rollpitchyaws = WorldDatabase.Query("SELECT SpellMiscId, X, Y, Z, TargetX, TargetY, TargetZ FROM `spell_areatrigger_rollpitchyaw` ORDER BY `SpellMiscId`"))
+    {
+        do
+        {
+            Field* rollpitchyawFields = rollpitchyaws->Fetch();
+            uint32 spellMiscId = rollpitchyawFields[0].GetUInt32();
+            rollpitchyawBySpellMisc[spellMiscId].emplace_back(rollpitchyawFields[1].GetFloat(), rollpitchyawFields[2].GetFloat(), rollpitchyawFields[3].GetFloat());
+            rollpitchyawBySpellMisc[spellMiscId].emplace_back(rollpitchyawFields[4].GetFloat(), rollpitchyawFields[5].GetFloat(), rollpitchyawFields[6].GetFloat());
+        }
+        while (rollpitchyaws->NextRow());
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates Roll Pitch Yaw. DB table `spell_areatrigger_rollpitchyaw` is empty.");
     }
 
     //                                                      0   1     2      3      4      5      6      7      8      9
@@ -192,6 +211,12 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
             miscTemplate.SplinePoints = std::move(splinesBySpellMisc[miscTemplate.MiscId]);
 
+            if (rollpitchyawBySpellMisc.find(miscTemplate.MiscId) != rollpitchyawBySpellMisc.end())
+            {
+                miscTemplate.RollPitchYaw       = std::move(rollpitchyawBySpellMisc[miscTemplate.MiscId][0]);
+                miscTemplate.TargetRollPitchYaw = std::move(rollpitchyawBySpellMisc[miscTemplate.MiscId][1]);
+            }
+
             _areaTriggerTemplateSpellMisc[miscTemplate.MiscId] = miscTemplate;
         }
         while (areatriggerSpellMiscs->NextRow());
@@ -249,6 +274,60 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " spell areatrigger templates in %u ms.", _areaTriggerTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+void AreaTriggerDataStore::LoadAreaTriggers()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT guid, id, position_x, position_y, position_z, map_id, spawn_mask, ScriptName FROM `areatrigger`");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 areatriggers. DB table `areatrigger` is empty.");
+        return;
+    }
+
+    // Build single time for check spawnmask
+    std::map<uint32, uint64> spawnMasks;
+    for (auto& mapDifficultyPair : sDB2Manager.GetMapDifficulties())
+        for (auto& difficultyPair : mapDifficultyPair.second)
+            spawnMasks[mapDifficultyPair.first] |= UI64LIT(1) << difficultyPair.first;
+
+    do
+    {
+        Field* fields = result->Fetch();
+        uint8 index = 0;
+
+        AreaTriggerData my_temp;
+
+        my_temp.guid        = fields[index++].GetUInt64();
+        my_temp.id          = fields[index++].GetUInt32();
+        my_temp.position_x  = fields[index++].GetFloat();
+        my_temp.position_y  = fields[index++].GetFloat();
+        my_temp.position_z  = fields[index++].GetFloat();
+        my_temp.map_id      = fields[index++].GetUInt32();
+        my_temp.spawn_mask  = fields[index++].GetUInt64();
+        my_temp.scriptId    = sObjectMgr->GetScriptId(fields[index++].GetString());;
+
+        MapEntry const* mapEntry = sMapStore.LookupEntry(my_temp.map_id);
+        if (!mapEntry)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `areatrigger` has areatrigger (GUID: " UI64FMTD ") that spawned at nonexistent map (Id: %u), skipped.", my_temp.guid, my_temp.map_id);
+            continue;
+        }
+
+        // Skip spawnMask check for transport maps
+        if (!sObjectMgr->IsTransportMap(my_temp.map_id) && my_temp.spawn_mask & ~spawnMasks[my_temp.map_id])
+            TC_LOG_ERROR("sql.sql", "Table `areatrigger` has areatrigger (GUID: " UI64FMTD ") that have wrong spawn mask " UI64FMTD " including unsupported difficulty modes for map (Id: %u, full spawnmask " UI64FMTD ").", my_temp.guid, my_temp.spawn_mask, my_temp.map_id, spawnMasks[my_temp.map_id]);
+
+        _areaTriggerData[my_temp.map_id].push_back(my_temp);
+
+        sObjectMgr->AddAreaTriggerToGrid(my_temp.guid, &my_temp);
+
+    } while(result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " areatrigger in %u ms", _areaTriggerData.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
 AreaTriggerTemplate const* AreaTriggerDataStore::GetAreaTriggerTemplate(uint32 areaTriggerId) const
 {
     auto itr = _areaTriggerTemplateStore.find(areaTriggerId);
@@ -262,6 +341,15 @@ AreaTriggerMiscTemplate const* AreaTriggerDataStore::GetAreaTriggerMiscTemplate(
 {
     auto itr = _areaTriggerTemplateSpellMisc.find(spellMiscValue);
     if (itr != _areaTriggerTemplateSpellMisc.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
+AreaTriggerDataStore::AreaTriggerDataList const* AreaTriggerDataStore::GetStaticAreaTriggersByMap(uint32 map_id) const
+{
+    auto itr = _areaTriggerData.find(map_id);
+    if (itr != _areaTriggerData.end())
         return &itr->second;
 
     return nullptr;

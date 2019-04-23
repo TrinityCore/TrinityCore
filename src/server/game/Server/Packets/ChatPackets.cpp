@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -101,7 +101,7 @@ WorldPackets::Chat::Chat::Chat(Chat const& chat) : ServerPacket(SMSG_CHAT, chat.
 }
 
 void WorldPackets::Chat::Chat::Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message,
-    uint32 achievementId /*= 0*/, std::string channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, std::string addonPrefix /*= ""*/)
+    uint32 achievementId /*= 0*/, std::string channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/, std::string addonPrefix /*= ""*/, ChatFlags chatFlags /*= CHAT_FLAG_NONE*/)
 {
     // Clear everything because same packet can be used multiple times
     Clear();
@@ -113,7 +113,7 @@ void WorldPackets::Chat::Chat::Initialize(ChatMsg chatType, Language language, W
     TargetGUID.Clear();
     SenderName.clear();
     TargetName.clear();
-    _ChatFlags = CHAT_FLAG_NONE;
+    _ChatFlags = chatFlags;
 
     SlashCmd = chatType;
     _Language = language;

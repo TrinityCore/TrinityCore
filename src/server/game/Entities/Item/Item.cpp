@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -547,7 +547,13 @@ void Item::SaveToDB(SQLTransaction& trans)
             static ItemModifier const modifiersTable[] =
             {
                 ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL,
-                ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL
+                ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL,
+                ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID,
+                ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL,
+                ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1,
+                ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2,
+                ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3,
+                ITEM_MODIFIER_CHALLENGE_KEYSTONE_IS_CHARGED
             };
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_MODIFIERS);
@@ -560,6 +566,12 @@ void Item::SaveToDB(SQLTransaction& trans)
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 stmt->setUInt32(1, GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL));
                 stmt->setUInt32(2, GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL));
+                stmt->setUInt32(3, GetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID));
+                stmt->setUInt32(4, GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL));
+                stmt->setUInt32(5, GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1));
+                stmt->setUInt32(6, GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2));
+                stmt->setUInt32(7, GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3));
+                stmt->setUInt32(8, GetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_IS_CHARGED));
                 trans->Append(stmt);
             }
 
@@ -618,7 +630,7 @@ void Item::SaveToDB(SQLTransaction& trans)
         CharacterDatabase.CommitTransaction(trans);
 }
 
-bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry)
+bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry, Player const* owner/* = nullptr*/)
 {
     //           0          1            2                3      4         5        6      7             8                   9                10          11          12    13
     // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyType, randomPropertyId, durability, playedTime, text,
@@ -679,6 +691,14 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
             SetSpellCharges(i, atoi(tokens[i]));
 
     SetUInt32Value(ITEM_FIELD_FLAGS, itemFlags);
+    SetUInt32Value(ITEM_FIELD_CONTEXT, fields[19].GetUInt8());
+
+    Tokenizer bonusListIDs(fields[20].GetString(), ' ');
+    for (char const* token : bonusListIDs)
+    {
+        uint32 bonusListID = atoul(token);
+        AddBonuses(bonusListID);
+    }
 
     uint32 durability = fields[11].GetUInt16();
     SetUInt32Value(ITEM_FIELD_DURABILITY, durability);
@@ -714,15 +734,6 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, fields[17].GetUInt16());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[18].GetUInt32());
 
-    SetUInt32Value(ITEM_FIELD_CONTEXT, fields[19].GetUInt8());
-
-    Tokenizer bonusListIDs(fields[20].GetString(), ' ');
-    for (char const* token : bonusListIDs)
-    {
-        uint32 bonusListID = atoul(token);
-        AddBonuses(bonusListID);
-    }
-
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[21].GetUInt32());
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[22].GetUInt32());
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2, fields[23].GetUInt32());
@@ -755,6 +766,13 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, fields[43].GetUInt32());
     SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[44].GetUInt32());
 
+    SetModifier(ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID,  fields[45].GetUInt32());
+    SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL,         fields[46].GetUInt32());
+    SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1,    fields[47].GetUInt32());
+    SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2,    fields[48].GetUInt32());
+    SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3,    fields[49].GetUInt32());
+    SetModifier(ITEM_MODIFIER_CHALLENGE_KEYSTONE_IS_CHARGED,    fields[50].GetUInt32());
+
     // Enchants must be loaded after all other bonus/scaling data
     _LoadIntoDataField(fields[8].GetString(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
     m_randomEnchantment.Type = ItemRandomEnchantmentType(fields[9].GetUInt8());
@@ -765,7 +783,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     {
         SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(m_randomEnchantment.Id));
         // recalculate suffix factor
-        UpdateItemSuffixFactor();
+        UpdateItemSuffixFactor(owner);
     }
 
     // Remove bind flag for items vs BIND_NONE set
@@ -781,6 +799,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_INSTANCE_ON_LOAD);
         stmt->setUInt32(index++, GetUInt32Value(ITEM_FIELD_DURATION));
         stmt->setUInt32(index++, GetUInt32Value(ITEM_FIELD_FLAGS));
+        stmt->setUInt8(index++, uint8(GetItemRandomEnchantmentId().Type));
+        stmt->setUInt32(index++, GetItemRandomEnchantmentId().Id);
         stmt->setUInt32(index++, GetUInt32Value(ITEM_FIELD_DURABILITY));
         stmt->setUInt32(index++, GetModifier(ITEM_MODIFIER_UPGRADE_ID));
         stmt->setUInt64(index++, guid);
@@ -922,10 +942,12 @@ uint32 Item::GetSkill()
     return proto->GetSkill();
 }
 
-void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)
+void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId, Player const* owner /*= nullptr*/)
 {
     if (!randomPropId.Id)
         return;
+
+    m_randomEnchantment = randomPropId;
 
     switch (randomPropId.Type)
     {
@@ -947,7 +969,7 @@ void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)
                 if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != -int32(randomPropId.Id) || !GetItemSuffixFactor())
                 {
                     SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(randomPropId.Id));
-                    UpdateItemSuffixFactor();
+                    UpdateItemSuffixFactor(owner);
                     SetState(ITEM_CHANGED, GetOwner());
                 }
 
@@ -963,14 +985,16 @@ void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)
     }
 }
 
-void Item::UpdateItemSuffixFactor()
+void Item::UpdateItemSuffixFactor(Player const* owner/* = nullptr*/)
 {
     if (!GetTemplate()->GetRandomSuffix())
         return;
 
     uint32 suffixFactor = 0;
-    if (Player* owner = GetOwner())
-        suffixFactor = GetRandomPropertyPoints(GetItemLevel(owner), GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass());
+    Player* currentOwner = GetOwner();
+
+    if (currentOwner || owner)
+        suffixFactor = GetRandomPropertyPoints(GetItemLevel(currentOwner ? currentOwner: owner), GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass());
     else
         suffixFactor = GenerateEnchSuffixFactor(GetEntry());
 
@@ -2125,7 +2149,8 @@ bool Item::ItemContainerLoadLootFromDB()
                 Field* fields = item_result->Fetch();
 
                 // item_id, itm_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_type, rnd_prop, rnd_suffix, context, bonus_list_ids
-                loot_item.itemid = fields[0].GetUInt32();
+                loot_item.itemid = uint32(fields[0].GetInt32());
+                loot_item.type = ((fields[0].GetInt32() > 0) ? LOOT_ITEM_TYPE_ITEM : LOOT_ITEM_TYPE_CURRENCY);
                 loot_item.count = fields[1].GetUInt32();
                 loot_item.follow_loot_rules = fields[2].GetBool();
                 loot_item.freeforall = fields[3].GetBool();
@@ -2201,11 +2226,11 @@ void Item::ItemContainerDeleteLootMoneyAndLootItemsFromDB()
 
 uint32 Item::GetItemLevel(Player const* owner) const
 {
-    uint32 minItemLevel = owner->GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL);
-    uint32 minItemLevelCutoff = owner->GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF);
-    uint32 maxItemLevel = GetTemplate()->GetFlags3() & ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP ? 0 : owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL);
-    bool pvpBonus = owner->IsUsingPvpItemLevels();
-    return Item::GetItemLevel(GetTemplate(), _bonusData, owner->getLevel(), GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL), GetModifier(ITEM_MODIFIER_UPGRADE_ID),
+    uint32 minItemLevel = owner ? owner->GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL) : 0;
+    uint32 minItemLevelCutoff = owner ? owner->GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF) : 0;
+    uint32 maxItemLevel = GetTemplate()->GetFlags3() & ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP ? 0 : owner ? owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL) : 0;
+    bool pvpBonus = owner ? owner->IsUsingPvpItemLevels() : false;
+    return Item::GetItemLevel(GetTemplate(), _bonusData, owner ? owner->getLevel(): GetTemplate()->GetBaseItemLevel(), GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL), GetModifier(ITEM_MODIFIER_UPGRADE_ID),
         minItemLevel, minItemLevelCutoff, maxItemLevel, pvpBonus);
 }
 
@@ -2259,7 +2284,7 @@ int32 Item::GetItemStatValue(uint32 index, Player const* owner) const
 {
     ASSERT(index < MAX_ITEM_PROTO_STATS);
     uint32 itemLevel = GetItemLevel(owner);
-    if (uint32 randomPropPoints = GetRandomPropertyPoints(itemLevel, GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass()))
+    if (int32 randomPropPoints = GetRandomPropertyPoints(itemLevel, GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass()))
     {
         float statValue = float(_bonusData.ItemStatAllocation[index] * randomPropPoints) * 0.0001f;
         if (GtItemSocketCostPerLevelEntry const* gtCost = sItemSocketCostPerLevelGameTable.GetRow(itemLevel))

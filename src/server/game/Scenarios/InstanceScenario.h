@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,6 +31,8 @@ class TC_GAME_API InstanceScenario : public Scenario
 
         void SaveToDB();
         void LoadInstanceData(uint32 instanceId);
+
+        void CompleteScenario() override;
 
     protected:
         std::string GetOwnerInfo() const override;

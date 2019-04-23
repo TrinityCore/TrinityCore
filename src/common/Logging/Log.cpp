@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,7 @@
 #include "Log.h"
 #include "AppenderConsole.h"
 #include "AppenderFile.h"
+#include "AppenderGraylog.h"
 #include "Common.h"
 #include "Config.h"
 #include "Errors.h"
@@ -35,6 +36,7 @@ Log::Log() : AppenderId(0), lowestLogLevel(LOG_LEVEL_FATAL), _ioContext(nullptr)
     m_logsTimestamp = "_" + GetTimestampStr();
     RegisterAppender<AppenderConsole>();
     RegisterAppender<AppenderFile>();
+    RegisterAppender<AppenderGraylog>();
 }
 
 Log::~Log()
@@ -330,10 +332,10 @@ void Log::outCharDump(char const* str, uint32 accountId, uint64 guid, char const
     write(std::move(msg));
 }
 
-void Log::SetRealmId(uint32 id)
+void Log::SetRealmId(uint32 id, std::string name)
 {
     for (auto it = appenders.begin(); it != appenders.end(); ++it)
-        it->second->setRealmId(id);
+        it->second->setRealmId(id, name);
 }
 
 void Log::Close()

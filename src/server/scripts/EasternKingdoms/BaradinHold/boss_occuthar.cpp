@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -241,9 +241,11 @@ class spell_occuthar_focused_fire : public SpellScriptLoader
                     return;
 
                 targets.remove_if(FocusedFireTargetSelector(GetCaster()->ToCreature(), GetCaster()->GetVictim()));
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-                targets.clear();
-                targets.push_back(target);
+                if (WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets))
+                {
+                    targets.clear();
+                    targets.push_back(target);
+                }
             }
 
             void Register() override

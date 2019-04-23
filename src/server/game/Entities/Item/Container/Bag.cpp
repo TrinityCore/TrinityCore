@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -112,9 +112,9 @@ void Bag::SaveToDB(SQLTransaction& trans)
     Item::SaveToDB(trans);
 }
 
-bool Bag::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
+bool Bag::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry, Player const* owner/* = nullptr*/)
 {
-    if (!Item::LoadFromDB(guid, owner_guid, fields, entry))
+    if (!Item::LoadFromDB(guid, owner_guid, fields, entry, owner))
         return false;
 
     ItemTemplate const* itemProto = GetTemplate(); // checked in Item::LoadFromDB

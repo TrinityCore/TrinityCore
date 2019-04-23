@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "Garrison.h"
 #include "Log.h"
+#include "WodGarrison.h"
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
 #include "Player.h"
@@ -73,24 +74,27 @@ void GarrisonGridLoader::LoadN()
 
 void GarrisonGridLoader::Visit(GameObjectMapType& m)
 {
-    std::vector<Garrison::Plot*> plots = i_garrison->GetPlots();
-    if (!plots.empty())
+    if (i_garrison->IsWodGarrison())
     {
-        CellCoord cellCoord = i_cell.GetCellCoord();
-        for (Garrison::Plot* plot : plots)
+        std::vector<WodGarrison::Plot*> plots = i_garrison->ToWodGarrison()->GetPlots();
+        if (!plots.empty())
         {
-            Position const& spawn = plot->PacketInfo.PlotPos.Pos;
-            if (cellCoord != Trinity::ComputeCellCoord(spawn.GetPositionX(), spawn.GetPositionY()))
-                continue;
+            CellCoord cellCoord = i_cell.GetCellCoord();
+            for (WodGarrison::Plot* plot : plots)
+            {
+                Position const& spawn = plot->PacketInfo.PlotPos.Pos;
+                if (cellCoord != Trinity::ComputeCellCoord(spawn.GetPositionX(), spawn.GetPositionY()))
+                    continue;
 
-            GameObject* go = plot->CreateGameObject(i_map, i_garrison->GetFaction());
-            if (!go)
-                continue;
+                GameObject* go = plot->CreateGameObject(i_map, i_garrison->GetFaction());
+                if (!go)
+                    continue;
 
-            go->AddToGrid(m);
-            ObjectGridLoader::SetObjectCell(go, cellCoord);
-            go->AddToWorld();
-            ++i_gameObjects;
+                go->AddToGrid(m);
+                ObjectGridLoader::SetObjectCell(go, cellCoord);
+                go->AddToWorld();
+                ++i_gameObjects;
+            }
         }
     }
 }
@@ -117,10 +121,10 @@ void GarrisonMap::LoadGridObjects(NGridType* grid, Cell const& cell)
 Garrison* GarrisonMap::GetGarrison()
 {
     if (_loadingPlayer)
-        return _loadingPlayer->GetGarrison();
+        return _loadingPlayer->GetGarrison(GARRISON_TYPE_GARRISON); // TODO
 
     if (Player* owner = ObjectAccessor::FindConnectedPlayer(_owner))
-        return owner->GetGarrison();
+        return owner->GetGarrison(GARRISON_TYPE_GARRISON); // TODO
 
     return nullptr;
 }

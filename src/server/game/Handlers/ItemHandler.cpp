@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +17,7 @@
  */
 
 #include "WorldPacket.h"
+#include "BattlePet.h"
 #include "BattlePetMgr.h"
 #include "Common.h"
 #include "Creature.h"
@@ -653,7 +654,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
                 continue;
             }
 
-            int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->GetBuyPrice() * discountMod)) : 0;
+            int64 price = vendorItem->IsGoldRequired(itemTemplate) ? int64(floor(vendorItem->GetBuyPrice(itemTemplate) * discountMod)) : 0;
 
             if (int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                 price -= CalculatePct(price, priceMod);
@@ -1197,7 +1198,7 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     {
         if (entry->SummonSpellID == spellToLearn)
         {
-            GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, BattlePetMgr::RollPetBreed(entry->ID), BattlePetMgr::GetDefaultPetQuality(entry->ID));
+            GetBattlePetMgr()->AddPet(entry->ID, entry->CreatureID, sBattlePetDataStore->RollPetBreed(entry->ID), sBattlePetDataStore->GetDefaultPetQuality(entry->ID));
             _player->UpdateCriteria(CRITERIA_TYPE_OWN_BATTLE_PET_COUNT);
             break;
         }

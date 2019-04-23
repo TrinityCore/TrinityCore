@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -95,6 +95,201 @@ public:
         bool status = !sSupportMgr->GetSupportSystemStatus();
         sSupportMgr->SetSupportSystemStatus(status);
         handler->PSendSysMessage(status ? LANG_ALLOW_TICKETS : LANG_DISALLOW_TICKETS);
+        return true;
+    }
+
+    static bool AddonHandleGMTicketCreate(ChatHandler* handler, char const* args)
+    {
+        auto replaceAll = [](std::string& str, const std::string& from, const std::string& to) {
+            if (from.empty())
+                return;
+            size_t start_pos = 0;
+            while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+                str.replace(start_pos, from.length(), to);
+                start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+            }
+        };
+
+        // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
+        if (sSupportMgr->GetSupportSystemStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
+            return true;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        if (!player)
+            return true;
+
+        std::string message = args;
+        replaceAll(message, "$$n", "\n");
+
+        GMTicketResponse response = GMTICKET_RESPONSE_CREATE_ERROR;
+        // Player must not have opened ticket
+        if (SuggestionTicket* ticket = sSupportMgr->GetOpenSuggestionByPlayerGuid(player->GetGUID()))
+        {
+            if (!ticket->IsClosed())
+                response = GMTICKET_RESPONSE_ALREADY_EXIST;
+
+            sSupportMgr->CloseTicket<SuggestionTicket>(ticket->GetId(), player->GetGUID());
+        }
+
+        SuggestionTicket* ticket = new SuggestionTicket(player);
+        ticket->SetPosition(player->GetMapId(), player->GetPosition());
+        ticket->SetFacing(player->GetOrientation());
+        ticket->SetNote(message);
+        sSupportMgr->AddTicket(ticket);
+
+        sWorld->SendGMText(LANG_COMMAND_TICKETNEW, player->GetName().c_str(), ticket->GetId());
+
+        //sSupportMgr->SendTicket(handler->GetSession(), newTicket);
+        response = GMTICKET_RESPONSE_CREATE_SUCCESS;
+
+        handler->GetSession()->SendTicketStatusUpdate(response);
+        return true;
+    }
+
+    static bool AddonHandleGMTicketUpdate(ChatHandler* handler, char const* args)
+    {
+        auto replaceAll = [](std::string& str, const std::string& from, const std::string& to) {
+            if (from.empty())
+                return;
+            size_t start_pos = 0;
+            while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+                str.replace(start_pos, from.length(), to);
+                start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+            }
+        };
+
+        // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
+        if (sSupportMgr->GetSupportSystemStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
+            return true;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        if (!player)
+            return true;
+
+        std::string message = args;
+        replaceAll(message, "$$n", "\n");
+
+        GMTicketResponse response = GMTICKET_RESPONSE_UPDATE_ERROR;
+        if (SuggestionTicket* ticket = sSupportMgr->GetOpenSuggestionByPlayerGuid(player->GetGUID()))
+        {
+            ticket->SetNote(message);
+            ticket->SaveToDB();
+
+            sWorld->SendGMText(LANG_COMMAND_TICKETUPDATED, player->GetName().c_str(), ticket->GetId());
+
+            sSupportMgr->SendTicket(handler->GetSession(), ticket);
+            response = GMTICKET_RESPONSE_UPDATE_SUCCESS;
+        }
+
+        handler->GetSession()->SendTicketStatusUpdate(response);
+
+        return true;
+    }
+
+    static bool AddonHandleGMTicketAppend(ChatHandler* handler, char const* args)
+    {
+        auto replaceAll = [](std::string& str, const std::string& from, const std::string& to) {
+            if (from.empty())
+                return;
+            size_t start_pos = 0;
+            while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+                str.replace(start_pos, from.length(), to);
+                start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+            }
+        };
+
+        // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
+        if (sSupportMgr->GetSupportSystemStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
+            return true;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        if (!player)
+            return true;
+
+        std::string message = args;
+        replaceAll(message, "$$n", "\n");
+
+        GMTicketResponse response = GMTICKET_RESPONSE_UPDATE_ERROR;
+        if (SuggestionTicket* ticket = sSupportMgr->GetOpenSuggestionByPlayerGuid(player->GetGUID()))
+        {
+            ticket->SetNote(ticket->GetNote() + message);
+            ticket->SaveToDB();
+        }
+
+        handler->GetSession()->SendTicketStatusUpdate(response);
+
+        return true;
+    }
+
+    static bool AddonHandleGMTicketEnd(ChatHandler* handler, char const* /*args*/)
+    {
+        // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
+        if (sSupportMgr->GetSupportSystemStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
+            return true;
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        if (!player)
+            return true;
+
+        if (SuggestionTicket* ticket = sSupportMgr->GetOpenSuggestionByPlayerGuid(player->GetGUID()))
+            sSupportMgr->SendTicket(handler->GetSession(), ticket);
+
+        return true;
+    }
+
+    static bool AddonHandleGMTicketDelete(ChatHandler* handler, char const* /*args*/)
+    {
+        if (Player* player = handler->GetSession()->GetPlayer())
+        {
+            if (SuggestionTicket* ticket = sSupportMgr->GetOpenSuggestionByPlayerGuid(player->GetGUID()))
+            {
+                handler->GetSession()->SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
+
+                sWorld->SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, player->GetName().c_str(), ticket->GetId());
+
+                sSupportMgr->CloseTicket<SuggestionTicket>(ticket->GetId(), player->GetGUID());
+                sSupportMgr->SendTicket(handler->GetSession(), nullptr);
+            }
+        }
+
+        return true;
+    }
+
+    static bool AddonHandleGMTicketGet(ChatHandler* handler, char const* /*args*/)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+
+        if (!player)
+            return true;
+
+        handler->GetSession()->OnGMTicketGetTicketEvent();
+
+        return true;
+    }
+
+    static bool AddonHandleGMResponseResolve(ChatHandler* handler, char const* /*args*/)
+    {
+        if (Player* player = handler->GetSession()->GetPlayer())
+        {
+            if (SuggestionTicket* ticket = sSupportMgr->GetOpenSuggestionByPlayerGuid(player->GetGUID()))
+            {
+                handler->GetSession()->SendTicketStatusUpdate(GMTICKET_RESPONSE_TICKET_DELETED);
+
+                ObjectGuid closedByGuid;
+                if (player)
+                    closedByGuid = player->GetGUID();
+                else
+                    closedByGuid.SetRawValue(0, uint64(-1));
+
+                sSupportMgr->CloseTicket<SuggestionTicket>(ticket->GetId(), closedByGuid);
+                sSupportMgr->SendTicket(handler->GetSession(), NULL);
+            }
+        }
+
         return true;
     }
 
@@ -409,13 +604,26 @@ std::vector<ChatCommand> ticket_commandscript::GetCommands() const
         { "complaint",  rbac::RBAC_PERM_COMMAND_TICKET_RESET_COMPLAINT,     true, &HandleTicketResetCommand<ComplaintTicket>,   "" },
         { "suggestion", rbac::RBAC_PERM_COMMAND_TICKET_RESET_SUGGESTION,    true, &HandleTicketResetCommand<SuggestionTicket>,  "" },
     };
+
+    static std::vector<ChatCommand> ticketAddonCommandTable =
+    {
+        { "create",      rbac::RBAC_PERM_COMMAND_TICKET_ADDON,           false,  &AddonHandleGMTicketCreate,                "" },
+        { "update",      rbac::RBAC_PERM_COMMAND_TICKET_ADDON,           false,  &AddonHandleGMTicketUpdate,                "" },
+        { "append",      rbac::RBAC_PERM_COMMAND_TICKET_ADDON,           false,  &AddonHandleGMTicketAppend,                "" },
+        { "end",         rbac::RBAC_PERM_COMMAND_TICKET_ADDON,           false,  &AddonHandleGMTicketEnd,                   "" },
+        { "delete",      rbac::RBAC_PERM_COMMAND_TICKET_ADDON,           false,  &AddonHandleGMTicketDelete,                "" },
+        { "ticketget",   rbac::RBAC_PERM_COMMAND_TICKET_ADDON,           false,  &AddonHandleGMTicketGet,                   "" },
+        { "ticketres",   rbac::RBAC_PERM_COMMAND_TICKET_ADDON,           false,  &AddonHandleGMResponseResolve,             "" }
+    };
+
     static std::vector<ChatCommand> ticketCommandTable =
     {
-        { "bug",            rbac::RBAC_PERM_COMMAND_TICKET_BUG,             true, NULL, "", ticketBugCommandTable },
-        { "complaint",      rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT,       true, NULL,              "", ticketComplaintCommandTable },
-        { "reset",          rbac::RBAC_PERM_COMMAND_TICKET_RESET,           true, NULL,                  "", ticketResetCommandTable },
-        { "suggestion",     rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION,      true, NULL,             "", ticketSuggestionCommandTable },
-        { "togglesystem",   rbac::RBAC_PERM_COMMAND_TICKET_TOGGLESYSTEM,    true, &HandleToggleGMTicketSystem,              "" },
+        { "bug",            rbac::RBAC_PERM_COMMAND_TICKET_BUG,             true,   nullptr,    "", ticketBugCommandTable           },
+        { "complaint",      rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT,       true,   nullptr,    "", ticketComplaintCommandTable     },
+        { "reset",          rbac::RBAC_PERM_COMMAND_TICKET_RESET,           true,   nullptr,    "", ticketResetCommandTable         },
+        { "suggestion",     rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION,      true,   nullptr,    "", ticketSuggestionCommandTable    },
+        { "addon",          rbac::RBAC_PERM_COMMAND_TICKET_ADDON,           false,  nullptr,    "", ticketAddonCommandTable         },
+        { "togglesystem",   rbac::RBAC_PERM_COMMAND_TICKET_TOGGLESYSTEM,    true, &HandleToggleGMTicketSystem,                   "" },
     };
     static std::vector<ChatCommand> commandTable =
     {

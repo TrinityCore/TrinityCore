@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -585,6 +585,7 @@ struct AccountInfo
     struct
     {
         uint32 Id;
+        std::string Name;
         bool IsLockedToIP;
         std::string LastIP;
         std::string LockCountry;
@@ -610,9 +611,9 @@ struct AccountInfo
 
     explicit AccountInfo(Field* fields)
     {
-        //           0             1           2          3                4            5           6          7            8     9     10          11
-        // SELECT a.id, a.sessionkey, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, ba.locale, a.recruiter, a.os, ba.id, aa.gmLevel,
-        //                                                              12                                                            13    14
+        //           0             1           2          3                4            5           6          7            8     9     10  11        12
+        // SELECT a.id, a.sessionkey, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, ba.locale, a.recruiter, a.os, ba.id, ba.email, aa.gmLevel,
+        //                                                              13                                                            14    15
         // bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id
         // FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?)
         // LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account_banned ab ON a.id = ab.id LEFT JOIN account r ON a.id = r.recruiter
@@ -628,10 +629,11 @@ struct AccountInfo
         Game.Recruiter = fields[8].GetUInt32();
         Game.OS = fields[9].GetString();
         BattleNet.Id = fields[10].GetUInt32();
-        Game.Security = AccountTypes(fields[11].GetUInt8());
-        BattleNet.IsBanned = fields[12].GetUInt32() != 0;
-        Game.IsBanned = fields[13].GetUInt32() != 0;
-        Game.IsRectuiter = fields[14].GetUInt32() != 0;
+        BattleNet.Name = fields[11].GetString();
+        Game.Security = AccountTypes(fields[12].GetUInt8());
+        BattleNet.IsBanned = fields[13].GetUInt32() != 0;
+        Game.IsBanned = fields[14].GetUInt32() != 0;
+        Game.IsRectuiter = fields[15].GetUInt32() != 0;
 
         if (BattleNet.Locale >= TOTAL_LOCALES)
             BattleNet.Locale = LOCALE_enUS;
@@ -820,7 +822,9 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     _authed = true;
     _worldSession = new WorldSession(account.Game.Id, std::move(authSession->RealmJoinTicket), account.BattleNet.Id, shared_from_this(), account.Game.Security,
-        account.Game.Expansion, mutetime, account.Game.OS, account.BattleNet.Locale, account.Game.Recruiter, account.Game.IsRectuiter);
+        account.Game.Expansion, mutetime, account.Game.OS, account.BattleNet.Locale, account.Game.Recruiter, account.Game.IsRectuiter, std::move(account.BattleNet.Name));
+
+    _worldSession->LoadRecoveries();
 
     // Initialize Warden system only if it is enabled by config
     if (wardenActive)

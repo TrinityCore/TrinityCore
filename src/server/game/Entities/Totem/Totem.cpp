@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -83,8 +83,10 @@ void Totem::InitStats(uint32 duration)
     SetLevel(GetOwner()->getLevel());
 }
 
-void Totem::InitSummon()
+void Totem::InitSummon(Spell const* /*summonSpell*/ /*= nullptr*/)
 {
+    SetControlled(true, UNIT_STATE_ROOT);
+
     if (m_type == TOTEM_PASSIVE && GetSpell())
         CastSpell(this, GetSpell(), true);
 
@@ -150,6 +152,7 @@ bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Uni
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_LEECH:
         case SPELL_AURA_MOD_FEAR:
+        case SPELL_AURA_MOD_FEAR_2:
         case SPELL_AURA_TRANSFORM:
             return true;
         default:

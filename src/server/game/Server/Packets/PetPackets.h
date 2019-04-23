@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -237,6 +237,38 @@ namespace WorldPackets
             uint16 SpecID = 0;
         };
 
+        class PetSlotUpdated final : public ServerPacket
+        {
+        public:
+            PetSlotUpdated() : ServerPacket(SMSG_PET_SLOT_UPDATED, 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 PetNumberA;
+            int32 PetSlotA;
+            int32 PetNumberB;
+            int32 PetSlotB;
+        };
+
+        class PetAdded final : public ServerPacket
+        {
+        public:
+            PetAdded() : ServerPacket(SMSG_PET_ADDED, 4 + 4 + 4 + 4 + 4 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            PetStableInfo NewPet;
+        };
+
+        class PetTameFailure final : public ServerPacket
+        {
+        public:
+            PetTameFailure() : ServerPacket(SMSG_PET_TAME_FAILURE, 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Reason;
+        };
     }
 }
 

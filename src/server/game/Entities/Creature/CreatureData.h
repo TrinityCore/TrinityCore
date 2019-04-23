@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -294,14 +294,6 @@ const uint32 MAX_CREATURE_NAMES = 4;
 const uint32 MAX_CREATURE_SPELLS = 8;
 const uint32 MAX_CREATURE_DIFFICULTIES = 3;
 
-struct CreatureLevelScaling
-{
-    uint16 MinLevel;
-    uint16 MaxLevel;
-    int16 DeltaLevelMin;
-    int16 DeltaLevelMax;
-};
-
 struct CreatureModel
 {
     static CreatureModel const DefaultInvisibleModel;
@@ -316,6 +308,15 @@ struct CreatureModel
     uint32 CreatureDisplayID;
     float DisplayScale;
     float Probability;
+};
+
+struct CreatureLevelScaling
+{
+    uint16 MinLevel;
+    uint16 MaxLevel;
+    int16 DeltaLevelMin;
+    int16 DeltaLevelMax;
+    int32 ContentTuningID;
 };
 
 // from `creature_template` table
@@ -333,7 +334,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  GossipMenuId;
     int16   minlevel;
     int16   maxlevel;
-    Optional<CreatureLevelScaling> levelScaling;
+    std::unordered_map<uint8, CreatureLevelScaling> scalingStore;
     int32   HealthScalingExpansion;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
@@ -389,6 +390,7 @@ struct TC_GAME_API CreatureTemplate
     CreatureModel const* GetModelWithDisplayId(uint32 displayId) const;
     CreatureModel const* GetFirstInvisibleModel() const;
     CreatureModel const* GetFirstVisibleModel() const;
+    CreatureLevelScaling const* GetLevelScaling(uint8 difficulty) const;
 
     // helpers
     SkillType GetRequiredLootSkill() const
@@ -514,13 +516,14 @@ struct EquipmentInfo
 // from `creature` table
 struct CreatureData
 {
-    CreatureData() : id(0), mapid(0), displayid(0), equipmentId(0),
+    CreatureData() : id(0), mapid(0), areaId(0), displayid(0), equipmentId(0),
                      posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
                      spawndist(0.0f), currentwaypoint(0), curhealth(0), curmana(0), movementType(0),
                      spawnDifficulties(), npcflag(0), unit_flags(0), unit_flags2(0), unit_flags3(0), dynamicflags(0),
                      phaseUseFlags(0), phaseId(0), phaseGroup(0), terrainSwapMap(-1), ScriptId(0), dbData(true) { }
     uint32 id;                                              // entry in creature_template
     uint16 mapid;
+    uint32 areaId;
     uint32 displayid;
     int8 equipmentId;
     float posX;
@@ -585,12 +588,13 @@ struct CreatureAddon
 // Vendors
 struct VendorItem
 {
-    VendorItem() : item(0), maxcount(0), incrtime(0), ExtendedCost(0), Type(0), PlayerConditionId(0), IgnoreFiltering(false) { }
+    VendorItem() : item(0), maxcount(0), incrtime(0), ExtendedCost(0), OverrideGoldCost(-1), Type(0), PlayerConditionId(0), IgnoreFiltering(false) { }
 
     uint32 item;
     uint32 maxcount;                                        // 0 for infinity item amount
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
+    int64 OverrideGoldCost;
     uint8  Type;
     std::vector<int32> BonusListIDs;
     uint32 PlayerConditionId;
@@ -598,6 +602,7 @@ struct VendorItem
 
     //helpers
     bool IsGoldRequired(ItemTemplate const* pProto) const;
+    int64 GetBuyPrice(ItemTemplate const* pProto) const;
 };
 
 struct VendorItemData
@@ -623,6 +628,41 @@ struct VendorItemData
     {
         m_items.clear();
     }
+};
+
+#define MAX_TRAINERSPELL_ABILITY_REQS 3
+
+struct TrainerSpell
+{
+    TrainerSpell() : SpellID(0), MoneyCost(0), ReqSkillLine(0), ReqSkillRank(0), ReqLevel(0), Index(0)
+    {
+        for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
+            ReqAbility[i] = 0;
+    }
+
+    uint32 SpellID;
+    uint32 MoneyCost;
+    uint32 ReqSkillLine;
+    uint32 ReqSkillRank;
+    uint32 ReqLevel;
+    uint32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS];
+    uint32 Index;
+
+    // helpers
+    bool IsCastable() const { return ReqAbility[0] != SpellID; }
+};
+
+typedef std::unordered_map<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;
+
+struct TC_GAME_API TrainerSpellData
+{
+    TrainerSpellData() : trainerType(0) { }
+    ~TrainerSpellData() { spellList.clear(); }
+
+    TrainerSpellMap spellList;
+    uint32 trainerType;                                     // trainer type based at trainer spells, can be different from creature_template value.
+                                                            // req. for correct show non-prof. trainers like weaponmaster, allowed values 0 and 2.
+    TrainerSpell const* Find(uint32 spell_id) const;
 };
 
 #endif // CreatureData_h__

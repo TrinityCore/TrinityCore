@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -125,7 +125,7 @@ enum ProcFlags
 {
     PROC_FLAG_NONE                            = 0x00000000,
 
-    PROC_FLAG_KILLED                          = 0x00000001,    // 00 Killed by agressor - not sure about this flag
+    PROC_FLAG_ON_TICK                         = 0x00000001,    // 00 Every tick
     PROC_FLAG_KILL                            = 0x00000002,    // 01 Kill target (in most cases need XP/Honor reward)
 
     PROC_FLAG_DONE_MELEE_AUTO_ATTACK          = 0x00000004,    // 02 Done melee auto attack
@@ -464,11 +464,14 @@ struct TC_GAME_API SpellArea
     uint32 questStart;                                      // quest start (quest must be active or rewarded for spell apply)
     uint32 questEnd;                                        // quest end (quest must not be rewarded for spell apply)
     int32  auraSpell;                                       // spell aura must be applied for spell apply)if possitive) and it must not be applied in other case
+    int8   teamId;                                          // can be applied only to team
     uint64 raceMask;                                        // can be applied only to races
     Gender gender;                                          // can be applied only to gender
     uint32 questStartStatus;                                // QuestStatus that quest_start must have in order to keep the spell
     uint32 questEndStatus;                                  // QuestStatus that the quest_end must have in order to keep the spell (if the quest_end's status is different than this, the spell will be dropped)
-    uint8 flags;                                            // if SPELL_AREA_FLAG_AUTOCAST then auto applied at area enter, in other case just allowed to cast || if SPELL_AREA_FLAG_AUTOREMOVE then auto removed inside area (will allways be removed on leaved even without flag)
+    uint8 flags;                                            // if SPELL_AREA_FLAG_AUTOCAST then auto applied at area enter, in other case just allowed to cast
+                                                            // if SPELL_AREA_FLAG_AUTOREMOVE then auto removed inside area (will allways be removed on leaving even without flag)
+                                                            // if SPELL_AREA_FLAG_AUTOAPPLY then auto applied after quest status change
 
     // helpers
     bool IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const;
@@ -533,8 +536,8 @@ typedef std::pair<SkillLineAbilityMap::const_iterator, SkillLineAbilityMap::cons
 typedef std::set<uint32> PetFamilySpellsSet;
 typedef std::map<uint32, PetFamilySpellsSet> PetFamilySpellsStore;
 
-typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
-typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
+typedef std::vector<uint32> PetLevelupSpellStore;
+typedef std::map<uint32, PetLevelupSpellStore> PetLevelupSpellMap;
 
 typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
 
@@ -663,7 +666,7 @@ class TC_GAME_API SpellMgr
 
         const std::vector<int32> *GetSpellLinked(int32 spell_id) const;
 
-        PetLevelupSpellSet const* GetPetLevelupSpellList(uint32 petFamily) const;
+        PetLevelupSpellStore const* GetPetLevelupSpellList(uint32 petFamily) const;
         PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const;
 
         // Spell area

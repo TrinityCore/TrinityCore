@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -976,7 +976,7 @@ namespace WorldPackets
             std::vector<int32> FailedSpells;
         };
 
-        class CustomLoadScreen final : public ServerPacket
+        class TC_GAME_API CustomLoadScreen final : public ServerPacket
         {
         public:
             CustomLoadScreen(uint32 teleportSpellId, uint32 loadingScreenId) : ServerPacket(SMSG_CUSTOM_LOAD_SCREEN), TeleportSpellID(teleportSpellId), LoadingScreenID(loadingScreenId) { }

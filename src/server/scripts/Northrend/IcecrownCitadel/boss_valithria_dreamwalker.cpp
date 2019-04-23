@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -345,6 +345,9 @@ class boss_valithria_dreamwalker : public CreatureScript
                     me->SetLootRecipient(healer);
 
                 me->LowerPlayerDamageReq(heal);
+
+                if (healer->IsPlayer() && healer->getLevel() > 80)
+                    heal *= healer->getLevel() - 80;
 
                 // encounter complete
                 if (me->HealthAbovePctHealed(100, heal) && !_done)
@@ -740,6 +743,12 @@ class npc_risen_archmage : public CreatureScript
                     if (Creature* trigger = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_TRIGGER)))
                         trigger->AI()->DoZoneInCombat();
                 }
+            }
+
+            void JustDied(Unit* attacker) override
+            {
+                if (!me->IsInCombat())
+                    EnterCombat(attacker);
             }
 
             void DoAction(int32 action) override

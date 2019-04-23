@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -187,6 +187,15 @@ void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
     me->CastSpell((Unit*)NULL, spellId, triggered);
 }
 
+void UnitAI::DoCastRandom(uint32 spellId, float dist, bool triggered, int32 aura, uint32 position)
+{
+    if (me->HasUnitState(UNIT_STATE_CASTING) && !triggered)
+        return;
+
+    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, position, dist, true, aura))
+        me->CastSpell(target, spellId, triggered);
+}
+
 #define UPDATE_TARGET(a) {if (AIInfo->target<a) AIInfo->target=a;}
 
 void UnitAI::FillAISpellInfo()
@@ -256,7 +265,7 @@ bool DefaultTargetSelector::operator()(Unit const* target) const
     if (!target)
         return false;
 
-    if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
+    if (m_playerOnly && !target->IsPlayer())
         return false;
 
     if (m_dist > 0.0f && !me->IsWithinCombatRange(target, m_dist))
@@ -364,6 +373,48 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
         return target->GetGUID() != currentVictim->getUnitGuid();
 
     return target != _source->GetVictim();
+}
+
+void UnitAI::UpdateOperations(uint32 const diff)
+{
+    if (!me)
+        return;
+
+    if (me->HasUnitState(UnitState::UNIT_STATE_EVADE))
+        return;
+
+    for (auto l_It = m_TimedDelayedOperations.begin(); l_It != m_TimedDelayedOperations.end(); l_It++)
+    {
+        l_It->first -= diff;
+
+        if (l_It->first < 0)
+        {
+            l_It->second();
+            l_It->second = nullptr;
+        }
+    }
+
+    uint32 l_TimedDelayedOperationCountToRemove = std::count_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+    {
+        return p_Pair.second == nullptr;
+    });
+
+    for (uint32 l_I = 0; l_I < l_TimedDelayedOperationCountToRemove; l_I++)
+    {
+        auto l_It = std::find_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+        {
+            return p_Pair.second == nullptr;
+        });
+
+        if (l_It != std::end(m_TimedDelayedOperations))
+            m_TimedDelayedOperations.erase(l_It);
+    }
+
+    if (m_TimedDelayedOperations.empty() && !m_EmptyWarned)
+    {
+        m_EmptyWarned = true;
+        LastOperationCalled();
+    }
 }
 
 void SortByDistanceTo(Unit* reference, std::list<Unit*>& targets)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -195,7 +195,7 @@ class boss_ossirian : public CreatureScript
                 if (Creature* Trigger = me->SummonCreature(NPC_OSSIRIAN_TRIGGER, CrystalCoordinates[CrystalIterator]))
                 {
                     TriggerGUID = Trigger->GetGUID();
-                    if (GameObject* Crystal = Trigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL, CrystalCoordinates[CrystalIterator], QuaternionData::fromEulerAnglesZYX(CrystalCoordinates[CrystalIterator].GetOrientation(), 0.0f, 0.0f), uint32(-1)))
+                    if (GameObject* Crystal = Trigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL, CrystalCoordinates[CrystalIterator], QuaternionData(), uint32(-1)))
                     {
                         CrystalGUID = Crystal->GetGUID();
                         ++CrystalIterator;

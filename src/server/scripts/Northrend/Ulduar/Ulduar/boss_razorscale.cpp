@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -126,17 +126,18 @@ enum Events
     EVENT_BUFFET                                 = 3,
     EVENT_FIREBALL                               = 5,
     EVENT_FLIGHT                                 = 6,
-    EVENT_DEVOURING                              = 7,
-    EVENT_FLAME                                  = 8,
-    EVENT_LAND                                   = 9,
-    EVENT_GROUND                                 = 10,
-    EVENT_FUSE                                   = 11,
-    EVENT_SUMMON                                 = 12,
+    EVENT_FLIGHT_FIRST                           = 7,
+    EVENT_DEVOURING                              = 8,
+    EVENT_FLAME                                  = 9,
+    EVENT_LAND                                   = 10,
+    EVENT_GROUND                                 = 11,
+    EVENT_FUSE                                   = 12,
+    EVENT_SUMMON                                 = 13,
     // Razorscale Controller
-    EVENT_BUILD_HARPOON_1                        = 13,
-    EVENT_BUILD_HARPOON_2                        = 14,
-    EVENT_BUILD_HARPOON_3                        = 15,
-    EVENT_BUILD_HARPOON_4                        = 16,
+    EVENT_BUILD_HARPOON_1                        = 14,
+    EVENT_BUILD_HARPOON_2                        = 15,
+    EVENT_BUILD_HARPOON_3                        = 16,
+    EVENT_BUILD_HARPOON_4                        = 17,
 };
 
 #define GROUND_Z                                 391.517f
@@ -180,7 +181,7 @@ const Position PosHarpoon[4] =
     { 606.229f, -136.721f, GROUND_Z, 0 },
 };
 
-const Position RazorFlight = { 588.050f, -251.191f, 470.536f, 1.498f };
+const Position RazorFlight = { 587.072f, -203.205f, 441.237f, 1.605f };
 const Position RazorGround = { 586.966f, -175.534f, GROUND_Z, 4.682f };
 const Position PosEngSpawn = { 591.951f, -95.9680f, GROUND_Z, 0.000f };
 
@@ -246,7 +247,7 @@ class boss_razorscale_controller : public CreatureScript
                         break;
                     case ACTION_PLACE_BROKEN_HARPOON:
                         for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
-                            me->SummonGameObject(GO_RAZOR_BROKEN_HARPOON, PosHarpoon[n].GetPositionX(), PosHarpoon[n].GetPositionY(), PosHarpoon[n].GetPositionZ(), 2.286f, QuaternionData::fromEulerAnglesZYX(2.286f, 0.0f, 0.0f), 180);
+                            me->SummonGameObject(GO_RAZOR_BROKEN_HARPOON, PosHarpoon[n].GetPositionX(), PosHarpoon[n].GetPositionY(), PosHarpoon[n].GetPositionZ(), 2.286f, QuaternionData(), 180);
                         break;
                 }
             }
@@ -261,7 +262,7 @@ class boss_razorscale_controller : public CreatureScript
                     {
                         case EVENT_BUILD_HARPOON_1:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_1, PosHarpoon[0].GetPositionX(), PosHarpoon[0].GetPositionY(), PosHarpoon[0].GetPositionZ(), 4.790f, QuaternionData::fromEulerAnglesZYX(4.790f, 0.0f, 0.0f), uint32(me->GetRespawnTime())))
+                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_1, PosHarpoon[0].GetPositionX(), PosHarpoon[0].GetPositionY(), PosHarpoon[0].GetPositionZ(), 4.790f, QuaternionData(), uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f)) //only nearest broken harpoon
                                     BrokenHarpoon->RemoveFromWorld();
@@ -271,7 +272,7 @@ class boss_razorscale_controller : public CreatureScript
                             return;
                         case EVENT_BUILD_HARPOON_2:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_2, PosHarpoon[1].GetPositionX(), PosHarpoon[1].GetPositionY(), PosHarpoon[1].GetPositionZ(), 4.659f, QuaternionData::fromEulerAnglesZYX(4.659f, 0.0f, 0.0f), uint32(me->GetRespawnTime())))
+                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_2, PosHarpoon[1].GetPositionX(), PosHarpoon[1].GetPositionY(), PosHarpoon[1].GetPositionZ(), 4.659f, QuaternionData(), uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
                                     BrokenHarpoon->RemoveFromWorld();
@@ -280,7 +281,7 @@ class boss_razorscale_controller : public CreatureScript
                             return;
                         case EVENT_BUILD_HARPOON_3:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_3, PosHarpoon[2].GetPositionX(), PosHarpoon[2].GetPositionY(), PosHarpoon[2].GetPositionZ(), 5.382f, QuaternionData::fromEulerAnglesZYX(5.382f, 0.0f, 0.0f), uint32(me->GetRespawnTime())))
+                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_3, PosHarpoon[2].GetPositionX(), PosHarpoon[2].GetPositionY(), PosHarpoon[2].GetPositionZ(), 5.382f, QuaternionData(), uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
                                     BrokenHarpoon->RemoveFromWorld();
@@ -290,7 +291,7 @@ class boss_razorscale_controller : public CreatureScript
                             return;
                         case EVENT_BUILD_HARPOON_4:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_4, PosHarpoon[3].GetPositionX(), PosHarpoon[3].GetPositionY(), PosHarpoon[3].GetPositionZ(), 4.266f, QuaternionData::fromEulerAnglesZYX(4.266f, 0.0f, 0.0f), uint32(me->GetRespawnTime())))
+                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_4, PosHarpoon[3].GetPositionX(), PosHarpoon[3].GetPositionY(), PosHarpoon[3].GetPositionZ(), 4.266f, QuaternionData(), uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
                                     BrokenHarpoon->RemoveFromWorld();
@@ -377,7 +378,7 @@ class boss_razorscale : public CreatureScript
                 FlyCount = 0;
                 EnrageTimer = 600000;
                 Enraged = false;
-                events.ScheduleEvent(EVENT_FLIGHT, 0, 0, PHASE_GROUND);
+                events.ScheduleEvent(EVENT_FLIGHT_FIRST, 0, 0, PHASE_GROUND);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -433,6 +434,7 @@ class boss_razorscale : public CreatureScript
                 if (HarpoonCounter == RAID_MODE(2, 4))
                 {
                     HarpoonCounter = 0;
+                    me->GetMotionMaster()->Clear(true);
                     me->GetMotionMaster()->MoveLand(1, RazorGround);
                 }
 
@@ -443,13 +445,15 @@ class boss_razorscale : public CreatureScript
                         switch (eventId)
                         {
                             case EVENT_FLIGHT:
+                                me->GetMotionMaster()->MoveTakeoff(0, RazorFlight);
+                                //no break
+                            case EVENT_FLIGHT_FIRST:
                                 phase = PHASE_FLIGHT;
                                 events.SetPhase(PHASE_FLIGHT);
                                 me->SetCanFly(true);
                                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetReactState(REACT_PASSIVE);
                                 me->AttackStop();
-                                me->GetMotionMaster()->MoveTakeoff(0, RazorFlight);
                                 events.ScheduleEvent(EVENT_FIREBALL, 7000, 0, PHASE_FLIGHT);
                                 events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_FLIGHT);
                                 events.ScheduleEvent(EVENT_SUMMON, 5000, 0, PHASE_FLIGHT);
@@ -551,7 +555,7 @@ class boss_razorscale : public CreatureScript
                 phase = PHASE_PERMAGROUND;
                 events.SetPhase(PHASE_PERMAGROUND);
                 me->SetCanFly(false);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveAurasDueToSpell(SPELL_HARPOON_TRIGGER);
                 me->SetSpeedRate(MOVE_FLIGHT, 1.0f);

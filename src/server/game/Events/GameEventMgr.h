@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -119,6 +119,7 @@ class TC_GAME_API GameEventMgr
         uint64 GetNPCFlag(Creature* cr);
         uint32 GetNpcTextId(uint32 guid);
         uint16 GetEventIdForQuest(Quest const* quest) const;
+        bool IsSpellAreaEventActive(uint32 areaId, uint32 spellId);
     private:
         void SendWorldStateUpdate(Player* player, uint16 event_id);
         void AddActiveEvent(uint16 event_id) { m_ActiveEvents.insert(event_id); }
@@ -158,6 +159,7 @@ class TC_GAME_API GameEventMgr
         typedef std::list<GuidNPCFlagPair> NPCFlagList;
         typedef std::vector<NPCFlagList> GameEventNPCFlagMap;
         typedef std::vector<uint32> GameEventBitmask;
+        typedef std::map<std::pair<uint32, uint32>, uint32> GameEventSpellAreaMap;
         GameEventQuestMap mGameEventCreatureQuests;
         GameEventQuestMap mGameEventGameObjectQuests;
         GameEventNPCVendorMap mGameEventVendors;
@@ -169,6 +171,7 @@ class TC_GAME_API GameEventMgr
         GameEventBitmask  mGameEventBattlegroundHolidays;
         QuestIdToEventConditionMap mQuestToEventConditions;
         GameEventNPCFlagMap mGameEventNPCFlags;
+        GameEventSpellAreaMap mGameEventSpellAreas;
         ActiveEvents m_ActiveEvents;
         std::unordered_map<uint32, uint16> _questToEventLinks;
         bool isSystemInit;

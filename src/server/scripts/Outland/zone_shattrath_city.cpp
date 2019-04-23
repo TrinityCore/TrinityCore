@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,6 +32,8 @@ npc_kservant
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "Group.h"
+#include "LFGMgr.h"
 #include "Player.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
@@ -461,7 +463,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
@@ -481,6 +482,19 @@ public:
     };
 };
 
+struct npc_vormu : public ScriptedAI
+{
+    npc_vormu(Creature* creature) : ScriptedAI(creature) { }
+
+    void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) override
+    {
+        ClearGossipMenuFor(player);
+
+        if (!player->GetGroup() || player->GetGroup()->GetLeaderGUID() == player->GetGUID())
+            sLFGMgr->JoinLfg(player, LFG_DUNGEON_TIME_WALKING_BLACK_TEMPLE);
+    }
+};
+
 void AddSC_shattrath_city()
 {
     new npc_raliq_the_drunk();
@@ -488,4 +502,5 @@ void AddSC_shattrath_city()
     new npc_shattrathflaskvendors();
     new npc_zephyr();
     new npc_kservant();
+    RegisterCreatureAI(npc_vormu);
 }

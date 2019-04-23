@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -250,19 +250,22 @@ void OutdoorPvP::DeleteSpawns()
     m_capturePoints.clear();
 }
 
-OutdoorPvP::OutdoorPvP() : m_TypeId(0), m_sendUpdate(true), m_map(nullptr) { }
+OutdoorPvP::OutdoorPvP() : m_TypeId(0), m_sendUpdate(true), m_map(nullptr)
+{
+    _scriptType = ZONE_SCRIPT_TYPE_OUTDOORPVP;
+}
 
 OutdoorPvP::~OutdoorPvP()
 {
     DeleteSpawns();
 }
 
-void OutdoorPvP::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
+void OutdoorPvP::HandlePlayerEnterZone(Player* player, Area* /*zone*/)
 {
     m_players[player->GetTeamId()].insert(player->GetGUID());
 }
 
-void OutdoorPvP::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
+void OutdoorPvP::HandlePlayerLeaveZone(Player* player, Area* /*zone*/)
 {
     // inform the objectives of the leaving
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
@@ -274,7 +277,7 @@ void OutdoorPvP::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
     TC_LOG_DEBUG("outdoorpvp", "Player %s left an outdoorpvp zone", player->GetName().c_str());
 }
 
-void OutdoorPvP::HandlePlayerResurrects(Player* /*player*/, uint32 /*zone*/) { }
+void OutdoorPvP::HandlePlayerResurrects(Player* /*player*/, Area* /*zone*/) { }
 
 bool OutdoorPvP::Update(uint32 diff)
 {

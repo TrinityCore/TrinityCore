@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,14 +38,14 @@ struct TC_GAME_API ArenaScore : public BattlegroundScore
         uint32 PostMatchMMR = 0;
 };
 
-struct TC_GAME_API ArenaTeamScore
+struct TC_GAME_API ArenaGroupScore
 {
     friend class Arena;
     friend class Battleground;
 
     protected:
-        ArenaTeamScore();
-        virtual ~ArenaTeamScore();
+        ArenaGroupScore();
+        virtual ~ArenaGroupScore();
 
         void Assign(uint32 preMatchRating, uint32 postMatchRating, uint32 preMatchMMR, uint32 postMatchMMR);
 

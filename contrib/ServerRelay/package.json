@@ -1,0 +1,23 @@
+{
+  "name": "server-relay",
+  "version": "1.0.0",
+  "description": "Server Relay between world of warcraft channel(AshamaneCore) and Discord",
+  "main": "server.js",
+  "author": {
+    "name": "DEVIL1234"
+  },
+  "nodemonConfig":{
+    "ignore": ["config.json", "node_modules/*"]
+   },
+   
+  "dependencies": {
+    "discord.js": "^11.3.2",
+    "http": "0.0.0",
+    "is-empty": "^1.2.0",
+    "node-emoji": "^1.8.1",
+    "nodemon": "^1.18.3",
+    "parse-json": "^4.0.0",
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2"
+  }
+}

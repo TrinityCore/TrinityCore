@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -223,7 +223,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         Creature* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
         {
-            //me->MonsterYell("Teleporting ...", LANG_UNIVERSAL, 0);
+            //me->Yell("Teleporting ...", LANG_UNIVERSAL, 0);
             Position thisPos;
             thisPos.Relocate(me);
             Position otherPos;

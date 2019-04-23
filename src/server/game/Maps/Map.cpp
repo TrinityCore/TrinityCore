@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,6 +41,7 @@
 #include "ObjectGridLoader.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
+#include "SceneObject.h"
 #include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
@@ -1332,7 +1333,7 @@ void Map::MoveAllCreaturesInMoveList()
                 /// @todo pets will disappear if this is outside CreatureRespawnRelocation
                 //need to check why pet is frequently relocated to an unloaded cell
                 if (c->IsPet())
-                    ((Pet*)c)->Remove(PET_SAVE_NOT_IN_SLOT, true);
+                    ((Pet*)c)->Remove(PET_SAVE_DISMISS, true);
                 else
                     AddObjectToRemoveList(c);
             }
@@ -3170,6 +3171,9 @@ void Map::RemoveAllObjectsInRemoveList()
             case TYPEID_AREATRIGGER:
                 RemoveFromMap((AreaTrigger*)obj, true);
                 break;
+            case TYPEID_SCENEOBJECT:
+                RemoveFromMap((SceneObject*)obj, true);
+                break;
             case TYPEID_CONVERSATION:
                 RemoveFromMap((Conversation*)obj, true);
                 break;
@@ -3321,6 +3325,7 @@ template TC_GAME_API bool Map::AddToMap(Creature*);
 template TC_GAME_API bool Map::AddToMap(GameObject*);
 template TC_GAME_API bool Map::AddToMap(DynamicObject*);
 template TC_GAME_API bool Map::AddToMap(AreaTrigger*);
+template TC_GAME_API bool Map::AddToMap(SceneObject*);
 template TC_GAME_API bool Map::AddToMap(Conversation*);
 
 template TC_GAME_API void Map::RemoveFromMap(Corpse*, bool);
@@ -3328,6 +3333,7 @@ template TC_GAME_API void Map::RemoveFromMap(Creature*, bool);
 template TC_GAME_API void Map::RemoveFromMap(GameObject*, bool);
 template TC_GAME_API void Map::RemoveFromMap(DynamicObject*, bool);
 template TC_GAME_API void Map::RemoveFromMap(AreaTrigger*, bool);
+template TC_GAME_API void Map::RemoveFromMap(SceneObject*, bool);
 template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 
 /* ******* Dungeon Instance Maps ******* */
@@ -3525,6 +3531,7 @@ void InstanceMap::Update(const uint32 t_diff)
 
     if (i_data)
     {
+        i_data->UpdateOperations(t_diff);
         i_data->Update(t_diff);
         i_data->UpdateCombatResurrection(t_diff);
     }
@@ -3541,6 +3548,8 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
         m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
     if (i_scenario)
         i_scenario->OnPlayerExit(player);
+    if (i_data)
+        i_data->OnPlayerExit(player);
     Map::RemovePlayerFromMap(player, remove);
     // for normal instances schedule the reset after all players have left
     SetResetSchedule(true);
@@ -3745,6 +3754,14 @@ uint8 Map::GetDifficultyLootItemContext() const
     return 0;
 }
 
+uint8 Map::GetEncounterDifficultyMask() const
+{
+    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(GetDifficultyID()))
+        return 1 << (difficulty->OrderIndex - 1);
+
+    return 0xFF;
+}
+
 uint32 Map::GetId() const
 {
     return i_mapEntry->ID;
@@ -3770,6 +3787,7 @@ bool Map::IsRaid() const
     return i_mapEntry && i_mapEntry->IsRaid();
 }
 
+// Will also return true for Mythics
 bool Map::IsRaidOrHeroicDungeon() const
 {
     return IsRaid() || IsHeroic();
@@ -3782,9 +3800,19 @@ bool Map::IsHeroic() const
     return false;
 }
 
+bool Map::IsMythic() const
+{
+    return i_spawnMode == DIFFICULTY_MYTHIC || i_spawnMode == DIFFICULTY_MYTHIC_KEYSTONE || i_spawnMode == DIFFICULTY_MYTHIC_RAID;
+}
+
 bool Map::Is25ManRaid() const
 {
     return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC);
+}
+
+bool Map::IsLFR() const
+{
+    return IsRaid() && (i_spawnMode == DIFFICULTY_LFR || i_spawnMode == DIFFICULTY_LFR_NEW);
 }
 
 bool Map::IsBattleground() const
@@ -3912,9 +3940,33 @@ void BattlegroundMap::RemoveAllPlayers()
                     player->TeleportTo(player->GetBattlegroundEntryPoint());
 }
 
+GameObject* Map::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime)
+{
+    GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
+    if (!goinfo)
+    {
+        TC_LOG_ERROR("sql.sql", "Gameobject template %u not found in database!", entry);
+        return nullptr;
+    }
+
+    GameObject* go = GameObject::CreateGameObject(entry, this, pos, rot, 255, GO_STATE_READY);
+    if (!go)
+        return nullptr;
+
+    go->SetRespawnTime(respawnTime);
+    go->SetSpawnedByDefault(false);
+    AddToMap(go);
+    return go;
+}
+
 AreaTrigger* Map::GetAreaTrigger(ObjectGuid const& guid)
 {
     return _objectsStore.Find<AreaTrigger>(guid);
+}
+
+SceneObject* Map::GetSceneObject(ObjectGuid const& guid)
+{
+    return _objectsStore.Find<SceneObject>(guid);
 }
 
 Conversation* Map::GetConversation(ObjectGuid const& guid)
@@ -4394,8 +4446,5 @@ void Map::UpdateAreaDependentAuras()
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         if (Player* player = itr->GetSource())
             if (player->IsInWorld())
-            {
-                player->UpdateAreaDependentAuras(player->GetAreaId());
-                player->UpdateZoneDependentAuras(player->GetZoneId());
-            }
+                player->UpdateAreaDependentAuras();
 }

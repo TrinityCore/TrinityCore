@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -97,6 +97,7 @@ enum RotateDirection
 struct JumpArrivalCastArgs
 {
     uint32 SpellId;
+    ObjectGuid Caster;
     ObjectGuid Target;
 };
 
@@ -159,6 +160,7 @@ class TC_GAME_API MotionMaster
         void MoveLand(uint32 id, Position const& pos);
         void MoveTakeoff(uint32 id, Position const& pos);
 
+        void MoveCharge(Position* pos, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
@@ -168,6 +170,7 @@ class TC_GAME_API MotionMaster
             MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation, arrivalCast, spellEffectExtraData);
         }
         void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
+        void MoveJump(uint32 locEntry, float speedXY, float speedZ, uint32 id = EVENT_JUMP);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
         void MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk = false, bool fly = false);
         // Walk along spline chain stored in DB (script_spline_chain_meta and script_spline_chain_waypoints)
@@ -183,6 +186,7 @@ class TC_GAME_API MotionMaster
         void MovePath(uint32 path_id, bool repeatable);
         void MovePath(WaypointPath& path, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
+        void MoveBackward(uint32 id, float x, float y, float z, float speed = 0.0f);
 
     private:
         void pop();

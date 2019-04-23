@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -268,9 +268,9 @@ class TC_GAME_API Battlefield : public ZoneScript
         void KickPlayerFromBattlefield(ObjectGuid guid);
 
         /// Called when player (player) enter in zone
-        void HandlePlayerEnterZone(Player* player, uint32 zone);
+        void HandlePlayerEnterZone(Player* player, Area* zone);
         /// Called when player (player) leave the zone
-        void HandlePlayerLeaveZone(Player* player, uint32 zone);
+        void HandlePlayerLeaveZone(Player* player, Area* zone);
 
         // All-purpose data storage 64 bit
         virtual uint64 GetData64(uint32 dataId) const override { return m_Data64[dataId]; }

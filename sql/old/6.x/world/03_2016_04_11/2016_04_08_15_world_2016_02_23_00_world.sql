@@ -1,1 +1,0 @@
-UPDATE `smart_scripts` SET `action_param1`=2235500, `action_param2`=2235501, `action_param3`=2235502, `action_param4`=2235503, `action_param5`=2235504, `action_param6`=2235505 WHERE  `entryorguid`=22355 AND `source_type`=0 AND `id`=6 AND `link`=0;

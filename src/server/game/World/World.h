@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -93,6 +93,7 @@ enum WorldTimers
     WUPDATE_GUILDSAVE,
     WUPDATE_BLACKMARKET,
     WUPDATE_CHECK_FILECHANGES,
+    WUPDATE_WORLD_QUEST,
     WUPDATE_COUNT
 };
 
@@ -174,10 +175,9 @@ enum WorldBoolConfigs
     CONFIG_INSTANCES_RESET_ANNOUNCE,
     CONFIG_IP_BASED_ACTION_LOGGING,
     CONFIG_ALLOW_TRACK_BOTH_RESOURCES,
-    CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA,
-    CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA,
     CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED,
     CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED,
+    CONFIG_FEATURE_SYSTEM_WAR_MODE_ENABLED,
     CONFIG_RESET_DUEL_COOLDOWNS,
     CONFIG_RESET_DUEL_HEALTH_MANA,
     CONFIG_BASEMAP_LOAD_GRIDS,
@@ -192,6 +192,8 @@ enum WorldBoolConfigs
     CONFIG_PREVENT_RENAME_CUSTOMIZATION,
     CONFIG_CREATURE_CHECK_INVALID_POSITION,
     CONFIG_GAME_OBJECT_CHECK_INVALID_POSITION,
+    CONFIG_LEGACY_BUFF_ENABLED,
+    CONFIG_IGNORE_DUNGEONS_BIND,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -583,6 +585,8 @@ struct CharacterInfo
 class TC_GAME_API World
 {
     public:
+        Ashamane::AnyData Variables;
+
         static World* instance();
 
         static std::atomic<uint32> m_worldLoopCounter;
@@ -757,8 +761,6 @@ class TC_GAME_API World
         uint32 getWorldState(uint32 index) const;
         void LoadWorldStates();
 
-        /// Are we on a "Player versus Player" server?
-        bool IsPvPRealm() const;
         bool IsFFAPvPRealm() const;
 
         void KickAll();

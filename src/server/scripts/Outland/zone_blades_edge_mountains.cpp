@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -961,7 +961,7 @@ public:
             {
                 // Spell 37392 does not exist in dbc, manually spawning
                 me->SummonCreature(NPC_OSCILLATING_FREQUENCY_SCANNER_TOP_BUNNY, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 0.5f, me->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 50000);
-                me->SummonGameObject(GO_OSCILLATING_FREQUENCY_SCANNER, *me, QuaternionData::fromEulerAnglesZYX(me->GetOrientation(), 0.0f, 0.0f), 50);
+                me->SummonGameObject(GO_OSCILLATING_FREQUENCY_SCANNER, *me, QuaternionData(), 50);
                 me->DespawnOrUnsummon(50000);
             }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,6 +40,7 @@ class Item;
 class Unit;
 class Vehicle;
 struct AccessRequirement;
+struct AreaTriggerData;
 struct DeclinedName;
 struct DungeonEncounterEntry;
 struct FactionEntry;
@@ -152,6 +153,7 @@ struct InstanceTemplate
     uint32 Parent;
     uint32 ScriptId;
     bool AllowMount;
+    bool InsideResurrection;
 };
 
 typedef std::unordered_map<uint16, InstanceTemplate> InstanceTemplateContainer;
@@ -438,7 +440,7 @@ struct TC_GAME_API SpellClickInfo
 typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoContainer;
 typedef std::pair<SpellClickInfoContainer::const_iterator, SpellClickInfoContainer::const_iterator> SpellClickInfoMapBounds;
 
-struct AreaTriggerStruct
+struct AreaTriggerTeleportStruct
 {
     uint32 target_mapId;
     float  target_X;
@@ -464,21 +466,30 @@ struct CellObjectGuids
 {
     CellGuidSet creatures;
     CellGuidSet gameobjects;
+    CellGuidSet areatriggers;
 };
 typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
 typedef std::unordered_map<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
 
 // Trinity Trainer Reference start range
 #define TRINITY_TRAINER_START_REF      200000
+#define TRINITY_TRAINER_END_REF        1000000
 
 struct TrinityString
 {
     std::vector<std::string> Content;
 };
 
+struct ScriptParam
+{
+    double numericValue = 0;
+    std::string stringValue = "";
+};
+
 typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
 typedef std::unordered_map<uint32, CreatureTemplate> CreatureTemplateContainer;
 typedef std::unordered_map<uint32, CreatureAddon> CreatureTemplateAddonContainer;
+typedef std::unordered_map<uint32, uint32> CreatureTemplateJournalContainer;
 typedef std::unordered_map<ObjectGuid::LowType, CreatureData> CreatureDataContainer;
 typedef std::unordered_map<ObjectGuid::LowType, CreatureAddon> CreatureAddonContainer;
 typedef std::unordered_map<uint16, CreatureBaseStats> CreatureBaseStatsContainer;
@@ -500,6 +511,10 @@ typedef std::unordered_map<uint32, QuestObjectivesLocale> QuestObjectivesLocaleC
 typedef std::unordered_map<uint32, QuestOfferRewardLocale> QuestOfferRewardLocaleContainer;
 typedef std::unordered_map<uint32, QuestRequestItemsLocale> QuestRequestItemsLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
+
+typedef std::unordered_map<uint8 /*index*/, ScriptParam> ScriptParams;
+typedef std::unordered_map<ObjectGuid::LowType, ScriptParams> ScriptParamContainer;
+typedef std::unordered_map<uint32 /*entry*/, ScriptParams> TemplateScriptParamContainer;
 
 struct GossipMenuItemsLocale
 {
@@ -592,18 +607,15 @@ struct PlayerInfo
     PlayerLevelInfo* levelInfo;                             //[level-1] 0..MaxPlayerLevel-1
 };
 
-struct PetLevelInfo
+struct PetScalingInfo
 {
-    PetLevelInfo() : health(0), mana(0), armor(0)
-    {
-        for (uint16& stat : stats)
-            stat = 0;
-    }
+    PetScalingInfo() : APMultiplier(0.f), SPMultiplier(0.f), SPtoAPMultiplier(0.f), HealthMultiplier(0.f), ArmorMultiplier(0.f) {}
 
-    uint16 stats[MAX_STATS];
-    uint16 health;
-    uint16 mana;
-    uint16 armor;
+    float APMultiplier;
+    float SPMultiplier;
+    float SPtoAPMultiplier;
+    float HealthMultiplier;
+    float ArmorMultiplier;
 };
 
 struct MailLevelReward
@@ -742,6 +754,7 @@ typedef std::pair<GraveYardContainer::const_iterator, GraveYardContainer::const_
 typedef std::pair<GraveYardContainer::iterator, GraveYardContainer::iterator> GraveYardMapBoundsNonConst;
 
 typedef std::unordered_map<uint32, VendorItemData> CacheVendorItemContainer;
+typedef std::unordered_map<uint32, TrainerSpellData> CacheTrainerSpellContainer;
 
 typedef std::unordered_map<uint32, std::string> RealmNameContainer;
 
@@ -754,6 +767,7 @@ struct SceneTemplate
 };
 
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
+typedef std::unordered_map<uint32, std::vector<uint32>> WorldQuestContainer;
 
 struct PlayerChoiceResponseRewardItem
 {
@@ -936,7 +950,7 @@ class TC_GAME_API ObjectMgr
         typedef std::unordered_map<uint32, Quest*> QuestMap;
         typedef std::unordered_map<uint32 /*questObjectiveId*/, QuestObjective const*> QuestObjectivesByIdContainer;
 
-        typedef std::unordered_map<uint32, AreaTriggerStruct> AreaTriggerContainer;
+        typedef std::unordered_map<int64, AreaTriggerTeleportStruct> AreaTriggerTeleportContainer;
 
         typedef std::unordered_map<uint32, uint32> AreaTriggerScriptContainer;
 
@@ -960,6 +974,7 @@ class TC_GAME_API ObjectMgr
         void LoadGameObjectTemplateAddons();
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry) const;
+        uint32 GetCreatureTemplateJournalId(uint32 entry) const;
         CreatureTemplateContainer const* GetCreatureTemplates() const { return &_creatureTemplateStore; }
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId) const;
         CreatureModelInfo const* GetCreatureModelRandomGender(CreatureModel* mode, CreatureTemplate const* creatureTemplate) const;
@@ -973,9 +988,12 @@ class TC_GAME_API ObjectMgr
         ItemTemplate const* GetItemTemplate(uint32 entry) const;
         ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
 
+        ScriptParams const& GetScriptParam(ObjectGuid::LowType lowGuid) { return _scriptParamContainer[lowGuid]; }
+        ScriptParams const& GetTemplateScriptParam(uint32 entry) { return _templateScriptParamContainer[entry]; }
+
         InstanceTemplate const* GetInstanceTemplate(uint32 mapId) const;
 
-        PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint8 level) const;
+        PetScalingInfo const* GetPetScalingInfo(uint32 creature_id) const;
 
         void GetPlayerClassLevelInfo(uint32 class_, uint8 level, uint32& baseMana) const;
 
@@ -1070,10 +1088,10 @@ class TC_GAME_API ObjectMgr
         void LoadGraveyardZones();
         GraveYardData const* FindGraveYardData(uint32 id, uint32 zone) const;
 
-        AreaTriggerStruct const* GetAreaTrigger(uint32 trigger) const;
+        AreaTriggerTeleportStruct const* GetAreaTrigger(int64 trigger) const;
         AccessRequirement const* GetAccessRequirement(uint32 mapid, Difficulty difficulty) const;
-        AreaTriggerStruct const* GetGoBackTrigger(uint32 Map) const;
-        AreaTriggerStruct const* GetMapEntranceTrigger(uint32 Map) const;
+        AreaTriggerTeleportStruct const* GetGoBackTrigger(uint32 Map) const;
+        AreaTriggerTeleportStruct const* GetMapEntranceTrigger(uint32 Map) const;
 
         uint32 GetAreaTriggerScriptId(uint32 trigger_id) const;
         SpellScriptsBounds GetSpellScriptsBounds(uint32 spellId);
@@ -1132,6 +1150,19 @@ class TC_GAME_API ObjectMgr
         void LoadGameobjectQuestEnders();
         void LoadCreatureQuestStarters();
         void LoadCreatureQuestEnders();
+        void LoadQuestTasks();
+
+        struct BonusQuestRectEntry
+        {
+            int32 MinX, MinY, MaxX, MaxY;
+            uint32 MapID;
+
+            bool IsIn(uint32 mapID, int x, int y)
+            {
+                return MapID == mapID && MinX <= x && MaxX >= x && MinY <= y && MaxY >= y;
+            }
+        };
+        std::map<uint32, std::vector<BonusQuestRectEntry>> BonusQuestsRects;
 
         QuestRelations* GetGOQuestRelationMap()
         {
@@ -1185,8 +1216,10 @@ class TC_GAME_API ObjectMgr
         void LoadCreatureClassLevelStats();
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
+        void LoadCreatureTemplateJournals();
         void LoadCreatureTemplateModels();
         void LoadCreatureTemplateAddons();
+        void LoadScriptParams();
         void LoadCreatureTemplate(Field* fields);
         void LoadCreatureScalingData();
         void CheckCreatureTemplate(CreatureTemplate const* cInfo);
@@ -1233,7 +1266,7 @@ class TC_GAME_API ObjectMgr
         PageText const* GetPageText(uint32 pageEntry);
 
         void LoadPlayerInfo();
-        void LoadPetLevelInfo();
+        void LoadPetOwnerBenefit();
         void LoadExplorationBaseXP();
         void LoadPetNames();
         void LoadPetNumber();
@@ -1255,6 +1288,11 @@ class TC_GAME_API ObjectMgr
         void LoadGossipMenuItems();
 
         void LoadVendors();
+
+        /* OLD SYSTEM TEMP PURPOSE */
+        void LoadTrainerSpell();
+        void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel, uint32 Index);
+
         void LoadTrainers();
         void LoadCreatureDefaultTrainers();
 
@@ -1289,6 +1327,7 @@ class TC_GAME_API ObjectMgr
         void ReturnOrDeleteOldMails(bool serverUp);
 
         CreatureBaseStats const* GetCreatureBaseStats(uint8 level, uint8 unitClass);
+
 
         void SetHighestGuids();
 
@@ -1451,6 +1490,8 @@ class TC_GAME_API ObjectMgr
         // grid objects
         void AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* data);
         void RemoveCreatureFromGrid(ObjectGuid::LowType guid, CreatureData const* data);
+        void AddAreaTriggerToGrid(ObjectGuid::LowType guid, AreaTriggerData const* data);
+        void RemoveAreaTriggerFromGrid(ObjectGuid::LowType guid, AreaTriggerData const* data);
         void AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData const* data);
         void RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectData const* data);
         ObjectGuid::LowType AddGOData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
@@ -1478,6 +1519,15 @@ class TC_GAME_API ObjectMgr
         GameTeleContainer const& GetGameTeleMap() const { return _gameTeleStore; }
         bool AddGameTele(GameTele& data);
         bool DeleteGameTele(std::string const& name);
+
+        TrainerSpellData const* GetNpcTrainerSpells(uint32 entry) const
+        {
+            CacheTrainerSpellContainer::const_iterator  iter = _cacheTrainerSpellStore.find(entry);
+            if (iter == _cacheTrainerSpellStore.end())
+                return nullptr;
+
+            return &iter->second;
+        }
 
         Trainer::Trainer const* GetTrainer(uint32 trainerId) const;
         uint32 GetCreatureDefaultTrainer(uint32 creatureId) const;
@@ -1584,7 +1634,14 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
+        WorldQuestContainer const& GetWorldQuestStore() const{ return _worldQuestStore; }
         PlayerChoice const* GetPlayerChoice(int32 choiceId) const;
+
+        void LoadZoneScriptNames();
+        uint32 GetScriptIdForZone(uint32 zoneId);
+
+        void LoadGarrisonScriptNames();
+        uint32 GetScriptIdForGarrison(uint32 siteLevelId);
 
     private:
         // first free id for selected id type
@@ -1624,7 +1681,7 @@ class TC_GAME_API ObjectMgr
         NpcTextContainer _npcTextStore;
         QuestGreetingContainer _questGreetingStore;
         QuestGreetingLocaleContainer _questGreetingLocaleStore;
-        AreaTriggerContainer _areaTriggerStore;
+        AreaTriggerTeleportContainer _areaTriggerTeleportStore;
         AreaTriggerScriptContainer _areaTriggerScriptStore;
         AccessRequirementContainer _accessRequirementStore;
         DungeonEncounterContainer _dungeonEncounterStore;
@@ -1678,6 +1735,8 @@ class TC_GAME_API ObjectMgr
         std::unordered_map<uint32, std::vector<PhaseAreaInfo>> _phaseInfoByArea;
         std::unordered_map<uint32, std::vector<TerrainSwapInfo*>> _terrainSwapInfoByMap;
 
+        std::unordered_map<uint32, uint32> _scriptIdsByZoneStore;
+        std::unordered_map<uint32, uint32> _scriptIdsByGarrisonStore;
     private:
         void LoadScripts(ScriptsType type);
         void LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go);
@@ -1687,9 +1746,9 @@ class TC_GAME_API ObjectMgr
 
         CreatureBaseStatsContainer _creatureBaseStatsStore;
 
-        typedef std::map<uint32, PetLevelInfo*> PetLevelInfoContainer;
+        typedef std::unordered_map<uint32, PetScalingInfo> PetScalingInfoContainer;
         // PetLevelInfoContainer[creature_id][level]
-        PetLevelInfoContainer _petInfoStore;                            // [creature_id][level]
+        PetScalingInfoContainer _petScalingStore;                            // [creature_id]
 
         void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
 
@@ -1712,6 +1771,7 @@ class TC_GAME_API ObjectMgr
         MapObjectGuids _mapObjectGuidsStore;
         CreatureDataContainer _creatureDataStore;
         CreatureTemplateContainer _creatureTemplateStore;
+        CreatureTemplateJournalContainer _creatureTemplateJournalStore;
         CreatureModelContainer _creatureModelStore;
         CreatureAddonContainer _creatureAddonStore;
         GameObjectAddonContainer _gameObjectAddonStore;
@@ -1727,6 +1787,8 @@ class TC_GAME_API ObjectMgr
         GameObjectTemplateAddonContainer _gameObjectTemplateAddonStore;
         /// Stores temp summon data grouped by summoner's entry, summoner's type and group id
         TempSummonDataContainer _tempSummonDataStore;
+        ScriptParamContainer _scriptParamContainer;
+        TemplateScriptParamContainer _templateScriptParamContainer;
         std::unordered_map<int32 /*choiceId*/, PlayerChoice> _playerChoices;
 
         ItemTemplateContainer _itemTemplateStore;
@@ -1743,6 +1805,7 @@ class TC_GAME_API ObjectMgr
         TrinityStringContainer _trinityStringStore;
 
         CacheVendorItemContainer _cacheVendorItemStore;
+        CacheTrainerSpellContainer _cacheTrainerSpellStore;
         std::unordered_map<uint32, Trainer::Trainer> _trainers;
         std::unordered_map<uint32, uint32> _creatureDefaultTrainers;
 
@@ -1754,6 +1817,8 @@ class TC_GAME_API ObjectMgr
         RealmNameContainer _realmNameStore;
 
         SceneTemplateContainer _sceneTemplateStore;
+
+        WorldQuestContainer _worldQuestStore;
 
         enum CreatureLinkedRespawnType
         {

@@ -1,0 +1,15 @@
+{
+  "token": "",
+  "channel_id": "",
+  "staff_channel_ID" : "",
+  "post_url_server_message_world": "http://127.0.0.1:8082/sendChannelMessage/",
+  "post_url_server_message_alliance" : "http://127.0.0.1:8082/sendChannelMessage/0",
+  "post_url_server_message_horde" : "http://127.0.0.1:8082/sendChannelMessage/1",
+  "post_url_server_command": "http://127.0.0.1:8082/command",
+  "post_token": "",
+  "channel_horde" : "world_h",
+  "channel_alliance": "world_a",
+  "allow_interactions" : "0",
+  "channel_world" : "world",
+  "command_prefix" : "."
+}

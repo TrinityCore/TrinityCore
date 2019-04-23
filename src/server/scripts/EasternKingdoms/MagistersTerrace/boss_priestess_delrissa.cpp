@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -153,6 +153,8 @@ public:
 
         void Reset() override
         {
+            instance->SetBossState(DATA_DELRISSA, NOT_STARTED);
+
             Initialize();
 
             InitializeLackeys();
@@ -208,7 +210,7 @@ public:
                 //summon all the remaining in vector
                 for (std::vector<uint32>::const_iterator itr = LackeyEntryList.begin(); itr != LackeyEntryList.end(); ++itr)
                 {
-                    if (Creature* pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
                         m_auiLackeyGUID[j] = pAdd->GetGUID();
 
                     ++j;
@@ -223,7 +225,7 @@ public:
                     //object already removed, not exist
                     if (!pAdd)
                     {
-                        pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
                         if (pAdd)
                             m_auiLackeyGUID[j] = pAdd->GetGUID();
                     }

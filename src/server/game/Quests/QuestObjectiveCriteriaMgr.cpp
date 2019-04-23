@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -243,6 +243,16 @@ void QuestObjectiveCriteriaMgr::CompletedObjective(QuestObjective const* questOb
 bool QuestObjectiveCriteriaMgr::HasCompletedObjective(QuestObjective const* questObjective) const
 {
     return _completedObjectives.find(questObjective->ID) != _completedObjectives.end();
+}
+
+void QuestObjectiveCriteriaMgr::RemoveCompletedObjective(QuestObjective const* questObjective)
+{
+    if (!HasCompletedObjective(questObjective))
+        return;
+
+    TC_LOG_INFO("criteria.quest", "QuestObjectiveCriteriaMgr::RemoveCompletedObjective(%u). %s", questObjective->ID, GetOwnerInfo().c_str());
+
+    _completedObjectives.erase(questObjective->ID);
 }
 
 void QuestObjectiveCriteriaMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const

@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+# Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -33,7 +33,7 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
   set_property(CACHE ${SCRIPT_MODULE_VARIABLE} PROPERTY STRINGS default disabled static dynamic)
 endforeach()
 
-option(TOOLS            "Build map/vmap/mmap extraction/assembler tools"              1)
+option(TOOLS            "Build map/vmap/mmap extraction/assembler tools"              0)
 option(USE_SCRIPTPCH    "Use precompiled headers when compiling scripts"              1)
 option(USE_COREPCH      "Use precompiled headers when compiling servers"              1)
 option(WITH_DYNAMIC_LINKING "Enable dynamic library linking."                         0)
@@ -51,3 +51,4 @@ option(WITH_COREDEBUG   "Include additional debug-code in core"                 
 set(WITH_SOURCE_TREE    "hierarchical" CACHE STRING "Build the source tree for IDE's.")
 set_property(CACHE WITH_SOURCE_TREE PROPERTY STRINGS no flat hierarchical hierarchical-folders)
 option(WITHOUT_GIT      "Disable the GIT testing routines"                            0)
+option(WITH_CPR         "Enable CPR dep (curl wrapper)"                               0)

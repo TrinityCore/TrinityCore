@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -127,31 +127,22 @@ class boss_xevozz : public CreatureScript
                     Talk(SAY_SUMMON_ENERGY);
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                scheduler.Update(diff,
-                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
-            }
-
             void ScheduleTasks() override
             {
-                scheduler.Schedule(Seconds(8), Seconds(10), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(8), Seconds(10), [this](TaskContext task)
                 {
                     DoCastAOE(SPELL_ARCANE_BARRAGE_VOLLEY);
                     task.Repeat(Seconds(8), Seconds(10));
                 });
 
-                scheduler.Schedule(Seconds(10), Seconds(11), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(10), Seconds(11), [this](TaskContext task)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                         DoCast(target, SPELL_ARCANE_BUFFET);
                     task.Repeat(Seconds(15), Seconds(20));
                 });
 
-                scheduler.Schedule(Seconds(5), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(5), [this](TaskContext task)
                 {
                     Talk(SAY_REPEAT_SUMMON);
 
@@ -201,7 +192,7 @@ class npc_ethereal_sphere : public CreatureScript
 
             void Reset() override
             {
-                scheduler.CancelAll();
+                me->GetScheduler().CancelAll();
                 ScheduledTasks();
 
                 DoCast(me, SPELL_POWER_BALL_VISUAL);
@@ -219,14 +210,11 @@ class npc_ethereal_sphere : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) override
-            {
-                scheduler.Update(diff);
-            }
+            void UpdateAI(uint32 /*diff*/) override { }
 
             void ScheduledTasks()
             {
-                scheduler.Schedule(Seconds(1), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(1), [this](TaskContext task)
                 {
                     if (Creature* xevozz = instance->GetCreature(DATA_XEVOZZ))
                     {
@@ -243,7 +231,6 @@ class npc_ethereal_sphere : public CreatureScript
 
         private:
             InstanceScript* instance;
-            TaskScheduler scheduler;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

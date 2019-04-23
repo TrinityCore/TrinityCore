@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,7 +31,7 @@ enum LFGEnum
 {
     LFG_TANKS_NEEDED                             = 1,
     LFG_HEALERS_NEEDED                           = 1,
-    LFG_DPS_NEEDED                               = 3
+    LFG_DAMAGES_NEEDED                           = 3
 };
 
 enum LfgRoles

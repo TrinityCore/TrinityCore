@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -582,8 +582,8 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce const& movementForce)
 {
     data << movementForce.ID;
-    data << movementForce.Origin;
     data << movementForce.Direction;
+    data << movementForce.Origin;
     data << movementForce.TransportID;
     data << movementForce.Magnitude;
     data.WriteBits(movementForce.Type, 2);
@@ -749,6 +749,24 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write(
 {
     _worldPacket << *Status;
     _worldPacket << TriggerGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveApplyMovementForce::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << Force;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveRemoveMovementForce::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << ID;
 
     return &_worldPacket;
 }

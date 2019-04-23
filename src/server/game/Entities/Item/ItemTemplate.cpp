@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -238,24 +238,32 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
 
 bool ItemTemplate::IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const
 {
-    if (GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT && alwaysAllowBoundToAccount)
-        return true;
-
     uint32 spec = player->GetUInt32Value(ACTIVE_PLAYER_FIELD_LOOT_SPEC_ID);
     if (!spec)
         spec = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
     if (!spec)
         spec = player->GetDefaultSpecId();
 
+    return IsUsableBySpecialization(spec, player->getLevel(), alwaysAllowBoundToAccount);
+}
+
+bool ItemTemplate::IsUsableBySpecialization(uint32 spec, uint32 level, bool alwaysAllowBoundToAccount) const
+{
+    if (GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT && alwaysAllowBoundToAccount)
+        return true;
+
     ChrSpecializationEntry const* chrSpecialization = sChrSpecializationStore.LookupEntry(spec);
     if (!chrSpecialization)
         return false;
 
     std::size_t levelIndex = 0;
-    if (player->getLevel() >= 110)
+    if (level >= 110)
         levelIndex = 2;
-    else if (player->getLevel() > 40)
+    else if (level > 40)
         levelIndex = 1;
+
+    if (Specializations[levelIndex].none())
+        return true;
 
     return Specializations[levelIndex].test(CalculateItemSpecBit(chrSpecialization));
 }

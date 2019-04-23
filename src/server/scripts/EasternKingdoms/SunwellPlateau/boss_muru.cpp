@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -122,7 +122,7 @@ class VoidSpawnSummon : public BasicEvent
         {
         }
 
-        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _owner->CastSpell(nullptr, SPELL_SUMMON_VOID_SENTINEL, true);
             return true;
@@ -149,13 +149,13 @@ public:
 
         void ScheduleTasks() override
         {
-            scheduler.Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
+            me->GetScheduler().Schedule(Milliseconds(2000), [this](TaskContext /*context*/)
             {
                 DoResetPortals();
                 DoCastAOE(SPELL_NEGATIVE_ENERGY_PERIODIC_E, true);
             });
 
-            scheduler.Schedule(Seconds(15), [this](TaskContext context)
+            me->GetScheduler().Schedule(Seconds(15), [this](TaskContext context)
             {
                 DoCastAOE(SPELL_DARKNESS_E, true);
                 DoCastAOE(SPELL_BLACKHOLE, true);
@@ -196,17 +196,6 @@ public:
 
             if (Creature* muru = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MURU)))
                 muru->DisappearAndDie();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
         }
 
         void DoResetPortals()
@@ -261,7 +250,7 @@ public:
 
         void ScheduleTasks() override
         {
-            scheduler.Schedule(Minutes(10), [this](TaskContext /*context*/)
+            me->GetScheduler().Schedule(Minutes(10), [this](TaskContext /*context*/)
             {
                 if (Creature* entropius = ObjectAccessor::GetCreature(*me, _entropiusGUID))
                     entropius->CastSpell(entropius, SPELL_ENRAGE);
@@ -269,7 +258,7 @@ public:
                 _hasEnraged = true;
             });
 
-            scheduler.Schedule(Seconds(10), [this](TaskContext /*context*/)
+            me->GetScheduler().Schedule(Seconds(10), [this](TaskContext /*context*/)
             {
                 DoCast(me, SPELL_SUMMON_BLOOD_ELVES_SCRIPT, true);
                 DoCast(me, SPELL_SUMMON_BLOOD_ELVES_PERIODIC, true);
@@ -297,7 +286,7 @@ public:
                 DoCast(me, SPELL_OPEN_ALL_PORTALS, true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
+                me->GetScheduler().Schedule(Seconds(6), [this](TaskContext /*context*/)
                 {
                     DoCast(me, SPELL_SUMMON_ENTROPIUS, true);
                 });
@@ -317,13 +306,7 @@ public:
             BossAI::JustSummoned(summon);
         }
 
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            scheduler.Update(diff);
-        }
+        void UpdateAI(uint32 /*diff*/) override { }
 
     private:
         ObjectGuid _entropiusGUID;
@@ -363,7 +346,7 @@ public:
                     break;
                 case SPELL_OPEN_PORTAL_2:
                     DoCastAOE(SPELL_OPEN_PORTAL, true);
-                    _scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
+                    me->GetScheduler().Schedule(Seconds(6), [this](TaskContext /*context*/)
                     {
                         DoCastAOE(SPELL_SUMMON_VOID_SENTINEL_SUMMONER, true);
                     });
@@ -373,13 +356,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
-        {
-            _scheduler.Update(diff);
-        }
-
-    private:
-        TaskScheduler _scheduler;
+        void UpdateAI(uint32 /*diff*/) override { }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -406,7 +383,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
             DoCast(me, SPELL_DARKFIEND_SKIN, true);
 
-            _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+            me->GetScheduler().Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -416,7 +393,7 @@ public:
                         AttackStart(target);
             });
 
-            _scheduler.Schedule(Seconds(3), [this](TaskContext context)
+            me->GetScheduler().Schedule(Seconds(3), [this](TaskContext context)
             {
                 if (me->IsWithinDist(me->GetVictim(), 5.0f) && me->HasAura(SPELL_DARKFIEND_SKIN))
                 {
@@ -438,13 +415,9 @@ public:
             return me->HasAura(SPELL_DARKFIEND_SKIN);
         }
 
-        void UpdateAI(uint32 diff) override
-        {
-            _scheduler.Update(diff);
-        }
+        void UpdateAI(uint32 /*diff*/) override { }
 
     private:
-        TaskScheduler _scheduler;
         ObjectGuid _summonerGUID;
     };
 
@@ -476,7 +449,7 @@ public:
         {
             DoCast(me, SPELL_SHADOW_PULSE_PERIODIC, true);
 
-            _scheduler.Schedule(Seconds(45), [this](TaskContext context)
+            me->GetScheduler().Schedule(Seconds(45), [this](TaskContext context)
             {
                 DoCastVictim(SPELL_VOID_BLAST, false);
 
@@ -490,16 +463,7 @@ public:
                 DoCastAOE(SPELL_SUMMON_VOID_SPAWN, true);
         }
 
-        void UpdateAI(uint32 diff) override
-        {
-            _scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
-        }
-
     private:
-        TaskScheduler _scheduler;
         InstanceScript* _instance;
     };
 
@@ -526,12 +490,12 @@ public:
             me->SetReactState(REACT_PASSIVE);
             DoCast(SPELL_BLACKHOLE_SUMMON_VISUAL);
 
-            _scheduler.Schedule(Seconds(15), [this](TaskContext /*context*/)
+            me->GetScheduler().Schedule(Seconds(15), [this](TaskContext /*context*/)
             {
                 me->DisappearAndDie();
             });
 
-            _scheduler.Schedule(Seconds(1), [this](TaskContext context)
+            me->GetScheduler().Schedule(Seconds(1), [this](TaskContext context)
             {
                 switch (context.GetRepeatCounter())
                 {
@@ -556,13 +520,9 @@ public:
             });
         }
 
-        void UpdateAI(uint32 diff) override
-        {
-            _scheduler.Update(diff);
-        }
+        void UpdateAI(uint32 /*diff*/) override { }
 
     private:
-        TaskScheduler _scheduler;
         InstanceScript* _instance;
     };
 

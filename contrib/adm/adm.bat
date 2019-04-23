@@ -1,0 +1,1 @@
+dotnet AshamaneDependencyManager.dll

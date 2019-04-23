@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,10 +32,13 @@ enum BG_EY_Misc
 
 enum BG_EY_WorldStates
 {
-    EY_ALLIANCE_RESOURCES           = 2749,
-    EY_HORDE_RESOURCES              = 2750,
-    EY_ALLIANCE_BASE                = 2752,
-    EY_HORDE_BASE                   = 2753,
+    EY_ACTIVATE_ALLIANCE_RESOURCES  = 9808,
+    EY_ACTIVATE_HORDE_RESOURCES     = 9809,
+    EY_ALLIANCE_RESOURCES           = 1776,
+    EY_HORDE_RESOURCES              = 1777,
+    EY_MAX_RESOURCES                = 1780,
+    EY_ALLIANCE_BASE                = 1779,
+    EY_HORDE_BASE                   = 1778,
     DRAENEI_RUINS_HORDE_CONTROL     = 2733,
     DRAENEI_RUINS_ALLIANCE_CONTROL  = 2732,
     DRAENEI_RUINS_UNCONTROL         = 2731,

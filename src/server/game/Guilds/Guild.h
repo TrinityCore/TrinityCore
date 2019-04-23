@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -325,11 +325,16 @@ typedef std::set <uint8> SlotIds;
 
 class TC_GAME_API Guild
 {
+    public:
+    Ashamane::AnyData Variables;
+
     private:
         // Class representing guild member
         class Member
         {
             public:
+
+                Ashamane::AnyData Variables;
                 Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId);
 
                 void SetStats(Player* player);

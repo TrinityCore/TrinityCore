@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -202,6 +202,56 @@ SpellCastResult SpellScript::CheckCastHandler::Call(SpellScript* spellScript)
     return (spellScript->*_checkCastHandlerScript)();
 }
 
+void SpellScript::OnPrepareHandler::Call(SpellScript* spellScript)
+{
+    (spellScript->*_onPrepareHandlerScript)();
+}
+
+SpellScript::OnPrepareHandler::OnPrepareHandler(SpellOnPrepareFnType OnPrepareHandlerScript)
+{
+    _onPrepareHandlerScript = OnPrepareHandlerScript;
+}
+
+void SpellScript::OnSummonHandler::Call(SpellScript* spellScript, Creature* creature)
+{
+    (spellScript->*_onSummonHandlerScript)(creature);
+}
+
+SpellScript::OnSummonHandler::OnSummonHandler(SpellOnSummonFnType OnSummonHandlerScript)
+{
+    _onSummonHandlerScript = OnSummonHandlerScript;
+}
+
+void SpellScript::OnTakePowerHandler::Call(SpellScript* spellScript, SpellPowerCost& powerCost)
+{
+    (spellScript->*_onTakePowerHandlerScript)(powerCost);
+}
+
+SpellScript::OnTakePowerHandler::OnTakePowerHandler(SpellOnTakePowerFnType OnTakePowerHandlerScript)
+{
+    _onTakePowerHandlerScript = OnTakePowerHandlerScript;
+}
+
+void SpellScript::OnCalcCastTimeHandler::Call(SpellScript* spellScript, int32& castTime)
+{
+    (spellScript->*_onCalcCastTimeHandlerScript)(castTime);
+}
+
+SpellScript::OnCalcCastTimeHandler::OnCalcCastTimeHandler(SpellOnCalcCastTimeFnType OnCalcCastTimeHandlerScript)
+{
+    _onCalcCastTimeHandlerScript = OnCalcCastTimeHandlerScript;
+}
+
+void SpellScript::OnCalcCritChanceHandler::Call(SpellScript* spellScript, Unit* victim, float& chance)
+{
+    (spellScript->*_onCalcCritChanceHandlerScript)(victim, chance);
+}
+
+SpellScript::OnCalcCritChanceHandler::OnCalcCritChanceHandler(SpellOnCalcCritChanceFnType OnCalcCritChanceHandlerScript)
+{
+    _onCalcCritChanceHandlerScript = OnCalcCritChanceHandlerScript;
+}
+
 SpellScript::EffectHandler::EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
     : _SpellScript::EffectNameCheck(_effName), _SpellScript::EffectHook(_effIndex)
 {
@@ -275,6 +325,7 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
             return true;
         case TARGET_SELECT_CATEGORY_CONE: // AREA
         case TARGET_SELECT_CATEGORY_AREA: // AREA
+        case TARGET_SELECT_CATEGORY_LINE: //LINE
             return area;
         case TARGET_SELECT_CATEGORY_DEFAULT:
             switch (targetInfo.GetObjectType())
@@ -472,6 +523,11 @@ GameObject* SpellScript::GetExplTargetGObj() const
 Item* SpellScript::GetExplTargetItem() const
 {
     return m_spell->m_targets.GetItemTarget();
+}
+
+ObjectGuid SpellScript::GetOrigUnitTargetGUID() const
+{
+    return m_spell->m_targets.GetOrigUnitTargetGUID();
 }
 
 Unit* SpellScript::GetHitUnit() const
@@ -745,6 +801,10 @@ bool AuraScript::_Validate(SpellInfo const* entry)
         if (!itr->GetAffectedEffectsMask(entry))
             TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoEffectCalcSpellMod` of AuraScript won't be executed", entry->Id, itr->ToString().c_str(), m_scriptName->c_str());
 
+    for (auto itr = DoEffectCalcCritChance.begin(); itr != DoEffectCalcCritChance.end(); ++itr)
+        if (!itr->GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoEffectCalcCritChance` of AuraScript won't be executed", entry->Id, itr->ToString().c_str(), m_scriptName->c_str());
+
     for (auto itr = OnEffectAbsorb.begin(); itr != OnEffectAbsorb.end(); ++itr)
         if (!itr->GetAffectedEffectsMask(entry))
             TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectAbsorb` of AuraScript won't be executed", entry->Id, itr->ToString().c_str(), m_scriptName->c_str());
@@ -840,6 +900,16 @@ void AuraScript::EffectPeriodicHandler::Call(AuraScript* auraScript, AuraEffect 
     (auraScript->*pEffectHandlerScript)(_aurEff);
 }
 
+AuraScript::AuraUpdateHandler::AuraUpdateHandler(AuraUpdateFnType _pEffectHandlerScript)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::AuraUpdateHandler::Call(AuraScript* auraScript, uint32 diff)
+{
+    (auraScript->*pEffectHandlerScript)(diff);
+}
+
 AuraScript::EffectUpdatePeriodicHandler::EffectUpdatePeriodicHandler(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
     : AuraScript::EffectBase(_effIndex, _effName)
 {
@@ -882,6 +952,17 @@ AuraScript::EffectCalcSpellModHandler::EffectCalcSpellModHandler(AuraEffectCalcS
 void AuraScript::EffectCalcSpellModHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, SpellModifier*& spellMod)
 {
     (auraScript->*pEffectHandlerScript)(aurEff, spellMod);
+}
+
+AuraScript::EffectCalcCritChanceHandler::EffectCalcCritChanceHandler(AuraEffectCalcCritChanceFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
+    : AuraScript::EffectBase(_effIndex, _effName)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::EffectCalcCritChanceHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, Unit* victim, float& chance)
+{
+    (auraScript->*pEffectHandlerScript)(aurEff, victim, chance);
 }
 
 AuraScript::EffectApplyHandler::EffectApplyHandler(AuraEffectApplicationModeFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode)
@@ -1042,6 +1123,11 @@ SpellInfo const* AuraScript::GetSpellInfo() const
     return m_aura->GetSpellInfo();
 }
 
+SpellEffectInfo const* AuraScript::GetEffectInfo(SpellEffIndex effIndex) const
+{
+    return GetSpellInfo()->GetEffect(effIndex);
+}
+
 uint32 AuraScript::GetId() const
 {
     return m_aura->GetId();
@@ -1094,6 +1180,18 @@ int32 AuraScript::GetDuration() const
 
 void AuraScript::SetDuration(int32 duration, bool withMods)
 {
+    m_aura->SetDuration(duration, withMods);
+}
+
+void AuraScript::ModDuration(int32 duration, int32 maxDuration /*= 0*/, bool withMods /*= false*/)
+{
+    duration = GetDuration() + duration;
+    if (maxDuration != 0)
+        duration = std::min(duration, maxDuration);
+
+    if (maxDuration && duration > m_aura->GetMaxDuration())
+        m_aura->SetMaxDuration(duration);
+
     m_aura->SetDuration(duration, withMods);
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -95,7 +95,7 @@ char const* GitRevision::GetHotfixesDatabase()
 
 char const* GitRevision::GetFullVersion()
 {
-  return "TrinityCore rev. " VER_PRODUCTVERSION_STR
+  return "CoreTeam rev. " VER_PRODUCTVERSION_STR
     " (" TRINITY_PLATFORM_STR ", " _BUILD_DIRECTIVE ", " TRINITY_LINKAGE_TYPE_STR ")";
 }
 

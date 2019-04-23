@@ -1,6 +1,0 @@
-ALTER TABLE `character_skills`
-ROW_FORMAT=DEFAULT,
-CHANGE `guid` `guid` INT(10) UNSIGNED NOT NULL COMMENT 'Global Unique Identifier',
-CHANGE `skill` `skill` SMALLINT(5) UNSIGNED NOT NULL,
-CHANGE `value` `value` SMALLINT(5) UNSIGNED NOT NULL,
-CHANGE `max` `max` SMALLINT(5) UNSIGNED NOT NULL;

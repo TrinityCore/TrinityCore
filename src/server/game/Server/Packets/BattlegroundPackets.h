@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,13 @@
 #ifndef BattlegroundPackets_h__
 #define BattlegroundPackets_h__
 
+#include "ArenaHelper.h"
 #include "Packet.h"
 #include "LFGPacketsCommon.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
+#include <array>
 
 namespace WorldPackets
 {
@@ -237,6 +239,14 @@ namespace WorldPackets
             uint8 Roles = 0;
         };
 
+        class BattlemasterJoinArenaSkirmish final : public ClientPacket
+        {
+        public:
+            BattlemasterJoinArenaSkirmish(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEMASTER_JOIN_SKIRMISH, std::move(packet)) { }
+
+            void Read() override;
+        };
+
         class BattlefieldLeave final : public ClientPacket
         {
         public:
@@ -406,6 +416,31 @@ namespace WorldPackets
             RequestRatedBattlefieldInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_RATED_BATTLEFIELD_INFO, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        struct RatedInfo
+        {
+            uint32 ArenaPersonalRating;
+            uint32 BestRatingOfWeek;
+            uint32 BestRatingOfSeason;
+            uint32 ArenaMatchMakerRating;
+            uint32 WeekWins;
+            uint32 WeekGames;
+            uint32 PrevWeekWins;
+            uint32 PrevWeekGames;
+            uint32 SeasonWins;
+            uint32 SeasonGames;
+            uint32 ProjectedConquestCap;
+        };
+
+        class RatedBattleFieldInfo final : public ServerPacket
+        {
+        public:
+            RatedBattleFieldInfo() : ServerPacket(SMSG_RATED_BATTLEFIELD_INFO, MAX_PVP_SLOT * sizeof(RatedInfo)) { }
+
+            WorldPacket const* Write() override;
+
+            std::array<RatedInfo, MAX_PVP_SLOT> Infos;
         };
     }
 }

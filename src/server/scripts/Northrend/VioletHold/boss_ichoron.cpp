@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -137,7 +137,7 @@ class boss_ichoron : public CreatureScript
                         me->LowerPlayerDamageReq(damage);
                         me->ModifyHealth(-std::min<int32>(damage, me->GetHealth() - 1));
 
-                        scheduler.DelayAll(Seconds(15));
+                        me->GetScheduler().DelayAll(Seconds(15));
                         break;
                     }
                     case ACTION_DRAINED:
@@ -187,7 +187,7 @@ class boss_ichoron : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_DRAINED, ObjectGuid::Empty, 0, AURA_REMOVE_BY_EXPIRE);
             }
 
-            void UpdateAI(uint32 diff) override
+            void UpdateAI(uint32 /*diff*/) override
             {
                 if (!UpdateVictim())
                     return;
@@ -199,25 +199,24 @@ class boss_ichoron : public CreatureScript
                     _isFrenzy = true;
                 }
 
-                scheduler.Update(diff,
-                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
+                DoMeleeAttackIfReady();
             }
 
             void ScheduleTasks() override
             {
-                scheduler.Async([this]
+                me->GetScheduler().Async([this]
                 {
                     DoCast(me, SPELL_SHRINK);
                     DoCast(me, SPELL_PROTECTIVE_BUBBLE);
                 });
 
-                scheduler.Schedule(Seconds(10), Seconds(15), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(10), Seconds(15), [this](TaskContext task)
                 {
                     DoCastAOE(SPELL_WATER_BOLT_VOLLEY);
                     task.Repeat(Seconds(10), Seconds(15));
                 });
 
-                scheduler.Schedule(Seconds(6), Seconds(9), [this](TaskContext task)
+                me->GetScheduler().Schedule(Seconds(6), Seconds(9), [this](TaskContext task)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f))
                         DoCast(target, SPELL_WATER_BLAST);

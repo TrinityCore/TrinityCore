@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,9 @@
 
 #include "InstanceScript.h"
 #include "AreaBoundary.h"
+#include "AchievementMgr.h"
+#include "ChallengeModeMgr.h"
+#include "ChallengeModePackets.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
@@ -29,6 +32,7 @@
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
+#include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
@@ -50,8 +54,11 @@ BossBoundaryData::~BossBoundaryData()
 }
 
 InstanceScript::InstanceScript(InstanceMap* map) : instance(map), completedEncounters(0),
-_entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
+_entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false),
+_challengeModeStarted(false), _challengeModeLevel(0), _challengeModeStartTime(0), _challengeModeDeathCount(0)
 {
+    _scriptType = ZONE_SCRIPT_TYPE_INSTANCE;
+
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
     auto const scriptname = sObjectMgr->GetScriptName(scriptId);
@@ -92,6 +99,10 @@ void InstanceScript::OnCreatureCreate(Creature* creature)
 {
     AddObject(creature, true);
     AddMinion(creature, true);
+
+    if (IsChallengeModeStarted())
+        if (!creature->IsPet())
+            CastChallengeCreatureSpell(creature);
 }
 
 void InstanceScript::OnCreatureRemove(Creature* creature)
@@ -133,6 +144,39 @@ Creature* InstanceScript::GetCreature(uint32 type)
 GameObject* InstanceScript::GetGameObject(uint32 type)
 {
     return instance->GetGameObject(GetObjectGuid(type));
+}
+
+void InstanceScript::OnPlayerEnter(Player* player)
+{
+    if (IsChallengeModeStarted())
+    {
+        WorldPackets::ChallengeMode::ChangePlayerDifficultyResult changePlayerDifficultyResult(11);
+        changePlayerDifficultyResult.InstanceDifficultyID = instance->GetId();
+        changePlayerDifficultyResult.DifficultyRecID = DIFFICULTY_MYTHIC_KEYSTONE;
+        player->SendDirectMessage(changePlayerDifficultyResult.Write());
+
+        SendChallengeModeStart(player);
+        SendChallengeModeElapsedTimer(player);
+        SendChallengeModeDeathCount(player);
+
+        CastChallengePlayerSpell(player);
+    }
+}
+
+void InstanceScript::OnPlayerExit(Player* player)
+{
+    player->RemoveAurasDueToSpell(SPELL_CHALLENGER_BURDEN);
+}
+
+void InstanceScript::OnPlayerDeath(Player* /*player*/)
+{
+    if (IsChallengeModeStarted())
+    {
+        ++_challengeModeDeathCount;
+
+        SendChallengeModeElapsedTimer();
+        SendChallengeModeDeathCount();
+    }
 }
 
 void InstanceScript::SetHeaders(std::string const& dataHeaders)
@@ -255,6 +299,8 @@ void InstanceScript::AddObject(Creature* obj, bool add)
     ObjectInfoMap::const_iterator j = _creatureInfo.find(obj->GetEntry());
     if (j != _creatureInfo.end())
         AddObject(obj, j->second, add);
+    else
+        AddObject(obj, obj->GetEntry(), add);
 }
 
 void InstanceScript::AddObject(GameObject* obj, bool add)
@@ -262,6 +308,8 @@ void InstanceScript::AddObject(GameObject* obj, bool add)
     ObjectInfoMap::const_iterator j = _gameObjectInfo.find(obj->GetEntry());
     if (j != _gameObjectInfo.end())
         AddObject(obj, j->second, add);
+    else
+        AddObject(obj, obj->GetEntry(), add);
 }
 
 void InstanceScript::AddObject(WorldObject* obj, uint32 type, bool add)
@@ -334,6 +382,15 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
             switch (state)
             {
+                case NOT_STARTED:
+                {
+                    if (bossInfo->state == IN_PROGRESS)
+                    {
+                        ResetCombatResurrections();
+                        SendEncounterEnd();
+                    }
+                    break;
+                }
                 case IN_PROGRESS:
                 {
                     uint32 resInterval = GetCombatResurrectionChargeInterval();
@@ -468,6 +525,42 @@ void InstanceScript::HandleGameObject(ObjectGuid guid, bool open, GameObject* go
         go->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     else
         TC_LOG_DEBUG("scripts", "InstanceScript: HandleGameObject failed");
+}
+
+void InstanceScript::UpdateOperations(uint32 const diff)
+{
+    for (auto itr = timedDelayedOperations.begin(); itr != timedDelayedOperations.end(); itr++)
+    {
+        itr->first -= diff;
+
+        if (itr->first < 0)
+        {
+            itr->second();
+            itr->second = nullptr;
+        }
+    }
+
+    uint32 timedDelayedOperationCountToRemove = std::count_if(std::begin(timedDelayedOperations), std::end(timedDelayedOperations), [](const std::pair<int32, std::function<void()>> & pair) -> bool
+    {
+        return pair.second == nullptr;
+    });
+
+    for (uint32 i = 0; i < timedDelayedOperationCountToRemove; i++)
+    {
+        auto itr = std::find_if(std::begin(timedDelayedOperations), std::end(timedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+        {
+            return p_Pair.second == nullptr;
+        });
+
+        if (itr != std::end(timedDelayedOperations))
+            timedDelayedOperations.erase(itr);
+    }
+
+    if (timedDelayedOperations.empty() && !emptyWarned)
+    {
+        emptyWarned = true;
+        LastOperationCalled();
+    }
 }
 
 void InstanceScript::DoUseDoorOrButton(ObjectGuid guid, uint32 withRestoreTime /*= 0*/, bool useAlternativeState /*= false*/)
@@ -620,20 +713,153 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
     }
 }
 
+// Kill all players with this aura in the instance
+void InstanceScript::DoKillPlayersWithAura(uint32 spell)
+{
+    Map::PlayerList const& PlayerList = instance->GetPlayers();
+    for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+        if (Player* player = itr->GetSource())
+            if (player->HasAura(spell))
+                player->Kill(player);
+}
+
 // Cast spell on all players in instance
-void InstanceScript::DoCastSpellOnPlayers(uint32 spell)
+void InstanceScript::DoCastSpellOnPlayers(uint32 spell, Unit* caster /*= nullptr*/, bool triggered /*= true*/)
+{
+    Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!PlayerList.isEmpty())
+    {
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+        {
+            if (Player* player = i->GetSource())
+            {
+                caster = caster ? caster : player;
+                caster->CastSpell(player, spell, triggered);
+            }
+        }
+    }
+}
+
+// Cast spell on all players in instance
+void InstanceScript::DoPlayScenePackageIdOnPlayers(uint32 scenePackageId)
 {
     Map::PlayerList const &PlayerList = instance->GetPlayers();
 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player* player = i->GetSource())
-                player->CastSpell(player, spell, true);
+                player->GetSceneMgr().PlaySceneByPackageId(scenePackageId);
+}
+void InstanceScript::DoRemoveForcedMovementsOnPlayers(ObjectGuid forceGuid)
+{
+    Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->RemoveMovementForce(forceGuid);
 }
 
 bool InstanceScript::ServerAllowsTwoSideGroups()
 {
     return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP);
+}
+
+void InstanceScript::DoSetAlternatePowerOnPlayers(int32 value)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->GetSource())
+                pPlayer->SetPower(POWER_ALTERNATE_POWER, value);
+}
+
+void InstanceScript::DoModifyPlayerCurrencies(uint32 id, int32 value)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->GetSource())
+                pPlayer->ModifyCurrency(id, value);
+}
+
+void InstanceScript::DoNearTeleportPlayers(const Position pos, bool casting /*=false*/)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->GetSource())
+                pPlayer->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), casting);
+}
+
+void InstanceScript::DoKilledMonsterKredit(uint32 questId, uint32 entry, ObjectGuid guid/* =0*/)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->GetSource())
+                if (pPlayer->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+                    pPlayer->KilledMonsterCredit(entry, guid);
+}
+
+// Complete Achievement for all players in instance
+void InstanceScript::DoCompleteAchievement(uint32 achievement)
+{
+    AchievementEntry const* achievementEntry = sAchievementStore.LookupEntry(achievement);
+    if (!achievementEntry)
+    {
+        TC_LOG_ERROR("scripts", "DoCompleteAchievement called for not existing achievement %u", achievement);
+        return;
+    }
+
+    Map::PlayerList const& playerList = instance->GetPlayers();
+    if (!playerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->CompletedAchievement(achievementEntry);
+}
+
+void InstanceScript::DoStartMovie(uint32 movieId)
+{
+    MovieEntry const* movieEntry = sMovieStore.LookupEntry(movieId);
+    if (!movieEntry)
+    {
+        TC_LOG_ERROR("scripts", "DoStartMovie called for not existing movieId %u", movieId);
+        return;
+    }
+
+    Map::PlayerList const& playerList = instance->GetPlayers();
+    if (!playerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->SendMovieStart(movieId);
+}
+
+// Update Achievement Criteria for all players in instance
+void InstanceScript::DoUpdateAchievementCriteria(CriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
+{
+    Map::PlayerList const& playerList = instance->GetPlayers();
+
+    if (!playerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->GetAchievementMgr()->UpdateCriteria(type, miscValue1, miscValue2, 0, unit);
+}
+
+// Add aura on all players in instance
+void InstanceScript::DoAddAuraOnPlayers(uint32 spell)
+{
+    Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->AddAura(spell, player);
 }
 
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
@@ -716,6 +942,27 @@ void InstanceScript::SendBossKillCredit(uint32 encounterId)
     instance->SendToPlayers(bossKillCreditMessage.Write());
 }
 
+bool InstanceScript::IsWipe() const
+{
+    Map::PlayerList const& PlayerList = instance->GetPlayers();
+
+    if (PlayerList.isEmpty())
+        return true;
+
+    for (Map::PlayerList::const_iterator Itr = PlayerList.begin(); Itr != PlayerList.end(); ++Itr)
+    {
+        Player* player = Itr->GetSource();
+
+        if (!player)
+            continue;
+
+        if (player->IsAlive() && !player->IsGameMaster())
+            return false;
+    }
+
+    return true;
+}
+
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)
 {
     DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID());
@@ -730,6 +977,15 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         if (encounter->creditType == type && encounter->creditEntry == creditEntry)
         {
             completedEncounters |= 1 << encounter->dbcEntry->Bit;
+
+            if (InstanceScenario* scenario = instance->ToInstanceMap()->GetInstanceScenario())
+            {
+                Map::PlayerList const& players = instance->GetPlayers();
+
+                if (players.begin() != players.end())
+                    scenario->UpdateCriteria(CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER, encounter->dbcEntry->ID, 0, 0, nullptr, players.begin()->GetSource());
+            }
+
             if (encounter->lastEncounterDungeon)
             {
                 dungeonId = encounter->lastEncounterDungeon;
@@ -849,6 +1105,228 @@ uint32 InstanceScript::GetCombatResurrectionChargeInterval() const
         interval = 90 * MINUTE * IN_MILLISECONDS / playerCount;
 
     return interval;
+}
+
+class ChallengeModeWorker
+{
+public:
+    ChallengeModeWorker(InstanceScript* instance) : _instance(instance) { }
+
+    void Visit(std::unordered_map<ObjectGuid, Creature*>& creatureMap)
+    {
+        for (auto const& p : creatureMap)
+        {
+            if (p.second->IsInWorld() && !p.second->IsPet())
+            {
+                if (!p.second->IsAlive())
+                    p.second->Respawn();
+
+                _instance->CastChallengeCreatureSpell(p.second);
+            }
+        }
+    }
+
+    template<class T>
+    void Visit(std::unordered_map<ObjectGuid, T*>&) { }
+
+private:
+    InstanceScript* _instance;
+};
+
+void InstanceScript::StartChallengeMode(uint8 level)
+{
+    MapChallengeModeEntry const* mapChallengeModeEntry = sChallengeModeMgr->GetMapChallengeModeEntry(instance->GetId());
+    if (!mapChallengeModeEntry)
+        return;
+
+    if (IsChallengeModeStarted())
+        return;
+
+    if (GetCompletedEncounterMask() != 0)
+        return;
+
+    _challengeModeStarted = true;
+    _challengeModeLevel = level;
+
+    instance->SendToPlayers(WorldPackets::ChallengeMode::ChangePlayerDifficultyResult(5).Write());
+
+    // Add the health/dmg modifier aura to all creatures
+    ChallengeModeWorker worker(this);
+    TypeContainerVisitor<ChallengeModeWorker, MapStoredObjectTypesContainer> visitor(worker);
+    visitor.Visit(instance->GetObjectsStore());
+
+    // Tp back all players to begin
+    Position entranceLocation;
+    if (WorldSafeLocsEntry const* entranceSafeLocEntry = sWorldSafeLocsStore.LookupEntry(GetEntranceLocation()))
+        entranceLocation.Relocate(entranceSafeLocEntry->Loc.X, entranceSafeLocEntry->Loc.Y, entranceSafeLocEntry->Loc.Z, entranceSafeLocEntry->Facing);
+    else if (AreaTriggerTeleportStruct const* areaTrigger = sObjectMgr->GetMapEntranceTrigger(instance->GetId()))
+        entranceLocation.Relocate(areaTrigger->target_X, areaTrigger->target_Y, areaTrigger->target_Z, areaTrigger->target_Orientation);
+    DoNearTeleportPlayers(entranceLocation);
+
+    if (_challengeModeDoorPosition.is_initialized())
+        instance->SummonGameObject(GOB_CHALLENGER_DOOR, *_challengeModeDoorPosition, QuaternionData(), WEEK);
+
+    WorldPackets::ChallengeMode::ChangePlayerDifficultyResult changePlayerDifficultyResult(11);
+    changePlayerDifficultyResult.InstanceDifficultyID = instance->GetId();
+    changePlayerDifficultyResult.DifficultyRecID = DIFFICULTY_MYTHIC_KEYSTONE;
+    instance->SendToPlayers(changePlayerDifficultyResult.Write());
+
+    instance->SendToPlayers(WorldPackets::ChallengeMode::Reset(instance->GetId()).Write());
+
+    WorldPackets::Misc::StartTimer startTimer;
+    startTimer.Type = WorldPackets::Misc::StartTimer::TIMER_TYPE_CHALLENGE;
+    startTimer.TotalTime = 10;
+    startTimer.TimeLeft = 10;
+    instance->SendToPlayers(startTimer.Write());
+
+    SendChallengeModeStart();
+
+    Map::PlayerList const &players = instance->GetPlayers();
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        CastChallengePlayerSpell(itr->GetSource());
+
+    AddTimedDelayedOperation(10000, [this]()
+    {
+        _challengeModeStartTime = getMSTime();
+
+        SendChallengeModeElapsedTimer();
+
+        if (GameObject* door = GetGameObject(GOB_CHALLENGER_DOOR))
+            DoUseDoorOrButton(door->GetGUID(), WEEK);
+    });
+}
+
+void InstanceScript::CompleteChallengeMode()
+{
+    MapChallengeModeEntry const* mapChallengeModeEntry = sChallengeModeMgr->GetMapChallengeModeEntry(instance->GetId());
+    if (!mapChallengeModeEntry)
+        return;
+
+    uint32 totalDuration = GetChallengeModeCurrentDuration();
+
+    // Todo : Send stats
+
+    uint8 mythicIncrement = 0;
+
+    for (uint8 i = 0; i < 3; ++i)
+        if (uint32(mapChallengeModeEntry->CriteriaCount[i]) > totalDuration)
+            ++mythicIncrement;
+
+    Map::PlayerList const &players = instance->GetPlayers();
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        itr->GetSource()->AddChallengeKey(sChallengeModeMgr->GetRandomChallengeId(), std::max(_challengeModeLevel + mythicIncrement, 1));
+
+    WorldPackets::ChallengeMode::Complete complete;
+    complete.Duration = totalDuration;
+    complete.MapId = instance->GetId();
+    complete.ChallengeId = mapChallengeModeEntry->ID;
+    complete.ChallengeLevel = _challengeModeLevel + mythicIncrement;
+    instance->SendToPlayers(complete.Write());
+
+    // Achievements only if timer respected
+    if (mythicIncrement)
+    {
+        if (_challengeModeLevel >= 2)
+            DoCompleteAchievement(11183);
+
+        if (_challengeModeLevel >= 5)
+            DoCompleteAchievement(11184);
+
+        if (_challengeModeLevel >= 10)
+            DoCompleteAchievement(11185);
+
+        if (_challengeModeLevel >= 15)
+        {
+            DoCompleteAchievement(11162);
+            DoCompleteAchievement(11224);
+        }
+    }
+
+    SpawnChallengeModeRewardChest();
+
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        sChallengeModeMgr->Reward(itr->GetSource(), _challengeModeLevel);
+}
+
+uint32 InstanceScript::GetChallengeModeCurrentDuration() const
+{
+    return uint32(GetMSTimeDiffToNow(_challengeModeStartTime) / 1000) + (5 * _challengeModeDeathCount);
+}
+
+void InstanceScript::SendChallengeModeStart(Player* player/* = nullptr*/) const
+{
+    MapChallengeModeEntry const* mapChallengeModeEntry = sChallengeModeMgr->GetMapChallengeModeEntry(instance->GetId());
+    if (!mapChallengeModeEntry)
+        return;
+
+    WorldPackets::ChallengeMode::Start start;
+    start.MapId = instance->GetId();
+    start.ChallengeId = mapChallengeModeEntry->ID;
+    start.ChallengeLevel = _challengeModeLevel;
+    instance->SendToPlayers(start.Write());
+
+    if (player)
+        player->SendDirectMessage(start.Write());
+    else
+        instance->SendToPlayers(start.Write());
+}
+
+void InstanceScript::SendChallengeModeDeathCount(Player* player/* = nullptr*/) const
+{
+    WorldPackets::ChallengeMode::UpdateDeathCount updateDeathCount;
+    updateDeathCount.DeathCount = _challengeModeDeathCount;
+
+    if (player)
+        player->SendDirectMessage(updateDeathCount.Write());
+    else
+        instance->SendToPlayers(updateDeathCount.Write());
+}
+
+void InstanceScript::SendChallengeModeElapsedTimer(Player* player/* = nullptr*/) const
+{
+    WorldPackets::Misc::StartElapsedTimer startElapsedTimer;
+    startElapsedTimer.TimerID = 1;
+    startElapsedTimer.CurrentDuration = GetChallengeModeCurrentDuration();
+
+    if (player)
+        player->SendDirectMessage(startElapsedTimer.Write());
+    else
+        instance->SendToPlayers(startElapsedTimer.Write());
+}
+
+void InstanceScript::CastChallengeCreatureSpell(Creature* creature)
+{
+    CustomSpellValues values;
+    values.AddSpellMod(SPELLVALUE_BASE_POINT0, sChallengeModeMgr->GetHealthMultiplier(_challengeModeLevel));
+    values.AddSpellMod(SPELLVALUE_BASE_POINT1, sChallengeModeMgr->GetDamageMultiplier(_challengeModeLevel));
+
+    // Affixes
+    values.AddSpellMod(SPELLVALUE_BASE_POINT2,  0); // 6 Raging
+    values.AddSpellMod(SPELLVALUE_BASE_POINT3,  0); // 7 Bolstering
+    values.AddSpellMod(SPELLVALUE_BASE_POINT4,  0); // 9 Tyrannical
+    values.AddSpellMod(SPELLVALUE_BASE_POINT5,  0); //
+    values.AddSpellMod(SPELLVALUE_BASE_POINT6,  0); //
+    values.AddSpellMod(SPELLVALUE_BASE_POINT7,  0); // 3 Volcanic
+    values.AddSpellMod(SPELLVALUE_BASE_POINT8,  0); // 4 Necrotic
+    values.AddSpellMod(SPELLVALUE_BASE_POINT9,  0); // 10 Fortified
+    values.AddSpellMod(SPELLVALUE_BASE_POINT10, 0); // 8 Sanguine
+    values.AddSpellMod(SPELLVALUE_BASE_POINT11, 0); // 14 Quaking
+    values.AddSpellMod(SPELLVALUE_BASE_POINT12, 0); // 13 Explosive
+    values.AddSpellMod(SPELLVALUE_BASE_POINT13, 0); // 11 Bursting
+
+    creature->CastCustomSpell(SPELL_CHALLENGER_MIGHT, values, creature, TRIGGERED_FULL_MASK);
+}
+
+void InstanceScript::CastChallengePlayerSpell(Player* player)
+{
+    CustomSpellValues values;
+
+    // Affixes
+    values.AddSpellMod(SPELLVALUE_BASE_POINT1,  0); // 12 Grievous
+    values.AddSpellMod(SPELLVALUE_BASE_POINT2,  0); // 2 Skittish
+    values.AddSpellMod(SPELLVALUE_BASE_POINT3,  0); //
+
+    player->CastCustomSpell(SPELL_CHALLENGER_BURDEN, values, player, TRIGGERED_FULL_MASK);
 }
 
 bool InstanceHasScript(WorldObject const* obj, char const* scriptName)

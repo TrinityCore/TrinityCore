@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "SmartScriptMgr.h"
 #include "DB2Stores.h"
 #include "CreatureTextMgr.h"
+#include "ConversationDataStore.h"
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
@@ -390,6 +391,15 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
             if (e.target.playerDistance.dist == 0)
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u has maxDist 0 as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
+            }
+            break;
+        }
+        case SMART_TARGET_INVOKER_SUMMON:
+        {
+            if (!sObjectMgr->GetCreatureTemplate(e.target.invokerSummon.entry))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses non-existent Creature entry %u as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.invokerSummon.entry);
                 return false;
             }
             break;
@@ -973,10 +983,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_PLAY_ANIMKIT:
-            if (e.action.animKit.animKit && !IsAnimKitValid(e, e.action.animKit.animKit))
-                return false;
+            if (e.action.animKit.type != 4)
+            {
+                if (e.action.animKit.animKit && !IsAnimKitValid(e, e.action.animKit.animKit))
+                    return false;
+            }
 
-            if (e.action.animKit.type > 3)
+            if (e.action.animKit.type > 4)
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid AnimKit type %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.animKit.type);
                 return false;
@@ -1401,6 +1414,41 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
             break;
         }
+        case SMART_ACTION_START_CONVERSATION:
+        {
+            if (!sConversationDataStore->GetConversationTemplate(e.action.startConversation.conversationId))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_START_CONVERSATION uses conversationId %u but conversation don't exist, skipped", e.action.startConversation.conversationId);
+                return false;
+            }
+
+            break;
+        }
+        case SMART_ACTION_MODIFY_THREAT:
+        {
+            if (e.action.modifyThreat.increase == 0 && e.action.modifyThreat.decrease == 0)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_MODIFY_THREAT have neither increase or decrease param set for creature " SI64FMTD ", skipped", e.entryOrGuid);
+                return false;
+            }
+
+            if (e.action.modifyThreat.increase != 0 && e.action.modifyThreat.decrease != 0)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_MODIFY_THREAT have both increase and decrease param set for creature " SI64FMTD ", decrease skipped", e.entryOrGuid);
+            }
+
+            break;
+        }
+        case SMART_ACTION_SET_SPEED:
+        {
+            if (e.action.setSpeed.type >= MAX_MOVE_TYPE)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_SPEED have wrong speed type %u for creature " SI64FMTD ", skipped", e.action.setSpeed.type, e.entryOrGuid);
+                return false;
+            }
+
+            break;
+        }
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
@@ -1470,6 +1518,19 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_MOVE_OFFSET:
         case SMART_ACTION_SET_CORPSE_DELAY:
         case SMART_ACTION_DISABLE_EVADE:
+        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
+        case SMART_ACTION_PLAY_SPELL_VISUAL:
+        case SMART_ACTION_PLAY_ORPHAN_SPELL_VISUAL:
+        case SMART_ACTION_CANCEL_VISUAL:
+        case SMART_ACTION_CIRCLE_PATH:
+        case SMART_ACTION_SET_OVERRIDE_ZONE_LIGHT:
+        case SMART_ACTION_IGNORE_PATHFINDING:
+        case SMART_ACTION_SET_OVERRIDE_ZONE_MUSIC:
+        case SMART_ACTION_SET_POWER_TYPE:
+        case SMART_ACTION_SET_MAX_POWER:
+        case SMART_ACTION_ADD_FLYING_MOVEMENT_FLAG:
+        case SMART_ACTION_REMOVE_FLYING_MOVEMENT_FLAG:
+        case SMART_ACTION_CAST_SPELL_OFFSET:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry " SI64FMTD " SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);

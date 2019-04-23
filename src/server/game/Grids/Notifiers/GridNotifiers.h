@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,6 +27,7 @@
 #include "GameObject.h"
 #include "Packet.h"
 #include "Player.h"
+#include "SceneObject.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "UnitAI.h"
@@ -115,6 +116,7 @@ namespace Trinity
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
         void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
         void Visit(AreaTriggerMapType &m) { updateObjects<AreaTrigger>(m); }
+        void Visit(SceneObjectMapType &m) { updateObjects<SceneObject>(m); }
         void Visit(ConversationMapType &m) { updateObjects<Conversation>(m); }
     };
 
@@ -208,6 +210,7 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(SceneObjectMapType &m);
         void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
@@ -230,6 +233,7 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(SceneObjectMapType &m);
         void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
@@ -253,6 +257,7 @@ namespace Trinity
         void Visit(GameObjectMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(SceneObjectMapType &m);
         void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
@@ -317,6 +322,15 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
                 return;
             for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+                if (itr->GetSource()->IsInPhase(_searcher))
+                    i_do(itr->GetSource());
+        }
+
+        void Visit(SceneObjectMapType &m)
+        {
+            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_SCENEOBJECT))
+                return;
+            for (SceneObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
                 if (itr->GetSource()->IsInPhase(_searcher))
                     i_do(itr->GetSource());
         }
@@ -612,6 +626,99 @@ namespace Trinity
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
 
+    /// AreaTriggers searchers
+    template<class Check>
+    struct AreaTriggerListSearcher
+    {
+        WorldObject const* i_searcher;
+        std::list<AreaTrigger*> &m_AreaTriggers;
+        Check& i_check;
+
+        AreaTriggerListSearcher(WorldObject const* searcher, std::list<AreaTrigger*>& areaTriggers, Check& check)
+            : i_searcher(searcher), m_AreaTriggers(areaTriggers), i_check(check) {}
+
+        void Visit(AreaTriggerMapType& p_AreaTriggerMap);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
+    };
+
+    template<class Check>
+    struct AreaTriggerSearcher
+    {
+        WorldObject const* i_searcher;
+        AreaTrigger* &i_object;
+        Check & i_check;
+
+        AreaTriggerSearcher(WorldObject const* searcher, AreaTrigger* & result, Check & check)
+            : i_searcher(searcher), i_object(result), i_check(check) {}
+
+        void Visit(AreaTriggerMapType &m);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
+    };
+
+    /// Conversation searchers
+    template<class Check>
+    struct SceneObjectVectorSearcher
+    {
+        WorldObject const* i_searcher;
+        std::list<SceneObject*>& m_SceneObjects;
+        Check& i_check;
+
+        SceneObjectVectorSearcher(WorldObject const* searcher, std::list<SceneObject*>& sceneObject, Check& check)
+            : i_searcher(searcher), m_SceneObjects(sceneObject), i_check(check) { }
+
+        void Visit(SceneObjectMapType& p_SceneObjectMap);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
+    template<class Check>
+    struct SceneObjectSearcher
+    {
+        WorldObject const* i_searcher;
+        SceneObject* &i_object;
+        Check & i_check;
+
+        SceneObjectSearcher(WorldObject const* searcher, SceneObject* & result, Check & check)
+            : i_searcher(searcher), i_object(result), i_check(check) { }
+
+        void Visit(SceneObjectMapType& p_ConversationMap);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
+    /// Conversation searchers
+    template<class Check>
+    struct ConversationVectorSearcher
+    {
+        WorldObject const* i_searcher;
+        std::list<Conversation*>& m_Conversations;
+        Check& i_check;
+
+        ConversationVectorSearcher(WorldObject const* searcher, std::list<Conversation*>& conversation, Check& check)
+            : i_searcher(searcher), m_Conversations(conversation), i_check(check) { }
+
+        void Visit(ConversationMapType& p_ConversationMap);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
+    template<class Check>
+    struct ConversationSearcher
+    {
+        WorldObject const* i_searcher;
+        Conversation* &i_object;
+        Check & i_check;
+
+        ConversationSearcher(WorldObject const* searcher, Conversation* & result, Check & check)
+            : i_searcher(searcher), i_object(result), i_check(check) { }
+
+        void Visit(ConversationMapType& p_ConversationMap);
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
     // CHECKS && DO classes
 
     // WorldObject check classes
@@ -682,6 +789,38 @@ namespace Trinity
         private:
             Unit const* i_unit;
             uint32 i_focusId;
+    };
+
+    class AnySceneObjectInObjectRangeCheck
+    {
+    public:
+        AnySceneObjectInObjectRangeCheck(WorldObject const* p_Object, float range) : m_Object(p_Object), m_Range(range) { }
+        bool operator()(SceneObject* p_SceneObject)
+        {
+            if (m_Object->IsWithinDistInMap(p_SceneObject, m_Range))
+                return true;
+
+            return false;
+        }
+    private:
+        WorldObject const* m_Object;
+        float m_Range;
+    };
+
+    class AnyConversationInObjectRangeCheck
+    {
+    public:
+        AnyConversationInObjectRangeCheck(WorldObject const* p_Object, float range) : m_Object(p_Object), m_Range(range) { }
+        bool operator()(Conversation* p_Conversation)
+        {
+            if (m_Object->IsWithinDistInMap(p_Conversation, m_Range))
+                return true;
+
+            return false;
+        }
+    private:
+        WorldObject const* m_Object;
+        float m_Range;
     };
 
     // Find the nearest Fishing hole and return true only if source object is in range of hole
@@ -919,14 +1058,11 @@ namespace Trinity
     class AnyFriendlyUnitInObjectRangeCheck
     {
         public:
-            AnyFriendlyUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool playerOnly = false) : i_obj(obj), i_funit(funit), i_range(range), i_playerOnly(playerOnly) { }
+            AnyFriendlyUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool playerOnly = false, bool exceptSelf = false) : i_obj(obj), i_funit(funit), i_range(range), i_playerOnly(playerOnly), i_exceptSelf(exceptSelf) { }
 
             bool operator()(Unit* u) const
             {
-                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range) && i_funit->IsFriendlyTo(u) && (!i_playerOnly || u->GetTypeId() == TYPEID_PLAYER))
-                    return true;
-                else
-                    return false;
+                return u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range) && i_funit->IsFriendlyTo(u) && (!i_playerOnly || u->IsPlayer()) && (!i_exceptSelf || u != i_funit);
             }
 
         private:
@@ -934,6 +1070,7 @@ namespace Trinity
             Unit const* i_funit;
             float i_range;
             bool i_playerOnly;
+            bool i_exceptSelf;
     };
 
     class AnyGroupedUnitInObjectRangeCheck
@@ -982,6 +1119,65 @@ namespace Trinity
             WorldObject const* i_obj;
             float i_range;
             bool i_check3D;
+    };
+
+    class AttackableUnitInObjectRangeCheck
+    {
+    public:
+        AttackableUnitInObjectRangeCheck(WorldObject const* obj, float range, bool check3D = true) : i_obj(obj), i_range(range), i_check3D(check3D) { }
+
+        bool operator()(Unit* u) const
+        {
+            if (i_obj->IsUnit())
+                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range, i_check3D) && i_obj->ToUnit()->IsValidAttackTarget(u))
+                    return true;
+
+            return false;
+        }
+
+    private:
+        WorldObject const* i_obj;
+        float i_range;
+        bool i_check3D;
+    };
+
+    class AnyAreatriggerInObjectRangeCheck
+    {
+    public:
+        AnyAreatriggerInObjectRangeCheck(WorldObject const* p_Object, float range) : m_Object(p_Object), m_Range(range) {}
+        bool operator()(AreaTrigger* p_AreaTrigger)
+        {
+            if (m_Object->IsWithinDistInMap(p_AreaTrigger, m_Range))
+                return true;
+
+            return false;
+        }
+    private:
+        WorldObject const* m_Object;
+        float m_Range;
+    };
+
+    class NearestAreaTriggerWithIdInObjectRangeCheck
+    {
+    public:
+        NearestAreaTriggerWithIdInObjectRangeCheck(WorldObject const* obj, uint32 spellId, float range) : i_obj(obj), i_spellId(spellId), i_range(range) {}
+        bool operator()(AreaTrigger* a)
+        {
+            if (i_obj->IsWithinDistInMap(a, i_range) && a->GetSpellId() == i_spellId)
+            {
+                i_range = i_obj->GetDistance(a);        // use found unit range as new range limit for next check
+                return true;
+            }
+
+            return false;
+        }
+    private:
+        WorldObject const* i_obj;
+        uint32 i_spellId;
+        float i_range;
+
+        // prevent clone this object
+        NearestAreaTriggerWithIdInObjectRangeCheck(NearestAreaTriggerWithIdInObjectRangeCheck const&);
     };
 
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)
@@ -1364,6 +1560,23 @@ namespace Trinity
             WorldObject const* m_pObject;
             uint32 m_uiEntry;
             float m_fRange;
+    };
+
+    class AllCreaturesInRange
+    {
+    public:
+        AllCreaturesInRange(const WorldObject* object, float maxRange) : m_pObject(object), m_fRange(maxRange) {}
+        bool operator() (Unit* unit)
+        {
+            if (m_pObject->IsWithinDist(unit, m_fRange, false))
+                return true;
+
+            return false;
+        }
+
+    private:
+        const WorldObject* m_pObject;
+        float m_fRange;
     };
 
     class PlayerAtMinimumRangeAway

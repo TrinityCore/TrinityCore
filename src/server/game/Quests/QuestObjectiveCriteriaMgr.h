@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,6 +41,7 @@ public:
 
     void CompletedObjective(QuestObjective const* questObjective, Player* referencePlayer);
     bool HasCompletedObjective(QuestObjective const* questObjective) const;
+    void RemoveCompletedObjective(QuestObjective const* questObjective);
 
 protected:
     void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;

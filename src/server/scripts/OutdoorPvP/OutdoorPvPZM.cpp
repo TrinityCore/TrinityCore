@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -112,7 +112,7 @@ bool OutdoorPvPZM::Update(uint32 diff)
     return changed;
 }
 
-void OutdoorPvPZM::HandlePlayerEnterZone(Player* player, uint32 zone)
+void OutdoorPvPZM::HandlePlayerEnterZone(Player* player, Area* zone)
 {
     if (player->GetTeam() == ALLIANCE)
     {
@@ -127,7 +127,7 @@ void OutdoorPvPZM::HandlePlayerEnterZone(Player* player, uint32 zone)
     OutdoorPvP::HandlePlayerEnterZone(player, zone);
 }
 
-void OutdoorPvPZM::HandlePlayerLeaveZone(Player* player, uint32 zone)
+void OutdoorPvPZM::HandlePlayerLeaveZone(Player* player, Area* zone)
 {
     // remove buffs
     player->RemoveAurasDueToSpell(ZM_CAPTURE_BUFF);

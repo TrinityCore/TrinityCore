@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -119,6 +119,30 @@ public:
         x = m_positionX; y = m_positionY; z = m_positionZ; o = m_orientation;
     }
 
+    void GetPositionWithDistInFront(float dist, float& x, float& y) const
+    {
+        GetPositionWithDistInOrientation(dist, GetOrientation(), x, y);
+    }
+
+    Position GetPositionWithDistInFront(float dist) const
+    {
+        return GetPositionWithDistInOrientation(dist, GetOrientation());
+    }
+
+    void GetPositionWithDistInOrientation(float dist, float orientation, float& x, float& y) const
+    {
+        x = GetPositionX() + (dist * cos(orientation));
+        y = GetPositionY() + (dist * sin(orientation));
+    }
+
+    Position GetPositionWithDistInOrientation(float dist, float orientation) const
+    {
+        float x = GetPositionX() + (dist * cos(orientation));
+        float y = GetPositionY() + (dist * sin(orientation));
+
+        return Position(x, y, GetPositionZ(), GetOrientation());
+    }
+
     Position GetPosition() const { return *this; }
 
     Streamer<XY> PositionXYStream() { return Streamer<XY>(*this); }
@@ -130,6 +154,7 @@ public:
     Streamer<PackedXYZ> PositionPackedXYZStream() { return Streamer<PackedXYZ>(*this); }
     ConstStreamer<PackedXYZ> PositionPackedXYZStream() const { return ConstStreamer<PackedXYZ>(*this); }
 
+    bool IsPositionEmpty() const { return !m_positionX && !m_positionY && !m_positionZ && !m_orientation; }
     bool IsPositionValid() const;
 
     float GetExactDist2dSq(const float x, const float y) const
@@ -224,6 +249,11 @@ public:
 
     // modulos a radian orientation to the range of 0..2PI
     static float NormalizeOrientation(float o);
+    static float NormalizePitch(float o);
+
+    bool IsNearPosition(Position const* checkPos, float range) const;
+
+    static Position const Empty;
 };
 
 #define MAPID_INVALID 0xFFFFFFFF

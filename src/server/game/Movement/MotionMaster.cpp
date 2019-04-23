@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -379,6 +379,12 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
 }
 
+void MotionMaster::MoveCharge(Position* pos, float speed /*= SPEED_CHARGE*/, uint32 id /*= EVENT_CHARGE*/, bool generatePath /*= false*/,
+    Unit const* target /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
+{
+    MoveCharge(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), speed, id, generatePath, target, spellEffectExtraData);
+}
+
 void MotionMaster::MoveCharge(float x, float y, float z, float speed /*= SPEED_CHARGE*/, uint32 id /*= EVENT_CHARGE*/, bool generatePath /*= false*/,
     Unit const* target /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
 {
@@ -458,6 +464,15 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
     MoveJump(x, y, z, 0.0f, speedXY, speedZ);
 }
 
+void MotionMaster::MoveJump(uint32 locEntry, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/)
+{
+    WorldSafeLocsEntry const* safeLoc = sWorldSafeLocsStore.LookupEntry(locEntry);
+    if (safeLoc == nullptr)
+        return;
+
+    MoveJump(safeLoc->Loc.X, safeLoc->Loc.Y, safeLoc->Loc.Z, speedXY, speedZ, safeLoc->Facing, id);
+}
+
 void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, bool hasOrientation /* = false*/,
     JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
 {
@@ -479,14 +494,16 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     init.Launch();
 
     uint32 arrivalSpellId = 0;
+    ObjectGuid arrivalSpellCasterGuid;
     ObjectGuid arrivalSpellTargetGuid;
     if (arrivalCast)
     {
         arrivalSpellId = arrivalCast->SpellId;
+        arrivalSpellCasterGuid = arrivalCast->Caster;
         arrivalSpellTargetGuid = arrivalCast->Target;
     }
 
-    Mutate(new EffectMovementGenerator(id, arrivalSpellId, arrivalSpellTargetGuid), MOTION_SLOT_CONTROLLED);
+    Mutate(new EffectMovementGenerator(id, arrivalSpellId, arrivalSpellCasterGuid, arrivalSpellTargetGuid), MOTION_SLOT_CONTROLLED);
 }
 
 void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount)
@@ -713,6 +730,20 @@ void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
         return;
 
     Mutate(new RotateMovementGenerator(time, direction), MOTION_SLOT_ACTIVE);
+}
+
+void MotionMaster::MoveBackward(uint32 id, float x, float y, float z, float speed)
+{
+    if (_owner->GetTypeId() == TYPEID_PLAYER)
+        _owner->AddUnitMovementFlag(MOVEMENTFLAG_BACKWARD);
+
+    Movement::MoveSplineInit init(_owner);
+    init.MoveTo(x, y, z);
+    init.SetBackward();
+    init.Launch();
+    if (speed > 0.0f)
+        init.SetVelocity(speed);
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
 /******************** Private methods ********************/

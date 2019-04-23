@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,9 @@
  */
 
 #include "Common.h"
+#include "Chat.h"
 #include "DatabaseEnv.h"
+#include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -105,4 +107,52 @@ void WorldSession::HandleComplaint(WorldPackets::Ticket::Complaint& packet)
     result.ComplaintType = packet.ComplaintType;
     result.Result = 0;
     SendPacket(result.Write());
+}
+
+void WorldSession::OnGMTicketGetTicketEvent()
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    SendQueryTimeResponse();
+    // Player must not have opened ticket
+    if (SuggestionTicket* ticket = sSupportMgr->GetOpenSuggestionByPlayerGuid(player->GetGUID()))
+    {
+        sSupportMgr->SendTicket(this, ticket);
+        return;
+    }
+
+    sSupportMgr->SendTicket(this, nullptr);
+}
+
+void WorldSession::SendTicketStatusUpdate(uint8 response)
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    switch (response)
+    {
+        case GMTICKET_RESPONSE_ALREADY_EXIST:
+            player->SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_TICKET_ALREADY_EXISTS).Write());
+            break;
+        case GMTICKET_RESPONSE_UPDATE_ERROR:
+            player->SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_TICKET_UPDATE_ERROR).Write());
+            break;
+        case GMTICKET_RESPONSE_CREATE_ERROR:
+            player->SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_TICKET_CREATE_ERROR).Write());
+            break;
+        case GMTICKET_RESPONSE_CREATE_SUCCESS:
+        case GMTICKET_RESPONSE_UPDATE_SUCCESS:
+            OnGMTicketGetTicketEvent();
+            break;
+        case GMTICKET_RESPONSE_TICKET_DELETED:
+            player->SendCustomMessage("FSC_TICKET_DELETED");
+            break;
+        default:
+            player->SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_TICKET_DB_ERROR).Write());
+            break;
+
+    }
 }

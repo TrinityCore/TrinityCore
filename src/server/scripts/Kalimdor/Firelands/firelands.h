@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,43 +15,43 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FIRELANDS_H_
-#define FIRELANDS_H_
+#ifndef DEF_FIRELANDS_H
+#define DEF_FIRELANDS_H
 
-#include "CreatureAIImpl.h"
-#include "EventProcessor.h"
-#include "ScriptedCreature.h"
+#define FLScriptName "instance_firelands"
 
-class Creature;
-
-#define DataHeader "FL"
-#define FirelandsScriptName "instance_firelands"
-
-uint32 const EncounterCount = 7;
-
-enum FLDataTypes
+enum Data
 {
-    DATA_BETH_TILAC         = 0,
-    DATA_LORD_RHYOLITH      = 1,
-    DATA_SHANNOX            = 2,
-    DATA_ALYSRAZOR          = 3,
-    DATA_BALEROC            = 4,
-    DATA_MAJORDOMO_STAGHELM = 5,
-    DATA_RAGNAROS           = 6,
+    DATA_SHANNOX                = 0,
+    DATA_RHYOLITH               = 1,
+    DATA_BETHTILAC              = 2,
+    DATA_ALYSRAZOR              = 3,
+    DATA_BALEROC                = 4,
+    DATA_STAGHELM               = 5,
+    DATA_RAGNAROS               = 6,
+    DATA_RIPLIMB                = 7,
+    DATA_RAGEFACE               = 8,
+    DATA_RHYOLITH_HEALTH_SHARED = 9,
+    DATA_EVENT                  = 10,
+    DATA_RAGNAROS_PLATFORM      = 11,
+    DATA_MAJORDOMO_ALYSRAZOR    = 13,
+    DATA_TEAM                    = 14,
+
 };
 
-enum FLCreatureIds
+enum CreatureIds
 {
-    // Bosses
     NPC_SHANNOX                     = 53691,
-    NPC_LORD_RHYOLITH               = 52558,
-    NPC_BETH_TILAC                  = 52498,
+    NPC_RAGEFACE                    = 53695,
+    NPC_RIPLIMB                     = 53694,
+    NPC_RHYOLITH                    = 52558,
+    NPC_BETHTILAC                   = 52498,
     NPC_ALYSRAZOR                   = 52530,
     NPC_BALEROC                     = 53494,
-    NPC_MAJORDOMO_STAGHELM          = 52571,
+    NPC_STAGHELM                    = 52571,
     NPC_RAGNAROS                    = 52409,
-
-    // Alysrazor
+    NPC_KAR                            = 53616,
+    // alysrazor event
     NPC_BLAZING_MONSTROSITY_LEFT    = 53786,
     NPC_BLAZING_MONSTROSITY_RIGHT   = 53791,
     NPC_EGG_PILE                    = 53795,
@@ -59,77 +59,117 @@ enum FLCreatureIds
     NPC_MOLTEN_EGG_TRASH            = 53914,
     NPC_SMOULDERING_HATCHLING       = 53794,
 
-    // Baleroc
-    NPC_MAGMA_CONDUIT               = 54145,
-    NPC_MAGMAKIN                    = 54144
+    //Ragnaros
+    NPC_SULFURAS_SMASH              = 53268,
+    NPC_MAGMA_TRAP                  = 53086,
+    NPC_LAVA_WAVE                   = 53363,
+    NPC_SPLITTING_BLOW              = 53393,
+    NPC_ENGULFING_FLAMES            = 53485,
+    NPC_MOLTEN_SEED                 = 53186,
+    NPC_LAVA_SCION                  = 53231,
+    NPC_SON_OF_FLAME                = 53140,
+    NPC_LIVING_METEOR               = 53500,
+    NPC_MOLTEN_ELEMENTAL            = 53189,
+    NPC_SULFURAS                    = 53420,
+    NPC_ENTRAPPING_ROOTS            = 54074,
+    NPC_DREADFLAME                  = 54127,
+    NPC_CLOUDBURST                  = 54147,
+    NPC_DREADFLAME_SPAWN            = 54203,
+    NPC_BREATH_OF_FROST             = 53953,
+    NPC_HAMUUL                      = 54109,
+    NPC_MALFURION                   = 54110,
+    NPC_CENARIUS                    = 53872,
+    NPC_HEART_OF_RAGNAROS           = 54293,
+
+    NPC_CIRCLE_OF_THRONES_PORTAL    = 54247,
 };
 
 enum GameobjectIds
 {
-    GO_BALEROC_FIREWALL             = 209066
-};
+    GO_CIRCLE_OF_THORNS_PORTAL1 = 209137,
+    GO_CIRCLE_OF_THORNS_PORTAL2 = 209346,
+    GO_CIRCLE_OF_THORNS_PORTAL3 = 209098,
 
-enum FirelandsSpells
-{
-    SPELL_SMOULDERING_1             = 101089,
-    SPELL_SMOULDERING_2             = 101092,
+    GO_BRIDGE_OF_RHYOLITH       = 209255,
+    GO_FIRE_WALL_BALEROC        = 209066,
+    GO_RAID_BRIDGE_FORMING      = 209277,
+    GO_RAGNAROS_FLOOR           = 208835,
+    GO_STICKY_WEB               = 208877,
+    GO_MOLTEN_METEOR            = 208966,
+    GO_FIRE_WALL_FENDRAL        = 208906,
+    GO_CACHE_OF_THE_FIRELORD    = 208967,
+    GO_CACHE_OF_THE_FIRELORD_H  = 209261,
+    GO_SULFURON_BRIDGE          = 209251,
+    GO_DOOR_RAGNAROS            = 209073,
+    GO_PLATFORM_RAGN            = 208835, // destructable - heroic
+    GO_VOLCANO                  = 209253,
+    GO_MOLTEN_GROUND            = 209252,
+    GO_TRAP_DOOR                = 208873,
 };
-
-enum FirelandsQuests
+enum AlysrazorEvent
 {
-    QUEST_HEART_OF_FLAME_A          = 29307,
-    QUEST_HEART_OF_FLAME_H          = 29308
+    ACTION_LAUNCH_EVENT_ALYSRAZOR,
+};
+enum MajordomoAlysrazorEvent
+{
+    EVENT_MAJORDOMO_NOT_DONE,
+    EVENT_MAJORDOMO_DONE,
+};
+enum QuestDefines
+{
+    // quest
+    GO_BRANCH_OF_NORDRASSIL                     = 209100,
+
+    // Cannot find rhyolith fragment, summon it manualy
+    SPELL_CREATE_EMBERSTONE_FRAGMENT            = 100518,
+    SPELL_CREATE_CHITINOUS_FRAGMENT             = 100520,
+    SPELL_CREATE_PYRESHELL_FRAGMENT             = 100519,
+
+    SPELL_CHARGED_RHYOLITH_FOCUS                = 100481,
+    SPELL_CHARGED_EMBERSTONE_FOCUS              = 100499,
+    SPELL_CHARGED_CHITINOUS_FOCUS               = 100501,
+    SPELL_CHARGED_PYRESHELL_FOCUS               = 100500,
+
+    SPELL_TRANSFORM_CHARGED_RHYOLITH_FOCUS      = 100477,
+    SPELL_TRANSFORM_CHARGED_EMBERSTONE_FOCUS    = 100496,
+    SPELL_TRANSFORM_CHARGED_CHITINOUS_FOCUS     = 100498,
+    SPELL_TRANSFORM_CHARGED_PYRESHELL_FOCUS     = 100497,
+
+    GO_RHYOLITH_FRAGMENT                        = 209033,
+    GO_EMBERSTONE_FRAGMENT                      = 209035,
+    GO_PYRESHELL_FRAGMENT                       = 209036,
+    GO_OBSIDIAN_FLECKED_CHITIN                  = 209037,
+
+    NPC_DULL_RHYOLITH_FOCUS                     = 53951,
+    NPC_DULL_EMBERSTONE_FOCUS                   = 53968,
+    NPC_DULL_CHITINOUS_FOCUS                    = 53970,
+    NPC_DULL_PYRESHELL_FOCUS                    = 53963,
+
+    NPC_CHARGED_RHYOLITH_FOCUS                  = 53955,
+    NPC_CHARGED_EMBERSTONE_FOCUS                = 53969,
+    NPC_CHARGED_CHITINOUS_FOCUS                 = 53971,
+    NPC_CHARGED_PYRESHELL_FOCUS                 = 53967,
+
+    EVENT_PORTALS                               = 28888,
+
+    SPELL_LEGENDARY_PORTAL_OPENING              = 101029,
+    SPELL_BRANCH_OF_NORDRASSIL_WIN_COSMETIC     = 100326,
 };
 
 class DelayedAttackStartEvent : public BasicEvent
 {
-    public:
-        DelayedAttackStartEvent(Creature* owner) : _owner(owner) { }
+public:
+    DelayedAttackStartEvent(Creature* owner) : _owner(owner) { }
 
-        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override;
+    bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
+    {
+        _owner->AI()->DoZoneInCombat(_owner, 200.0f);
+        return true;
+    }
 
-    private:
-        Creature* _owner;
+private:
+    Creature* _owner;
 };
 
-class DelayedSpellCastEvent : public BasicEvent
-{
-    public:
-        DelayedSpellCastEvent(Creature* owner, Unit* target, uint32 spellId, bool triggered) : _owner(owner), _target(target), _spellId(spellId), _triggered(triggered) { }
 
-        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override;
-
-    private:
-        Creature* _owner;
-        Unit* _target;
-        uint32 _spellId;
-        bool _triggered;
-};
-
-class PlayerCheck
-{
-    public:
-        bool operator()(WorldObject* object) const
-        {
-            return object->GetTypeId() != TYPEID_PLAYER;
-        }
-};
-
-struct firelands_bossAI : public BossAI
-{
-    firelands_bossAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId) { }
-
-    void EnterCombat(Unit* target) override;
-    void JustDied(Unit* killer) override;
-    void EnterEvadeMode(EvadeReason why) override;
-};
-
-template<typename AI>
-inline AI* GetFirelandsAI(Creature* creature)
-{
-    return GetInstanceAI<AI>(creature, FirelandsScriptName);
-}
-
-#define RegisterFirelandsAI(AI) RegisterCreatureAIWithFactory(AI, GetFirelandsAI)
-
-#endif // FIRELANDS_H_
+#endif

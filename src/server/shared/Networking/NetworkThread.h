@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,12 +19,12 @@
 #define NetworkThread_h__
 
 #include "Define.h"
-#include "DeadlineTimer.h"
 #include "Errors.h"
 #include "IoContext.h"
 #include "Log.h"
 #include "Timer.h"
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/deadline_timer.hpp>
 #include <atomic>
 #include <chrono>
 #include <memory>
@@ -173,7 +173,7 @@ private:
 
     Trinity::Asio::IoContext _ioContext;
     tcp::socket _acceptSocket;
-    Trinity::Asio::DeadlineTimer _updateTimer;
+    boost::asio::deadline_timer _updateTimer;
 };
 
 #endif // NetworkThread_h__

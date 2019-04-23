@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,6 +34,8 @@ enum WorldDatabaseStatements : uint32
     WORLD_SEL_CREATURE_TEXT,
     WORLD_SEL_SMART_SCRIPTS,
     WORLD_SEL_SMARTAI_WP,
+    WORLD_SEL_ARCHAEOLOGY_DIGSITES,
+    WORLD_SEL_ARCHAEOLOGY_ARTIFACT,
     WORLD_DEL_GAMEOBJECT,
     WORLD_DEL_EVENT_GAMEOBJECT,
     WORLD_INS_GRAVEYARD_ZONE,

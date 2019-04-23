@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,22 +49,45 @@ struct LfgCompatibilityData
     LfgRolesMap roles;
 };
 
+struct LfgQueueRoleCount
+{
+    LfgQueueRoleCount(): minTanks(LFG_TANKS_NEEDED),     maxTanks(LFG_TANKS_NEEDED),
+                         minHealers(LFG_HEALERS_NEEDED), maxHealers(LFG_HEALERS_NEEDED),
+                         minDamages(LFG_DAMAGES_NEEDED), maxDamages(LFG_DAMAGES_NEEDED) { }
+
+    LfgQueueRoleCount(LFGDungeonsEntry const* dungeonEntry): minTanks(dungeonEntry->MinCountTank),      maxTanks(dungeonEntry->CountTank),
+                                                             minHealers(dungeonEntry->MinCountHealer),  maxHealers(dungeonEntry->CountHealer),
+                                                             minDamages(dungeonEntry->MinCountDamage),  maxDamages(dungeonEntry->CountDamage) { }
+
+    uint8 minTanks;         ///< Minimum Tanks needed
+    uint8 maxTanks;         ///< Maximum Tanks needed
+    uint8 minHealers;       ///< Minimum Healers needed
+    uint8 maxHealers;       ///< Maximum Healers needed
+    uint8 minDamages;       ///< Minimum Damages needed
+    uint8 maxDamages;       ///< Maximum Damages needed
+
+    uint8 GetMinPlayers() { return minTanks + minHealers + minDamages; }
+    uint8 GetMaxPlayers() { return maxTanks + maxHealers + maxDamages; }
+
+    bool IsDamagesOnly()  { return !maxTanks && !maxHealers &&maxDamages; }
+};
+
 /// Stores player or group queue info
 struct LfgQueueData
 {
     LfgQueueData(): joinTime(time_t(time(NULL))), tanks(LFG_TANKS_NEEDED),
-        healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED)
+        healers(LFG_HEALERS_NEEDED), damages(LFG_DAMAGES_NEEDED)
         { }
 
-    LfgQueueData(time_t _joinTime, LfgDungeonSet const& _dungeons, LfgRolesMap const& _roles):
-        joinTime(_joinTime), tanks(LFG_TANKS_NEEDED), healers(LFG_HEALERS_NEEDED),
-        dps(LFG_DPS_NEEDED), dungeons(_dungeons), roles(_roles)
+    LfgQueueData(time_t _joinTime, LfgDungeonSet const& _dungeons, LfgRolesMap const& _roles, LfgQueueRoleCount rolecount):
+        joinTime(_joinTime), tanks(rolecount.minTanks), healers(rolecount.minHealers),
+        damages(rolecount.minDamages), dungeons(_dungeons), roles(_roles)
         { }
 
     time_t joinTime;                                       ///< Player queue join time (to calculate wait times)
     uint8 tanks;                                           ///< Tanks needed
     uint8 healers;                                         ///< Healers needed
-    uint8 dps;                                             ///< Dps needed
+    uint8 damages;                                         ///< Damages needed
     LfgDungeonSet dungeons;                                ///< Selected Player/Group Dungeon/s
     LfgRolesMap roles;                                     ///< Selected Player Role/s
     std::string bestCompatible;                            ///< Best compatible combination of people queued
@@ -92,7 +115,7 @@ class TC_GAME_API LFGQueue
         std::string GetDetailedMatchRoles(GuidList const& check) const;
         void AddToQueue(ObjectGuid guid, bool reAdd = false);
         void RemoveFromQueue(ObjectGuid guid);
-        void AddQueueData(ObjectGuid guid, time_t joinTime, LfgDungeonSet const& dungeons, LfgRolesMap const& rolesMap);
+        void AddQueueData(uint32 queueId, ObjectGuid guid, time_t joinTime, LfgDungeonSet const& dungeons, LfgRolesMap const& rolesMap);
         void RemoveQueueData(ObjectGuid guid);
 
         // Update Timers (when proposal success)
@@ -134,6 +157,8 @@ class TC_GAME_API LFGQueue
         LfgCompatibility CheckCompatibility(GuidList check);
 
         // Queue
+        uint32 Id;                                         ///< Queue Id
+        LfgQueueRoleCount roleCount;                       ///< Role required to tag in this queue
         LfgQueueDataContainer QueueDataStore;              ///< Queued groups
         LfgCompatibleContainer CompatibleMapStore;         ///< Compatible dungeons
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -332,6 +332,18 @@ enum OpcodeClient : uint16
     CMSG_GUILD_BANK_QUERY_TAB                         = 0x34C3,
     CMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY_QUERY    = 0x3083,
     CMSG_GUILD_BANK_SET_TAB_TEXT                      = 0x3086,
+    CMSG_GUILD_BANK_MOVE_ITEMS_PLAYER_BANK            = 0x34BB,
+    CMSG_GUILD_BANK_MOVE_ITEMS_BANK_PLAYER            = 0x34BC,
+    CMSG_GUILD_BANK_MOVE_ITEMS_BANK_BANK              = 0x34BF,
+    CMSG_GUILD_BANK_MOVE_ITEMS_PLAYER_BANK_COUNT      = 0x34C1,
+    CMSG_GUILD_BANK_MOVE_ITEMS_BANK_PLAYER_COUNT      = 0x34C3,
+    CMSG_GUILD_BANK_MOVE_ITEMS_BANK_BANK_COUNT        = 0x34C6,
+    CMSG_GUILD_BANK_MOVE_ITEMS_BANK_PLAYER_AUTO       = 0x34C4,
+    CMSG_GUILD_BANK_MERGE_ITEMS_PLAYER_BANK           = 0x34C0,
+    CMSG_GUILD_BANK_MERGE_ITEMS_BANK_PLAYER           = 0x34C2,
+    CMSG_GUILD_BANK_MERGE_ITEMS_BANK_BANK             = 0x34C5,
+    CMSG_GUILD_BANK_SWAP_ITEMS_BANK_PLAYER            = 0x34BD,
+    CMSG_GUILD_BANK_SWAP_ITEMS_BANK_BANK              = 0x34BE,
     CMSG_GUILD_BANK_TEXT_QUERY                        = 0x3087,
     CMSG_GUILD_BANK_UPDATE_TAB                        = 0x34C5,
     CMSG_GUILD_BANK_WITHDRAW_MONEY                    = 0x34C7,
@@ -1103,7 +1115,7 @@ enum OpcodeServer : uint16
     SMSG_GARRISON_MISSION_UPDATE_CAN_START            = 0x2911,
     SMSG_GARRISON_NUM_FOLLOWER_ACTIVATIONS_REMAINING  = 0x2917,
     SMSG_GARRISON_OPEN_ARCHITECT                      = 0x2921,
-    SMSG_GARRISON_OPEN_MISSION_NPC                    = 0x2923,
+    SMSG_GARRISON_OPEN_MISSION_NPC                    = 0x290E,
     SMSG_GARRISON_OPEN_RECRUITMENT_NPC                = 0x291C,
     SMSG_GARRISON_OPEN_TALENT_NPC                     = 0x291D,
     SMSG_GARRISON_OPEN_TRADESKILL_NPC                 = 0x2922,

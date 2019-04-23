@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -218,15 +218,22 @@ void TempSummon::InitStats(uint32 duration)
         setFaction(owner->getFaction());
 }
 
-void TempSummon::InitSummon()
+void TempSummon::InitSummon(Spell const* summonSpell /*= nullptr*/)
 {
     Unit* owner = GetSummoner();
     if (owner)
     {
+        owner->AddSummonedCreature(GetGUID(), GetEntry());
+
         if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
             owner->ToCreature()->AI()->JustSummoned(this);
         if (IsAIEnabled)
+        {
             AI()->IsSummonedBy(owner);
+
+            if (summonSpell)
+                AI()->IsSummonedBy(summonSpell);
+        }
     }
 }
 
@@ -253,14 +260,18 @@ void TempSummon::UnSummon(uint32 msTime)
     //ASSERT(!IsPet());
     if (IsPet())
     {
-        ToPet()->Remove(PET_SAVE_NOT_IN_SLOT);
+        ToPet()->Remove(PET_SAVE_DISMISS);
         ASSERT(!IsInWorld());
         return;
     }
 
-    Unit* owner = GetSummoner();
-    if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
-        owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
+    if (Unit* owner = GetSummoner())
+    {
+        owner->RemoveSummonedCreature(GetGUID());
+
+        if (owner->IsCreature() && owner->ToCreature()->IsAIEnabled)
+            owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
+    }
 
     AddObjectToRemoveList();
 }
@@ -298,7 +309,7 @@ Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorl
     m_unitTypeMask |= UNIT_MASK_MINION;
     m_followAngle = PET_FOLLOW_ANGLE;
     /// @todo: Find correct way
-    InitCharmInfo();
+    //InitCharmInfo();
 }
 
 void Minion::InitStats(uint32 duration)
@@ -327,6 +338,41 @@ bool Minion::IsGuardianPet() const
     return IsPet() || (m_Properties && m_Properties->Control == SUMMON_CATEGORY_PET);
 }
 
+bool Minion::IsWarlockMinion() const
+{
+    switch (GetEntry())
+    {
+        case ENTRY_IMP:
+        case ENTRY_VOIDWALKER:
+        case ENTRY_SUCCUBUS:
+        case ENTRY_FELHUNTER:
+        case ENTRY_FELGUARD:
+        case ENTRY_DOOMGUARD:
+        case ENTRY_DOOMGUARD_PET:
+        case ENTRY_INFERNAL:
+        case ENTRY_INFERNAL_LORD_OF_FLAMES:
+        case ENTRY_INFERNAL_PET:
+        case ENTRY_WILD_IMP:
+        case ENTRY_WILD_IMP_DREADSTALKER:
+        case ENTRY_DREADSTALKER:
+        case ENTRY_DARKGLARE:
+        case ENTRY_CHAOS_TEAR:
+        case ENTRY_UNSTABLE_TEAR:
+        case ENTRY_SHADOWY_TEAR:
+        case ENTRY_VILEFIEND:
+            return true;
+        default:
+            return false;
+    }
+}
+
+// WL & mage pets/minions get 100% of owners SP
+// need some more proofs which are affected and which arent
+bool Minion::HasSameSpellPowerAsOwner() const
+{
+    return IsWarlockMinion() || GetEntry() == ENTRY_WATER_ELEMENTAL;
+}
+
 Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) : Minion(properties, owner, isWorldObject)
 , m_bonusSpellDamage(0)
 {
@@ -351,9 +397,9 @@ void Guardian::InitStats(uint32 duration)
     SetReactState(REACT_AGGRESSIVE);
 }
 
-void Guardian::InitSummon()
+void Guardian::InitSummon(Spell const* summonSpell /*= nullptr*/)
 {
-    TempSummon::InitSummon();
+    TempSummon::InitSummon(summonSpell);
 
     if (GetOwner()->GetTypeId() == TYPEID_PLAYER
             && GetOwner()->GetMinionGUID() == GetGUID()
@@ -377,9 +423,9 @@ void Puppet::InitStats(uint32 duration)
     SetReactState(REACT_PASSIVE);
 }
 
-void Puppet::InitSummon()
+void Puppet::InitSummon(Spell const* summonSpell /*= nullptr*/)
 {
-    Minion::InitSummon();
+    Minion::InitSummon(summonSpell);
     if (!SetCharmedBy(GetOwner(), CHARM_TYPE_POSSESS))
         ABORT();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -88,6 +88,7 @@ class TC_GAME_API AuraApplication
         void SetNeedClientUpdate();
         bool IsNeedClientUpdate() const { return _needClientUpdate; }
         void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove);
+        void SendFakeAuraUpdate(uint32 auraId, bool remove);
         void ClientUpdate(bool remove = false);
 };
 
@@ -117,6 +118,8 @@ class TC_GAME_API Aura
 {
     friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, bool resetPeriodicTimer, ObjectGuid castItemGuid, int32 castItemLevel);
     public:
+        Ashamane::AnyData Variables;
+
         typedef std::map<ObjectGuid, AuraApplication*> ApplicationMap;
 
         static uint32 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 availableEffectMask, WorldObject* owner);
@@ -164,6 +167,7 @@ class TC_GAME_API Aura
         int32 CalcMaxDuration(Unit* caster) const;
         int32 GetDuration() const { return m_duration; }
         void SetDuration(int32 duration, bool withMods = false);
+        void ModDuration(int32 duration, bool withMods = false) { SetDuration(GetDuration() + duration, withMods); }
         void RefreshDuration(bool withMods = false);
         void RefreshTimers(bool resetPeriodicTimer);
         bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
@@ -179,8 +183,9 @@ class TC_GAME_API Aura
         void DropChargeDelayed(uint32 delay, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         uint8 GetStackAmount() const { return m_stackAmount; }
+        uint32 GetMaxStackAmount() const;
         void SetStackAmount(uint8 num);
-        bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
+        bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true, bool refresh = true);
 
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
@@ -263,6 +268,7 @@ class TC_GAME_API Aura
         void CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp);
         void CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff);
+        void CallScriptAuraUpdateHandlers(uint32 diff);
         void CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated);
         void CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool & isPeriodic, int32 & amplitude);
         void CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellModifier* & spellMod);
@@ -271,6 +277,7 @@ class TC_GAME_API Aura
         void CallScriptEffectManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & defaultPrevented);
         void CallScriptEffectAfterManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount);
         void CallScriptEffectSplitHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & splitAmount);
+        void CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit* victim, float& chance);
         // Spell Proc Hooks
         bool CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptCheckEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
@@ -293,8 +300,8 @@ class TC_GAME_API Aura
         SpellEffectInfoVector GetSpellEffectInfos() const { return _spelEffectInfos; }
         SpellEffectInfo const* GetSpellEffectInfo(uint32 index) const;
 
-    private:
         AuraScript* GetScriptByName(std::string const& scriptName) const;
+    private:
         void _DeleteRemovedApplications();
 
     protected:
@@ -312,6 +319,7 @@ class TC_GAME_API Aura
         int32 m_timeCla;                                    // Timer for power per sec calcultion
         std::vector<SpellPowerEntry const*> m_periodicCosts;// Periodic costs
         int32 m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect
+        uint32 m_procOnTickTimer;                           // Timer for PROC_FLAG_ON_TICK
 
         uint8 const m_casterLevel;                          // Aura level (store caster level for correct show level dep amount)
         uint8 m_procCharges;                                // Aura charges (0 for infinite)

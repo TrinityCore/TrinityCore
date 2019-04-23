@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -221,6 +221,8 @@ struct RaidMarker
 class TC_GAME_API Group
 {
     public:
+        Ashamane::AnyData Variables;
+
         struct MemberSlot
         {
             ObjectGuid  guid;
@@ -377,6 +379,17 @@ class TC_GAME_API Group
 
         void BroadcastPacket(WorldPacket const* packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignoredPlayer = ObjectGuid::Empty);
         void BroadcastAddonMessagePacket(WorldPacket const* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid::Empty);
+
+        /*********************************************************/
+        /***                  ARENA SYSTEM                     ***/
+        /*********************************************************/
+        void OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRating, uint8 slot, int32 MatchmakerRatingChange = -12);
+        void MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slot, int32 MatchmakerRatingChange = -12);
+        uint32 GetRating(uint8 slot);
+        uint32 GetAverageMMR(uint8 slot);
+        void WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot);
+        void LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change, uint8 slot);
+        void FinishGame(int32 rating_change, uint8 slot);
 
         /*********************************************************/
         /***                   LOOT SYSTEM                     ***/

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +23,7 @@
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Loot.h"
+#include <math.h>
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Random.h"
@@ -146,14 +147,15 @@ uint32 LootStore::LoadLootTable()
         Field* fields = result->Fetch();
 
         uint32 entry               = fields[0].GetUInt32();
-        uint32 item                = fields[1].GetUInt32();
+        int32  item                = fields[1].GetInt32();
+        uint8  type                = item >= 0 ? LOOT_ITEM_TYPE_ITEM : LOOT_ITEM_TYPE_CURRENCY;
         uint32 reference           = fields[2].GetUInt32();
         float  chance              = fields[3].GetFloat();
         bool   needsquest          = fields[4].GetBool();
         uint16 lootmode            = fields[5].GetUInt16();
         uint8  groupid             = fields[6].GetUInt8();
-        uint8  mincount            = fields[7].GetUInt8();
-        uint8  maxcount            = fields[8].GetUInt8();
+        uint32 mincount            = fields[7].GetUInt32();
+        uint32 maxcount            = fields[8].GetUInt32();
 
         if (groupid >= 1 << 7)                                     // it stored in 7 bit field
         {
@@ -161,7 +163,7 @@ uint32 LootStore::LoadLootTable()
             return 0;
         }
 
-        LootStoreItem* storeitem = new LootStoreItem(item, reference, chance, needsquest, lootmode, groupid, mincount, maxcount);
+        LootStoreItem* storeitem = new LootStoreItem(std::abs(item), type, reference, chance, needsquest, lootmode, groupid, mincount, maxcount);
 
         if (!storeitem->IsValid(*this, entry))            // Validity checks
         {
@@ -309,10 +311,27 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 
     if (reference == 0)                                      // item (quest or non-quest) entry, maybe grouped
     {
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
-        if (!proto)
+        if (type == LOOT_ITEM_TYPE_ITEM)
         {
-            TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: item entry not listed in `item_template` - skipped", store.GetName(), entry, itemid);
+            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
+            if (!proto)
+            {
+                TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: item entry not listed in `item_template` - skipped", store.GetName(), entry, itemid);
+                return false;
+            }
+        }
+        else if (type == LOOT_ITEM_TYPE_CURRENCY)
+        {
+            CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(itemid);
+            if (!currency)
+            {
+                TC_LOG_ERROR("sql.sql", "Table '%s' entry %d: currency entry %u not exists - skipped", store.GetName(), entry, itemid);
+                return false;
+            }
+        }
+        else
+        {
+            TC_LOG_ERROR("sql.sql", "Table '%s' entry %d: has unknown item %u with type %u - skipped", store.GetName(), entry, itemid, type);
             return false;
         }
 
@@ -564,7 +583,7 @@ void LootTemplate::CopyConditions(LootItem* li) const
 }
 
 // Rolls for every item in the template and adds the rolled items the the loot
-void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId) const
+void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId, Player const* player /*= nullptr*/, bool specOnly /*= false*/) const
 {
     if (groupId)                                            // Group reference uses own processing of the group
     {
@@ -599,7 +618,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
                 Referenced->Process(loot, rate, lootMode, item->groupid);
         }
         else                                                    // Plain entries (not a reference, not grouped)
-            loot.AddItem(*item);                                // Chance is already checked, just add
+            loot.AddItem(*item, player, specOnly);              // Chance is already checked, just add
     }
 
     // Now processing groups

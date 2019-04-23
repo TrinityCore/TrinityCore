@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -73,29 +73,29 @@ uint32 AchievementMgr::GetAchievementPoints() const
 bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const
 {
     AchievementEntry const* achievement = tree->Achievement;
-    if (!achievement)
-        return false;
-
-    if (HasAchieved(achievement->ID))
+    if (achievement)
     {
-        TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: %u Type %s Achievement %u) Achievement already earned",
-            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
-        return false;
-    }
+        if (HasAchieved(achievement->ID))
+        {
+            TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: %u Type %s Achievement %u) Achievement already earned",
+                criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
+            return false;
+        }
 
-    if (achievement->InstanceID != -1 && referencePlayer->GetMapId() != uint32(achievement->InstanceID))
-    {
-        TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: %u Type %s Achievement %u) Wrong map",
-            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
-        return false;
-    }
+        if (achievement->InstanceID != -1 && referencePlayer->GetMapId() != uint32(achievement->InstanceID))
+        {
+            TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: %u Type %s Achievement %u) Wrong map",
+                criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
+            return false;
+        }
 
-    if ((achievement->Faction == ACHIEVEMENT_FACTION_HORDE    && referencePlayer->GetTeam() != HORDE) ||
-        (achievement->Faction == ACHIEVEMENT_FACTION_ALLIANCE && referencePlayer->GetTeam() != ALLIANCE))
-    {
-        TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: %u Type %s Achievement %u) Wrong faction",
-            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
-        return false;
+        if ((achievement->Faction == ACHIEVEMENT_FACTION_HORDE    && referencePlayer->GetTeam() != HORDE) ||
+            (achievement->Faction == ACHIEVEMENT_FACTION_ALLIANCE && referencePlayer->GetTeam() != ALLIANCE))
+        {
+            TC_LOG_TRACE("criteria.achievement", "AchievementMgr::CanUpdateCriteriaTree: (Id: %u Type %s Achievement %u) Wrong faction",
+                criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), achievement->ID);
+            return false;
+        }
     }
 
     return CriteriaHandler::CanUpdateCriteriaTree(criteria, tree, referencePlayer);
@@ -104,18 +104,18 @@ bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTre
 bool AchievementMgr::CanCompleteCriteriaTree(CriteriaTree const* tree)
 {
     AchievementEntry const* achievement = tree->Achievement;
-    if (!achievement)
-        return false;
-
-    // counter can never complete
-    if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER)
-        return false;
-
-    if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
+    if (achievement)
     {
-        // someone on this realm has already completed that achievement
-        if (sAchievementMgr->IsRealmCompleted(achievement))
+        // counter can never complete
+        if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER)
             return false;
+
+        if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
+        {
+            // someone on this realm has already completed that achievement
+            if (sAchievementMgr->IsRealmCompleted(achievement))
+                return false;
+        }
     }
 
     return true;
@@ -359,6 +359,9 @@ void PlayerAchievementMgr::ResetCriteria(CriteriaTypes type, uint64 miscValue1, 
         bool allComplete = true;
         for (CriteriaTree const* tree : *trees)
         {
+            if (!tree->Achievement)
+                continue;
+
             // don't update already completed criteria if not forced or achievement already complete
             if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete) || !HasAchieved(tree->Achievement->ID))
             {
@@ -371,6 +374,21 @@ void PlayerAchievementMgr::ResetCriteria(CriteriaTypes type, uint64 miscValue1, 
             continue;
 
         RemoveCriteriaProgress(achievementCriteria);
+    }
+}
+
+void PlayerAchievementMgr::ResetCriteriaId(CriteriaTypes type, uint32 id)
+{
+    TC_LOG_DEBUG("criteria.achievement", "PlayerAchievementMgr::ResetCriteriaId(%u)", id);
+    CriteriaList list = GetCriteriaByType(type);
+
+    for (Criteria const* crit : list)
+    {
+        if (crit->Entry->ID == id)
+        {
+            RemoveCriteriaProgress(crit);
+            break;
+        }
     }
 }
 
@@ -467,6 +485,10 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
 
     if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
         return;
+
+    if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
+        if (sAchievementMgr->IsRealmCompleted(achievement))
+            return;
 
     if (achievement->Flags & ACHIEVEMENT_FLAG_SHOW_IN_GUILD_NEWS)
         if (Guild* guild = referencePlayer->GetGuild())

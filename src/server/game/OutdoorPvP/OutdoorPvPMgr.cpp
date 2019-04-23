@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -128,22 +128,22 @@ void OutdoorPvPMgr::AddZone(uint32 zoneid, OutdoorPvP* handle)
     m_OutdoorPvPMap[zoneid] = handle;
 }
 
-void OutdoorPvPMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
+void OutdoorPvPMgr::HandlePlayerEnterZone(Player* player, Area* zone)
 {
-    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zone->GetId());
     if (itr == m_OutdoorPvPMap.end())
         return;
 
     if (itr->second->HasPlayer(player))
         return;
 
-    itr->second->HandlePlayerEnterZone(player, zoneid);
+    itr->second->HandlePlayerEnterZone(player, zone);
     TC_LOG_DEBUG("outdoorpvp", "%s entered outdoorpvp id %u", player->GetGUID().ToString().c_str(), itr->second->GetTypeId());
 }
 
-void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
+void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, Area* zone)
 {
-    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zone->GetId());
     if (itr == m_OutdoorPvPMap.end())
         return;
 
@@ -151,7 +151,7 @@ void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
     if (!itr->second->HasPlayer(player))
         return;
 
-    itr->second->HandlePlayerLeaveZone(player, zoneid);
+    itr->second->HandlePlayerLeaveZone(player, zone);
     TC_LOG_DEBUG("outdoorpvp", "%s left outdoorpvp id %u", player->GetGUID().ToString().c_str(), itr->second->GetTypeId());
 }
 
@@ -234,14 +234,14 @@ void OutdoorPvPMgr::HandleDropFlag(Player* player, uint32 spellId)
     }
 }
 
-void OutdoorPvPMgr::HandlePlayerResurrects(Player* player, uint32 zoneid)
+void OutdoorPvPMgr::HandlePlayerResurrects(Player* player, Area* zone)
 {
-    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zone->GetId());
     if (itr == m_OutdoorPvPMap.end())
         return;
 
     if (itr->second->HasPlayer(player))
-        itr->second->HandlePlayerResurrects(player, zoneid);
+        itr->second->HandlePlayerResurrects(player, zone);
 }
 
 std::string OutdoorPvPMgr::GetDefenseMessage(uint32 zoneId, uint32 id, LocaleConstant locale) const

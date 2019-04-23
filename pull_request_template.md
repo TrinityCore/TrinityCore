@@ -8,11 +8,6 @@
 -  
 -  
 
-**Target branch(es):** 3.3.5/master
-
-- [ ] 3.3.5
-- [ ] master
-
 **Issues addressed:** Closes #  (insert issue tracker number)
 
 

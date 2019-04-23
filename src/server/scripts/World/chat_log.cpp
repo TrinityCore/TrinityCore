@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "Channel.h"
+#include "Common.h"
+#include "Configuration/Config.h"
 #include "Group.h"
 #include "Guild.h"
 #include "Log.h"
@@ -150,6 +152,21 @@ class ChatLogScript : public PlayerScript
                 TC_LOG_DEBUG("chat.log.channel." + channelName, "Player %s tells channel %s: %s",
                     player->GetName().c_str(), channelName.c_str(), msg.c_str());
             }
+
+#ifdef WITH_CPR
+            if (sConfigMgr->GetBoolDefault("WorldToDiscord.Enabled", false))
+            {
+                if (player->GetSession() && channel->IsWorld())
+                {
+                    DiscordMessage* new_message = new DiscordMessage();
+                    new_message->channel        = player->GetTeamId() == TEAM_ALLIANCE ? DISCORD_WORLD_A : DISCORD_WORLD_H;
+                    new_message->isGm           = player->isGMChat();
+                    new_message->characterName  = player->GetName();
+                    new_message->message        = msg;
+                    DiscordMessageQueue.add(new_message);
+                }
+            }
+#endif
         }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,7 +89,7 @@ public:
         // There is no other way afaik...
         void SpawnGameObject(uint32 entry, Position const& pos)
         {
-            if (GameObject* go = GameObject::CreateGameObject(entry, instance, pos, QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
+            if (GameObject* go = GameObject::CreateGameObject(entry, instance, pos, QuaternionData(), 255, GO_STATE_READY))
                 instance->AddToMap(go);
         }
 

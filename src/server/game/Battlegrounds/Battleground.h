@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,7 @@
 #ifndef __BATTLEGROUND_H
 #define __BATTLEGROUND_H
 
+#include "ArenaHelper.h"
 #include "DBCEnums.h"
 #include "ObjectGuid.h"
 #include "Position.h"
@@ -110,10 +111,10 @@ enum BattlegroundMarks
     ITEM_SA_MARK_OF_HONOR           = 42425
 };
 
-enum BattlegroundMarksCount
+enum BattlegroundChests
 {
-    ITEM_WINNER_COUNT               = 3,
-    ITEM_LOSER_COUNT                = 1
+    ITEM_BG_ALLIANCE_CHEST  = 151557,
+    ITEM_BG_HORDE_CHEST     = 151558,
 };
 
 enum BattlegroundCreatures
@@ -130,12 +131,16 @@ enum BattlegroundSpells
     SPELL_SPIRIT_HEAL               = 22012,                // Spirit Heal
     SPELL_RESURRECTION_VISUAL       = 24171,                // Resurrection Impact Visual
     SPELL_ARENA_PREPARATION         = 32727,                // use this one, 32728 not correct
-    SPELL_PREPARATION               = 44521,                // Preparation
+    SPELL_BG_PREPARATION            = 44521,                // Preparation
     SPELL_SPIRIT_HEAL_MANA          = 44535,                // Spirit Heal
     SPELL_RECENTLY_DROPPED_FLAG     = 42792,                // Recently Dropped Flag
     SPELL_AURA_PLAYER_INACTIVE      = 43681,                // Inactive
     SPELL_HONORABLE_DEFENDER_25Y    = 68652,                // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
-    SPELL_HONORABLE_DEFENDER_60Y    = 66157                 // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
+    SPELL_HONORABLE_DEFENDER_60Y    = 66157,                // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
+    SPELL_MERCENARY_HORDE_1         = 193864,
+    SPELL_MERCENARY_HORDE_2         = 195838,
+    SPELL_MERCENARY_ALLIANCE_1      = 193863,
+    SPELL_MERCENARY_ALLIANCE_2      = 195843,
 };
 
 enum BattlegroundTimeIntervals
@@ -196,13 +201,6 @@ struct BattlegroundObjectInfo
     GameObject  *object;
     int32       timer;
     uint32      spellid;
-};
-
-enum ArenaType
-{
-    ARENA_TYPE_2v2          = 2,
-    ARENA_TYPE_3v3          = 3,
-    ARENA_TYPE_5v5          = 5
 };
 
 enum BattlegroundStartingEvents
@@ -301,6 +299,7 @@ class TC_GAME_API Battleground
 
         int32 GetStartDelayTime() const     { return m_StartDelayTime; }
         uint8 GetArenaType() const          { return m_ArenaType; }
+        uint8 GetArenaSlot() const          { return ArenaHelper::GetSlotByType(GetArenaType()); }
         BattlegroundTeamId GetWinner() const { return _winnerTeamId; }
         uint32 GetScriptId() const          { return ScriptId; }
         uint32 GetBonusHonorFromKill(uint32 kills) const;
@@ -355,6 +354,7 @@ class TC_GAME_API Battleground
 
         typedef std::map<ObjectGuid, BattlegroundScore*> BattlegroundScoreMap;
         uint32 GetPlayerScoresSize() const { return uint32(PlayerScores.size()); }
+        auto& GetPlayerScores() const { return PlayerScores; }
 
         uint32 GetReviveQueueSize() const { return uint32(m_ReviveQueue.size()); }
 
@@ -402,6 +402,7 @@ class TC_GAME_API Battleground
         void RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID);
         void RewardHonorToTeam(uint32 Honor, uint32 TeamID);
         void RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID);
+        void RewardChestToTeam(uint32 TeamID);
         void UpdateWorldState(uint32 variable, uint32 value, bool hidden = false);
         virtual void EndBattleground(uint32 winner);
         void BlockMovement(Player* player);
@@ -430,11 +431,11 @@ class TC_GAME_API Battleground
         virtual void CheckWinConditions() { }
 
         // used for rated arena battles
-        void SetArenaTeamIdForTeam(uint32 Team, uint32 ArenaTeamId) { m_ArenaTeamIds[GetTeamIndexByTeamId(Team)] = ArenaTeamId; }
-        uint32 GetArenaTeamIdForTeam(uint32 Team) const             { return m_ArenaTeamIds[GetTeamIndexByTeamId(Team)]; }
-        uint32 GetArenaTeamIdByIndex(uint32 index) const { return m_ArenaTeamIds[index]; }
-        void SetArenaMatchmakerRating(uint32 Team, uint32 MMR){ m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)] = MMR; }
-        uint32 GetArenaMatchmakerRating(uint32 Team) const          { return m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)]; }
+        void SetArenaGroupIdForTeam(uint32 Team, uint32 ArenaGroupId) { m_ArenaGroupIds[GetTeamIndexByTeamId(Team)] = ArenaGroupId; }
+        uint32 GetArenaGroupIdForTeam(uint32 Team) const             { return m_ArenaGroupIds[GetTeamIndexByTeamId(Team)]; }
+        uint32 GetArenaGroupIdByIndex(uint32 index) const { return m_ArenaGroupIds[index]; }
+        void SetArenaMatchmakerRating(uint32 Team, uint32 MMR){ m_ArenaGroupMMR[GetTeamIndexByTeamId(Team)] = MMR; }
+        uint32 GetArenaMatchmakerRating(uint32 Team) const          { return m_ArenaGroupMMR[GetTeamIndexByTeamId(Team)]; }
 
         // Triggers handle
         // must be implemented in BG subclass
@@ -629,9 +630,9 @@ class TC_GAME_API Battleground
         uint32 m_PlayersCount[BG_TEAMS_COUNT];
 
         // Arena team ids by team
-        uint32 m_ArenaTeamIds[BG_TEAMS_COUNT];
+        uint32 m_ArenaGroupIds[BG_TEAMS_COUNT];
 
-        uint32 m_ArenaTeamMMR[BG_TEAMS_COUNT];
+        uint32 m_ArenaGroupMMR[BG_TEAMS_COUNT];
 
         // Limits
         uint32 m_LevelMin;

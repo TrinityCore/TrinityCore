@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -361,7 +361,8 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                 return nullptr;
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
+
             {
                 _checkTimer += diff;
                 if (_checkTimer >= 1000)
