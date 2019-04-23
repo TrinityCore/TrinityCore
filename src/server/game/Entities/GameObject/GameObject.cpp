@@ -796,9 +796,9 @@ void GameObject::Update(uint32 diff)
 
             if (!m_spawnId)
              {
-                 m_respawnTime = 0;
-                 Delete();
-                 return;
+                m_respawnTime = 0;
+                Delete();
+                return;
              }
 
             if (!m_spawnedByDefault)
