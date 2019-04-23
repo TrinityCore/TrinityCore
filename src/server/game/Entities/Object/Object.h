@@ -255,6 +255,7 @@ class FlaggedValuesArray32
         void     DelFlag(FLAG_TYPE flag) { m_flags &= ~(1 << flag); }
 
         T_VALUES GetValue(FLAG_TYPE flag) const { return m_values[flag]; }
+
         void     SetValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] = value; }
         void     AddValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] += value; }
 
@@ -396,6 +397,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
+        std::list<Creature*> FindAllCreaturesByEntry(uint32 entry, float range, bool alive = true) const;
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player* SelectNearestPlayer(float distance) const;

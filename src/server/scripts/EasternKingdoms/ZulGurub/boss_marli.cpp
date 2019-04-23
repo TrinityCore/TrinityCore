@@ -95,19 +95,22 @@ class boss_marli : public CreatureScript
                 {
                     if (events.IsInPhase(PHASE_THREE))
                         me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
-                    std::for_each(_hatchedEggs.begin(), _hatchedEggs.end(), [](GameObject* go)
+                    std::for_each(_hatchedEggsGuids.begin(), _hatchedEggsGuids.end(), [=](ObjectGuid guid)
                         {
-                            go->Respawn();
+                            if (GameObject * egg = ObjectAccessor::GetGameObject(*me, guid))
+                            {
+                                egg->Respawn();
+                            }
                         });
 
-                    _hatchedEggs.clear();
+                    _hatchedEggsGuids.clear();
                     _Reset();
                 }
 
                 void SpellHitTarget(GameObject* target, SpellInfo const* /*spellInfo*/) override
                 {
                     if(target->GetEntry() == GOB_SPIDER_EGG)
-                        _hatchedEggs.insert(target);
+                        _hatchedEggsGuids.insert(target->GetGUID());
                 }
 
                 void JustDied(Unit* /*killer*/) override
@@ -138,6 +141,7 @@ class boss_marli : public CreatureScript
                         switch (eventId)
                         {
                             case EVENT_SPAWN_START_SPIDERS:
+                            {
                                 Talk(SAY_SPIDER_SPAWN);
 
                                 for (int i = 0; i < 4; ++i)
@@ -145,14 +149,15 @@ class boss_marli : public CreatureScript
                                     if (GameObject * egg = me->FindNearestGameObject(GOB_SPIDER_EGG, MaxRangeHatch))
                                     {
                                         me->CastSpell(egg, SPELL_HATCH_SPIDER_EGG);
-                                        if (Creature * spider = me->FindNearestCreature(NPC_SPIDER, MaxRangeHatch))
-                                        {
-                                            spider->Attack(SelectTarget(SELECT_TARGET_RANDOM, 0), true);
-                                        }
-
                                         egg->DespawnOrUnsummon();
                                     }
                                 }
+                                std::list<Creature*> spiders = me->FindAllCreaturesByEntry(NPC_SPIDER, MaxRangeHatch);
+                                for (Creature* spider : spiders)
+                                {
+                                    spider->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
+                                }
+
                                 events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s, 0, PHASE_TWO);
                                 events.ScheduleEvent(EVENT_TRANSFORM, 45s, 0, PHASE_TWO);
                                 events.ScheduleEvent(EVENT_POISON_VOLLEY, 15s);
@@ -160,6 +165,7 @@ class boss_marli : public CreatureScript
                                 events.ScheduleEvent(EVENT_TRANSFORM, 45s, 0, PHASE_TWO);
                                 events.SetPhase(PHASE_TWO);
                                 break;
+                            }
                             case EVENT_POISON_VOLLEY:
                                 DoCastVictim(SPELL_POISON_VOLLEY, true);
                                 events.ScheduleEvent(EVENT_POISON_VOLLEY, 10s, 20s);
@@ -175,7 +181,7 @@ class boss_marli : public CreatureScript
                                     egg->DespawnOrUnsummon();
                                     if (Creature * spider = me->FindNearestCreature(NPC_SPIDER, MaxRangeHatch))
                                     {
-                                        spider->Attack(SelectTarget(SELECT_TARGET_RANDOM, 0), true);
+                                        spider->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
                                     }
                                 }
                                 events.ScheduleEvent(EVENT_HATCH_SPIDER_EGG, 12s, 17s);
@@ -248,7 +254,7 @@ class boss_marli : public CreatureScript
                 }
 
             private:
-                std::set<GameObject*> _hatchedEggs;
+                GuidSet _hatchedEggsGuids;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
