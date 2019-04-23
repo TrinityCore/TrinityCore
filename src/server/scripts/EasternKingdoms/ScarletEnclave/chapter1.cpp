@@ -239,6 +239,7 @@ public:
                     {
                         me->SetFaction(FACTION_MONSTER);
                         me->SetImmuneToPC(false);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         phase = PHASE_ATTACKING;
 
                         if (Player* target = ObjectAccessor::GetPlayer(*me, playerGUID))

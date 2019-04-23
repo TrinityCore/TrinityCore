@@ -77,6 +77,15 @@ struct tm* localtime_r(time_t const* time, struct tm *result)
 }
 #endif
 
+time_t LocalTimeToUTCTime(time_t time)
+{
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+    return time + _timezone;
+#else
+    return time + timezone;
+#endif
+}
+
 std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
 {
     uint64 secs    = timeInSecs % MINUTE;
