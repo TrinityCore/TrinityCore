@@ -144,11 +144,11 @@ void AddSC_court_of_stars();
 void AddSC_instance_court_of_stars();
 
 //TheArcway
-void AddSC_freakz_instance_the_arcway();
-void AddSC_freakz_boss_general_xakal();
-void AddSC_freakz_boss_naltira();
-void AddSC_freakz_boss_ivanyr();
-void AddSC_freakz_boss_advisor_vandros();
+void AddSC_instance_the_arcway();
+void AddSC_boss_general_xakal();
+void AddSC_boss_naltira();
+void AddSC_boss_ivanyr();
+void AddSC_boss_advisor_vandros();
 
 // Seat of Triumvirate
 void AddSC_boss_zuraal_the_ascended();
@@ -181,7 +181,7 @@ void AddSC_boss_sasszine();
 void AddSC_tomb_of_sargeras();
 void AddSC_instance_tomb_of_sargeras();
 
-// The HightHold
+// The NightHold
 void AddSC_instance_the_nighthold();
 void AddSC_the_nighthold();
 void AddSC_boss_skorpyron();
@@ -349,11 +349,11 @@ void AddBrokenIslesScripts()
     AddSC_tomb_of_sargeras();
     AddSC_instance_tomb_of_sargeras();
 	
-	// The HightHold
-    AddSC_instance_the_nighthold();
-    AddSC_the_nighthold();
-    AddSC_boss_skorpyron();
-    AddSC_boss_chronomatic_anomaly();
-    AddSC_boss_trilliax();
-    AddSC_boss_aluriel();
+	// The NightHold
+    //AddSC_instance_the_nighthold();
+    //AddSC_the_nighthold();
+    //AddSC_boss_skorpyron();
+    //AddSC_boss_chronomatic_anomaly();
+    //AddSC_boss_trilliax();
+    //AddSC_boss_aluriel();
 }
