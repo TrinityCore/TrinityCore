@@ -35,24 +35,9 @@ namespace Trinity
 {
     namespace Asio
     {
-        class IoContext
+        class IoContext : public IoContextBaseNamespace::IoContextBase
         {
-        public:
-            IoContext() : _impl() { }
-            explicit IoContext(int concurrency_hint) : _impl(concurrency_hint) { }
-
-            operator IoContextBaseNamespace::IoContextBase&() { return _impl; }
-            operator IoContextBaseNamespace::IoContextBase const&() const { return _impl; }
-
-            std::size_t run() { return _impl.run(); }
-            void stop() { _impl.stop(); }
-
-#if BOOST_VERSION >= 106600
-            boost::asio::io_context::executor_type get_executor() noexcept { return _impl.get_executor(); }
-#endif
-
-        private:
-            IoContextBaseNamespace::IoContextBase _impl;
+            using IoContextBaseNamespace::IoContextBase::IoContextBase;
         };
 
         template<typename T>
