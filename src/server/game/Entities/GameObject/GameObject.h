@@ -289,7 +289,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         SpellInfo const* GetSpellForLock(Player const* player) const;
 
-    void AIM_Destroy();
+        void AIM_Destroy();
         bool AIM_Initialize();
 
         std::string GetDebugInfo() const override;
