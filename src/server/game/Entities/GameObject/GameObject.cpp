@@ -40,6 +40,8 @@
 #include "Transport.h"
 #include "UpdateFieldFlags.h"
 #include "World.h"
+#include <G3D/Box.h>
+#include <G3D/CoordinateFrame.h>
 #include <G3D/Quat.h>
 
 void GameObjectTemplate::InitializeQueryData()
@@ -299,7 +301,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
         return false;
     }
 
-    SetWorldRotation(rotation.x, rotation.y, rotation.z, rotation.w);
+    SetLocalRotation(rotation.x, rotation.y, rotation.z, rotation.w);
     GameObjectAddon const* gameObjectAddon = sObjectMgr->GetGameObjectAddon(GetSpawnId());
 
     // For most of gameobjects is (0, 0, 0, 1) quaternion, there are only some transports with not standard rotation
@@ -977,7 +979,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     data.id = GetEntry();
     data.spawnPoint.WorldRelocate(this);
     data.phaseMask = phaseMask;
-    data.rotation = m_worldRotation;
+    data.rotation = m_localRotation;
     data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
     data.animprogress = GetGoAnimProgress();
     data.goState = GetGoState();
@@ -1005,10 +1007,10 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     stmt->setFloat(index++, GetPositionY());
     stmt->setFloat(index++, GetPositionZ());
     stmt->setFloat(index++, GetOrientation());
-    stmt->setFloat(index++, m_worldRotation.x);
-    stmt->setFloat(index++, m_worldRotation.y);
-    stmt->setFloat(index++, m_worldRotation.z);
-    stmt->setFloat(index++, m_worldRotation.w);
+    stmt->setFloat(index++, m_localRotation.x);
+    stmt->setFloat(index++, m_localRotation.y);
+    stmt->setFloat(index++, m_localRotation.z);
+    stmt->setFloat(index++, m_localRotation.w);
     stmt->setInt32(index++, int32(m_respawnDelayTime));
     stmt->setUInt8(index++, GetGoAnimProgress());
     stmt->setUInt8(index++, uint8(GetGoState()));
@@ -2103,21 +2105,21 @@ void GameObject::UpdatePackedRotation()
     static const int32 PACK_YZ_MASK = (PACK_YZ << 1) - 1;
     static const int32 PACK_X_MASK = (PACK_X << 1) - 1;
 
-    int8 w_sign = (m_worldRotation.w >= 0.f ? 1 : -1);
-    int64 x = int32(m_worldRotation.x * PACK_X)  * w_sign & PACK_X_MASK;
-    int64 y = int32(m_worldRotation.y * PACK_YZ) * w_sign & PACK_YZ_MASK;
-    int64 z = int32(m_worldRotation.z * PACK_YZ) * w_sign & PACK_YZ_MASK;
+    int8 w_sign = (m_localRotation.w >= 0.f ? 1 : -1);
+    int64 x = int32(m_localRotation.x * PACK_X)  * w_sign & PACK_X_MASK;
+    int64 y = int32(m_localRotation.y * PACK_YZ) * w_sign & PACK_YZ_MASK;
+    int64 z = int32(m_localRotation.z * PACK_YZ) * w_sign & PACK_YZ_MASK;
     m_packedRotation = z | (y << 21) | (x << 42);
 }
 
-void GameObject::SetWorldRotation(float qx, float qy, float qz, float qw)
+void GameObject::SetLocalRotation(float qx, float qy, float qz, float qw)
 {
     G3D::Quat rotation(qx, qy, qz, qw);
     rotation.unitize();
-    m_worldRotation.x = rotation.x;
-    m_worldRotation.y = rotation.y;
-    m_worldRotation.z = rotation.z;
-    m_worldRotation.w = rotation.w;
+    m_localRotation.x = rotation.x;
+    m_localRotation.y = rotation.y;
+    m_localRotation.z = rotation.z;
+    m_localRotation.w = rotation.w;
     UpdatePackedRotation();
 }
 
@@ -2129,10 +2131,27 @@ void GameObject::SetParentRotation(QuaternionData const& rotation)
     SetFloatValue(GAMEOBJECT_PARENTROTATION + 3, rotation.w);
 }
 
-void GameObject::SetWorldRotationAngles(float z_rot, float y_rot, float x_rot)
+void GameObject::SetLocalRotationAngles(float z_rot, float y_rot, float x_rot)
 {
     G3D::Quat quat(G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot));
-    SetWorldRotation(quat.x, quat.y, quat.z, quat.w);
+    SetLocalRotation(quat.x, quat.y, quat.z, quat.w);
+}
+
+QuaternionData GameObject::GetWorldRotation() const
+{
+    QuaternionData localRotation = GetLocalRotation();
+    if (Transport* transport = GetTransport())
+    {
+        QuaternionData worldRotation = transport->GetWorldRotation();
+
+        G3D::Quat worldRotationQuat(worldRotation.x, worldRotation.y, worldRotation.z, worldRotation.w);
+        G3D::Quat localRotationQuat(localRotation.x, localRotation.y, localRotation.z, localRotation.w);
+
+        G3D::Quat resultRotation = localRotationQuat * worldRotationQuat;
+
+        return QuaternionData(resultRotation.x, resultRotation.y, resultRotation.z, resultRotation.w);
+    }
+    return localRotation;
 }
 
 void GameObject::ModifyHealth(int32 change, WorldObject* attackerOrHealer /*= nullptr*/, uint32 spellId /*= 0*/)
@@ -2589,4 +2608,120 @@ std::string GameObject::GetDebugInfo() const
     sstr << WorldObject::GetDebugInfo() << "\n"
         << "SpawnId: " << GetSpawnId() << " GoState: " << std::to_string(GetGoState()) << " ScriptId: " << GetScriptId() << " AIName: " << GetAIName();
     return sstr.str();
+}
+
+bool GameObject::IsAtInteractDistance(Player const* player, SpellInfo const* spell) const
+{
+    if (spell || (spell = GetSpellForLock(player)))
+    {
+        float maxRange = spell->GetMaxRange(spell->IsPositive());
+
+        if (GetGoType() == GAMEOBJECT_TYPE_SPELL_FOCUS)
+            return maxRange * maxRange >= GetExactDistSq(player);
+
+        if (GameObjectDisplayInfoEntry const* displayInfo = sGameObjectDisplayInfoStore.LookupEntry(GetGOInfo()->displayId))
+            return IsAtInteractDistance(*player, maxRange);
+    }
+
+    float distance;
+    switch (GetGoType())
+    {
+        case GAMEOBJECT_TYPE_AREADAMAGE:
+            distance = 0.0f;
+            break;
+        case GAMEOBJECT_TYPE_QUESTGIVER:
+        case GAMEOBJECT_TYPE_TEXT:
+        case GAMEOBJECT_TYPE_FLAGSTAND:
+        case GAMEOBJECT_TYPE_FLAGDROP:
+        case GAMEOBJECT_TYPE_MINI_GAME:
+            distance = 5.5555553f;
+            break;
+        case GAMEOBJECT_TYPE_BINDER:
+            distance = 10.0f;
+            break;
+        case GAMEOBJECT_TYPE_CHAIR:
+        case GAMEOBJECT_TYPE_BARBER_CHAIR:
+            distance = 3.0f;
+            break;
+        case GAMEOBJECT_TYPE_FISHINGNODE:
+            distance = 100.0f;
+            break;
+        case GAMEOBJECT_TYPE_CAMERA:
+        case GAMEOBJECT_TYPE_MAP_OBJECT:
+        case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:
+        case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+        case GAMEOBJECT_TYPE_DOOR:
+        default:
+            distance = 5.0f;
+            break;
+
+            // Following values are not blizzlike
+        case GAMEOBJECT_TYPE_MAILBOX:
+            // Successful mailbox interaction is rather critical to the client, failing it will start a minute-long cooldown until the next mail query may be executed.
+            // And since movement info update is not sent with mailbox interaction query, server may find the player outside of interaction range. Thus we increase it.
+            distance = 10.0f; // 5.0f is blizzlike
+            break;
+    }
+
+    return IsAtInteractDistance(*player, distance);
+}
+
+bool GameObject::IsAtInteractDistance(Position const& pos, float radius) const
+{
+    if (GameObjectDisplayInfoEntry const* displayInfo = sGameObjectDisplayInfoStore.LookupEntry(GetGOInfo()->displayId))
+    {
+        float scale = GetObjectScale();
+
+        float minX = displayInfo->minX * scale - radius;
+        float minY = displayInfo->minY * scale - radius;
+        float minZ = displayInfo->minZ * scale - radius;
+        float maxX = displayInfo->maxX * scale + radius;
+        float maxY = displayInfo->maxY * scale + radius;
+        float maxZ = displayInfo->maxZ * scale + radius;
+
+        QuaternionData localRotation = GetLocalRotation();
+        G3D::Quat localRotationQuat(localRotation.x, localRotation.y, localRotation.z, localRotation.w);
+
+        return G3D::CoordinateFrame { { localRotationQuat }, { GetPositionX(), GetPositionY(), GetPositionZ() } }
+                .toWorldSpace(G3D::Box { { minX, minY, minZ }, { maxX, maxY, maxZ } })
+                .contains({ pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() });
+    }
+
+    return GetExactDist(&pos) <= radius;
+}
+
+SpellInfo const* GameObject::GetSpellForLock(Player const* player) const
+{
+    if (!player)
+        return nullptr;
+
+    uint32 lockId = GetGOInfo()->GetLockId();
+    if (!lockId)
+        return nullptr;
+
+    LockEntry const* lock = sLockStore.LookupEntry(lockId);
+    if (!lock)
+        return nullptr;
+
+    for (uint8 i = 0; i < MAX_LOCK_CASE; ++i)
+    {
+        if (!lock->Type[i])
+            continue;
+
+        if (lock->Type[i] == LOCK_KEY_SKILL)
+            if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(lock->Index[i]))
+                return spell;
+
+        if (lock->Type[i] != LOCK_KEY_SKILL)
+            break;
+
+        for (auto&& playerSpell : player->GetSpellMap())
+            if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(playerSpell.first))
+                for (auto&& effect : spell->Effects)
+                    if (effect.Effect == SPELL_EFFECT_OPEN_LOCK && ((uint32) effect.MiscValue) == lock->Index[i])
+                        if (effect.CalcValue(player) >= int32(lock->Skill[i]))
+                            return spell;
+    }
+
+    return nullptr;
 }
