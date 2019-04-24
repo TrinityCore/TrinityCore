@@ -443,7 +443,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
     }
 
     if (flags.Rotation)
-        *data << uint64(ToGameObject()->GetPackedWorldRotation());      // Rotation
+        *data << uint64(ToGameObject()->GetPackedLocalRotation());      // Rotation
 
     if (PauseTimesCount)
         data->append(PauseTimes->data(), PauseTimes->size());
