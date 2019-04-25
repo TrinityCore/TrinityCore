@@ -1046,7 +1046,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
     {
         m_spawnedByDefault = true;
 
-        if (!GetGOInfo()->GetDespawnPossibility() || !GetGOInfo()->IsDespawnAtAction())
+        if (!GetGOInfo()->IsDespawnAtAction())
         {
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
             m_respawnDelayTime = 0;

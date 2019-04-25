@@ -477,7 +477,7 @@ struct GameObjectTemplate
         }
     }
 
-    bool GetDespawnPossibility() const                      // despawn at targeting of cast?
+    bool CannotBeUsedUnderImmunity() const                      // The object cannot be use under Immunity like divine shield -- to be implemented
     {
         switch (type)
         {
@@ -487,7 +487,7 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune != 0;
             case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.noDamageImmune != 0;
             case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.noDamageImmune != 0;
-            default: return true;
+            default: return false;
         }
     }
 
