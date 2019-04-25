@@ -120,6 +120,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 MistressOfPainCount = 0;
                 TributeToImmortalityEligible = true;
                 NeedSave = false;
+                CrusadersSpecialState = false;
             }
 
             void OnPlayerEnter(Player* player) override
@@ -199,12 +200,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 ResilienceWillFixItTimer = 0;
                                 break;
                             case FAIL:
+                                CrusadersSpecialState = false;
                                 if (Creature* fordring = GetCreature(DATA_FORDRING))
                                     fordring->AI()->DoAction(ACTION_FACTION_WIPE);
-                                break;
-                            case SPECIAL: //Means the first blood
-                                ResilienceWillFixItTimer = 60*IN_MILLISECONDS;
-                                state = IN_PROGRESS;
                                 break;
                             case DONE:
                                 DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DEFEAT_FACTION_CHAMPIONS);
@@ -435,6 +433,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         else if (data == DECREASE)
                             --MistressOfPainCount;
                         break;
+                    case DATA_FACTION_CRUSADERS: // Achivement Resilience will Fix
+                        ResilienceWillFixItTimer = 60 * IN_MILLISECONDS;
+                        CrusadersSpecialState = true;
+                        break;
                     default:
                         break;
                 }
@@ -558,7 +560,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         NotOneButTwoJormungarsTimer -= diff;
                 }
 
-                if (GetBossState(DATA_FACTION_CRUSADERS) == IN_PROGRESS && ResilienceWillFixItTimer)
+                if (CrusadersSpecialState && ResilienceWillFixItTimer)
                 {
                     if (ResilienceWillFixItTimer <= diff)
                         ResilienceWillFixItTimer = 0;
@@ -660,6 +662,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 uint32 NorthrendBeasts;
                 uint32 Team;
                 bool NeedSave;
+                bool CrusadersSpecialState;
                 std::string SaveDataBuffer;
                 GuidVector snoboldGUIDS;
 
