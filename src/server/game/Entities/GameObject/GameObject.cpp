@@ -769,7 +769,7 @@ void GameObject::Update(uint32 diff)
             if (GetSpellId() || GetOwnerGUID())
             {
                 //Don't delete spell spawned chests and goobers, which are not consumed on loot or on spell cast
-                if (m_respawnTime > 0 && GetGoType() == (GetGoType() == GAMEOBJECT_TYPE_CHEST || GetGoType() == GAMEOBJECT_TYPE_GOOBER) && !GetGOInfo()->IsDespawnAtAction())
+                if (m_respawnTime > 0 && (GetGoType() == GAMEOBJECT_TYPE_CHEST || GetGoType() == GAMEOBJECT_TYPE_GOOBER) && !GetGOInfo()->IsDespawnAtAction())
                 {
                     UpdateObjectVisibility();
                     SetLootState(GO_READY);
