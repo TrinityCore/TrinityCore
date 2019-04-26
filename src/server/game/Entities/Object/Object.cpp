@@ -600,7 +600,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     }
 
     if (flags & UPDATEFLAG_ROTATION)
-        *data << uint64(ToGameObject()->GetPackedWorldRotation());
+        *data << uint64(ToGameObject()->GetPackedLocalRotation());
 
     if (flags & UPDATEFLAG_UNK5)
     {

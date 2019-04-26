@@ -445,7 +445,7 @@ public:
         }
 
         object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
-        object->SetWorldRotationAngles(oz, oy, ox);
+        object->SetLocalRotationAngles(oz, oy, ox);
         object->SaveToDB();
 
         handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetGUID().GetCounter(), object->GetGOInfo()->name.c_str(), object->GetGUID().GetCounter(), oz);
