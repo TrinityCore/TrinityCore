@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
+#include <chrono>
 
 struct z_stream_s;
 
@@ -36,6 +37,10 @@ class WorldPacket : public ByteBuffer
         explicit WorldPacket(Opcodes opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode) { }
 
         WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode)
+        {
+        }
+
+        WorldPacket(WorldPacket&& packet, std::chrono::steady_clock::time_point receivedTime) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), m_receivedTime(receivedTime)
         {
         }
 
@@ -69,10 +74,13 @@ class WorldPacket : public ByteBuffer
         void Compress(z_stream_s* compressionStream);
         void Compress(z_stream_s* compressionStream, WorldPacket const* source);
 
+        std::chrono::steady_clock::time_point GetReceivedTime() const { return m_receivedTime; }
+
     protected:
         Opcodes m_opcode;
         void Compress(void* dst, uint32 *dst_size, const void* src, int src_size);
         z_stream_s* _compressionStream;
+        std::chrono::steady_clock::time_point m_receivedTime; // only set for a specific set of opcodes, for performance reasons.
 };
 
 #endif
