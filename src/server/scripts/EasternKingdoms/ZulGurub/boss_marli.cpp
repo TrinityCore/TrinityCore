@@ -28,6 +28,7 @@ EndScriptData */
 #include "TemporarySummon.h"
 #include "zulgurub.h"
 #include "GameObject.h"
+#include "ObjectAccessor.h"
 
 enum Says
 {
@@ -103,15 +104,16 @@ class boss_marli : public CreatureScript
                             }
                         });
 
+                    summons.DespawnAll();
                     _hatchedEggsGuids.clear();
                     _Reset();
                 }
-
-                void SpellHitTarget(GameObject* target, SpellInfo const* /*spellInfo*/) override
-                {
-                    if(target->GetEntry() == GOB_SPIDER_EGG)
-                        _hatchedEggsGuids.insert(target->GetGUID());
-                }
+                
+                //void SpellHitTarget(GameObject* target, SpellInfo const* /*spellInfo*/) override
+                //{
+                //    if(target->GetEntry() == GOB_SPIDER_EGG)
+                //        _hatchedEggsGuids.insert(target->GetGUID());
+                //}
 
                 void JustDied(Unit* /*killer*/) override
                 {
@@ -146,16 +148,18 @@ class boss_marli : public CreatureScript
 
                                 for (int i = 0; i < 4; ++i)
                                 {
-                                    if (GameObject * egg = me->FindNearestGameObject(GOB_SPIDER_EGG, MaxRangeHatch))
+                                    if (GameObject * egg = me->FindNearestReadyStateGameObject(GOB_SPIDER_EGG, MaxRangeHatch))
                                     {
-                                        me->CastSpell(egg, SPELL_HATCH_SPIDER_EGG);
-                                        egg->DespawnOrUnsummon();
+                                        //me->CastSpell(egg, SPELL_HATCH_SPIDER_EGG);
+                                        egg->Use(me);
+                                        egg->SetRespawnCompatibilityMode(true);
                                     }
                                 }
                                 std::list<Creature*> spiders = me->FindAllCreaturesByEntry(NPC_SPIDER, MaxRangeHatch);
                                 for (Creature* spider : spiders)
                                 {
                                     spider->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
+                                    summons.Summon(spider);
                                 }
 
                                 events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s, 0, PHASE_TWO);
@@ -177,11 +181,14 @@ class boss_marli : public CreatureScript
                             case EVENT_HATCH_SPIDER_EGG:
                                 if (GameObject * egg = me->FindNearestGameObject(GOB_SPIDER_EGG, MaxRangeHatch))
                                 {
-                                    me->CastSpell(egg, SPELL_HATCH_SPIDER_EGG);
-                                    egg->DespawnOrUnsummon();
-                                    if (Creature * spider = me->FindNearestCreature(NPC_SPIDER, MaxRangeHatch))
+                                    //me->CastSpell(egg, SPELL_HATCH_SPIDER_EGG);
+                                    egg->Use(me);
+                                    egg->SetRespawnCompatibilityMode(true);
+                                    
+                                    if (Creature * spider = me->FindNearestCreatureByEntryNotInList(NPC_SPIDER, MaxRangeHatch, true, summons.GetGUIDs()))
                                     {
                                         spider->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
+                                        summons.Summon(spider);
                                     }
                                 }
                                 events.ScheduleEvent(EVENT_HATCH_SPIDER_EGG, 12s, 17s);

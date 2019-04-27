@@ -123,6 +123,17 @@ void SummonList::DoActionImpl(int32 action, StorageType const& summons)
     }
 }
 
+std::list<ObjectGuid> SummonList::GetGUIDs() const
+{
+    std::list<ObjectGuid> guids;
+
+    std::for_each(storage_.begin(), storage_.end(), [&guids](ObjectGuid guid) {
+        guids.emplace_front(guid);
+    });
+
+    return guids;
+}
+
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
     IsFleeing(false),
     _isCombatMovementAllowed(true)

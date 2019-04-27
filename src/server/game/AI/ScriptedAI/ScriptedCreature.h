@@ -106,6 +106,7 @@ public:
     void DoZoneInCombat(uint32 entry = 0);
     void RemoveNotExisting();
     bool HasEntry(uint32 entry) const;
+    std::list<ObjectGuid> GetGUIDs() const;
 
 private:
     void DoActionImpl(int32 action, StorageType const& summons);

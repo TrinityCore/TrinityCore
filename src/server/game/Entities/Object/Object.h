@@ -398,7 +398,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
         std::list<Creature*> FindAllCreaturesByEntry(uint32 entry, float range, bool alive = true) const;
+        Creature* FindNearestCreatureByEntryNotInList(uint32 entry, float range, bool alive, std::list<ObjectGuid> creatureGuids) const;
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
+        GameObject* FindNearestReadyStateGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player* SelectNearestPlayer(float distance) const;
 
