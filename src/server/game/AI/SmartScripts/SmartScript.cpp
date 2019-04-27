@@ -235,7 +235,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         if (!roll_chance_i(e.event.event_chance))
             return;
     }
-    e.runOnce = true; //used for repeat check
+    e.runOnce = true;//used for repeat check
 
     if (unit)
         mLastInvoker = unit->GetGUID();
@@ -1688,12 +1688,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Creature* creature = target->ToCreature())
                 {
                     if (IsSmart(creature))
-                        ENSURE_AI(SmartAI, creature->AI())->SetTimedActionList(e, e.action.timedActionList.id, GetLastInvoker());
+                        ENSURE_AI(SmartAI, creature->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
                 }
                 else if (GameObject* goTarget = target->ToGameObject())
                 {
                     if (IsSmart(goTarget))
-                        ENSURE_AI(SmartGameObjectAI, goTarget->AI())->SetTimedActionList(e, e.action.timedActionList.id, GetLastInvoker());
+                        ENSURE_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
                 }
             }
             break;
@@ -1778,12 +1778,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Creature* creature = target->ToCreature())
                 {
                     if (IsSmart(creature))
-                        ENSURE_AI(SmartAI, creature->AI())->SetTimedActionList(e, id, GetLastInvoker());
+                        ENSURE_AI(SmartAI, creature->AI())->SetScript9(e, id, GetLastInvoker());
                 }
                 else if (GameObject* goTarget = target->ToGameObject())
                 {
                     if (IsSmart(goTarget))
-                        ENSURE_AI(SmartGameObjectAI, goTarget->AI())->SetTimedActionList(e, id, GetLastInvoker());
+                        ENSURE_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, id, GetLastInvoker());
                 }
             }
             break;
@@ -1802,12 +1802,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Creature* creature = target->ToCreature())
                 {
                     if (IsSmart(creature))
-                        ENSURE_AI(SmartAI, creature->AI())->SetTimedActionList(e, id, GetLastInvoker());
+                        ENSURE_AI(SmartAI, creature->AI())->SetScript9(e, id, GetLastInvoker());
                 }
                 else if (GameObject* goTarget = target->ToGameObject())
                 {
                     if (IsSmart(goTarget))
-                        ENSURE_AI(SmartGameObjectAI, goTarget->AI())->SetTimedActionList(e, id, GetLastInvoker());
+                        ENSURE_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, id, GetLastInvoker());
                 }
             }
             break;
@@ -3533,12 +3533,9 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
             case SMART_EVENT_DISTANCE_CREATURE:
             case SMART_EVENT_DISTANCE_GAMEOBJECT:
             {
+                ProcessEvent(e);
                 if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
                 {
-                    Unit* invoker = nullptr;
-                    if (me && mTimedActionListInvoker)
-                        invoker = ObjectAccessor::GetUnit(*me, mTimedActionListInvoker);
-                    ProcessEvent(e, invoker);
                     e.enableTimed = false;//disable event if it is in an ActionList and was processed once
                     for (SmartAIEventList::iterator i = mTimedActionList.begin(); i != mTimedActionList.end(); ++i)
                     {
@@ -3550,8 +3547,6 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
                         }
                     }
                 }
-                else
-                    ProcessEvent(e);
                 break;
             }
         }
@@ -3845,7 +3840,7 @@ Unit* SmartScript::DoFindClosestFriendlyInRange(float range, bool playerOnly)
     return unit;
 }
 
-void SmartScript::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker)
+void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)
 {
     //do NOT clear mTimedActionList if it's being iterated because it will invalidate the iterator and delete
     // any SmartScriptHolder contained like the "e" parameter passed to this function
@@ -3859,7 +3854,6 @@ void SmartScript::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* i
     mTimedActionList = sSmartScriptMgr->GetScript(entry, SMART_SCRIPT_TYPE_TIMED_ACTIONLIST);
     if (mTimedActionList.empty())
         return;
-    mTimedActionListInvoker = invoker ? invoker->GetGUID() : ObjectGuid::Empty;
     for (SmartAIEventList::iterator i = mTimedActionList.begin(); i != mTimedActionList.end(); ++i)
     {
         i->enableTimed = i == mTimedActionList.begin();//enable processing only for the first action
