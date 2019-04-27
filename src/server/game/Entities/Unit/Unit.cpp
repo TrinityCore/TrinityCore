@@ -768,10 +768,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     // Hook for OnDamage Event
     sScriptMgr->OnDamage(this, victim, damage);
 
-    if (victim->GetTypeId() == TYPEID_PLAYER && this != victim)
+    if (victim->GetTypeId() == TYPEID_PLAYER)
     {
         // Signal to pets that their owner was attacked - except when DOT.
-        if (damagetype != DOT)
+        if (attacker != victim && damagetype != DOT)
         {
             for (Unit* controlled : victim->m_Controlled)
                 if (Creature* cControlled = controlled->ToCreature())
