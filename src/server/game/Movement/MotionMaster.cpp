@@ -571,6 +571,30 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, si
     //MovePoint(EVENT_CHARGE_PREPATH, pos, false);
 }
 
+void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk)
+{
+	Movement::PointsArray path(pathPoints, pathPoints + pathSize);
+	MoveSmoothPath(pointId, path, walk);
+}
+
+void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& path, bool walk)
+{
+	Movement::MoveSplineInit init(_owner);
+	if (_owner->CanFly())
+		init.SetUncompressed();
+	init.MovebyPath(path);
+	init.SetSmooth();
+	init.SetWalk(walk);
+	init.Launch();
+
+	// This code is not correct
+	// EffectMovementGenerator does not affect UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE
+	// need to call PointMovementGenerator with various pointIds
+	Mutate(new EffectMovementGenerator(pointId), MOTION_SLOT_ACTIVE);
+	//Position pos(pathPoints[pathSize - 1].x, pathPoints[pathSize - 1].y, pathPoints[pathSize - 1].z);
+	//MovePoint(EVENT_CHARGE_PREPATH, pos, false);
+}
+
 void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk)
 {
     Creature* owner = _owner->ToCreature();
