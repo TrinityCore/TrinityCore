@@ -1336,3 +1336,14 @@ bool InstanceHasScript(WorldObject const* obj, char const* scriptName)
 
     return false;
 }
+
+// Complete Achievement for all players in instance
+void InstanceScript::DoCompletedAchievement(AchievementEntry const* entry)
+{
+    Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player* player = i->GetSource())
+                player->CompletedAchievement(entry);
+} 

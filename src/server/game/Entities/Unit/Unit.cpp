@@ -14838,3 +14838,29 @@ void Unit::GetAreaTriggerListWithSpellIDInRange(std::list<AreaTrigger*>& list, u
         });
     }
 }
+
+void Unit::GetAreaTriggerList(std::vector<AreaTrigger*> &list, uint32 spellId)
+{
+    Map* map = GetMap();
+    if (!map)
+        return;
+
+    if (!spellId)
+        return;
+
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    if (!spellInfo)
+        return;
+
+    if (!spellInfo->IsAreaTriggerAuraEffect(map->GetDifficultyID(), GetTypeId() == TYPEID_PLAYER))
+        return;
+
+    if (m_areaTrigger.empty())
+        return;
+    for (AreaTriggerList::const_iterator i = m_areaTrigger.begin(); i != m_areaTrigger.end(); ++i)
+    {
+        AreaTrigger* areaTrigger = *i;
+        if (areaTrigger->GetSpellId() == spellId)
+            list.push_back(areaTrigger);
+    }
+} 

@@ -57,6 +57,9 @@ class TC_GAME_API AreaTriggerAI
 
         // Called when the AreaTrigger is removed
         virtual void OnRemove() { }
+
+        // Pass parameters between AI
+        virtual void DoAction(int32 /*param*/) { }
 };
 
 class NullAreaTriggerAI : public AreaTriggerAI
