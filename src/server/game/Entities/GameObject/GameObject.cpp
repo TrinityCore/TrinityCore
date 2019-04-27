@@ -765,7 +765,7 @@ void GameObject::Update(uint32 diff)
             loot.clear();
 
             //Don't delete chests and goobers that have the flag consumable=0
-            if (GetGoType() == GAMEOBJECT_TYPE_CHEST && !GetGOInfo()->IsDespawnAtAction())
+            if ((GetGoType() == GAMEOBJECT_TYPE_CHEST || GetGoType() == GAMEOBJECT_TYPE_GOOBER) && !GetGOInfo()->IsDespawnAtAction())
             {
                 UpdateObjectVisibility();
                 SetLootState(GO_READY);
