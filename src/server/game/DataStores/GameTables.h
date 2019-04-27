@@ -187,6 +187,44 @@ struct GtXpEntry
     float Divisor = 0.0f;
 };
 
+struct GtAzeriteBaseExperiencePerLevel
+{
+float BaseExerperienceToNextLevel;
+float MinimumExperienceToNextLevel;
+};
+
+struct GtAzeriteLevelToItemLevel
+{
+float ItemLevel;
+};
+
+struct GtBattlePetTypeDamageMod
+{
+float Modifiers[10/*MAX_ABILITY_SCHOOL*/];
+};
+
+struct GtBattlePetXP
+{
+float Wins;
+float XP;
+};
+
+struct GtChallengeModeDamage
+{
+float Modifier;
+};
+
+struct GtChallengeModeHealth
+{
+float Modifier;
+};
+
+
+struct GtHonorLevelEntry
+{
+float Amount[MAX_PRESTIGE_RANK+1] = { 0.0f };
+};
+
 template<class T>
 class GameTable
 {
@@ -222,6 +260,13 @@ TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCost
 TC_GAME_API extern GameTable<GtNpcTotalHpEntry>                     sNpcTotalHpGameTable[MAX_EXPANSIONS];
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
 TC_GAME_API extern GameTable<GtXpEntry>                             sXpGameTable;
+TC_GAME_API extern GameTable<Structs::GtAzeriteBaseExperiencePerLevel>  AzeriteBaseExperiencePerLevel;
+TC_GAME_API extern GameTable<Structs::GtAzeriteLevelToItemLevel>        AzeriteLevelToItemLevel;
+TC_GAME_API extern GameTable<Structs::GtBattlePetTypeDamageMod>         BattlePetTypeDamageMod;
+TC_GAME_API extern GameTable<Structs::GtBattlePetXP>                    BattlePetXP;
+TC_GAME_API extern GameTable<Structs::GtChallengeModeDamage>            ChallengeModeDamage;
+TC_GAME_API extern GameTable<Structs::GtChallengeModeHealth>            ChallengeModeHealth;
+TC_GAME_API extern GameTable<Structs::GtHonorLevelEntry>                HonorLevelGameTable;
 
 TC_GAME_API void LoadGameTables(std::string const& dataPath);
 
