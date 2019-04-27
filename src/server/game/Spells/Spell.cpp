@@ -1375,6 +1375,35 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
             if (m_caster->GetMap()->getLiquidStatus(m_caster->GetPhaseShift(), x, y, z, MAP_ALL_LIQUIDS, &liquidData))
                 liquidLevel = liquidData.level;
 
+              switch (m_caster->GetAreaId()) // Dalaran Hack Needed because water in Dalaran is not set as Water
+	    {
+				case 7595: // Dalaran : The Eventide
+				{
+					if(m_caster->IsWithinDist2d(-952.68f, 4431.89f, 13.0f)) // Caster must be near Dalaran's Fountain
+						liquidLevel = 733.95f;
+					break;
+				}
+				case 7592: // Dalaran : The Violet Hold
+				{
+					if(m_caster->IsWithinDist2d(-931.03f, 4324.63f, 20.0f) || m_caster->IsWithinDist2d(-890.96f, 4321.35f, 20.0f) || m_caster->IsWithinDist2d(-981.21f, 4389.05f, 20.0f) ||                                                 m_caster->IsWithinDist2d(-967.59f, 4353.53f, 20.0f)) 
+						liquidLevel = 733.50f;
+					break;
+				}
+				case 8270: // Dalaran : Margoss's Retreat
+				{
+					if(m_caster->IsWithinDist2d(-514.73f, 4704.44f, 23.0f)) // Must be near the "lake"
+						liquidLevel = 654.60f;
+					break;
+				}
+				case 7594: // Dalaran : The UnderBelly
+				{
+					if(m_caster->IsWithinDist2d(-723.74f, 4378.54f, 5.0f) || m_caster->IsWithinDist2d(-714.95f, 4395.90f, 5.0f) || m_caster->IsWithinDist2d(-737.77f, 4392.29f, 10.0f) ||                                                   m_caster->IsWithinDist2d(-726.81f, 4405.69f, 8.0f) || m_caster->IsWithinDist2d(-715.84f, 4406.43f, 10.0f)) // Must be near water
+						liquidLevel = 654.60f;
+					break;
+				}
+				default:
+				break;			
+	    }
             if (liquidLevel <= ground) // When there is no liquid Map::GetWaterOrGroundLevel returns ground level
             {
                 SendCastResult(SPELL_FAILED_NOT_HERE);
