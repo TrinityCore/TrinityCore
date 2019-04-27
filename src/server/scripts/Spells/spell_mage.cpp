@@ -2842,6 +2842,60 @@ class spell_mage_cinderstorm : public SpellScript
     }
 };
 
+// 257537 - Ebonbolt
+class spell_mage_ebonbolt : public SpellScript
+{
+    PrepareSpellScript(spell_mage_ebonbolt);
+
+    void DoCast()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_BRAIN_FREEZE_AURA, true);
+    }
+
+    void DoEffectHitTarget(SpellEffIndex /effIndex/)
+    {
+        Unit* explTarget = GetExplTargetUnit();
+        Unit* hitUnit = GetHitUnit();
+        if (!hitUnit  !explTarget)
+            return;
+
+        if (GetCaster()->HasAura(SPELL_MAGE_SPLITTING_ICE))
+            GetCaster()->Variables.Set<ObjectGuid>("explTarget", explTarget->GetGUID());
+
+        GetCaster()->CastSpell(hitUnit, SPELL_MAGE_EBONBOLT_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mage_ebonbolt::DoEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnCast += SpellCastFn(spell_mage_ebonbolt::DoCast);
+    }
+};
+
+// 257538 - Ebonbolt Damage
+class spell_mage_ebonbolt_damage : public SpellScript
+{
+    PrepareSpellScript(spell_mage_ebonbolt_damage);
+
+    void DoEffectHitTarget(SpellEffIndex /effIndex/)
+    {
+        Unit* hitUnit = GetHitUnit();
+        ObjectGuid& primaryTarget = GetCaster()->Variables.GetValue<ObjectGuid>("explTarget");
+        int32 damage = GetHitDamage();
+        if (!hitUnit  !primaryTarget)
+            return;
+
+        if (AuraEffect const* eff1 = GetCaster()->GetAuraEffect(SPELL_MAGE_SPLITTING_ICE, EFFECT_1))
+            if (hitUnit->GetGUID() != primaryTarget)
+                SetHitDamage(CalculatePct(damage, eff1->GetAmount()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mage_ebonbolt_damage::DoEffectHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new playerscript_mage_arcane();
@@ -2926,4 +2980,7 @@ void AddSC_mage_spell_scripts()
 
     // NPC Scripts
     new npc_mirror_image(); 
+
+    new spell_mage_ebonbolt();
+    new spell_mage_ebonbolt_damage();
 }

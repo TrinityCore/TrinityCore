@@ -2656,6 +2656,41 @@ public:
     }
 };
 
+// 209690 - Druid of the Claw
+class spell_dru_druid_of_the_claw : public SpellScriptLoader
+{
+public:
+    spell_dru_druid_of_the_claw() : SpellScriptLoader("spell_dru_druid_of_the_claw") { }
+
+    class spell_dru_druid_of_the_claw_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_druid_of_the_claw_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo
+            ({
+                SPELL_DRUID_REJUVENATION
+            });
+        }
+
+        void HandleProc(ProcEventInfo& /*procInfo*/)
+        {
+            GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_REJUVENATION, true);
+        }
+
+        void Register() override
+        {
+            OnProc += AuraProcFn(spell_dru_druid_of_the_claw_AuraScript::HandleProc);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dru_druid_of_the_claw_AuraScript();
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     // Spells Scripts
@@ -2717,6 +2752,8 @@ void AddSC_druid_spell_scripts()
     RegisterAuraScript(aura_dru_feral_affinity_tank);
     RegisterAuraScript(aura_dru_frenzied_regeneration);
     new spell_dru_rejuvenation();
+    new spell_dru_druid_of_the_claw();
+
     // AreaTrigger Scripts
     new at_dru_solar_beam();
     RegisterAreaTriggerAI(at_dru_starfall);
