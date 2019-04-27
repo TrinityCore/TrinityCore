@@ -764,23 +764,18 @@ void GameObject::Update(uint32 diff)
 
             loot.clear();
 
-            //! If this is summoned by a spell with ie. SPELL_EFFECT_SUMMON_OBJECT_WILD, with or without owner, we check respawn criteria based on spell
-            //! The GetOwnerGUID() check is mostly for compatibility with hacky scripts - 99% of the time summoning should be done trough spells.
-            if (GetSpellId() || GetOwnerGUID())
+            //Don't delete chests and goobers that have the flag consumable=0
+            if (GetGoType() == GAMEOBJECT_TYPE_CHEST && !GetGOInfo()->IsDespawnAtAction())
             {
-                //Don't delete spell spawned chests and goobers, which are not consumed on loot or on spell cast
-                if (m_respawnTime > 0 && (GetGoType() == GAMEOBJECT_TYPE_CHEST || GetGoType() == GAMEOBJECT_TYPE_GOOBER) && !GetGOInfo()->IsDespawnAtAction())
-                {
-                    UpdateObjectVisibility();
-                    SetLootState(GO_READY);
-                }
-                else
-                {
-                    SetRespawnTime(0);
-                    Delete();
-                }
-                return;
+                UpdateObjectVisibility();
+                SetLootState(GO_READY);
             }
+            else
+            {
+                SetRespawnTime(0);
+                Delete();
+            }
+            return;
 
             SetLootState(GO_NOT_READY);
 
@@ -1046,13 +1041,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
     {
         m_spawnedByDefault = true;
 
-        if (!GetGOInfo()->IsDespawnAtAction())
-        {
-            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
-            m_respawnDelayTime = 0;
-            m_respawnTime = 0;
-        }
-        else
+        if (GetGOInfo()->IsDespawnAtAction())
         {
             m_respawnDelayTime = data->spawntimesecs;
             m_respawnTime = GetMap()->GetGORespawnTime(m_spawnId);
