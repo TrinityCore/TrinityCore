@@ -136,7 +136,7 @@ class boss_drahga_shadowburner : public CreatureScript
             {
                 _Reset();
                 Initialize();
-                me->GetMotionMaster()->MoveRandom(8.0f);
+                me->GetMotionMaster()->MovePath(me->GetEntry() * 10, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, !IsHeroic() ? SPELL_ENGULFING_FLAMES : SPELL_ENGULFING_FLAMES_HC, true);
             }
 
