@@ -96,16 +96,16 @@ class boss_marli : public CreatureScript
                 {
                     if (events.IsInPhase(PHASE_THREE))
                         me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
-                    std::for_each(_hatchedEggsGuids.begin(), _hatchedEggsGuids.end(), [=](ObjectGuid guid)
+                    /*std::for_each(_hatchedEggsGuids.begin(), _hatchedEggsGuids.end(), [=](ObjectGuid guid)
                         {
                             if (GameObject * egg = ObjectAccessor::GetGameObject(*me, guid))
                             {
                                 egg->Respawn();
                             }
-                        });
+                        });*/
 
                     summons.DespawnAll();
-                    _hatchedEggsGuids.clear();
+                    //_hatchedEggsGuids.clear();
                     _Reset();
                 }
                 
