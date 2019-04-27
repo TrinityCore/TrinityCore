@@ -4673,3 +4673,17 @@ bool SpellInfo::IsTargetingLine() const
 
     return false;
 }
+
+bool SpellInfo::IsAreaTriggerAuraEffect(uint32 difficulty, bool onlyplayer) const
+{
+	if (onlyplayer) /// because check for player only difficulty == 0
+		difficulty = DIFFICULTY_NONE;
+
+	SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+	for (SpellEffectInfo const* effect : effects)
+	{
+		if (effect && ((effect->ApplyAuraName > 0 && effect->ApplyAuraName == SPELL_AURA_AREA_TRIGGER) || (effect->Effect > 0 && effect->Effect == SPELL_EFFECT_CREATE_AREATRIGGER)))
+			return true;
+	}
+	return false;
+} 

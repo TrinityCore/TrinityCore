@@ -350,10 +350,10 @@ void AddBrokenIslesScripts()
     AddSC_instance_tomb_of_sargeras();
 	
 	// The NightHold
-    //AddSC_instance_the_nighthold();
-    //AddSC_the_nighthold();
-    //AddSC_boss_skorpyron();
-    //AddSC_boss_chronomatic_anomaly();
-    //AddSC_boss_trilliax();
-    //AddSC_boss_aluriel();
+    AddSC_instance_the_nighthold();
+    AddSC_the_nighthold();
+    AddSC_boss_skorpyron();
+    AddSC_boss_chronomatic_anomaly();
+    AddSC_boss_trilliax();
+    AddSC_boss_aluriel();
 }
