@@ -9390,6 +9390,9 @@ bool Unit::IsDisallowedMountForm(uint32 spellId, ShapeshiftForm form, uint32 dis
 
     if (form)
     {
+        if (form == FORM_MOONKIN_FORM || form == FORM_MOONKIN_FORM_RESTORATION)
+            return false;
+
         SpellShapeshiftFormEntry const* shapeshift = sSpellShapeshiftFormStore.LookupEntry(form);
         if (!shapeshift)
             return true;
@@ -12932,6 +12935,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                     return 37730;
                 return 21244;
             case FORM_MOONKIN_FORM:
+            case FORM_MOONKIN_FORM_RESTORATION:
             {
                 // Glyph of Stars
                 if (HasAura(114301))
