@@ -11970,6 +11970,10 @@ void Unit::SetControlled(bool apply, UnitState state)
                 if (HasAuraType(SPELL_AURA_MOD_ROOT) || GetVehicle())
                     return;
 
+                if (Creature* creature = ToCreature())
+                    if (creature->GetMovementTemplate().IsRooted)
+                        return;
+
                 ClearUnitState(state);
                 SetRooted(false);
                 break;
