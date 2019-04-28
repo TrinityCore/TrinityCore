@@ -2854,7 +2854,7 @@ class spell_mage_ebonbolt : public SpellScript
         GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_BRAIN_FREEZE_AURA, true);
     }
 
-    void DoEffectHitTarget(SpellEffIndex /effIndex/)
+    void DoEffectHitTarget(SpellEffIndex /*effIndex*/)
     {
         Unit* explTarget = GetExplTargetUnit();
         Unit* hitUnit = GetHitUnit();
@@ -2879,7 +2879,7 @@ class spell_mage_ebonbolt_damage : public SpellScript
 {
     PrepareSpellScript(spell_mage_ebonbolt_damage);
 
-    void DoEffectHitTarget(SpellEffIndex /effIndex/)
+    void DoEffectHitTarget(SpellEffIndex /*effIndex*/)
     {
         Unit* hitUnit = GetHitUnit();
         ObjectGuid& primaryTarget = GetCaster()->Variables.GetValue<ObjectGuid>("explTarget");
