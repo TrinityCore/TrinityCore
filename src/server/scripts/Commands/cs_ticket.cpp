@@ -291,9 +291,6 @@ public:
         std::string msg = ticket->FormatMessageString(*handler, nullptr, nullptr, nullptr, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", nullptr);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
-        sTicketMgr->RemoveTicket(ticket->GetId());
-        sTicketMgr->UpdateLastChange();
-
         if (Player* player = ticket->GetPlayer())
         {
             // Force abandon ticket
@@ -301,6 +298,9 @@ public:
             data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
             player->SendDirectMessage(&data);
         }
+
+        sTicketMgr->RemoveTicket(ticket->GetId());
+        sTicketMgr->UpdateLastChange();
 
         return true;
     }
