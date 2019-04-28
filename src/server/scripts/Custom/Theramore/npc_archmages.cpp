@@ -229,7 +229,7 @@ public:
 
             if (me->Attack(who, false))
             {
-                SetCombatMovement(false);
+                DoStartMovement(who, 35.f);
 
                 events.ScheduleEvent(CASTING_FROSTBOLT, .5f);
                 events.ScheduleEvent(CASTING_ICE_LANCE, 8s, 14s);

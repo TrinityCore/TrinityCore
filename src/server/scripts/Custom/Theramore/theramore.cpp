@@ -596,6 +596,13 @@ class npc_jaina_theramore : public CreatureScript
                                     player->CastSpell(player, 42910);
                             }
 
+                            aden->AI()->Talk(SAY_EVENT_SHAKER);
+
+                            std::list<GameObject*> theramoreGates;
+                            GetGameObjectListWithEntryInGrid(theramoreGates, me, GOB_THERAMORE_GATE, 2000.f);
+                            for (GameObject* gate : theramoreGates)
+                                gate->UseDoorOrButton();
+
                             playerShaker = true;
                         }
 
@@ -670,7 +677,6 @@ class npc_jaina_theramore : public CreatureScript
                                 case 5405:
                                 case 4888:
                                 case 4885:
-                                case 4895:
                                 case 10047:
                                 case 12375:
                                 case 12376:
@@ -707,7 +713,7 @@ class npc_jaina_theramore : public CreatureScript
                         tervosh->GetMotionMaster()->MovePoint(0, -3730.29f, -4423.91f, 30.48f);
                         kinndy->GetMotionMaster()->MovePoint(0, -3732.69f, -4421.54f, 30.48f);
                         aden->GetMotionMaster()->MovePoint(0, -3718.83f, -4409.31f, 24.10f);
-                        events.CancelEvent(EVENT_CONVO_24);
+                        events.CancelEvent(EVENT_SHAKER);
                         events.ScheduleEvent(EVENT_PRE_BATTLE_3, 3s, 0, PHASE_PRE_BATTLE);
                         break;
 
@@ -912,10 +918,15 @@ class npc_jaina_theramore : public CreatureScript
                     }
 
                     case EVENT_PRE_BATTLE_20:
+                    {
+                        //if (Creature * waves = me->SummonCreature(NPC_WAVES_INVOKER, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN))
+                            //waves->AI()->SetData(1, 1);
+
                         me->GetGameObjectListWithEntryInGrid(fires, GOB_FIRE_THERAMORE, 18.f);
                         firesCount = fires.size();
                         events.ScheduleEvent(EVENT_PRE_BATTLE_21, 1s, 0, PHASE_PRE_BATTLE);
                         break;
+                    }
 
                     case EVENT_PRE_BATTLE_21:
                     {

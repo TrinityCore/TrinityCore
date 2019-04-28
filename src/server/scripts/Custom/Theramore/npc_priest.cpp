@@ -120,7 +120,8 @@ class npc_priest : public CreatureScript
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            if (me->GetPowerPct(POWER_MANA) <= 3.f)
+            uint32 powerPct = CalculatePct(me->GetMaxPower(POWER_MANA), me->GetPower(POWER_MANA));
+            if (powerPct <= 3)
                 DoStartMovement(me->GetVictim());
 
             while (uint32 eventId = events.ExecuteEvent())

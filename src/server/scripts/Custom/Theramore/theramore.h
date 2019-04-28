@@ -229,8 +229,10 @@ enum THEText
     SAY_WARN_36         = 6,
     SAY_WARN_37         = 31,
 
+    SAY_EVENT_SHAKER    = 0,
+
     SAY_PRE_BATTLE_1    = 6,
-    SAY_PRE_BATTLE_2    = 0,
+    SAY_PRE_BATTLE_2    = 1,
     SAY_PRE_BATTLE_3    = 7,
     SAY_PRE_BATTLE_4    = 0,
     SAY_PRE_BATTLE_5    = 8,
