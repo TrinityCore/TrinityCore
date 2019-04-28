@@ -27,6 +27,7 @@
 #include "GuildMgr.h"
 #include "Item.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -748,6 +749,11 @@ void WorldSession::HandlePetitionShowListOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid;
 
+#ifndef DISABLE_DRESSNPCS_CORESOUNDS
+    if (guid.IsAnyTypeCreature())
+        if (Creature* creature = _player->GetMap()->GetCreature(guid))
+            creature->SendMirrorSound(_player, 0);
+#endif
     SendPetitionShowList(guid);
 }
 

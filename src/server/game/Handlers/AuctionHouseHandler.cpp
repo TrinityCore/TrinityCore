@@ -28,6 +28,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "Mail.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -42,6 +43,11 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
     ObjectGuid guid;                                            //NPC guid
     recvData >> guid;
 
+#ifndef DISABLE_DRESSNPCS_CORESOUNDS
+    if (guid.IsAnyTypeCreature())
+        if (Creature* creature = _player->GetMap()->GetCreature(guid))
+            creature->SendMirrorSound(_player, 0);
+#endif
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!unit)
     {

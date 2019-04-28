@@ -52,3 +52,4 @@ option(WITH_STRICT_DATABASE_TYPE_CHECKS "Enable strict checking of database fiel
 set(WITH_SOURCE_TREE    "hierarchical" CACHE STRING "Build the source tree for IDE's.")
 set_property(CACHE WITH_SOURCE_TREE PROPERTY STRINGS no flat hierarchical hierarchical-folders)
 option(WITHOUT_GIT      "Disable the GIT testing routines"                            0)
+option(DISABLE_DRESSNPCS_CORESOUNDS "Disable server side 'missing sounds' workaround" 0)

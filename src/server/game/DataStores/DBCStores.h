@@ -107,7 +107,8 @@ TC_GAME_API extern DBCStorage <ChrClassesEntry>              sChrClassesStore;
 TC_GAME_API extern DBCStorage <ChrRacesEntry>                sChrRacesStore;
 TC_GAME_API extern DBCStorage <CinematicCameraEntry>         sCinematicCameraStore;
 TC_GAME_API extern DBCStorage <CinematicSequencesEntry>      sCinematicSequencesStore;
-TC_GAME_API extern DBCStorage <CreatureDisplayInfoEntry>     sCreatureDisplayInfoStore;
+TC_GAME_API extern DBCStorage <CreatureDisplayInfoEntry>     sCreatureDisplayInfoStoreRaw;
+TC_GAME_API extern CreatureDisplayInfoStore                  sCreatureDisplayInfoStore;
 TC_GAME_API extern DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore;
 TC_GAME_API extern DBCStorage <CreatureFamilyEntry>          sCreatureFamilyStore;
 TC_GAME_API extern DBCStorage <CreatureModelDataEntry>       sCreatureModelDataStore;
@@ -157,6 +158,7 @@ TC_GAME_API extern DBCStorage <MapEntry>                     sMapStore;
 //TC_GAME_API extern DBCStorage <MapDifficultyEntry>           sMapDifficultyStore; -- use GetMapDifficultyData insteed
 TC_GAME_API extern MapDifficultyMap                          sMapDifficultyMap;
 TC_GAME_API extern DBCStorage <MovieEntry>                   sMovieStore;
+TC_GAME_API extern DBCStorage <NPCSoundsEntry>               sNPCSoundsStore;
 TC_GAME_API extern DBCStorage <OverrideSpellDataEntry>       sOverrideSpellDataStore;
 TC_GAME_API extern DBCStorage <PowerDisplayEntry>            sPowerDisplayStore;
 TC_GAME_API extern DBCStorage <QuestSortEntry>               sQuestSortStore;

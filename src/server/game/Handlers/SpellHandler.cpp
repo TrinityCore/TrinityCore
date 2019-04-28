@@ -19,6 +19,7 @@
 #include "WorldSession.h"
 #include "Common.h"
 #include "Config.h"
+#include "CreatureOutfit.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "DBCStores.h"
@@ -605,6 +606,33 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
     if (!unit)
         return;
+
+    if (Creature* creature = unit->ToCreature())
+    {
+        if (std::shared_ptr<CreatureOutfit> const & outfit_ptr = creature->GetOutfit())
+        {
+            CreatureOutfit const& outfit = *outfit_ptr;
+            WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
+            data << uint64(guid);
+            data << uint32(outfit.GetDisplayId());  // displayId
+            data << uint8(outfit.GetRace());        // race
+            data << uint8(outfit.GetGender());      // gender
+            data << uint8(outfit.Class);            // class
+            data << uint8(outfit.skin);             // skin
+            data << uint8(outfit.face);             // face
+            data << uint8(outfit.hair);             // hair
+            data << uint8(outfit.haircolor);        // haircolor
+            data << uint8(outfit.facialhair);       // facialhair
+            data << uint32(outfit.guild);           // guildId
+
+            // item displays
+            for (auto const& slot : CreatureOutfit::item_slots)
+                data << uint32(outfit.outfitdisplays[slot]);
+
+            SendPacket(&data);
+            return;
+        }
+    }
 
     if (!unit->HasAuraType(SPELL_AURA_CLONE_CASTER))
         return;

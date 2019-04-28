@@ -18,9 +18,11 @@
 
 #include "WorldSession.h"
 #include "Common.h"
+#include "Creature.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
@@ -326,6 +328,11 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANKER_ACTIVATE [%s]: [%s] AllSlots: %u"
         , GetPlayerInfo().c_str(), guid.ToString().c_str(), sendAllSlots);
 
+#ifndef DISABLE_DRESSNPCS_CORESOUNDS
+    if (guid.IsAnyTypeCreature())
+        if (Creature* creature = _player->GetMap()->GetCreature(guid))
+            creature->SendMirrorSound(_player, 0);
+#endif
     Guild* const guild = GetPlayer()->GetGuild();
     if (!guild)
     {

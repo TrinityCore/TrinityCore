@@ -24,6 +24,7 @@
 #include "Opcodes.h"
 #include "Item.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SpellInfo.h"
@@ -603,6 +604,11 @@ void WorldSession::HandleListInventoryOpcode(WorldPacket& recvData)
 
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LIST_INVENTORY");
 
+#ifndef DISABLE_DRESSNPCS_CORESOUNDS
+    if (guid.IsAnyTypeCreature())
+        if (Creature* creature = _player->GetMap()->GetCreature(guid))
+            creature->SendMirrorSound(_player, 0);
+#endif
     SendListInventory(guid);
 }
 
