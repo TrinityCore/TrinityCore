@@ -115,20 +115,7 @@ struct SymbolDetail
 {
     SymbolDetail() : Prefix(), Type(), Suffix(), Name(), Value(), Logged(false), HasChildren(false) {}
 
-    std::string ToString()
-    {
-        Logged = true;
-        std::string formatted = Prefix + Type + Suffix;
-        if (!Name.empty())
-        {
-            if (!formatted.empty())
-                formatted += " ";
-            formatted += Name;
-        }
-        if (!Value.empty())
-            formatted += " = " + Value;
-        return formatted;
-    }
+    std::string ToString();
 
     bool empty() const
     {
