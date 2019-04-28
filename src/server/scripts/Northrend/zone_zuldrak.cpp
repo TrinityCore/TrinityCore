@@ -1016,7 +1016,7 @@ class spell_scourge_disguise_expiring : public AuraScript
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Player* player = GetTarget()->ToPlayer())
-            if (Aura* aura = player->GetAura(SPELL_SCOURGE_DISGUISE))
+            if (player->HasAura(SPELL_SCOURGE_DISGUISE))
                 player->Unit::Whisper(TEXT_DISGUISE_WARNING, player, true);
     }
 
@@ -1033,7 +1033,7 @@ class spell_drop_disguise : public SpellScript
     void HandleHit()
     {
         if (Unit* target = GetHitUnit())
-            if (Aura* aura = target->GetAura(SPELL_SCOURGE_DISGUISE))
+            if (target->HasAura(SPELL_SCOURGE_DISGUISE))
                 target->CastSpell(target, SPELL_SCOURGE_DISGUISE_EXPIRING, true);
     }
 
