@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 #include "GameObjectData.h"
 #include "GameObject.h"
 #include "MoveSpline.h"
@@ -632,6 +633,56 @@ class spell_mh_flamebreaker : public AuraScript
     }
 };
 
+class spell_mh_weakening : public AuraScript
+{
+    PrepareAuraScript(spell_mh_weakening);
+
+    void HandleTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+        if (Unit* caster = GetCaster())
+            GetTarget()->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mh_weakening::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+enum BaronGeddonInferno
+{
+    SPELL_INFERNO_TRIGGERED = 74817
+};
+
+class spell_mh_inferno : public AuraScript
+{
+    PrepareAuraScript(spell_mh_inferno);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_INFERNO_TRIGGERED });
+    }
+
+    void HandleTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        Unit* caster = GetTarget();
+        uint8 ticks = aurEff->GetTickNumber();
+        int32 basePoints = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+        int32 bp = CalculatePct(basePoints, 50);
+        bp += CalculatePct(bp, 10) * ticks;
+        bp = std::min(bp, basePoints);
+
+        caster->CastCustomSpell(SPELL_INFERNO_TRIGGERED, SPELLVALUE_BASE_POINT0, bp, caster, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mh_inferno::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_mount_hyjal()
 {
     RegisterCreatureAI(npc_mh_aronus);
@@ -642,4 +693,6 @@ void AddSC_mount_hyjal()
     RegisterSpellScript(spell_mh_summon_emerald_flameweaver);
     RegisterSpellScript(spell_mh_ragnaros);
     RegisterAuraScript(spell_mh_flamebreaker);
+    RegisterAuraScript(spell_mh_weakening);
+    RegisterAuraScript(spell_mh_inferno);
 }
