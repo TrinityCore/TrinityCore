@@ -1404,17 +1404,15 @@ class TC_GAME_API ObjectMgr
             return &itr->second;
         }
 
-        CreatureSparring const* GetCreatureSparringInfo(uint32 attackerEntry, uint32 victimEntry) const
+        float GetSparringHealthLimitFor(uint32 entry) const
         {
-            auto itr = _creatureSparringTemplateStore.find(attackerEntry);
-            if (itr == _creatureSparringTemplateStore.end())
-                return nullptr;
+            auto itr = _creatureSparringTemplateStore.find(entry);
+            if (itr != _creatureSparringTemplateStore.end())
+            {
+                return itr->second;
+            }
 
-            for (CreatureSparring const& sparring : itr->second)
-                if (sparring.victimEntry == victimEntry)
-                    return &sparring;
-
-            return nullptr;
+            return 0.0f;
         }
 
         TrinityString const* GetTrinityString(uint32 entry) const

@@ -2537,12 +2537,17 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo, m_attackType, target->crit);
             caster->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
-            // Sparring Checks
-            if (Creature* me = caster->ToCreature())
-                if (Creature* target = damageInfo.target->ToCreature())
-                    if (me->CanSparrWith(target))
-                        if (target->GetHealthPct() <= me->GetSparringHealthLimitPctFor(target))
+            if (Creature* target = damageInfo.target->ToCreature())
+            {
+                if (caster->GetTypeId() == TYPEID_UNIT && !caster->IsCharmedOwnedByPlayerOrPlayer())
+                {
+                    float sparringLimitPct = target->GetSparringHealthLimit();
+
+                    if (sparringLimitPct != 0.0f)
+                        if (target->GetHealthPct() <= sparringLimitPct)
                             damageInfo.damage = 0;
+                }
+            }
 
             // Send log damage message to client
             caster->SendSpellNonMeleeDamageLog(&damageInfo);

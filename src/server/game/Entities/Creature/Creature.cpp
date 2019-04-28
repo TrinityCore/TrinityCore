@@ -2862,27 +2862,6 @@ Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
     return target;
 }
 
-CreatureSparring const* Creature::GetSparringData(uint32 attackerEntry, uint32 victimEntry) const
-{
-    return sObjectMgr->GetCreatureSparringInfo(attackerEntry, victimEntry);
-}
-
-bool Creature::CanSparrWith(Creature* victim) const
-{
-    if (GetSparringData(GetEntry(), victim->GetEntry()))
-        return true;
-
-    return false;
-}
-
-float Creature::GetSparringHealthLimitPctFor(Creature* victim) const
-{
-    if (CreatureSparring const* sparrData = GetSparringData(GetEntry(), victim->GetEntry()))
-        return sparrData->GetHealthLimitPct();
-
-    return 0.0f;
-}
-
 void Creature::UpdateMovementFlags()
 {
     // Do not update movement flags if creature is controlled by a player (charm/vehicle)
@@ -3168,4 +3147,9 @@ void Creature::MakeInterruptable(bool apply)
 {
     ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, !apply);
     ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, !apply);
+}
+
+float Creature::GetSparringHealthLimit() const
+{
+    return sObjectMgr->GetSparringHealthLimitFor(GetEntry());
 }

@@ -164,6 +164,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureData const* GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
 
+        float GetSparringHealthLimit() const;
+
         std::string const& GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
@@ -214,10 +216,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         Unit* SelectNearestTarget(float dist = 0, bool playerOnly = false) const;
         Unit* SelectNearestTargetInAttackDistance(float dist = 0) const;
         Unit* SelectNearestHostileUnitInAggroRange(bool useLOS = false) const;
-
-        CreatureSparring const* GetSparringData(uint32 attackerEntry, uint32 victimEntry) const;
-        bool CanSparrWith(Creature* victim) const;
-        float GetSparringHealthLimitPctFor(Creature* victim) const;
 
         void DoFleeToGetAssistance();
         void CallForHelp(float fRadius);

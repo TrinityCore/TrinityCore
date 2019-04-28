@@ -398,19 +398,6 @@ struct TC_GAME_API TrainerSpellData
     TrainerSpell const* Find(uint32 spell_id) const;
 };
 
-// `creature_sparring_template` table
-struct CreatureSparring
-{
-    CreatureSparring(uint32 _victimEntry, float _healthLimitPct)
-        : victimEntry(_victimEntry), healthLimitPct(_healthLimitPct) { }
-
-    uint32 victimEntry;
-    float healthLimitPct;
-
-    float GetHealthLimitPct() const { return healthLimitPct; }
-};
-
-typedef std::vector<CreatureSparring> CreatureSparringList;
-typedef std::unordered_map<uint32, CreatureSparringList> CreatureSparringTemplateMap;
+typedef std::unordered_map<uint32, float /*SparringHealthLimit*/> CreatureSparringTemplateMap;
 
 #endif // CreatureData_h__

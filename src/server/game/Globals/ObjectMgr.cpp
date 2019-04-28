@@ -677,8 +677,8 @@ void ObjectMgr::LoadCreatureSparringTemplate()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0              1             2
-    QueryResult result = WorldDatabase.Query("SELECT AttackerEntry, VictimEntry, HealthLimitPct FROM creature_sparring_template");
+    //                                               0           1 
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, HealthLimitPct FROM creature_sparring_template");
 
     if (!result)
     {
@@ -692,8 +692,7 @@ void ObjectMgr::LoadCreatureSparringTemplate()
         Field* fields = result->Fetch();
 
         uint32 entry = fields[0].GetUInt32();
-        uint32 victim = fields[1].GetUInt32();
-        float healthPct = fields[2].GetFloat();
+        float healthPct = fields[1].GetFloat();
 
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
@@ -701,25 +700,19 @@ void ObjectMgr::LoadCreatureSparringTemplate()
             continue;
         }
 
-        if (!sObjectMgr->GetCreatureTemplate(victim))
-        {
-            TC_LOG_ERROR("sql.sql", "Creature template (Entry: %u) does not exist but has a record in `creature_sparring_template`", entry);
-            continue;
-        }
-
         if (healthPct > 100.0f)
         {
-            TC_LOG_ERROR("sql.sql", "Sparring entry (Entry: %u, Victim: %u) exceeds the health percentage limit. Setting to 100.", entry, victim);
+            TC_LOG_ERROR("sql.sql", "Sparring entry (Entry: %u) exceeds the health percentage limit. Setting to 100.", entry);
             healthPct = 100.0f;
         }
 
         if (healthPct <= 0.0f)
         {
-            TC_LOG_ERROR("sql.sql", "Sparring entry (Entry: %u, Victim: %u) has a negative or too small health percentage. Setting to 0.1.", entry, victim);
+            TC_LOG_ERROR("sql.sql", "Sparring entry (Entry: %u) has a negative or too small health percentage. Setting to 0.1.", entry);
             healthPct = 0.1f;
         }
 
-        _creatureSparringTemplateStore[entry].emplace_back(CreatureSparring(victim, healthPct));
+        _creatureSparringTemplateStore[entry] = healthPct;
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature sparring templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));

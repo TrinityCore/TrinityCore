@@ -735,15 +735,21 @@ void Unit::DealDamageMods(Unit const* victim, uint32 &damage, uint32* absorb) co
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
     // Sparring Checks
-    if (Creature* me = ToCreature())
-        if (Creature* target = victim->ToCreature())
-            if (me->CanSparrWith(target))
+    if (Creature* target = victim->ToCreature())
+    {
+        if (GetTypeId() == TYPEID_UNIT && !IsCharmedOwnedByPlayerOrPlayer())
+        {
+            float sparringLimitPct = target->GetSparringHealthLimit();
+
+            if (sparringLimitPct != 0.0f)
             {
-                if (damage >= victim->GetHealth()) // safety check to prevent creatures getting accidentally killed when the percentage is small
-                    damage = victim->GetHealth() - 1;
-                else if (target->GetHealthPct() <= me->GetSparringHealthLimitPctFor(target))
+                if (damage >= target->GetHealth()) // First check: if we have a sparring limit we will never allow creatures to kill the sparring victim
+                    damage = target->GetHealth() - 1;
+                else if (target->GetHealthPct() <= sparringLimitPct) // Second check: stop incomming damage when we have surpassed the health limit
                     damage = 0;
             }
+        }
+    }
 
     if (victim->getRace() == RACE_WORGEN && victim->ToPlayer())
     {
@@ -1986,11 +1992,17 @@ void Unit::CalcAbsorbResist(DamageInfo& damageInfo)
             DealDamageMods(caster, splitDamage, &split_absorb);
 
             // Sparring Checks
-            if (Creature* me = caster->ToCreature())
-                if (Creature* target = damageInfo.GetVictim()->ToCreature())
-                    if (me->CanSparrWith(target))
-                        if (target->GetHealthPct() <= me->GetSparringHealthLimitPctFor(target))
+            if (Creature* target = damageInfo.GetVictim()->ToCreature())
+            {
+                if (caster->GetTypeId() == TYPEID_UNIT && !caster->IsCharmedOwnedByPlayerOrPlayer())
+                {
+                    float sparringLimitPct = target->GetSparringHealthLimit();
+
+                    if (sparringLimitPct != 0.0f)
+                        if (target->GetHealthPct() <= sparringLimitPct)
                             damageInfo.ModifyDamage(damageInfo.GetDamage() * -1);
+                }
+            }
 
             SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellInfo()->Id, splitDamage, damageInfo.GetSchoolMask(), split_absorb, 0, false, 0, false);
 
@@ -2100,11 +2112,17 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
         DealDamageMods(victim, damageInfo.damage, &damageInfo.absorb);
 
         // Sparring Checks
-        if (Creature* me = ToCreature())
-            if (Creature* target = victim->ToCreature())
-                if (me->CanSparrWith(target))
-                    if (target->GetHealthPct() <= me->GetSparringHealthLimitPctFor(target))
-                        damageInfo.HitInfo |= HITINFO_FAKE_DAMAGE;
+        if (Creature* target = victim->ToCreature())
+        {
+            if (GetTypeId() == TYPEID_UNIT && !IsCharmedOwnedByPlayerOrPlayer())
+            {
+                float sparringLimitPct = target->GetSparringHealthLimit();
+
+                if (sparringLimitPct != 0.0f)
+                   if (target->GetHealthPct() <= sparringLimitPct)
+                       damageInfo.HitInfo |= HITINFO_FAKE_DAMAGE;
+            }
+        }
 
         SendAttackStateUpdate(&damageInfo);
 
