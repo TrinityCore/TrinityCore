@@ -1503,7 +1503,7 @@ std::string SymbolDetail::ToString()
     if (!Value.empty())
     {
         if (Name == "passwd" || Name == "password")
-            Value = "<sensible data>";
+            Value = "<sensitive data>";
         formatted += " = " + Value;
     }
     return formatted;
