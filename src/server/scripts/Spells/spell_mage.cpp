@@ -162,6 +162,8 @@ enum MageSpells
     SPELL_MAGE_FLAME_PATCH_AOE_DMG               = 205472,
     SPELL_MAGE_CINDERSTORM                       = 198929,
     SPELL_MAGE_CINDERSTORM_DMG                   = 198928,
+    SPELL_MAGE_SPLITTING_ICE                     = 56377,
+    SPELL_MAGE_EBONBOLT_DAMAGE                   = 214634,
     SPELL_MAGE_IGNITE_DOT                        = 12654
 };
 
@@ -2856,7 +2858,7 @@ class spell_mage_ebonbolt : public SpellScript
     {
         Unit* explTarget = GetExplTargetUnit();
         Unit* hitUnit = GetHitUnit();
-        if (!hitUnit  !explTarget)
+       // if (!hitUnit !explTarget)
             return;
 
         if (GetCaster()->HasAura(SPELL_MAGE_SPLITTING_ICE))
@@ -2882,7 +2884,7 @@ class spell_mage_ebonbolt_damage : public SpellScript
         Unit* hitUnit = GetHitUnit();
         ObjectGuid& primaryTarget = GetCaster()->Variables.GetValue<ObjectGuid>("explTarget");
         int32 damage = GetHitDamage();
-        if (!hitUnit  !primaryTarget)
+        //if (!hitUnit !primaryTarget)
             return;
 
         if (AuraEffect const* eff1 = GetCaster()->GetAuraEffect(SPELL_MAGE_SPLITTING_ICE, EFFECT_1))
