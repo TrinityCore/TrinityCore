@@ -14859,12 +14859,13 @@ void Unit::GetAreaTriggerList(std::vector<AreaTrigger*> &list, uint32 spellId)
     if (!spellInfo->IsAreaTriggerAuraEffect(map->GetDifficultyID(), GetTypeId() == TYPEID_PLAYER))
         return;
 
-    if (m_areaTrigger.empty())
+    if (m_areaTriggers.empty())
         return;
-    for (AreaTriggerList::const_iterator i = m_areaTrigger.begin(); i != m_areaTrigger.end(); ++i)
+
+    for (auto itr : m_areaTriggers)
     {
-        AreaTrigger* areaTrigger = *i;
-        if (areaTrigger->GetSpellId() == spellId)
-            list.push_back(areaTrigger);
+        if (itr.second == spellId)
+            if (AreaTrigger* at = ObjectAccessor::GetAreaTrigger(*this, itr.first))
+                list.push_back(at);
     }
-} 
+}
