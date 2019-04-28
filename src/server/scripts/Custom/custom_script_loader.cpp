@@ -16,10 +16,15 @@
  */
 
 // This is where scripts' loading functions should be declared:
-
+void AddSC_theramore();
+void AddSC_npc_priest();
+void AddSC_npc_archmages();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
+	AddSC_theramore();
+	AddSC_npc_priest();
+	AddSC_npc_archmages();
 }
