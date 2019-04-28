@@ -18,6 +18,9 @@
 #ifndef DEF_EYE_OF_AZSHARA_H
 #define DEF_EYE_OF_AZSHARA_H
 
+/// Common
+#include "Common.h"
+
 #define EoAScriptName "instance_eye_of_azshara"
 #define DataHeader    "EOA"
 

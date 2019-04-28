@@ -15,10 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// Scripts
+#include "eye_of_azshara.h"
+/// Game
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "Player.h"
 #include "ScriptMgr.h"
-#include "eye_of_azshara.h"
+#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "SpellScript.h"
+#include "Unit.h"
 
 enum Spells
 {
@@ -53,6 +62,8 @@ struct boss_lady_hatecoil : public BossAI
 {
     boss_lady_hatecoil(Creature* creature) : BossAI(creature, DATA_LADY_HATECOIL) { }
 
+    InstanceScript* instance;
+
     void Reset() override
     {
         BossAI::Reset();
@@ -60,14 +71,16 @@ struct boss_lady_hatecoil : public BossAI
         if (!_arcanistsDead)
             DoCastSelf(SPELL_ARCANE_SHIELDING, true);
 
-        me->GetInstanceScript()->SetData(DATA_RESPAWN_DUNES, 0);
+        if(instance = me->GetInstanceScript())
+            instance->SetData(DATA_RESPAWN_DUNES, 0);
     }
 
     void JustDied(Unit* killer) override
     {
         BossAI::JustDied(killer);
 
-        me->GetInstanceScript()->SetData(DATA_BOSS_DIED, 0);
+        if(instance)
+            instance->SetData(DATA_BOSS_DIED, 0);
     }
 
     void ScheduleTasks() override
@@ -142,30 +155,6 @@ struct boss_lady_hatecoil : public BossAI
 
 private:
     bool _arcanistsDead = false;
-};
-
-// 193597
-class spell_lady_hatecoil_static_nova : public SpellScript
-{
-    PrepareSpellScript(spell_lady_hatecoil_static_nova);
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if([](WorldObject* object)
-        {
-            if (Unit* target = object->ToUnit())
-                if (target->FindNearestCreature(NPC_SAND_DUNE, 5.0f, true))
-                    return true;
-
-            return false;
-        });
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lady_hatecoil_static_nova::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lady_hatecoil_static_nova::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-    }
 };
 
 // 193611
@@ -349,6 +338,30 @@ class achievement_stay_salty : public AchievementCriteriaScript
            // TODO
            return false;
        }
+};
+
+// 193597
+class spell_lady_hatecoil_static_nova : public SpellScript
+{
+    PrepareSpellScript(spell_lady_hatecoil_static_nova);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([](WorldObject* object)
+        {
+            if (Unit* target = object->ToUnit())
+                if (target->FindNearestCreature(NPC_SAND_DUNE, 5.0f, true))
+                    return true;
+
+            return false;
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lady_hatecoil_static_nova::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lady_hatecoil_static_nova::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
 };
 
 void AddSC_boss_lady_hatecoil()
