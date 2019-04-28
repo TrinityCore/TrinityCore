@@ -27,7 +27,7 @@ SplineBase::EvaluationMethtod SplineBase::evaluators[SplineBase::ModesEnd] =
     &SplineBase::EvaluateLinear,
     &SplineBase::EvaluateCatmullRom,
     &SplineBase::EvaluateBezier3,
-    (EvaluationMethtod)&SplineBase::UninitializedSpline,
+    &SplineBase::UninitializedSplineEvaluationMethod,
 };
 
 SplineBase::EvaluationMethtod SplineBase::derivative_evaluators[SplineBase::ModesEnd] =
@@ -35,7 +35,7 @@ SplineBase::EvaluationMethtod SplineBase::derivative_evaluators[SplineBase::Mode
     &SplineBase::EvaluateDerivativeLinear,
     &SplineBase::EvaluateDerivativeCatmullRom,
     &SplineBase::EvaluateDerivativeBezier3,
-    (EvaluationMethtod)&SplineBase::UninitializedSpline,
+    &SplineBase::UninitializedSplineEvaluationMethod,
 };
 
 SplineBase::SegLenghtMethtod SplineBase::seglengths[SplineBase::ModesEnd] =
@@ -43,7 +43,7 @@ SplineBase::SegLenghtMethtod SplineBase::seglengths[SplineBase::ModesEnd] =
     &SplineBase::SegLengthLinear,
     &SplineBase::SegLengthCatmullRom,
     &SplineBase::SegLengthBezier3,
-    (SegLenghtMethtod)&SplineBase::UninitializedSpline,
+    &SplineBase::UninitializedSplineSegLenghtMethod,
 };
 
 SplineBase::InitMethtod SplineBase::initializers[SplineBase::ModesEnd] =
@@ -52,7 +52,7 @@ SplineBase::InitMethtod SplineBase::initializers[SplineBase::ModesEnd] =
     &SplineBase::InitCatmullRom,    // we should use catmullrom initializer even for linear mode! (client's internal structure limitation)
     &SplineBase::InitCatmullRom,
     &SplineBase::InitBezier3,
-    (InitMethtod)&SplineBase::UninitializedSpline,
+    &SplineBase::UninitializedSplineInitMethod,
 };
 
 ///////////
