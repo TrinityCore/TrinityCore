@@ -63,6 +63,7 @@
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "Totem.h"
+#include "UnitAI.h"
 #include "UpdateFieldFlags.h"
 #include "Util.h"
 #include "Vehicle.h"
@@ -451,8 +452,9 @@ void Unit::Update(uint32 p_time)
     UpdateSplineMovement(p_time);
     i_motionMaster->Update(p_time);
 
-    if (!i_AI && (GetTypeId() != TYPEID_PLAYER || IsCharmed()))
+    if (!GetAI() && (GetTypeId() != TYPEID_PLAYER || IsCharmed()))
         UpdateCharmAI();
+    RefreshAI();
 }
 
 bool Unit::haveOffhandWeapon() const
@@ -649,10 +651,10 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     // Hook for OnDamage Event
     sScriptMgr->OnDamage(attacker, victim, damage);
 
-    if (victim->GetTypeId() == TYPEID_PLAYER && attacker != victim)
+    if (victim->GetTypeId() == TYPEID_PLAYER)
     {
         // Signal to pets that their owner was attacked - except when DOT.
-        if (damagetype != DOT)
+        if (attacker != victim && damagetype != DOT)
         {
             for (Unit* controlled : victim->m_Controlled)
                 if (Creature* cControlled = controlled->ToCreature())
@@ -1354,14 +1356,13 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 {
     Unit* victim = damageInfo->Target;
 
-    if (!victim->IsAlive() || victim->HasUnitState(UNIT_STATE_IN_FLIGHT) || (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsEvadingAttacks()))
-        return;
+    auto canTakeMeleeDamage = [&]()
+    {
+        return victim->IsAlive() && !victim->HasUnitState(UNIT_STATE_IN_FLIGHT) && (victim->GetTypeId() != TYPEID_UNIT || !victim->ToCreature()->IsEvadingAttacks());
+    };
 
-    // Hmmmm dont like this emotes client must by self do all animations
-    if (damageInfo->HitInfo & HITINFO_CRITICALHIT)
-        victim->HandleEmoteCommand(EMOTE_ONESHOT_WOUND_CRITICAL);
-    if (damageInfo->Blocked && damageInfo->TargetState != VICTIMSTATE_BLOCKS)
-        victim->HandleEmoteCommand(EMOTE_ONESHOT_PARRY_SHIELD);
+    if (!canTakeMeleeDamage())
+        return;
 
     if (damageInfo->TargetState == VICTIMSTATE_PARRY &&
         (GetTypeId() != TYPEID_UNIT || (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN) == 0))
@@ -1398,6 +1399,9 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
     {
+        if (!canTakeMeleeDamage() || (!damageInfo->Damages[i].Damage && !damageInfo->Damages[i].Absorb && !damageInfo->Damages[i].Resist))
+            continue;
+
         // Call default DealDamage
         CleanDamage cleanDamage(damageInfo->CleanDamage, damageInfo->Damages[i].Absorb, damageInfo->AttackType, damageInfo->HitOutCome);
         Unit::DealDamage(this, victim, damageInfo->Damages[i].Damage, &cleanDamage, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->Damages[i].DamageSchoolMask), nullptr, durabilityLoss);
@@ -3255,14 +3259,13 @@ void Unit::_AddAura(UnitAura* aura, Unit* caster)
     if (aura->IsRemoved())
         return;
 
-    aura->SetIsSingleTarget(caster && (aura->GetSpellInfo()->IsSingleTarget() || aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE)));
+    aura->SetIsSingleTarget(caster && aura->GetSpellInfo()->IsSingleTarget());
     if (aura->IsSingleTarget())
     {
-        ASSERT((IsInWorld() && !IsDuringRemoveFromWorld()) || (aura->GetCasterGUID() == GetGUID()) ||
-                (IsLoading() && aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE)));
+        ASSERT((IsInWorld() && !IsDuringRemoveFromWorld()) || aura->GetCasterGUID() == GetGUID());
                 /* @HACK: Player is not in world during loading auras.
                  *        Single target auras are not saved or loaded from database
-                 *        but may be created as a result of aura links (player mounts with passengers)
+                 *        but may be created as a result of aura links.
                  */
 
         // register single target aura
@@ -3289,8 +3292,14 @@ AuraApplication* Unit::_CreateAuraApplication(Aura* aura, uint8 effMask)
 {
     // can't apply aura on unit which is going to be deleted - to not create a memory leak
     ASSERT(!m_cleanupDone);
-    // aura musn't be removed
-    ASSERT(!aura->IsRemoved());
+
+    // just return if the aura has been already removed
+    // this can happen if OnEffectHitTarget() script hook killed the unit or the aura owner (which can be different)
+    if (aura->IsRemoved())
+    {
+        TC_LOG_ERROR("spells", "Unit::_CreateAuraApplication() called with a removed aura. Check if OnEffectHitTarget() is triggering any spell with apply aura effect (that's not allowed!)\nUnit: %s\nAura: %s", GetDebugInfo().c_str(), aura->GetDebugInfo().c_str());
+        return nullptr;
+    }
 
     // aura mustn't be already applied on target
     ASSERT (!aura->IsAppliedOnTarget(GetGUID()) && "Unit::_CreateAuraApplication: aura musn't be applied on target");
@@ -7012,8 +7021,10 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
                     {
                         case 911: // Shatter (Rank 3)
                             modChance += 16.f;
+                            /* fallthrough */
                         case 910: // Shatter (Rank 2)
                             modChance += 17.f;
+                            /* fallthrough */
                         case 849: // Shatter (Rank 1)
                             modChance += 17.f;
                             if (!HasAuraState(AURA_STATE_FROZEN, spellInfo, caster))
@@ -7136,7 +7147,7 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
                 }
             }
         }
-        /// Intentional fallback. Calculate critical strike chance for both Ranged and Melee spells
+        /* fallthrough - Calculate critical strike chance for both Ranged and Melee spells*/
         case SPELL_DAMAGE_CLASS_RANGED:
             if (caster)
                 crit_chance = GetUnitCriticalChanceTaken(caster, attackType, crit_chance);
@@ -9379,19 +9390,26 @@ void Unit::SetMaxPower(Powers power, uint32 val)
         SetPower(power, val);
 }
 
-uint32 Unit::GetCreatePowers(Powers power) const
+uint32 Unit::GetCreatePowerValue(Powers power) const
 {
     // Only hunter pets have POWER_FOCUS and POWER_HAPPINESS
     switch (power)
     {
-        case POWER_MANA:      return GetCreateMana();
-        case POWER_RAGE:      return 1000;
-        case POWER_FOCUS:     return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->IsPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
-        case POWER_ENERGY:    return 100;
-        case POWER_HAPPINESS: return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->IsPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 1050000);
-        case POWER_RUNIC_POWER: return 1000;
-        case POWER_RUNE:      return 0;
-        case POWER_HEALTH:    return 0;
+        case POWER_MANA:
+            return GetCreateMana();
+        case POWER_RAGE:
+            return 1000;
+        case POWER_FOCUS:
+            return (GetTypeId() != TYPEID_UNIT || !ToCreature()->IsPet() || ToPet()->getPetType() != HUNTER_PET) ? 0 : 100;
+        case POWER_ENERGY:
+            return 100;
+        case POWER_HAPPINESS:
+            return (GetTypeId() != TYPEID_UNIT || !ToCreature()->IsPet() || ToPet()->getPetType() != HUNTER_PET) ? 0 : 1050000;
+        case POWER_RUNIC_POWER:
+            return 1000;
+        case POWER_RUNE:
+        case POWER_HEALTH:
+            return 0;
         default:
             break;
     }
@@ -9409,37 +9427,56 @@ void Unit::AIUpdateTick(uint32 diff)
     }
 }
 
+void Unit::PushAI(UnitAI* newAI)
+{
+    i_AIs.emplace(newAI);
+}
+
 void Unit::SetAI(UnitAI* newAI)
 {
-    ASSERT(!m_aiLocked, "Attempt to replace AI during AI update tick");
-    i_AI.reset(newAI);
+    PushAI(newAI);
+    RefreshAI();
+}
+
+bool Unit::PopAI()
+{
+    if (!i_AIs.empty())
+    {
+        i_AIs.pop();
+        return true;
+    }
+    else
+        return false;
+}
+
+void Unit::RefreshAI()
+{
+    ASSERT(!m_aiLocked, "Tried to change current AI during UpdateAI()");
+    if (i_AIs.empty())
+        i_AI = nullptr;
+    else
+        i_AI = i_AIs.top();
 }
 
 void Unit::ScheduleAIChange()
 {
     bool const charmed = IsCharmed();
-    // if charm is applied, we can't have disabled AI already, and vice versa
-    if (charmed)
-        ASSERT(!i_disabledAI, "Attempt to schedule charm AI change on unit that already has disabled AI");
-    else if (GetTypeId() != TYPEID_PLAYER)
-        ASSERT(i_disabledAI, "Attempt to schedule charm ID change on unit that doesn't have disabled AI");
 
     if (charmed)
-        i_disabledAI = std::move(i_AI);
-    else if (m_aiLocked)
-    {
-        ASSERT(!i_lockedAILifetimeExtension, "Attempt to schedule multiple charm AI changes during one update");
-        i_lockedAILifetimeExtension = std::move(i_AI); // AI needs to live just a bit longer to finish its UpdateAI
-    }
+        PushAI(nullptr);
     else
-        i_AI.reset();
+    {
+        RestoreDisabledAI();
+        PushAI(nullptr); //This could actually be PopAI() to get the previous AI but it's required atm to trigger UpdateCharmAI()
+    }
 }
 
 void Unit::RestoreDisabledAI()
 {
-    ASSERT((GetTypeId() == TYPEID_PLAYER) || i_disabledAI, "Attempt to restore disabled AI on creature without disabled AI");
-    i_AI = std::move(i_disabledAI);
-    i_lockedAILifetimeExtension.reset();
+    // Keep popping the stack until we either reach the bottom or find a valid AI
+    while (PopAI())
+        if (GetTopAI())
+            return;
 }
 
 void Unit::AddToWorld()
@@ -9544,7 +9581,7 @@ void Unit::UpdateCharmAI()
                         newAI = charmerAI->GetAIForCharmedPlayer(ToPlayer());
                 }
                 else
-                    TC_LOG_ERROR("misc", "Attempt to assign charm AI to player %s who is charmed by non-creature %s.", GetGUID().ToString().c_str(), GetCharmerGUID().ToString().c_str());
+                    TC_LOG_ERROR("entities.unit.ai", "Attempt to assign charm AI to player %s who is charmed by non-creature %s.", GetGUID().ToString().c_str(), GetCharmerGUID().ToString().c_str());
             }
             if (!newAI) // otherwise, we default to the generic one
                 newAI = new SimpleCharmedPlayerAI(ToPlayer());
@@ -9559,14 +9596,16 @@ void Unit::UpdateCharmAI()
         }
 
         ASSERT(newAI);
-        i_AI.reset(newAI);
+        SetAI(newAI);
         newAI->OnCharmed(true);
     }
     else
     {
         RestoreDisabledAI();
-        if (i_AI)
-            i_AI->OnCharmed(true);
+        // Hack: this is required because we want to call OnCharmed(true) on the restored AI
+        RefreshAI();
+        if (UnitAI* ai = GetAI())
+            ai->OnCharmed(true);
     }
 }
 
@@ -10904,7 +10943,12 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     {
         Pet* pet = player->GetPet();
         if (pet && pet->IsAlive() && pet->isControlled())
-            pet->AI()->KilledUnit(victim);
+        {
+            if (pet->IsAIEnabled())
+                pet->AI()->KilledUnit(victim);
+            else
+                TC_LOG_ERROR("entities.unit", "Pet doesn't have any AI in Unit::Kill(). %s", pet->GetDebugInfo().c_str());
+        }
     }
 
     // 10% durability loss on death
@@ -11145,6 +11189,9 @@ void Unit::SetStunned(bool apply)
 {
     if (apply)
     {
+        if (m_rootTimes > 0) // blizzard internal check?
+            m_rootTimes++;
+
         SetTarget(ObjectGuid::Empty);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
@@ -11158,10 +11205,19 @@ void Unit::SetStunned(bool apply)
         if (GetTypeId() == TYPEID_PLAYER)
             SetStandState(UNIT_STAND_STATE_STAND);
 
-        WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8);
-        data << GetPackGUID();
-        data << uint32(0);
-        SendMessageToSet(&data, true);
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
+            data << GetPackGUID();
+            data << m_rootTimes;
+            SendMessageToSet(&data, true);
+        }
+        else
+        {
+            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
+            data << GetPackGUID();
+            SendMessageToSet(&data, true);
+        }
 
         CastStop();
     }
@@ -11177,10 +11233,19 @@ void Unit::SetStunned(bool apply)
 
         if (!HasUnitState(UNIT_STATE_ROOT))         // prevent moving if it also has root effect
         {
-            WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 8+4);
-            data << GetPackGUID();
-            data << uint32(0);
-            SendMessageToSet(&data, true);
+            if (GetTypeId() == TYPEID_PLAYER)
+            {
+                WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
+                data << GetPackGUID();
+                data << ++m_rootTimes;
+                SendMessageToSet(&data, true);
+            }
+            else
+            {
+                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
+                data << GetPackGUID();
+                SendMessageToSet(&data, true);
+            }
 
             RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
@@ -12455,6 +12520,11 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
         }
         else if (seatId >= 0 && seatId == GetTransSeat())
             return;
+        else
+        {
+            //Exit the current vehicle because unit will reenter in a new seat.
+            m_vehicle->GetBase()->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, GetGUID(), aurApp->GetBase());
+        }
     }
 
     if (aurApp->GetRemoveMode())
@@ -13108,7 +13178,7 @@ bool Unit::SetHover(bool enable, bool /*packetOnly = false*/)
     {
         //! No need to check height on ascent
         AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
-        if (hoverHeight)
+        if (hoverHeight && GetPositionZ() - GetFloorZ() < hoverHeight)
             UpdateHeight(GetPositionZ() + hoverHeight);
     }
     else

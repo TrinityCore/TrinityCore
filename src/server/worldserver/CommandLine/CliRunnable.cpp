@@ -144,51 +144,48 @@ void CliThread()
     {
         fflush(stdout);
 
-        char *command_str ;             // = fgets(commandbuf, sizeof(commandbuf), stdin);
+        std::string command;
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-        char commandbuf[256];
-        command_str = fgets(commandbuf, sizeof(commandbuf), stdin);
-#else
-        command_str = readline("TC>");
-        rl_bind_key('\t', rl_complete);
-#endif
-
-        if (command_str != nullptr)
+        wchar_t commandbuf[256];
+        if (fgetws(commandbuf, sizeof(commandbuf), stdin))
         {
-            for (int x=0; command_str[x]; ++x)
-                if (command_str[x] == '\r' || command_str[x] == '\n')
-                {
-                    command_str[x] = 0;
-                    break;
-                }
-
-            if (!*command_str)
+            if (!WStrToUtf8(commandbuf, wcslen(commandbuf), command))
             {
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
                 printf("TC>");
-#else
-                free(command_str);
-#endif
                 continue;
             }
-
-            std::string command;
-            if (!consoleToUtf8(command_str, command))         // convert from console encoding to utf8
-            {
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-                printf("TC>");
+        }
 #else
-                free(command_str);
+        char* command_str = readline("TC>");
+        rl_bind_key('\t', rl_complete);
+        if (command_str != nullptr)
+        {
+            command = command_str;
+            free(command_str);
+        }
 #endif
-                continue;
+
+        if (!command.empty())
+        {
+            std::size_t nextLineIndex = command.find_first_of("\r\n");
+            if (nextLineIndex != std::string::npos)
+            {
+                if (nextLineIndex == 0)
+                {
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+                    printf("TC>");
+#endif
+                    continue;
+                }
+
+                command.erase(nextLineIndex);
             }
 
             fflush(stdout);
             sWorld->QueueCliCommand(new CliCommandHolder(nullptr, command.c_str(), &utf8print, &commandFinished));
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
             add_history(command.c_str());
-            free(command_str);
 #endif
         }
         else if (feof(stdin))

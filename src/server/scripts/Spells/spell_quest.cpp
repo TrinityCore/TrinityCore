@@ -87,6 +87,33 @@ class spell_q55_sacred_cleansing : public SpellScriptLoader
         }
 };
 
+enum BendingShinbone
+{
+    SPELL_BENDING_SHINBONE1 = 8854,
+    SPELL_BENDING_SHINBONE2 = 8855
+};
+
+class spell_q1846_bending_shinbone : public SpellScript
+{
+    PrepareSpellScript(spell_q1846_bending_shinbone);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Item* target = GetHitItem();
+        Unit* caster = GetCaster();
+        if (!target && caster->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        uint32 const spellId = roll_chance_i(20) ? SPELL_BENDING_SHINBONE1 : SPELL_BENDING_SHINBONE2;
+        caster->CastSpell(caster, spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q1846_bending_shinbone::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 9712 - Thaumaturgy Channel
 enum ThaumaturgyChannel
 {
@@ -1466,6 +1493,10 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
 };
 
 // ID - 50287 Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random (cast from Azure Dragons and Azure Drakes on death)
+enum q12372Creatures
+{
+    NPC_WYRMREST_DEFENDER = 27629
+};
 class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
 {
     public:
@@ -1477,7 +1508,8 @@ class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (Creature* defender = GetHitCreature())
+                Creature* defender = GetHitCreature();
+                if (defender && defender->GetEntry() == NPC_WYRMREST_DEFENDER)
                     defender->AI()->Talk(WHISPER_ON_HIT_BY_FORCE_WHISPER, defender->GetCharmerOrOwner());
             }
 
@@ -2864,6 +2896,7 @@ public:
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
+    RegisterSpellScript(spell_q1846_bending_shinbone);
     new spell_q2203_thaumaturgy_channel();
     new spell_q5206_test_fetid_skull();
     new spell_q6124_6129_apply_salve();

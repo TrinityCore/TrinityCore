@@ -57,12 +57,16 @@ std::string CreatureMovementData::ToString() const
 {
     char const* const GroundStates[] = { "None", "Run", "Hover" };
     char const* const FlightStates[] = { "None", "DisableGravity", "CanFly" };
+    char const* const ChaseStates[]  = { "Run", "CanWalk", "AlwaysWalk" };
+    char const* const RandomStates[] = { "Walk", "CanRun", "AlwaysRun" };
 
     std::ostringstream str;
     str << std::boolalpha
         << "Ground: " << GroundStates[AsUnderlyingType(Ground)]
         << ", Swim: " << Swim
-        << ", Flight: " << FlightStates[AsUnderlyingType(Flight)];
+        << ", Flight: " << FlightStates[AsUnderlyingType(Flight)]
+        << ", Chase: " << ChaseStates[AsUnderlyingType(Chase)]
+        << ", Random: " << RandomStates[AsUnderlyingType(Random)];
     if (Rooted)
         str << ", Rooted";
 
@@ -611,13 +615,13 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     UpdateMovementFlags();
     LoadCreaturesAddon();
-  
+
     LoadTemplateImmunities();
     GetThreatManager().EvaluateSuppressed();
-  
+
     //We must update last scriptId or it looks like we reloaded a script, breaking some things such as gossip temporarily
     LastUsedScriptID = GetScriptId();
-  
+
     return true;
 }
 
@@ -949,7 +953,8 @@ void Creature::DoFleeToGetAssistance()
 
 bool Creature::AIM_Destroy()
 {
-    SetAI(nullptr);
+    PopAI();
+    RefreshAI();
     return true;
 }
 
@@ -1017,7 +1022,12 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
         TC_LOG_ERROR("entities.unit", "Creature::Create(): given coordinates for creature (guidlow %d, entry %d) are not valid (X: %f, Y: %f, Z: %f, O: %f)", guidlow, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
         return false;
     }
-    UpdatePositionData();
+    {
+        // area/zone id is needed immediately for ZoneScript::GetCreatureEntry hook before it is known which creature template to load (no model/scale available yet)
+        PositionFullTerrainStatus data;
+        GetMap()->GetFullTerrainStatusForPosition(GetPositionX(), GetPositionY(), GetPositionZ(), data, MAP_ALL_LIQUIDS, DEFAULT_COLLISION_HEIGHT);
+        ProcessPositionDataChanged(data);
+    }
 
     // Allow players to see those units while dead, do it here (mayby altered by addon auras)
     if (cinfo->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE)
@@ -1182,13 +1192,15 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
     return true;
 }
 
-bool Creature::CanResetTalents(Player* player) const
+bool Creature::CanResetTalents(Player* player, bool pet) const
 {
     Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(GetEntry());
     if (!trainer)
         return false;
 
-    return player->getLevel() >= 10 && trainer->IsTrainerValidForPlayer(player);
+    return player->getLevel() >= 10 &&
+        (trainer->GetTrainerType() == (pet ? Trainer::Type::Pet : Trainer::Type::Class)) &&
+        trainer->IsTrainerValidForPlayer(player);
 }
 
 Player* Creature::GetLootRecipient() const
@@ -2261,7 +2273,12 @@ void Creature::CallForHelp(float radius)
         target = GetThreatManager().GetAnyTarget();
     if (!target)
         target = GetCombatManager().GetAnyTarget();
-    ASSERT(target, "Creature %u (%s) is engaged without threat list", GetEntry(), GetName().c_str());
+
+    if (!target)
+    {
+        TC_LOG_ERROR("entities.unit", "Creature %u (%s) is engaged without threat list", GetEntry(), GetName().c_str());
+        return;
+    }
 
     Trinity::CallOfHelpCreatureInRangeDo u_do(this, target, radius);
     Trinity::CreatureWorker<Trinity::CallOfHelpCreatureInRangeDo> worker(this, u_do);
@@ -2476,6 +2493,10 @@ bool Creature::LoadCreaturesAddon()
 
     if (cainfo->emote != 0)
         SetUInt32Value(UNIT_NPC_EMOTESTATE, cainfo->emote);
+
+    // Check if visibility distance different
+    if (cainfo->visibilityDistanceType != VisibilityDistanceType::Normal)
+        SetVisibilityDistanceOverride(cainfo->visibilityDistanceType);
 
     // Load Path
     if (cainfo->path_id != 0)

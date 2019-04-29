@@ -32,8 +32,9 @@
 #include "ObjectMgr.h"
 #include "Vehicle.h"
 #include "GameTime.h"
-
-#define MOVEMENT_PACKET_TIME_DELAY 0
+#include <boost/accumulators/statistics/variance.hpp>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics.hpp>
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recvData*/)
 {
@@ -362,14 +363,18 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         plrMover->SetInWater(!plrMover->IsInWater() || plrMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
     }
 
-    uint32 mstime = GameTime::GetGameTimeMS();
-    /*----------------------*/
-    if (m_clientTimeDelay == 0)
-        m_clientTimeDelay = mstime - movementInfo.time;
-
     /* process position-change */
     WorldPacket data(opcode, recvData.size());
-    movementInfo.time = movementInfo.time + m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
+    int64 movementTime = (int64) movementInfo.time + _timeSyncClockDelta;
+    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
+    {
+        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
+        movementInfo.time = GameTime::GetGameTimeMS();
+    }
+    else
+    {
+        movementInfo.time = (uint32)movementTime;
+    }
 
     movementInfo.guid = mover->GetGUID();
     WriteMovementInfo(&data, &movementInfo);
@@ -607,4 +612,109 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     recvData >> agree;
 
     _player->SummonIfPossible(agree);
+}
+
+void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
+
+    ObjectGuid guid;
+    uint32 timeSkipped;
+    recvData >> guid.ReadAsPacked();
+    recvData >> timeSkipped;
+
+    Unit* mover = GetPlayer()->m_unitMovedByMe;
+
+    if (!mover)
+    {
+        TC_LOG_WARN("entities.player", "WorldSession::HandleMoveTimeSkippedOpcode wrong mover state from the unit moved by the player %s", GetPlayer()->GetGUID().ToString().c_str());
+        return;
+    }
+
+    // prevent tampered movement data
+    if (guid != mover->GetGUID())
+    {
+        TC_LOG_WARN("entities.player", "WorldSession::HandleMoveTimeSkippedOpcode wrong guid from the unit moved by the player %s", GetPlayer()->GetGUID().ToString().c_str());
+        return;
+    }
+
+    mover->m_movementInfo.time += timeSkipped;
+
+    WorldPacket data(MSG_MOVE_TIME_SKIPPED, recvData.size());
+    data << guid.WriteAsPacked();
+    data << timeSkipped;
+    GetPlayer()->SendMessageToSet(&data, false);
+}
+
+void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "CMSG_TIME_SYNC_RESP");
+
+    uint32 counter, clientTimestamp;
+    recvData >> counter >> clientTimestamp;
+
+    if (_pendingTimeSyncRequests.count(counter) == 0)
+        return;
+
+    uint32 serverTimeAtSent = _pendingTimeSyncRequests.at(counter);
+    _pendingTimeSyncRequests.erase(counter);
+
+    // time it took for the request to travel to the client, for the client to process it and reply and for response to travel back to the server.
+    // we are going to make 2 assumptions:
+    // 1) we assume that the request processing time equals 0.
+    // 2) we assume that the packet took as much time to travel from server to client than it took to travel from client to server.
+    uint32 roundTripDuration = getMSTimeDiff(serverTimeAtSent, recvData.GetReceivedTime());
+    uint32 lagDelay = roundTripDuration / 2;
+
+    /*
+    clockDelta = serverTime - clientTime
+    where
+    serverTime: time that was displayed on the clock of the SERVER at the moment when the client processed the SMSG_TIME_SYNC_REQUEST packet.
+    clientTime:  time that was displayed on the clock of the CLIENT at the moment when the client processed the SMSG_TIME_SYNC_REQUEST packet.
+
+    Once clockDelta has been computed, we can compute the time of an event on server clock when we know the time of that same event on the client clock,
+    using the following relation:
+    serverTime = clockDelta + clientTime
+    */
+    int64 clockDelta = (int64)(serverTimeAtSent + lagDelay) - (int64)clientTimestamp;
+    _timeSyncClockDeltaQueue.push_back(std::pair<int64, uint32>(clockDelta, roundTripDuration));
+    ComputeNewClockDelta();
+}
+
+void WorldSession::ComputeNewClockDelta()
+{
+    // implementation of the technique described here: https://web.archive.org/web/20180430214420/http://www.mine-control.com/zack/timesync/timesync.html
+    // to reduce the skew induced by dropped TCP packets that get resent.
+
+    using namespace boost::accumulators;
+
+    accumulator_set<uint32, features<tag::mean, tag::median, tag::variance(lazy)> > latencyAccumulator;
+
+    for (auto pair : _timeSyncClockDeltaQueue)
+        latencyAccumulator(pair.second);
+
+    uint32 latencyMedian = static_cast<uint32>(std::round(median(latencyAccumulator)));
+    uint32 latencyStandardDeviation = static_cast<uint32>(std::round(sqrt(variance(latencyAccumulator))));
+
+    accumulator_set<int64, features<tag::mean> > clockDeltasAfterFiltering;
+    uint32 sampleSizeAfterFiltering = 0;
+    for (auto pair : _timeSyncClockDeltaQueue)
+    {
+        if (pair.second < latencyStandardDeviation + latencyMedian) {
+            clockDeltasAfterFiltering(pair.first);
+            sampleSizeAfterFiltering++;
+        }
+    }
+
+    if (sampleSizeAfterFiltering != 0)
+    {
+        int64 meanClockDelta = static_cast<int64>(std::round(mean(clockDeltasAfterFiltering)));
+        if (std::abs(meanClockDelta - _timeSyncClockDelta) > 25)
+            _timeSyncClockDelta = meanClockDelta;
+    }
+    else if (_timeSyncClockDelta == 0)
+    {
+        std::pair<int64, uint32> back = _timeSyncClockDeltaQueue.back();
+        _timeSyncClockDelta = back.first;
+    }
 }

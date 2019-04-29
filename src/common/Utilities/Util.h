@@ -58,6 +58,7 @@ private:
 TC_COMMON_API int32 MoneyStringToMoney(std::string const& moneyString);
 
 TC_COMMON_API struct tm* localtime_r(time_t const* time, struct tm *result);
+TC_COMMON_API time_t LocalTimeToUTCTime(time_t time);
 
 TC_COMMON_API std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
 TC_COMMON_API uint32 TimeStringToSecs(std::string const& timestring);
@@ -503,7 +504,7 @@ bool CompareValues(ComparisionType type, T val1, T val2)
 }
 
 template<typename E>
-typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
+constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
 {
     static_assert(std::is_enum<E>::value, "AsUnderlyingType can only be used with enums");
     return static_cast<typename std::underlying_type<E>::type>(enumValue);

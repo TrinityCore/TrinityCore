@@ -1191,9 +1191,6 @@ bool Aura::IsSingleTargetWith(Aura const* aura) const
             break;
     }
 
-    if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE) && aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
-        return true;
-
     return false;
 }
 
@@ -2673,7 +2670,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint8>& targets, Unit* ca
             case SPELL_EFFECT_APPLY_AREA_AURA_PET:
                 if (!condList || sConditionMgr->IsObjectMeetToConditions(GetUnitOwner(), ref, *condList))
                     units.push_back(GetUnitOwner());
-                // no break
+                /* fallthrough */
             case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
             {
                 if (Unit* owner = GetUnitOwner()->GetCharmerOrOwner())

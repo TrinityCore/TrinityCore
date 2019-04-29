@@ -433,7 +433,7 @@ public:
 
         Map* map = object->GetMap();
         object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), oz);
-        object->SetWorldRotationAngles(oz, oy, ox);
+        object->SetLocalRotationAngles(oz, oy, ox);
         object->SaveToDB();
 
         // Generate a completely new spawn with new guid
@@ -503,7 +503,11 @@ public:
         Map* map = object->GetMap();
 
         object->Relocate(x, y, z, object->GetOrientation());
+
+        // update which cell has this gameobject registered for loading
+        sObjectMgr->RemoveGameobjectFromGrid(guidLow, object->GetGameObjectData());
         object->SaveToDB();
+        sObjectMgr->AddGameobjectToGrid(guidLow, object->GetGameObjectData());
 
         // Generate a completely new spawn with new guid
         // 3.3.5a client caches recently deleted objects and brings them back to life

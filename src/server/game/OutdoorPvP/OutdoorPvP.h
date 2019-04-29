@@ -66,6 +66,14 @@ struct creature_type
     Position pos;
 };
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 class Creature;
 class GameObject;
 class Map;
@@ -83,7 +91,7 @@ class TC_GAME_API OPvPCapturePoint
 
         virtual ~OPvPCapturePoint() { }
 
-        virtual void FillInitialWorldStates(WorldPacket & /*data*/) { }
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -193,7 +201,7 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
         typedef std::pair<ObjectGuid::LowType, GameObject*> GoScriptPair;
         typedef std::pair<ObjectGuid::LowType, Creature*> CreatureScriptPair;
 
-        virtual void FillInitialWorldStates(WorldPacket & /*data*/) { }
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // called when a player triggers an areatrigger
         virtual bool HandleAreaTrigger(Player* player, uint32 trigger);

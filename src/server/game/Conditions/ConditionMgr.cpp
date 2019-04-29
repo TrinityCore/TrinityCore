@@ -499,6 +499,17 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             break;
         }
+        case CONDITION_GAMEMASTER:
+        {
+            if (Player* player = object->ToPlayer())
+            {
+                if (ConditionValue1 == 1)
+                    condMeets = player->CanBeGameMaster();
+                else
+                    condMeets = player->IsGameMaster();
+            }
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -684,6 +695,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         case CONDITION_QUESTSTATE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_GAMEMASTER:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -1891,7 +1905,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 TC_LOG_ERROR("sql.sql", "%s has invalid state mask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
-            // intentional missing break
+            /* fallthrough */
         case CONDITION_QUESTREWARDED:
         case CONDITION_QUESTTAKEN:
         case CONDITION_QUEST_NONE:
@@ -2259,6 +2273,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_IN_WATER:
         case CONDITION_CHARMED:
         case CONDITION_TAXI:
+        case CONDITION_GAMEMASTER:
         default:
             break;
     }

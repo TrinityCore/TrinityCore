@@ -96,17 +96,6 @@ uint32 const PrismaticAuras[6]=
     SPELL_PRISMATIC_AURA_HOLY
 };
 
-Position const TeleportPoint[7]=
-{
-    { 959.996f, 212.576f, 193.843f },
-    { 932.537f, 231.813f, 193.838f },
-    { 958.675f, 254.767f, 193.822f },
-    { 946.955f, 201.316f, 192.535f },
-    { 944.294f, 149.676f, 197.551f },
-    { 930.548f, 284.888f, 193.367f },
-    { 965.997f, 278.398f, 195.777f }
-};
-
 struct boss_mother_shahraz : public BossAI
 {
     boss_mother_shahraz(Creature* creature) : BossAI(creature, DATA_MOTHER_SHAHRAZ), _enraged(false) { }
@@ -216,7 +205,7 @@ class spell_mother_shahraz_fatal_attraction : public SpellScript
 
     void SetDest(SpellDestination& dest)
     {
-        dest.Relocate(TeleportPoint[urand(0, 6)]);
+        dest.Relocate(GetCaster()->GetRandomNearPosition(50.0f));
     }
 
     void HandleTeleport(SpellEffIndex /*effIndex*/)

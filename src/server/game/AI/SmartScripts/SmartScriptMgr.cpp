@@ -1188,7 +1188,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has invoker cast action, but event does not provide any invoker!", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
                 return false;
             }
-            // no break
+            /* fallthrough */
         case SMART_ACTION_SELF_CAST:
         case SMART_ACTION_ADD_AURA:
             if (!IsSpellValid(e, e.action.cast.spell))
@@ -1578,6 +1578,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SPAWN_SPAWNGROUP:
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
         case SMART_ACTION_REMOVE_MOVEMENT:
+        case SMART_ACTION_PLAY_CINEMATIC:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);

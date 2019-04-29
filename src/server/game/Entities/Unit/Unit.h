@@ -29,6 +29,7 @@
 #include "Util.h"
 #include <map>
 #include <memory>
+#include <stack>
 
 #define VISUAL_WAYPOINT 1 // Creature Entry ID used for waypoints show, visible only for GMs
 #define WORLD_TRIGGER 12999
@@ -767,8 +768,14 @@ class TC_GAME_API Unit : public WorldObject
         bool IsAIEnabled() const { return (i_AI != nullptr); }
         void AIUpdateTick(uint32 diff);
         UnitAI* GetAI() const { return i_AI.get(); }
-        void SetAI(UnitAI* newAI);
         void ScheduleAIChange();
+        void PushAI(UnitAI* newAI);
+        bool PopAI();
+    protected:
+        void SetAI(UnitAI* newAI);
+        UnitAI* GetTopAI() const { return i_AIs.empty() ? nullptr : i_AIs.top().get(); }
+        void RefreshAI();
+    public:
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
@@ -1338,7 +1345,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetCreateHealth() const { return GetUInt32Value(UNIT_FIELD_BASE_HEALTH); }
         void SetCreateMana(uint32 val) { SetUInt32Value(UNIT_FIELD_BASE_MANA, val); }
         uint32 GetCreateMana() const { return GetUInt32Value(UNIT_FIELD_BASE_MANA); }
-        uint32 GetCreatePowers(Powers power) const;
+        uint32 GetCreatePowerValue(Powers power) const;
         float GetPosStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_POSSTAT0+stat); }
         float GetNegStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_NEGSTAT0+stat); }
         float GetCreateStat(Stats stat) const { return m_createStats[stat]; }
@@ -1791,9 +1798,9 @@ class TC_GAME_API Unit : public WorldObject
 
         void UpdateCharmAI();
         void RestoreDisabledAI();
-        std::unique_ptr<UnitAI> i_AI;
-        std::unique_ptr<UnitAI> i_disabledAI;
-        std::unique_ptr<UnitAI> i_lockedAILifetimeExtension; // yes, this lifetime extension is terrible
+        typedef std::stack<std::shared_ptr<UnitAI>> UnitAIStack;
+        UnitAIStack i_AIs;
+        std::shared_ptr<UnitAI> i_AI;
         bool m_aiLocked;
 
         std::unordered_set<AbstractFollower*> m_followingMe;

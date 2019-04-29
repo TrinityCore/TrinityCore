@@ -2806,6 +2806,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                                 spellInfo->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_DUMMY)
                                 break;
                         }
+                        /* fallthrough */
                         default:
                         {
                             // No value and not interrupt cast or crowd control without SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY flag
@@ -3842,12 +3843,19 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     ApplySpellFix({
+        51597, // Summon Scourged Captive
         56606, // Ride Jokkum
         61791  // Ride Vehicle (Yogg-Saron)
     }, [](SpellInfo* spellInfo)
     {
         /// @todo: remove this when basepoints of all Ride Vehicle auras are calculated correctly
         spellInfo->Effects[EFFECT_0].BasePoints = 1;
+    });
+    
+    // Summon Scourged Captive
+    ApplySpellFix({ 51597 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].DieSides = 0;
     });
 
     // Black Magic

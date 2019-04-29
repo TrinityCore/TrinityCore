@@ -46,7 +46,7 @@ void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat
 {
     if (me->IsInCombat()) // no wp movement in combat
     {
-        TC_LOG_ERROR("misc", "SmartAI::StartPath: Creature entry %u wanted to start waypoint movement (%u) while in combat, ignoring.", me->GetEntry(), pathId);
+        TC_LOG_ERROR("scripts.ai.sai", "SmartAI::StartPath: Creature entry %u wanted to start waypoint movement (%u) while in combat, ignoring.", me->GetEntry(), pathId);
         return;
     }
 
@@ -123,7 +123,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
 
     if (HasEscortState(SMART_ESCORT_PAUSED))
     {
-        TC_LOG_ERROR("misc", "SmartAI::PausePath: Creature entry %u wanted to pause waypoint (current waypoint: %u) movement while already paused, ignoring.", me->GetEntry(), _currentWaypointNode);
+        TC_LOG_ERROR("scripts.ai.sai", "SmartAI::PausePath: Creature entry %u wanted to pause waypoint (current waypoint: %u) movement while already paused, ignoring.", me->GetEntry(), _currentWaypointNode);
         return;
     }
 
@@ -715,9 +715,6 @@ ObjectGuid SmartAI::GetGUID(int32 /*id*/) const
 
 void SmartAI::SetRun(bool run)
 {
-    if (run == mRun)
-        return;
-
     me->SetWalk(!run);
     mRun = run;
     for (auto& node : _path.nodes)
@@ -996,6 +993,9 @@ void SmartGameObjectAI::UpdateAI(uint32 diff)
 void SmartGameObjectAI::InitializeAI()
 {
     GetScript()->OnInitialize(me);
+    // do not call respawn event if go is not spawned
+    if (me->isSpawned())
+        GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
     //Reset();
 }
 
