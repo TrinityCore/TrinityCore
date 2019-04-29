@@ -66,8 +66,8 @@ UPDATE `quest_template` SET `AllowableRaces`=1101 WHERE `ID` IN (25352,25268,277
 UPDATE `quest_template` SET `AllowableRaces`=690 WHERE `ID` IN (25354,25269,27721,25272,25279,25277,25355,25617,25624,25612,27399);
 
 DELETE FROM `spell_area` WHERE `spell`=74091;
-INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_end`,`aura_spell`,`racemask`,`gender`,`autocast`,`quest_start_status`,`quest_end_status`) VALUES
-(74091,4979,0,25272,0,0,2,1,64,11);
+INSERT INTO `spell_area` (`spell`,`area`,`quest_start`,`quest_end`,`aura_spell`,`racemask`,`gender`,`flags`,`quest_start_status`,`quest_end_status`) VALUES
+(74091,4979,0,25272,0,0,2,3,64,11);
 
 DELETE FROM `gameobject` WHERE `guid`=237982;
 
