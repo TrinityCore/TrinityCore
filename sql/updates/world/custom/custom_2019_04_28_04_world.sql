@@ -1,4 +1,3 @@
-/*
 TRUNCATE TABLE `creature_sparring_template`;
 
 ALTER TABLE `creature_sparring_template`   
@@ -6,8 +5,7 @@ ALTER TABLE `creature_sparring_template`
   CHANGE `AttackerEntry` `CreatureID` MEDIUMINT(8) UNSIGNED NOT NULL, 
   DROP PRIMARY KEY,
   ADD PRIMARY KEY (`CreatureID`);
-  
- */
+ 
 INSERT INTO `creature_sparring_template` (`CreatureID`, `HealthLimitPct`) VALUES
 (98, 85),
 (123, 85),
