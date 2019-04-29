@@ -61,6 +61,8 @@ class npc_jaina_theramore : public CreatureScript
                     kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
                     kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
+                    me->PlayDirectSound(28096);
+
                     events.SetPhase(PHASE_CONVO);
                     events.ScheduleEvent(EVENT_CONVO_1, 2s, 0, PHASE_CONVO);
                     break;
@@ -713,11 +715,11 @@ class npc_jaina_theramore : public CreatureScript
                         tervosh->GetMotionMaster()->MovePoint(0, -3730.29f, -4423.91f, 30.48f);
                         kinndy->GetMotionMaster()->MovePoint(0, -3732.69f, -4421.54f, 30.48f);
                         aden->GetMotionMaster()->MovePoint(0, -3718.83f, -4409.31f, 24.10f);
-                        events.CancelEvent(EVENT_SHAKER);
                         events.ScheduleEvent(EVENT_PRE_BATTLE_3, 3s, 0, PHASE_PRE_BATTLE);
                         break;
 
                     case EVENT_PRE_BATTLE_3:
+                        events.CancelEvent(EVENT_SHAKER);
                         aden->AI()->Talk(SAY_PRE_BATTLE_2);
                         events.ScheduleEvent(EVENT_PRE_BATTLE_4, 6s, 0, PHASE_PRE_BATTLE);
                         break;
@@ -918,22 +920,21 @@ class npc_jaina_theramore : public CreatureScript
                     }
 
                     case EVENT_PRE_BATTLE_20:
-                    {
-                        //if (Creature * waves = me->SummonCreature(NPC_WAVES_INVOKER, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN))
-                            //waves->AI()->SetData(1, 1);
-
                         me->GetGameObjectListWithEntryInGrid(fires, GOB_FIRE_THERAMORE, 18.f);
                         firesCount = fires.size();
                         events.ScheduleEvent(EVENT_PRE_BATTLE_21, 1s, 0, PHASE_PRE_BATTLE);
                         break;
-                    }
 
                     case EVENT_PRE_BATTLE_21:
                     {
                         me->SetFacingTo(0.70f);
 
                         if (fires.empty() || firesCount <= 0)
+                        {
+                            if (Creature * waves = me->SummonCreature(NPC_WAVES_INVOKER, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN))
+                                waves->AI()->SetData(1, 1);
                             break;
+                        }
 
                         if (GameObject * fire = fires.at(firesCount - 1))
                         {

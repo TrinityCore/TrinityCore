@@ -25,7 +25,8 @@ enum THECreature
     // Misc
     NPC_INVISIBLE_STALKER           = 32780,
     NPC_ZEALOUS_THERAMORE_GUARD     = 100024,
-    NPC_THERAMORE_GUARD             = 100012
+    NPC_THERAMORE_GUARD             = 100012,
+    NPC_WAVES_INVOKER               = 100017
 };
 
 enum THEMisc

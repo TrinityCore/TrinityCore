@@ -165,6 +165,7 @@ public:
             { "spawndist",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNDIST, false, &HandleNpcSetSpawnDistCommand,     "" },
             { "spawntime",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNTIME, false, &HandleNpcSetSpawnTimeCommand,     "" },
             { "data",       rbac::RBAC_PERM_COMMAND_NPC_SET_DATA,      false, &HandleNpcSetDataCommand,          "" },
+            { "visible",    rbac::RBAC_PERM_COMMAND_NPC_SET_DATA,      false, &HandleNpcSetVisibleCommand,       "" },
         };
         static std::vector<ChatCommand> npcCommandTable =
         {
@@ -601,6 +602,31 @@ public:
         handler->PSendSysMessage(LANG_NPC_SETDATA, creature->GetGUID().GetCounter(), creature->GetEntry(), creature->GetName().c_str(), data_1, data_2, AIorScript.c_str());
         return true;
     }
+
+    //set data of creature for testing scripting
+    static bool HandleNpcSetVisibleCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        std::string param = (char*)args;
+        Creature* creature = handler->getSelectedCreature();
+
+        if (!creature)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (param == "true")
+            creature->SetVisible(true);
+        else if (param == "false")
+            creature->SetVisible(false);
+
+        return true;
+    }
+
 
     //npc follow handling
     static bool HandleNpcFollowCommand(ChatHandler* handler, char const* /*args*/)
