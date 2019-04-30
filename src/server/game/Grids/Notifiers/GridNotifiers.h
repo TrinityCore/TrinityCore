@@ -1338,10 +1338,10 @@ namespace Trinity
 
     private:
         WorldObject const& i_obj;
-        std::list<ObjectGuid> i_creatureGuids;
         uint32 i_entry;
         bool i_alive;
         float i_range;
+        std::list<ObjectGuid> i_creatureGuids;
 
         NearestCreatureEntryNotInListCheck(NearestCreatureEntryNotInListCheck const&) = delete;
     };
