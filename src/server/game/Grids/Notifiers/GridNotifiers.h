@@ -1322,7 +1322,7 @@ namespace Trinity
     class NearestCreatureEntryNotInListCheck
     {
     public:
-        NearestCreatureEntryNotInListCheck(WorldObject const& obj, uint32 entry, bool alive, float range, std::list<ObjectGuid> creatureGuids)
+        NearestCreatureEntryNotInListCheck(WorldObject const& obj, uint32 entry, bool alive, float range, GuidVector creatureGuids)
             : i_obj(obj), i_entry(entry), i_alive(alive), i_range(range), i_creatureGuids(creatureGuids) { }
 
         bool operator()(Creature* u)
@@ -1341,7 +1341,7 @@ namespace Trinity
         uint32 i_entry;
         bool i_alive;
         float i_range;
-        std::list<ObjectGuid> i_creatureGuids;
+        GuidVector i_creatureGuids;
 
         NearestCreatureEntryNotInListCheck(NearestCreatureEntryNotInListCheck const&) = delete;
     };

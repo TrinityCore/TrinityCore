@@ -2071,7 +2071,7 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
             if (list)
                 list->push_back(summon);
 }
-Creature* WorldObject::FindNearestCreatureByEntryNotInList(uint32 entry, float range, bool alive, std::list<ObjectGuid> creatureGuids) const
+Creature* WorldObject::FindNearestCreatureByEntryNotInList(uint32 entry, float range, bool alive, GuidVector creatureGuids) const
 {
     Creature* creature = nullptr;
     Trinity::NearestCreatureEntryNotInListCheck checker(*this, entry, alive, range, creatureGuids);
