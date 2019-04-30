@@ -1490,4 +1490,23 @@ void WheatyExceptionReport::PrintSymbolDetail()
     return;
 }
 
+std::string SymbolDetail::ToString()
+{
+    Logged = true;
+    std::string formatted = Prefix + Type + Suffix;
+    if (!Name.empty())
+    {
+        if (!formatted.empty())
+            formatted += " ";
+        formatted += Name;
+    }
+    if (!Value.empty())
+    {
+        if (Name == "passwd" || Name == "password")
+            Value = "<sensitive data>";
+        formatted += " = " + Value;
+    }
+    return formatted;
+}
+
 #endif  // _WIN32

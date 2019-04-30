@@ -380,11 +380,6 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_ChampioningFaction = 0;
 
-    m_timeSyncCounter = 0;
-    m_timeSyncTimer = 0;
-    m_timeSyncClient = 0;
-    m_timeSyncServer = 0;
-
     for (uint8 i = 0; i < MAX_POWERS; ++i)
         m_powerFraction[i] = 0;
 
@@ -1231,14 +1226,6 @@ void Player::Update(uint32 p_time)
         }
         else
             m_zoneUpdateTimer -= p_time;
-    }
-
-    if (m_timeSyncTimer > 0)
-    {
-        if (p_time >= m_timeSyncTimer)
-            SendTimeSync();
-        else
-            m_timeSyncTimer -= p_time;
     }
 
     if (IsAlive())
@@ -22563,8 +22550,8 @@ void Player::SendInitialPacketsAfterAddToMap()
     GetZoneAndAreaId(newzone, newarea);
     UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
 
-    ResetTimeSync();
-    SendTimeSync();
+    GetSession()->ResetTimeSync();
+    GetSession()->SendTimeSync();
 
     CastSpell(this, 836, true);                             // LOGINEFFECT
 
@@ -23315,6 +23302,10 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
 
         // skip wrong class skills
         if (_spell_idx->second->classmask && (_spell_idx->second->classmask & classmask) == 0)
+            continue;
+
+        // skip wrong class and race skill saved in SkillRaceClassInfo.dbc
+        if (!GetSkillRaceClassInfo(_spell_idx->second->skillId, getRace(), getClass()))
             continue;
 
         return true;
@@ -26022,25 +26013,6 @@ void Player::LoadActions(PreparedQueryResult result)
         _LoadActions(result);
 
     SendActionButtons(1);
-}
-
-void Player::ResetTimeSync()
-{
-    m_timeSyncCounter = 0;
-    m_timeSyncTimer = 0;
-    m_timeSyncClient = 0;
-    m_timeSyncServer = GameTime::GetGameTimeMS();
-}
-
-void Player::SendTimeSync()
-{
-    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
-    data << uint32(m_timeSyncCounter++);
-    SendDirectMessage(&data);
-
-    // Schedule next sync in 10 sec
-    m_timeSyncTimer = 10000;
-    m_timeSyncServer = GameTime::GetGameTimeMS();
 }
 
 void Player::SetReputation(uint32 factionentry, uint32 value)

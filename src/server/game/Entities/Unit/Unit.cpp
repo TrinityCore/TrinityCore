@@ -651,10 +651,10 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     // Hook for OnDamage Event
     sScriptMgr->OnDamage(attacker, victim, damage);
 
-    if (victim->GetTypeId() == TYPEID_PLAYER && attacker != victim)
+    if (victim->GetTypeId() == TYPEID_PLAYER)
     {
         // Signal to pets that their owner was attacked - except when DOT.
-        if (damagetype != DOT)
+        if (attacker != victim && damagetype != DOT)
         {
             for (Unit* controlled : victim->m_Controlled)
                 if (Creature* cControlled = controlled->ToCreature())
@@ -9581,7 +9581,7 @@ void Unit::UpdateCharmAI()
                         newAI = charmerAI->GetAIForCharmedPlayer(ToPlayer());
                 }
                 else
-                    TC_LOG_ERROR("entities.unit.charmai", "Attempt to assign charm AI to player %s who is charmed by non-creature %s.", GetGUID().ToString().c_str(), GetCharmerGUID().ToString().c_str());
+                    TC_LOG_ERROR("entities.unit.ai", "Attempt to assign charm AI to player %s who is charmed by non-creature %s.", GetGUID().ToString().c_str(), GetCharmerGUID().ToString().c_str());
             }
             if (!newAI) // otherwise, we default to the generic one
                 newAI = new SimpleCharmedPlayerAI(ToPlayer());
@@ -10943,7 +10943,12 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     {
         Pet* pet = player->GetPet();
         if (pet && pet->IsAlive() && pet->isControlled())
-            ASSERT_NOTNULL(pet->AI())->KilledUnit(victim);
+        {
+            if (pet->IsAIEnabled())
+                pet->AI()->KilledUnit(victim);
+            else
+                TC_LOG_ERROR("entities.unit", "Pet doesn't have any AI in Unit::Kill(). %s", pet->GetDebugInfo().c_str());
+        }
     }
 
     // 10% durability loss on death
