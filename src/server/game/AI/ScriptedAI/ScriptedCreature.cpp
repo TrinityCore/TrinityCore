@@ -123,12 +123,12 @@ void SummonList::DoActionImpl(int32 action, StorageType const& summons)
     }
 }
 
-std::list<ObjectGuid> SummonList::GetGUIDs() const
+GuidVector SummonList::GetGUIDs() const
 {
-    std::list<ObjectGuid> guids;
+    GuidVector guids;
 
     std::for_each(storage_.begin(), storage_.end(), [&guids](ObjectGuid guid) {
-        guids.emplace_front(guid);
+        guids.emplace_back(guid);
     });
 
     return guids;

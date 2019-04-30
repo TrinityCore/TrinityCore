@@ -397,7 +397,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
-        std::list<Creature*> FindAllCreaturesByEntry(uint32 entry, float range, bool alive = true) const;
+        std::list<Creature*> FindAllCreaturesByEntry(uint32 entry, float range) const;
         Creature* FindNearestCreatureByEntryNotInList(uint32 entry, float range, bool alive, std::list<ObjectGuid> creatureGuids) const;
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestReadyStateGameObject(uint32 entry, float range) const;

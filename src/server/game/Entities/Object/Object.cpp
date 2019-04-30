@@ -2089,7 +2089,7 @@ Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive
     return creature;
 }
 
-std::list<Creature*> WorldObject::FindAllCreaturesByEntry(uint32 entry, float range, bool alive) const
+std::list<Creature*> WorldObject::FindAllCreaturesByEntry(uint32 entry, float range) const
 {
     std::list<Creature*> creatures;
     Trinity::AllCreaturesOfEntryInRange checker(this, entry, range);
