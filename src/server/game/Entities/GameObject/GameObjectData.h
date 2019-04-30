@@ -487,7 +487,7 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune != 0;
             case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.noDamageImmune != 0;
             case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.noDamageImmune != 0;
-            default: return false;
+            default: return true;
         }
     }
 
