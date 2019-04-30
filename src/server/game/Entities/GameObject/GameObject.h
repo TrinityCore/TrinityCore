@@ -285,7 +285,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void UpdateModelPosition();
 
         bool IsAtInteractDistance(Position const& pos, float radius) const;
-        bool IsAtInteractDistance(Player const* player, SpellInfo const* spell) const;
+        bool IsAtInteractDistance(Player const* player, SpellInfo const* spell = nullptr) const;
+
+        bool IsWithinDistInMap(Player const* player) const;
+        using WorldObject::IsWithinDistInMap;
 
         SpellInfo const* GetSpellForLock(Player const* player) const;
 
