@@ -3076,21 +3076,6 @@ void Spell::EffectThreat(SpellEffIndex /*effIndex*/)
     if (!unitTarget->CanHaveThreatList())
         return;
 
-    switch (m_spellInfo->SpellFamilyName)
-    {
-        case SPELLFAMILY_HUNTER:
-            // Growl should benefit from pet owner's attack power
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x10000000)
-            {
-                if (m_caster->IsHunterPet())
-                    if (Player* owner = m_caster->ToPet()->GetOwner())
-                        damage += uint32(owner->GetTotalAttackPowerValue(BASE_ATTACK));
-            }
-            break;
-        default:
-            break;
-    }
-
     unitTarget->AddThreat(m_caster, float(damage));
 }
 
