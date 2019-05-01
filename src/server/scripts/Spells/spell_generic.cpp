@@ -4887,6 +4887,56 @@ class spell_gen_throw_torch : public SpellScriptLoader
         }
 };
 
+class spell_gen_revserse_cast_mirror_image : public SpellScript
+{
+    PrepareSpellScript(spell_gen_revserse_cast_mirror_image);
+
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            GetHitUnit()->CastSpell(caster, GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_revserse_cast_mirror_image::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_gen_mirror_image_aura : public SpellScript
+{
+    PrepareSpellScript(spell_gen_mirror_image_aura);
+
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            GetHitUnit()->CastSpell(caster, GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_mirror_image_aura::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_gen_mirror_image_aura::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+
+class spell_gen_reverse_cast_ride_vehicle : public SpellScript
+{
+    PrepareSpellScript(spell_gen_reverse_cast_ride_vehicle);
+
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            GetHitUnit()->CastSpell(caster, GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_reverse_cast_ride_vehicle::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4997,4 +5047,8 @@ void AddSC_generic_spell_scripts()
     new spell_gen_vengeance();
     new spell_gen_gilneas_prison_periodic_dummy();
     new spell_gen_throw_torch();
+    RegisterSpellScript(spell_gen_revserse_cast_mirror_image);
+    RegisterSpellScript(spell_gen_mirror_image_aura);
+    RegisterSpellScript(spell_gen_reverse_cast_ride_vehicle);
+
 }
