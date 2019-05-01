@@ -95,28 +95,6 @@ enum UldumCameraBunny
     SPLINE_CHAIN_ID_BEAM_TARGET_PATH_1  = 1
 };
 
-Position const UldumCameraBunny04Path1[] =
-{
-    { -8922.04f, -2274.03f, 14.4508f },
-    { -8915.17f, -2282.37f, 21.0023f }
-};
-
-Position const UldumCameraBunny04Path2[] =
-{
-    {-8921.55f, -2291.59f, 18.5897f },
-    { -8928.08f, -2291.1f, 16.9801f },
-    { -8932.17f, -2279.79f, 14.2697f },
-    { -8933.72f, -2263.06f, 12.12f }
-};
-
-
-Position const UldumCameraBunny04Path3[] =
-{
-    { -8951.25f, -2174.06f, 17.2353f },
-    { -8943.43f, -2161.06f, 54.8142f }
-};
-
-
 struct npc_uldum_camera_bunny_04 : public ScriptedAI
 {
     npc_uldum_camera_bunny_04(Creature* creature) : ScriptedAI(creature)
@@ -143,7 +121,6 @@ struct npc_uldum_camera_bunny_04 : public ScriptedAI
         switch (spell->Id)
         {
             case SPELL_PING_CAMERA_00:
-                printf("ping SPELL_PING_CAMERA_00 landed \n");
                 if (_pingCount == 1)
                 {
                     DoCast(caster, SPELL_INVISIBLE_BEAM);
@@ -152,18 +129,15 @@ struct npc_uldum_camera_bunny_04 : public ScriptedAI
                     _events.ScheduleEvent(EVENT_MOVE_PATH_1, 11s);
                 }
                 else if (_pingCount == 2)
-                {
-                    printf("EVENT_PING_BEAM_TARGET scheduled \n");
                     _events.ScheduleEvent(EVENT_PING_BEAM_TARGET, 3s + 600ms);
-                }
 
                 _pingCount++;
                 break;
             case SPELL_PING_CAMERA_01:
             {
-               
                 me->GetMotionMaster()->MoveAlongSplineChain(POINT_NONE, SPLINE_CHAIN_ID_CAMERA_PATH_2, true);
-                DoCast(caster, SPELL_INVISIBLE_BEAM, true);
+                me->InterruptNonMeleeSpells(true);
+                DoCast(caster, SPELL_INVISIBLE_BEAM);
                 break;
             }
             default:
@@ -175,7 +149,6 @@ struct npc_uldum_camera_bunny_04 : public ScriptedAI
     {
         if (spell->Id == SPELL_PING_BEAM_TARGET)
         {
-            printf("ping camera beam hit \n");
             target->CastSpell(target, SPELL_PING_CAMERA_01);
             target->GetMotionMaster()->MoveAlongSplineChain(POINT_NONE, SPLINE_CHAIN_ID_BEAM_TARGET_PATH_1, true);
         }
@@ -193,9 +166,6 @@ struct npc_uldum_camera_bunny_04 : public ScriptedAI
                     me->GetMotionMaster()->MoveAlongSplineChain(POINT_NONE, SPLINE_CHAIN_ID_CAMERA_PATH_1, true);
                     break;
                 case EVENT_PING_BEAM_TARGET:
-                    printf("EVENT_PING_BEAM_TARGET triggered \n");
-                    me->CastStop();
-                    me->ReleaseFocus(nullptr, false);
                     DoCastSelf(SPELL_PING_BEAM_TARGET, true);
                     break;
                 default:
