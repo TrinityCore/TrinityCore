@@ -2567,8 +2567,9 @@ float GameObject::GetInteractionDistance() const
         case GAMEOBJECT_TYPE_CHAIR:
         case GAMEOBJECT_TYPE_BARBER_CHAIR:
             return 3.0f;
-        case GAMEOBJECT_TYPE_FISHINGHOLE:
         case GAMEOBJECT_TYPE_FISHINGNODE:
+            return 100.0f;
+        case GAMEOBJECT_TYPE_FISHINGHOLE:
             return 20.0f + CONTACT_DISTANCE; // max spell range
         case GAMEOBJECT_TYPE_CAMERA:
         case GAMEOBJECT_TYPE_MAP_OBJECT:
