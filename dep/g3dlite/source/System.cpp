@@ -548,8 +548,11 @@ static bool checkForCPUID() {
     // all known supported architectures have cpuid
     // add cases for incompatible architectures if they are added
     // e.g., if we ever support __powerpc__ being defined again
-
-    return true;
+#   if defined (__i386__) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_AMD64)
+        return true;
+#   else
+        return false;
+#   endif
 }
 
 
