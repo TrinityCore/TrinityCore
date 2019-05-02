@@ -10,6 +10,33 @@
 #include "GridNotifiersImpl.h"
 #include <iostream>
 
+constexpr int TERVOSH_PATH_SIZE     = 8;
+constexpr int KINNDY_PATH_SIZE      = 6;
+
+
+// revoir les path...
+Position TervoshPath[TERVOSH_PATH_SIZE]
+{
+    { -3747.68f, -4442.04f, 30.55f, 2.19f },
+    { -3743.27f, -4439.73f, 30.55f, 5.04f },
+    { -3742.35f, -4450.20f, 32.38f, 4.53f },
+    { -3744.46f, -4453.00f, 33.65f, 4.02f },
+    { -3747.94f, -4455.76f, 35.21f, 3.64f },
+    { -3751.50f, -4456.92f, 36.55f, 3.45f },
+    { -3755.51f, -4456.95f, 37.98f, 3.05f },
+    { -3759.44f, -4455.61f, 37.99f, 2.33f }
+};
+
+Position KinndyPath[KINNDY_PATH_SIZE]
+{
+    { -3746.47f, -4441.14f, 30.55f, 2.67f },
+    { -3747.43f, -4435.41f, 30.55f, 2.24f },
+    { -3754.94f, -4432.40f, 32.24f, 3.12f },
+    { -3759.19f, -4433.18f, 33.75f, 3.79f },
+    { -3762.79f, -4435.95f, 35.21f, 3.79f },
+    { -3764.64f, -4438.99f, 35.21f, 0.67f }
+};
+
 class npc_jaina_theramore : public CreatureScript
 {
     public:
@@ -33,6 +60,10 @@ class npc_jaina_theramore : public CreatureScript
             {
                 case QUEST_LOOKING_FOR_THE_ARTEFACT:
                     SetData(EVENT_START_CONVO, 0);
+                    break;
+
+                case QUEST_PREAPAREFOR_WAR:
+                    SetData(EVENT_START_BATTLE, 0);
                     break;
             }
         }
@@ -85,6 +116,10 @@ class npc_jaina_theramore : public CreatureScript
                     kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
                     aden = me->FindNearestCreature(NPC_LIEUTENANT_ADEN, 2000.f);
 
+                    me->SetWalk(false);
+                    tervosh->SetWalk(false);
+                    kinndy->SetWalk(false);
+
                     kalecgos = me->FindNearestCreature(NPC_KALECGOS, 15.f);
                     if (kalecgos)
                         kalecgos->SetVisible(false);
@@ -106,8 +141,8 @@ class npc_jaina_theramore : public CreatureScript
         {
             me->RemoveAllAuras();
 
-            sayInCombatTimer = .5f;
-            fireballTimer = .5f;
+            sayInCombatTimer = 8000;
+            fireballTimer = 1;
             blizzardTimer = urand(3500, 5000);
         }
 
@@ -238,19 +273,15 @@ class npc_jaina_theramore : public CreatureScript
                         break;
 
                     case EVENT_CONVO_22:
-                        initTervosh = tervosh->GetPosition();
-                        initKinndy = kinndy->GetPosition();
                         kalecgos->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-                        kalecgos->UpdatePosition({ kalecgos->GetPositionX(), kalecgos->GetPositionY(), kalecgos->GetPositionZ() + 10.0f, me->GetOrientation() });
+                        kalecgos->UpdatePosition({ kalecgos->GetPositionX(), kalecgos->GetPositionY(), kalecgos->GetPositionZ() + 30.0f, me->GetOrientation() });
                         events.ScheduleEvent(EVENT_CONVO_23, 4s, 0, PHASE_CONVO);
                         break;
 
                     case EVENT_CONVO_23:
                         kalecgos->GetMotionMaster()->MovePoint(4, -3546.51f, -4352.54f, 74.02f, false);
-                        tervosh->SetWalk(true);
-                        kinndy->SetWalk(true);
-                        tervosh->GetMotionMaster()->MovePoint(0, -3762.35f, -4453.38f, 37.99f);
-                        kinndy->GetMotionMaster()->MovePoint(0, -3764.64f, -4438.99f, 35.21f, true, 0.67f);
+                        tervosh->GetMotionMaster()->MoveSmoothPath(0, TervoshPath, TERVOSH_PATH_SIZE, true);
+                        kinndy->GetMotionMaster()->MoveSmoothPath(0, KinndyPath, KINNDY_PATH_SIZE, true);
                         events.ScheduleEvent(EVENT_CONVO_24, 10s, 0, PHASE_CONVO);
                         break;
 
@@ -558,7 +589,7 @@ class npc_jaina_theramore : public CreatureScript
                         break;
 
                     case EVENT_WARN_42:
-                        pained->GetMotionMaster()->MoveCloserAndStop(0, me, 5.0f);
+                        pained->GetMotionMaster()->MoveCloserAndStop(0, me, 4.0f);
                         pained->AI()->Talk(SAY_WARN_36);
                         events.ScheduleEvent(EVENT_WARN_43, 3s, 0, PHASE_WARN);
                         break;
@@ -569,17 +600,23 @@ class npc_jaina_theramore : public CreatureScript
                         break;
 
                     case EVENT_WARN_44:
-                        pained->GetMotionMaster()->MoveCloserAndStop(0, tervosh, 5.0f);
+                        pained->GetMotionMaster()->MoveSmoothPath(0, TervoshPath, TERVOSH_PATH_SIZE, true);
                         events.ScheduleEvent(EVENT_WARN_45, 16s, 0, PHASE_WARN);
                         break;
 
                     case EVENT_WARN_45:
+
+                        // Reverse path points
+                        reverse(TervoshPath, 7);
+                        reverse(KinndyPath, 5);
+
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         me->SetFacingTo(6.26f);
                         tervosh->SetVisible(true);
-                        tervosh->GetMotionMaster()->MovePoint(0, initTervosh, true, initTervosh.GetOrientation());
-                        kinndy->GetMotionMaster()->MovePoint(0, initKinndy, true, initKinndy.GetOrientation());
+                        tervosh->GetMotionMaster()->MoveSmoothPath(0, TervoshPath, TERVOSH_PATH_SIZE, true);
+                        kinndy->GetMotionMaster()->MoveSmoothPath(0, KinndyPath, KINNDY_PATH_SIZE, true);
                         kinndy->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+
                         break;
 
                     #pragma endregion
@@ -632,9 +669,13 @@ class npc_jaina_theramore : public CreatureScript
                                     break;
 
                                 case 100012:
-                                    civil->StopMoving();
-                                    civil->GetMotionMaster()->MoveIdle();
                                     civil->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                                    if (civil->GetSpawnId() == 1022705 || civil->GetSpawnId() == 1022704)
+                                    {
+                                        civil->SetVisible(false);
+                                        civil->StopMoving();
+                                        civil->GetMotionMaster()->MoveIdle();
+                                    }
                                     break;
 
                                 case 34776:
@@ -829,6 +870,7 @@ class npc_jaina_theramore : public CreatureScript
                         break;
 
                     case EVENT_PRE_BATTLE_16:
+                        vereesa->CastSpell(vereesa, SPELL_VANISH);
                         if (Player * player = me->SelectNearestPlayer(50.f))
                         {
                             Talk(SAY_PRE_BATTLE_14);
@@ -838,7 +880,7 @@ class npc_jaina_theramore : public CreatureScript
                         break;
 
                     case EVENT_PRE_BATTLE_17:
-                        me->CastSpell(me, 7077);
+                        DoCast(SPELL_SIMPLE_TELEPORT);
                         events.ScheduleEvent(EVENT_PRE_BATTLE_18, 1400, 0, PHASE_PRE_BATTLE);
                         break;
 
@@ -849,6 +891,7 @@ class npc_jaina_theramore : public CreatureScript
                         kinndy->CastSpell(kinndy, SPELL_TELEPORT);
                         tervosh->CastSpell(tervosh, SPELL_TELEPORT);
                         aden->CastSpell(aden, SPELL_TELEPORT);
+                        vereesa->SetVisible(false);
 
                         for (uint32 i = 0; i < 6; ++i)
                         {
@@ -880,8 +923,8 @@ class npc_jaina_theramore : public CreatureScript
                         {
                             if (Creature * c = ObjectAccessor::GetCreature(*me, archmagesGUID[i]))
                             {
-                                c->SetSheath(SHEATH_STATE_MELEE);
                                 c->SetTarget(ObjectGuid::Empty);
+                                c->SetSheath(SHEATH_STATE_MELEE);
                                 Relocate(c, ArchmagesRelocate[i][0], ArchmagesRelocate[i][1], ArchmagesRelocate[i][2], ArchmagesRelocate[i][3]);
 
                                 uint32 entry = c->GetEntry();
@@ -1017,8 +1060,6 @@ class npc_jaina_theramore : public CreatureScript
         bool playerShaker;
         uint8 firesCount;
         uint8 warnNpcCount;
-        Position initTervosh;
-        Position initKinndy;
 
         uint32 sayInCombatTimer, fireballTimer, blizzardTimer;
 
@@ -1028,6 +1069,20 @@ class npc_jaina_theramore : public CreatureScript
             c->NearTeleportTo(pos);
             c->SetHomePosition(pos);
             c->Respawn();
+        }
+
+        void reverse(Position array[], int size)
+        {
+            std::stack<Position> stack;
+            for (int i = 0; i < size; ++i)
+                stack.push(array[i]);
+
+            int index = 0;
+            while (!stack.empty())
+            {
+                array[index++] = stack.top();
+                stack.pop();
+            }
         }
     };
 

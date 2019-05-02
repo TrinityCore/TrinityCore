@@ -41,6 +41,7 @@ enum THEMisc
 
     // Quests
     QUEST_LOOKING_FOR_THE_ARTEFACT  = 80000,
+    QUEST_PREAPAREFOR_WAR           = 80006,
 };
 
 enum THEEvents
@@ -166,10 +167,15 @@ enum THEPhases
 
 enum THESpells
 {
-    SPELL_FIREBALL  = 100002,
-    SPELL_BLIZZARD  = 100001,
+    SPELL_FIREBALL                  = 100002,
+    SPELL_BLIZZARD                  = 100001,
 
-    SPELL_TELEPORT  = 51347
+    SPELL_SIMPLE_TELEPORT           = 7077,
+    SPELL_ICE_NOVA                  = 56935,
+    SPELL_ICE_BLOCK                 = 45776,
+    SPELL_TELEPORT                  = 51347,
+    SPELL_POWER_BALL_VISUAL         = 54139,
+    SPELL_VANISH                    = 41476
 };
 
 enum THEText

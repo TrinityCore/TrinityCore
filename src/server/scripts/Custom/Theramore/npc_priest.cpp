@@ -54,20 +54,21 @@ class npc_priest : public CreatureScript
             isSaved = false;
         }
 
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            events.ScheduleEvent(CASTING_HEAL, .5f);
+            events.ScheduleEvent(CASTING_POWER_WORD_SHIELD, .5f);
+            events.ScheduleEvent(CASTING_SMITE, .5f);
+            events.ScheduleEvent(CASTING_HOLY_FIRE, 8s, 14s);
+        }
+
         void AttackStart(Unit* who) override
         {
             if (!who)
                 return;
 
             if (me->Attack(who, false))
-            {
                 DoStartMovement(who, 35.f);
-
-                events.ScheduleEvent(CASTING_HEAL, .5f);
-                events.ScheduleEvent(CASTING_POWER_WORD_SHIELD, .5f);
-                events.ScheduleEvent(CASTING_SMITE, .5f);
-                events.ScheduleEvent(CASTING_HOLY_FIRE, 8s, 14s);
-            }
         }
 
         void Reset() override

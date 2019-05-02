@@ -27,6 +27,7 @@ enum Misc
     NPC_ROK_NAH_HAG             = 100030,
     NPC_ROK_NAH_FELCASTER       = 100031,
     NPC_ROK_NAH_LOA_SINGER      = 100032,
+    NPC_THERAMORE_WAVES         = 100035,
 
     // Textes
     JAINA_SAY_01                = 32,
@@ -135,8 +136,6 @@ public:
         }
 
 
-        // Plus de vague
-        // Vague de la porte doivent courir depuis l'extérieur
         // Faire les IA de la horde en c++
         void Reset() override
         {
@@ -191,7 +190,8 @@ public:
                         break;
 
                     case EVENT_BATTLE_4:
-                        jaina->CastSpell(jaina, SPELL_TELEPORT, true);
+                        if (Creature * fx = DoSummon(NPC_INVISIBLE_STALKER, jaina->GetPosition(), 5000, TEMPSUMMON_TIMED_DESPAWN))
+                            fx->CastSpell(fx, SPELL_TELEPORT, true);
                         jaina->NearTeleportTo(-3612.43f, -4335.63f, 9.29f, 0.72f);
                         events.ScheduleEvent(EVENT_BATTLE_5, 1s);
                         break;
@@ -200,19 +200,19 @@ public:
                     {
                         CastSpellExtraArgs args;
                         args.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
-                        jaina->CastSpell(thalen, 56935, args);
-                        thalen->AddAura(45776, thalen);
+                        jaina->CastSpell(thalen, SPELL_ICE_NOVA, args);
+                        thalen->AddAura(SPELL_ICE_BLOCK, thalen);
                         events.ScheduleEvent(EVENT_BATTLE_6, 2s);
                         break;
                     }
 
                     case EVENT_BATTLE_6:
-                        jaina->CastSpell(jaina, 7077);
+                        jaina->CastSpell(jaina, SPELL_SIMPLE_TELEPORT);
                         events.ScheduleEvent(EVENT_BATTLE_7, 2s);
                         break;
 
                     case EVENT_BATTLE_7:
-                        thalen->CastSpell(thalen, 54139);
+                        thalen->CastSpell(thalen, SPELL_POWER_BALL_VISUAL);
                         thalen->DespawnOrUnsummon(2s);
                         events.ScheduleEvent(EVENT_BATTLE_8, 3s);
                         break;
@@ -220,6 +220,7 @@ public:
                     case EVENT_BATTLE_8:
                         jaina->CastSpell(jaina, SPELL_TELEPORT, true);
                         jaina->NearTeleportTo(-3658.39f, -4372.87f, 9.35f, 0.69f);
+                        events.ScheduleEvent(WAVE_01, 5s);
                         break;
 
                     // Event - Invoker
@@ -257,11 +258,20 @@ public:
 
                         // Quand le nombre de membres vivants est inférieur ou égal au nom de membres morts
                         if (membersCounter <= deadCounter)
+                        {
+                            for (Player* player : players)
+                                player->KilledMonsterCredit(NPC_THERAMORE_WAVES);
+
                             events.ScheduleEvent(++wavesInvoker, 2s);
+                        }
                         else
                             events.ScheduleEvent(wavesInvoker, 1s);
                         break;
                     }
+
+                    case WAVE_EXIT:
+                        jaina->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        break;
 
                     default:
                         break;

@@ -53,20 +53,20 @@ class npc_archmage_fire : public CreatureScript
     {
         npc_archmage_fireAI(Creature* creature) : ScriptedAI(creature) {}
 
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            events.ScheduleEvent(CASTING_FIREBALL, .5f);
+            events.ScheduleEvent(CASTING_FIREBLAST, 8s, 14s);
+            events.ScheduleEvent(CASTING_PYROBLAST, 12s, 24s);
+        }
+
         void AttackStart(Unit* who) override
         {
             if (!who)
                 return;
 
             if (me->Attack(who, false))
-            {
                 SetCombatMovement(false);
-
-                events.ScheduleEvent(CASTING_FIREBALL, .5f);
-                events.ScheduleEvent(CASTING_FIREBLAST, 8s, 14s);
-                events.ScheduleEvent(CASTING_PYROBLAST, 12s, 24s);
-
-            }
         }
 
         void Reset() override
@@ -128,21 +128,22 @@ class npc_archmage_arcanes : public CreatureScript
     {
         npc_archmage_arcanesAI(Creature* creature) : ScriptedAI(creature) {}
 
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            events.ScheduleEvent(CASTING_ARCANE_BLAST, .5f);
+            events.ScheduleEvent(CASTING_EVOCATION, .5f);
+            events.ScheduleEvent(CASTING_ARCANE_PROJECTILE, 2s);
+            events.ScheduleEvent(CASTING_ARCANE_BARRAGE, 3s);
+            events.ScheduleEvent(CASTING_ARCANE_EXPLOSION, 8s);
+        }
+
         void AttackStart(Unit* who) override
         {
             if (!who)
                 return;
 
             if (me->Attack(who, false))
-            {
                 SetCombatMovement(false);
-
-                events.ScheduleEvent(CASTING_ARCANE_BLAST, .5f);
-                events.ScheduleEvent(CASTING_EVOCATION, .5f);
-                events.ScheduleEvent(CASTING_ARCANE_PROJECTILE, 2s);
-                events.ScheduleEvent(CASTING_ARCANE_BARRAGE, 3s);
-                events.ScheduleEvent(CASTING_ARCANE_EXPLOSION, 8s);
-            }
         }
 
         void Reset() override
@@ -222,18 +223,19 @@ public:
     {
         npc_archmage_frostAI(Creature* creature) : ScriptedAI(creature) {}
 
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            events.ScheduleEvent(CASTING_FROSTBOLT, .5f);
+            events.ScheduleEvent(CASTING_ICE_LANCE, 8s, 14s);
+        }
+
         void AttackStart(Unit* who) override
         {
             if (!who)
                 return;
 
             if (me->Attack(who, false))
-            {
                 DoStartMovement(who, 35.f);
-
-                events.ScheduleEvent(CASTING_FROSTBOLT, .5f);
-                events.ScheduleEvent(CASTING_ICE_LANCE, 8s, 14s);
-            }
         }
 
         void Reset() override

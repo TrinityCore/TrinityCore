@@ -20,6 +20,7 @@ void AddSC_theramore();
 void AddSC_theramore_waves_invoker();
 void AddSC_npc_priest();
 void AddSC_npc_archmages();
+void AddSC_npc_shaman();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -29,4 +30,5 @@ void AddCustomScripts()
     AddSC_theramore_waves_invoker();
     AddSC_npc_priest();
 	AddSC_npc_archmages();
+    AddSC_npc_shaman();
 }
