@@ -124,7 +124,6 @@ enum GrimstoneTexts
     SAY_TEXT6          = 5
 };
 
-/// @todo implement quest part of event (different end boss)
 class npc_grimstone : public CreatureScript
 {
 public:
