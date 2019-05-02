@@ -147,12 +147,13 @@ public:
                 if (Player * player = i->GetSource())
                     if ((player->GetTeamId() == TEAM_ALLIANCE && !player->IsActiveQuest(QUEST_THE_PRINCESS_SURPRISE))
                         || (player->GetTeamId() == TEAM_HORDE && !player->IsActiveQuest(QUEST_THE_PRINCESS_SAVED)))
+                    {
                         haveQuest = false;
+                        break;
+                    }
 
             if (haveQuest)
-            {
                 moira->UpdateEntry(NPC_PRIESTESS_THAURISAN);
-            }
         }
 
         void OnCreatureCreate(Creature* creature) override
