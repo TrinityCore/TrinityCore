@@ -142,18 +142,15 @@ public:
         {
             InstanceMap::PlayerList const& players = instance->GetPlayers();
 
-            bool haveQuest = true;
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 if (Player * player = i->GetSource())
                     if ((player->GetTeamId() == TEAM_ALLIANCE && !player->IsActiveQuest(QUEST_THE_PRINCESS_SURPRISE))
                         || (player->GetTeamId() == TEAM_HORDE && !player->IsActiveQuest(QUEST_THE_PRINCESS_SAVED)))
                     {
-                        haveQuest = false;
-                        break;
+                        return;
                     }
 
-            if (haveQuest)
-                moira->UpdateEntry(NPC_PRIESTESS_THAURISAN);
+            moira->UpdateEntry(NPC_PRIESTESS_THAURISAN);
         }
 
         void OnCreatureCreate(Creature* creature) override
