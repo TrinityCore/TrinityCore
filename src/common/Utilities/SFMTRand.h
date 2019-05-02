@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,7 +31,7 @@ class SFMTRand {
     friend class boost::thread_specific_ptr<SFMTRand>;
 public:
     SFMTRand();
-    void RandomInit(int seed); // Re-seed
+    void RandomInit(uint32_t seed); // Re-seed
     int32_t IRandom(int32_t min, int32_t max); // Output random integer
     uint32_t URandom(uint32_t min, uint32_t max);
     double Random(); // Output random floating point number
@@ -45,13 +45,7 @@ public:
     void* operator new[](size_t size);
     void operator delete[](void* ptr);
 private:
-    void Init2(); // Various initializations and period certification
-    void Generate(); // Fill state array with new random numbers
-    __m128i  mask; // AND mask
-    __m128i  state[SFMT_N]; // State vector for SFMT generator
-    uint32_t ix; // Index into state array
-    uint32_t LastInterval; // Last interval length for IRandom
-    uint32_t RLimit; // Rejection limit used by IRandom
+    sfmt_t state;
 };
 
 #endif // SFMTRand_h__
