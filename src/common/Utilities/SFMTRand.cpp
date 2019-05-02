@@ -17,6 +17,9 @@
 
 #include "SFMTRand.h"
 
+#include <exception>
+#include <emmintrin.h>
+
 SFMTRand::SFMTRand()
 {
     LastInterval = 0;

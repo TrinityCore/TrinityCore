@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html" />
+    <title>How to compile SFMT</title>
+    <style type="text/css">
+      BLOCKQUOTE {background-color:#a0ffa0;
+                  padding-left: 1em;}
+    </style>
+  </head>
+  <body>
+    <h2> How to compile SFMT </h2>
+
+    <p>
+      This document explains how to compile SFMT for users who
+      are using UNIX like systems (for example Linux, Free BSD,
+      cygwin, osx, etc) on terminal. I can't help those who use IDE
+      (Integrated Development Environment,) please see your IDE's help
+      to use SIMD feature of your CPU.
+    </p>
+
+    <h3>1. First Step: Compile test programs using Makefile.</h3>
+    <h4>1-1. Compile standard C test program.</h4>
+    <p>
+      Check if SFMT.c and Makefile are in your current directory.
+      If not, <strong>cd</strong> to the directory where they exist.
+      Then, type
+    </p>
+      <blockquote>
+	<pre>make std</pre>
+      </blockquote>
+    <p>
+      If it causes an error, try to type
+    </p>
+    <blockquote>
+      <pre>cc -DSFMT_MEXP=19937 -o test-std-M19937 test.c SFMT.c</pre>
+    </blockquote>
+    <p>
+      or try to type
+    </p>
+    <blockquote>
+      <pre>gcc -DSFMT_MEXP=19937 -o test-std-M19937 test.c SFMT.c</pre>
+    </blockquote>
+    <p>
+      If success, then check the test program. Type
+    </p>
+    <blockquote>
+      <pre>./test-std-M19937 -b32</pre>
+    </blockquote>
+    <p>
+      You will see many random numbers displayed on your screen.
+      If you want to check these random numbers are correct output,
+      redirect output to a file and <strong>diff</strong> it with
+      <strong>SFMT.19937.out.txt</strong>, like this:</p>
+    <blockquote>
+      <pre>./test-std-M19937 -b32 > foo.txt
+diff -w foo.txt SFMT.19937.out.txt</pre>
+    </blockquote>
+    <p>
+      Silence means they are the same because <strong>diff</strong>
+      reports the difference of two file.
+    </p>
+    <p>
+      If you want to know the generation speed of SFMT, type
+    </p>
+    <blockquote>
+      <pre>./test-std-M19937 -s</pre>
+    </blockquote>
+    <p>
+      It is very slow. To make it fast, compile it
+      with <strong>-O3</strong> option. If your compiler is gcc, you
+      should specify <strong>-fno-strict-aliasing</strong> option
+      with <strong>-O3</strong>. type
+    </p>
+    <blockquote>
+      <pre>gcc -O3 -fno-strict-aliasing -DSFMT_MEXP=19937 -o test-std-M19937 test.c SFMT.c
+./test-std-M19937 -s</pre>
+    </blockquote>
+
+    <h4>1-2. Compile SSE2 test program.</h4>
+    <p>
+      If your CPU supports SSE2 and you can use gcc version 3.4 or later,
+      you can make test-sse2-Mxxx. To do this, type
+    </p>
+    <blockquote>
+      <pre>make sse2</pre>
+    </blockquote>
+    <p>or type</p>
+    <blockquote>
+      <pre>gcc -O3 -msse2 -fno-strict-aliasing -DHAVE_SSE2=1 -DSFMT_MEXP=19937 -o test-sse2-M19937 test.c SFMT.c</pre>
+    </blockquote>
+    <p>If everything works well,</p>
+    <blockquote>
+      <pre>./test-sse2-M19937 -s</pre>
+    </blockquote>
+      <p>will show much shorter time than <strong>test-std-M19937 -s</strong>.</p>
+
+    <!--h4>1-3. Compile AltiVec test program.</h4>
+    <p>
+      If you are using Macintosh computer with PowerPC G4 or G5, and
+      your gcc version is later 3.3, you can make test-alti-M19937. To
+      do this, type
+    </p>
+    <blockquote>
+      <pre>make osx-alti</pre>
+    </blockquote>
+    <p>or type</p>
+    <blockquote>
+      <pre>gcc -O3 -faltivec -fno-strict-aliasing -DHAVE_ALTIVEC=1 -DSFMT_MEXP=19937 -o test-alti-M19937 test.c</pre>
+    </blockquote>
+    <p>If everything works well,</p>
+    <blockquote>
+      <pre>./test-alti-M19937 -s</pre>
+    </blockquote>
+    <p>shows much shorter time than <strong>test-std-M19937 -s</strong>.</p>
+    <p>If you are using a CPU which supports AltiVec under Linux, use
+      <strong>alti</strong> instead of <strong>osx-alti</strong>.</p-->
+
+    <h4>1-4. Compile and check output automatically.</h4>
+    <p>
+      To make test program and check 32-bit output
+      automatically for all supported MEXPs of SFMT, type
+    </p>
+    <blockquote>
+      <pre>make std-check</pre>
+    </blockquote>
+    <!--p>
+      To check test program optimized for 64bit output of big endian CPU, type
+    </p>
+    <blockquote>
+      <pre>make big-check</pre>
+    </blockquote-->
+    <p>
+      To check test program optimized for SSE2, type
+    </p>
+    <blockquote>
+      <pre>make sse2-check</pre>
+    </blockquote>
+    <!--p>
+      To check test program optimized for OSX AltiVec, type
+    </p>
+    <blockquote>
+      <pre>make osx-alti-check</pre>
+    </blockquote>
+    <p>
+      To check test program optimized for OSX AltiVec and 64bit output, type
+    </p>
+    <blockquote>
+      <pre>make osx-altibig-check</pre>
+    </blockquote-->
+    <p>
+      These commands may take some time.
+    </p>
+
+    <h3>2. Second Step: Use SFMT pseudorandom number generator with
+    your C program.</h3>
+    <h4>2-1. Use sequential call and static link.</h4>
+    <p>
+      Here is a very simple program <strong>sample1.c</strong> which
+      calculates PI using Monte-Carlo method.
+    </p>
+    <blockquote>
+      <pre>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include "SFMT.h"
+
+int main(int argc, char* argv[]) {
+    int i, cnt, seed;
+    double x, y, pi;
+    const int NUM = 10000;
+    sfmt_t sfmt;
+
+    if (argc &gt;= 2) {
+	seed = strtol(argv[1], NULL, 10);
+    } else {
+	seed = 12345;
+    }
+    cnt = 0;
+    sfmt_init_gen_rand(&amp;sfmt, seed);
+    for (i = 0; i &lt; NUM; i++) {
+	x = sfmt_genrand_res53(&amp;sfmt);
+	y = sfmt_genrand_res53(&amp;sfmt);
+	if (x * x + y * y &lt; 1.0) {
+	    cnt++;
+	}
+    }
+    pi = (double)cnt / NUM * 4;
+    printf("%lf\n", pi);
+    return 0;
+}
+      </pre>
+    </blockquote>
+    <p>To compile <strong>sample1.c</strong> with SFMT.c with the period of
+      2<sup>607</sup>, type</p>
+    <blockquote>
+      <pre>gcc -O3 -DSFMT_MEXP=607 -o sample1 SFMT.c sample1.c</pre>
+    </blockquote>
+    <!--p>If your CPU is BIG ENDIAN you need to type</p>
+    <blockquote>
+      <pre>gcc -DSFMT_MEXP=607 -DBIG_ENDIAN64 -o sample1 SFMT.c sample1.c</pre>
+    </blockquote>
+    <p>because genrand_res53() uses gen_rand64().</p-->
+    <p>If your CPU supports SSE2 and you want to use optimized SFMT for
+      SSE2, type</p>
+    <blockquote>
+      <pre>gcc -O3 -msse2 -DHAVE_SSE2 -DSFMT_MEXP=607 -o sample1 SFMT.c sample1.c</pre>
+    </blockquote>
+    <!--p>If your CPU supports AltiVec and you want to use optimized SFMT
+      for AltiVec, type</p>
+    <blockquote>
+      <pre>gcc -faltivec -DBIG_ENDIAN64 -DHAVE_ALTIVEC -DSFMT_MEXP=607 -o sample1 SFMT.c sample1.c</pre>
+    </blockquote-->
+
+    <h4>2-2. Use block call and static link.</h4>
+    <p>
+      Here is <strong>sample2.c</strong> which modifies sample1.c.
+      The block call <strong>fill_array64</strong> is much faster than
+      sequential call, but it needs an aligned memory. The standard function
+      to get an aligned memory is <strong>posix_memalign</strong>, but
+      it isn't usable in every OS.
+    </p>
+    <blockquote>
+      <pre>
+#include &lt;stdio.h&gt;
+#define _XOPEN_SOURCE 600
+#include &lt;stdlib.h&gt;
+#include "SFMT.h"
+
+int main(int argc, char* argv[]) {
+    int i, j, cnt, seed;
+    double x, y, pi;
+    const int NUM = 10000;
+    const int R_SIZE = 2 * NUM;
+    int size;
+    uint64_t *array;
+    sfmt_t sfmt;
+
+    if (argc &gt;= 2) {
+	seed = strtol(argv[1], NULL, 10);
+    } else {
+	seed = 12345;
+    }
+    size = sfmt_get_min_array_size64(&amp;sfmt);
+    if (size &lt; R_SIZE) {
+	size = R_SIZE;
+    }
+#if defined(__APPLE__) || \
+    (defined(__FreeBSD__) &amp;&amp; __FreeBSD__ &gt;= 3 &amp;&amp; __FreeBSD__ &lt;= 6)
+    printf("malloc used\n");
+    array = malloc(sizeof(double) * size);
+    if (array == NULL) {
+	printf("can't allocate memory.\n");
+	return 1;
+    }
+#elif defined(_POSIX_C_SOURCE)
+    printf("posix_memalign used\n");
+    if (posix_memalign((void **)&amp;array, 16, sizeof(double) * size) != 0) {
+	printf("can't allocate memory.\n");
+	return 1;
+    }
+#elif defined(__GNUC__) &amp;&amp; (__GNUC__ &gt; 3 || (__GNUC__ == 3 &amp;&amp; __GNUC_MINOR__ &gt;= 3))
+    printf("memalign used\n");
+    array = memalign(16, sizeof(double) * size);
+    if (array == NULL) {
+	printf("can't allocate memory.\n");
+	return 1;
+    }
+#else /* in this case, gcc doesn't support SSE2 */
+    printf("malloc used\n");
+    array = malloc(sizeof(double) * size);
+    if (array == NULL) {
+	printf("can't allocate memory.\n");
+	return 1;
+    }
+#endif
+    cnt = 0;
+    j = 0;
+    sfmt_init_gen_rand(&amp;sfmt, seed);
+    sfmt_fill_array64(&amp;sfmt, array, size);
+    for (i = 0; i &lt; NUM; i++) {
+	x = sfmt_to_res53(array[j++]);
+	y = sfmt_to_res53(array[j++]);
+	if (x * x + y * y &lt; 1.0) {
+	    cnt++;
+	}
+    }
+    free(array);
+    pi = (double)cnt / NUM * 4;
+    printf("%lf\n", pi);
+    return 0;
+}
+      </pre>
+    </blockquote>
+    <p>To compile <strong>sample2.c</strong> with SFMT.c with the period of
+      2<sup>2281</sup>, type</p>
+    <blockquote>
+      <pre>gcc -O3 -DSFMT_MEXP=2281 -o sample2 SFMT.c sample2.c</pre>
+    </blockquote>
+    <!--p>or </p>
+    <blockquote>
+      <pre>gcc -DSFMT_MEXP=2281 -DBIG_ENDIAN64 -o sample2 SFMT.c sample2.c</pre>
+    </blockquote -->
+    <p>If your CPU supports SSE2 and you want to use optimized SFMT for
+      SSE2, type</p>
+    <blockquote>
+      <pre>gcc -O3 -msse2 -DHAVE_SSE2 -DSFMT_MEXP=2281 -o sample2 SFMT.c sample2.c</pre>
+    </blockquote>
+    <!--p>If your CPU supports AltiVec and you want to use optimized SFMT
+      for AltiVec, type</p>
+    <blockquote>
+      <pre>gcc -faltivec -DHAVE_ALTIVEC -DSFMT_MEXP=2281 -DBIG_ENDIAN64 -o sample2 SFMT.c sample2.c</pre>
+    </blockquote>
+    <p>or type</p>
+    <blockquote>
+      <pre>gcc -faltivec -DHAVE_ALTIVEC -DBIG_ENDIAN64 -DONLY64 -DSFMT_MEXP=2281 -o sample2 SFMT.c sample2.c</pre>
+    </blockquote>
+    <p>The effect of the option -DONLY64 is:
+      When -DONLY64 option is used, the executive file can generate
+      64-bit integers faster but 32-bit output is not supported.
+    </p-->
+    <!--h4>2-3. Use sequential call and inline functions.</h4>
+    <p>
+      Here is <strong>sample3.c</strong> which modifies sample1.c.
+      This is very similar to sample1.c. The difference is only one line.
+      It include <strong>"SFMT.c"</strong> instead of <strong>"SFMT.h"
+      </strong>.
+    </p>
+    <blockquote>
+      <pre>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include "SFMT.c"
+
+int main(int argc, char* argv[]) {
+    int i, cnt, seed;
+    double x, y, pi;
+    const int NUM = 10000;
+
+    if (argc &gt;= 2) {
+	seed = strtol(argv[1], NULL, 10);
+    } else {
+	seed = 12345;
+    }
+    cnt = 0;
+    init_gen_rand(seed);
+    for (i = 0; i &lt; NUM; i++) {
+	x = genrand_res53();
+	y = genrand_res53();
+	if (x * x + y * y &lt; 1.0) {
+	    cnt++;
+	}
+    }
+    pi = (double)cnt / NUM * 4;
+    printf("%lf\n", pi);
+    return 0;
+}
+      </pre>
+    </blockquote>
+    <p>To compile <strong>sample3.c</strong>, type</p>
+    <blockquote>
+      <pre>gcc -DSFMT_MEXP=1279 -o sample3 sample3.c</pre>
+    </blockquote>
+    <p> or </p>
+    <blockquote>
+      <pre>gcc -DSFMT_MEXP=1279 -DBIG_ENDIAN64 -o sample3 sample3.c</pre>
+    </blockquote>
+    <p>If your CPU supports SSE2 and you want to use optimized SFMT for
+      SSE2, then type</p>
+    <blockquote>
+      <pre>gcc -msse2 -DHAVE_SSE2 -DSFMT_MEXP=1279 -o sample3 sample3.c</pre>
+    </blockquote>
+    <p>If your CPU supports AltiVec and you want to use optimized SFMT
+      for AltiVec, type</p>
+    <blockquote>
+      <pre>gcc -faltivec -DHAVE_ALTIVEC -DBIG_ENDIAN64 -DSFMT_MEXP=1279 -o sample3 sample3.c</pre>
+    </blockquote>
+    <p>or type</p>
+    <blockquote>
+      <pre>gcc -faltivec -DHAVE_ALTIVEC -DBIG_ENDIAN64 -DONLY64 -DSFMT_MEXP=1279 -o sample3 sample3.c</pre>
+    </blockquote-->
+
+    <h4>2-4. Initialize SFMT using sfmt_init_by_array function.</h4>
+    <p>
+      Here is <strong>sample4.c</strong> which modifies sample1.c.
+      The 32-bit integer seed can only make 2<sup>32</sup> kinds of
+      initial state, to avoid this problem, SFMT
+      provides <strong>sfmt_init_by_array</strong> function.  This sample
+      uses sfmt_init_by_array function which initialize the internal state
+      array with an array of 32-bit. The size of an array can be
+      larger than the internal state array and all elements of the
+      array are used for initialization, but too large array is
+      wasteful.
+    </p>
+    <blockquote>
+      <pre>
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include "SFMT.h"
+
+int main(int argc, char* argv[]) {
+    int i, cnt, seed_cnt;
+    double x, y, pi;
+    const int NUM = 10000;
+    uint32_t seeds[100];
+    sfmt_t sfmt;
+
+    if (argc &gt;= 2) {
+	seed_cnt = 0;
+	for (i = 0; (i &lt; 100) &amp;&amp; (i &lt; strlen(argv[1])); i++) {
+	    seeds[i] = argv[1][i];
+	    seed_cnt++;
+	}
+    } else {
+	seeds[0] = 12345;
+	seed_cnt = 1;
+    }
+    cnt = 0;
+    sfmt_init_by_array(&amp;sfmt, seeds, seed_cnt);
+    for (i = 0; i &lt; NUM; i++) {
+	x = sfmt_genrand_res53(&amp;sfmt);
+	y = sfmt_genrand_res53(&amp;sfmt);
+	if (x * x + y * y &lt; 1.0) {
+	    cnt++;
+	}
+    }
+    pi = (double)cnt / NUM * 4;
+    printf("%lf\n", pi);
+    return 0;
+}
+      </pre>
+    </blockquote>
+    <p>To compile <strong>sample4.c</strong>, type</p>
+    <blockquote>
+      <pre>gcc -O3 -DSFMT_MEXP=19937 -o sample4 SFMT.c sample4.c</pre>
+    </blockquote>
+    <!--p>or</p>
+    <blockquote>
+      <pre>gcc -DSFMT_MEXP=19937 -DBIG_ENDIAN64 -o sample4 SFMT.c sample4.c</pre>
+    </blockquote-->
+    <p>Now, seed can be a string. Like this:</p>
+    <blockquote>
+      <pre>./sample4 your-full-name</pre>
+    </blockquote>
+    <h3>Appendix: C preprocessor definitions</h3>
+    <p>
+      Here is a list of C preprocessor definitions that users can
+      specify to control code generation. These macros must be set
+      just after -D compiler option.
+    </p>
+    <dl>
+      <dt>SFMT_MEXP</dt>
+      <dd>This macro is required. This macro means Mersenne exponent
+	and the period of generated code will be 2<sup>SFMT_MEXP</sup>-1.
+	SFMT_MEXP must be one of 607, 1279, 2281, 4253, 11213, 19937,
+	44497, 86243, 132049, 216091.
+      </dd>
+      <dt>HAVE_SSE2</dt>
+      <dd>This is optional. If this macro is specified, optimized code
+      for SSE2 will be generated.</dd>
+      <dt>HAVE_ALTIVEC</dt>
+      <dd>This is optional. If this macro is specified, optimized code
+      for AltiVec will be generated. This macro automatically turns on
+      BIG_ENDIAN64 macro. <b>This macro of SFMT ver. 1.4 is not tested
+	  at all.</b></dd>
+      <dt>BIG_ENDIAN64</dt>
+      <dd>This macro is required when your CPU is BIG ENDIAN and you
+      use 64-bit output. If __BIG_ENDIAN__ macro is defined, this macro
+      is automatically turned on. GCC defines __BIG_ENDIAN__ macro on
+      BIG ENDIAN CPUs. <b>This macro of SFMT ver. 1.4 is not tested
+	  at all.</b></dd>
+      <dt>ONLY64</dt>
+      <dd>This macro is optional. If this macro is specified,
+      optimized code for 64-bit output for BIG ENDIAN CPUs will be
+      generated and code for 32-bit output won't be
+      generated. BIG_ENDIAN64 macro must be specified with this macro
+      by user or automatically. <b>This macro of SFMT ver. 1.4 is not tested
+	  at all.</b></dd>
+    </dl>
+    <table border="1" align="center">
+      <tr><td></td><td>32-bit output</td><td>LITTLE ENDIAN 64-bit output</td>
+	<td>BIG ENDIAN 64-bit output</td></tr>
+      <tr><td>required</td><td>SFMT_MEXP</td><td>SFMT_MEXP</td><td>SFMT_MEXP,
+	  <strong>BIG_ENDIAN64</strong></td></tr>
+      <tr><td>optional</td><td>HAVE_SSE2,
+      HAVE_ALTIVEC</td><td>HAVE_SSE2</td><td>HAVE_ALTIVEC, ONLY64</td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -1,0 +1,114 @@
+# @file  Makefile.aarch64
+# @brief Makefile.aarch64
+#
+# @author Masaki Ota
+#
+# The new BSD License is applied to this software.
+# see LICENSE.txt
+#
+# @note
+# We could compile test-neon-Mxxx using gcc-4.8(aarch64) of Linux.
+# 
+WARN = -Wmissing-prototypes -Wall -Winline
+OPTI = -O3 -finline-functions -fomit-frame-pointer -DNDEBUG \
+-fno-strict-aliasing --param max-inline-insns-single=1800
+STD = -std=c99
+CC = aarch64-linux-gnu-gcc
+CCFLAGS = $(OPTI) $(WARN) $(STD)
+NEONFLAGS = -DHAVE_NEON -ftree-vectorize
+ARM_TARGET = test-arm-M19937
+NEON_TARGET = test-neon-M19937
+
+ALL_ARM_TARGET = test-arm-M607 test-arm-M1279 test-arm-M2281 test-arm-M4253 \
+test-arm-M11213 test-arm-M19937 test-arm-M44497 test-arm-M86243 \
+test-arm-M132049 test-arm-M216091
+
+ALL_NEON_TARGET = test-neon-M607 test-neon-M1279 test-neon-M2281 \
+test-neon-M4253 test-neon-M11213 test-neon-M19937 test-neon-M44497 \
+test-neon-M86243 test-neon-M132049 test-neon-M216091
+
+.PHONY: arm-check neon-check
+
+arm: $(ARM_TARGET)
+
+neon:$(NEON_TARGET)
+
+
+arm-check: $(ALL_ARM_TARGET)
+	./check.sh 32 test-arm
+
+neon-check: $(ALL_NEON_TARGET)
+	./check.sh 32 test-neon
+
+test-arm-M607: test.c SFMT.c SFMT.h SFMT-params607.h
+	$(CC) $(CCFLAGS) -DSFMT_MEXP=607 -o $@ test.c SFMT.c
+
+test-neon-M607: test.c SFMT.c SFMT.h SFMT-neon.h SFMT-params607.h
+	$(CC) $(CCFLAGS) $(NEONFLAGS) -DSFMT_MEXP=607 -o $@ test.c SFMT.c
+
+test-arm-M1279: test.c SFMT.c SFMT.h SFMT-params1279.h
+	$(CC) $(CCFLAGS) -DSFMT_MEXP=1279 -o $@ test.c SFMT.c
+
+test-neon-M1279: test.c SFMT.c SFMT.h SFMT-neon.h SFMT-params1279.h
+	$(CC) $(CCFLAGS) $(NEONFLAGS) -DSFMT_MEXP=1279 -o $@ test.c SFMT.c
+
+test-arm-M2281: test.c SFMT.c SFMT.h SFMT-params2281.h
+	$(CC) $(CCFLAGS) -DSFMT_MEXP=2281 -o $@ test.c SFMT.c
+
+test-neon-M2281: test.c SFMT.c SFMT.h SFMT-neon.h SFMT-params2281.h
+	$(CC) $(CCFLAGS) $(NEONFLAGS) -DSFMT_MEXP=2281 -o $@ test.c SFMT.c
+
+test-arm-M4253: test.c SFMT.c SFMT.h SFMT-params4253.h
+	$(CC) $(CCFLAGS) -DSFMT_MEXP=4253 -o $@ test.c SFMT.c
+
+test-neon-M4253: test.c SFMT.c SFMT.h SFMT-neon.h SFMT-params4253.h
+	$(CC) $(CCFLAGS) $(NEONFLAGS) -DSFMT_MEXP=4253 -o $@ test.c SFMT.c
+
+test-arm-M11213: test.c SFMT.c SFMT.h SFMT-params11213.h
+	$(CC) $(CCFLAGS) -DSFMT_MEXP=11213 -o $@ test.c SFMT.c
+
+test-neon-M11213: test.c SFMT.c SFMT.h SFMT-neon.h \
+	SFMT-params11213.h
+	$(CC) $(CCFLAGS) $(NEONFLAGS) -DSFMT_MEXP=11213 -o $@ test.c SFMT.c
+
+test-arm-M19937: test.c SFMT.c SFMT.h SFMT-params19937.h
+	$(CC) $(CCFLAGS) -DSFMT_MEXP=19937 -o $@ test.c SFMT.c
+
+test-neon-M19937: test.c SFMT.c SFMT.h SFMT-neon.h \
+	SFMT-params19937.h
+	$(CC) $(CCFLAGS) $(NEONFLAGS) -DSFMT_MEXP=19937 -o $@ test.c SFMT.c
+
+asm-neon-M19937: test.c SFMT.c SFMT.h SFMT-neon.h \
+	SFMT-params19937.h
+	$(CC) $(CCFLAGS) $(NEONFLAGS) -DSFMT_MEXP=19937 -s $@ test.c SFMT.c -S
+
+test-arm-M44497: test.c SFMT.c SFMT.h SFMT-params44497.h
+	$(CC) $(CCFLAGS) -DSFMT_MEXP=44497 -o $@ test.c SFMT.c
+
+test-neon-M44497: test.c SFMT.c SFMT.h SFMT-neon.h \
+	SFMT-params44497.h
+	$(CC) $(CCFLAGS) $(NEONFLAGS) -DSFMT_MEXP=44497 -o $@ test.c SFMT.c
+
+test-arm-M86243: test.c SFMT.c SFMT.h SFMT-params86243.h
+	$(CC) $(CCFLAGS) -DSFMT_MEXP=86243 -o $@ test.c SFMT.c
+
+test-neon-M86243: test.c SFMT.c SFMT.h SFMT-neon.h \
+	SFMT-params86243.h
+	$(CC) $(CCFLAGS) $(NEONFLAGS) -DSFMT_MEXP=86243 -o $@ test.c SFMT.c
+
+test-arm-M132049: test.c SFMT.c SFMT.h SFMT-params132049.h
+	$(CC) $(CCFLAGS) -DSFMT_MEXP=132049 -o $@ test.c SFMT.c
+
+test-neon-M132049: test.c SFMT.c SFMT.h SFMT-neon.h \
+	SFMT-params132049.h
+	$(CC) $(CCFLAGS) $(NEONFLAGS) -DSFMT_MEXP=132049 -o $@ test.c SFMT.c
+
+test-arm-M216091: test.c SFMT.c SFMT.h SFMT-params216091.h
+	$(CC) $(CCFLAGS) -DSFMT_MEXP=216091 -o $@ test.c SFMT.c
+
+test-neon-M216091: test.c SFMT.c SFMT.h SFMT-neon.h \
+	SFMT-params216091.h
+	$(CC) $(CCFLAGS) $(NEONFLAGS) -DSFMT_MEXP=216091 -o $@ test.c SFMT.c
+
+clean:
+	rm -f *.o *~
