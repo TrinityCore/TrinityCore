@@ -17,7 +17,7 @@
 
 #include "Random.h"
 #include "Errors.h"
-#include "SFMT.h"
+#include "SFMTRand.h"
 #include <boost/thread/tss.hpp>
 #include <random>
 
