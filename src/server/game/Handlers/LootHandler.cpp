@@ -78,7 +78,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
             GameObject* go = player->GetMap()->GetGameObject(lguid);
 
             // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-            if (!go || ((go->GetOwnerGUID() != _player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(_player, INTERACTION_DISTANCE)))
+        if (!go || ((go->GetOwnerGUID() != _player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(_player)))
             {
                 player->SendLootRelease(lguid);
                 continue;
@@ -158,7 +158,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
                 GameObject* go = GetPlayer()->GetMap()->GetGameObject(guid);
 
                 // do not check distance for GO if player is the owner of it (ex. fishing bobber)
-                if (go && ((go->GetOwnerGUID() == player->GetGUID() || go->IsWithinDistInMap(player, INTERACTION_DISTANCE))))
+            if (go && ((go->GetOwnerGUID() == player->GetGUID() || go->IsWithinDistInMap(player))))
                     loot = &go->loot;
 
                 break;
@@ -328,7 +328,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         GameObject* go = GetPlayer()->GetMap()->GetGameObject(lguid);
 
         // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
-        if (!go || ((go->GetOwnerGUID() != _player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(_player, INTERACTION_DISTANCE)))
+        if (!go || ((go->GetOwnerGUID() != _player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(_player)))
             return;
 
         loot = &go->loot;
