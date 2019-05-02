@@ -1144,7 +1144,7 @@ class spell_rog_eviscerate : public SpellScript
         return true;
     }
 
-    void ChangeDamage()
+    void ChangeDamage(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -1152,20 +1152,20 @@ class spell_rog_eviscerate : public SpellScript
 
         if (Player* player = caster->ToPlayer())
         {
-            int32 damage = GetHitDamage();
+            int32 damage = GetEffectValue();
             damage += int32(player->GetComboPoints() * (player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.091f));
 
             // Eviscerate and Envenom Bonus Damage (item set effect)
             if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_ROGUE_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE, EFFECT_0))
                 damage += player->GetComboPoints() * aurEff->GetAmount();
 
-            SetHitDamage(damage);
+            SetEffectValue(damage);
         }
     }
 
     void Register() override
     {
-        BeforeHit += SpellHitFn(spell_rog_eviscerate::ChangeDamage);
+        OnEffectLaunchTarget += SpellEffectFn(spell_rog_eviscerate::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 

@@ -1588,7 +1588,7 @@ class spell_dru_ferocious_bite : public SpellScript
         return true;
     }
 
-    void ChangeDamage()
+    void ChangeDamage(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
         if (!caster)
@@ -1617,7 +1617,7 @@ class spell_dru_ferocious_bite : public SpellScript
 
     void Register() override
     {
-        BeforeHit += SpellHitFn(spell_dru_ferocious_bite::ChangeDamage);
+        OnEffectLaunchTarget += SpellEffectFn(spell_dru_ferocious_bite::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 

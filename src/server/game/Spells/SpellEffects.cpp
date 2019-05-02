@@ -397,28 +397,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 }
                 break;
             }
-            case SPELLFAMILY_WARRIOR:
-            {
-                switch (m_spellInfo->Id)
-                {
-                    // Victory Rush
-                    case 34428:
-                    {
-                        float coeff = m_spellInfo->Effects[effIndex].BasePoints * 0.01f;
-                        damage = m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * coeff;
-                        break;
-                    }
-                    // Shockwave
-                    case 46968:
-                    {
-                        int32 pct = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, 2);
-                        if (pct > 0)
-                            damage += int32(CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), pct));
-                        break;
-                    }
-                }
-                break;
-            }
             case SPELLFAMILY_WARLOCK:
             {
                 // Incinerate Rank 1 & 2

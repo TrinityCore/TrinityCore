@@ -236,30 +236,19 @@ class spell_warr_charge : public SpellScriptLoader
 };
 
 /// Updated 4.3.4
-class spell_warr_concussion_blow : public SpellScriptLoader
+class spell_warr_concussion_blow : public SpellScript
 {
-    public:
-        spell_warr_concussion_blow() : SpellScriptLoader("spell_warr_concussion_blow") { }
+    PrepareSpellScript(spell_warr_concussion_blow);
 
-        class spell_warr_concussion_blow_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_concussion_blow_SpellScript);
+    void HandleDummy(SpellEffIndex effIndex)
+    {
+        SetEffectValue(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetSpellInfo()->Effects[EFFECT_2].CalcValue()));
+    }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                SetHitDamage(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetEffectValue()));
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_concussion_blow_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warr_concussion_blow_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_warr_concussion_blow::HandleDummy, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // Updated 4.3.4
@@ -945,9 +934,9 @@ class spell_warr_victory_rush : public SpellScript
             });
     }
 
-    void HandleDamage()
+    void HandleDamage(SpellEffIndex /*effIndex*/)
     {
-        SetHitDamage(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetSpellInfo()->Effects[EFFECT_0].BasePoints));
+        SetEffectValue(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetSpellInfo()->Effects[EFFECT_0].CalcValue()));
     }
 
     void HandleImpendingVictoryHeal(SpellEffIndex /*effIndex*/)
@@ -974,7 +963,7 @@ class spell_warr_victory_rush : public SpellScript
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_warr_victory_rush::HandleDamage);
+        OnEffectLaunchTarget += SpellEffectFn(spell_warr_victory_rush::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         OnEffectHitTarget += SpellEffectFn(spell_warr_victory_rush::HandleImpendingVictoryHeal, EFFECT_2, SPELL_EFFECT_HEAL_PCT);
     }
 };
@@ -1214,13 +1203,29 @@ class spell_warr_blood_craze : public AuraScript
     }
 };
 
+// 46968 - Shockwave
+class spell_warr_shockwave : public SpellScript
+{
+    PrepareSpellScript(spell_warr_shockwave);
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        SetEffectValue(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetSpellInfo()->Effects[EFFECT_2].CalcValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_warr_shockwave::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterAuraScript(spell_warr_blood_craze);
     new spell_warr_bloodthirst();
     new spell_warr_bloodthirst_heal();
     new spell_warr_charge();
-    new spell_warr_concussion_blow();
+    RegisterSpellScript(spell_warr_concussion_blow);
     RegisterSpellScript(spell_warr_devastate);
     new spell_warr_deep_wounds();
     new spell_warr_execute();
@@ -1236,6 +1241,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_second_wind_trigger();
     new spell_warr_shattering_throw();
     RegisterAuraScript(spell_warr_shield_specialization);
+    RegisterSpellScript(spell_warr_shockwave);
     new spell_warr_slam();
     RegisterAuraScript(spell_warr_strikes_of_opportunity);
     new spell_warr_sudden_death();
