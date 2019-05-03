@@ -78,9 +78,6 @@
     #include <CoreServices/CoreServices.h>
 #endif
 
-// SIMM include
-#include <xmmintrin.h>
-
 
 namespace G3D {
     
