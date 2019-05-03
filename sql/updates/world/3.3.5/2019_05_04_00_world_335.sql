@@ -15,6 +15,6 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `positi
 (8196, 3743, 1, 1, 1, -1277.91, -3016.5, 72.699, 0.889334, 0, 0, 0.430157, 0.902754, -1, 100, 1),
 (8197, 3743, 1, 1, 1, -1274.86, -3016.2, 72.6146, 1.63939, 0, 0, 0.730938, 0.682444, -1, 100, 1);
 
-DELETE FROM gameobject_loot_template WHERE `entry` = 2603;
+DELETE FROM `gameobject_loot_template` WHERE `entry` = 2603;
 INSERT INTO `gameobject_loot_template` (`entry`, `item`, `Chance`, `lootmode`, `groupid`, `MinCount`, `Maxcount`) VALUES
-(27985, 5066, 100, 1, 0, 1, 1);
+(2603, 5066, 100, 1, 0, 1, 1);
