@@ -861,15 +861,18 @@ void Aura::Update(uint32 diff, Unit* caster)
         {     
             m_heartBeatTimer += m_maxDuration / 4 - diff;
             
-            if (GetUnitOwner()->GetTypeId() == TYPEID_UNIT && caster->GetTypeId() == TYPEID_PLAYER)
-            {      
-                uint32 resistance = GetUnitOwner()->GetResistance(GetFirstSchoolInMask(m_spellInfo->GetSchoolMask()));
-                uint32 breakPct = (5 + ((resistance / powf(GetUnitOwner()->getLevel(), 1.441f) * 0.10f) * 100));
+            if (caster)
+            {
+                if (GetUnitOwner()->GetTypeId() == TYPEID_UNIT && caster->GetTypeId() == TYPEID_PLAYER)
+                {      
+                    uint32 resistance = GetUnitOwner()->GetResistance(GetFirstSchoolInMask(m_spellInfo->GetSchoolMask()));
+                    uint32 breakPct = (5 + ((resistance / powf(GetUnitOwner()->getLevel(), 1.441f) * 0.10f) * 100));
 
-                if (roll_chance_i(breakPct))
-                {
-                    Remove();
-                    TC_LOG_DEBUG("spells", "Aura::HeartbeatResistance: Breaking creature aura %u. Seconds passed %u with chance %u.", m_spellInfo->Id, m_heartBeatTimer, breakPct);
+                    if (roll_chance_i(breakPct))
+                    {
+                        Remove();
+                        TC_LOG_DEBUG("spells", "Aura::HeartbeatResistance: Breaking creature aura %u. Seconds passed %u with chance %u.", m_spellInfo->Id, m_heartBeatTimer, breakPct);
+                    }
                 }
             }
         }
