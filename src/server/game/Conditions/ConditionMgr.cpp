@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -499,6 +499,17 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             break;
         }
+        case CONDITION_GAMEMASTER:
+        {
+            if (Player* player = object->ToPlayer())
+            {
+                if (ConditionValue1 == 1)
+                    condMeets = player->CanBeGameMaster();
+                else
+                    condMeets = player->IsGameMaster();
+            }
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -510,8 +521,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
     if (!condMeets)
         sourceInfo.mLastFailedCondition = this;
 
-    bool script = sScriptMgr->OnConditionCheck(this, sourceInfo); // Returns true by default.
-    return condMeets && script;
+    return condMeets && sScriptMgr->OnConditionCheck(this, sourceInfo); // Returns true by default.;
 }
 
 uint32 Condition::GetSearcherTypeMaskForCondition() const
@@ -685,6 +695,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         case CONDITION_QUESTSTATE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_GAMEMASTER:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -1892,7 +1905,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 TC_LOG_ERROR("sql.sql", "%s has invalid state mask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
-            // intentional missing break
+            /* fallthrough */
         case CONDITION_QUESTREWARDED:
         case CONDITION_QUESTTAKEN:
         case CONDITION_QUEST_NONE:
@@ -2260,6 +2273,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_IN_WATER:
         case CONDITION_CHARMED:
         case CONDITION_TAXI:
+        case CONDITION_GAMEMASTER:
         default:
             break;
     }

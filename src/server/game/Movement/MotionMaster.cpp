@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -66,7 +66,7 @@ inline void MovementGeneratorPointerDeleter(MovementGenerator* a)
         delete a;
 }
 
-void MovementGeneratorDeleter::operator()(MovementGenerator * a)
+void MovementGeneratorDeleter::operator()(MovementGenerator* a)
 {
     MovementGeneratorPointerDeleter(a);
 }
@@ -361,14 +361,10 @@ void MotionMaster::Remove(MovementGenerator* movement, MovementSlot slot/* = MOT
         case MOTION_SLOT_ACTIVE:
             if (!_generators.empty())
             {
-                auto itr = _generators.find(movement);
+                auto bounds = _generators.equal_range(movement);
+                auto itr = std::find(bounds.first, bounds.second, movement);
                 if (itr != _generators.end())
-                {
-                    MovementGenerator* pointer = *itr;
-                    bool const top = GetCurrentMovementGenerator() == pointer;
-                    _generators.erase(pointer);
-                    Delete(pointer, top, false);
-                }
+                    Remove(itr, GetCurrentMovementGenerator() == *itr, false);
             }
             break;
         default:
@@ -409,12 +405,7 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
                 });
 
                 if (itr != _generators.end())
-                {
-                    MovementGenerator* pointer = *itr;
-                    bool const top = GetCurrentMovementGenerator() == pointer;
-                    _generators.erase(pointer);
-                    Delete(pointer, top, false);
-                }
+                    Remove(itr, GetCurrentMovementGenerator() == *itr, false);
             }
             break;
         default:
@@ -950,7 +941,8 @@ void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
             TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTaxiFlight: '%s', taxi to path Id: %u (node %u)", _owner->GetGUID().ToString().c_str(), path, pathnode);
 
             // Only one FLIGHT_MOTION_TYPE is allowed
-            Remove(FLIGHT_MOTION_TYPE);
+            bool hasExisting = HasMovementGenerator([](MovementGenerator const* gen) { return gen->GetMovementGeneratorType() == FLIGHT_MOTION_TYPE; });
+            ASSERT(!hasExisting, "Duplicate flight path movement generator");
 
             FlightPathMovementGenerator* movement = new FlightPathMovementGenerator(pathnode);
             movement->LoadPath(_owner->ToPlayer());
@@ -1023,11 +1015,16 @@ void MotionMaster::LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id/*
 
 /******************** Private methods ********************/
 
+void MotionMaster::Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform)
+{
+    MovementGenerator* pointer = *iterator;
+    _generators.erase(iterator);
+    Delete(pointer, active, movementInform);
+}
+
 void MotionMaster::Pop(bool active, bool movementInform)
 {
-    MovementGenerator* pointer = *_generators.begin();
-    _generators.erase(pointer);
-    Delete(pointer, active, movementInform);
+    Remove(_generators.begin(), active, movementInform);
 }
 
 void MotionMaster::DirectInitialize()
@@ -1124,14 +1121,11 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
             {
                 if (movement->Priority >= (*_generators.begin())->Priority)
                 {
-                    MovementGenerator* pointer = *_generators.begin();
-                    if (movement->Priority == pointer->Priority)
-                    {
-                        _generators.erase(pointer);
-                        Delete(pointer, true, false);
-                    }
+                    auto itr = _generators.begin();
+                    if (movement->Priority == (*itr)->Priority)
+                        Remove(itr, true, false);
                     else
-                        pointer->Deactivate(_owner);
+                        (*itr)->Deactivate(_owner);
                 }
                 else
                 {
@@ -1141,11 +1135,7 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
                     });
 
                     if (itr != _generators.end())
-                    {
-                        MovementGenerator* pointer = *itr;
-                        _generators.erase(pointer);
-                        Delete(pointer, false, false);
-                    }
+                        Remove(itr, false, false);
                 }
             }
             else

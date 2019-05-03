@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -366,7 +366,7 @@ class TC_GAME_API SpellInfo
         uint32 BaseLevel;
         uint32 SpellLevel;
         SpellDurationEntry const* DurationEntry;
-        uint32 PowerType;
+        Powers PowerType;
         uint32 ManaCost;
         uint32 ManaCostPerlevel;
         uint32 ManaPerSecond;

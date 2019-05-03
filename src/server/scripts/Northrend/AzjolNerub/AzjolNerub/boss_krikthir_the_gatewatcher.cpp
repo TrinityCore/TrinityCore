@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -183,7 +183,7 @@ class boss_krik_thir : public CreatureScript
                 summons.DoZoneInCombat();
 
                 events.CancelEvent(EVENT_SEND_GROUP);
-                events.ScheduleEvent(EVENT_SWARM, Seconds(5));
+                events.ScheduleEvent(EVENT_SWARM, 5s);
                 events.ScheduleEvent(EVENT_MIND_FLAY, randtime(Seconds(1), Seconds(3)));
 
                 BossAI::JustEngagedWith(who);
@@ -237,7 +237,7 @@ class boss_krik_thir : public CreatureScript
                             break;
                         _petsInCombat = true;
                         Talk(SAY_AGGRO);
-                        events.ScheduleEvent(EVENT_SEND_GROUP, Seconds(70));
+                        events.ScheduleEvent(EVENT_SEND_GROUP, 70s);
                         break;
                     case ACTION_PET_EVADE:
                         EnterEvadeMode(EVADE_REASON_OTHER);
@@ -258,7 +258,7 @@ class boss_krik_thir : public CreatureScript
                 if (me->HealthBelowPct(10) && !_hadFrenzy)
                 {
                     _hadFrenzy = true;
-                    events.ScheduleEvent(EVENT_FRENZY, Seconds(1));
+                    events.ScheduleEvent(EVENT_FRENZY, 1s);
                 }
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -781,7 +781,7 @@ class npc_anub_ar_shadowcaster : public CreatureScript
 
             void _JustEngagedWith() override
             {
-                _events.ScheduleEvent(EVENT_SHADOW_BOLT, Seconds(4));
+                _events.ScheduleEvent(EVENT_SHADOW_BOLT, 4s);
                 _events.ScheduleEvent(EVENT_SHADOW_NOVA, randtime(Seconds(10), Seconds(14)));
             }
 

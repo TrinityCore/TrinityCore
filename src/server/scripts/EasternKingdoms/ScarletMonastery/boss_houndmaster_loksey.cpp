@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,7 +53,7 @@ class boss_houndmaster_loksey : public CreatureScript
             {
                 Talk(SAY_AGGRO);
                 _JustEngagedWith();
-                events.ScheduleEvent(EVENT_BLOODLUST, 20000);
+                events.ScheduleEvent(EVENT_BLOODLUST, 20s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -67,7 +67,7 @@ class boss_houndmaster_loksey : public CreatureScript
                 {
                     case EVENT_BLOODLUST:
                         DoCast(me, SPELL_BLOODLUST);
-                        events.ScheduleEvent(EVENT_BLOODLUST, 20000);
+                        events.ScheduleEvent(EVENT_BLOODLUST, 20s);
                         break;
                     default:
                         break;

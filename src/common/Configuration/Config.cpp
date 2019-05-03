@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -86,12 +86,12 @@ T ConfigMgr::GetValueDefault(std::string const& name, T def) const
     {
         return _config.get<T>(bpt::ptree::path_type(name, '/'));
     }
-    catch (bpt::ptree_bad_path)
+    catch (bpt::ptree_bad_path const&)
     {
         TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
             name.c_str(), _filename.c_str(), name.c_str(), std::to_string(def).c_str());
     }
-    catch (bpt::ptree_bad_data)
+    catch (bpt::ptree_bad_data const&)
     {
         TC_LOG_ERROR("server.loading", "Bad value defined for name %s in config file %s, going to use %s instead",
             name.c_str(), _filename.c_str(), std::to_string(def).c_str());
@@ -107,12 +107,12 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
     {
         return _config.get<std::string>(bpt::ptree::path_type(name, '/'));
     }
-    catch (bpt::ptree_bad_path)
+    catch (bpt::ptree_bad_path const&)
     {
         TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
             name.c_str(), _filename.c_str(), name.c_str(), def.c_str());
     }
-    catch (bpt::ptree_bad_data)
+    catch (bpt::ptree_bad_data const&)
     {
         TC_LOG_ERROR("server.loading", "Bad value defined for name %s in config file %s, going to use %s instead",
             name.c_str(), _filename.c_str(), def.c_str());

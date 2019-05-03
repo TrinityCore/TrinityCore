@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -60,7 +60,7 @@ bool FlightPathMovementGenerator::GetResetPosition(Unit* /*owner*/, float& x, fl
 
 void FlightPathMovementGenerator::DoInitialize(Player* owner)
 {
-    RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING);
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
     DoReset(owner);
@@ -140,6 +140,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* 
     if (!active)
         return;
 
+    owner->m_taxi.ClearTaxiDestinations();
     owner->Dismount();
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT);
 
@@ -248,8 +249,12 @@ void FlightPathMovementGenerator::InitEndGridInfo()
      *  be reinitialized for each flightmaster at the end of each spline (or stop) in the flight.
      */
     uint32 nodeCount = _path.size(); //! Number of nodes in path.
+    ASSERT(nodeCount, "FlightPathMovementGenerator::InitEndGridInfo() called with empty _path");
     _endMapId = _path[nodeCount - 1]->MapID; //! MapId of last node
-    _preloadTargetNode = nodeCount - 3;
+    if (nodeCount < 3)
+        _preloadTargetNode = 0;
+    else
+        _preloadTargetNode = nodeCount - 3;
     _endGridX = _path[nodeCount - 1]->LocX;
     _endGridY = _path[nodeCount - 1]->LocY;
 }
@@ -262,7 +267,7 @@ void FlightPathMovementGenerator::PreloadEndGrid()
     // Load the grid
     if (endMap)
     {
-        TC_LOG_DEBUG("movement.flightpath", "FlightPathMovementGenerator::PreloadEndGrid: preloading rid (%f, %f) for map %u at node index %u/%u", _endGridX, _endGridY, _endMapId, _preloadTargetNode, uint32(_path.size() - 1));
+        TC_LOG_DEBUG("movement.flightpath", "FlightPathMovementGenerator::PreloadEndGrid: preloading grid (%f, %f) for map %u at node index %u/%u", _endGridX, _endGridY, _endMapId, _preloadTargetNode, uint32(_path.size() - 1));
         endMap->LoadGrid(_endGridX, _endGridY);
     }
     else

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -67,6 +67,9 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
         recvData >> x >> y >> z;
         recvData >> message;
 
+        if (!ValidateHyperlinksAndMaybeKick(message))
+            return;
+
         recvData >> needResponse;
         recvData >> needMoreHelp;
 
@@ -102,11 +105,13 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
             recvData.rfinish(); // Will still have compressed data in buffer.
         }
 
+        if (!chatLog.empty() && !ValidateHyperlinksAndMaybeKick(chatLog))
+            return;
+
         ticket = new GmTicket(GetPlayer());
         ticket->SetPosition(mapId, x, y, z);
         ticket->SetMessage(message);
         ticket->SetGmAction(needResponse, needMoreHelp);
-
         if (!chatLog.empty())
             ticket->SetChatLog(times, chatLog);
 
@@ -127,6 +132,9 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
 {
     std::string message;
     recvData >> message;
+
+    if (!ValidateHyperlinksAndMaybeKick(message))
+        return;
 
     GMTicketResponse response = GMTICKET_RESPONSE_UPDATE_ERROR;
     if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
@@ -210,6 +218,9 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
         if (!surveyIds.insert(subSurveyId).second)
             continue;
 
+        if (!ValidateHyperlinksAndMaybeKick(comment))
+            return;
+
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SUBSURVEY);
         stmt->setUInt32(0, nextSurveyID);
         stmt->setUInt32(1, subSurveyId);
@@ -220,6 +231,9 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
 
     std::string comment; // just a guess
     recvData >> comment;
+
+    if (!ValidateHyperlinksAndMaybeKick(comment))
+        return;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
     stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());

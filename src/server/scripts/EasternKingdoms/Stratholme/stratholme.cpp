@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,6 +41,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "stratholme.h"
 
 /*######
@@ -200,8 +201,9 @@ public:
 
 enum GhostlyCitizenSpells
 {
-    SPELL_HAUNTING_PHANTOM  = 16336,
-    SPELL_SLAP              = 6754
+    SPELL_HAUNTING_PHANTOM        = 16336,
+    SPELL_DEBILITATING_TOUCH      = 16333,
+    SPELL_SLAP                    = 6754
 };
 
 class npc_spectral_ghostly_citizen : public CreatureScript
@@ -224,10 +226,14 @@ public:
         void Initialize()
         {
             Die_Timer = 5000;
+            HauntingTimer = 8000;
+            TouchTimer = 2000;
             Tagged = false;
         }
 
         uint32 Die_Timer;
+        uint32 HauntingTimer;
+        uint32 TouchTimer;
         bool Tagged;
 
         void Reset() override
@@ -267,6 +273,24 @@ public:
 
             if (!UpdateVictim())
                 return;
+
+            //HauntingTimer
+            if (HauntingTimer <= diff)
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_HAUNTING_PHANTOM);
+                HauntingTimer = 11000;
+            }
+            else HauntingTimer -= diff;
+
+            //TouchTimer
+            if (TouchTimer <= diff)
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_DEBILITATING_TOUCH);
+                TouchTimer = 7000;
+            }
+            else TouchTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -332,10 +356,48 @@ class spell_ysida_saved_credit : public SpellScript
     }
 };
 
+enum HauntingPhantoms
+{
+    SPELL_SUMMON_SPITEFUL_PHANTOM = 16334,
+    SPELL_SUMMON_WRATH_PHANTOM    = 16335
+};
+
+class spell_stratholme_haunting_phantoms : public AuraScript
+{
+    PrepareAuraScript(spell_stratholme_haunting_phantoms);
+
+    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
+    {
+        isPeriodic = true;
+        amplitude = irand(30, 90) * IN_MILLISECONDS;
+    }
+
+    void HandleDummyTick(AuraEffect const* /*aurEff*/)
+    {
+        if (roll_chance_i(50))
+            GetTarget()->CastSpell(nullptr, SPELL_SUMMON_SPITEFUL_PHANTOM, true);
+        else
+            GetTarget()->CastSpell(nullptr, SPELL_SUMMON_WRATH_PHANTOM, true);
+    }
+
+    void HandleUpdatePeriodic(AuraEffect* aurEff)
+    {
+        aurEff->CalculatePeriodic(GetCaster());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_stratholme_haunting_phantoms::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_stratholme_haunting_phantoms::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_stratholme_haunting_phantoms::HandleUpdatePeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_stratholme()
 {
     new go_gauntlet_gate();
     new npc_restless_soul();
     new npc_spectral_ghostly_citizen();
     RegisterSpellScript(spell_ysida_saved_credit);
+    RegisterAuraScript(spell_stratholme_haunting_phantoms);
 }

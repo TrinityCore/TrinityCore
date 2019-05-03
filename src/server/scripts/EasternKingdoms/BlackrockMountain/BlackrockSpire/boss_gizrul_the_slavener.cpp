@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -62,8 +62,8 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             _JustEngagedWith();
-            events.ScheduleEvent(EVENT_FATAL_BITE, urand(17000,20000));
-            events.ScheduleEvent(EVENT_INFECTED_BITE, urand(10000,12000));
+            events.ScheduleEvent(EVENT_FATAL_BITE, 17s, 20s);
+            events.ScheduleEvent(EVENT_INFECTED_BITE, 10s, 12s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -87,11 +87,11 @@ public:
                 {
                     case EVENT_FATAL_BITE:
                         DoCastVictim(SPELL_FATAL_BITE);
-                        events.ScheduleEvent(EVENT_FATAL_BITE, urand(8000,10000));
+                        events.ScheduleEvent(EVENT_FATAL_BITE, 8s, 10s);
                         break;
                     case EVENT_INFECTED_BITE:
                         DoCast(me, SPELL_INFECTED_BITE);
-                        events.ScheduleEvent(EVENT_FATAL_BITE, urand(8000,10000));
+                        events.ScheduleEvent(EVENT_FATAL_BITE, 8s, 10s);
                         break;
                     default:
                         break;

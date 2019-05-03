@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -98,8 +98,8 @@ public:
             _JustEngagedWith();
             Enraged = false;
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_HATEFUL, Seconds(1));
-            events.ScheduleEvent(EVENT_BERSERK, Minutes(6));
+            events.ScheduleEvent(EVENT_HATEFUL, 1s);
+            events.ScheduleEvent(EVENT_BERSERK, 6min);
 
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
         }
@@ -165,7 +165,7 @@ public:
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);
                         Talk(EMOTE_BERSERK);
-                        events.ScheduleEvent(EVENT_SLIME, Seconds(2));
+                        events.ScheduleEvent(EVENT_SLIME, 2s);
                         break;
                     case EVENT_SLIME:
                         DoCastAOE(SPELL_SLIME_BOLT, true);

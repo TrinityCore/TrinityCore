@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,9 +56,9 @@ class boss_lucifron : public CreatureScript
             void JustEngagedWith(Unit* victim) override
             {
                 BossAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_IMPENDING_DOOM, 10000);
-                events.ScheduleEvent(EVENT_LUCIFRON_CURSE, 20000);
-                events.ScheduleEvent(EVENT_SHADOW_SHOCK, 6000);
+                events.ScheduleEvent(EVENT_IMPENDING_DOOM, 10s);
+                events.ScheduleEvent(EVENT_LUCIFRON_CURSE, 20s);
+                events.ScheduleEvent(EVENT_SHADOW_SHOCK, 6s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -77,15 +77,15 @@ class boss_lucifron : public CreatureScript
                     {
                         case EVENT_IMPENDING_DOOM:
                             DoCastVictim(SPELL_IMPENDING_DOOM);
-                            events.ScheduleEvent(EVENT_IMPENDING_DOOM, 20000);
+                            events.ScheduleEvent(EVENT_IMPENDING_DOOM, 20s);
                             break;
                         case EVENT_LUCIFRON_CURSE:
                             DoCastVictim(SPELL_LUCIFRON_CURSE);
-                            events.ScheduleEvent(EVENT_LUCIFRON_CURSE, 15000);
+                            events.ScheduleEvent(EVENT_LUCIFRON_CURSE, 15s);
                             break;
                         case EVENT_SHADOW_SHOCK:
                             DoCastVictim(SPELL_SHADOW_SHOCK);
-                            events.ScheduleEvent(EVENT_SHADOW_SHOCK, 6000);
+                            events.ScheduleEvent(EVENT_SHADOW_SHOCK, 6s);
                             break;
                         default:
                             break;

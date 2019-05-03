@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -96,17 +96,6 @@ uint32 const PrismaticAuras[6]=
     SPELL_PRISMATIC_AURA_HOLY
 };
 
-Position const TeleportPoint[7]=
-{
-    { 959.996f, 212.576f, 193.843f },
-    { 932.537f, 231.813f, 193.838f },
-    { 958.675f, 254.767f, 193.822f },
-    { 946.955f, 201.316f, 192.535f },
-    { 944.294f, 149.676f, 197.551f },
-    { 930.548f, 284.888f, 193.367f },
-    { 965.997f, 278.398f, 195.777f }
-};
-
 struct boss_mother_shahraz : public BossAI
 {
     boss_mother_shahraz(Creature* creature) : BossAI(creature, DATA_MOTHER_SHAHRAZ), _enraged(false) { }
@@ -121,12 +110,12 @@ struct boss_mother_shahraz : public BossAI
     {
         _JustEngagedWith();
         Talk(SAY_AGGRO);
-        events.ScheduleEvent(EVENT_SILENCING_SHRIEK, Seconds(22));
-        events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, Seconds(15));
-        events.ScheduleEvent(EVENT_FATAL_ATTRACTION, Seconds(35));
-        events.ScheduleEvent(EVENT_RANDOM_BEAM, Seconds(6));
-        events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-        events.ScheduleEvent(EVENT_TAUNT, Seconds(35));
+        events.ScheduleEvent(EVENT_SILENCING_SHRIEK, 22s);
+        events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, 15s);
+        events.ScheduleEvent(EVENT_FATAL_ATTRACTION, 35s);
+        events.ScheduleEvent(EVENT_RANDOM_BEAM, 6s);
+        events.ScheduleEvent(EVENT_BERSERK, 10min);
+        events.ScheduleEvent(EVENT_TAUNT, 35s);
     }
 
     void KilledUnit(Unit* victim) override
@@ -216,7 +205,7 @@ class spell_mother_shahraz_fatal_attraction : public SpellScript
 
     void SetDest(SpellDestination& dest)
     {
-        dest.Relocate(TeleportPoint[urand(0, 6)]);
+        dest.Relocate(GetCaster()->GetRandomNearPosition(50.0f));
     }
 
     void HandleTeleport(SpellEffIndex /*effIndex*/)

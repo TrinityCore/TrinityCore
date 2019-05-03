@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,6 +28,13 @@
 
 uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUMMONER, NPC_BLACKHAND_VETERAN };
 
+DoorData const doorData[] =
+{
+    { GO_DRAKKISATH_DOOR_1,     DATA_GENERAL_DRAKKISATH,    DOOR_TYPE_PASSAGE },
+    { GO_DRAKKISATH_DOOR_2,     DATA_GENERAL_DRAKKISATH,    DOOR_TYPE_PASSAGE },
+    { 0,                        0,                          DOOR_TYPE_ROOM }
+};
+
 enum EventIds
 {
     EVENT_DARGONSPIRE_ROOM_STORE           = 1,
@@ -51,6 +58,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
+            LoadDoorData(doorData);
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -87,12 +95,12 @@ public:
                 case NPC_PYROGAURD_EMBERSEER:
                     PyroguardEmberseer = creature->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
-                        creature->DisappearAndDie();
+                        creature->DespawnOrUnsummon(0, 24h * 7);
                     break;
                 case NPC_WARCHIEF_REND_BLACKHAND:
                     WarchiefRendBlackhand = creature->GetGUID();
                     if (GetBossState(DATA_GYTH) == DONE)
-                        creature->DisappearAndDie();
+                        creature->DespawnOrUnsummon(0, 24h * 7);
                     break;
                 case NPC_GYTH:
                     Gyth = creature->GetGUID();
@@ -106,7 +114,7 @@ public:
                 case NPC_LORD_VICTOR_NEFARIUS:
                     LordVictorNefarius = creature->GetGUID();
                     if (GetBossState(DATA_GYTH) == DONE)
-                        creature->DisappearAndDie();
+                        creature->DespawnOrUnsummon(0, 24h * 7);
                     break;
                 case NPC_SCARSHIELD_INFILTRATOR:
                     ScarshieldInfiltrator = creature->GetGUID();
@@ -119,6 +127,8 @@ public:
 
         void OnGameObjectCreate(GameObject* go) override
         {
+            InstanceScript::OnGameObjectCreate(go);
+
             switch (go->GetEntry())
             {
                 case GO_WHELP_SPAWNER:
@@ -284,7 +294,7 @@ public:
                     if (data == AREATRIGGER_DRAGONSPIRE_HALL)
                     {
                         if (GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE)
-                            Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_STORE, 1000);
+                            Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_STORE, 1s);
                     }
                     break;
                 default:
@@ -380,12 +390,12 @@ public:
                 {
                     case EVENT_DARGONSPIRE_ROOM_STORE:
                         Dragonspireroomstore();
-                        Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_CHECK, 3000);
+                        Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_CHECK, 3s);
                         break;
                     case EVENT_DARGONSPIRE_ROOM_CHECK:
                         Dragonspireroomcheck();
                         if ((GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE))
-                            Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_CHECK, 3000);
+                            Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_CHECK, 3s);
                         break;
                     default:
                          break;

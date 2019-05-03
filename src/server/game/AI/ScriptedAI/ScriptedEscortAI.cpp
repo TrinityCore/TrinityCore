@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -84,6 +84,8 @@ void EscortAI::InitializeAI()
 
     if (me->GetFaction() != me->GetCreatureTemplate()->faction)
         me->RestoreFaction();
+    
+    Reset();
 }
 
 void EscortAI::ReturnToLastPoint()
@@ -153,13 +155,6 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
         }
     }
 }
-
-///@todo investigate whether if its necessary to handle anything on charm
-/*
-void EscortAI::OnCharmed(bool apply)
-{
-}
-*/
 
 void EscortAI::UpdateAI(uint32 diff)
 {
@@ -310,6 +305,8 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
         return;
     }
 
+    _running = run;
+    
     if (!_manualPath && resetWaypoints)
         FillPointMovementListForCreature();
 
@@ -321,7 +318,6 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
 
     // set variables
     _activeAttacker = isActiveAttacker;
-    _running = run;
     _playerGUID = playerGUID;
     _escortQuest = quest;
     _instantRespawn = instantRespawn;
@@ -352,11 +348,13 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
 
 void EscortAI::SetRun(bool on)
 {
-    if (on && !_running)
-        me->SetWalk(false);
-    else if (!on && _running)
-        me->SetWalk(true);
+    if (on == _running)
+        return;
 
+    for (auto& node : _path.nodes)
+        node.moveType = on ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+
+    me->SetWalk(!on);
     _running = on;
 }
 

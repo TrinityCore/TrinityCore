@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -184,7 +184,8 @@ void AppenderConsole::_write(LogMessage const* message)
             case LOG_LEVEL_FATAL:
                index = 0;
                break;
-            case LOG_LEVEL_ERROR: // No break on purpose
+            case LOG_LEVEL_ERROR:
+                /* fallthrough */
             default:
                index = 1;
                break;

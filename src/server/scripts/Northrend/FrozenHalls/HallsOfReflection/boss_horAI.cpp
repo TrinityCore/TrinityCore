@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,7 @@ void boss_horAI::DoAction(int32 actionId)
         case ACTION_ENTER_COMBAT: // called by InstanceScript when boss shall enter in combat.
             me->SetImmuneToAll(false);
             me->SetReactState(REACT_AGGRESSIVE);
-            DoZoneInCombat(me, 150.0f);
+            DoZoneInCombat(me);
             break;
         default:
             break;

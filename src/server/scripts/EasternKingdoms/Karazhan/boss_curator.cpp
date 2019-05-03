@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,9 +82,9 @@ public:
             _JustEngagedWith();
             Talk(SAY_AGGRO);
 
-            events.ScheduleEvent(EVENT_HATEFUL_BOLT, Seconds(12));
-            events.ScheduleEvent(EVENT_SUMMON_ASTRAL_FLARE, Seconds(10));
-            events.ScheduleEvent(EVENT_BERSERK, Minutes(12));
+            events.ScheduleEvent(EVENT_HATEFUL_BOLT, 12s);
+            events.ScheduleEvent(EVENT_SUMMON_ASTRAL_FLARE, 10s);
+            events.ScheduleEvent(EVENT_BERSERK, 12min);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override

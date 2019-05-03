@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -143,10 +143,13 @@ class boss_shattered_executioner : public CreatureScript
                     {
                         case 3:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_1);
+                            /* fallthrough */
                         case 2:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_2);
+                            /* fallthrough */
                         case 1:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_3);
+                            /* fallthrough */
                         default:
                             break;
                     }

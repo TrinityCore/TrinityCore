@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -497,18 +497,18 @@ bool Guild::BankTab::WriteSlotPacket(WorldPacket& data, uint8 slotId, bool ignor
             data << uint32(0);
 
         data << uint32(pItem->GetCount());                  // ITEM_FIELD_STACK_COUNT
-        data << uint32(0);
+        data << uint32(pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT)); // Permanent enchantment
         data << uint8(abs(pItem->GetSpellCharges()));       // Spell charges
 
         uint8 enchCount = 0;
         size_t enchCountPos = data.wpos();
 
         data << uint8(enchCount);                           // Number of enchantments
-        for (uint32 i = PERM_ENCHANTMENT_SLOT; i < MAX_ENCHANTMENT_SLOT; ++i)
+        for (uint32 socketSlot = SOCK_ENCHANTMENT_SLOT; socketSlot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++socketSlot)
         {
-            if (uint32 enchId = pItem->GetEnchantmentId(EnchantmentSlot(i)))
+            if (uint32 enchId = pItem->GetEnchantmentId(EnchantmentSlot(socketSlot)))
             {
-                data << uint8(i);
+                data << uint8(socketSlot - SOCK_ENCHANTMENT_SLOT);
                 data << uint32(enchId);
                 ++enchCount;
             }
@@ -614,6 +614,7 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId
     m_zoneId(0),
     m_level(0),
     m_class(0),
+    m_gender(0),
     m_flags(GUILDMEMBER_STATUS_NONE),
     m_logoutTime(GameTime::GetGameTime()),
     m_accountId(0),
@@ -627,15 +628,17 @@ void Guild::Member::SetStats(Player* player)
     m_name      = player->GetName();
     m_level     = player->getLevel();
     m_class     = player->getClass();
+    m_gender    = player->getGender();
     m_zoneId    = player->GetZoneId();
     m_accountId = player->GetSession()->GetAccountId();
 }
 
-void Guild::Member::SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId)
+void Guild::Member::SetStats(std::string const& name, uint8 level, uint8 _class, uint8 gender, uint32 zoneId, uint32 accountId)
 {
     m_name      = name;
     m_level     = level;
     m_class     = _class;
+    m_gender    = gender;
     m_zoneId    = zoneId;
     m_accountId = accountId;
 }
@@ -710,9 +713,10 @@ bool Guild::Member::LoadFromDB(Field* fields)
     SetStats(fields[12].GetString(),
              fields[13].GetUInt8(),                         // characters.level
              fields[14].GetUInt8(),                         // characters.class
-             fields[15].GetUInt16(),                        // characters.zone
-             fields[16].GetUInt32());                       // characters.account
-    m_logoutTime = fields[17].GetUInt32();                  // characters.logout_time
+             fields[15].GetUInt8(),                         // characters.gender
+             fields[16].GetUInt16(),                        // characters.zone
+             fields[17].GetUInt32());                       // characters.account
+    m_logoutTime = fields[18].GetUInt32();                  // characters.logout_time
 
     if (!CheckStats())
         return false;
@@ -752,7 +756,7 @@ void Guild::Member::WritePacket(WorldPacket& data, bool sendOfficerNote) const
          << uint32(m_rankId)
          << uint8(m_level)
          << uint8(m_class)
-         << uint8(0)
+         << uint8(m_gender)
          << uint32(m_zoneId);
 
     if (!m_flags)
@@ -2325,8 +2329,9 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
                 name,
                 fields[1].GetUInt8(),
                 fields[2].GetUInt8(),
-                fields[3].GetUInt16(),
-                fields[4].GetUInt32());
+                fields[3].GetUInt8(),
+                fields[4].GetUInt16(),
+                fields[5].GetUInt32());
 
             ok = member->CheckStats();
         }

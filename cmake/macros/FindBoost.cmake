@@ -384,7 +384,9 @@ function(_Boost_GUESS_COMPILER_PREFIX _ret)
       set (_boost_COMPILER "-il")
     endif()
   elseif("x${CMAKE_CXX_COMPILER_ID}" STREQUAL "xMSVC")
-    if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
+    if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.20)
+      set(_boost_COMPILER "-vc142;-vc141")
+    elseif (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
       set(_boost_COMPILER "-vc141;-vc140")
     elseif (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19)
       set(_boost_COMPILER "-vc140")
@@ -482,7 +484,7 @@ else()
   # The user has not requested an exact version.  Among known
   # versions, find those that are acceptable to the user request.
   set(_Boost_KNOWN_VERSIONS ${Boost_ADDITIONAL_VERSIONS}
-    "1.67.0" "1.67" "1.66.0" "1.66" "1.65.1" "1.65.0" "1.65"
+    "1.68.0" "1.68" "1.67.0" "1.67" "1.66.0" "1.66" "1.65.1" "1.65.0" "1.65"
     "1.64.0" "1.64" "1.63.0" "1.63" "1.62.0" "1.62" "1.61.0" "1.61" "1.60.0" "1.60"
     "1.59.0" "1.59" "1.58.0" "1.58" "1.57.0" "1.57" "1.56.0" "1.56" "1.55.0" "1.55"
     "1.54.0" "1.54" "1.53.0" "1.53" "1.52.0" "1.52" "1.51.0" "1.51"

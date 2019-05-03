@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -167,7 +167,7 @@ public:
             events.ScheduleEvent(EVENT_IMPALE, randtime(Seconds(10), Seconds(20)), 0, PHASE_NORMAL);
             events.ScheduleEvent(EVENT_SCARABS, randtime(Seconds(20), Seconds(30)), 0, PHASE_NORMAL);
             events.ScheduleEvent(EVENT_LOCUST, Minutes(1)+randtime(Seconds(40), Seconds(60)), 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
+            events.ScheduleEvent(EVENT_BERSERK, 10min);
 
             if (!Is25ManRaid())
                 events.ScheduleEvent(EVENT_SPAWN_GUARD, randtime(Seconds(15), Seconds(20)));
@@ -211,7 +211,7 @@ public:
                         events.SetPhase(PHASE_SWARM);
                         DoCast(me, SPELL_LOCUST_SWARM);
 
-                        events.ScheduleEvent(EVENT_SPAWN_GUARD, Seconds(3));
+                        events.ScheduleEvent(EVENT_SPAWN_GUARD, 3s);
                         events.ScheduleEvent(EVENT_LOCUST_ENDS, RAID_MODE(Seconds(19), Seconds(23)));
                         events.Repeat(Minutes(1)+Seconds(30));
                         break;
@@ -225,7 +225,7 @@ public:
                         break;
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);
-                        events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
+                        events.ScheduleEvent(EVENT_BERSERK, 10min);
                         break;
                 }
             }

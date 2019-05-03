@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -257,10 +257,10 @@ class boss_archmage_arugal : public CreatureScript
             {
                 _JustEngagedWith();
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_CURSE, Seconds(7));
-                events.ScheduleEvent(EVENT_TELEPORT, Seconds(15));
-                events.ScheduleEvent(EVENT_VOID_BOLT, Seconds(1));
-                events.ScheduleEvent(EVENT_THUNDERSHOCK, Seconds(10));
+                events.ScheduleEvent(EVENT_CURSE, 7s);
+                events.ScheduleEvent(EVENT_TELEPORT, 15s);
+                events.ScheduleEvent(EVENT_VOID_BOLT, 1s);
+                events.ScheduleEvent(EVENT_THUNDERSHOCK, 10s);
             }
 
             void AttackStart(Unit* who) override

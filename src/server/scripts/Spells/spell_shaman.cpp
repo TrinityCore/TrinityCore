@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -87,6 +87,8 @@ enum ShamanSpells
     SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD_R1    = 45297,
     SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE_R1     = 26364,
     SPELL_SHAMAN_SHAMANISTIC_RAGE_PROC          = 30824,
+    SPELL_SHAMAN_STONECLAW_TOTEM                = 55277,
+    SPELL_SHAMAN_GLYPH_OF_STONECLAW_TOTEM       = 63298,
     SPELL_SHAMAN_MAELSTROM_POWER                = 70831,
     SPELL_SHAMAN_T10_ENHANCEMENT_4P_BONUS       = 70832,
     SPELL_SHAMAN_BLESSING_OF_THE_ETERNALS_R1    = 51554,
@@ -614,14 +616,19 @@ class spell_sha_fire_nova : public SpellScriptLoader
 
             SpellCastResult CheckFireTotem()
             {
+                Unit* caster = GetCaster();
                 // fire totem
-                if (!GetCaster()->m_SummonSlot[1])
+                if (Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]))
+                {
+                    if (!caster->IsWithinDistInMap(totem, caster->GetSpellMaxRangeForTarget(totem, GetSpellInfo())))
+                        return SPELL_FAILED_OUT_OF_RANGE;
+                    return SPELL_CAST_OK;
+                }
+                else
                 {
                     SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_HAVE_FIRE_TOTEM);
                     return SPELL_FAILED_CUSTOM_ERROR;
                 }
-
-                return SPELL_CAST_OK;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1775,6 +1782,44 @@ class spell_sha_shamanistic_rage : public SpellScriptLoader
         }
 };
 
+class spell_sha_stoneclaw_totem : public SpellScript
+{
+    PrepareSpellScript(spell_sha_stoneclaw_totem);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Unit* target = GetHitUnit();
+
+        // Cast Absorb on totems
+        for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
+        {
+            if (!target->m_SummonSlot[slot])
+                continue;
+
+            Creature* totem = target->GetMap()->GetCreature(target->m_SummonSlot[slot]);
+            if (totem && totem->IsTotem())
+            {
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetEffectValue());
+                GetCaster()->CastSpell(totem, SPELL_SHAMAN_STONECLAW_TOTEM, args);
+            }
+        }
+
+        // Glyph of Stoneclaw Totem
+        if (AuraEffect* aur = target->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_STONECLAW_TOTEM, 0))
+        {
+            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+            args.AddSpellMod(SPELLVALUE_BASE_POINT0, GetEffectValue() * aur->GetAmount());
+            GetCaster()->CastSpell(target, SPELL_SHAMAN_STONECLAW_TOTEM, args);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_stoneclaw_totem::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 58877 - Spirit Hunt
 class spell_sha_spirit_hunt : public SpellScriptLoader
 {
@@ -2380,6 +2425,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_nature_guardian();
     new spell_sha_sentry_totem();
     new spell_sha_shamanistic_rage();
+    RegisterSpellScript(spell_sha_stoneclaw_totem);
     new spell_sha_spirit_hunt();
     new spell_sha_static_shock();
     new spell_sha_tidal_force_dummy();

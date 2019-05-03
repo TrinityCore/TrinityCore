@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -107,11 +107,11 @@ public:
         void JustEngagedWith(Unit* /*who*/) override
         {
             _JustEngagedWith();
-            events.ScheduleEvent(EVENT_WRAP, Seconds(20));
-            events.ScheduleEvent(EVENT_SPRAY, Seconds(40));
+            events.ScheduleEvent(EVENT_WRAP, 20s);
+            events.ScheduleEvent(EVENT_SPRAY, 40s);
             events.ScheduleEvent(EVENT_SHOCK, randtime(Seconds(5), Seconds(10)));
             events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
-            events.ScheduleEvent(EVENT_SUMMON, Seconds(30));
+            events.ScheduleEvent(EVENT_SUMMON, 30s);
         }
 
         void Reset() override

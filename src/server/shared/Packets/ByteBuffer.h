@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -411,6 +411,11 @@ class TC_SHARED_API ByteBuffer
         {
             if (ressize > size())
                 _storage.reserve(ressize);
+        }
+
+        void shrink_to_fit()
+        {
+            _storage.shrink_to_fit();
         }
 
         void append(const char *src, size_t cnt)

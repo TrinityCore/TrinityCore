@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -95,6 +95,9 @@ public:
             return false;
         }
 
+        if (player->IsActiveQuest(entry))
+            return false;
+
         // ok, normal (creature/GO starting) quest
         if (player->CanAddQuest(quest, true))
             player->AddQuestAndCheckCompletion(quest, nullptr);
@@ -159,7 +162,7 @@ public:
         }
         else
         {
-            handler->SendSysMessage(LANG_COMMAND_QUEST_NOTFOUND);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -229,6 +232,11 @@ public:
                 for (uint16 z = 0; z < creatureCount; ++z)
                     player->KillCreditGO(creature);
         }
+
+        // player kills
+        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL))
+            if (uint32 reqPlayers = quest->GetPlayersSlain())
+                player->KilledPlayerCreditForQuest(reqPlayers, quest);
 
         // If the quest requires reputation to complete
         if (uint32 repFaction = quest->GetRepObjectiveFaction())

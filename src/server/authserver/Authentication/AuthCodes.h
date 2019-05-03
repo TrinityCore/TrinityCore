@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,9 @@
 
 #ifndef _AUTHCODES_H
 #define _AUTHCODES_H
+
+#include "Define.h"
+#include <array>
 
 enum AuthResult
 {
@@ -84,6 +87,8 @@ struct RealmBuildInfo
     int MinorVersion;
     int BugfixVersion;
     int HotfixVersion;
+    std::array<uint8, 20> WindowsHash;
+    std::array<uint8, 20> MacHash;
 };
 
 namespace AuthHelper

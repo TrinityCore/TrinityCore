@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -557,6 +557,8 @@ class TC_GAME_API Spell
         void SetSpellValue(SpellValueMod mod, int32 value);
 
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
+
+        std::string GetDebugInfo() const;
 
     protected:
         bool HasGlobalCooldown() const;

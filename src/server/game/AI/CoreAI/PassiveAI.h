@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,8 +46,6 @@ class TC_GAME_API PossessedAI : public CreatureAI
         void JustDied(Unit*) override;
         void KilledUnit(Unit* victim) override;
 
-        void OnCharmed(bool /*apply*/) override;
-
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 };
 
@@ -60,7 +58,7 @@ class TC_GAME_API NullCreatureAI : public CreatureAI
         void AttackStart(Unit*) override { }
         void UpdateAI(uint32) override { }
         void EnterEvadeMode(EvadeReason /*why*/) override { }
-        void OnCharmed(bool /*apply*/) override { }
+        void OnCharmed(bool /*isNew*/) override { }
 
         static int32 Permissible(Creature const* creature);
 };

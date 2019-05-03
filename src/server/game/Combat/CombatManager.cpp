@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -71,10 +71,12 @@ void CombatReference::EndCombat()
     bool const needSecondAI = second->GetCombatManager().UpdateOwnerCombatState();
 
     // ...and if that happened, also notify the AI of it...
-    if (needFirstAI && first->IsAIEnabled)
-        first->GetAI()->JustExitedCombat();
-    if (needSecondAI && second->IsAIEnabled)
-        second->GetAI()->JustExitedCombat();
+    if (needFirstAI)
+        if (UnitAI* firstAI = first->GetAI())
+            firstAI->JustExitedCombat();
+    if (needSecondAI)
+        if (UnitAI* secondAI = second->GetAI())
+            secondAI->JustExitedCombat();
 
     // ...and finally clean up the reference object
     delete this;
@@ -114,8 +116,8 @@ void PvPCombatReference::SuppressFor(Unit* who)
 {
     Suppress(who);
     if (who->GetCombatManager().UpdateOwnerCombatState())
-        if (who->IsAIEnabled)
-            who->GetAI()->JustExitedCombat();
+        if (UnitAI* ai = who->GetAI())
+            ai->JustExitedCombat();
 }
 
 CombatManager::~CombatManager()
@@ -271,8 +273,8 @@ void CombatManager::SuppressPvPCombat()
     for (auto const& pair : _pvpRefs)
         pair.second->Suppress(_owner);
     if (UpdateOwnerCombatState())
-        if (_owner->IsAIEnabled)
-            _owner->GetAI()->JustExitedCombat();
+        if (UnitAI* ownerAI = _owner->GetAI())
+            ownerAI->JustExitedCombat();
 }
 
 void CombatManager::EndAllPvECombat()
@@ -292,7 +294,7 @@ void CombatManager::EndAllPvPCombat()
 
 /*static*/ void CombatManager::NotifyAICombat(Unit* me, Unit* other)
 {
-    if (!me->IsAIEnabled)
+    if (!me->IsAIEnabled())
         return;
     me->GetAI()->JustEnteredCombat(other);
 

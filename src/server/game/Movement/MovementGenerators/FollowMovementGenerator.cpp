@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,9 +31,8 @@ static void DoMovementInform(Unit* owner, Unit* target)
     if (owner->GetTypeId() != TYPEID_UNIT)
         return;
 
-    Creature* creatureOwner = owner->ToCreature();
-    if (creatureOwner->IsAIEnabled && creatureOwner->AI())
-        creatureOwner->AI()->MovementInform(FOLLOW_MOTION_TYPE, target->GetGUID().GetCounter());
+    if (CreatureAI* AI = owner->ToCreature()->AI())
+        AI->MovementInform(FOLLOW_MOTION_TYPE, target->GetGUID().GetCounter());
 }
 
 FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle)
@@ -55,13 +54,13 @@ static bool PositionOkay(Unit* owner, Unit* target, float range, Optional<ChaseA
 
 void FollowMovementGenerator::Initialize(Unit* owner)
 {
-    RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING);
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
     owner->StopMoving();
     UpdatePetSpeed(owner);
     _path = nullptr;
-    _lastTargetPosition.Relocate(0.0f, 0.0f, 0.0f);
+    _lastTargetPosition.reset();
 }
 
 void FollowMovementGenerator::Reset(Unit* owner)
@@ -79,12 +78,13 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
 
     // our target might have gone away
     Unit* const target = GetTarget();
-    if (!target)
+    if (!target || !target->IsInWorld())
         return false;
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         owner->StopMoving();
+        _lastTargetPosition.reset();
         return true;
     }
 
@@ -112,7 +112,7 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
         DoMovementInform(owner, target);
     }
 
-    if (_lastTargetPosition.GetExactDistSq(target->GetPosition()) > 0.0f)
+    if (!_lastTargetPosition || _lastTargetPosition->GetExactDistSq(target->GetPosition()) > 0.0f)
     {
         _lastTargetPosition = target->GetPosition();
         if (owner->HasUnitState(UNIT_STATE_FOLLOW_MOVE) || !PositionOkay(owner, target, _range + FOLLOW_RANGE_TOLERANCE))

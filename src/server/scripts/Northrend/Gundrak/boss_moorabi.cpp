@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -92,10 +92,10 @@ class boss_moorabi : public CreatureScript
                 DoCastSelf(SPELL_MOJO_FRENZY, true);
 
                 events.SetPhase(PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_GROUND_TREMOR, Seconds(18));
-                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, Seconds(10));
-                events.ScheduleEvent(EVENT_DETERMINED_STAB, Seconds(20));
-                events.ScheduleEvent(EVENT_TRANFORMATION, Seconds(12));
+                events.ScheduleEvent(EVENT_GROUND_TREMOR, 18s);
+                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, 10s);
+                events.ScheduleEvent(EVENT_DETERMINED_STAB, 20s);
+                events.ScheduleEvent(EVENT_TRANFORMATION, 12s);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override

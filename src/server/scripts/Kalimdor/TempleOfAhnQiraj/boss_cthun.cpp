@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -460,14 +460,12 @@ public:
         return GetAQ40AI<cthunAI>(creature);
     }
 
-    struct cthunAI : public ScriptedAI
+    struct cthunAI : public BossAI
     {
-        cthunAI(Creature* creature) : ScriptedAI(creature)
+        cthunAI(Creature* creature) : BossAI(creature, DATA_CTHUN)
         {
             Initialize();
             SetCombatMovement(false);
-
-            instance = creature->GetInstanceScript();
         }
 
         void Initialize()
@@ -491,8 +489,6 @@ public:
             StomachEnterVisTimer = 0;                           //Always 3.5 seconds after Stomach Enter Timer
             StomachEnterTarget.Clear();                         //Target to be teleported to stomach
         }
-
-        InstanceScript* instance;
 
         //Out of combat whisper timer
         uint32 WisperTimer;
@@ -521,6 +517,7 @@ public:
         void Reset() override
         {
             Initialize();
+            _Reset();
 
             //Clear players in stomach and outside
             Stomach_Map.clear();
@@ -531,11 +528,6 @@ public:
             me->SetVisible(false);
 
             instance->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            DoZoneInCombat();
         }
 
         void SpawnEyeTentacle(float x, float y)
@@ -1291,7 +1283,7 @@ public:
         {
             if (TempSummon* summon = me->ToTempSummon())
                 if (Unit* summoner = summon->GetSummoner())
-                    if (summoner->IsAIEnabled)
+                    if (summoner->IsAIEnabled())
                         summoner->GetAI()->DoAction(ACTION_FLESH_TENTACLE_KILLED);
         }
     };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,6 +51,7 @@ namespace WorldPackets
 
         void Clear() { _worldPacket.clear(); }
         WorldPacket&& Move() { return std::move(_worldPacket); }
+        void ShrinkToFit() { _worldPacket.shrink_to_fit(); }
 
         OpcodeServer GetOpcode() const { return OpcodeServer(_worldPacket.GetOpcode()); }
     };

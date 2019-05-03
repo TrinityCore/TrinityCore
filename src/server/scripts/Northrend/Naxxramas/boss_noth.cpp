@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -166,7 +166,7 @@ public:
             summons.Summon(summon);
             summon->setActive(true);
             summon->SetFarVisible(true);
-            summon->AI()->DoZoneInCombat(nullptr, 250.0f); // specify range to cover entire room - default 50yd is not enough
+            summon->AI()->DoZoneInCombat();
         }
 
         void JustDied(Unit* /*killer*/) override

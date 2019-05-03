@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -598,7 +598,7 @@ class spell_dru_glyph_of_innervate : public SpellScriptLoader
 
                 Unit* caster = eventInfo.GetActor();
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_GLYPH_OF_INNERVATE_REGEN);
-                int32 amount = CalculatePct(static_cast<int32>(caster->GetCreatePowers(POWER_MANA)), aurEff->GetAmount());
+                int32 amount = CalculatePct(static_cast<int32>(caster->GetCreatePowerValue(POWER_MANA)), aurEff->GetAmount());
 
                 ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
@@ -904,7 +904,7 @@ class spell_dru_innervate : public SpellScriptLoader
                 }
 
                 if (Unit* caster = GetCaster())
-                    amount = int32(CalculatePct(caster->GetCreatePowers(POWER_MANA), amount) / aurEff->GetTotalTicks());
+                    amount = int32(CalculatePct(caster->GetCreatePowerValue(POWER_MANA), amount) / aurEff->GetTotalTicks());
                 else
                     amount = 0;
             }
@@ -1049,7 +1049,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
                 CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = GetCasterGUID();
                 args.AddSpellBP0(healAmount);
-                target->CastSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, args);
+                target->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, args);
             }
 
             void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1059,7 +1059,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
                     return;
 
                 // final heal
-                OnRemoveEffect(GetTarget(), aurEff, GetStackAmount());
+                OnRemoveEffect(GetUnitOwner(), aurEff, GetStackAmount());
             }
 
             void HandleDispel(DispelInfo* dispelInfo)
@@ -1258,7 +1258,7 @@ class spell_dru_owlkin_frenzy : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
-                amount = CalculatePct(GetUnitOwner()->GetCreatePowers(POWER_MANA), amount);
+                amount = CalculatePct(GetUnitOwner()->GetCreatePowerValue(POWER_MANA), amount);
             }
 
             void Register() override

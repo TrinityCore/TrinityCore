@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +23,7 @@
 
 #include "Define.h"
 #include "Duration.h"
+#include "IteratorPair.h"
 #include "SharedDefines.h"
 #include "Util.h"
 
@@ -72,6 +73,9 @@ enum SpellFamilyFlag
 
     // Warlock
     SPELLFAMILYFLAG_WARLOCK_LIFETAP         = 0x00040000,
+
+    // Hunter
+    SPELLFAMILYFLAG1_HUNTER_EXPLOSIVE_SHOT  = 0x80000000,
 
     // Druid
     SPELLFAMILYFLAG2_DRUID_STARFALL         = 0x00000100,
@@ -604,7 +608,7 @@ class TC_GAME_API SpellMgr
         uint32 GetSpellWithRank(uint32 spell_id, uint32 rank, bool strict = false) const;
 
         // Spell Required table
-        SpellRequiredMapBounds GetSpellsRequiredForSpellBounds(uint32 spell_id) const;
+        Trinity::IteratorPair<SpellRequiredMap::const_iterator> GetSpellsRequiredForSpellBounds(uint32 spell_id) const;
         SpellsRequiringSpellMapBounds GetSpellsRequiringSpellBounds(uint32 spell_id) const;
         bool IsSpellRequiringSpell(uint32 spellid, uint32 req_spellid) const;
 

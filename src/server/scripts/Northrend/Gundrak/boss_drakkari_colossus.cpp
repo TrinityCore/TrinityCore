@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -112,7 +112,7 @@ class boss_drakkari_colossus : public CreatureScript
                     me->RemoveAura(SPELL_FREEZE_ANIM);
                 }
 
-                events.ScheduleEvent(EVENT_MIGHTY_BLOW, urand(10000, 30000));
+                events.ScheduleEvent(EVENT_MIGHTY_BLOW, 10s, 30s);
 
                 Initialize();
             }
@@ -208,7 +208,7 @@ class boss_drakkari_colossus : public CreatureScript
                     {
                         case EVENT_MIGHTY_BLOW:
                             DoCastVictim(SPELL_MIGHTY_BLOW);
-                            events.ScheduleEvent(EVENT_MIGHTY_BLOW, urand(5000, 15000));
+                            events.ScheduleEvent(EVENT_MIGHTY_BLOW, 5s, 15s);
                             break;
                     }
 
@@ -255,7 +255,7 @@ class boss_drakkari_elemental : public CreatureScript
             void Reset() override
             {
                 events.Reset();
-                events.ScheduleEvent(EVENT_SURGE, urand(5000, 15000));
+                events.ScheduleEvent(EVENT_SURGE, 5s, 15s);
 
                 me->AddAura(SPELL_MOJO_VOLLEY, me);
             }
@@ -286,7 +286,7 @@ class boss_drakkari_elemental : public CreatureScript
                             DoCast(SPELL_SURGE_VISUAL);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                 DoCast(target, SPELL_SURGE);
-                            events.ScheduleEvent(EVENT_SURGE, urand(5000, 15000));
+                            events.ScheduleEvent(EVENT_SURGE, 5s, 15s);
                             break;
                     }
 

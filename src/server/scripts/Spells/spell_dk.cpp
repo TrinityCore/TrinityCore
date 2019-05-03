@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -103,6 +103,7 @@ enum DeathKnightSpells
 
 enum DeathKnightSpellIcons
 {
+    DK_ICON_ID_EPIDEMIC                         = 234,
     DK_ICON_ID_IMPROVED_DEATH_STRIKE            = 2751
 };
 
@@ -1268,6 +1269,49 @@ class spell_dk_glyph_of_scourge_strike : public SpellScriptLoader
         {
             return new spell_dk_glyph_of_scourge_strike_AuraScript();
         }
+};
+
+// 69961 - Glyph of Scourge Strike
+class spell_dk_glyph_of_scourge_strike_script : public SpellScript
+{
+    PrepareSpellScript(spell_dk_glyph_of_scourge_strike_script);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        Unit::AuraEffectList const& mPeriodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+        for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
+        {
+            AuraEffect const* aurEff = *i;
+            SpellInfo const* spellInfo = aurEff->GetSpellInfo();
+            // search our Blood Plague and Frost Fever on target
+            if (spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && spellInfo->SpellFamilyFlags[2] & 0x2 &&
+                aurEff->GetCasterGUID() == caster->GetGUID())
+            {
+                uint32 countMin = aurEff->GetBase()->GetMaxDuration();
+                uint32 countMax = spellInfo->GetMaxDuration();
+
+                // this Glyph
+                countMax += 9000;
+                // talent Epidemic
+                if (AuraEffect const* epidemic = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_EPIDEMIC, EFFECT_0))
+                    countMax += epidemic->GetAmount();
+
+                if (countMin < countMax)
+                {
+                    aurEff->GetBase()->SetDuration(aurEff->GetBase()->GetDuration() + 3000);
+                    aurEff->GetBase()->SetMaxDuration(countMin + 3000);
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_glyph_of_scourge_strike_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // 49016 - Hysteria
@@ -2914,20 +2958,14 @@ public:
             if (ghoulGuid.IsEmpty())
                 return;
 
-            oldAI = player->AI();
-            oldAIState = player->IsAIEnabled;
-            player->SetAI(new player_ghoulAI(player, ghoulGuid));
-            player->IsAIEnabled = true;
+            player->PushAI(new player_ghoulAI(player, ghoulGuid));
         }
 
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Player* player = GetTarget()->ToPlayer();
 
-            player->IsAIEnabled = oldAIState;
-            PlayerAI* thisAI = player->AI();
-            player->SetAI(oldAI);
-            delete thisAI;
+            player->PopAI();
 
             // Dismiss ghoul if necessary
             if (Creature* ghoul = ObjectAccessor::GetCreature(*player, ghoulGuid))
@@ -2946,8 +2984,6 @@ public:
         }
 
         ObjectGuid ghoulGuid;
-        PlayerAI* oldAI = nullptr;
-        bool oldAIState = false;
     };
 
     AuraScript* GetAuraScript() const override
@@ -3037,6 +3073,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_ghoul_explode();
     new spell_dk_glyph_of_death_grip();
     new spell_dk_glyph_of_scourge_strike();
+    RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
     RegisterAuraScript(spell_dk_hysteria);
     new spell_dk_hungering_cold();
     new spell_dk_icebound_fortitude();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -238,6 +238,8 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     recvData.ReadPackedTime(unkPackedTime);
     recvData >> flags;
 
+    eventPackedTime = uint32(LocalTimeToUTCTime(eventPackedTime));
+
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
     if (time_t(eventPackedTime) < (GameTime::GetGameTime() - time_t(86400L)))
@@ -331,6 +333,8 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recvData)
     recvData.ReadPackedTime(timeZoneTime);
     recvData >> flags;
 
+    eventPackedTime = uint32(LocalTimeToUTCTime(eventPackedTime));
+
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
     if (time_t(eventPackedTime) < (GameTime::GetGameTime() - time_t(86400L)))
@@ -387,6 +391,8 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
     recvData.ReadPackedTime(eventTime);
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_COPY_EVENT [%s], EventId [" UI64FMTD
         "] inviteId [" UI64FMTD "] Time: %u", guid.ToString().c_str(), eventId, inviteId, eventTime);
+
+    eventTime = uint32(LocalTimeToUTCTime(eventTime));
 
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack

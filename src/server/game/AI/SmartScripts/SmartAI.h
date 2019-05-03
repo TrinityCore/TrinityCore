@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -140,7 +140,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void InitializeAI() override;
 
         // Called when creature gets charmed by another unit
-        void OnCharmed(bool apply) override;
+        void OnCharmed(bool isNew) override;
 
         // Used in scripts to share variables
         void DoAction(int32 param = 0) override;

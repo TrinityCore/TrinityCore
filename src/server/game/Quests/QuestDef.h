@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -183,6 +183,16 @@ struct QuestLocale
     std::vector<std::vector<std::string>> ObjectiveText;
 };
 
+struct QuestRequestItemsLocale
+{
+    std::vector<std::string> CompletionText;
+};
+
+struct QuestOfferRewardLocale
+{
+    std::vector<std::string> RewardText;
+};
+
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
 // all base quest information, and any utility functions such as generating the amount of
 // xp to give
@@ -230,6 +240,7 @@ class TC_GAME_API Quest
         int32  GetPrevQuestId() const { return _prevQuestId; }
         uint32 GetNextQuestId() const { return _nextQuestId; }
         int32  GetExclusiveGroup() const { return _exclusiveGroup; }
+        int32  GetBreadcrumbForQuestId() const { return _breadcrumbForQuestId; }
         uint32 GetNextQuestInChain() const { return _rewardNextQuest; }
         uint32 GetCharTitleId() const { return _rewardTitleId; }
         uint32 GetPlayersSlain() const { return _requiredPlayerKills; }
@@ -311,6 +322,7 @@ class TC_GAME_API Quest
         WorldPacket BuildQueryData(LocaleConstant loc) const;
 
         std::vector<uint32> DependentPreviousQuests;
+        std::vector<uint32> DependentBreadcrumbQuests;
         WorldPacket QueryData[TOTAL_LOCALES];
 
         // cached data
@@ -370,6 +382,7 @@ class TC_GAME_API Quest
         int32  _prevQuestId           = 0;
         uint32 _nextQuestId           = 0;
         int32  _exclusiveGroup        = 0;
+        int32  _breadcrumbForQuestId  = 0;
         uint32 _rewardMailTemplateId  = 0;
         uint32 _rewardMailDelay       = 0;
         uint32 _requiredSkillId       = 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,8 +54,8 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
                 if (!creatureTarget->IsPet() && creatureTarget->GetEntry() == _originalEntry)
                 {
                     creatureTarget->UpdateEntry(_newEntry);
-                    if (_shouldAttack && creatureTarget->IsAIEnabled)
-                        creatureTarget->AI()->AttackStart(GetCaster());
+                    if (_shouldAttack)
+                        creatureTarget->EngageWithTarget(GetCaster());
 
                     if (_despawnTime)
                         creatureTarget->DespawnOrUnsummon(_despawnTime);
@@ -85,6 +85,33 @@ class spell_q55_sacred_cleansing : public SpellScriptLoader
         {
             return new spell_generic_quest_update_entry_SpellScript(SPELL_EFFECT_DUMMY, EFFECT_1, NPC_MORBENT, NPC_WEAKENED_MORBENT, true);
         }
+};
+
+enum BendingShinbone
+{
+    SPELL_BENDING_SHINBONE1 = 8854,
+    SPELL_BENDING_SHINBONE2 = 8855
+};
+
+class spell_q1846_bending_shinbone : public SpellScript
+{
+    PrepareSpellScript(spell_q1846_bending_shinbone);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Item* target = GetHitItem();
+        Unit* caster = GetCaster();
+        if (!target && caster->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        uint32 const spellId = roll_chance_i(20) ? SPELL_BENDING_SHINBONE1 : SPELL_BENDING_SHINBONE2;
+        caster->CastSpell(caster, spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q1846_bending_shinbone::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // 9712 - Thaumaturgy Channel
@@ -1160,7 +1187,7 @@ class spell_q14076_14092_pound_drum : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
 
-                if (roll_chance_i(80))
+                if (roll_chance_i(50))
                     caster->CastSpell(caster, SPELL_SUMMON_DEEP_JORMUNGAR, true);
                 else
                     caster->CastSpell(caster, SPELL_STORMFORGED_MOLE_MACHINE, true);
@@ -1466,6 +1493,10 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
 };
 
 // ID - 50287 Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random (cast from Azure Dragons and Azure Drakes on death)
+enum q12372Creatures
+{
+    NPC_WYRMREST_DEFENDER = 27629
+};
 class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
 {
     public:
@@ -1477,7 +1508,8 @@ class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (Creature* defender = GetHitCreature())
+                Creature* defender = GetHitCreature();
+                if (defender && defender->GetEntry() == NPC_WYRMREST_DEFENDER)
                     defender->AI()->Talk(WHISPER_ON_HIT_BY_FORCE_WHISPER, defender->GetCharmerOrOwner());
             }
 
@@ -1958,178 +1990,251 @@ class spell_q13086_cannons_target : public SpellScriptLoader
         }
 };
 
-enum ThatsAbominable
-{
-    QUEST_THATS_ABOMINABLE                = 13264,
-
-    NPC_ICY_GHOUL                         = 31142,
-    NPC_RISEN_ALLIANCE_SOLDIERS           = 31205,
-    NPC_VICIOUS_GEIST                     = 31147,
-    NPC_RENIMATED_ABOMINATION             = 31692,
-
-    SPELL_ICY_GHOUL_CREDIT                = 59591, // Credit for Icy Ghoul
-    SPELL_VICIOUS_GEISTS_CREDIT           = 60042, // Credit for Vicious Geists
-    SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT  = 60040, // Credit for Risen Alliance Soldiers
-};
-
-class spell_q13264_thats_abominable : public SpellScriptLoader
-{
-    public:
-        spell_q13264_thats_abominable() : SpellScriptLoader("spell_q13264_thats_abominable") { }
-
-        class spell_q13264_thats_abominable_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_q13264_thats_abominable_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_ICY_GHOUL_CREDIT,
-                    SPELL_VICIOUS_GEISTS_CREDIT,
-                    SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT,
-                });
-            }
-
-            void HandleKnockBack(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-
-                if (Creature* creature = GetHitCreature())
-                    if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
-                        if (Player* player = charmer->ToPlayer())
-                            if (player->GetQuestStatus(QUEST_THATS_ABOMINABLE) == QUEST_STATUS_INCOMPLETE)
-                                if (GiveCreditIfValid(player, creature))
-                                    creature->KillSelf();
-            }
-
-            bool GiveCreditIfValid(Player* player, Creature* creature)
-            {
-                uint32 entry = creature->GetEntry();
-
-                switch(entry)
-                {
-                    case NPC_ICY_GHOUL:
-                        player->CastSpell(player, SPELL_ICY_GHOUL_CREDIT, true);
-                        return true;
-                    case NPC_VICIOUS_GEIST:
-                        player->CastSpell(player, SPELL_VICIOUS_GEISTS_CREDIT, true);
-                        return true;
-                    case NPC_RISEN_ALLIANCE_SOLDIERS:
-                        player->CastSpell(player, SPELL_RISEN_ALLIANCE_SOLDIERS_CREDIT, true);
-                        return true;
-                }
-
-                return false;
-            }
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                if (Creature* creature = GetCaster()->ToCreature()) {
-                    creature->KillSelf();
-                    creature->DespawnOrUnsummon();
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_q13264_thats_abominable_SpellScript::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
-                OnEffectHitTarget += SpellEffectFn(spell_q13264_thats_abominable_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_q13264_thats_abominable_SpellScript();
-        }
-};
-
 enum BurstAtTheSeams
 {
-    NPC_DRAKKARI_CHIEFTAINK                 = 29099,
+    AREA_THE_BROKEN_FRONT                       =  4507,
+    AREA_MORD_RETHAR_THE_DEATH_GATE             =  4508,
+                                                
+    NPC_DRAKKARI_CHIEFTAINK                     = 29099,
+    NPC_ICY_GHOUL                               = 31142,
+    NPC_VICIOUS_GEIST                           = 31147,
+    NPC_RISEN_ALLIANCE_SOLDIERS                 = 31205,
+    NPC_RENIMATED_ABOMINATION                   = 31692,
 
-    QUEST_BURST_AT_THE_SEAMS                = 12690,
+    QUEST_FUEL_FOR_THE_FIRE                     = 12690,
 
-    SPELL_BURST_AT_THE_SEAMS                = 52510, // Burst at the Seams
-    SPELL_BURST_AT_THE_SEAMS_DMG            = 52508, // Damage spell
-    SPELL_BURST_AT_THE_SEAMS_DMG_2          = 59580, // Abomination self damage spell
-    SPELL_BURST_AT_THE_SEAMS_BONE           = 52516, // Burst at the Seams:Bone
-    SPELL_BURST_AT_THE_SEAMS_MEAT           = 52520, // Explode Abomination:Meat
-    SPELL_BURST_AT_THE_SEAMS_BMEAT          = 52523, // Explode Abomination:Bloody Meat
-    SPELL_DRAKKARI_SKULLCRUSHER_CREDIT      = 52590, // Credit for Drakkari Skullcrusher
-    SPELL_SUMMON_DRAKKARI_CHIEFTAIN         = 52616, // Summon Drakkari Chieftain
-    SPELL_DRAKKARI_CHIEFTAINK_KILL_CREDIT   = 52620  // Drakkari Chieftain Kill Credit
+    SPELL_BLOATED_ABOMINATION_FEIGN_DEATH       = 52593,
+    SPELL_BURST_AT_THE_SEAMS_BONE               = 52516,
+    SPELL_EXPLODE_ABOMINATION_MEAT              = 52520,
+    SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT       = 52523,
+    SPELL_TROLL_EXPLOSION                       = 52565,
+    SPELL_EXPLODE_TROLL_MEAT                    = 52578,
+    SPELL_EXPLODE_TROLL_BLOODY_MEAT             = 52580,
+
+    SPELL_BURST_AT_THE_SEAMS_59576              = 59576, //script/knockback, That's Abominable
+    SPELL_BURST_AT_THE_SEAMS_59579              = 59579, //dummy
+    SPELL_BURST_AT_THE_SEAMS_52510              = 52510, //script/knockback, Fuel for the Fire
+    SPELL_BURST_AT_THE_SEAMS_52508              = 52508, //damage 20000
+    SPELL_BURST_AT_THE_SEAMS_59580              = 59580, //damage 50000
+
+    SPELL_ASSIGN_GHOUL_KILL_CREDIT_TO_MASTER    = 59590,
+    SPELL_ASSIGN_GEIST_KILL_CREDIT_TO_MASTER    = 60041,
+    SPELL_ASSIGN_SKELETON_KILL_CREDIT_TO_MASTER = 60039,
+
+    SPELL_DRAKKARI_SKULLCRUSHER_CREDIT          = 52590,
+    SPELL_SUMMON_DRAKKARI_CHIEFTAIN             = 52616,
+    SPELL_DRAKKARI_CHIEFTAINK_KILL_CREDIT       = 52620
 };
 
-class spell_q12690_burst_at_the_seams : public SpellScriptLoader
+class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576 : public SpellScript
 {
-    public:
-        spell_q12690_burst_at_the_seams() : SpellScriptLoader("spell_q12690_burst_at_the_seams") { }
+    PrepareSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576);
 
-        class spell_q12690_burst_at_the_seams_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
         {
-            PrepareSpellScript(spell_q12690_burst_at_the_seams_SpellScript);
+            SPELL_BURST_AT_THE_SEAMS_59576,
+            SPELL_BLOATED_ABOMINATION_FEIGN_DEATH,
+            SPELL_BURST_AT_THE_SEAMS_59579,
+            SPELL_BURST_AT_THE_SEAMS_BONE,
+            SPELL_EXPLODE_ABOMINATION_MEAT,
+            SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT
+        });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetCaster()->ToCreature())
+        {
+            creature->CastSpell(creature, SPELL_BLOATED_ABOMINATION_FEIGN_DEATH, true);
+            creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_59579, true);
+            creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+            creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+            creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+            creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_MEAT, true);
+            creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
+            creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
+            creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579 : public AuraScript
+{
+    PrepareAuraScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579);
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_TROLL_EXPLOSION, true);
+        target->CastSpell(target, SPELL_EXPLODE_ABOMINATION_MEAT, true);
+        target->CastSpell(target, SPELL_EXPLODE_TROLL_MEAT, true);
+        target->CastSpell(target, SPELL_EXPLODE_TROLL_MEAT, true);
+        target->CastSpell(target, SPELL_EXPLODE_TROLL_BLOODY_MEAT, true);
+        target->CastSpell(target, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (Unit* caster = GetCaster())
+        {
+            switch (target->GetEntry())
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_BURST_AT_THE_SEAMS,
-                    SPELL_BURST_AT_THE_SEAMS_DMG,
-                    SPELL_BURST_AT_THE_SEAMS_DMG_2,
-                    SPELL_BURST_AT_THE_SEAMS_BONE,
-                    SPELL_BURST_AT_THE_SEAMS_MEAT,
-                    SPELL_BURST_AT_THE_SEAMS_BMEAT
-                });
+                case NPC_ICY_GHOUL:
+                    target->CastSpell(caster, SPELL_ASSIGN_GHOUL_KILL_CREDIT_TO_MASTER, true);
+                    break;
+                case NPC_VICIOUS_GEIST:
+                    target->CastSpell(caster, SPELL_ASSIGN_GEIST_KILL_CREDIT_TO_MASTER, true);
+                    break;
+                case NPC_RISEN_ALLIANCE_SOLDIERS:
+                    target->CastSpell(caster, SPELL_ASSIGN_SKELETON_KILL_CREDIT_TO_MASTER, true);
+                    break;
             }
+        }
+        target->CastSpell(target, SPELL_BURST_AT_THE_SEAMS_59580, true);
+    }
 
-            bool Load() override
+    void Register() override
+    {
+        AfterEffectApply  += AuraEffectApplyFn(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death : public AuraScript
+{
+    PrepareAuraScript(spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death);
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+
+        if (Creature* creature = target->ToCreature())
+            creature->SetReactState(REACT_PASSIVE);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (Creature* creature = target->ToCreature())
+            creature->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        AfterEffectApply  += AuraEffectApplyFn(spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+
+class spell_q13264_q13276_q13288_q13289_area_restrict_abom : public SpellScript
+{
+    PrepareSpellScript(spell_q13264_q13276_q13288_q13289_area_restrict_abom);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetHitCreature()) {
+            uint32 area = creature->GetAreaId();
+            if (area != AREA_THE_BROKEN_FRONT && area != AREA_MORD_RETHAR_THE_DEATH_GATE)
+                creature->DespawnOrUnsummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q13264_q13276_q13288_q13289_area_restrict_abom::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_q13264_q13276_q13288_q13289_assign_credit_to_master : public SpellScript
+{
+    PrepareSpellScript(spell_q13264_q13276_q13288_q13289_assign_credit_to_master);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+        {
+            if (Unit* owner = target->GetOwner())
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                owner->CastSpell(owner, GetEffectValue(), true);
             }
+        }
+    }
 
-            void HandleKnockBack(SpellEffIndex /*effIndex*/)
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q13264_q13276_q13288_q13289_assign_credit_to_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_q12690_burst_at_the_seams_52510 : public SpellScript
+{
+    PrepareSpellScript(spell_q12690_burst_at_the_seams_52510);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_BURST_AT_THE_SEAMS_52510,
+            SPELL_BURST_AT_THE_SEAMS_52508,
+            SPELL_BURST_AT_THE_SEAMS_59580,
+            SPELL_BURST_AT_THE_SEAMS_BONE,
+            SPELL_EXPLODE_ABOMINATION_MEAT,
+            SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT
+        });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_UNIT;
+    }
+
+    void HandleKnockBack(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* creature = GetHitCreature())
+        {
+            if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
             {
-                if (Unit* creature = GetHitCreature())
+                if (Player* player = charmer->ToPlayer())
                 {
-                    if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
+                    if (player->GetQuestStatus(QUEST_FUEL_FOR_THE_FIRE) == QUEST_STATUS_INCOMPLETE)
                     {
-                        if (Player* player = charmer->ToPlayer())
-                        {
-                            if (player->GetQuestStatus(QUEST_BURST_AT_THE_SEAMS) == QUEST_STATUS_INCOMPLETE)
-                            {
-                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
-                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_MEAT, true);
-                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BMEAT, true);
-                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_DMG, true);
-                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_DMG_2, true);
+                        creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+                        creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_MEAT, true);
+                        creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
+                        creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_52508, true);
+                        creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_59580, true);
 
-                                player->CastSpell(player, SPELL_DRAKKARI_SKULLCRUSHER_CREDIT, true);
-                                uint16 count = player->GetReqKillOrCastCurrentCount(QUEST_BURST_AT_THE_SEAMS, NPC_DRAKKARI_CHIEFTAINK);
-                                if ((count % 20) == 0)
-                                    player->CastSpell(player, SPELL_SUMMON_DRAKKARI_CHIEFTAIN, true);
-                            }
-                        }
+                        player->CastSpell(player, SPELL_DRAKKARI_SKULLCRUSHER_CREDIT, true);
+                        uint16 count = player->GetReqKillOrCastCurrentCount(QUEST_FUEL_FOR_THE_FIRE, NPC_DRAKKARI_CHIEFTAINK);
+                        if ((count % 20) == 0)
+                            player->CastSpell(player, SPELL_SUMMON_DRAKKARI_CHIEFTAIN, true);
                     }
                 }
             }
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->ToCreature()->DespawnOrUnsummon(2 * IN_MILLISECONDS);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_q12690_burst_at_the_seams_SpellScript::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
-                OnEffectHitTarget += SpellEffectFn(spell_q12690_burst_at_the_seams_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_q12690_burst_at_the_seams_SpellScript();
         }
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->ToCreature()->DespawnOrUnsummon(2 * IN_MILLISECONDS);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q12690_burst_at_the_seams_52510::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
+        OnEffectHitTarget += SpellEffectFn(spell_q12690_burst_at_the_seams_52510::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 enum EscapeFromSilverbrook
@@ -2791,6 +2896,7 @@ public:
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
+    RegisterSpellScript(spell_q1846_bending_shinbone);
     new spell_q2203_thaumaturgy_channel();
     new spell_q5206_test_fetid_skull();
     new spell_q6124_6129_apply_salve();
@@ -2837,8 +2943,12 @@ void AddSC_quest_spell_scripts()
     new spell_q12847_summon_soul_moveto_bunny();
     new spell_q13011_bear_flank_master();
     new spell_q13086_cannons_target();
-    new spell_q13264_thats_abominable();
-    new spell_q12690_burst_at_the_seams();
+    RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576);
+    RegisterAuraScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579);
+    RegisterAuraScript(spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death);
+    RegisterSpellScript(spell_q13264_q13276_q13288_q13289_area_restrict_abom);
+    RegisterSpellScript(spell_q13264_q13276_q13288_q13289_assign_credit_to_master);
+    RegisterSpellScript(spell_q12690_burst_at_the_seams_52510);
     new spell_q12308_escape_from_silverbrook_summon_worgen();
     new spell_q12308_escape_from_silverbrook();
     new spell_q12641_death_comes_from_on_high();

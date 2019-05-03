@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -59,11 +59,11 @@ struct SpawnAssociation
 enum AirFoceBots
 {
     SPELL_GUARDS_MARK               = 38067,
-    AURA_DURATION_TIME_LEFT         = 5000
+    AURA_DURATION_TIME_LEFT         = 30000
 };
 
 float const RANGE_TRIPWIRE          = 15.0f;
-float const RANGE_GUARDS_MARK       = 50.0f;
+float const RANGE_GUARDS_MARK       = 100.0f;
 
 SpawnAssociation spawnAssociations[] =
 {
@@ -165,6 +165,13 @@ public:
             return nullptr;
         }
 
+        void UpdateAI(uint32 diff) override
+        {
+            ScriptedAI::UpdateAI(diff);
+
+            inLineOfSightSinceLastUpdate.clear();
+        }
+
         void MoveInLineOfSight(Unit* who) override
         {
             if (!SpawnAssoc)
@@ -188,6 +195,10 @@ public:
                 {
                     case SPAWNTYPE_ALARMBOT:
                     {
+                        // handle only 1 change for world update for each target
+                        if (!inLineOfSightSinceLastUpdate.insert(who->GetGUID()).second)
+                            return;
+
                         if (!who->IsWithinDistInMap(me, RANGE_GUARDS_MARK))
                             return;
 
@@ -239,6 +250,8 @@ public:
                 }
             }
         }
+
+        GuidSet inLineOfSightSinceLastUpdate;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -575,7 +588,7 @@ public:
                 if (GameObject* go = me->FindNearestGameObject(GO_RIBBON_POLE, 10.0f))
                     me->CastSpell(go, SPELL_RED_FIRE_RING, true);
 
-                events.ScheduleEvent(EVENT_CAST_BLUE_FIRE_RING, Seconds(5));
+                events.ScheduleEvent(EVENT_CAST_BLUE_FIRE_RING, 5s);
             }
             break;
             case EVENT_CAST_BLUE_FIRE_RING:
@@ -589,7 +602,7 @@ public:
                 if (GameObject* go = me->FindNearestGameObject(GO_RIBBON_POLE, 10.0f))
                     me->CastSpell(go, SPELL_BLUE_FIRE_RING, true);
 
-                events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, Seconds(5));
+                events.ScheduleEvent(EVENT_CAST_RED_FIRE_RING, 5s);
             }
             break;
             }
@@ -2447,7 +2460,7 @@ public:
             if (summoner->GetTypeId() == TYPEID_PLAYER)
             {
                 summonerGUID = summoner->GetGUID();
-                events.ScheduleEvent(EVENT_TALK, 3000);
+                events.ScheduleEvent(EVENT_TALK, 3s);
             }
         }
 

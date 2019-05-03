@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -672,7 +672,7 @@ struct npc_fizzlebang_toc : public ScriptedAI
     {
         me->SetReactState(REACT_PASSIVE);
         _events.Reset();
-        _events.ScheduleEvent(EVENT_START_MOVE, Seconds(1));
+        _events.ScheduleEvent(EVENT_START_MOVE, 1s);
     }
 
     void MovementInform(uint32 type, uint32 pointId) override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -223,7 +223,7 @@ class boss_erekem : public CreatureScript
                     task.Repeat(Seconds(8), Seconds(13));
                 });
 
-                scheduler.Schedule(Seconds(0), [this](TaskContext task)
+                scheduler.Schedule(0s, [this](TaskContext task)
                 {
                     for (uint32 i = DATA_EREKEM_GUARD_1; i <= DATA_EREKEM_GUARD_2; ++i)
                     {

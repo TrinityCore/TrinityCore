@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -190,7 +190,7 @@ enum ThrallOldHillsbrad
 #define GOSSIP_ITEM_SKARLOC1    "Taretha cannot see you, Thrall."
 #define GOSSIP_ITEM_SKARLOC2    "The situation is rather complicated, Thrall. It would be best for you to head into the mountains now, before more of Blackmoore's men show up. We'll make sure Taretha is safe."
 #define GOSSIP_ITEM_TARREN      "We're ready, Thrall."
-#define GOSSIP_ITEM_WALKING     "[PH] Start walking."
+#define GOSSIP_ITEM_WALKING     "We are ready to get you out of here, Thrall. Let's go!"
 
 class npc_thrall_old_hillsbrad : public CreatureScript
 {

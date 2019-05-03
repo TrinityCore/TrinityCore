@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -85,8 +85,8 @@ struct boss_supremus : public BossAI
     {
         _JustEngagedWith();
         ChangePhase();
-        events.ScheduleEvent(EVENT_BERSERK, Minutes(15));
-        events.ScheduleEvent(EVENT_FLAME, Seconds(20));
+        events.ScheduleEvent(EVENT_BERSERK, 15min);
+        events.ScheduleEvent(EVENT_FLAME, 20s);
     }
 
     void ChangePhase()
@@ -112,7 +112,7 @@ struct boss_supremus : public BossAI
         }
         ResetThreatList();
         DoZoneInCombat();
-        events.ScheduleEvent(EVENT_SWITCH_PHASE, Seconds(60));
+        events.ScheduleEvent(EVENT_SWITCH_PHASE, 1min);
     }
 
     Unit* CalculateHatefulStrikeTarget()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -368,7 +368,7 @@ public:
             if (quest->GetQuestId() == QUEST_A_CRY_FOR_HELP)
             {
                 _player = player->GetGUID();
-                _events.ScheduleEvent(EVENT_ACCEPT_QUEST, Seconds(2));
+                _events.ScheduleEvent(EVENT_ACCEPT_QUEST, 2s);
             }
         }
 
@@ -383,7 +383,7 @@ public:
                         break;
                     case 28:
                         player->GroupEventHappens(QUEST_A_CRY_FOR_HELP, me);
-                        _events.ScheduleEvent(EVENT_TALK_END, Seconds(2));
+                        _events.ScheduleEvent(EVENT_TALK_END, 2s);
                         SetRun(true);
                         break;
                     case 29:
@@ -407,12 +407,12 @@ public:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
                             Talk(SAY_START, player);
                         me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-                        _events.ScheduleEvent(EVENT_START_ESCORT, Seconds(1));
+                        _events.ScheduleEvent(EVENT_START_ESCORT, 1s);
                         break;
                     case EVENT_START_ESCORT:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
                             EscortAI::Start(true, false, player->GetGUID());
-                        _events.ScheduleEvent(EVENT_STAND, Seconds(2));
+                        _events.ScheduleEvent(EVENT_STAND, 2s);
                         break;
                     case EVENT_STAND: // Remove kneel standstate. Using a separate delayed event because it causes unwanted delay before starting waypoint movement.
                         me->SetByteValue(UNIT_FIELD_BYTES_1, 0, 0);
@@ -420,7 +420,7 @@ public:
                     case EVENT_TALK_END:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
                             Talk(SAY_END1, player);
-                        _events.ScheduleEvent(EVENT_COWLEN_TALK, Seconds(2));
+                        _events.ScheduleEvent(EVENT_COWLEN_TALK, 2s);
                         break;
                     case EVENT_COWLEN_TALK:
                         if (Creature* cowlen = me->FindNearestCreature(NPC_COWLEN, 50.0f, true))
@@ -565,7 +565,9 @@ public:
                     Spark->DisappearAndDie();
                     DespawnNagaFlag(false);
                     me->DisappearAndDie();
-                default: return 99999999;
+                    /* fallthrough */
+                default:
+                    return 99999999;
             }
         }
 

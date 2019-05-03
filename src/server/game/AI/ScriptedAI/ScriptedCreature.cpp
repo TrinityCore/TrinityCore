@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -48,16 +48,16 @@ void SummonList::Despawn(Creature const* summon)
     storage_.remove(summon->GetGUID());
 }
 
-void SummonList::DoZoneInCombat(uint32 entry, float maxRangeToNearestTarget)
+void SummonList::DoZoneInCombat(uint32 entry)
 {
     for (StorageType::iterator i = storage_.begin(); i != storage_.end();)
     {
         Creature* summon = ObjectAccessor::GetCreature(*me, *i);
         ++i;
-        if (summon && summon->IsAIEnabled
+        if (summon && summon->IsAIEnabled()
                 && (!entry || summon->GetEntry() == entry))
         {
-            summon->AI()->DoZoneInCombat(nullptr, maxRangeToNearestTarget);
+            summon->AI()->DoZoneInCombat(nullptr);
         }
     }
 }
@@ -118,7 +118,7 @@ void SummonList::DoActionImpl(int32 action, StorageType const& summons)
     for (auto const& guid : summons)
     {
         Creature* summon = ObjectAccessor::GetCreature(*me, guid);
-        if (summon && summon->IsAIEnabled)
+        if (summon && summon->IsAIEnabled())
             summon->AI()->DoAction(action);
     }
 }
@@ -310,7 +310,7 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
             continue;
 
         //Continue if we don't have the mana to actually cast this spell
-        if (tempSpell->ManaCost > me->GetPower(Powers(tempSpell->PowerType)))
+        if (tempSpell->ManaCost > me->GetPower(tempSpell->PowerType))
             continue;
 
         //Check if the spell meets our range requirements

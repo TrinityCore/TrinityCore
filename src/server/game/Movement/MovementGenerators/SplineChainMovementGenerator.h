@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 
 #include "SplineChain.h"
 #include "MovementGenerator.h"
+#include "Optional.h"
 #include <vector>
 
 class Unit;
@@ -38,7 +39,7 @@ class TC_GAME_API SplineChainMovementGenerator : public MovementGenerator
         MovementGeneratorType GetMovementGeneratorType() const override;
 
         // Builds info that can later be used to resume this spline chain movement at the current position
-        static void GetResumeInfo(Unit const* owner, uint32 id, SplineChainResumeInfo& info);
+        static void GetResumeInfo(SplineChainResumeInfo& info, Unit const* owner, Optional<uint32> id = {});
         // Leaving the object method public for people that know what they're doing to use
         // But really, 99% of the time you should be using the static one instead
         SplineChainResumeInfo GetResumeInfo(Unit const* owner) const;

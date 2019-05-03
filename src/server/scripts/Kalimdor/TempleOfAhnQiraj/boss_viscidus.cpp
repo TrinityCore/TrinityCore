@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -164,7 +164,7 @@ class boss_viscidus : public CreatureScript
                         _phase = PHASE_MELEE;
                         DoCast(me, SPELL_VISCIDUS_FREEZE);
                         me->RemoveAura(SPELL_VISCIDUS_SLOWED_MORE);
-                        events.ScheduleEvent(EVENT_RESET_PHASE, 15000);
+                        events.ScheduleEvent(EVENT_RESET_PHASE, 15s);
                     }
                     else if (_hitcounter >= HITCOUNTER_SLOW_MORE)
                     {
@@ -190,8 +190,8 @@ class boss_viscidus : public CreatureScript
             void InitSpells()
             {
                 DoCast(me, SPELL_TOXIN);
-                events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, urand(10000, 15000));
-                events.ScheduleEvent(EVENT_POISON_SHOCK, urand(7000, 12000));
+                events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, 10s, 15s);
+                events.ScheduleEvent(EVENT_POISON_SHOCK, 7s, 12s);
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -204,6 +204,7 @@ class boss_viscidus : public CreatureScript
             {
                 DoCast(me, SPELL_VISCIDUS_SUICIDE);
                 summons.DespawnAll();
+                _JustDied();
             }
 
             void UpdateAI(uint32 diff) override
@@ -233,11 +234,11 @@ class boss_viscidus : public CreatureScript
                     {
                         case EVENT_POISONBOLT_VOLLEY:
                             DoCast(me, SPELL_POISONBOLT_VOLLEY);
-                            events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, urand(10000, 15000));
+                            events.ScheduleEvent(EVENT_POISONBOLT_VOLLEY, 10s, 15s);
                             break;
                         case EVENT_POISON_SHOCK:
                             DoCast(me, SPELL_POISON_SHOCK);
-                            events.ScheduleEvent(EVENT_POISON_SHOCK, urand(7000, 12000));
+                            events.ScheduleEvent(EVENT_POISON_SHOCK, 7s, 12s);
                             break;
                         case EVENT_RESET_PHASE:
                             _hitcounter = 0;
@@ -274,9 +275,9 @@ class npc_glob_of_viscidus : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                InstanceScript* Instance = me->GetInstanceScript();
+                InstanceScript* instance = me->GetInstanceScript();
 
-                if (Creature* Viscidus = ObjectAccessor::GetCreature(*me, Instance->GetGuidData(DATA_VISCIDUS)))
+                if (Creature* Viscidus = instance->GetCreature(DATA_VISCIDUS))
                 {
                     if (BossAI* ViscidusAI = dynamic_cast<BossAI*>(Viscidus->GetAI()))
                         ViscidusAI->SummonedCreatureDespawn(me);

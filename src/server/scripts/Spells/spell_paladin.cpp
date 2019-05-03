@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -311,11 +311,11 @@ class spell_pal_avenging_wrath : public SpellScriptLoader
             void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1, EFFECT_2))
+                if (AuraEffect const* sanctifiedWrathAurEff = target->GetAuraEffectOfRankedSpell(SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1, EFFECT_2))
                 {
-                    CastSpellExtraArgs args(aurEff);
-                    args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount())
-                        .AddSpellMod(SPELLVALUE_BASE_POINT1, aurEff->GetAmount());
+                    CastSpellExtraArgs args(sanctifiedWrathAurEff);
+                    args.AddSpellMod(SPELLVALUE_BASE_POINT0, sanctifiedWrathAurEff->GetAmount())
+                        .AddSpellMod(SPELLVALUE_BASE_POINT1, sanctifiedWrathAurEff->GetAmount());
                     target->CastSpell(target, SPELL_PALADIN_SANCTIFIED_WRATH, args);
                 }
 
@@ -792,6 +792,7 @@ class spell_pal_glyph_of_holy_light : public SpellScriptLoader
             {
                 uint32 const maxTargets = GetSpellInfo()->MaxAffectedTargets;
 
+                targets.remove(GetCaster());
                 if (targets.size() > maxTargets)
                 {
                     targets.sort(Trinity::HealthPctOrderPred());
@@ -833,8 +834,15 @@ class spell_pal_glyph_of_holy_light_dummy : public SpellScriptLoader
                 if (!healInfo || !healInfo->GetHeal())
                     return;
 
+                uint32 basePoints = healInfo->GetSpellInfo()->Effects[EFFECT_0].BasePoints + healInfo->GetSpellInfo()->Effects[EFFECT_0].DieSides;
+                uint32 healAmount;
+                if (healInfo->GetEffectiveHeal() >= basePoints)
+                    healAmount = healInfo->GetEffectiveHeal();
+                else
+                    healAmount = healInfo->GetHeal();
+
                 CastSpellExtraArgs args(aurEff);
-                args.AddSpellBP0(CalculatePct(healInfo->GetHeal(), aurEff->GetAmount()));
+                args.AddSpellBP0(CalculatePct(healAmount, aurEff->GetAmount()));
                 eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_GLYPH_OF_HOLY_LIGHT_HEAL, args);
             }
 

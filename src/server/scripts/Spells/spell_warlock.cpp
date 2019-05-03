@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,6 +35,7 @@
 
 enum WarlockSpells
 {
+    SPELL_WARLOCK_CREATE_SOULSHARD                  = 43836,
     SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT              = 18662,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
@@ -46,6 +47,8 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP           = 54444,
     SPELL_WARLOCK_DEMONIC_PACT_PROC                 = 48090,
     SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
+    SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_AURA          = 58070,
+    SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_PROC          = 58068,
     SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME              = 63311,
     SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE              = 56216,
     SPELL_WARLOCK_HAUNT                             = 48181,
@@ -90,6 +93,48 @@ enum WarlockSpellIcons
     WARLOCK_ICON_ID_IMPROVED_LIFE_TAP               = 208,
     WARLOCK_ICON_ID_MANA_FEED                       = 1982,
     WARLOCK_ICON_ID_DEMONIC_PACT                    = 3220
+};
+
+// -980 Curse of Agony
+class spell_warl_curse_of_agony : public AuraScript
+{
+    PrepareAuraScript(spell_warl_curse_of_agony);
+
+    void ApplyEffect(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        _tick_amount = aurEff->GetAmount();
+    }
+
+    void HandleEffectPeriodicUpdate(AuraEffect * aurEff)
+    {
+        switch (aurEff->GetTickNumber())
+        {
+            // 1..4 ticks, 1/2 from normal tick damage
+            case 1:
+                aurEff->SetAmount(_tick_amount / 2);
+                break;
+            // 5..8 ticks have normal tick damage
+            case 5:
+                aurEff->SetAmount(_tick_amount);
+                break;
+            // 9..12 ticks, 3/2 from normal tick damage
+            case 9:
+                aurEff->SetAmount((_tick_amount + 1) * 3 / 2); // +1 prevent 0.5 damage possible lost at 1..4 ticks
+                break;
+            // 13 and 14 ticks (glyphed only), twice normal tick damage
+            case 13:
+                aurEff->SetAmount(_tick_amount * 2);
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_warl_curse_of_agony::ApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_curse_of_agony::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+private:
+    uint32 _tick_amount = 0;
 };
 
 // -710 - Banish
@@ -475,7 +520,10 @@ class spell_warl_drain_soul : public SpellScriptLoader
                 return ValidateSpellInfo(
                 {
                     SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_R1,
-                    SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC
+                    SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC,
+                    SPELL_WARLOCK_CREATE_SOULSHARD,
+                    SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_AURA,
+                    SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_PROC
                 });
             }
 
@@ -495,8 +543,26 @@ class spell_warl_drain_soul : public SpellScriptLoader
                 caster->CastSpell(nullptr, SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC, args);
             }
 
+            void HandleTick(AuraEffect const* aurEff)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetTarget();
+                if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
+                {
+                    if (roll_chance_i(20))
+                    {
+                        caster->CastSpell(caster, SPELL_WARLOCK_CREATE_SOULSHARD, aurEff);
+                        // Glyph of Drain Soul - chance to create an additional Soul Shard
+                        if (AuraEffect* aur = caster->GetAuraEffect(SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_AURA, EFFECT_0))
+                            if (roll_chance_i(aur->GetMiscValue()))
+                                caster->CastSpell(caster, SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_PROC, aur);
+                    }
+                }
+            }
+
             void Register() override
             {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_soul_AuraScript::HandleTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectProc += AuraEffectProcFn(spell_warl_drain_soul_AuraScript::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
@@ -707,7 +773,7 @@ class spell_warl_haunt : public SpellScriptLoader
             {
                 if (Aura* aura = GetHitAura())
                     if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
-                        aurEff->SetAmount(CalculatePct(aurEff->GetAmount(), GetHitDamage()));
+                        aurEff->SetAmount(CalculatePct(GetHitDamage(), aurEff->GetAmount()));
             }
 
             void Register() override
@@ -818,41 +884,41 @@ class spell_warl_life_tap : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Player* caster = GetCaster()->ToPlayer();
-                if (Unit* target = GetHitUnit())
+                Unit* caster = GetCaster();
+                int32 base = GetEffectValue();
+
+                float penalty = caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
+                float fmana = (float)base + caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) * 0.5f * penalty;
+
+                // Improved Life Tap mod
+                if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))
+                    AddPct(fmana, aurEff->GetAmount());
+                int32 mana = round(fmana);
+
+                // Shouldn't Appear in Combat Log
+                caster->ModifyHealth(-base);
+
+                CastSpellExtraArgs args;
+                args.AddSpellBP0(mana);
+                caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, args);
+
+                // Mana Feed
+                int32 manaFeedVal = 0;
+                if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_MANA_FEED, 0))
+                    manaFeedVal = aurEff->GetAmount();
+
+                if (manaFeedVal > 0)
                 {
-                    int32 damage = GetEffectValue();
-                    int32 mana = int32(damage + (caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+SPELL_SCHOOL_SHADOW) * 0.5f));
-
-                    // Shouldn't Appear in Combat Log
-                    target->ModifyHealth(-damage);
-
-                    // Improved Life Tap mod
-                    if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))
-                        AddPct(mana, aurEff->GetAmount());
-
-                    CastSpellExtraArgs args;
-                    args.AddSpellBP0(mana);
-                    caster->CastSpell(target, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, args);
-
-                    // Mana Feed
-                    int32 manaFeedVal = 0;
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_MANA_FEED, 0))
-                        manaFeedVal = aurEff->GetAmount();
-
-                    if (manaFeedVal > 0)
-                    {
-                        ApplyPct(manaFeedVal, mana);
-                        CastSpellExtraArgs manaFeedArgs(TRIGGERED_FULL_MASK);
-                        manaFeedArgs.AddSpellBP0(manaFeedVal);
-                        caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, manaFeedArgs);
-                    }
+                    ApplyPct(manaFeedVal, mana);
+                    CastSpellExtraArgs manaFeedArgs(TRIGGERED_FULL_MASK);
+                    manaFeedArgs.AddSpellBP0(manaFeedVal);
+                    caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, manaFeedArgs);
                 }
             }
 
             SpellCastResult CheckCast()
             {
-                if ((int32(GetCaster()->GetHealth()) > int32(GetSpellInfo()->Effects[EFFECT_0].CalcValue() + (6.3875 * GetSpellInfo()->BaseLevel))))
+                if (int32(GetCaster()->GetHealth()) > int32(GetSpellInfo()->Effects[EFFECT_0].CalcValue()))
                     return SPELL_CAST_OK;
                 return SPELL_FAILED_FIZZLE;
             }
@@ -988,9 +1054,10 @@ class spell_warl_demonic_pact : public SpellScriptLoader
                 {
                     if (AuraEffect* aurEff = owner->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_DEMONIC_PACT, EFFECT_0))
                     {
-                        int32 bp0 = static_cast<int32>((aurEff->GetAmount() * owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) + 100.0f) / 100.0f);
+                        int32 bp = static_cast<int32>((aurEff->GetAmount() * owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) + 100.0f) / 100.0f);
                         CastSpellExtraArgs args(aurEff);
-                        args.AddSpellBP0(bp0);
+                        args.AddSpellBP0(bp);
+                        args.AddSpellMod(SPELLVALUE_BASE_POINT1, bp);
                         owner->CastSpell(nullptr, SPELL_WARLOCK_DEMONIC_PACT_PROC, args);
                     }
                 }
@@ -1504,6 +1571,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    RegisterAuraScript(spell_warl_curse_of_agony);
     new spell_warl_banish();
     new spell_warl_create_healthstone();
     new spell_warl_curse_of_doom();

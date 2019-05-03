@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -58,16 +58,15 @@ enum Events
 class BlackheartCharmedPlayerAI : public SimpleCharmedPlayerAI
 {
     using SimpleCharmedPlayerAI::SimpleCharmedPlayerAI;
-    void OnCharmed(bool apply) override
+    void OnCharmed(bool isNew) override
     {
-        SimpleCharmedPlayerAI::OnCharmed(apply);
-        if (!me->GetMap()->IsDungeon())
-            return;
-        if (Creature* blackheart = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_BLACKHEART_THE_INCITER)))
-        {
-            blackheart->AI()->SetData(0, apply);
-            blackheart->GetThreatManager().AddThreat(me, 0.0f);
-        }
+        if (me->GetMap()->IsDungeon())
+            if (Creature* blackheart = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_BLACKHEART_THE_INCITER)))
+            {
+                blackheart->AI()->SetData(0, me->IsCharmed());
+                blackheart->GetThreatManager().AddThreat(me, 0.0f);
+            }
+        SimpleCharmedPlayerAI::OnCharmed(isNew);
     }
 };
 
@@ -84,8 +83,8 @@ struct boss_blackheart_the_inciter : public BossAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         _JustEngagedWith();
-        events.ScheduleEvent(EVENT_INCITE_CHAOS, 20000);
-        events.ScheduleEvent(EVENT_CHARGE_ATTACK, 5000);
+        events.ScheduleEvent(EVENT_INCITE_CHAOS, 20s);
+        events.ScheduleEvent(EVENT_CHARGE_ATTACK, 5s);
         events.ScheduleEvent(EVENT_WAR_STOMP, 15000);
 
         Talk(SAY_AGGRO);
@@ -140,17 +139,17 @@ struct boss_blackheart_the_inciter : public BossAI
                         ResetThreatList();
                         DoCast(me, SPELL_INCITE_CHAOS);
                     }
-                    events.ScheduleEvent(EVENT_INCITE_CHAOS, 40000);
+                    events.ScheduleEvent(EVENT_INCITE_CHAOS, 40s);
                     break;
                 }
                 case EVENT_CHARGE_ATTACK:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_CHARGE);
-                    events.ScheduleEvent(EVENT_CHARGE, urand(15000, 25000));
+                    events.ScheduleEvent(EVENT_CHARGE, 15s, 25s);
                     break;
                 case EVENT_WAR_STOMP:
                     DoCast(me, SPELL_WAR_STOMP);
-                    events.ScheduleEvent(EVENT_WAR_STOMP, urand(18000, 24000));
+                    events.ScheduleEvent(EVENT_WAR_STOMP, 18s, 24s);
                     break;
             }
 

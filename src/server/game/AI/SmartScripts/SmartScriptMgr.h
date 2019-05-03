@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -532,7 +532,7 @@ enum SMART_ACTION
     SMART_ACTION_ADD_NPC_FLAG                       = 82,     // Flags
     SMART_ACTION_REMOVE_NPC_FLAG                    = 83,     // Flags
     SMART_ACTION_SIMPLE_TALK                        = 84,     // groupID, can be used to make players say groupID, Text_over event is not triggered, whisper can not be used (Target units will say the text)
-    SMART_ACTION_INVOKER_CAST                       = 85,     // spellID, castFlags,   if avaliable, last used invoker will cast spellId with castFlags on targets
+    SMART_ACTION_SELF_CAST                          = 85,     // spellID, castFlags
     SMART_ACTION_CROSS_CAST                         = 86,     // spellID, castFlags, CasterTargetType, CasterTarget param1, CasterTarget param2, CasterTarget param3, ( + the origonal target fields as Destination target),   CasterTargets will cast spellID on all Targets (use with caution if targeting multiple * multiple units)
     SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST       = 87,     // script9 ids 1-9
     SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST = 88,     // script9 id min, max
@@ -581,8 +581,10 @@ enum SMART_ACTION
     SMART_ACTION_SPAWN_SPAWNGROUP                   = 131,    // Group ID, min secs, max secs, spawnflags
     SMART_ACTION_DESPAWN_SPAWNGROUP                 = 132,    // Group ID, min secs, max secs, spawnflags
     SMART_ACTION_RESPAWN_BY_SPAWNID                 = 133,    // spawnType, spawnId
+    SMART_ACTION_INVOKER_CAST                       = 134,    // spellID, castFlags
+    SMART_ACTION_PLAY_CINEMATIC                     = 135,    // entry, cinematic
 
-    SMART_ACTION_END                                = 134
+    SMART_ACTION_END                                = 136
 };
 
 struct SmartAction
@@ -1132,6 +1134,11 @@ struct SmartAction
             uint32 spawnId;
         } respawnData;
 
+        struct
+        {
+            uint32 entry;
+        } cinematic;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1204,12 +1211,13 @@ enum SMARTAI_TARGETS
 
 struct SmartTarget
 {
-    SmartTarget (SMARTAI_TARGETS t = SMART_TARGET_NONE, uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0)
+    SmartTarget (SMARTAI_TARGETS t = SMART_TARGET_NONE, uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0, uint32 p4 = 0)
     {
         type = t;
         raw.param1 = p1;
         raw.param2 = p2;
         raw.param3 = p3;
+        raw.param4 = p4;
         x = 0.0f;
         y = 0.0f;
         z = 0.0f;
@@ -1238,6 +1246,7 @@ struct SmartTarget
             uint32 creature;
             uint32 minDist;
             uint32 maxDist;
+            uint32 maxSize;
         } unitRange;
 
         struct
@@ -1250,6 +1259,7 @@ struct SmartTarget
         {
             uint32 creature;
             uint32 dist;
+            uint32 maxSize;
         } unitDistance;
 
         struct
@@ -1273,6 +1283,7 @@ struct SmartTarget
             uint32 entry;
             uint32 minDist;
             uint32 maxDist;
+            uint32 maxSize;
         } goRange;
 
         struct
@@ -1285,6 +1296,7 @@ struct SmartTarget
         {
             uint32 entry;
             uint32 dist;
+            uint32 maxSize;
         } goDistance;
 
         struct
@@ -1321,6 +1333,7 @@ struct SmartTarget
             uint32 param1;
             uint32 param2;
             uint32 param3;
+            uint32 param4;
         } raw;
 
         struct

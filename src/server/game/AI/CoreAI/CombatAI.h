@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -103,7 +103,7 @@ struct TC_GAME_API VehicleAI : public CreatureAI
         void UpdateAI(uint32 diff) override;
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit*) override { }
-        void OnCharmed(bool apply) override;
+        void OnCharmed(bool isNew) override;
 
         static int32 Permissible(Creature const* creature);
 
