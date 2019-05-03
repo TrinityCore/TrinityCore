@@ -198,40 +198,40 @@ class boss_marli : public CreatureScript
                         }
                         case EVENT_CHARGE_PLAYER:
                         {
-                                Unit* target = nullptr;
-                                int i = 0;
-                                while (i++ < 3) // max 3 tries to get a random target with power_mana
-                                {
-                                    target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);  // not aggro leader
-                                    if (target && target->GetPowerType() == POWER_MANA)
-                                        break;
-                                }
-                                if (target)
-                                {
-                                    DoCast(target, SPELL_CHARGE);
-                                    AttackStart(target);
-                                }
-                                events.ScheduleEvent(EVENT_CHARGE_PLAYER, 8s, 0, PHASE_THREE);
-                                break;
+                            Unit* target = nullptr;
+                            int i = 0;
+                            while (i++ < 3) // max 3 tries to get a random target with power_mana
+                            {
+                                target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);  // not aggro leader
+                                if (target && target->GetPowerType() == POWER_MANA)
+                                    break;
                             }
+                            if (target)
+                            {
+                                DoCast(target, SPELL_CHARGE);
+                                AttackStart(target);
+                            }
+                            events.ScheduleEvent(EVENT_CHARGE_PLAYER, 8s, 0, PHASE_THREE);
+                            break;
+                        }
                         case EVENT_TRANSFORM_BACK:
                         {
-                                me->RemoveAura(SPELL_SPIDER_FORM);
-                                /*
-                                CreatureTemplate const* cinfo = me->GetCreatureTemplate();
-                                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 1)));
-                                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 1)));
-                                me->UpdateDamagePhysical(BASE_ATTACK);
-                                */
-                                me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
-                                events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s, 0, PHASE_TWO);
-                                events.ScheduleEvent(EVENT_TRANSFORM, 45s, 0, PHASE_TWO);
-                                events.ScheduleEvent(EVENT_POISON_VOLLEY, 15s);
-                                events.ScheduleEvent(EVENT_HATCH_SPIDER_EGG, 12s, 17s);
-                                events.ScheduleEvent(EVENT_TRANSFORM, urand(35000, 60000), 0, PHASE_TWO);
-                                events.SetPhase(PHASE_TWO);
-                                break;
-                            }
+                            me->RemoveAura(SPELL_SPIDER_FORM);
+                            /*
+                            CreatureTemplate const* cinfo = me->GetCreatureTemplate();
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 1)));
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 1)));
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                            */
+                            me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
+                            events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_TRANSFORM, 45s, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_POISON_VOLLEY, 15s);
+                            events.ScheduleEvent(EVENT_HATCH_SPIDER_EGG, 12s, 17s);
+                            events.ScheduleEvent(EVENT_TRANSFORM, urand(35000, 60000), 0, PHASE_TWO);
+                            events.SetPhase(PHASE_TWO);
+                            break;
+                        }
                         default:
                             break;
                     }
