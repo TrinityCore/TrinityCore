@@ -59,6 +59,7 @@ enum DruidSpells
     SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R2     = 81283,
     SPELL_DRUID_FUROR_ENERGIZE_RAGE         = 17057,
     SPELL_DRUID_FUROR_ENERGIZE_ENERGY       = 17099,
+    SPELL_DRUID_EMPOWERED_TOUCH_SCRIPT      = 88433,
     SPELL_DRUID_FURY_OF_STORMRAGE           = 81093,
     SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
     SPELL_DRUID_GLYPH_OF_STARFIRE           = 54846,
@@ -73,6 +74,7 @@ enum DruidSpells
     SPELL_DRUID_KING_OF_THE_JUNGLE          = 48492,
     SPELL_DRUID_LEADER_OF_THE_PACK_HEAL     = 34299,
     SPELL_DRUID_LEADER_OF_THE_PACK_ENERGIZE = 68285,
+    SPELL_DRUID_LIFEBLOOM                   = 33763,
     SPELL_DRUID_LIFEBLOOM_ENERGIZE          = 64372,
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
     SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
@@ -1621,6 +1623,58 @@ class spell_dru_ferocious_bite : public SpellScript
     }
 };
 
+// -33879 - Empowered Touch
+class spell_dru_empowered_touch : public AuraScript
+{
+    PrepareAuraScript(spell_dru_empowered_touch);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_EMPOWERED_TOUCH_SCRIPT });
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return roll_chance_i(GetEffect(EFFECT_1)->GetAmount());
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
+        target->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_EMPOWERED_TOUCH_SCRIPT, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dru_empowered_touch::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_dru_empowered_touch::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+};
+
+// 88433 - Empowered Touch
+class spell_dru_empowered_touch_script : public SpellScript
+{
+    PrepareSpellScript(spell_dru_empowered_touch_script);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_LIFEBLOOM });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Aura* aura = GetHitUnit()->GetAura(SPELL_DRUID_LIFEBLOOM, caster->GetGUID()))
+                aura->RefreshDuration();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_empowered_touch_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterAuraScript(spell_dru_berserk);
@@ -1631,6 +1685,8 @@ void AddSC_druid_spell_scripts()
     RegisterAuraScript(spell_dru_effloresence);
     RegisterAuraScript(spell_dru_effloresence_aoe);
     RegisterSpellScript(spell_dru_effloresence_heal);
+    RegisterAuraScript(spell_dru_empowered_touch);
+    RegisterSpellScript(spell_dru_empowered_touch_script);
     RegisterAuraScript(spell_dru_enrage);
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterAuraScript(spell_dru_furor);
