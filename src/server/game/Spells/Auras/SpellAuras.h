@@ -282,7 +282,7 @@ class TC_GAME_API Aura
         int32 m_maxDuration;                                // Max aura duration
         int32 m_duration;                                   // Current time
         int32 m_timeCla;                                    // Timer for power per sec calcultion
-        int32 m_heartBeatTimer;                             // Heartbeat resistance timer
+        int32 m_heartBeatTimer;                             // Heartbeat timer
         int32 m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect
 
         CasterInfo _casterInfo;
