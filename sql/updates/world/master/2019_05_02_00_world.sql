@@ -1,0 +1,1 @@
+UPDATE `playercreateinfo` SET `orientation`= 0 WHERE `race`= 2 AND `class` IN (1,3,4,7,9,8,10);
