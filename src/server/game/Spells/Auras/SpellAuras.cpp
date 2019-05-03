@@ -420,7 +420,7 @@ Aura* Aura::Create(AuraCreateInfo& createInfo)
 Aura::Aura(AuraCreateInfo const& createInfo) :
 m_spellInfo(createInfo._spellInfo), m_casterGuid(createInfo.CasterGUID),
 m_castItemGuid(createInfo.CastItemGUID), m_applyTime(GameTime::GetGameTime()),
-m_owner(createInfo._owner), m_timeCla(0), m_heartBeatTimer(0), m_updateTargetMapInterval(0),
+m_owner(createInfo._owner), m_timeCla(0), m_heartBeatResistTimer(0), m_updateTargetMapInterval(0),
 _casterInfo(), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_dropEvent(nullptr),
 m_procCooldown(std::chrono::steady_clock::time_point::min())
@@ -431,7 +431,7 @@ m_procCooldown(std::chrono::steady_clock::time_point::min())
     m_maxDuration = CalcMaxDuration(createInfo.Caster);
     m_duration = m_maxDuration;  
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
-        m_heartBeatTimer = m_maxDuration / 4;
+        m_heartBeatResistTimer = CalculatePct(m_maxDuration, 25);
     
     m_procCharges = CalcMaxCharges(createInfo.Caster);
     m_isUsingCharges = m_procCharges != 0;
@@ -855,15 +855,15 @@ void Aura::Update(uint32 diff, Unit* caster)
         }
     }
     
-    if (m_heartBeatTimer)
+    if (m_heartBeatResistTimer)
     {
-        if (m_heartBeatTimer < int32(diff))
+        if (m_heartBeatResistTimer < int32(diff))
         {     
-            m_heartBeatTimer += m_maxDuration / 4 - diff;
+            m_heartBeatResistTimer += CalculatePct(m_maxDuration, 25) - diff;
             
-            if (caster)
+            if (caster && caster->GetTypeId() == TYPEID_PLAYER)
             {
-                if (GetUnitOwner()->GetTypeId() == TYPEID_UNIT && caster->GetTypeId() == TYPEID_PLAYER)
+                if (GetUnitOwner()->GetTypeId() == TYPEID_UNIT)
                 {      
                     uint32 resistance = GetUnitOwner()->GetResistance(GetFirstSchoolInMask(m_spellInfo->GetSchoolMask()));
                     uint32 breakPct = (5 + ((resistance / powf(GetUnitOwner()->getLevel(), 1.441f) * 0.10f) * 100));
@@ -877,7 +877,7 @@ void Aura::Update(uint32 diff, Unit* caster)
             }
         }
         else
-            m_heartBeatTimer -= diff;
+            m_heartBeatResistTimer -= diff;
     }
 }
 
