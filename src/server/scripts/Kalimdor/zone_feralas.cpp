@@ -149,10 +149,10 @@ public:
 ## spell_gordunni_trap
 ######*/
 
-enum GordunniTrap
+enum GordunniTrapSpells
 {
-    GO_GORDUNNI_DIRT_MOUND_1 = 144064,
-    GO_GORDUNNI_DIRT_MOUND_2 = 177681
+    SPELL_GORDUNNI_DIRT_MOUND_CHEST = 11756,
+    SPELL_GORDUNNI_DIRT_MOUND_JUNK = 19394
 };
 
 class spell_gordunni_trap : public SpellScriptLoader
@@ -167,8 +167,7 @@ class spell_gordunni_trap : public SpellScriptLoader
             void HandleDummy()
             {
                 GameObject* caster = GetGObjCaster();
-                if (GameObject* chest = caster->SummonGameObject(urand(0, 1) ? GO_GORDUNNI_DIRT_MOUND_1 : GO_GORDUNNI_DIRT_MOUND_2, *caster, QuaternionData(), 0))
-                    chest->SetSpellId(GetSpellInfo()->Id);
+                caster->CastSpell(caster, urand(0, 1) ? SPELL_GORDUNNI_DIRT_MOUND_CHEST : SPELL_GORDUNNI_DIRT_MOUND_JUNK);
             }
 
             void Register() override
