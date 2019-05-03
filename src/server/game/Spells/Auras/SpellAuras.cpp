@@ -875,7 +875,7 @@ void Aura::Update(uint32 diff, Unit* caster)
                     if (roll_chance_i(breakPct))
                     {
                         Remove();
-                        TC_LOG_DEBUG("spells", "Aura::HeartbeatResistance: Breaking creature aura %u. Seconds passed %u with chance %u.", m_spellInfo->Id, m_heartBeatTimer, breakPct);
+                        TC_LOG_DEBUG("spells", "Aura::HeartbeatResistance: Breaking creature aura %u. Seconds passed %u with chance %u.", m_spellInfo->Id, m_heartBeatResistTimer, breakPct);
                     }
                 }
             }
