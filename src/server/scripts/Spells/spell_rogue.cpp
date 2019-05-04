@@ -55,6 +55,7 @@ enum RogueSpells
     SPELL_ROGUE_OVERKILL_PERIODIC                   = 58428,
     SPELL_ROGUE_OVERKILL_POWER_REGEN                = 58427,
     SPELL_ROGUE_PREY_ON_THE_WEAK                    = 58670,
+    SPELL_ROGUE_REVEALING_STRIKE                    = 84617,
     SPELL_ROGUE_SHIV_TRIGGERED                      = 5940,
     SPELL_ROGUE_SILCE_AND_DICE                      = 5171,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST       = 57933,
@@ -691,6 +692,11 @@ class spell_rog_rupture : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_rupture_AuraScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_ROGUE_REVEALING_STRIKE });
+            }
+
             bool Load() override
             {
                 Unit* caster = GetCaster();
@@ -714,11 +720,14 @@ class spell_rog_rupture : public SpellScriptLoader
                         0.0375f         // 5 points: ${($m1 + $b1*5 + 0.0375 * $AP) * 5} damage over 16 secs
                     };
 
-                    uint8 cp = caster->ToPlayer()->GetComboPoints();
-                    if (cp > 5)
-                        cp = 5;
-
+                    uint8 cp = std::min(caster->ToPlayer()->GetComboPoints(), uint8(5));
                     amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * attackpowerPerCombo[cp]);
+
+                    if (AuraEffect* const revealingStrike = GetUnitOwner()->GetAuraEffect(SPELL_ROGUE_REVEALING_STRIKE, EFFECT_2, caster->GetGUID()))
+                    {
+                        amount += CalculatePct(amount, revealingStrike->GetAmount());
+                        revealingStrike->GetBase()->Remove();
+                    }
                 }
             }
 
@@ -1130,7 +1139,11 @@ class spell_rog_eviscerate : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_ROGUE_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE });
+        return ValidateSpellInfo(
+            {
+                SPELL_ROGUE_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE,
+                SPELL_ROGUE_REVEALING_STRIKE
+            });
     }
 
     bool Load() override
@@ -1147,7 +1160,8 @@ class spell_rog_eviscerate : public SpellScript
     void ChangeDamage(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        if (!caster)
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
             return;
 
         if (Player* player = caster->ToPlayer())
@@ -1159,6 +1173,12 @@ class spell_rog_eviscerate : public SpellScript
             if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_ROGUE_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE, EFFECT_0))
                 damage += player->GetComboPoints() * aurEff->GetAmount();
 
+            if (AuraEffect* const revealingStrike = target->GetAuraEffect(SPELL_ROGUE_REVEALING_STRIKE, EFFECT_2, caster->GetGUID()))
+            {
+                damage += CalculatePct(damage, revealingStrike->GetAmount());
+                revealingStrike->GetBase()->Remove();
+            }
+
             SetEffectValue(damage);
         }
     }
@@ -1169,6 +1189,93 @@ class spell_rog_eviscerate : public SpellScript
     }
 };
 
+// 32645 - Envenom
+class spell_rog_envenom : public SpellScript
+{
+    PrepareSpellScript(spell_rog_envenom);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_REVEALING_STRIKE });
+    }
+
+    bool Load() override
+    {
+        if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+            return false;
+
+        if (GetCaster()->ToPlayer()->getClass() != CLASS_ROGUE)
+            return false;
+
+        return true;
+    }
+
+    void ChangeDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        int32 damage = GetEffectValue();
+        if (Player* player = caster->ToPlayer())
+        {
+            // consume from stack dozes not more that have combo-points
+            if (uint32 combo = player->GetComboPoints())
+            {
+                // Lookup for Deadly poison (only attacker applied)
+                if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00010000, 0, 0, caster->GetGUID()))
+                {
+                    // count consumed deadly poison doses at target
+                    bool needConsume = true;
+                    uint32 spellId = aurEff->GetId();
+
+                    uint32 doses = aurEff->GetBase()->GetStackAmount();
+                    if (doses > combo)
+                        doses = combo;
+
+                    // Master Poisoner
+                    Unit::AuraEffectList const& auraList = player->GetAuraEffectsByType(SPELL_AURA_MOD_AURA_DURATION_BY_DISPEL_NOT_STACK);
+                    for (Unit::AuraEffectList::const_iterator iter = auraList.begin(); iter != auraList.end(); ++iter)
+                    {
+                        if ((*iter)->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_ROGUE && (*iter)->GetSpellInfo()->SpellIconID == 1960)
+                        {
+                            uint32 chance = (*iter)->GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster);
+
+                            if (chance && roll_chance_i(chance))
+                                needConsume = false;
+
+                            break;
+                        }
+                    }
+
+                    if (needConsume)
+                        for (uint32 i = 0; i < doses; ++i)
+                            target->RemoveAuraFromStack(spellId, caster->GetGUID());
+
+                    damage *= doses;
+                    damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * combo);
+                }
+
+                // Eviscerate and Envenom Bonus Damage (item set effect)
+                if (caster->HasAura(37169))
+                    damage += combo * 40;
+
+                if (AuraEffect* const revealingStrike = target->GetAuraEffect(SPELL_ROGUE_REVEALING_STRIKE, EFFECT_2, caster->GetGUID()))
+                {
+                    damage += CalculatePct(damage, revealingStrike->GetAmount());
+                    revealingStrike->GetBase()->Remove();
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_rog_envenom::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -1176,6 +1283,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_crippling_poison();
     new spell_rog_cut_to_the_chase();
     new spell_rog_deadly_poison();
+    RegisterSpellScript(spell_rog_envenom);
     RegisterSpellScript(spell_rog_eviscerate);
     RegisterAuraScript(spell_rog_glyph_of_hemorrhage);
     new spell_rog_killing_spree();
