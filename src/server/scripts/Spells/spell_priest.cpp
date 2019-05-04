@@ -34,6 +34,8 @@ enum PriestSpells
     SPELL_PRIEST_ARCHANGEL_DUMMY                    = 94709,
     SPELL_PRIEST_ARCHANGEL_TRIGGERED                = 81700,
     SPELL_PRIEST_ARCHANGEL_ENERGIZE                 = 87152,
+    SPELL_PRIEST_ATONEMENT_TRIGGERED_LARGE          = 81751,
+    SPELL_PRIEST_ATONEMENT_TRIGGERED_DEFAULT        = 94472,
     SPELL_PRIEST_BODY_AND_SOUL_DISPEL               = 64136,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
     SPELL_PRIEST_CHAKRA_SERENITY                    = 81208,
@@ -1521,9 +1523,75 @@ class spell_pri_strength_of_soul_script : public SpellScript
     }
 };
 
+// -14523 - Atonement
+class spell_pri_atonement : public AuraScript
+{
+    PrepareAuraScript(spell_pri_atonement);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_ATONEMENT_TRIGGERED_LARGE,
+                SPELL_PRIEST_ATONEMENT_TRIGGERED_DEFAULT
+            });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Unit* caster = GetTarget();
+        DamageInfo* damage = eventInfo.GetDamageInfo();
+        if (!damage)
+            return;
+
+        Unit* target = damage->GetVictim();
+        int32 bp = CalculatePct(damage->GetDamage(), aurEff->GetAmount());
+
+        if (target->GetCombatReach() >= 15.0f)
+        {
+            CustomSpellValues values;
+            values.AddSpellMod(SPELLVALUE_BASE_POINT0, bp);
+            values.AddSpellMod(SPELLVALUE_RADIUS_MOD, int32(target->GetCombatReach() + 15.0f) * 100);
+            caster->CastCustomSpell(SPELL_PRIEST_ATONEMENT_TRIGGERED_LARGE, values, target, TRIGGERED_FULL_MASK, nullptr, aurEff);
+        }
+        else
+            caster->CastCustomSpell(SPELL_PRIEST_ATONEMENT_TRIGGERED_DEFAULT, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_atonement::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// Atonement (Healing)
+class spell_pri_atonement_heal : public SpellScript
+{
+    PrepareSpellScript(spell_pri_atonement_heal);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if(RaidCheck(GetCaster()));
+
+        if (targets.size() > 1)
+        {
+            targets.sort(Trinity::HealthPctOrderPred());
+            targets.resize(1);
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_atonement_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_archangel);
+    RegisterAuraScript(spell_pri_atonement);
+    RegisterSpellScript(spell_pri_atonement_heal);
     RegisterAuraScript(spell_pri_body_and_soul);
     RegisterAuraScript(spell_pri_chakra);
     RegisterAuraScript(spell_pri_chakra_sanctuary);

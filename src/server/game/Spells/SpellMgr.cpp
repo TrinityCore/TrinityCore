@@ -5201,9 +5201,19 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].BasePoints = 7;
     });
 
+    // Whack!
     ApplySpellFix({ 102022 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
+    });
+
+    // Atonement
+    ApplySpellFix({
+        81751,
+        94472
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
     });
 
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
