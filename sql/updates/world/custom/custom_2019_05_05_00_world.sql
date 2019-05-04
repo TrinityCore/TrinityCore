@@ -8,4 +8,5 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (-14523, 'spell_pri_atonement'),
-(81751, 'spell_pri_atonement_heal');
+(81751, 'spell_pri_atonement_heal'),
+(94472, 'spell_pri_atonement_heal');
