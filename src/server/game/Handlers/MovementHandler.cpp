@@ -293,6 +293,12 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         return;
     }
 
+    if (!mover->movespline->Finalized())
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
     /* handle special cases */
     if (movementInfo.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
     {
