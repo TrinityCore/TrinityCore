@@ -26006,9 +26006,6 @@ int32 Player::NextGroupUpdateSequenceNumber(GroupCategory category)
 
 void Player::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData)
 {
-    if (IsFlying())
-        return;
-
     // process liquid auras using generic unit code
     Unit::ProcessTerrainStatusUpdate(status, liquidData);
 
