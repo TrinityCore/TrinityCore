@@ -145,6 +145,7 @@ struct boss_magmaw : public BossAI
         _hasExposedHead = false;
         _headEngaged = false;
         _lowHealthTextTriggered = !IsHeroic();
+        me->SetReactState(REACT_PASSIVE);
     }
 
     void Reset() override
@@ -162,10 +163,11 @@ struct boss_magmaw : public BossAI
     {
         _JustEngagedWith();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        me->SetReactState(REACT_AGGRESSIVE);
         events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 5s, 6s);
         events.ScheduleEvent(EVENT_LAVA_SPEW, 19s);
         //events.ScheduleEvent(EVENT_MANGLE, 1min + 30s);
-        events.ScheduleEvent(EVENT_PREPARE_MASSIVE_CRASH, 10s);
+        events.ScheduleEvent(EVENT_PREPARE_MASSIVE_CRASH, 35s);
 
         _exposedHead1->SetInCombatWithZone();
         _exposedHead2->SetInCombatWithZone();
