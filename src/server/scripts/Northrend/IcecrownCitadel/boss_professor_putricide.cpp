@@ -283,7 +283,7 @@ class boss_professor_putricide : public CreatureScript
 
             void JustReachedHome() override
             {
-                _JustReachedHome();
+                BossAI::JustReachedHome();
                 me->SetWalk(false);
                 if (events.IsInPhase(PHASE_COMBAT_1) || events.IsInPhase(PHASE_COMBAT_2) || events.IsInPhase(PHASE_COMBAT_3))
                     instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, FAIL);
