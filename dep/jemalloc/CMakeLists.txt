@@ -49,7 +49,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
     ${CMAKE_CURRENT_SOURCE_DIR}/src/extent_dss.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/extent_mmap.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hash.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/hooks.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/hook.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/jemalloc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/jemalloc_cpp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/large.c
@@ -63,8 +63,10 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
     ${CMAKE_CURRENT_SOURCE_DIR}/src/prof.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/rtree.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/stats.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sz.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tcache.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/test_hooks.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ticker.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tsd.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/witness.c
