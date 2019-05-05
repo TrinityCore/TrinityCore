@@ -186,10 +186,14 @@ struct npc_mgt_shattered_sun_sentry : public ScriptedAI
 {
     npc_mgt_shattered_sun_sentry(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void JustAppeared() override
     {
         me->SetWalk(true);
-        me->GetMotionMaster()->MovePoint(POINT_ID_PREPARE_SPLINE_PATH, ShatteredSunSentryWaypoint1);
+        Unit* unit = me;
+        me->m_Events.AddEventAtOffset([unit]()
+        {
+            unit->GetMotionMaster()->MovePoint(POINT_ID_PREPARE_SPLINE_PATH, ShatteredSunSentryWaypoint1);
+        }, 2s);
     }
 
     void MovementInform(uint32 type, uint32 pointId) override
