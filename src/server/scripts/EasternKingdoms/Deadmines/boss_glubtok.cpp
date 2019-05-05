@@ -124,7 +124,6 @@ public:
             _Reset();
             Initialize();
             me->SetCanDualWield(true);
-            me->SetHover(false);
         }
 
         void JustAppeared() override
@@ -160,8 +159,11 @@ public:
             switch (summon->GetEntry())
             {
                 case NPC_GLUBTOK_FIREWALL_PLATTER:
-                    summon->SetSpeed(MOVE_RUN, 0.2f);
-                    summon->GetMotionMaster()->MoveCirclePath(summon->GetPositionX(), summon->GetPositionY(), 55.70924f, 3.0f, true, 8);
+                    summon->SetSpeed(MOVE_RUN, 0.5f);
+                    summon->m_Events.AddEventAtOffset([summon]()
+                    {
+                        summon->GetMotionMaster()->MoveCirclePath(summon->GetPositionX(), summon->GetPositionY(), 55.70924f, 3.0f, true, 10);
+                    }, 1s);
                     break;
                 case NPC_FIREWALL_PLATTER_1A:
                 case NPC_FIREWALL_PLATTER_1B:
@@ -188,6 +190,18 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
+            if (me->HealthBelowPctDamaged(50, damage) && !events.IsInPhase(PHASE_2))
+            {
+                events.SetPhase(PHASE_2);
+                me->SetReactState(REACT_PASSIVE);
+                me->AttackStop();
+                me->CastStop();
+                DoCastSelf(SPELL_TELEPORT, true);
+                me->StopMoving();
+                me->NearTeleportTo(me->GetHomePosition());
+                events.ScheduleEvent(EVENT_PHASE_TWO_INTRO_1, Seconds(3) + Milliseconds(600));
+            }
+
             if (damage >= me->GetHealth() && !_allowKill)
             {
                 damage = me->GetHealth() - 1;
@@ -226,18 +240,6 @@ public:
         {
             if (!UpdateVictim())
                 return;
-
-            if (me->GetHealthPct() <= 50.0f && !events.IsInPhase(PHASE_2))
-            {
-                events.SetPhase(PHASE_2);
-                me->SetReactState(REACT_PASSIVE);
-                me->AttackStop();
-                me->CastStop();
-                DoCastSelf(SPELL_TELEPORT, true);
-                me->StopMoving();
-                me->NearTeleportTo(me->GetHomePosition());
-                events.ScheduleEvent(EVENT_PHASE_TWO_INTRO_1, Seconds(3) + Milliseconds(600));
-            }
 
             events.Update(diff);
 
