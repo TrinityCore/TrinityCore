@@ -1,22 +1,22 @@
 #include "ScriptMgr.h"
-#include "Map.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
-#include "ThreatManager.h"
-#include "CreatureAIImpl.h"
 
 enum Spells
 {
     SPELL_LIGHTNING_BOLT    = 100026,
     SPELL_HEALING_WAVE      = 100025,
-    SPELL_HEX               = 51514
+    SPELL_HEX               = 51514,
+    SPELL_HEALING_TOTEM     = 100030,
+    SPELL_LIGHTNING_CHAIN   = 100033
 };
 
 enum Casting
 {
     CASTING_LIGHTNING_BOLT  = 1,
     CASTING_HEALING_WAVE,
-    CASTING_HEX
+    CASTING_HEX,
+    CASTING_HEALING_TOTEM,
+    CASTING_LIGHTNING_CHAIN
 };
 
 class npc_shaman : public CreatureScript
@@ -33,6 +33,8 @@ class npc_shaman : public CreatureScript
             events.ScheduleEvent(CASTING_LIGHTNING_BOLT, 1s);
             events.ScheduleEvent(CASTING_HEALING_WAVE, 3s);
             events.ScheduleEvent(CASTING_HEX, 8s);
+            events.ScheduleEvent(CASTING_HEALING_TOTEM, 60s);
+            events.ScheduleEvent(CASTING_LIGHTNING_CHAIN, 14s);
         }
 
         void AttackStart(Unit* who) override
@@ -67,6 +69,11 @@ class npc_shaman : public CreatureScript
                     events.RescheduleEvent(CASTING_LIGHTNING_BOLT, 1180);
                     break;
 
+                case CASTING_LIGHTNING_CHAIN:
+                    DoCastVictim(SPELL_LIGHTNING_CHAIN);
+                    events.RescheduleEvent(CASTING_LIGHTNING_CHAIN, 14s, 24s);
+                    break;
+
                 case CASTING_HEX:
                     if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_HEX);
@@ -77,6 +84,11 @@ class npc_shaman : public CreatureScript
                     if (Unit * target = DoSelectLowestHpFriendly(40.0f))
                         DoCast(target, SPELL_HEALING_WAVE);
                     events.RescheduleEvent(CASTING_HEALING_WAVE, 3s);
+                    break;
+
+                case CASTING_HEALING_TOTEM:
+                    DoCastSelf(SPELL_HEALING_TOTEM);
+                    events.RescheduleEvent(CASTING_HEALING_TOTEM, 3s);
                     break;
             }
 

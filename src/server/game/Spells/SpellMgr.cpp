@@ -3082,6 +3082,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         33778, // Lifebloom Final Bloom
 
         52042, // Healing Stream Totem
+        100032, // Healing Stream Totem
         // this one is here because we have no SP bonus for dmgclass none spell
         // but this one should since it's DBC data, it won't crit because it already has can't crit attr
 
