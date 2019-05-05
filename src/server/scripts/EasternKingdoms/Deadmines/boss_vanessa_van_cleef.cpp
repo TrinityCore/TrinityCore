@@ -216,6 +216,7 @@ class boss_vanessa_van_cleef : public CreatureScript
                 _EnterEvadeMode();
                 summons.DespawnAll();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                instance->SetBossState(DATA_VANESSA_VAN_CLEEF, FAIL);
                 _DespawnAtEvade();
             }
 

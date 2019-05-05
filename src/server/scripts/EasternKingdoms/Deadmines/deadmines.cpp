@@ -620,8 +620,8 @@ class spell_deadmines_ride_magma_vehicle : public SpellScriptLoader
 
             void HandleHit(SpellEffIndex effIndex)
             {
-                if (Unit* caster = GetCaster())
-                    GetHitUnit()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints);
+                Unit* target = GetHitUnit();
+                target->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints, true);
             }
 
             void Register() override
