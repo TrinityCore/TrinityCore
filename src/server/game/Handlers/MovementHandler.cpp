@@ -26,6 +26,7 @@
 #include "MapManager.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
+#include "MoveSpline.h"
 #include "Transport.h"
 #include "Battleground.h"
 #include "InstanceSaveMgr.h"
