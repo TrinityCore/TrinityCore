@@ -6,8 +6,10 @@ enum Spells
     SPELL_LIGHTNING_BOLT    = 100026,
     SPELL_HEALING_WAVE      = 100025,
     SPELL_HEX               = 51514,
-    SPELL_HEALING_TOTEM     = 100030,
-    SPELL_LIGHTNING_CHAIN   = 100033
+    SPELL_HEALING           = 100030,
+    SPELL_LIGHTNING_CHAIN   = 100031,
+
+    NPC_HEALING_TOTEM       = 100036
 };
 
 enum Casting
@@ -33,7 +35,7 @@ class npc_shaman : public CreatureScript
             events.ScheduleEvent(CASTING_LIGHTNING_BOLT, 1s);
             events.ScheduleEvent(CASTING_HEALING_WAVE, 3s);
             events.ScheduleEvent(CASTING_HEX, 8s);
-            events.ScheduleEvent(CASTING_HEALING_TOTEM, 60s);
+            events.ScheduleEvent(CASTING_HEALING_TOTEM, 6s);
             events.ScheduleEvent(CASTING_LIGHTNING_CHAIN, 14s);
         }
 
@@ -87,9 +89,23 @@ class npc_shaman : public CreatureScript
                     break;
 
                 case CASTING_HEALING_TOTEM:
-                    DoCastSelf(SPELL_HEALING_TOTEM);
-                    events.RescheduleEvent(CASTING_HEALING_TOTEM, 3s);
+                {
+                    float alpha = 2.f * float(M_PI) * float(rand_norm());
+                    float r = 3.f * sqrtf(float(rand_norm()));
+                    float x = r * cosf(alpha) + me->GetPositionX();
+                    float y = r * sinf(alpha) + me->GetPositionY();
+                    Position pos = { x, y, me->GetPositionZ(), 0.f };
+
+                    if (Creature * totem = DoSummon(NPC_HEALING_TOTEM, pos, 15000, TEMPSUMMON_TIMED_DESPAWN))
+                    {
+                        totem->SetFaction(me->GetFaction());
+                        totem->CastSpell(totem, SPELL_HEALING);
+                        totem->SetReactState(REACT_PASSIVE);
+                    }
+
+                    events.RescheduleEvent(CASTING_HEALING_TOTEM, 32s, 60s);
                     break;
+                }
             }
 
             DoMeleeAttackIfReady();

@@ -26,7 +26,10 @@ enum THECreature
     NPC_INVISIBLE_STALKER           = 32780,
     NPC_ZEALOUS_THERAMORE_GUARD     = 100024,
     NPC_THERAMORE_GUARD             = 100012,
-    NPC_WAVES_INVOKER               = 100017
+    NPC_WAVES_INVOKER               = 100017,
+    NPC_THERAMORE_MEDIC             = 100033,
+    NPC_WOUNDED_THERAMORE_GUARD     = 100037,
+    NPC_WOUNDED_DUMMY               = 100018
 };
 
 enum THEMisc
@@ -41,7 +44,8 @@ enum THEMisc
 
     // Quests
     QUEST_LOOKING_FOR_THE_ARTEFACT  = 80000,
-    QUEST_PREAPAREFOR_WAR           = 80006,
+    QUEST_EVACUATION                = 80001,
+    QUEST_PREPARE_FOR_WAR           = 80006,
 };
 
 enum THEEvents
@@ -52,6 +56,8 @@ enum THEEvents
     EVENT_START_WARN        = 3,
     EVENT_START_PRE_BATTLE  = 4,
     EVENT_START_BATTLE      = 5,
+    EVENT_START_EVACUATION  = 6,
+    EVENT_START_POST_BATTLE = 7,
 
     // Events
     // Convo
@@ -132,6 +138,8 @@ enum THEEvents
     EVENT_WARN_48,
     EVENT_WARN_49,
 
+    EVENT_EVACUATION_1,
+
     EVENT_SHAKER,
 
     EVENT_PRE_BATTLE_1,
@@ -154,7 +162,28 @@ enum THEEvents
     EVENT_PRE_BATTLE_18,
     EVENT_PRE_BATTLE_19,
     EVENT_PRE_BATTLE_20,
-    EVENT_PRE_BATTLE_21
+    EVENT_PRE_BATTLE_21,
+
+    EVENT_POST_BATTLE_1,
+    EVENT_POST_BATTLE_2,
+    EVENT_POST_BATTLE_3,
+    EVENT_POST_BATTLE_4,
+    EVENT_POST_BATTLE_5,
+    EVENT_POST_BATTLE_6,
+    EVENT_POST_BATTLE_7,
+    EVENT_POST_BATTLE_8,
+    EVENT_POST_BATTLE_9,
+    EVENT_POST_BATTLE_10,
+    EVENT_POST_BATTLE_11,
+    EVENT_POST_BATTLE_12,
+    EVENT_POST_BATTLE_13,
+    EVENT_POST_BATTLE_14,
+    EVENT_POST_BATTLE_15,
+    EVENT_POST_BATTLE_16,
+    EVENT_POST_BATTLE_17,
+    EVENT_POST_BATTLE_18,
+    EVENT_POST_BATTLE_19,
+    EVENT_POST_BATTLE_20,
 };
 
 enum THEPhases
@@ -162,7 +191,8 @@ enum THEPhases
     PHASE_CONVO,
     PHASE_WARN,
     PHASE_PRE_BATTLE,
-    PHASE_BATTLE
+    PHASE_BATTLE,
+    PHASE_POST_BATTLE
 };
 
 enum THESpells
@@ -170,12 +200,14 @@ enum THESpells
     SPELL_FIREBALL                  = 100002,
     SPELL_BLIZZARD                  = 100001,
 
-    SPELL_SIMPLE_TELEPORT           = 7077,
+    SPELL_SIMPLE_TELEPORT           = 100032,
     SPELL_ICE_NOVA                  = 56935,
     SPELL_ICE_BLOCK                 = 45776,
     SPELL_TELEPORT                  = 51347,
     SPELL_POWER_BALL_VISUAL         = 54139,
-    SPELL_VANISH                    = 41476
+    SPELL_VANISH                    = 36747,
+    SPELL_CHAINS                    = 68341,
+    SPELL_PORTAL                    = 57687
 };
 
 enum THEText
@@ -251,7 +283,23 @@ enum THEText
     SAY_PRE_BATTLE_11   = 12,
     SAY_PRE_BATTLE_12   = 0,
     SAY_PRE_BATTLE_13   = 13,
-    SAY_PRE_BATTLE_14   = 14
+    SAY_PRE_BATTLE_14   = 14,
+
+    SAY_POST_BATTLE_1   = 40,
+    SAY_POST_BATTLE_2   = 2,
+    SAY_POST_BATTLE_3   = 41,
+    SAY_POST_BATTLE_4   = 4,
+    SAY_POST_BATTLE_5   = 42,
+    SAY_POST_BATTLE_6   = 5,
+    SAY_POST_BATTLE_7   = 43,
+    SAY_POST_BATTLE_8   = 6,
+    SAY_POST_BATTLE_9   = 44,
+    SAY_POST_BATTLE_10  = 45,
+    SAY_POST_BATTLE_11  = 7,
+    SAY_POST_BATTLE_12  = 46,
+    SAY_POST_BATTLE_13  = 47,
+    SAY_POST_BATTLE_14  = 8,
+    SAY_POST_BATTLE_15  = 48,
 };
 
 const float FireLocation[35][4] =
@@ -295,12 +343,12 @@ const float FireLocation[35][4] =
 
 const float ArchmagesLocation[6][5] =
 {
-    { NPC_RHONIN,		        -3715.58f, -4418.55f, 25.52f, 3.08f },
-    { NPC_TARI_COGG,			-3714.26f, -4420.72f, 25.75f, 3.08f },
-    { NPC_AMARA_LEESON,         -3714.05f, -4416.94f, 25.34f, 3.08f },
-    { NPC_THODER_WINDERMERE,	-3713.97f, -4415.55f, 25.00f, 3.08f },
-    { NPC_THALEN_SONGWEAVER,    -3716.14f, -4420.91f, 25.84f, 2.39f },
-    { NPC_VEREESA_WINDRUNNER,	-3715.86f, -4416.79f, 25.22f, 3.02f }
+    { NPC_RHONIN,		        -3718.51f, -4542.53f, 25.82f, 3.59f },
+    { NPC_TARI_COGG,			-3717.86f, -4539.88f, 25.82f, 3.59f },
+    { NPC_AMARA_LEESON,         -3716.01f, -4540.03f, 25.82f, 3.59f },
+    { NPC_THODER_WINDERMERE,	-3717.01f, -4538.31f, 25.82f, 3.59f },
+    { NPC_THALEN_SONGWEAVER,    -3715.66f, -4544.08f, 25.82f, 3.59f },
+    { NPC_VEREESA_WINDRUNNER,	-3716.33f, -4543.03f, 25.82f, 3.59f }
 };
 
 const float ArchmagesRelocate[6][4] =
@@ -328,5 +376,7 @@ const Position WarnDestination[4] =
     { -3741.11f, -4430.64f, 30.55f, 3.91f },
     { -3739.63f, -4432.15f, 30.55f, 3.91f }
 };
+
+const Position PortalPosition = { -3712.42f, -4539.62f, 25.82f, 3.59f };
 
 #endif

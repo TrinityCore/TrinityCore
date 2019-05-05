@@ -12,8 +12,10 @@
 
 constexpr int TERVOSH_PATH_SIZE     = 8;
 constexpr int KINNDY_PATH_SIZE      = 6;
+constexpr int ADEN_PATH_SIZE        = 7;
+constexpr int JAINA_PATH_SIZE       = 14;
+constexpr int JAINA_PATH_1_SIZE     = 43;
 
-// revoir les path...
 Position TervoshPath[TERVOSH_PATH_SIZE]
 {
     { -3747.68f, -4442.04f, 30.55f, 2.19f },
@@ -36,6 +38,82 @@ Position KinndyPath[KINNDY_PATH_SIZE]
     { -3764.64f, -4438.99f, 35.21f, 0.67f }
 };
 
+Position const AdenPath[ADEN_PATH_SIZE]
+{
+    { -3717.79f, -4522.24f, 25.82f, 5.16f },
+    { -3714.91f, -4528.24f, 25.82f, 5.16f },
+    { -3713.09f, -4532.02f, 25.82f, 5.16f },
+    { -3711.22f, -4535.91f, 25.82f, 5.16f },
+    { -3710.03f, -4538.38f, 25.82f, 5.16f },
+    { -3712.85f, -4539.80f, 25.82f, 3.60f },
+    { -3716.85f, -4541.81f, 25.82f, 3.60f }
+};
+
+Position const JainaPostBattlePath[JAINA_PATH_SIZE]
+{
+    { -3669.20f, -4380.69f,  9.51f, 3.89f },
+    { -3672.86f, -4393.39f, 10.60f, 4.71f },
+    { -3672.87f, -4398.85f, 10.64f, 4.71f },
+    { -3672.87f, -4403.85f, 10.68f, 4.71f },
+    { -3672.87f, -4407.60f, 10.64f, 4.71f },
+    { -3671.40f, -4411.18f, 10.61f, 0.79f },
+    { -3668.17f, -4412.39f, 10.73f, 6.16f },
+    { -3662.70f, -4413.18f, 10.67f, 6.17f },
+    { -3657.73f, -4413.71f, 10.48f, 6.17f },
+    { -3652.12f, -4413.99f, 10.25f, 6.18f },
+    { -3647.20f, -4414.85f, 10.06f, 5.99f },
+    { -3642.43f, -4416.33f,  9.88f, 5.96f },
+    { -3637.79f, -4418.19f,  9.71f, 5.79f },
+    { -3633.32f, -4420.42f,  9.69f, 5.82f }
+};
+
+Position const JainaWoundedPath[JAINA_PATH_1_SIZE]
+{
+    { -3637.05f, -4416.78f,  9.67f, 0.21f },
+    { -3640.47f, -4416.59f,  9.80f, 6.04f },
+    { -3642.88f, -4415.93f,  9.89f, 6.02f },
+    { -3645.31f, -4415.34f, 10.00f, 6.07f },
+    { -3649.00f, -4414.67f, 10.13f, 6.10f },
+    { -3652.70f, -4414.02f, 10.27f, 6.10f },
+    { -3655.16f, -4413.59f, 10.38f, 6.10f },
+    { -3658.86f, -4413.01f, 10.52f, 6.16f },
+    { -3661.35f, -4412.73f, 10.61f, 6.18f },
+    { -3665.09f, -4412.54f, 10.75f, 6.28f },
+    { -3667.37f, -4412.95f, 10.82f, 0.32f },
+    { -3669.74f, -4414.60f, 10.86f, 0.84f },
+    { -3671.13f, -4417.32f, 11.03f, 1.24f },
+    { -3671.80f, -4420.67f, 11.11f, 1.43f },
+    { -3672.18f, -4424.40f, 11.18f, 1.52f },
+    { -3672.29f, -4426.90f, 11.22f, 1.52f },
+    { -3672.46f, -4430.64f, 11.28f, 1.52f },
+    { -3672.57f, -4433.14f, 11.35f, 1.52f },
+    { -3672.74f, -4436.89f, 11.35f, 1.52f },
+    { -3672.85f, -4439.38f, 11.36f, 1.52f },
+    { -3673.02f, -4443.13f, 11.38f, 1.52f },
+    { -3673.18f, -4446.88f, 11.39f, 1.52f },
+    { -3673.35f, -4450.62f, 11.40f, 1.52f },
+    { -3673.52f, -4454.37f, 11.42f, 1.52f },
+    { -3673.83f, -4458.10f, 11.36f, 1.43f },
+    { -3674.56f, -4461.78f, 11.35f, 1.32f },
+    { -3675.83f, -4465.16f, 11.41f, 1.05f },
+    { -3677.86f, -4468.11f, 11.46f, 0.94f },
+    { -3680.00f, -4471.19f, 11.54f, 1.01f },
+    { -3681.56f, -4474.36f, 11.56f, 1.25f },
+    { -3681.85f, -4477.52f, 11.48f, 1.66f },
+    { -3680.67f, -4480.93f, 11.30f, 2.04f },
+    { -3678.74f, -4484.14f, 11.08f, 2.14f },
+    { -3676.05f, -4488.35f, 10.87f, 2.13f },
+    { -3673.41f, -4492.59f, 10.69f, 2.11f },
+    { -3671.56f, -4495.86f, 10.56f, 2.02f },
+    { -3670.55f, -4500.86f, 10.40f, 1.69f },
+    { -3670.10f, -4504.58f, 10.30f, 1.69f },
+    { -3669.46f, -4509.53f, 10.15f, 1.81f },
+    { -3668.26f, -4511.59f, 10.09f, 2.44f },
+    { -3665.60f, -4512.60f, 10.03f, 2.97f },
+    { -3663.23f, -4512.82f, 9.977f, 3.07f },
+    { -3655.96f, -4513.32f, 9.463f, 3.07f }
+};
+
 class npc_jaina_theramore : public CreatureScript
 {
     public:
@@ -50,7 +128,7 @@ class npc_jaina_theramore : public CreatureScript
             blizzardTimer = 0;
             playerShaker = false;
             firesCount = 0;
-            warnNpcCount = 0;
+            npcCount = 0;
         }
 
         void QuestAccept(Player* /*player*/, Quest const* quest) override
@@ -61,7 +139,11 @@ class npc_jaina_theramore : public CreatureScript
                     SetData(EVENT_START_CONVO, 0);
                     break;
 
-                case QUEST_PREAPAREFOR_WAR:
+                case QUEST_EVACUATION:
+                    SetData(EVENT_START_EVACUATION, 0);
+                    break;
+
+                case QUEST_PREPARE_FOR_WAR:
                     SetData(EVENT_START_BATTLE, 0);
                     break;
             }
@@ -74,10 +156,14 @@ class npc_jaina_theramore : public CreatureScript
                 case QUEST_LOOKING_FOR_THE_ARTEFACT:
                     SetData(EVENT_END_CONVO, 0);
                     break;
+
+                case QUEST_PREPARE_FOR_WAR:
+                    SetData(EVENT_START_POST_BATTLE, 0);
+                    break;
             }
         }
 
-        void SetData(uint32 id, uint32 /*value*/) override
+        void SetData(uint32 id, uint32 value) override
         {
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->SetSheath(SHEATH_STATE_UNARMED);
@@ -92,15 +178,13 @@ class npc_jaina_theramore : public CreatureScript
                     players.push_back(player);
             }
 
-            if (!kalecgos)  kalecgos = me->FindNearestCreature(NPC_KALECGOS, 15.f);
-            if (!tervosh)   tervosh = me->FindNearestCreature(NPC_ARCHMAGE_TERVOSH, 15.f);
-            if (!kinndy)    kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
-
-            kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-
             switch (id)
             {
                 case EVENT_START_CONVO:
+                    kalecgos = me->FindNearestCreature(NPC_KALECGOS, 15.f);
+                    tervosh = me->FindNearestCreature(NPC_ARCHMAGE_TERVOSH, 15.f);
+                    kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
+                    kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     me->PlayDirectSound(28096);
                     events.SetPhase(PHASE_CONVO);
                     events.ScheduleEvent(EVENT_CONVO_1, 2s, 0, PHASE_CONVO);
@@ -111,13 +195,58 @@ class npc_jaina_theramore : public CreatureScript
                     events.ScheduleEvent(EVENT_CONVO_25, 2s, 0, PHASE_CONVO);
                     break;
 
+                case EVENT_START_POST_BATTLE:
+                {
+                    for (Player* player : players)
+                        player->SetPhaseMask(3, true);
+
+                    tervosh = me->FindNearestCreature(NPC_ARCHMAGE_TERVOSH, 2000.f);
+                    kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 2000.f);
+                    kalecgos = me->FindNearestCreature(NPC_KALECGOS, 2000.f);
+                    aden = me->FindNearestCreature(NPC_LIEUTENANT_ADEN, 2000.f);
+
+                    me->SetPhaseMask(3, true);
+                    tervosh->SetPhaseMask(3, true);
+                    kinndy->SetPhaseMask(3, true);
+                    kalecgos->SetPhaseMask(3, true);
+                    aden->SetPhaseMask(3, true);
+                    kinndy->NearTeleportTo(-3637.63f, -4408.91f, 9.79f, 4.84f);
+                    kinndy->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_CRY);
+
+                    std::vector<GameObject*> fires;
+                    GetGameObjectListWithEntryInGrid(fires, me, GOB_FIRE_THERAMORE, 5000.f);
+                    for (GameObject* fire : fires)
+                        fire->Delete();
+
+                    events.SetPhase(PHASE_POST_BATTLE);
+                    events.ScheduleEvent(EVENT_POST_BATTLE_1, 2s, 0, PHASE_POST_BATTLE);
+                    break;
+                }
+
+                case EVENT_START_EVACUATION:
+                    tervosh = me->FindNearestCreature(NPC_ARCHMAGE_TERVOSH, 15.f);
+                    kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
+                    kalecgos = me->FindNearestCreature(NPC_KALECGOS, 2000.f);
+                    aden = me->FindNearestCreature(NPC_LIEUTENANT_ADEN, 2000.f);
+                    events.ScheduleEvent(EVENT_EVACUATION_1, value ? value : 60000, 0, PHASE_CONVO);
+                    break;
+
                 case EVENT_START_WARN:
+                    tervosh = me->FindNearestCreature(NPC_ARCHMAGE_TERVOSH, 15.f);
+                    kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
+                    kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     events.SetPhase(PHASE_WARN);
                     events.ScheduleEvent(EVENT_WARN_1, 2s, 0, PHASE_WARN);
                     break;
 
                 case EVENT_START_BATTLE:
                 {
+                    tervosh = me->FindNearestCreature(NPC_ARCHMAGE_TERVOSH, 15.f);
+                    kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
+                    aden = me->FindNearestCreature(NPC_LIEUTENANT_ADEN, 2000.f);
+
+                    kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+
                     // First get all creatures.
                     Trinity::AllFriendlyCreaturesInGrid creature_check(me);
                     Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(me, civils, creature_check);
@@ -126,7 +255,6 @@ class npc_jaina_theramore : public CreatureScript
                     me->SetWalk(false);
                     tervosh->SetWalk(false);
                     kinndy->SetWalk(false);
-                    kalecgos->SetVisible(false);
 
                     events.SetPhase(PHASE_PRE_BATTLE);
                     events.ScheduleEvent(EVENT_SHAKER, 2s, 0, PHASE_PRE_BATTLE);
@@ -301,11 +429,8 @@ class npc_jaina_theramore : public CreatureScript
                     case EVENT_CONVO_25:
                     {
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                        if (GameObject * chair = me->FindNearestGameObject(GOB_LOW_CHAIR, 20.f))
-                        {
-                            me->SetWalk(true);
-                            me->GetMotionMaster()->MovePoint(0, -3759.73f, -4446.66f, 30.55f, true, 0.38f);
-                        }
+                        me->SetWalk(true);
+                        me->GetMotionMaster()->MovePoint(0, -3759.73f, -4446.66f, 30.55f, true, 0.38f);
                         events.ScheduleEvent(EVENT_CONVO_26, 15s, 0, PHASE_CONVO);
                         break;
                     }
@@ -321,14 +446,14 @@ class npc_jaina_theramore : public CreatureScript
 
                     case EVENT_WARN_1:
                     {
-                        if (warnNpcCount >= 4)
+                        if (npcCount >= 4)
                         {
                             events.ScheduleEvent(EVENT_WARN_2, 3s, 0, PHASE_WARN);
                             break;
                         }
 
-                        uint32 entry = (uint32)WarnLocation[warnNpcCount][0];
-                        if (Creature * c = me->SummonCreature(entry, WarnLocation[warnNpcCount][1], WarnLocation[warnNpcCount][2], WarnLocation[warnNpcCount][3], WarnLocation[warnNpcCount][4], TEMPSUMMON_MANUAL_DESPAWN))
+                        uint32 entry = (uint32)WarnLocation[npcCount][0];
+                        if (Creature * c = me->SummonCreature(entry, WarnLocation[npcCount][1], WarnLocation[npcCount][2], WarnLocation[npcCount][3], WarnLocation[npcCount][4], TEMPSUMMON_MANUAL_DESPAWN))
                         {
                             switch (entry)
                             {
@@ -351,9 +476,9 @@ class npc_jaina_theramore : public CreatureScript
                             }
 
                             c->SetWalk(true);
-                            c->GetMotionMaster()->MovePoint(0, WarnDestination[warnNpcCount], false, WarnDestination[warnNpcCount].GetOrientation());
+                            c->GetMotionMaster()->MovePoint(0, WarnDestination[npcCount], false, WarnDestination[npcCount].GetOrientation());
 
-                            warnNpcCount++;
+                            npcCount++;
 
                             events.ScheduleEvent(EVENT_WARN_1, 1s, 0, PHASE_WARN);
                         }
@@ -625,6 +750,17 @@ class npc_jaina_theramore : public CreatureScript
 
                     #pragma endregion
 
+                    // Event - Evacuation
+                    case EVENT_EVACUATION_1:
+                        kalecgos = GetClosestCreatureWithEntry(me, NPC_KALECGOS, 100.f);
+                        kalecgos->SetVisible(true);
+                        kalecgos->NearTeleportTo(-3724.90f, -4547.24f, 25.82f, 0.51f);
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->NearTeleportTo(-3725.09f, -4545.75f, 25.82f, 0.53f);
+                        kinndy->NearTeleportTo(-3726.27f, -4543.99f, 25.82f, 0.47f);
+                        tervosh->NearTeleportTo(-3723.67f, -4548.69f, 25.82f, 0.94f);
+                        break;
+
                     // Event - Pre Battle
                     #pragma region EVENT_PRE_BATTLE
 
@@ -664,7 +800,12 @@ class npc_jaina_theramore : public CreatureScript
                         {
                             switch (civil->GetEntry())
                             {
+                                case 4901:
+                                case 4902:
+                                case 6732:
                                 case 100025:
+                                case 100027:
+                                case 100028:
                                     civil->SetVisible(false);
                                     break;
 
@@ -717,9 +858,9 @@ class npc_jaina_theramore : public CreatureScript
                                     civil->GetMotionMaster()->MovePoint(0, -3826.36f, -4441.66f, 12.25f, true, 3.51f);
                                     break;
 
-                                case 5405:
-                                case 4888:
                                 case 4885:
+                                case 4888:
+                                case 5405:
                                 case 10047:
                                 case 12375:
                                 case 12376:
@@ -745,37 +886,37 @@ class npc_jaina_theramore : public CreatureScript
 
                         me->PlayDirectSound(15003);
                         me->GetMap()->SetZoneWeather(ZONE_THERAMORE_ISLE, WEATHER_STATE_FOG, 1.0f);
-                        aden->NearTeleportTo(-3712.64f, -4396.56f, 19.19f, 4.39f);
+                        aden->Dismount();
+                        aden->NearTeleportTo(-3717.79f, -4522.24f, 25.82f, 5.16f);
                         events.ScheduleEvent(EVENT_PRE_BATTLE_2, 1s, 0, PHASE_PRE_BATTLE);
                         break;
                     }
 
                     case EVENT_PRE_BATTLE_2:
                         Talk(SAY_PRE_BATTLE_1);
-                        me->GetMotionMaster()->MovePoint(0, -3723.35f, -4414.69f, 26.38f);
-                        tervosh->GetMotionMaster()->MovePoint(0, -3730.29f, -4423.91f, 30.48f);
-                        kinndy->GetMotionMaster()->MovePoint(0, -3732.69f, -4421.54f, 30.48f);
-                        aden->GetMotionMaster()->MovePoint(0, -3718.83f, -4409.31f, 24.10f);
+                        aden->GetMotionMaster()->MoveSmoothPath(0, AdenPath, ADEN_PATH_SIZE, false);
                         events.ScheduleEvent(EVENT_PRE_BATTLE_3, 3s, 0, PHASE_PRE_BATTLE);
                         break;
 
                     case EVENT_PRE_BATTLE_3:
                         events.CancelEvent(EVENT_SHAKER);
                         aden->AI()->Talk(SAY_PRE_BATTLE_2);
-                        events.ScheduleEvent(EVENT_PRE_BATTLE_4, 6s, 0, PHASE_PRE_BATTLE);
+                        events.ScheduleEvent(EVENT_PRE_BATTLE_4, 4s, 0, PHASE_PRE_BATTLE);
                         break;
 
                     case EVENT_PRE_BATTLE_4:
                         Talk(SAY_PRE_BATTLE_3);
-                        events.ScheduleEvent(EVENT_PRE_BATTLE_5, 4s, 0, PHASE_PRE_BATTLE);
+                        events.ScheduleEvent(EVENT_PRE_BATTLE_5, 3s, 0, PHASE_PRE_BATTLE);
                         break;
 
                     case EVENT_PRE_BATTLE_5:
                     {
-                        if (GameObject * portal = me->SummonGameObject(201797, -3712.38f, -4420.67f, 25.67f, 0.f, QuaternionData(), 5))
+                        aden->SetWalk(true);
+                        aden->GetMotionMaster()->MovePoint(0, -3721.23f, -4549.68f, 25.82f, true, 1.32f);
+                        if (GameObject * portal = me->SummonGameObject(201797, PortalPosition, QuaternionData(), 13))
                         {
-                            portalGUID = portal->GetGUID();
                             me->SetFacingToObject(portal);
+                            portal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         }
                         events.ScheduleEvent(EVENT_PRE_BATTLE_6, 800, 0, PHASE_PRE_BATTLE);
                         break;
@@ -783,44 +924,47 @@ class npc_jaina_theramore : public CreatureScript
 
                     case EVENT_PRE_BATTLE_6:
                     {
-                        for (uint8 i = 0; i < 6; ++i)
+                        if (npcCount >= 6)
                         {
-                            uint32 entry = (uint32)ArchmagesLocation[i][0];
-
-                            if (Creature * c = me->SummonCreature(entry,
-                                                                  ArchmagesLocation[i][1], ArchmagesLocation[i][2], ArchmagesLocation[i][3], ArchmagesLocation[i][4],
-                                                                  TEMPSUMMON_MANUAL_DESPAWN))
-                            {
-                                switch (entry)
-                                {
-                                    case NPC_RHONIN:
-                                        rhonin = c;
-                                        c->AI()->Talk(SAY_PRE_BATTLE_4);
-                                        me->SetFacingToObject(c);
-                                        kinndy->SetFacingToObject(c);
-                                        tervosh->SetFacingToObject(c);
-                                        aden->SetFacingToObject(c);
-                                        break;
-
-                                    case NPC_THALEN_SONGWEAVER:
-                                        thalen = c;
-                                        break;
-
-                                    case NPC_VEREESA_WINDRUNNER:
-                                        vereesa = c;
-                                        break;
-
-                                    default:
-                                        break;
-                                }
-
-                                archmagesGUID[i] = c->GetGUID();
-                                c->SetSheath(SHEATH_STATE_UNARMED);
-                                c->CastSpell(c, SPELL_TELEPORT);
-                                c->SetTarget(me->GetGUID());
-                            }
+                            events.ScheduleEvent(EVENT_PRE_BATTLE_7, 1s, 0, PHASE_PRE_BATTLE);
+                            break;
                         }
-                        events.ScheduleEvent(EVENT_PRE_BATTLE_7, 3s, 0, PHASE_PRE_BATTLE);
+
+                        uint32 entry = (uint32)ArchmagesLocation[npcCount][0];
+                        if (Creature * c = me->SummonCreature(entry, PortalPosition, TEMPSUMMON_MANUAL_DESPAWN))
+                        {
+                            switch (entry)
+                            {
+                                case NPC_RHONIN:
+                                    rhonin = c;
+                                    c->AI()->Talk(SAY_PRE_BATTLE_4);
+                                    me->SetFacingToObject(c);
+                                    kinndy->SetFacingToObject(c);
+                                    tervosh->SetFacingToObject(c);
+                                    break;
+
+                                case NPC_THALEN_SONGWEAVER:
+                                    thalen = c;
+                                    break;
+
+                                case NPC_VEREESA_WINDRUNNER:
+                                    vereesa = c;
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                            archmagesGUID[npcCount] = c->GetGUID();
+                            c->SetWalk(true);
+                            c->GetMotionMaster()->MovePoint(0, ArchmagesLocation[npcCount][1], ArchmagesLocation[npcCount][2], ArchmagesLocation[npcCount][3], true, ArchmagesLocation[npcCount][4]);
+                            c->SetSheath(SHEATH_STATE_UNARMED);
+                            c->CastSpell(c, SPELL_TELEPORT);
+                            c->SetTarget(me->GetGUID());
+                        }
+
+                        npcCount++;
+                        events.RescheduleEvent(EVENT_PRE_BATTLE_6, 800ms, 1180ms, 0, PHASE_PRE_BATTLE);
                         break;
                     }
 
@@ -856,11 +1000,15 @@ class npc_jaina_theramore : public CreatureScript
 
                     case EVENT_PRE_BATTLE_13:
                         Talk(SAY_PRE_BATTLE_11);
+                        me->SetFacingToObject(tervosh);
+                        tervosh->SetFacingToObject(me);
                         events.ScheduleEvent(EVENT_PRE_BATTLE_14, 5s, 0, PHASE_PRE_BATTLE);
                         break;
 
                     case EVENT_PRE_BATTLE_14:
                         vereesa->AI()->Talk(SAY_PRE_BATTLE_12);
+                        me->SetFacingToObject(vereesa);
+                        tervosh->SetFacingToObject(vereesa);
                         events.ScheduleEvent(EVENT_PRE_BATTLE_15, 5s, 0, PHASE_PRE_BATTLE);
                         break;
 
@@ -876,12 +1024,14 @@ class npc_jaina_theramore : public CreatureScript
                             Talk(SAY_PRE_BATTLE_14);
                             me->SetFacingToObject(player);
                         }
-                        events.ScheduleEvent(EVENT_PRE_BATTLE_17, 5s, 0, PHASE_PRE_BATTLE);
+                        events.ScheduleEvent(EVENT_PRE_BATTLE_17, 2s, 0, PHASE_PRE_BATTLE);
                         break;
 
                     case EVENT_PRE_BATTLE_17:
+                        vereesa->SetFaction(35);
+                        vereesa->SetVisible(false);
                         DoCast(SPELL_SIMPLE_TELEPORT);
-                        events.ScheduleEvent(EVENT_PRE_BATTLE_18, 1400, 0, PHASE_PRE_BATTLE);
+                        events.ScheduleEvent(EVENT_PRE_BATTLE_18, 1300, 0, PHASE_PRE_BATTLE);
                         break;
 
                     case EVENT_PRE_BATTLE_18:
@@ -891,7 +1041,7 @@ class npc_jaina_theramore : public CreatureScript
                         kinndy->CastSpell(kinndy, SPELL_TELEPORT);
                         tervosh->CastSpell(tervosh, SPELL_TELEPORT);
                         aden->CastSpell(aden, SPELL_TELEPORT);
-                        vereesa->SetVisible(false);
+                        kalecgos->CastSpell(kalecgos, SPELL_TELEPORT);
 
                         for (uint32 i = 0; i < 6; ++i)
                         {
@@ -909,6 +1059,11 @@ class npc_jaina_theramore : public CreatureScript
                     case EVENT_PRE_BATTLE_19:
                     {
                         me->SetSheath(SHEATH_STATE_MELEE);
+
+                        // @TODO : Summon dragon kalec with path flight
+                        kalecgos->SetVisible(false);
+                        kalecgos = me->SummonCreature(NPC_KALECGOS_DRAGON, -3753.57f, -4444.59f, 73.83f, 5.49f);
+                        kalecgos->GetMotionMaster()->MoveCirclePath(-3753.57f, -4444.59f, 73.83f, 88.05f, true, 16);
 
                         Relocate(aden, -3669.01f, -4381.60f, 9.56f, 0.69f);
                         Relocate(me, -3658.39f, -4372.87f, 9.35f, 0.69f);
@@ -945,8 +1100,8 @@ class npc_jaina_theramore : public CreatureScript
 
                         for (Player* player : players)
                         {
-                            float angle = rand_norm() * 2 * M_PI;
-                            float dist = urand(1, 4);
+                            float angle = float(rand_norm() * 2 * M_PI);
+                            float dist = frand(1, 4);
                             player->NearTeleportTo(-3661.96f + cos(angle) * dist, -4374.06f + sin(angle) * dist, 9.35f, 0.72f);
                         }
 
@@ -966,6 +1121,7 @@ class npc_jaina_theramore : public CreatureScript
 
                         if (fires.empty() || firesCount <= 0)
                         {
+                            events.SetPhase(PHASE_BATTLE);
                             if (Creature * waves = me->SummonCreature(NPC_WAVES_INVOKER, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN))
                                 waves->AI()->SetData(1, 1);
                             break;
@@ -991,6 +1147,126 @@ class npc_jaina_theramore : public CreatureScript
                     }
 
                     #pragma endregion
+
+                    // Event - Post Battle
+                    case EVENT_POST_BATTLE_1:
+                        me->SetWalk(true);
+                        aden->Dismount();
+                        me->GetMotionMaster()->MovePoint(0, -3666.88f, -4379.16f, 9.36f, true, 3.89f);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_2, 6s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_2:
+                        Talk(SAY_POST_BATTLE_1);
+                        me->SetFacingToObject(aden);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_3, 4s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_3:
+                        aden->AI()->Talk(SAY_POST_BATTLE_2);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_4, 6s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_4:
+                        Talk(SAY_POST_BATTLE_3);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_5, 2s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_5:
+                        aden->SetWalk(true);
+                        aden->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                        me->GetMotionMaster()->MoveSmoothPath(0, JainaPostBattlePath, JAINA_PATH_SIZE, true);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_6, 23s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_6:
+                        if (Creature * amara = GetClosestCreatureWithEntry(me, NPC_AMARA_LEESON, 2000.f))
+                            amara->NearTeleportTo(-3651.13f, -4520.06f, 9.46f, 1.58f);
+                        me->GetMotionMaster()->MovePoint(0, -3634.95f, -4412.57f, 9.81f, true, 2.17f);
+                        aden->GetMotionMaster()->Clear();
+                        aden->GetMotionMaster()->MovePoint(0, -3615.46f, -4437.43f, 13.68f, true, 1.57f);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_7, 3s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_7:
+                        kinndy->AI()->Talk(SAY_POST_BATTLE_4);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_8, 5s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_8:
+                        Talk(SAY_POST_BATTLE_5);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_9, 9s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_9:
+                        kinndy->AI()->Talk(SAY_POST_BATTLE_6);
+                        kinndy->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        kinndy->SetFacingToObject(me);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_10, 4s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_10:
+                        Talk(SAY_POST_BATTLE_7);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_11, 4s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_11:
+                        kinndy->AI()->Talk(SAY_POST_BATTLE_8);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_12, 3s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_12:
+                        Talk(SAY_POST_BATTLE_9);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_13, 16s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_13:
+                        Talk(SAY_POST_BATTLE_10);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_14, 7s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_14:
+                        kinndy->AI()->Talk(SAY_POST_BATTLE_11);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_15, 6s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_15:
+                        Talk(SAY_POST_BATTLE_12);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_16, 6s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_16:
+                        Talk(SAY_POST_BATTLE_13);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_17, 15s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_17:
+                        kinndy->AI()->Talk(SAY_POST_BATTLE_14);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_18, 3s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_18:
+                        Talk(SAY_POST_BATTLE_15);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_19, 3s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_19:
+                        Talk(SAY_POST_BATTLE_3);
+                        kinndy->SetWalk(false);
+                        kinndy->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                        me->SetWalk(false);
+                        me->GetMotionMaster()->MoveSmoothPath(0, JainaWoundedPath, JAINA_PATH_1_SIZE, false);
+                        events.ScheduleEvent(EVENT_POST_BATTLE_20, 23s, 0, PHASE_POST_BATTLE);
+                        break;
+
+                    case EVENT_POST_BATTLE_20:
+                        kinndy->GetMotionMaster()->Clear();
+                        kinndy->GetMotionMaster()->MoveIdle();
+                        kinndy->SetWalk(true);
+                        me->SetWalk(true);
+                        if (Creature * wounded = DoSummon(NPC_WOUNDED_DUMMY, me->GetPosition()))
+                            wounded->AI()->SetData(1, 1);
+                        break;
 
                     default:
                         break;
@@ -1024,7 +1300,7 @@ class npc_jaina_theramore : public CreatureScript
             // Parle en combat
             if (sayInCombatTimer <= diff)
             {
-                me->PlayDirectSound(28140);
+                me->PlayDistanceSound(28140);
                 sayInCombatTimer = urand(24000, 65000);
             }
             else sayInCombatTimer -= diff;
@@ -1045,14 +1321,13 @@ class npc_jaina_theramore : public CreatureScript
         Creature* zealous;
         Creature* guard;
         ObjectGuid archmagesGUID[6];
-        ObjectGuid portalGUID;
         EventMap events;
         std::vector<GameObject*> fires;
         std::vector<Player*> players;
         std::list<Creature*> civils;
         bool playerShaker;
         uint8 firesCount;
-        uint8 warnNpcCount;
+        uint8 npcCount;
 
         uint32 sayInCombatTimer, fireballTimer, blizzardTimer;
 

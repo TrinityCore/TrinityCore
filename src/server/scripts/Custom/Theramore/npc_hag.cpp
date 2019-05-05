@@ -79,31 +79,34 @@ class npc_hag : public CreatureScript
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
-				case CASTING_FIREBALL:
-					DoCastVictim(SPELL_FIREBALL);
-					events.RescheduleEvent(CASTING_FIREBALL, 1180);
-					break;
-				
-				case CASTING_ICE_LANCE:
-					me->InterruptNonMeleeSpells(true);
-					if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-						DoCast(target, SPELL_ICE_LANCE);
-					events.RescheduleEvent(CASTING_ICE_LANCE, 8s, 15s);
-					break;
-					
-				case CASTING_BLINK:
-					me->InterruptNonMeleeSpells(true);
-					DoCast(SPELL_BLINK);
-					events.RescheduleEvent(CASTING_BLINK, 34s, 45s);
-					break;
-					
-				case CASTING_ARCANE_BLAST:
-					if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-						DoCast(target, SPELL_ARCANE_BLAST);
-					events.RescheduleEvent(CASTING_ARCANE_BLAST, 8s, 14s);
-					break;
+                switch (eventId)
+                {
+                    case CASTING_FIREBALL:
+                        DoCastVictim(SPELL_FIREBALL);
+                        events.RescheduleEvent(CASTING_FIREBALL, 1180);
+                        break;
+
+                    case CASTING_ICE_LANCE:
+                        me->InterruptNonMeleeSpells(true);
+                        if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_ICE_LANCE);
+                        events.RescheduleEvent(CASTING_ICE_LANCE, 8s, 15s);
+                        break;
+
+                    case CASTING_BLINK:
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(SPELL_BLINK);
+                        events.RescheduleEvent(CASTING_BLINK, 34s, 45s);
+                        break;
+
+                    case CASTING_ARCANE_BLAST:
+                        if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_ARCANE_BLAST);
+                        events.RescheduleEvent(CASTING_ARCANE_BLAST, 8s, 14s);
+                        break;
+                }
             }
 
             DoMeleeAttackIfReady();

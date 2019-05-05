@@ -53,18 +53,21 @@ class npc_felcaster : public CreatureScript
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                case CASTING_SHADOWN_BOLT:
-                    DoCastVictim(SPELL_SHADOW_BOLT);
-                    events.RescheduleEvent(CASTING_SHADOWN_BOLT, 1180);
-                    break;
+                switch (eventId)
+                {
+                    case CASTING_SHADOWN_BOLT:
+                        DoCastVictim(SPELL_SHADOW_BOLT);
+                        events.RescheduleEvent(CASTING_SHADOWN_BOLT, 1180);
+                        break;
 
-                case CASTING_FEL_FIREBALL:
-                    if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_FEL_FIREBALL);
-                    events.RescheduleEvent(CASTING_FEL_FIREBALL, 25s, 30s);
-                    break;
+                    case CASTING_FEL_FIREBALL:
+                        if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_FEL_FIREBALL);
+                        events.RescheduleEvent(CASTING_FEL_FIREBALL, 25s, 30s);
+                        break;
+                }
             }
 
             DoMeleeAttackIfReady();

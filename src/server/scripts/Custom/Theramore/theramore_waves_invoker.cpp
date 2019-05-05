@@ -37,68 +37,38 @@ enum Misc
     JAINA_SAY_WAVE_ALERT        = 36,
     JAINA_SAY_WAVE_CITADEL      = 37,
     JAINA_SAY_WAVE_DOORS        = 38,
-    JAINA_SAY_WAVE_DOCKS        = 39
+    JAINA_SAY_WAVE_DOCKS        = 39,
+
+    // Wave types
+    WAVE_DOORS                  = 0,
+    WAVE_CITADEL                = 1,
+    WAVE_DOCKS                  = 2
 };
 
 enum Waves
 {
-    WAVE_01                     = 100,
+    WAVE_01             = 100,
     WAVE_01_CHECK,
-    WAVE_02,
-    WAVE_02_CHECK,
-    WAVE_03,
-    WAVE_03_CHECK,
-    WAVE_04,
-    WAVE_04_CHECK,
-    WAVE_05,
-    WAVE_05_CHECK,
-    WAVE_06,
-    WAVE_06_CHECK,
-    WAVE_07,
-    WAVE_07_CHECK,
-    WAVE_08,
-    WAVE_08_CHECK,
+    //WAVE_02,
+    //WAVE_02_CHECK,
+    //WAVE_03,
+    //WAVE_03_CHECK,
+    //WAVE_04,
+    //WAVE_04_CHECK,
+    //WAVE_05,
+    //WAVE_05_CHECK,
+    //WAVE_06,
+    //WAVE_06_CHECK,
+    //WAVE_07,
+    //WAVE_07_CHECK,
+    //WAVE_08,
+    //WAVE_08_CHECK,
     WAVE_EXIT
-};
-
-float HordeMembersLocation[4][5][5] =
-{
-    {
-        { NPC_ROK_NAH_SOLDIER,      -3610.94f, -4334.58f, 9.29f, 3.817f },
-        { NPC_ROK_NAH_GRUNT,        -3608.48f, -4331.07f, 9.35f, 3.817f },
-        { NPC_ROK_NAH_GRUNT,        -3610.94f, -4332.61f, 9.29f, 3.817f },
-        { NPC_ROK_NAH_GRUNT,        -3607.25f, -4334.16f, 9.36f, 3.817f },
-        { NPC_ROK_NAH_GRUNT,        -3607.33f, -4330.34f, 9.32f, 3.817f }
-    },
-
-    {
-        { NPC_ROK_NAH_SOLDIER,      -3669.06f, -4509.73f, 10.13f, 1.285f },
-        { NPC_ROK_NAH_SOLDIER,      -3672.14f, -4508.86f, 10.33f, 1.285f },
-        { NPC_ROK_NAH_GRUNT,        -3665.76f, -4510.66f, 10.07f, 1.285f },
-        { NPC_ROK_NAH_LOA_SINGER,   -3669.96f, -4513.21f, 10.09f, 1.285f },
-        { NPC_ROK_NAH_FELCASTER,    -3668.02f, -4506.34f, 10.21f, 1.295f }
-    },
-
-    {
-        { NPC_ROK_NAH_SOLDIER,      -3827.43f, -4536.14f, 9.21f, 0.783f },
-        { NPC_ROK_NAH_GRUNT,        -3826.47f, -4543.61f, 9.23f, 0.783f },
-        { NPC_ROK_NAH_SOLDIER,      -3832.48f, -4544.31f, 9.21f, 0.783f },
-        { NPC_ROK_NAH_LOA_SINGER,   -3828.94f, -4541.13f, 9.21f, 0.783f },
-        { NPC_ROK_NAH_HAG,          -3831.80f, -4538.26f, 9.21f, 0.783f }
-    },
-
-    {
-        { NPC_ROK_NAH_HAG,          -3669.06f, -4509.73f, 10.13f, 1.285f },
-        { NPC_ROK_NAH_FELCASTER,    -3672.14f, -4508.86f, 10.33f, 1.285f },
-        { NPC_ROK_NAH_FELCASTER,    -3665.76f, -4510.66f, 10.07f, 1.285f },
-        { NPC_ROK_NAH_LOA_SINGER,   -3669.96f, -4513.21f, 10.09f, 1.285f },
-        { NPC_ROK_NAH_GRUNT,        -3668.02f, -4506.34f, 10.21f, 1.295f }
-    }
 };
 
 class theramore_waves_invoker : public CreatureScript
 {
-public:
+    public:
     theramore_waves_invoker() : CreatureScript("theramore_waves_invoker") {}
 
     struct theramore_waves_invokerAI : public ScriptedAI
@@ -135,7 +105,6 @@ public:
             }
         }
 
-
         // Faire les IA de la horde en c++
         void Reset() override
         {
@@ -154,26 +123,27 @@ public:
                     // Event - Battle
                     case EVENT_BATTLE_1:
                         jaina->AI()->Talk(JAINA_SAY_02);
-                        jaina->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                        jaina->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
                         events.ScheduleEvent(EVENT_BATTLE_2, 3s);
                         break;
 
                     case EVENT_BATTLE_2:
                     {
-                        if (Creature* barrier = GetClosestCreatureWithEntry(me, NPC_INVISIBLE_STALKER, 20.f))
+                        if (Creature * barrier = GetClosestCreatureWithEntry(me, NPC_INVISIBLE_STALKER, 20.f))
                         {
                             barrier->CastSpell(barrier, 70444);
                             barrier->RemoveAllAuras();
                             barrier->DespawnOrUnsummon(2s);
                         }
 
-                        if (GameObject* gate = GetClosestGameObjectWithEntry(me, GOB_THERAMORE_GATE, 35.f))
+                        if (GameObject * gate = GetClosestGameObjectWithEntry(me, GOB_THERAMORE_GATE, 35.f))
                         {
-                            gate->SetLootState(LootState::GO_READY);
+                            gate->SetLootState(GO_READY);
                             gate->UseDoorOrButton();
                         }
 
                         amara->RemoveAllAuras();
+                        thalen->SetWalk(false);
                         thalen->RemoveAllAuras();
                         events.ScheduleEvent(EVENT_BATTLE_3, 3s);
                         break;
@@ -213,38 +183,41 @@ public:
 
                     case EVENT_BATTLE_7:
                         thalen->CastSpell(thalen, SPELL_POWER_BALL_VISUAL);
-                        thalen->DespawnOrUnsummon(2s);
-                        events.ScheduleEvent(EVENT_BATTLE_8, 3s);
+                        thalen->NearTeleportTo(-3727.50f, -4555.78f, 4.74f, 2.82f);
+                        thalen->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STRANGULATE);
+                        events.ScheduleEvent(EVENT_BATTLE_8, 2s);
                         break;
 
                     case EVENT_BATTLE_8:
+                        if (Creature * medic = DoSummon(NPC_THERAMORE_MEDIC, { -3736.40f, -4553.58f, 4.74f, 5.99f }, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                            medic->CastSpell(thalen, SPELL_CHAINS);
                         jaina->CastSpell(jaina, SPELL_TELEPORT, true);
                         jaina->NearTeleportTo(-3658.39f, -4372.87f, 9.35f, 0.69f);
                         events.ScheduleEvent(WAVE_01, 5s);
                         break;
 
-                    // Event - Invoker
+                        // Event - Invoker
                     case WAVE_01:
-                    case WAVE_02:
-                    case WAVE_03:
-                    case WAVE_04:
-                    case WAVE_05:
-                    case WAVE_06:
-                    case WAVE_07:
-                    case WAVE_08:
+                    //case WAVE_02:
+                    //case WAVE_03:
+                    //case WAVE_04:
+                    //case WAVE_05:
+                    //case WAVE_06:
+                    //case WAVE_07:
+                    //case WAVE_08:
                         HordeMembersInvoker(waves, horderMembers);
-                        waves = RAND(1, 2);
+                        waves = RAND(WAVE_CITADEL, WAVE_DOCKS);
                         events.ScheduleEvent(++wavesInvoker, 1s);
                         break;
 
                     case WAVE_01_CHECK:
-                    case WAVE_02_CHECK:
-                    case WAVE_03_CHECK:
-                    case WAVE_04_CHECK:
-                    case WAVE_05_CHECK:
-                    case WAVE_06_CHECK:
-                    case WAVE_07_CHECK:
-                    case WAVE_08_CHECK:
+                    //case WAVE_02_CHECK:
+                    //case WAVE_03_CHECK:
+                    //case WAVE_04_CHECK:
+                    //case WAVE_05_CHECK:
+                    //case WAVE_06_CHECK:
+                    //case WAVE_07_CHECK:
+                    //case WAVE_08_CHECK:
                     {
                         uint32 membersCounter = 0;
                         uint32 deadCounter = 0;
@@ -270,6 +243,8 @@ public:
                     }
 
                     case WAVE_EXIT:
+                        for (Player* player : players)
+                            player->CompleteQuest(QUEST_PREPARE_FOR_WAR);
                         jaina->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         break;
 
@@ -279,7 +254,7 @@ public:
             }
         }
 
-    private:
+        private:
         EventMap events;
         Creature* jaina;
         Creature* thalen;
@@ -293,21 +268,30 @@ public:
         {
             for (uint32 i = 0; i < 5; ++i)
             {
-                Position pos = { HordeMembersLocation[waveId][i][1], HordeMembersLocation[waveId][i][2], HordeMembersLocation[waveId][i][3], HordeMembersLocation[waveId][i][4] };
-                if (Creature * temp = DoSummon((uint32)HordeMembersLocation[waveId][i][0], pos, 900000, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN))
+                uint32 entry = RAND(NPC_ROK_NAH_GRUNT, NPC_ROK_NAH_SOLDIER, NPC_ROK_NAH_FELCASTER, NPC_ROK_NAH_HAG, NPC_ROK_NAH_LOA_SINGER);
+                Position pos;
+
+                switch (waveId)
                 {
-                    switch (waveId)
+                    case WAVE_DOORS:
+                        pos = GetRandomPosition({ -3608.66f, -4332.66f, 11.62f, 3.83f }, 3.f);
+                        break;
+
+                    case WAVE_CITADEL:
+                        pos = GetRandomPosition({ -3669.10f, -4507.06f, 11.62f, 0.f }, 25.f);
+                        break;
+
+                    case WAVE_DOCKS:
+                        pos = GetRandomPosition({ -3823.47f, -4536.42f, 11.62f, 0.f }, 30.f);
+                        break;
+                }
+
+                if (Creature * temp = DoSummon(entry, pos, 900000, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN))
+                {
+                    if (waveId == WAVE_DOORS)
                     {
-                        case 0:
-                        {
-                            float alpha = 2 * float(M_PI) * rand_norm();
-                            float r = 5 * sqrtf(rand_norm());
-                            float x = r * cosf(alpha) + jaina->GetPositionX();
-                            float y = r * sinf(alpha) + jaina->GetPositionY();
-                            Position pos = { x, y, jaina->GetPositionZ(), 0.f };
-                            temp->GetMotionMaster()->MovePoint(0, pos, false);
-                            break;
-                        }
+                        Position dest = GetRandomPosition(jaina->GetPosition(), 5.f);
+                        temp->GetMotionMaster()->MovePoint(0, dest, false);
                     }
 
                     hordes[i] = temp->GetGUID();
@@ -322,25 +306,33 @@ public:
             uint8 groupId = -1;
             switch (spawnNumber)
             {
-                // Citadelle
-                case 1:
-                case 3:
-                    groupId = JAINA_SAY_WAVE_CITADEL;
-                    break;
-
                 // Portes
-                case 0:
+                case WAVE_DOORS:
                     groupId = JAINA_SAY_WAVE_DOORS;
                     break;
 
+                // Citadelle
+                case WAVE_CITADEL:
+                    groupId = JAINA_SAY_WAVE_CITADEL;
+                    break;
+
                 // Docks
-                case 2:
+                case WAVE_DOCKS:
                     groupId = JAINA_SAY_WAVE_DOCKS;
                     break;
             }
 
             jaina->AI()->Talk(JAINA_SAY_WAVE_ALERT);
             jaina->AI()->Talk(groupId);
+        }
+
+        Position GetRandomPosition(Position center, float dist)
+        {
+            float alpha = 2 * float(M_PI) * float(rand_norm());
+            float r = dist * sqrtf(float(rand_norm()));
+            float x = r * cosf(alpha) + center.GetPositionX();
+            float y = r * sinf(alpha) + center.GetPositionY();
+            return { x, y, center.GetPositionZ(), 0.f };
         }
     };
 
