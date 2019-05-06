@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,10 +35,10 @@ void LfgPlayerData::SetState(LfgState state)
             m_Roles = 0;
             m_SelectedDungeons.clear();
             m_Comment.clear();
-            // No break on purpose
+            /* fallthrough */
         case LFG_STATE_DUNGEON:
             m_OldState = state;
-            // No break on purpose
+            /* fallthrough */
         default:
             m_State = state;
     }

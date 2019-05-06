@@ -23,7 +23,7 @@ and then casting a navigation mesh over it. The process consists of three steps,
 building the voxel mold, partitioning the mold into simple regions, peeling off 
 the regions as simple polygons.
 
-1. The voxel mold is build from the input triangle mesh by rasterizing the triangles into a multi-layer heightfield. Some simple filters are  then applied to the mold to prune out locations where the character would not be able to move.
+1. The voxel mold is built from the input triangle mesh by rasterizing the triangles into a multi-layer heightfield. Some simple filters are  then applied to the mold to prune out locations where the character would not be able to move.
 2. The walkable areas described by the mold are divided into simple overlayed 2D regions. The resulting regions have only one non-overlapping contour, which simplifies the final step of the process tremendously.
 3. The navigation polygons are peeled off from the regions by first tracing the boundaries and then simplifying them. The resulting polygons are finally converted to convex polygons which makes them perfect for pathfinding and spatial reasoning about the level. 
 
@@ -45,7 +45,7 @@ RecastDemo uses [premake5](http://premake.github.io/) to build platform specific
 
 #### Linux
 
-- Install SDl2 and its dependencies according to your distro's guidelines.
+- Install SDL2 and its dependencies according to your distro's guidelines.
 - run `premake5 gmake` from the `RecastDemo` folder.
 - `cd Build/gmake` then `make`
 - Run `RecastDemo\Bin\RecastDemo`

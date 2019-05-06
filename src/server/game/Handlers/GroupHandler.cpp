@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -781,7 +781,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_MAX_HP)
         *data << uint32(player->GetMaxHealth());
 
-    Powers powerType = player->getPowerType();
+    Powers powerType = player->GetPowerType();
     if (mask & GROUP_UPDATE_FLAG_POWER_TYPE)
         *data << uint8(powerType);
 
@@ -862,7 +862,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)
     {
         if (pet)
-            *data << uint8(pet->getPowerType());
+            *data << uint8(pet->GetPowerType());
         else
             *data << uint8(0);
     }
@@ -870,7 +870,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_CUR_POWER)
     {
         if (pet)
-            *data << uint16(pet->GetPower(pet->getPowerType()));
+            *data << uint16(pet->GetPower(pet->GetPowerType()));
         else
             *data << uint16(0);
     }
@@ -878,7 +878,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_MAX_POWER)
     {
         if (pet)
-            *data << uint16(pet->GetMaxPower(pet->getPowerType()));
+            *data << uint16(pet->GetMaxPower(pet->GetPowerType()));
         else
             *data << uint16(0);
     }
@@ -932,7 +932,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recvData)
     }
 
     Pet* pet = player->GetPet();
-    Powers powerType = player->getPowerType();
+    Powers powerType = player->GetPowerType();
 
     WorldPacket data(SMSG_PARTY_MEMBER_STATS_FULL, 4+2+2+2+1+2*6+8+1+8);
     data << uint8(0);                                       // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
@@ -1016,13 +1016,13 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recvData)
         data << uint32(pet->GetMaxHealth());
 
     if (updateFlags & GROUP_UPDATE_FLAG_PET_POWER_TYPE)
-        data << (uint8)pet->getPowerType();
+        data << (uint8)pet->GetPowerType();
 
     if (updateFlags & GROUP_UPDATE_FLAG_PET_CUR_POWER)
-        data << uint16(pet->GetPower(pet->getPowerType()));
+        data << uint16(pet->GetPower(pet->GetPowerType()));
 
     if (updateFlags & GROUP_UPDATE_FLAG_PET_MAX_POWER)
-        data << uint16(pet->GetMaxPower(pet->getPowerType()));
+        data << uint16(pet->GetMaxPower(pet->GetPowerType()));
 
     uint64 petAuraMask = 0;
     maskPos = data.wpos();

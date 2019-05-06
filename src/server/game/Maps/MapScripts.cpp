@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,7 +33,7 @@
 #include "World.h"
 
 /// Put scripts in the execution queue
-void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, Object* target)
+void Map::ScriptsStart(std::map<uint32, std::multimap<uint32, ScriptInfo>> const& scripts, uint32 id, Object* source, Object* target)
 {
     ///- Find the script map
     ScriptMapMap::const_iterator s = scripts.find(id);
@@ -153,6 +153,39 @@ inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* t
                 target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().GetCounter() : 0);
     }
     return creature;
+}
+
+inline GameObject* Map::_GetScriptGameObjectSourceOrTarget(Object* source, Object* target, ScriptInfo const* scriptInfo, bool bReverse) const
+{
+    GameObject* gameobject = nullptr;
+    if (!source && !target)
+        TC_LOG_ERROR("scripts", "%s source and target objects are NULL.", scriptInfo->GetDebugInfo().c_str());
+    else
+    {
+        if (bReverse)
+        {
+            // Check target first, then source.
+            if (target)
+                gameobject = target->ToGameObject();
+            if (!gameobject && source)
+                gameobject = source->ToGameObject();
+        }
+        else
+        {
+            // Check source first, then target.
+            if (source)
+                gameobject = source->ToGameObject();
+            if (!gameobject && target)
+                gameobject = target->ToGameObject();
+        }
+
+        if (!gameobject)
+            TC_LOG_ERROR("scripts", "%s neither source nor target are gameobjects (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
+                scriptInfo->GetDebugInfo().c_str(),
+                source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().GetCounter() : 0,
+                target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().GetCounter() : 0);
+    }
+    return gameobject;
 }
 
 inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const
@@ -662,49 +695,48 @@ void Map::ScriptsProcess()
 
             case SCRIPT_COMMAND_CAST_SPELL:
             {
-                /// @todo Allow gameobjects to be targets and casters
                 if (!source && !target)
                 {
                     TC_LOG_ERROR("scripts", "%s source and target objects are NULL.", step.script->GetDebugInfo().c_str());
                     break;
                 }
 
-                Unit* uSource = nullptr;
-                Unit* uTarget = nullptr;
+                WorldObject* uSource = nullptr;
+                WorldObject* uTarget = nullptr;
                 // source/target cast spell at target/source (script->datalong2: 0: s->t 1: s->s 2: t->t 3: t->s)
                 switch (step.script->CastSpell.Flags)
                 {
                     case SF_CASTSPELL_SOURCE_TO_TARGET: // source -> target
-                        uSource = source ? source->ToUnit() : nullptr;
-                        uTarget = target ? target->ToUnit() : nullptr;
+                        uSource = dynamic_cast<WorldObject*>(source);
+                        uTarget = target;
                         break;
                     case SF_CASTSPELL_SOURCE_TO_SOURCE: // source -> source
-                        uSource = source ? source->ToUnit() : nullptr;
+                        uSource = dynamic_cast<WorldObject*>(source);
                         uTarget = uSource;
                         break;
                     case SF_CASTSPELL_TARGET_TO_TARGET: // target -> target
-                        uSource = target ? target->ToUnit() : nullptr;
+                        uSource = target;
                         uTarget = uSource;
                         break;
                     case SF_CASTSPELL_TARGET_TO_SOURCE: // target -> source
-                        uSource = target ? target->ToUnit() : nullptr;
-                        uTarget = source ? source->ToUnit() : nullptr;
+                        uSource = target;
+                        uTarget = dynamic_cast<WorldObject*>(source);
                         break;
                     case SF_CASTSPELL_SEARCH_CREATURE: // source -> creature with entry
-                        uSource = source ? source->ToUnit() : nullptr;
+                        uSource = dynamic_cast<WorldObject*>(source);
                         uTarget = uSource ? uSource->FindNearestCreature(abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius) : nullptr;
                         break;
                 }
 
-                if (!uSource || !uSource->isType(TYPEMASK_UNIT))
+                if (!uSource)
                 {
-                    TC_LOG_ERROR("scripts", "%s no source unit found for spell %u", step.script->GetDebugInfo().c_str(), step.script->CastSpell.SpellID);
+                    TC_LOG_ERROR("scripts", "%s no source worldobject found for spell %u", step.script->GetDebugInfo().c_str(), step.script->CastSpell.SpellID);
                     break;
                 }
 
-                if (!uTarget || !uTarget->isType(TYPEMASK_UNIT))
+                if (!uTarget)
                 {
-                    TC_LOG_ERROR("scripts", "%s no target unit found for spell %u", step.script->GetDebugInfo().c_str(), step.script->CastSpell.SpellID);
+                    TC_LOG_ERROR("scripts", "%s no target worldobject found for spell %u", step.script->GetDebugInfo().c_str(), step.script->CastSpell.SpellID);
                     break;
                 }
 
@@ -754,9 +786,11 @@ void Map::ScriptsProcess()
                 break;
 
             case SCRIPT_COMMAND_DESPAWN_SELF:
-                // Target or source must be Creature.
+                // First try with target or source creature, then with target or source gameobject
                 if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script, true))
                     cSource->DespawnOrUnsummon(step.script->DespawnSelf.DespawnDelay);
+                else if (GameObject* goSource = _GetScriptGameObjectSourceOrTarget(source, target, step.script, true))
+                    goSource->DespawnOrUnsummon(Milliseconds(step.script->DespawnSelf.DespawnDelay));
                 break;
 
             case SCRIPT_COMMAND_LOAD_PATH:
@@ -880,7 +914,6 @@ void Map::ScriptsProcess()
                     if (!cSource->IsAlive())
                         return;
 
-                    cSource->GetMotionMaster()->MovementExpired();
                     cSource->GetMotionMaster()->MoveIdle();
 
                     switch (step.script->Movement.MovementType)

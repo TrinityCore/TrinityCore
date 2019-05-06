@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,7 @@
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "SpellMgr.h"
+#include "Unit.h"
 #include <sstream>
 #include <string>
 
@@ -397,6 +398,22 @@ bool SpellScript::IsInTargetHook() const
     }
     return false;
 }
+
+bool SpellScript::IsInModifiableHook() const
+{
+    // after hit hook executed after damage/healing is already done
+    // modifying it at this point has no effect
+    switch (m_currentScriptState)
+    {
+        case SPELL_SCRIPT_HOOK_EFFECT_LAUNCH_TARGET:
+        case SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET:
+        case SPELL_SCRIPT_HOOK_BEFORE_HIT:
+        case SPELL_SCRIPT_HOOK_HIT:
+            return true;
+    }
+    return false;
+}
+
 bool SpellScript::IsInHitPhase() const
 {
     return (m_currentScriptState >= HOOK_SPELL_HIT_START && m_currentScriptState < HOOK_SPELL_HIT_END);
@@ -407,22 +424,27 @@ bool SpellScript::IsInEffectHook() const
     return (m_currentScriptState >= SPELL_SCRIPT_HOOK_EFFECT_LAUNCH && m_currentScriptState <= SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET);
 }
 
-Unit* SpellScript::GetCaster()
+Unit* SpellScript::GetCaster() const
 {
-     return m_spell->GetCaster();
+    return m_spell->GetCaster()->ToUnit();
 }
 
-Unit* SpellScript::GetOriginalCaster()
+GameObject* SpellScript::GetGObjCaster() const
 {
-     return m_spell->GetOriginalCaster();
+    return m_spell->GetCaster()->ToGameObject();
 }
 
-SpellInfo const* SpellScript::GetSpellInfo()
+Unit* SpellScript::GetOriginalCaster() const
+{
+    return m_spell->GetOriginalCaster();
+}
+
+SpellInfo const* SpellScript::GetSpellInfo() const
 {
     return m_spell->GetSpellInfo();
 }
 
-WorldLocation const* SpellScript::GetExplTargetDest()
+WorldLocation const* SpellScript::GetExplTargetDest() const
 {
     if (m_spell->m_targets.HasDst())
         return m_spell->m_targets.GetDstPos();
@@ -434,27 +456,27 @@ void SpellScript::SetExplTargetDest(WorldLocation& loc)
     m_spell->m_targets.SetDst(loc);
 }
 
-WorldObject* SpellScript::GetExplTargetWorldObject()
+WorldObject* SpellScript::GetExplTargetWorldObject() const
 {
     return m_spell->m_targets.GetObjectTarget();
 }
 
-Unit* SpellScript::GetExplTargetUnit()
+Unit* SpellScript::GetExplTargetUnit() const
 {
     return m_spell->m_targets.GetUnitTarget();
 }
 
-GameObject* SpellScript::GetExplTargetGObj()
+GameObject* SpellScript::GetExplTargetGObj() const
 {
     return m_spell->m_targets.GetGOTarget();
 }
 
-Item* SpellScript::GetExplTargetItem()
+Item* SpellScript::GetExplTargetItem() const
 {
     return m_spell->m_targets.GetItemTarget();
 }
 
-Unit* SpellScript::GetHitUnit()
+Unit* SpellScript::GetHitUnit() const
 {
     if (!IsInTargetHook())
     {
@@ -464,7 +486,7 @@ Unit* SpellScript::GetHitUnit()
     return m_spell->unitTarget;
 }
 
-Creature* SpellScript::GetHitCreature()
+Creature* SpellScript::GetHitCreature() const
 {
     if (!IsInTargetHook())
     {
@@ -477,7 +499,7 @@ Creature* SpellScript::GetHitCreature()
         return nullptr;
 }
 
-Player* SpellScript::GetHitPlayer()
+Player* SpellScript::GetHitPlayer() const
 {
     if (!IsInTargetHook())
     {
@@ -490,7 +512,7 @@ Player* SpellScript::GetHitPlayer()
         return nullptr;
 }
 
-Item* SpellScript::GetHitItem()
+Item* SpellScript::GetHitItem() const
 {
     if (!IsInTargetHook())
     {
@@ -500,7 +522,7 @@ Item* SpellScript::GetHitItem()
     return m_spell->itemTarget;
 }
 
-GameObject* SpellScript::GetHitGObj()
+GameObject* SpellScript::GetHitGObj() const
 {
     if (!IsInTargetHook())
     {
@@ -510,7 +532,7 @@ GameObject* SpellScript::GetHitGObj()
     return m_spell->gameObjTarget;
 }
 
-WorldLocation* SpellScript::GetHitDest()
+WorldLocation* SpellScript::GetHitDest() const
 {
     if (!IsInEffectHook())
     {
@@ -520,7 +542,7 @@ WorldLocation* SpellScript::GetHitDest()
     return m_spell->destTarget;
 }
 
-int32 SpellScript::GetHitDamage()
+int32 SpellScript::GetHitDamage() const
 {
     if (!IsInTargetHook())
     {
@@ -532,7 +554,7 @@ int32 SpellScript::GetHitDamage()
 
 void SpellScript::SetHitDamage(int32 damage)
 {
-    if (!IsInTargetHook())
+    if (!IsInModifiableHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::SetHitDamage was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return;
@@ -540,7 +562,7 @@ void SpellScript::SetHitDamage(int32 damage)
     m_spell->m_damage = damage;
 }
 
-int32 SpellScript::GetHitHeal()
+int32 SpellScript::GetHitHeal() const
 {
     if (!IsInTargetHook())
     {
@@ -552,7 +574,7 @@ int32 SpellScript::GetHitHeal()
 
 void SpellScript::SetHitHeal(int32 heal)
 {
-    if (!IsInTargetHook())
+    if (!IsInModifiableHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::SetHitHeal was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return;
@@ -560,18 +582,22 @@ void SpellScript::SetHitHeal(int32 heal)
     m_spell->m_healing = heal;
 }
 
-Aura* SpellScript::GetHitAura()
+Aura* SpellScript::GetHitAura(bool dynObjAura /*= false*/) const
 {
     if (!IsInTargetHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetHitAura was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return nullptr;
     }
-    if (!m_spell->m_spellAura)
+
+    Aura* aura = m_spell->_spellAura;
+    if (dynObjAura)
+        aura = m_spell->_dynObjAura;
+
+    if (!aura || aura->IsRemoved())
         return nullptr;
-    if (m_spell->m_spellAura->IsRemoved())
-        return nullptr;
-    return m_spell->m_spellAura;
+
+    return aura;
 }
 
 void SpellScript::PreventHitAura()
@@ -581,8 +607,10 @@ void SpellScript::PreventHitAura()
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::PreventHitAura was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return;
     }
-    if (m_spell->m_spellAura)
-        m_spell->m_spellAura->Remove();
+    if (UnitAura* aura = m_spell->_spellAura)
+        aura->Remove();
+    if (DynObjAura* aura = m_spell->_dynObjAura)
+        aura->Remove();
 }
 
 void SpellScript::PreventHitEffect(SpellEffIndex effIndex)
@@ -628,7 +656,7 @@ void SpellScript::SetEffectValue(int32 value)
     m_spell->damage = value;
 }
 
-Item* SpellScript::GetCastItem()
+Item* SpellScript::GetCastItem() const
 {
     return m_spell->m_CastItem;
 }
@@ -638,7 +666,7 @@ void SpellScript::CreateItem(uint32 effIndex, uint32 itemId)
     m_spell->DoCreateItem(effIndex, itemId);
 }
 
-SpellInfo const* SpellScript::GetTriggeringSpell()
+SpellInfo const* SpellScript::GetTriggeringSpell() const
 {
     return m_spell->m_triggeredByAuraSpell;
 }
@@ -660,7 +688,7 @@ void SpellScript::SetCustomCastResultMessage(SpellCustomErrors result)
     m_spell->m_customError = result;
 }
 
-SpellValue const* SpellScript::GetSpellValue()
+SpellValue const* SpellScript::GetSpellValue() const
 {
     return m_spell->m_spellValue;
 }
@@ -1024,7 +1052,16 @@ ObjectGuid AuraScript::GetCasterGUID() const
 
 Unit* AuraScript::GetCaster() const
 {
-    return m_aura->GetCaster();
+    if (WorldObject* caster = m_aura->GetCaster())
+        return caster->ToUnit();
+    return nullptr;
+}
+
+GameObject* AuraScript::GetGObjCaster() const
+{
+    if (WorldObject* caster = m_aura->GetCaster())
+        return caster->ToGameObject();
+    return nullptr;
 }
 
 WorldObject* AuraScript::GetOwner() const
@@ -1200,4 +1237,3 @@ AuraApplication const* AuraScript::GetTargetApplication() const
 {
     return m_auraApplication;
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -48,16 +48,16 @@ void SummonList::Despawn(Creature const* summon)
     storage_.remove(summon->GetGUID());
 }
 
-void SummonList::DoZoneInCombat(uint32 entry, float maxRangeToNearestTarget)
+void SummonList::DoZoneInCombat(uint32 entry)
 {
     for (StorageType::iterator i = storage_.begin(); i != storage_.end();)
     {
         Creature* summon = ObjectAccessor::GetCreature(*me, *i);
         ++i;
-        if (summon && summon->IsAIEnabled
+        if (summon && summon->IsAIEnabled()
                 && (!entry || summon->GetEntry() == entry))
         {
-            summon->AI()->DoZoneInCombat(nullptr, maxRangeToNearestTarget);
+            summon->AI()->DoZoneInCombat(nullptr);
         }
     }
 }
@@ -118,7 +118,7 @@ void SummonList::DoActionImpl(int32 action, StorageType const& summons)
     for (auto const& guid : summons)
     {
         Creature* summon = ObjectAccessor::GetCreature(*me, guid);
-        if (summon && summon->IsAIEnabled)
+        if (summon && summon->IsAIEnabled())
             summon->AI()->DoAction(action);
     }
 }
@@ -183,7 +183,7 @@ void ScriptedAI::DoCastSpell(Unit* target, SpellInfo const* spellInfo, bool trig
         return;
 
     me->StopMoving();
-    me->CastSpell(target, spellInfo, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
+    me->CastSpell(target, spellInfo->Id, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
 }
 
 void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
@@ -310,7 +310,7 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
             continue;
 
         //Continue if we don't have the mana to actually cast this spell
-        if (tempSpell->ManaCost > me->GetPower(Powers(tempSpell->PowerType)))
+        if (tempSpell->ManaCost > me->GetPower(tempSpell->PowerType))
             continue;
 
         //Check if the spell meets our range requirements
@@ -496,7 +496,7 @@ void BossAI::_JustReachedHome()
     me->setActive(false);
 }
 
-void BossAI::_EnterCombat()
+void BossAI::_JustEngagedWith()
 {
     if (instance)
     {
@@ -520,11 +520,12 @@ void BossAI::TeleportCheaters()
     float x, y, z;
     me->GetPosition(x, y, z);
 
-    ThreatContainer::StorageType threatList = me->GetThreatManager().getThreatList();
-    for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
-        if (Unit* target = (*itr)->getTarget())
-            if (target->GetTypeId() == TYPEID_PLAYER && !CheckBoundary(target))
-                target->NearTeleportTo(x, y, z, 0);
+    for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
+    {
+        Unit* target = pair.second->GetOther(me);
+        if (target->IsControlledByPlayer() && !IsInBoundary(target))
+            target->NearTeleportTo(x, y, z, 0);
+    }
 }
 
 void BossAI::JustSummoned(Creature* summon)
@@ -561,7 +562,7 @@ void BossAI::UpdateAI(uint32 diff)
 
 bool BossAI::CanAIAttack(Unit const* target) const
 {
-    return CheckBoundary(target);
+    return IsInBoundary(target);
 }
 
 void BossAI::_DespawnAtEvade(Seconds delayToRespawn, Creature* who)
@@ -609,7 +610,7 @@ void WorldBossAI::_JustDied()
     summons.DespawnAll();
 }
 
-void WorldBossAI::_EnterCombat()
+void WorldBossAI::_JustEngagedWith()
 {
     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
     if (target)

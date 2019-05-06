@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -146,6 +146,8 @@ class TC_GAME_API Pet : public Guardian
         bool    m_removed;                                  // prevent overwrite pet state in DB at next Pet::Update if pet already removed(saved)
 
         Player* GetOwner() const;
+
+        std::string GetDebugInfo() const override;
 
     protected:
         uint32  m_happinessTimer;

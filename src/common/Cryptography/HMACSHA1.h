@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,12 +36,11 @@ class TC_COMMON_API HmacHash
         void UpdateData(std::string const& str);
         void UpdateData(uint8 const* data, size_t len);
         void Finalize();
-        uint8 *ComputeHash(BigNumber* bn);
-        uint8 *GetDigest() { return (uint8*)m_digest; }
+        uint8* ComputeHash(BigNumber* bn);
+        uint8* GetDigest() { return m_digest; }
         int GetLength() const { return SHA_DIGEST_LENGTH; }
     private:
-        HMAC_CTX m_ctx;
+        HMAC_CTX* m_ctx;
         uint8 m_digest[SHA_DIGEST_LENGTH];
 };
 #endif
-

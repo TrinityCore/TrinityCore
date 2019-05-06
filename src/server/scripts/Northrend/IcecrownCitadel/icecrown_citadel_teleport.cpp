@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -56,7 +56,9 @@ class icecrown_citadel_teleport : public GameObjectScript
 
                 ClearGossipMenuFor(player);
                 CloseGossipMenuFor(player);
-                SpellInfo const* spell = sSpellMgr->GetSpellInfo(TeleportSpells[gossipListId]);
+
+                uint32 const teleportSpell = TeleportSpells[gossipListId];
+                SpellInfo const* spell = sSpellMgr->GetSpellInfo(teleportSpell);
                 if (!spell)
                     return false;
 
@@ -66,7 +68,7 @@ class icecrown_citadel_teleport : public GameObjectScript
                     return true;
                 }
 
-                player->CastSpell(player, spell, true);
+                player->CastSpell(player, teleportSpell, true);
                 return true;
             }
         };

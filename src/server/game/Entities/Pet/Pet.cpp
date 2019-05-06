@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -216,19 +216,18 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             petlevel = owner->getLevel();
 
             SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, uint8(CLASS_MAGE));
-            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
                                                             // this enables popup window (pet dismiss, cancel)
             break;
         case HUNTER_PET:
             SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, CLASS_WARRIOR);
             SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, GENDER_NONE);
-            SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_POWER_TYPE, POWER_FOCUS);
             SetSheath(SHEATH_STATE_MELEE);
             SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, fields[9].GetBool() ? UNIT_CAN_BE_ABANDONED : UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
 
-            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
                                                             // this enables popup window (pet abandon, cancel)
-            SetMaxPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
+            SetMaxPower(POWER_HAPPINESS, GetCreatePowerValue(POWER_HAPPINESS));
             SetPower(POWER_HAPPINESS, fields[12].GetUInt32());
             break;
         default:
@@ -237,7 +236,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             break;
     }
 
-    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped here
+    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(GameTime::GetGameTime())); // cast can't be helped here
     SetCreatorGUID(owner->GetGUID());
 
     InitStatsForLevel(petlevel);
@@ -318,7 +317,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
     InitTalentForLevel();                                   // set original talents points before spell loading
 
-    uint32 timediff = uint32(time(nullptr) - fields[14].GetUInt32());
+    uint32 timediff = uint32(GameTime::GetGameTime() - fields[14].GetUInt32());
     _LoadAuras(timediff);
 
     // load action bar, if data broken will fill later by default spells.
@@ -372,7 +371,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         owner->ToPlayer()->SetLastPetNumber(petId);
 
     // must be after SetMinion (owner guid check)
-    LoadMechanicTemplateImmunity();
+    LoadTemplateImmunities();
     m_loading = false;
 
     return true;
@@ -467,7 +466,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         stmt->setUInt32(11, curmana);
         stmt->setUInt32(12, GetPower(POWER_HAPPINESS));
         stmt->setString(13, GenerateActionBarData());
-        stmt->setUInt32(14, time(nullptr));
+        stmt->setUInt32(14, GameTime::GetGameTime());
         stmt->setUInt32(15, GetUInt32Value(UNIT_CREATED_BY_SPELL));
         stmt->setUInt8(16, getPetType());
         trans->Append(stmt);
@@ -546,7 +545,7 @@ void Pet::Update(uint32 diff)
     {
         case CORPSE:
         {
-            if (getPetType() != HUNTER_PET || m_corpseRemoveTime <= time(nullptr))
+            if (getPetType() != HUNTER_PET || m_corpseRemoveTime <= GameTime::GetGameTime())
             {
                 Remove(PET_SAVE_NOT_IN_SLOT);               //hunters' pets never get removed because of death, NEVER!
                 return;
@@ -592,7 +591,7 @@ void Pet::Update(uint32 diff)
                     m_focusRegenTimer -= diff;
                 else
                 {
-                    switch (getPowerType())
+                    switch (GetPowerType())
                     {
                         case POWER_FOCUS:
                             Regenerate(POWER_FOCUS);
@@ -771,9 +770,8 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phas
     if (!Create(guid, map, phaseMask, cinfo->Entry, petId))
         return false;
 
-    SetMaxPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
+    SetMaxPower(POWER_HAPPINESS, GetCreatePowerValue(POWER_HAPPINESS));
     SetPower(POWER_HAPPINESS, 166500);
-    setPowerType(POWER_FOCUS);
     SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, 0);
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
     SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(getLevel()+1)*PET_XP_FACTOR));
@@ -783,7 +781,6 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phas
     {
         SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, CLASS_WARRIOR);
         SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, GENDER_NONE);
-        SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_POWER_TYPE, POWER_FOCUS);
         SetSheath(SHEATH_STATE_MELEE);
         SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
     }
@@ -854,13 +851,12 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
             SetStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(cinfo->resistance[i]));
 
-    //health, mana, armor and resistance
+    // Health, Mana or Power, Armor
     PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(creature_ID, petlevel);
     if (pInfo)                                      // exist in DB
     {
         SetCreateHealth(pInfo->health);
-        if (petType != HUNTER_PET) //hunter pet use focus
-            SetCreateMana(pInfo->mana);
+        SetCreateMana(pInfo->mana);
 
         if (pInfo->armor > 0)
             SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(pInfo->armor));
@@ -882,6 +878,18 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         SetCreateStat(STAT_SPIRIT, 27);
     }
 
+    // Power
+    if (petType == HUNTER_PET) // Hunter pets have focus
+        SetPowerType(POWER_FOCUS);
+    else if (IsPetGhoul() || IsRisenAlly()) // DK pets have energy
+    {
+        SetPowerType(POWER_ENERGY);
+        SetFullPower(POWER_ENERGY);
+    }
+    else
+        SetPowerType(POWER_MANA);
+
+    // Damage
     SetBonusDamage(0);
     switch (petType)
     {
@@ -896,8 +904,16 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
             SetBonusDamage(val * 0.15f);
 
-            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
-            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+            if (pInfo)
+            {
+                SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(pInfo->minDamage));
+                SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(pInfo->maxDamage));
+            }
+            else
+            {
+                SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
+                SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+            }
 
             //SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
             break;
@@ -1177,6 +1193,8 @@ void Pet::_LoadAuras(uint32 timediff)
             int32 maxduration = fields[11].GetInt32();
             int32 remaintime = fields[12].GetInt32();
             uint8 remaincharges = fields[13].GetUInt8();
+            float critChance = fields[14].GetFloat();
+            bool applyResilience = fields[15].GetBool();
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
             if (!spellInfo)
@@ -1186,7 +1204,7 @@ void Pet::_LoadAuras(uint32 timediff)
             }
 
             // negative effects should continue counting down after logout
-            if (remaintime != -1 && !spellInfo->IsPositive())
+            if (remaintime != -1 && (!spellInfo->IsPositive() || spellInfo->HasAttribute(SPELL_ATTR4_FADES_WHILE_LOGGED_OUT)))
             {
                 if (remaintime/IN_MILLISECONDS <= int32(timediff))
                     continue;
@@ -1203,14 +1221,19 @@ void Pet::_LoadAuras(uint32 timediff)
             else
                 remaincharges = 0;
 
-            if (Aura* aura = Aura::TryCreate(spellInfo, effmask, this, nullptr, &baseDamage[0], nullptr, caster_guid))
+            AuraCreateInfo createInfo(spellInfo, effmask, this);
+            createInfo
+                .SetCasterGUID(caster_guid)
+                .SetBaseAmount(baseDamage);
+
+            if (Aura* aura = Aura::TryCreate(createInfo))
             {
                 if (!aura->CanBeSaved())
                 {
                     aura->Remove();
                     continue;
                 }
-                aura->SetLoadedState(maxduration, remaintime, remaincharges, stackcount, recalculatemask, &damage[0]);
+                aura->SetLoadedState(maxduration, remaintime, remaincharges, stackcount, recalculatemask, critChance, applyResilience, &damage[0]);
                 aura->ApplyForTargets();
                 TC_LOG_DEBUG("entities.pet", "Added aura spellid %u, effectmask %u", spellInfo->Id, effmask);
             }
@@ -1275,6 +1298,8 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         stmt->setInt32(index++, itr->second->GetMaxDuration());
         stmt->setInt32(index++, itr->second->GetDuration());
         stmt->setUInt8(index++, itr->second->GetCharges());
+        stmt->setFloat(index++, itr->second->GetCritChance());
+        stmt->setBool (index++, itr->second->CanApplyResilience());
 
         trans->Append(stmt);
     }
@@ -1814,6 +1839,8 @@ bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32
     SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     SetSheath(SHEATH_STATE_MELEE);
 
+    GetThreatManager().Initialize();
+
     return true;
 }
 
@@ -1870,13 +1897,13 @@ void Pet::CastPetAura(PetAura const* aura)
     if (!auraId)
         return;
 
+    CastSpellExtraArgs args;
+    args.TriggerFlags = TRIGGERED_FULL_MASK;
+
     if (auraId == 35696)                                      // Demonic Knowledge
-    {
-        int32 basePoints = CalculatePct(aura->GetDamage(), GetStat(STAT_STAMINA) + GetStat(STAT_INTELLECT));
-        CastCustomSpell(this, auraId, &basePoints, nullptr, nullptr, true);
-    }
-    else
-        CastSpell(this, auraId, true);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(aura->GetDamage(), GetStat(STAT_STAMINA) + GetStat(STAT_INTELLECT)));
+
+    CastSpell(this, auraId, args);
 }
 
 bool Pet::IsPetAura(Aura const* aura)
@@ -1949,4 +1976,13 @@ std::string Pet::GenerateActionBarData() const
     }
 
     return oss.str();
+}
+
+std::string Pet::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Guardian::GetDebugInfo() << "\n"
+        << std::boolalpha
+        << "PetType: " << std::to_string(getPetType());
+    return sstr.str();
 }

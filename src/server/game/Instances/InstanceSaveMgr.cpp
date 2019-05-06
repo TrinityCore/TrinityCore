@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,7 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridStates.h"
 #include "Group.h"
@@ -105,7 +106,7 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
             resetTime = GetResetTimeFor(mapId, difficulty);
         else
         {
-            resetTime = time(nullptr) + 2 * HOUR;
+            resetTime = GameTime::GetGameTime() + 2 * HOUR;
             // normally this will be removed soon after in InstanceMap::Add, prevent error
             ScheduleReset(true, resetTime, InstResetEvent(0, mapId, difficulty, instanceId));
         }
@@ -273,7 +274,7 @@ void InstanceSaveManager::LoadInstances()
 
     // Delete invalid character_instance and group_instance references
     CharacterDatabase.DirectExecute("DELETE ci.* FROM character_instance AS ci LEFT JOIN characters AS c ON ci.guid = c.guid WHERE c.guid IS NULL");
-    CharacterDatabase.DirectExecute("DELETE gi.* FROM group_instance     AS gi LEFT JOIN groups     AS g ON gi.guid = g.guid WHERE g.guid IS NULL");
+    CharacterDatabase.DirectExecute("DELETE gi.* FROM group_instance     AS gi LEFT JOIN `groups`   AS g ON gi.guid = g.guid WHERE g.guid IS NULL");
 
     // Delete invalid instance references
     CharacterDatabase.DirectExecute("DELETE i.* FROM instance AS i LEFT JOIN character_instance AS ci ON i.id = ci.instance LEFT JOIN group_instance AS gi ON i.id = gi.instance WHERE ci.guid IS NULL AND gi.guid IS NULL");
@@ -300,7 +301,7 @@ void InstanceSaveManager::LoadInstances()
 
 void InstanceSaveManager::LoadResetTimes()
 {
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     time_t today = (now / DAY) * DAY;
 
     // NOTE: Use DirectPExecute for tables that will be queried later
@@ -511,12 +512,12 @@ void InstanceSaveManager::ForceGlobalReset(uint32 mapId, Difficulty difficulty)
     ScheduleReset(false, 0, InstResetEvent(1, mapId, difficulty, 0));
     ScheduleReset(false, 0, InstResetEvent(4, mapId, difficulty, 0));
     // force global reset on the instance
-    _ResetOrWarnAll(mapId, difficulty, false, time(nullptr));
+    _ResetOrWarnAll(mapId, difficulty, false, GameTime::GetGameTime());
 }
 
 void InstanceSaveManager::Update()
 {
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     time_t t;
 
     while (!m_resetTimeQueue.empty())
@@ -633,7 +634,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         return;
     TC_LOG_DEBUG("misc", "InstanceSaveManager::ResetOrWarnAll: Processing map %s (%u) on difficulty %u (warn? %u)", mapEntry->name[0], mapid, uint8(difficulty), warn);
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
 
     if (!warn)
     {

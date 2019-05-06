@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -265,6 +265,7 @@ public:
             me->SetDisableGravity(true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->setActive(true);
+            me->SetFarVisible(true);
 
             for (uint8 i = 0; i < 4; ++i)
                 if (GameObject* pOrb = GetOrb(i))
@@ -312,6 +313,7 @@ public:
                         pOrb->CastSpell(me, SPELL_RING_OF_BLUE_FLAMES);
                         pOrb->SetFaction(FACTION_FRIENDLY);
                         pOrb->setActive(true);
+                        pOrb->SetFarVisible(true);
                         pOrb->Refresh();
                     }
                 }
@@ -324,6 +326,7 @@ public:
                     pOrb->CastSpell(me, SPELL_RING_OF_BLUE_FLAMES);
                     pOrb->SetFaction(FACTION_FRIENDLY);
                     pOrb->setActive(true);
+                    pOrb->SetFarVisible(true);
                     pOrb->Refresh();
 
                     OrbsEmpowered = (OrbsEmpowered+1)%4;
@@ -355,6 +358,7 @@ public:
                     {
                         pOrb->CastSpell(me, SPELL_RING_OF_BLUE_FLAMES);
                         pOrb->setActive(true);
+                        pOrb->SetFarVisible(true);
                         pOrb->Refresh();
                     }
                 }
@@ -648,7 +652,7 @@ public:
                 ENSURE_AI(npc_kiljaeden_controller::npc_kiljaeden_controllerAI, pControl->AI())->Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
         }
@@ -951,7 +955,7 @@ public:
             summoned->SetLevel(me->getLevel());
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             instance->SetBossState(DATA_KILJAEDEN, IN_PROGRESS);
             if (Creature* pControl = instance->GetCreature(DATA_KILJAEDEN_CONTROLLER))

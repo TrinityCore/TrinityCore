@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -171,8 +171,7 @@ public:
         TriggerCastFlags triggered = (triggeredStr != nullptr) ? TRIGGERED_FULL_DEBUG_MASK : TRIGGERED_NONE;
         float x, y, z;
         handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, dist);
-
-        handler->GetSession()->GetPlayer()->CastSpell(x, y, z, spellId, triggered);
+        handler->GetSession()->GetPlayer()->CastSpell({ x, y, z }, spellId, triggered);
 
         return true;
     }
@@ -274,7 +273,7 @@ public:
         }
 
         TriggerCastFlags triggered = (triggeredStr != nullptr) ? TRIGGERED_FULL_DEBUG_MASK : TRIGGERED_NONE;
-        caster->CastSpell(x, y, z, spellId, triggered);
+        caster->CastSpell({ x, y, z }, spellId, triggered);
 
         return true;
     }

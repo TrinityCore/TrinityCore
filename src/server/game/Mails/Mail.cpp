@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "CalendarMgr.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -190,7 +191,7 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
 
     uint32 mailId = sObjectMgr->GenerateMailID();
 
-    time_t deliver_time = time(nullptr) + deliver_delay;
+    time_t deliver_time = GameTime::GetGameTime() + deliver_delay;
 
     //expire time if COD 3 days, if no COD 30 days, if auction sale pending 1 hour
     uint32 expire_delay;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -250,6 +250,9 @@ enum WorldIntConfigs
     CONFIG_DAILY_QUEST_RESET_TIME_HOUR,
     CONFIG_MAX_PRIMARY_TRADE_SKILL,
     CONFIG_MIN_PETITION_SIGNS,
+    CONFIG_MIN_QUEST_SCALED_XP_RATIO,
+    CONFIG_MIN_CREATURE_SCALED_XP_RATIO,
+    CONFIG_MIN_DISCOVERED_SCALED_XP_RATIO,
     CONFIG_GM_LOGIN_STATE,
     CONFIG_GM_VISIBLE_STATE,
     CONFIG_GM_ACCEPT_TICKETS,
@@ -344,6 +347,7 @@ enum WorldIntConfigs
     CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS,
     CONFIG_LFG_OPTIONSMASK,
     CONFIG_MAX_INSTANCES_PER_HOUR,
+    CONFIG_XP_BOOST_DAYMASK,
     CONFIG_WARDEN_CLIENT_RESPONSE_DELAY,
     CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF,
     CONFIG_WARDEN_CLIENT_FAIL_ACTION,
@@ -450,13 +454,13 @@ enum Rates
     RATE_TALENT,
     RATE_CORPSE_DECAY_LOOTED,
     RATE_INSTANCE_RESET_TIME,
-    RATE_TARGET_POS_RECALCULATION_RANGE,
     RATE_DURABILITY_LOSS_ON_DEATH,
     RATE_DURABILITY_LOSS_DAMAGE,
     RATE_DURABILITY_LOSS_PARRY,
     RATE_DURABILITY_LOSS_ABSORB,
     RATE_DURABILITY_LOSS_BLOCK,
     RATE_MOVESPEED,
+    RATE_XP_BOOST,
     RATE_MONEY_QUEST,
     RATE_MONEY_MAX_LEVEL_QUEST,
     MAX_RATES
@@ -652,9 +656,9 @@ class TC_GAME_API World
         void SendGlobalText(char const* text, WorldSession* self);
         void SendGMText(uint32 string_id, ...);
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = nullptr);
-        void SendGlobalMessage(WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
-        void SendGlobalGMMessage(WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
-        bool SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
+        void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
+        void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
+        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
         void SendZoneText(uint32 zone, const char *text, WorldSession* self = nullptr, uint32 team = 0);
 
         /// Are we in the middle of a shutdown?

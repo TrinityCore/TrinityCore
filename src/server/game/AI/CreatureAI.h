@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,8 @@
 #include "UnitAI.h"
 #include "Common.h"
 #include "ObjectDefines.h"
+#include "Optional.h"
+#include "QuestDef.h"
 
 class AreaBoundary;
 class Creature;
@@ -73,15 +75,10 @@ class TC_GAME_API CreatureAI : public UnitAI
         Creature* const me;
 
         bool UpdateVictim();
-        bool UpdateVictimWithGaze();
-
-        void SetGazeOn(Unit* target);
 
         Creature* DoSummon(uint32 entry, Position const& pos, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         Creature* DoSummon(uint32 entry, WorldObject* obj, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-
-        bool CheckBoundary(Position const* who = nullptr) const;
 
     public:
         enum EvadeReason
@@ -110,8 +107,8 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called for reaction at stopping attack at no attackers or targets
         virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
-        // Called for reaction when initially engaged
-        virtual void EnterCombat(Unit* /*victim*/) { }
+        // Called for reaction when initially engaged - this will always happen _after_ JustEnteredCombat
+        virtual void JustEngagedWith(Unit* /*who*/) { }
 
         // Called when the creature is killed
         virtual void JustDied(Unit* /*killer*/) { }
@@ -127,10 +124,12 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
 
         // Called when hit by a spell
-        virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) { }
+        virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHitByGameObject(GameObject* /*caster*/, SpellInfo const* /*spellInfo*/) { }
 
         // Called when spell hits a target
-        virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) { }
+        virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHitTargetGameObject(GameObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
 
         virtual bool IsEscorted() const { return false; }
 
@@ -140,12 +139,12 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) { }
 
-        void OnCharmed(bool apply) override;
+        void OnCharmed(bool isNew) override;
 
         // Called at reaching home after evade
         virtual void JustReachedHome() { }
 
-        void DoZoneInCombat(Creature* creature = nullptr, float maxRangeToNearestTarget = 250.0f);
+        void DoZoneInCombat(Creature* creature = nullptr);
 
         // Called at text emote receive from player
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) { }
@@ -175,11 +174,38 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called when victim entered water and creature can not enter water
         //virtual bool CanReachByRangeAttack(Unit*) { return false; }
 
+        /// == Gossip system ================================
+
+        // Called when the dialog status between a player and the creature is requested.
+        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/) { return boost::none; }
+
+        // Called when a player opens a gossip dialog with the creature.
+        virtual bool GossipHello(Player* /*player*/) { return false; }
+
+        // Called when a player selects a gossip item in the creature's gossip menu.
+        virtual bool GossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) { return false; }
+
+        // Called when a player selects a gossip with a code in the creature's gossip menu.
+        virtual bool GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, char const* /*code*/) { return false; }
+
+        // Called when a player accepts a quest from the creature.
+        virtual void QuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
+
+        // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
+        virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
+
+        /// == Waypoints system =============================
+
+        virtual void WaypointPathStarted(uint32 /*pathId*/) { }
+        virtual void WaypointStarted(uint32 /*nodeId*/, uint32 /*pathId*/) { }
+        virtual void WaypointReached(uint32 /*nodeId*/, uint32 /*pathId*/) { }
+        virtual void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) { }
+
         /// == Fields =======================================
 
         virtual void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool /*apply*/) { }
 
-        virtual void OnSpellClick(Unit* /*clicker*/, bool& /*result*/) { }
+        virtual void OnSpellClick(Unit* /*clicker*/, bool /*spellClickHandled*/) { }
 
         virtual bool CanSeeAlways(WorldObject const* /*obj*/) { return false; }
 
@@ -198,6 +224,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         void SetBoundary(CreatureBoundary const* boundary, bool negativeBoundaries = false);
 
         static bool IsInBounds(CreatureBoundary const& boundary, Position const* who);
+        bool IsInBoundary(Position const* who = nullptr) const;
 
     protected:
         virtual void MoveInLineOfSight(Unit* /*who*/);

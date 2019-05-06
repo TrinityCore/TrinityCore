@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,6 +47,12 @@ void UnitAI::InitializeAI()
         Reset();
 }
 
+void UnitAI::OnCharmed(bool isNew)
+{
+    if (!isNew)
+        me->ScheduleAIChange();
+}
+
 void UnitAI::AttackStartCaster(Unit* victim, float dist)
 {
     if (victim && me->Attack(victim, false))
@@ -66,21 +72,13 @@ void UnitAI::DoMeleeAttackIfReady()
     //Make sure our attack is ready and we aren't currently casting before checking distance
     if (me->isAttackReady())
     {
-        if (ShouldSparWith(victim))
-            me->FakeAttackerStateUpdate(victim);
-        else
-            me->AttackerStateUpdate(victim);
-
+        me->AttackerStateUpdate(victim);
         me->resetAttackTimer();
     }
 
     if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK))
     {
-        if (ShouldSparWith(victim))
-            me->FakeAttackerStateUpdate(victim, OFF_ATTACK);
-        else
-            me->AttackerStateUpdate(victim, OFF_ATTACK);
-
+        me->AttackerStateUpdate(victim, OFF_ATTACK);
         me->resetAttackTimer(OFF_ATTACK);
     }
 }
@@ -169,33 +167,18 @@ void UnitAI::DoCast(uint32 spellId)
         me->CastSpell(target, spellId, false);
 }
 
-void UnitAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
+void UnitAI::DoCast(Unit* victim, uint32 spellId, CastSpellExtraArgs const& args)
 {
-    if (!victim || (me->HasUnitState(UNIT_STATE_CASTING) && !triggered))
+    if (me->HasUnitState(UNIT_STATE_CASTING) && !(args.TriggerFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))
         return;
 
-    me->CastSpell(victim, spellId, triggered);
+    me->CastSpell(victim, spellId, args);
 }
 
-void UnitAI::DoCastVictim(uint32 spellId, bool triggered)
+void UnitAI::DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args)
 {
-    if (!me->GetVictim() || (me->HasUnitState(UNIT_STATE_CASTING) && !triggered))
-        return;
-
-    me->CastSpell(me->GetVictim(), spellId, triggered);
-}
-
-void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
-{
-    if (!triggered && me->HasUnitState(UNIT_STATE_CASTING))
-        return;
-
-    me->CastSpell(nullptr, spellId, triggered);
-}
-
-uint32 UnitAI::GetDialogStatus(Player* /*player*/)
-{
-    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
+    if (Unit* victim = me->GetVictim())
+        DoCast(victim, spellId, args);
 }
 
 #define UPDATE_TARGET(a) {if (AIInfo->target<a) AIInfo->target=a;}
@@ -257,6 +240,14 @@ ThreatManager& UnitAI::GetThreatManager()
 void UnitAI::SortByDistance(std::list<Unit*> list, bool ascending)
 {
     list.sort(Trinity::ObjectDistanceOrderPred(me, ascending));
+}
+
+std::string UnitAI::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << std::boolalpha
+         << "Me: " << (me ? me->GetDebugInfo() : "NULL");
+    return sstr.str();
 }
 
 DefaultTargetSelector::DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withTank, int32 aura)
@@ -387,7 +378,7 @@ bool PowerUsersSelector::operator()(Unit const* target) const
     if (!_me || !target)
         return false;
 
-    if (target->getPowerType() != _power)
+    if (target->GetPowerType() != _power)
         return false;
 
     if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -197,7 +197,7 @@ public:
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 {
-                                    if (target && target->IsAlive())
+                                    if (target->IsAlive())
                                         DoCast(target, SPELL_DEATH_RESPITE);
                                 }
                                 uiDeathRespiteTimer = urand(15000, 16000);
@@ -225,7 +225,7 @@ public:
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 {
-                                    if (target && target->IsAlive())
+                                    if (target->IsAlive())
                                         DoCast(target, SPELL_DESECRATION);
                                 }
                                 uiDesecration = urand(15000, 16000);
@@ -252,7 +252,7 @@ public:
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
-                            if (target && target->IsAlive())
+                            if (target->IsAlive())
                                 DoCast(target, SPELL_MARKED_DEATH);
                         }
                         uiMarkedDeathTimer = urand(5000, 7000);
@@ -333,7 +333,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                 {
-                    if (target && target->IsAlive())
+                    if (target->IsAlive())
                         DoCast(target, (SPELL_LEAP));
                 }
                 uiAttackTimer = 3500;

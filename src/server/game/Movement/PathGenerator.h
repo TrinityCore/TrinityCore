@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -74,7 +74,8 @@ class TC_GAME_API PathGenerator
 
         PathType GetPathType() const { return _type; }
 
-        void ReducePathLenghtByDist(float dist); // path must be already built
+        // shortens the path until the destination is the specified distance from the target point
+        void ShortenPathUntilDist(G3D::Vector3 const& point, float dist);
 
     private:
 
@@ -122,7 +123,7 @@ class TC_GAME_API PathGenerator
         void BuildPointPath(float const* startPoint, float const* endPoint);
         void BuildShortcut();
 
-        NavTerrain GetNavTerrain(float x, float y, float z);
+        NavTerrainFlag GetNavTerrain(float x, float y, float z);
         void CreateFilter();
         void UpdateFilter();
 

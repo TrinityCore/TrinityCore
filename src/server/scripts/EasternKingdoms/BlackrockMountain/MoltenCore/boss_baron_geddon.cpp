@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -62,12 +62,12 @@ class boss_baron_geddon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
-                events.ScheduleEvent(EVENT_INFERNO, 45000);
-                events.ScheduleEvent(EVENT_IGNITE_MANA, 30000);
-                events.ScheduleEvent(EVENT_LIVING_BOMB, 35000);
+                BossAI::JustEngagedWith(victim);
+                events.ScheduleEvent(EVENT_INFERNO, 45s);
+                events.ScheduleEvent(EVENT_IGNITE_MANA, 30s);
+                events.ScheduleEvent(EVENT_LIVING_BOMB, 35s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -95,17 +95,17 @@ class boss_baron_geddon : public CreatureScript
                     {
                         case EVENT_INFERNO:
                             DoCast(me, SPELL_INFERNO);
-                            events.ScheduleEvent(EVENT_INFERNO, 45000);
+                            events.ScheduleEvent(EVENT_INFERNO, 45s);
                             break;
                         case EVENT_IGNITE_MANA:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_IGNITE_MANA))
                                 DoCast(target, SPELL_IGNITE_MANA);
-                            events.ScheduleEvent(EVENT_IGNITE_MANA, 30000);
+                            events.ScheduleEvent(EVENT_IGNITE_MANA, 30s);
                             break;
                         case EVENT_LIVING_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_LIVING_BOMB);
-                            events.ScheduleEvent(EVENT_LIVING_BOMB, 35000);
+                            events.ScheduleEvent(EVENT_LIVING_BOMB, 35s);
                             break;
                         default:
                             break;
@@ -137,8 +137,12 @@ class spell_baron_geddon_inferno : public SpellScriptLoader
             void OnPeriodic(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                int32 damageForTick[8] = { 500, 500, 1000, 1000, 2000, 2000, 3000, 5000 };
-                GetTarget()->CastCustomSpell(SPELL_INFERNO_DMG, SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1], (Unit*)nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                static const int32 damageForTick[8] = { 500, 500, 1000, 1000, 2000, 2000, 3000, 5000 };
+                CastSpellExtraArgs args;
+                args.TriggerFlags = TRIGGERED_FULL_MASK;
+                args.TriggeringAura = aurEff;
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1]);
+                GetTarget()->CastSpell(nullptr, SPELL_INFERNO_DMG, args);
             }
 
             void Register() override

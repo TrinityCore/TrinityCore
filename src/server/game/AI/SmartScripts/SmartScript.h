@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -50,8 +50,8 @@ class TC_GAME_API SmartScript
         void GetTargets(ObjectVector& targets, SmartScriptHolder const& e, Unit* invoker = nullptr) const;
         void GetWorldObjectsInDist(ObjectVector& objects, float dist) const;
         void InstallTemplate(SmartScriptHolder const& e);
-        static SmartScriptHolder CreateSmartEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 phaseMask = 0);
-        void AddEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 phaseMask = 0);
+        static SmartScriptHolder CreateSmartEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, uint32 event_param5, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 target_param4, uint32 phaseMask);
+        void AddEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, uint32 event_param5, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 target_param4, uint32 phaseMask);
         void SetPathId(uint32 id) { mPathId = id; }
         uint32 GetPathId() const { return mPathId; }
         WorldObject* GetBaseObject() const;
@@ -69,8 +69,9 @@ class TC_GAME_API SmartScript
         void DoFindFriendlyMissingBuff(std::vector<Creature*>& creatures, float range, uint32 spellid) const;
         Unit* DoFindClosestFriendlyInRange(float range, bool playerOnly) const;
 
-        bool IsSmart(Creature* c = nullptr);
-        bool IsSmartGO(GameObject* g = nullptr);
+        bool IsSmart(Creature* c, bool silent = false);
+        bool IsSmart(GameObject* g, bool silent = false);
+        bool IsSmart(bool silent = false);
 
         void StoreTargetList(ObjectVector const& targets, uint32 id);
         ObjectVector const* GetStoredTargetVector(uint32 id, WorldObject const& ref) const;
@@ -84,8 +85,7 @@ class TC_GAME_API SmartScript
         void OnReset();
         void ResetBaseObject();
 
-        //TIMED_ACTIONLIST (script type 9 aka script9)
-        void SetScript9(SmartScriptHolder& e, uint32 entry);
+        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         Unit* GetLastInvoker(Unit* invoker = nullptr) const;
         ObjectGuid mLastInvoker;
         typedef std::unordered_map<uint32, uint32> CounterMap;
@@ -102,6 +102,7 @@ class TC_GAME_API SmartScript
         SmartAIEventList mEvents;
         SmartAIEventList mInstallEvents;
         SmartAIEventList mTimedActionList;
+        ObjectGuid mTimedActionListInvoker;
         bool isProcessingTimedActionList;
         Creature* me;
         ObjectGuid meOrigGUID;

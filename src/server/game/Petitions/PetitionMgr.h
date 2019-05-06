@@ -1,19 +1,19 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef _PETITIONMGR_H
 #define _PETITIONMGR_H
@@ -46,14 +46,14 @@ typedef std::vector<Signature> SignaturesVector;
 
 struct Petition
 {
-    ObjectGuid       petitionGuid;
-    ObjectGuid       ownerGuid;
-    CharterTypes     petitionType;
-    std::string      petitionName;
-    SignaturesVector signatures;
+    ObjectGuid       PetitionGuid;
+    ObjectGuid       OwnerGuid;
+    CharterTypes     PetitionType;
+    std::string      PetitionName;
+    SignaturesVector Signatures;
 
     bool IsPetitionSignedByAccount(uint32 accountId) const;
-    void AddSignature(ObjectGuid petitionGuid, uint32 accountId, ObjectGuid playerGuid, bool isLoading);
+    void AddSignature(uint32 accountId, ObjectGuid playerGuid, bool isLoading);
     void UpdateName(std::string const& newName);
     void RemoveSignatureBySigner(ObjectGuid playerGuid);
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -69,6 +69,7 @@ public:
         void Reset() override
         {
             me->setActive(true);
+            me->SetFarVisible(true);
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetCanFly(true);
@@ -77,7 +78,7 @@ public:
             z += 4.0f;
             x -= 3.5f;
             y -= 5.0f;
-            me->GetMotionMaster()->Clear(false);
+            me->GetMotionMaster()->Clear();
             me->UpdatePosition(x, y, z, 0.0f);
         }
 

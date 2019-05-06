@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,7 +38,7 @@ public:
     static WorldSocketMgr& Instance();
 
     /// Start network, listen at address:port .
-    bool StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int networkThreads) override;
+    bool StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int networkThreads);
 
     /// Stops all network threads, It will wait for all running threads .
     void StopNetwork() override;

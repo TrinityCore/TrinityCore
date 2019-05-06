@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -278,7 +278,7 @@ class TC_GAME_API Guild
                 Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId);
 
                 void SetStats(Player* player);
-                void SetStats(std::string const& name, uint8 level, uint8 _class, uint32 zoneId, uint32 accountId);
+                void SetStats(std::string const& name, uint8 level, uint8 _class, uint8 gender, uint32 zoneId, uint32 accountId);
                 bool CheckStats() const;
 
                 void SetPublicNote(std::string const& publicNote);
@@ -303,13 +303,14 @@ class TC_GAME_API Guild
                 std::string GetOfficerNote() const { return m_officerNote; }
                 uint8 GetClass() const { return m_class; }
                 uint8 GetLevel() const { return m_level; }
+                uint8 GetGender() const { return m_gender; }
                 uint8 GetFlags() const { return m_flags; }
                 uint32 GetZoneId() const { return m_zoneId; }
                 bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
                 void ChangeRank(SQLTransaction& trans, uint8 newRank);
 
-                inline void UpdateLogoutTime() { m_logoutTime = ::time(nullptr); }
+                inline void UpdateLogoutTime();
                 inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
                 inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
                 inline bool IsSamePlayer(ObjectGuid guid) const { return m_guid == guid; }
@@ -329,6 +330,7 @@ class TC_GAME_API Guild
                 uint32 m_zoneId;
                 uint8 m_level;
                 uint8 m_class;
+                uint8 m_gender;
                 uint8 m_flags;
                 uint64 m_logoutTime;
                 uint32 m_accountId;
@@ -344,7 +346,7 @@ class TC_GAME_API Guild
         class LogEntry
         {
             public:
-                LogEntry(ObjectGuid::LowType guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(::time(nullptr)) { }
+                LogEntry(ObjectGuid::LowType guildId, uint32 guid);
                 LogEntry(ObjectGuid::LowType guildId, uint32 guid, time_t timestamp) : m_guildId(guildId), m_guid(guid), m_timestamp(timestamp) { }
                 virtual ~LogEntry() { }
 

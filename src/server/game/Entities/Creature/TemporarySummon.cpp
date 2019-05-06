@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -206,9 +206,9 @@ void TempSummon::InitSummon()
     Unit* owner = GetSummoner();
     if (owner)
     {
-        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
+        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled())
             owner->ToCreature()->AI()->JustSummoned(this);
-        if (IsAIEnabled)
+        if (IsAIEnabled())
             AI()->IsSummonedBy(owner);
     }
 }
@@ -242,7 +242,7 @@ void TempSummon::UnSummon(uint32 msTime)
     }
 
     Unit* owner = GetSummoner();
-    if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
+    if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled())
         owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
 
     AddObjectToRemoveList();
@@ -269,6 +269,15 @@ void TempSummon::RemoveFromWorld()
     //    TC_LOG_ERROR("entities.unit", "Unit %u has owner guid when removed from world", GetEntry());
 
     Creature::RemoveFromWorld();
+}
+
+std::string TempSummon::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Creature::GetDebugInfo() << "\n"
+        << std::boolalpha
+        << "TempSummonType : " << std::to_string(GetSummonType()) << " Summoner: " << GetSummonerGUID().ToString();
+    return sstr.str();
 }
 
 Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject)
@@ -300,9 +309,40 @@ void Minion::RemoveFromWorld()
     TempSummon::RemoveFromWorld();
 }
 
+void Minion::setDeathState(DeathState s)
+{
+    Creature::setDeathState(s);
+    if (s != JUST_DIED || !IsGuardianPet())
+        return;
+
+    Unit* owner = GetOwner();
+    if (!owner || owner->GetTypeId() != TYPEID_PLAYER || owner->GetMinionGUID() != GetGUID())
+        return;
+                
+    for (Unit* controlled : owner->m_Controlled)
+    {
+        if (controlled->GetEntry() == GetEntry() && controlled->IsAlive())
+        {
+            owner->SetMinionGUID(controlled->GetGUID());
+            owner->SetPetGUID(controlled->GetGUID());
+            owner->ToPlayer()->CharmSpellInitialize();
+            break;
+        }
+    }
+}
+
 bool Minion::IsGuardianPet() const
 {
     return IsPet() || (m_Properties && m_Properties->Category == SUMMON_CATEGORY_PET);
+}
+
+std::string Minion::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << TempSummon::GetDebugInfo() << "\n"
+        << std::boolalpha
+        << "Owner: " << (GetOwner() ? GetOwner()->GetGUID().ToString() : "");
+    return sstr.str();
 }
 
 Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) : Minion(properties, owner, isWorldObject)
@@ -335,10 +375,17 @@ void Guardian::InitSummon()
 
     if (GetOwner()->GetTypeId() == TYPEID_PLAYER
             && GetOwner()->GetMinionGUID() == GetGUID()
-            && !GetOwner()->GetCharmGUID())
+            && !GetOwner()->GetCharmedGUID())
     {
         GetOwner()->ToPlayer()->CharmSpellInitialize();
     }
+}
+
+std::string Guardian::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Minion::GetDebugInfo();
+    return sstr.str();
 }
 
 Puppet::Puppet(SummonPropertiesEntry const* properties, Unit* owner)

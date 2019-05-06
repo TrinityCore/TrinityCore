@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -223,7 +223,7 @@ struct boss_hexlord_addAI : public ScriptedAI
 
     void Reset() override { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoZoneInCombat();
     }
@@ -291,9 +291,9 @@ class boss_hexlord_malacrass : public CreatureScript
                 me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(YELL_AGGRO);
 
                 for (uint8 i = 0; i < 4; ++i)
@@ -331,7 +331,7 @@ class boss_hexlord_malacrass : public CreatureScript
                 {
                     Unit* Temp = ObjectAccessor::GetUnit(*me, AddGUID[i]);
                     if (Temp && Temp->IsAlive())
-                        Temp->DealDamage(Temp, Temp->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                        Temp->KillSelf();
                 }
             }
 
@@ -1024,7 +1024,7 @@ class spell_hexlord_unstable_affliction : public SpellScriptLoader
             void HandleDispel(DispelInfo* dispelInfo)
             {
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WL_UNSTABLE_AFFL_DISPEL, true, nullptr, GetEffect(EFFECT_0));
+                    caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WL_UNSTABLE_AFFL_DISPEL, GetEffect(EFFECT_0));
             }
 
             void Register() override
@@ -1052,4 +1052,3 @@ void AddSC_boss_hex_lord_malacrass()
     new boss_alyson_antille();
     new spell_hexlord_unstable_affliction();
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,12 @@
 #include "Arena.h"
 #include "ArenaScore.h"
 #include "ArenaTeamMgr.h"
-#include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "WorldStatePackets.h"
 
 void ArenaScore::AppendToPacket(WorldPacket& data)
 {
@@ -65,10 +65,10 @@ Arena::Arena()
     StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
     StartDelayTimes[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
 
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
+    StartMessageIds[BG_STARTING_EVENT_FIRST]  = ARENA_TEXT_START_ONE_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_SECOND] = ARENA_TEXT_START_THIRTY_SECONDS;
+    StartMessageIds[BG_STARTING_EVENT_THIRD]  = ARENA_TEXT_START_FIFTEEN_SECONDS;
+    StartMessageIds[BG_STARTING_EVENT_FOURTH] = ARENA_TEXT_START_BATTLE_HAS_BEGUN;
 }
 
 void Arena::AddPlayer(Player* player)
@@ -103,10 +103,10 @@ void Arena::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*
     CheckWinConditions();
 }
 
-void Arena::FillInitialWorldStates(WorldPacket& data)
+void Arena::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << uint32(ARENA_WORLD_STATE_ALIVE_PLAYERS_GREEN) << uint32(GetAlivePlayersCountByTeam(HORDE));
-    data << uint32(ARENA_WORLD_STATE_ALIVE_PLAYERS_GOLD) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));
+    packet.Worldstates.emplace_back(ARENA_WORLD_STATE_ALIVE_PLAYERS_GREEN, GetAlivePlayersCountByTeam(HORDE));
+    packet.Worldstates.emplace_back(ARENA_WORLD_STATE_ALIVE_PLAYERS_GOLD, GetAlivePlayersCountByTeam(ALLIANCE));
 }
 
 void Arena::UpdateArenaWorldState()
@@ -204,8 +204,8 @@ void Arena::EndBattleground(uint32 winner)
 
                 // bg team that the client expects is different to TeamId
                 // alliance 1, horde 0
-                uint8 winnerTeam = winner == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE;
-                uint8 loserTeam = winner == ALLIANCE ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
+                uint8 winnerTeam = winner == ALLIANCE ? PVP_TEAM_ALLIANCE : PVP_TEAM_HORDE;
+                uint8 loserTeam = winner == ALLIANCE ? PVP_TEAM_HORDE : PVP_TEAM_ALLIANCE;
 
                 _arenaTeamScores[winnerTeam].Assign(winnerChange, winnerMatchmakerRating, winnerArenaTeam->GetName());
                 _arenaTeamScores[loserTeam].Assign(loserChange, loserMatchmakerRating, loserArenaTeam->GetName());
@@ -225,8 +225,8 @@ void Arena::EndBattleground(uint32 winner)
             // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
             else
             {
-                _arenaTeamScores[BG_TEAM_ALLIANCE].Assign(ARENA_TIMELIMIT_POINTS_LOSS, winnerMatchmakerRating, winnerArenaTeam->GetName());
-                _arenaTeamScores[BG_TEAM_HORDE].Assign(ARENA_TIMELIMIT_POINTS_LOSS, loserMatchmakerRating, loserArenaTeam->GetName());
+                _arenaTeamScores[PVP_TEAM_ALLIANCE].Assign(ARENA_TIMELIMIT_POINTS_LOSS, winnerMatchmakerRating, winnerArenaTeam->GetName());
+                _arenaTeamScores[PVP_TEAM_HORDE].Assign(ARENA_TIMELIMIT_POINTS_LOSS, loserMatchmakerRating, loserArenaTeam->GetName());
 
                 winnerArenaTeam->FinishGame(ARENA_TIMELIMIT_POINTS_LOSS);
                 loserArenaTeam->FinishGame(ARENA_TIMELIMIT_POINTS_LOSS);

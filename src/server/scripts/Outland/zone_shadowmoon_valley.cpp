@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -81,7 +81,7 @@ public:
             ground = me->GetPositionZ();
             me->UpdateGroundPositionZ(me->GetPositionX(), me->GetPositionY(), ground);
             SummonInfernal();
-            events.ScheduleEvent(EVENT_CAST_SUMMON_INFERNAL, urand(1000, 3000));
+            events.ScheduleEvent(EVENT_CAST_SUMMON_INFERNAL, 1s, 3s);
         }
 
         void SetData(uint32 id, uint32 data) override
@@ -111,7 +111,7 @@ public:
                     if (Unit* infernal = ObjectAccessor::GetUnit(*me, infernalGUID))
                         if (infernal->GetDisplayId() == MODEL_INVISIBLE)
                             me->CastSpell(infernal, SPELL_SUMMON_INFERNAL, true);
-                    events.ScheduleEvent(EVENT_CAST_SUMMON_INFERNAL, 12000);
+                    events.ScheduleEvent(EVENT_CAST_SUMMON_INFERNAL, 12s);
                     break;
                 }
                 default:
@@ -288,9 +288,6 @@ public:
                         {
                             if (GameObject* go = unit->FindNearestGameObject(GO_CARCASS, 10))
                             {
-                                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
-                                    me->GetMotionMaster()->MovementExpired();
-
                                 me->GetMotionMaster()->MoveIdle();
                                 me->StopMoving();
 
@@ -329,7 +326,9 @@ public:
             {
                 DoCastVictim(SPELL_NETHER_BREATH);
                 CastTimer = 5000;
-            } else CastTimer -= diff;
+            }
+            else
+                CastTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -553,7 +552,7 @@ public:
                             player->KilledMonsterCredit(23209);
                     }
                     PoisonTimer = 0;
-                    me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                    me->KillSelf();
                 } else PoisonTimer -= diff;
             }
             if (!UpdateVictim())
@@ -687,7 +686,7 @@ public:
             DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             //don't always use
             if (rand32() % 5)
@@ -879,7 +878,7 @@ public:
             me->SetTarget(ObjectGuid::Empty);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void HandleAnimation()
         {
@@ -973,6 +972,9 @@ public:
 
         void JustDied(Unit* killer) override
         {
+            if (!killer)
+                return;
+
             switch (killer->GetTypeId())
             {
                 case TYPEID_UNIT:
@@ -1048,7 +1050,7 @@ public:
             me->SetVisible(false);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
         void AttackStart(Unit* /*who*/) override { }
@@ -1183,14 +1185,13 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void JustDied(Unit* /*killer*/) override
         {
             me->DespawnOrUnsummon();
             if (Creature* LordIllidan = (ObjectAccessor::GetCreature(*me, LordIllidanGUID)))
-                if (LordIllidan)
-                    ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, LordIllidan->AI())->LiveCounter();
+                ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, LordIllidan->AI())->LiveCounter();
         }
 
         void UpdateAI(uint32 diff) override
@@ -1406,7 +1407,7 @@ enum Enraged_Dpirits
     // ENRAGED EARTH SPIRIT SPELLS
     SPELL_FIERY_BOULDER                     = 38498,
     SPELL_SUMMON_ENRAGED_EARTH_SHARD        = 38365,
-    
+
     // SOULS
     NPC_EARTHEN_SOUL                        = 21073,
     NPC_FIERY_SOUL                          = 21097,
@@ -1454,25 +1455,25 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             switch (me->GetEntry())
             {
                 case NPC_ENRAGED_WATER_SPIRIT:
-                    _events.ScheduleEvent(EVENT_ENRAGED_WATER_SPIRIT, Seconds(0), Seconds(1));
+                    _events.ScheduleEvent(EVENT_ENRAGED_WATER_SPIRIT, 0s, Seconds(1));
                     break;
                 case NPC_ENRAGED_FIRE_SPIRIT:
                     if (!me->GetAura(SPELL_FEL_FIRE_AURA))
                         DoCastSelf(SPELL_FEL_FIRE_AURA);
-                    _events.ScheduleEvent(EVENT_ENRAGED_FIRE_SPIRIT, Seconds(2), Seconds(10));
+                    _events.ScheduleEvent(EVENT_ENRAGED_FIRE_SPIRIT, 2s, 10s);
                     break;
                 case NPC_ENRAGED_EARTH_SPIRIT:
                     if (!me->GetAura(SPELL_FEL_FIRE_AURA))
                         DoCastSelf(SPELL_FEL_FIRE_AURA);
-                    _events.ScheduleEvent(EVENT_ENRAGED_EARTH_SPIRIT, Seconds(3), Seconds(4));
+                    _events.ScheduleEvent(EVENT_ENRAGED_EARTH_SPIRIT, 3s, 4s);
                     break;
                 case NPC_ENRAGED_AIR_SPIRIT:
-                    _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, Seconds(10));
+                    _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, 10s);
                     break;
                 default:
                     break;
@@ -1507,12 +1508,12 @@ public:
                     case EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING:
                         if (UpdateVictim())
                             DoCastVictim(SPELL_CHAIN_LIGHTNING);
-                        _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_HURRICANE, Seconds(3), Seconds(5));
+                        _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_HURRICANE, 3s, 5s);
                         break;
                     case EVENT_ENRAGED_AIR_SPIRIT_HURRICANE:
                         if (UpdateVictim())
                             DoCastVictim(SPELL_HURRICANE);
-                        _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, Seconds(15), Seconds(20));
+                        _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, 15s, 20s);
                         break;
                     default:
                         break;

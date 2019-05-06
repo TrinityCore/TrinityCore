@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -95,9 +95,7 @@ namespace VMAP
         private:
             std::string iDestDir;
             std::string iSrcDir;
-            bool (*iFilterMethod)(char *pName);
             G3D::Table<std::string, unsigned int > iUniqueNameIds;
-            unsigned int iCurrentUniqueNameId;
             MapData mapData;
             std::set<std::string> spawnedModelFiles;
 
@@ -111,8 +109,6 @@ namespace VMAP
             void exportGameobjectModels();
 
             bool convertRawFile(const std::string& pModelFilename);
-            void setModelNameFilterMethod(bool (*pFilterMethod)(char *pName)) { iFilterMethod = pFilterMethod; }
-            std::string getDirEntryNameFromModName(unsigned int pMapId, const std::string& pModPosName);
     };
 
 }                                                           // VMAP

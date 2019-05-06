@@ -1,5 +1,4 @@
-sudo: false
-dist: trusty
+dist: xenial
 
 language: cpp
 compiler:
@@ -11,18 +10,21 @@ git:
 addons:
   apt:
     packages:
-      - libboost1.55-dev
-      - libboost-filesystem1.55-dev
-      - libboost-iostreams1.55-dev
-      - libboost-program-options1.55-dev
-      - libboost-regex1.55-dev
-      - libboost-system1.55-dev
-      - libboost-thread1.55-dev
+      - libboost1.58-dev
+      - libboost-filesystem1.58-dev
+      - libboost-iostreams1.58-dev
+      - libboost-program-options1.58-dev
+      - libboost-regex1.58-dev
+      - libboost-system1.58-dev
+      - libboost-thread1.58-dev
       - libssl-dev
       - libmysqlclient-dev
       - libreadline6-dev
       - zlib1g-dev
       - libbz2-dev
+
+services:
+  - mysql
 
 before_install:
   - git config user.email "travis@build.bot" && git config user.name "Travis CI"
@@ -32,7 +34,7 @@ install:
   - mysql -uroot -e 'create database test_mysql;'
   - mkdir bin
   - cd bin
-  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
+  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
   - cd ..
   - chmod +x contrib/check_updates.sh
 
@@ -40,9 +42,9 @@ script:
   - $CXX --version
   - mysql -uroot < sql/create/create_mysql.sql
   - mysql -utrinity -ptrinity auth < sql/base/auth_database.sql
-  - ./contrib/check_updates.sh auth 3.3.5 auth
+  - ./contrib/check_updates.sh auth 3.3.5 auth localhost
   - mysql -utrinity -ptrinity characters < sql/base/characters_database.sql
-  - ./contrib/check_updates.sh characters 3.3.5 characters
+  - ./contrib/check_updates.sh characters 3.3.5 characters localhost
   - mysql -utrinity -ptrinity world < sql/base/dev/world_database.sql
   - cat sql/updates/world/3.3.5/*.sql | mysql -utrinity -ptrinity world
   - mysql -uroot < sql/create/drop_mysql.sql

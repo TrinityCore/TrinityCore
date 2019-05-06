@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -213,7 +213,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     CreatureTextMap::const_iterator sList = mTextMap.find(source->GetEntry());
     if (sList == mTextMap.end())
     {
-        TC_LOG_ERROR("sql.sql.creaturetextmgr", "CreatureTextMgr: Could not find Text for Creature %s (Entry %u, GUID %u) in 'creature_text' table. Ignoring.", source->GetName().c_str(), source->GetEntry(), source->GetGUID().GetCounter());
+        TC_LOG_ERROR("sql.sql.creaturetextmgr", "CreatureTextMgr: Could not find Text for Creature %s (Entry %u, spawnId %u) in 'creature_text' table. Ignoring.", source->GetName().c_str(), source->GetEntry(), source->GetSpawnId());
         return 0;
     }
 
@@ -221,7 +221,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     CreatureTextHolder::const_iterator itr = textHolder.find(textGroup);
     if (itr == textHolder.end())
     {
-        TC_LOG_ERROR("sql.sql.creaturetextmgr", "CreatureTextMgr: Could not find TextGroup %u for Creature %s (Entry %u, GUID %u) in 'creature_text' table. Ignoring.", uint32(textGroup), source->GetName().c_str(), source->GetEntry(), source->GetGUID().GetCounter());
+        TC_LOG_ERROR("sql.sql.creaturetextmgr", "CreatureTextMgr: Could not find TextGroup %u for Creature %s (Entry %u, spawnId %u) in 'creature_text' table. Ignoring.", uint32(textGroup), source->GetName().c_str(), source->GetEntry(), source->GetSpawnId());
         return 0;
     }
 

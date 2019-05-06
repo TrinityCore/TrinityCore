@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -79,15 +79,15 @@ class boss_void_reaver : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_POUNDING, 15000);
-                events.ScheduleEvent(EVENT_ARCANE_ORB, 3000);
-                events.ScheduleEvent(EVENT_KNOCK_AWAY, 30000);
-                events.ScheduleEvent(EVENT_BERSERK, 600000);
+                events.ScheduleEvent(EVENT_ARCANE_ORB, 3s);
+                events.ScheduleEvent(EVENT_KNOCK_AWAY, 30s);
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
             }
 
             void UpdateAI(uint32 diff) override
@@ -126,9 +126,9 @@ class boss_void_reaver : public CreatureScript
                                 target = me->GetVictim();
 
                             if (target)
-                                me->CastSpell(target, SPELL_ARCANE_ORB, false, nullptr, nullptr);
+                                me->CastSpell(target, SPELL_ARCANE_ORB);
 
-                            events.ScheduleEvent(EVENT_ARCANE_ORB, 3000);
+                            events.ScheduleEvent(EVENT_ARCANE_ORB, 3s);
                             break;
                         }
                         case EVENT_KNOCK_AWAY:
@@ -137,7 +137,7 @@ class boss_void_reaver : public CreatureScript
                             if (GetThreat(me->GetVictim()))
                                 ModifyThreatByPercent(me->GetVictim(), -25);
 
-                            events.ScheduleEvent(EVENT_KNOCK_AWAY, 30000);
+                            events.ScheduleEvent(EVENT_KNOCK_AWAY, 30s);
                             break;
                         case EVENT_BERSERK:
                             if (!Enraged)
@@ -171,4 +171,3 @@ void AddSC_boss_void_reaver()
 {
     new boss_void_reaver();
 }
-

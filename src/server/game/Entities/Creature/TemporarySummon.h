@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,16 @@
 
 #include "Creature.h"
 
+enum PetEntry : uint32
+{
+    // Death Knight pets
+    PET_GHOUL           = 26125,
+    PET_RISEN_ALLY      = 30230,
+
+    // Shaman pet
+    PET_SPIRIT_WOLF     = 29264
+};
+
 struct SummonPropertiesEntry;
 
 class TC_GAME_API TempSummon : public Creature
@@ -39,10 +49,12 @@ class TC_GAME_API TempSummon : public Creature
         Unit* GetSummoner() const;
         Creature* GetSummonerCreatureBase() const;
         ObjectGuid GetSummonerGUID() const { return m_summonerGUID; }
-        TempSummonType const& GetSummonType() { return m_type; }
+        TempSummonType GetSummonType() const { return m_type; }
         uint32 GetTimer() const { return m_timer; }
 
         SummonPropertiesEntry const* const m_Properties;
+
+        std::string GetDebugInfo() const override;
     private:
         TempSummonType m_type;
         uint32 m_timer;
@@ -56,13 +68,21 @@ class TC_GAME_API Minion : public TempSummon
         Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
         void InitStats(uint32 duration) override;
         void RemoveFromWorld() override;
+        void setDeathState(DeathState s) override;
         Unit* GetOwner() const { return m_owner; }
         float GetFollowAngle() const override { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
-        bool IsPetGhoul() const { return GetEntry() == 26125; } // Ghoul may be guardian or pet
-        bool IsSpiritWolf() const { return GetEntry() == 29264; } // Spirit wolf from feral spirits
+
+        // Death Knight pets
+        bool IsPetGhoul() const { return GetEntry() == PET_GHOUL; } // Ghoul may be guardian or pet
+        bool IsRisenAlly() const { return GetEntry() == PET_RISEN_ALLY; }
+
+        // Shaman pet
+        bool IsSpiritWolf() const { return GetEntry() == PET_SPIRIT_WOLF; } // Spirit wolf from feral spirits
+
         bool IsGuardianPet() const;
-        bool IsRisenAlly() const { return GetEntry() == 30230; }
+
+        std::string GetDebugInfo() const override;
     protected:
         Unit* const m_owner;
         float m_followAngle;
@@ -88,6 +108,7 @@ class TC_GAME_API Guardian : public Minion
         int32 GetBonusDamage() const { return m_bonusSpellDamage; }
         float GetBonusStatFromOwner(Stats stat) const { return m_statFromOwner[stat]; }
         void SetBonusDamage(int32 damage);
+        std::string GetDebugInfo() const override;
     protected:
         int32   m_bonusSpellDamage;
         float   m_statFromOwner[MAX_STATS];

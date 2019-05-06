@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,13 +53,13 @@ class boss_meathook : public CreatureScript
                 Talk(SAY_SPAWN);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_CHAIN, urand(12000, 17000));
-                events.ScheduleEvent(EVENT_DISEASE, urand(2000, 4000));
-                events.ScheduleEvent(EVENT_FRENZY, urand(21000, 26000));
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_CHAIN, 12s, 17s);
+                events.ScheduleEvent(EVENT_DISEASE, 2s, 4s);
+                events.ScheduleEvent(EVENT_FRENZY, 21s, 26s);
             }
 
             void ExecuteEvent(uint32 eventId) override
@@ -69,15 +69,15 @@ class boss_meathook : public CreatureScript
                     case EVENT_CHAIN:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             DoCast(target, SPELL_CONSTRICTING_CHAINS);
-                        events.ScheduleEvent(EVENT_CHAIN, urand(2000, 4000));
+                        events.ScheduleEvent(EVENT_CHAIN, 2s, 4s);
                         break;
                     case EVENT_DISEASE:
                         DoCastAOE(SPELL_DISEASE_EXPULSION);
-                        events.ScheduleEvent(EVENT_DISEASE, urand(1500, 4000));
+                        events.ScheduleEvent(EVENT_DISEASE, 1500ms, 4s);
                         break;
                     case EVENT_FRENZY:
                         DoCast(me, SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, urand(21000, 26000));
+                        events.ScheduleEvent(EVENT_FRENZY, 21s, 26s);
                         break;
                     default:
                         break;

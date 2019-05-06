@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -382,6 +382,12 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleSellItemOpcode - %s not found or you can not interact with him.", vendorguid.ToString().c_str());
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, itemguid, 0);
+        return;
+    }
+
+    if ((creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SELL_VENDOR) != 0)
+    {
+        _player->SendSellError(SELL_ERR_CANT_SELL_TO_THIS_MERCHANT, creature, itemguid, 0);
         return;
     }
 

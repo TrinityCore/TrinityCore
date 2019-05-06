@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -132,7 +132,7 @@ public:
                 Talk(SAY_OGRE_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -181,9 +181,7 @@ public:
                 //Charging_Timer
                 if (Charging_Timer <= diff)
                 {
-                    Unit* target = nullptr;
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target)
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         AttackStart(target);
                         DoCast(target, SPELL_BERSERKER_C);
@@ -257,7 +255,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -293,9 +291,7 @@ public:
             //DeathCoil Timer /need correct timer
             if (DeathCoil_Timer <= diff)
             {
-                Unit* target = nullptr;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_DEATH_COIL);
                 DeathCoil_Timer = 20000;
             } else DeathCoil_Timer -= diff;
@@ -346,7 +342,7 @@ public:
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -438,7 +434,7 @@ public:
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -521,7 +517,7 @@ public:
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);

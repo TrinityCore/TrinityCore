@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -123,7 +123,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                         for (ObjectGuid warderGuid : warderGUIDS)
                             if (Creature* warder = instance->GetCreature(warderGuid))
                                 if (warder->IsAlive())
-                                    warder->SetInCombatWithZone();
+                                    warder->AI()->DoZoneInCombat();
                         break;
                     default:
                         break;
@@ -145,4 +145,3 @@ void AddSC_instance_magtheridons_lair()
 {
     new instance_magtheridons_lair();
 }
-

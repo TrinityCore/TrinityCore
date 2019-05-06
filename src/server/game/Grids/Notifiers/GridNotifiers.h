@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -116,19 +116,19 @@ namespace Trinity
 
     struct TC_GAME_API MessageDistDeliverer
     {
-        WorldObject* i_source;
+        WorldObject const* i_source;
         WorldPacket const* i_message;
         uint32 i_phaseMask;
         float i_distSq;
         uint32 team;
         Player const* skipped_receiver;
-        MessageDistDeliverer(WorldObject* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
+        MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
             : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
             , team(0)
             , skipped_receiver(skipped)
         {
             if (own_team_only)
-                if (Player* player = src->ToPlayer())
+                if (Player const* player = src->ToPlayer())
                     team = player->GetTeam();
         }
 
@@ -624,29 +624,26 @@ namespace Trinity
     class TC_GAME_API AnyDeadUnitObjectInRangeCheck
     {
         public:
-            AnyDeadUnitObjectInRangeCheck(Unit* searchObj, float range) : i_searchObj(searchObj), i_range(range) { }
+            AnyDeadUnitObjectInRangeCheck(WorldObject* searchObj, float range) : i_searchObj(searchObj), i_range(range) { }
             bool operator()(Player* u);
             bool operator()(Corpse* u);
             bool operator()(Creature* u);
             template<class NOT_INTERESTED> bool operator()(NOT_INTERESTED*) { return false; }
         protected:
-            Unit const* const i_searchObj;
+            WorldObject const* const i_searchObj;
             float i_range;
     };
 
-    class TC_GAME_API AnyDeadUnitSpellTargetInRangeCheck : public AnyDeadUnitObjectInRangeCheck
+    class TC_GAME_API AnyDeadUnitSpellTargetInRangeCheck : public AnyDeadUnitObjectInRangeCheck, public WorldObjectSpellTargetCheck
     {
         public:
-            AnyDeadUnitSpellTargetInRangeCheck(Unit* searchObj, float range, SpellInfo const* spellInfo, SpellTargetCheckTypes check)
-                : AnyDeadUnitObjectInRangeCheck(searchObj, range), i_spellInfo(spellInfo), i_check(searchObj, searchObj, spellInfo, check, nullptr)
+            AnyDeadUnitSpellTargetInRangeCheck(WorldObject* searchObj, float range, SpellInfo const* spellInfo, SpellTargetCheckTypes check)
+                : AnyDeadUnitObjectInRangeCheck(searchObj, range), WorldObjectSpellTargetCheck(searchObj, searchObj, spellInfo, check, nullptr)
             { }
             bool operator()(Player* u);
             bool operator()(Corpse* u);
             bool operator()(Creature* u);
             template<class NOT_INTERESTED> bool operator()(NOT_INTERESTED*) { return false; }
-        protected:
-            SpellInfo const* i_spellInfo;
-            WorldObjectSpellTargetCheck i_check;
     };
 
     // WorldObject do classes
@@ -666,27 +663,26 @@ namespace Trinity
     class GameObjectFocusCheck
     {
         public:
-            GameObjectFocusCheck(Unit const* unit, uint32 focusId) : i_unit(unit), i_focusId(focusId) { }
+            GameObjectFocusCheck(WorldObject const* caster, uint32 focusId) : _caster(caster), _focusId(focusId) { }
 
             bool operator()(GameObject* go) const
             {
                 if (go->GetGOInfo()->type != GAMEOBJECT_TYPE_SPELL_FOCUS)
                     return false;
 
-                if (go->GetGOInfo()->spellFocus.focusId != i_focusId)
+                if (go->GetGOInfo()->spellFocus.focusId != _focusId)
                     return false;
 
                 if (!go->isSpawned())
                     return false;
 
-                float dist = go->GetGOInfo()->spellFocus.dist / 2.f;
-
-                return go->IsWithinDistInMap(i_unit, dist);
+                float const dist = go->GetGOInfo()->spellFocus.dist / 2.f;
+                return go->IsWithinDistInMap(_caster, dist);
             }
 
         private:
-            Unit const* i_unit;
-            uint32 i_focusId;
+            WorldObject const* _caster;
+            uint32 _focusId;
     };
 
     // Find the nearest Fishing hole and return true only if source object is in range of hole
@@ -839,7 +835,7 @@ namespace Trinity
             bool operator()(Unit* u) const
             {
                 if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) &&
-                    (u->isFeared() || u->IsCharmed() || u->isFrozen() || u->HasUnitState(UNIT_STATE_STUNNED) || u->HasUnitState(UNIT_STATE_CONFUSED)))
+                    (u->IsFeared() || u->IsCharmed() || u->IsRooted() || u->HasUnitState(UNIT_STATE_STUNNED) || u->HasUnitState(UNIT_STATE_CONFUSED)))
                 {
                     return true;
                 }
@@ -908,7 +904,7 @@ namespace Trinity
                 if (!u->isTargetableForAttack(false))
                     return false;
 
-                if (!i_obj->IsWithinDistInMap(u, i_range) || !i_funit->_IsValidAttackTarget(u, nullptr, i_obj))
+                if (!i_obj->IsWithinDistInMap(u, i_range) || !i_funit->IsValidAttackTarget(u))
                     return false;
 
                 i_range = i_obj->GetDistance(*u);
@@ -1051,9 +1047,6 @@ namespace Trinity
             AnyAoETargetUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, SpellInfo const* spellInfo = nullptr, bool incOwnRadius = true, bool incTargetRadius = true)
                 : i_obj(obj), i_funit(funit), _spellInfo(spellInfo), i_range(range), i_incOwnRadius(incOwnRadius), i_incTargetRadius(incTargetRadius)
             {
-                if (!_spellInfo)
-                    if (DynamicObject const* dynObj = i_obj->ToDynObject())
-                        _spellInfo = dynObj->GetSpellInfo();
             }
 
             bool operator()(Unit* u) const
@@ -1065,7 +1058,7 @@ namespace Trinity
                 if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && u->GetTypeId() != TYPEID_PLAYER)
                     return false;
 
-                if (!i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : nullptr))
+                if (!i_funit->IsValidAttackTarget(u, _spellInfo))
                     return false;
 
                 float searchRadius = i_range;
@@ -1109,8 +1102,7 @@ namespace Trinity
                 if (!u->IsWithinLOSInMap(i_enemy))
                     return;
 
-                if (u->GetAI() && u->IsAIEnabled)
-                    u->GetAI()->AttackStart(i_enemy);
+                u->EngageWithTarget(i_enemy);
             }
         private:
             Unit* const i_funit;

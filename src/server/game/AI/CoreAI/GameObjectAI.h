@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,11 +20,14 @@
 #define TRINITY_GAMEOBJECTAI_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
+#include "Optional.h"
 #include "QuestDef.h"
 
 class GameObject;
 class Unit;
 class SpellInfo;
+class WorldObject;
 
 class TC_GAME_API GameObjectAI
 {
@@ -42,10 +45,13 @@ class TC_GAME_API GameObjectAI
 
         // Pass parameters between AI
         virtual void DoAction(int32 /*param = 0 */) { }
-        virtual void SetGUID(uint64 /*guid*/, int32 /*id = 0 */) { }
-        virtual uint64 GetGUID(int32 /*id = 0 */) const { return 0; }
+        virtual void SetGUID(ObjectGuid const& /*guid*/, int32 /*id = 0 */) { }
+        virtual ObjectGuid GetGUID(int32 /*id = 0 */) const { return ObjectGuid::Empty; }
 
         static int32 Permissible(GameObject const* go);
+
+        // Called when the dialog status between a player and the gameobject is requested.
+        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/) { return boost::none; }
 
         // Called when a player opens a gossip dialog with the gameobject.
         virtual bool GossipHello(Player* /*player*/) { return false; }
@@ -62,15 +68,12 @@ class TC_GAME_API GameObjectAI
         // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
         virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
 
-        // Called when the dialog status between a player and the gameobject is requested.
-        virtual uint32 GetDialogStatus(Player* /*player*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
-
         // Called when a Player clicks a GameObject, before GossipHello
         // prevents achievement tracking if returning true
         virtual bool OnReportUse(Player* /*player*/) { return false; }
 
-        virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) { }
-        virtual void Damaged(Player* /*player*/, uint32 /*eventId*/) { }
+        virtual void Destroyed(WorldObject* /*attacker*/, uint32 /*eventId*/) { }
+        virtual void Damaged(WorldObject* /*attacker*/, uint32 /*eventId*/) { }
 
         virtual uint32 GetData(uint32 /*id*/) const { return 0; }
         virtual void SetData64(uint32 /*id*/, uint64 /*value*/) { }
@@ -81,7 +84,14 @@ class TC_GAME_API GameObjectAI
         virtual void OnLootStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
         virtual void OnStateChanged(uint32 /*state*/) { }
         virtual void EventInform(uint32 /*eventId*/) { }
-        virtual void SpellHit(Unit* /*unit*/, SpellInfo const* /*spellInfo*/) { }
+
+        // Called when hit by a spell
+        virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHitByGameObject(GameObject* /*caster*/, SpellInfo const* /*spellInfo*/) { }
+
+        // Called when spell hits a target
+        virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHitTargetGameObject(GameObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
 };
 
 class TC_GAME_API NullGameObjectAI : public GameObjectAI

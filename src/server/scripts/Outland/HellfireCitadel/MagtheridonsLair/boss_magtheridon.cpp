@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -139,10 +139,9 @@ class boss_magtheridon : public CreatureScript
 
             void CombatStart()
             {
-                events.SetPhase(PHASE_2);
                 events.CancelEvent(EVENT_START_FIGHT);
                 events.CancelEvent(EVENT_NEARLY_EMOTE);
-                events.ScheduleEvent(EVENT_RELEASED, Seconds(6));
+                events.ScheduleEvent(EVENT_RELEASED, 6s);
                 Talk(EMOTE_BREAKS_FREE, me);
                 Talk(SAY_FREE);
                 me->RemoveAurasDueToSpell(SPELL_SHADOW_CAGE_C);
@@ -177,8 +176,8 @@ class boss_magtheridon : public CreatureScript
                     events.SetPhase(PHASE_1);
                     Talk(EMOTE_WEAKEN, me);
                     summons.DoZoneInCombat(NPC_HELLFIRE_CHANNELLER);
-                    events.ScheduleEvent(EVENT_START_FIGHT, Minutes(2));
-                    events.ScheduleEvent(EVENT_NEARLY_EMOTE, Seconds(60));
+                    events.ScheduleEvent(EVENT_START_FIGHT, 2min);
+                    events.ScheduleEvent(EVENT_NEARLY_EMOTE, 1min);
                     events.CancelEvent(EVENT_TAUNT);
                     instance->SetBossState(DATA_MAGTHERIDON, IN_PROGRESS);
                     instance->SetData(DATA_CALL_WARDERS, ACTION_ENABLE);
@@ -201,7 +200,7 @@ class boss_magtheridon : public CreatureScript
                     Talk(SAY_COLLAPSE);
                     instance->SetData(DATA_COLLAPSE, ACTION_ENABLE);
                     DoCastAOE(SPELL_CAMERA_SHAKE);
-                    events.ScheduleEvent(EVENT_COLLAPSE, Seconds(6));
+                    events.ScheduleEvent(EVENT_COLLAPSE, 6s);
                 }
             }
 
@@ -220,10 +219,13 @@ class boss_magtheridon : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!events.IsInPhase(PHASE_BANISH) && !events.IsInPhase(PHASE_1) && !UpdateVictim())
                     return;
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -237,11 +239,11 @@ class boss_magtheridon : public CreatureScript
                             events.Repeat(Seconds(10));
                             break;
                         case EVENT_BLAZE:
-                            me->CastCustomSpell(SPELL_BLAZE_TARGET, SPELLVALUE_MAX_TARGETS, 1);
+                            DoCastAOE(SPELL_BLAZE_TARGET, { SPELLVALUE_MAX_TARGETS, 1 });
                             events.Repeat(Seconds(20));
                             break;
                         case EVENT_QUAKE:
-                            me->CastCustomSpell(SPELL_QUAKE, SPELLVALUE_MAX_TARGETS, 5);
+                            DoCastAOE(SPELL_QUAKE, { SPELLVALUE_MAX_TARGETS, 5 });
                             events.Repeat(Seconds(60));
                             break;
                         case EVENT_START_FIGHT:
@@ -250,24 +252,25 @@ class boss_magtheridon : public CreatureScript
                         case EVENT_RELEASED:
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->SetImmuneToPC(false);
-                            me->SetInCombatWithZone();
+                            DoZoneInCombat();
+                            events.SetPhase(PHASE_2);
                             instance->SetData(DATA_MANTICRON_CUBE, ACTION_ENABLE);
-                            events.ScheduleEvent(EVENT_CLEAVE, Seconds(10));
-                            events.ScheduleEvent(EVENT_BLAST_NOVA, Seconds(60));
-                            events.ScheduleEvent(EVENT_BLAZE, Seconds(20));
-                            events.ScheduleEvent(EVENT_QUAKE, Seconds(35));
-                            events.ScheduleEvent(EVENT_BERSERK, Minutes(20));
+                            events.ScheduleEvent(EVENT_CLEAVE, 10s);
+                            events.ScheduleEvent(EVENT_BLAST_NOVA, 1min);
+                            events.ScheduleEvent(EVENT_BLAZE, 20s);
+                            events.ScheduleEvent(EVENT_QUAKE, 35s);
+                            events.ScheduleEvent(EVENT_BERSERK, 20min);
                             break;
                         case EVENT_COLLAPSE:
                             instance->SetData(DATA_COLLAPSE_2, ACTION_ENABLE);
-                            events.ScheduleEvent(EVENT_DEBRIS_KNOCKDOWN, Seconds(4));
+                            events.ScheduleEvent(EVENT_DEBRIS_KNOCKDOWN, 4s);
                             break;
                         case EVENT_DEBRIS_KNOCKDOWN:
                             if (Creature* trigger = instance->GetCreature(DATA_WORLD_TRIGGER))
                             {
                                 trigger->CastSpell(trigger, SPELL_DEBRIS_KNOCKDOWN, true);
                                 me->SetReactState(REACT_AGGRESSIVE);
-                                events.ScheduleEvent(EVENT_DEBRIS, Seconds(20));
+                                events.ScheduleEvent(EVENT_DEBRIS, 20s);
                             }
                             break;
                         case EVENT_DEBRIS:
@@ -293,9 +296,6 @@ class boss_magtheridon : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                if (!UpdateVictim())
-                    return;
 
                 DoMeleeAttackIfReady();
             }
@@ -330,23 +330,27 @@ class npc_hellfire_channeler : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(false);
 
                 if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
                     magtheridon->AI()->DoAction(ACTION_START_CHANNELERS_EVENT);
 
-                _events.ScheduleEvent(EVENT_SHADOWBOLT, Seconds(20));
-                _events.ScheduleEvent(EVENT_CHECK_FRIEND, Seconds(1));
-                _events.ScheduleEvent(EVENT_ABYSSAL, Seconds(30));
-                _events.ScheduleEvent(EVENT_FEAR, Seconds(15), Seconds(20));
+                _events.ScheduleEvent(EVENT_SHADOWBOLT, 20s);
+                _events.ScheduleEvent(EVENT_CHECK_FRIEND, 1s);
+                _events.ScheduleEvent(EVENT_ABYSSAL, 30s);
+                _events.ScheduleEvent(EVENT_FEAR, 15s, 20s);
 
             }
 
             void JustDied(Unit* /*killer*/) override
             {
                 DoCastAOE(SPELL_SOUL_TRANSFER);
+
+                // Channelers killed by "Hit Kill" need trigger combat event too. It's needed for Cata+
+                if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
+                    magtheridon->AI()->DoAction(ACTION_START_CHANNELERS_EVENT);
             }
 
             void JustSummoned(Creature* summon) override
@@ -354,7 +358,7 @@ class npc_hellfire_channeler : public CreatureScript
                 if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
                     magtheridon->AI()->JustSummoned(summon);
 
-                summon->SetInCombatWithZone();
+                DoZoneInCombat(summon);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -394,7 +398,7 @@ class npc_hellfire_channeler : public CreatureScript
                                 {
                                     DoCast(target, SPELL_DARK_MENDING);
                                     _canCastDarkMending = false;
-                                    _events.ScheduleEvent(EVENT_DARK_MENDING, Seconds(10), Seconds(20));
+                                    _events.ScheduleEvent(EVENT_DARK_MENDING, 10s, 20s);
                                 }
                             }
                             _events.Repeat(Seconds(1));

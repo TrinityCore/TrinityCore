@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,13 +21,13 @@
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "FlightPathMovementGenerator.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "WaypointMovementGenerator.h"
 #include "WorldPacket.h"
 
 void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvData)
@@ -118,8 +118,6 @@ void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathN
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    GetPlayer()->GetMotionMaster()->Clear(MOTION_SLOT_CONTROLLED);
 
     if (mountDisplayId)
         GetPlayer()->Mount(mountDisplayId);
@@ -224,13 +222,11 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
         TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
 
         // far teleport case
-        if (curDestNode && curDestNode->map_id != GetPlayer()->GetMapId())
+        if (curDestNode && curDestNode->map_id != GetPlayer()->GetMapId() && GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
         {
-            if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+            if (FlightPathMovementGenerator* flight = dynamic_cast<FlightPathMovementGenerator*>(GetPlayer()->GetMotionMaster()->GetCurrentMovementGenerator()))
             {
                 // short preparations to continue flight
-                FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
-
                 flight->SetCurrentNodeAfterTeleport();
                 TaxiPathNodeEntry const* node = flight->GetPath()[flight->GetCurrentNode()];
                 flight->SkipCurrentNode();

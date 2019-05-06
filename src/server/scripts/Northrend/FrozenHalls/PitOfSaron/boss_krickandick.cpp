@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -162,17 +162,17 @@ class boss_ick : public CreatureScript
                 return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KRICK));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 if (Creature* krick = GetKrick())
                     krick->AI()->Talk(SAY_KRICK_AGGRO);
 
-                events.ScheduleEvent(EVENT_MIGHTY_KICK, 20000);
-                events.ScheduleEvent(EVENT_TOXIC_WASTE, 5000);
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 10000);
-                events.ScheduleEvent(EVENT_SPECIAL, urand(30000, 35000));
+                events.ScheduleEvent(EVENT_MIGHTY_KICK, 20s);
+                events.ScheduleEvent(EVENT_TOXIC_WASTE, 5s);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 10s);
+                events.ScheduleEvent(EVENT_SPECIAL, 30s, 35s);
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -221,14 +221,8 @@ class boss_ick : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!me->IsEngaged())
+                if (!UpdateVictim())
                     return;
-
-                if (!me->GetVictim() && me->GetThreatManager().IsThreatListEmpty())
-                {
-                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
-                    return;
-                }
 
                 events.Update(diff);
 
@@ -243,22 +237,22 @@ class boss_ick : public CreatureScript
                             if (Creature* krick = GetKrick())
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                     krick->CastSpell(target, SPELL_TOXIC_WASTE);
-                            events.ScheduleEvent(EVENT_TOXIC_WASTE, urand(7000, 10000));
+                            events.ScheduleEvent(EVENT_TOXIC_WASTE, 7s, 10s);
                             break;
                         case EVENT_SHADOW_BOLT:
                             if (Creature* krick = GetKrick())
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                     krick->CastSpell(target, SPELL_SHADOW_BOLT);
-                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 15000);
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 15s);
                             return;
                         case EVENT_MIGHTY_KICK:
                             DoCastVictim(SPELL_MIGHTY_KICK);
-                            events.ScheduleEvent(EVENT_MIGHTY_KICK, 25000);
+                            events.ScheduleEvent(EVENT_MIGHTY_KICK, 25s);
                             return;
                         case EVENT_SPECIAL:
                             //select one of these three special events
                             events.ScheduleEvent(RAND(EVENT_EXPLOSIVE_BARRAGE, EVENT_POISON_NOVA, EVENT_PURSUIT), 1000);
-                            events.ScheduleEvent(EVENT_SPECIAL, urand(23000, 28000));
+                            events.ScheduleEvent(EVENT_SPECIAL, 23s, 28s);
                             break;
                         case EVENT_EXPLOSIVE_BARRAGE:
                             if (Creature* krick = GetKrick())
@@ -266,7 +260,7 @@ class boss_ick : public CreatureScript
                                 krick->AI()->Talk(SAY_KRICK_BARRAGE_1);
                                 krick->AI()->Talk(SAY_KRICK_BARRAGE_2);
                                 krick->CastSpell(krick, SPELL_EXPLOSIVE_BARRAGE_KRICK, true);
-                                DoCast(me, SPELL_EXPLOSIVE_BARRAGE_ICK);
+                                DoCastAOE(SPELL_EXPLOSIVE_BARRAGE_ICK);
                             }
                             events.DelayEvents(20000);
                             break;
@@ -275,12 +269,12 @@ class boss_ick : public CreatureScript
                                 krick->AI()->Talk(SAY_KRICK_POISON_NOVA);
 
                             Talk(SAY_ICK_POISON_NOVA);
-                            DoCast(me, SPELL_POISON_NOVA);
+                            DoCastAOE(SPELL_POISON_NOVA);
                             break;
                         case EVENT_PURSUIT:
                             if (Creature* krick = GetKrick())
                                 krick->AI()->Talk(SAY_KRICK_CHASE);
-                            me->CastCustomSpell(SPELL_PURSUIT, SPELLVALUE_MAX_TARGETS, 1, me);
+                            DoCastSelf(SPELL_PURSUIT, { SPELLVALUE_MAX_TARGETS, 1 });
                             break;
                         default:
                             break;
@@ -498,7 +492,7 @@ class boss_krick : public CreatureScript
                                     jainaOrSylvanas->AI()->Talk(SAY_SYLVANAS_OUTRO_10);
                             }
                             // End of OUTRO. for now...
-                            _events.ScheduleEvent(EVENT_OUTRO_END, 3000);
+                            _events.ScheduleEvent(EVENT_OUTRO_END, 3s);
                             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                                 tyrannus->GetMotionMaster()->MovePoint(0, outroPos[7]);
                             break;

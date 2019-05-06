@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -163,7 +163,7 @@ public:
         uint32 _spell;
         uint32 _spell2;
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void SetType(uint32 _type)
         {
             switch (Creaturetype = _type)
@@ -261,7 +261,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SaySound(uint8 textEntry, Unit* target = 0)
         {
@@ -324,7 +324,7 @@ public:
                 DoCast(me, SPELL_HEAD_LANDS, true);
                 DoCast(me, SPELL_HEAD, false);
                 SaySound(SAY_LOST_HEAD);
-                me->GetMotionMaster()->Clear(false);
+                me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveFleeing(caster->GetVictim());
             }
         }
@@ -339,7 +339,7 @@ public:
                     wait = 1000;
                     if (!me->GetVictim())
                         return;
-                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MoveFleeing(me->GetVictim());
                 }
                 else wait -= diff;
@@ -505,7 +505,7 @@ public:
             ++id;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             instance->SetBossState(DATA_HORSEMAN_EVENT, IN_PROGRESS);
             DoZoneInCombat();
@@ -604,7 +604,7 @@ public:
                 me->SetFullHealth();
                 SaySound(SAY_REJOINED);
                 DoCast(me, SPELL_HEAD);
-                caster->GetMotionMaster()->Clear(false);
+                caster->GetMotionMaster()->Clear();
                 caster->GetMotionMaster()->MoveFollow(me, 6, float(urand(0, 5)));
             }
         }
@@ -679,7 +679,7 @@ public:
                             if (wp_reached)
                             {
                                 wp_reached = false;
-                                me->GetMotionMaster()->Clear(false);
+                                me->GetMotionMaster()->Clear();
                                 me->GetMotionMaster()->MovePoint(id, FlightPoint[id]);
                             }
                         }
@@ -816,7 +816,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {

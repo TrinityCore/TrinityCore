@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -62,11 +62,11 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_SANDBREATH, urand(15000, 30000));
-            events.ScheduleEvent(EVENT_TIMESTOP, urand(10000, 15000));
-            events.ScheduleEvent(EVENT_FRENZY, urand(30000, 45000));
+            events.ScheduleEvent(EVENT_SANDBREATH, 15s, 30s);
+            events.ScheduleEvent(EVENT_TIMESTOP, 10s, 15s);
+            events.ScheduleEvent(EVENT_FRENZY, 30s, 45s);
 
             Talk(SAY_AGGRO);
         }
@@ -80,7 +80,7 @@ public:
                 if (me->IsWithinDistInMap(who, 20.0f))
                 {
                     Talk(SAY_BANISH);
-                    me->DealDamage(who, who->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                    Unit::DealDamage(me, who, who->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                 }
             }
 
@@ -118,16 +118,16 @@ public:
                 {
                     case EVENT_SANDBREATH:
                         DoCastVictim(SPELL_SAND_BREATH);
-                        events.ScheduleEvent(EVENT_SANDBREATH, urand(15000, 25000));
+                        events.ScheduleEvent(EVENT_SANDBREATH, 15s, 25s);
                         break;
                     case EVENT_TIMESTOP:
                         DoCastVictim(SPELL_TIME_STOP);
-                        events.ScheduleEvent(EVENT_TIMESTOP, urand(20000, 35000));
+                        events.ScheduleEvent(EVENT_TIMESTOP, 20s, 35s);
                         break;
                     case EVENT_FRENZY:
                          Talk(EMOTE_FRENZY);
                          DoCast(me, SPELL_ENRAGE);
-                        events.ScheduleEvent(EVENT_FRENZY, urand(20000, 35000));
+                        events.ScheduleEvent(EVENT_FRENZY, 20s, 35s);
                         break;
                     default:
                         break;

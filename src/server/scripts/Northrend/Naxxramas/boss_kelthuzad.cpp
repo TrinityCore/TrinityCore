@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,15 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "naxxramas.h"
+#include "CommonHelpers.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "naxxramas.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "PlayerAI.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -94,6 +95,7 @@ enum Spells
     SPELL_DETONATE_MANA                     = 27819,
     SPELL_MANA_DETONATION_DAMAGE            = 27820,
     SPELL_FROST_BLAST                       = 27808,
+    SPELL_FROST_BLAST_DMG                   = 29879,
     SPELL_CHAINS                            = 28410,
     SPELL_CHAINS_DUMMY                      = 28408, // this holds the category cooldown - the main chains spell can't have one as it is cast multiple times
 
@@ -179,7 +181,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
                 if (pTarget->HasBreakableByDamageCrowdControlAura())
                     return false;
                 // We _really_ dislike healers. So we hit them in the face. Repeatedly. Exclusively.
-                return PlayerAI::IsPlayerHealer(pTarget);
+                return Trinity::Helpers::Entity::IsPlayerHealer(pTarget);
             }
         };
 
@@ -200,7 +202,7 @@ struct ManaUserTargetSelector : public std::unary_function<Unit*, bool>
 {
     bool operator()(Unit const* target) const
     {
-        return target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() == POWER_MANA;
+        return target->GetTypeId() == TYPEID_PLAYER && target->GetPowerType() == POWER_MANA;
     }
 };
 
@@ -600,7 +602,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
                 kelThuzad->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             _movementTimer = 0; // once it's zero, it'll never get checked again
             if (!me->HasReactState(REACT_PASSIVE))
@@ -622,7 +624,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
                 }
             me->SetReactState(REACT_AGGRESSIVE);
             AttackStart(who);
-            ScriptedAI::EnterCombat(who);
+            ScriptedAI::JustEngagedWith(who);
         }
 
         void AttackStart(Unit* who) override
@@ -639,7 +641,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
             }
 
             if (me->CanStartAttack(who, false) && me->GetDistance2d(who) <= MINION_AGGRO_DISTANCE)
-                EnterCombat(who);
+                JustEngagedWith(who);
         }
 
         void SetData(uint32 data, uint32 value) override
@@ -927,7 +929,9 @@ public:
             if (int32 mana = int32(target->GetMaxPower(POWER_MANA) / 10))
             {
                 mana = target->ModifyPower(POWER_MANA, -mana);
-                target->CastCustomSpell(SPELL_MANA_DETONATION_DAMAGE, SPELLVALUE_BASE_POINT0, -mana * 10, target, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.AddSpellBP0(-mana * 10);
+                target->CastSpell(target, SPELL_MANA_DETONATION_DAMAGE, args);
             }
         }
 
@@ -940,6 +944,35 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_kelthuzad_detonate_mana_AuraScript();
+    }
+};
+
+// 27808 - Frost Blast
+class spell_kelthuzad_frost_blast : public AuraScript
+{
+    PrepareAuraScript(spell_kelthuzad_frost_blast);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FROST_BLAST_DMG });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        // Stuns the target, dealing 26% of the target's maximum health in Frost damage every second for 4 sec.
+        if (Unit* caster = GetCaster())
+        {
+            CastSpellExtraArgs args(aurEff);
+            args.AddSpellBP0(GetTarget()->CountPctFromMaxHealth(26));
+            caster->CastSpell(GetTarget(), SPELL_FROST_BLAST_DMG, args);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_kelthuzad_frost_blast::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
@@ -995,6 +1028,7 @@ void AddSC_boss_kelthuzad()
     new npc_kelthuzad_guardian();
     new spell_kelthuzad_chains();
     new spell_kelthuzad_detonate_mana();
+    RegisterAuraScript(spell_kelthuzad_frost_blast);
     new at_kelthuzad_center();
     new achievement_just_cant_get_enough();
 }

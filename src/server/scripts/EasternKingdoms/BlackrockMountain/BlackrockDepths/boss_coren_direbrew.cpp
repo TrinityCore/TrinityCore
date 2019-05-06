@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -169,13 +169,13 @@ struct boss_coren_direbrew : public BossAI
             events.SetPhase(PHASE_ONE);
             me->SetImmuneToPC(false);
             me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
 
             EntryCheckPredicate pred(NPC_ANTAGONIST);
             summons.DoAction(ACTION_ANTAGONIST_HOSTILE, pred);
 
-            events.ScheduleEvent(EVENT_SUMMON_MOLE_MACHINE, Seconds(15));
-            events.ScheduleEvent(EVENT_DIREBREW_DISARM, Seconds(20));
+            events.ScheduleEvent(EVENT_SUMMON_MOLE_MACHINE, 15s);
+            events.ScheduleEvent(EVENT_DIREBREW_DISARM, 20s);
         }
     }
 
@@ -196,9 +196,9 @@ struct boss_coren_direbrew : public BossAI
     void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
     {
         if (summon->GetEntry() == NPC_ILSA_DIREBREW)
-            events.ScheduleEvent(EVENT_RESPAWN_ILSA, Seconds(1));
+            events.ScheduleEvent(EVENT_RESPAWN_ILSA, 1s);
         else if (summon->GetEntry() == NPC_URSULA_DIREBREW)
-            events.ScheduleEvent(EVENT_RESPAWN_URSULA, Seconds(1));
+            events.ScheduleEvent(EVENT_RESPAWN_URSULA, 1s);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -217,7 +217,7 @@ struct boss_coren_direbrew : public BossAI
     void SummonSister(uint32 entry)
     {
         if (Creature* sister = me->SummonCreature(entry, me->GetPosition(), TEMPSUMMON_DEAD_DESPAWN))
-            sister->SetInCombatWithZone();
+            DoZoneInCombat(sister);
     }
 
     void UpdateAI(uint32 diff) override
@@ -259,9 +259,14 @@ struct boss_coren_direbrew : public BossAI
                     SummonSister(NPC_URSULA_DIREBREW);
                     break;
                 case EVENT_SUMMON_MOLE_MACHINE:
-                    me->CastCustomSpell(SPELL_MOLE_MACHINE_TARGET_PICKER, SPELLVALUE_MAX_TARGETS, 1, nullptr, true);
+                {
+                    CastSpellExtraArgs args;
+                    args.TriggerFlags = TRIGGERED_FULL_MASK;
+                    args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
+                    me->CastSpell(nullptr, SPELL_MOLE_MACHINE_TARGET_PICKER, args);
                     events.Repeat(Seconds(15));
                     break;
+                }
                 case EVENT_DIREBREW_DISARM:
                     DoCastSelf(SPELL_DIREBREW_DISARM_PRE_CAST, true);
                     events.Repeat(Seconds(20));
@@ -282,9 +287,9 @@ struct npc_coren_direbrew_sisters : public ScriptedAI
 {
     npc_coren_direbrew_sisters(Creature* creature) : ScriptedAI(creature) { }
 
-    void SetGUID(ObjectGuid guid, int32 data) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
-        if (data == DATA_TARGET_GUID)
+        if (id == DATA_TARGET_GUID)
             _targetGUID = guid;
     }
 
@@ -296,7 +301,7 @@ struct npc_coren_direbrew_sisters : public ScriptedAI
         return ObjectGuid::Empty;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_PORT_TO_COREN);
 
@@ -338,7 +343,7 @@ struct npc_direbrew_minion : public ScriptedAI
     void Reset() override
     {
         me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
-        me->SetInCombatWithZone();
+        DoZoneInCombat();
     }
 
     void IsSummonedBy(Unit* /*summoner*/) override
@@ -368,17 +373,17 @@ struct npc_direbrew_antagonist : public ScriptedAI
             case ACTION_ANTAGONIST_HOSTILE:
                 me->SetImmuneToPC(false);
                 me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
-                me->SetInCombatWithZone();
+                DoZoneInCombat();
                 break;
             default:
                 break;
         }
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         Talk(SAY_ANTAGONIST_COMBAT, who);
-        ScriptedAI::EnterCombat(who);
+        ScriptedAI::JustEngagedWith(who);
     }
 };
 

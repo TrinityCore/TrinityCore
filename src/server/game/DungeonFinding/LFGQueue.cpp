@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "Containers.h"
 #include "DBCStructure.h"
 #include "DBCStores.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "LFGQueue.h"
 #include "LFGMgr.h"
@@ -79,6 +80,10 @@ char const* GetCompatibleString(LfgCompatibility compatibles)
             return "Unknown";
     }
 }
+
+LfgQueueData::LfgQueueData() : joinTime(GameTime::GetGameTime()), tanks(LFG_TANKS_NEEDED),
+healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED)
+{ }
 
 std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check) const
 {
@@ -540,7 +545,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     }
 
     // Create a new proposal
-    proposal.cancelTime = time(nullptr) + LFG_TIME_PROPOSAL;
+    proposal.cancelTime = GameTime::GetGameTime() + LFG_TIME_PROPOSAL;
     proposal.state = LFG_PROPOSAL_INITIATING;
     proposal.leader.Clear();
     proposal.dungeonId = Trinity::Containers::SelectRandomContainerElement(proposalDungeons);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,8 @@ EndScriptData */
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "GameEventMgr.h"
+#include "GameObjectAI.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
@@ -37,6 +39,8 @@ EndScriptData */
 #include "PoolMgr.h"
 #include "RBAC.h"
 #include "WorldSession.h"
+#include <boost/core/demangle.hpp>
+#include <typeinfo>
 
 // definitions are over in cs_npc.cpp
 bool HandleNpcSpawnGroup(ChatHandler* handler, char const* args);
@@ -327,7 +331,7 @@ public:
 
         if (target)
         {
-            int32 curRespawnDelay = int32(target->GetRespawnTimeEx() - time(nullptr));
+            int32 curRespawnDelay = int32(target->GetRespawnTimeEx() - GameTime::GetGameTime());
             if (curRespawnDelay < 0)
                 curRespawnDelay = 0;
 
@@ -353,7 +357,7 @@ public:
 
         Player const* const player = handler->GetSession()->GetPlayer();
         // force respawn to make sure we find something
-        player->GetMap()->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, guidLow, true);
+        player->GetMap()->ForceRespawn(SPAWN_TYPE_GAMEOBJECT, guidLow);
         GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
@@ -428,8 +432,8 @@ public:
         }
 
         Map* map = object->GetMap();
-        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
-        object->SetWorldRotationAngles(oz, oy, ox);
+        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), oz);
+        object->SetLocalRotationAngles(oz, oy, ox);
         object->SaveToDB();
 
         // Generate a completely new spawn with new guid
@@ -499,7 +503,11 @@ public:
         Map* map = object->GetMap();
 
         object->Relocate(x, y, z, object->GetOrientation());
+
+        // update which cell has this gameobject registered for loading
+        sObjectMgr->RemoveGameobjectFromGrid(guidLow, object->GetGameObjectData());
         object->SaveToDB();
+        sObjectMgr->AddGameobjectToGrid(guidLow, object->GetGameObjectData());
 
         // Generate a completely new spawn with new guid
         // 3.3.5a client caches recently deleted objects and brings them back to life
@@ -613,17 +621,26 @@ public:
         if (!param1)
             return false;
 
+        GameObject* thisGO = nullptr;
+        GameObjectData const* data = nullptr;
+
+        ObjectGuid::LowType spawnId = 0;
         if (strcmp(param1, "guid") == 0)
         {
             char* tail = strtok(nullptr, "");
             char* cValue = handler->extractKeyFromLink(tail, "Hgameobject");
             if (!cValue)
                 return false;
-            ObjectGuid::LowType guidLow = atoul(cValue);
-            GameObjectData const* data = sObjectMgr->GetGameObjectData(guidLow);
+            spawnId = atoul(cValue);
+            data = sObjectMgr->GetGameObjectData(spawnId);
             if (!data)
+            {
+                handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, spawnId);
+                handler->SetSentErrorMessage(true);
                 return false;
+            }
             entry = data->id;
+            thisGO = handler->GetObjectFromPlayerMapByDbGuid(spawnId);
         }
         else
         {
@@ -631,16 +648,12 @@ public:
         }
 
         GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(entry);
-
-        GameObject* thisGO = nullptr;
-
         if (!gameObjectInfo)
+        {
+            handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, entry);
+            handler->SetSentErrorMessage(true);
             return false;
-
-        if (*args && handler->GetSession()->GetPlayer())
-            thisGO = handler->GetSession()->GetPlayer()->FindNearestGameObject(entry, 30);
-        else if (handler->getSelectedObject() && handler->getSelectedObject()->GetTypeId() == TYPEID_GAMEOBJECT)
-            thisGO = handler->getSelectedObject()->ToGameObject();
+        }
 
         type = gameObjectInfo->type;
         displayId = gameObjectInfo->displayId;
@@ -654,33 +667,38 @@ public:
         if (thisGO)
         {
             handler->PSendSysMessage(LANG_SPAWNINFO_GUIDINFO, thisGO->GetGUID().ToString().c_str());
-            handler->PSendSysMessage(LANG_SPAWNINFO_SPAWNID_LOCATION, thisGO->GetSpawnId(), thisGO->GetPositionX(), thisGO->GetPositionY(), thisGO->GetPositionZ());
-            if (Player* player = handler->GetSession()->GetPlayer())
+            handler->PSendSysMessage(LANG_SPAWNINFO_COMPATIBILITY_MODE, thisGO->GetRespawnCompatibilityMode());
+
+            if (thisGO->GetGameObjectData() && thisGO->GetGameObjectData()->spawnGroupData->groupId)
             {
-                Position playerPos = player->GetPosition();
-                float dist = thisGO->GetExactDist(&playerPos);
-                handler->PSendSysMessage(LANG_SPAWNINFO_DISTANCEFROMPLAYER, dist);
+                SpawnGroupTemplateData const* groupData = thisGO->GetGameObjectData()->spawnGroupData;
+                handler->PSendSysMessage(LANG_SPAWNINFO_GROUP_ID, groupData->name.c_str(), groupData->groupId, groupData->flags, thisGO->GetMap()->IsSpawnGroupActive(groupData->groupId));
             }
+
+            GameObjectOverride const* goOverride = sObjectMgr->GetGameObjectOverride(spawnId);
+            if (!goOverride)
+                goOverride = sObjectMgr->GetGameObjectTemplateAddon(entry);
+            if (goOverride)
+                handler->PSendSysMessage(LANG_GOINFO_ADDON, goOverride->Faction, goOverride->Flags);
         }
+
+        if (data)
+        {
+            float yaw, pitch, roll;
+            data->rotation.toEulerAnglesZYX(yaw, pitch, roll);
+            handler->PSendSysMessage(LANG_SPAWNINFO_SPAWNID_LOCATION, data->spawnId, data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY(), data->spawnPoint.GetPositionZ());
+            handler->PSendSysMessage(LANG_SPAWNINFO_ROTATION, yaw, pitch, roll);
+        }
+
         handler->PSendSysMessage(LANG_GOINFO_ENTRY, entry);
         handler->PSendSysMessage(LANG_GOINFO_TYPE, type);
         handler->PSendSysMessage(LANG_GOINFO_LOOTID, lootId);
         handler->PSendSysMessage(LANG_GOINFO_DISPLAYID, displayId);
-        if (WorldObject* object = handler->getSelectedObject())
-        {
-            if (object->ToGameObject() && object->ToGameObject()->GetGameObjectData() && object->ToGameObject()->GetGameObjectData()->spawnGroupData->groupId)
-            {
-                SpawnGroupTemplateData const* groupData = object->ToGameObject()->GetGameObjectData()->spawnGroupData;
-                handler->PSendSysMessage(LANG_SPAWNINFO_GROUP_ID, groupData->name.c_str(), groupData->groupId, groupData->flags, object->GetMap()->IsSpawnGroupActive(groupData->groupId));
-            }
-            if (object->ToGameObject())
-                handler->PSendSysMessage(LANG_SPAWNINFO_COMPATIBILITY_MODE, object->ToGameObject()->GetRespawnCompatibilityMode());
-        }
         handler->PSendSysMessage(LANG_GOINFO_NAME, name.c_str());
         handler->PSendSysMessage(LANG_GOINFO_SIZE, gameObjectInfo->size);
-
-        if (GameObjectTemplateAddon const* addon = sObjectMgr->GetGameObjectTemplateAddon(entry))
-            handler->PSendSysMessage(LANG_GOINFO_ADDON, addon->faction, addon->flags);
+        handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, gameObjectInfo->AIName.c_str(), sObjectMgr->GetScriptName(gameObjectInfo->ScriptId).c_str());
+        if (GameObjectAI const* ai = thisGO ? thisGO->AI() : nullptr)
+            handler->PSendSysMessage(LANG_OBJECTINFO_AITYPE, boost::core::demangle(typeid(*ai).name()).c_str());
 
         if (GameObjectDisplayInfoEntry const* modelInfo = sGameObjectDisplayInfoStore.LookupEntry(displayId))
             handler->PSendSysMessage(LANG_GOINFO_MODEL, modelInfo->maxX, modelInfo->maxY, modelInfo->maxZ, modelInfo->minX, modelInfo->minY, modelInfo->minZ);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -208,10 +208,17 @@ struct boss_thaddius : public BossAI
         {
             _JustDied();
             me->setActive(false);
+            me->SetFarVisible(false);
             if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
+            {
                 stalagg->setActive(false);
+                stalagg->SetFarVisible(false);
+            }
             if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
+            {
                 feugen->setActive(false);
+                feugen->SetFarVisible(false);
+            }
             Talk(SAY_DEATH);
         }
 
@@ -240,18 +247,25 @@ struct boss_thaddius : public BossAI
                     instance->SetBossState(BOSS_THADDIUS, IN_PROGRESS);
 
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     DoZoneInCombat();
                     if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
+                    {
                         stalagg->setActive(true);
+                        stalagg->SetFarVisible(true);
+                    }
                     if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
+                    {
                         feugen->setActive(true);
+                        feugen->SetFarVisible(true);
+                    }
                     break;
                 case ACTION_FEUGEN_DIED:
                     if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                         feugen->AI()->DoAction(ACTION_FEUGEN_REVIVING_FX);
                     feugenAlive = false;
                     if (stalaggAlive)
-                        events.ScheduleEvent(EVENT_REVIVE_FEUGEN, Seconds(5), 0, PHASE_PETS);
+                        events.ScheduleEvent(EVENT_REVIVE_FEUGEN, 5s, 0, PHASE_PETS);
                     else
                         Transition();
 
@@ -261,7 +275,7 @@ struct boss_thaddius : public BossAI
                         stalagg->AI()->DoAction(ACTION_STALAGG_REVIVING_FX);
                     stalaggAlive = false;
                     if (feugenAlive)
-                        events.ScheduleEvent(EVENT_REVIVE_STALAGG, Seconds(5), 0, PHASE_PETS);
+                        events.ScheduleEvent(EVENT_REVIVE_STALAGG, 5s, 0, PHASE_PETS);
                     else
                         Transition();
 
@@ -286,9 +300,9 @@ struct boss_thaddius : public BossAI
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-            events.ScheduleEvent(EVENT_TRANSITION_1, Seconds(10), 0, PHASE_TRANSITION);
-            events.ScheduleEvent(EVENT_TRANSITION_2, Seconds(12), 0, PHASE_TRANSITION);
-            events.ScheduleEvent(EVENT_TRANSITION_3, Seconds(14), 0, PHASE_TRANSITION);
+            events.ScheduleEvent(EVENT_TRANSITION_1, 10s, 0, PHASE_TRANSITION);
+            events.ScheduleEvent(EVENT_TRANSITION_2, 12s, 0, PHASE_TRANSITION);
+            events.ScheduleEvent(EVENT_TRANSITION_3, 14s, 0, PHASE_TRANSITION);
         }
 
         void BeginResetEncounter()
@@ -305,6 +319,7 @@ struct boss_thaddius : public BossAI
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
             me->SetImmuneToPC(true);
             me->setActive(false);
+            me->SetFarVisible(false);
             if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                 feugen->AI()->DoAction(ACTION_BEGIN_RESET_ENCOUNTER);
             if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
@@ -386,10 +401,10 @@ struct boss_thaddius : public BossAI
 
                         Talk(SAY_AGGRO);
 
-                        events.ScheduleEvent(EVENT_ENABLE_BALL_LIGHTNING, Seconds(5), 0, PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_SHIFT, Seconds(10), 0, PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_CHAIN, randtime(Seconds(10), Seconds(20)), 0, PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_BERSERK, Minutes(6), 0, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_ENABLE_BALL_LIGHTNING, 5s, 0, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_SHIFT, 10s, 0, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_CHAIN, 10s, 20s, 0, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_BERSERK, 6min, 0, PHASE_THADDIUS);
 
                         break;
                     case EVENT_ENABLE_BALL_LIGHTNING:
@@ -398,8 +413,8 @@ struct boss_thaddius : public BossAI
                     case EVENT_SHIFT:
                         me->CastStop(); // shift overrides all other spells
                         DoCastAOE(SPELL_POLARITY_SHIFT);
-                        events.ScheduleEvent(EVENT_SHIFT_TALK, Seconds(3), PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_SHIFT, Seconds(30), PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_SHIFT_TALK, 3s, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_SHIFT, 30s, PHASE_THADDIUS);
                         break;
                     case EVENT_SHIFT_TALK:
                         Talk(SAY_ELECT);
@@ -496,6 +511,7 @@ public:
                     coil->SetGoState(GO_STATE_READY);
                 me->DespawnOrUnsummon(0, Hours(24*7)); // will be force respawned by thaddius
                 me->setActive(false);
+                me->SetFarVisible(false);
             }
 
             void ResetEncounter()
@@ -563,7 +579,7 @@ public:
                     Talk(SAY_STALAGG_SLAY);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_STALAGG_AGGRO);
 
@@ -759,6 +775,7 @@ public:
                     coil->SetGoState(GO_STATE_READY);
                 me->DespawnOrUnsummon(0, Hours(24*7)); // will be force respawned by thaddius
                 me->setActive(false);
+                me->SetFarVisible(false);
             }
 
             void DoAction(int32 action) override
@@ -821,7 +838,7 @@ public:
                     Talk(SAY_FEUGEN_SLAY);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_FEUGEN_AGGRO);
 
@@ -981,7 +998,7 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override { } // never stop casting due to evade
         void UpdateAI(uint32 /*diff*/) override { } // never do anything unless told
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0; } // no, you can't kill it
     };
 };

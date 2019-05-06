@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -104,6 +104,8 @@ class TC_GAME_API Vehicle : public TransportBase
 
         void RemovePendingEvent(VehicleJoinEvent* e);
         void RemovePendingEventsForSeat(int8 seatId);
+
+        bool HasPendingEventForSeat(int8 seatId) const;
 
     private:
         Unit* _me;                                          ///< The underlying unit with the vehicle kit. Can be player or creature.

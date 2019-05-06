@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -277,6 +277,7 @@ void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction& transaction)
     /// @todo More elegant way
     if (errorCode == ER_LOCK_DEADLOCK)
     {
+        //todo: handle multiple sync threads deadlocking in a similar way as async threads
         uint8 loopBreaker = 5;
         for (uint8 i = 0; i < loopBreaker; ++i)
         {

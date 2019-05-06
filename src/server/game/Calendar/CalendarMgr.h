@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -146,8 +146,7 @@ struct TC_GAME_API CalendarInvite
             _text = calendarInvite.GetText();
         }
 
-        CalendarInvite() : _inviteId(1), _eventId(0), _invitee(), _senderGUID(), _statusTime(time(nullptr)),
-            _status(CALENDAR_STATUS_INVITED), _rank(CALENDAR_RANK_PLAYER), _text("") { }
+        CalendarInvite();
 
         CalendarInvite(uint64 inviteId, uint64 eventId, ObjectGuid invitee, ObjectGuid senderGUID, time_t statusTime,
             CalendarInviteStatus status, CalendarModerationRank rank, std::string text) :

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,6 +29,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "the_eye.h"
 
@@ -74,6 +75,34 @@ enum WaitEventType
     WE_DIVE     = 8,
     WE_LAND     = 9,
     WE_SUMMON   = 10
+};
+
+uint32 const flameQuillsSpells[] =
+{
+    34269,
+    34270,
+    34271,
+    34272,
+    34273,
+    34274,
+    34275,
+    34276,
+    34277,
+    34278,
+    34279,
+    34280,
+    34281,
+    34282,
+    34283,
+    34284,
+    34285,
+    34286,
+    34287,
+    34288,
+    34289,
+    34314,
+    34315,
+    34316
 };
 
 class boss_alar : public CreatureScript
@@ -143,9 +172,9 @@ class boss_alar : public CreatureScript
                 me->setActive(false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 me->SetDisableGravity(true); // after enterevademode will be set walk movement
                 me->setActive(true);
             }
@@ -436,9 +465,7 @@ class boss_alar : public CreatureScript
                     }
                     else
                     {
-                        Unit* target = nullptr;
-                        target = me->SelectNearestTargetInAttackDistance(5);
-                        if (target)
+                        if (Unit* target = me->SelectNearestTargetInAttackDistance(5))
                             AttackStart(target);
                         else
                         {
@@ -484,7 +511,7 @@ class npc_ember_of_alar : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
             }
@@ -524,7 +551,7 @@ class npc_ember_of_alar : public CreatureScript
 
                 if (toDie)
                 {
-                    me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                    me->KillSelf();
                     //me->SetVisibility(VISIBILITY_OFF);
                 }
 
@@ -548,7 +575,7 @@ class npc_flame_patch_alar : public CreatureScript
         {
             npc_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) { }
             void Reset() override { }
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
             void AttackStart(Unit* /*who*/) override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -561,9 +588,40 @@ class npc_flame_patch_alar : public CreatureScript
         }
 };
 
+// 34229 - Flame Quills
+class spell_alar_flame_quills : public AuraScript
+{
+    PrepareAuraScript(spell_alar_flame_quills);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(flameQuillsSpells);
+    }
+
+    bool Load() override
+    {
+        return InstanceHasScript(GetUnitOwner(), TheEyeScriptName);
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        // cast 24 spells 34269-34289, 34314-34316
+        for (uint32 spellId : flameQuillsSpells)
+            GetTarget()->CastSpell(nullptr, spellId, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_alar_flame_quills::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_boss_alar()
 {
     new boss_alar();
     new npc_ember_of_alar();
     new npc_flame_patch_alar();
+    RegisterAuraScript(spell_alar_flame_quills);
 }

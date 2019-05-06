@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -106,7 +106,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void MoveInLineOfSight(Unit* who) override
 
@@ -209,7 +209,7 @@ public:
             if (ManaBurn_Timer <= diff)
             {
                 Unit* target = me->GetVictim();
-                if (target && target->getPowerType() == POWER_MANA)
+                if (target && target->GetPowerType() == POWER_MANA)
                     DoCast(target, SPELL_MANA_BURN);
                 ManaBurn_Timer = 8000 + rand32() % 8000;
             } else ManaBurn_Timer -= diff;
@@ -252,7 +252,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void MoveInLineOfSight(Unit* who) override
 
@@ -461,18 +461,18 @@ class npc_simon_bunny : public CreatureScript
                         if (!CheckPlayer())
                             ResetNode();
                         else
-                            _events.ScheduleEvent(EVENT_SIMON_PERIODIC_PLAYER_CHECK, 2000);
+                            _events.ScheduleEvent(EVENT_SIMON_PERIODIC_PLAYER_CHECK, 2s);
                         break;
                     case EVENT_SIMON_SETUP_PRE_GAME:
                         SetUpPreGame();
                         _events.CancelEvent(EVENT_SIMON_GAME_TICK);
-                        _events.ScheduleEvent(EVENT_SIMON_PLAY_SEQUENCE, 1000);
+                        _events.ScheduleEvent(EVENT_SIMON_PLAY_SEQUENCE, 1s);
                         break;
                     case EVENT_SIMON_PLAY_SEQUENCE:
                         if (!playableSequence.empty())
                         {
                             PlayNextColor();
-                            _events.ScheduleEvent(EVENT_SIMON_PLAY_SEQUENCE, 1500);
+                            _events.ScheduleEvent(EVENT_SIMON_PLAY_SEQUENCE, 1500ms);
                         }
                         else
                         {
@@ -481,16 +481,16 @@ class npc_simon_bunny : public CreatureScript
                             playerSequence.clear();
                             PrepareClusters();
                             gameTicks = 0;
-                            _events.ScheduleEvent(EVENT_SIMON_GAME_TICK, 3000);
+                            _events.ScheduleEvent(EVENT_SIMON_GAME_TICK, 3s);
                         }
                         break;
                     case EVENT_SIMON_GAME_TICK:
                         DoCast(SPELL_AUDIBLE_GAME_TICK);
 
                         if (gameTicks > gameLevel)
-                            _events.ScheduleEvent(EVENT_SIMON_TOO_LONG_TIME, 500);
+                            _events.ScheduleEvent(EVENT_SIMON_TOO_LONG_TIME, 500ms);
                         else
-                            _events.ScheduleEvent(EVENT_SIMON_GAME_TICK, 3000);
+                            _events.ScheduleEvent(EVENT_SIMON_GAME_TICK, 3s);
                         gameTicks++;
                         break;
                     case EVENT_SIMON_RESET_CLUSTERS:
@@ -517,7 +517,7 @@ class npc_simon_bunny : public CreatureScript
                         if (gameLevel == 10)
                             ResetNode();
                         else
-                            _events.ScheduleEvent(EVENT_SIMON_SETUP_PRE_GAME, 1000);
+                            _events.ScheduleEvent(EVENT_SIMON_SETUP_PRE_GAME, 1s);
                         break;
                     case ACTION_SIMON_CORRECT_FULL_SEQUENCE:
                         gameLevel++;
@@ -549,12 +549,12 @@ class npc_simon_bunny : public CreatureScript
 
                 PlayColor(pressedColor);
                 playerSequence.push_back(pressedColor);
-                _events.ScheduleEvent(EVENT_SIMON_RESET_CLUSTERS, 500);
+                _events.ScheduleEvent(EVENT_SIMON_RESET_CLUSTERS, 500ms);
                 CheckPlayerSequence();
             }
 
             // Used for getting involved player guid. Parameter id is used for defining if is a large(Monument) or small(Relic) node
-            void SetGUID(ObjectGuid guid, int32 id) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
                 me->SetCanFly(true);
 
@@ -636,8 +636,8 @@ class npc_simon_bunny : public CreatureScript
                 }
 
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SIMON_ROUND_FINISHED, 1000);
-                _events.ScheduleEvent(EVENT_SIMON_PERIODIC_PLAYER_CHECK, 2000);
+                _events.ScheduleEvent(EVENT_SIMON_ROUND_FINISHED, 1s);
+                _events.ScheduleEvent(EVENT_SIMON_PERIODIC_PLAYER_CHECK, 2s);
 
                 if (GameObject* relic = me->FindNearestGameObject(large ? GO_APEXIS_MONUMENT : GO_APEXIS_RELIC, searchDistance))
                     relic->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -852,7 +852,7 @@ class npc_simon_bunny : public CreatureScript
                 if (spell->Id == SPELL_BAD_PRESS_TRIGGER)
                 {
                     int32 bp = (int32)((float)(fails)*0.33f*target->GetMaxHealth());
-                    target->CastCustomSpell(target, SPELL_BAD_PRESS_DAMAGE, &bp, nullptr, nullptr, true);
+                    target->CastSpell(target, SPELL_BAD_PRESS_DAMAGE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(bp));
                 }
             }
 

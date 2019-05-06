@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +24,6 @@
 #include "Language.h"
 #include "LFG.h"
 #include "Map.h"
-#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -142,13 +141,9 @@ public:
 
             // stop flight if need
             if (player->IsInFlight())
-            {
-                player->GetMotionMaster()->MovementExpired();
-                player->CleanupAfterTaxiFlight();
-            }
-            // save only in non-flight case
+                player->FinishTaxiFlight();
             else
-                player->SaveRecallPosition();
+                player->SaveRecallPosition(); // save only in non-flight case
 
             // before GM
             float x, y, z;
@@ -185,7 +180,7 @@ public:
         return true;
     }
 
-    static bool GroupFlagCommand(ChatHandler* handler, char const* args, GroupMemberFlags flag, const char* what)
+    static bool GroupFlagCommand(ChatHandler* handler, char const* args, GroupMemberFlags flag, char const* what)
     {
         Player* player = nullptr;
         Group* group = nullptr;

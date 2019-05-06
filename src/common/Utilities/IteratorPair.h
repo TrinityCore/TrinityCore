@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,12 +32,12 @@ namespace Trinity
     class IteratorPair
     {
     public:
-        IteratorPair() : _iterators() { }
-        IteratorPair(iterator first, iterator second) : _iterators(first, second) { }
-        IteratorPair(std::pair<iterator, iterator> iterators) : _iterators(iterators) { }
+        constexpr IteratorPair() : _iterators() { }
+        constexpr IteratorPair(iterator first, iterator second) : _iterators(first, second) { }
+        constexpr IteratorPair(std::pair<iterator, iterator> iterators) : _iterators(iterators) { }
 
-        iterator begin() const { return _iterators.first; }
-        iterator end() const { return _iterators.second; }
+        constexpr iterator begin() const { return _iterators.first; }
+        constexpr iterator end() const { return _iterators.second; }
 
     private:
         std::pair<iterator, iterator> _iterators;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -265,7 +265,7 @@ void InstanceScript::UpdateSpawnGroups()
         if (doSpawn)
             instance->SpawnGroupSpawn(groupId);
         else // otherwise, set it as inactive so it no longer respawns (but don't despawn it)
-            instance->SetSpawnGroupActive(groupId, false);
+            instance->SetSpawnGroupInactive(groupId);
     }
 }
 
@@ -353,7 +353,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
             if (bossInfo->state == DONE)
             {
-                TC_LOG_ERROR("map", "InstanceScript: Tried to set instance state from %s back to %s for map %u, instance id %u. Blocked!", GetBossStateName(bossInfo->state), GetBossStateName(state), instance->GetId(), instance->GetInstanceId());
+                TC_LOG_ERROR("map", "InstanceScript: Tried to set instance boss %u state from %s back to %s for map %u, instance id %u. Blocked!", id, GetBossStateName(bossInfo->state), GetBossStateName(state), instance->GetId(), instance->GetInstanceId());
                 return false;
             }
 
@@ -698,9 +698,8 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
 
     uint32 dungeonId = 0;
 
-    for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
+    for (auto const& encounter : *encounters)
     {
-        DungeonEncounter const* encounter = *itr;
         if (encounter->creditType == type && encounter->creditEntry == creditEntry)
         {
             completedEncounters |= 1 << encounter->dbcEntry->encounterIndex;
@@ -716,15 +715,19 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
     if (dungeonId)
     {
         Map::PlayerList const& players = instance->GetPlayers();
-        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+        for (auto const& ref : players)
         {
-            if (Player* player = i->GetSource())
+            if (Player* player = ref.GetSource())
+            {
                 if (Group* grp = player->GetGroup())
+                {
                     if (grp->isLFGGroup())
                     {
                         sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId, instance);
                         return;
                     }
+                }
+            }
         }
     }
 }

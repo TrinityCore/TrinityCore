@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -203,9 +203,9 @@ class boss_zuljin : public CreatureScript
                 //me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 Talk(YELL_INTRO);
                 SpawnAdds();
@@ -581,7 +581,7 @@ class npc_zuljin_vortex : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*target*/) override { }
+            void JustEngagedWith(Unit* /*target*/) override { }
 
             void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
@@ -608,4 +608,3 @@ void AddSC_boss_zuljin()
     new boss_zuljin();
     new npc_zuljin_vortex();
 }
-

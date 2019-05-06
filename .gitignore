@@ -21,3 +21,5 @@ nbproject/*
 .browse.VC*
 .vscode
 cmake-build-*/
+.vs
+*.user

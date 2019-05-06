@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameObjectAI.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
@@ -29,7 +30,7 @@
 #include "PoolMgr.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 GameEventMgr* GameEventMgr::instance()
 {
@@ -44,7 +45,7 @@ bool GameEventMgr::CheckOneGameEvent(uint16 entry) const
         default:
         case GAMEEVENT_NORMAL:
         {
-            time_t currenttime = time(nullptr);
+            time_t currenttime = GameTime::GetGameTime();
             // Get the event information
             return mGameEvent[entry].start < currenttime
                 && currenttime < mGameEvent[entry].end
@@ -61,7 +62,7 @@ bool GameEventMgr::CheckOneGameEvent(uint16 entry) const
         // if inactive world event, check the prerequisite events
         case GAMEEVENT_WORLD_INACTIVE:
         {
-            time_t currenttime = time(nullptr);
+            time_t currenttime = GameTime::GetGameTime();
             for (std::set<uint16>::const_iterator itr = mGameEvent[entry].prerequisite_events.begin(); itr != mGameEvent[entry].prerequisite_events.end(); ++itr)
             {
                 if ((mGameEvent[*itr].state != GAMEEVENT_WORLD_NEXTPHASE && mGameEvent[*itr].state != GAMEEVENT_WORLD_FINISHED) ||   // if prereq not in nextphase or finished state, then can't start this one
@@ -77,7 +78,7 @@ bool GameEventMgr::CheckOneGameEvent(uint16 entry) const
 
 uint32 GameEventMgr::NextCheck(uint16 entry) const
 {
-    time_t currenttime = time(nullptr);
+    time_t currenttime = GameTime::GetGameTime();
 
     // for NEXTPHASE state world events, return the delay to start the next event, so the followup event will be checked correctly
     if ((mGameEvent[entry].state == GAMEEVENT_WORLD_NEXTPHASE || mGameEvent[entry].state == GAMEEVENT_WORLD_FINISHED) && mGameEvent[entry].nextstart >= currenttime)
@@ -137,13 +138,13 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
         ApplyNewEvent(event_id);
         if (overwrite)
         {
-            mGameEvent[event_id].start = time(nullptr);
+            mGameEvent[event_id].start = GameTime::GetGameTime();
             if (data.end <= data.start)
                 data.end = data.start + data.length;
         }
 
         // When event is started, set its worldstate to current time
-        sWorld->setWorldState(event_id, time(nullptr));
+        sWorld->setWorldState(event_id, GameTime::GetGameTime());
         return false;
     }
     else
@@ -184,7 +185,7 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 
     if (overwrite && !serverwide_evt)
     {
-        data.start = time(nullptr) - data.length * MINUTE;
+        data.start = GameTime::GetGameTime() - data.length * MINUTE;
         if (data.end <= data.start)
             data.end = data.start + data.length;
     }
@@ -412,6 +413,10 @@ void GameEventMgr::LoadFromDB()
                     continue;
                 }
 
+                // Log error for pooled object, but still spawn it
+                if (uint32 poolId = sPoolMgr->IsPartOfAPool(SPAWN_TYPE_CREATURE, guid))
+                    TC_LOG_ERROR("sql.sql", "`game_event_creature`: game event id (%i) contains creature (%u) which is part of a pool (%u). This should be spawned in game_event_pool", event_id, guid, poolId);
+
                 GuidList& crelist = mGameEventCreatureGuids[internal_event_id];
                 crelist.push_back(guid);
 
@@ -457,6 +462,10 @@ void GameEventMgr::LoadFromDB()
                     TC_LOG_ERROR("sql.sql", "`game_event_gameobject`: game event id (%i) is out of range compared to max event id in `game_event`.", event_id);
                     continue;
                 }
+
+                // Log error for pooled object, but still spawn it
+                if (uint32 poolId = sPoolMgr->IsPartOfAPool(SPAWN_TYPE_GAMEOBJECT, guid))
+                    TC_LOG_ERROR("sql.sql", "`game_event_gameobject`: game event id (%i) contains game object (%u) which is part of a pool (%u). This should be spawned in game_event_pool", event_id, guid, poolId);
 
                 GuidList& golist = mGameEventGameobjectGuids[internal_event_id];
                 golist.push_back(guid);
@@ -944,7 +953,6 @@ void GameEventMgr::LoadHolidayDates()
 
     //                                               0   1         2
     QueryResult result = WorldDatabase.Query("SELECT id, date_id, date_value FROM holiday_dates");
-
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 holiday dates. DB table `holiday_dates` is empty.");
@@ -969,7 +977,10 @@ void GameEventMgr::LoadHolidayDates()
             continue;
         }
         entry->Date[dateId] = fields[2].GetUInt32();
-        modifiedHolidays.insert(entry->Id);
+
+        auto itr = std::lower_bound(modifiedHolidays.begin(), modifiedHolidays.end(), entry->Id);
+        if (itr == modifiedHolidays.end() || *itr != entry->Id)
+            modifiedHolidays.insert(itr, entry->Id);
         ++count;
 
     } while (result->NextRow());
@@ -1054,7 +1065,7 @@ void GameEventMgr::StartArenaSeason()
 
 uint32 GameEventMgr::Update()                               // return the next event delay in ms
 {
-    time_t currenttime = time(nullptr);
+    time_t currenttime = GameTime::GetGameTime();
     uint32 nextEventDelay = max_ge_check_delay;             // 1 day
     uint32 calcDelay;
     std::set<uint16> activate, deactivate;
@@ -1263,7 +1274,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
         }
     }
 
-    if (internal_event_id < 0 || internal_event_id >= int32(mGameEventGameobjectGuids.size()))
+    if (internal_event_id >= int32(mGameEventGameobjectGuids.size()))
     {
         TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempted access to out of range mGameEventGameobjectGuids element %i (size: %zu).",
             internal_event_id, mGameEventGameobjectGuids.size());
@@ -1296,7 +1307,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
         }
     }
 
-    if (internal_event_id < 0 || internal_event_id >= int32(mGameEventPoolIds.size()))
+    if (internal_event_id >= int32(mGameEventPoolIds.size()))
     {
         TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempted access to out of range mGameEventPoolIds element %u (size: %zu).",
             internal_event_id, mGameEventPoolIds.size());
@@ -1566,9 +1577,10 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
             BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
             if (bl && bl->HolidayWorldStateId)
             {
-                WorldPacket data;
-                sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, bl->HolidayWorldStateId, Activate ? 1 : 0);
-                sWorld->SendGlobalMessage(&data);
+                WorldPackets::WorldState::UpdateWorldState worldstate;
+                worldstate.VariableID = bl->HolidayWorldStateId;
+                worldstate.Value = Activate ? 1 : 0;
+                sWorld->SendGlobalMessage(worldstate.Write());
             }
         }
     }
@@ -1642,7 +1654,7 @@ bool GameEventMgr::CheckOneGameEventConditions(uint16 event_id)
     // set the followup events' start time
     if (!mGameEvent[event_id].nextstart)
     {
-        time_t currenttime = time(nullptr);
+        time_t currenttime = GameTime::GetGameTime();
         mGameEvent[event_id].nextstart = currenttime + mGameEvent[event_id].length * 60;
     }
     return true;
@@ -1684,7 +1696,7 @@ public:
     void Visit(std::unordered_map<ObjectGuid, Creature*>& creatureMap)
     {
         for (auto const& p : creatureMap)
-            if (p.second->IsInWorld() && p.second->IsAIEnabled)
+            if (p.second->IsInWorld() && p.second->IsAIEnabled())
                 p.second->AI()->OnGameEvent(_activate, _eventId);
     }
 
@@ -1720,8 +1732,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     if (!event.holidayStage) // Ignore holiday
         return;
 
-    const HolidaysEntry* holiday = sHolidaysStore.LookupEntry(event.holiday_id);
-
+    HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(event.holiday_id);
     if (!holiday->Date[0] || !holiday->Duration[0]) // Invalid definitions
     {
         TC_LOG_ERROR("sql.sql", "Missing date or duration for holiday %u.", event.holiday_id);
@@ -1732,7 +1743,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     event.length = holiday->Duration[stageIndex] * HOUR / MINUTE;
 
     time_t stageOffset = 0;
-    for (int i = 0; i < stageIndex; ++i)
+    for (uint8 i = 0; i < stageIndex; ++i)
         stageOffset += holiday->Duration[i] * HOUR;
 
     switch (holiday->CalendarFilterType)
@@ -1752,20 +1763,23 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     if (holiday->Looping)
     {
         event.occurence = 0;
-        for (int i = 0; i < MAX_HOLIDAY_DURATIONS && holiday->Duration[i]; ++i)
+        for (uint8 i = 0; i < MAX_HOLIDAY_DURATIONS && holiday->Duration[i]; ++i)
             event.occurence += holiday->Duration[i] * HOUR / MINUTE;
     }
 
     bool singleDate = ((holiday->Date[0] >> 24) & 0x1F) == 31; // Events with fixed date within year have - 1
 
-    time_t curTime = time(NULL);
-    for (int i = 0; i < MAX_HOLIDAY_DATES && holiday->Date[i]; ++i)
+    time_t curTime = GameTime::GetGameTime();
+    for (uint8 i = 0; i < MAX_HOLIDAY_DATES && holiday->Date[i]; ++i)
     {
         uint32 date = holiday->Date[i];
 
         tm timeInfo;
         if (singleDate)
-            timeInfo.tm_year = localtime(&curTime)->tm_year - 1; // First try last year (event active through New Year)
+        {
+            localtime_r(&curTime, &timeInfo);
+            timeInfo.tm_year -= 1; // First try last year (event active through New Year)
+        }
         else
             timeInfo.tm_year = ((date >> 24) & 0x1F) + 100;
 
@@ -1774,23 +1788,34 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
         timeInfo.tm_hour = (date >> 6) & 0x1F;
         timeInfo.tm_min = date & 0x3F;
         timeInfo.tm_sec = 0;
+        timeInfo.tm_wday = 0;
+        timeInfo.tm_yday = 0;
         timeInfo.tm_isdst = -1;
-        tm tmCopy = timeInfo;
 
+        // try to get next start time (skip past dates)
         time_t startTime = mktime(&timeInfo);
         if (curTime < startTime + event.length * MINUTE)
         {
             event.start = startTime + stageOffset;
-            return;
+            break;
         }
         else if (singleDate)
         {
-            tmCopy.tm_year = localtime(&curTime)->tm_year; // This year
+            tm tmCopy;
+            localtime_r(&curTime, &tmCopy);
+            int year = tmCopy.tm_year; // This year
+            tmCopy = timeInfo;
+            tmCopy.tm_year = year;
+
             event.start = mktime(&tmCopy) + stageOffset;
-            return;
+            break;
+        }
+        else
+        {
+            // date is due and not a singleDate event, try with next DBC date (modified by holiday_dates)
+            // if none is found we don't modify start date and use the one in game_event
         }
     }
-    TC_LOG_ERROR("sql.sql", "No suitable start date found for holiday %u.", event.holiday_id);
 }
 
 bool IsHolidayActive(HolidayIds id)

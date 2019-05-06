@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -103,7 +103,7 @@ public:
         DoActionImpl(info, listCopy);
     }
 
-    void DoZoneInCombat(uint32 entry = 0, float maxRangeToNearestTarget = 250.0f);
+    void DoZoneInCombat(uint32 entry = 0);
     void RemoveNotExisting();
     bool HasEntry(uint32 entry) const;
 
@@ -141,35 +141,8 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
 
     void AttackStartNoMove(Unit* target);
 
-    // Called at any Damage from any attacker (before damage apply)
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override { }
-
     //Called at World update tick
     virtual void UpdateAI(uint32 diff) override;
-
-    //Called at creature death
-    void JustDied(Unit* /*killer*/) override { }
-
-    //Called at creature killing another unit
-    void KilledUnit(Unit* /*victim*/) override { }
-
-    // Called when the creature summon successfully other creature
-    void JustSummoned(Creature* /*summon*/) override { }
-
-    // Called when a summoned creature is despawned
-    void SummonedCreatureDespawn(Creature* /*summon*/) override { }
-
-    // Called when hit by a spell
-    void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) override { }
-
-    // Called when spell hits a target
-    void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) override { }
-
-    //Called at waypoint reached or PointMovement end
-    void MovementInform(uint32 /*type*/, uint32 /*id*/) override { }
-
-    // Called when AI is temporarily replaced or put back when possess is applied or removed
-    void OnPossess(bool /*apply*/) { }
 
     // *************
     // Variables
@@ -182,13 +155,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     //Pure virtual functions
     // *************
 
-    //Called at creature reset either by death or evade
-    void Reset() override { }
-
-    //Called at creature aggro either by MoveInLOS or Attack Start
-    void EnterCombat(Unit* /*victim*/) override { }
-
-    // Called before EnterCombat even before the creature is in combat.
+    // Called before JustEngagedWith even before the creature is in combat.
     void AttackStart(Unit* /*target*/) override;
 
     // *************
@@ -275,8 +242,8 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     // return true for 25 man or 25 man heroic mode
     bool Is25ManRaid() const { return _difficulty & RAID_DIFFICULTY_MASK_25MAN; }
 
-    template<class T> inline
-    const T& DUNGEON_MODE(const T& normal5, const T& heroic10) const
+    template <class T>
+    inline T const& DUNGEON_MODE(T const& normal5, T const& heroic10) const
     {
         switch (_difficulty)
         {
@@ -291,8 +258,8 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         return heroic10;
     }
 
-    template<class T> inline
-    const T& RAID_MODE(const T& normal10, const T& normal25) const
+    template <class T>
+    inline T const& RAID_MODE(T const& normal10, T const& normal25) const
     {
         switch (_difficulty)
         {
@@ -307,8 +274,8 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         return normal25;
     }
 
-    template<class T> inline
-    const T& RAID_MODE(const T& normal10, const T& normal25, const T& heroic10, const T& heroic25) const
+    template <class T>
+    inline T const& RAID_MODE(T const& normal10, T const& normal25, T const& heroic10, T const& heroic25) const
     {
         switch (_difficulty)
         {
@@ -355,7 +322,7 @@ class TC_GAME_API BossAI : public ScriptedAI
         virtual void ScheduleTasks() { }
 
         void Reset() override { _Reset(); }
-        void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
+        void JustEngagedWith(Unit* /*who*/) override { _JustEngagedWith(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
         void JustReachedHome() override { _JustReachedHome(); }
 
@@ -363,7 +330,7 @@ class TC_GAME_API BossAI : public ScriptedAI
 
     protected:
         void _Reset();
-        void _EnterCombat();
+        void _JustEngagedWith();
         void _JustDied();
         void _JustReachedHome();
         void _DespawnAtEvade(Seconds delayToRespawn,  Creature* who = nullptr);
@@ -397,12 +364,12 @@ class TC_GAME_API WorldBossAI : public ScriptedAI
         virtual void ExecuteEvent(uint32 /*eventId*/) { }
 
         void Reset() override { _Reset(); }
-        void EnterCombat(Unit* /*who*/) override { _EnterCombat(); }
+        void JustEngagedWith(Unit* /*who*/) override { _JustEngagedWith(); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
 
     protected:
         void _Reset();
-        void _EnterCombat();
+        void _JustEngagedWith();
         void _JustDied();
 
         EventMap events;

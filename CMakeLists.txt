@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -35,7 +35,9 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
 
 # set macro-directory
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/macros")
+list(APPEND CMAKE_MODULE_PATH
+  "${CMAKE_SOURCE_DIR}/cmake/macros"
+  "${CMAKE_SOURCE_DIR}/dep/cotire/CMake")
 
 # build in Release-mode by default if not explicitly set
 if( NOT CMAKE_BUILD_TYPE )
@@ -55,6 +57,7 @@ if( NOPCH )
   set(USE_SCRIPTPCH 0)
 endif()
 
+include(ConfigureBaseTargets)
 include(CheckPlatform)
 
 include(GroupSources)

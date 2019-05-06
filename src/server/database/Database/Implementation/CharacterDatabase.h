@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -113,6 +113,9 @@ enum CharacterDatabaseStatements : uint32
     CHAR_DEL_AUCTION,
     CHAR_UPD_AUCTION_BID,
     CHAR_SEL_AUCTIONS,
+    CHAR_SEL_AUCTION_BIDDERS,
+    CHAR_INS_AUCTION_BIDDERS,
+    CHAR_DEL_AUCTION_BIDDERS,
     CHAR_INS_MAIL,
     CHAR_DEL_MAIL_BY_ID,
     CHAR_INS_MAIL_ITEM,

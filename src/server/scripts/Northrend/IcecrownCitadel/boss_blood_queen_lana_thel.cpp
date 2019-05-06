@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -162,19 +162,19 @@ class boss_blood_queen_lana_thel : public CreatureScript
             {
                 _Reset();
                 events.ScheduleEvent(EVENT_BERSERK, 330000);
-                events.ScheduleEvent(EVENT_VAMPIRIC_BITE, 15000);
-                events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
-                events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, urand(20000, 24000), EVENT_GROUP_NORMAL);
-                events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 15000, EVENT_GROUP_NORMAL);
+                events.ScheduleEvent(EVENT_VAMPIRIC_BITE, 15s);
+                events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500ms, EVENT_GROUP_CANCELLABLE);
+                events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, 20s, 24s, EVENT_GROUP_NORMAL);
+                events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 15s, EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
-                events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, urand(20000, 25000), EVENT_GROUP_NORMAL);
+                events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, 20s, 25s, EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 124000 + uint32(Is25ManRaid() ? 3000 : 0));
                 CleanAuras();
                 _vampires.clear();
                 Initialize();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!instance->CheckRequiredBosses(DATA_BLOOD_QUEEN_LANA_THEL, who->ToPlayer()))
                 {
@@ -203,6 +203,10 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     DoCastAOE(SPELL_BLOOD_INFUSION_CREDIT, true);
 
                 CleanAuras();
+
+                if (!killer)
+                    return;
+
                 // Blah, credit the quest
                 if (_creditBloodQuickening)
                 {
@@ -286,9 +290,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SetGUID(ObjectGuid guid, int32 type = 0) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
-                switch (type)
+                switch (id)
                 {
                     case GUID_VAMPIRE:
                         _vampires.insert(guid);
@@ -313,13 +317,13 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         events.ScheduleEvent(EVENT_AIR_PHASE, 100000 + uint32(Is25ManRaid() ? 0 : 20000));
                         events.RescheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
                         events.RescheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 25500, EVENT_GROUP_NORMAL);
-                        events.ScheduleEvent(EVENT_AIR_START_FLYING, 5000);
+                        events.ScheduleEvent(EVENT_AIR_START_FLYING, 5s);
                         break;
                     case POINT_AIR:
                         _bloodboltedPlayers.clear();
                         DoCast(me, SPELL_BLOODBOLT_WHIRL);
                         Talk(SAY_AIR_PHASE);
-                        events.ScheduleEvent(EVENT_AIR_FLY_DOWN, 10000);
+                        events.ScheduleEvent(EVENT_AIR_FLY_DOWN, 10s);
                         break;
                     case POINT_GROUND:
                         me->SetDisableGravity(false);
@@ -327,7 +331,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* victim = me->SelectVictim())
                             AttackStart(victim);
-                        events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
+                        events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500ms, EVENT_GROUP_CANCELLABLE);
                         break;
                     case POINT_MINCHAR:
                         DoCast(me, SPELL_ANNIHILATE, true);
@@ -401,14 +405,14 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                 else
                                     _offtankGUID.Clear();
                             }
-                            events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
+                            events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500ms, EVENT_GROUP_CANCELLABLE);
                             break;
                         }
                         case EVENT_DELIRIOUS_SLASH:
                             if (_offtankGUID && !me->HasByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER))
                                 if (Player* _offtank = ObjectAccessor::GetPlayer(*me, _offtankGUID))
                                     DoCast(_offtank, SPELL_DELIRIOUS_SLASH);
-                            events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, urand(20000, 24000), EVENT_GROUP_NORMAL);
+                            events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, 20s, 24s, EVENT_GROUP_NORMAL);
                             break;
                         case EVENT_PACT_OF_THE_DARKFALLEN:
                         {
@@ -441,7 +445,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                                 DoCast(*itr, SPELL_TWILIGHT_BLOODBOLT);
                             DoCast(me, SPELL_TWILIGHT_BLOODBOLT_TARGET);
-                            events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, urand(10000, 15000), EVENT_GROUP_NORMAL);
+                            events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, 10s, 15s, EVENT_GROUP_NORMAL);
                             break;
                         }
                         case EVENT_AIR_PHASE:
@@ -489,7 +493,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 std::list<Player*> tempTargets;
                 Unit* maintank = me->GetThreatManager().GetCurrentVictim();
-                for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
+                for (ThreatReference const* ref : me->GetThreatManager().GetSortedThreatList())
                     if (Player* refTarget = ref->GetVictim()->ToPlayer())
                         if (refTarget != maintank && (includeOfftank || (refTarget->GetGUID() != _offtankGUID)))
                             tempTargets.push_back(refTarget->ToPlayer());
@@ -499,7 +503,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 if (targetList)
                 {
-                    *targetList = tempTargets;
+                    *targetList = std::move(tempTargets);
                     return nullptr;
                 }
 
@@ -728,8 +732,9 @@ class spell_blood_queen_essence_of_the_blood_queen : public SpellScriptLoader
                 if (!damageInfo || !damageInfo->GetDamage())
                     return;
 
-                int32 heal = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL, SPELLVALUE_BASE_POINT0, heal, GetTarget(), TRIGGERED_FULL_MASK, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+                GetTarget()->CastSpell(GetTarget(), SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL, args);
             }
 
             void Register() override
@@ -813,7 +818,10 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
                 int32 damage = damageSpell->Effects[EFFECT_0].CalcValue();
                 float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
                 damage = int32(damage * multiplier);
-                GetTarget()->CastCustomSpell(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true);
+
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.AddSpellBP0(damage);
+                GetTarget()->CastSpell(GetTarget(), SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, args);
             }
 
             void Register() override

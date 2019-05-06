@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -234,7 +234,7 @@ namespace VMAP
         return VMAP_INVALID_HEIGHT_VALUE;
     }
 
-    bool VMapManager2::getAreaInfo(unsigned int mapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
+    bool VMapManager2::getAreaInfo(uint32 mapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
     {
         if (!IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_AREAFLAG))
         {
@@ -252,7 +252,7 @@ namespace VMAP
         return false;
     }
 
-    bool VMapManager2::GetLiquidLevel(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type) const
+    bool VMapManager2::GetLiquidLevel(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type, uint32& mogpFlags) const
     {
         if (!IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_LIQUIDSTATUS))
         {
@@ -267,6 +267,7 @@ namespace VMAP
                     ASSERT(floor < std::numeric_limits<float>::max());
                     ASSERT(info.hitModel);
                     type = info.hitModel->GetLiquidType();  // entry from LiquidType.dbc
+                    mogpFlags = info.hitModel->GetMogpFlags();
                     if (reqLiquidType && !(GetLiquidFlagsPtr(type) & reqLiquidType))
                         return false;
                     ASSERT(info.hitInstance);
@@ -297,6 +298,8 @@ namespace VMAP
             Vector3 pos = convertPositionToInternalRep(x, y, z);
             if (instanceTree->second->GetLocationInfo(pos, info))
             {
+                ASSERT(info.hitModel);
+                ASSERT(info.hitInstance);
                 data.floorZ = info.ground_Z;
                 uint32 liquidType = info.hitModel->GetLiquidType();
                 float liquidLevel;

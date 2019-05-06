@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -199,18 +199,18 @@ public:
             }
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
             if (Unit* midnight = ObjectAccessor::GetUnit(*me, _midnightGUID))
                 midnight->KillSelf();
 
-            BossAI::JustDied(killer);
+            _JustDied();
         }
 
-        void SetGUID(ObjectGuid guid, int32 data) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            if (data == NPC_MIDNIGHT)
+            if (id == NPC_MIDNIGHT)
                 _midnightGUID = guid;
         }
 
@@ -338,9 +338,9 @@ public:
             BossAI::JustSummoned(summon);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            BossAI::EnterCombat(who);
+            BossAI::JustEngagedWith(who);
 
             scheduler.Schedule(Seconds(15), Seconds(25), [this](TaskContext task)
             {

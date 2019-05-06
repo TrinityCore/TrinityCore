@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -161,7 +161,8 @@ bool Group::Create(Player* leader)
 
         Group::ConvertLeaderInstancesToGroup(leader, this, false);
 
-        ASSERT(AddMember(leader)); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
+        bool addMemberResult = AddMember(leader);
+        ASSERT(addMemberResult); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
     }
     else if (!AddMember(leader))
         return false;
@@ -793,7 +794,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
         _homebindIfInstance(player);
     }
-    RollId.clear();
+
     m_memberSlots.clear();
 
     RemoveAllInvites();
@@ -1501,6 +1502,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                         roll->getLoot()->unlootedCount--;
                         ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
+                        ASSERT(pProto);
                         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
 
                         ItemPosCountVec dest;
@@ -1928,10 +1930,10 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeId))
             return ERR_BATTLEGROUND_JOIN_FAILED;            // not blizz-like
         // don't let join if someone from the group is in bg queue random
-        if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeIdRandom))
+        if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeIdRandom))
             return ERR_IN_RANDOM_BG;
         // don't let join to bg queue random if someone from the group is already in bg queue
-        if (bgOrTemplate->GetTypeID() == BATTLEGROUND_RB && member->InBattlegroundQueue())
+        if (bgOrTemplate->GetTypeID() == BATTLEGROUND_RB && member->InBattlegroundQueue(true))
             return ERR_IN_NON_RANDOM_BG;
         // check for deserter debuff in case not arena queue
         if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && !member->CanJoinToBattleground(bgOrTemplate))
@@ -2552,4 +2554,3 @@ void Group::ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
     else
         slot->flags &= ~flag;
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -388,6 +388,18 @@ std::string AccountMgr::CalculateShaPassHash(std::string const& name, std::strin
     sha.Finalize();
 
     return ByteArrayToHexStr(sha.GetDigest(), sha.GetLength());
+}
+
+bool AccountMgr::IsBannedAccount(std::string const& name)
+{
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_BY_USERNAME);
+    stmt->setString(0, name);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+    if (!result)
+        return false;
+
+    return true;
 }
 
 bool AccountMgr::IsPlayerAccount(uint32 gmlevel)

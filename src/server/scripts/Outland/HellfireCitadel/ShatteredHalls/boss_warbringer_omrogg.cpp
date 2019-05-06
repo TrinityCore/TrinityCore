@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -198,7 +198,7 @@ class boss_warbringer_omrogg : public CreatureScript
                 ThreatYell = true;
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
                 me->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
@@ -417,13 +417,13 @@ class npc_omrogg_heads : public CreatureScript
 
             void Reset() override { }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void SetData(uint32 data, uint32 value) override
             {
                 if (data == SETDATA_DATA && value == SETDATA_YELL)
                 {
-                    events.ScheduleEvent(EVENT_DEATH_YELL, 4000);
+                    events.ScheduleEvent(EVENT_DEATH_YELL, 4s);
                 }
             }
 

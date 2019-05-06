@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,22 +19,15 @@
 #define TRINITY_GAMEOBJECTAIFACTORY_H
 
 #include "ObjectRegistry.h"
-#include "FactoryHolder.h"
+#include "SelectableAI.h"
 
 class GameObject;
 class GameObjectAI;
 
-typedef FactoryHolder<GameObjectAI, GameObject> GameObjectAICreator;
-
-struct SelectableGameObjectAI : public GameObjectAICreator, public Permissible<GameObject>
+template <class REAL_GO_AI, bool is_db_allowed = true>
+struct GameObjectAIFactory : public SelectableAI<GameObject, GameObjectAI, is_db_allowed>
 {
-    SelectableGameObjectAI(std::string const& name) : GameObjectAICreator(name), Permissible<GameObject>() { }
-};
-
-template<class REAL_GO_AI>
-struct GameObjectAIFactory : public SelectableGameObjectAI
-{
-    GameObjectAIFactory(std::string const& name) : SelectableGameObjectAI(name) { }
+    GameObjectAIFactory(std::string const& name) : SelectableAI<GameObject, GameObjectAI, is_db_allowed>(name) { }
 
     GameObjectAI* Create(GameObject* go) const override
     {
@@ -47,7 +40,7 @@ struct GameObjectAIFactory : public SelectableGameObjectAI
     }
 };
 
-typedef GameObjectAICreator::FactoryHolderRegistry GameObjectAIRegistry;
+typedef SelectableAI<GameObject, GameObjectAI>::FactoryHolderRegistry GameObjectAIRegistry;
 
 #define sGameObjectAIRegistry GameObjectAIRegistry::instance()
 

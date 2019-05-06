@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -85,7 +85,7 @@ public:
                 instance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (IsEvent)
                 instance->SetData(DATA_KAZROGALEVENT, IN_PROGRESS);
@@ -176,7 +176,7 @@ class MarkTargetFilter
         bool operator()(WorldObject* target) const
         {
             if (Unit* unit = target->ToUnit())
-                return unit->getPowerType() != POWER_MANA;
+                return unit->GetPowerType() != POWER_MANA;
             return false;
         }
 };
@@ -216,7 +216,7 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
 
                 if (target->GetPower(POWER_MANA) == 0)
                 {
-                    target->CastSpell(target, SPELL_MARK_DAMAGE, true, nullptr, aurEff);
+                    target->CastSpell(target, SPELL_MARK_DAMAGE, aurEff);
                     // Remove aura
                     SetDuration(0);
                 }

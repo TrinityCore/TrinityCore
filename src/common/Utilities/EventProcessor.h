@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,6 +20,9 @@
 #define __EVENTPROCESSOR_H
 
 #include "Define.h"
+#include "Duration.h"
+#include "Random.h"
+#include "advstd.h"
 #include <map>
 
 class EventProcessor;
@@ -68,6 +71,26 @@ class TC_COMMON_API BasicEvent
         uint64 m_execTime;                                  // planned time of next execution, filled by event handler
 };
 
+template<typename T>
+class LambdaBasicEvent : public BasicEvent
+{
+public:
+    LambdaBasicEvent(T&& callback) : BasicEvent(), _callback(std::move(callback)) { }
+
+    bool Execute(uint64, uint32) override
+    {
+        _callback();
+        return true;
+    }
+
+private:
+
+    T _callback;
+};
+
+template<typename T>
+using is_lambda_event = std::enable_if_t<!advstd::is_base_of_v<BasicEvent, std::remove_pointer_t<advstd::remove_cvref_t<T>>>>;
+
 class TC_COMMON_API EventProcessor
 {
     public:
@@ -76,9 +99,17 @@ class TC_COMMON_API EventProcessor
 
         void Update(uint32 p_time);
         void KillAllEvents(bool force);
-        void AddEvent(BasicEvent* Event, uint64 e_time, bool set_addtime = true);
-        void ModifyEventTime(BasicEvent* Event, uint64 newTime);
-        uint64 CalculateTime(uint64 t_offset) const;
+        void AddEvent(BasicEvent* event, uint64 e_time, bool set_addtime = true);
+        template<typename T>
+        is_lambda_event<T> AddEvent(T&& event, uint64 e_time, bool set_addtime = true) { AddEvent(new LambdaBasicEvent<T>(std::move(event)), e_time, set_addtime); }
+        void AddEventAtOffset(BasicEvent* event, Milliseconds offset) { AddEvent(event, CalculateTime(offset.count())); }
+        void AddEventAtOffset(BasicEvent* event, Milliseconds offset, Milliseconds offset2) { AddEvent(event, CalculateTime(urand(offset.count(), offset2.count()))); }
+        template<typename T>
+        is_lambda_event<T> AddEventAtOffset(T&& event, Milliseconds offset) { AddEventAtOffset(new LambdaBasicEvent<T>(std::move(event)), offset); }
+        template<typename T>
+        is_lambda_event<T> AddEventAtOffset(T&& event, Milliseconds offset, Milliseconds offset2) { AddEventAtOffset(new LambdaBasicEvent<T>(std::move(event)), offset, offset2); }
+        void ModifyEventTime(BasicEvent* event, uint64 newTime);
+        uint64 CalculateTime(uint64 t_offset) const { return m_time + t_offset; }
 
     protected:
         uint64 m_time;

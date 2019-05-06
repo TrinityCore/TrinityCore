@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -327,15 +327,15 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 if (apply)
                 {
                     if (_instance->GetBossState(DATA_VAROS) != DONE)
-                        _events.ScheduleEvent(EVENT_WELCOME, 10 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_WELCOME, 10s);
 
                     else if (_instance->GetBossState(DATA_UROM) == DONE)
-                        _events.ScheduleEvent(EVENT_SPECIAL_ATTACK, 10 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_SPECIAL_ATTACK, 10s);
                 }
                 else
                 {
                     _events.Reset();
-                    _events.ScheduleEvent(EVENT_TAKE_OFF, 2 * IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_TAKE_OFF, 2s);
                 }
             }
 
@@ -356,7 +356,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                         case EVENT_WELCOME:
                             if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
                                 Talk(WHISPER_DRAKES_WELCOME, creator);
-                            _events.ScheduleEvent(EVENT_ABILITIES, 5 * IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_ABILITIES, 5s);
                             break;
                         case EVENT_ABILITIES:
                             if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
@@ -370,7 +370,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                             if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
                                 Talk(WHISPER_DRAKES_LOWHEALTH, creator);
                             _healthWarning = false;
-                            _events.ScheduleEvent(EVENT_RESET_LOW_HEALTH, 25000);
+                            _events.ScheduleEvent(EVENT_RESET_LOW_HEALTH, 25s);
                             break;
                         case EVENT_RESET_LOW_HEALTH:
                             _healthWarning = true;
@@ -519,22 +519,24 @@ class spell_oculus_shock_lance : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
             }
 
-            void CalcDamage()
+            void CalcDamage(SpellEffIndex /*effIndex*/)
             {
-                int32 damage = GetHitDamage();
+                int32 damage = GetEffectValue();
                 if (Unit* target = GetHitUnit())
+                {
                     if (AuraEffect const* shockCharges = target->GetAuraEffect(SPELL_AMBER_SHOCK_CHARGE, EFFECT_0, GetCaster()->GetGUID()))
                     {
                         damage += shockCharges->GetAmount();
-                        shockCharges->GetBase()->Remove();
+                        shockCharges->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
                     }
+                }
 
-                SetHitDamage(damage);
+                SetEffectValue(damage);
             }
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_oculus_shock_lance_SpellScript::CalcDamage);
+                OnEffectLaunchTarget += SpellEffectFn(spell_oculus_shock_lance_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 

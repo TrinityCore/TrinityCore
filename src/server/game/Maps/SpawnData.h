@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -71,6 +71,14 @@ struct SpawnData
 
     protected:
     SpawnData(SpawnObjectType t) : type(t) {}
+};
+
+enum LinkedRespawnType
+{
+    LINKED_RESPAWN_CREATURE_TO_CREATURE  = 0,
+    LINKED_RESPAWN_CREATURE_TO_GO        = 1, // Creature is dependant on GameObject
+    LINKED_RESPAWN_GO_TO_GO              = 2,
+    LINKED_RESPAWN_GO_TO_CREATURE        = 3, // GameObject is dependant on Creature
 };
 
 #endif

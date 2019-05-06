@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,13 +54,13 @@ class boss_grobbulus : public CreatureScript
         {
             boss_grobbulusAI(Creature* creature) : BossAI(creature, BOSS_GROBBULUS) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_CLOUD, Seconds(15));
-                events.ScheduleEvent(EVENT_INJECT, Seconds(20));
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_CLOUD, 15s);
+                events.ScheduleEvent(EVENT_INJECT, 20s);
                 events.ScheduleEvent(EVENT_SPRAY, randtime(Seconds(15), Seconds(30))); // not sure
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(12));
+                events.ScheduleEvent(EVENT_BERSERK, 12min);
             }
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
@@ -163,7 +163,7 @@ class spell_grobbulus_mutating_injection : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     caster->CastSpell(GetTarget(), SPELL_MUTATING_EXPLOSION, true);
-                    GetTarget()->CastSpell(GetTarget(), SPELL_POISON_CLOUD, true, nullptr, aurEff, GetCasterGUID());
+                    GetTarget()->CastSpell(GetTarget(), SPELL_POISON_CLOUD, { aurEff, GetCasterGUID() });
                 }
             }
 
@@ -197,10 +197,15 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
             void PeriodicTick(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
+                if (!aurEff->GetTotalTicks())
+                    return;
 
                 uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
                 int32 mod = int32(((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 10000 * 2 / 3);
-                GetTarget()->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, mod, (Unit*)nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff);
+
+                CastSpellExtraArgs args(aurEff);
+                args.AddSpellMod(SPELLVALUE_RADIUS_MOD, mod);
+                GetTarget()->CastSpell(nullptr, triggerSpell, args);
             }
 
             void Register() override

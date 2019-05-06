@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -69,7 +69,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void Reset() override { }
 
@@ -157,7 +157,7 @@ public:
             switch (action)
             {
                 case GOSSIP_ACTION_TRAIN:
-                    player->GetSession()->SendTrainerList(me->GetGUID());
+                    player->GetSession()->SendTrainerList(me);
                     break;
                 case GOSSIP_ACTION_TRADE:
                     player->GetSession()->SendListInventory(me->GetGUID());
@@ -279,7 +279,7 @@ public:
 
         void Reset() override
         {
-            events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
+            events.ScheduleEvent(EVENT_CHECK_AREA, 5s);
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -289,7 +289,7 @@ public:
 
             if (id == 15)
             // drake reached village
-            events.ScheduleEvent(EVENT_REACHED_HOME, 2000);
+            events.ScheduleEvent(EVENT_REACHED_HOME, 2s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -310,7 +310,7 @@ public:
                             }
                     }
                     else
-                        events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
+                        events.ScheduleEvent(EVENT_CHECK_AREA, 5s);
                     break;
                 case EVENT_REACHED_HOME:
                     if (Vehicle* vehicle = me->GetVehicleKit())
@@ -351,7 +351,7 @@ public:
         npc_icefangAI(Creature* creature) : EscortAI(creature) { }
 
         void AttackStart(Unit* /*who*/) override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void EnterEvadeMode(EvadeReason /*why*/) override { }
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
@@ -364,7 +364,7 @@ public:
         }
 
         void JustDied(Unit* /*killer*/) override { }
-        void OnCharmed(bool /*apply*/) override { }
+        void OnCharmed(bool /*isNew*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -828,7 +828,7 @@ class npc_wild_wyrm : public CreatureScript
                 if (seatId != SEAT_INITIAL)
                     return;
 
-                me->CastCustomSpell(SPELL_GRIP, SPELLVALUE_AURA_STACK, 50);
+                me->CastSpell(nullptr, SPELL_GRIP, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_AURA_STACK, 50));
                 DoCastAOE(SPELL_CLAW_SWIPE_PERIODIC);
 
                 _scheduler.Async([this]

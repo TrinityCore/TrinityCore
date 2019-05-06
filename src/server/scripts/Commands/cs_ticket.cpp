@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -291,9 +291,6 @@ public:
         std::string msg = ticket->FormatMessageString(*handler, nullptr, nullptr, nullptr, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", nullptr);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
-        sTicketMgr->RemoveTicket(ticket->GetId());
-        sTicketMgr->UpdateLastChange();
-
         if (Player* player = ticket->GetPlayer())
         {
             // Force abandon ticket
@@ -301,6 +298,9 @@ public:
             data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
             player->SendDirectMessage(&data);
         }
+
+        sTicketMgr->RemoveTicket(ticket->GetId());
+        sTicketMgr->UpdateLastChange();
 
         return true;
     }

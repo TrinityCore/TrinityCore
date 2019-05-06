@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -187,7 +187,7 @@ public:
             for (uint8 i = 0; i < nStatues; ++i)
                 go->SummonGameObject(GO_ATALAI_LIGHT2, statuePositions[i], QuaternionData(), 0);
 
-            go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200);
+            go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 600000);
         }
 
          void SetData(uint32 type, uint32 data) override

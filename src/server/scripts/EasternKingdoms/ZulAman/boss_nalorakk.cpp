@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -238,9 +238,9 @@ class boss_nalorakk : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 Talk(YELL_AGGRO);
             }
@@ -311,7 +311,7 @@ class boss_nalorakk : public CreatureScript
                 {
                     if (waitTimer <= diff)
                     {
-                        me->GetMotionMaster()->MovementExpired();
+                        me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
                         me->GetMotionMaster()->MovePoint(MovePhase, NalorakkWay[MovePhase][0], NalorakkWay[MovePhase][1], NalorakkWay[MovePhase][2]);
                         waitTimer = 0;
                     }

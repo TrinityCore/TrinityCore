@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -287,7 +287,7 @@ class instance_blood_furnace : public InstanceMapScript
                     {
                         prisoner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         prisoner->SetImmuneToAll(false);
-                        prisoner->SetInCombatWithZone();
+                        prisoner->AI()->DoZoneInCombat();
                     }
             }
 
@@ -322,4 +322,3 @@ void AddSC_instance_blood_furnace()
 {
     new instance_blood_furnace();
 }
-

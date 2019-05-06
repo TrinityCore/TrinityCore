@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -67,9 +67,7 @@ void GuardAI::EnterEvadeMode(EvadeReason /*why*/)
     me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
 
-    // Remove ChaseMovementGenerator from MotionMaster stack list, and add HomeMovementGenerator instead
-    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
-        me->GetMotionMaster()->MoveTargetedHome();
+    me->GetMotionMaster()->MoveTargetedHome();
 }
 
 void GuardAI::JustDied(Unit* killer)

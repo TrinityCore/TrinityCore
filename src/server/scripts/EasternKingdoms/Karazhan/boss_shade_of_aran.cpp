@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -174,7 +174,7 @@ public:
             instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -460,7 +460,7 @@ public:
                         Unit* unit = ObjectAccessor::GetUnit(*me, FlameWreathTarget[i]);
                         if (unit && !unit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
                         {
-                            unit->CastSpell(unit, 20476, true, 0, 0, me->GetGUID());
+                            unit->CastSpell(unit, 20476, me->GetGUID());
                             unit->CastSpell(unit, 11027, true);
                             FlameWreathTarget[i].Clear();
                         }
@@ -532,7 +532,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {

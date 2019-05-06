@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -463,8 +463,8 @@ void ReputationMgr::SetAtWar(RepListID repListID, bool on)
 
 void ReputationMgr::SetAtWar(FactionState* faction, bool atWar) const
 {
-    // not allow declare war to own faction
-    if (atWar && (faction->Flags & FACTION_FLAG_PEACE_FORCED))
+    // Do not allow to declare war to our own faction. But allow for rival factions (eg Aldor vs Scryer).
+    if (atWar && (faction->Flags & FACTION_FLAG_PEACE_FORCED) && !(faction->Flags & FACTION_FLAG_RIVAL))
         return;
 
     // already set

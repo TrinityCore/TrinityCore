@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -58,9 +58,6 @@ public:
 
     static bool HandleGodModeCheatCommand(ChatHandler* handler, char const* args)
     {
-        if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
-            return false;
-
         std::string argstr = (char*)args;
 
         if (!*args)
@@ -84,9 +81,6 @@ public:
 
     static bool HandleCasttimeCheatCommand(ChatHandler* handler, char const* args)
     {
-        if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
-            return false;
-
         std::string argstr = (char*)args;
 
         if (!*args)
@@ -110,9 +104,6 @@ public:
 
     static bool HandleCoolDownCheatCommand(ChatHandler* handler, char const* args)
     {
-        if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
-            return false;
-
         std::string argstr = (char*)args;
 
         if (!*args)
@@ -136,9 +127,6 @@ public:
 
     static bool HandlePowerCheatCommand(ChatHandler* handler, char const* args)
     {
-        if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
-            return false;
-
         std::string argstr = (char*)args;
 
         if (!*args)
@@ -180,9 +168,6 @@ public:
 
     static bool HandleWaterWalkCheatCommand(ChatHandler* handler, char const* args)
     {
-        if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
-            return false;
-
         std::string argstr = (char*)args;
 
         if (!*args)

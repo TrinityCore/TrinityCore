@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,6 @@ go_cat_figurine (the "trap" version of GO, two different exist)
 go_barov_journal
 go_ethereum_prison
 go_ethereum_stasis
-go_sacred_fire_of_life
 go_shrine_of_the_birds
 go_southfury_moonstone
 go_orb_of_command
@@ -37,7 +36,6 @@ go_soulwell
 go_bashir_crystalforge
 go_soulwell
 go_dragonflayer_cage
-go_tadpole_cage
 go_amberpine_outhouse
 go_hive_pod
 go_veil_skith_cage
@@ -311,7 +309,7 @@ public:
             me->UseDoorOrButton();
             int Random = rand32() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
 
-            if (Creature* creature = player->SummonCreature(NpcPrisonEntry[Random], me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetAngle(player),
+            if (Creature* creature = player->SummonCreature(NpcPrisonEntry[Random], me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player),
                 TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
             {
                 if (!creature->IsHostileTo(player))
@@ -371,7 +369,7 @@ public:
             me->UseDoorOrButton();
             int Random = rand32() % (sizeof(NpcStasisEntry) / sizeof(uint32));
 
-            player->SummonCreature(NpcStasisEntry[Random], me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetAngle(player),
+            player->SummonCreature(NpcStasisEntry[Random], me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player),
                 TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
 
             return false;
@@ -414,39 +412,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_resonite_caskAI(go);
-    }
-};
-
-/*######
-## go_sacred_fire_of_life
-######*/
-
-enum SacredFireOfLife
-{
-    NPC_ARIKARA     = 10882
-};
-
-class go_sacred_fire_of_life : public GameObjectScript
-{
-public:
-    go_sacred_fire_of_life() : GameObjectScript("go_sacred_fire_of_life") { }
-
-    struct go_sacred_fire_of_lifeAI : public GameObjectAI
-    {
-        go_sacred_fire_of_lifeAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
-                player->SummonCreature(NPC_ARIKARA, -5008.338f, -2118.894f, 83.657f, 0.874f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_sacred_fire_of_lifeAI(go);
     }
 };
 
@@ -1232,49 +1197,6 @@ public:
 };
 
 /*######
-## Quest 11560: Oh Noes, the Tadpoles!
-## go_tadpole_cage
-######*/
-
-enum Tadpoles
-{
-    QUEST_OH_NOES_THE_TADPOLES                    = 11560,
-    NPC_WINTERFIN_TADPOLE                         = 25201
-};
-
-class go_tadpole_cage : public GameObjectScript
-{
-public:
-    go_tadpole_cage() : GameObjectScript("go_tadpole_cage") { }
-
-    struct go_tadpole_cageAI : public GameObjectAI
-    {
-        go_tadpole_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (player->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE)
-            {
-                Creature* pTadpole = me->FindNearestCreature(NPC_WINTERFIN_TADPOLE, 1.0f);
-                if (pTadpole)
-                {
-                    pTadpole->DisappearAndDie();
-                    player->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE);
-                    //FIX: Summon minion tadpole
-                }
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_tadpole_cageAI(go);
-    }
-};
-
-/*######
 ## go_amberpine_outhouse
 ######*/
 
@@ -1372,8 +1294,8 @@ public:
         bool GossipHello(Player* player) override
         {
             player->SendLoot(me->GetGUID(), LOOT_CORPSE);
-            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX() + 1, me->GetPositionY(), me->GetPositionZ(), me->GetAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
-            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX(), me->GetPositionY() + 1, me->GetPositionZ(), me->GetAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX() + 1, me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX(), me->GetPositionY() + 1, me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
             return true;
         }
     };
@@ -1528,10 +1450,18 @@ public:
 
 enum MidsummerPoleRibbon
 {
-    SPELL_POLE_DANCE      = 29726,
-    SPELL_BLUE_FIRE_RING  = 46842,
-    NPC_POLE_RIBBON_BUNNY = 17066,
-    ACTION_COSMETIC_FIRES = 0
+    SPELL_TEST_RIBBON_POLE_1 = 29705,
+    SPELL_TEST_RIBBON_POLE_2 = 29726,
+    SPELL_TEST_RIBBON_POLE_3 = 29727,
+    NPC_POLE_RIBBON_BUNNY    = 17066,
+    ACTION_COSMETIC_FIRES    = 0
+};
+
+uint32 const RibbonPoleSpells[3] =
+{
+    SPELL_TEST_RIBBON_POLE_1,
+    SPELL_TEST_RIBBON_POLE_2,
+    SPELL_TEST_RIBBON_POLE_3
 };
 
 class go_midsummer_ribbon_pole : public GameObjectScript
@@ -1548,7 +1478,7 @@ public:
             if (Creature* creature = me->FindNearestCreature(NPC_POLE_RIBBON_BUNNY, 10.0f))
             {
                 creature->GetAI()->DoAction(ACTION_COSMETIC_FIRES);
-                player->CastSpell(creature, SPELL_POLE_DANCE, true);
+                player->CastSpell(player, RibbonPoleSpells[urand(0, 2)], true);
             }
             return true;
         }
@@ -1659,8 +1589,8 @@ public:
 
         go_brewfest_musicAI(GameObject* go) : GameObjectAI(go)
         {
-            _events.ScheduleEvent(EVENT_BM_SELECT_MUSIC, 1000);
-            _events.ScheduleEvent(EVENT_BM_START_MUSIC, 2000);
+            _events.ScheduleEvent(EVENT_BM_SELECT_MUSIC, 1s);
+            _events.ScheduleEvent(EVENT_BM_START_MUSIC, 2s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1772,7 +1702,7 @@ public:
                             break;
                     }
 
-                    _events.ScheduleEvent(EVENT_BM_START_MUSIC, 5000); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client
+                    _events.ScheduleEvent(EVENT_BM_START_MUSIC, 5s); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client
                     break;
                 default:
                     break;
@@ -1813,7 +1743,7 @@ public:
     {
         go_midsummer_musicAI(GameObject* go) : GameObjectAI(go)
         {
-            _events.ScheduleEvent(EVENT_MM_START_MUSIC, 1000);
+            _events.ScheduleEvent(EVENT_MM_START_MUSIC, 1s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1837,7 +1767,7 @@ public:
                             else
                                 me->PlayDirectMusic(EVENTMIDSUMMERFIREFESTIVAL_A, player);
                         }
-                        _events.ScheduleEvent(EVENT_MM_START_MUSIC, 5000); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
+                        _events.ScheduleEvent(EVENT_MM_START_MUSIC, 5s); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
                         break;
                     }
                 default:
@@ -1878,7 +1808,7 @@ public:
     {
         go_darkmoon_faire_musicAI(GameObject* go) : GameObjectAI(go)
         {
-            _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 1000);
+            _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 1s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1892,7 +1822,7 @@ public:
                     if (!IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_ELWYNN) || !IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_THUNDER) || !IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_SHATTRATH))
                         break;
                     me->PlayDirectMusic(MUSIC_DARKMOON_FAIRE_MUSIC);
-                    _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 5000);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
+                    _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 5s);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
                     break;
                 default:
                     break;
@@ -1932,7 +1862,7 @@ public:
     {
         go_pirate_day_musicAI(GameObject* go) : GameObjectAI(go)
         {
-            _events.ScheduleEvent(EVENT_PDM_START_MUSIC, 1000);
+            _events.ScheduleEvent(EVENT_PDM_START_MUSIC, 1s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1946,7 +1876,7 @@ public:
                     if (!IsHolidayActive(HOLIDAY_PIRATES_DAY))
                         break;
                     me->PlayDirectMusic(MUSIC_PIRATE_DAY_MUSIC);
-                    _events.ScheduleEvent(EVENT_PDM_START_MUSIC, 5000);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
+                    _events.ScheduleEvent(EVENT_PDM_START_MUSIC, 5s);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
                     break;
                 default:
                     break;
@@ -2088,7 +2018,6 @@ void AddSC_go_scripts()
     new go_ethereum_prison();
     new go_ethereum_stasis();
     new go_resonite_cask();
-    new go_sacred_fire_of_life();
     new go_tele_to_dalaran_crystal();
     new go_tele_to_violet_stand();
     new go_fel_crystalforge();
@@ -2101,7 +2030,6 @@ void AddSC_go_scripts()
     new go_table_theka();
     new go_inconspicuous_landmark();
     new go_soulwell();
-    new go_tadpole_cage();
     new go_dragonflayer_cage();
     new go_amberpine_outhouse();
     new go_hive_pod();

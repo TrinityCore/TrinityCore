@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,7 @@
 
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "BattlegroundMgr.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
@@ -314,9 +315,34 @@ void ArenaTeam::SetCaptain(ObjectGuid guid)
 
 void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
 {
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+    Group* group = (player && player->GetGroup()) ? player->GetGroup() : nullptr;
+
     // Remove member from team
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
+        // Remove queues of members
+        if (Player* playerMember = ObjectAccessor::FindConnectedPlayer(itr->Guid))
+        {
+            if (group && playerMember->GetGroup() && group->GetGUID() == playerMember->GetGroup()->GetGUID())
+            {
+                if (BattlegroundQueueTypeId bgQueue = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, GetType()))
+                {
+                    GroupQueueInfo ginfo;
+                    BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueue);
+                    if (queue.GetPlayerGroupInfoData(playerMember->GetGUID(), &ginfo))
+                        if (!ginfo.IsInvitedToBGInstanceGUID)
+                        {
+                            WorldPacket data;
+                            playerMember->RemoveBattlegroundQueueId(bgQueue);
+                            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, nullptr, playerMember->GetBattlegroundQueueIndex(bgQueue), STATUS_NONE, 0, 0, 0, 0);
+                            queue.RemovePlayer(playerMember->GetGUID(), true);
+                            playerMember->GetSession()->SendPacket(&data);
+                        }
+                }
+            }
+        }
+
         if (itr->Guid == guid)
         {
             Members.erase(itr);
@@ -326,7 +352,7 @@ void ArenaTeam::DelMember(ObjectGuid guid, bool cleanDb)
     }
 
     // Inform player and remove arena team info from player data
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (player)
     {
         player->GetSession()->SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, GetName(), "", 0);
         // delete all info regarding this team

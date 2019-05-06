@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -139,13 +139,13 @@ class boss_ossirian : public CreatureScript
                             Trigger->CastSpell(Trigger, SpellWeakness[urand(0, 4)], false);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.Reset();
-                events.ScheduleEvent(EVENT_SILENCE, 30000);
-                events.ScheduleEvent(EVENT_CYCLONE, 20000);
-                events.ScheduleEvent(EVENT_STOMP, 30000);
+                events.ScheduleEvent(EVENT_SILENCE, 30s);
+                events.ScheduleEvent(EVENT_CYCLONE, 20s);
+                events.ScheduleEvent(EVENT_STOMP, 30s);
 
                 DoCast(me, SPELL_SUPREME);
                 Talk(SAY_AGGRO);
@@ -256,15 +256,15 @@ class boss_ossirian : public CreatureScript
                     {
                         case EVENT_SILENCE:
                             DoCast(me, SPELL_SILENCE);
-                            events.ScheduleEvent(EVENT_SILENCE, urand(20000, 30000));
+                            events.ScheduleEvent(EVENT_SILENCE, 20s, 30s);
                             break;
                         case EVENT_CYCLONE:
                             DoCastVictim(SPELL_CYCLONE);
-                            events.ScheduleEvent(EVENT_CYCLONE, 20000);
+                            events.ScheduleEvent(EVENT_CYCLONE, 20s);
                             break;
                         case EVENT_STOMP:
                             DoCast(me, SPELL_STOMP);
-                            events.ScheduleEvent(EVENT_STOMP, 30000);
+                            events.ScheduleEvent(EVENT_STOMP, 30s);
                             break;
                         default:
                             break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +23,7 @@
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
@@ -307,7 +308,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->bidder = 0;
         AH->bid = 0;
         AH->buyout = buyout;
-        AH->expire_time = time(nullptr) + auctionTime;
+        AH->expire_time = GameTime::GetGameTime() + auctionTime;
         AH->deposit = deposit;
         AH->etime = etime;
         AH->auctionHouseEntry = auctionHouseEntry;
@@ -364,7 +365,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->bidder = 0;
         AH->bid = 0;
         AH->buyout = buyout;
-        AH->expire_time = time(nullptr) + auctionTime;
+        AH->expire_time = GameTime::GetGameTime() + auctionTime;
         AH->deposit = deposit;
         AH->etime = etime;
         AH->auctionHouseEntry = auctionHouseEntry;
@@ -514,6 +515,16 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         stmt->setUInt32(1, auction->bid);
         stmt->setUInt32(2, auction->Id);
         trans->Append(stmt);
+
+        if (auction->bidders.find(player->GetGUID()) == auction->bidders.end())
+        {
+            // save new bidder in list, and save record to db
+            auction->bidders.insert(player->GetGUID());
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AUCTION_BIDDERS);
+            stmt->setUInt32(0, auction->Id);
+            stmt->setUInt32(1, auction->bidder);
+            trans->Append(stmt);
+        }
 
         SendAuctionCommandResult(auction->Id, AUCTION_PLACE_BID, ERR_AUCTION_OK, 0);
     }

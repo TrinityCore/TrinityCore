@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Item.h"
-#include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -111,7 +110,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
         /// @todo find correct opcode
         if (_player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
-            SendNotification(LANG_ARENA_ONE_TOOLOW, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
         }
 
@@ -211,8 +210,8 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     if (Petition const* petition = sPetitionMgr->GetPetitionByOwnerWithType(_player->GetGUID(), type))
     {
         // clear from petition store
-        sPetitionMgr->RemovePetition(petition->petitionGuid);
-        TC_LOG_DEBUG("network", "Invalid petition GUID: %u", petition->petitionGuid.GetCounter());
+        sPetitionMgr->RemovePetition(petition->PetitionGuid);
+        TC_LOG_DEBUG("network", "Invalid petition GUID: %u", petition->PetitionGuid.GetCounter());
     }
 
     // fill petition store
@@ -234,7 +233,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     }
 
     // if guild petition and has guild => error, return;
-    if (petition->petitionType == GUILD_CHARTER_TYPE && _player->GetGuildId())
+    if (petition->PetitionType == GUILD_CHARTER_TYPE && _player->GetGuildId())
         return;
 
     TC_LOG_DEBUG("network", "CMSG_PETITION_SHOW_SIGNATURES petition entry: '%u'", petitionGuid.GetCounter());
@@ -244,11 +243,11 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 
 void WorldSession::SendPetitionSigns(Petition const* petition, Player* sendTo)
 {
-    SignaturesVector const& signatures = petition->signatures;
+    SignaturesVector const& signatures = petition->Signatures;
     WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8 + 8 + 4 + 1 + signatures.size() * 12));
-    data << uint64(petition->petitionGuid);                 // petition guid
-    data << uint64(petition->ownerGuid);                    // owner guid
-    data << uint32(petition->petitionGuid.GetCounter());    // guild guid
+    data << uint64(petition->PetitionGuid);                 // petition guid
+    data << uint64(petition->OwnerGuid);                    // owner guid
+    data << uint32(petition->PetitionGuid.GetCounter());    // guild guid
     data << uint8(signatures.size());                       // sign's count
 
     for (Signature const& signature : signatures)
@@ -282,13 +281,13 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
         return;
     }
 
-    WorldPacket data(SMSG_PETITION_QUERY_RESPONSE, (4+8+petition->petitionName.size()+1+1+4*12+2+10));
+    WorldPacket data(SMSG_PETITION_QUERY_RESPONSE, (4+8+petition->PetitionName.size()+1+1+4*12+2+10));
     data << uint32(petitionguid.GetCounter());              // guild/team guid (in Trinity always same as GUID_LOPART(petition guid)
-    data << uint64(petition->ownerGuid);                    // charter owner guid
-    data << petition->petitionName;                         // name (guild/arena team)
+    data << uint64(petition->OwnerGuid);                    // charter owner guid
+    data << petition->PetitionName;                         // name (guild/arena team)
     data << uint8(0);                                       // some string
 
-    CharterTypes type = petition->petitionType;
+    CharterTypes type = petition->PetitionType;
     if (type == GUILD_CHARTER_TYPE)
     {
         uint32 needed = sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS);
@@ -342,7 +341,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
         return;
     }
 
-    CharterTypes type = petition->petitionType;
+    CharterTypes type = petition->PetitionType;
     if (type == GUILD_CHARTER_TYPE)
     {
         if (sGuildMgr->GetGuildByName(newName))
@@ -398,9 +397,9 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
         return;
     }
 
-    ObjectGuid ownerGuid = petition->ownerGuid;
-    CharterTypes type = petition->petitionType;
-    uint8 signs = petition->signatures.size();
+    ObjectGuid ownerGuid = petition->OwnerGuid;
+    CharterTypes type = petition->PetitionType;
+    uint8 signs = petition->Signatures.size();
 
     ObjectGuid playerGuid = _player->GetGUID();
     if (ownerGuid == playerGuid)
@@ -420,7 +419,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
     {
         if (_player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName().c_str(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
         }
 
@@ -430,13 +429,13 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
         if (_player->GetArenaTeamId(slot))
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName().c_str(), ERR_ALREADY_IN_ARENA_TEAM_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName(), ERR_ALREADY_IN_ARENA_TEAM_S);
             return;
         }
 
         if (_player->GetArenaTeamIdInvited())
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName().c_str(), ERR_ALREADY_INVITED_TO_ARENA_TEAM_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName(), ERR_ALREADY_INVITED_TO_ARENA_TEAM_S);
             return;
         }
     }
@@ -477,7 +476,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
     }
 
     // fill petition store
-    petition->AddSignature(petitionGuid, GetAccountId(), playerGuid, false);
+    petition->AddSignature(GetAccountId(), playerGuid, false);
 
     TC_LOG_DEBUG("network", "PETITION SIGN: %s by player: %s (GUID: %u Account: %u)", petitionGuid.ToString().c_str(), _player->GetName().c_str(), playerGuid.GetCounter(), GetAccountId());
 
@@ -505,7 +504,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
         return;
 
     // petition owner online
-    if (Player* owner = ObjectAccessor::FindConnectedPlayer(petition->ownerGuid))
+    if (Player* owner = ObjectAccessor::FindConnectedPlayer(petition->OwnerGuid))
     {
         WorldPacket data(MSG_PETITION_DECLINE, 8);
         data << uint64(_player->GetGUID());
@@ -531,7 +530,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
     if (!petition)
         return;
 
-    CharterTypes type = petition->petitionType;
+    CharterTypes type = petition->PetitionType;
 
     TC_LOG_DEBUG("network", "OFFER PETITION: type %u, %s, to %s", static_cast<uint32>(type), petitionGuid.ToString().c_str(), offererGuid.ToString().c_str());
 
@@ -549,7 +548,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
         if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
             // player is too low level to join an arena team
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName().c_str(), "", ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName(), "", ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
         }
 
@@ -560,13 +559,13 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
         if (player->GetArenaTeamId(slot))
         {
             // player is already in an arena team
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName().c_str(), "", ERR_ALREADY_IN_ARENA_TEAM_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName(), "", ERR_ALREADY_IN_ARENA_TEAM_S);
             return;
         }
 
         if (player->GetArenaTeamIdInvited())
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName().c_str(), ERR_ALREADY_INVITED_TO_ARENA_TEAM_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName(), ERR_ALREADY_INVITED_TO_ARENA_TEAM_S);
             return;
         }
     }
@@ -612,11 +611,11 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         return;
     }
 
-    CharterTypes type = petition->petitionType;
-    std::string const name = petition->petitionName; // we need a copy, it will be removed on guild/arena remove
+    CharterTypes type = petition->PetitionType;
+    std::string const name = petition->PetitionName; // we need a copy, it will be removed on guild/arena remove
 
     // Only the petition owner can turn in the petition
-    if (_player->GetGUID() != petition->ownerGuid)
+    if (_player->GetGUID() != petition->OwnerGuid)
         return;
 
     // Petition type (guild/arena) specific checks
@@ -660,7 +659,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         }
     }
 
-    SignaturesVector const signatures = petition->signatures; // we need a copy, it will be removed on guild/arena remove
+    SignaturesVector const signatures = petition->Signatures; // we need a copy, it will be removed on guild/arena remove
     uint32 requiredSignatures = static_cast<uint32>(type) - 1;
     if (type == GUILD_CHARTER_TYPE)
         requiredSignatures = sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -161,7 +161,7 @@ class boss_tyrannus : public CreatureScript
                 return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIMEFANG));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
@@ -213,7 +213,7 @@ class boss_tyrannus : public CreatureScript
                     events.ScheduleEvent(EVENT_INTRO_1, 14000, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_INTRO_2, 22000, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_INTRO_3, 34000, 0, PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_COMBAT_START, 36000, 0, PHASE_INTRO);
+                    events.ScheduleEvent(EVENT_COMBAT_START, 36s, 0, PHASE_INTRO);
                     instance->SetBossState(DATA_TYRANNUS, IN_PROGRESS);
                 }
             }
@@ -247,24 +247,24 @@ class boss_tyrannus : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             DoCast(me, SPELL_FULL_HEAL);
                             DoZoneInCombat();
-                            events.ScheduleEvent(EVENT_OVERLORD_BRAND, urand(5000, 7000));
-                            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, urand(14000, 16000));
-                            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, urand(25000, 27000));
+                            events.ScheduleEvent(EVENT_OVERLORD_BRAND, 5s, 7s);
+                            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 14s, 16s);
+                            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 25s, 27s);
                             break;
                         case EVENT_OVERLORD_BRAND:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                 DoCast(target, SPELL_OVERLORD_BRAND);
-                            events.ScheduleEvent(EVENT_OVERLORD_BRAND, urand(11000, 12000));
+                            events.ScheduleEvent(EVENT_OVERLORD_BRAND, 11s, 12s);
                             break;
                         case EVENT_FORCEFUL_SMASH:
                             DoCastVictim(SPELL_FORCEFUL_SMASH);
-                            events.ScheduleEvent(EVENT_UNHOLY_POWER, 1000);
+                            events.ScheduleEvent(EVENT_UNHOLY_POWER, 1s);
                             break;
                         case EVENT_UNHOLY_POWER:
                             Talk(SAY_DARK_MIGHT_1);
                             Talk(SAY_DARK_MIGHT_2);
                             DoCast(me, SPELL_UNHOLY_POWER);
-                            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, urand(40000, 48000));
+                            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 40s, 48s);
                             break;
                         case EVENT_MARK_OF_RIMEFANG:
                             Talk(SAY_MARK_RIMEFANG_1);
@@ -273,7 +273,7 @@ class boss_tyrannus : public CreatureScript
                                 Talk(SAY_MARK_RIMEFANG_2, target);
                                 DoCast(target, SPELL_MARK_OF_RIMEFANG);
                             }
-                            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, urand(24000, 26000));
+                            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 24s, 26s);
                             break;
                     }
 
@@ -332,18 +332,18 @@ class boss_rimefang : public CreatureScript
                     _events.SetPhase(PHASE_COMBAT);
                     DoZoneInCombat();
                     _events.ScheduleEvent(EVENT_MOVE_NEXT, 500, 0, PHASE_COMBAT);
-                    _events.ScheduleEvent(EVENT_ICY_BLAST, 15000, 0, PHASE_COMBAT);
+                    _events.ScheduleEvent(EVENT_ICY_BLAST, 15s, 0, PHASE_COMBAT);
                 }
                 else if (actionId == ACTION_END_COMBAT)
                     _EnterEvadeMode();
             }
 
-            void SetGUID(ObjectGuid guid, int32 type) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
-                if (type == GUID_HOARFROST)
+                if (id == GUID_HOARFROST)
                 {
                     _hoarfrostTargetGUID = guid;
-                    _events.ScheduleEvent(EVENT_HOARFROST, 1000);
+                    _events.ScheduleEvent(EVENT_HOARFROST, 1s);
                 }
             }
 
@@ -363,12 +363,12 @@ class boss_rimefang : public CreatureScript
                                 _currentWaypoint = 1;
                             me->GetMotionMaster()->MovePoint(0, rimefangPos[_currentWaypoint]);
                             ++_currentWaypoint;
-                            _events.ScheduleEvent(EVENT_MOVE_NEXT, 2000, 0, PHASE_COMBAT);
+                            _events.ScheduleEvent(EVENT_MOVE_NEXT, 2s, 0, PHASE_COMBAT);
                             break;
                         case EVENT_ICY_BLAST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_ICY_BLAST);
-                            _events.ScheduleEvent(EVENT_ICY_BLAST, 15000, 0, PHASE_COMBAT);
+                            _events.ScheduleEvent(EVENT_ICY_BLAST, 15s, 0, PHASE_COMBAT);
                             break;
                         case EVENT_HOARFROST:
                             if (Unit* target = ObjectAccessor::GetUnit(*me, _hoarfrostTargetGUID))
@@ -404,13 +404,21 @@ class player_overlord_brandAI : public PlayerAI
         {
             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                 if (Unit* victim = tyrannus->GetVictim())
-                    me->CastCustomSpell(SPELL_OVERLORD_BRAND_DAMAGE, SPELLVALUE_BASE_POINT0, damage, victim, true, nullptr, nullptr, tyrannus->GetGUID());
+                {
+                    CastSpellExtraArgs args(tyrannus->GetGUID());
+                    args.AddSpellBP0(damage);
+                    me->CastSpell(victim, SPELL_OVERLORD_BRAND_DAMAGE, args);
+                }
         }
 
         void HealDone(Unit* /*target*/, uint32& addHealth) override
         {
             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
-                me->CastCustomSpell(SPELL_OVERLORD_BRAND_HEAL, SPELLVALUE_BASE_POINT0, int32(addHealth * 5.5f), tyrannus, true, nullptr, nullptr, tyrannus->GetGUID());
+            {
+                CastSpellExtraArgs args(tyrannus->GetGUID());
+                args.AddSpellBP0(addHealth * 5.5f);
+                me->CastSpell(tyrannus, SPELL_OVERLORD_BRAND_HEAL, args);
+            }
         }
 
         void UpdateAI(uint32 /*diff*/) override { }
@@ -439,10 +447,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                     return;
 
                 Player* pTarget = GetTarget()->ToPlayer();
-                oldAI = pTarget->AI();
-                oldAIState = pTarget->IsAIEnabled;
-                GetTarget()->SetAI(new player_overlord_brandAI(pTarget, GetCasterGUID()));
-                GetTarget()->IsAIEnabled = true;
+                GetTarget()->PushAI(new player_overlord_brandAI(pTarget, GetCasterGUID()));
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -450,10 +455,7 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                 if (GetTarget()->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                GetTarget()->IsAIEnabled = oldAIState;
-                PlayerAI* thisAI = GetTarget()->ToPlayer()->AI();
-                GetTarget()->SetAI(oldAI);
-                delete thisAI;
+                GetTarget()->PopAI();
             }
 
             void Register() override
@@ -461,9 +463,6 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                 AfterEffectApply += AuraEffectApplyFn(spell_tyrannus_overlord_brand_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_tyrannus_overlord_brand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
-
-            PlayerAI* oldAI = nullptr;
-            bool oldAIState = false;
         };
 
         AuraScript* GetAuraScript() const override
@@ -539,18 +538,18 @@ class spell_tyrannus_rimefang_icy_blast : public SpellScriptLoader
         }
 };
 
-class at_tyrannus_event_starter : public OnlyOnceAreaTriggerScript
+class at_tyrannus_event_starter : public AreaTriggerScript
 {
     public:
-        at_tyrannus_event_starter() : OnlyOnceAreaTriggerScript("at_tyrannus_event_starter") { }
+        at_tyrannus_event_starter() : AreaTriggerScript("at_tyrannus_event_starter") { }
 
-        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (player->IsGameMaster() || !instance)
                 return false;
 
-            if (instance->GetBossState(DATA_TYRANNUS) != DONE)
+            if (instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_TYRANNUS) != DONE)
                 if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_TYRANNUS)))
                 {
                     tyrannus->AI()->DoAction(ACTION_START_INTRO);

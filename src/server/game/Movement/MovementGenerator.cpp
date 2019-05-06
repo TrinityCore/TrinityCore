@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,33 @@
  */
 
 #include "MovementGenerator.h"
+#include "Creature.h"
 #include "IdleMovementGenerator.h"
+#include "MovementDefines.h"
+#include "PathGenerator.h"
+#include "RandomMovementGenerator.h"
+#include "WaypointMovementGenerator.h"
 
 MovementGenerator::~MovementGenerator() { }
+
+IdleMovementFactory::IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }
 
 MovementGenerator* IdleMovementFactory::Create(Unit* /*object*/) const
 {
     static IdleMovementGenerator instance;
     return &instance;
+}
+
+RandomMovementFactory::RandomMovementFactory() : MovementGeneratorCreator(RANDOM_MOTION_TYPE) { }
+
+MovementGenerator* RandomMovementFactory::Create(Unit* /*object*/) const
+{
+    return new RandomMovementGenerator<Creature>();
+}
+
+WaypointMovementFactory::WaypointMovementFactory() : MovementGeneratorCreator(WAYPOINT_MOTION_TYPE) { }
+
+MovementGenerator* WaypointMovementFactory::Create(Unit* /*object*/) const
+{
+    return new WaypointMovementGenerator<Creature>();
 }

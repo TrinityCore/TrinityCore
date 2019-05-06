@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,19 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "icecrown_citadel.h"
 #include "AreaBoundary.h"
 #include "CreatureAI.h"
-#include "icecrown_citadel.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "TransportMgr.h"
-#include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 enum EventIds
 {
@@ -166,13 +166,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void FillInitialWorldStates(WorldPacket& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
-                data << uint32(WORLDSTATE_SHOW_TIMER)         << uint32(BloodQuickeningState == IN_PROGRESS);
-                data << uint32(WORLDSTATE_EXECUTION_TIME)     << uint32(BloodQuickeningMinutes);
-                data << uint32(WORLDSTATE_SHOW_ATTEMPTS)      << uint32(instance->IsHeroic());
-                data << uint32(WORLDSTATE_ATTEMPTS_REMAINING) << uint32(HeroicAttempts);
-                data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(MaxHeroicAttempts);
+                packet.Worldstates.emplace_back(WORLDSTATE_SHOW_TIMER, BloodQuickeningState == IN_PROGRESS ? 1 : 0);
+                packet.Worldstates.emplace_back(WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
+                packet.Worldstates.emplace_back(WORLDSTATE_SHOW_ATTEMPTS, instance->IsHeroic() ? 1 : 0);
+                packet.Worldstates.emplace_back(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
+                packet.Worldstates.emplace_back(WORLDSTATE_ATTEMPTS_MAX, MaxHeroicAttempts);
             }
 
             void OnPlayerEnter(Player* player) override
@@ -186,14 +186,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
-                if (!TeamInInstance)
-                {
-                    Map::PlayerList const& players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            TeamInInstance = player->GetTeam();
-                }
-
                 switch (creature->GetEntry())
                 {
                     case NPC_LORD_MARROWGAR:
@@ -201,42 +193,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_LADY_DEATHWHISPER:
                         LadyDeahtwhisperGUID = creature->GetGUID();
-                        break;
-                    case NPC_KOR_KRON_GENERAL:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_ALLIANCE_COMMANDER);
-                        break;
-                    case NPC_KOR_KRON_LIEUTENANT:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_SKYBREAKER_LIEUTENANT);
-                        break;
-                    case NPC_TORTUNOK:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_ALANA_MOONSTRIKE);
-                        break;
-                    case NPC_GERARDO_THE_SUAVE:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_TALAN_MOONSTRIKE);
-                        break;
-                    case NPC_UVLUS_BANEFIRE:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_MALFUS_GRIMFROST);
-                        break;
-                    case NPC_IKFIRUS_THE_VILE:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_YILI);
-                        break;
-                    case NPC_VOL_GUK:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_JEDEBIA);
-                        break;
-                    case NPC_HARAGG_THE_UNSEEN:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_NIBY_THE_ALMIGHTY);
-                        break;
-                    case NPC_GARROSH_HELLSCREAM:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_KING_VARIAN_WRYNN);
                         break;
                     case NPC_DEATHBRINGER_SAURFANG:
                         DeathbringerSaurfangGUID = creature->GetGUID();
@@ -246,16 +202,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         creature->SetControlled(true, UNIT_STATE_ROOT);
                         break;
                     case NPC_SE_HIGH_OVERLORD_SAURFANG:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_SE_MURADIN_BRONZEBEARD, creature->GetCreatureData());
-                        // no break;
                     case NPC_SE_MURADIN_BRONZEBEARD:
                         DeathbringerSaurfangEventGUID = creature->GetGUID();
-                        creature->LastUsedScriptID = creature->GetScriptId();
-                        break;
-                    case NPC_SE_KOR_KRON_REAVER:
-                        if (TeamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_SE_SKYBREAKER_MARINE);
                         break;
                     case NPC_FESTERGUT:
                         FestergutGUID = creature->GetGUID();
@@ -357,6 +305,14 @@ class instance_icecrown_citadel : public InstanceMapScript
             // Weekly quest spawn prevention
             uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
             {
+                if (!TeamInInstance)
+                {
+                    Map::PlayerList const& players = instance->GetPlayers();
+                    if (!players.isEmpty())
+                        if (Player* player = players.begin()->GetSource())
+                            TeamInInstance = player->GetTeam();
+                }
+
                 uint32 entry = data->id;
                 switch (entry)
                 {
@@ -378,6 +334,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 break;
                             }
                         }
+
+                        if (entry == NPC_KOR_KRON_LIEUTENANT && TeamInInstance == ALLIANCE)
+                            return NPC_SKYBREAKER_LIEUTENANT;
                         break;
                     }
                     case NPC_HORDE_GUNSHIP_CANNON:
@@ -403,6 +362,26 @@ class instance_icecrown_citadel : public InstanceMapScript
                             (TeamInInstance == HORDE && data->spawnPoint.GetPositionX() < 10.0f))
                             return entry;
                         return 0;
+                    case NPC_SE_HIGH_OVERLORD_SAURFANG:
+                        return TeamInInstance == ALLIANCE ? NPC_SE_MURADIN_BRONZEBEARD : NPC_SE_HIGH_OVERLORD_SAURFANG;
+                    case NPC_KOR_KRON_GENERAL:
+                        return TeamInInstance == ALLIANCE ? NPC_ALLIANCE_COMMANDER : NPC_KOR_KRON_GENERAL;
+                    case NPC_TORTUNOK:
+                        return TeamInInstance == ALLIANCE ? NPC_ALANA_MOONSTRIKE : NPC_TORTUNOK;
+                    case NPC_GERARDO_THE_SUAVE:
+                        return TeamInInstance == ALLIANCE ? NPC_TALAN_MOONSTRIKE : NPC_GERARDO_THE_SUAVE;
+                    case NPC_UVLUS_BANEFIRE:
+                        return TeamInInstance == ALLIANCE ? NPC_MALFUS_GRIMFROST : NPC_UVLUS_BANEFIRE;
+                    case NPC_IKFIRUS_THE_VILE:
+                        return TeamInInstance == ALLIANCE ? NPC_YILI : NPC_IKFIRUS_THE_VILE;
+                    case NPC_VOL_GUK:
+                        return TeamInInstance == ALLIANCE ? NPC_JEDEBIA : NPC_VOL_GUK;
+                    case NPC_HARAGG_THE_UNSEEN:
+                        return TeamInInstance == ALLIANCE ? NPC_NIBY_THE_ALMIGHTY : NPC_HARAGG_THE_UNSEEN;
+                    case NPC_GARROSH_HELLSCREAM:
+                        return TeamInInstance == ALLIANCE ? NPC_KING_VARIAN_WRYNN : NPC_GARROSH_HELLSCREAM;
+                    case NPC_SE_KOR_KRON_REAVER:
+                        return TeamInInstance == ALLIANCE ? NPC_SE_SKYBREAKER_MARINE : NPC_SE_KOR_KRON_REAVER;
                     default:
                         break;
                 }
@@ -871,7 +850,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 loot->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                         }
                         else if (state == FAIL)
-                            Events.ScheduleEvent(EVENT_RESPAWN_GUNSHIP, 30000);
+                            Events.ScheduleEvent(EVENT_RESPAWN_GUNSHIP, 30s);
                         break;
                     case DATA_DEATHBRINGER_SAURFANG:
                         switch (state)
@@ -1002,9 +981,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         // set the platform as active object to dramatically increase visibility range
                         // note: "active" gameobjects do not block grid unloading
                         if (GameObject* precipice = instance->GetGameObject(ArthasPrecipiceGUID))
-                            precipice->setActive(state == IN_PROGRESS);
+                            precipice->SetFarVisible(state == IN_PROGRESS);
+
                         if (GameObject* platform = instance->GetGameObject(ArthasPlatformGUID))
-                            platform->setActive(state == IN_PROGRESS);
+                            platform->SetFarVisible(state == IN_PROGRESS);
 
                         if (instance->IsHeroic())
                         {
@@ -1095,7 +1075,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         switch (data)
                         {
                             case IN_PROGRESS:
-                                Events.ScheduleEvent(EVENT_UPDATE_EXECUTION_TIME, 60000);
+                                Events.ScheduleEvent(EVENT_UPDATE_EXECUTION_TIME, 1min);
                                 BloodQuickeningMinutes = 30;
                                 DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 1);
                                 DoUpdateWorldState(WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
@@ -1221,7 +1201,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_THE_LICH_KING:
                         if (GetBossState(DATA_PROFESSOR_PUTRICIDE) != DONE)
                             return false;
-                        // no break
+                        /* fallthrough */
                     case DATA_PROFESSOR_PUTRICIDE:
                         if (GetBossState(DATA_FESTERGUT) != DONE || GetBossState(DATA_ROTFACE) != DONE)
                             return false;
@@ -1240,7 +1220,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_THE_LICH_KING:
                         if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) != DONE)
                             return false;
-                        // no break
+                        /* fallthrough */
                     case DATA_BLOOD_QUEEN_LANA_THEL:
                         if (GetBossState(DATA_BLOOD_PRINCE_COUNCIL) != DONE)
                             return false;
@@ -1259,7 +1239,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_THE_LICH_KING:
                         if (GetBossState(DATA_SINDRAGOSA) != DONE)
                             return false;
-                        // no break
+                        /* fallthrough */
                     case DATA_SINDRAGOSA:
                         if (GetBossState(DATA_VALITHRIA_DREAMWALKER) != DONE)
                             return false;
@@ -1285,19 +1265,19 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_FESTERGUT:
                         if (GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
                             return false;
-                        // no break
+                        /* fallthrough */
                     case DATA_DEATHBRINGER_SAURFANG:
                         if (GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != DONE)
                             return false;
-                        // no break
+                        /* fallthrough */
                     case DATA_ICECROWN_GUNSHIP_BATTLE:
                         if (GetBossState(DATA_LADY_DEATHWHISPER) != DONE)
                             return false;
-                        // no break
+                        /* fallthrough */
                     case DATA_LADY_DEATHWHISPER:
                         if (GetBossState(DATA_LORD_MARROWGAR) != DONE)
                             return false;
-                        // no break
+                        /* fallthrough */
                     case DATA_LORD_MARROWGAR:
                     default:
                         break;
@@ -1372,7 +1352,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             --BloodQuickeningMinutes;
                             if (BloodQuickeningMinutes)
                             {
-                                Events.ScheduleEvent(EVENT_UPDATE_EXECUTION_TIME, 60000);
+                                Events.ScheduleEvent(EVENT_UPDATE_EXECUTION_TIME, 1min);
                                 DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 1);
                                 DoUpdateWorldState(WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
                             }
@@ -1428,7 +1408,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case EVENT_ENEMY_GUNSHIP_COMBAT:
                         if (Creature* captain = source->FindNearestCreature(TeamInInstance == HORDE ? NPC_IGB_HIGH_OVERLORD_SAURFANG : NPC_IGB_MURADIN_BRONZEBEARD, 100.0f))
                             captain->AI()->DoAction(ACTION_ENEMY_GUNSHIP_TALK);
-                        // no break;
+                        /* fallthrough */
                     case EVENT_PLAYERS_GUNSHIP_SPAWN:
                     case EVENT_PLAYERS_GUNSHIP_COMBAT:
                         if (GameObject* go = source->ToGameObject())
@@ -1447,13 +1427,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case EVENT_QUAKE:
                         if (GameObject* warning = instance->GetGameObject(FrozenThroneWarningGUID))
                             warning->SetGoState(GO_STATE_ACTIVE);
-                        Events.ScheduleEvent(EVENT_QUAKE_SHATTER, 5000);
+                        Events.ScheduleEvent(EVENT_QUAKE_SHATTER, 5s);
                         break;
                     case EVENT_SECOND_REMORSELESS_WINTER:
                         if (GameObject* platform = instance->GetGameObject(ArthasPlatformGUID))
                         {
                             platform->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
-                            Events.ScheduleEvent(EVENT_REBUILD_PLATFORM, 1500);
+                            Events.ScheduleEvent(EVENT_REBUILD_PLATFORM, 1500ms);
                         }
                         break;
                     case EVENT_TELEPORT_TO_FROSTMOURNE: // Harvest Soul (normal mode)

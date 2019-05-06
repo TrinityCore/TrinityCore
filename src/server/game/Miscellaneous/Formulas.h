@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -156,6 +156,13 @@ namespace Trinity
                 }
                 else
                     baseGain = 0;
+            }
+
+            if (sWorld->getIntConfig(CONFIG_MIN_CREATURE_SCALED_XP_RATIO))
+            {
+                // Use mob level instead of player level to avoid overscaling on gain in a min is enforced
+                uint32 baseGainMin = (mob_level * 5 + nBaseExp) * sWorld->getIntConfig(CONFIG_MIN_CREATURE_SCALED_XP_RATIO) / 100;
+                baseGain = std::max(baseGainMin, baseGain);
             }
 
             sScriptMgr->OnBaseGainCalculation(baseGain, pl_level, mob_level, content);

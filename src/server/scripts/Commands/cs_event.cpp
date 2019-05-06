@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -116,8 +117,8 @@ public:
         std::string endTimeStr = TimeToTimestampStr(eventData.end);
 
         uint32 delay = sGameEventMgr->NextCheck(eventId);
-        time_t nextTime = time(nullptr) + delay;
-        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? TimeToTimestampStr(time(nullptr) + delay) : "-";
+        time_t nextTime = GameTime::GetGameTime() + delay;
+        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? TimeToTimestampStr(GameTime::GetGameTime() + delay) : "-";
 
         std::string occurenceStr = secsToTimeString(eventData.occurence * MINUTE);
         std::string lengthStr = secsToTimeString(eventData.length * MINUTE);

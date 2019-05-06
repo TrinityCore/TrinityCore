@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,8 @@
 #include "WorldSocket.h"
 #include "BigNumber.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
+#include "IPLocation.h"
 #include "Opcodes.h"
 #include "PacketLog.h"
 #include "Random.h"
@@ -54,7 +56,6 @@ void WorldSocket::Start()
     std::string ip_address = GetRemoteIpAddress().to_string();
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
-    stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
     _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
 }
@@ -69,9 +70,6 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
             Field* fields = result->Fetch();
             if (fields[0].GetUInt64() != 0)
                 banned = true;
-
-            if (!fields[1].GetString().empty())
-                _ipCountry = fields[1].GetString();
 
         } while (result->NextRow());
 
@@ -313,6 +311,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
     OpcodeClient opcode = static_cast<OpcodeClient>(header->cmd);
 
     WorldPacket packet(opcode, std::move(_packetBuffer));
+    WorldPacket* packetToQueue;
 
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
@@ -356,39 +355,44 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             TC_LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client %s sent malformed CMSG_AUTH_SESSION", GetRemoteIpAddress().to_string().c_str());
             return ReadDataHandlerResult::Error;
         }
-        case CMSG_KEEP_ALIVE:
+        case CMSG_KEEP_ALIVE: // todo: handle this packet in the same way of CMSG_TIME_SYNC_RESP
             sessionGuard.lock();
             LogOpcodeText(opcode, sessionGuard);
             if (_worldSession)
                 _worldSession->ResetTimeOutTime(true);
+            return ReadDataHandlerResult::Ok;
+
+        case CMSG_TIME_SYNC_RESP:
+            packetToQueue = new WorldPacket(std::move(packet), std::chrono::steady_clock::now());
             break;
+
         default:
-        {
-            sessionGuard.lock();
-
-            LogOpcodeText(opcode, sessionGuard);
-
-            if (!_worldSession)
-            {
-                TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
-                return ReadDataHandlerResult::Error;
-            }
-
-            OpcodeHandler const* handler = opcodeTable[opcode];
-            if (!handler)
-            {
-                TC_LOG_ERROR("network.opcode", "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet.GetOpcode())).c_str(), _worldSession->GetPlayerInfo().c_str());
-                break;
-            }
-
-            // Our Idle timer will reset on any non PING opcodes on login screen, allowing us to catch people idling.
-            _worldSession->ResetTimeOutTime(false);
-
-            // Copy the packet to the heap before enqueuing
-            _worldSession->QueuePacket(new WorldPacket(std::move(packet)));
+            packetToQueue = new WorldPacket(std::move(packet));
             break;
-        }
     }
+
+    sessionGuard.lock();
+
+    LogOpcodeText(opcode, sessionGuard);
+
+    if (!_worldSession)
+    {
+        TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
+        return ReadDataHandlerResult::Error;
+    }
+
+    OpcodeHandler const* handler = opcodeTable[opcode];
+    if (!handler)
+    {
+        TC_LOG_ERROR("network.opcode", "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet.GetOpcode())).c_str(), _worldSession->GetPlayerInfo().c_str());
+        return ReadDataHandlerResult::Error;
+    }
+
+    // Our Idle timer will reset on any non PING opcodes on login screen, allowing us to catch people idling.
+    _worldSession->ResetTimeOutTime(false);
+
+    // Copy the packet to the heap before enqueuing
+    _worldSession->QueuePacket(packetToQueue);
 
     return ReadDataHandlerResult::Ok;
 }
@@ -522,6 +526,9 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
         return;
     }
 
+    if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(address))
+        _ipCountry = location->CountryCode;
+
     ///- Re-check ip locking (same check as in auth).
     if (account.IsLockedToIP)
     {
@@ -552,9 +559,9 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
     if (mutetime < 0)
     {
-        mutetime = time(nullptr) + llabs(mutetime);
+        mutetime = GameTime::GetGameTime() + llabs(mutetime);
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
         stmt->setInt64(0, mutetime);
         stmt->setUInt32(1, account.Id);
         LoginDatabase.Execute(stmt);
@@ -673,10 +680,7 @@ bool WorldSocket::HandlePing(WorldPacket& recvPacket)
         std::lock_guard<std::mutex> sessionGuard(_worldSessionLock);
 
         if (_worldSession)
-        {
             _worldSession->SetLatency(latency);
-            _worldSession->ResetClientTimeDelay();
-        }
         else
         {
             TC_LOG_ERROR("network", "WorldSocket::HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = %s", GetRemoteIpAddress().to_string().c_str());

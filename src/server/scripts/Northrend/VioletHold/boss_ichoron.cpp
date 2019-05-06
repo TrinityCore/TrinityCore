@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -100,9 +100,9 @@ class boss_ichoron : public CreatureScript
                 DoCast(me, SPELL_THREAT_PROC, true);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                BossAI::EnterCombat(who);
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -164,10 +164,10 @@ class boss_ichoron : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
-                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
+                _JustDied();
             }
 
             void JustSummoned(Creature* summon) override
@@ -324,8 +324,8 @@ class spell_ichoron_drained : public SpellScriptLoader
                 GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
 
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                    if (GetTarget()->IsAIEnabled)
-                        GetTarget()->GetAI()->DoAction(ACTION_DRAINED);
+                    if (UnitAI* ai = GetTarget()->GetAI())
+                        ai->DoAction(ACTION_DRAINED);
             }
 
             void Register() override
@@ -398,8 +398,8 @@ class spell_ichoron_protective_bubble : public SpellScriptLoader
             {
                 //if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
                 if (GetAura()->GetCharges() <= 1)
-                    if (GetTarget()->IsAIEnabled)
-                        GetTarget()->GetAI()->DoAction(ACTION_PROTECTIVE_BUBBLE_SHATTERED);
+                    if (UnitAI* targetAI = GetTarget()->GetAI())
+                        targetAI->DoAction(ACTION_PROTECTIVE_BUBBLE_SHATTERED);
             }
 
             void Register() override

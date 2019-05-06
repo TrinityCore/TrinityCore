@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1724,7 +1724,8 @@ public:
                 if (pet->IsGuardian())
                     ((Guardian*)pet)->SetBonusDamage(owner->GetTotalAttackPowerValue(BASE_ATTACK));
 
-                amount += owner->CalculateDamage(BASE_ATTACK, true, true);
+                for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+                    amount += owner->CalculateDamage(BASE_ATTACK, true, true, i);
             }
         }
 

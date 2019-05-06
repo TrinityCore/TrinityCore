@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -318,6 +318,7 @@ struct GameObjectTemplate
         {
             uint32 gameType;                                //0
         } miniGame;
+        //28 GAMEOBJECT_TYPE_DO_NOT_USE_2 - empty
         //29 GAMEOBJECT_TYPE_CAPTURE_POINT
         struct
         {
@@ -434,10 +435,25 @@ struct GameObjectTemplate
     {
         switch (type)
         {
+            case GAMEOBJECT_TYPE_MAILBOX: return true;
+            case GAMEOBJECT_TYPE_BARBER_CHAIR: return false;
             case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.allowMounted != 0;
             case GAMEOBJECT_TYPE_TEXT: return text.allowMounted != 0;
             case GAMEOBJECT_TYPE_GOOBER: return goober.allowMounted != 0;
             case GAMEOBJECT_TYPE_SPELLCASTER: return spellcaster.allowMounted != 0;
+            default: return false;
+        }
+    }
+
+    bool IsIgnoringLOSChecks() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_BUTTON: return button.losOK == 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.losOK == 0;
+            case GAMEOBJECT_TYPE_CHEST: return chest.losOK == 0;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.losOK == 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND: return flagstand.losOK == 0;
             default: return false;
         }
     }
@@ -555,18 +571,38 @@ struct GameObjectTemplate
         }
     }
 
+    bool IsLargeGameObject() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_BUTTON:            return button.large != 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER:        return questgiver.large != 0;
+            case GAMEOBJECT_TYPE_GENERIC:           return _generic.large != 0;
+            case GAMEOBJECT_TYPE_TRAP:              return trap.large != 0;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS:       return spellFocus.large != 0;
+            case GAMEOBJECT_TYPE_GOOBER:            return goober.large != 0;
+            case GAMEOBJECT_TYPE_SPELLCASTER:       return spellcaster.large != 0;
+            case GAMEOBJECT_TYPE_CAPTURE_POINT:     return capturePoint.large != 0;
+            default: return false;
+        }
+    }
+
     void InitializeQueryData();
     WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
 
-// From `gameobject_template_addon`
-struct GameObjectTemplateAddon
+// From `gameobject_template_addon`, `gameobject_overrides`
+struct GameObjectOverride
 {
-    uint32  entry;
-    uint32  faction;
-    uint32  flags;
-    uint32  mingold;
-    uint32  maxgold;
+    uint32 Faction;
+    uint32 Flags;
+};
+
+// From `gameobject_template_addon`
+struct GameObjectTemplateAddon : public GameObjectOverride
+{
+    uint32 Mingold;
+    uint32 Maxgold;
 };
 
 struct GameObjectLocale
@@ -583,6 +619,7 @@ struct TC_GAME_API QuaternionData
     QuaternionData(float X, float Y, float Z, float W) : x(X), y(Y), z(Z), w(W) { }
 
     bool isUnit() const;
+    void toEulerAnglesZYX(float& Z, float& Y, float& X) const;
     static QuaternionData fromEulerAnglesZYX(float Z, float Y, float X);
 };
 

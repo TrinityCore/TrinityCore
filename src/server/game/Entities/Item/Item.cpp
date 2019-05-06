@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "ConditionMgr.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GameTime.h"
 #include "ItemEnchantmentMgr.h"
 #include "Log.h"
 #include "LootItemStorage.h"
@@ -256,7 +257,7 @@ Item::Item()
     m_container = nullptr;
     m_lootGenerated = false;
     mb_in_trade = false;
-    m_lastPlayedTimeUpdate = time(nullptr);
+    m_lastPlayedTimeUpdate = GameTime::GetGameTime();
 
     m_refundRecipient = 0;
     m_paidMoney = 0;
@@ -991,7 +992,7 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player /*= 
         if (count > proto->GetMaxStackSize())
             count = proto->GetMaxStackSize();
 
-        ASSERT(count != 0 && "pProto->Stackable == 0 but checked at loading already");
+        ASSERT_NODEBUGINFO(count != 0 && "pProto->Stackable == 0 but checked at loading already");
 
         Item* item = NewItemOrBag(proto);
         if (item->Create(sObjectMgr->GetGenerator<HighGuid::Item>().Generate(), itemEntry, player))
@@ -1119,7 +1120,7 @@ void Item::UpdatePlayedTime(Player* owner)
     // Get current played time
     uint32 current_playtime = GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME);
     // Calculate time elapsed since last played time update
-    time_t curtime = time(nullptr);
+    time_t curtime = GameTime::GetGameTime();
     uint32 elapsed = uint32(curtime - m_lastPlayedTimeUpdate);
     uint32 new_playtime = current_playtime + elapsed;
     // Check if the refund timer has expired yet
@@ -1140,7 +1141,7 @@ void Item::UpdatePlayedTime(Player* owner)
 
 uint32 Item::GetPlayedTime()
 {
-    time_t curtime = time(nullptr);
+    time_t curtime = GameTime::GetGameTime();
     uint32 elapsed = uint32(curtime - m_lastPlayedTimeUpdate);
     return GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME) + elapsed;
 }
@@ -1195,4 +1196,14 @@ void Item::SetCount(uint32 value)
                 tradeData->SetItem(slot, this, true);
         }
     }
+}
+
+std::string Item::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Object::GetDebugInfo() << "\n"
+        << std::boolalpha
+        << "Owner: " << GetOwnerGUID().ToString() << " Count: " << GetCount()
+        << " BagSlot: " << std::to_string(GetBagSlot()) << " Slot: " << std::to_string(GetSlot()) << " Equipped: " << IsEquipped();
+    return sstr.str();
 }

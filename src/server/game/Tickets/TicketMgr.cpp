@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,7 @@
 #include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -30,7 +31,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-inline float GetAge(uint64 t) { return float(time(nullptr) - t) / DAY; }
+inline float GetAge(uint64 t) { return float(GameTime::GetGameTime() - t) / DAY; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // GM ticket
@@ -38,7 +39,7 @@ GmTicket::GmTicket() : _id(0), _type(TICKET_TYPE_OPEN), _posX(0), _posY(0), _pos
                        _completed(false), _escalatedStatus(TICKET_UNASSIGNED), _viewed(false),
                        _needResponse(false), _needMoreHelp(false) { }
 
-GmTicket::GmTicket(Player* player) : _type(TICKET_TYPE_OPEN), _posX(0), _posY(0), _posZ(0), _mapId(0), _createTime(time(nullptr)), _lastModifiedTime(time(nullptr)),
+GmTicket::GmTicket(Player* player) : _type(TICKET_TYPE_OPEN), _posX(0), _posY(0), _posZ(0), _mapId(0), _createTime(GameTime::GetGameTime()), _lastModifiedTime(GameTime::GetGameTime()),
                        _completed(false), _escalatedStatus(TICKET_UNASSIGNED), _viewed(false),
                        _needResponse(false), _needMoreHelp(false)
 {
@@ -173,7 +174,7 @@ void GmTicket::SendResponse(WorldSession* session) const
 
 std::string GmTicket::FormatMessageString(ChatHandler& handler, bool detailed) const
 {
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
 
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
@@ -212,6 +213,12 @@ std::string GmTicket::FormatMessageString(ChatHandler& handler, char const* szCl
     if (szCompletedName)
         ss << handler.PGetParseString(LANG_COMMAND_TICKETCOMPLETED, szCompletedName);
     return ss.str();
+}
+
+void GmTicket::SetMessage(std::string const& message)
+{
+    _message = message;
+    _lastModifiedTime = uint64(GameTime::GetGameTime());
 }
 
 void GmTicket::SetUnassigned()
@@ -264,7 +271,7 @@ void GmTicket::SetChatLog(std::list<uint32> time, std::string const& log)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Ticket manager
 TicketMgr::TicketMgr() : _status(true), _lastTicketId(0), _lastSurveyId(0), _openTicketCount(0),
-    _lastChange(time(nullptr)) { }
+    _lastChange(GameTime::GetGameTime()) { }
 
 TicketMgr::~TicketMgr()
 {
@@ -405,6 +412,11 @@ void TicketMgr::RemoveTicket(uint32 ticketId)
         _ticketList.erase(ticketId);
         delete ticket;
     }
+}
+
+void TicketMgr::UpdateLastChange()
+{
+    _lastChange = uint64(GameTime::GetGameTime());
 }
 
 void TicketMgr::ShowList(ChatHandler& handler, bool onlineOnly) const

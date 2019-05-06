@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -97,7 +97,7 @@ enum ClintarSpirit
 {
     ASPECT_RAVEN                        = 22915,
 
-    // Texts for EnterCombat, the event and the end of the event are missing
+    // Texts for JustEngagedWith, the event and the end of the event are missing
     CLINTAR_SPIRIT_SAY_START            = 0,
 };
 
@@ -431,11 +431,11 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*attacker*/) override
+        void JustEngagedWith(Unit* /*attacker*/) override
         {
             events.Reset();
-            events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(3000, 5000));
-            events.ScheduleEvent(EVENT_CAST_STARFALL, urand(8000, 10000));
+            events.ScheduleEvent(EVENT_CAST_CLEAVE, 3s, 5s);
+            events.ScheduleEvent(EVENT_CAST_STARFALL, 8s, 10s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -465,12 +465,12 @@ public:
             {
                 case EVENT_CAST_CLEAVE:
                     DoCastVictim(SPELL_OMEN_CLEAVE);
-                    events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(8000, 10000));
+                    events.ScheduleEvent(EVENT_CAST_CLEAVE, 8s, 10s);
                     break;
                 case EVENT_CAST_STARFALL:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_OMEN_STARFALL);
-                    events.ScheduleEvent(EVENT_CAST_STARFALL, urand(14000, 16000));
+                    events.ScheduleEvent(EVENT_CAST_STARFALL, 14s, 16s);
                     break;
             }
 

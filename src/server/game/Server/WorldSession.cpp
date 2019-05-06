@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,9 +28,11 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "Hyperlinks.h"
 #include "Log.h"
 #include "Map.h"
 #include "Metric.h"
@@ -123,16 +125,21 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
     m_sessionDbLocaleIndex(locale),
     m_latency(0),
-    m_clientTimeDelay(0),
     m_TutorialsChanged(TUTORIALS_FLAG_NONE),
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
     _RBACData(nullptr),
     expireTime(60000), // 1 min after socket loss, session is deleted
     forceExit(false),
-    m_currentBankerGUID()
+    m_currentBankerGUID(),
+    _timeSyncClockDeltaQueue(6),
+    _timeSyncClockDelta(0),
+    _pendingTimeSyncRequests()
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
+
+    _timeSyncNextCounter = 0;
+    _timeSyncTimer = 0;
 
     if (sock)
     {
@@ -267,9 +274,6 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 /// Update the WorldSession (triggered by World update)
 bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 {
-    /// Update Timeout timer.
-    UpdateTimeOutTime(diff);
-
     ///- Before we process anything:
     /// If necessary, kick the player because the client didn't send anything for too long
     /// (or they've been idling in character select)
@@ -283,7 +287,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     bool deletePacket = true;
     std::vector<WorldPacket*> requeuePackets;
     uint32 processedPackets = 0;
-    time_t currentTime = time(nullptr);
+    time_t currentTime = GameTime::GetGameTime();
 
     while (m_Socket && _recvQueue.next(packet, updater))
     {
@@ -401,15 +405,26 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     if (m_Socket && m_Socket->IsOpen() && _warden)
         _warden->Update();
 
+    if (!updater.ProcessUnsafe()) // <=> updater is of type MapSessionFilter
+    {
+        // Send time sync packet every 10s.
+        if (_timeSyncTimer > 0)
+        {
+            if (diff >= _timeSyncTimer)
+                SendTimeSync();
+            else
+                _timeSyncTimer -= diff;
+        }
+    }
+
     ProcessQueryCallbacks();
 
     //check if we are safe to proceed with logout
     //logout procedure should happen only in World::UpdateSessions() method!!!
-    if (updater.ProcessLogout())
+    if (updater.ProcessUnsafe())
     {
-        time_t currTime = time(nullptr);
         ///- If necessary, log the player out
-        if (ShouldLogOut(currTime) && !m_playerLoading)
+        if (ShouldLogOut(currentTime) && !m_playerLoading)
             LogoutPlayer(true);
 
         if (m_Socket && GetPlayer() && _warden)
@@ -450,7 +465,7 @@ void WorldSession::LogoutPlayer(bool save)
         ///- If the player just died before logging out, make him appear as a ghost
         if (_player->GetDeathTimer())
         {
-            _player->getHostileRefManager().deleteReferences();
+            _player->CombatStop();
             _player->BuildPlayerRepop();
             _player->RepopAtGraveyard();
         }
@@ -594,6 +609,20 @@ void WorldSession::KickPlayer()
     }
 }
 
+bool WorldSession::ValidateHyperlinksAndMaybeKick(std::string const& str)
+{
+    if (Trinity::Hyperlinks::CheckAllLinks(str))
+        return true;
+
+    TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a message with an invalid link:\n%s", GetPlayer()->GetName().c_str(),
+        GetPlayer()->GetGUID().GetCounter(), str.c_str());
+
+    if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
+        KickPlayer();
+
+    return false;
+}
+
 void WorldSession::SendNotification(const char *format, ...)
 {
     if (format)
@@ -637,9 +666,14 @@ char const* WorldSession::GetTrinityString(uint32 entry) const
 void WorldSession::ResetTimeOutTime(bool onlyActive)
 {
     if (GetPlayer())
-        m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME_ACTIVE));
+        m_timeOutTime = GameTime::GetGameTime() + time_t(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME_ACTIVE));
     else if (!onlyActive)
-        m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
+        m_timeOutTime = GameTime::GetGameTime() + time_t(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
+}
+
+bool WorldSession::IsConnectionIdle() const
+{
+    return m_timeOutTime < GameTime::GetGameTime() && !m_inQueue;
 }
 
 void WorldSession::Handle_NULL(WorldPacket& null)
@@ -749,7 +783,7 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string c
 void WorldSession::SendAccountDataTimes(uint32 mask)
 {
     WorldPacket data(SMSG_ACCOUNT_DATA_TIMES, 4 + 1 + 4 + NUM_ACCOUNT_DATA_TYPES * 4);
-    data << uint32(time(nullptr));                             // Server time
+    data << uint32(GameTime::GetGameTime());                             // Server time
     data << uint8(1);
     data << uint32(mask);                                   // type mask
     for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
@@ -1530,4 +1564,23 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
 
 WorldSession::DosProtection::DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY))
 {
+}
+
+void WorldSession::ResetTimeSync()
+{
+    _timeSyncNextCounter = 0;
+    _pendingTimeSyncRequests.clear();
+}
+
+void WorldSession::SendTimeSync()
+{
+    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
+    data << uint32(_timeSyncNextCounter);
+    SendPacket(&data);
+
+    _pendingTimeSyncRequests[_timeSyncNextCounter] = getMSTime();
+
+    // Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
+    _timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000;
+    _timeSyncNextCounter++;
 }

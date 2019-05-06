@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1614,7 +1614,7 @@ public:
                 case GOSSIP_ACTION_INFO_DEF + 1:
                     CloseGossipMenuFor(player);
                     uiStep = 1;
-                    Start(true, false, player->GetGUID());
+                    Start(true, true, player->GetGUID());
                     break;
             }
             return true;

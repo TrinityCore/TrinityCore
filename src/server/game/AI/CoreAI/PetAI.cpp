@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +17,7 @@
  */
 
 #include "PetAI.h"
+#include "AIException.h"
 #include "Creature.h"
 #include "Errors.h"
 #include "Group.h"
@@ -45,6 +46,8 @@ int32 PetAI::Permissible(Creature const* creature)
 
 PetAI::PetAI(Creature* c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
 {
+    if (!me->GetCharmInfo())
+        throw InvalidAIException("Creature doesn't have a valid charm info");
     UpdateAllies();
 }
 
@@ -69,7 +72,6 @@ void PetAI::_stopAttack()
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop();
-        me->getHostileRefManager().deleteReferences();
         return;
     }
 
@@ -154,7 +156,7 @@ void PetAI::UpdateAI(uint32 diff)
             if (!spellInfo)
                 continue;
 
-            if (me->GetCharmInfo() && me->GetSpellHistory()->HasGlobalCooldown(spellInfo))
+            if (me->GetSpellHistory()->HasGlobalCooldown(spellInfo))
                 continue;
 
             // check spell cooldown
@@ -243,7 +245,7 @@ void PetAI::UpdateAI(uint32 diff)
             SpellCastTargets targets;
             targets.SetUnitTarget(target);
 
-            spell->prepare(&targets);
+            spell->prepare(targets);
         }
 
         // deleted cached Spell objects
@@ -459,8 +461,7 @@ void PetAI::HandleReturnMovement()
             me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
         }
     }
-
-    me->ClearInPetCombat();
+    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT); // on player pets, this flag indicates that we're actively going after a target - we're returning, so remove it
 }
 
 void PetAI::DoAttack(Unit* target, bool chase)
@@ -470,12 +471,7 @@ void PetAI::DoAttack(Unit* target, bool chase)
 
     if (me->Attack(target, true))
     {
-        // properly fix fake combat after pet is sent to attack
-        if (Unit* owner = me->GetOwner())
-            owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
-
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
-
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT); // on player pets, this flag indicates we're actively going after a target - that's what we're doing, so set it
         // Play sound to let the player know the pet is attacking something it picked on its own
         if (me->HasReactState(REACT_AGGRESSIVE) && !me->GetCharmInfo()->IsCommandAttack())
             me->SendPetAIReaction(me->GetGUID());
@@ -486,7 +482,7 @@ void PetAI::DoAttack(Unit* target, bool chase)
             ClearCharmInfoFlags();
             me->GetCharmInfo()->SetIsCommandAttack(oldCmdAttack); // For passive pets commanded to attack so they will use spells
             me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveChase(target, me->GetPetChaseDistance());
+            me->GetMotionMaster()->MoveChase(target, me->GetPetChaseDistance(), (float)M_PI);
         }
         else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
         {
@@ -550,6 +546,8 @@ bool PetAI::CanAttack(Unit* target)
         return false;
     }
 
+    ASSERT(me->GetCharmInfo());
+
     // Passive - passive pets can attack if told to
     if (me->HasReactState(REACT_PASSIVE))
         return me->GetCharmInfo()->IsCommandAttack();
@@ -610,12 +608,6 @@ void PetAI::ReceiveEmote(Player* player, uint32 emote)
                     me->HandleEmoteCommand(EMOTE_ONESHOT_OMNICAST_GHOUL);
                 break;
         }
-}
-
-void PetAI::OnCharmed(bool /*apply*/)
-{
-    me->NeedChangeAI = true;
-    me->IsAIEnabled = false;
 }
 
 void PetAI::ClearCharmInfoFlags()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,7 +55,7 @@ enum blySpells
     SPELL_REVENGE              = 12170
 };
 
-#define GOSSIP_BLY                  "[PH] In that case, I will take my reward!"
+#define GOSSIP_BLY                  "That's it!  I'm tired of helping you out.  It's time we settled things on the battlefield!"
 
 class npc_sergeant_bly : public CreatureScript
 {
@@ -261,7 +261,7 @@ enum weegliSays
     SAY_WEEGLI_OK_I_GO          = 1
 };
 
-#define GOSSIP_WEEGLI               "[PH] Please blow up the door."
+#define GOSSIP_WEEGLI               "Will you blow up that door now?"
 
 class npc_weegli_blastfuse : public CreatureScript
 {

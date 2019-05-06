@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -499,6 +499,17 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             break;
         }
+        case CONDITION_GAMEMASTER:
+        {
+            if (Player* player = object->ToPlayer())
+            {
+                if (ConditionValue1 == 1)
+                    condMeets = player->CanBeGameMaster();
+                else
+                    condMeets = player->IsGameMaster();
+            }
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -510,8 +521,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
     if (!condMeets)
         sourceInfo.mLastFailedCondition = this;
 
-    bool script = sScriptMgr->OnConditionCheck(this, sourceInfo); // Returns true by default.
-    return condMeets && script;
+    return condMeets && sScriptMgr->OnConditionCheck(this, sourceInfo); // Returns true by default.;
 }
 
 uint32 Condition::GetSearcherTypeMaskForCondition() const
@@ -685,6 +695,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         case CONDITION_QUESTSTATE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_GAMEMASTER:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -1312,17 +1325,44 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
     std::list<uint32> sharedMasks;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        // check if effect is already a part of some shared mask
-        bool found = false;
-        for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
+        // additional checks by condition type
+        if (conditionEffMask & (1 << i))
         {
-            if ((1<<i) & *itr)
+            switch (cond->ConditionType)
             {
-                found = true;
-                break;
+                case CONDITION_OBJECT_ENTRY_GUID:
+                {
+                    uint32 implicitTargetMask = GetTargetFlagMask(spellInfo->Effects[i].TargetA.GetObjectType()) | GetTargetFlagMask(spellInfo->Effects[i].TargetB.GetObjectType());
+                    if ((implicitTargetMask & TARGET_FLAG_UNIT_MASK) && cond->ConditionValue1 != TYPEID_UNIT && cond->ConditionValue1 != TYPEID_PLAYER)
+                    {
+                        TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
+                            "target requires ConditionValue1 to be either TYPEID_UNIT (%u) or TYPEID_PLAYER (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(i), uint32(TYPEID_UNIT), uint32(TYPEID_PLAYER));
+                        return false;
+                    }
+
+                    if ((implicitTargetMask & TARGET_FLAG_GAMEOBJECT_MASK) && cond->ConditionValue1 != TYPEID_GAMEOBJECT)
+                    {
+                        TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
+                            "target requires ConditionValue1 to be TYPEID_GAMEOBJECT (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(i), uint32(TYPEID_GAMEOBJECT));
+                        return false;
+                    }
+
+                    if ((implicitTargetMask & TARGET_FLAG_CORPSE_MASK) && cond->ConditionValue1 != TYPEID_CORPSE)
+                    {
+                        TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
+                            "target requires ConditionValue1 to be TYPEID_CORPSE (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(i), uint32(TYPEID_CORPSE));
+                        return false;
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
         }
-        if (found)
+
+        // check if effect is already a part of some shared mask
+        auto itr = std::find_if(sharedMasks.begin(), sharedMasks.end(), [i](uint32 mask) { return !!(mask & (1 << i)); });
+        if (itr != sharedMasks.end())
             continue;
 
         // build new shared mask with found effect
@@ -1336,14 +1376,14 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
         sharedMasks.push_back(sharedMask);
     }
 
-    for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
+    for (uint32 effectMask : sharedMasks)
     {
         // some effect indexes should have same data
-        if (uint32 commonMask = *itr & conditionEffMask)
+        if (uint32 commonMask = effectMask & conditionEffMask)
         {
             uint8 firstEffIndex = 0;
             for (; firstEffIndex < MAX_SPELL_EFFECTS; ++firstEffIndex)
-                if ((1<<firstEffIndex) & *itr)
+                if ((1 << firstEffIndex) & effectMask)
                     break;
 
             if (firstEffIndex >= MAX_SPELL_EFFECTS)
@@ -1356,7 +1396,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
             if (sharedList)
             {
                 // we have overlapping masks in db
-                if (conditionEffMask != *itr)
+                if (conditionEffMask != effectMask)
                 {
                     TC_LOG_ERROR("sql.sql", "%s in `condition` table, has incorrect SourceGroup %u (spell effectMask) set - "
                         "effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring.", cond->ToString().c_str(), cond->SourceGroup);
@@ -1371,7 +1411,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
                 bool assigned = false;
                 for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
                 {
-                    if ((1<<i) & commonMask)
+                    if ((1 << i) & commonMask)
                     {
                         spellInfo->Effects[i].ImplicitTargetConditions = sharedList;
                         assigned = true;
@@ -1727,12 +1767,17 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         }
         case CONDITION_SOURCE_TYPE_TERRAIN_SWAP:
         {
-            TC_LOG_ERROR("sql.sql", "CONDITION_SOURCE_TYPE_TERRAIN_SWAP: is only for 6.x branch, skipped");
+            TC_LOG_ERROR("sql.sql", "CONDITION_SOURCE_TYPE_TERRAIN_SWAP: is only for master branch, skipped");
             return false;
         }
         case CONDITION_SOURCE_TYPE_PHASE:
         {
-            TC_LOG_ERROR("sql.sql", "CONDITION_SOURCE_TYPE_PHASE: is only for 6.x branch, skipped");
+            TC_LOG_ERROR("sql.sql", "CONDITION_SOURCE_TYPE_PHASE: is only for master branch, skipped");
+            return false;
+        }
+        case CONDITION_SOURCE_TYPE_GRAVEYARD:
+        {
+            TC_LOG_ERROR("sql.sql", "CONDITION_SOURCE_TYPE_GRAVEYARD: is only for master branch, skipped");
             return false;
         }
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
@@ -1860,7 +1905,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 TC_LOG_ERROR("sql.sql", "%s has invalid state mask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
-            // intentional missing break
+            /* fallthrough */
         case CONDITION_QUESTREWARDED:
         case CONDITION_QUESTTAKEN:
         case CONDITION_QUEST_NONE:
@@ -2228,6 +2273,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_IN_WATER:
         case CONDITION_CHARMED:
         case CONDITION_TAXI:
+        case CONDITION_GAMEMASTER:
         default:
             break;
     }

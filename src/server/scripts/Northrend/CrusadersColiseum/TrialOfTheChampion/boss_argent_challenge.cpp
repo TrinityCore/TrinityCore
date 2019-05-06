@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -227,7 +227,7 @@ public:
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
                 {
-                    if (target && target->IsAlive())
+                    if (target->IsAlive())
                     {
                         DoCast(target, SPELL_HAMMER_JUSTICE);
                         DoCast(target, SPELL_HAMMER_RIGHTEOUS);
@@ -353,7 +353,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
                 {
-                    if (target && target->IsAlive())
+                    if (target->IsAlive())
                         DoCast(target, SPELL_HOLY_FIRE);
                 }
                  if (me->HasAura(SPELL_SHIELD))
@@ -366,7 +366,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
                 {
-                    if (target && target->IsAlive())
+                    if (target->IsAlive())
                         DoCast(target, SPELL_SMITE);
                 }
                 if (me->HasAura(SPELL_SHIELD))
@@ -459,7 +459,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (target && target->IsAlive())
+                    if (target->IsAlive())
                         DoCast(target, SPELL_OLD_WOUNDS);
                 }
                 uiOldWoundsTimer = 12000;
@@ -475,7 +475,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                 {
-                    if (target && target->IsAlive())
+                    if (target->IsAlive())
                         DoCast(target, SPELL_SHADOWS_PAST);
                 }
                 uiShadowPastTimer = 5000;
@@ -668,7 +668,7 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->CastSpell(GetHitUnit(), memorySpellId[urand(0, 24)], true, nullptr, nullptr, GetCaster()->GetGUID());
+                GetHitUnit()->CastSpell(GetHitUnit(), memorySpellId[urand(0, 24)], GetCaster()->GetGUID());
             }
 
             void Register() override
