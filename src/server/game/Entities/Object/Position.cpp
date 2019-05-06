@@ -17,8 +17,10 @@
 
 #include "Position.h"
 #include "ByteBuffer.h"
+#include "DB2Stores.h"
 #include "GridDefines.h"
 #include "Random.h"
+#include "World.h"
 
 #include <G3D/g3dmath.h>
 #include <sstream>
@@ -203,6 +205,7 @@ ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::Packed
 std::string WorldLocation::GetDebugInfo() const
 {
     std::stringstream sstr;
-    sstr << "MapID: " << m_mapId << " " << Position::ToString();
+    MapEntry const* mapEntry = sMapStore.LookupEntry(m_mapId);
+    sstr << "MapID: " << m_mapId << " Map name: '" << (mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "<not found>") <<"' " << Position::ToString();
     return sstr.str();
 }
