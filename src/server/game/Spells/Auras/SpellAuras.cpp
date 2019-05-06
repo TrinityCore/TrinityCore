@@ -864,13 +864,9 @@ void Aura::Update(uint32 diff, Unit* caster)
             if (caster && caster->GetTypeId() == TYPEID_PLAYER)
             {
                 if (GetUnitOwner()->GetTypeId() == TYPEID_UNIT)
-                {      
-                    uint32 breakPct = 5;          
-                    uint32 resistance = GetUnitOwner()->GetResistance(GetFirstSchoolInMask(m_spellInfo->GetSchoolMask()));
-                    float levelCoeff = powf(GetUnitOwner()->getLevel(), 1.441f);
-                    uint32 levelPct = CalculatePct(levelCoeff, 10);
-                    
-                    breakPct += CalculatePct(resistance, levelPct);
+                {              
+                    uint32 resistance = GetUnitOwner()->GetResistance(GetFirstSchoolInMask(m_spellInfo->GetSchoolMask()));                   
+                    breakPct = 5 + ((resistance / powf(GetUnitOwner()->getLevel(), 1.441f) * 0.10) * 100);
                     
                     if (roll_chance_i(breakPct))
                     {
