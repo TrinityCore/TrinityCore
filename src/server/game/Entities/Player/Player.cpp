@@ -7245,7 +7245,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
 
     // Patch 4.0.3a - Justice Points over the hard cap of 4000 will be converted to 47 silver and 50 copper per point.
     uint32 surplousJusticePoints = 0;
-    if (oldTotalCount + count > int32(totalCap))
+    if (totalCap && count > int32(totalCap))
     {
         if (id = CURRENCY_TYPE_JUSTICE_POINTS)
             surplousJusticePoints = (oldTotalCount + count - totalCap) / precision;
