@@ -653,6 +653,8 @@ struct ItemPosCount
 };
 typedef std::vector<ItemPosCount> ItemPosCountVec;
 
+#define JUSTICE_POINTS_CONVERSION_MONEY 4750
+
 enum TransferAbortReason
 {
     TRANSFER_ABORT_NONE                         = 0x00,
