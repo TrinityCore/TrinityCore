@@ -5853,9 +5853,6 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
 
         if (newVal)
         {
-            UpdateCriteria(CriteriaType::SkillRaised, id);
-            UpdateCriteria(CriteriaType::AchieveSkillStep, id);
-
             // temporary bonuses
             for (AuraEffect* effect : GetAuraEffectsByType(SPELL_AURA_MOD_SKILL))
                 if (effect->GetMiscValue() == int32(id))
@@ -5872,6 +5869,8 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
 
             // Learn all spells for skill
             LearnSkillRewardedSpells(id, newVal);
+            UpdateCriteria(CriteriaType::SkillRaised, id);
+            UpdateCriteria(CriteriaType::AchieveSkillStep, id);
         }
     }
 }
