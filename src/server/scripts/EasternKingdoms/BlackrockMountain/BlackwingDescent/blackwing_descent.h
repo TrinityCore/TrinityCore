@@ -65,7 +65,9 @@ enum BWDCreatureIds
     NPC_MASSIVE_CRASH               = 47330,
     NPC_ROOM_STALKER                = 47196,
     NPC_MAGMAW_SPIKE_STALKER        = 41767,
-    NPC_NEFARIAN_MAGMAW             = 49427
+    NPC_NEFARIAN_MAGMAW             = 49427,
+    NPC_BLAZING_BONE_CONSTRUCT      = 49416,
+    NPC_IGNITION                    = 49447,
 };
 
 enum BWDGameObjectIds

@@ -71,6 +71,8 @@ class instance_blackwing_descent : public InstanceMapScript
                     case NPC_PILLAR_OF_FLAME:
                     case NPC_LAVA_PARASITE_1:
                     case NPC_LAVA_PARASITE_2:
+                    case NPC_BLAZING_BONE_CONSTRUCT:
+                    case NPC_IGNITION:
                         if (Creature* magmaw = GetCreature(DATA_MAGMAW))
                             magmaw->AI()->JustSummoned(creature);
                         break;

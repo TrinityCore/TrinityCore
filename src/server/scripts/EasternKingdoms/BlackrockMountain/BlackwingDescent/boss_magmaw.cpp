@@ -68,7 +68,18 @@ enum Spells
     SPELL_LAVA_PARASITE_PROC_AURA               = 78019,
     SPELL_LAVA_PARASITE_RIDE_VEHICLE            = 78020,
     SPELL_PARASITIC_INFECTION_VOMIT             = 78097,
-    SPELL_PARASITIC_INFECTION_DAMAGE            = 78941
+    SPELL_PARASITIC_INFECTION_DAMAGE            = 78941,
+
+    // Nefarian
+    SPELL_BLAZING_INFERNO_TARGETING             = 94317,
+    SPELL_BLAZING_INFERNO                       = 92153,
+    SPELL_SHADOW_BREATH_TARGETING               = 95536,
+    SPELL_SHADOW_BREATH                         = 92173,
+
+    // Blazing Bone Contruct
+    SPELL_IGNITION                              = 92119,
+    SPELL_FIERY_SLASH                           = 92144,
+    SPELL_ARMAGEDDON                            = 92177
 };
 
 enum Events
@@ -87,15 +98,30 @@ enum Events
     EVENT_HIDE_HEAD,
     EVENT_FINISH_IMPALE_SELF,
 
+    // Nefarian
+    EVENT_TALK_HEROIC_INTRO_1,
+    EVENT_TALK_HEROIC_INTRO_2,
+    EVENT_BLAZING_INFERNO,
+    EVENT_SHADOW_BREATH,
+    EVENT_TALK_MAGMAW_DEAD,
+
     // Lava Parasite
     EVENT_PREPARE_PARASITE,
-    EVENT_ENGAGE_PLAYERS
+    EVENT_ENGAGE_PLAYERS,
+
+    // Blazing Bone Construct
+    EVENT_FIERY_SLASH
 };
 
 enum Actions
 {
-    ACTION_IMPALE_MAGMAW    = 0,
-    ACTION_FAIL_ACHIEVEMT   = 1
+    // Magmaw
+    ACTION_IMPALE_MAGMAW            = 0,
+    ACTION_FAIL_ACHIEVEMT           = 1,
+
+    // Nefarian
+    ACTION_SCHEDULE_SHADOW_BREATH   = 0,
+    ACTION_MAGMAW_DEAD              = 1
 };
 
 enum Texts
@@ -109,7 +135,7 @@ enum Texts
     SAY_INTRO_1                 = 0,
     SAY_INTRO_2                 = 1,
     SAY_MAGMAW_LOW_HEALTH       = 2,
-    SAY_MAGMAW_DEFEATED         = 3
+    SAY_MAGMAW_DEAD             = 3
 };
 
 enum VehicleSeats
@@ -136,10 +162,14 @@ enum MovePoints
     POINT_NONE = 0
 };
 
+enum SplineChains
+{
+    SPLINE_CHAIN_NEFARIAN_INTRO = 1
+};
+
 Position const ExposedHeadOfMagmawPos   = { -299.0f,    -28.9861f,  191.0293f, 4.118977f };
 Position const MagmawVehicleExitPos     = { -311.4653f, -48.59722f, 212.8065f, 1.064651f };
 Position const NefarianIntroSummonPos   = { -390.1042f, 40.88411f,  207.8586f, 0.196609f };
-Position const NefarianIntroFlightPos   = { -315.9445f, -6.895832f, 246.8446f };
 
 #define SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE RAID_MODE<uint32>(78941, 91913, 94678, 94679)
 
@@ -160,7 +190,7 @@ struct boss_magmaw : public BossAI
         _hasExposedHead = false;
         _headEngaged = false;
         _achievementEnligible = true;
-        _lowHealthTextTriggered = !IsHeroic();
+        _heroicPhaseTwoActive = !IsHeroic();
         me->SetReactState(REACT_PASSIVE);
     }
 
@@ -189,20 +219,7 @@ struct boss_magmaw : public BossAI
         _exposedHead2->SetInCombatWithZone();
 
         if (IsHeroic())
-        {
-            if (Creature* nefarian = DoSummon(NPC_NEFARIAN_MAGMAW, NefarianIntroSummonPos, 0, TEMPSUMMON_MANUAL_DESPAWN))
-            {
-                nefarian->GetMotionMaster()->MovePoint(POINT_NONE, NefarianIntroFlightPos);
-                nefarian->m_Events.AddEventAtOffset([nefarian]()
-                {
-                    nefarian->AI()->Talk(SAY_INTRO_1);
-                    nefarian->m_Events.AddEventAtOffset([nefarian]()
-                    {
-                        nefarian->AI()->Talk(SAY_INTRO_2);
-                    }, 16s);
-                }, 11s);
-            }
-        }
+            DoSummon(NPC_NEFARIAN_MAGMAW, NefarianIntroSummonPos, 0, TEMPSUMMON_MANUAL_DESPAWN);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -220,6 +237,9 @@ struct boss_magmaw : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_VOMIT);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE);
         summons.DespawnAll();
+
+        if (Creature* nefarian = instance->GetCreature(DATA_NEFARIAN_MAGMAW))
+            nefarian->DespawnOrUnsummon();
         _DespawnAtEvade();
     }
 
@@ -230,14 +250,16 @@ struct boss_magmaw : public BossAI
 
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_VOMIT);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE);
-
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+        if (Creature* nefarian = instance->GetCreature(DATA_NEFARIAN_MAGMAW))
+            nefarian->AI()->DoAction(ACTION_MAGMAW_DEAD);
+
         _JustDied();
     }
 
     void JustSummoned(Creature* summon) override
     {
-        summons.Summon(summon);
         switch (summon->GetEntry())
         {
             case NPC_PILLAR_OF_FLAME:
@@ -245,8 +267,12 @@ struct boss_magmaw : public BossAI
                 summon->SetDisplayId(summon->GetCreatureTemplate()->Modelid1);
                 summon->DespawnOrUnsummon(7s);
                 Talk(SAY_ANNOUNCE_LAVA_PARASITES);
+                summons.Summon(summon);
+                break;
+            case NPC_NEFARIAN_MAGMAW:
                 break;
             default:
+                summons.Summon(summon);
                 break;
         }
     }
@@ -309,10 +335,11 @@ struct boss_magmaw : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
-        if (me->HealthBelowPctDamaged(30, damage) && !_lowHealthTextTriggered)
+        if (me->HealthBelowPctDamaged(30, damage) && !_heroicPhaseTwoActive)
         {
-            // Todo: Nefarian text
-            _lowHealthTextTriggered = true;
+            if (Creature* nefarian = instance->GetCreature(DATA_NEFARIAN_MAGMAW))
+                nefarian->AI()->DoAction(ACTION_SCHEDULE_SHADOW_BREATH);
+            _heroicPhaseTwoActive = true;
         }
 
         if (damage >= me->GetHealth())
@@ -387,7 +414,7 @@ struct boss_magmaw : public BossAI
                     break;
                 case EVENT_LAVA_SPEW:
                     DoCastAOE(SPELL_LAVA_SPEW);
-                    events.Repeat(24s);
+                    events.Repeat(27s, 28s);
                     break;
                 case EVENT_MANGLE:
                     if (SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
@@ -523,7 +550,81 @@ private:
     bool _achievementEnligible;
     bool _hasExposedHead;
     bool _headEngaged;
-    bool _lowHealthTextTriggered;
+    bool _heroicPhaseTwoActive;
+};
+
+struct npc_magmaw_nefarian : public ScriptedAI
+{
+    npc_magmaw_nefarian(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        me->GetMotionMaster()->MoveAlongSplineChain(POINT_NONE, SPLINE_CHAIN_NEFARIAN_INTRO, false);
+        _events.ScheduleEvent(EVENT_TALK_HEROIC_INTRO_1, 11s);
+        _events.ScheduleEvent(EVENT_BLAZING_INFERNO, 27s);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_SCHEDULE_SHADOW_BREATH:
+                Talk(SAY_MAGMAW_LOW_HEALTH);
+                _events.ScheduleEvent(EVENT_SHADOW_BREATH, 9s);
+                break;
+            case ACTION_MAGMAW_DEAD:
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_TALK_MAGMAW_DEAD, 2s + 400ms);
+                me->DespawnOrUnsummon(6s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TALK_HEROIC_INTRO_1:
+                    Talk(SAY_INTRO_1);
+                    _events.ScheduleEvent(EVENT_TALK_HEROIC_INTRO_2, 16s);
+                    break;
+                case EVENT_TALK_HEROIC_INTRO_2:
+                    Talk(SAY_INTRO_2);
+                    break;
+                case EVENT_BLAZING_INFERNO:
+                    DoCastAOE(SPELL_BLAZING_INFERNO_TARGETING, true);
+                    _events.Repeat(36s);
+                    break;
+                case EVENT_SHADOW_BREATH:
+                    DoCastAOE(SPELL_SHADOW_BREATH_TARGETING);
+                    _events.Repeat(1s + 200ms);
+                    break;
+                case EVENT_TALK_MAGMAW_DEAD:
+                    Talk(SAY_MAGMAW_DEAD);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
 };
 
 struct npc_magmaw_lava_parasite : public ScriptedAI
@@ -591,6 +692,93 @@ struct npc_magmaw_lava_parasite : public ScriptedAI
 private:
     EventMap _events;
     InstanceScript* _instance;
+};
+
+struct npc_magmaw_blazing_bone_construct : public ScriptedAI
+{
+    npc_magmaw_blazing_bone_construct(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        me->SetReactState(REACT_PASSIVE);
+        _armageddonTriggered = false;
+    }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        if (_instance->GetBossState(DATA_MAGMAW) == IN_PROGRESS)
+        {
+            for (uint8 i = 0; i < 20; i++)
+            {
+                Position const pos = me->GetRandomNearPosition(10.0f);
+                me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_IGNITION, true);
+            }
+            _events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 1s);
+        }
+        else
+            me->DespawnOrUnsummon();
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        if (summon->GetEntry() == NPC_IGNITION)
+        {
+            summon->m_Events.AddEventAtOffset([summon]()
+            {
+                summon->GetMotionMaster()->MoveCirclePath(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), 2.5f, bool(urand(0, 1)), 8);
+            }, 4s + 500ms);
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _events.Reset();
+        me->DespawnOrUnsummon(2s + 500ms);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (!_armageddonTriggered && me->HealthBelowPctDamaged(20, damage))
+        {
+            _armageddonTriggered = true;
+            DoCastSelf(SPELL_ARMAGEDDON);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ENGAGE_PLAYERS:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoZoneInCombat();
+                    _events.ScheduleEvent(EVENT_FIERY_SLASH, 2s);
+                    break;
+                case EVENT_FIERY_SLASH:
+                    DoCastVictim(SPELL_FIERY_SLASH);
+                    _events.Repeat(2s, 8s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    bool _armageddonTriggered;
 };
 
 class IsOnVehicleCheck
@@ -900,10 +1088,96 @@ class spell_magmaw_lava_parasite : public AuraScript
     }
 };
 
+class spell_magmaw_blazing_inferno_targeting : public SpellScript
+{
+    PrepareSpellScript(spell_magmaw_blazing_inferno_targeting);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BLAZING_INFERNO });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(IsOnVehicleCheck());
+
+        if (targets.empty())
+            return;
+
+        // Hotfix (2010-03-16): In addition, on Heroic difficulty, Nefarian will now prefer ranged targets when spawning Blazing Bone Constructs.
+        InstanceScript* instance = GetCaster()->GetInstanceScript();
+        if (!instance)
+            return;
+
+        Creature* magmaw = instance->GetCreature(DATA_MAGMAW);
+        if (!magmaw)
+            return;
+
+        std::list<WorldObject*> targetsCopy = targets;
+        targetsCopy.remove_if(DistanceCheck(magmaw));
+        if (!targetsCopy.empty())
+            targets = targetsCopy;
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), SPELL_BLAZING_INFERNO);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_magmaw_blazing_inferno_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_magmaw_blazing_inferno_targeting::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_magmaw_shadow_breath_targeting : public SpellScript
+{
+    PrepareSpellScript(spell_magmaw_shadow_breath_targeting);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHADOW_BREATH });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(IsOnVehicleCheck());
+
+        if (targets.empty() || targets.size() < 2)
+            return;
+
+        Trinity::Containers::RandomResize(targets, 2);
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), SPELL_SHADOW_BREATH, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_magmaw_shadow_breath_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_magmaw_shadow_breath_targeting::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_boss_magmaw()
 {
     RegisterBlackwingDescentCreatureAI(boss_magmaw);
+    RegisterBlackwingDescentCreatureAI(npc_magmaw_nefarian);
     RegisterBlackwingDescentCreatureAI(npc_magmaw_lava_parasite);
+    RegisterBlackwingDescentCreatureAI(npc_magmaw_blazing_bone_construct);
     RegisterSpellScript(spell_magmaw_magma_spit);
     RegisterSpellScript(spell_magmaw_mangle);
     RegisterSpellScript(spell_magmaw_pillar_of_flame_dummy);
@@ -913,4 +1187,6 @@ void AddSC_boss_magmaw()
     RegisterSpellScript(spell_magmaw_eject_passenger_1);
     RegisterSpellScript(spell_magmaw_eject_passenger_3);
     RegisterAuraScript(spell_magmaw_lava_parasite);
+    RegisterSpellScript(spell_magmaw_blazing_inferno_targeting);
+    RegisterSpellScript(spell_magmaw_shadow_breath_targeting);
 }
