@@ -88,9 +88,6 @@ enum THEEvents
     EVENT_CONVO_21,
     EVENT_CONVO_22,
     EVENT_CONVO_23,
-    EVENT_CONVO_24,
-    EVENT_CONVO_25,
-    EVENT_CONVO_26,
 
     EVENT_WARN_1,
     EVENT_WARN_2,
@@ -374,14 +371,20 @@ const float FireLocation[35][4] =
     { -3750.13f, -4322.90f, 30.38f, 4.6809f }
 };
 
-const float ArchmagesLocation[6][5] =
+struct Location
 {
-    { NPC_RHONIN,		        -3718.51f, -4542.53f, 25.82f, 3.59f },
-    { NPC_TARI_COGG,			-3717.86f, -4539.88f, 25.82f, 3.59f },
-    { NPC_AMARA_LEESON,         -3716.01f, -4540.03f, 25.82f, 3.59f },
-    { NPC_THODER_WINDERMERE,	-3717.01f, -4538.31f, 25.82f, 3.59f },
-    { NPC_THALEN_SONGWEAVER,    -3715.66f, -4544.08f, 25.82f, 3.59f },
-    { NPC_VEREESA_WINDRUNNER,	-3716.33f, -4543.03f, 25.82f, 3.59f }
+    uint32 entry;
+    Position position;
+};
+
+const Location ArchmagesLocation[6] =
+{
+    { NPC_RHONIN,		        { -3718.51f, -4542.53f, 25.82f, 3.59f } },
+    { NPC_TARI_COGG,		    { -3717.86f, -4539.88f, 25.82f, 3.59f } },
+    { NPC_AMARA_LEESON,         { -3716.01f, -4540.03f, 25.82f, 3.59f } },
+    { NPC_THODER_WINDERMERE,	{ -3717.01f, -4538.31f, 25.82f, 3.59f } },
+    { NPC_THALEN_SONGWEAVER,    { -3715.66f, -4544.08f, 25.82f, 3.59f } },
+    { NPC_VEREESA_WINDRUNNER,	{ -3716.33f, -4543.03f, 25.82f, 3.59f } }
 };
 
 const float ArchmagesRelocate[6][4] =
@@ -394,12 +397,12 @@ const float ArchmagesRelocate[6][4] =
     { -3833.79f, -4545.92f,  9.22f, 0.75f }  // Vereesa
 };
 
-const float WarnLocation[4][5] =
+const Location WarnLocation[4] =
 {
-    { NPC_PAINED,                   -3732.55f, -4423.45f, 30.51f, 3.94f },
-    { NPC_MYSTERIOUS_TAUREN,        -3731.33f, -4422.18f, 30.47f, 3.94f },
-    { NPC_ZEALOUS_THERAMORE_GUARD,  -3731.17f, -4420.68f, 30.44f, 3.94f },
-    { NPC_THERAMORE_GUARD,          -3729.32f, -4422.18f, 30.44f, 3.94f }
+    { NPC_PAINED,                   { -3732.55f, -4423.45f, 30.51f, 3.94f } },
+    { NPC_MYSTERIOUS_TAUREN,        { -3731.33f, -4422.18f, 30.47f, 3.94f } },
+    { NPC_ZEALOUS_THERAMORE_GUARD,  { -3731.17f, -4420.68f, 30.44f, 3.94f } },
+    { NPC_THERAMORE_GUARD,          { -3729.32f, -4422.18f, 30.44f, 3.94f } }
 };
 
 const Position WarnDestination[4] =

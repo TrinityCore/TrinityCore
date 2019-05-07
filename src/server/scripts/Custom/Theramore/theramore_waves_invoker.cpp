@@ -8,6 +8,8 @@
 #include "MotionMaster.h"
 #include "theramore.h"
 
+constexpr uint8 NUMBER_OF_WAVES = 10;
+
 enum Misc
 {
     // Events
@@ -75,7 +77,7 @@ class KalecgosFlightEvent : public BasicEvent
     public:
     KalecgosFlightEvent(Creature* owner) : owner(owner)
     {
-        spellArgs.AddSpellMod(SPELLVALUE_BASE_POINT0, 999999);
+        spellArgs.AddSpellMod(SPELLVALUE_BASE_POINT0, 500000);
 
         spellArgs.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
         spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_SET_FACING);
@@ -85,6 +87,8 @@ class KalecgosFlightEvent : public BasicEvent
     bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
     {
         owner->CastSpell(owner, SPELL_FROST_BREEZE, spellArgs);
+        owner->SetReactState(REACT_PASSIVE);
+        owner->GetThreatManager().RemoveMeFromThreatLists();
         owner->m_Events.AddEvent(this, eventTime + 2000);
         return false;
     }
@@ -257,7 +261,7 @@ class theramore_waves_invoker : public CreatureScript
                     {
                         uint32 membersCounter = 0;
                         uint32 deadCounter = 0;
-                        for (uint8 i = 0; i < 5; ++i)
+                        for (uint8 i = 0; i < NUMBER_OF_WAVES; ++i)
                         {
                             ++membersCounter;
                             Creature* temp = ObjectAccessor::GetCreature(*me, horderMembers[i]);
@@ -281,8 +285,8 @@ class theramore_waves_invoker : public CreatureScript
                     case WAVE_EXIT:
                         for (Player* player : players)
                             player->CompleteQuest(QUEST_PREPARE_FOR_WAR);
-                        jaina->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         jaina->AI()->SetData(EVENT_STOP_KALECGOS, 1);
+                        jaina->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         kalecgos->DespawnOrUnsummon();
                         break;
 
@@ -298,14 +302,14 @@ class theramore_waves_invoker : public CreatureScript
         Creature* thalen;
         Creature* amara;
         Creature* kalecgos;
-        ObjectGuid horderMembers[5];
+        ObjectGuid horderMembers[NUMBER_OF_WAVES];
         uint32 waves;
         uint32 wavesInvoker;
         std::vector<Player*> players;
 
         void HordeMembersInvoker(uint32 waveId, ObjectGuid * hordes)
         {
-            for (uint32 i = 0; i < 5; ++i)
+            for (uint32 i = 0; i < NUMBER_OF_WAVES; ++i)
             {
                 uint32 entry = RAND(NPC_ROK_NAH_GRUNT, NPC_ROK_NAH_SOLDIER, NPC_ROK_NAH_FELCASTER, NPC_ROK_NAH_HAG, NPC_ROK_NAH_LOA_SINGER);
                 Position pos;
@@ -317,11 +321,11 @@ class theramore_waves_invoker : public CreatureScript
                         break;
 
                     case WAVE_CITADEL:
-                        pos = GetRandomPosition({ -3669.10f, -4507.06f, 11.62f, 0.f }, 25.f);
+                        pos = GetRandomPosition({ -3669.10f, -4507.06f, 11.62f, 0.f }, 20.f);
                         break;
 
                     case WAVE_DOCKS:
-                        pos = GetRandomPosition({ -3823.47f, -4536.42f, 11.62f, 0.f }, 30.f);
+                        pos = GetRandomPosition({ -3823.47f, -4536.42f, 11.62f, 0.f }, 25.f);
                         break;
                 }
 

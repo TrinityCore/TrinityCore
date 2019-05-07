@@ -12,6 +12,7 @@ enum Misc
 {
     // Events
 	EVENT_START_TELEPORT	= 1,
+    EVENT_STRAT_AMARA       = 2,
     
     SAY_TELEPORT_1          = 50,
     SAY_TELEPORT_2          = 51,
@@ -80,21 +81,29 @@ class theramore_wounded_event : public CreatureScript
 
         void SetData(uint32 id, uint32 /*value*/) override
         {
-            if (id == EVENT_START_TELEPORT)
+            switch (id)
             {
-                jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 20.f);
-                kalecgos = GetClosestCreatureWithEntry(me, NPC_KALECGOS, 2000.f);
-                rhonin = GetClosestCreatureWithEntry(me, NPC_RHONIN, 40.f);
-                amara = GetClosestCreatureWithEntry(me, NPC_AMARA_LEESON, 2000.f);
+                case EVENT_START_TELEPORT:
+                    jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 20.f);
+                    kalecgos = GetClosestCreatureWithEntry(me, NPC_KALECGOS, 2000.f);
+                    rhonin = GetClosestCreatureWithEntry(me, NPC_RHONIN, 40.f);
+                    amara = GetClosestCreatureWithEntry(me, NPC_AMARA_LEESON, 2000.f);
+                    jaina->AI()->Talk(SAY_TELEPORT_1);
+                    jaina->SetWalk(true);
+                    jaina->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    jaina->SetSheath(SHEATH_STATE_UNARMED);
+                    amara->SetSheath(SHEATH_STATE_UNARMED);
+                    rhonin->SetVisible(false);
+                    events.ScheduleEvent(EVENT_TELEPORT_1, 1s);
+                    break;
 
-                jaina->AI()->Talk(SAY_TELEPORT_1);
-                jaina->SetWalk(true);
-                jaina->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                jaina->SetSheath(SHEATH_STATE_UNARMED);
-                amara->SetSheath(SHEATH_STATE_UNARMED);
-                rhonin->SetVisible(false);
-
-                events.ScheduleEvent(EVENT_TELEPORT_1, 1s);
+                case EVENT_STRAT_AMARA:
+                    jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 20.f);
+                    rhonin = GetClosestCreatureWithEntry(me, NPC_RHONIN, 40.f);
+                    amara = GetClosestCreatureWithEntry(me, NPC_AMARA_LEESON, 2000.f);
+                    jaina->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    events.ScheduleEvent(EVENT_TELEPORT_21, 1s);
+                    break;
             }
         }
 
@@ -112,7 +121,10 @@ class theramore_wounded_event : public CreatureScript
             {
                 switch (eventId)
                 {
-					case EVENT_TELEPORT_1:
+                    // Event - Retour de Kalecgos
+                    #pragma region KALECGOS
+
+                    case EVENT_TELEPORT_1:
                     {
                         if (Creature * solider = jaina->FindNearestCreature(NPC_WOUNDED_THERAMORE_GUARD, 15.f))
                         {
@@ -240,8 +252,13 @@ class theramore_wounded_event : public CreatureScript
                         kalecgos->GetMotionMaster()->MoveJump(-3679.84f, -4481.61f, 16.64f, 5.27f, 10.4f, 6.5f);
                         portal->DespawnOrUnsummon(4s);
                         kalecgos->DespawnOrUnsummon(1s);
-                        events.ScheduleEvent(EVENT_TELEPORT_21, 5s);
+                        jaina->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         break;
+
+                    #pragma endregion
+
+                    // Event - Retour de Rhonin
+                    #pragma region RHONIN
 
                     case EVENT_TELEPORT_21:
                         amara->SetVisible(true);
@@ -287,7 +304,6 @@ class theramore_wounded_event : public CreatureScript
                         events.ScheduleEvent(EVENT_TELEPORT_29, 5s);
                         break;
 
-                        // 52894 - zone anti magie
                     case EVENT_TELEPORT_29:
                         if (GameObject * portal = me->SummonGameObject(201797, -3749.90f, -4448.93f, 64.90f, 3.34f, QuaternionData(), 0))
                         {
@@ -297,6 +313,8 @@ class theramore_wounded_event : public CreatureScript
                             jaina->AI()->SetData(EVENT_SET_END, 1U);
                         }
                         break;
+
+                    #pragma endregion
 
                     default:
                         break;
