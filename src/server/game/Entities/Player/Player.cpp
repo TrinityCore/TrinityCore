@@ -12049,7 +12049,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
     {
         ItemAddedQuestCheck(itemId, count);
         UpdateCriteria(CriteriaType::ObtainAnyItem, itemId, count);
-        UpdateCriteria(CriteriaType::AcquireItem, itemId, 1);
+        UpdateCriteria(CriteriaType::AcquireItem, itemId, count);
 
         item->AddItemFlag(ITEM_FIELD_FLAG_NEW_ITEM);
 
