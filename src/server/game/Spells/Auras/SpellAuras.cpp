@@ -870,14 +870,10 @@ void Aura::Update(uint32 diff, Unit* caster)
                     int32 auraMaxDuration = m_maxDuration / IN_MILLISECONDS;
                     int32 auraTimePassed = m_duration / IN_MILLISECONDS;
                     uint32 resistance = GetUnitOwner()->GetResistance(GetFirstSchoolInMask(m_spellInfo->GetSchoolMask()));
-                    uint32 heartbeatDelay = 5;
                     uint32 breakPct = 5;
                     
                     if (m_spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)
-                    {
-                        breakPct += (uint32)floor(100 * powf(auraTimePassed - heartbeatDelay, 2) / powf(auraMaxDuration - heartbeatDelay, 2));
-                        breakPct /= 2;
-                    }
+                        breakPct += (uint32)floor(100 * powf(auraMaxDuration - auraTimePassed, 2) / (auraMaxDuration * auraMaxDuration));
                     else
                         breakPct += (uint32)floor(100 * (resistance / powf(GetUnitOwner()->getLevel(), 1.441f) * 0.10));
                     
