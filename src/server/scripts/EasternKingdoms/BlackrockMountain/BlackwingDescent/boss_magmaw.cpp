@@ -236,6 +236,7 @@ struct boss_magmaw : public BossAI
         instance->SetBossState(DATA_MAGMAW, FAIL);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_VOMIT);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE);
+        _exposedHead1->DespawnOrUnsummon();
         summons.DespawnAll();
 
         if (Creature* nefarian = instance->GetCreature(DATA_NEFARIAN_MAGMAW))
@@ -255,6 +256,7 @@ struct boss_magmaw : public BossAI
         if (Creature* nefarian = instance->GetCreature(DATA_NEFARIAN_MAGMAW))
             nefarian->AI()->DoAction(ACTION_MAGMAW_DEAD);
 
+        me->StopMoving(); // Tempfix to prevent Magmaw from falling into the lava
         _JustDied();
     }
 
@@ -270,6 +272,7 @@ struct boss_magmaw : public BossAI
                 summons.Summon(summon);
                 break;
             case NPC_NEFARIAN_MAGMAW:
+            case NPC_EXPOSED_HEAD_OF_MAGMAW:
                 break;
             default:
                 summons.Summon(summon);
