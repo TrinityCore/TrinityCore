@@ -757,6 +757,9 @@ struct npc_magmaw_blazing_bone_construct : public ScriptedAI
 
         _events.Update(diff);
 
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
         while (uint32 eventId = _events.ExecuteEvent())
         {
             switch (eventId)
