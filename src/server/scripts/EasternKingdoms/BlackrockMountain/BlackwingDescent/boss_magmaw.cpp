@@ -39,6 +39,7 @@ enum Spells
     SPELL_SWELTERING_ARMOR                      = 78199,
     SPELL_PILLAR_OF_FLAME                       = 77998,
     SPELL_PILLAR_OF_FLAME_MISSILE_PERIODIC      = 78006,
+    SPELL_PILLAR_OF_FLAME_SET_VEHICLE_ID        = 77994,
     SPELL_MASSIVE_CRASH                         = 88253,
     SPELL_IMPALE_SELF                           = 77907,
     SPELL_EJECT_PASSENGER_3                     = 95204,
@@ -62,6 +63,12 @@ enum Spells
     // Magmaw Spike Stalker
     SPELL_CHAIN_VISUAL_1                        = 77940,
     SPELL_CHAIN_VISUAL_2                        = 77929,
+
+    // Lava Parasite
+    SPELL_LAVA_PARASITE_PROC_AURA               = 78019,
+    SPELL_LAVA_PARASITE_RIDE_VEHICLE            = 78020,
+    SPELL_PARASITIC_INFECTION_VOMIT             = 78097,
+    SPELL_PARASITIC_INFECTION_DAMAGE            = 78941
 };
 
 enum Events
@@ -78,12 +85,17 @@ enum Events
     EVENT_EJECT_PASSENGER_1,
     EVENT_EXPOSE_HEAD,
     EVENT_HIDE_HEAD,
-    EVENT_FINISH_IMPALE_SELF
+    EVENT_FINISH_IMPALE_SELF,
+
+    // Lava Parasite
+    EVENT_PREPARE_PARASITE,
+    EVENT_ENGAGE_PLAYERS
 };
 
 enum Actions
 {
-    ACTION_IMPALE_MAGMAW = 0
+    ACTION_IMPALE_MAGMAW    = 0,
+    ACTION_FAIL_ACHIEVEMT   = 1
 };
 
 enum Texts
@@ -115,7 +127,8 @@ enum VehicleSeats
 
 enum Data
 {
-    DATA_FREE_PINCER = 0
+    DATA_FREE_PINCER        = 0,
+    DATA_ACHIEVEMENT_STATE  = 1
 };
 
 enum MovePoints
@@ -144,6 +157,7 @@ struct boss_magmaw : public BossAI
         _pincer2 = nullptr;
         _hasExposedHead = false;
         _headEngaged = false;
+        _achievementEnligible = true;
         _lowHealthTextTriggered = !IsHeroic();
         me->SetReactState(REACT_PASSIVE);
     }
@@ -261,6 +275,14 @@ struct boss_magmaw : public BossAI
         }
     }
 
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_ACHIEVEMENT_STATE)
+            return uint8(_achievementEnligible);
+
+        return 0;
+    }
+
     ObjectGuid GetGUID(int32 type) const override
     {
         switch (type)
@@ -316,6 +338,9 @@ struct boss_magmaw : public BossAI
                 events.ScheduleEvent(EVENT_EXPOSE_HEAD, 4s + 700ms);
                 _hasExposedHead = true;
                 break;
+            case ACTION_FAIL_ACHIEVEMT:
+                _achievementEnligible = false;
+                break;
             default:
                 break;
         }
@@ -345,6 +370,7 @@ struct boss_magmaw : public BossAI
                     else
                     {
                         DoCastAOE(SPELL_PILLAR_OF_FLAME);
+                        DoCastAOE(SPELL_PILLAR_OF_FLAME_SET_VEHICLE_ID);
                         _magmaProjectileCount = 0;
                         events.Repeat(8s);
                     }
@@ -474,9 +500,76 @@ private:
     Creature* _pincer1;
     Creature* _pincer2;
     uint8 _magmaProjectileCount;
+    bool _achievementEnligible;
     bool _hasExposedHead;
     bool _headEngaged;
     bool _lowHealthTextTriggered;
+};
+
+struct npc_magmaw_lava_parasite : public ScriptedAI
+{
+    npc_magmaw_lava_parasite(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        // I have no idea why Blizzard is delaying it but they do so we comply here as well
+        _events.ScheduleEvent(EVENT_PREPARE_PARASITE, 1s + 700ms);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->DespawnOrUnsummon(2s + 500ms);
+    }
+
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_LAVA_PARASITE_RIDE_VEHICLE)
+        {
+            me->AttackStop();
+            me->SetReactState(REACT_PASSIVE);
+            me->DespawnOrUnsummon(4s);
+            if (Creature* magmaw = _instance->GetCreature(DATA_MAGMAW))
+                magmaw->AI()->DoAction(ACTION_FAIL_ACHIEVEMT);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PREPARE_PARASITE:
+                    DoCastSelf(SPELL_LAVA_PARASITE_PROC_AURA);
+                    _events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 2s);
+                    break;
+                case EVENT_ENGAGE_PLAYERS:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoZoneInCombat();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
 };
 
 class IsOnVehicleCheck
@@ -608,6 +701,19 @@ class spell_magmaw_pillar_of_flame_dummy : public SpellScript
     }
 };
 
+class DistanceCheck
+{
+    public:
+        DistanceCheck(Unit* caster) : _caster(caster)  { }
+
+        bool operator()(WorldObject* object)
+        {
+            return (object->GetExactDist2d(_caster) >= 15.0f);
+        }
+    private:
+        Unit* _caster;
+};
+
 class spell_magmaw_pillar_of_flame_forcecast : public SpellScript
 {
     PrepareSpellScript(spell_magmaw_pillar_of_flame_forcecast);
@@ -621,6 +727,12 @@ class spell_magmaw_pillar_of_flame_forcecast : public SpellScript
 
         if (targets.empty())
             return;
+
+        // Hotfix (2010-12-21): Magmaw's Pillar of Flame now prefers targets further than 15 yards away
+        std::list<WorldObject*> targetsCopy = targets;
+        targetsCopy.remove_if(DistanceCheck(GetCaster()));
+        if (!targetsCopy.empty())
+            targets = targetsCopy;
 
         Trinity::Containers::RandomResize(targets, 1);
     }
@@ -730,9 +842,47 @@ class spell_magmaw_eject_passenger_3 : public SpellScript
     }
 };
 
+class spell_magmaw_lava_parasite : public AuraScript
+{
+    PrepareAuraScript(spell_magmaw_lava_parasite);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PARASITIC_INFECTION_DAMAGE,
+                SPELL_PARASITIC_INFECTION_VOMIT,
+            });
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        // Hotfix (2010-12-21): Lava Parasites are functioning normally and cannot infest a player with more than 3 Parasite debuffs active
+        PreventDefaultAction();
+
+        Unit* caster = GetTarget();
+        Unit* target = eventInfo.GetProcTarget();
+        if (Vehicle* vehicle = target->GetVehicleKit())
+        {
+            if (vehicle->GetAvailableSeatCount())
+            {
+                caster->CastSpell(target, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true);
+                caster->CastSpell(target, SPELL_PARASITIC_INFECTION_DAMAGE, true);
+                caster->CastSpell(target, SPELL_PARASITIC_INFECTION_VOMIT, true);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_magmaw_lava_parasite::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_boss_magmaw()
 {
     RegisterBlackwingDescentCreatureAI(boss_magmaw);
+    RegisterBlackwingDescentCreatureAI(npc_magmaw_lava_parasite);
     RegisterSpellScript(spell_magmaw_magma_spit);
     RegisterSpellScript(spell_magmaw_mangle);
     RegisterSpellScript(spell_magmaw_pillar_of_flame_dummy);
@@ -741,4 +891,5 @@ void AddSC_boss_magmaw()
     RegisterAuraScript(spell_magmaw_launch_hook);
     RegisterSpellScript(spell_magmaw_eject_passenger_1);
     RegisterSpellScript(spell_magmaw_eject_passenger_3);
+    RegisterAuraScript(spell_magmaw_lava_parasite);
 }

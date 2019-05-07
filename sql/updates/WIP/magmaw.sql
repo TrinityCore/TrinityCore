@@ -12,11 +12,15 @@ UPDATE `creature_template` SET `speed_run`= 0.3571, `speed_walk`= 1 WHERE `entry
 UPDATE `creature_template` SET `ScriptName`= '' WHERE `entry`= 42347;
 -- Nefarian
 UPDATE `creature_template` SET `speed_run`= 1.7142, `unit_flags`= 33587264 WHERE `entry`= 49427;
+-- Lava Parasite
+UPDATE `creature_template` SET `ScriptName`= 'npc_magmaw_lava_parasite' WHERE `entry` IN (41806, 42321);
+UPDATE `creature_template` SET `speed_run`= 0.4286 WHERE `entry` IN (41806, 42321);
 
 -- Addons
-DELETE FROM `creature_template_addon` WHERE `entry` IN (41806, 49427);
+DELETE FROM `creature_template_addon` WHERE `entry` IN (41806, 42321, 49427);
 INSERT INTO `creature_template_addon` (`entry`, `bytes1`, `bytes2`, `auras`) VALUES
 (41806, 0, 1, '78019'),
+(42321, 0, 1, '78019'),
 (49427, 50331648, 1, '');
 
 -- Vehicle accessory
@@ -48,6 +52,12 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 -- Nefarian
 (49427, 0, 0, 2, 0);
 
+-- Serverside Spells
+UPDATE `spell_dbc` SET `DurationIndex`= 3 WHERE `Id`= 77994;
+DELETE FROM `spelleffect_dbc` WHERE `Id`= 160093;
+INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectApplyAuraName`, `EffectMiscValue`, `EffectRadiusIndex`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectIndex`, `EffectSpellId`, `Comment`) VALUES
+(160093, 6, 296, 843, 28, 22, 15, 0, 77994, 'Pillar of Flame');
+
 -- Spells
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 ('spell_magmaw_magma_spit',
@@ -57,7 +67,8 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 'spell_magmaw_ride_vehicle',
 'spell_magmaw_launch_hook',
 'spell_magmaw_eject_passenger_1',
-'spell_magmaw_eject_passenger_3');
+'spell_magmaw_eject_passenger_3',
+'spell_magmaw_lava_parasite');
 
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_gen_eject_passenger' AND `spell_id` IN (77946, 95204);
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_gen_eject_passenger_1' AND `spell_id`= 77946;
@@ -72,7 +83,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (77946, 'spell_magmaw_eject_passenger_1'),
 (95204, 'spell_magmaw_eject_passenger_3'),
 (77917, 'spell_magmaw_launch_hook'),
-(77941, 'spell_magmaw_launch_hook');
+(77941, 'spell_magmaw_launch_hook'),
+(78019, 'spell_magmaw_lava_parasite');
 
 
 -- Conditions
