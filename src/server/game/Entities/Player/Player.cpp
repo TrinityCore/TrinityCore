@@ -15801,12 +15801,7 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
             }
 
             ASSERT(item);
-            bool destroyItem = true;
-            for (uint8 n = 0; n < QUEST_ITEM_OBJECTIVES_COUNT; ++n)
-                if (item->StartQuest == questId)
-                    destroyItem = false;
-
-            if (destroyItem)
+            if (item->StartQuest != questId)
                 DestroyItemCount(srcItemId, count, true, true);
         }
     }
