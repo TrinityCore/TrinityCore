@@ -312,7 +312,7 @@ struct boss_magmaw : public BossAI
     uint32 GetData(uint32 type) const override
     {
         if (type == DATA_ACHIEVEMENT_STATE)
-            return uint8(_achievementEnligible);
+            return _achievementEnligible;
 
         return 0;
     }
@@ -1172,6 +1172,23 @@ class spell_magmaw_shadow_breath_targeting : public SpellScript
     }
 };
 
+class achievement_parasite_evening : public AchievementCriteriaScript
+{
+    public:
+        achievement_parasite_evening() : AchievementCriteriaScript("achievement_parasite_evening") { }
+
+        bool OnCheck(Player* source, Unit* target) override
+        {
+            if (!target)
+                return false;
+
+            if (target->IsAIEnabled)
+                return target->GetAI()->GetData(DATA_ACHIEVEMENT_STATE);
+
+            return false;
+        }
+};
+
 void AddSC_boss_magmaw()
 {
     RegisterBlackwingDescentCreatureAI(boss_magmaw);
@@ -1189,4 +1206,5 @@ void AddSC_boss_magmaw()
     RegisterAuraScript(spell_magmaw_lava_parasite);
     RegisterSpellScript(spell_magmaw_blazing_inferno_targeting);
     RegisterSpellScript(spell_magmaw_shadow_breath_targeting);
+    new achievement_parasite_evening();
 }

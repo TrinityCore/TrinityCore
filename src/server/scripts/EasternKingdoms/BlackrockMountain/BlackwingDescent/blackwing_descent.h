@@ -67,7 +67,7 @@ enum BWDCreatureIds
     NPC_MAGMAW_SPIKE_STALKER        = 41767,
     NPC_NEFARIAN_MAGMAW             = 49427,
     NPC_BLAZING_BONE_CONSTRUCT      = 49416,
-    NPC_IGNITION                    = 49447,
+    NPC_IGNITION                    = 49447
 };
 
 enum BWDGameObjectIds

@@ -1,27 +1,43 @@
 -- Magmaw
 UPDATE `creature_template` SET `ScriptName`= 'boss_magmaw' WHERE `entry`= 41570;
-UPDATE `creature_template` SET `DamageModifier`= 120, `BaseVariance`= 0.5, `npcflag`= 0 WHERE `entry` IN (41570, 51101, 51102, 51103);
+UPDATE `creature_template` SET `DamageModifier`= 120, `BaseVariance`= 0.5, `npcflag`= 0, `mechanic_immune_mask`= 650854271, `flags_extra`= 1 WHERE `entry` IN (41570, 51101, 51102, 51103);
 -- Magmaw's Pincer
 UPDATE `creature_template` SET `spell1`= 77917 WHERE `entry`= 41620;
 UPDATE `creature_template` SET `spell1`= 77941 WHERE `entry`= 41789;
 -- Pillar of Flame
 UPDATE `creature_template` SET `unit_flags`= 33587264, `unit_flags2`= 34816, `flags_extra`= 2 WHERE `entry`= 41843;
--- Lava Parasite
-UPDATE `creature_template` SET `speed_run`= 0.3571, `speed_walk`= 1 WHERE `entry`= 41806;
 -- Exposed Head of Magmaw
-UPDATE `creature_template` SET `ScriptName`= '' WHERE `entry`= 42347;
+UPDATE `creature_template` SET `unit_flags`= 33554496 WHERE `entry` IN (42347, 51248, 51249, 51250);
 -- Nefarian
-UPDATE `creature_template` SET `speed_run`= 1.7142, `unit_flags`= 33587264 WHERE `entry`= 49427;
+UPDATE `creature_template` SET `speed_run`= 1.7142, `unit_flags`= 33587264, `ScriptName`= 'npc_magmaw_nefarian', `flags_extra`= 2 WHERE `entry`= 49427;
 -- Lava Parasite
 UPDATE `creature_template` SET `ScriptName`= 'npc_magmaw_lava_parasite' WHERE `entry` IN (41806, 42321);
-UPDATE `creature_template` SET `speed_run`= 0.4286 WHERE `entry` IN (41806, 42321);
+UPDATE `creature_template` SET `difficulty_entry_1`= 51456, `difficulty_entry_2`= 51457, `difficulty_entry_3`= 51458 WHERE `entry`= 41806;
+UPDATE `creature_template` SET `difficulty_entry_1`= 51459, `difficulty_entry_2`= 51460, `difficulty_entry_3`= 51461 WHERE `entry`= 42321;
+UPDATE `creature_template` SET `minlevel`= 85, `maxlevel`= 85, `exp`= 3, `faction`= 14, `speed_run`= 0.4286, `mechanic_immune_mask`= 634338303, `flags_extra`= 1073742080 WHERE `entry` IN (41806, 42321, 51456, 51457, 51458, 51459, 51460, 51461);
+-- Blazing Bone Construct
+UPDATE `creature_template` SET `difficulty_entry_1`= 49482, `difficulty_entry_2`= 49483, `difficulty_entry_3`= 49484, `ScriptName`= 'npc_magmaw_blazing_bone_construct' WHERE `entry`= 49416;
+UPDATE `creature_template` SET `minlevel`= 85, `maxlevel`= 85, `exp`= 3, `faction`= 14, `speed_run`= 1.14286, `DamageModifier`= 60, `BaseVariance`= 0.5, `mechanic_immune_mask`= 634338303, `flags_extra`= 1073742080 WHERE `entry` IN (49416, 49482, 49483, 49484);
+-- Ignition
+UPDATE `creature_template` SET `unit_flags`= 33554496, `flags_extra`= 131, `speed_run`= 0.7142 WHERE `entry`= 49447;
 
 -- Addons
-DELETE FROM `creature_template_addon` WHERE `entry` IN (41806, 42321, 49427);
+DELETE FROM `creature_template_addon` WHERE `entry` IN (41806, 42321, 51456, 51457, 51458, 51459, 51460, 51461, 49427, 49416, 49482, 49483, 49484, 49447);
 INSERT INTO `creature_template_addon` (`entry`, `bytes1`, `bytes2`, `auras`) VALUES
 (41806, 0, 1, '78019'),
 (42321, 0, 1, '78019'),
-(49427, 50331648, 1, '');
+(51456, 0, 1, '78019'),
+(51457, 0, 1, '78019'),
+(51458, 0, 1, '78019'),
+(51459, 0, 1, '78019'),
+(51460, 0, 1, '78019'),
+(51461, 0, 1, '78019'),
+(49427, 50331648, 1, ''),
+(49416, 0, 1, '92128'),
+(49482, 0, 1, '92128'),
+(49483, 0, 1, '92128'),
+(49484, 0, 1, '92128'),
+(49447, 0, 1, '92131');
 
 -- Vehicle accessory
 DELETE FROM `vehicle_template_accessory` WHERE `entry`= 41570;
@@ -53,10 +69,16 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 (49427, 0, 0, 2, 0);
 
 -- Serverside Spells
-UPDATE `spell_dbc` SET `DurationIndex`= 3 WHERE `Id`= 77994;
-DELETE FROM `spelleffect_dbc` WHERE `Id`= 160093;
+UPDATE `spell_dbc` SET `DurationIndex`= 3, `AttributesEx3`= `AttributesEx3` | 0x00000100 WHERE `Id`= 77994;
+
+DELETE FROM `spell_dbc` WHERE `Id`= 94317;
+INSERT INTO `spell_dbc` (`Id`, `Attributes`, `AttributesEx`, `AttributesEx2`, `AttributesEx3`, `AttributesEx4`, `AttributesEx5`, `AttributesEx6`, `AttributesEx7`, `AttributesEx8`, `AttributesEx9`, `AttributesEx10`, `CastingTimeIndex`, `DurationIndex`, `RangeIndex`, `SchoolMask`, `SpellAuraOptionsId`, `SpellCastingRequirementsId`, `SpellCategoriesId`, `SpellClassOptionsId`, `SpellEquippedItemsId`, `SpellInterruptsId`, `SpellLevelsId`, `SpellTargetRestrictionsId`, `Comment`) VALUES 
+(94317, 0x20000100, 0, 0x00000004, 0x00020100, 0, 0, 0, 0, 0, 0, 0, 1, 0, 13, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Blazing Inferno');
+
+DELETE FROM `spelleffect_dbc` WHERE `Id` IN (160093, 160094);
 INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectApplyAuraName`, `EffectMiscValue`, `EffectRadiusIndex`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectIndex`, `EffectSpellId`, `Comment`) VALUES
-(160093, 6, 296, 843, 28, 22, 15, 0, 77994, 'Pillar of Flame');
+(160093, 6, 296, 843, 28, 22, 15, 0, 77994, 'Pillar of Flame'),
+(160094, 77, 0, 0, 28, 22, 15, 0, 94317, 'Blazing Inferno');
 
 -- Spells
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN
@@ -68,7 +90,9 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 'spell_magmaw_launch_hook',
 'spell_magmaw_eject_passenger_1',
 'spell_magmaw_eject_passenger_3',
-'spell_magmaw_lava_parasite');
+'spell_magmaw_lava_parasite',
+'spell_magmaw_blazing_inferno_targeting',
+'spell_magmaw_shadow_breath_targeting');
 
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_gen_eject_passenger' AND `spell_id` IN (77946, 95204);
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_gen_eject_passenger_1' AND `spell_id`= 77946;
@@ -84,7 +108,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (95204, 'spell_magmaw_eject_passenger_3'),
 (77917, 'spell_magmaw_launch_hook'),
 (77941, 'spell_magmaw_launch_hook'),
-(78019, 'spell_magmaw_lava_parasite');
+(78019, 'spell_magmaw_lava_parasite'),
+(94317, 'spell_magmaw_blazing_inferno_targeting'),
+(95536, 'spell_magmaw_shadow_breath_targeting');
 
 
 -- Conditions
@@ -113,7 +139,36 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (49427, 2, 0, 'Inconceivable! You may actually defeat my lava worm! Perhaps I can help... tip the scales.', 14, 0, 100, 0, 0, 23368, 49782, 'Nefarian - Low Health Heroic'),
 (49427, 3, 0, 'You won? How... disappointing. I could have easily watched you all continue to stand in the fire.', 14, 0, 100, 0, 0, 23366, 49062, 'Nefarian - Death Heroic');
 
+-- Spline Chains
+DELETE FROM `script_spline_chain_waypoints` WHERE `entry`= 49427;
+INSERT INTO `script_spline_chain_waypoints` (`entry`, `chainId`, `splineId`, `wpId`, `x`, `y`, `z`) VALUES
+(49427, 1, 0, 0, -391.9144, 40.52919, 207.3371),
+(49427, 1, 0, 1, -413.9097, 36.13715, 200.5833),
+(49427, 1, 0, 2, -392.2778, 40.4566, 207.2257),
+(49427, 1, 0, 3, -370.6458, 44.77604, 213.8682),
+(49427, 1, 0, 4, -352.0885, 48.22743, 221.4187),
+(49427, 1, 0, 5, -329.6441, 42.55035, 228.185),
+(49427, 1, 0, 6, -320.2205, 16.81944, 238.6828),
+(49427, 1, 0, 7, -315.9445, -6.895833, 246.8446),
+(49427, 1, 0, 8, -315.9445, -6.895833, 246.8446);
+
+DELETE FROM `script_spline_chain_meta` WHERE `entry`= 49427;
+INSERT INTO `script_spline_chain_meta` (`entry`, `chainId`, `splineId`, `expectedDuration`, `msUntilNext`) VALUES
+(49427, 1, 0, 10192, 0);
+
 -- Delete encounter related creatures
 DELETE FROM `creature` WHERE `guid` IN (250054, 250053, 250052);
 DELETE FROM `creature_addon` WHERE `guid` IN (250054, 250053, 250052);
 
+-- Achievement Data
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id`= 15650;
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+(15650, 11, 0, 0, 'achievement_parasite_evening');
+
+-- Currency Loot
+DELETE FROM `creature_onkill_reward` WHERE `creature_id` IN (41570, 51101, 51102, 51103);
+INSERT INTO `creature_onkill_reward` (`creature_id`, `CurrencyId1`, `CurrencyCount1`) VALUES
+(41570, 396, 3500),
+(51101, 396, 3500),
+(51102, 396, 3500),
+(51103, 396, 3500);
