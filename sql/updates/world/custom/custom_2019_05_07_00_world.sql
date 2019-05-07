@@ -149,8 +149,7 @@ INSERT INTO `script_spline_chain_waypoints` (`entry`, `chainId`, `splineId`, `wp
 (49427, 1, 0, 4, -352.0885, 48.22743, 221.4187),
 (49427, 1, 0, 5, -329.6441, 42.55035, 228.185),
 (49427, 1, 0, 6, -320.2205, 16.81944, 238.6828),
-(49427, 1, 0, 7, -315.9445, -6.895833, 246.8446),
-(49427, 1, 0, 8, -315.9445, -6.895833, 246.8446);
+(49427, 1, 0, 7, -315.9445, -6.895833, 246.8446);
 
 DELETE FROM `script_spline_chain_meta` WHERE `entry`= 49427;
 INSERT INTO `script_spline_chain_meta` (`entry`, `chainId`, `splineId`, `expectedDuration`, `msUntilNext`) VALUES
