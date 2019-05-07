@@ -141,6 +141,8 @@ Position const MagmawVehicleExitPos     = { -311.4653f, -48.59722f, 212.8065f, 1
 Position const NefarianIntroSummonPos   = { -390.1042f, 40.88411f,  207.8586f, 0.196609f };
 Position const NefarianIntroFlightPos   = { -315.9445f, -6.895832f, 246.8446f };
 
+#define SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE RAID_MODE<uint32>(78941, 91913, 94678, 94679)
+
 struct boss_magmaw : public BossAI
 {
     boss_magmaw(Creature* creature) : BossAI(creature, DATA_MAGMAW)
@@ -214,7 +216,9 @@ struct boss_magmaw : public BossAI
         _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
         _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
 
-        instance->SetData(DATA_MAGMAW, FAIL);
+        instance->SetBossState(DATA_MAGMAW, FAIL);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_VOMIT);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE);
         summons.DespawnAll();
         _DespawnAtEvade();
     }
@@ -223,8 +227,12 @@ struct boss_magmaw : public BossAI
     {
         if (_headEngaged)
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, _exposedHead1);
-        _JustDied();
+
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_VOMIT);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE);
+
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _JustDied();
     }
 
     void JustSummoned(Creature* summon) override
@@ -538,6 +546,7 @@ struct npc_magmaw_lava_parasite : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
+        _events.Reset();
         me->DespawnOrUnsummon(2s + 500ms);
     }
 
