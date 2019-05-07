@@ -46,6 +46,7 @@ enum THEMisc
     QUEST_LOOKING_FOR_THE_ARTEFACT  = 80000,
     QUEST_EVACUATION                = 80001,
     QUEST_PREPARE_FOR_WAR           = 80006,
+    QUEST_LIMIT_THE_NUKE            = 80007
 };
 
 enum THEEvents
@@ -58,6 +59,9 @@ enum THEEvents
     EVENT_START_BATTLE      = 5,
     EVENT_START_EVACUATION  = 6,
     EVENT_START_POST_BATTLE = 7,
+    EVENT_STOP_KALECGOS     = 8,
+    EVENT_SET_END           = 9,
+    EVENT_START_END         = 10,
 
     // Events
     // Convo
@@ -163,6 +167,7 @@ enum THEEvents
     EVENT_PRE_BATTLE_19,
     EVENT_PRE_BATTLE_20,
     EVENT_PRE_BATTLE_21,
+    EVENT_PRE_BATTLE_22,
 
     EVENT_POST_BATTLE_1,
     EVENT_POST_BATTLE_2,
@@ -184,6 +189,19 @@ enum THEEvents
     EVENT_POST_BATTLE_18,
     EVENT_POST_BATTLE_19,
     EVENT_POST_BATTLE_20,
+
+    EVENT_END_1,
+    EVENT_END_2,
+    EVENT_END_3,
+    EVENT_END_4,
+    EVENT_END_5,
+    EVENT_END_6,
+    EVENT_END_7,
+    EVENT_END_8,
+    EVENT_END_9,
+    EVENT_END_10,
+    EVENT_END_11,
+    EVENT_END_12
 };
 
 enum THEPhases
@@ -192,13 +210,15 @@ enum THEPhases
     PHASE_WARN,
     PHASE_PRE_BATTLE,
     PHASE_BATTLE,
-    PHASE_POST_BATTLE
+    PHASE_POST_BATTLE,
+    PHASE_END
 };
 
 enum THESpells
 {
     SPELL_FIREBALL                  = 100002,
     SPELL_BLIZZARD                  = 100001,
+    SPELL_FROST_BREEZE              = 100033,
 
     SPELL_SIMPLE_TELEPORT           = 100032,
     SPELL_ICE_NOVA                  = 56935,
@@ -300,6 +320,19 @@ enum THEText
     SAY_POST_BATTLE_13  = 47,
     SAY_POST_BATTLE_14  = 8,
     SAY_POST_BATTLE_15  = 48,
+    SAY_POST_BATTLE_16  = 49,
+
+    SAY_END_1           = 60,
+    SAY_END_2           = 2,
+    SAY_END_3           = 3,
+    SAY_END_4           = 61,
+    SAY_END_5           = 62,
+    SAY_END_6           = 4,
+    SAY_END_7           = 5,
+    SAY_END_8           = 63,
+    SAY_END_9           = 6,
+    SAY_END_10          = 64,
+    SAY_END_11          = 7
 };
 
 const float FireLocation[35][4] =

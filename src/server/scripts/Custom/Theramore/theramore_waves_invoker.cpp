@@ -47,23 +47,51 @@ enum Misc
 
 enum Waves
 {
-    WAVE_01             = 100,
+    WAVE_01                     = 100,
     WAVE_01_CHECK,
-    //WAVE_02,
-    //WAVE_02_CHECK,
-    //WAVE_03,
-    //WAVE_03_CHECK,
-    //WAVE_04,
-    //WAVE_04_CHECK,
-    //WAVE_05,
-    //WAVE_05_CHECK,
-    //WAVE_06,
-    //WAVE_06_CHECK,
-    //WAVE_07,
-    //WAVE_07_CHECK,
-    //WAVE_08,
-    //WAVE_08_CHECK,
+    WAVE_02,
+    WAVE_02_CHECK,
+    WAVE_03,
+    WAVE_03_CHECK,
+    WAVE_04,
+    WAVE_04_CHECK,
+    WAVE_05,
+    WAVE_05_CHECK,
+    WAVE_06,
+    WAVE_06_CHECK,
+    WAVE_07,
+    WAVE_07_CHECK,
+    WAVE_08,
+    WAVE_08_CHECK,
+    WAVE_09,
+    WAVE_09_CHECK,
+    WAVE_10,
+    WAVE_10_CHECK,
     WAVE_EXIT
+};
+
+class KalecgosFlightEvent : public BasicEvent
+{
+    public:
+    KalecgosFlightEvent(Creature* owner) : owner(owner)
+    {
+        spellArgs.AddSpellMod(SPELLVALUE_BASE_POINT0, 999999);
+
+        spellArgs.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
+        spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_SET_FACING);
+        spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS);
+    }
+
+    bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+    {
+        owner->CastSpell(owner, SPELL_FROST_BREEZE, spellArgs);
+        owner->m_Events.AddEvent(this, eventTime + 2000);
+        return false;
+    }
+
+    private:
+    Creature* owner;
+    CastSpellExtraArgs spellArgs;
 };
 
 class theramore_waves_invoker : public CreatureScript
@@ -89,8 +117,9 @@ class theramore_waves_invoker : public CreatureScript
             if (id == EVENT_START_WAR)
             {
                 jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 20.f);
-                amara = GetClosestCreatureWithEntry(me, NPC_AMARA_LEESON, 20.f);
                 thalen = GetClosestCreatureWithEntry(me, NPC_THALEN_SONGWEAVER, 20.f);
+                kalecgos = GetClosestCreatureWithEntry(me, NPC_KALECGOS_DRAGON, 2000.f);
+                amara = GetClosestCreatureWithEntry(me, NPC_AMARA_LEESON, 20.f);
 
                 jaina->AI()->Talk(JAINA_SAY_01);
 
@@ -145,6 +174,7 @@ class theramore_waves_invoker : public CreatureScript
                         amara->RemoveAllAuras();
                         thalen->SetWalk(false);
                         thalen->RemoveAllAuras();
+                        thalen->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_LAUGH);
                         events.ScheduleEvent(EVENT_BATTLE_3, 3s);
                         break;
                     }
@@ -152,6 +182,7 @@ class theramore_waves_invoker : public CreatureScript
                     case EVENT_BATTLE_3:
                         jaina->AI()->Talk(JAINA_SAY_03);
                         jaina->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        thalen->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                         thalen->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         thalen->SetReactState(REACT_PASSIVE);
                         thalen->SetFaction(85);
@@ -183,41 +214,46 @@ class theramore_waves_invoker : public CreatureScript
 
                     case EVENT_BATTLE_7:
                         thalen->CastSpell(thalen, SPELL_POWER_BALL_VISUAL);
-                        thalen->NearTeleportTo(-3727.50f, -4555.78f, 4.74f, 2.82f);
                         thalen->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STRANGULATE);
-                        events.ScheduleEvent(EVENT_BATTLE_8, 2s);
+                        events.ScheduleEvent(EVENT_BATTLE_8, 1s);
                         break;
 
                     case EVENT_BATTLE_8:
                         if (Creature * medic = DoSummon(NPC_THERAMORE_MEDIC, { -3736.40f, -4553.58f, 4.74f, 5.99f }, 0, TEMPSUMMON_MANUAL_DESPAWN))
                             medic->CastSpell(thalen, SPELL_CHAINS);
+                        thalen->NearTeleportTo(-3727.50f, -4555.78f, 4.74f, 2.82f);
                         jaina->CastSpell(jaina, SPELL_TELEPORT, true);
                         jaina->NearTeleportTo(-3658.39f, -4372.87f, 9.35f, 0.69f);
+                        kalecgos->m_Events.AddEvent(new KalecgosFlightEvent(kalecgos), kalecgos->m_Events.CalculateTime(3000));
                         events.ScheduleEvent(WAVE_01, 5s);
                         break;
 
-                        // Event - Invoker
+                    // Event - Invoker
                     case WAVE_01:
-                    //case WAVE_02:
-                    //case WAVE_03:
-                    //case WAVE_04:
-                    //case WAVE_05:
-                    //case WAVE_06:
-                    //case WAVE_07:
-                    //case WAVE_08:
+                    case WAVE_02:
+                    case WAVE_03:
+                    case WAVE_04:
+                    case WAVE_05:
+                    case WAVE_06:
+                    case WAVE_07:
+                    case WAVE_08:
+                    case WAVE_09:
+                    case WAVE_10:
                         HordeMembersInvoker(waves, horderMembers);
                         waves = RAND(WAVE_CITADEL, WAVE_DOCKS);
                         events.ScheduleEvent(++wavesInvoker, 1s);
                         break;
 
                     case WAVE_01_CHECK:
-                    //case WAVE_02_CHECK:
-                    //case WAVE_03_CHECK:
-                    //case WAVE_04_CHECK:
-                    //case WAVE_05_CHECK:
-                    //case WAVE_06_CHECK:
-                    //case WAVE_07_CHECK:
-                    //case WAVE_08_CHECK:
+                    case WAVE_02_CHECK:
+                    case WAVE_03_CHECK:
+                    case WAVE_04_CHECK:
+                    case WAVE_05_CHECK:
+                    case WAVE_06_CHECK:
+                    case WAVE_07_CHECK:
+                    case WAVE_08_CHECK:
+                    case WAVE_09_CHECK:
+                    case WAVE_10_CHECK:
                     {
                         uint32 membersCounter = 0;
                         uint32 deadCounter = 0;
@@ -246,6 +282,8 @@ class theramore_waves_invoker : public CreatureScript
                         for (Player* player : players)
                             player->CompleteQuest(QUEST_PREPARE_FOR_WAR);
                         jaina->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        jaina->AI()->SetData(EVENT_STOP_KALECGOS, 1);
+                        kalecgos->DespawnOrUnsummon();
                         break;
 
                     default:
@@ -259,6 +297,7 @@ class theramore_waves_invoker : public CreatureScript
         Creature* jaina;
         Creature* thalen;
         Creature* amara;
+        Creature* kalecgos;
         ObjectGuid horderMembers[5];
         uint32 waves;
         uint32 wavesInvoker;
