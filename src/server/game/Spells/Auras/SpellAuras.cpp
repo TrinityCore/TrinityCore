@@ -873,7 +873,7 @@ void Aura::Update(uint32 diff, Unit* caster)
                     uint32 breakPct = 5;
                     
                     if (m_spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)
-                        breakPct += (uint32)floor(100 * powf(auraMaxDuration - auraTimePassed, 2) / (auraMaxDuration * auraMaxDuration));
+                        breakPct += 100 * pow(auraMaxDuration - auraTimePassed, 2) / (auraMaxDuration * auraMaxDuration);
                     else
                         breakPct += (uint32)floor(100 * (resistance / powf(GetUnitOwner()->getLevel(), 1.441f) * 0.10));
                     
