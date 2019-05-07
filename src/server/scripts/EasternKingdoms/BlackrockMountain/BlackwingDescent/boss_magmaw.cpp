@@ -178,10 +178,10 @@ struct boss_magmaw : public BossAI
         _JustEngagedWith();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         me->SetReactState(REACT_AGGRESSIVE);
-        events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 5s, 6s);
+        events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 6s);
         events.ScheduleEvent(EVENT_LAVA_SPEW, 19s);
-        //events.ScheduleEvent(EVENT_MANGLE, 1min + 30s);
-        events.ScheduleEvent(EVENT_PREPARE_MASSIVE_CRASH, 35s);
+        events.ScheduleEvent(EVENT_MANGLE, 1min + 30s);
+        events.ScheduleEvent(EVENT_PREPARE_MASSIVE_CRASH, 1min + 35s);
 
         _exposedHead1->SetInCombatWithZone();
         _exposedHead2->SetInCombatWithZone();
@@ -321,7 +321,9 @@ struct boss_magmaw : public BossAI
         switch (action)
         {
             case ACTION_IMPALE_MAGMAW:
-                events.Reset();
+                events.CancelEvent(EVENT_MAGMA_PROJECTILE);
+                events.CancelEvent(EVENT_LAVA_SPEW);
+                events.CancelEvent(EVENT_MASSIVE_CRASH);
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
                 me->CastStop();
@@ -380,7 +382,9 @@ struct boss_magmaw : public BossAI
                     events.Repeat(24s);
                     break;
                 case EVENT_MANGLE:
-                    DoCastAOE(SPELL_MANGLE_TARGETING);
+                    if (SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                        DoCastAOE(SPELL_MANGLE_TARGETING);
+                    events.Repeat(1min + 35s);
                     break;
                 case EVENT_PREPARE_MASSIVE_CRASH:
                     if (ObjectGuid guid = instance->GetGuidData(DATA_PREPARE_MASSIVE_CRASH_AND_GET_TARGET_GUID))
@@ -391,6 +395,9 @@ struct boss_magmaw : public BossAI
                             me->SetReactState(REACT_PASSIVE);
                             me->SetFacingToObject(stalker, true);
                             events.ScheduleEvent(EVENT_MASSIVE_CRASH, 5s);
+                            events.CancelEvent(EVENT_MAGMA_PROJECTILE);
+                            events.CancelEvent(EVENT_LAVA_SPEW);
+                            events.Repeat(1min + 35s);
                         }
                     }
                     break;
@@ -406,6 +413,8 @@ struct boss_magmaw : public BossAI
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                     me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                     me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_LAVA_SPEW, 1ms);
+                    events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 8s);
                     break;
                 case EVENT_IMPALE_SELF:
                     DoCastSelf(SPELL_IMPALE_SELF);
@@ -431,6 +440,9 @@ struct boss_magmaw : public BossAI
                 case EVENT_FINISH_IMPALE_SELF:
                     _hasExposedHead = false;
                     me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_LAVA_SPEW, 1ms);
+                    events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 4s);
+                    events.ScheduleEvent(EVENT_MASSIVE_CRASH, 40s);
                     break;
                 default:
                     break;
