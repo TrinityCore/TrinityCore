@@ -60,6 +60,11 @@ class npc_archmage_fire : public CreatureScript
             events.ScheduleEvent(CASTING_PYROBLAST, 12s, 24s);
         }
 
+        //void EnterEvadeMode(EvadeReason /*why*/) override
+        //{
+        //    me->SetHealth(me->GetMaxHealth());
+        //}
+
         void AttackStart(Unit* who) override
         {
             if (!who)
@@ -72,6 +77,11 @@ class npc_archmage_fire : public CreatureScript
         void Reset() override
         {
             events.Reset();
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            damage = 1;
         }
 
         void UpdateAI(uint32 diff) override
@@ -137,6 +147,11 @@ class npc_archmage_arcanes : public CreatureScript
             events.ScheduleEvent(CASTING_ARCANE_EXPLOSION, 8s);
         }
 
+        //void EnterEvadeMode(EvadeReason /*why*/) override
+        //{
+        //    me->SetHealth(me->GetMaxHealth());
+        //}
+
         void AttackStart(Unit* who) override
         {
             if (!who)
@@ -149,6 +164,11 @@ class npc_archmage_arcanes : public CreatureScript
         void Reset() override
         {
             events.Reset();
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            damage = 1;
         }
 
         void UpdateAI(uint32 diff) override
@@ -229,6 +249,11 @@ public:
             events.ScheduleEvent(CASTING_ICE_LANCE, 8s, 14s);
         }
 
+        //void EnterEvadeMode(EvadeReason /*why*/) override
+        //{
+        //    me->SetHealth(me->GetMaxHealth());
+        //}
+
         void AttackStart(Unit* who) override
         {
             if (!who)
@@ -244,7 +269,7 @@ public:
             me->RemoveAurasDueToSpell(SPELL_HYPOTHERMIA);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             if (!me->HasAura(SPELL_HYPOTHERMIA) && HealthBelowPct(30))
             {
@@ -253,6 +278,8 @@ public:
                 DoCastSelf(SPELL_HYPOTHERMIA);
                 events.ScheduleEvent(CASTING_BLINK, 6s);
             }
+
+            damage = 1;
         }
 
         void UpdateAI(uint32 diff) override

@@ -1,7 +1,7 @@
 #ifndef THERAMORE_H
 #define THERAMORE_H
 
-enum THECreature
+enum NPCs
 {
     NPC_JAINA_PROUDMOORE            = 100000,
     NPC_KALECGOS                    = 100001,
@@ -32,7 +32,7 @@ enum THECreature
     NPC_WOUNDED_DUMMY               = 100018
 };
 
-enum THEMisc
+enum Misc
 {
     // GameObjects
     GOB_FIRE_THERAMORE              = 182592,
@@ -49,7 +49,7 @@ enum THEMisc
     QUEST_LIMIT_THE_NUKE            = 80007
 };
 
-enum THEEvents
+enum Events
 {
     // Starters
     EVENT_START_CONVO       = 1,
@@ -201,7 +201,7 @@ enum THEEvents
     EVENT_END_12
 };
 
-enum THEPhases
+enum Phases
 {
     PHASE_CONVO,
     PHASE_WARN,
@@ -211,7 +211,7 @@ enum THEPhases
     PHASE_END
 };
 
-enum THESpells
+enum Spells
 {
     SPELL_FIREBALL                  = 100002,
     SPELL_BLIZZARD                  = 100001,
@@ -227,7 +227,7 @@ enum THESpells
     SPELL_PORTAL                    = 57687
 };
 
-enum THEText
+enum Text
 {
     SAY_CONVO_1         = 0,
     SAY_CONVO_2         = 0,

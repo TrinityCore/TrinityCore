@@ -167,7 +167,7 @@ class npc_jaina_theramore : public CreatureScript
             canBeginEnd = false;
         }
 
-        void QuestAccept(Player* /*player*/, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             switch (quest->GetQuestId())
             {
@@ -1389,12 +1389,15 @@ class npc_jaina_theramore : public CreatureScript
 
                     case EVENT_END_10:
                         rhonin->AI()->Talk(SAY_END_11);
+                        for (Player* player : players)
+                            player->PlayDirectSound(11563);
                         events.ScheduleEvent(EVENT_END_11, 9s, 0, PHASE_END);
                         break;
 
                     case EVENT_END_11:
                         for (Player* player : players)
                         {
+                            player->PlayDirectSound(11571);
                             player->CastSpell(player, SPELL_TELEPORT);
                             player->CompleteQuest(QUEST_LIMIT_THE_NUKE);
                         }
@@ -1403,7 +1406,10 @@ class npc_jaina_theramore : public CreatureScript
 
                     case EVENT_END_12:
                         for (Player* player : players)
+                        {
+                            player->SetPhaseMask(4, true);
                             player->TeleportTo(1, -2820.75f, -4762.14f, 3.76f, 1.79f);
+                        }
                         break;
 
                     #pragma endregion

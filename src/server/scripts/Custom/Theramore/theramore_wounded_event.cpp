@@ -8,7 +8,7 @@
 #include "MotionMaster.h"
 #include "theramore.h"
 
-enum Misc
+enum Wounded
 {
     // Events
 	EVENT_START_TELEPORT	= 1,

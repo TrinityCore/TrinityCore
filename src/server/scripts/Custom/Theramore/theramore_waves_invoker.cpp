@@ -10,7 +10,7 @@
 
 constexpr uint8 NUMBER_OF_WAVES = 10;
 
-enum Misc
+enum Invoker
 {
     // Events
     EVENT_START_WAR             = 1,
@@ -22,6 +22,7 @@ enum Misc
     EVENT_BATTLE_6,
     EVENT_BATTLE_7,
     EVENT_BATTLE_8,
+    EVENT_BATTLE_9,
 
     // NPCs
     NPC_ROK_NAH_GRUNT           = 100034,
@@ -77,7 +78,7 @@ class KalecgosFlightEvent : public BasicEvent
     public:
     KalecgosFlightEvent(Creature* owner) : owner(owner)
     {
-        spellArgs.AddSpellMod(SPELLVALUE_BASE_POINT0, 500000);
+        spellArgs.AddSpellMod(SPELLVALUE_BASE_POINT0, 300000);
 
         spellArgs.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
         spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_SET_FACING);
@@ -96,6 +97,32 @@ class KalecgosFlightEvent : public BasicEvent
     private:
     Creature* owner;
     CastSpellExtraArgs spellArgs;
+};
+
+class CannonDoorsEvent : public BasicEvent
+{
+    public:
+    CannonDoorsEvent(Creature* owner, std::vector<Player*> players) : owner(owner), players(players)
+    {
+    }
+
+    bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+    {
+        for (Player* player : players)
+        {
+            player->PlayDirectSound(RAND(11564, 11565, 11566, 11567));
+            player->CastSpell(player, 12816);
+        }
+
+        owner->CastSpell(owner, 71495);
+        owner->m_Events.AddEvent(this, eventTime + urand(300, 800));
+
+        return false;
+    }
+
+    private:
+    Creature* owner;
+    std::vector<Player*> players;
 };
 
 class theramore_waves_invoker : public CreatureScript
@@ -155,13 +182,20 @@ class theramore_waves_invoker : public CreatureScript
                 {
                     // Event - Battle
                     case EVENT_BATTLE_1:
-                        jaina->AI()->Talk(JAINA_SAY_02);
-                        jaina->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
-                        events.ScheduleEvent(EVENT_BATTLE_2, 3s);
+                        if (Creature * cannon = DoSummon(NPC_INVISIBLE_STALKER, { -3646.48f, -4362.23f, 9.57f, 0.70f }, 9000, TEMPSUMMON_TIMED_DESPAWN))
+                        {
+                            jaina->AI()->Talk(JAINA_SAY_02);
+                            jaina->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                            cannon->m_Events.AddEvent(new CannonDoorsEvent(cannon, players), cannon->m_Events.CalculateTime(500));
+                        }
+                        events.ScheduleEvent(EVENT_BATTLE_2, 8s);
                         break;
 
                     case EVENT_BATTLE_2:
                     {
+                        for (Player* player : players)
+                            player->PlayDirectSound(11563);
+
                         if (Creature * barrier = GetClosestCreatureWithEntry(me, NPC_INVISIBLE_STALKER, 20.f))
                         {
                             barrier->CastSpell(barrier, 70444);
@@ -218,14 +252,19 @@ class theramore_waves_invoker : public CreatureScript
 
                     case EVENT_BATTLE_7:
                         thalen->CastSpell(thalen, SPELL_POWER_BALL_VISUAL);
-                        thalen->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STRANGULATE);
-                        events.ScheduleEvent(EVENT_BATTLE_8, 1s);
+                        events.ScheduleEvent(EVENT_BATTLE_8, 2s);
                         break;
 
                     case EVENT_BATTLE_8:
+                        thalen->NearTeleportTo(-3727.50f, -4555.78f, 4.74f, 2.82f);
+                        events.ScheduleEvent(EVENT_BATTLE_9, 2s);
+                        break;
+
+                    case EVENT_BATTLE_9:
+                        thalen->RemoveAllAuras();
                         if (Creature * medic = DoSummon(NPC_THERAMORE_MEDIC, { -3736.40f, -4553.58f, 4.74f, 5.99f }, 0, TEMPSUMMON_MANUAL_DESPAWN))
                             medic->CastSpell(thalen, SPELL_CHAINS);
-                        thalen->NearTeleportTo(-3727.50f, -4555.78f, 4.74f, 2.82f);
+                        thalen->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STRANGULATE);
                         jaina->CastSpell(jaina, SPELL_TELEPORT, true);
                         jaina->NearTeleportTo(-3658.39f, -4372.87f, 9.35f, 0.69f);
                         kalecgos->m_Events.AddEvent(new KalecgosFlightEvent(kalecgos), kalecgos->m_Events.CalculateTime(3000));

@@ -24,6 +24,9 @@ void AddSC_npc_shaman();
 void AddSC_npc_felcaster();
 void AddSC_npc_hag();
 void AddSC_theramore_wounded_event();
+void AddSC_npc_warrior();
+void AddSC_npc_paladin();
+void AddSC_theramore_ruins();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -37,4 +40,7 @@ void AddCustomScripts()
     AddSC_npc_felcaster();
     AddSC_npc_hag();
     AddSC_theramore_wounded_event();
+    AddSC_npc_warrior();
+    AddSC_npc_paladin();
+    AddSC_theramore_ruins();
 }

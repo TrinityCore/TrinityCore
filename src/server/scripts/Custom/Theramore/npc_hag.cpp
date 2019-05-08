@@ -6,7 +6,7 @@ enum Spells
 	SPELL_FIREBALL          = 100003,
 	SPELL_ICE_LANCE         = 100007,
 	SPELL_ICE_BLOCK         = 100008,
-	SPELL_BLINK             = 57869,
+	SPELL_BLINK             = 64662,
 	SPELL_ARCANE_BLAST      = 100010,
 };
 
@@ -39,7 +39,7 @@ class npc_hag : public CreatureScript
         {
             events.ScheduleEvent(CASTING_FIREBALL, 1s);
             events.ScheduleEvent(CASTING_ICE_LANCE, 5s);
-            events.ScheduleEvent(CASTING_BLINK, 24s);
+            events.ScheduleEvent(CASTING_BLINK, 10s);
             events.ScheduleEvent(CASTING_ARCANE_BLAST, 3s);
         }
 
@@ -97,8 +97,8 @@ class npc_hag : public CreatureScript
 
                     case CASTING_BLINK:
                         me->InterruptNonMeleeSpells(true);
-                        DoCast(SPELL_BLINK);
-                        events.RescheduleEvent(CASTING_BLINK, 34s, 45s);
+                        DoCastVictim(SPELL_BLINK);
+                        events.RescheduleEvent(CASTING_BLINK, 20s, 30s);
                         break;
 
                     case CASTING_ARCANE_BLAST:
