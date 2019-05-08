@@ -2092,7 +2092,39 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
         {
             // do not reset the instance, just unbind if others are permanently bound to it
             if (isEmpty && instanceSave->CanReset())
+            {
+                if (map && this->isRaidGroup() && map->IsDungeon())
+                {
+                    AreaTrigger const * const instanceEntrance = sObjectMgr->GetGoBackTrigger(map->GetId());
+
+                    if (!instanceEntrance)
+                        TC_LOG_DEBUG("root", "Instance entrance not found for maps %u", map->GetId());
+                    else
+                    {
+                        const uint32 zoneId = sMapMgr->GetZoneId(instanceEntrance->target_mapId, instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z);
+
+                        for (const MemberSlot &member : this->GetMemberSlots())
+                        {
+                            if (!ObjectAccessor::FindPlayer(member.guid))
+                            {
+                                PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
+
+                                stmt->setFloat(0, instanceEntrance->target_X);
+                                stmt->setFloat(1, instanceEntrance->target_Y);
+                                stmt->setFloat(2, instanceEntrance->target_Z);
+                                stmt->setFloat(3, instanceEntrance->target_Orientation);
+                                stmt->setUInt32(4, instanceEntrance->target_mapId);
+                                stmt->setUInt32(5, zoneId);
+                                stmt->setUInt32(6, member.guid);
+
+                                CharacterDatabase.Execute(stmt);
+                            }
+                        }
+                    }
+                }
+
                 instanceSave->DeleteFromDB();
+            }
             else
             {
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_INSTANCE);
