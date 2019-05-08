@@ -165,6 +165,7 @@ enum ICCreaturesIds
     NPC_INFILTRATOR_MINCHAR_BQ_25               = 39123,
     NPC_MINCHAR_BEAM_STALKER                    = 38557,
     NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
+    NPC_THE_LICH_KING_QUEST                     = 38153,
 
     // Lord Marrowgar
     NPC_LORD_MARROWGAR                          = 36612,
