@@ -289,6 +289,8 @@ struct boss_magmaw : public BossAI
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                 _exposedHead1->CastSpell(_exposedHead1, SPELL_RIDE_VEHICLE_HEAD, true);
+                _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
+                _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
                 events.ScheduleEvent(EVENT_ANNOUNCE_PINCERS_EXPOSED, 1s);
                 events.ScheduleEvent(EVENT_FINISH_MASSIVE_CRASH, 7s);
                 Unit* head = _exposedHead1;
