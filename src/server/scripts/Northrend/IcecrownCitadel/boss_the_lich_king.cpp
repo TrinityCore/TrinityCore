@@ -561,7 +561,7 @@ class boss_the_lich_king : public CreatureScript
                 me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_FOG, 0.0f);
 
                 if (Is25ManRaid())
-                    if (Player* player = killer->ToPlayer())
+                    if (Player* player = me->GetLootRecipient())
                         player->RewardPlayerAndGroupAtEvent(NPC_THE_LICH_KING_QUEST, player);
             }
 
