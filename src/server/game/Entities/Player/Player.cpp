@@ -16089,6 +16089,33 @@ uint32 Player::GetQuestSlotTime(uint16 slot) const
     return GetUInt32Value(PLAYER_QUEST_LOG_1_1 + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET);
 }
 
+QuestSet Player::GetQuestForEvent(uint16 eventId) const
+{
+    QuestSet eventQuests;
+
+    for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+    {
+        uint32 questId = GetQuestSlotQuestId(i);
+        if (questId == 0)
+            continue;
+
+        QuestStatusMap::const_iterator qs_itr = m_QuestStatus.find(questId);
+        if (qs_itr == m_QuestStatus.end())
+            continue;
+
+        QuestStatusData const& qs = qs_itr->second;
+
+        Quest const* qinfo = sObjectMgr->GetQuestTemplate(questId);
+        if (!qinfo)
+            continue;
+
+        if (qinfo->GetEventIdForQuest() == eventId)
+            eventQuests.insert(questId);
+    }
+
+    return eventQuests;
+}
+
 void Player::SetQuestSlot(uint16 slot, uint32 quest_id, uint32 timer /*= 0*/)
 {
     SetUInt32Value(PLAYER_QUEST_LOG_1_1 + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET, quest_id);

@@ -80,6 +80,7 @@ enum LootError : uint8;
 enum LootType : uint8;
 
 typedef std::deque<Mail*> PlayerMails;
+typedef std::set<uint32> QuestSet;
 
 #define PLAYER_MAX_SKILLS           127
 #define PLAYER_MAX_DAILY_QUESTS     25
@@ -1243,6 +1244,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetQuestSlotState(uint16 slot) const;
         uint16 GetQuestSlotCounter(uint16 slot, uint8 counter) const;
         uint32 GetQuestSlotTime(uint16 slot) const;
+        QuestSet GetQuestForEvent(uint16 eventId) const;
         void SetQuestSlot(uint16 slot, uint32 quest_id, uint32 timer = 0);
         void SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count);
         void SetQuestSlotState(uint16 slot, uint32 state);
@@ -2179,7 +2181,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         //We allow only one timed quest active at the same time. Below can then be simple value instead of set.
-        typedef std::set<uint32> QuestSet;
+        
         typedef std::set<uint32> SeasonalQuestSet;
         typedef std::unordered_map<uint32, SeasonalQuestSet> SeasonalEventQuestMap;
         QuestSet m_timedquests;
