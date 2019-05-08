@@ -97,10 +97,6 @@ void Vehicle::Install()
             case POWER_SUN_ENERGY:
             case POWER_SWING_VELOCITY:
             case POWER_SHADOWFLAME_ENERGY:
-            case POWER_BLUE_POWER:
-            case POWER_PURPLE_POWER:
-            case POWER_GREEN_POWER:
-            case POWER_ORANGE_POWER:
             case POWER_ELECTRICAL_ENERGY:
             case POWER_ARCANE_ENERGY_2:
             case POWER_FUEL:
@@ -108,6 +104,13 @@ void Vehicle::Install()
             case POWER_TWILIGHT_ENERGY:
                  _me->SetMaxPower(POWER_ENERGY, 100);
                  _me->SetPower(POWER_ENERGY, 100);
+                break;
+            case POWER_BLUE_POWER:
+            case POWER_PURPLE_POWER:
+            case POWER_GREEN_POWER:
+            case POWER_ORANGE_POWER:
+                _me->SetMaxPower(POWER_ENERGY, 100);
+                _me->SetPower(POWER_ENERGY, 0);
                 break;
             case POWER_PYRITE:
                 _me->SetMaxPower(POWER_ENERGY, 50);
