@@ -548,7 +548,7 @@ class boss_the_lich_king : public CreatureScript
                     me->SummonCreature(NPC_HIGHLORD_TIRION_FORDRING_LK, TirionSpawn, TEMPSUMMON_MANUAL_DESPAWN);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 DoCastAOE(SPELL_PLAY_MOVIE, false);
