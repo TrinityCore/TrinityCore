@@ -18,6 +18,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Player.h"
@@ -1181,6 +1182,21 @@ class spell_magmaw_shadow_breath_targeting : public SpellScript
     }
 };
 
+class spell_magmaw_lava_parasite_summon : public SpellScript
+{
+    PrepareSpellScript(spell_magmaw_lava_parasite_summon);
+
+    void SetDest(SpellDestination& dest)
+    {
+        dest.RelocateOffset({ 0.0f, 0.0f, frand(13.0f, 15.0f), 0.0f });
+    }
+
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_magmaw_lava_parasite_summon::SetDest, EFFECT_0, TARGET_DEST_DEST_RANDOM);
+    }
+};
+
 class achievement_parasite_evening : public AchievementCriteriaScript
 {
     public:
@@ -1213,6 +1229,7 @@ void AddSC_boss_magmaw()
     RegisterSpellScript(spell_magmaw_eject_passenger_1);
     RegisterSpellScript(spell_magmaw_eject_passenger_3);
     RegisterAuraScript(spell_magmaw_lava_parasite);
+    RegisterSpellScript(spell_magmaw_lava_parasite_summon);
     RegisterSpellScript(spell_magmaw_blazing_inferno_targeting);
     RegisterSpellScript(spell_magmaw_shadow_breath_targeting);
     new achievement_parasite_evening();
