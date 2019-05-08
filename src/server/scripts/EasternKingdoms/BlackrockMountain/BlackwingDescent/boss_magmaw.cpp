@@ -480,7 +480,6 @@ struct boss_magmaw : public BossAI
                     me->SetReactState(REACT_AGGRESSIVE);
                     events.ScheduleEvent(EVENT_LAVA_SPEW, 1ms);
                     events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 4s);
-                    events.ScheduleEvent(EVENT_MASSIVE_CRASH, 40s);
                     break;
                 default:
                     break;
