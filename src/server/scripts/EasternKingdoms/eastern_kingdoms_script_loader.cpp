@@ -75,6 +75,7 @@ void AddSC_boss_nefarian();
 void AddSC_instance_blackwing_lair();
 void AddSC_instance_blackwing_descent();     //Blackwing Descent
 void AddSC_boss_magmaw();
+void AddSC_boss_omnotron_defense_system();
 void AddSC_instance_deadmines();             //Deadmines
 void AddSC_boss_glubtok();
 void AddSC_boss_helix_gearbreaker();
@@ -300,6 +301,7 @@ void AddEasternKingdomsScripts()
     AddSC_instance_blackwing_lair();
     AddSC_instance_blackwing_descent();     //Blackwing Descent
     AddSC_boss_magmaw();
+    AddSC_boss_omnotron_defense_system();
     AddSC_instance_deadmines();             //Deadmines
     AddSC_boss_glubtok();
     AddSC_boss_helix_gearbreaker();

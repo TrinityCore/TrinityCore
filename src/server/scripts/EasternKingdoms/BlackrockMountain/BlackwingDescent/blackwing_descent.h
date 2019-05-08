@@ -36,18 +36,22 @@ enum BWDDataTypes
     DATA_NEFARIANS_END                              = 5,
 
     // Encounter Data
+    /*Magmaw*/
     DATA_PREPARE_MASSIVE_CRASH_AND_GET_TARGET_GUID,
     DATA_NEFARIAN_MAGMAW,
+
+    /*Omnotron Defense System*/
+    DATA_ELECTRON, 
+    DATA_MAGMATRON, 
+    DATA_TOXITRON, 
+    DATA_ARCANOTRON, 
 };
 
 enum BWDCreatureIds
 {
     // Bosses
     BOSS_MAGMAW                     = 41570,
-    BOSS_MAGMATRON                  = 42178,
-    BOSS_ARCANOTRON                 = 42166,
-    BOSS_TOXITRON                   = 42180,
-    BOSS_ELECTRON                   = 42179,
+    BOSS_OMNOTRON                   = 42186,
     BOSS_CHIMAERON                  = 43296,
     BOSS_ATRAMEDES                  = 41442,
     BOSS_MALORIAK                   = 41378,
@@ -67,7 +71,14 @@ enum BWDCreatureIds
     NPC_MAGMAW_SPIKE_STALKER        = 41767,
     NPC_NEFARIAN_MAGMAW             = 49427,
     NPC_BLAZING_BONE_CONSTRUCT      = 49416,
-    NPC_IGNITION                    = 49447
+    NPC_IGNITION                    = 49447,
+
+    /*Omnotron Defense System*/
+    NPC_MAGMATRON                   = 42178,
+    NPC_ARCANOTRON                  = 42166,
+    NPC_TOXITRON                    = 42180,
+    NPC_ELECTRON                    = 42179,
+
 };
 
 enum BWDGameObjectIds

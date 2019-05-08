@@ -23,9 +23,14 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_MAGMAW,          DATA_MAGMAW                 },
-    { NPC_NEFARIAN_MAGMAW,  DATA_NEFARIAN_MAGMAW        },
-    { 0,                0                               } // END
+    { BOSS_MAGMAW,          DATA_MAGMAW                     },
+    { BOSS_OMNOTRON,        DATA_OMNOTRON_DEFENSE_SYSTEM    },
+    { NPC_ELECTRON,         DATA_ELECTRON                   },
+    { NPC_MAGMATRON,        DATA_MAGMATRON                  },
+    { NPC_TOXITRON,         DATA_TOXITRON                   },
+    { NPC_ARCANOTRON,       DATA_ARCANOTRON                 },
+    { NPC_NEFARIAN_MAGMAW,  DATA_NEFARIAN_MAGMAW            },
+    { 0,                0                                   } // END
 };
 
 ObjectData const gameobjectData[] =
