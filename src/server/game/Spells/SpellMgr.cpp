@@ -4817,6 +4817,17 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS); // 3yd
     });
+    
+    ApplySpellFix({ 
+        31365, // Self Fear 
+        31797, // Banish Self
+        32974, // Cinematic - Mind Control (Rank 1)
+        32976, // Cinematic - Mind Control (Rank 1)
+        38456 // Banish Self
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes &= ~SPELL_ATTR0_HEARTBEAT_RESIST_CHECK;
+    });
 
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
