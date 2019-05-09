@@ -559,6 +559,10 @@ class boss_the_lich_king : public CreatureScript
                     frostmourne->DespawnOrUnsummon();
                 me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_FOG, 5000);
                 me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_FOG, 0.0f);
+
+                if (Is25ManRaid())
+                    if (Player* player = me->GetLootRecipient())
+                        player->RewardPlayerAndGroupAtEvent(NPC_THE_LICH_KING_QUEST, player);
             }
 
             void JustEngagedWith(Unit* target) override
