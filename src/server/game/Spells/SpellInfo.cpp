@@ -1312,7 +1312,20 @@ bool SpellInfo::IsPassiveStackableWithRanks() const
 
 bool SpellInfo::IsMultiSlotAura() const
 {
-    return IsPassive() || Id == 55849 || Id == 40075 || Id == 44413 || Id == 79010; // Power Spark, Fel Flak Fire, Incanter's Absorption, Point of Vulnerability
+    if (IsPassive())
+        return true;
+
+    switch (Id)
+    {
+        case 55849: // Power Spark
+        case 40075: // Fel Flak Fire
+        case 44413: // Incanter's Absorption
+        case 79010: // Point of Vulnerability
+        case 79920: // Shared Health
+            return true;
+        default:
+            return false;
+    }
 }
 
 bool SpellInfo::IsStackableOnOneSlotWithDifferentCasters() const

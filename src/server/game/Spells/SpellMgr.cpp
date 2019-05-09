@@ -5237,6 +5237,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS);
     });
 
+    // Flamethrower
+    ApplySpellFix({
+        79505,
+        91531,
+        91532,
+        91533
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
+    });
 
     // END OF BLACKWING DESCENT SPELLS
 

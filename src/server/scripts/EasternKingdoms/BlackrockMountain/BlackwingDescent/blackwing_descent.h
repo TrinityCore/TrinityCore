@@ -77,8 +77,7 @@ enum BWDCreatureIds
     NPC_MAGMATRON                   = 42178,
     NPC_ARCANOTRON                  = 42166,
     NPC_TOXITRON                    = 42180,
-    NPC_ELECTRON                    = 42179,
-
+    NPC_ELECTRON                    = 42179
 };
 
 enum BWDGameObjectIds
@@ -97,7 +96,7 @@ enum BWDSpells
     SPELL_LIGHT_SHOW            = 87949,
 
     // Massive Crash
-    SPELL_MASSIVE_CRASH_DAMAGE  = 88287,
+    SPELL_MASSIVE_CRASH_DAMAGE  = 88287
 };
 
 template <class AI, class T>

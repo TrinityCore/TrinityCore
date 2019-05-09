@@ -95,6 +95,7 @@ class instance_blackwing_descent : public InstanceMapScript
                             _roomStalkerTargetDummyLeftGuid = creature->GetGUID();
                         else if (creature->GetExactDist2d(MassiveCrashTargetPositionRight) < 1.0f)
                             _roomStalkerTargetDummyRightGuid = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
