@@ -21,16 +21,17 @@
 
 enum GameEvents : uint16
 {
-    GAME_EVENT_MIDSUMMER_FIRE_FESTIVAL = 1,
-    GAME_EVENT_WINTER_VEIL = 2,
-    GAME_EVENT_LUNAR_FESTIVAL = 7,
-    GAME_EVENT_LOVE_IS_IN_THE_AIR = 8,
-    GAME_EVENT_NOBLEGARDEN = 9,
-    GAME_EVENT_CHILDRENS_WEEK = 10,
-    GAME_EVENT_HARVEST_FESTIVAL = 11,
-    GAME_EVENT_HALLOWS_END = 12,
-    GAME_EVENT_BREWFEST = 24,
-    GAME_EVENT_PILGRIMS_BOUNTY = 26,
+    GAME_EVENT_MIDSUMMER_FIRE_FESTIVAL    = 1,
+    GAME_EVENT_WINTER_VEIL                = 2,
+    GAME_EVENT_LUNAR_FESTIVAL             = 7,
+    GAME_EVENT_LOVE_IS_IN_THE_AIR         = 8,
+    GAME_EVENT_NOBLEGARDEN                = 9,
+    GAME_EVENT_CHILDRENS_WEEK             = 10,
+    GAME_EVENT_HARVEST_FESTIVAL           = 11,
+    GAME_EVENT_HALLOWS_END                = 12,
+    GAME_EVENT_BREWFEST                   = 24,
+    GAME_EVENT_PILGRIMS_BOUNTY            = 26,
+    GAME_EVENT_DAY_OF_THE_DEAD            = 51
 };
 
 class GameEventQuestCleanupScript : public PlayerScript
@@ -48,8 +49,10 @@ class GameEventQuestCleanupScript : public PlayerScript
                 QuestSet eventQuests = player->GetQuestForEvent(eventId);
                 std::for_each(eventQuests.begin(), eventQuests.end(), [&player](uint32 questId)
                 {
+                    player->TakeQuestSourceItem(questId, true);
                     player->AbandonQuest(questId);
                     player->RemoveActiveQuest(questId);
+                    player->RemoveTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, questId);
                 });
             });
             
@@ -64,6 +67,7 @@ class GameEventQuestCleanupScript : public PlayerScript
           GAME_EVENT_LOVE_IS_IN_THE_AIR,
           GAME_EVENT_LUNAR_FESTIVAL,
           GAME_EVENT_MIDSUMMER_FIRE_FESTIVAL,
+          GAME_EVENT_DAY_OF_THE_DEAD,
         };
 };
 
