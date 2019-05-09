@@ -16103,8 +16103,6 @@ QuestSet Player::GetQuestForEvent(uint16 eventId) const
         if (qs_itr == m_QuestStatus.end())
             continue;
 
-        QuestStatusData const& qs = qs_itr->second;
-
         Quest const* qinfo = sObjectMgr->GetQuestTemplate(questId);
         if (!qinfo)
             continue;
