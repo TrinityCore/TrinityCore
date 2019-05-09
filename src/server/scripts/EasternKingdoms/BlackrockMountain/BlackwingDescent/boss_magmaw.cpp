@@ -927,7 +927,10 @@ class DistanceCheck
 
         bool operator()(WorldObject* object)
         {
-            return (object->GetExactDist2d(_caster) >= 15.0f);
+            if (Unit* unit = object->ToUnit())
+                return unit->IsWithinMeleeRange(_caster);
+
+            return true;
         }
     private:
         Unit* _caster;
