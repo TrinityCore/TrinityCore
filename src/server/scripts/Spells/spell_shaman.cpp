@@ -1115,52 +1115,47 @@ class spell_sha_nature_guardian : public SpellScriptLoader
         }
 };
 
-// 88756 - Rolling Thunder
-class spell_sha_rolling_thunder : public SpellScriptLoader
+// -88756 - Rolling Thunder
+class spell_sha_rolling_thunder : public AuraScript
 {
-    public:
-        spell_sha_rolling_thunder() : SpellScriptLoader("spell_sha_rolling_thunder") { }
+    PrepareAuraScript(spell_sha_rolling_thunder);
 
-        class spell_sha_rolling_thunder_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_SHAMAN_LIGHTNING_SHIELD,
+                SPELL_SHAMAN_FULMINATION_PROC
+            });
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return GetTarget()->HasAura(SPELL_SHAMAN_LIGHTNING_SHIELD);
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        Unit* target = GetTarget();
+
+        if (Aura* aura = target->GetAura(SPELL_SHAMAN_LIGHTNING_SHIELD))
         {
-            PrepareAuraScript(spell_sha_rolling_thunder_AuraScript);
+            uint8 charges = std::min(aura->GetCharges() + 1, aurEff->GetAmount());
+            aura->SetCharges(charges);
+            aura->RefreshDuration();
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_SHAMAN_LIGHTNING_SHIELD,
-                        SPELL_SHAMAN_FULMINATION_PROC
-                    });
-            }
-
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                Unit* target = GetTarget();
-
-                if (Aura* aura = target->GetAura(SPELL_SHAMAN_LIGHTNING_SHIELD))
-                {
-                    uint8 charges = std::min(aura->GetCharges() + 1, aurEff->GetAmount());
-                    aura->SetCharges(charges);
-                    aura->RefreshDuration();
-
-                    // Fulmination visual
-                    if (AuraEffect const* fulAurEff = target->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_FULMINATION, EFFECT_0))
-                        if (charges == aurEff->GetAmount())
-                            target->CastSpell(GetTarget(), SPELL_SHAMAN_FULMINATION_PROC, true, nullptr, aurEff);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_sha_rolling_thunder_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_sha_rolling_thunder_AuraScript();
+            // Fulmination visual
+            if (AuraEffect const* fulAurEff = target->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_FULMINATION, EFFECT_0))
+                if (charges == aurEff->GetAmount())
+                    target->CastSpell(GetTarget(), SPELL_SHAMAN_FULMINATION_PROC, true, nullptr, aurEff);
         }
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_sha_rolling_thunder::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_sha_rolling_thunder::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
 };
 
 // 82984 - Telluric Currents
@@ -2041,7 +2036,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_mana_tide_totem();
     new spell_sha_nature_guardian();
     new spell_sha_resurgence();
-    new spell_sha_rolling_thunder();
+    RegisterAuraScript(spell_sha_rolling_thunder);
     RegisterAuraScript(spell_sha_static_shock);
     new spell_sha_telluric_currents();
     new spell_sha_thunderstorm();

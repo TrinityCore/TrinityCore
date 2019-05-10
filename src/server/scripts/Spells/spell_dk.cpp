@@ -1384,14 +1384,13 @@ class spell_dk_howling_blast : public SpellScript
     void HandleDamage(SpellEffIndex /*effIndex*/)
     {
         if (GetExplTargetUnit() && GetHitUnit())
-
-        if (GetExplTargetUnit() != GetHitUnit())
-            SetEffectValue(CalculatePct(GetEffectValue(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
+            if (GetExplTargetUnit() != GetHitUnit())
+                SetHitDamage(CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_dk_howling_blast::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_dk_howling_blast::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
