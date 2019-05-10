@@ -38,8 +38,10 @@ enum Spells
     SPELL_SHARED_HEALTH                         = 79920,
     SPELL_ACTIVATED                             = 78740,
     SPELL_SHUTTING_DOWN                         = 78746,
+    SPELL_INVISIBILITY_AND_STEALTH_DETECTION    = 67236,
 
     // Electron
+    SPELL_ELECTRICAL_DISCHARGE_TRIGGER          = 95499,
     SPELL_ELECTRICAL_DISCHARGE                  = 79879,
     SPELL_UNSTABLE_SHIELD                       = 79900,
     SPELL_STATIC_SHOCK                          = 79912,
@@ -49,9 +51,25 @@ enum Spells
     SPELL_ACQUIRING_TARGET                      = 79499,
     SPELL_BARRIER                               = 79582,
     SPELL_BACKDRAFT                             = 79617,
+
+    // Toxitron
+    SPELL_CHEMICAL_BOMB                         = 80157,
+    SPELL_POISON_PROTOCOL                       = 80053,
+    SPELL_POISON_SOAKED_SHELL                   = 79835,
+
+    // Arcanotron
+    SPELL_POWER_GENERATOR                       = 79624,
+
+
+    // Poison Bomb
+    SPELL_FIXATE_DUMMY                          = 80094,
+    SPELL_QUIETE_SUICIDE                        = 3617,
+    SPELL_POISON_BOMB_DAMAGE                    = 80092,
+    SPELL_POISON_BOMB_SUMMON_PUDDLE             = 80089
 };
 
-#define SPELL_LIGHTNING_CONDUCTOR RAID_MODE<uint32>(79888, 91431, 91432, 91433)
+#define SPELL_LIGHTNING_CONDUCTOR   RAID_MODE<uint32>(79888, 91431, 91432, 91433)
+#define SPELL_SOAKED_IN_POISON      RAID_MODE<uint32>(80011, 91504, 91505, 91506)
 
 enum Texts
 {
@@ -63,8 +81,8 @@ enum Texts
 
     SAY_SHIELD_ELECTRON     = 4,
     SAY_SHIELD_TOXITRON     = 5,
-    SAY_SHIELD_MAGMATRON    = 6,
-    SAY_SHIELD_ARCANOTRON   = 7,
+    SAY_SHIELD_ARCANOTRON   = 6,
+    SAY_SHIELD_MAGMATRON    = 7,
     SAY_ACQUIRING_TARGET    = 8,
     SAY_POWERING_DOWN       = 9,
 
@@ -78,6 +96,7 @@ enum Events
     // Omnotron
     EVENT_LINK_GOLEM_HEALTH = 1,
     EVENT_POWER_UP_FIRST_GOLEM,
+    EVENT_TALK_ACTIVATED_GOLEM,
 
     // Omnotron Defense System
 
@@ -90,6 +109,14 @@ enum Events
     EVENT_INCINERATION_SECURITY_MEASURE,
     EVENT_ACQUIRING_TARGET,
     EVENT_BARRIER,
+
+    // Toxitron
+    EVENT_CHEMICAL_BOMB,
+    EVENT_POISON_PROTOCOL,
+    EVENT_POISON_SOAKED_SHELL,
+
+    // Arcanotron
+    EVENT_POWER_GENERATOR,
 };
 
 enum Actions
@@ -148,6 +175,7 @@ struct boss_omnotron_defense_system : public BossAI
     void Initialize()
     {
         me->SetReactState(REACT_PASSIVE);
+        _activatedGolemEntry = 0;
     }
 
     void Reset() override
@@ -212,7 +240,9 @@ struct boss_omnotron_defense_system : public BossAI
                 {
                     if (Creature* golem = ObjectAccessor::GetCreature(*me, _nextGolemGUID))
                     {
-                        Talk(_golemInfoMap[golem->GetEntry()].ActivateTextId);
+                        _activatedGolemEntry = golem->GetEntry();
+                        events.ScheduleEvent(EVENT_TALK_ACTIVATED_GOLEM, 1s + 500ms);
+                        golem->CastSpell(golem, SPELL_INVISIBILITY_AND_STEALTH_DETECTION, true);
                         golem->CastSpell(golem, SPELL_ACTIVATED);
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, golem, 1);
                     }
@@ -242,6 +272,7 @@ struct boss_omnotron_defense_system : public BossAI
                 }
   
                 instance->SetBossState(DATA_OMNOTRON_DEFENSE_SYSTEM, FAIL);
+                RemoveDebuffsFromRaid();
                 summons.DespawnAll();
                 _DespawnAtEvade();
                 break;
@@ -253,6 +284,7 @@ struct boss_omnotron_defense_system : public BossAI
                     for (ObjectGuid guid : _golemGuidVector)
                         if (Creature* golem = ObjectAccessor::GetCreature(*me, guid))
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, golem);
+                    RemoveDebuffsFromRaid();
                 }
                 break;
             case ACTION_SAY_ACQUIRING_TARGET:
@@ -282,6 +314,9 @@ struct boss_omnotron_defense_system : public BossAI
                     SelectNextGolemGUID();
                     DoCastSelf(SPELL_CONTROLLER_RECHARGE);
                     break;
+                case EVENT_TALK_ACTIVATED_GOLEM:
+                    Talk(_golemInfoMap[_activatedGolemEntry].ActivateTextId);
+                    break;
                 default:
                     break;
             }
@@ -291,7 +326,7 @@ struct boss_omnotron_defense_system : public BossAI
 private:
     GuidVector _golemGuidVector;
     ObjectGuid _nextGolemGUID;
-
+    uint32 _activatedGolemEntry;
 
     // Selects the ObjectGuid for the next Golem
     void SelectNextGolemGUID()
@@ -304,6 +339,7 @@ private:
     void RemoveDebuffsFromRaid()
     {
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_CONDUCTOR);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOAKED_IN_POISON);
     }
 };
 
@@ -392,8 +428,8 @@ struct npc_omnotron_electron : public ScriptedAI
     {
         if (spell->Id == SPELL_ACTIVATED)
         {
-            _events.ScheduleEvent(EVENT_LIGHTNING_CONDUCTOR, 14s);
-            _events.ScheduleEvent(EVENT_ELECTRICAL_DISCHARGE, 4s);
+            _events.ScheduleEvent(EVENT_LIGHTNING_CONDUCTOR, 16s);
+            _events.ScheduleEvent(EVENT_ELECTRICAL_DISCHARGE, 6s);
             _events.ScheduleEvent(EVENT_UNSTABLE_SHIELD, IsHeroic() ? 40s : 50s);
         }
     }
@@ -417,12 +453,11 @@ struct npc_omnotron_electron : public ScriptedAI
                     {
                         Talk(SAY_ANNOUNCE_ABILITY_1, target);
                         DoCast(target, SPELL_LIGHTNING_CONDUCTOR);
-                        _events.Repeat(21s, 22s);
+                        _events.Repeat(21s);
                     }
                     break;
                 case EVENT_ELECTRICAL_DISCHARGE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true, 0))
-                        DoCast(target, SPELL_ELECTRICAL_DISCHARGE);
+                    DoCastAOE(SPELL_ELECTRICAL_DISCHARGE);
                     _events.Repeat(6s);
                     break;
                 case EVENT_UNSTABLE_SHIELD:
@@ -529,8 +564,8 @@ struct npc_omnotron_magmatron : public ScriptedAI
     {
         if (spell->Id == SPELL_ACTIVATED)
         {
-            _events.ScheduleEvent(EVENT_INCINERATION_SECURITY_MEASURE, 9s + 500ms);
-            _events.ScheduleEvent(EVENT_ACQUIRING_TARGET, 19s);
+            _events.ScheduleEvent(EVENT_INCINERATION_SECURITY_MEASURE, 10s + 500ms);
+            _events.ScheduleEvent(EVENT_ACQUIRING_TARGET, 21s);
             _events.ScheduleEvent(EVENT_BARRIER, IsHeroic() ? 40s : 50s);
         }
     }
@@ -561,11 +596,11 @@ struct npc_omnotron_magmatron : public ScriptedAI
             {
                 case EVENT_INCINERATION_SECURITY_MEASURE:
                     DoCastAOE(SPELL_INCINERATION_SECURITY_MEASURE);
-                    _events.Repeat(27s);
+                    _events.Repeat(26s + 500ms);
                     break;
                 case EVENT_ACQUIRING_TARGET:
                     DoCastAOE(SPELL_ACQUIRING_TARGET, true);
-                    _events.Repeat(27s);
+                    _events.Repeat(26s);
                     break;
                 case EVENT_BARRIER:
                     DoCastSelf(SPELL_BARRIER);
@@ -670,6 +705,9 @@ struct npc_omnotron_toxitron : public ScriptedAI
     {
         if (spell->Id == SPELL_ACTIVATED)
         {
+            _events.ScheduleEvent(EVENT_CHEMICAL_BOMB, 27s);
+            _events.ScheduleEvent(EVENT_POISON_PROTOCOL, 16s);
+            _events.ScheduleEvent(EVENT_POISON_SOAKED_SHELL, IsHeroic() ? 30s : 40s);
         }
     }
 
@@ -687,7 +725,19 @@ struct npc_omnotron_toxitron : public ScriptedAI
         {
             switch (eventId)
             {
-                case 0:
+                case EVENT_CHEMICAL_BOMB:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true, 0))
+                        DoCast(target, SPELL_CHEMICAL_BOMB);
+                    _events.Repeat(30s);
+                    break;
+                case EVENT_POISON_PROTOCOL:
+                    DoCastSelf(SPELL_POISON_PROTOCOL);
+                    break;
+                case EVENT_POISON_SOAKED_SHELL:
+                    DoCastSelf(SPELL_POISON_SOAKED_SHELL);
+                    Talk(SAY_ANNOUNCE_ABILITY_1);
+                    if (Creature* omnotron = _instance->GetCreature(DATA_OMNOTRON_DEFENSE_SYSTEM))
+                        omnotron->AI()->SetGUID(me->GetGUID(), DATA_SAY_GOLEM_SHIELD);
                     break;
                 default:
                     break;
@@ -713,6 +763,7 @@ struct npc_omnotron_arcanotron : public ScriptedAI
     {
         me->SetReactState(REACT_PASSIVE);
         me->SetNoCallAssistance(true);
+        me->MakeInterruptable(false);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -787,6 +838,8 @@ struct npc_omnotron_arcanotron : public ScriptedAI
     {
         if (spell->Id == SPELL_ACTIVATED)
         {
+            _events.ScheduleEvent(EVENT_POWER_GENERATOR, 16s);
+
         }
     }
 
@@ -804,7 +857,10 @@ struct npc_omnotron_arcanotron : public ScriptedAI
         {
             switch (eventId)
             {
-                case 0:
+                case EVENT_POWER_GENERATOR:
+                    DoCastAOE(SPELL_POWER_GENERATOR);
+                    _events.Repeat(20s);
+                    break;
                 default:
                     break;
             }
@@ -816,6 +872,67 @@ struct npc_omnotron_arcanotron : public ScriptedAI
 private:
     EventMap _events;
     InstanceScript* _instance;
+};
+
+class DistanceCheck
+{
+    public:
+        DistanceCheck(Unit* caster) : _caster(caster) { }
+
+        bool operator()(WorldObject* object)
+        {
+            if (Unit* unit = object->ToUnit())
+                return !unit->IsWithinMeleeRange(_caster);
+
+            return true;
+        }
+    private:
+        Unit* _caster;
+};
+
+struct npc_omnotron_poison_bomb : public ScriptedAI
+{
+    npc_omnotron_poison_bomb(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        DoZoneInCombat();
+
+        // Blizzard has a AOE target spell for this but for some reason they doesn't use it so we wont do so as well.
+        std::list<Unit*> targets;
+        SelectTargetList(targets, 25, SELECT_TARGET_RANDOM, 100.0f, true);
+
+        if (targets.empty())
+            return;
+
+        std::list<Unit*> targetsCopy = targets;
+        targets.remove_if(DistanceCheck(summoner));
+
+        if (targets.empty())
+            targets = targetsCopy;
+
+        Trinity::Containers::RandomResize(targets, 1);
+
+        if (Unit* target = targets.front())
+        {
+            DoCast(target, SPELL_FIXATE_DUMMY, true);
+            me->AddThreat(target, 500000.0f);
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->DespawnOrUnsummon(2s + 500ms);
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_QUIETE_SUICIDE)
+        {
+            DoCastSelf(SPELL_POISON_BOMB_DAMAGE, true);
+            DoCastSelf(SPELL_POISON_BOMB_SUMMON_PUDDLE, true);
+        }
+    }
 };
 
 class GuidCheck
@@ -970,6 +1087,31 @@ class spell_omnotron_inactive : public SpellScript
     }
 };
 
+class spell_omnotron_electrical_discharge_trigger : public SpellScript
+{
+    PrepareSpellScript(spell_omnotron_electrical_discharge_trigger);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleDummyEffect(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_omnotron_electrical_discharge_trigger::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_omnotron_electrical_discharge_trigger::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 class spell_omnotron_electrical_discharge : public SpellScript
 {
     PrepareSpellScript(spell_omnotron_electrical_discharge);
@@ -1029,24 +1171,6 @@ class spell_omnotron_unstable_shield : public AuraScript
         OnEffectProc += AuraEffectProcFn(spell_omnotron_unstable_shield::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
-
-/*
-class DistanceCheck
-{
-public:
-    DistanceCheck(Unit* caster) : _caster(caster) { }
-
-    bool operator()(WorldObject* object)
-    {
-        if (Unit* unit = object->ToUnit())
-            return !unit->IsWithinMeleeRange(_caster);
-
-        return true;
-    }
-private:
-    Unit* _caster;
-};
-*/
 
 class spell_omnotron_aquiring_target : public SpellScript
 {
@@ -1122,11 +1246,13 @@ void AddSC_boss_omnotron_defense_system()
     RegisterBlackwingDescentCreatureAI(npc_omnotron_magmatron);
     RegisterBlackwingDescentCreatureAI(npc_omnotron_toxitron);
     RegisterBlackwingDescentCreatureAI(npc_omnotron_arcanotron);
+    RegisterBlackwingDescentCreatureAI(npc_omnotron_poison_bomb);
     RegisterSpellScript(spell_omnotron_controller_recharge);
     RegisterAuraScript(spell_omnotron_recharging);
     RegisterAuraScript(spell_omnotron_activated);
     RegisterSpellScript(spell_omnotron_inactive);
     RegisterSpellScript(spell_omnotron_electrical_discharge);
+    RegisterSpellScript(spell_omnotron_electrical_discharge_trigger);
     RegisterAuraScript(spell_omnotron_unstable_shield);
     RegisterSpellScript(spell_omnotron_aquiring_target);
     RegisterAuraScript(spell_omnotron_acquiring_target_periodic);

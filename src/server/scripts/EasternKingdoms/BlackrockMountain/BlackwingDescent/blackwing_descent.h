@@ -77,7 +77,11 @@ enum BWDCreatureIds
     NPC_MAGMATRON                   = 42178,
     NPC_ARCANOTRON                  = 42166,
     NPC_TOXITRON                    = 42180,
-    NPC_ELECTRON                    = 42179
+    NPC_ELECTRON                    = 42179,
+    NPC_CHEMICAL_CLOUD              = 42934,
+    NPC_POISON_BOMB                 = 42897,
+    NPC_POISON_PUDDLE               = 42920,
+    NPC_POWER_GENERATOR             = 42733,
 };
 
 enum BWDGameObjectIds

@@ -96,6 +96,13 @@ class instance_blackwing_descent : public InstanceMapScript
                         else if (creature->GetExactDist2d(MassiveCrashTargetPositionRight) < 1.0f)
                             _roomStalkerTargetDummyRightGuid = creature->GetGUID();
                         break;
+                    case NPC_CHEMICAL_CLOUD:
+                    case NPC_POISON_BOMB:
+                    case NPC_POISON_PUDDLE:
+                    case NPC_POWER_GENERATOR:
+                        if (Creature* omnotron = GetCreature(DATA_OMNOTRON_DEFENSE_SYSTEM))
+                            omnotron->AI()->JustSummoned(creature);
+                        break;
                     default:
                         break;
                 }

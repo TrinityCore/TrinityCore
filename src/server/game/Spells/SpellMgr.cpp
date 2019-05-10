@@ -5248,6 +5248,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
     });
 
+    // Power Generator
+    ApplySpellFix({ 79624 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+        spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(0);
+    });
+
     // END OF BLACKWING DESCENT SPELLS
 
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
