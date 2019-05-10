@@ -553,13 +553,14 @@ struct npc_mh_raging_firestorm : public ScriptedAI
     }
 private:
     EventMap _events;
-    bool _allowWardenCombat;
 
+    bool _allowWardenCombat;
     void SummonGroveWarden()
     {
         uint8 spawnIndex = urand(0, 5);
         if (Creature* warden = DoSummon(NPC_GROVE_WARDEN, GroveWardenSummonPositions[spawnIndex], 20000))
         {
+            warden->DespawnOrUnsummon(3min);
             warden->SetDisplayId(warden->GetCreatureTemplate()->Modelid1);
             Position waypointPos = GroveWardenWaypointPosition1;
             Position homePos = me->GetHomePosition();
