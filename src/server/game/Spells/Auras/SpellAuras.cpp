@@ -881,22 +881,17 @@ void Aura::SetStackAmount(uint8 stackAmount)
     std::list<AuraApplication*> applications;
     GetApplicationList(applications);
 
-    for (std::list<AuraApplication*>::const_iterator apptItr = applications.begin(); apptItr != applications.end(); ++apptItr)
-        if (!(*apptItr)->GetRemoveMode())
-            HandleAuraSpecificMods(*apptItr, caster, false, true);
+    for (AuraApplication* aurApp : applications)
+        if (!aurApp->GetRemoveMode())
+            HandleAuraSpecificMods(aurApp, caster, false, true);
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (HasEffect(i))
-            m_effects[i]->ChangeAmount(m_effects[i]->CalculateAmount(caster), false, true);
+        if (AuraEffect* aurEff = GetEffect(i))
+            aurEff->ChangeAmount(aurEff->CalculateAmount(caster), false, true);
 
-    for (std::list<AuraApplication*>::const_iterator apptItr = applications.begin(); apptItr != applications.end(); ++apptItr)
-    {
-        if (!(*apptItr)->GetRemoveMode())
-        {
-            HandleAuraSpecificPeriodics(*apptItr, caster);
-            HandleAuraSpecificMods(*apptItr, caster, true, true);
-        }
-    }
+    for (AuraApplication* aurApp : applications)
+        if (!aurApp->GetRemoveMode())
+            HandleAuraSpecificMods(aurApp, caster, true, true);
 
     SetNeedClientUpdateForTargets();
 }
@@ -1518,50 +1513,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     break;
             }
             break;
-    }
-}
-
-void Aura::HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* caster)
-{
-    Unit* target = aurApp->GetTarget();
-
-    if (!caster || aurApp->GetRemoveMode())
-        return;
-
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (!HasEffect(i))
-            continue;
-
-        if (m_spellInfo->Effects[i].IsAreaAuraEffect() || m_spellInfo->Effects[i].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
-            continue;
-
-        switch (m_spellInfo->Effects[i].ApplyAuraName)
-        {
-            case SPELL_AURA_PERIODIC_DAMAGE:
-            case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-            case SPELL_AURA_PERIODIC_LEECH:
-            {
-                AuraEffect* aurEff = GetEffect(i);
-
-                aurEff->SetDonePct(caster->SpellDamagePctDone(target, m_spellInfo, DOT));
-                aurEff->SetBonusAmount(caster->SpellDamageBonusDone(target, m_spellInfo, 0, DOT, GetStackAmount()));
-                aurEff->SetCritChance(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
-                break;
-            }
-            case SPELL_AURA_PERIODIC_HEAL:
-            case SPELL_AURA_OBS_MOD_HEALTH:
-            {
-                AuraEffect* aurEff = GetEffect(i);
-
-                aurEff->SetDonePct(caster->SpellHealingPctDone(target, m_spellInfo));
-                aurEff->SetBonusAmount(caster->SpellHealingBonusDone(target, m_spellInfo, 0, DOT, GetStackAmount()));
-                aurEff->SetCritChance(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
-                break;
-            }
-            default:
-                break;
-        }
     }
 }
 

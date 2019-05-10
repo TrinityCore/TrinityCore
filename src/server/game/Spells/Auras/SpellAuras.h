@@ -192,7 +192,6 @@ class TC_GAME_API Aura
 
         void SetNeedClientUpdateForTargets() const;
         void HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, bool apply, bool onReapply);
-        void HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* caster);
         bool CanBeAppliedOn(Unit* target);
         bool CheckAreaTarget(Unit* target);
         bool CanStackWith(Aura const* existingAura) const;

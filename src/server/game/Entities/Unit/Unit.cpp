@@ -2951,6 +2951,8 @@ void Unit::_DeleteRemovedAuras()
         delete m_removedAuras.front();
         m_removedAuras.pop_front();
     }
+
+    m_removedAurasCount = 0;
 }
 
 void Unit::_UpdateSpells(uint32 time)
@@ -3493,7 +3495,6 @@ void Unit::_ApplyAura(AuraApplication * aurApp, uint8 effMask)
     if (aurApp->GetRemoveMode())
         return;
 
-    aura->HandleAuraSpecificPeriodics(aurApp, caster);
     aura->HandleAuraSpecificMods(aurApp, caster, true, false);
 
     // apply effects of the aura
@@ -6701,6 +6702,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         if (Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_DAMAGE, tmpDamage);
     }
+
+    if (spellProto->Id == 8921)
+        printf("SpellDamageBonusDone called for Moonfire \n");
 
     return uint32(std::max(tmpDamage, 0.0f));
 }
@@ -14133,6 +14137,21 @@ void Unit::OutDebugInfo() const
 
     if (GetVehicle())
         TC_LOG_DEBUG("entities.unit", "On vehicle %u.", GetVehicleBase()->GetEntry());
+}
+
+uint32 Unit::GetRemainingPeriodicAmount(ObjectGuid caster, uint32 spellId, AuraType auraType, uint8 effectIndex) const
+{
+    uint32 amount = 0;
+    AuraEffectList const& periodicAuras = GetAuraEffectsByType(auraType);
+    for (AuraEffectList::const_iterator i = periodicAuras.begin(); i != periodicAuras.end(); ++i)
+    {
+        if ((*i)->GetCasterGUID() != caster || (*i)->GetId() != spellId || (*i)->GetEffIndex() != effectIndex || !(*i)->GetTotalTicks())
+            continue;
+        amount += uint32(((*i)->GetAmount() * std::max<int32>((*i)->GetTotalTicks() - int32((*i)->GetTickNumber()), 0)) / (*i)->GetTotalTicks());
+        break;
+    }
+
+    return amount;
 }
 
 void Unit::SendClearTarget()

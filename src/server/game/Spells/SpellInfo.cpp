@@ -576,7 +576,6 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                     value *= casterScaler->ratio / spellScaler->ratio;
             }
         }
-// REVIEW - MERGE >>>>>>> master
     }
 
     return int32(value);

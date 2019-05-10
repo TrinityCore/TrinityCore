@@ -557,7 +557,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             if (MountCapabilityEntry const* mountCapability = GetBase()->GetUnitOwner()->GetMountCapability(uint32(GetMiscValueB())))
             {
                 amount = mountCapability->Id;
-                m_canBeRecalculated = false;
+                m_canBeRecalculated = true;
             }
             break;
         case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
@@ -591,7 +591,17 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 }
                 break;
             }
+            break;
         }
+        case SPELL_AURA_PERIODIC_DAMAGE:
+        case SPELL_AURA_PERIODIC_LEECH:
+            if (GetBase()->GetType() == UNIT_AURA_TYPE)
+                amount = caster->SpellDamageBonusDone(GetBase()->GetUnitOwner(), GetSpellInfo(), amount, DOT, GetEffIndex());
+            break;
+        case SPELL_AURA_PERIODIC_HEAL:
+            if (GetBase()->GetType() == UNIT_AURA_TYPE)
+                amount = caster->SpellHealingBonusDone(GetBase()->GetUnitOwner(), GetSpellInfo(), amount, DOT, GetEffIndex());
+            break;
         default:
             break;
     }
