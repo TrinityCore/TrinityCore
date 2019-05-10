@@ -945,7 +945,7 @@ void MotionMaster::MoveFall(uint32 id/* = 0*/)
         return;
 
     // rooted units don't move (also setting falling+root flag causes client freezes)
-    if (_owner->IsRooted())
+    if (_owner->HasUnitState(UNIT_STATE_ROOT))
         return;
 
     _owner->SetFall(true);
