@@ -424,7 +424,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //357 SPELL_AURA_ENABLE_BOSS1_UNIT_FRAME
     &AuraEffect::HandleNULL,                                      //358 SPELL_AURA_358
     &AuraEffect::HandleNULL,                                      //359 SPELL_AURA_359
-    &AuraEffect::HandleNULL,                                      //360 SPELL_AURA_PROC_TRIGGER_SPELL_COPY
+    &AuraEffect::HandleNoImmediateEffect,                         //360 SPELL_AURA_PROC_TRIGGER_SPELL_COPY implemented in AuraEffect::HandleProc
     &AuraEffect::HandleNULL,                                      //361 SPELL_AURA_OVERRIDE_AUTOATTACK_WITH_MELEE_SPELL
     &AuraEffect::HandleUnused,                                    //362 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //363 SPELL_AURA_MOD_NEXT_SPELL
@@ -1120,6 +1120,7 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
         case SPELL_AURA_PROC_TRIGGER_SPELL:
         case SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE:
         case SPELL_AURA_PROC_ON_POWER_AMOUNT:
+        case SPELL_AURA_PROC_TRIGGER_SPELL_COPY:
         {
             // Don't proc extra attacks while already processing extra attack spell
             uint32 triggerSpellId = GetSpellInfo()->Effects[GetEffIndex()].TriggerSpell;
@@ -1170,6 +1171,9 @@ void AuraEffect::HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
             break;
         case SPELL_AURA_PROC_ON_POWER_AMOUNT:
             HandleProcOnPowerAmountAuraProc(aurApp, eventInfo);
+            break;
+        case SPELL_AURA_PROC_TRIGGER_SPELL_COPY:
+            HandleProcTriggerSpellCopyAuraProc(aurApp, eventInfo);
             break;
         default:
             break;
@@ -6184,6 +6188,18 @@ void AuraEffect::HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEve
     }
     else
         TC_LOG_ERROR("spells","AuraEffect::HandleProcTriggerSpellAuraProc: Could not trigger spell %u from aura %u proc, because the spell does not have an entry in Spell.dbc.", triggerSpellId, GetId());
+}
+
+void AuraEffect::HandleProcTriggerSpellCopyAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
+{
+    Unit* triggerCaster = aurApp->GetTarget();
+    Unit* triggerTarget = eventInfo.GetProcTarget();
+    SpellInfo const* triggeredSpellInfo = eventInfo.GetSpellInfo();
+    if (!triggeredSpellInfo)
+        return;
+
+    TC_LOG_DEBUG("spells", "AuraEffect::HandleProcTriggerSpellAuraProc: Triggering spell %u from aura %u proc", triggeredSpellInfo->Id, GetId());
+    triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo, true, nullptr, this);
 }
 
 void AuraEffect::HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
