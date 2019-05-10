@@ -6703,9 +6703,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_DAMAGE, tmpDamage);
     }
 
-    if (spellProto->Id == 8921)
-        printf("SpellDamageBonusDone called for Moonfire \n");
-
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
