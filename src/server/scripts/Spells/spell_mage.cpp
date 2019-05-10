@@ -1043,54 +1043,36 @@ class spell_mage_master_of_elements : public SpellScriptLoader
         }
 };
 
-// 86181 - Nether Vortex
-class spell_mage_nether_vortex : public SpellScriptLoader
+// -86181 - Nether Vortex
+class spell_mage_nether_vortex : public AuraScript
 {
-    public:
-        spell_mage_nether_vortex() : SpellScriptLoader("spell_mage_nether_vortex") { }
+    PrepareAuraScript(spell_mage_nether_vortex);
 
-        class spell_mage_nether_vortex_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_nether_vortex_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_SLOW });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_MAGE_SLOW,
-                    SPELL_MAGE_ARCANE_BLAST
-                });
-            }
+    bool DoCheck(ProcEventInfo& eventInfo)
+    {
+        if (Aura* aura = eventInfo.GetProcTarget()->GetAura(SPELL_MAGE_SLOW))
+            if (aura->GetCasterGUID() != GetTarget()->GetGUID())
+                return false;
 
-            bool DoCheck(ProcEventInfo& eventInfo)
-            {
-                if (eventInfo.GetProcSpell()->GetSpellInfo()->Id != SPELL_MAGE_ARCANE_BLAST)
-                    return false;
+        return true;
+    }
 
-                if (Aura* aura = eventInfo.GetProcTarget()->GetAura(SPELL_MAGE_SLOW))
-                    if (aura->GetCasterGUID() != GetTarget()->GetGUID())
-                        return false;
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_SLOW, true, nullptr, aurEff);
+    }
 
-                return true;
-            }
-
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_SLOW, true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_mage_nether_vortex_AuraScript::DoCheck);
-                OnEffectProc += AuraEffectProcFn(spell_mage_nether_vortex_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_mage_nether_vortex_AuraScript();
-        }
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_mage_nether_vortex::DoCheck);
+        OnEffectProc += AuraEffectProcFn(spell_mage_nether_vortex::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // -11175 - Permafrost
@@ -2176,7 +2158,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_mana_shield();
     new spell_mage_master_of_elements();
     RegisterSpellAndAuraScriptPair(spell_mage_mirror_image, spell_mage_mirror_image_AurasScript);
-    new spell_mage_nether_vortex();
+    RegisterAuraScript(spell_mage_nether_vortex);
     RegisterAuraScript(spell_mage_offensive_state_dnd);
     new spell_mage_permafrost();
     new spell_mage_polymorph();
