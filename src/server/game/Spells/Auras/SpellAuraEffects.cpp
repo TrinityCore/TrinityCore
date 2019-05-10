@@ -5624,17 +5624,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         else
             damage = std::max(int32(damage * GetDonePct()), 0);
 
-        if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_DOT, damage);
-
-        // Calculate armor mitigation
-        if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
-        {
-            uint32 damageReductedArmor = caster->CalcArmorReducedDamage(target, damage, GetSpellInfo());
-            cleanDamage.mitigated_damage += damage - damageReductedArmor;
-            damage = damageReductedArmor;
-        }
-
         switch (GetSpellInfo()->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
@@ -5678,6 +5667,20 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT);
 
+    bool crit = false;
+    crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : GetCritChance());
+
+    if (crit)
+        damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
+
+    // Calculate armor mitigation
+    if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
+    {
+        uint32 damageReductedArmor = caster->CalcArmorReducedDamage(target, damage, GetSpellInfo());
+        cleanDamage.mitigated_damage += damage - damageReductedArmor;
+        damage = damageReductedArmor;
+    }
+
     if (!m_spellInfo->HasAttribute(SPELL_ATTR4_FIXED_DAMAGE))
     {
         if (m_spellInfo->Effects[m_effIndex].IsTargetingArea() || isAreaAura)
@@ -5687,13 +5690,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
         }
     }
-
-    bool crit = false;
-
-    crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : GetCritChance());
-
-    if (crit)
-        damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
 
     int32 dmg = damage;
     if (!GetSpellInfo()->HasAttribute(SPELL_ATTR4_FIXED_DAMAGE))
@@ -5761,9 +5757,6 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, GetEffIndex(), GetBase()->GetStackAmount()) * caster->SpellDamagePctDone(target, m_spellInfo, DOT);
     else
         damage = std::max(int32(damage * GetDonePct()), 0);
-
-    if (Player* modOwner = caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_DOT, damage);
 
     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
 
@@ -5935,9 +5928,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
             damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, DOT, GetEffIndex(), GetBase()->GetStackAmount()) * caster->SpellHealingPctDone(target, m_spellInfo);
         else
             damage = std::max(int32(damage * GetDonePct()), 0);
-
-        if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_DOT, damage);
 
         damage = target->SpellHealingBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
     }
