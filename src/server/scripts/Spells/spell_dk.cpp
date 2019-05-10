@@ -1381,26 +1381,18 @@ class spell_dk_howling_blast : public SpellScript
 {
     PrepareSpellScript(spell_dk_howling_blast);
 
-    void HandleBeforeCast()
+    void HandleDamage(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* target = GetExplTargetUnit())
-            guid = target->GetGUID();
-    }
+        if (GetExplTargetUnit() && GetHitUnit())
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
-    {
-        if (GetHitUnit()->GetGUID() != guid)
-            SetHitDamage(CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
+        if (GetExplTargetUnit() != GetHitUnit())
+            SetEffectValue(CalculatePct(GetEffectValue(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
     }
 
     void Register() override
     {
-        BeforeCast += SpellCastFn(spell_dk_howling_blast::HandleBeforeCast);
-        OnEffectHitTarget += SpellEffectFn(spell_dk_howling_blast::HandleHit, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget += SpellEffectFn(spell_dk_howling_blast::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
-
-private:
-    ObjectGuid guid;
 };
 
 // -49149 - Chill of the Grave
