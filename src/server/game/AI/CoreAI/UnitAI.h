@@ -308,11 +308,11 @@ class TC_GAME_API UnitAI
 
         void AttackStartCaster(Unit* victim, float dist);
 
-        void DoCast(uint32 spellId);
-        void DoCast(Unit* victim, uint32 spellId, CastSpellExtraArgs const& args = {});
-        void DoCastSelf(uint32 spellId, CastSpellExtraArgs const& args = {}) { DoCast(me, spellId, args); }
-        void DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args = {});
-        void DoCastAOE(uint32 spellId, CastSpellExtraArgs const& args = {}) { DoCast(nullptr, spellId, args); }
+        SpellCastResult DoCast(uint32 spellId);
+        SpellCastResult DoCast(Unit* victim, uint32 spellId, CastSpellExtraArgs const& args = {});
+        SpellCastResult DoCastSelf(uint32 spellId, CastSpellExtraArgs const& args = {}) { return DoCast(me, spellId, args); }
+        SpellCastResult DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args = {});
+        SpellCastResult DoCastAOE(uint32 spellId, CastSpellExtraArgs const& args = {}) { return DoCast(nullptr, spellId, args); }
 
         float DoGetSpellMaxRange(uint32 spellId, bool positive = false);
 
