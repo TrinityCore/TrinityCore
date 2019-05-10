@@ -745,12 +745,12 @@ class boss_four_horsemen_sir : public CreatureScript
      void HandleDamageCalc(SpellEffIndex /*effIndex*/)
      {
          uint32 damage = GetCaster()->GetMap()->IsHeroic() ? 4250 : 2750;
-         SetHitDamage(damage);
+         SetEffectValue(damage);
      }
 
      void Register() override
      {
-         OnEffectHitTarget += SpellEffectFn(spell_four_horsemen_consumption::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+         OnEffectLaunchTarget += SpellEffectFn(spell_four_horsemen_consumption::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
      }
  };
 
