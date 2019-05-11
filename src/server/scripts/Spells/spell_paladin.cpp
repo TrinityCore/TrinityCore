@@ -1404,23 +1404,16 @@ class spell_pal_seal_of_truth : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        Unit* actor = eventInfo.GetActor();
+        Unit* caster = GetTarget();
         Unit* target = eventInfo.GetProcTarget();
 
-        if (Aura* aura = target->GetAura(SPELL_PALADIN_CENSURE, actor->GetGUID()))
-            if (aura->GetStackAmount() == 5)
-                actor->CastSpell(target, SPELL_PALADIN_SEAL_OF_TRUTH_DAMAGE, true, nullptr, aurEff);
+        if (Aura* aura = target->GetAura(SPELL_PALADIN_CENSURE, caster->GetGUID()))
+            if (aura->GetStackAmount() == aura->GetSpellInfo()->StackAmount)
+                caster->CastSpell(target, SPELL_PALADIN_SEAL_OF_TRUTH_DAMAGE, true, nullptr, aurEff);
 
-        float ap = eventInfo.GetActor()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.0270f;
-        int32 holy = eventInfo.GetActor()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
-        holy += eventInfo.GetProcTarget()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
-        holy *= 0.01f;
-
-        if (ap || holy)
-        {
-            int32 damage = int32(holy + ap);
-            actor->CastCustomSpell(target, SPELL_PALADIN_CENSURE, &damage, nullptr, nullptr, true, nullptr, aurEff);
-        }
+        float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.0270f;
+        float holy = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * 0.01f;
+        caster->CastCustomSpell(SPELL_PALADIN_CENSURE, SPELLVALUE_BASE_POINT0, int32(ap + holy), target, true, nullptr, aurEff);
     }
 
     void Register() override
