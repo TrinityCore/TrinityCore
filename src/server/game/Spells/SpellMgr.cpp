@@ -3990,8 +3990,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RecoveryTime = 6000;
     });
 
-    // EMP
-    ApplySpellFix({ 47911 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({
+        47911, // EMP
+        48620, // Wing Buffet
+        51752  // Stampy's Stompy-Stomp
+    }, [](SpellInfo* spellInfo)
     {
         spellInfo->RecoveryTime = 10000;
     });
