@@ -2107,8 +2107,13 @@ class spell_mage_pyromaniac : public AuraScript
             {
                 std::list<AuraEffect*> _dotAuraEffects = dotTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
                 for (AuraEffect const* dotEff : _dotAuraEffects)
+                {
                     if (dotEff->GetCasterGUID() == target->GetGUID() && dotEff->GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
+                    {
                         dotTargetCount++;
+                        break;
+                    }
+                }
             }
             else
                 _dotTargetGuids.erase(guid);
@@ -2137,8 +2142,13 @@ class spell_mage_pyromaniac : public AuraScript
                 uint8 dotTargetCount = 0;
                 std::list<AuraEffect*> _dotAuraEffects = dotTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
                 for (AuraEffect const* dotEff : _dotAuraEffects)
+                {
                     if (dotEff->GetCasterGUID() == target->GetGUID() && dotEff->GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
+                    {
                         dotTargetCount++;
+                        break;
+                    }
+                }
 
                 if (!dotTargetCount)
                     _dotTargetGuids.erase(guid);
