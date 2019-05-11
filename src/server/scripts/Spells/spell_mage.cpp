@@ -86,6 +86,7 @@ enum MageSpells
     SPELL_MAGE_MIRROR_IMAGE_TRIGGERED_FROST      = 58832,
     SPELL_MAGE_PERMAFROST                        = 91394,
     SPELL_MAGE_PYROBLAST                         = 11366,
+    SPELL_MAGE_PYROMANIAC_TRIGGERED              = 83582,
     SPELL_MAGE_SCORCH                            = 2948,
     SPELL_MAGE_SLOW                              = 31589,
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
@@ -2127,6 +2128,105 @@ class spell_mage_fingers_of_frost_charges : public AuraScript
     }
 };
 
+// -34293 - Pyromaniac
+class spell_mage_pyromaniac : public AuraScript
+{
+    PrepareAuraScript(spell_mage_pyromaniac);
+
+    bool Load() override
+    {
+        _buffActive = false;
+        return true;
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_PYROMANIAC_TRIGGERED });
+    }
+
+    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
+    {
+        isPeriodic = true;
+        amplitude = 1 * IN_MILLISECONDS;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
+
+        _dotTargetGuids.insert(eventInfo.GetProcTarget()->GetGUID());
+
+        // Pyomaniac is active already so there is no need to iterate through potential targets
+        if (_buffActive)
+            return;
+
+        uint8 dotTargetCount = 0;
+        GuidSet _targetGuids = _dotTargetGuids;
+        for (ObjectGuid guid : _targetGuids)
+        {
+            if (Unit* dotTarget = ObjectAccessor::GetUnit(*target, guid))
+            {
+                std::list<AuraEffect*> _dotAuraEffects = dotTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+                for (AuraEffect const* dotEff : _dotAuraEffects)
+                    if (dotEff->GetCasterGUID() == target->GetGUID() && dotEff->GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
+                        dotTargetCount++;
+            }
+            else
+                _dotTargetGuids.erase(guid);
+        }
+
+        if (dotTargetCount >= 3)
+        {
+            target->CastCustomSpell(SPELL_MAGE_PYROMANIAC_TRIGGERED, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true, nullptr, aurEff);
+            _buffActive = true;
+        }
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        // Buff is not active right now so there is no need to check targets
+        if (!_buffActive)
+            return;
+
+        Unit* target = GetTarget();
+        GuidSet _targetGuids = _dotTargetGuids;
+        for (ObjectGuid guid : _targetGuids)
+        {
+            bool _next = false;
+            if (Unit* dotTarget = ObjectAccessor::GetUnit(*target, guid))
+            {
+                uint8 dotTargetCount = 0;
+                std::list<AuraEffect*> _dotAuraEffects = dotTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+                for (AuraEffect const* dotEff : _dotAuraEffects)
+                    if (dotEff->GetCasterGUID() == target->GetGUID() && dotEff->GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
+                        dotTargetCount++;
+
+                if (!dotTargetCount)
+                    _dotTargetGuids.erase(guid);
+            }
+            else
+                _dotTargetGuids.erase(guid);
+        }
+
+        if (_dotTargetGuids.size() < 3)
+        {
+            target->RemoveAurasDueToSpell(SPELL_MAGE_PYROMANIAC_TRIGGERED);
+            _buffActive = false;
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_mage_pyromaniac::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_mage_pyromaniac::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_pyromaniac::HandlePeriodic, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+private:
+    GuidSet _dotTargetGuids;
+    bool _buffActive;
+};
+
 void AddSC_mage_spell_scripts()
 {
     RegisterAuraScript(spell_mage_arcane_potency);
@@ -2164,6 +2264,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_polymorph();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_pyroblast();
+    RegisterAuraScript(spell_mage_pyromaniac);
     new spell_mage_replenish_mana();
     new spell_mage_ring_of_frost();
     new spell_mage_ring_of_frost_freeze();
