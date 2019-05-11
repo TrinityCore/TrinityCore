@@ -2091,7 +2091,6 @@ class spell_mage_pyromaniac : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        Unit* target = GetTarget();
 
         _dotTargetGuids.insert(eventInfo.GetProcTarget()->GetGUID());
 
@@ -2099,27 +2098,10 @@ class spell_mage_pyromaniac : public AuraScript
         if (_buffActive)
             return;
 
-        uint8 dotTargetCount = 0;
-        GuidSet _targetGuids = _dotTargetGuids;
-        for (ObjectGuid guid : _targetGuids)
-        {
-            if (Unit* dotTarget = ObjectAccessor::GetUnit(*target, guid))
-            {
-                std::list<AuraEffect*> _dotAuraEffects = dotTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
-                for (AuraEffect const* dotEff : _dotAuraEffects)
-                {
-                    if (dotEff->GetCasterGUID() == target->GetGUID() && dotEff->GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
-                    {
-                        dotTargetCount++;
-                        break;
-                    }
-                }
-            }
-            else
-                _dotTargetGuids.erase(guid);
-        }
+        Unit* target = GetTarget();
+        CleanDotTargets(target);
 
-        if (dotTargetCount >= 3)
+        if (_dotTargetGuids.size() >= 3)
         {
             target->CastCustomSpell(SPELL_MAGE_PYROMANIAC_TRIGGERED, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true, nullptr, aurEff);
             _buffActive = true;
@@ -2133,29 +2115,7 @@ class spell_mage_pyromaniac : public AuraScript
             return;
 
         Unit* target = GetTarget();
-        GuidSet _targetGuids = _dotTargetGuids;
-        for (ObjectGuid guid : _targetGuids)
-        {
-            bool _next = false;
-            if (Unit* dotTarget = ObjectAccessor::GetUnit(*target, guid))
-            {
-                uint8 dotTargetCount = 0;
-                std::list<AuraEffect*> _dotAuraEffects = dotTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
-                for (AuraEffect const* dotEff : _dotAuraEffects)
-                {
-                    if (dotEff->GetCasterGUID() == target->GetGUID() && dotEff->GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
-                    {
-                        dotTargetCount++;
-                        break;
-                    }
-                }
-
-                if (!dotTargetCount)
-                    _dotTargetGuids.erase(guid);
-            }
-            else
-                _dotTargetGuids.erase(guid);
-        }
+        CleanDotTargets(target);
 
         if (_dotTargetGuids.size() < 3)
         {
@@ -2173,6 +2133,31 @@ class spell_mage_pyromaniac : public AuraScript
 private:
     GuidSet _dotTargetGuids;
     bool _buffActive;
+
+    void CleanDotTargets(Unit* caster)
+    {
+        GuidSet guids = _dotTargetGuids;
+        for (ObjectGuid guid : guids)
+            if (!IsValidDotTarget(caster, guid))
+                _dotTargetGuids.erase(guid);
+    }
+
+    bool IsValidDotTarget(Unit* caster, ObjectGuid guid) const
+    {
+        Unit* target = ObjectAccessor::GetUnit(*caster, guid);
+        if (!target)
+            return false;
+
+        std::list<AuraEffect*> dotAuraEffects = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+        if (dotAuraEffects.empty())
+            return false;
+
+        for (AuraEffect const* effect : dotAuraEffects)
+            if (effect->GetCasterGUID() == caster->GetGUID() && effect->GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
+                return true;
+
+        return true;
+    }
 };
 
 void AddSC_mage_spell_scripts()
