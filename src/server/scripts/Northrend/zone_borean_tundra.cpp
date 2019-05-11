@@ -1774,7 +1774,7 @@ public:
                 player->FailQuest(QUEST_GET_ME_OUTA_HERE);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 if (roll_chance_i(20))
