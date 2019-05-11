@@ -3976,6 +3976,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
     });
 
+    // Tag Greater Felfire Diemetradon
+    ApplySpellFix({ 37851 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 3000;
+    });
+
     // Jormungar Strike
     ApplySpellFix({ 56513 }, [](SpellInfo* spellInfo)
     {
@@ -3999,8 +4005,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RecoveryTime = 10000;
     });
 
-    // Ice Slick (tooltip says 20s but sniffs say 12s)
-    ApplySpellFix({ 54996 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({
+        37727, // Touch of Darkness
+        54996  // Ice Slick (tooltip says 20s but sniffs say 12s)
+    }, [](SpellInfo* spellInfo)
     {
         spellInfo->RecoveryTime = 12000;
     });

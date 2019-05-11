@@ -4245,10 +4245,10 @@ class spell_freezing_circle : public SpellScript
     }
 };
 
-// Used for some spells cast by vehicles that do not send a cooldown event on their own
-class spell_gen_trigger_vehicle_spell_cooldown : public SpellScript
+// Used for some spells cast by vehicles or charmed creatures that do not send a cooldown event on their own
+class spell_gen_charmed_unit_spell_cooldown : public SpellScript
 {
-    PrepareSpellScript(spell_gen_trigger_vehicle_spell_cooldown);
+    PrepareSpellScript(spell_gen_charmed_unit_spell_cooldown);
 
     void HandleCast()
     {
@@ -4263,7 +4263,7 @@ class spell_gen_trigger_vehicle_spell_cooldown : public SpellScript
 
     void Register() override
     {
-        OnCast += SpellCastFn(spell_gen_trigger_vehicle_spell_cooldown::HandleCast);
+        OnCast += SpellCastFn(spell_gen_charmed_unit_spell_cooldown::HandleCast);
     }
 };
 
@@ -4392,5 +4392,5 @@ void AddSC_generic_spell_scripts()
     RegisterAuraScript(spell_corrupting_plague_aura);
     RegisterAuraScript(spell_gen_vehicle_control_link);
     RegisterSpellScript(spell_freezing_circle);
-    RegisterSpellScript(spell_gen_trigger_vehicle_spell_cooldown);
+    RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
 }
