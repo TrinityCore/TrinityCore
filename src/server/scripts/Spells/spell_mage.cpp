@@ -1932,68 +1932,6 @@ class spell_mage_improved_hot_streak : public SpellScriptLoader
         }
 };
 
-// 92315 - Pyroblast!
-class spell_mage_pyroblast : public SpellScriptLoader
-{
-    public:
-        spell_mage_pyroblast() : SpellScriptLoader("spell_mage_pyroblast") { }
-
-        class spell_mage_pyroblast_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mage_pyroblast_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_MAGE_HOT_STREAK_TRIGGERED,
-                        SPELL_MAGE_PYROBLAST
-                    });
-            }
-
-            void HandleHotStreak(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->RemoveAurasDueToSpell(SPELL_MAGE_HOT_STREAK_TRIGGERED);
-            }
-
-            void HandleDamage(SpellEffIndex /*effIndex*/)
-            {
-                // Copy the spellpower coefficient from the original pyroblast spell
-                if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_MAGE_PYROBLAST))
-                {
-                    int32 damage = GetEffectValue();
-                    if (Unit* target = GetHitUnit())
-                    {
-                        damage = GetCaster()->SpellDamageBonusDone(target, spell, uint32(damage), SPELL_DIRECT_DAMAGE, EFFECT_0);
-                        damage = target->SpellDamageBonusTaken(GetCaster(), spell, uint32(damage), SPELL_DIRECT_DAMAGE);
-                    }
-                    SetHitDamage(damage);
-                }
-            }
-
-            void ApplyDotBonus()
-            {
-                if (Unit* target = GetHitUnit())
-                    if (Unit* caster = GetCaster())
-                        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_MAGE_PYROBLAST))
-                            if (Aura* aura = target->GetAura(GetSpellInfo()->Id))
-                                aura->GetEffect(EFFECT_1)->SetAmount(aura->GetEffect(EFFECT_1)->GetAmount() + caster->SpellDamageBonusDone(target, spell, 0, DOT, EFFECT_1));
-            }
-
-            void Register() override
-            {
-                OnEffectLaunch += SpellEffectFn(spell_mage_pyroblast_SpellScript::HandleHotStreak, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnEffectHitTarget += SpellEffectFn(spell_mage_pyroblast_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                AfterHit += SpellHitFn(spell_mage_pyroblast_SpellScript::ApplyDotBonus);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_mage_pyroblast_SpellScript();
-        }
-};
-
 // 55342 - Mirror Image
 class spell_mage_mirror_image : public SpellScript
 {
@@ -2263,7 +2201,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_permafrost();
     new spell_mage_polymorph();
     new spell_mage_polymorph_cast_visual();
-    new spell_mage_pyroblast();
     RegisterAuraScript(spell_mage_pyromaniac);
     new spell_mage_replenish_mana();
     new spell_mage_ring_of_frost();
