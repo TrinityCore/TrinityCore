@@ -1,4 +1,7 @@
 DELETE FROM `creature` WHERE `guid` IN (387613,387615,387618,387619,387620,387621,387622,387623,387624,385821);
 DELETE FROM `creature_addon` WHERE `guid` IN (387613,387615,387618,387619,387620,387621,387622,387623,387624,385821);
-UPDATE `creature_template` SET `InhabitType`=4, `flags_extra`=128 WHERE `entry` IN (42389);
 UPDATE `creature` SET `spawndist`=10, `MovementType`=1 WHERE `id` IN (48706,48683,48686,48687,48688,2110);
+
+DELETE FROM `creature_template_movement` WHERE `CreatureId`= 42389;
+INSERT INTO `creature_template_movement` (`CreatureId`, `Flight`) VALUES
+(42389, 1);
