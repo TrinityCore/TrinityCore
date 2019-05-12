@@ -44,6 +44,8 @@ enum ShamanSpells
     SPELL_SMAMAN_CLEANSING_WATERS_HEAL_R1       = 86961,
     SPELL_SMAMAN_CLEANSING_WATERS_HEAL_R2       = 86958,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 379,
+    SPELL_SHAMAN_EARTHQUAKE_DAMAGE              = 77478,
+    SPELL_SHAMAN_EARTHQUAKE_STUN                = 77505,
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1         = 8349,
@@ -2000,6 +2002,51 @@ class spell_sha_frozen_power : public AuraScript
     }
 };
 
+// 61882 - Earthquake
+class spell_sha_earthquake : public AuraScript
+{
+    PrepareAuraScript(spell_sha_earthquake);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_EARTHQUAKE_DAMAGE });
+    }
+
+    void HandleDummyTick(AuraEffect const* aurEff)
+    {
+        if (DynamicObject* dyn = GetTarget()->GetDynObject(aurEff->GetId()))
+            GetTarget()->CastSpell(dyn->GetPositionX(), dyn->GetPositionY(), dyn->GetPositionZ(), SPELL_SHAMAN_EARTHQUAKE_DAMAGE, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthquake::HandleDummyTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 77478 - Earthquake
+class spell_sha_earthquake_damage : public SpellScript
+{
+    PrepareSpellScript(spell_sha_earthquake_damage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_EARTHQUAKE_STUN });
+    }
+
+    void HandleKnockdown(SpellEffIndex effIndex)
+    {
+        if (roll_chance_i(GetSpellInfo()->Effects[effIndex].BasePoints))
+            if (Unit* caster = GetCaster())
+                caster->CastSpell(GetHitUnit(), SPELL_SHAMAN_EARTHQUAKE_STUN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_earthquake_damage::HandleKnockdown, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
@@ -2014,6 +2061,8 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earthbind_totem();
     new spell_sha_earthen_power();
     new spell_sha_earthliving_weapon();
+    RegisterAuraScript(spell_sha_earthquake);
+    RegisterSpellScript(spell_sha_earthquake_damage);
     RegisterAuraScript(spell_sha_elemental_overload);
     new spell_sha_feedback();
     new spell_sha_fire_nova();
