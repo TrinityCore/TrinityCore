@@ -70,7 +70,7 @@ class npc_pet_pri_shadowfiend : public CreatureScript
         {
             npc_pet_pri_shadowfiendAI(Creature* creature) : PetAI(creature) { }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 if (summoner->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND))
                     DoCastAOE(SPELL_PRIEST_SHADOWFIEND_DEATH);

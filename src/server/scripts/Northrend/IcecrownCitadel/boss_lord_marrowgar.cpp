@@ -375,7 +375,7 @@ class npc_coldflame : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* owner) override
+            void IsSummonedBy(WorldObject* owner) override
             {
                 if (owner->GetTypeId() != TYPEID_UNIT)
                     return;
@@ -463,7 +463,7 @@ class npc_bone_spike : public CreatureScript
                 victim->RemoveAurasDueToSpell(SPELL_IMPALED);
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 DoCast(summoner, SPELL_IMPALED);
                 summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);

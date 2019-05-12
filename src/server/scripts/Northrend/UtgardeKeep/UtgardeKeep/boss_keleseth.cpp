@@ -88,7 +88,7 @@ class npc_frost_tomb : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 DoCast(summoner, SPELL_FROST_TOMB, true);
             }

@@ -228,7 +228,7 @@ class npc_iron_roots : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 if (summoner->GetTypeId() != TYPEID_PLAYER)
                     return;

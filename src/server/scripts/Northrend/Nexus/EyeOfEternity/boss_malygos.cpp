@@ -1389,7 +1389,7 @@ class npc_scion_of_eternity : public CreatureScript
                 _events.Reset();
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, 14s, 29s);
             }
@@ -1452,7 +1452,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             if (Creature* creature = summoner->ToCreature())
                 creature->AI()->SetGUID(me->GetGUID(), DATA_LAST_OVERLOAD_GUID);
@@ -1505,7 +1505,7 @@ public:
         {
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             _summoner.Clear();
             if (Player* player = summoner->ToPlayer())
@@ -1571,7 +1571,7 @@ class npc_static_field : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 // For some great reason the spell doesn't time it...
                 me->DespawnOrUnsummon(30*IN_MILLISECONDS);
