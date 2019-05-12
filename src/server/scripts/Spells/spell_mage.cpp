@@ -771,40 +771,29 @@ class spell_mage_glyph_of_polymorph : public SpellScriptLoader
 };
 
 // 44457 - Living Bomb
-class spell_mage_living_bomb : public SpellScriptLoader
+class spell_mage_living_bomb : public AuraScript
 {
-    public:
-        spell_mage_living_bomb() : SpellScriptLoader("spell_mage_living_bomb") { }
+    PrepareAuraScript(spell_mage_living_bomb);
 
-        class spell_mage_living_bomb_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_living_bomb_AuraScript);
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_1].CalcValue()) });
+    }
 
-            bool Validate(SpellInfo const* spellInfo) override
-            {
-                return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_1].CalcValue()) });
-            }
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+        if (removeMode != AURA_REMOVE_BY_ENEMY_SPELL && removeMode != AURA_REMOVE_BY_EXPIRE)
+            return;
 
-            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                if (removeMode != AURA_REMOVE_BY_ENEMY_SPELL && removeMode != AURA_REMOVE_BY_EXPIRE)
-                    return;
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), true, nullptr, aurEff);
+    }
 
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_living_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_mage_living_bomb_AuraScript();
-        }
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_living_bomb::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 11426 - Ice Barrier
@@ -2160,6 +2149,81 @@ private:
     }
 };
 
+// -11103 - Impact
+class spell_mage_impact : public AuraScript
+{
+    PrepareAuraScript(spell_mage_impact);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FIRE_BLAST });
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        GetTarget()->GetSpellHistory()->ResetCooldown(SPELL_MAGE_FIRE_BLAST, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_impact::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 12355 - Impact
+class spell_mage_impact_triggered : public SpellScript
+{
+    PrepareSpellScript(spell_mage_impact_triggered);
+
+    void RegisterFireDots(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetExplTargetUnit();
+        Unit* launchTarget = GetHitUnit();
+        if (!target || !caster || target != launchTarget)
+            return;
+
+        std::list<AuraEffect*> dotAuraEffects = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+        if (dotAuraEffects.empty())
+            return;
+
+        for (AuraEffect const* effect : dotAuraEffects)
+            if (effect->GetCasterGUID() == caster->GetGUID() && effect->GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
+                _fireDotEffects.push_back(effect->GetBase());
+    }
+
+    void SpeadFireDots(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (GetExplTargetUnit() == GetHitUnit())
+            return;
+
+        for (Aura* aura : _fireDotEffects)
+        {
+            if (Aura* addAura = caster->AddAura(aura->GetSpellInfo()->Id, GetHitUnit()))
+            {
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
+                    if (AuraEffect* originalEffect = aura->GetEffect(i))
+                        if (AuraEffect* effect = addAura->GetEffect(i))
+                            effect->SetAmount(originalEffect->GetAmount());
+
+                addAura->SetDuration(aura->GetDuration());
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_mage_impact_triggered::RegisterFireDots, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_mage_impact_triggered::SpeadFireDots, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+private:
+    std::vector<Aura*> _fireDotEffects;
+};
+
 void AddSC_mage_spell_scripts()
 {
     RegisterAuraScript(spell_mage_arcane_potency);
@@ -2181,12 +2245,14 @@ void AddSC_mage_spell_scripts()
     new spell_mage_hot_streak();
     new spell_mage_ice_barrier();
     new spell_mage_ignite();
+    RegisterAuraScript(spell_mage_impact);
+    RegisterSpellScript(spell_mage_impact_triggered);
     new spell_mage_improved_hot_streak();
     RegisterSpellScript(spell_mage_initialize_images);
     new spell_mage_glyph_of_ice_block();
     new spell_mage_glyph_of_icy_veins();
     new spell_mage_glyph_of_polymorph();
-    new spell_mage_living_bomb();
+    RegisterAuraScript(spell_mage_living_bomb);
     new spell_mage_mage_ward();
     new spell_mage_mana_shield();
     new spell_mage_master_of_elements();
