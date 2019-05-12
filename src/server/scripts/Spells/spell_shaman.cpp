@@ -2053,18 +2053,16 @@ class spell_sha_lightning_shield : public AuraScript
 {
     PrepareAuraScript(spell_sha_lightning_shield);
 
-    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         if (GetTarget()->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_GLYPH_OF_LIGHTNING_SHIELD, EFFECT_0))
-            if (GetCharges() == 3)
-                SetCharges(GetCharges() + 1);
-
-        return true;
+            if (GetCharges() < 3)
+                SetCharges(3);
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_sha_lightning_shield::CheckProc);
+        AfterEffectProc += AuraEffectProcFn(spell_sha_lightning_shield::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
