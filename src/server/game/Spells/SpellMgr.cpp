@@ -5263,6 +5263,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAuraTargets = 3;
     });
 
+    // Living Bomb
+    ApplySpellFix({ 44461 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 3;
+    });
+
     // Lifebloom
     ApplySpellFix({ 33763 }, [](SpellInfo* spellInfo)
     {
