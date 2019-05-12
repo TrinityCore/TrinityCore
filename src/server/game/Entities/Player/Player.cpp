@@ -27234,19 +27234,24 @@ void Player::ActivateSpec(uint8 spec)
     ExitVehicle();
     RemoveAllControlled();
 
-    // remove single target auras at other targets
-    AuraList& scAuras = GetSingleCastAuras();
-    for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
+    // remove limited target auras at other targets
+    AurasBySpellIdMap& ltAurasBySpellId = GetAllLimitedCastAuras();
+    for (AurasBySpellIdMap::iterator itr = ltAurasBySpellId.begin(); itr != ltAurasBySpellId.end(); itr++)
     {
-        Aura* aura = *iter;
-        if (aura->GetUnitOwner() != this)
+        AuraList list = itr->second;
+        for (AuraList::iterator iter = list.begin(); iter != list.end();)
         {
-            aura->Remove();
-            iter = scAuras.begin();
+            Aura* aura = *iter;
+            if (aura->GetUnitOwner() != this)
+            {
+                aura->Remove();
+                iter = list.begin();
+            }
+            else
+                ++iter;
         }
-        else
-            ++iter;
     }
+
     /*RemoveAllAurasOnDeath();
     if (GetPet())
         GetPet()->RemoveAllAurasOnDeath();*/

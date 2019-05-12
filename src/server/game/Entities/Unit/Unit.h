@@ -974,6 +974,8 @@ class TC_GAME_API Unit : public WorldObject
 
         typedef std::map<uint8, AuraApplication*> VisibleAuraMap;
 
+        typedef std::unordered_map<uint32 /*spellId*/, AuraList> AurasBySpellIdMap;
+
         virtual ~Unit();
 
         UnitAI* GetAI() { return i_AI; }
@@ -1465,7 +1467,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, Unit* stealer);
         void RemoveAurasDueToItemSpell(uint32 spellId, ObjectGuid castItemGuid);
         void RemoveAurasByType(AuraType auraType, ObjectGuid casterGUID = ObjectGuid::Empty, Aura* except = nullptr, bool negative = true, bool positive = true);
-        void RemoveNotOwnSingleTargetAuras(bool onPhaseChange = false);
+        void RemoveNotOwnLimitedTargetAuras(bool onPhaseChange = false);
         void RemoveAurasWithInterruptFlags(uint32 flag, uint32 except = 0);
         void RemoveAurasWithAttribute(uint32 flags);
         void RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, ObjectGuid casterGUID);
@@ -1487,8 +1489,8 @@ class TC_GAME_API Unit : public WorldObject
         void _ApplyAllAuraStatMods();
 
         AuraEffectList const& GetAuraEffectsByType(AuraType type) const { return m_modAuras[type]; }
-        AuraList      & GetSingleCastAuras()       { return m_scAuras; }
-        AuraList const& GetSingleCastAuras() const { return m_scAuras; }
+        AuraList& GetLimitedCastAuras(uint32 spellId) { return m_ltAuras[spellId]; }
+        AurasBySpellIdMap& GetAllLimitedCastAuras() { return m_ltAuras; }
 
         AuraEffect* GetAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid casterGUID = ObjectGuid::Empty) const;
         AuraEffect* GetAuraEffectOfRankedSpell(uint32 spellId, uint8 effIndex, ObjectGuid casterGUID = ObjectGuid::Empty) const;
@@ -1949,7 +1951,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_removedAurasCount;
 
         AuraEffectList m_modAuras[TOTAL_AURAS];
-        AuraList m_scAuras;                        // cast singlecast auras
+        AurasBySpellIdMap m_ltAuras;               // cast limited target auras
         AuraApplicationList m_interruptableAuras;  // auras which have interrupt mask applied on unit
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
         uint32 m_interruptMask;

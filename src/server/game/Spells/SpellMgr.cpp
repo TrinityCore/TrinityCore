@@ -5257,6 +5257,12 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // END OF BLACKWING DESCENT SPELLS
 
+    // Living Bomb
+    ApplySpellFix({ 44457 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAuraTargets = 3;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
