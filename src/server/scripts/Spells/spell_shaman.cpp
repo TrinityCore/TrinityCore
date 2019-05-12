@@ -104,7 +104,8 @@ enum ShamanSpellIcons
     SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW             = 3087,
     SHAMAN_ICON_ID_CLEANSING_WATERS             = 2020,
     SHAMAN_ICON_ID_BLESSING_OF_THE_ETERNALS     = 3157,
-    SHAMAN_ICON_ID_FULMINATION                  = 2010
+    SHAMAN_ICON_ID_FULMINATION                  = 2010,
+    SHAMAN_ICON_ID_GLYPH_OF_LIGHTNING_SHIELD    = 19
 };
 
 enum MiscSpells
@@ -2047,6 +2048,26 @@ class spell_sha_earthquake_damage : public SpellScript
     }
 };
 
+// 324 - Lightning Shield
+class spell_sha_lightning_shield : public AuraScript
+{
+    PrepareAuraScript(spell_sha_lightning_shield);
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        if (GetTarget()->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_GLYPH_OF_LIGHTNING_SHIELD, EFFECT_0))
+            if (GetCharges() == 3)
+                SetCharges(GetCharges() + 1);
+
+        return true;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_sha_lightning_shield::CheckProc);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
@@ -2082,6 +2103,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_lash();
     new spell_sha_lava_surge();
     new spell_sha_lava_surge_proc();
+    RegisterAuraScript(spell_sha_lightning_shield);
     new spell_sha_mana_tide_totem();
     new spell_sha_nature_guardian();
     new spell_sha_resurgence();
