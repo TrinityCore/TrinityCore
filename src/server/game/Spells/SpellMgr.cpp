@@ -5263,6 +5263,18 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAuraTargets = 3;
     });
 
+    // Lifebloom
+    ApplySpellFix({ 33763 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
+    });
+
+    // Tree of Life (Passive)
+    ApplySpellFix({ 81098 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];

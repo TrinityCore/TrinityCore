@@ -605,6 +605,7 @@ class spell_dru_insect_swarm : public AuraScript
 };
 
 // 33763 - Lifebloom
+// 94447 - Lifebloom
 class spell_dru_lifebloom : public AuraScript
 {
     PrepareAuraScript(spell_dru_lifebloom);
