@@ -85,7 +85,6 @@ enum DruidSpells
     SPELL_DRUID_NATURES_GRACE               = 16880,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
-    SPELL_DRUID_SHOOTING_STARS              = 93400,
     SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
     SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
@@ -486,6 +485,19 @@ class spell_dru_glyph_of_starfire_proc : public AuraScript
         return ValidateSpellInfo({ SPELL_DRUID_GLYPH_OF_STARFIRE });
     }
 
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetSpellInfo()->SpellFamilyFlags[0] & 0x00000002)
+        {
+            _lastMoonFireTargetGuid = eventInfo.GetProcTarget()->GetGUID();
+            return false;
+        }
+        else if (_lastMoonFireTargetGuid != eventInfo.GetProcTarget()->GetGUID())
+            return false;
+
+        return true;
+    }
+
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
@@ -494,8 +506,11 @@ class spell_dru_glyph_of_starfire_proc : public AuraScript
 
     void Register() override
     {
+        DoCheckProc += AuraCheckProcFn(spell_dru_glyph_of_starfire_proc::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_dru_glyph_of_starfire_proc::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
+private:
+    ObjectGuid _lastMoonFireTargetGuid;
 };
 
 // 34246 - Idol of the Emerald Queen
@@ -1675,6 +1690,27 @@ class spell_dru_empowered_touch_script : public SpellScript
     }
 };
 
+// 93400 - Shooting Stars
+class spell_dru_shooting_stars : public SpellScript
+{
+    PrepareSpellScript(spell_dru_shooting_stars);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_STARSURGE });
+    }
+
+    void HandleCooldownReset(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->GetSpellHistory()->ResetCooldown(SPELL_DRUID_STARSURGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_shooting_stars::HandleCooldownReset, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterAuraScript(spell_dru_berserk);
@@ -1705,6 +1741,7 @@ void AddSC_druid_spell_scripts()
     RegisterAuraScript(spell_dru_rip);
     RegisterAuraScript(spell_dru_savage_defense);
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_AuraScript);
+    RegisterSpellScript(spell_dru_shooting_stars);
     RegisterSpellScript(spell_dru_starfall_dummy);
     RegisterAuraScript(spell_dru_stampede);
     RegisterAuraScript(spell_dru_solar_beam);
