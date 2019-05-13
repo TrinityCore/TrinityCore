@@ -44,6 +44,7 @@ enum MageSpells
     SPELL_MAGE_BRAIN_FREEZE_R1                   = 44546,
     SPELL_MAGE_BURNOUT                           = 29077,
     SPELL_MAGE_COLD_SNAP                         = 11958,
+    SPELL_MAGE_COMBUSTION_DAMAGE                 = 83853,
     SPELL_MAGE_DEEP_FREEZE_DAMAGE                = 71757,
     SPELL_MAGE_EARLY_FROST_R1                    = 83049,
     SPELL_MAGE_EARLY_FROST_R2                    = 83050,
@@ -840,50 +841,35 @@ class spell_mage_ice_barrier : public SpellScriptLoader
 };
 
 // -11119 - Ignite
-class spell_mage_ignite : public SpellScriptLoader
+class spell_mage_ignite : public AuraScript
 {
-    public:
-        spell_mage_ignite() : SpellScriptLoader("spell_mage_ignite") { }
+    PrepareAuraScript(spell_mage_ignite);
 
-        class spell_mage_ignite_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_ignite_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_IGNITE });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MAGE_IGNITE });
-            }
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcTarget() != nullptr;
+    }
 
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                return eventInfo.GetProcTarget() != nullptr;
-            }
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        DamageInfo* damage = eventInfo.GetDamageInfo();
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
+        int32 bp = CalculatePct(damage->GetDamage(), aurEff->GetAmount()) * 0.5f;
+        GetTarget()->CastCustomSpell(SPELL_MAGE_IGNITE, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+    }
 
-                SpellInfo const* igniteDot = sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE);
-                int32 pct = 8 * GetSpellInfo()->GetRank();
-
-                int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
-                amount += eventInfo.GetProcTarget()->GetRemainingPeriodicAmount(eventInfo.GetActor()->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
-                GetTarget()->CastCustomSpell(SPELL_MAGE_IGNITE, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_mage_ignite_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_mage_ignite_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_mage_ignite_AuraScript();
-        }
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_mage_ignite::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_mage_ignite::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
-
 // 543 - Mage Ward
 /// Updated 4.3.4
 class spell_mage_mage_ward : public SpellScriptLoader
@@ -2224,6 +2210,45 @@ private:
     std::vector<Aura*> _fireDotEffects;
 };
 
+// 11129 - Combustion
+class spell_mage_combustion : public SpellScript
+{
+    PrepareSpellScript(spell_mage_combustion);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_COMBUSTION_DAMAGE });
+    }
+
+    void HandleDotEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!target || !caster)
+            return;
+
+        std::list<AuraEffect*> dotAuraEffects = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+        if (dotAuraEffects.empty())
+            return;
+
+        int32 totalAmount = 0;
+        for (AuraEffect const* effect : dotAuraEffects)
+            if (effect->GetCasterGUID() == caster->GetGUID() && effect->GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
+                totalAmount += effect->GetAmount();
+
+        if (totalAmount)
+            caster->CastCustomSpell(SPELL_MAGE_COMBUSTION_DAMAGE, SPELLVALUE_BASE_POINT0, totalAmount, target, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mage_combustion::HandleDotEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+private:
+    std::vector<Aura*> _fireDotEffects;
+};
+
 void AddSC_mage_spell_scripts()
 {
     RegisterAuraScript(spell_mage_arcane_potency);
@@ -2231,6 +2256,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_blazing_speed();
     new spell_mage_blizzard();
     new spell_mage_cold_snap();
+    RegisterSpellScript(spell_mage_combustion);
     new spell_mage_cone_of_cold();
     new spell_mage_conjure_refreshment();
     RegisterSpellScript(spell_mage_deep_freeze);
@@ -2244,7 +2270,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_frostbolt);
     new spell_mage_hot_streak();
     new spell_mage_ice_barrier();
-    new spell_mage_ignite();
+    RegisterAuraScript(spell_mage_ignite);
     RegisterAuraScript(spell_mage_impact);
     RegisterSpellScript(spell_mage_impact_triggered);
     new spell_mage_improved_hot_streak();
