@@ -56,7 +56,6 @@ enum Spells
 
 enum Extras
 {
-    OPTION_ID_YOU_CHALLENGED_US   = 0,
     MENU_OPTION_YOU_CHALLENGED_US = 4108
 };
 
@@ -72,6 +71,19 @@ enum Events
     EVENT_OUTRO_3           = 7
 };
 
+Position const SummonPositions[9] =
+{
+    { 744.162f, -1151.63f, -119.726f, 4.58204f },
+    { 751.247f, -1152.82f, -119.744f, 4.49673f },
+    { 759.206f, -1155.09f, -120.051f, 4.30104f },
+    { 755.973f, -1152.33f, -120.029f, 4.25588f },
+    { 731.712f, -1147.56f, -120.195f, 4.95955f },
+    { 726.499f, -1149.80f, -120.156f, 5.24055f },
+    { 722.408f, -1152.41f, -120.029f, 5.33087f },
+    { 718.994f, -1156.36f, -119.805f, 5.75738f },
+    { 838.510f, -829.840f, -232.000f, 2.00000f }
+};
+
 class boss_majordomo : public CreatureScript
 {
     public:
@@ -79,9 +91,7 @@ class boss_majordomo : public CreatureScript
 
         struct boss_majordomoAI : public BossAI
         {
-            boss_majordomoAI(Creature* creature) : BossAI(creature, BOSS_MAJORDOMO_EXECUTUS)
-            {
-            }
+            boss_majordomoAI(Creature* creature) : BossAI(creature, BOSS_MAJORDOMO_EXECUTUS) { }
 
             void KilledUnit(Unit* /*victim*/) override
             {
@@ -99,6 +109,30 @@ class boss_majordomo : public CreatureScript
                 events.ScheduleEvent(EVENT_TELEPORT, 20000);
             }
 
+            void Reset() override
+            {
+                _Reset();
+                if (instance->GetBossState(BOSS_MAJORDOMO_EXECUTUS) == DONE)
+                    return;
+
+                DoSummon(NPC_FLAMEWAKER_HEALER, SummonPositions[0]);
+                DoSummon(NPC_FLAMEWAKER_HEALER, SummonPositions[1]);
+                DoSummon(NPC_FLAMEWAKER_HEALER, SummonPositions[2]);
+                DoSummon(NPC_FLAMEWAKER_HEALER, SummonPositions[3]);
+                DoSummon(NPC_FLAMEWAKER_ELITE, SummonPositions[4]);
+                DoSummon(NPC_FLAMEWAKER_ELITE, SummonPositions[5]);
+                DoSummon(NPC_FLAMEWAKER_ELITE, SummonPositions[6]);
+                DoSummon(NPC_FLAMEWAKER_ELITE, SummonPositions[7]);
+            }
+
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                _EnterEvadeMode();
+                events.Reset();
+                summons.DespawnAll();
+                me->GetMotionMaster()->MoveTargetedHome();
+            }
+
             void UpdateAI(uint32 diff) override
             {
                 if (instance->GetBossState(BOSS_MAJORDOMO_EXECUTUS) != DONE)
@@ -112,9 +146,13 @@ class boss_majordomo : public CreatureScript
                     {
                         instance->UpdateEncounterStateForKilledCreature(me->GetEntry(), me);
                         me->SetFaction(FACTION_FRIENDLY);
-                        EnterEvadeMode();
                         Talk(SAY_DEFEAT);
                         _JustDied();
+                        me->AttackStop();
+                        me->SetReactState(REACT_PASSIVE);
+                        me->GetMotionMaster()->MoveTargetedHome();
+                        me->DeleteThreatList();
+                        me->CombatStop(true);
                         events.ScheduleEvent(EVENT_OUTRO_1, 32000);
                         return;
                     }
@@ -197,15 +235,20 @@ class boss_majordomo : public CreatureScript
                 }
             }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
             {
-                if (menuId == MENU_OPTION_YOU_CHALLENGED_US && gossipListId == OPTION_ID_YOU_CHALLENGED_US)
-                {
-                    CloseGossipMenuFor(player);
-                    DoAction(ACTION_START_RAGNAROS);
-                }
+                if (menuId != MENU_OPTION_YOU_CHALLENGED_US)
+                    return false;
 
+                CloseGossipMenuFor(player);
+                DoAction(ACTION_START_RAGNAROS);
                 return true;
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            {
+                if (damage >= me->GetHealth())
+                    damage = me->GetHealth() - 1;
             }
         };
 
