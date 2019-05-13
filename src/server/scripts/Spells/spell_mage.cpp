@@ -137,7 +137,9 @@ enum MageIcons
     ICON_MAGE_EARLY_FROST_SKILL                  = 189,
     ICON_MAGE_EARLY_FROST                        = 2114,
     ICON_MAGE_GLYPH_OF_MIRROR_IMAGE              = 331,
-    SPELL_ICON_MAGE_LIVING_BOMB                  = 3000,
+    ICON_MAGE_LIVING_BOMB                        = 3000,
+    ICON_MAGE_GLYPH_OF_FROSTFIRE                 = 2946
+
 };
 
 enum MiscSpells
@@ -471,7 +473,7 @@ class spell_mage_dragon_breath : public AuraScript
     {
         // Dont proc with Living Bomb explosion
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        if (spellInfo && spellInfo->SpellIconID == SPELL_ICON_MAGE_LIVING_BOMB && spellInfo->SpellFamilyName == SPELLFAMILY_MAGE)
+        if (spellInfo && spellInfo->SpellIconID == ICON_MAGE_LIVING_BOMB && spellInfo->SpellFamilyName == SPELLFAMILY_MAGE)
             return false;
         return true;
     }
@@ -2249,6 +2251,36 @@ private:
     std::vector<Aura*> _fireDotEffects;
 };
 
+// 44614 - Frostfire Bolt
+class spell_mage_frostfire_bolt : public SpellScript
+{
+    PrepareSpellScript(spell_mage_frostfire_bolt);
+
+    void HandleGlyphSlow(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            if (caster->GetDummyAuraEffect(SPELLFAMILY_MAGE, ICON_MAGE_GLYPH_OF_FROSTFIRE, EFFECT_2))
+                if (Aura* aura = GetHitAura())
+                    if (AuraEffect* effect = aura->GetEffect(effIndex))
+                        effect->SetAmount(0);
+    }
+
+    void HandleGlyphDot(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            if (!caster->GetDummyAuraEffect(SPELLFAMILY_MAGE, ICON_MAGE_GLYPH_OF_FROSTFIRE, EFFECT_2))
+                if (Aura* aura = GetHitAura())
+                    if (AuraEffect* effect = aura->GetEffect(effIndex))
+                        effect->SetAmount(0);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mage_frostfire_bolt::HandleGlyphSlow, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget += SpellEffectFn(spell_mage_frostfire_bolt::HandleGlyphDot, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     RegisterAuraScript(spell_mage_arcane_potency);
@@ -2268,6 +2300,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_focus_magic();
     RegisterAuraScript(spell_mage_fingers_of_frost_charges);
     RegisterSpellScript(spell_mage_frostbolt);
+    RegisterSpellScript(spell_mage_frostfire_bolt);
     new spell_mage_hot_streak();
     new spell_mage_ice_barrier();
     RegisterAuraScript(spell_mage_ignite);
