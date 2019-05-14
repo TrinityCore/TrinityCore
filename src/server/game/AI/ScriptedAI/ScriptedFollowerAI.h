@@ -61,22 +61,22 @@ class TC_GAME_API FollowerAI : public ScriptedAI
         void SetFollowPaused(bool bPaused);                 //if special event require follow mode to hold/resume during the follow
         void SetFollowComplete(bool bWithEndEvent = false);
 
-        bool HasFollowState(uint32 uiFollowState) { return (m_uiFollowState & uiFollowState) != 0; }
+        bool HasFollowState(uint32 uiFollowState) { return (_followState & uiFollowState) != 0; }
 
     protected:
         Player* GetLeaderForFollower();
 
     private:
-        void AddFollowState(uint32 uiFollowState) { m_uiFollowState |= uiFollowState; }
-        void RemoveFollowState(uint32 uiFollowState) { m_uiFollowState &= ~uiFollowState; }
+        void AddFollowState(uint32 uiFollowState) { _followState |= uiFollowState; }
+        void RemoveFollowState(uint32 uiFollowState) { _followState &= ~uiFollowState; }
 
         bool AssistPlayerInCombatAgainst(Unit* who);
 
-        ObjectGuid m_uiLeaderGUID;
-        uint32 m_uiUpdateFollowTimer;
-        uint32 m_uiFollowState;
+        ObjectGuid _leaderGUID;
+        uint32 _updateFollowTimer;
+        uint32 _followState;
 
-        Quest const* m_pQuestForFollow;                     //normally we have a quest
+        Quest const* _questForFollow;
 };
 
 #endif

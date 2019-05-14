@@ -40,9 +40,9 @@ enum Points
 };
 
 FollowerAI::FollowerAI(Creature* creature) : ScriptedAI(creature),
-    m_uiUpdateFollowTimer(2500),
-    m_uiFollowState(STATE_FOLLOW_NONE),
-    m_pQuestForFollow(nullptr)
+    _updateFollowTimer(2500),
+    _followState(STATE_FOLLOW_NONE),
+    _questForFollow(nullptr)
 { }
 
 void FollowerAI::AttackStart(Unit* who)
@@ -127,7 +127,7 @@ void FollowerAI::MoveInLineOfSight(Unit* who)
 
 void FollowerAI::JustDied(Unit* /*killer*/)
 {
-    if (!HasFollowState(STATE_FOLLOW_INPROGRESS) || !m_uiLeaderGUID || !m_pQuestForFollow)
+    if (!HasFollowState(STATE_FOLLOW_INPROGRESS) || !_leaderGUID || !_questForFollow)
         return;
 
     /// @todo need a better check for quests with time limit.
@@ -138,16 +138,16 @@ void FollowerAI::JustDied(Unit* /*killer*/)
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 if (Player* member = groupRef->GetSource())
                     if (member->IsInMap(player))
-                        member->FailQuest(m_pQuestForFollow->GetQuestId());
+                        member->FailQuest(_questForFollow->GetQuestId());
         }
         else
-            player->FailQuest(m_pQuestForFollow->GetQuestId());
+            player->FailQuest(_questForFollow->GetQuestId());
     }
 }
 
 void FollowerAI::JustAppeared()
 {
-    m_uiFollowState = STATE_FOLLOW_NONE;
+    _followState = STATE_FOLLOW_NONE;
 
     if (!IsCombatMovementAllowed())
         SetCombatMovement(true);
@@ -189,7 +189,7 @@ void FollowerAI::UpdateAI(uint32 uiDiff)
 {
     if (HasFollowState(STATE_FOLLOW_INPROGRESS) && !me->GetVictim())
     {
-        if (m_uiUpdateFollowTimer <= uiDiff)
+        if (_updateFollowTimer <= uiDiff)
         {
             if (HasFollowState(STATE_FOLLOW_COMPLETE) && !HasFollowState(STATE_FOLLOW_POSTEVENT))
             {
@@ -237,10 +237,10 @@ void FollowerAI::UpdateAI(uint32 uiDiff)
                 return;
             }
 
-            m_uiUpdateFollowTimer = 1000;
+            _updateFollowTimer = 1000;
         }
         else
-            m_uiUpdateFollowTimer -= uiDiff;
+            _updateFollowTimer -= uiDiff;
     }
 
     UpdateFollowerAI(uiDiff);
@@ -286,12 +286,12 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, Quest co
     }
 
     //set variables
-    m_uiLeaderGUID = player->GetGUID();
+    _leaderGUID = player->GetGUID();
 
     if (factionForFollower)
         me->SetFaction(factionForFollower);
 
-    m_pQuestForFollow = quest;
+    _questForFollow = quest;
 
     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
@@ -306,12 +306,12 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, Quest co
 
     me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-    TC_LOG_DEBUG("scripts", "FollowerAI start follow %s (%s)", player->GetName().c_str(), m_uiLeaderGUID.ToString().c_str());
+    TC_LOG_DEBUG("scripts", "FollowerAI start follow %s (%s)", player->GetName().c_str(), _leaderGUID.ToString().c_str());
 }
 
 Player* FollowerAI::GetLeaderForFollower()
 {
-    if (Player* player = ObjectAccessor::GetPlayer(*me, m_uiLeaderGUID))
+    if (Player* player = ObjectAccessor::GetPlayer(*me, _leaderGUID))
     {
         if (player->IsAlive())
             return player;
@@ -325,7 +325,7 @@ Player* FollowerAI::GetLeaderForFollower()
                     if (member && me->IsWithinDistInMap(member, MAX_PLAYER_DISTANCE) && member->IsAlive())
                     {
                         TC_LOG_DEBUG("scripts", "FollowerAI GetLeader changed and returned new leader.");
-                        m_uiLeaderGUID = member->GetGUID();
+                        _leaderGUID = member->GetGUID();
                         return member;
                     }
                 }
