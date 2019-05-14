@@ -32,7 +32,7 @@ int32 TotemAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId), i_victimGuid()
+TotemAI::TotemAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId), _victimGUID()
 {
     ASSERT(c->IsTotem());
 }
@@ -63,7 +63,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
     // SpellModOp::Range not applied in this place just because not existence range mods for attacking totems
 
     // pointer to appropriate target if found any
-    Unit* victim = !i_victimGuid.IsEmpty() ? ObjectAccessor::GetUnit(*me, i_victimGuid) : nullptr;
+    Unit* victim = !_victimGUID.IsEmpty() ? ObjectAccessor::GetUnit(*me, _victimGUID) : nullptr;
 
     // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
     if (!victim ||
@@ -80,13 +80,13 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
     if (victim)
     {
         // remember
-        i_victimGuid = victim->GetGUID();
+        _victimGUID = victim->GetGUID();
 
         // attack
         me->CastSpell(victim, me->ToTotem()->GetSpell());
     }
     else
-        i_victimGuid.Clear();
+        _victimGUID.Clear();
 }
 
 void TotemAI::AttackStart(Unit* /*victim*/)

@@ -33,19 +33,19 @@
 
 void SummonList::Summon(Creature const* summon)
 {
-    storage_.push_back(summon->GetGUID());
+    _storage.push_back(summon->GetGUID());
 }
 
 void SummonList::Despawn(Creature const* summon)
 {
-    storage_.remove(summon->GetGUID());
+    _storage.remove(summon->GetGUID());
 }
 
 void SummonList::DoZoneInCombat(uint32 entry)
 {
-    for (StorageType::iterator i = storage_.begin(); i != storage_.end();)
+    for (StorageType::iterator i = _storage.begin(); i != _storage.end();)
     {
-        Creature* summon = ObjectAccessor::GetCreature(*me, *i);
+        Creature* summon = ObjectAccessor::GetCreature(*_me, *i);
         ++i;
         if (summon && summon->IsAIEnabled()
                 && (!entry || summon->GetEntry() == entry))
@@ -57,14 +57,14 @@ void SummonList::DoZoneInCombat(uint32 entry)
 
 void SummonList::DespawnEntry(uint32 entry)
 {
-    for (StorageType::iterator i = storage_.begin(); i != storage_.end();)
+    for (StorageType::iterator i = _storage.begin(); i != _storage.end();)
     {
-        Creature* summon = ObjectAccessor::GetCreature(*me, *i);
+        Creature* summon = ObjectAccessor::GetCreature(*_me, *i);
         if (!summon)
-            i = storage_.erase(i);
+            i = _storage.erase(i);
         else if (summon->GetEntry() == entry)
         {
-            i = storage_.erase(i);
+            i = _storage.erase(i);
             summon->DespawnOrUnsummon();
         }
         else
@@ -74,10 +74,10 @@ void SummonList::DespawnEntry(uint32 entry)
 
 void SummonList::DespawnAll()
 {
-    while (!storage_.empty())
+    while (!_storage.empty())
     {
-        Creature* summon = ObjectAccessor::GetCreature(*me, storage_.front());
-        storage_.pop_front();
+        Creature* summon = ObjectAccessor::GetCreature(*_me, _storage.front());
+        _storage.pop_front();
         if (summon)
             summon->DespawnOrUnsummon();
     }
@@ -85,20 +85,20 @@ void SummonList::DespawnAll()
 
 void SummonList::RemoveNotExisting()
 {
-    for (StorageType::iterator i = storage_.begin(); i != storage_.end();)
+    for (StorageType::iterator i = _storage.begin(); i != _storage.end();)
     {
-        if (ObjectAccessor::GetCreature(*me, *i))
+        if (ObjectAccessor::GetCreature(*_me, *i))
             ++i;
         else
-            i = storage_.erase(i);
+            i = _storage.erase(i);
     }
 }
 
 bool SummonList::HasEntry(uint32 entry) const
 {
-    for (StorageType::const_iterator i = storage_.begin(); i != storage_.end(); ++i)
+    for (StorageType::const_iterator i = _storage.begin(); i != _storage.end(); ++i)
     {
-        Creature* summon = ObjectAccessor::GetCreature(*me, *i);
+        Creature* summon = ObjectAccessor::GetCreature(*_me, *i);
         if (summon && summon->GetEntry() == entry)
             return true;
     }
@@ -110,7 +110,7 @@ void SummonList::DoActionImpl(int32 action, StorageType const& summons)
 {
     for (auto const& guid : summons)
     {
-        Creature* summon = ObjectAccessor::GetCreature(*me, guid);
+        Creature* summon = ObjectAccessor::GetCreature(*_me, guid);
         if (summon && summon->IsAIEnabled())
             summon->AI()->DoAction(action);
     }

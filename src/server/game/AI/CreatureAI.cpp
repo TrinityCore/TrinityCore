@@ -55,7 +55,7 @@ AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)
 
 CreatureAI::CreatureAI(Creature* creature, uint32 scriptId)
     : UnitAI(creature), me(creature), _boundary(nullptr),
-      _negateBoundary(false), _scriptId(scriptId ? scriptId : creature->GetScriptId()), m_MoveInLineOfSight_locked(false)
+      _negateBoundary(false), _scriptId(scriptId ? scriptId : creature->GetScriptId()), _moveInLOSLocked(false)
 {
     ASSERT(_scriptId, "A CreatureAI was initialized with an invalid scriptId!");
 }
@@ -103,11 +103,11 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
 // MoveInLineOfSight can be called inside another MoveInLineOfSight and cause stack overflow
 void CreatureAI::MoveInLineOfSight_Safe(Unit* who)
 {
-    if (m_MoveInLineOfSight_locked == true)
+    if (_moveInLOSLocked == true)
         return;
-    m_MoveInLineOfSight_locked = true;
+    _moveInLOSLocked = true;
     MoveInLineOfSight(who);
-    m_MoveInLineOfSight_locked = false;
+    _moveInLOSLocked = false;
 }
 
 void CreatureAI::MoveInLineOfSight(Unit* who)
@@ -119,7 +119,7 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
         me->EngageWithTarget(who);
 }
 
-void CreatureAI::_OnOwnerCombatInteraction(Unit* target)
+void CreatureAI::OnOwnerCombatInteraction(Unit* target)
 {
     if (!target || !me->IsAlive())
         return;

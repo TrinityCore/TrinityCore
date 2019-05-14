@@ -148,10 +148,10 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) { }
 
         // Called when owner takes damage
-        virtual void OwnerAttackedBy(Unit* attacker) { _OnOwnerCombatInteraction(attacker); }
+        virtual void OwnerAttackedBy(Unit* attacker) { OnOwnerCombatInteraction(attacker); }
 
         // Called when owner attacks something
-        virtual void OwnerAttacked(Unit* target) { _OnOwnerCombatInteraction(target); }
+        virtual void OwnerAttacked(Unit* target) { OnOwnerCombatInteraction(target); }
 
         /// == Triggered Actions Requested ==================
 
@@ -233,10 +233,10 @@ class TC_GAME_API CreatureAI : public UnitAI
         bool _negateBoundary;
 
     private:
-        uint32 const _scriptId;
+        void OnOwnerCombatInteraction(Unit* target);
 
-        bool m_MoveInLineOfSight_locked;
-        void _OnOwnerCombatInteraction(Unit* target);
+        uint32 const _scriptId;
+        bool _moveInLOSLocked;
 };
 
 enum Permitions : int32
