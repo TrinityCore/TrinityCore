@@ -342,10 +342,9 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         float strengthValue = std::max((GetStat(STAT_STRENGTH) - 10.0f) * entry->APPerStrength, 0.0f);
         float agilityValue = std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->APPerAgility, 0.0f);
 
-        SpellShapeshiftFormEntry const* form = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
-        // Directly taken from client, SHAPESHIFT_FLAG_AP_FROM_STRENGTH ?
-        if (form && form->flags1 & 0x20)
-            agilityValue += std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->APPerStrength, 0.0f);
+        // Druids in Bear and Cat form get two points attack power per agility point
+        if (GetShapeshiftForm() == FORM_BEAR || GetShapeshiftForm() == FORM_CAT)
+            agilityValue = std::max((GetStat(STAT_AGILITY) - 10.0f) * 2, 0.0f);
 
         val2 = strengthValue + agilityValue;
     }
