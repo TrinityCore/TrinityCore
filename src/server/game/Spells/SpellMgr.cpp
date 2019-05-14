@@ -5281,6 +5281,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS;
     });
 
+    // Pulverize (Bear Form)
+    ApplySpellFix({ 80313 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];

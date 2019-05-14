@@ -72,6 +72,7 @@ enum DruidSpells
     SPELL_DRUID_ITEM_T8_BALANCE_RELIC       = 64950,
     SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS     = 70726,
     SPELL_DRUID_KING_OF_THE_JUNGLE          = 48492,
+    SPELL_DRUID_LACERATE                    = 33745,
     SPELL_DRUID_LEADER_OF_THE_PACK_HEAL     = 34299,
     SPELL_DRUID_LEADER_OF_THE_PACK_ENERGIZE = 68285,
     SPELL_DRUID_LIFEBLOOM                   = 33763,
@@ -83,6 +84,7 @@ enum DruidSpells
     SPELL_DRUID_MOONFIRE                    = 8921,
     SPELL_DRUID_NATURES_BOUNTY              = 96206,
     SPELL_DRUID_NATURES_GRACE               = 16880,
+    SPELL_DRUID_PULVERIZE_TRIGGERED         = 80951,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
     SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
@@ -1712,6 +1714,48 @@ class spell_dru_shooting_stars : public SpellScript
     }
 };
 
+// 80313 - Pulverize
+class spell_dru_pulverize : public SpellScript
+{
+    PrepareSpellScript(spell_dru_pulverize);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DRUID_PULVERIZE_TRIGGERED,
+                SPELL_DRUID_LACERATE
+            });
+    }
+
+    void ChangeDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        int32 bp = GetEffectValue();
+        if (Aura* aura = target->GetAura(SPELL_DRUID_LACERATE, caster->GetGUID()))
+        {
+            uint8 stacks = aura->GetStackAmount();
+            bp *= stacks;
+            SetEffectValue(bp);
+
+            uint32 critPerStack = sSpellMgr->GetSpellInfo(SPELL_DRUID_PULVERIZE_TRIGGERED)->Effects[EFFECT_0].BasePoints;
+            caster->CastCustomSpell(SPELL_DRUID_PULVERIZE_TRIGGERED, SPELLVALUE_BASE_POINT0, int32(critPerStack * stacks), caster, true);
+            aura->Remove();
+        }
+        else
+            SetEffectValue(0);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_dru_pulverize::ChangeDamage, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterAuraScript(spell_dru_berserk);
@@ -1738,6 +1782,7 @@ void AddSC_druid_spell_scripts()
     RegisterAuraScript(spell_dru_living_seed);
     RegisterAuraScript(spell_dru_living_seed_proc);
     RegisterAuraScript(spell_dru_moonfire);
+    RegisterSpellScript(spell_dru_pulverize);
     RegisterAuraScript(spell_dru_rejuvenation);
     RegisterAuraScript(spell_dru_rip);
     RegisterAuraScript(spell_dru_savage_defense);
