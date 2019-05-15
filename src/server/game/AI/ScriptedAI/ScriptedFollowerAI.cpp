@@ -34,6 +34,23 @@ enum Points
 
 FollowerAI::FollowerAI(Creature* creature) : ScriptedAI(creature), _updateFollowTimer(2500), _followState(STATE_FOLLOW_NONE), _questForFollow(nullptr) { }
 
+void FollowerAI::MovementInform(uint32 type, uint32 id)
+{
+    if (type != POINT_MOTION_TYPE || !HasFollowState(STATE_FOLLOW_INPROGRESS))
+        return;
+
+    if (id == POINT_COMBAT_START)
+    {
+        if (GetLeaderForFollower())
+        {
+            if (!HasFollowState(STATE_FOLLOW_PAUSED))
+                AddFollowState(STATE_FOLLOW_RETURNING);
+        }
+        else
+            me->DespawnOrUnsummon();
+    }
+}
+
 void FollowerAI::AttackStart(Unit* who)
 {
     if (!who)
@@ -49,36 +66,6 @@ void FollowerAI::AttackStart(Unit* who)
         if (IsCombatMovementAllowed())
             me->GetMotionMaster()->MoveChase(who);
     }
-}
-
-// This part provides assistance to a player that are attacked by who, even if out of normal aggro range
-// It will cause me to attack who that are attacking _any_ player (which has been confirmed may happen also on offi)
-// The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
-bool FollowerAI::AssistPlayerInCombatAgainst(Unit* who)
-{
-    if (!who || !who->GetVictim())
-        return false;
-
-    // experimental (unknown) flag not present
-    if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_ASSIST))
-        return false;
-
-    // not a player
-    if (!who->EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
-        return false;
-
-    // never attack friendly
-    if (me->IsFriendlyTo(who))
-        return false;
-
-    // too far away and no free sight?
-    if (me->IsWithinDistInMap(who, MAX_PLAYER_DISTANCE) && me->IsWithinLOSInMap(who))
-    {
-        me->EngageWithTarget(who);
-        return true;
-    }
-
-    return false;
 }
 
 void FollowerAI::MoveInLineOfSight(Unit* who)
@@ -239,23 +226,6 @@ void FollowerAI::UpdateFollowerAI(uint32 /*uiDiff*/)
     DoMeleeAttackIfReady();
 }
 
-void FollowerAI::MovementInform(uint32 type, uint32 id)
-{
-    if (type != POINT_MOTION_TYPE || !HasFollowState(STATE_FOLLOW_INPROGRESS))
-        return;
-
-    if (id == POINT_COMBAT_START)
-    {
-        if (GetLeaderForFollower())
-        {
-            if (!HasFollowState(STATE_FOLLOW_PAUSED))
-                AddFollowState(STATE_FOLLOW_RETURNING);
-        }
-        else
-            me->DespawnOrUnsummon();
-    }
-}
-
 void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, Quest const* quest)
 {
     if (me->IsEngaged())
@@ -291,34 +261,6 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, Quest co
     me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
     TC_LOG_DEBUG("scripts.ai.followerai", "FollowerAI::StartFollow: start follow %s - %s (%s)", player->GetName().c_str(), _leaderGUID.ToString().c_str(), me->GetGUID().ToString().c_str());
-}
-
-Player* FollowerAI::GetLeaderForFollower()
-{
-    if (Player* player = ObjectAccessor::GetPlayer(*me, _leaderGUID))
-    {
-        if (player->IsAlive())
-            return player;
-        else
-        {
-            if (Group* group = player->GetGroup())
-            {
-                for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                {
-                    Player* member = groupRef->GetSource();
-                    if (member && me->IsWithinDistInMap(member, MAX_PLAYER_DISTANCE) && member->IsAlive())
-                    {
-                        TC_LOG_DEBUG("scripts.ai.followerai", "FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. (%s)", me->GetGUID().ToString().c_str());
-                        _leaderGUID = member->GetGUID();
-                        return member;
-                    }
-                }
-            }
-        }
-    }
-
-    TC_LOG_DEBUG("scripts.ai.followerai", "FollowerAI::GetLeaderForFollower: GetLeader can not find suitable leader. (%s)", me->GetGUID().ToString().c_str());
-    return nullptr;
 }
 
 void FollowerAI::SetFollowComplete(bool withEndEvent)
@@ -368,4 +310,79 @@ void FollowerAI::SetFollowPaused(bool paused)
         if (Player* leader = GetLeaderForFollower())
             me->GetMotionMaster()->MoveFollow(leader, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
     }
+}
+
+Player* FollowerAI::GetLeaderForFollower()
+{
+    if (Player* player = ObjectAccessor::GetPlayer(*me, _leaderGUID))
+    {
+        if (player->IsAlive())
+            return player;
+        else
+        {
+            if (Group* group = player->GetGroup())
+            {
+                for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                {
+                    Player* member = groupRef->GetSource();
+                    if (member && me->IsWithinDistInMap(member, MAX_PLAYER_DISTANCE) && member->IsAlive())
+                    {
+                        TC_LOG_DEBUG("scripts.ai.followerai", "FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. (%s)", me->GetGUID().ToString().c_str());
+                        _leaderGUID = member->GetGUID();
+                        return member;
+                    }
+                }
+            }
+        }
+    }
+
+    TC_LOG_DEBUG("scripts.ai.followerai", "FollowerAI::GetLeaderForFollower: GetLeader can not find suitable leader. (%s)", me->GetGUID().ToString().c_str());
+    return nullptr;
+}
+
+// This part provides assistance to a player that are attacked by who, even if out of normal aggro range
+// It will cause me to attack who that are attacking _any_ player (which has been confirmed may happen also on offi)
+// The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
+bool FollowerAI::AssistPlayerInCombatAgainst(Unit* who)
+{
+    if (!who || !who->GetVictim())
+        return false;
+
+    if (me->HasReactState(REACT_PASSIVE))
+        return false;
+
+    // experimental (unknown) flag not present
+    if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_ASSIST))
+        return false;
+
+    // not a player
+    if (!who->EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
+        return false;
+
+    if (!who->isInAccessiblePlaceFor(me))
+        return false;
+
+    if (!CanAIAttack(who))
+        return false;
+
+    // we cannot attack in evade mode
+    if (me->IsInEvadeMode())
+        return false;
+
+    // or if enemy is in evade mode
+    if (who->GetTypeId() == TYPEID_UNIT && who->ToCreature()->IsInEvadeMode())
+        return false;
+
+    // never attack friendly
+    if (me->IsFriendlyTo(who))
+        return false;
+
+    // too far away and no free sight
+    if (me->IsWithinDistInMap(who, MAX_PLAYER_DISTANCE) && me->IsWithinLOSInMap(who))
+    {
+        me->EngageWithTarget(who);
+        return true;
+    }
+
+    return false;
 }
