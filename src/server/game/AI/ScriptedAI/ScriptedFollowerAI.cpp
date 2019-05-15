@@ -53,19 +53,7 @@ void FollowerAI::MovementInform(uint32 type, uint32 id)
 
 void FollowerAI::AttackStart(Unit* who)
 {
-    if (!who)
-        return;
-
-    if (me->Attack(who, true))
-    {
-        me->EngageWithTarget(who); // in case it doesn't have threat+combat yet
-
-        if (me->HasUnitState(UNIT_STATE_FOLLOW))
-            me->ClearUnitState(UNIT_STATE_FOLLOW);
-
-        if (IsCombatMovementAllowed())
-            me->GetMotionMaster()->MoveChase(who);
-    }
+    ScriptedAI::AttackStart(who);
 }
 
 void FollowerAI::MoveInLineOfSight(Unit* who)
