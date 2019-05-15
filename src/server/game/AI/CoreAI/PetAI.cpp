@@ -44,7 +44,7 @@ int32 PetAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-PetAI::PetAI(Creature* c) : CreatureAI(c), _tracker(TIME_INTERVAL_LOOK)
+PetAI::PetAI(Creature* creature) : CreatureAI(creature), _tracker(TIME_INTERVAL_LOOK)
 {
     if (!me->GetCharmInfo())
         throw InvalidAIException("Creature doesn't have a valid charm info");
@@ -107,7 +107,7 @@ void PetAI::UpdateAI(uint32 diff)
 
         if (NeedToStop())
         {
-            TC_LOG_DEBUG("misc", "Pet AI stopped attacking [guid=%u]", me->GetGUID().GetCounter());
+            TC_LOG_TRACE("scripts.ai.petai", "PetAI::UpdateAI: AI stopped attacking %s", me->GetGUID().ToString().c_str());
             StopAttack();
             return;
         }
@@ -262,7 +262,7 @@ void PetAI::UpdateAI(uint32 diff)
 
 void PetAI::UpdateAllies()
 {
-    _updateAlliesTimer = 10 * IN_MILLISECONDS;                 // update friendly targets every 10 seconds, lesser checks increase performance
+    _updateAlliesTimer = 10 * IN_MILLISECONDS; // update friendly targets every 10 seconds, lesser checks increase performance
 
     Unit* owner = me->GetCharmerOrOwner();
     if (!owner)
@@ -272,17 +272,17 @@ void PetAI::UpdateAllies()
     if (Player* player = owner->ToPlayer())
         group = player->GetGroup();
 
-    //only pet and owner/not in group->ok
+    // only pet and owner/not in group->ok
     if (_allySet.size() == 2 && !group)
         return;
 
-    //owner is in group; group members filled in already (no raid -> subgroupcount = whole count)
+    // owner is in group; group members filled in already (no raid -> subgroupcount = whole count)
     if (group && !group->isRaidGroup() && _allySet.size() == (group->GetMembersCount() + 2))
         return;
 
     _allySet.clear();
     _allySet.insert(me->GetGUID());
-    if (group)                                              //add group
+    if (group) // add group
     {
         for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
         {
@@ -296,7 +296,7 @@ void PetAI::UpdateAllies()
             _allySet.insert(Target->GetGUID());
         }
     }
-    else                                                    //remove group
+    else // remove group
         _allySet.insert(owner->GetGUID());
 }
 
@@ -588,34 +588,33 @@ bool PetAI::CanAttack(Unit* target)
 
 void PetAI::ReceiveEmote(Player* player, uint32 emote)
 {
-    if (me->GetOwnerGUID() && me->GetOwnerGUID() == player->GetGUID())
-        switch (emote)
-        {
-            case TEXT_EMOTE_COWER:
-                if (me->IsPet() && me->ToPet()->IsPetGhoul())
-                    me->HandleEmoteCommand(/*EMOTE_ONESHOT_ROAR*/EMOTE_ONESHOT_OMNICAST_GHOUL);
-                break;
-            case TEXT_EMOTE_ANGRY:
-                if (me->IsPet() && me->ToPet()->IsPetGhoul())
-                    me->HandleEmoteCommand(/*EMOTE_ONESHOT_COWER*/EMOTE_STATE_STUN);
-                break;
-            case TEXT_EMOTE_GLARE:
-                if (me->IsPet() && me->ToPet()->IsPetGhoul())
-                    me->HandleEmoteCommand(EMOTE_STATE_STUN);
-                break;
-            case TEXT_EMOTE_SOOTHE:
-                if (me->IsPet() && me->ToPet()->IsPetGhoul())
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_OMNICAST_GHOUL);
-                break;
-        }
+    if (me->GetOwnerGUID() != player->GetGUID())
+        return;
+
+    switch (emote)
+    {
+        case TEXT_EMOTE_COWER:
+            if (me->IsPet() && me->ToPet()->IsPetGhoul())
+                me->HandleEmoteCommand(/*EMOTE_ONESHOT_ROAR*/EMOTE_ONESHOT_OMNICAST_GHOUL);
+            break;
+        case TEXT_EMOTE_ANGRY:
+            if (me->IsPet() && me->ToPet()->IsPetGhoul())
+                me->HandleEmoteCommand(/*EMOTE_ONESHOT_COWER*/EMOTE_STATE_STUN);
+            break;
+        case TEXT_EMOTE_GLARE:
+            if (me->IsPet() && me->ToPet()->IsPetGhoul())
+                me->HandleEmoteCommand(EMOTE_STATE_STUN);
+            break;
+        case TEXT_EMOTE_SOOTHE:
+            if (me->IsPet() && me->ToPet()->IsPetGhoul())
+                me->HandleEmoteCommand(EMOTE_ONESHOT_OMNICAST_GHOUL);
+            break;
+    }
 }
 
 void PetAI::ClearCharmInfoFlags()
 {
-    // Quick access to set all flags to FALSE
-
     CharmInfo* ci = me->GetCharmInfo();
-
     if (ci)
     {
         ci->SetIsAtStay(false);

@@ -1152,13 +1152,13 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
 }
 
 static const float CASTER_CHASE_DISTANCE = 28.0f;
-void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
+void SimpleCharmedPlayerAI::UpdateAI(uint32 diff)
 {
     Creature* charmer = GetCharmer();
     if (!charmer)
         return;
 
-    //kill self if charm aura has infinite duration
+    // kill self if charm aura has infinite duration
     if (charmer->IsInEvadeMode())
     {
         Player::AuraEffectList const& auras = me->GetAuraEffectsByType(SPELL_AURA_MOD_CHARM);
@@ -1222,8 +1222,8 @@ void SimpleCharmedPlayerAI::UpdateAI(const uint32 diff)
                 _castCheckTimer = 0;
             else
             {
-                if (IsRangedAttacker())
-                { // chase to zero if the target isn't in line of sight
+                if (IsRangedAttacker()) // chase to zero if the target isn't in line of sight
+                {
                     bool inLOS = me->IsWithinLOSInMap(target);
                     if (_chaseCloser != !inLOS)
                     {

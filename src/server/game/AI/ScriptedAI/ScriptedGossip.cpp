@@ -16,8 +16,8 @@
  */
 
 #include "ScriptedGossip.h"
-#include "Player.h"
 #include "Creature.h"
+#include "Player.h"
 
 uint32 GetGossipActionFor(Player* player, uint32 gossipListId)
 {
