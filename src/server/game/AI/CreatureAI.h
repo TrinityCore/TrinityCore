@@ -18,12 +18,12 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
-#include "UnitAI.h"
 #include "Common.h"
 #include "LootItemType.h"
 #include "ObjectDefines.h"
 #include "Optional.h"
 #include "QuestDef.h"
+#include "UnitAI.h"
 
 class AreaBoundary;
 class AreaTrigger;
@@ -39,6 +39,16 @@ typedef std::vector<AreaBoundary const*> CreatureBoundary;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
+
+enum Permitions : int32
+{
+    PERMIT_BASE_NO               = -1,
+    PERMIT_BASE_IDLE             = 1,
+    PERMIT_BASE_REACTIVE         = 100,
+    PERMIT_BASE_PROACTIVE        = 200,
+    PERMIT_BASE_FACTION_SPECIFIC = 400,
+    PERMIT_BASE_SPECIAL          = 800
+};
 
 enum SCEquip
 {
@@ -237,16 +247,6 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         uint32 const _scriptId;
         bool _moveInLOSLocked;
-};
-
-enum Permitions : int32
-{
-    PERMIT_BASE_NO                 = -1,
-    PERMIT_BASE_IDLE               = 1,
-    PERMIT_BASE_REACTIVE           = 100,
-    PERMIT_BASE_PROACTIVE          = 200,
-    PERMIT_BASE_FACTION_SPECIFIC   = 400,
-    PERMIT_BASE_SPECIAL            = 800
 };
 
 #endif

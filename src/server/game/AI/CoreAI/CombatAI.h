@@ -55,7 +55,7 @@ class TC_GAME_API CombatAI : public CreatureAI
 class TC_GAME_API CasterAI : public CombatAI
 {
     public:
-        explicit CasterAI(Creature* c, uint32 scriptId = {}) : CombatAI(c, scriptId) { _attackDistance = MELEE_RANGE; }
+        explicit CasterAI(Creature* creature, uint32 scriptId = {}) : CombatAI(creature, scriptId) { _attackDistance = MELEE_RANGE; }
         void InitializeAI() override;
         void AttackStart(Unit* victim) override { AttackStartCaster(victim, _attackDistance); }
         void UpdateAI(uint32 diff) override;
@@ -67,7 +67,7 @@ class TC_GAME_API CasterAI : public CombatAI
 struct TC_GAME_API ArcherAI : public CreatureAI
 {
     public:
-        explicit ArcherAI(Creature* c, uint32 scriptId = {});
+        explicit ArcherAI(Creature* creature, uint32 scriptId = {});
         void AttackStart(Unit* who) override;
         void UpdateAI(uint32 diff) override;
 
@@ -80,7 +80,7 @@ struct TC_GAME_API ArcherAI : public CreatureAI
 struct TC_GAME_API TurretAI : public CreatureAI
 {
     public:
-        explicit TurretAI(Creature* c, uint32 scriptId = {});
+        explicit TurretAI(Creature* creature, uint32 scriptId = {});
         bool CanAIAttack(Unit const* who) const override;
         void AttackStart(Unit* who) override;
         void UpdateAI(uint32 diff) override;

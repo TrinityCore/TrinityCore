@@ -27,8 +27,7 @@ class Totem;
 class TC_GAME_API TotemAI : public CreatureAI
 {
     public:
-
-        explicit TotemAI(Creature* c, uint32 scriptId = {});
+        explicit TotemAI(Creature* creature, uint32 scriptId = {});
 
         void MoveInLineOfSight(Unit* who) override;
         void AttackStart(Unit* victim) override;

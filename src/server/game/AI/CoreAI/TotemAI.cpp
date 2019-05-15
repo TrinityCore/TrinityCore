@@ -16,13 +16,14 @@
  */
 
 #include "TotemAI.h"
-#include "Totem.h"
+#include "CellImpl.h"
 #include "Creature.h"
-#include "ObjectAccessor.h"
-#include "SpellMgr.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "CellImpl.h"
+#include "ObjectAccessor.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "Totem.h"
 
 int32 TotemAI::Permissible(Creature const* creature)
 {
@@ -32,9 +33,9 @@ int32 TotemAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId), _victimGUID()
+TotemAI::TotemAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, scriptId), _victimGUID()
 {
-    ASSERT(c->IsTotem());
+    ASSERT(creature->IsTotem(), "TotemAI: AI assigned to a no-totem creature (%s)!", creature->GetGUID().ToString().c_str());
 }
 
 void TotemAI::MoveInLineOfSight(Unit* /*who*/) { }
@@ -66,9 +67,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
     Unit* victim = !_victimGUID.IsEmpty() ? ObjectAccessor::GetUnit(*me, _victimGUID) : nullptr;
 
     // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
-    if (!victim ||
-        !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) ||
-        me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
+    if (!victim || !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) || me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
     {
         victim = nullptr;
         Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), max_range);
