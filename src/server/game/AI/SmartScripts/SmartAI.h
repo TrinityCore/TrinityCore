@@ -25,25 +25,22 @@
 #include "SmartScript.h"
 #include "WaypointDefines.h"
 
-enum SmartEscortState
+enum SmartEscortState : uint8
 {
-    SMART_ESCORT_NONE       = 0x000,                        //nothing in progress
-    SMART_ESCORT_ESCORTING  = 0x001,                        //escort is in progress
-    SMART_ESCORT_RETURNING  = 0x002,                        //escort is returning after being in combat
-    SMART_ESCORT_PAUSED     = 0x004                         //will not proceed with waypoints before state is removed
+    SMART_ESCORT_NONE       = 0x00, // nothing in progress
+    SMART_ESCORT_ESCORTING  = 0x01, // escort is in progress
+    SMART_ESCORT_RETURNING  = 0x02, // escort is returning after being in combat
+    SMART_ESCORT_PAUSED     = 0x04  // will not proceed with waypoints before state is removed
 };
 
-enum SmartEscortVars
-{
-    SMART_ESCORT_MAX_PLAYER_DIST        = 60,
-    SMART_MAX_AID_DIST    = SMART_ESCORT_MAX_PLAYER_DIST / 2
-};
+static float constexpr SMART_ESCORT_MAX_PLAYER_DIST = 60.f;
+static float constexpr SMART_MAX_AID_DIST = SMART_ESCORT_MAX_PLAYER_DIST / 2.f;
 
 class TC_GAME_API SmartAI : public CreatureAI
 {
     public:
         ~SmartAI() { }
-        explicit SmartAI(Creature* c);
+        explicit SmartAI(Creature* creature);
 
         // core related
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
@@ -58,12 +55,12 @@ class TC_GAME_API SmartAI : public CreatureAI
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
         void EndPath(bool fail = false);
         void ResumePath();
-        bool HasEscortState(uint32 uiEscortState) const { return (_escortState & uiEscortState) != 0; }
-        void AddEscortState(uint32 uiEscortState) { _escortState |= uiEscortState; }
-        void RemoveEscortState(uint32 uiEscortState) { _escortState &= ~uiEscortState; }
-        void SetAutoAttack(bool on) { mCanAutoAttack = on; }
+        bool HasEscortState(uint32 escortState) const { return (_escortState & escortState) != 0; }
+        void AddEscortState(uint32 escortState) { _escortState |= escortState; }
+        void RemoveEscortState(uint32 escortState) { _escortState &= ~escortState; }
+        void SetAutoAttack(bool on) { _canAutoAttack = on; }
         void SetCombatMove(bool on);
-        bool CanCombatMove() { return mCanCombatMove; }
+        bool CanCombatMove() { return _canCombatMove; }
         void SetFollow(Unit* target, float dist = 0.0f, float angle = 0.0f, uint32 credit = 0, uint32 end = 0, uint32 creditType = 0);
         void StopFollow(bool complete);
         bool IsEscortInvokerInRange();
@@ -74,7 +71,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void WaypointPathEnded(uint32 nodeId, uint32 pathId) override;
 
         void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
-        SmartScript* GetScript() { return &mScript; }
+        SmartScript* GetScript() { return &_script; }
 
         // Called at reaching home after evade, InitializeAI(), EnterEvadeMode() for resetting variables
         void JustReachedHome() override;
@@ -169,7 +166,7 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         void SetEvadeDisabled(bool disable = true);
 
-        void SetInvincibilityHpLevel(uint32 level) { mInvincibilityHpLevel = level; }
+        void SetInvincibilityHpLevel(uint32 level) { _invincibilityHPLevel = level; }
 
         bool GossipHello(Player* player) override;
         bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
@@ -180,10 +177,10 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         void SetDespawnTime (uint32 t)
         {
-            mDespawnTime = t;
-            mDespawnState = t ? 1 : 0;
+            _despawnTime = t;
+            _despawnState = t ? 1 : 0;
         }
-        void StartDespawn() { mDespawnState = 2; }
+        void StartDespawn() { _despawnState = 2; }
 
         void OnSpellClick(Unit* clicker, bool spellClickHandled) override;
 
@@ -191,7 +188,7 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         void SetGossipReturn(bool val) { _gossipReturn = val; }
 
-        void SetEscortQuest(uint32 questID) { mEscortQuestID = questID; }
+        void SetEscortQuest(uint32 questID) { _escortQuestId = questID; }
 
     private:
         bool AssistPlayerInCombatAgainst(Unit* who);
@@ -201,16 +198,15 @@ class TC_GAME_API SmartAI : public CreatureAI
         void UpdateFollow(uint32 diff);
         void UpdateDespawn(uint32 diff);
 
-        SmartScript mScript;
-
-        bool mIsCharmed;
-        uint32 mFollowCreditType;
-        uint32 mFollowArrivedTimer;
-        uint32 mFollowCredit;
-        uint32 mFollowArrivedEntry;
-        ObjectGuid mFollowGuid;
-        float mFollowDist;
-        float mFollowAngle;
+        SmartScript _script;
+        bool _charmed;
+        uint32 _followCreditType;
+        uint32 _followArrivedTimer;
+        uint32 _followCredit;
+        uint32 _followArrivedEntry;
+        ObjectGuid _followGUID;
+        float _followDistance;
+        float _followAngle;
 
         uint32 _escortState;
         uint32 _escortNPCFlags;
@@ -224,35 +220,35 @@ class TC_GAME_API SmartAI : public CreatureAI
         bool _OOCReached;
         bool _waypointPathEnded;
 
-        bool mRun;
-        bool mEvadeDisabled;
-        bool mCanAutoAttack;
-        bool mCanCombatMove;
-        uint32 mInvincibilityHpLevel;
+        bool _run;
+        bool _evadeDisabled;
+        bool _canAutoAttack;
+        bool _canCombatMove;
+        uint32 _invincibilityHPLevel;
 
-        uint32 mDespawnTime;
-        uint32 mDespawnState;
+        uint32 _despawnTime;
+        uint32 _despawnState;
 
         // Vehicle conditions
-        bool mHasConditions;
-        uint32 mConditionsTimer;
+        bool _vehicleConditions;
+        uint32 _vehicleConditionsTimer;
 
         // Gossip
         bool _gossipReturn;
 
-        uint32 mEscortQuestID;
+        uint32 _escortQuestId;
 };
 
 class TC_GAME_API SmartGameObjectAI : public GameObjectAI
 {
     public:
-        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), _gossipReturn(false) { }
+        SmartGameObjectAI(GameObject* go) : GameObjectAI(go), _gossipReturn(false) { }
         ~SmartGameObjectAI() { }
 
         void UpdateAI(uint32 diff) override;
         void InitializeAI() override;
         void Reset() override;
-        SmartScript* GetScript() { return &mScript; }
+        SmartScript* GetScript() { return &_script; }
         static int32 Permissible(GameObject const* /*go*/) { return PERMIT_BASE_NO; }
 
         bool GossipHello(Player* player) override;
@@ -273,7 +269,7 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         void SetGossipReturn(bool val) { _gossipReturn = val; }
 
     private:
-        SmartScript mScript;
+        SmartScript _script;
 
         // Gossip
         bool _gossipReturn;

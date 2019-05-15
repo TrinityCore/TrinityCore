@@ -30,15 +30,16 @@ typedef std::vector<std::pair<Unit*, Spell*>> TargetSpellList;
 class TC_GAME_API PetAI : public CreatureAI
 {
     public:
-
-        explicit PetAI(Creature* c);
+        explicit PetAI(Creature* creature);
 
         void UpdateAI(uint32) override;
         static int32 Permissible(Creature const* creature);
 
         void KilledUnit(Unit* /*victim*/) override;
-        void AttackStart(Unit* target) override; // only start attacking if not attacking something else already
-        void _AttackStart(Unit* target); // always start attacking if possible
+        // only start attacking if not attacking something else already
+        void AttackStart(Unit* target) override;
+        // always start attacking if possible
+        void _AttackStart(Unit* target);
         void MovementInform(uint32 moveType, uint32 data) override;
         void OwnerAttackedBy(Unit* attacker) override;
         void OwnerAttacked(Unit* target) override;
@@ -46,26 +47,25 @@ class TC_GAME_API PetAI : public CreatureAI
         void ReceiveEmote(Player* player, uint32 textEmote) override;
 
         // The following aren't used by the PetAI but need to be defined to override
-        //  default CreatureAI functions which interfere with the PetAI
-        //
+        // default CreatureAI functions which interfere with the PetAI
+
         void MoveInLineOfSight(Unit* /*who*/) override { } // CreatureAI interferes with returning pets
         void MoveInLineOfSight_Safe(Unit* /*who*/) { } // CreatureAI interferes with returning pets
         void EnterEvadeMode(EvadeReason /*why*/) override { } // For fleeing, pets don't use this type of Evade mechanic
 
     private:
-        bool _needToStop(void);
-        void _stopAttack(void);
-
+        bool NeedToStop();
+        void StopAttack();
         void UpdateAllies();
-
-        TimeTracker i_tracker;
-        GuidSet m_AllySet;
-        uint32 m_updateAlliesTimer;
-
         Unit* SelectNextTarget(bool allowAutoSelect) const;
         void HandleReturnMovement();
         void DoAttack(Unit* target, bool chase);
         bool CanAttack(Unit* target);
+        // Quick access to set all flags to FALSE
         void ClearCharmInfoFlags();
+
+        TimeTracker _tracker;
+        GuidSet _allySet;
+        uint32 _updateAlliesTimer;
 };
 #endif

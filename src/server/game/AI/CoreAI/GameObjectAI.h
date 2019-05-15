@@ -33,8 +33,9 @@ class TC_GAME_API GameObjectAI
 {
     protected:
         GameObject* const me;
+
     public:
-        explicit GameObjectAI(GameObject* g) : me(g) { }
+        explicit GameObjectAI(GameObject* go) : me(go) { }
         virtual ~GameObjectAI() { }
 
         virtual void UpdateAI(uint32 /*diff*/) { }
@@ -97,7 +98,7 @@ class TC_GAME_API GameObjectAI
 class TC_GAME_API NullGameObjectAI : public GameObjectAI
 {
     public:
-        explicit NullGameObjectAI(GameObject* g);
+        explicit NullGameObjectAI(GameObject* go);
 
         void UpdateAI(uint32 /*diff*/) override { }
 
