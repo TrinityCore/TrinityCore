@@ -70,35 +70,14 @@ void FollowerAI::AttackStart(Unit* who)
 
 void FollowerAI::MoveInLineOfSight(Unit* who)
 {
+    // TODO: what in the world is this?
     if (me->HasReactState(REACT_AGGRESSIVE) && !me->HasUnitState(UNIT_STATE_STUNNED) && who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me))
-    {
-        if (HasFollowState(STATE_FOLLOW_INPROGRESS) && AssistPlayerInCombatAgainst(who))
-            return;
+        return;
 
-        if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-            return;
+    if (HasFollowState(STATE_FOLLOW_INPROGRESS) && AssistPlayerInCombatAgainst(who))
+        return;
 
-        if (me->IsHostileTo(who))
-        {
-            float fAttackRadius = me->GetAttackDistance(who);
-            if (me->IsWithinDistInMap(who, fAttackRadius) && me->IsWithinLOSInMap(who))
-            {
-                if (!me->GetVictim())
-                {
-                    // Clear distracted state on combat
-                    if (me->HasUnitState(UNIT_STATE_DISTRACTED))
-                    {
-                        me->ClearUnitState(UNIT_STATE_DISTRACTED);
-                        me->GetMotionMaster()->Clear();
-                    }
-
-                    AttackStart(who);
-                }
-                else if (me->GetMap()->IsDungeon())
-                  me->EngageWithTarget(who);
-            }
-        }
-    }
+    ScriptedAI::MoveInLineOfSight(who);
 }
 
 void FollowerAI::JustDied(Unit* /*killer*/)
@@ -263,28 +242,6 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, Quest co
     TC_LOG_DEBUG("scripts.ai.followerai", "FollowerAI::StartFollow: start follow %s - %s (%s)", player->GetName().c_str(), _leaderGUID.ToString().c_str(), me->GetGUID().ToString().c_str());
 }
 
-void FollowerAI::SetFollowComplete(bool withEndEvent)
-{
-    if (me->HasUnitState(UNIT_STATE_FOLLOW))
-    {
-        me->ClearUnitState(UNIT_STATE_FOLLOW);
-
-        me->StopMoving();
-        me->GetMotionMaster()->Clear();
-        me->GetMotionMaster()->MoveIdle();
-    }
-
-    if (withEndEvent)
-        AddFollowState(STATE_FOLLOW_POSTEVENT);
-    else
-    {
-        if (HasFollowState(STATE_FOLLOW_POSTEVENT))
-            RemoveFollowState(STATE_FOLLOW_POSTEVENT);
-    }
-
-    AddFollowState(STATE_FOLLOW_COMPLETE);
-}
-
 void FollowerAI::SetFollowPaused(bool paused)
 {
     if (!HasFollowState(STATE_FOLLOW_INPROGRESS) || HasFollowState(STATE_FOLLOW_COMPLETE))
@@ -310,6 +267,28 @@ void FollowerAI::SetFollowPaused(bool paused)
         if (Player* leader = GetLeaderForFollower())
             me->GetMotionMaster()->MoveFollow(leader, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
     }
+}
+
+void FollowerAI::SetFollowComplete(bool withEndEvent)
+{
+    if (me->HasUnitState(UNIT_STATE_FOLLOW))
+    {
+        me->ClearUnitState(UNIT_STATE_FOLLOW);
+
+        me->StopMoving();
+        me->GetMotionMaster()->Clear();
+        me->GetMotionMaster()->MoveIdle();
+    }
+
+    if (withEndEvent)
+        AddFollowState(STATE_FOLLOW_POSTEVENT);
+    else
+    {
+        if (HasFollowState(STATE_FOLLOW_POSTEVENT))
+            RemoveFollowState(STATE_FOLLOW_POSTEVENT);
+    }
+
+    AddFollowState(STATE_FOLLOW_COMPLETE);
 }
 
 Player* FollowerAI::GetLeaderForFollower()
