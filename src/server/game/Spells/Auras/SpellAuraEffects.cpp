@@ -595,11 +595,11 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         }
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_LEECH:
-            if (GetBase()->GetType() == UNIT_AURA_TYPE)
+            if (caster && GetBase()->GetType() == UNIT_AURA_TYPE)
                 amount = caster->SpellDamageBonusDone(GetBase()->GetUnitOwner(), GetSpellInfo(), amount, DOT, GetEffIndex());
             break;
         case SPELL_AURA_PERIODIC_HEAL:
-            if (GetBase()->GetType() == UNIT_AURA_TYPE)
+            if (caster && GetBase()->GetType() == UNIT_AURA_TYPE)
                 amount = caster->SpellHealingBonusDone(GetBase()->GetUnitOwner(), GetSpellInfo(), amount, DOT, GetEffIndex());
             break;
         default:
