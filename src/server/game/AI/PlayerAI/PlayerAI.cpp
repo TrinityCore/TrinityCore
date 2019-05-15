@@ -1185,8 +1185,10 @@ void SimpleCharmedPlayerAI::UpdateAI(uint32 diff)
                     _isFollowing = true;
                     me->AttackStop();
                     me->CastStop();
-                    me->StopMoving();
-                    me->GetMotionMaster()->Clear();
+
+                    if (me->HasUnitState(UNIT_STATE_CHASE))
+                        me->GetMotionMaster()->Remove(CHASE_MOTION_TYPE);
+
                     me->GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
                 }
                 return;
@@ -1249,8 +1251,10 @@ void SimpleCharmedPlayerAI::UpdateAI(uint32 diff)
         _isFollowing = true;
         me->AttackStop();
         me->CastStop();
-        me->StopMoving();
-        me->GetMotionMaster()->Clear();
+
+        if (me->HasUnitState(UNIT_STATE_CHASE))
+            me->GetMotionMaster()->Remove(CHASE_MOTION_TYPE);
+
         me->GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
     }
 }
@@ -1261,17 +1265,17 @@ void SimpleCharmedPlayerAI::OnCharmed(bool isNew)
     {
         me->CastStop();
         me->AttackStop();
-        me->StopMoving();
-        me->GetMotionMaster()->Clear();
-        me->GetMotionMaster()->MovePoint(0, me->GetPosition(), false); // force re-sync of current position for all clients
+
+        if (me->GetMotionMaster()->Size() <= 1) // if there is no current movement (we dont want to erase/overwrite any existing stuff)
+            me->GetMotionMaster()->MovePoint(0, me->GetPosition(), false); // force re-sync of current position for all clients
     }
     else
     {
         me->CastStop();
         me->AttackStop();
-        // @todo only voluntary movement (don't cancel stuff like death grip or charge mid-animation)
-        me->GetMotionMaster()->Clear();
-        me->StopMoving();
+
+        me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
     }
+
     PlayerAI::OnCharmed(isNew);
 }
