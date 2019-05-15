@@ -255,40 +255,40 @@ std::string UnitAI::GetDebugInfo() const
 }
 
 DefaultTargetSelector::DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withTank, int32 aura)
-    : me(unit), m_dist(dist), m_playerOnly(playerOnly), except(!withTank ? unit->GetThreatManager().GetCurrentVictim() : nullptr), m_aura(aura)
+    : _me(unit), _dist(dist), _playerOnly(playerOnly), _exception(!withTank ? unit->GetThreatManager().GetCurrentVictim() : nullptr), _aura(aura)
 {
 }
 
 bool DefaultTargetSelector::operator()(Unit const* target) const
 {
-    if (!me)
+    if (!_me)
         return false;
 
     if (!target)
         return false;
 
-    if (except && target == except)
+    if (_exception && target == _exception)
         return false;
 
-    if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
+    if (_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
         return false;
 
-    if (m_dist > 0.0f && !me->IsWithinCombatRange(target, m_dist))
+    if (_dist > 0.0f && !_me->IsWithinCombatRange(target, _dist))
         return false;
 
-    if (m_dist < 0.0f && me->IsWithinCombatRange(target, -m_dist))
+    if (_dist < 0.0f && _me->IsWithinCombatRange(target, -_dist))
         return false;
 
-    if (m_aura)
+    if (_aura)
     {
-        if (m_aura > 0)
+        if (_aura > 0)
         {
-            if (!target->HasAura(m_aura))
+            if (!target->HasAura(_aura))
                 return false;
         }
         else
         {
-            if (target->HasAura(-m_aura))
+            if (target->HasAura(-_aura))
                 return false;
         }
     }

@@ -53,19 +53,17 @@ class TC_GAME_API PetAI : public CreatureAI
         void EnterEvadeMode(EvadeReason /*why*/) override { } // For fleeing, pets don't use this type of Evade mechanic
 
     private:
-        bool _needToStop(void);
-        void _stopAttack(void);
-
+        bool NeedToStop();
+        void StopAttack();
         void UpdateAllies();
-
-        TimeTracker i_tracker;
-        GuidSet m_AllySet;
-        uint32 m_updateAlliesTimer;
-
         Unit* SelectNextTarget(bool allowAutoSelect) const;
         void HandleReturnMovement();
         void DoAttack(Unit* target, bool chase);
         bool CanAttack(Unit* target);
         void ClearCharmInfoFlags();
+
+        TimeTracker _tracker;
+        GuidSet _allySet;
+        uint32 _updateAlliesTimer;
 };
 #endif
