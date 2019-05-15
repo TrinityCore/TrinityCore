@@ -39,6 +39,6 @@ class TC_GAME_API TotemAI : public CreatureAI
         static int32 Permissible(Creature const* creature);
 
     private:
-        ObjectGuid i_victimGuid;
+        ObjectGuid _victimGUID;
 };
 #endif
