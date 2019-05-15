@@ -38,6 +38,7 @@ EndContentData */
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "QuestDef.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 #include "ScriptedGossip.h"
@@ -239,7 +240,7 @@ enum Corastrasza
     NPC_TEXT_EAGERLY_AWAITING_YOUR_RETURN = 14170,
 
     QUEST_ACES_HIGH                       = 13413,
-    QUEST_ACES_HIGH_DAILY                        = 13414,
+    QUEST_ACES_HIGH_DAILY                 = 13414,
 
     SPELL_SUMMON_WYRMREST_SKYTALON        = 61240,
     SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC = 61244
@@ -305,7 +306,7 @@ enum Iruk
     GOSSIP_OPTION_SEARCH_CORPSE    = 0,
     NPC_TEXT_THIS_YOUNG_TUSKARR    = 12585,
 
-    QUEST_SPIRITS_WATCH_OVER_US             = 11961,
+    QUEST_SPIRITS_WATCH_OVER_US    = 11961,
 
     SPELL_CREATE_TOTEM_OF_ISSLIRUK = 46816
 };
@@ -336,7 +337,7 @@ public:
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
                 player->CastSpell(player, SPELL_CREATE_TOTEM_OF_ISSLIRUK, true);
-                    CloseGossipMenuFor(player);
+                CloseGossipMenuFor(player);
             }
             return true;
         }
@@ -1252,28 +1253,31 @@ public:
                     DoCastVictim(SPELL_SHADOW_BOLT);
                     shadowBoltTimer = urand(5000, 12000);
                 }
-                else shadowBoltTimer -= diff;
+                else
+                    shadowBoltTimer -= diff;
 
                 if (deflectionTimer <= diff)
                 {
                     DoCastVictim(SPELL_DEFLECTION);
                     deflectionTimer = urand(20000, 25000);
                 }
-                else deflectionTimer -= diff;
+                else
+                    deflectionTimer -= diff;
 
                 if (soulBlastTimer <= diff)
                 {
                     DoCastVictim(SPELL_SOUL_BLAST);
-                    soulBlastTimer  = urand(12000, 18000);
-            }
-                else soulBlastTimer -= diff;
+                    soulBlastTimer = urand(12000, 18000);
+                }
+                else
+                    soulBlastTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
-       }
+        }
 
-       void JustDied(Unit* killer) override
-       {
+        void JustDied(Unit* killer) override
+        {
             if (!leryssaGUID || !arlosGUID)
                 return;
 
@@ -1760,7 +1764,7 @@ public:
 
         void Initialize()
         {
-            _events.ScheduleEvent(EVENT_OOC_TALK, urand(10000, 20000));
+            _events.ScheduleEvent(EVENT_OOC_TALK, 10s, 20s);
         }
 
         void Reset() override
@@ -1777,8 +1781,10 @@ public:
         void JustEngagedWith(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
+            {
                 if (roll_chance_i(20))
                     Talk(SAY_BONKER_5);
+            }
         }
 
         void UpdateEscortAI(uint32 diff) override
@@ -1791,14 +1797,14 @@ public:
                 {
                     case EVENT_OOC_TALK:
                         Talk(SAY_BONKER_0);
-                        _events.ScheduleEvent(EVENT_OOC_TALK, urand(5 * MINUTE * IN_MILLISECONDS, 10 * MINUTE * IN_MILLISECONDS));
+                        _events.ScheduleEvent(EVENT_OOC_TALK, 5min, 10min);
                         break;
                     case EVENT_TALK_1:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
                             Talk(SAY_BONKER_1, player);
                         if (GameObject* go = me->FindNearestGameObject(GO_BALL_AND_CHAIN, 20.0f))
                             go->SetLootState(GO_JUST_DEACTIVATED);
-                        _events.ScheduleEvent(EVENT_TALK_2, Seconds(11));
+                        _events.ScheduleEvent(EVENT_TALK_2, 11s);
                         break;
                     case EVENT_TALK_2:
                         Talk(SAY_BONKER_2);
