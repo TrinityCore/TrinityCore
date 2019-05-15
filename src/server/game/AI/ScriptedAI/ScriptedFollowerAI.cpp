@@ -115,23 +115,25 @@ void FollowerAI::JustAppeared()
 
 void FollowerAI::EnterEvadeMode(EvadeReason /*why*/)
 {
+    if (!me->IsAlive())
+        return;
+
     me->RemoveAllAuras();
     me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
     me->SetLootRecipient(nullptr);
+    me->SetCannotReachTarget(false);
+    me->DoNotReacquireTarget();
 
     if (HasFollowState(STATE_FOLLOW_INPROGRESS))
     {
         TC_LOG_DEBUG("scripts.ai.followerai", "FollowerAI::EnterEvadeMode: left combat, returning to CombatStartPosition. (%s)", me->GetGUID().ToString().c_str());
 
-        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
-            me->GetMotionMaster()->MovePoint(POINT_COMBAT_START, me->GetPosition());
+        if (me->HasUnitState(UNIT_STATE_CHASE))
+            me->GetMotionMaster()->Remove(CHASE_MOTION_TYPE);
     }
     else
-    {
-        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
-            me->GetMotionMaster()->MoveTargetedHome();
-    }
+        me->GetMotionMaster()->MoveTargetedHome();
 
     Reset();
 }
@@ -227,11 +229,8 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, Quest co
 
     _questForFollow = quest;
 
-    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
-    {
-        me->GetMotionMaster()->Clear();
-        me->GetMotionMaster()->MoveIdle();
-    }
+    me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
+    me->PauseMovement();
 
     me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
@@ -252,13 +251,7 @@ void FollowerAI::SetFollowPaused(bool paused)
         AddFollowState(STATE_FOLLOW_PAUSED);
 
         if (me->HasUnitState(UNIT_STATE_FOLLOW))
-        {
-            me->ClearUnitState(UNIT_STATE_FOLLOW);
-
-            me->StopMoving();
-            me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveIdle();
-        }
+            me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
     }
     else
     {
@@ -272,13 +265,7 @@ void FollowerAI::SetFollowPaused(bool paused)
 void FollowerAI::SetFollowComplete(bool withEndEvent)
 {
     if (me->HasUnitState(UNIT_STATE_FOLLOW))
-    {
-        me->ClearUnitState(UNIT_STATE_FOLLOW);
-
-        me->StopMoving();
-        me->GetMotionMaster()->Clear();
-        me->GetMotionMaster()->MoveIdle();
-    }
+        me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
 
     if (withEndEvent)
         AddFollowState(STATE_FOLLOW_POSTEVENT);
