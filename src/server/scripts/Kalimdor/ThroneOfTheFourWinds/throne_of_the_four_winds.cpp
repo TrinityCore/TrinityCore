@@ -98,16 +98,13 @@ class at_totfw_catch_fall : public AreaTriggerScript
             else if (Creature* rohash = instance->GetCreature(DATA_ROHASH))
                 rohash->AI()->DoAction(ACTION_PLAYER_LEFT_PLATFORM);
 
-            if (instance->GetBossState(DATA_ALAKIR) != IN_PROGRESS)
+            if (!instance->IsEncounterInProgress())
             {
                 if (Creature* trigger = player->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f, true))
                     trigger->CastSpell(player, SPELL_CATCH_FALL, true);
             }
             else
-            {
                 player->KillSelf();
-                player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
-            }
 
             return true;
         }

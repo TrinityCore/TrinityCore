@@ -151,6 +151,12 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                     player->CastSpell(player, SPELL_SERENITY);
             }
 
+            void OnUnitDeath(Unit* unit) override
+            {
+                if (unit->GetTypeId() == TYPEID_PLAYER)
+                    unit->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
+            }
+
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
