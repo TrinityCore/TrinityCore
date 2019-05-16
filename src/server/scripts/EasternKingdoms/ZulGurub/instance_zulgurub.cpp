@@ -17,6 +17,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
@@ -46,6 +47,11 @@ DoorData const doorData[] =
     { 0,                                0,                              DOOR_TYPE_ROOM }  // END
 };
 
+BossBoundaryData const boundaries =
+{
+    { DATA_HIGH_PRIEST_VENOXIS,  new CircleBoundary(Position(-12000.50f, -1695.389f), 38.0f) }
+};
+
 class instance_zulgurub : public InstanceMapScript
 {
     public:
@@ -59,6 +65,7 @@ class instance_zulgurub : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, nullptr);
                 LoadDoorData(doorData);
+                LoadBossBoundaries(boundaries);
                 Initialize();
             }
 
