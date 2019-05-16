@@ -474,7 +474,6 @@ private:
     EventMap _events;
 };
 
-
 enum RagingFirestorm
 {
     NPC_GROVE_WARDEN    = 39941,
@@ -584,6 +583,29 @@ private:
     }
 };
 
+enum ThroughTheDream
+{
+    QUEST_THROUGH_THE_DREAM         = 25325,
+    SPELL_CUE_FANDRAL_TO_DESPAWN    = 77828
+};
+
+struct npc_mh_arch_druid_fandral_staghelm : public PassiveAI
+{
+    npc_mh_arch_druid_fandral_staghelm(Creature* creature) : PassiveAI(creature) { }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        if (summoner)
+            me->GetMotionMaster()->MoveFollow(summoner, 0.0f, ChaseAngle(float(M_PI), 0.0f));
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_CUE_FANDRAL_TO_DESPAWN)
+            me->DespawnOrUnsummon();
+    }
+};
+
 class spell_mh_summon_emerald_flameweaver : public SpellScript
 {
     PrepareSpellScript(spell_mh_summon_emerald_flameweaver);
@@ -684,6 +706,36 @@ class spell_mh_inferno : public AuraScript
     }
 };
 
+class spell_mh_fandral_creator_aura : public AuraScript
+{
+    PrepareAuraScript(spell_mh_fandral_creator_aura);
+
+    void HandleAuraRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Creature* fandral = caster->ToCreature())
+                fandral->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mh_fandral_creator_aura::HandleAuraRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class at_mh_hyjal_barrow_dens : public AreaTriggerScript
+{
+    public:
+        at_mh_hyjal_barrow_dens() : AreaTriggerScript("at_mh_hyjal_barrow_dens") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        {
+            if (player->GetQuestStatus(QUEST_THROUGH_THE_DREAM) == QUEST_STATUS_INCOMPLETE)
+                player->CompleteQuest(QUEST_THROUGH_THE_DREAM);
+            return true;
+        }
+};
+
 void AddSC_mount_hyjal()
 {
     RegisterCreatureAI(npc_mh_aronus);
@@ -691,9 +743,12 @@ void AddSC_mount_hyjal()
     RegisterCreatureAI(npc_mh_twilight_inciter);
     RegisterCreatureAI(npc_mh_emerald_flameweaver);
     RegisterCreatureAI(npc_mh_raging_firestorm);
+    RegisterCreatureAI(npc_mh_arch_druid_fandral_staghelm);
     RegisterSpellScript(spell_mh_summon_emerald_flameweaver);
     RegisterSpellScript(spell_mh_ragnaros);
     RegisterAuraScript(spell_mh_flamebreaker);
     RegisterAuraScript(spell_mh_weakening);
     RegisterAuraScript(spell_mh_inferno);
+    RegisterAuraScript(spell_mh_fandral_creator_aura);
+    new at_mh_hyjal_barrow_dens();
 }
