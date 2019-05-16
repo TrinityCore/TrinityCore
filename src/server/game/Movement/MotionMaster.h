@@ -96,8 +96,8 @@ class MotionMasterDelayedAction
 
         void Resolve() { if (Validator()) Action(); }
 
-        std::function<bool()> Validator;
         std::function<void()> Action;
+        std::function<bool()> Validator;
         uint8 Type;
 };
 
