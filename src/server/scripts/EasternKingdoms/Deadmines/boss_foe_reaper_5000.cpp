@@ -493,11 +493,11 @@ class FixateTargetingCheck
 
         bool operator()(WorldObject* object)
         {
-            if (Unit* unit = object->ToUnit())
-                if ((unit->GetEntry() == NPC_PROTOTYPE_REAPER && unit->IsCharmedOwnedByPlayerOrPlayer()) || unit->GetTypeId() == TYPEID_PLAYER)
-                    return false;
+            Unit* target = object->ToUnit();
+            if (!target)
+                return true;
 
-            return true;
+            return (target->GetEntry() == NPC_PROTOTYPE_REAPER || target->GetVehicle());
         }
 };
 
@@ -556,7 +556,7 @@ class spell_foe_reaper_5000_fixate : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_FIXATE_TAUNT });
             }
 
-            void HandleHit(SpellEffIndex effIndex)
+            void HandleHit(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                     GetHitUnit()->CastSpell(caster, SPELL_FIXATE_TAUNT, true);

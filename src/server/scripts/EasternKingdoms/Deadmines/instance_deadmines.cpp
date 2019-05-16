@@ -567,8 +567,7 @@ class instance_deadmines : public InstanceMapScript
                         uint8 i = 0;
                         if (!_ropeAnchorPairs.empty())
                         {
-                            std::vector<RopeAnchorPair> _ropeAnchorCopy;
-                            for (auto itr = _ropeAnchorCopy.begin(); itr != _ropeAnchorCopy.end(); itr++)
+                            for (auto itr = _ropeAnchorPairs.begin(); itr != _ropeAnchorPairs.end();)
                             {
                                 if (!instance->GetCreature(itr->ropeGuid))
                                 {
@@ -581,7 +580,10 @@ class instance_deadmines : public InstanceMapScript
                                         }
                                     }
                                     _ropeAnchorPairs.erase(itr);
+                                    itr = _ropeAnchorPairs.begin();
                                 }
+                                else
+                                    itr++;
                             }
                         }
                         else
