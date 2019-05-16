@@ -652,7 +652,7 @@ namespace Trinity
     {
         public:
             RespawnDo() { }
-            void operator()(Creature* u) const { u->Respawn(); }
+            void operator()(Creature* u) const { u->Respawn(true); }
             void operator()(GameObject* u) const { u->Respawn(); }
             void operator()(WorldObject*) const { }
             void operator()(Corpse*) const { }

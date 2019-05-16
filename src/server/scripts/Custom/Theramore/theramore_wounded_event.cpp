@@ -184,6 +184,8 @@ class theramore_wounded_event : public CreatureScript
                         break;
 
                     case EVENT_TELEPORT_8:
+                        if (Creature * kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 30.f))
+                            kinndy->SetFacingToObject(kalecgos);
                         jaina->AI()->Talk(SAY_TELEPORT_4);
                         jaina->SetFacingToObject(kalecgos);
                         events.ScheduleEvent(EVENT_TELEPORT_9, 3s);
@@ -298,6 +300,7 @@ class theramore_wounded_event : public CreatureScript
                         break;
 
                     case EVENT_TELEPORT_28:
+                        jaina->SetVisible(false);
                         rhonin->SetVisible(true);
                         rhonin->NearTeleportTo(-3741.20f, -4452.27f, 64.99f, 5.71f);
                         jaina->NearTeleportTo(-3747.51f, -4448.29f, 64.92f, 3.34f);
@@ -309,6 +312,7 @@ class theramore_wounded_event : public CreatureScript
                         {
                             portal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             rhonin->CastSpell(rhonin, 54219);
+                            jaina->SetVisible(true);
                             jaina->CastSpell(jaina, 23017);
                             jaina->AI()->SetData(EVENT_SET_END, 1U);
                         }

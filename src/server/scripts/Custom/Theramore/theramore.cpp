@@ -1408,7 +1408,7 @@ class npc_jaina_theramore : public CreatureScript
                         for (Player* player : players)
                         {
                             player->SetPhaseMask(4, true);
-                            player->TeleportTo(1, -2820.75f, -4762.14f, 3.76f, 1.79f);
+                            player->TeleportTo(1, -2701.89f, -4702.44f, 7.86f, 4.95f);
                         }
                         break;
 
