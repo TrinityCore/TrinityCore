@@ -72,7 +72,7 @@ struct npc_tott_ozumat_vehicle_big : public ScriptedAI
                     if (Vehicle* vehicle = me->GetVehicleKit())
                         if (Unit* ozumat = vehicle->GetPassenger(SEAT_TENTACLE_BLOCK))
                             me->HandleSpellClick(ozumat, SEAT_DEFENSE_SYSTEM);
-                    _events.RescheduleEvent(EVENT_CHANGE_TO_ESCAPE_SEAT, 29s);
+                    _events.ScheduleEvent(EVENT_CHANGE_TO_ESCAPE_SEAT, 29s);
                     break;
                 case EVENT_CHANGE_TO_ESCAPE_SEAT:
                     if (Vehicle* vehicle = me->GetVehicleKit())
