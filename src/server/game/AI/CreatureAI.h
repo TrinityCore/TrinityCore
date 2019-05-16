@@ -19,11 +19,11 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
-#include "UnitAI.h"
 #include "Common.h"
 #include "ObjectDefines.h"
 #include "Optional.h"
 #include "QuestDef.h"
+#include "UnitAI.h"
 
 class AreaBoundary;
 class Creature;
@@ -38,29 +38,36 @@ typedef std::vector<AreaBoundary const*> CreatureBoundary;
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
 
-//Spell targets used by SelectSpell
-enum SelectTargetType
+enum Permitions : int32
 {
-    SELECT_TARGET_DONTCARE = 0,                             //All target types allowed
-
-    SELECT_TARGET_SELF,                                     //Only Self casting
-
-    SELECT_TARGET_SINGLE_ENEMY,                             //Only Single Enemy
-    SELECT_TARGET_AOE_ENEMY,                                //Only AoE Enemy
-    SELECT_TARGET_ANY_ENEMY,                                //AoE or Single Enemy
-
-    SELECT_TARGET_SINGLE_FRIEND,                            //Only Single Friend
-    SELECT_TARGET_AOE_FRIEND,                               //Only AoE Friend
-    SELECT_TARGET_ANY_FRIEND                                //AoE or Single Friend
+    PERMIT_BASE_NO               = -1,
+    PERMIT_BASE_IDLE             = 1,
+    PERMIT_BASE_REACTIVE         = 100,
+    PERMIT_BASE_PROACTIVE        = 200,
+    PERMIT_BASE_FACTION_SPECIFIC = 400,
+    PERMIT_BASE_SPECIAL          = 800
 };
 
-//Spell Effects used by SelectSpell
+// Spell targets used by SelectSpell
+enum SelectTargetType
+{
+    SELECT_TARGET_DONTCARE = 0,  // All target types allowed
+    SELECT_TARGET_SELF,          // Only Self casting
+    SELECT_TARGET_SINGLE_ENEMY,  // Only Single Enemy
+    SELECT_TARGET_AOE_ENEMY,     // Only AoE Enemy
+    SELECT_TARGET_ANY_ENEMY,     // AoE or Single Enemy
+    SELECT_TARGET_SINGLE_FRIEND, // Only Single Friend
+    SELECT_TARGET_AOE_FRIEND,    // Only AoE Friend
+    SELECT_TARGET_ANY_FRIEND     // AoE or Single Friend
+};
+
+// Spell Effects used by SelectSpell
 enum SelectEffect
 {
-    SELECT_EFFECT_DONTCARE = 0,                             //All spell effects allowed
-    SELECT_EFFECT_DAMAGE,                                   //Spell does damage
-    SELECT_EFFECT_HEALING,                                  //Spell does healing
-    SELECT_EFFECT_AURA                                      //Spell applies an aura
+    SELECT_EFFECT_DONTCARE = 0, // All spell effects allowed
+    SELECT_EFFECT_DAMAGE,       // Spell does damage
+    SELECT_EFFECT_HEALING,      // Spell does healing
+    SELECT_EFFECT_AURA          // Spell applies an aura
 };
 
 enum SCEquip
@@ -150,10 +157,10 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) { }
 
         // Called when owner takes damage
-        virtual void OwnerAttackedBy(Unit* attacker) { _OnOwnerCombatInteraction(attacker); }
+        virtual void OwnerAttackedBy(Unit* attacker) { OnOwnerCombatInteraction(attacker); }
 
         // Called when owner attacks something
-        virtual void OwnerAttacked(Unit* target) { _OnOwnerCombatInteraction(target); }
+        virtual void OwnerAttacked(Unit* target) { OnOwnerCombatInteraction(target); }
 
         /// == Triggered Actions Requested ==================
 
@@ -235,18 +242,9 @@ class TC_GAME_API CreatureAI : public UnitAI
         bool _negateBoundary;
 
     private:
-        bool m_MoveInLineOfSight_locked;
-        void _OnOwnerCombatInteraction(Unit* target);
-};
+        void OnOwnerCombatInteraction(Unit* target);
 
-enum Permitions : int32
-{
-    PERMIT_BASE_NO                 = -1,
-    PERMIT_BASE_IDLE               = 1,
-    PERMIT_BASE_REACTIVE           = 100,
-    PERMIT_BASE_PROACTIVE          = 200,
-    PERMIT_BASE_FACTION_SPECIFIC   = 400,
-    PERMIT_BASE_SPECIAL            = 800
+        bool _moveInLOSLocked;
 };
 
 #endif

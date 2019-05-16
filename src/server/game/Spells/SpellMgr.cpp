@@ -3363,7 +3363,9 @@ void SpellMgr::LoadSpellInfoCorrections()
         53457, // Summon Impale Trigger (AoE)
         45907, // Torch Target Picker
         52953, // Torch
-        58121  // Torch
+        58121, // Torch
+        43109  // Throw Torch
+        
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;

@@ -26,6 +26,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "utgarde_pinnacle.h"
+#include "Vehicle.h"
 
 enum Spells
 {
@@ -261,9 +262,8 @@ public:
                     Talk(SAY_DRAKE_BREATH);
                     break;
                 case ACTION_GAUNTLET_END:
-                    me->ExitVehicle();
                     Talk(SAY_DRAKE_DEATH);
-                    DoCast(me, SPELL_SKADI_TELEPORT, true);
+                    DoCastSelf(SPELL_SKADI_TELEPORT);
                     summons.DespawnEntry(NPC_WORLD_TRIGGER);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetImmuneToPC(false);
@@ -349,7 +349,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
-                skadi->AI()->DoAction(ACTION_GAUNTLET_END);
+                skadi->ExitVehicle();
 
             me->DespawnOrUnsummon(Seconds(6));
         }
@@ -357,7 +357,11 @@ public:
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
         {
             if (!apply)
+            {
+                if (Creature * skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
+                    skadi->AI()->DoAction(ACTION_GAUNTLET_END);
                 return;
+            }
 
             Movement::MoveSplineInit init(who);
             init.DisableTransportPathTransformations();
@@ -842,6 +846,28 @@ class spell_skadi_poisoned_spear : public SpellScriptLoader
         }
 };
 
+// 61791 - Ride Vehicle
+class spell_skadi_ride_vehicle : public AuraScript
+{
+    PrepareAuraScript(spell_skadi_ride_vehicle);
+
+    void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        PreventDefaultAction();
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        GetTarget()->GetVehicleKit()->RemovePassenger(caster);
+        caster->SetControlled(false, UNIT_STATE_ROOT);
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_skadi_ride_vehicle::OnRemoveVehicle, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 class spell_summon_gauntlet_mobs_periodic : public SpellScriptLoader
 {
     public:
@@ -961,6 +987,7 @@ void AddSC_boss_skadi()
     new spell_skadi_reset_check();
     new spell_skadi_launch_harpoon();
     new spell_skadi_poisoned_spear();
+    RegisterAuraScript(spell_skadi_ride_vehicle);
     new spell_summon_gauntlet_mobs_periodic();
     new achievement_girl_love_to_skadi();
     new at_skadi_gaunlet();
