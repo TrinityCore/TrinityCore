@@ -59,7 +59,7 @@ enum Spells
 
     // Arcanotron
     SPELL_POWER_GENERATOR                       = 79624,
-
+    SPELL_POWER_CONVERSION                      = 79729,
 
     // Poison Bomb
     SPELL_FIXATE_DUMMY                          = 80094,
@@ -70,6 +70,7 @@ enum Spells
 
 #define SPELL_LIGHTNING_CONDUCTOR   RAID_MODE<uint32>(79888, 91431, 91432, 91433)
 #define SPELL_SOAKED_IN_POISON      RAID_MODE<uint32>(80011, 91504, 91505, 91506)
+#define SPELL_ARCANE_ANNIHILATION   RAID_MODE<uint32>(79710, 91540, 91541, 91542)
 
 enum Texts
 {
@@ -117,6 +118,8 @@ enum Events
 
     // Arcanotron
     EVENT_POWER_GENERATOR,
+    EVENT_ARCANE_ANNIHILATION,
+    EVENT_POWER_CONVERSION
 };
 
 enum Actions
@@ -731,6 +734,7 @@ struct npc_omnotron_toxitron : public ScriptedAI
                     _events.Repeat(30s);
                     break;
                 case EVENT_POISON_PROTOCOL:
+                    me->StopMoving();
                     DoCastSelf(SPELL_POISON_PROTOCOL);
                     break;
                 case EVENT_POISON_SOAKED_SHELL:
@@ -827,6 +831,7 @@ struct npc_omnotron_arcanotron : public ScriptedAI
                 break;
             case ACTION_DEACTIVATE_GOLEM:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->MakeInterruptable(false);
                 _events.Reset();
                 break;
             default:
@@ -839,8 +844,21 @@ struct npc_omnotron_arcanotron : public ScriptedAI
         if (spell->Id == SPELL_ACTIVATED)
         {
             _events.ScheduleEvent(EVENT_POWER_GENERATOR, 16s);
-
+            _events.ScheduleEvent(EVENT_ARCANE_ANNIHILATION, 3s + 300ms);
+            _events.ScheduleEvent(EVENT_POWER_CONVERSION, IsHeroic() ? 40s : 50s);
         }
+    }
+
+    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_ARCANE_ANNIHILATION)
+            me->MakeInterruptable(true);
+    }
+
+    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_ARCANE_ANNIHILATION)
+            me->MakeInterruptable(true);
     }
 
     void UpdateAI(uint32 diff) override
@@ -860,6 +878,23 @@ struct npc_omnotron_arcanotron : public ScriptedAI
                 case EVENT_POWER_GENERATOR:
                     DoCastAOE(SPELL_POWER_GENERATOR);
                     _events.Repeat(20s);
+                    break;
+                case EVENT_ARCANE_ANNIHILATION:
+                    me->MakeInterruptable(true);
+                    if (!Is25ManRaid())
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
+                            DoCast(target, SPELL_ARCANE_ANNIHILATION);
+                    }
+                    else
+                        DoCastAOE(SPELL_ARCANE_ANNIHILATION);
+                    _events.Repeat(6s, 7s);
+                    break;
+                case EVENT_POWER_CONVERSION:
+                    DoCastSelf(SPELL_POWER_CONVERSION);
+                    Talk(SAY_ANNOUNCE_ABILITY_1);
+                    if (Creature* omnotron = _instance->GetCreature(DATA_OMNOTRON_DEFENSE_SYSTEM))
+                        omnotron->AI()->SetGUID(me->GetGUID(), DATA_SAY_GOLEM_SHIELD);
                     break;
                 default:
                     break;
@@ -916,6 +951,7 @@ struct npc_omnotron_poison_bomb : public ScriptedAI
         if (Unit* target = targets.front())
         {
             DoCast(target, SPELL_FIXATE_DUMMY, true);
+            me->ClearUnitState(UNIT_STATE_CASTING);
             me->AddThreat(target, 500000.0f);
         }
     }

@@ -5255,6 +5255,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(0);
     });
 
+    // Arcane Annihiliation
+    ApplySpellFix({
+        91540,
+        91542
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 3;
+    });
+
     // END OF BLACKWING DESCENT SPELLS
 
     // Living Bomb
