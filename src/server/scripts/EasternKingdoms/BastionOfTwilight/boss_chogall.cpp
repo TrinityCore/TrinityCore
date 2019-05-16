@@ -582,15 +582,16 @@ struct npc_chogall_corrupting_adherent : public ScriptedAI
     {
         me->MakeInterruptable(false);
         me->SetReactState(REACT_PASSIVE);
-        DoZoneInCombat();
     }
 
     void IsSummonedBy(Unit* /*summoner*/) override
     {
+        DoZoneInCombat();
         me->SetCorpseDelay(HOUR);
         DoCastSelf(SPELL_BOSS_HITTIN_YA, true);
         _events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 2s);
-        _events.ScheduleEvent(EVENT_CORRUPTING_CRASH, 9s + 600ms);
+        _events.ScheduleEvent(EVENT_CORRUPTING_CRASH, Is25ManRaid() ? 6s : 10s);
+        _events.ScheduleEvent(EVENT_DEPRAVITY, 8s, 9s);
     }
 
     void OnSpellCastInterrupt(SpellInfo const* spell) override
@@ -630,6 +631,9 @@ struct npc_chogall_corrupting_adherent : public ScriptedAI
 
         _events.Update(diff);
 
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
         while (uint32 eventId = _events.ExecuteEvent())
         {
             switch (eventId)
@@ -642,12 +646,12 @@ struct npc_chogall_corrupting_adherent : public ScriptedAI
                 case EVENT_CORRUPTING_CRASH:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, 0))
                         DoCast(target, SPELL_CORRUPTING_CRASH);
-                    _events.Repeat(11s);
-                    _events.ScheduleEvent(EVENT_DEPRAVITY, 1s + 400ms);
+                    _events.Repeat(6s);
                     break;
                 case EVENT_DEPRAVITY:
                     me->MakeInterruptable(true);
                     DoCastAOE(SPELL_DEPRAVITY);
+                    _events.Repeat(Is25ManRaid() ? 5s: 11s, Is25ManRaid() ? 6s : 12s);
                     break;
                 default:
                     break;
