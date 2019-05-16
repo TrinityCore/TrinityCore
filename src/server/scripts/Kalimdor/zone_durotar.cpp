@@ -166,9 +166,10 @@ class npc_tiger_matriarch : public CreatureScript
                 _events.ScheduleEvent(EVENT_NOSUMMON, 50s);
             }
 
-            void IsSummonedBy(WorldObject* summoner) override
+            void IsSummonedBy(WorldObject* summonerWO) override
             {
-                if (summoner->GetTypeId() != TYPEID_PLAYER || !summoner->GetVehicle())
+                Player* summoner = summonerWO->ToPlayer();
+                if (!summoner || !summoner->GetVehicle())
                     return;
 
                 _tigerGuid = summoner->GetVehicle()->GetBase()->GetGUID();

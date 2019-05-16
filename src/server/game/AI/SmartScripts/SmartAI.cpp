@@ -636,8 +636,13 @@ void SmartAI::ReceiveEmote(Player* player, uint32 textEmote)
     GetScript()->ProcessEventsFor(SMART_EVENT_RECEIVE_EMOTE, player, textEmote);
 }
 
-void SmartAI::IsSummonedBy(WorldObject* summoner)
+void SmartAI::IsSummonedBy(WorldObject* summonerWO)
 {
+    // ToDo: Add support to WorldObject summoner in SAI too
+    Unit* summoner = summonerWO->ToUnit();
+    if (!summoner)
+        return;
+
     GetScript()->ProcessEventsFor(SMART_EVENT_JUST_SUMMONED, summoner);
 }
 
