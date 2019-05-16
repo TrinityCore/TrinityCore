@@ -82,14 +82,21 @@ struct MovementGeneratorInformation
     std::string TargetName;
 };
 
+static bool EmptyValidator()
+{
+    return true;
+}
+
 class MotionMasterDelayedAction
 {
     public:
-        explicit MotionMasterDelayedAction(std::function<void()>&& action, MotionMasterDelayedActionType type) : Action(std::move(action)), Type(type) { }
+        explicit MotionMasterDelayedAction(std::function<void()>&& action, std::function<bool()>&& validator, MotionMasterDelayedActionType type) : Action(std::move(action)), Validator(std::move(validator)), Type(type) { }
+        explicit MotionMasterDelayedAction(std::function<void()>&& action, MotionMasterDelayedActionType type) : Action(std::move(action)), Validator(EmptyValidator), Type(type) { }
         ~MotionMasterDelayedAction() { }
 
-        void Resolve() { Action(); }
+        void Resolve() { if (Validator()) Action(); }
 
+        std::function<bool()> Validator;
         std::function<void()> Action;
         uint8 Type;
 };
