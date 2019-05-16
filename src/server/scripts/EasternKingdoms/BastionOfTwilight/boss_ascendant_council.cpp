@@ -1081,7 +1081,6 @@ class npc_arion : public CreatureScript
                         case EVENT_ATTACK_PLAYERS:
                             _events.SetPhase(PHASE_ARION_TERRASTRA);
                             _events.ScheduleEvent(EVENT_CALL_WINDS, 9s + 300ms);
-                            _events.ScheduleEvent(EVENT_THUNDERSHOCK, 1min + 4s);
                             _events.ScheduleEvent(EVENT_THUNDERSHOCK_PRE_WARNING, 55s + 700ms);
                             _events.ScheduleEvent(EVENT_LIGHTNING_ROD, 17s + 900ms);
                             _events.ScheduleEvent(EVENT_DISPERSE, 20s + 500ms);
