@@ -309,7 +309,7 @@ struct boss_chogall : public BossAI
         events.ScheduleEvent(EVENT_FURY_OF_CHOGALL, 57s + 800ms);
         events.ScheduleEvent(EVENT_FLAMES_ORDER, 6s + 100ms, 0, PHASE_1);
         events.ScheduleEvent(EVENT_SHADOWS_ORDERS, 20s + 800ms, 0, PHASE_1);
-        events.ScheduleEvent(EVENT_SUMMON_CORRUPTING_ADHERENT, 2min + 4s, 0, PHASE_1);
+        events.ScheduleEvent(EVENT_SUMMON_CORRUPTING_ADHERENT, 39s, 0, PHASE_1);
         events.ScheduleEvent(EVENT_CONVERSION, 11s, 0, PHASE_1);
         events.ScheduleEvent(EVENT_BERSERK, 10min);
 
