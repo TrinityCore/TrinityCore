@@ -158,6 +158,7 @@ class instance_deadmines : public InstanceMapScript
                     for (uint8 i = 0; i < 5; i++)
                         if (Creature* anchor = instance->SummonCreature(NPC_VANESSAS_ROPE_ANCHOR, RopeAnchorPos[i]))
                             _anchorGuidSet.insert(anchor->GetGUID());
+                    _ropesSpawned = true;
                 }
             }
 
@@ -564,10 +565,10 @@ class instance_deadmines : public InstanceMapScript
                     case DATA_SUMMON_ROPES:
                     {
                         uint8 i = 0;
-
                         if (!_ropeAnchorPairs.empty())
                         {
-                            for (auto itr = _ropeAnchorPairs.begin(); itr != _ropeAnchorPairs.end(); itr++)
+                            std::vector<RopeAnchorPair> _ropeAnchorCopy;
+                            for (auto itr = _ropeAnchorCopy.begin(); itr != _ropeAnchorCopy.end(); itr++)
                             {
                                 if (!instance->GetCreature(itr->ropeGuid))
                                 {
