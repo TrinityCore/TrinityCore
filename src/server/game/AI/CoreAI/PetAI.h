@@ -40,7 +40,7 @@ class TC_GAME_API PetAI : public CreatureAI
         void AttackStart(Unit* target) override;
         // always start attacking if possible
         void _AttackStart(Unit* target);
-        void MovementInform(uint32 moveType, uint32 data) override;
+        void MovementInform(uint32 type, uint32 id) override;
         void OwnerAttackedBy(Unit* attacker) override;
         void OwnerAttacked(Unit* target) override;
         void DamageTaken(Unit* attacker, uint32& /*damage*/) override { AttackStart(attacker); }
@@ -68,4 +68,5 @@ class TC_GAME_API PetAI : public CreatureAI
         GuidSet _allySet;
         uint32 _updateAlliesTimer;
 };
+
 #endif
