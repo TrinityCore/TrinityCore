@@ -24,7 +24,7 @@
 class TC_GAME_API PassiveAI : public CreatureAI
 {
     public:
-        explicit PassiveAI(Creature* c);
+        explicit PassiveAI(Creature* creature);
 
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit*) override { }
@@ -36,7 +36,7 @@ class TC_GAME_API PassiveAI : public CreatureAI
 class TC_GAME_API PossessedAI : public CreatureAI
 {
     public:
-        explicit PossessedAI(Creature* c);
+        explicit PossessedAI(Creature* creature);
 
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit* target) override;
@@ -52,7 +52,7 @@ class TC_GAME_API PossessedAI : public CreatureAI
 class TC_GAME_API NullCreatureAI : public CreatureAI
 {
     public:
-        explicit NullCreatureAI(Creature* c);
+        explicit NullCreatureAI(Creature* creature);
 
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit*) override { }
@@ -66,7 +66,7 @@ class TC_GAME_API NullCreatureAI : public CreatureAI
 class TC_GAME_API CritterAI : public PassiveAI
 {
     public:
-        explicit CritterAI(Creature* c) : PassiveAI(c) { }
+        explicit CritterAI(Creature* creature) : PassiveAI(creature) { }
 
         void DamageTaken(Unit* done_by, uint32& /*damage*/) override;
         void EnterEvadeMode(EvadeReason why) override;
@@ -77,7 +77,7 @@ class TC_GAME_API CritterAI : public PassiveAI
 class TC_GAME_API TriggerAI : public NullCreatureAI
 {
     public:
-        explicit TriggerAI(Creature* c) : NullCreatureAI(c) { }
+        explicit TriggerAI(Creature* creature) : NullCreatureAI(creature) { }
         void IsSummonedBy(Unit* summoner) override;
 
         static int32 Permissible(Creature const* creature);
