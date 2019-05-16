@@ -4544,9 +4544,8 @@ void Spell::EffectPullTowards(SpellEffIndex effIndex)
         pos.Relocate(m_caster);
     }
 
-    float speedXY = float(m_spellInfo->Effects[effIndex].MiscValue) * 0.1f;
-    float speedZ = unitTarget->GetDistance(pos) / speedXY * 0.5f * Movement::gravity;
-
+    float speedXY, speedZ;
+    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(pos), speedXY, speedZ);
     unitTarget->GetMotionMaster()->MoveJump(pos, speedXY, speedZ);
 }
 
