@@ -25,25 +25,22 @@
 #include "SmartScript.h"
 #include "WaypointDefines.h"
 
-enum SmartEscortState
+enum SmartEscortState : uint8
 {
-    SMART_ESCORT_NONE       = 0x000,                        //nothing in progress
-    SMART_ESCORT_ESCORTING  = 0x001,                        //escort is in progress
-    SMART_ESCORT_RETURNING  = 0x002,                        //escort is returning after being in combat
-    SMART_ESCORT_PAUSED     = 0x004                         //will not proceed with waypoints before state is removed
+    SMART_ESCORT_NONE       = 0x00, // nothing in progress
+    SMART_ESCORT_ESCORTING  = 0x01, // escort is in progress
+    SMART_ESCORT_RETURNING  = 0x02, // escort is returning after being in combat
+    SMART_ESCORT_PAUSED     = 0x04  // will not proceed with waypoints before state is removed
 };
 
-enum SmartEscortVars
-{
-    SMART_ESCORT_MAX_PLAYER_DIST        = 60,
-    SMART_MAX_AID_DIST    = SMART_ESCORT_MAX_PLAYER_DIST / 2
-};
+static float constexpr SMART_ESCORT_MAX_PLAYER_DIST = 60.f;
+static float constexpr SMART_MAX_AID_DIST = SMART_ESCORT_MAX_PLAYER_DIST / 2.f;
 
 class TC_GAME_API SmartAI : public CreatureAI
 {
     public:
         ~SmartAI() { }
-        explicit SmartAI(Creature* c);
+        explicit SmartAI(Creature* creature);
 
         // core related
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
@@ -58,9 +55,9 @@ class TC_GAME_API SmartAI : public CreatureAI
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
         void EndPath(bool fail = false);
         void ResumePath();
-        bool HasEscortState(uint32 uiEscortState) const { return (_escortState & uiEscortState) != 0; }
-        void AddEscortState(uint32 uiEscortState) { _escortState |= uiEscortState; }
-        void RemoveEscortState(uint32 uiEscortState) { _escortState &= ~uiEscortState; }
+        bool HasEscortState(uint32 escortState) const { return (_escortState & escortState) != 0; }
+        void AddEscortState(uint32 escortState) { _escortState |= escortState; }
+        void RemoveEscortState(uint32 escortState) { _escortState &= ~escortState; }
         void SetAutoAttack(bool on) { _canAutoAttack = on; }
         void SetCombatMove(bool on);
         bool CanCombatMove() { return _canCombatMove; }
@@ -245,7 +242,7 @@ class TC_GAME_API SmartAI : public CreatureAI
 class TC_GAME_API SmartGameObjectAI : public GameObjectAI
 {
     public:
-        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), _gossipReturn(false) { }
+        SmartGameObjectAI(GameObject* go) : GameObjectAI(go), _gossipReturn(false) { }
         ~SmartGameObjectAI() { }
 
         void UpdateAI(uint32 diff) override;

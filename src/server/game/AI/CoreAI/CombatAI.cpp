@@ -118,9 +118,11 @@ void CasterAI::InitializeAI()
     CombatAI::InitializeAI();
 
     _attackDistance = 30.0f;
+
     for (SpellVector::iterator itr = Spells.begin(); itr != Spells.end(); ++itr)
         if (AISpellInfo[*itr].condition == AICOND_COMBAT && _attackDistance > GetAISpellInfo(*itr)->maxRange)
             _attackDistance = GetAISpellInfo(*itr)->maxRange;
+
     if (_attackDistance == 30.0f)
         _attackDistance = MELEE_RANGE;
 }
@@ -177,18 +179,18 @@ void CasterAI::UpdateAI(uint32 diff)
 // ArcherAI
 //////////////
 
-ArcherAI::ArcherAI(Creature* c) : CreatureAI(c)
+ArcherAI::ArcherAI(Creature* creature) : CreatureAI(creature)
 {
-    if (!me->m_spells[0])
-        TC_LOG_ERROR("misc", "ArcherAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
+    if (!creature->m_spells[0])
+        TC_LOG_ERROR("scripts.ai", "ArcherAI set for creature with spell1 = 0. AI will do nothing (%s)", creature->GetGUID().ToString().c_str());
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(me->m_spells[0]);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(creature->m_spells[0]);
     _minimumRange = spellInfo ? spellInfo->GetMinRange(false) : 0;
 
     if (!_minimumRange)
         _minimumRange = MELEE_RANGE;
-    me->m_CombatDistance = spellInfo ? spellInfo->GetMaxRange(false) : 0;
-    me->m_SightDistance = me->m_CombatDistance;
+    creature->m_CombatDistance = spellInfo ? spellInfo->GetMaxRange(false) : 0;
+    creature->m_SightDistance = creature->m_CombatDistance;
 }
 
 void ArcherAI::AttackStart(Unit* who)
@@ -226,22 +228,21 @@ void ArcherAI::UpdateAI(uint32 /*diff*/)
 // TurretAI
 //////////////
 
-TurretAI::TurretAI(Creature* c) : CreatureAI(c)
+TurretAI::TurretAI(Creature* creature) : CreatureAI(creature)
 {
-    if (!me->m_spells[0])
-        TC_LOG_ERROR("misc", "TurretAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
+    if (!creature->m_spells[0])
+        TC_LOG_ERROR("scripts.ai", "TurretAI set for creature with spell1 = 0. AI will do nothing (%s)", creature->GetGUID().ToString().c_str());
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(me->m_spells[0]);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(creature->m_spells[0]);
     _minimumRange = spellInfo ? spellInfo->GetMinRange(false) : 0;
-    me->m_CombatDistance = spellInfo ? spellInfo->GetMaxRange(false) : 0;
-    me->m_SightDistance = me->m_CombatDistance;
+    creature->m_CombatDistance = spellInfo ? spellInfo->GetMaxRange(false) : 0;
+    creature->m_SightDistance = creature->m_CombatDistance;
 }
 
 bool TurretAI::CanAIAttack(Unit const* who) const
 {
     /// @todo use one function to replace it
-    if (!me->IsWithinCombatRange(who, me->m_CombatDistance)
-        || (_minimumRange && me->IsWithinCombatRange(who, _minimumRange)))
+    if (!me->IsWithinCombatRange(who, me->m_CombatDistance) || (_minimumRange && me->IsWithinCombatRange(who, _minimumRange)))
         return false;
     return true;
 }
