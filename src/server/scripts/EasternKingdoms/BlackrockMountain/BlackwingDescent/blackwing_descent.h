@@ -44,44 +44,46 @@ enum BWDDataTypes
     DATA_ELECTRON, 
     DATA_MAGMATRON, 
     DATA_TOXITRON, 
-    DATA_ARCANOTRON, 
+    DATA_ARCANOTRON,
+    DATA_LORD_VICTOR_NEFARIUS_OMNOTRON
 };
 
 enum BWDCreatureIds
 {
     // Bosses
-    BOSS_MAGMAW                     = 41570,
-    BOSS_OMNOTRON                   = 42186,
-    BOSS_CHIMAERON                  = 43296,
-    BOSS_ATRAMEDES                  = 41442,
-    BOSS_MALORIAK                   = 41378,
-    BOSS_NEFARIAN                   = 41376,
+    BOSS_MAGMAW                         = 41570,
+    BOSS_OMNOTRON                       = 42186,
+    BOSS_CHIMAERON                      = 43296,
+    BOSS_ATRAMEDES                      = 41442,
+    BOSS_MALORIAK                       = 41378,
+    BOSS_NEFARIAN                       = 41376,
 
     // Encounter related creatures
     /*Magmaw*/
-    NPC_MAGMAWS_PINCER_1            = 41620,
-    NPC_MAGMAWS_PINCER_2            = 41789,
-    NPC_EXPOSED_HEAD_OF_MAGMAW      = 42347,
-    NPC_EXPOSED_HEAD_OF_MAGMAW_2    = 48270,
-    NPC_PILLAR_OF_FLAME             = 41843,
-    NPC_LAVA_PARASITE_1             = 41806,
-    NPC_LAVA_PARASITE_2             = 42321,
-    NPC_MASSIVE_CRASH               = 47330,
-    NPC_ROOM_STALKER                = 47196,
-    NPC_MAGMAW_SPIKE_STALKER        = 41767,
-    NPC_NEFARIAN_MAGMAW             = 49427,
-    NPC_BLAZING_BONE_CONSTRUCT      = 49416,
-    NPC_IGNITION                    = 49447,
+    NPC_MAGMAWS_PINCER_1                = 41620,
+    NPC_MAGMAWS_PINCER_2                = 41789,
+    NPC_EXPOSED_HEAD_OF_MAGMAW          = 42347,
+    NPC_EXPOSED_HEAD_OF_MAGMAW_2        = 48270,
+    NPC_PILLAR_OF_FLAME                 = 41843,
+    NPC_LAVA_PARASITE_1                 = 41806,
+    NPC_LAVA_PARASITE_2                 = 42321,
+    NPC_MASSIVE_CRASH                   = 47330,
+    NPC_ROOM_STALKER                    = 47196,
+    NPC_MAGMAW_SPIKE_STALKER            = 41767,
+    NPC_NEFARIAN_MAGMAW                 = 49427,
+    NPC_BLAZING_BONE_CONSTRUCT          = 49416,
+    NPC_IGNITION                        = 49447,
 
     /*Omnotron Defense System*/
-    NPC_MAGMATRON                   = 42178,
-    NPC_ARCANOTRON                  = 42166,
-    NPC_TOXITRON                    = 42180,
-    NPC_ELECTRON                    = 42179,
-    NPC_CHEMICAL_CLOUD              = 42934,
-    NPC_POISON_BOMB                 = 42897,
-    NPC_POISON_PUDDLE               = 42920,
-    NPC_POWER_GENERATOR             = 42733,
+    NPC_MAGMATRON                       = 42178,
+    NPC_ARCANOTRON                      = 42166,
+    NPC_TOXITRON                        = 42180,
+    NPC_ELECTRON                        = 42179,
+    NPC_CHEMICAL_CLOUD                  = 42934,
+    NPC_POISON_BOMB                     = 42897,
+    NPC_POISON_PUDDLE                   = 42920,
+    NPC_POWER_GENERATOR                 = 42733,
+    NPC_LORD_VICTOR_NEFARIUS_OMNOTRON   = 49226
 };
 
 enum BWDGameObjectIds

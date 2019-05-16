@@ -20,7 +20,9 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "PassiveAI.h"
 #include "Player.h"
+#include "SpellMgr.h"
 #include "blackwing_descent.h"
 
 enum Spells
@@ -36,7 +38,6 @@ enum Spells
     SPELL_INACTIVE                              = 78726,
     SPELL_POWERED_DOWN                          = 82265,
     SPELL_SHARED_HEALTH                         = 79920,
-    SPELL_ACTIVATED                             = 78740,
     SPELL_SHUTTING_DOWN                         = 78746,
     SPELL_INVISIBILITY_AND_STEALTH_DETECTION    = 67236,
 
@@ -65,31 +66,53 @@ enum Spells
     SPELL_FIXATE_DUMMY                          = 80094,
     SPELL_QUIETE_SUICIDE                        = 3617,
     SPELL_POISON_BOMB_DAMAGE                    = 80092,
-    SPELL_POISON_BOMB_SUMMON_PUDDLE             = 80089
+    SPELL_POISON_BOMB_SUMMON_PUDDLE             = 80089,
+
+    // Power Generator
+    SPELL_OVERCHARGED_POWER_GENERATOR           = 91857,
+    SPELL_GROW_STACKER                          = 91861,
+    SPELL_ARCANE_BLOWBACK                       = 91880,
+    SPELL_POWER_GENERATOR_NORMAL                = 79628,
+
+    // Lord Victor Nefarius
+    SPELL_SHADOW_INFUSION                       = 92048,
+    SPELL_SHADOW_TELEPORT                       = 91823,
+    SPELL_SHADOW_TELEPORT_BACK                  = 91854,
+    SPELL_GRIP_OF_DEATH                         = 91849,
+    SPELL_SHADOW_CONDUCTOR                      = 92053,
+    SPELL_ENCASING_SHADOWS                      = 92023,
+    SPELL_OVERCHARGE                            = 91881
 };
 
 #define SPELL_LIGHTNING_CONDUCTOR   RAID_MODE<uint32>(79888, 91431, 91432, 91433)
 #define SPELL_SOAKED_IN_POISON      RAID_MODE<uint32>(80011, 91504, 91505, 91506)
 #define SPELL_ARCANE_ANNIHILATION   RAID_MODE<uint32>(79710, 91540, 91541, 91542)
+#define SPELL_ACTIVATED             RAID_MODE<uint32>(78740, 95016, 95017, 95018)
 
 enum Texts
 {
     // Omnotron
-    SAY_ACTIVATE_ELECTRON   = 0,
-    SAY_ACTIVATE_TOXITRON   = 1,
-    SAY_ACTIVATE_MAGMATRON  = 2,
-    SAY_ACTIVATE_ARCANOTRON = 3,
-
-    SAY_SHIELD_ELECTRON     = 4,
-    SAY_SHIELD_TOXITRON     = 5,
-    SAY_SHIELD_ARCANOTRON   = 6,
-    SAY_SHIELD_MAGMATRON    = 7,
-    SAY_ACQUIRING_TARGET    = 8,
-    SAY_POWERING_DOWN       = 9,
+    SAY_ACTIVATE_ELECTRON               = 0,
+    SAY_ACTIVATE_TOXITRON               = 1,
+    SAY_ACTIVATE_MAGMATRON              = 2,
+    SAY_ACTIVATE_ARCANOTRON             = 3,
+    SAY_SHIELD_ELECTRON                 = 4,
+    SAY_SHIELD_TOXITRON                 = 5,
+    SAY_SHIELD_ARCANOTRON               = 6,
+    SAY_SHIELD_MAGMATRON                = 7,
+    SAY_ACQUIRING_TARGET                = 8,
+    SAY_POWERING_DOWN                   = 9,
 
     // Omnotron Defense System
-    SAY_ANNOUNCE_ABILITY_1  = 0,
-    SAY_ANNOUNCE_ABILITY_2  = 1,
+    SAY_ANNOUNCE_ABILITY_1              = 0,
+    SAY_ANNOUNCE_ABILITY_2              = 1,
+
+    // Lord Victor Nefarius
+    SAY_INTRO_HEROIC                    = 0,
+    SAY_MANIPULATE_LIGHTNING_CONDUCTOR  = 1,
+    SAY_PULL_INTO_CHEMICAL_CLOUD        = 2,
+    SAY_ROOT_PLAYER_IN_PLACE            = 3,
+    SAY_OVERCHARGE_POWER_GENERATOR      = 4
 };
 
 enum Events
@@ -119,30 +142,48 @@ enum Events
     // Arcanotron
     EVENT_POWER_GENERATOR,
     EVENT_ARCANE_ANNIHILATION,
-    EVENT_POWER_CONVERSION
+    EVENT_POWER_CONVERSION,
+
+    // Lord Victor Nefarius
+    EVENT_TALK_INTRO,
+    EVENT_TELEPORT_INTO_CHEMICAL_CLOUD,
+    EVENT_GRIP_OF_DEATH,
+    EVENT_TALK_PULL_PLAYERS_INTO_CHEMICAL_CLOUD,
+    EVENT_TELEPORT_BACK,
+    EVENT_TALK_MANIPULATE_LIGHTNING_CONDUCTOR,
+    EVENT_ENCASING_SHADOWS,
+    EVENT_TALK_ROOT_PLAYER,
+    EVENT_OVERCHARGE,
+    EVENT_TALK_OVERCHARGE_POWER_GENERATOR
 };
 
 enum Actions
 {
     // Omnotron
-    ACTION_GOLEM_ACTIVATED      = 0,
-    ACTION_START_ENCOUNTER      = 1,
-    ACTION_STOP_ENCOUNTER       = 2,
-    ACTION_FINISH_ENCOUNTER     = 3,
-    ACTION_SAY_ACQUIRING_TARGET = 4,
+    ACTION_GOLEM_ACTIVATED          = 0,
+    ACTION_START_ENCOUNTER          = 1,
+    ACTION_STOP_ENCOUNTER           = 2,
+    ACTION_FINISH_ENCOUNTER         = 3,
+    ACTION_SAY_ACQUIRING_TARGET     = 4,
 
     // Omnotron Defense System
-    ACTION_ACTIVATE_GOLEM       = 0,
-    ACTION_DEACTIVATE_GOLEM     = 1
+    ACTION_ACTIVATE_GOLEM           = 0,
+    ACTION_DEACTIVATE_GOLEM         = 1,
+
+    // Lord Victor Nefarius
+    ACTION_CAST_SHADOW_INFUSION     = 0,
+    ACTION_CAST_ENCASING_SHADOWS    = 1
 };
 
 enum Data
 {
+    // Omnotron
     DATA_NEXT_GOLEM_IN_QUEUE    = 0,
-    DATA_SAY_GOLEM_SHIELD       = 0
+    DATA_SAY_GOLEM_SHIELD       = 0,
 };
 
-Position const FirstGolemPatrolStartPoint = { -324.665f, -398.085f, 213.8214f };
+Position const FirstGolemPatrolStartPoint           = { -324.665f,  -398.085f,  213.8214f };
+Position const LordVictorNefariusSummonPosition     = { -302.9167f, -350.4167f, 220.5673f, 4.537856f };
 
 enum MovePoints
 {
@@ -256,6 +297,8 @@ struct boss_omnotron_defense_system : public BossAI
                 break;
             case ACTION_START_ENCOUNTER:
                 instance->SetBossState(DATA_OMNOTRON_DEFENSE_SYSTEM, IN_PROGRESS);
+                if (IsHeroic())
+                    DoSummon(NPC_LORD_VICTOR_NEFARIUS_OMNOTRON, LordVictorNefariusSummonPosition, 0, TEMPSUMMON_MANUAL_DESPAWN);
 
                 for (ObjectGuid guid : _golemGuidVector)
                     if (Creature* golem = ObjectAccessor::GetCreature(*me, guid))
@@ -287,6 +330,7 @@ struct boss_omnotron_defense_system : public BossAI
                     for (ObjectGuid guid : _golemGuidVector)
                         if (Creature* golem = ObjectAccessor::GetCreature(*me, guid))
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, golem);
+
                     RemoveDebuffsFromRaid();
                 }
                 break;
@@ -343,6 +387,7 @@ private:
     {
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_CONDUCTOR);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOAKED_IN_POISON);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_CONDUCTOR);
     }
 };
 
@@ -356,7 +401,6 @@ struct npc_omnotron_electron : public ScriptedAI
     void Initialize()
     {
         me->SetReactState(REACT_PASSIVE);
-        me->SetNoCallAssistance(true);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -427,7 +471,7 @@ struct npc_omnotron_electron : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ACTIVATED)
         {
@@ -435,6 +479,14 @@ struct npc_omnotron_electron : public ScriptedAI
             _events.ScheduleEvent(EVENT_ELECTRICAL_DISCHARGE, 6s);
             _events.ScheduleEvent(EVENT_UNSTABLE_SHIELD, IsHeroic() ? 40s : 50s);
         }
+    }
+
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_LIGHTNING_CONDUCTOR)
+            if (IsHeroic())
+                if (Creature* nefarius = _instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_OMNOTRON))
+                    nefarius->AI()->DoAction(ACTION_CAST_SHADOW_INFUSION);
     }
 
     void UpdateAI(uint32 diff) override
@@ -492,7 +544,6 @@ struct npc_omnotron_magmatron : public ScriptedAI
     void Initialize()
     {
         me->SetReactState(REACT_PASSIVE);
-        me->SetNoCallAssistance(true);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -563,7 +614,7 @@ struct npc_omnotron_magmatron : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ACTIVATED)
         {
@@ -580,6 +631,9 @@ struct npc_omnotron_magmatron : public ScriptedAI
             Talk(SAY_ANNOUNCE_ABILITY_1, target);
             if (Creature* omnotron = _instance->GetCreature(DATA_OMNOTRON_DEFENSE_SYSTEM))
                 omnotron->AI()->DoAction(ACTION_SAY_ACQUIRING_TARGET);
+
+            if (Creature* nefarius = _instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_OMNOTRON))
+                nefarius->AI()->DoAction(ACTION_CAST_ENCASING_SHADOWS);
         }
     }
 
@@ -633,7 +687,6 @@ struct npc_omnotron_toxitron : public ScriptedAI
     void Initialize()
     {
         me->SetReactState(REACT_PASSIVE);
-        me->SetNoCallAssistance(true);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -704,7 +757,7 @@ struct npc_omnotron_toxitron : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ACTIVATED)
         {
@@ -766,7 +819,6 @@ struct npc_omnotron_arcanotron : public ScriptedAI
     void Initialize()
     {
         me->SetReactState(REACT_PASSIVE);
-        me->SetNoCallAssistance(true);
         me->MakeInterruptable(false);
     }
 
@@ -839,7 +891,7 @@ struct npc_omnotron_arcanotron : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ACTIVATED)
         {
@@ -907,6 +959,137 @@ struct npc_omnotron_arcanotron : public ScriptedAI
 private:
     EventMap _events;
     InstanceScript* _instance;
+};
+
+struct npc_lord_victor_nefarius_omnotron : public PassiveAI
+{
+    npc_lord_victor_nefarius_omnotron(Creature* creature) : PassiveAI(creature), _instance(me->GetInstanceScript()) { }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        _events.ScheduleEvent(EVENT_TALK_INTRO, 4s + 700ms);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        if (summon->GetEntry() != NPC_POWER_GENERATOR && summon->GetEntry() != NPC_CHEMICAL_CLOUD)
+            return;
+
+        TempSummon* summoned = summon->ToTempSummon();
+        if (!summoned)
+            return;
+
+        // Lord Victor Nefarius only manipulates the abilities of longest active golem at a time
+        if (IsPreferedGolem(summoned->GetSummonerGUID()))
+        {
+            switch (summon->GetEntry())
+            {
+                case NPC_CHEMICAL_CLOUD:
+                    _events.ScheduleEvent(EVENT_TELEPORT_INTO_CHEMICAL_CLOUD, 2s);
+                    break;
+                case NPC_POWER_GENERATOR:
+                    _events.ScheduleEvent(EVENT_OVERCHARGE, 10s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_CAST_SHADOW_INFUSION:
+                if (Creature* electron = _instance->GetCreature(DATA_ELECTRON))
+                {
+                    if (IsPreferedGolem(electron->GetGUID()))
+                    {
+                        DoCastAOE(SPELL_SHADOW_INFUSION);
+                        _events.ScheduleEvent(EVENT_TALK_MANIPULATE_LIGHTNING_CONDUCTOR, 6s);
+                    }
+                }
+                break;
+            case ACTION_CAST_ENCASING_SHADOWS:
+                if (Creature* magmatron = _instance->GetCreature(DATA_MAGMATRON))
+                    if (IsPreferedGolem(magmatron->GetGUID()))
+                        _events.ScheduleEvent(EVENT_ENCASING_SHADOWS, 300ms);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TALK_INTRO:
+                    Talk(SAY_INTRO_HEROIC);
+                    break;
+                case EVENT_TELEPORT_INTO_CHEMICAL_CLOUD:
+                    DoCastSelf(SPELL_SHADOW_TELEPORT);
+                    _events.ScheduleEvent(EVENT_GRIP_OF_DEATH, 100ms);
+                    break;
+                case EVENT_GRIP_OF_DEATH:
+                    DoCastAOE(SPELL_GRIP_OF_DEATH);
+                    _events.ScheduleEvent(EVENT_TALK_PULL_PLAYERS_INTO_CHEMICAL_CLOUD, 2s);
+                    break;
+                case EVENT_TALK_PULL_PLAYERS_INTO_CHEMICAL_CLOUD:
+                    Talk(SAY_PULL_INTO_CHEMICAL_CLOUD);
+                    _events.ScheduleEvent(EVENT_TELEPORT_BACK, 1s + 300ms);
+                    break;
+                case EVENT_TELEPORT_BACK:
+                    DoCastSelf(SPELL_SHADOW_TELEPORT_BACK);
+                    break;
+                case EVENT_TALK_MANIPULATE_LIGHTNING_CONDUCTOR:
+                    Talk(SAY_MANIPULATE_LIGHTNING_CONDUCTOR);
+                    break;
+                case EVENT_ENCASING_SHADOWS:
+                    DoCastAOE(SPELL_ENCASING_SHADOWS);
+                    _events.ScheduleEvent(EVENT_TALK_ROOT_PLAYER, 5s);
+                    break;
+                case EVENT_TALK_ROOT_PLAYER:
+                    Talk(SAY_ROOT_PLAYER_IN_PLACE);
+                    break;
+                case EVENT_OVERCHARGE:
+                    DoCastAOE(SPELL_OVERCHARGE);
+                    _events.ScheduleEvent(EVENT_TALK_OVERCHARGE_POWER_GENERATOR, 5s + 400ms);
+                    break;
+                case EVENT_TALK_OVERCHARGE_POWER_GENERATOR:
+                    Talk(SAY_OVERCHARGE_POWER_GENERATOR);
+                    break;
+                default:
+                    break;
+
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+
+    bool IsPreferedGolem(ObjectGuid guid) const
+    {
+        Unit* preferedGolem = nullptr;
+        for (uint8 i = DATA_ELECTRON; i < DATA_ELECTRON + 4; i++)
+        {
+            if (Creature* golem = _instance->GetCreature(i))
+                if (!golem->HasAura(SPELL_INACTIVE))
+                    if (!preferedGolem || golem->GetPower(POWER_ENERGY) && golem->GetPower(POWER_ENERGY) <= preferedGolem->GetPower(POWER_ENERGY))
+                        preferedGolem = golem;
+        }
+
+        if (preferedGolem && preferedGolem->GetGUID() == guid)
+            return true;
+
+        return false;
+    }
 };
 
 class DistanceCheck
@@ -1275,6 +1458,107 @@ class spell_omnotron_barrier : public AuraScript
     }
 };
 
+class spell_omnotron_shadow_infusion : public SpellScript
+{
+    PrepareSpellScript(spell_omnotron_shadow_infusion);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHADOW_CONDUCTOR });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SHADOW_CONDUCTOR, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_omnotron_shadow_infusion::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_omnotron_shadow_conductor : public SpellScript
+{
+    PrepareSpellScript(spell_omnotron_shadow_conductor);
+
+    void ChangeDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (!caster || !target)
+            return;
+
+        float distanceMultiplier = std::max(caster->GetExactDist2d(target) * 0.5f, 1.0f);
+        SetHitDamage(int32(6000 * distanceMultiplier));
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_omnotron_shadow_conductor::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+class spell_omnotron_overcharge : public SpellScript
+{
+    PrepareSpellScript(spell_omnotron_overcharge);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_POWER_GENERATOR_NORMAL,
+                SPELL_OVERCHARGED_POWER_GENERATOR,
+                SPELL_GROW_STACKER,
+                SPELL_ARCANE_BLOWBACK
+            });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Creature* target = GetHitCreature();
+        if (!target)
+            return;
+
+        target->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_POWER_GENERATOR_NORMAL, target));
+        target->CastSpell(target, SPELL_OVERCHARGED_POWER_GENERATOR, true);
+        target->CastSpell(target, SPELL_GROW_STACKER);
+        target->m_Events.AddEventAtOffset([target]()
+        {
+            target->RemoveAllAuras();
+            target->CastSpell(target, SPELL_ARCANE_BLOWBACK);
+            target->DespawnOrUnsummon(1s);
+        }, 8s);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_omnotron_overcharge::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_omnotron_overcharged_power_generator : public AuraScript
+{
+    PrepareAuraScript(spell_omnotron_overcharged_power_generator);
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        if (Unit* target = GetTarget())
+        {
+            uint32 triggerSpell = GetSpellInfo()->Effects[EFFECT_0].TriggerSpell;
+            int32 radius = target->GetObjectScale() * 10000;
+            target->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, radius, nullptr, true, nullptr, aurEff, target->GetGUID());
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_omnotron_overcharged_power_generator::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_boss_omnotron_defense_system()
 {
     RegisterBlackwingDescentCreatureAI(boss_omnotron_defense_system);
@@ -1282,6 +1566,7 @@ void AddSC_boss_omnotron_defense_system()
     RegisterBlackwingDescentCreatureAI(npc_omnotron_magmatron);
     RegisterBlackwingDescentCreatureAI(npc_omnotron_toxitron);
     RegisterBlackwingDescentCreatureAI(npc_omnotron_arcanotron);
+    RegisterBlackwingDescentCreatureAI(npc_lord_victor_nefarius_omnotron);
     RegisterBlackwingDescentCreatureAI(npc_omnotron_poison_bomb);
     RegisterSpellScript(spell_omnotron_controller_recharge);
     RegisterAuraScript(spell_omnotron_recharging);
@@ -1293,4 +1578,8 @@ void AddSC_boss_omnotron_defense_system()
     RegisterSpellScript(spell_omnotron_aquiring_target);
     RegisterAuraScript(spell_omnotron_acquiring_target_periodic);
     RegisterAuraScript(spell_omnotron_barrier);
+    RegisterSpellScript(spell_omnotron_shadow_infusion);
+    RegisterSpellScript(spell_omnotron_shadow_conductor);
+    RegisterSpellScript(spell_omnotron_overcharge);
+    RegisterAuraScript(spell_omnotron_overcharged_power_generator);
 }

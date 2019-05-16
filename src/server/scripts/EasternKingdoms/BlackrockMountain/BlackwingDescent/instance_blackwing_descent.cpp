@@ -23,14 +23,15 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_MAGMAW,          DATA_MAGMAW                     },
-    { BOSS_OMNOTRON,        DATA_OMNOTRON_DEFENSE_SYSTEM    },
-    { NPC_ELECTRON,         DATA_ELECTRON                   },
-    { NPC_MAGMATRON,        DATA_MAGMATRON                  },
-    { NPC_TOXITRON,         DATA_TOXITRON                   },
-    { NPC_ARCANOTRON,       DATA_ARCANOTRON                 },
-    { NPC_NEFARIAN_MAGMAW,  DATA_NEFARIAN_MAGMAW            },
-    { 0,                0                                   } // END
+    { BOSS_MAGMAW,                          DATA_MAGMAW                         },
+    { BOSS_OMNOTRON,                        DATA_OMNOTRON_DEFENSE_SYSTEM        },
+    { NPC_ELECTRON,                         DATA_ELECTRON                       },
+    { NPC_MAGMATRON,                        DATA_MAGMATRON                      },
+    { NPC_TOXITRON,                         DATA_TOXITRON                       },
+    { NPC_ARCANOTRON,                       DATA_ARCANOTRON                     },
+    { NPC_NEFARIAN_MAGMAW,                  DATA_NEFARIAN_MAGMAW                },
+    { NPC_LORD_VICTOR_NEFARIUS_OMNOTRON,    DATA_LORD_VICTOR_NEFARIUS_OMNOTRON  },
+    { 0,                                    0                                   } // END
 };
 
 ObjectData const gameobjectData[] =
@@ -102,6 +103,9 @@ class instance_blackwing_descent : public InstanceMapScript
                     case NPC_POWER_GENERATOR:
                         if (Creature* omnotron = GetCreature(DATA_OMNOTRON_DEFENSE_SYSTEM))
                             omnotron->AI()->JustSummoned(creature);
+
+                        if (Creature* nefarius = GetCreature(DATA_LORD_VICTOR_NEFARIUS_OMNOTRON))
+                            nefarius->AI()->JustSummoned(creature);
                         break;
                     default:
                         break;
