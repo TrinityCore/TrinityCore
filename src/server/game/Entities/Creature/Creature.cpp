@@ -804,6 +804,13 @@ void Creature::Update(uint32 diff)
                 m_regenTimer = CREATURE_REGEN_INTERVAL;
             }
 
+            // Update serverside orientation of channeled spells that are suposed to track the channel target
+            if (Spell const* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+                if (spell->GetSpellInfo()->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET))
+                    if (ObjectGuid guid = GetChannelObjectGuid())
+                        if (WorldObject* target = ObjectAccessor::GetWorldObject(*this, guid))
+                            SetOrientation(GetAngle(target));
+
             if (CanNotReachTarget() && !IsInEvadeMode() && !GetMap()->IsRaid())
             {
                 m_cannotReachTimer += diff;
