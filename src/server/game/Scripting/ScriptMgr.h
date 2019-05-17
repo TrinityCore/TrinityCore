@@ -706,7 +706,7 @@ class TC_GAME_API PlayerScript : public ScriptObject
         virtual void OnPlayerRepop(Player* /*player*/) { }
 
         // Called when a player obtains progress on a quest's objective
-        virtual void OnPlayerReachedQuestObjectiveCount(Player* player, uint32 questId, uint32 creatureOrGoEntry, uint8 count) { }
+        virtual void OnPlayerReachedQuestObjectiveCount(Player* /*player*/, uint32 /*questId*/, uint32 /*creatureOrGoEntry*/, uint8 /*count*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
