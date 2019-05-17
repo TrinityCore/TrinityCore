@@ -699,14 +699,14 @@ class TC_GAME_API PlayerScript : public ScriptObject
         // Called when a player changes to a new map (after moving to new map)
         virtual void OnMapChanged(Player* /*player*/) { }
 
+        // Called when a player obtains progress on a quest's objective
+        virtual void OnQuestObjectiveProgress(Player* /*player*/, Quest const* /*quest*/, uint32 /*objectiveIndex*/, uint16 /*progress*/) { }
+
         // Called after a player's quest status has been changed
         virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/) { }
 
         // Called when a player presses release when he died
         virtual void OnPlayerRepop(Player* /*player*/) { }
-
-        // Called when a player obtains progress on a quest's objective
-        virtual void OnPlayerReachedQuestObjectiveCount(Player* /*player*/, uint32 /*questId*/, uint32 /*creatureOrGoEntry*/, uint8 /*count*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -1014,9 +1014,9 @@ class TC_GAME_API ScriptMgr
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent, uint8 extendState);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
+        void OnQuestObjectiveProgress(Player* player, Quest const* quest, uint32 objectiveIndex, uint16 progress);
         void OnQuestStatusChange(Player* player, uint32 questId);
         void OnPlayerRepop(Player* player);
-        void OnPlayerReachedQuestObjectiveCount(Player* player, uint32 questId, uint32 creatureOrGoEntry, uint8 count);
 
     public: /* AccountScript */
 
