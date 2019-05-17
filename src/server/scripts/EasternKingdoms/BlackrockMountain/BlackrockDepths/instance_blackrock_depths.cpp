@@ -150,7 +150,7 @@ public:
                         || (player->GetTeamId() == TEAM_HORDE && !player->IsActiveQuest(QUEST_THE_PRINCESS_SAVED)))
                         return;
 
-            moira->UpdateEntry(NPC_PRIESTESS_THAURISAN);
+            moira->UpdateEntry(NPC_PRIESTESS_THAURISSAN);
         }
 
         void OnCreatureCreate(Creature* creature) override
