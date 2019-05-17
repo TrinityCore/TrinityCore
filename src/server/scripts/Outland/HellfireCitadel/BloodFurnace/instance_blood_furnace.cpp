@@ -65,7 +65,8 @@ class instance_blood_furnace : public InstanceMapScript
                     case NPC_KELIDAN_THE_BREAKER:
                         KelidanTheBreakerGUID = creature->GetGUID();
                         break;
-                    case NPC_PRISONER:
+                    case NPC_PRISONER1:
+                    case NPC_PRISONER2:
                         StorePrisoner(creature);
                         break;
                     default:
@@ -75,7 +76,7 @@ class instance_blood_furnace : public InstanceMapScript
 
             void OnUnitDeath(Unit* unit) override
             {
-                if (unit->GetTypeId() == TYPEID_UNIT && unit->GetEntry() == NPC_PRISONER)
+                if (unit->GetTypeId() == TYPEID_UNIT && (unit->GetEntry() == NPC_PRISONER1 || unit->GetEntry() == NPC_PRISONER2))
                     PrisonerDied(unit->GetGUID());
             }
 
@@ -204,29 +205,30 @@ class instance_blood_furnace : public InstanceMapScript
             {
                 float posX = creature->GetPositionX();
                 float posY = creature->GetPositionY();
+                float posZ = creature->GetPositionZ();
 
-                if (posX >= 405.0f && posX <= 423.0f)
+                if (posX >= 405.0f && posX <= 423.0f && posZ <= 17)
                 {
-                    if (posY >= 106.0f && posY <= 123.0f)
+                    if (posY >= 106.0f && posY <= 123.0f && posZ <= 17)
                     {
                         PrisonersCell5.insert(creature->GetGUID());
                         ++PrisonerCounter5;
                     }
-                    else if (posY >= 76.0f && posY <= 91.0f)
+                    else if (posY >= 76.0f && posY <= 91.0f && posZ <= 17)
                     {
                         PrisonersCell6.insert(creature->GetGUID());
                         ++PrisonerCounter6;
                     }
                     else return;
                 }
-                else if (posX >= 490.0f && posX <= 506.0f)
+                else if (posX >= 490.0f && posX <= 506.0f && posZ <= 17)
                 {
-                    if (posY >= 106.0f && posY <= 123.0f)
+                    if (posY >= 106.0f && posY <= 123.0f && posZ <= 17)
                     {
                         PrisonersCell7.insert(creature->GetGUID());
                         ++PrisonerCounter7;
                     }
-                    else if (posY >= 76.0f && posY <= 91.0f)
+                    else if (posY >= 76.0f && posY <= 91.0f && posZ <= 17)
                     {
                         PrisonersCell8.insert(creature->GetGUID());
                         ++PrisonerCounter8;
