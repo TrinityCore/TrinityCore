@@ -3976,6 +3976,55 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
     });
 
+    // Tag Greater Felfire Diemetradon
+    ApplySpellFix({ 37851 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 3000;
+    });
+
+    // Jormungar Strike
+    ApplySpellFix({ 56513 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 2000;
+    });
+
+    ApplySpellFix({
+        54997, // Cast Net (tooltip says 10s but sniffs say 6s)
+        56524  // Acid Breath
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 6000;
+    });
+
+    ApplySpellFix({
+        47911, // EMP
+        48620, // Wing Buffet
+        51752  // Stampy's Stompy-Stomp
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 10000;
+    });
+
+    ApplySpellFix({
+        37727, // Touch of Darkness
+        54996  // Ice Slick (tooltip says 20s but sniffs say 12s)
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 12000;
+    });
+
+    // Signal Helmet to Attack
+    ApplySpellFix({ 51748 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 15000;
+    });
+
+    // Charge
+    ApplySpellFix({ 51756 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RecoveryTime = 20000;
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
