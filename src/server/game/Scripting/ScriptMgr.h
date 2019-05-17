@@ -704,6 +704,9 @@ class TC_GAME_API PlayerScript : public ScriptObject
 
         // Called when a player presses release when he died
         virtual void OnPlayerRepop(Player* /*player*/) { }
+
+        // Called when a player obtains progress on a quest's objective
+        virtual void OnPlayerReachedQuestObjectiveCount(Player* player, uint32 questId, uint32 creatureOrGoEntry, uint8 count) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -1013,6 +1016,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
         void OnQuestStatusChange(Player* player, uint32 questId);
         void OnPlayerRepop(Player* player);
+        void OnPlayerReachedQuestObjectiveCount(Player* player, uint32 questId, uint32 creatureOrGoEntry, uint8 count);
 
     public: /* AccountScript */
 

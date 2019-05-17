@@ -1961,6 +1961,11 @@ void ScriptMgr::OnPlayerRepop(Player* player)
     FOREACH_SCRIPT(PlayerScript)->OnPlayerRepop(player);
 }
 
+void ScriptMgr::OnPlayerReachedQuestObjectiveCount(Player* player, uint32 questId, uint32 creatureOrGoEntry, uint8 count)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPlayerReachedQuestObjectiveCount(player, questId, creatureOrGoEntry, count);
+}
+
 // Account
 void ScriptMgr::OnAccountLogin(uint32 accountId)
 {
