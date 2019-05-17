@@ -40,6 +40,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 
@@ -4182,6 +4183,30 @@ class spell_freezing_circle : public SpellScript
     }
 };
 
+// Used for some spells cast by vehicles or charmed creatures that do not send a cooldown event on their own
+class spell_gen_charmed_unit_spell_cooldown : public SpellScript
+{
+    PrepareSpellScript(spell_gen_charmed_unit_spell_cooldown);
+
+    void HandleCast()
+    {
+        Unit* caster = GetCaster();
+        if (Player* owner = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            WorldPackets::Spells::SpellCooldown spellCooldown;
+            spellCooldown.Caster = owner->GetGUID();
+            spellCooldown.Flags = SPELL_COOLDOWN_FLAG_NONE;
+            spellCooldown.SpellCooldowns.emplace_back(GetSpellInfo()->Id, GetSpellInfo()->RecoveryTime);
+            owner->SendDirectMessage(spellCooldown.Write());
+        }
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_gen_charmed_unit_spell_cooldown::HandleCast);
+    }
+};
+
 // 169869 - Transformation Sickness
 class spell_gen_decimatus_transformation_sickness : public SpellScript
 {
@@ -4551,6 +4576,7 @@ void AddSC_generic_spell_scripts()
     RegisterAuraScript(spell_corrupting_plague_aura);
     RegisterAuraScript(spell_gen_vehicle_control_link);
     RegisterSpellScript(spell_freezing_circle);
+    RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
     RegisterSpellScript(spell_gen_decimatus_transformation_sickness);
     RegisterSpellScript(spell_gen_anetheron_summon_towering_infernal);
     RegisterSpellAndAuraScriptPair(spell_gen_mark_of_kazrogal_hellfire, spell_gen_mark_of_kazrogal_hellfire_aura);
