@@ -35,7 +35,7 @@ m_timer(0), m_lifetime(0)
     m_unitTypeMask |= UNIT_MASK_SUMMON;
 }
 
-Unit* TempSummon::GetSummoner() const
+Unit* TempSummon::GetSummonerUnit() const
 {
     return m_summonerGUID ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : nullptr;
 }
@@ -168,7 +168,7 @@ void TempSummon::InitStats(uint32 duration)
     if (m_type == TEMPSUMMON_MANUAL_DESPAWN)
         m_type = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
-    Unit* owner = GetSummoner();
+    Unit* owner = GetSummonerUnit();
 
     if (owner && IsTrigger() && m_spells[0])
     {
@@ -203,7 +203,7 @@ void TempSummon::InitStats(uint32 duration)
 
 void TempSummon::InitSummon()
 {
-    Unit* owner = GetSummoner();
+    Unit* owner = GetSummonerUnit();
     if (owner)
     {
         if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled())
@@ -241,7 +241,7 @@ void TempSummon::UnSummon(uint32 msTime)
         return;
     }
 
-    Unit* owner = GetSummoner();
+    Unit* owner = GetSummonerUnit();
     if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled())
         owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
 
@@ -261,7 +261,7 @@ void TempSummon::RemoveFromWorld()
 
     if (m_Properties)
         if (uint32 slot = m_Properties->Slot)
-            if (Unit* owner = GetSummoner())
+            if (Unit* owner = GetSummonerUnit())
                 if (owner->m_SummonSlot[slot] == GetGUID())
                     owner->m_SummonSlot[slot].Clear();
 
