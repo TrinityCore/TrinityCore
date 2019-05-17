@@ -8,13 +8,21 @@ enum NPCs
     NPC_KINNDY_SPARKSHINE           = 100002,
     NPC_WATER_ELEMENTAL             = 100011,
     NPC_INVISIBLE_STALKER           = 32780,
+
+    NPC_WARLORD_ROK_NAH             = 100039,
+    NPC_ROK_NAH_GRUNT               = 100034,
+    NPC_ROK_NAH_SOLDIER             = 100029,
+    NPC_ROK_NAH_HAG                 = 100030,
+    NPC_ROK_NAH_FELCASTER           = 100031,
+    NPC_ROK_NAH_LOA_SINGER          = 100032,
 };
 
 enum Quests
 {
     QUEST_LIMIT_THE_NUKE            = 80007,
     QUEST_RETURN_TO_THERAMORE       = 80008,
-    QUEST_PROTECT_THE_ARTEFACT      = 80009
+    QUEST_DESTROY_THE_DESTROYER     = 80009,
+    QUEST_PROTECT_THE_ARTEFACT      = 80010
 };
 
 enum Events
@@ -45,7 +53,25 @@ enum Events
     EVENT_IRIS_4,
     EVENT_IRIS_5,
     EVENT_IRIS_6,
-    EVENT_IRIS_7
+    EVENT_IRIS_7,
+    EVENT_IRIS_8,
+    EVENT_IRIS_9,
+    EVENT_IRIS_10,
+    EVENT_IRIS_11,
+    EVENT_IRIS_12,
+    EVENT_IRIS_13,
+    EVENT_IRIS_14,
+    EVENT_IRIS_15,
+    EVENT_IRIS_16,
+    EVENT_IRIS_17,
+    EVENT_IRIS_18,
+    EVENT_IRIS_19,
+    EVENT_IRIS_20,
+    EVENT_IRIS_21,
+    EVENT_IRIS_22,
+    EVENT_IRIS_23,
+    EVENT_IRIS_24,
+    EVENT_IRIS_25
 };
 
 enum Spells
@@ -56,10 +82,11 @@ enum Spells
 
     SPELL_SIMPLE_TELEPORT           = 100032,
     SPELL_ICE_NOVA                  = 56935,
-    SPELL_ICE_BLOCK                 = 45776,
+    SPELL_ICE_BLOCK                 = 22856,
     SPELL_POWER_BALL_VISUAL         = 54139,
     SPELL_PORTAL                    = 57687,
-    SPELL_CANALISATION              = 58012
+    SPELL_CANALISATION              = 58012,
+    SPELL_WATER_SHIELD              = 100040
 };
 
 enum Text
@@ -77,8 +104,15 @@ enum Text
     SAY_IRIS_1                      = 6,
     SAY_IRIS_2                      = 7,
     SAY_IRIS_3                      = 8,
-    SAY_IRIS_4                      = 9,
-    SAY_IRIS_5                      = 10,
+
+    SAY_IRIS_4                      = 0,
+    SAY_IRIS_5                      = 9,
+    SAY_IRIS_6                      = 1,
+    SAY_IRIS_7                      = 10,
+    SAY_IRIS_8                      = 2,
+
+    SAY_IRIS_9                      = 11,
+    SAY_IRIS_10                     = 12,
 };
 
 struct Location
@@ -87,10 +121,29 @@ struct Location
     Position position;
 };
 
-const Position ElementalsPos[2] =
+const Position ElementalsPos[4] =
 {
     { -3714.59f, -4465.40f, -19.87f, 0.04f },
-    { -3714.30f, -4472.51f, -20.15f, 0.04f }
+    { -3714.30f, -4472.51f, -20.15f, 0.04f },
+
+    { -3699.80f, -4453.12f, -20.12f, 6.18f },
+    { -3698.08f, -4482.82f, -19.68f, 0.07f }
+};
+
+const Location Soldiers[12] =
+{
+    { NPC_WARLORD_ROK_NAH,  { -3650.70f, -4449.48f, -3.83f, 3.56f } },
+    { 0,                    { -3644.38f, -4449.42f, -3.58f, 3.56f } },
+    { 0,                    { -3645.84f, -4446.23f, -3.36f, 3.56f } },
+    { 0,                    { -3647.34f, -4442.94f, -3.36f, 3.56f } },
+    { 0,                    { -3642.15f, -4446.41f, -3.20f, 3.56f } },
+    { 0,                    { -3643.71f, -4443.01f, -2.98f, 3.56f } },
+    { 0,                    { -3653.04f, -4505.90f,  1.41f, 2.56f } },
+    { 0,                    { -3652.22f, -4479.16f, -3.78f, 2.96f } },
+    { 0,                    { -3635.43f, -4492.63f, -1.36f, 3.01f } },
+    { 0,                    { -3635.77f, -4495.29f, -1.01f, 3.01f } },
+    { 0,                    { -3632.48f, -4494.38f, -0.53f, 3.01f } },
+    { 0,                    { -3632.13f, -4491.60f, -0.80f, 3.01f } }
 };
 
 #endif

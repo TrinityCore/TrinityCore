@@ -46,7 +46,7 @@ class npc_warrior : public CreatureScript
                 switch (eventId)
                 {
                     case CASTING_CLEAVE:
-                        DoCast(SPELL_CLEAVE);
+                        DoCastVictim(SPELL_CLEAVE);
                         events.RescheduleEvent(CASTING_CLEAVE, 14s, 28s);
                         break;
 

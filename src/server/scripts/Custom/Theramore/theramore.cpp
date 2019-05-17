@@ -216,7 +216,7 @@ class npc_jaina_theramore : public CreatureScript
                 return;
 
             Player* player = who->ToPlayer();
-            if (player && player->GetQuestStatus(QUEST_LIMIT_THE_NUKE) == QUEST_STATUS_INCOMPLETE && me->IsWithinDist(who, 15.f))
+            if (player && player->GetQuestStatus(QUEST_LIMIT_THE_NUKE) == QUEST_STATUS_INCOMPLETE && me->IsWithinDist(who, 5.f))
             {
                 SetData(EVENT_SET_END,   0U);
                 SetData(EVENT_START_END, 1U);
