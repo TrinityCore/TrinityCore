@@ -5264,6 +5264,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 3;
     });
 
+    // Overcharged Power Generator
+    ApplySpellFix({ 91858 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
+    });
+
     // END OF BLACKWING DESCENT SPELLS
 
     // Living Bomb
