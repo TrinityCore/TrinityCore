@@ -44,7 +44,7 @@ enum Creatures
     NPC_DOOMREL             = 9039,
     NPC_MAGMUS              = 9938,
     NPC_MOIRA               = 8929,
-    NPC_PRIESTESS_THAURISAN = 10076,
+    NPC_PRIESTESS_THAURISSAN = 10076,
     NPC_COREN               = 23872
 };
 
