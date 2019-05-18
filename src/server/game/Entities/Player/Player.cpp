@@ -16968,7 +16968,7 @@ void Player::SendQuestComplete(Quest const* quest) const
     }
 }
 
-void Player::SendQuestReward(Quest const* quest, uint32 XP) const
+void Player::SendQuestReward(Quest const* quest, uint32 XP)
 {
     uint32 questId = quest->GetQuestId();
     sGameEventMgr->HandleQuestComplete(questId);
@@ -16996,8 +16996,13 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP) const
     data << uint32(questId);
     data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
 
-    data.WriteBit(0);                                      // FIXME: unknown bits, common values sent
-    data.WriteBit(1);
+    bool canTakeNextRewardQuest = false;
+    if (uint32 nextQuestId = quest->GetNextQuestInChain())
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(nextQuestId))
+            canTakeNextRewardQuest = CanTakeQuest(quest, false);
+
+    data.WriteBit(0);                                      // FIXME: unknown bit, common values sent
+    data.WriteBit(canTakeNextRewardQuest);                 // Can take next reward quest
     data.FlushBits();
 
     SendDirectMessage(&data);
