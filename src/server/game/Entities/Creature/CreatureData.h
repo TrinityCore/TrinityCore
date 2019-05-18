@@ -379,6 +379,9 @@ struct TC_GAME_API CreatureTemplate
     float   ModExperience;
     bool    RacialLeader;
     uint32  movementId;
+    float   FadeRegionRadius;
+    int32   WidgetSetID;
+    int32   WidgetSetUnitConditionID;
     bool    RegenHealth;
     uint32  MechanicImmuneMask;
     uint32  flags_extra;

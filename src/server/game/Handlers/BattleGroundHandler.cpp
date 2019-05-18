@@ -64,8 +64,13 @@ void WorldSession::HandleBattlemasterHelloOpcode(WorldPackets::NPC::Hello& hello
 void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::BattlemasterJoin& battlemasterJoin)
 {
     bool isPremade = false;
-    Group* grp = NULL;
-    uint32 bgTypeId_ = battlemasterJoin.QueueID & 0xFFFF;
+    if (battlemasterJoin.QueueIDs.empty())
+    {
+        TC_LOG_ERROR("network", "Battleground: no bgtype received. possible cheater? %s", _player->GetGUID().ToString().c_str());
+        return;
+    }
+
+    uint32 bgTypeId_ = battlemasterJoin.QueueIDs[0] & 0xFFFF;
     if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
     {
         TC_LOG_ERROR("network", "Battleground: invalid bgtype (%u) received. possible cheater? %s", bgTypeId_, _player->GetGUID().ToString().c_str());
@@ -100,8 +105,10 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
 
     GroupJoinBattlegroundResult err = ERR_BATTLEGROUND_NONE;
 
+    Group* grp = _player->GetGroup();
+
     // check queue conditions
-    if (!battlemasterJoin.JoinAsGroup)
+    if (!grp)
     {
         if (GetPlayer()->isUsingLfg())
         {
@@ -171,11 +178,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
     }
     else
     {
-        grp = _player->GetGroup();
-
-        if (!grp)
-            return;
-
         if (grp->GetLeaderGUID() != _player->GetGUID())
             return;
 
@@ -525,10 +527,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPackets::Battleground::Battl
     // check real arenateam existence only here (if it was moved to group->CanJoin .. () then we would ahve to get it twice)
     ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(ateamId);
     if (!at)
-    {
-        _player->GetSession()->SendNotInArenaTeamPacket(arenatype);
         return;
-    }
 
     // get the team rating for queuing
     uint32 arenaRating = at->GetRating();

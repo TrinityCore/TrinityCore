@@ -37,12 +37,13 @@ void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& q
     if (Guild* guild = sGuildMgr->GetGuildByGuid(query.GuildGuid))
         if (guild->IsMember(query.PlayerGuid))
         {
-            guild->SendQueryResponse(this);
+            guild->SendQueryResponse(this, query.PlayerGuid);
             return;
         }
 
     WorldPackets::Guild::QueryGuildInfoResponse response;
     response.GuildGuid = query.GuildGuid;
+    response.PlayerGuid = query.PlayerGuid;
     SendPacket(response.Write());
 
     TC_LOG_DEBUG("guild", "SMSG_GUILD_QUERY_RESPONSE [%s]", GetPlayerInfo().c_str());

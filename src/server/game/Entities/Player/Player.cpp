@@ -92,7 +92,7 @@
 #include "QuestDef.h"
 #include "QuestObjectiveCriteriaMgr.h"
 #include "QuestPackets.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "ReputationMgr.h"
 #include "RestMgr.h"
 #include "Scenario.h"
@@ -2766,7 +2766,7 @@ void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResp
 void Player::SendNewMail() const
 {
     // deliver undelivered mail
-    WorldPackets::Mail::NotifyRecievedMail notify;
+    WorldPackets::Mail::NotifyReceivedMail notify;
     notify.Delay = 0.0f;
 
     GetSession()->SendPacket(notify.Write());
@@ -6765,6 +6765,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         packet.WeeklyQuantity = newWeekCount;
         packet.TrackedQuantity = newTrackedCount;
         packet.Flags = itr->second.Flags;
+        packet.QuantityChange = count;
 
         GetSession()->SendPacket(packet.Write());
     }
@@ -8224,7 +8225,7 @@ void Player::RemoveAELootedObject(ObjectGuid const& lootObjectGuid)
 
 bool Player::HasLootWorldObjectGUID(ObjectGuid const& lootWorldObjectGuid) const
 {
-    return m_AELootView.end() != std::find_if(m_AELootView.begin(), m_AELootView.end(), [&lootWorldObjectGuid](std::pair<ObjectGuid, ObjectGuid> const& lootView)
+    return m_AELootView.end() != std::find_if(m_AELootView.begin(), m_AELootView.end(), [&lootWorldObjectGuid](std::pair<ObjectGuid const, ObjectGuid> const& lootView)
     {
         return lootView.second == lootWorldObjectGuid;
     });
@@ -20067,7 +20068,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         stmt->setUInt8(index++, GetByteValue(ACTIVE_PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES));
         stmt->setUInt32(index++, m_grantableLevels);
-        stmt->setUInt32(index++, realm.Build);
+        stmt->setUInt32(index++, sRealmList->GetMinorMajorBugfixVersionForBuild(realm.Build));
     }
     else
     {
@@ -27586,6 +27587,7 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
     displayPlayerChoice.SenderGUID = sender;
     displayPlayerChoice.ChoiceID = choiceId;
     displayPlayerChoice.UiTextureKitID = playerChoice->UiTextureKitId;
+    displayPlayerChoice.SoundKitID = playerChoice->SoundKitId;
     displayPlayerChoice.Question = playerChoice->Question;
     if (playerChoiceLocale)
         ObjectMgr::GetLocaleString(playerChoiceLocale->Question, locale, displayPlayerChoice.Question);
@@ -27603,9 +27605,13 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
         playerChoiceResponse.ChoiceArtFileID = playerChoiceResponseTemplate.ChoiceArtFileId;
         playerChoiceResponse.Flags = playerChoiceResponseTemplate.Flags;
         playerChoiceResponse.WidgetSetID = playerChoiceResponseTemplate.WidgetSetID;
+        playerChoiceResponse.UiTextureAtlasElementID = playerChoiceResponseTemplate.UiTextureAtlasElementID;
+        playerChoiceResponse.SoundKitID = playerChoiceResponseTemplate.SoundKitID;
         playerChoiceResponse.GroupID = playerChoiceResponseTemplate.GroupID;
         playerChoiceResponse.Answer = playerChoiceResponseTemplate.Answer;
         playerChoiceResponse.Header = playerChoiceResponseTemplate.Header;
+        playerChoiceResponse.SubHeader = playerChoiceResponseTemplate.SubHeader;
+        playerChoiceResponse.ButtonTooltip = playerChoiceResponseTemplate.ButtonTooltip;
         playerChoiceResponse.Description = playerChoiceResponseTemplate.Description;
         playerChoiceResponse.Confirmation = playerChoiceResponseTemplate.Confirmation;
         if (playerChoiceLocale)
@@ -27614,6 +27620,8 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
             {
                 ObjectMgr::GetLocaleString(playerChoiceResponseLocale->Answer, locale, playerChoiceResponse.Answer);
                 ObjectMgr::GetLocaleString(playerChoiceResponseLocale->Header, locale, playerChoiceResponse.Header);
+                ObjectMgr::GetLocaleString(playerChoiceResponseLocale->SubHeader, locale, playerChoiceResponse.SubHeader);
+                ObjectMgr::GetLocaleString(playerChoiceResponseLocale->ButtonTooltip, locale, playerChoiceResponse.ButtonTooltip);
                 ObjectMgr::GetLocaleString(playerChoiceResponseLocale->Description, locale, playerChoiceResponse.Description);
                 ObjectMgr::GetLocaleString(playerChoiceResponseLocale->Confirmation, locale, playerChoiceResponse.Confirmation);
             }
@@ -27657,6 +27665,8 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
                 rewardEntry.Quantity = faction.Quantity;
             }
         }
+
+        playerChoiceResponse.RewardQuestID = playerChoiceResponseTemplate.RewardQuestID;
     }
 
     SendDirectMessage(displayPlayerChoice.Write());

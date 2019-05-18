@@ -68,6 +68,7 @@ namespace WorldPackets
             Type = TYPE_CREATURE_TO_PLAYER_DAMAGE;
             PlayerLevelDelta = target->GetInt32Value(ACTIVE_PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
             PlayerItemLevel = target->GetAverageItemLevel();
+            TargetItemLevel = 0;
             ScalingHealthItemLevelCurveID = target->GetUInt32Value(UNIT_FIELD_SCALING_HEALTH_ITEM_LEVEL_CURVE_ID);
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
@@ -85,6 +86,7 @@ namespace WorldPackets
             Type = TYPE_PLAYER_TO_CREATURE_DAMAGE;
             PlayerLevelDelta = attacker->GetInt32Value(ACTIVE_PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
             PlayerItemLevel = attacker->GetAverageItemLevel();
+            TargetItemLevel = 0;
             ScalingHealthItemLevelCurveID = target->GetUInt32Value(UNIT_FIELD_SCALING_HEALTH_ITEM_LEVEL_CURVE_ID);
             TargetLevel = target->getLevel();
             Expansion = creatureTemplate->RequiredExpansion;
@@ -171,6 +173,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::ContentTuningPara
 {
     data << int16(contentTuningParams.PlayerLevelDelta);
     data << uint16(contentTuningParams.PlayerItemLevel);
+    data << uint16(contentTuningParams.TargetItemLevel);
     data << uint16(contentTuningParams.ScalingHealthItemLevelCurveID);
     data << uint8(contentTuningParams.TargetLevel);
     data << uint8(contentTuningParams.Expansion);

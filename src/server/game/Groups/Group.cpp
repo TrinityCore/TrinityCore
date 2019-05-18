@@ -585,13 +585,8 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
 
             player->SetPartyType(m_groupCategory, GROUP_TYPE_NONE);
 
-            WorldPacket data;
-
             if (method == GROUP_REMOVEMETHOD_KICK || method == GROUP_REMOVEMETHOD_KICK_LFG)
-            {
-                data.Initialize(SMSG_GROUP_UNINVITE, 0);
-                player->GetSession()->SendPacket(&data);
-            }
+                player->SendDirectMessage(WorldPackets::Party::GroupUninvite().Write());
 
             _homebindIfInstance(player);
         }

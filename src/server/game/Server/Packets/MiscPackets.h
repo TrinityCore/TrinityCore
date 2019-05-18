@@ -109,6 +109,9 @@ namespace WorldPackets
             Optional<int32> WeeklyQuantity;
             Optional<int32> TrackedQuantity;
             Optional<int32> MaxQuantity;
+            Optional<int32> QuantityChange;
+            Optional<int32> QuantityGainSource;
+            Optional<int32> QuantityLostSource;
             bool SuppressChatLog = false;
         };
 

@@ -418,7 +418,7 @@ WorldPacket const* WorldPackets::Party::GroupNewLeader::Write()
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyPlayerInfo const& playerInfo)
 {
     data.WriteBits(playerInfo.Name.size(), 6);
-    data.WriteBits(playerInfo.VoiceStateID.size(), 6);
+    data.WriteBits(playerInfo.VoiceStateID.size() + 1, 6);
     data.WriteBit(playerInfo.FromSocialQueue);
     data.WriteBit(playerInfo.VoiceChatSilenced);
     data << playerInfo.GUID;
@@ -428,7 +428,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyPlayerInfo co
     data << uint8(playerInfo.RolesAssigned);
     data << uint8(playerInfo.Class);
     data.WriteString(playerInfo.Name);
-    data.WriteString(playerInfo.VoiceStateID);
+    if (!playerInfo.VoiceStateID.empty())
+        data << playerInfo.VoiceStateID;
 
     return data;
 }
@@ -531,7 +532,7 @@ WorldPacket const* WorldPackets::Party::RaidMarkersChanged::Write()
     _worldPacket.WriteBits(RaidMarkers.size(), 4);
     _worldPacket.FlushBits();
 
-    for (RaidMarker* raidMarker : RaidMarkers)
+    for (RaidMarker const* raidMarker : RaidMarkers)
     {
         _worldPacket << raidMarker->TransportGUID;
         _worldPacket << raidMarker->Location.GetMapId();

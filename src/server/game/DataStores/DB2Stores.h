@@ -247,6 +247,8 @@ class TC_GAME_API DB2Manager
 public:
     DEFINE_DB2_SET_COMPARATOR(MountTypeXCapabilityEntry)
 
+    typedef std::map<int32 /*hotfixId*/, std::vector<std::pair<uint32 /*tableHash*/, int32 /*recordId*/>>> HotfixContainer;
+
     typedef std::vector<ItemBonusEntry const*> ItemBonusList;
     typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyContainer;
     typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator> MountTypeXCapabilitySet;
@@ -259,7 +261,8 @@ public:
 
     void LoadHotfixData();
     void LoadHotfixBlob();
-    std::map<uint64, int32> const& GetHotfixData() const;
+    uint32 GetHotfixCount() const;
+    HotfixContainer const& GetHotfixData() const;
     std::vector<uint8> const* GetHotfixBlobData(uint32 tableHash, int32 recordId);
 
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
@@ -346,7 +349,7 @@ public:
 private:
     friend class DB2HotfixGeneratorBase;
     void InsertNewHotfix(uint32 tableHash, uint32 recordId);
-    uint32 _maxHotfixId = 0;
+    int32 _maxHotfixId = 0;
 };
 
 #define sDB2Manager DB2Manager::Instance()

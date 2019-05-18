@@ -424,14 +424,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
 
         if (HasFall)
         {
-            *data << uint32(unit->m_movementInfo.jump.fallTime);              // Time
-            *data << float(unit->m_movementInfo.jump.zspeed);                 // JumpVelocity
+            *data << uint32(unit->m_movementInfo.jump.fallTime);        // Time
+            *data << float(unit->m_movementInfo.jump.zspeed);           // JumpVelocity
 
             if (data->WriteBit(HasFallDirection))
             {
-                *data << float(unit->m_movementInfo.jump.sinAngle);           // Direction
+                *data << float(unit->m_movementInfo.jump.sinAngle);     // Direction
                 *data << float(unit->m_movementInfo.jump.cosAngle);
-                *data << float(unit->m_movementInfo.jump.xyspeed);            // Speed
+                *data << float(unit->m_movementInfo.jump.xyspeed);      // Speed
             }
         }
 
@@ -445,7 +445,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
         *data << float(unit->GetSpeed(MOVE_TURN_RATE));
         *data << float(unit->GetSpeed(MOVE_PITCH_RATE));
 
-        *data << uint32(0);                                                   // unit->m_movementInfo.forces.size()
+        *data << uint32(0);                                             // unit->m_movementInfo.forces.size()
+
+        *data << float(1.0f);                                           // MovementForcesModMagnitude
 
         data->WriteBit(HasSpline);
         data->FlushBits();

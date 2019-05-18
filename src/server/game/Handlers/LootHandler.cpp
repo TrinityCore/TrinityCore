@@ -145,7 +145,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
 void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/)
 {
     Player* player = GetPlayer();
-    for (std::pair<ObjectGuid, ObjectGuid> const& lootView : player->GetAELootView())
+    for (std::pair<ObjectGuid const, ObjectGuid> const& lootView : player->GetAELootView())
     {
         ObjectGuid guid = lootView.second;
         Loot* loot = nullptr;
@@ -222,34 +222,32 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
                     playersNear.push_back(member);
             }
 
-            uint32 goldPerPlayer = uint32((loot->gold) / (playersNear.size()));
+            uint64 goldPerPlayer = uint64(loot->gold / playersNear.size());
 
             for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
-                (*i)->ModifyMoney(goldPerPlayer);
-                (*i)->UpdateCriteria(CRITERIA_TYPE_LOOT_MONEY, goldPerPlayer);
+                uint64 goldMod = CalculatePct(goldPerPlayer, (*i)->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_MONEY_GAIN, 1));
 
-                if (Guild* guild = sGuildMgr->GetGuildById((*i)->GetGuildId()))
-                    if (uint32 guildGold = CalculatePct(goldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
-                        guild->HandleMemberDepositMoney(this, guildGold, true);
+                (*i)->ModifyMoney(goldPerPlayer + goldMod);
+                (*i)->UpdateCriteria(CRITERIA_TYPE_LOOT_MONEY, goldPerPlayer);
 
                 WorldPackets::Loot::LootMoneyNotify packet;
                 packet.Money = goldPerPlayer;
+                packet.MoneyMod = goldMod;
                 packet.SoleLooter = playersNear.size() <= 1 ? true : false;
                 (*i)->SendDirectMessage(packet.Write());
             }
         }
         else
         {
-            player->ModifyMoney(loot->gold);
-            player->UpdateCriteria(CRITERIA_TYPE_LOOT_MONEY, loot->gold);
+            uint64 goldMod = CalculatePct(loot->gold, player->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_MONEY_GAIN, 1));
 
-            if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
-                if (uint32 guildGold = CalculatePct(loot->gold, player->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
-                    guild->HandleMemberDepositMoney(this, guildGold, true);
+            player->ModifyMoney(loot->gold + goldMod);
+            player->UpdateCriteria(CRITERIA_TYPE_LOOT_MONEY, loot->gold);
 
             WorldPackets::Loot::LootMoneyNotify packet;
             packet.Money = loot->gold;
+            packet.MoneyMod = goldMod;
             packet.SoleLooter = true; // "You loot..."
             SendPacket(packet.Write());
         }
@@ -447,7 +445,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
 void WorldSession::DoLootReleaseAll()
 {
     std::unordered_map<ObjectGuid, ObjectGuid> lootView = _player->GetAELootView();
-    for (std::pair<ObjectGuid, ObjectGuid> lootPair : lootView)
+    for (std::pair<ObjectGuid const, ObjectGuid> const& lootPair : lootView)
         DoLootRelease(lootPair.second);
 }
 

@@ -347,7 +347,8 @@ namespace
     };
 
     StorageMap _stores;
-    std::map<uint64, int32> _hotfixData;
+    uint32 _hotfixCount = 0;
+    DB2Manager::HotfixContainer _hotfixData;
     std::map<std::pair<uint32 /*tableHash*/, int32 /*recordId*/>, std::vector<uint8>> _hotfixBlob;
 
     AreaGroupMemberContainer _areaGroupMembers;
@@ -1302,7 +1303,7 @@ void DB2Manager::LoadHotfixData()
     {
         Field* fields = result->Fetch();
 
-        uint32 id = fields[0].GetUInt32();
+        int32 id = fields[0].GetInt32();
         uint32 tableHash = fields[1].GetUInt32();
         int32 recordId = fields[2].GetInt32();
         bool deleted = fields[3].GetBool();
@@ -1313,7 +1314,8 @@ void DB2Manager::LoadHotfixData()
         }
 
         _maxHotfixId = std::max(_maxHotfixId, id);
-        _hotfixData[MAKE_PAIR64(id, tableHash)] = recordId;
+        _hotfixData[id].emplace_back(tableHash, recordId);
+        ++_hotfixCount;
         deletedRecords[std::make_pair(tableHash, recordId)] = deleted;
         ++count;
     } while (result->NextRow());
@@ -1359,7 +1361,12 @@ void DB2Manager::LoadHotfixBlob()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " hotfix blob records in %u ms", _hotfixBlob.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-std::map<uint64, int32> const& DB2Manager::GetHotfixData() const
+uint32 DB2Manager::GetHotfixCount() const
+{
+    return _hotfixCount;
+}
+
+DB2Manager::HotfixContainer const& DB2Manager::GetHotfixData() const
 {
     return _hotfixData;
 }
@@ -1371,7 +1378,8 @@ std::vector<uint8> const* DB2Manager::GetHotfixBlobData(uint32 tableHash, int32 
 
 void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
 {
-    _hotfixData[MAKE_PAIR64(tableHash, ++_maxHotfixId)] = recordId;
+    _hotfixData[++_maxHotfixId].emplace_back(tableHash, recordId);
+    ++_hotfixCount;
 }
 
 std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId) const

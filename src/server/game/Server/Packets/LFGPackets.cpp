@@ -241,12 +241,15 @@ WorldPacket const* WorldPackets::LFG::LFGRoleCheckUpdate::Write()
     _worldPacket << uint8(PartyIndex);
     _worldPacket << uint8(RoleCheckStatus);
     _worldPacket << uint32(JoinSlots.size());
-    _worldPacket << uint64(BgQueueID);
+    _worldPacket << uint32(BgQueueIDs.size());
     _worldPacket << int32(GroupFinderActivityID);
     _worldPacket << uint32(Members.size());
 
     for (uint32 slot : JoinSlots)
         _worldPacket << uint32(slot);
+
+    for (uint64 bgQueueID : BgQueueIDs)
+        _worldPacket << uint64(bgQueueID);
 
     _worldPacket.WriteBit(IsBeginning);
     _worldPacket.WriteBit(IsRequeue);
@@ -285,9 +288,17 @@ WorldPacket const* WorldPackets::LFG::LFGJoinResult::Write()
     _worldPacket << uint8(Result);
     _worldPacket << uint8(ResultDetail);
     _worldPacket << uint32(BlackList.size());
+    _worldPacket << uint32(BlackListNames.size());
 
     for (LFGJoinBlackList const& blackList : BlackList)
         _worldPacket << blackList;
+
+    for (std::string const* str : BlackListNames)
+        _worldPacket.WriteBits(str->length() + 1, 24);
+
+    for (std::string const* str : BlackListNames)
+        if (!str->empty())
+            _worldPacket << *str;
 
     return &_worldPacket;
 }

@@ -520,6 +520,8 @@ struct PlayerChoiceResponseLocale
 {
     std::vector<std::string> Answer;
     std::vector<std::string> Header;
+    std::vector<std::string> SubHeader;
+    std::vector<std::string> ButtonTooltip;
     std::vector<std::string> Description;
     std::vector<std::string> Confirmation;
 };
@@ -795,18 +797,24 @@ struct PlayerChoiceResponse
     int32 ChoiceArtFileId;
     int32 Flags;
     uint32 WidgetSetID;
+    uint32 UiTextureAtlasElementID = 0;
+    uint32 SoundKitID = 0;
     uint8 GroupID;
-    std::string Header;
     std::string Answer;
+    std::string Header;
+    std::string SubHeader;
+    std::string ButtonTooltip;
     std::string Description;
     std::string Confirmation;
     Optional<PlayerChoiceResponseReward> Reward;
+    Optional<uint32> RewardQuestID;
 };
 
 struct PlayerChoice
 {
     int32 ChoiceId;
     int32 UiTextureKitId;
+    uint32 SoundKitId;
     std::string Question;
     std::vector<PlayerChoiceResponse> Responses;
     bool HideWarboardHeader;

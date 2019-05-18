@@ -33,8 +33,6 @@ bool WorldPackets::Item::ItemBonusInstanceData::operator==(ItemBonusInstanceData
 void WorldPackets::Item::ItemInstance::Initialize(::Item const* item)
 {
     ItemID               = item->GetEntry();
-    RandomPropertiesSeed = item->GetItemSuffixFactor();
-    RandomPropertiesID   = item->GetItemRandomPropertyId();
     std::vector<uint32> const& bonusListIds = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
     if (!bonusListIds.empty())
     {
@@ -70,9 +68,6 @@ void WorldPackets::Item::ItemInstance::Initialize(::ItemDynamicFieldGems const* 
 void WorldPackets::Item::ItemInstance::Initialize(::LootItem const& lootItem)
 {
     ItemID               = lootItem.itemid;
-    RandomPropertiesSeed = lootItem.randomSuffix;
-    if (lootItem.randomPropertyId.Type != ItemRandomEnchantmentType::BonusList)
-        RandomPropertiesID = lootItem.randomPropertyId.Id;
 
     if (!lootItem.BonusListIDs.empty())
     {
@@ -91,9 +86,6 @@ void WorldPackets::Item::ItemInstance::Initialize(::LootItem const& lootItem)
 void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidItem)
 {
     ItemID = voidItem->ItemEntry;
-    RandomPropertiesSeed = voidItem->ItemSuffixFactor;
-    if (voidItem->ItemRandomPropertyId.Type != ItemRandomEnchantmentType::BonusList)
-        RandomPropertiesID = voidItem->ItemRandomPropertyId.Id;
 
     if (voidItem->ItemUpgradeId || voidItem->FixedScalingLevel || voidItem->ArtifactKnowledgeLevel)
     {
@@ -116,7 +108,7 @@ void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidI
 
 bool WorldPackets::Item::ItemInstance::operator==(ItemInstance const& r) const
 {
-    if (ItemID != r.ItemID || RandomPropertiesID != r.RandomPropertiesID || RandomPropertiesSeed != r.RandomPropertiesSeed)
+    if (ItemID != r.ItemID)
         return false;
 
     if (ItemBonus.is_initialized() != r.ItemBonus.is_initialized() || Modifications.is_initialized() != r.Modifications.is_initialized())
@@ -161,8 +153,6 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceDa
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const& itemInstance)
 {
     data << int32(itemInstance.ItemID);
-    data << int32(itemInstance.RandomPropertiesSeed);
-    data << int32(itemInstance.RandomPropertiesID);
 
     data.WriteBit(itemInstance.ItemBonus.is_initialized());
     data.WriteBit(itemInstance.Modifications.is_initialized());
@@ -180,8 +170,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const&
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemInstance)
 {
     data >> itemInstance.ItemID;
-    data >> itemInstance.RandomPropertiesSeed;
-    data >> itemInstance.RandomPropertiesID;
 
     bool hasItemBonus = data.ReadBit();
     bool hasModifications = data.ReadBit();

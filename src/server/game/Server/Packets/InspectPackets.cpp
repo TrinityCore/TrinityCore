@@ -63,6 +63,24 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectGuildData
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::PVPBracketData const& bracket)
+{
+    data << uint8(bracket.Bracket);
+    data << int32(bracket.Rating);
+    data << int32(bracket.Rank);
+    data << int32(bracket.WeeklyPlayed);
+    data << int32(bracket.WeeklyWon);
+    data << int32(bracket.SeasonPlayed);
+    data << int32(bracket.SeasonWon);
+    data << int32(bracket.WeeklyBestRating);
+    data << int32(bracket.Unk710);
+    data << int32(bracket.Unk801_1);
+    data.WriteBit(bracket.Unk801_2);
+    data.FlushBits();
+
+    return data;
+}
+
 WorldPackets::Inspect::InspectItemData::InspectItemData(::Item const* item, uint8 index)
 {
     CreatorGUID = item->GetGuidValue(ITEM_FIELD_CREATOR);
@@ -100,6 +118,11 @@ WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
     _worldPacket << int32(ClassID);
     _worldPacket << int32(SpecializationID);
     _worldPacket << int32(GenderID);
+    _worldPacket << uint8(LifetimeMaxRank);
+    _worldPacket << uint16(TodayHK);
+    _worldPacket << uint16(YesterdayHK);
+    _worldPacket << uint32(LifetimeHK);
+    _worldPacket << uint32(HonorLevel);
     if (!Glyphs.empty())
         _worldPacket.append(Glyphs.data(), Glyphs.size());
     if (!Talents.empty())
@@ -111,8 +134,8 @@ WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
     _worldPacket.WriteBit(AzeriteLevel.is_initialized());
     _worldPacket.FlushBits();
 
-    for (size_t i = 0; i < Items.size(); ++i)
-        _worldPacket << Items[i];
+    for (PVPBracketData const& bracket : Bracket)
+        _worldPacket << bracket;
 
     if (GuildData)
         _worldPacket << *GuildData;
@@ -120,58 +143,8 @@ WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
     if (AzeriteLevel)
         _worldPacket << int32(*AzeriteLevel);
 
-    return &_worldPacket;
-}
-
-void WorldPackets::Inspect::RequestHonorStats::Read()
-{
-    _worldPacket >> TargetGUID;
-}
-
-WorldPacket const* WorldPackets::Inspect::InspectHonorStats::Write()
-{
-    _worldPacket << PlayerGUID;
-    _worldPacket << uint8(LifetimeMaxRank);
-    _worldPacket << uint16(YesterdayHK); /// @todo: confirm order
-    _worldPacket << uint16(TodayHK); /// @todo: confirm order
-    _worldPacket << uint32(LifetimeHK);
-
-    return &_worldPacket;
-}
-
-void WorldPackets::Inspect::InspectPVPRequest::Read()
-{
-    _worldPacket >> InspectTarget;
-    _worldPacket >> InspectRealmAddress;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::PVPBracketData const& bracket)
-{
-    data << uint8(bracket.Bracket);
-    data << int32(bracket.Rating);
-    data << int32(bracket.Rank);
-    data << int32(bracket.WeeklyPlayed);
-    data << int32(bracket.WeeklyWon);
-    data << int32(bracket.SeasonPlayed);
-    data << int32(bracket.SeasonWon);
-    data << int32(bracket.WeeklyBestRating);
-    data << int32(bracket.Unk710);
-    data << int32(bracket.Unk801_1);
-    data.WriteBit(bracket.Unk801_2);
-    data.FlushBits();
-
-    return data;
-}
-
-WorldPacket const* WorldPackets::Inspect::InspectPVPResponse::Write()
-{
-    _worldPacket << ClientGUID;
-
-    _worldPacket.WriteBits(Bracket.size(), 3);
-    _worldPacket.FlushBits();
-
-    for (size_t i = 0; i < Bracket.size(); ++i)
-        _worldPacket << Bracket[i];
+    for (InspectItemData const& item : Items)
+        _worldPacket << item;
 
     return &_worldPacket;
 }

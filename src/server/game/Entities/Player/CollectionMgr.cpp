@@ -70,6 +70,21 @@ void CollectionMgr::LoadMountDefinitions()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " mount definitions in %u ms", FactionSpecificMounts.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+namespace
+{
+    EnumClassFlag<ToyFlags> GetToyFlags(bool isFavourite, bool hasFanfare)
+    {
+        EnumClassFlag<ToyFlags> flags(ToyFlags::None);
+        if (isFavourite)
+            flags |= ToyFlags::Favorite;
+
+        if (hasFanfare)
+            flags |= ToyFlags::HasFanfare;
+
+        return flags;
+    }
+}
+
 CollectionMgr::CollectionMgr(WorldSession* owner) : _owner(owner), _appearances(Trinity::make_unique<boost::dynamic_bitset<uint32>>())
 {
 }
@@ -84,9 +99,9 @@ void CollectionMgr::LoadToys()
         _owner->GetPlayer()->AddDynamicValue(ACTIVE_PLAYER_DYNAMIC_FIELD_TOYS, t.first);
 }
 
-bool CollectionMgr::AddToy(uint32 itemId, bool isFavourite /*= false*/)
+bool CollectionMgr::AddToy(uint32 itemId, bool isFavourite, bool hasFanfare)
 {
-    if (UpdateAccountToys(itemId, isFavourite))
+    if (UpdateAccountToys(itemId, isFavourite, hasFanfare))
     {
         _owner->GetPlayer()->AddDynamicValue(ACTIVE_PLAYER_DYNAMIC_FIELD_TOYS, itemId);
         return true;
@@ -104,9 +119,7 @@ void CollectionMgr::LoadAccountToys(PreparedQueryResult result)
     {
         Field* fields = result->Fetch();
         uint32 itemId = fields[0].GetUInt32();
-        bool isFavourite = fields[1].GetBool();
-
-        _toys[itemId] = isFavourite;
+        _toys[itemId] = GetToyFlags(fields[1].GetBool(), fields[2].GetBool());
     } while (result->NextRow());
 }
 
@@ -118,14 +131,15 @@ void CollectionMgr::SaveAccountToys(SQLTransaction& trans)
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACCOUNT_TOYS);
         stmt->setUInt32(0, _owner->GetBattlenetAccountId());
         stmt->setUInt32(1, toy.first);
-        stmt->setBool(2, toy.second);
+        stmt->setBool(2, toy.second.HasFlag(ToyFlags::Favorite));
+        stmt->setBool(3, toy.second.HasFlag(ToyFlags::HasFanfare));
         trans->Append(stmt);
     }
 }
 
-bool CollectionMgr::UpdateAccountToys(uint32 itemId, bool isFavourite /*= false*/)
+bool CollectionMgr::UpdateAccountToys(uint32 itemId, bool isFavourite, bool hasFanfare)
 {
-    return _toys.insert(ToyBoxContainer::value_type(itemId, isFavourite)).second;
+    return _toys.insert(ToyBoxContainer::value_type(itemId, GetToyFlags(isFavourite, hasFanfare))).second;
 }
 
 void CollectionMgr::ToySetFavorite(uint32 itemId, bool favorite)
@@ -134,7 +148,19 @@ void CollectionMgr::ToySetFavorite(uint32 itemId, bool favorite)
     if (itr == _toys.end())
         return;
 
-    itr->second = favorite;
+    if (favorite)
+        itr->second |= ToyFlags::Favorite;
+    else
+        itr->second.RemoveFlag(ToyFlags::Favorite);
+}
+
+void CollectionMgr::ToyClearFanfare(uint32 itemId)
+{
+    auto itr = _toys.find(itemId);
+    if (itr == _toys.end())
+        return;
+
+    itr->second.RemoveFlag(ToyFlags::HasFanfare);
 }
 
 void CollectionMgr::OnItemAdded(Item* item)

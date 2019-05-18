@@ -272,7 +272,7 @@ WorldPacket const* WorldPackets::Mail::MailQueryNextTimeResult::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Mail::NotifyRecievedMail::Write()
+WorldPacket const* WorldPackets::Mail::NotifyReceivedMail::Write()
 {
     _worldPacket << float(Delay);
 

@@ -666,6 +666,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
             item.StackCount = itemTemplate->GetBuyCount();
             item.Price = price;
             item.DoNotFilterOnVendor = vendorItem->IgnoreFiltering;
+            item.Refundable = itemTemplate->GetFlags() & ITEM_FLAG_ITEM_PURCHASE_RECORD && vendorItem->ExtendedCost && itemTemplate->GetMaxStackSize() == 1;
 
             item.Item.ItemID = vendorItem->item;
             if (!vendorItem->BonusListIDs.empty())

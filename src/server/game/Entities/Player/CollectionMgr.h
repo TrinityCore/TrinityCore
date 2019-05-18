@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include "EnumClassFlag.h"
 #include "ObjectGuid.h"
 #include <boost/dynamic_bitset_fwd.hpp>
 #include <map>
@@ -53,7 +54,14 @@ struct HeirloomData
     uint32 bonusId;
 };
 
-typedef std::map<uint32, bool> ToyBoxContainer;
+enum class ToyFlags : uint32
+{
+    None        = 0,
+    Favorite    = 0x01,
+    HasFanfare  = 0x02
+};
+
+typedef std::map<uint32, EnumClassFlag<ToyFlags>> ToyBoxContainer;
 typedef std::map<uint32, HeirloomData> HeirloomContainer;
 
 enum MountStatusFlags : uint8
@@ -79,9 +87,10 @@ public:
     void LoadAccountToys(PreparedQueryResult result);
     void SaveAccountToys(SQLTransaction& trans);
     void ToySetFavorite(uint32 itemId, bool favorite);
+    void ToyClearFanfare(uint32 itemId);
 
-    bool AddToy(uint32 itemId, bool isFavourite /*= false*/);
-    bool UpdateAccountToys(uint32 itemId, bool isFavourite /*= false*/);
+    bool AddToy(uint32 itemId, bool isFavourite, bool hasFanfare);
+    bool UpdateAccountToys(uint32 itemId, bool isFavourite, bool hasFanfare);
     bool HasToy(uint32 itemId) const { return _toys.count(itemId) > 0; }
 
     ToyBoxContainer const& GetAccountToys() const { return _toys; }

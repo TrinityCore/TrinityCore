@@ -4186,19 +4186,14 @@ void Spell::UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data
         if (targetInfo.missCondition == SPELL_MISS_NONE) // hits
         {
             data.HitTargets.push_back(targetInfo.targetGUID);
+            data.HitStatus.emplace_back(SPELL_MISS_NONE);
 
             m_channelTargetEffectMask |= targetInfo.effectMask;
         }
         else // misses
         {
             data.MissTargets.push_back(targetInfo.targetGUID);
-
-            WorldPackets::Spells::SpellMissStatus missStatus;
-            missStatus.Reason = targetInfo.missCondition;
-            if (targetInfo.missCondition == SPELL_MISS_REFLECT)
-                missStatus.ReflectStatus = targetInfo.reflectResult;
-
-            data.MissStatus.push_back(missStatus);
+            data.MissStatus.emplace_back(targetInfo.missCondition, targetInfo.reflectResult);
         }
     }
 

@@ -11901,7 +11901,7 @@ void Unit::SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisua
     playOrphanSpellVisual.SpellVisualID = spellVisualId;
     playOrphanSpellVisual.TravelSpeed = travelSpeed;
     playOrphanSpellVisual.SpeedAsTime = speedAsTime;
-    playOrphanSpellVisual.UnkZero = 0.0f;
+    playOrphanSpellVisual.LaunchDelay = 0.0f;
     SendMessageToSet(playOrphanSpellVisual.Write(), true);
 }
 
@@ -11915,7 +11915,7 @@ void Unit::SendPlayOrphanSpellVisual(Position const& targetLocation, uint32 spel
     playOrphanSpellVisual.SpellVisualID = spellVisualId;
     playOrphanSpellVisual.TravelSpeed = travelSpeed;
     playOrphanSpellVisual.SpeedAsTime = speedAsTime;
-    playOrphanSpellVisual.UnkZero = 0.0f;
+    playOrphanSpellVisual.LaunchDelay = 0.0f;
     SendMessageToSet(playOrphanSpellVisual.Write(), true);
 }
 
@@ -11940,12 +11940,12 @@ void Unit::SendPlaySpellVisual(ObjectGuid const& targetGuid, uint32 spellVisualI
     SendMessageToSet(playSpellVisual.Write(), true);
 }
 
-void Unit::SendPlaySpellVisual(Position const& targetPosition, float o, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime /*= false*/)
+void Unit::SendPlaySpellVisual(Position const& targetPosition, float launchDelay, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime /*= false*/)
 {
     WorldPackets::Spells::PlaySpellVisual playSpellVisual;
     playSpellVisual.Source = GetGUID();
     playSpellVisual.TargetPosition = targetPosition; // exclusive with Target
-    playSpellVisual.Orientation = o;
+    playSpellVisual.LaunchDelay = launchDelay;
     playSpellVisual.SpellVisualID = spellVisualId;
     playSpellVisual.TravelSpeed = travelSpeed;
     playSpellVisual.MissReason = missReason;

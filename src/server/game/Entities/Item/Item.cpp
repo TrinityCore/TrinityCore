@@ -1707,11 +1707,8 @@ bool Item::HasStats() const
     return false;
 }
 
-bool Item::HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusData const* bonus)
+bool Item::HasStats(WorldPackets::Item::ItemInstance const& /*itemInstance*/, BonusData const* bonus)
 {
-    if (itemInstance.RandomPropertiesID != 0)
-        return true;
-
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         if (bonus->ItemStatAllocation[i] != 0)
             return true;
