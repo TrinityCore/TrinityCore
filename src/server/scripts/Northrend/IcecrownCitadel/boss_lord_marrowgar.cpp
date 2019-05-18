@@ -452,7 +452,7 @@ class npc_bone_spike : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 if (TempSummon* summ = me->ToTempSummon())
-                    if (Unit* trapped = summ->GetSummoner())
+                    if (Unit* trapped = summ->GetSummonerUnit())
                         trapped->RemoveAurasDueToSpell(SPELL_IMPALED);
 
                 me->DespawnOrUnsummon();
