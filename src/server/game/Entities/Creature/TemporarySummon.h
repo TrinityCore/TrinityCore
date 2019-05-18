@@ -36,7 +36,7 @@ struct SummonPropertiesEntry;
 class TC_GAME_API TempSummon : public Creature
 {
     public:
-        explicit TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
+        explicit TempSummon(SummonPropertiesEntry const* properties, WorldObject* owner, bool isWorldObject);
         virtual ~TempSummon() { }
         void Update(uint32 time) override;
         virtual void InitStats(uint32 lifetime);
