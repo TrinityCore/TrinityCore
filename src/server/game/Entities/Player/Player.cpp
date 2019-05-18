@@ -2956,7 +2956,7 @@ void Player::RemoveMail(uint32 id)
 
 void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType item_guid, uint32 item_count) const
 {
-    WorldPacket data(SMSG_SEND_MAIL_RESULT, (4+4+4+(mailError == MAIL_ERR_EQUIP_ERROR?4:(mailAction == MAIL_ITEM_TAKEN?4+4:0))));
+    WorldPacket data(SMSG_SEND_MAIL_RESULT, (4+4+4+(4+4)));
     data << (uint32) mailId;
     data << (uint32) mailAction;
     data << (uint32) mailError;
@@ -13288,7 +13288,7 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
 void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint32 itemid) const
 {
 
-    WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, (msg == EQUIP_ERR_CANT_EQUIP_LEVEL_I ? 22 : 18));
+    WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, (22));
     data << uint8(msg);
 
     if (msg != EQUIP_ERR_OK)
@@ -13341,7 +13341,7 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
 
 void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid, uint32 param) const
 {
-    WorldPacket data(SMSG_SELL_ITEM, (8+8+(param?4:0)+1));  // last check 2.0.10
+    WorldPacket data(SMSG_SELL_ITEM, (8+8+(4)+1));  // last check 2.0.10
     data << uint64(creature ? creature->GetGUID() : ObjectGuid::Empty);
     data << uint64(guid);
     if (param > 0)
