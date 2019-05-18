@@ -19,6 +19,8 @@
 #include "TemporarySummon.h"
 #include "CreatureAI.h"
 #include "DBCStructure.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
@@ -33,6 +35,11 @@ m_timer(0), m_lifetime(0)
         m_summonerGUID = owner->GetGUID();
 
     m_unitTypeMask |= UNIT_MASK_SUMMON;
+}
+
+WorldObject* TempSummon::GetSummoner() const
+{
+    return m_summonerGUID ? ObjectAccessor::GetWorldObject(*this, m_summonerGUID) : nullptr;
 }
 
 Unit* TempSummon::GetSummonerUnit() const
@@ -203,11 +210,19 @@ void TempSummon::InitStats(uint32 duration)
 
 void TempSummon::InitSummon()
 {
-    Unit* owner = GetSummonerUnit();
+    WorldObject* owner = GetSummoner();
     if (owner)
     {
-        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled())
-            owner->ToCreature()->AI()->JustSummoned(this);
+        if (owner->GetTypeId() == TYPEID_UNIT)
+        {
+            if (owner->ToCreature()->IsAIEnabled())
+                owner->ToCreature()->AI()->JustSummoned(this);
+        }
+        else if (owner->GetTypeId() == TYPEID_GAMEOBJECT)
+        {
+            if (owner->ToGameObject()->AI())
+                owner->ToGameObject()->AI()->JustSummoned(this);
+        }
         if (IsAIEnabled())
             AI()->IsSummonedBy(owner);
     }
@@ -241,9 +256,13 @@ void TempSummon::UnSummon(uint32 msTime)
         return;
     }
 
-    Unit* owner = GetSummonerUnit();
-    if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled())
-        owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
+    if (WorldObject * owner = GetSummoner())
+    {
+        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled())
+            owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
+        else if (owner->GetTypeId() == TYPEID_GAMEOBJECT && owner->ToGameObject()->AI())
+            owner->ToGameObject()->AI()->SummonedCreatureDespawn(this);
+    }
 
     AddObjectToRemoveList();
 }

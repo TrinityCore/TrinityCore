@@ -93,6 +93,12 @@ class TC_GAME_API GameObjectAI
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/) { }
         virtual void SpellHitTargetGameObject(GameObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
+
+        // Called when the gameobject summon successfully other creature
+        virtual void JustSummoned(Creature* /*summon*/) { }
+
+        virtual void SummonedCreatureDespawn(Creature* /*summon*/) { }
+        virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
 };
 
 class TC_GAME_API NullGameObjectAI : public GameObjectAI

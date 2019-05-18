@@ -31,6 +31,7 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "Formulas.h"
+#include "GameObjectAI.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -10954,10 +10955,16 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         if (CreatureAI* ai = creature->AI())
             ai->JustDied(attacker);
 
-        if (TempSummon* summon = creature->ToTempSummon())
-            if (Unit* summoner = summon->GetSummonerUnit())
-                if (summoner->ToCreature() && summoner->IsAIEnabled())
+        if (TempSummon * summon = creature->ToTempSummon())
+        {
+            if (WorldObject * summoner = summon->GetSummoner())
+            {
+                if (summoner->ToCreature() && summoner->ToCreature()->IsAIEnabled())
                     summoner->ToCreature()->AI()->SummonedCreatureDies(creature, attacker);
+                else if (summoner->ToGameObject() && summoner->ToGameObject()->AI())
+                    summoner->ToGameObject()->AI()->SummonedCreatureDies(creature, attacker);
+            }
+        }
 
         // Dungeon specific stuff, only applies to players killing creatures
         if (creature->GetInstanceId())
