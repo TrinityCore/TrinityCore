@@ -4937,6 +4937,44 @@ class spell_gen_reverse_cast_ride_vehicle : public SpellScript
     }
 };
 
+class GroupMemberCheck
+{
+public:
+    GroupMemberCheck(Player* player) : _player(player) { }
+
+    bool operator()(WorldObject* object)
+    {
+        if (Player* player = object->ToPlayer())
+            return !player->IsInSameGroupWith(_player);
+
+        return false;
+    }
+private:
+    Player* _player;
+};
+
+class spell_gen_launch_quest : public SpellScript
+{
+    PrepareSpellScript(spell_gen_launch_quest);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_UNIT;
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.size() > 1)
+            if (Player* player = GetCaster()->ToCreature()->GetLootRecipient())
+                targets.remove_if(GroupMemberCheck(player));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_launch_quest::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5050,5 +5088,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_revserse_cast_mirror_image);
     RegisterSpellScript(spell_gen_mirror_image_aura);
     RegisterSpellScript(spell_gen_reverse_cast_ride_vehicle);
-
+    RegisterSpellScript(spell_gen_launch_quest);
 }
