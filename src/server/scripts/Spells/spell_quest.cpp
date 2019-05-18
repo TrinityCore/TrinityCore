@@ -1187,7 +1187,7 @@ class spell_q14076_14092_pound_drum : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
 
-                if (roll_chance_i(80))
+                if (roll_chance_i(50))
                     caster->CastSpell(caster, SPELL_SUMMON_DEEP_JORMUNGAR, true);
                 else
                     caster->CastSpell(caster, SPELL_STORMFORGED_MOLE_MACHINE, true);

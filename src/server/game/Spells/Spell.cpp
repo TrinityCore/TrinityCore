@@ -1506,7 +1506,7 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImpli
         case TARGET_UNIT_SUMMONER:
             if (Unit* unitCaster = m_caster->ToUnit())
                 if (unitCaster->IsSummon())
-                    target = unitCaster->ToTempSummon()->GetSummoner();
+                    target = unitCaster->ToTempSummon()->GetSummonerUnit();
             break;
         case TARGET_UNIT_VEHICLE:
             if (Unit* unitCaster = m_caster->ToUnit())
@@ -2544,7 +2544,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             if (CreatureAI* hitTargetAI = cHitTarget->AI())
             {
                 if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT)
-                    hitTargetAI->SpellHit(spell->m_caster->ToGameObject(), spell->m_spellInfo);
+                    hitTargetAI->SpellHitByGameObject(spell->m_caster->ToGameObject(), spell->m_spellInfo);
                 else
                     hitTargetAI->SpellHit(spell->m_caster->ToUnit(), spell->m_spellInfo);
             }
@@ -2595,15 +2595,15 @@ void Spell::GOTargetInfo::DoTargetSpellHit(Spell* spell, uint8 effIndex)
     if (go->AI())
     {
         if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT)
-            go->AI()->SpellHit(spell->m_caster->ToGameObject(), spell->m_spellInfo);
+            go->AI()->SpellHitByGameObject(spell->m_caster->ToGameObject(), spell->m_spellInfo);
         else
             go->AI()->SpellHit(spell->m_caster->ToUnit(), spell->m_spellInfo);
     }
 
     if (spell->m_caster->GetTypeId() == TYPEID_UNIT && spell->m_caster->ToCreature()->IsAIEnabled())
-        spell->m_caster->ToCreature()->AI()->SpellHitTarget(go, spell->m_spellInfo);
+        spell->m_caster->ToCreature()->AI()->SpellHitTargetGameObject(go, spell->m_spellInfo);
     else if (spell->m_caster->GetTypeId() == TYPEID_GAMEOBJECT && spell->m_caster->ToGameObject()->AI())
-        spell->m_caster->ToGameObject()->AI()->SpellHitTarget(go, spell->m_spellInfo);
+        spell->m_caster->ToGameObject()->AI()->SpellHitTargetGameObject(go, spell->m_spellInfo);
 
     spell->CallScriptOnHitHandlers();
     spell->CallScriptAfterHitHandlers();
@@ -2929,7 +2929,7 @@ bool Spell::UpdateChanneledTargetList()
     return channelTargetEffectMask == 0;
 }
 
-void Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggeredByAura)
+SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggeredByAura)
 {
     if (m_CastItem)
     {
@@ -2982,7 +2982,7 @@ void Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggered
     {
         SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
         finish(false);
-        return;
+        return SPELL_FAILED_SPELL_UNAVAILABLE;
     }
 
     // Prevent casting at cast another spell (ServerSide check)
@@ -2990,7 +2990,7 @@ void Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggered
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
         finish(false);
-        return;
+        return SPELL_FAILED_SPELL_IN_PROGRESS;
     }
 
     LoadScripts();
@@ -3022,7 +3022,7 @@ void Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggered
             SendCastResult(result);
 
         finish(false);
-        return;
+        return result;
     }
 
     // Prepare data for triggers
@@ -3051,7 +3051,7 @@ void Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggered
         {
             SendCastResult(SPELL_FAILED_MOVING);
             finish(false);
-            return;
+            return SPELL_FAILED_MOVING;
         }
     }
 
@@ -3110,6 +3110,8 @@ void Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggered
         if (!m_casttime && /*!m_spellInfo->StartRecoveryTime && */ GetCurrentContainer() == CURRENT_GENERIC_SPELL)
             cast(true);
     }
+
+    return SPELL_CAST_OK;
 }
 
 void Spell::cancel()
@@ -7593,6 +7595,11 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
 
                 return SPELL_CAST_OK;
             }
+            case LOCK_KEY_SPELL:
+                if (m_spellInfo->Id == lockInfo->Index[j])
+                    return SPELL_CAST_OK;
+                reqKey = true;
+                break;
         }
     }
 
@@ -8018,7 +8025,7 @@ std::string Spell::GetDebugInfo() const
 {
     std::stringstream sstr;
     sstr << std::boolalpha
-        << "Id: " << GetSpellInfo()->Id << " OriginalCaster: " << m_originalCasterGUID.ToString()
+        << "Id: " << GetSpellInfo()->Id << " Name: '" << GetSpellInfo()->SpellName[sWorld->GetDefaultDbcLocale()] << "' OriginalCaster: " << m_originalCasterGUID.ToString()
         << " State: " << getState();
     return sstr.str();
 }
