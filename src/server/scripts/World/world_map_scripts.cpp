@@ -19,6 +19,7 @@
 #include "EventMap.h"
 #include "Map.h"
 #include "Player.h"
+#include "SpellMgr.h"
 #include "Transport.h"
 #include "Unit.h"
 #include "Weather.h"
@@ -102,6 +103,13 @@ enum Gilneas
     SPELL_CATACLYSM_3       = 80133
 };
 
+uint32 cataclysmSpells[] =
+{
+    SPELL_CATACLYSM_1,
+    SPELL_CATACLYSM_2,
+    SPELL_CATACLYSM_3
+};
+
 class world_map_gilneas: public WorldMapScript
 {
     public:
@@ -130,9 +138,12 @@ class world_map_gilneas: public WorldMapScript
                         {
                             if (Player* player = i.GetSource())
                             {
-                                player->CastSpell(player, SPELL_CATACLYSM_1);
-                                player->CastSpell(player, SPELL_CATACLYSM_2);
-                                player->CastSpell(player, SPELL_CATACLYSM_3);
+                                for (uint8 i = 0; i < 3; i++)
+                                {
+                                    if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(cataclysmSpells[i]))
+                                        if (player->HasAura(spell->TargetAuraSpell))
+                                            player->CastSpell(player, cataclysmSpells[i]);
+                                }
                             }
                         }
                         _events.Repeat(1min, 2min);
