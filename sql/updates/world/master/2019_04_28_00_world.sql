@@ -1,8 +1,8 @@
 -- Spell Area
 DELETE FROM `spell_area` WHERE `area` IN (493, 5040) AND `spell`= 49416;
-INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `flags`, `gender`, `quest_start_status`, `quest_end_status`) VALUES
-(49416, 493, 25316, 25316, 3, 2, 2, 11),
-(49416, 5040, 25316, 25316, 3, 2, 2, 11);
+INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `racemask`, `flags`, `gender`, `quest_start_status`, `quest_end_status`) VALUES
+(49416, 493, 25316, 25316, 0, 3, 2, 2, 11),
+(49416, 5040, 25316, 25316, 0, 3, 2, 2, 11);
 
 -- Gameobject focus (203087)
 DELETE FROM `gameobject` WHERE `guid`= 200888;
