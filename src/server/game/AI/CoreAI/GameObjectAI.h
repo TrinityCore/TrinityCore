@@ -24,6 +24,7 @@
 #include "Optional.h"
 #include "QuestDef.h"
 
+class Creature;
 class GameObject;
 class Unit;
 class SpellInfo;
