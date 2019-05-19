@@ -97,7 +97,7 @@ void MotionMaster::Initialize()
 {
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this]()
+        DelayedActionDefine action = [this]()
         {
             Initialize();
         };
@@ -324,7 +324,7 @@ void MotionMaster::Add(MovementGenerator* movement, MovementSlot slot/* = MOTION
 
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this, movement, slot]()
+        DelayedActionDefine action = [this, movement, slot]()
         {
             Add(movement, slot);
         };
@@ -341,7 +341,7 @@ void MotionMaster::Remove(MovementGenerator* movement, MovementSlot slot/* = MOT
 
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this, movement, slot]()
+        DelayedActionDefine action = [this, movement, slot]()
         {
             Remove(movement, slot);
         };
@@ -379,7 +379,7 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
 
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this, type, slot]()
+        DelayedActionDefine action = [this, type, slot]()
         {
             Remove(type, slot);
         };
@@ -417,7 +417,7 @@ void MotionMaster::Clear()
 {
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this]()
+        DelayedActionDefine action = [this]()
         {
             Clear();
         };
@@ -436,7 +436,7 @@ void MotionMaster::Clear(MovementSlot slot)
 
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this, slot]()
+        DelayedActionDefine action = [this, slot]()
         {
             Clear(slot);
         };
@@ -464,7 +464,7 @@ void MotionMaster::Clear(MovementGeneratorMode mode)
 {
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this, mode]()
+        DelayedActionDefine action = [this, mode]()
         {
             Clear(mode);
         };
@@ -486,7 +486,7 @@ void MotionMaster::Clear(MovementGeneratorPriority priority)
 {
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this, priority]()
+        DelayedActionDefine action = [this, priority]()
         {
             Clear(priority);
         };
