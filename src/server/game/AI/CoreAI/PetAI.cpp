@@ -449,7 +449,6 @@ void PetAI::MovementInform(uint32 type, uint32 id)
             {
                 ClearCharmInfoFlags();
                 me->GetCharmInfo()->SetIsAtStay(true);
-                me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
             }
             break;
