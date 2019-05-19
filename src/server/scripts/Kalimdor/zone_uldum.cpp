@@ -179,9 +179,59 @@ private:
     EventMap _events;
 };
 
+// Gobbles! Quest
+enum SummonSchnottz
+{
+    NPC_SCHNOTTZ                  = 47159,
+    SPELL_SUMMON_SCHNOTTZ_00      = 88108,
+    SPELL_SUMMON_VEVAH            = 88109,
+    SPELL_PHASE_PLAYER            = 88111
+};
+
+// 88107 - Gobbles Initialize
+class spell_gobbles_initialize : public SpellScript
+{
+    PrepareSpellScript(spell_gobbles_initialize);
+
+    void HandleScript(SpellEffIndex /*eff*/)
+    {
+        if (Player* player = GetHitUnit()->ToPlayer())
+        {
+            // Does not work correctly if done in db
+            player->CastSpell(player, SPELL_SUMMON_SCHNOTTZ_00);
+            player->CastSpell(player, SPELL_SUMMON_VEVAH);
+            player->CastSpell(player, SPELL_PHASE_PLAYER);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gobbles_initialize::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 88108 - Summon Schnottz
+class spell_summon_schnottz : public SpellScript
+{
+    PrepareSpellScript(spell_summon_schnottz);
+
+    void SetDest(SpellDestination& dest)
+    {
+        if (Creature * Schnottz = GetCaster()->FindNearestCreature(NPC_SCHNOTTZ, 10.0f, true))
+            dest.Relocate(Schnottz->GetPosition());
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_schnottz::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+    }
+};
+
 void AddSC_uldum()
 {
     RegisterCreatureAI(npc_uldum_camera_bunny_04);
     RegisterSpellScript(spell_uldum_master_ping_all_actors);
     RegisterSpellScript(spell_uldum_player_summon_camera);
+    RegisterSpellScript(spell_gobbles_initialize);
+    RegisterSpellScript(spell_summon_schnottz);
 }
