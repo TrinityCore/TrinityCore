@@ -159,8 +159,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             switch (spellid)
             {
                 case COMMAND_STAY: // flat = 1792 - STAY
-                    pet->StopMoving();
-                    pet->GetMotionMaster()->Clear();
+                    pet->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
                     pet->GetMotionMaster()->MoveIdle();
 
                     charmInfo->SetCommandState(COMMAND_STAY);
@@ -366,7 +365,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     // This is true if pet has no target or has target but targets differs.
                     if (pet->GetVictim() != unit_target)
                     {
-                        pet->GetMotionMaster()->Clear();
                         if (CreatureAI* AI = pet->ToCreature()->AI())
                         {
                             if (PetAI* petAI = dynamic_cast<PetAI*>(AI))
