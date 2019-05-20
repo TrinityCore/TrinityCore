@@ -28,12 +28,21 @@ uint32 const EncounterCount = 6;
 enum BWDDataTypes
 {
     // Bosses
-    DATA_MAGMAW                                     = 0,
-    DATA_OMNOTRON_DEFENSE_SYSTEM                    = 1,
-    DATA_CHIMAERON                                  = 2,
-    DATA_ATRAMEDES                                  = 3,
-    DATA_MALORIAK                                   = 4,
-    DATA_NEFARIANS_END                              = 5,
+    DATA_MAGMAW                     = 0,
+    DATA_OMNOTRON_DEFENSE_SYSTEM    = 1,
+    DATA_CHIMAERON                  = 2,
+    DATA_ATRAMEDES                  = 3,
+    DATA_MALORIAK                   = 4,
+    DATA_NEFARIANS_END              = 5,
+
+    /*Events*/
+    DATA_DEAD_DWARF_SPIRITS,
+    DATA_ANCIENT_BELL,
+    DATA_COLUMN_OF_LIGHT,
+    DATA_ATRAMEDES_INTRO,
+
+    /*GameObjects*/
+    DATA_INNER_CHAMBER_DOOR,
 
     // Encounter Data
     /*Magmaw*/
@@ -46,6 +55,7 @@ enum BWDDataTypes
     DATA_TOXITRON, 
     DATA_ARCANOTRON,
     DATA_LORD_VICTOR_NEFARIUS_OMNOTRON
+
 };
 
 enum BWDCreatureIds
@@ -83,11 +93,24 @@ enum BWDCreatureIds
     NPC_POISON_BOMB                     = 42897,
     NPC_POISON_PUDDLE                   = 42920,
     NPC_POWER_GENERATOR                 = 42733,
-    NPC_LORD_VICTOR_NEFARIUS_OMNOTRON   = 49226
+    NPC_LORD_VICTOR_NEFARIUS_OMNOTRON   = 49226,
+
+    /*Events*/
+    NPC_SPIRIT_OF_MOLTENFIST            = 43125,
+    NPC_SPIRIT_OF_ANVILRAGE             = 43128,
+    NPC_SPIRIT_OF_SHADOWFORGE           = 43129,
+    NPC_SPIRIT_OF_COREHAMMER            = 43122,
+    NPC_SPIRIT_OF_ANGERFORGE            = 43119,
+    NPC_SPIRIT_OF_IRONSTAR              = 43127,
+    NPC_SPIRIT_OF_THAURISSAN            = 43126,
+    NPC_SPIRIT_OF_BURNINGEYE            = 43130,
+    NPC_COLUMN_OF_LIGHT                 = 51506,
 };
 
 enum BWDGameObjectIds
 {
+    GO_INNER_CHAMBER_DOOR   = 205830,
+    GO_ANCIENT_BELL         = 204276
 };
 
 enum BWDMisc
@@ -102,7 +125,15 @@ enum BWDSpells
     SPELL_LIGHT_SHOW            = 87949,
 
     // Massive Crash
-    SPELL_MASSIVE_CRASH_DAMAGE  = 88287
+    SPELL_MASSIVE_CRASH_DAMAGE  = 88287,
+
+    // Column of Light
+    SPELL_COLUMN_OF_LIGHT       = 95660
+};
+
+enum BWDSummonGroups
+{
+    SUMMON_GROUP_ATRAMEDES_INTRO = 0
 };
 
 template <class AI, class T>

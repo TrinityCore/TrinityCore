@@ -31,12 +31,15 @@ ObjectData const creatureData[] =
     { NPC_ARCANOTRON,                       DATA_ARCANOTRON                     },
     { NPC_NEFARIAN_MAGMAW,                  DATA_NEFARIAN_MAGMAW                },
     { NPC_LORD_VICTOR_NEFARIUS_OMNOTRON,    DATA_LORD_VICTOR_NEFARIUS_OMNOTRON  },
+    { NPC_COLUMN_OF_LIGHT,                  DATA_COLUMN_OF_LIGHT                },
     { 0,                                    0                                   } // END
 };
 
 ObjectData const gameobjectData[] =
 {
-    { 0,        0                          }  // END
+    { GO_INNER_CHAMBER_DOOR,    DATA_INNER_CHAMBER_DOOR },
+    { GO_ANCIENT_BELL,          DATA_ANCIENT_BELL       },
+    { 0,                        0                       }  // END
 };
 
 DoorData const doorData[] =
@@ -44,9 +47,15 @@ DoorData const doorData[] =
     { 0,        0,          DOOR_TYPE_ROOM }  // END
 };
 
-Position const MassiveCrashRightSpawnPosition = { -288.59f, -14.8472f, 211.2573f };
-Position const MassiveCrashTargetPositionLeft = { -304.181f, -90.1806f, 214.1653f };
-Position const MassiveCrashTargetPositionRight = { -337.375f, -43.6615f, 212.0853f };
+Position const MassiveCrashRightSpawnPosition   = { -288.59f,  -14.8472f,  211.2573f };
+Position const MassiveCrashTargetPositionLeft   = { -304.181f, -90.1806f,  214.1653f };
+Position const MassiveCrashTargetPositionRight  = { -337.375f, -43.6615f,  212.0853f };
+Position const ColumnOfLightPosition            = { 231.3559f, -224.3038f, 74.95496f, 3.193953f };
+
+enum Events
+{
+    EVENT_MAKE_ANCIENT_BELL_SELECTABLE = 1
+};
 
 class instance_blackwing_descent : public InstanceMapScript
 {
@@ -66,6 +75,8 @@ class instance_blackwing_descent : public InstanceMapScript
 
             void Initialize()
             {
+                _deadDwarfSpirits = 0;
+                _atramedesIntro = NOT_STARTED;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -115,6 +126,46 @@ class instance_blackwing_descent : public InstanceMapScript
             void OnGameObjectCreate(GameObject* go) override
             {
                 InstanceScript::OnGameObjectCreate(go);
+
+                switch (go->GetEntry())
+                {
+                    case GO_INNER_CHAMBER_DOOR:
+                        if (GetBossState(DATA_MAGMAW) == DONE && GetBossState(DATA_OMNOTRON_DEFENSE_SYSTEM) == DONE)
+                            go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_ANCIENT_BELL:
+                        if (_deadDwarfSpirits == 8 && _atramedesIntro != DONE)
+                        {
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            if (Creature* column = instance->SummonCreature(NPC_COLUMN_OF_LIGHT, ColumnOfLightPosition))
+                                column->CastSpell(column, SPELL_COLUMN_OF_LIGHT);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnUnitDeath(Unit* unit) override
+            {
+                if (unit->GetTypeId() != TYPEID_UNIT)
+                    return;
+
+                switch (unit->GetEntry())
+                {
+                    case NPC_SPIRIT_OF_MOLTENFIST:
+                    case NPC_SPIRIT_OF_ANVILRAGE:
+                    case NPC_SPIRIT_OF_SHADOWFORGE:
+                    case NPC_SPIRIT_OF_COREHAMMER:
+                    case NPC_SPIRIT_OF_ANGERFORGE:
+                    case NPC_SPIRIT_OF_IRONSTAR:
+                    case NPC_SPIRIT_OF_THAURISSAN:
+                    case NPC_SPIRIT_OF_BURNINGEYE:
+                        SetData(DATA_DEAD_DWARF_SPIRITS, DONE);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -140,7 +191,16 @@ class instance_blackwing_descent : public InstanceMapScript
                             }
 
                             _roomStalkerGUIDs.clear();
+
+                            if (state == DONE && GetBossState(DATA_OMNOTRON_DEFENSE_SYSTEM) == DONE)
+                                if (GameObject* door = GetGameObject(DATA_INNER_CHAMBER_DOOR))
+                                    door->SetGoState(GO_STATE_ACTIVE);
                         }
+                        break;
+                    case DATA_OMNOTRON_DEFENSE_SYSTEM:
+                        if (state == DONE && GetBossState(DATA_MAGMAW) == DONE)
+                            if (GameObject* door = GetGameObject(DATA_INNER_CHAMBER_DOOR))
+                                door->SetGoState(GO_STATE_ACTIVE);
                         break;
                     default:
                         break;
@@ -149,19 +209,37 @@ class instance_blackwing_descent : public InstanceMapScript
                 return true;
             }
 
-            /*
             void SetData(uint32 type, uint32 data) override
             {
                 switch (type)
                 {
+                    case DATA_DEAD_DWARF_SPIRITS:
+                        _deadDwarfSpirits++;
+                        SaveToDB();
+
+                        if (_deadDwarfSpirits == 8)
+                        {
+                            instance->SummonCreatureGroup(SUMMON_GROUP_ATRAMEDES_INTRO);
+                            instance->SummonCreature(NPC_COLUMN_OF_LIGHT, ColumnOfLightPosition);
+                            _events.ScheduleEvent(EVENT_MAKE_ANCIENT_BELL_SELECTABLE, 4s + 500ms);
+                        }
+                        break;
+                    case DATA_ATRAMEDES_INTRO:
+                        _atramedesIntro = data;
+                        SaveToDB();
+                        break;
                     default:
                         break;
                 }
             }
-            */
 
             uint32 GetData(uint32 type) const override
             {
+                switch (type)
+                {
+                    case DATA_ATRAMEDES_INTRO:
+                        return _atramedesIntro;
+                }
                 return 0;
             }
 
@@ -221,23 +299,49 @@ class instance_blackwing_descent : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-            /*
+            void Update(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_MAKE_ANCIENT_BELL_SELECTABLE:
+                            if (GameObject* bell = GetGameObject(DATA_ANCIENT_BELL))
+                                bell->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+                            if (Creature* column = GetCreature(DATA_COLUMN_OF_LIGHT))
+                                column->CastSpell(column, SPELL_COLUMN_OF_LIGHT);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
             void WriteSaveDataMore(std::ostringstream& data) override
             {
+                data << _deadDwarfSpirits << ' '
+                    << _atramedesIntro;
             }
-            */
 
-            /*
             void ReadSaveDataMore(std::istringstream& data) override
             {
+                data >> _deadDwarfSpirits;
+                data >> _atramedesIntro;
             }
-            */
+
         private:
+            EventMap _events;
             ObjectGuid _massiveCrashLeftDummyGUID;
             ObjectGuid _massiveCrashRightDummyGUID;
             ObjectGuid _roomStalkerTargetDummyLeftGuid;
             ObjectGuid _roomStalkerTargetDummyRightGuid;
             GuidSet _roomStalkerGUIDs;
+
+            uint8 _deadDwarfSpirits;
+            uint8 _atramedesIntro;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
