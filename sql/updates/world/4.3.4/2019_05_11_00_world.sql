@@ -939,16 +939,6 @@ UPDATE `creature_addon` SET `mount`=0 WHERE `guid` IN (338945,338946);
 DELETE FROM `creature_addon` WHERE `guid` IN (250021,300329,338940,338941,39066,339067,339068,339171,339172,339173);
 
 UPDATE `creature_template` SET `mechanic_immune_mask`= 617299839, `flags_extra`= `flags_extra` | 1073741824 WHERE `entry` IN (53187);
-DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (35592,54348,54367,53433,53129,54401,54402,52498);
-INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Flight`, `Rooted`) VALUES
-(35592, 1, 1, 0),
-(54348, 1, 1, 0),
-(54367, 1, 1, 0),
-(53433, 1, 1, 0),
-(53129, 1, 1, 0),
-(54401, 1, 1, 1),
-(54402, 1, 1, 1),
-(52498, 1, 1, 1);
 
 UPDATE `creature_template` SET `gossip_menu_id`=12953 WHERE `entry`=54299;
 UPDATE `creature_template` SET `npcflag`=1, `unit_flags2`=71335936 WHERE `entry` IN (54299);
