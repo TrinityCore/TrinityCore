@@ -125,17 +125,6 @@ void SummonList::DoActionImpl(int32 action, StorageType const& summons)
     }
 }
 
-GuidVector SummonList::GetGUIDs() const
-{
-    GuidVector guids;
-
-    std::for_each(storage_.begin(), storage_.end(), [&guids](ObjectGuid guid) {
-        guids.emplace_back(guid);
-    });
-
-    return guids;
-}
-
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature), IsFleeing(false), _isCombatMovementAllowed(true)
 {
     _isHeroic = me->GetMap()->IsHeroic();

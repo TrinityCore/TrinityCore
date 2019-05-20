@@ -757,29 +757,6 @@ namespace Trinity
             NearestGameObjectEntryInObjectRangeCheck(NearestGameObjectEntryInObjectRangeCheck const&) = delete;
     };
 
-    class NearestReadyStateGameObjectEntryInObjectRangeCheck
-    {
-        public:
-            NearestReadyStateGameObjectEntryInObjectRangeCheck(WorldObject const& obj, uint32 entry, float range) : i_obj(obj), i_entry(entry), i_range(range) { }
-
-            bool operator()(GameObject* go)
-            {
-                if (go->GetEntry() == i_entry && i_obj.IsWithinDistInMap(go, i_range) && go->getLootState() == GO_READY)
-                {
-                    i_range = i_obj.GetDistance(go);
-                    return true;
-                }
-                return false;
-            }
-
-        private:
-            WorldObject const& i_obj;
-            uint32 i_entry;
-            float i_range;
-
-            NearestReadyStateGameObjectEntryInObjectRangeCheck(NearestReadyStateGameObjectEntryInObjectRangeCheck const&) = delete;
-    };
-
     // Success at unit in range, range update for next check (this can be use with GameobjectLastSearcher to find nearest GO with a certain type)
     class NearestGameObjectTypeInObjectRangeCheck
     {
@@ -1317,33 +1294,6 @@ namespace Trinity
 
             // prevent clone this object
             NearestCreatureEntryWithLiveStateInObjectRangeCheck(NearestCreatureEntryWithLiveStateInObjectRangeCheck const&) = delete;
-    };
-
-    class NearestCreatureEntryNotInListCheck
-    {
-    public:
-        NearestCreatureEntryNotInListCheck(WorldObject const& obj, uint32 entry, bool alive, float range, GuidVector creatureGuids)
-            : i_obj(obj), i_entry(entry), i_alive(alive), i_range(range), i_creatureGuids(creatureGuids) { }
-
-        bool operator()(Creature* u)
-        {
-            if (u->GetEntry() == i_entry && u->IsAlive() == i_alive && i_obj.IsWithinDistInMap(u, i_range))
-            {
-                i_range = i_obj.GetDistance(u);
-
-                return std::find(i_creatureGuids.begin(), i_creatureGuids.end(), u->GetGUID()) == i_creatureGuids.end();
-            }
-            return false;
-        }
-
-    private:
-        WorldObject const& i_obj;
-        uint32 i_entry;
-        bool i_alive;
-        float i_range;
-        GuidVector i_creatureGuids;
-
-        NearestCreatureEntryNotInListCheck(NearestCreatureEntryNotInListCheck const&) = delete;
     };
 
     class AnyPlayerInObjectRangeCheck

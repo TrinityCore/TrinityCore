@@ -23,12 +23,14 @@ SDComment: Charging healers and casters not working. Perhaps wrong Spell Timers.
 SDCategory: Zul'Gurub
 EndScriptData */
 
+#include "SpellScript.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 #include "zulgurub.h"
-#include "GameObject.h"
-#include "ObjectAccessor.h"
+#include "InstanceScript.h"
+#include "GameObjectAI.h"
+#include "Object.h"
 
 enum Says
 {
@@ -45,6 +47,7 @@ enum Spells
     SPELL_ENVOLWINGWEB        = 24110,
     SPELL_POISON_VOLLEY       = 24099,
     SPELL_SPIDER_FORM         = 24084,
+    SPELL_HATCH_EGGS          = 24083,
     SPELL_HATCH_SPIDER_EGG    = 24082,
     // The Spider Spell
     SPELL_LEVELUP             = 24312  // Not right Spell.
@@ -81,8 +84,6 @@ enum Misc
 float const DamageIncrease = 35.0f;
 float const DamageDecrease = 100.f / (1.f + DamageIncrease / 100.f) - 100.f;
 
-float const MaxRangeHatch = 100.f;
-
 class boss_marli : public CreatureScript
 {
     public: boss_marli() : CreatureScript("boss_marli") { }
@@ -95,6 +96,15 @@ class boss_marli : public CreatureScript
             {
                 if (events.IsInPhase(PHASE_THREE))
                     me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
+
+                std::list<GameObject*> eggs;
+                me->GetGameObjectListWithEntryInGrid(eggs, GOB_SPIDER_EGG);
+
+                std::for_each(eggs.begin(), eggs.end(), [](GameObject * egg)
+                {
+                    egg->Respawn();
+                    egg->UpdateObjectVisibility(true);
+                });
 
                 summons.DespawnAll();
                 _Reset();
@@ -111,6 +121,11 @@ class boss_marli : public CreatureScript
                 _JustEngagedWith();
                 events.ScheduleEvent(EVENT_SPAWN_START_SPIDERS, 1s, 0, PHASE_ONE);
                 Talk(SAY_AGGRO);
+            }
+
+            void JustSummoned(Creature* creature) override
+            {
+                summons.Summon(creature);
             }
 
             void UpdateAI(uint32 diff) override
@@ -131,20 +146,9 @@ class boss_marli : public CreatureScript
                         {
                             Talk(SAY_SPIDER_SPAWN);
 
-                            for (int i = 0; i < 4; ++i)
-                            {
-                                if (GameObject * egg = me->FindNearestReadyStateGameObject(GOB_SPIDER_EGG, MaxRangeHatch))
-                                {
-                                    egg->Use(me);
-                                    egg->SetRespawnCompatibilityMode(true);
-                                }
-                            }
-                            std::list<Creature*> spiders = me->FindAllCreaturesByEntry(NPC_SPIDER, MaxRangeHatch);
-                            for (Creature* spider : spiders)
-                            {
-                                spider->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
-                                summons.Summon(spider);
-                            }
+                            CastSpellExtraArgs args;
+                            args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 4);
+                            me->CastSpell(nullptr, SPELL_HATCH_EGGS, args);
 
                             events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_TRANSFORM, 45s, 0, PHASE_TWO);
@@ -163,17 +167,7 @@ class boss_marli : public CreatureScript
                             events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, urand(13000, 18000), 0, PHASE_TWO);
                             break;
                         case EVENT_HATCH_SPIDER_EGG:
-                            if (GameObject * egg = me->FindNearestGameObject(GOB_SPIDER_EGG, MaxRangeHatch))
-                            {
-                                egg->Use(me);
-                                egg->SetRespawnCompatibilityMode(true);
-        
-                                if (Creature * spider = me->FindNearestCreatureByEntryNotInList(NPC_SPIDER, MaxRangeHatch, true, summons.GetGUIDs()))
-                                {
-                                    spider->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
-                                    summons.Summon(spider);
-                                }
-                            }
+                            me->CastSpell(me, SPELL_HATCH_SPIDER_EGG);
                             events.ScheduleEvent(EVENT_HATCH_SPIDER_EGG, 12s, 17s);
                             break;
                         case EVENT_TRANSFORM:
@@ -250,6 +244,34 @@ class boss_marli : public CreatureScript
         }
 };
 
+class gob_spider_egg : public GameObjectScript
+{
+   public: gob_spider_egg() : GameObjectScript("gob_spider_egg") { }
+
+        struct gob_spider_eggAI : public GameObjectAI
+        {
+            gob_spider_eggAI(GameObject* gob) : GameObjectAI(gob), _instance(gob->GetInstanceScript()) { }
+
+            void JustSummoned(Creature* creature) override
+            {
+                if (Creature * marli = _instance->GetCreature(DATA_MARLI))
+                {
+                    creature->AI()->AttackStart(marli->AI()->SelectTarget(SELECT_TARGET_RANDOM));
+                    marli->AI()->JustSummoned(creature);
+                }
+
+                me->SetRespawnCompatibilityMode(true);
+            }
+        private:
+            InstanceScript* const _instance;
+        };
+
+        GameObjectAI* GetAI(GameObject* gob) const override
+        {
+            return GetZulGurubAI<gob_spider_eggAI>(gob);
+        }
+};
+
 // Spawn of Marli
 class npc_spawn_of_marli : public CreatureScript
 {
@@ -299,8 +321,27 @@ class npc_spawn_of_marli : public CreatureScript
         }
 };
 
+class spell_hatch_spiders : public SpellScript
+{
+       PrepareSpellScript(spell_hatch_spiders);
+
+       void HandleObjectAreaTargetSelect(std::list<WorldObject*>& targets)
+       {
+           targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+           targets.resize(GetSpellInfo()->MaxAffectedTargets);
+       }
+
+       void Register() override
+       {
+           OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hatch_spiders::HandleObjectAreaTargetSelect, EFFECT_0, TARGET_GAMEOBJECT_DEST_AREA);
+       }
+
+};
+
 void AddSC_boss_marli()
 {
     new boss_marli();
     new npc_spawn_of_marli();
+    new gob_spider_egg();
+    RegisterSpellScript(spell_hatch_spiders);
 }

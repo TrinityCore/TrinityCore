@@ -2073,14 +2073,6 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
             if (list)
                 list->push_back(summon);
 }
-Creature* WorldObject::FindNearestCreatureByEntryNotInList(uint32 entry, float range, bool alive, GuidVector creatureGuids) const
-{
-    Creature* creature = nullptr;
-    Trinity::NearestCreatureEntryNotInListCheck checker(*this, entry, alive, range, creatureGuids);
-    Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryNotInListCheck> searcher(this, creature, checker);
-    Cell::VisitAllObjects(this, searcher, range);
-    return creature;
-}
 
 Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive) const
 {
@@ -2091,29 +2083,11 @@ Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive
     return creature;
 }
 
-std::list<Creature*> WorldObject::FindAllCreaturesByEntry(uint32 entry, float range) const
-{
-    std::list<Creature*> creatures;
-    Trinity::AllCreaturesOfEntryInRange checker(this, entry, range);
-    Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(this, creatures, checker);
-    Cell::VisitAllObjects(this, searcher, range);
-    return creatures;
-}
-
 GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
 {
     GameObject* go = nullptr;
     Trinity::NearestGameObjectEntryInObjectRangeCheck checker(*this, entry, range);
     Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> searcher(this, go, checker);
-    Cell::VisitGridObjects(this, searcher, range);
-    return go;
-}
-
-GameObject* WorldObject::FindNearestReadyStateGameObject(uint32 entry, float range) const
-{
-    GameObject* go = nullptr;
-    Trinity::NearestReadyStateGameObjectEntryInObjectRangeCheck checker(*this, entry, range);
-    Trinity::GameObjectLastSearcher<Trinity::NearestReadyStateGameObjectEntryInObjectRangeCheck> searcher(this, go, checker);
     Cell::VisitGridObjects(this, searcher, range);
     return go;
 }

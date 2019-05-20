@@ -104,7 +104,6 @@ public:
     void DoZoneInCombat(uint32 entry = 0);
     void RemoveNotExisting();
     bool HasEntry(uint32 entry) const;
-    GuidVector GetGUIDs() const;
 
 private:
     void DoActionImpl(int32 action, StorageType const& summons);
