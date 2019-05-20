@@ -30,6 +30,7 @@ EndScriptData */
 #include "zulgurub.h"
 #include "InstanceScript.h"
 #include "GameObjectAI.h"
+#include "GameObject.h"
 #include "Object.h"
 
 enum Says
