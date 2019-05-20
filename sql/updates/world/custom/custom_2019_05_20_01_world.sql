@@ -11,9 +11,9 @@ ALTER TABLE `gameobject_template_addon`
 -- #### MISSING SPAWNS ####
 
 SET @GUID := 259517;
-DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+14;
+DELETE FROM `creature` WHERE `guid` BETWEEN @GUID+0 AND @GUID+14;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
-(@GUID,53119,720,5723,0,10,1,169,0,0,0,-321.908,-42.94792,46.25879,0,7200,0,0,1,0,0,0,0,0,'',0), -- Flamewaker Forward Guard
+(@GUID+0,53119,720,5723,0,10,1,169,0,0,0,-321.908,-42.94792,46.25879,0,7200,0,0,1,0,0,0,0,0,'',0), -- Flamewaker Forward Guard
 (@GUID+1,53120,720,5723,0,10,1,169,0,0,0,-321.908,-42.94792,46.25879,0,7200,0,0,1,0,0,0,0,0,'',0), -- Flamewaker Pathfinder
 (@GUID+2,53120,720,5723,0,10,1,169,0,0,0,-321.908,-42.94792,46.25879,0,7200,0,0,1,0,0,0,0,0,'',0), -- Flamewaker Pathfinder
 (@GUID+3,53121,720,5723,0,10,1,169,0,0,0,-321.908,-42.94792,46.25879,0,7200,0,0,1,0,0,0,0,0,'',0), -- Flamewaker Cauterizer
@@ -30,7 +30,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `p
 (@GUID+14,53121,720,5723,0,10,1,169,0,0,0,-108.7795,186.2517,46.03816,0,7200,0,0,1,0,0,0,0,0,'',0); -- Flamewaker Cauterizer
 
 SET @GUID2 := 259532;
-DELETE FROM `creature` WHERE `guid` BETWEEN @GUID2 AND @GUID2+98;
+DELETE FROM `creature` WHERE `guid` BETWEEN @GUID2+0 AND @GUID2+98;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
 (@GUID2+0,53167,720,5723,0,10,1,169,0,0,0,-276.6843,41.91213,45.35071,5.965626,7200,5,0,1,0,1,0,0,0,'',0), -- Unbound Pyrelord
 (@GUID2+1,53167,720,5723,0,10,1,169,0,0,0,-270.5109,42.42294,45.14347,3.865399,7200,5,0,1,0,1,0,0,0,'',0),
@@ -2228,3 +2228,6 @@ INSERT INTO `reference_loot_template` (`Entry`,`Item`,`Reference`,`Chance`,`Ques
 (@ENTRY,69768,0,0,0,1,1,1,1, 'Shroud of Winter''s Chill (Ice Chest - Ahune - The Slave Pens - Midsummer Fire Festival)'),
 (@ENTRY,69769,0,0,0,1,1,1,1, 'Cloak of the Frigid Winds (Ice Chest - Ahune - The Slave Pens - Midsummer Fire Festival)'),
 (@ENTRY,69770,0,0,0,1,1,1,1, 'Icebound Cloak (Ice Chest - Ahune - The Slave Pens - Midsummer Fire Festival)');
+
+UPDATE `creature_template` SET `mechanic_immune_mask` = 617299839, `flags_extra` = 1073741824 WHERE `entry` = 54525;
+
