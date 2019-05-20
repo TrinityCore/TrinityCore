@@ -24,6 +24,7 @@ SDCategory: Zul'Gurub
 EndScriptData */
 
 #include "SpellScript.h"
+#include "SpellInfo.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
