@@ -3,7 +3,7 @@
 UPDATE `creature_template` SET `flags_extra`= 130, `unit_flags`= 0x02000000, `ScriptName`= 'boss_omnotron_defense_system' WHERE `entry`= 42186;
 -- Electron
 UPDATE `creature_template` SET `ScriptName`= 'npc_omnotron_electron' WHERE `entry`= 42179;
-UPDATE `creature_template` SET `unit_flags2`= 0, `unit_flags`= 0x02000000 | 0x80000000, `DamageModifier`= 120, `mechanic_immune_mask`= 650854271 WHERE `entry` IN (42179, 49047, 49048, 49040);
+UPDATE `creature_template` SET `unit_flags2`= 0, `unit_flags`= 0x02000000 | 0x80000000, `DamageModifier`= 120, `mechanic_immune_mask`= 650854271 WHERE `entry` IN (42179, 49047, 49048, 49049);
 -- Magmatron
 UPDATE `creature_template` SET `ScriptName`= 'npc_omnotron_magmatron' WHERE `entry`= 42178;
 UPDATE `creature_template` SET `unit_flags2`= 0, `unit_flags`= 0x02000000 | 0x80000000, `DamageModifier`= 120, `mechanic_immune_mask`= 650854271 WHERE `entry` IN (42178, 49053, 49054, 49055);
