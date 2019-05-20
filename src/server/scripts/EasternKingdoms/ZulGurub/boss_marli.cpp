@@ -102,11 +102,11 @@ class boss_marli : public CreatureScript
                 std::list<GameObject*> eggs;
                 me->GetGameObjectListWithEntryInGrid(eggs, GOB_SPIDER_EGG);
 
-                std::for_each(eggs.begin(), eggs.end(), [](GameObject * egg)
+                for(GameObject* egg : eggs)
                 {
                     egg->Respawn();
                     egg->UpdateObjectVisibility(true);
-                });
+                }
 
                 summons.DespawnAll();
                 _Reset();
@@ -127,6 +127,7 @@ class boss_marli : public CreatureScript
 
             void JustSummoned(Creature* creature) override
             {
+                creature->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
                 summons.Summon(creature);
             }
 
@@ -147,10 +148,7 @@ class boss_marli : public CreatureScript
                         case EVENT_SPAWN_START_SPIDERS:
                         {
                             Talk(SAY_SPIDER_SPAWN);
-
-                            CastSpellExtraArgs args;
-                            args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 4);
-                            me->CastSpell(nullptr, SPELL_HATCH_EGGS, args);
+                            DoCastAOE(SPELL_HATCH_EGGS);
 
                             events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_TRANSFORM, 45s, 0, PHASE_TWO);
@@ -258,7 +256,6 @@ class gob_spider_egg : public GameObjectScript
             {
                 if (Creature * marli = _instance->GetCreature(DATA_MARLI))
                 {
-                    creature->AI()->AttackStart(marli->AI()->SelectTarget(SELECT_TARGET_RANDOM));
                     marli->AI()->JustSummoned(creature);
                 }
 
