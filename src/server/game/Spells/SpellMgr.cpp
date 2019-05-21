@@ -3976,8 +3976,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
     });
 
-    // Tag Greater Felfire Diemetradon
-    ApplySpellFix({ 37851 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({
+        37851, // Tag Greater Felfire Diemetradon
+        37918  // Arcano-pince
+    }, [](SpellInfo* spellInfo)
     {
         spellInfo->RecoveryTime = 3000;
     });
@@ -4019,8 +4021,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RecoveryTime = 15000;
     });
 
-    // Charge
-    ApplySpellFix({ 51756 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({
+        51756, // Charge
+        37919, //Arcano-dismantle
+        37917  //Arcano-Cloak
+    }, [](SpellInfo* spellInfo)
     {
         spellInfo->RecoveryTime = 20000;
     });
