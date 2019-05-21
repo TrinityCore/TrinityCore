@@ -90,6 +90,7 @@ class instance_blood_furnace : public InstanceMapScript
                         PrisonDoor4GUID = go->GetGUID();
                         break;
                     case GO_BROGGOK_LEVER:
+                        go->SetRespawnCompatibilityMode(true);
                         BroggokLeverGUID = go->GetGUID();
                         break;
                     case GO_PRISON_CELL_DOOR_1:
@@ -169,28 +170,37 @@ class instance_blood_furnace : public InstanceMapScript
 
             void ResetPrisons()
             {
-                PrisonerCounter5 = PrisonersCell5.size();
                 ResetPrisoners(PrisonersCell5);
+                PrisonerCounter5 = PrisonersCell5.size();
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL5 - DATA_PRISON_CELL1], false);
 
-                PrisonerCounter6 = PrisonersCell6.size();
                 ResetPrisoners(PrisonersCell6);
+                PrisonerCounter6 = PrisonersCell6.size();
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL6 - DATA_PRISON_CELL1], false);
 
-                PrisonerCounter7 = PrisonersCell7.size();
                 ResetPrisoners(PrisonersCell7);
+                PrisonerCounter7 = PrisonersCell7.size();
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL7 - DATA_PRISON_CELL1], false);
 
-                PrisonerCounter8 = PrisonersCell8.size();
                 ResetPrisoners(PrisonersCell8);
+                PrisonerCounter8 = PrisonersCell8.size();
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL8 - DATA_PRISON_CELL1], false);
             }
 
-            void ResetPrisoners(GuidSet const& prisoners)
+            void ResetPrisoners(GuidSet& prisoners)
             {
+                std::list<ObjectGuid> deadPrisoners;
                 for (GuidSet::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
-                    if (Creature* prisoner = instance->GetCreature(*i))
+                    if (Creature * prisoner = instance->GetCreature(*i))
+                    {
+                        if (!prisoner->IsAlive()) deadPrisoners.insert(std::begin(deadPrisoners), prisoner->GetGUID());
                         ResetPrisoner(prisoner);
+                    }
+
+                // remove dead prisoners from last encounter so
+                // we don't count them in future encounters (this makes PrisonerCounterX invalid)
+                for (ObjectGuid deadPrisoner : deadPrisoners)
+                    prisoners.erase(deadPrisoner);
             }
 
             void ResetPrisoner(Creature* prisoner)
