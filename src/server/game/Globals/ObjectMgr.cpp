@@ -364,13 +364,13 @@ void ObjectMgr::LoadCreatureTemplates()
     // Steps to update the counter below without doing it 1 by 1 manually
     // 1. Using Notepad++ copy the query from "SELECT" to last field
     // 2. Run this regex
-    //  a.find 	"\r\n[ ]+\/\/[ ]+[0-9]+
+    //  a.find     "\r\n[ ]+\/\/[ ]+[0-9]+
     //  b.replace "\/\/
     // 3. Alt + Left Click and vertical select all columns enough on the right of the file to be after // in all lines
     // 4. Select "Edit" in the menu and then "Column Editor.."
     // 5. Select "Number to Insert", Initial number 1, Increase by 1
     // 6. Run this regex
-    //  a.find	"\/\/[ ]+
+    //  a.find    "\/\/[ ]+
     //  b.replace "\r\n\t\t\/\/
 
     QueryResult result = WorldDatabase.Query(
@@ -2371,6 +2371,12 @@ void ObjectMgr::LoadGameObjects()
         {
             TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid coordinates, skip", guid, data.id);
             continue;
+        }
+
+        if (!data.rotation.isUnit())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation quaternion (non-unit), defaulting to orientation on Z axis only", guid, data.id);
+            data.rotation = QuaternionData::fromEulerAnglesZYX(data.spawnPoint.GetOrientation(), 0.0f, 0.0f);
         }
 
         if (data.phaseMask == 0)
