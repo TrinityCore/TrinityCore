@@ -62,7 +62,7 @@ void WorldSession::HandleQueryBattlePetName(WorldPackets::BattlePet::QueryBattle
     response.CreatureID = summonedBattlePet->GetEntry();
     response.Timestamp = summonedBattlePet->GetBattlePetCompanionNameTimestamp();
 
-    Unit* petOwner = summonedBattlePet->ToTempSummon()->GetSummoner();
+    Unit* petOwner = summonedBattlePet->ToTempSummon()->GetSummonerUnit();
     if (!petOwner->IsPlayer())
     {
         SendPacket(response.Write());

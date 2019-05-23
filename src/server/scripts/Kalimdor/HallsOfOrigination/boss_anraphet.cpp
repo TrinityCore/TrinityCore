@@ -281,7 +281,7 @@ class npc_omega_stance : public CreatureScript
         {
             npc_omega_stanceAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void IsSummonedBy(Unit* /*who*/) override
+            void IsSummonedBy(WorldObject* /*who*/) override
             {
                 DoCast(me, SPELL_OMEGA_STANCE_SPIDER_TRIGGER, true);
             }
@@ -304,7 +304,7 @@ class npc_alpha_beam : public CreatureScript
         {
             npc_alpha_beamAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 if (Creature* anraphet = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ANRAPHET_GUID)))
                     anraphet->CastSpell(me, SPELL_ALPHA_BEAMS_BACK_CAST);

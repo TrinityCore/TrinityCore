@@ -316,7 +316,7 @@ public:
     {
         npc_devout_followerAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             if (summoner->GetEntry() != NPC_WORLDTRIGGER)
                 return;

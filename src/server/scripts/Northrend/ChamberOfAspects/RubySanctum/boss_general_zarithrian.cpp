@@ -202,7 +202,7 @@ class npc_onyx_flamecaller : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override { }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 // Let Zarithrian count as summoner.
                 if (Creature* zarithrian = _instance->GetCreature(DATA_GENERAL_ZARITHRIAN))

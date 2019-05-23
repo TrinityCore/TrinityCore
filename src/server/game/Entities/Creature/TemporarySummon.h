@@ -43,7 +43,7 @@ struct SummonPropertiesEntry;
 class TC_GAME_API TempSummon : public Creature
 {
     public:
-        explicit TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
+        explicit TempSummon(SummonPropertiesEntry const* properties, WorldObject* owner, bool isWorldObject);
         virtual ~TempSummon() { }
         void Update(uint32 time) override;
         virtual void InitStats(uint32 lifetime);
@@ -53,8 +53,10 @@ class TC_GAME_API TempSummon : public Creature
         void RemoveFromWorld() override;
         void SetTempSummonType(TempSummonType type);
         void SaveToDB(uint32 /*mapid*/, std::vector<Difficulty> const& /*spawnDifficulties*/) override { }
-        Unit* GetSummoner() const;
+        WorldObject* GetSummoner() const;
+        Unit* GetSummonerUnit() const;
         Creature* GetSummonerCreatureBase() const;
+        GameObject* GetSummonerGameObject() const;
         ObjectGuid GetSummonerGUID() const { return m_summonerGUID; }
         TempSummonType GetSummonType() const { return m_type; }
         uint32 GetTimer() const { return m_timer; }

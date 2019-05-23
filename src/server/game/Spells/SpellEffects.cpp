@@ -2038,7 +2038,7 @@ void Spell::EffectSummonType()
 
                         uint32 faction = properties->Faction;
                         if (properties->GetFlags().HasFlag(SummonPropertiesFlags::UseSummonerFaction)) // TODO: Determine priority between faction and flag
-                            if (Unit* summoner = summon->GetSummoner())
+                            if (WorldObject const* summoner = summon->GetSummoner())
                                 faction = summoner->GetFaction();
 
                         if (faction)

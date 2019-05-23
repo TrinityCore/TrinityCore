@@ -370,7 +370,7 @@ class npc_molten_barrage : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f, MOTION_SLOT_DEFAULT);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 DoCastAOE(SPELL_AGGRO_CLOSEST, true);
                 DoCast(me, SPELL_MOLTEN_BARRAGE_VISUAL);
@@ -558,7 +558,7 @@ class spell_alysrazor_turn_monstrosity : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
                 GetHitUnit()->GetMotionMaster()->MoveIdle();
                 if (TempSummon* summ = GetHitUnit()->ToTempSummon())
-                    if (Unit* summoner = summ->GetSummoner())
+                    if (WorldObject* summoner = summ->GetSummoner())
                         GetHitUnit()->CastSpell(summoner, SPELL_GENERIC_DUMMY_CAST, TRIGGERED_FULL_MASK);
 
                 float angle = 0.0f;

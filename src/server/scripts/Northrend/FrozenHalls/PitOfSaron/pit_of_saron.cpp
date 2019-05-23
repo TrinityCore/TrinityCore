@@ -244,7 +244,7 @@ class npc_pit_of_saron_icicle : public CreatureScript
                 me->SetDisplayFromModel(0);
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 _summonerGUID = summoner->GetGUID();
 

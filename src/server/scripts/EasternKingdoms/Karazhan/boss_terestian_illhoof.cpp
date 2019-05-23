@@ -210,7 +210,7 @@ public:
     {
         npc_demon_chainAI(Creature* creature) : PassiveAI(creature) { }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             _sacrificeGUID = summoner->GetGUID();
             DoCastSelf(SPELL_DEMON_CHAINS, true);

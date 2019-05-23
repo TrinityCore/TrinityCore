@@ -113,7 +113,7 @@ struct npc_danica_the_reclaimer : public ScriptedAI
 
     // Should be the player
     // Personal spawn ? Demon Creator is the player who accepts the quest, no phasing involved but the quest giver dissapears and gets replaced with a new one
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(WorldObject* summoner) override
     {
         if (summoner->GetTypeId() != TYPEID_PLAYER)
             return;

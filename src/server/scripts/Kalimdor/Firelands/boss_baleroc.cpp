@@ -276,7 +276,7 @@ struct npc_shard_of_torment : public NullCreatureAI
 {
     npc_shard_of_torment(Creature* creature) : NullCreatureAI(creature) { }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         DoCastAOE(SPELL_TORMENT_PRE_VISUAL);
         scheduler.Schedule(Milliseconds(4400), [this](TaskContext)

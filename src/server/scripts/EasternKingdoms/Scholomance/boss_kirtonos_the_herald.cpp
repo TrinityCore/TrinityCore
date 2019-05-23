@@ -124,7 +124,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 me->DespawnOrUnsummon(5000);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 events.ScheduleEvent(INTRO_1, 500);
                 me->SetDisableGravity(true);

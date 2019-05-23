@@ -166,7 +166,7 @@ class npc_eyestalk : public CreatureScript
                 _damageCount = 0;
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 // player is the spellcaster so register summon manually
                 if (Creature* occuthar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_OCCUTHAR)))

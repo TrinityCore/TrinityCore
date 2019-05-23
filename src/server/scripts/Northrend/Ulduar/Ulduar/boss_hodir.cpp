@@ -231,8 +231,12 @@ class npc_flash_freeze : public CreatureScript
                     checkDespawnTimer -= diff;
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summonerWO) override
             {
+                Unit* summoner = summonerWO->ToUnit();
+                if (!summoner)
+                    return;
+
                 targetGUID = summoner->GetGUID();
                 me->SetInCombatWith(summoner);
                 AddThreat(summoner, 250.0f);
@@ -273,8 +277,12 @@ class npc_ice_block : public CreatureScript
 
             ObjectGuid targetGUID;
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summonerWO) override
             {
+                Unit* summoner = summonerWO->ToUnit();
+                if (!summoner)
+                    return;
+
                 targetGUID = summoner->GetGUID();
                 summoner->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED));
                 summoner->SetControlled(true, UNIT_STATE_ROOT);

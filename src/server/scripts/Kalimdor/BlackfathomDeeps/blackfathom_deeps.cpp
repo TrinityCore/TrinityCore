@@ -128,7 +128,7 @@ public:
             Initialize();
         }
 
-        void IsSummonedBy(Unit*) override
+        void IsSummonedBy(WorldObject*) override
         {
             DoZoneInCombat();
         }

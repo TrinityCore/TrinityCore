@@ -78,7 +78,7 @@ class TC_GAME_API TriggerAI : public NullCreatureAI
     public:
         using NullCreatureAI::NullCreatureAI;
 
-        void IsSummonedBy(Unit* summoner) override;
+        void IsSummonedBy(WorldObject* summoner) override;
 
         static int32 Permissible(Creature const* creature);
 };

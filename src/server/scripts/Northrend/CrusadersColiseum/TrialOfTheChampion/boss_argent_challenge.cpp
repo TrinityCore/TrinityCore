@@ -487,7 +487,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (TempSummon* summ = me->ToTempSummon())
-                if (Unit* summoner = summ->GetSummoner())
+                if (Unit* summoner = summ->GetSummonerUnit())
                     if (summoner->IsAlive())
                         summoner->GetAI()->SetData(1, 0);
         }

@@ -247,7 +247,7 @@ public:
                     target->CastSpell(target, SPELL_SNAKE_WRAP, true);
 
                     if (TempSummon* _me = me->ToTempSummon())
-                        if (Unit* summoner = _me->GetSummoner())
+                        if (Unit* summoner = _me->GetSummonerUnit())
                             if (Creature* sladran = summoner->ToCreature())
                                 sladran->AI()->SetGUID(target->GetGUID(), DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES);
 
