@@ -44,8 +44,8 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
             continue;
 
         // Skip nodes that are restricted the player's opposite faction
-        if (!(itr->Flags & TAXI_NODE_FLAG_ALLIANCE_RESTRICTED) && team == ALLIANCE
-            || !(itr->Flags & TAXI_NODE_FLAG_HORDE_RESTRICTED) && team == HORDE)
+        if ((!(itr->Flags & TAXI_NODE_FLAG_ALLIANCE_RESTRICTED) && team == ALLIANCE)
+            || (!(itr->Flags & TAXI_NODE_FLAG_HORDE_RESTRICTED) && team == HORDE))
             continue;
 
         if (sObjectMgr->IsTaxiNodeUnlockedFor(itr->ID, level))
