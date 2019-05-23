@@ -255,9 +255,7 @@ class gob_spider_egg : public GameObjectScript
             void JustSummoned(Creature* creature) override
             {
                 if (Creature * marli = _instance->GetCreature(DATA_MARLI))
-                {
                     marli->AI()->JustSummoned(creature);
-                }
 
                 me->SetRespawnCompatibilityMode(true);
             }
