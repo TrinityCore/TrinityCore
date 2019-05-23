@@ -44,11 +44,6 @@ WorldObject* TempSummon::GetSummoner() const
 
 Unit* TempSummon::GetSummonerUnit() const
 {
-    return m_summonerGUID ? ObjectAccessor::GetWorldObject(*this, m_summonerGUID) : nullptr;
-}
-
-Unit* TempSummon::GetSummonerUnit() const
-{
     if (WorldObject* summoner = GetSummoner())
         return summoner->ToUnit();
     return nullptr;
