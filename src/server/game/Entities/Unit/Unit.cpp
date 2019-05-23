@@ -7070,7 +7070,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
                 AddPct(DoneAdvertisedBenefit, spellGroupVal);
                 break;
             }
-            else
+            else if (!spellGroupVal)
                 AddPct(DoneAdvertisedBenefit, aurEff->GetAmount());
         }
 
@@ -7739,7 +7739,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
                 AddPct(advertisedBenefit, spellGroupVal);
                 break;
             }
-            else
+            else if (!spellGroupVal)
                 AddPct(advertisedBenefit, aurEff->GetAmount());
         }
 
