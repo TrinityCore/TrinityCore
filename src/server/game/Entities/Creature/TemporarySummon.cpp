@@ -44,12 +44,21 @@ WorldObject* TempSummon::GetSummoner() const
 
 Unit* TempSummon::GetSummonerUnit() const
 {
-    return m_summonerGUID ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : nullptr;
+    if (WorldObject* summoner = GetSummoner())
+        return summoner->ToUnit();
+    return nullptr;
 }
 
 Creature* TempSummon::GetSummonerCreatureBase() const
 {
     return m_summonerGUID ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : nullptr;
+}
+
+GameObject* TempSummon::GetSummonerGameObject() const
+{
+    if (WorldObject* summoner = GetSummoner())
+        return summoner->ToGameObject();
+    return nullptr;
 }
 
 void TempSummon::Update(uint32 diff)
