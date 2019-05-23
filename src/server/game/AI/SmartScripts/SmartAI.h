@@ -119,7 +119,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void MovementInform(uint32 MovementType, uint32 Data) override;
 
         // Called when creature is summoned by another unit
-        void IsSummonedBy(Unit* summoner) override;
+        void IsSummonedBy(WorldObject* summoner) override;
 
         // Called at any Damage to any victim (before damage apply)
         void DamageDealt(Unit* doneTo, uint32& damage, DamageEffectType /*damagetype*/) override;
