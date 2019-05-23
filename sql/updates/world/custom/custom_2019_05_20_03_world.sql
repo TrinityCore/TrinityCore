@@ -68,7 +68,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@ENTRY, 0, 3, 0, 60, 0, 100, 1, 79900, 79900, 0, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 0 and 0 ms (for the first time, timer between 79900 and 79900 ms) - Self: Talk 3 // "),
 (@ENTRY, 0, 4, 0, 60, 0, 100, 1, 89800, 89800, 0, 0, 1, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 0 and 0 ms (for the first time, timer between 89800 and 89800 ms) - Self: Talk 4 // "),
 (@ENTRY, 0, 5, 0, 60, 0, 100, 1, 93400, 93400, 0, 0, 1, 5, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 0 and 0 ms (for the first time, timer between 93400 and 93400 ms) - Self: Talk 5 // "),
-(@ENTRY, 0, 6, 0, 60, 0, 100, 0, 99700, 99700, 0, 0, 1, 6, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 0 and 0 ms (for the first time, timer between 99700 and 99700 ms) - Self: Talk 6 // ");
+(@ENTRY, 0, 6, 0, 60, 0, 100, 1, 99700, 99700, 0, 0, 1, 6, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 0 and 0 ms (for the first time, timer between 99700 and 99700 ms) - Self: Talk 6 // ");
 
 -- Creature Maloriak 43404 SAI
 SET @ENTRY := 43404;
