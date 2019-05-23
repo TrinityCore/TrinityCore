@@ -37,7 +37,7 @@ Transport::Transport() : GameObject(),
     _passengerTeleportItr(_passengers.begin()), _currentTransportTime(0), _destinationStopFrameTime(0),
     _alignmentTransportTime(0), _lastStopFrameTime(0), _isDynamicTransport(false), _initialRelocate(false)
 {
-    m_updateFlag |= UPDATEFLAG_TRANSPORT;
+    m_updateFlag |= UPDATEFLAG_TRANSPORT | UPDATEFLAG_LOWGUID | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION;
 }
 
 Transport::~Transport()
@@ -162,8 +162,6 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint
     if (!dynamic)
         SetRespawnCompatibilityMode();
 
-    guidlow = map->GenerateLowGuid<HighGuid::Transport>();
-
     if (!Transport::CreateTransport(guidlow, entry, map->GetId(), pos, animprogress))
         return false;
 
@@ -221,7 +219,6 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint
         SetGoState(GO_STATE_TRANSPORT_ACTIVE);
 
     SetPathProgress(pathProgress + stopTimer);
-
     SetDestinationStopFrameTime(stopTimer);
     SetCurrentTransportTime(stopTimer);
 
@@ -298,10 +295,8 @@ void Transport::Update(uint32 diff)
 
     if (IsDynamicTransport())
     {
-        SetPathProgress(GetPathProgress() + diff);
-
         SetCurrentTransportTime(GetCurrentTransportTime() + diff);
-        if (GetCurrentTransportTime() >= GetTransportPeriod())
+        if (GetCurrentTransportTime() > GetTransportPeriod())
             SetCurrentTransportTime(GetCurrentTransportTime() % GetTransportPeriod());
     }
     else
@@ -311,8 +306,6 @@ void Transport::Update(uint32 diff)
             // waiting at it's destination for state change, do nothing
             if (GetCurrentTransportTime() == GetDestinationStopFrameTime())
                 return;
-
-            SetPathProgress(GetPathProgress() + diff);
 
             // GOState has changed before previous state was reached, move to new destination immediately
             if (GetCurrentTransportTime() < GetDestinationStopFrameTime())
@@ -331,8 +324,6 @@ void Transport::Update(uint32 diff)
             int32 currentTime = GetCurrentTransportTime();
             int32 destinationTime = GetDestinationStopFrameTime();
             bool backwardsMovement = destinationTime < currentTime;
-
-            SetPathProgress(GetPathProgress() + std::max(0, int32(backwardsMovement ? (diff * -1) : diff)));
 
             if (!backwardsMovement)
             {
@@ -373,6 +364,7 @@ void Transport::Update(uint32 diff)
         }
     }
 
+    SetPathProgress(getMSTime() + GetCurrentTransportTime());
     RelocateToProgress(GetCurrentTransportTime());
 }
 
