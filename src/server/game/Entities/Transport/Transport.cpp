@@ -296,7 +296,7 @@ void Transport::Update(uint32 diff)
     if (IsDynamicTransport())
     {
         SetCurrentTransportTime(GetCurrentTransportTime() + diff);
-        if (GetCurrentTransportTime() > GetTransportPeriod())
+        if (GetCurrentTransportTime() >= GetTransportPeriod())
             SetCurrentTransportTime(GetCurrentTransportTime() % GetTransportPeriod());
     }
     else
