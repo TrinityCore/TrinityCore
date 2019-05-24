@@ -24,8 +24,8 @@ class npc_warrior : public CreatureScript
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(SPELL_CLEAVE, 5s);
-            events.ScheduleEvent(SPELL_PROCOCATION, 10s);
+            events.ScheduleEvent(CASTING_CLEAVE, 5s);
+            events.ScheduleEvent(CASTING_PROCOCATION, 10s);
         }
 
         void Reset() override
@@ -46,7 +46,7 @@ class npc_warrior : public CreatureScript
                 switch (eventId)
                 {
                     case CASTING_CLEAVE:
-                        DoCastVictim(SPELL_CLEAVE);
+                        DoCast(SPELL_CLEAVE);
                         events.RescheduleEvent(CASTING_CLEAVE, 14s, 28s);
                         break;
 

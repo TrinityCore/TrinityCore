@@ -8,6 +8,7 @@ enum NPCs
     NPC_KINNDY_SPARKSHINE           = 100002,
     NPC_WATER_ELEMENTAL             = 100011,
     NPC_INVISIBLE_STALKER           = 32780,
+    NPC_ARCANIC_FORM                = 100040,
 
     NPC_WARLORD_ROK_NAH             = 100039,
     NPC_ROK_NAH_GRUNT               = 100034,
@@ -46,6 +47,10 @@ enum Events
     EVENT_RETURN_12,
     EVENT_RETURN_13,
     EVENT_RETURN_14,
+    EVENT_RETURN_15,
+    EVENT_RETURN_16,
+    EVENT_RETURN_17,
+    EVENT_RETURN_18,
 
     EVENT_IRIS_1,
     EVENT_IRIS_2,
@@ -78,6 +83,7 @@ enum Spells
 {
     SPELL_FIREBALL                  = 100002,
     SPELL_BLIZZARD                  = 100001,
+    SPELL_FROSTBOLT                 = 100006,
     SPELL_FROST_BREEZE              = 100033,
 
     SPELL_SIMPLE_TELEPORT           = 100032,
@@ -85,21 +91,42 @@ enum Spells
     SPELL_ICE_BLOCK                 = 22856,
     SPELL_POWER_BALL_VISUAL         = 54139,
     SPELL_PORTAL                    = 57687,
+    SPELL_OPENED_PORTAL             = 61236,
     SPELL_CANALISATION              = 58012,
-    SPELL_WATER_SHIELD              = 100040
+    SPELL_ARCANE_CANALISATION       = 54219,
+    SPELL_WATER_SHIELD              = 100040,
+    SPELL_FROST_EXPLOSION           = 73773,
+    SPELL_ARCANE_FORM               = 70573,
+    SPELL_JAINAS_CALL               = 70525,
+};
+
+enum Casting
+{
+    CASTING_FIREBALL                = 200,
+    CASTING_FROSTBOLT,
+
+    CASTING_FROST_RUNE_1,
+    CASTING_FROST_RUNE_2,
+    CASTING_FROST_RUNE_3,
+
+    CASTING_ARCANIC_VOLLEY,
 };
 
 enum Text
 {
-    SAY_RETURN_1                    = 0,
-    SAY_RETURN_2                    = 1,
-    SAY_RETURN_3                    = 10,
-    SAY_RETURN_4                    = 2,
-    SAY_RETURN_5                    = 11,
-    SAY_RETURN_6                    = 3,
-    SAY_RETURN_7                    = 12,
-    SAY_RETURN_8                    = 4,
-    SAY_RETURN_9                    = 5,
+    SAY_RETURN_1                    = 10,
+    SAY_RETURN_2                    = 0,
+    SAY_RETURN_3                    = 1,
+    SAY_RETURN_4                    = 11,
+    SAY_RETURN_5                    = 2,
+    SAY_RETURN_6                    = 12,
+    SAY_RETURN_7                    = 3,
+    SAY_RETURN_8                    = 13,
+    SAY_RETURN_9                    = 4,
+    SAY_RETURN_10                   = 14,
+    SAY_RETURN_11                   = 15,
+    SAY_RETURN_12                   = 5,
+    SAY_RETURN_13                   = 16,
 
     SAY_IRIS_1                      = 6,
     SAY_IRIS_2                      = 7,
@@ -132,7 +159,7 @@ const Position ElementalsPos[4] =
 
 const Location Soldiers[12] =
 {
-    { NPC_WARLORD_ROK_NAH,  { -3650.70f, -4449.48f, -3.83f, 3.56f } },
+    { NPC_WARLORD_ROK_NAH,  { -3642.37f, -4445.01f, -3.07f, 3.56f } },
     { 0,                    { -3644.38f, -4449.42f, -3.58f, 3.56f } },
     { 0,                    { -3645.84f, -4446.23f, -3.36f, 3.56f } },
     { 0,                    { -3647.34f, -4442.94f, -3.36f, 3.56f } },

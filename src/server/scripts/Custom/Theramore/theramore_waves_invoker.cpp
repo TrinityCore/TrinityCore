@@ -185,7 +185,7 @@ class theramore_waves_invoker : public CreatureScript
                         if (Creature * cannon = DoSummon(NPC_INVISIBLE_STALKER, { -3646.48f, -4362.23f, 9.57f, 0.70f }, 9000, TEMPSUMMON_TIMED_DESPAWN))
                         {
                             jaina->AI()->Talk(JAINA_SAY_02);
-                            jaina->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                            jaina->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
                             cannon->m_Events.AddEvent(new CannonDoorsEvent(cannon, players), cannon->m_Events.CalculateTime(500));
                         }
                         events.ScheduleEvent(EVENT_BATTLE_2, 8s);

@@ -32,6 +32,9 @@ class npc_jaina_ruins : public CreatureScript
 
         void MoveInLineOfSight(Unit* who) override
         {
+            if (me->GetMapId() != 725)
+                return;
+
             if (canSayIntro && canSayEnd)
                 return;
 
@@ -43,19 +46,14 @@ class npc_jaina_ruins : public CreatureScript
             {
                 if (!canSayIntro && player->GetQuestStatus(QUEST_RETURN_TO_THERAMORE) == QUEST_STATUS_COMPLETE)
                 {
-                    Talk(SAY_IRIS_1);
-                    me->SetWalk(true);
-                    me->SetSheath(SHEATH_STATE_UNARMED);
-                    me->SetFacingToObject(player);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-
                     canSayIntro = true;
+                    SetData(EVENT_START_IRIS, 1U);
                 }
 
                 if (!canSayEnd && player->GetQuestStatus(QUEST_DESTROY_THE_DESTROYER) == QUEST_STATUS_COMPLETE)
                 {
                     canSayEnd = true;
-                    events.ScheduleEvent(EVENT_IRIS_4, 3s);
+                    events.ScheduleEvent(EVENT_IRIS_4, 1s);
                 }
             }
         }
@@ -75,12 +73,7 @@ class npc_jaina_ruins : public CreatureScript
             switch (quest->GetQuestId())
             {
                 case QUEST_LIMIT_THE_NUKE:
-                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, EMOTE_ONESHOT_NONE);
-                    me->RemoveAllAuras();
-                    break;
-
-                case QUEST_RETURN_TO_THERAMORE:
-                    SetData(EVENT_START_IRIS, 1U);
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
                     break;
             }
         }
@@ -97,9 +90,11 @@ class npc_jaina_ruins : public CreatureScript
                     break;
 
                 case EVENT_START_IRIS:
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    Talk(SAY_IRIS_1);
+                    kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 5.f);
+                    arcanic = GetClosestCreatureWithEntry(me, NPC_ARCANIC_FORM, 5.f);
                     FillPlayersContainer();
-                    events.ScheduleEvent(EVENT_IRIS_1, 2s);
+                    events.ScheduleEvent(EVENT_IRIS_1, 5s);
                     break;
 
                 default:
@@ -107,9 +102,31 @@ class npc_jaina_ruins : public CreatureScript
             }
         }
 
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            events.ScheduleEvent(CASTING_FIREBALL, 0s);
+            events.ScheduleEvent(CASTING_FROSTBOLT, 3s);
+            events.ScheduleEvent(CASTING_FROST_RUNE_1, 20s);
+
+            //events.ScheduleEvent(CASTING_ARCANIC_VOLLEY, 0s);
+        }
+
+        void AttackStart(Unit* who) override
+        {
+            if (!who)
+                return;
+
+            if (me->Attack(who, false))
+            {
+                DoStartMovement(who, 20.f);
+                SetCombatMovement(false);
+            }
+        }
+
         void Reset() override
         {
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            if (me->GetMapId() != 1)
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -121,371 +138,248 @@ class npc_jaina_ruins : public CreatureScript
         {
             events.Update(diff);
 
-            while (uint32 eventId = events.ExecuteEvent())
+            // Combat
+            if (!UpdateVictim())
             {
-                switch (eventId)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    // Event - Return to Theramore
-                    #pragma region THERAMORE
+                    switch (eventId)
+                    {
+                        // Event - Return to Theramore
+                        #pragma region THERAMORE
 
-                    case EVENT_RETURN_1:
-                        Talk(SAY_RETURN_1);
-                        events.ScheduleEvent(EVENT_RETURN_2, 6s);
-                        break;
+                        case EVENT_RETURN_1:
+                            me->GetMotionMaster()->MovePoint(0, -2690.53f, -4765.79f, 13.76f, true, 2.03f);
+                            events.ScheduleEvent(EVENT_RETURN_2, 6s);
+                            break;
 
-                    case EVENT_RETURN_2:
-                        me->GetMotionMaster()->MovePoint(0, -2674.73f, -4775.04f, 13.90f, true, 2.67f);
-                        events.ScheduleEvent(EVENT_RETURN_3, 3s);
-                        events.ScheduleEvent(EVENT_RETURN_4, 1s);
-                        break;
+                        case EVENT_RETURN_2:
+                            if (Creature * portal = me->SummonCreature(NPC_INVISIBLE_STALKER, -2678.14f, -4774.18f, 14.16f, 2.55f, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                            {
+                                portal->AddAura(SPELL_OPENED_PORTAL, portal);
+                                if (kalecgos = portal->SummonCreature(NPC_KALECGOS, -2678.14f, -4774.18f, 14.16f, 2.55f, TEMPSUMMON_MANUAL_DESPAWN))
+                                {
+                                    kalecgos->SetWalk(true);
+                                    kalecgos->GetMotionMaster()->MovePoint(0, -2685.95f, -4768.93f, 13.94f, true, 2.55f);
+                                }
+                            }
+                            events.ScheduleEvent(EVENT_RETURN_3, 4s);
+                            break;
 
-                    case EVENT_RETURN_3:
-                        Talk(SAY_RETURN_2);
-                        break;
+                        case EVENT_RETURN_3:
+                            me->SetFacingToObject(kalecgos);
+                            kalecgos->AI()->Talk(SAY_RETURN_1);
+                            events.ScheduleEvent(EVENT_RETURN_4, 1s);
+                            break;
 
-                    case EVENT_RETURN_4:
-                        if (kalecgos = me->SummonCreature(NPC_KALECGOS_DRAGON, -2648.70f, -4653.49f, 80.96f, 0.f, TEMPSUMMON_MANUAL_DESPAWN))
-                            kalecgos->GetMotionMaster()->MovePoint(0, -2687.44f, -4768.39f, 14.10f, false, 5.72f);
-                        events.ScheduleEvent(EVENT_RETURN_5, 7s);
-                        break;
+                        case EVENT_RETURN_4:
+                            Talk(SAY_RETURN_2);
+                            events.ScheduleEvent(EVENT_RETURN_5, 7s);
+                            break;
 
-                    case EVENT_RETURN_5:
-                        kalecgos->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_LAND);
-                        events.ScheduleEvent(EVENT_RETURN_6, 2s);
-                        break;
+                        case EVENT_RETURN_5:
+                            Talk(SAY_RETURN_3);
+                            events.ScheduleEvent(EVENT_RETURN_6, 11s);
+                            break;
 
-                    case EVENT_RETURN_6:
-                        kalecgos->DespawnOrUnsummon();
-                        if (kalecgos = me->SummonCreature(NPC_KALECGOS, -2687.44f, -4768.39f, 13.90f, 5.72f, TEMPSUMMON_MANUAL_DESPAWN))
-                        {
-                            kalecgos->SetWalk(true);
-                            kalecgos->GetMotionMaster()->MovePoint(0, -2678.95f, -4772.81f, 14.08f);
-                            kalecgos->AI()->Talk(SAY_RETURN_3);
-                        }
-                        events.ScheduleEvent(EVENT_RETURN_7, 4s);
-                        break;
+                        case EVENT_RETURN_6:
+                            kalecgos->AI()->Talk(SAY_RETURN_4);
+                            events.ScheduleEvent(EVENT_RETURN_7, 15s);
+                            break;
 
-                    case EVENT_RETURN_7:
-                        Talk(SAY_RETURN_4);
-                        events.ScheduleEvent(EVENT_RETURN_8, 4s);
-                        break;
+                        case EVENT_RETURN_7:
+                            Talk(SAY_RETURN_5);
+                            events.ScheduleEvent(EVENT_RETURN_8, 6s);
+                            break;
 
-                    case EVENT_RETURN_8:
-                        kalecgos->AI()->Talk(SAY_RETURN_5);
-                        events.ScheduleEvent(EVENT_RETURN_9, 1s);
-                        break;
+                        case EVENT_RETURN_8:
+                            kalecgos->AI()->Talk(SAY_RETURN_6);
+                            events.ScheduleEvent(EVENT_RETURN_9, 4s);
+                            break;
 
-                    case EVENT_RETURN_9:
-                        Talk(SAY_RETURN_6);
-                        events.ScheduleEvent(EVENT_RETURN_10, 4s);
-                        break;
+                        case EVENT_RETURN_9:
+                            Talk(SAY_RETURN_7);
+                            events.ScheduleEvent(EVENT_RETURN_10, 15s);
+                            break;
 
-                    case EVENT_RETURN_10:
-                        kalecgos->AI()->Talk(SAY_RETURN_7);
-                        events.ScheduleEvent(EVENT_RETURN_11, 6s);
-                        break;
+                        case EVENT_RETURN_10:
+                            kalecgos->AI()->Talk(SAY_RETURN_8);
+                            events.ScheduleEvent(EVENT_RETURN_11, 5s);
+                            break;
 
-                    case EVENT_RETURN_11:
-                        Talk(SAY_RETURN_8);
-                        events.ScheduleEvent(EVENT_RETURN_12, 4s);
-                        break;
-
-                    case EVENT_RETURN_12:
-                        if (Player * player = me->SelectNearestPlayer(50.f))
-                        {
+                        case EVENT_RETURN_11:
                             Talk(SAY_RETURN_9);
-                            me->SetFacingToObject(player);
-                        }
-                        events.ScheduleEvent(EVENT_RETURN_13, 4s);
-                        break;
+                            events.ScheduleEvent(EVENT_RETURN_12, 4s);
+                            break;
 
-                    case EVENT_RETURN_13:
-                        me->CastSpell(me, SPELL_POWER_BALL_VISUAL);
-                        if (Player * player = me->SelectNearestPlayer(50.f))
-                            player->CastSpell(player, SPELL_POWER_BALL_VISUAL);
-                        events.ScheduleEvent(EVENT_RETURN_14, 1s);
-                        break;
+                        case EVENT_RETURN_12:
+                            kalecgos->AI()->Talk(SAY_RETURN_10);
+                            events.ScheduleEvent(EVENT_RETURN_13, 7s);
+                            break;
 
-                    case EVENT_RETURN_14:
-                        if (Player * player = me->SelectNearestPlayer(50.f))
-                        {
-                            player->CompleteQuest(QUEST_RETURN_TO_THERAMORE);
-                            player->SetPhaseMask(1, true);
-                            player->TeleportTo(725, -3755.96f, -4479.34f, 0.018f, 0.25f);
-                        }
-                        break;
+                        case EVENT_RETURN_13:
+                            kalecgos->AI()->Talk(SAY_RETURN_11);
+                            events.ScheduleEvent(EVENT_RETURN_14, 15s);
+                            break;
 
-                    #pragma endregion
+                        case EVENT_RETURN_14:
+                            Talk(SAY_RETURN_12);
+                            events.ScheduleEvent(EVENT_RETURN_15, 14s);
+                            break;
 
-                    // Event - Protect the artefact
-                    #pragma region ARTEFACT
+                        case EVENT_RETURN_15:
+                            me->CastSpell(me, SPELL_POWER_BALL_VISUAL);
+                            events.ScheduleEvent(EVENT_RETURN_16, 1s);
+                            break;
 
-                    case EVENT_IRIS_1:
-                        me->GetMotionMaster()->MovePoint(0, -3710.42f, -4468.33f, -20.67f, true, 0.02f);
-                        events.ScheduleEvent(EVENT_IRIS_2, 8s);
-                        break;
-
-                    case EVENT_IRIS_2:
-                        Talk(SAY_IRIS_2);
-                        events.ScheduleEvent(EVENT_IRIS_3, 10s);
-                        break;
-
-                    case EVENT_IRIS_3:
-                    {
-                        Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_DESTROY_THE_DESTROYER);
-                        for (Player* player : players)
-                        {
-                            if (player->CanAddQuest(quest, true))
-                                player->AddQuestAndCheckCompletion(quest, me);
-                        }
-
-                        if (Creature * dummy = me->SummonCreature(NPC_INVISIBLE_STALKER, -3698.69f, -4467.94f, -20.87f, 3.55f, TEMPSUMMON_MANUAL_DESPAWN))
-                        {
-                            me->CastSpell(dummy, SPELL_CANALISATION);
-                            channelTarget = dummy;
-                        }
-
-                        break;
-                    }
-
-                    case EVENT_IRIS_4:
-                    {
-                        Quest const* destroyTheDestroyer = sObjectMgr->GetQuestTemplate(QUEST_DESTROY_THE_DESTROYER);
-                        Quest const* protectTheArtefact = sObjectMgr->GetQuestTemplate(QUEST_PROTECT_THE_ARTEFACT);
-                        for (Player* player : players)
-                        {
-                            player->RewardQuest(destroyTheDestroyer, 0, me);
-                            if (player->CanAddQuest(protectTheArtefact, true))
-                                player->AddQuestAndCheckCompletion(protectTheArtefact, me);
-                        }
-
-                        Talk(SAY_IRIS_3);
-                        events.ScheduleEvent(EVENT_IRIS_5, 3s);
-                        break;
-                    }
-
-                    case EVENT_IRIS_5:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SPELL_CAST_OMNI);
-                        me->CastSpell(me, 62849, true); 
-                        for (uint8 i = 0; i < 2; ++i)
-                            elementals[i] = me->SummonCreature(NPC_WATER_ELEMENTAL, ElementalsPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                        events.ScheduleEvent(EVENT_IRIS_6, 1s);
-                        break;
-
-                    case EVENT_IRIS_6:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-                        events.ScheduleEvent(EVENT_IRIS_7, 2s);
-                        break;
-
-                    case EVENT_IRIS_7:
-                        me->SetReactState(REACT_PASSIVE);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        for (uint8 i = 0; i < 2; ++i)
-                        {
-                            elementals[i]->GetMotionMaster()->MovePoint(0, ElementalsPos[i + 2], false, ElementalsPos[i + 2].GetOrientation());
-                            elementals[i]->SetHomePosition(ElementalsPos[i + 2]);
-                        }
-                        events.ScheduleEvent(EVENT_IRIS_8, 5s);
-                        break;
-
-                    case EVENT_IRIS_8:
-                        for (int i = 0; i < 12; ++i)
-                        {
-                            uint32 entry = Soldiers[i].entry;
-                            if (!entry)
-                                entry = RAND(NPC_ROK_NAH_GRUNT, NPC_ROK_NAH_SOLDIER, NPC_ROK_NAH_HAG, NPC_ROK_NAH_FELCASTER, NPC_ROK_NAH_LOA_SINGER);
-
-                            if (Creature * temp = me->SummonCreature(entry, Soldiers[i].position, TEMPSUMMON_MANUAL_DESPAWN))
+                        case EVENT_RETURN_16:
+                            me->SetVisible(false);
+                            if (Player * player = me->SelectNearestPlayer(50.f))
                             {
-                                temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                                temp->SetReactState(REACT_PASSIVE);
-
-                                if (entry == NPC_WARLORD_ROK_NAH)
-                                    warlord = temp;
-                                else
-                                    soldiers.push_back(temp);
+                                kalecgos->AI()->Talk(SAY_RETURN_13);
+                                kalecgos->SetFacingToObject(player);
                             }
-                        }
-                        events.ScheduleEvent(EVENT_IRIS_9, 2s);
-                        break;
+                            events.ScheduleEvent(EVENT_RETURN_17, 3s);
+                            break;
 
-                    case EVENT_IRIS_9:
-                        warlord->AI()->Talk(SAY_IRIS_4);
-                        events.ScheduleEvent(EVENT_IRIS_10, 7s);
-                        break;
+                        case EVENT_RETURN_17:
+                            kalecgos->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SPELL_CAST_OMNI);
+                            if (Player * player = me->SelectNearestPlayer(50.f))
+                                player->CastSpell(me, SPELL_POWER_BALL_VISUAL);
+                            events.ScheduleEvent(EVENT_RETURN_18, 1s);
+                            break;
 
-                    case EVENT_IRIS_10:
-                        Talk(SAY_IRIS_5);
-                        events.ScheduleEvent(EVENT_IRIS_11, 9s);
-                        break;
-
-                    case EVENT_IRIS_11:
-                        warlord->AI()->Talk(SAY_IRIS_6);
-                        events.ScheduleEvent(EVENT_IRIS_12, 6s);
-                        break;
-
-                    case EVENT_IRIS_12:
-                        Talk(SAY_IRIS_7);
-                        events.ScheduleEvent(EVENT_IRIS_13, 9s);
-                        break;
-
-                    case EVENT_IRIS_13:
-                        warlord->AI()->Talk(SAY_IRIS_8);
-                        events.ScheduleEvent(EVENT_IRIS_14, 3s);
-                        break;
-
-                    case EVENT_IRIS_14:
-                    {
-                        warlord->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        warlord->SetReactState(REACT_AGGRESSIVE);
-                        warlord->Attack(players[0], true);
-                        warlord->GetMotionMaster()->MoveChase(players[0], 1.f);
-
-                        for (Creature* soldier : soldiers)
-                        {
-                            soldier->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            soldier->SetReactState(REACT_AGGRESSIVE);
-                            soldier->Attack(players[0], true);
-
-                            if (soldier->GetPositionY() <= -4468.18f)
+                        case EVENT_RETURN_18:
+                            kalecgos->DespawnOrUnsummon(3s);
+                            if (Player * player = me->SelectNearestPlayer(50.f))
                             {
-                                soldier->Attack(elementals[1], true);
-                                soldier->GetMotionMaster()->MoveChase(elementals[1], 1.f);
+                                player->CompleteQuest(QUEST_RETURN_TO_THERAMORE);
+                                player->SetPhaseMask(1, true);
+                                player->TeleportTo(725, -3755.96f, -4479.34f, 0.018f, 0.25f);
                             }
-                            else
+                            break;
+
+                            #pragma endregion
+
+                        // Event - Protect the artefact
+                        #pragma region ARTEFACT
+
+                        case EVENT_IRIS_1:
+                            me->SetStandState(UNIT_STAND_STATE_STAND);
+                            kinndy->SetVisible(false);
+                            events.ScheduleEvent(EVENT_IRIS_2, 2s);
+                            break;
+
+                        case EVENT_IRIS_2:
+                            arcanic->SetVisible(false);
+                            me->SetFacingToObject(players[0]);
+                            events.ScheduleEvent(EVENT_IRIS_3, 5s);
+                            break;
+
+                        case EVENT_IRIS_3:
+                            for (int i = 0; i < 12; ++i)
                             {
-                                soldier->Attack(elementals[0], true);
-                                soldier->GetMotionMaster()->MoveChase(elementals[0], 1.f);
+                                uint32 entry = Soldiers[i].entry;
+                                if (!entry)
+                                    entry = RAND(NPC_ROK_NAH_GRUNT, NPC_ROK_NAH_SOLDIER, NPC_ROK_NAH_HAG, NPC_ROK_NAH_FELCASTER, NPC_ROK_NAH_LOA_SINGER);
+
+                                if (Creature * temp = me->SummonCreature(entry, Soldiers[i].position, TEMPSUMMON_MANUAL_DESPAWN))
+                                {
+                                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                    temp->SetReactState(REACT_PASSIVE);
+
+                                    if (entry == NPC_WARLORD_ROK_NAH)
+                                    {
+                                        me->SetFacingToObject(temp);
+                                        me->SetSheath(SHEATH_STATE_MELEE);
+                                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
+
+                                        warlord = temp;
+                                    }
+                                    else
+                                        soldiers.push_back(temp);
+                                }
                             }
-                        }
+                            events.ScheduleEvent(EVENT_IRIS_4, 5s);
+                            break;
 
-                        events.ScheduleEvent(EVENT_IRIS_15, 5s);
-                        break;
+                        case EVENT_IRIS_4:
+                            for (Creature* soldier : soldiers)
+                            {
+                                if (soldier->GetPositionY() > -4468.18f)
+                                {
+                                    me->Attack(soldier, false);
+
+                                    soldier->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                    soldier->SetReactState(REACT_AGGRESSIVE);
+                                    soldier->Attack(me, true);
+                                    soldier->GetMotionMaster()->MoveChase(me, 1.f);
+                                }
+                            }
+                            events.ScheduleEvent(EVENT_IRIS_5, 5s);
+                            break;
+
+                        #pragma endregion
+
+                        default:
+                            break;
                     }
-
-                    case EVENT_IRIS_15:
-                    {
-                        if (warlord->GetHealthPct() <= 10.f || players[0]->GetHealthPct() <= 30.f)
-                        {
-                            players[0]->ResurrectPlayer(50.f);
-                            players[0]->SetFullHealth();
-
-                            warlord->RemoveAllAuras();
-                            warlord->SetImmuneToAll(true);
-                            
-                            events.CancelEvent(EVENT_IRIS_15);
-                            events.ScheduleEvent(EVENT_IRIS_16, 1s);
-                        }
-                        else
-                            events.RescheduleEvent(EVENT_IRIS_15, 1s);
-                        break;
-                    }
-
-                    case EVENT_IRIS_16:
-                    {
-                        warlord->CombatStop(true);
-                        warlord->GetMotionMaster()->Clear();
-                        warlord->GetMotionMaster()->MoveIdle();
-                        warlord->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        warlord->SetReactState(REACT_PASSIVE);
-                        warlord->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_KNEEL);
-
-                        channelTarget->RemoveAllAuras();
-                        me->RemoveAllAuras();
-
-                        CastSpellExtraArgs args;
-                        args.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
-                        me->CastSpell(me, SPELL_ICE_NOVA, args);
-
-                        for (Creature* soldier : soldiers)
-                        {
-                            if (!soldier->IsAlive())
-                                continue;
-
-                            soldier->KillSelf();
-                        }
-
-                        for (Player* player : players)
-                            player->CompleteQuest(QUEST_PROTECT_THE_ARTEFACT);
-
-                        events.ScheduleEvent(EVENT_IRIS_17, 2s);
-                        break;
-                    }
-
-                    case EVENT_IRIS_17:
-                        if (GameObject * temp = GetClosestGameObjectWithEntry(me, 190561, 100))
-                        {
-                            float distanceToTravel = me->GetExactDist2d(temp->GetPosition()) - 1.5f;
-                            float angle = me->GetAbsoluteAngle(temp);
-                            float destx = me->GetPositionX() + distanceToTravel * cosf(angle);
-                            float desty = me->GetPositionY() + distanceToTravel * sinf(angle);
-
-                            me->GetMotionMaster()->MovePoint(0, destx, desty, temp->GetPositionZ());
-                            mirror = temp;
-                        }
-                        events.ScheduleEvent(EVENT_IRIS_18, 7s);
-                        break;
-
-                    case EVENT_IRIS_18:
-                        me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_KNEEL);
-                        events.ScheduleEvent(EVENT_IRIS_19, 4s);
-                        break;
-
-                    case EVENT_IRIS_19:
-                    {
-                        mirror->Delete();
-                        me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
-                        events.ScheduleEvent(EVENT_IRIS_20, 2s);
-                        break;
-                    }
-
-                    case EVENT_IRIS_20:
-                    {
-                        float distanceToTravel = me->GetExactDist2d(warlord->GetPosition()) - 1.5f;
-                        float angle = me->GetAbsoluteAngle(warlord);
-                        float destx = me->GetPositionX() + distanceToTravel * cosf(angle);
-                        float desty = me->GetPositionY() + distanceToTravel * sinf(angle);
-
-                        me->GetMotionMaster()->MovePoint(0, destx, desty, warlord->GetPositionZ());
-
-                        events.ScheduleEvent(EVENT_IRIS_21, ((distanceToTravel / me->GetSpeed(MOVE_WALK)) + 2) * IN_MILLISECONDS);
-                        break;
-                    }
-
-                    case EVENT_IRIS_21:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
-                        warlord->KillSelf();
-                        events.ScheduleEvent(EVENT_IRIS_22, 2s);
-                        break;
-
-                    case EVENT_IRIS_22:
-                        Talk(SAY_IRIS_9);
-                        me->SetFacingToObject(players[0]);
-                        events.ScheduleEvent(EVENT_IRIS_23, 8s);
-                        break;
-
-                    case EVENT_IRIS_23:
-                        Talk(SAY_IRIS_10);
-                        events.ScheduleEvent(EVENT_IRIS_24, 8s);
-                        break;
-
-                    case EVENT_IRIS_24:
-                        elementals[0]->DespawnOrUnsummon();
-                        elementals[1]->DespawnOrUnsummon();
-                        me->CastSpell(me, SPELL_POWER_BALL_VISUAL);
-                        events.ScheduleEvent(EVENT_IRIS_25, 1830);
-                        break;
-
-                    case EVENT_IRIS_25:
-                        me->SetVisible(false);
-                        me->SummonGameObject(195139, me->GetPosition(), QuaternionData(), 0);
-                        break;
-
-                    #pragma endregion
-
-                    default:
-                        break;
                 }
+            }
+            else
+            {
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case CASTING_FIREBALL:
+                            DoCastVictim(SPELL_FIREBALL);
+                            events.RescheduleEvent(SPELL_FIREBALL, 1542);
+                            break;
+
+                        case CASTING_FROSTBOLT:
+                            DoCastVictim(SPELL_FROSTBOLT);
+                            events.RescheduleEvent(CASTING_FROSTBOLT, 3s, 5s);
+                            break;
+
+                        case CASTING_FROST_RUNE_1:
+                        {
+                            me->PlayDirectSound(28139);
+                            me->AddUnitState(UNIT_STATE_ROOT);
+
+                            for (const ThreatReference* threatRef : me->GetThreatManager().GetUnsortedThreatList())
+                            {
+                                Unit* target = threatRef->GetVictim();
+
+                                float angle = float(rand_norm() * 2 * M_PI);
+                                float dist = frand(1, 4);
+
+                                target->NearTeleportTo(warlord->GetPositionX() + cos(angle) * dist, warlord->GetPositionY() + sin(angle) * dist, warlord->GetPositionZ(), angle);
+                                target->CastSpell(target, SPELL_POWER_BALL_VISUAL);
+                                target->AddAura(SPELL_JAINAS_CALL, target);
+                                target->AddUnitState(UNIT_STATE_ROOT);
+                            }
+
+                            events.ScheduleEvent(CASTING_FROST_RUNE_2, 3s);
+                            break;
+                        }
+
+                        case CASTING_FROST_RUNE_2:
+
+                            break;
+
+                        case CASTING_ARCANIC_VOLLEY:
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
             }
         }
 
@@ -495,6 +389,8 @@ class npc_jaina_ruins : public CreatureScript
         std::vector<Creature*> soldiers;
         Creature* kalecgos;
         Creature* warlord;
+        Creature* kinndy;
+        Creature* arcanic;
         Creature* channelTarget;
         Creature* elementals[2];
         GameObject* mirror;
