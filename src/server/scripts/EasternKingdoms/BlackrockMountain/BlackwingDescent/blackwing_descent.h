@@ -41,9 +41,6 @@ enum BWDDataTypes
     DATA_COLUMN_OF_LIGHT,
     DATA_ATRAMEDES_INTRO,
 
-    /*GameObjects*/
-    DATA_INNER_CHAMBER_DOOR,
-
     // Encounter Data
     /*Magmaw*/
     DATA_PREPARE_MASSIVE_CRASH_AND_GET_TARGET_GUID,

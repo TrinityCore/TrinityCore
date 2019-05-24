@@ -37,14 +37,15 @@ ObjectData const creatureData[] =
 
 ObjectData const gameobjectData[] =
 {
-    { GO_INNER_CHAMBER_DOOR,    DATA_INNER_CHAMBER_DOOR },
     { GO_ANCIENT_BELL,          DATA_ANCIENT_BELL       },
     { 0,                        0                       }  // END
 };
 
 DoorData const doorData[] =
 {
-    { 0,        0,          DOOR_TYPE_ROOM }  // END
+    { GO_INNER_CHAMBER_DOOR,        DATA_MAGMAW,                    DOOR_TYPE_PASSAGE   },
+    { GO_INNER_CHAMBER_DOOR,        DATA_OMNOTRON_DEFENSE_SYSTEM,   DOOR_TYPE_PASSAGE   },
+    { 0,                            0,                              DOOR_TYPE_ROOM      }  // END
 };
 
 Position const MassiveCrashRightSpawnPosition   = { -288.59f,  -14.8472f,  211.2573f };
@@ -191,16 +192,7 @@ class instance_blackwing_descent : public InstanceMapScript
                             }
 
                             _roomStalkerGUIDs.clear();
-
-                            if (state == DONE && GetBossState(DATA_OMNOTRON_DEFENSE_SYSTEM) == DONE)
-                                if (GameObject* door = GetGameObject(DATA_INNER_CHAMBER_DOOR))
-                                    door->SetGoState(GO_STATE_ACTIVE);
                         }
-                        break;
-                    case DATA_OMNOTRON_DEFENSE_SYSTEM:
-                        if (state == DONE && GetBossState(DATA_MAGMAW) == DONE)
-                            if (GameObject* door = GetGameObject(DATA_INNER_CHAMBER_DOOR))
-                                door->SetGoState(GO_STATE_ACTIVE);
                         break;
                     default:
                         break;
