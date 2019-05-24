@@ -87,23 +87,26 @@ static bool EmptyValidator()
     return true;
 }
 
-class MotionMasterDelayedAction
-{
-    public:
-        explicit MotionMasterDelayedAction(std::function<void()>&& action, std::function<bool()>&& validator, MotionMasterDelayedActionType type) : Action(std::move(action)), Validator(std::move(validator)), Type(type) { }
-        explicit MotionMasterDelayedAction(std::function<void()>&& action, MotionMasterDelayedActionType type) : Action(std::move(action)), Validator(EmptyValidator), Type(type) { }
-        ~MotionMasterDelayedAction() { }
-
-        void Resolve() { if (Validator()) Action(); }
-
-        std::function<void()> Action;
-        std::function<bool()> Validator;
-        uint8 Type;
-};
-
 class TC_GAME_API MotionMaster
 {
     public:
+        typedef std::function<void()> DelayedActionDefine;
+        typedef std::function<bool()> DelayedActionValidator;
+
+        class DelayedAction
+        {
+            public:
+                explicit DelayedAction(DelayedActionDefine&& action, DelayedActionValidator&& validator, MotionMasterDelayedActionType type) : Action(std::move(action)), Validator(std::move(validator)), Type(type) { }
+                explicit DelayedAction(DelayedActionDefine&& action, MotionMasterDelayedActionType type) : Action(std::move(action)), Validator(EmptyValidator), Type(type) { }
+                ~DelayedAction() { }
+
+                void Resolve() { if (Validator()) Action(); }
+
+                DelayedActionDefine Action;
+                DelayedActionValidator Validator;
+                uint8 Type;
+        };
+
         explicit MotionMaster(Unit* unit);
         ~MotionMaster();
 
@@ -213,7 +216,7 @@ class TC_GAME_API MotionMaster
         MovementGeneratorPointer _defaultGenerator;
         MotionMasterContainer _generators;
         MotionMasterUnitStatesContainer _baseUnitStatesMap;
-        std::deque<MotionMasterDelayedAction> _delayedActions;
+        std::deque<DelayedAction> _delayedActions;
         uint8 _flags;
 };
 

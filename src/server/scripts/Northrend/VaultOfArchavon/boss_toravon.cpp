@@ -149,7 +149,7 @@ struct npc_frozen_orb : public ScriptedAI
 {
     npc_frozen_orb(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         DoCastSelf(SPELL_FROZEN_ORB_AURA, true);
         DoCastSelf(SPELL_FROZEN_ORB_DMG, true);
