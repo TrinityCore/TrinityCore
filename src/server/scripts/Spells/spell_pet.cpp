@@ -530,9 +530,7 @@ class spell_hun_pet_scaling_01 : public AuraScript
                 else if (pet->HasAura(SPELL_HUNTER_PET_CUNNING_MARKER))
                     mod = 0.725f;
 
-                float stamina = owner->GetStat(STAT_STAMINA);
-                uint32 bonus = (stamina * mod) * 14.0f;
-                amount = bonus;
+                amount = int32(owner->GetHealthBonusFromStamina() * mod);
             }
         }
     }
