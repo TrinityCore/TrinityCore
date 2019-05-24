@@ -1210,7 +1210,7 @@ class npc_guardian_of_yogg_saron : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 if (summoner->GetEntry() != NPC_OMINOUS_CLOUD)
                     return;
@@ -1317,7 +1317,7 @@ class npc_constrictor_tentacle : public CreatureScript
                 UpdateVictim();
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 if (Creature* voice = _instance->GetCreature(DATA_VOICE_OF_YOGG_SARON))
                     voice->AI()->JustSummoned(me);
@@ -1581,7 +1581,7 @@ class npc_yogg_saron_keeper : public CreatureScript
         {
             npc_yogg_saron_keeperAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 DoCast(SPELL_SIMPLE_TELEPORT_KEEPERS);
             }
@@ -1704,7 +1704,7 @@ class npc_yogg_saron_illusions : public CreatureScript
         {
             npc_yogg_saron_illusionsAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 switch (_instance->GetData(DATA_ILLUSION))
                 {

@@ -54,7 +54,7 @@ public:
             _Reset();
         }
 
-        void IsSummonedBy(Unit* /*summoner*/) override
+        void IsSummonedBy(WorldObject* /*summoner*/) override
         {
             me->GetMotionMaster()->MovePath(GIZRUL_PATH, false);
         }

@@ -124,7 +124,7 @@ class npc_grobbulus_poison_cloud : public CreatureScript
                 creature->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 // no visual when casting in ctor or Reset()
                 DoCast(me, SPELL_POISON_CLOUD_PASSIVE, true);
