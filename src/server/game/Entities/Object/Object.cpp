@@ -188,31 +188,11 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
         if (worldObject->GetAIAnimKitId() || worldObject->GetMovementAnimKitId() || worldObject->GetMeleeAnimKitId())
             flags |= UPDATEFLAG_ANIMKITS;
-
-        if (!worldObject->m_movementInfo.transport.guid.IsEmpty() && (ToGameObject() || ToDynObject()))
-            flags |= UPDATEFLAG_GO_TRANSPORT_POSITION;
     }
 
-    if (flags & UPDATEFLAG_STATIONARY_POSITION)
-    {
-        if (isType(TYPEMASK_GAMEOBJECT))
-        {
-            switch (ToGameObject()->GetGoType())
-            {
-                case GAMEOBJECT_TYPE_TRANSPORT:
-                    flags |= UPDATEFLAG_TRANSPORT;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        if (isType(TYPEMASK_UNIT))
-        {
-            if (ToUnit()->GetVictim())
-                flags |= UPDATEFLAG_HAS_TARGET;
-        }
-    }
+    if (Unit const* unit = ToUnit())
+        if (unit->GetVictim())
+            flags |= UPDATEFLAG_HAS_TARGET;
 
     ByteBuffer buf(500);
     buf << uint8(updateType);
@@ -444,14 +424,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         WorldObject const* self = static_cast<WorldObject const*>(this);
         ObjectGuid transGuid = self->m_movementInfo.transport.guid;
         data->WriteBit(transGuid[5]);
-        data->WriteBit(0);                                                      // Has GO transport time 3
+        data->WriteBit(hasVehicleId);                                           // Has GO transport time 3
         data->WriteBit(transGuid[0]);
         data->WriteBit(transGuid[3]);
         data->WriteBit(transGuid[6]);
         data->WriteBit(transGuid[1]);
         data->WriteBit(transGuid[4]);
         data->WriteBit(transGuid[2]);
-        data->WriteBit(0);                                                      // Has GO transport time 2
+        data->WriteBit(hasTransportTime2);                                      // Has GO transport time 2
         data->WriteBit(transGuid[7]);
     }
 
@@ -660,7 +640,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     {
         if (GameObject const* go = ToGameObject())
         {
-            if (go->IsDynTransport())
+            if (go->ToTransport())
                 *data << uint32(go->ToTransport()->GetPathProgress());
             else
                 *data << uint32(getMSTime());
