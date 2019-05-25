@@ -46,6 +46,7 @@ enum WeatherState : uint32
 {
     WEATHER_STATE_FINE              = 0,
     WEATHER_STATE_FOG               = 1, // Used in some instance encounters.
+    WEATHER_STATE_DRIZZLE           = 2,
     WEATHER_STATE_LIGHT_RAIN        = 3,
     WEATHER_STATE_MEDIUM_RAIN       = 4,
     WEATHER_STATE_HEAVY_RAIN        = 5,
