@@ -36,6 +36,11 @@ DoorData const doorData[] =
     { 0,             0,           DOOR_TYPE_ROOM } // END
 };
 
+ObjectData const creatureData[] =
+{
+    { NPC_PRIESTESS_MARLI, DATA_MARLI }
+};
+
 class instance_zulgurub : public InstanceMapScript
 {
     public: instance_zulgurub(): InstanceMapScript(ZGScriptName, 309) { }
@@ -46,6 +51,7 @@ class instance_zulgurub : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadObjectData(creatureData, nullptr);
                 LoadDoorData(doorData);
             }
 
@@ -57,6 +63,8 @@ class instance_zulgurub : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case NPC_ZEALOT_LORKHAN:
