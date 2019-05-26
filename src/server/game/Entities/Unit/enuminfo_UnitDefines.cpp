@@ -64,7 +64,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
         case UNIT_FLAG_UNK_28: return { "UNIT_FLAG_UNK_28", "UNIT_FLAG_UNK_28", "" };
         case UNIT_FLAG_UNK_29: return { "UNIT_FLAG_UNK_29", "UNIT_FLAG_UNK_29", "used in Feing Death spell" };
         case UNIT_FLAG_SHEATHE: return { "UNIT_FLAG_SHEATHE", "UNIT_FLAG_SHEATHE", "" };
-        case UNIT_FLAG_UNK_31: return { "UNIT_FLAG_HAS_IMMUNITY_AURA", "UNIT_FLAG_HAS_IMMUNITY_AURA", "is affected by a damage immunity aura" };
+        case UNIT_FLAG_HAS_IMMUNITY_AURA: return { "UNIT_FLAG_HAS_IMMUNITY_AURA", "UNIT_FLAG_HAS_IMMUNITY_AURA", "is affected by a damage immunity aura" };
         default: throw std::out_of_range("value");
     }
 }
