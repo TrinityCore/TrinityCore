@@ -262,7 +262,6 @@ struct boss_ahune : public BossAI
         if (Creature* frozenCore = instance->GetCreature(DATA_FROZEN_CORE))
             frozenCore->AI()->DoAction(ACTION_AHUNE_RETREAT);
         me->RemoveAurasDueToSpell(SPELL_AHUNES_SHIELD);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_31);
         DoCastSelf(SPELL_SUBMERGED, true);
         DoCastSelf(SPELL_AHUNE_SELF_STUN, true);
         DoCastSelf(SPELL_STAY_SUBMERGED, true);

@@ -3162,7 +3162,12 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
         target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
 
     if (apply)
+    {
+        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_HAS_IMMUNITY_AURA);
         target->GetThreatManager().EvaluateSuppressed();
+    }
+    else
+        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_HAS_IMMUNITY_AURA);
 }
 
 void AuraEffect::HandleAuraModDmgImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const
