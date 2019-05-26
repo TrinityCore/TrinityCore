@@ -1874,7 +1874,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     {
         GameObjectTemplate const* goInfo = gameObjTarget->GetGOInfo();
 
-        if (goInfo->CannotBeUsedUnderImmunity() && m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_HAS_IMMUNITY_AURA))
+        if (goInfo->CannotBeUsedUnderImmunity() && m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE))
             return;
 
         // Arathi Basin banner opening. /// @todo Verify correctness of this check
