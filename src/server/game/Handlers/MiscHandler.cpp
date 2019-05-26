@@ -1157,3 +1157,16 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
     if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
         _player->PlayerTalkClass->GetInteractionData().Reset();
 }
+
+void WorldSession::HandleSetWarModeOpcode(WorldPackets::Misc::SetWarMode& warMode)
+{
+    uint32 const warModeSpellId = 282559; // Enlisted
+
+    if (_player->GetZoneId() != ZONE_STORMWIND_CITY && _player->GetZoneId() != ZONE_ORGRIMMAR)
+        return;
+
+    if (warMode.Enabled)
+        _player->CastSpell(_player, warModeSpellId, true);
+    else
+        _player->RemoveAurasDueToSpell(warModeSpellId);
+}

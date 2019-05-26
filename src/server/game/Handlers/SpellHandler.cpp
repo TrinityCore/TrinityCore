@@ -550,10 +550,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
         for (EquipmentSlots slot : itemSlots)
         {
             uint32 itemDisplayId;
-            if ((slot == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM)) ||
-                (slot == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK)))
-                itemDisplayId = 0;
-            else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+            if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
                 itemDisplayId = item->GetDisplayId(player);
             else
                 itemDisplayId = 0;
