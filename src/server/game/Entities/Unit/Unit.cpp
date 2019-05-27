@@ -12607,7 +12607,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         init.SetFall();
 
     init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), height, false);
-    init.SetFacing(GetOrientation());
+    init.SetFacing(pos.GetOrientation());
     init.SetTransportExit();
     GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_EXIT, MOTION_PRIORITY_HIGHEST);
 

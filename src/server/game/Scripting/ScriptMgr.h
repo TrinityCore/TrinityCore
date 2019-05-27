@@ -70,6 +70,7 @@ struct CreatureTemplate;
 struct CreatureData;
 struct ItemTemplate;
 struct MapEntry;
+struct Position;
 
 enum BattlegroundTypeId : uint32;
 enum ContentLevels : uint8;
