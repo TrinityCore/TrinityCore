@@ -2762,6 +2762,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::vector<PlayerPetData*> PlayerPetDataStore;
 
         TimeTrackerSmall m_petScalingSynchTimer;
+        TimeTrackerSmall m_groupUpdateTimer;
 
         uint32 _transportSpawnID;
 };

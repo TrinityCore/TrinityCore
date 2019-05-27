@@ -1194,6 +1194,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
         {
             *data << uint8(0);
             *data << uint64(0);
+            *data << uint32(0);
         }
     }
 

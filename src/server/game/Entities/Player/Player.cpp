@@ -411,6 +411,7 @@ Player::Player(WorldSession* session): Unit(true)
     _hasValidLFGLeavePoint = false;
     _archaeology = new Archaeology(this);
     m_petScalingSynchTimer.Reset(1000);
+    m_groupUpdateTimer.Reset(5000);
 
     _transportSpawnID = 0;
 }
@@ -1357,7 +1358,12 @@ void Player::Update(uint32 p_time)
     }
 
     // group update
-    SendUpdateToOutOfRangeGroupMembers();
+    m_groupUpdateTimer.Update(p_time);
+    if (m_groupUpdateTimer.Passed())
+    {
+        SendUpdateToOutOfRangeGroupMembers();
+        m_groupUpdateTimer.Reset(5000);
+    }
 
     Pet* pet = GetPet();
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
@@ -23933,6 +23939,7 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
 {
     if (m_groupUpdateMask == GROUP_UPDATE_FLAG_NONE)
         return;
+
     if (Group* group = GetGroup())
         group->UpdatePlayerOutOfRange(this);
 
