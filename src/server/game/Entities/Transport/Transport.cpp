@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DBCStores.h"
 #include "GameObjectAI.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
@@ -204,7 +205,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint
 
     _isDynamicTransport = m_goValue.Transport.StopFrames->empty();
 
-    uint32 pathProgress = getMSTime();
+    uint32 pathProgress = GameTime::GetGameTimeMS();
     if (m_goValue.Transport.AnimationInfo)
         pathProgress -= pathProgress % GetTransportPeriod();
 
@@ -364,7 +365,7 @@ void Transport::Update(uint32 diff)
         }
     }
 
-    SetPathProgress(getMSTime() + GetCurrentTransportTime());
+    SetPathProgress(GameTime::GetGameTimeMS() + GetCurrentTransportTime());
     RelocateToProgress(GetCurrentTransportTime());
 }
 
@@ -503,7 +504,7 @@ void Transport::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
         if (GetGoState() >= GO_STATE_TRANSPORT_STOPPED)
             stopTimer = m_goValue.Transport.StopFrames->at(GetGoState() - GO_STATE_TRANSPORT_STOPPED);
 
-        SetUInt32Value(GAMEOBJECT_LEVEL, getMSTime() + stopTimer);
+        SetUInt32Value(GAMEOBJECT_LEVEL, GameTime::GetGameTimeMS() + stopTimer);
     }
     else
     {
@@ -518,16 +519,16 @@ void Transport::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
 
         // forward movement. target frame time - current frame time
         if (GetCurrentTransportTime() < stopTimer)
-            SetUInt32Value(GAMEOBJECT_LEVEL, getMSTime() + stopTimer - GetCurrentTransportTime());
+            SetUInt32Value(GAMEOBJECT_LEVEL, GameTime::GetGameTimeMS() + stopTimer - GetCurrentTransportTime());
         else if (backwardsTimer)
-            SetUInt32Value(GAMEOBJECT_LEVEL, getMSTime() + backwardsTimer);
+            SetUInt32Value(GAMEOBJECT_LEVEL, GameTime::GetGameTimeMS() + backwardsTimer);
         else
-            SetUInt32Value(GAMEOBJECT_LEVEL, getMSTime() + GetCurrentTransportTime() - stopTimer);
+            SetUInt32Value(GAMEOBJECT_LEVEL, GameTime::GetGameTimeMS() + GetCurrentTransportTime() - stopTimer);
 
         state = GOState(GO_STATE_TRANSPORT_STOPPED + stopFrame);
     }
 
-    uint32 pathProgress = getMSTime();
+    uint32 pathProgress = GameTime::GetGameTimeMS();
     if (m_goValue.Transport.AnimationInfo)
         pathProgress -= pathProgress % GetTransportPeriod();
 
