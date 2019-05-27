@@ -3402,16 +3402,15 @@ void Unit::_AddAura(UnitAura* aura, Unit* caster)
                  */
 
         // register limited target aura
-        caster->GetLimitedCastAuras(aura->GetSpellInfo()->Id).push_back(aura);
+        caster->GetLimitedCastAuras(aura->GetId()).push_back(aura);
 
-        Unit::AuraList& ltAuras = caster->GetLimitedCastAuras(aura->GetSpellInfo()->Id);
-        bool isSingleTarget = aura->GetSpellInfo()->IsSingleTarget();
+        Unit::AuraList& ltAuras = caster->GetLimitedCastAuras(aura->GetId());
         uint32 targetLimit = aura->GetSpellInfo()->GetAuraTargetLimit();
 
         // remove other limited target auras
         for (Unit::AuraList::iterator itr = ltAuras.begin(); itr != ltAuras.end();)
         {
-            if ((*itr) != aura && (*itr)->IsLimitedTargetWith(aura) && isSingleTarget)
+            if ((*itr) != aura && (*itr)->IsLimitedTargetWith(aura) && !targetLimit)
             {
                 (*itr)->Remove();
                 itr = ltAuras.begin();
@@ -4007,7 +4006,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, U
                         newAura->UnregisterLimitedTarget();
                         // bring back single target aura status to the old aura
                         aura->SetIsLimitedTarget(true);
-                        caster->GetLimitedCastAuras(aura->GetSpellInfo()->Id).push_back(aura);
+                        caster->GetLimitedCastAuras(aura->GetId()).push_back(aura);
                     }
                     // FIXME: using aura->GetMaxDuration() maybe not blizzlike but it fixes stealing of spells like Innervate
                     newAura->SetLoadedState(aura->GetMaxDuration(), int32(dur), stealCharge ? 1 : aura->GetCharges(), 1, recalculateMask, &damage[0]);
@@ -4107,7 +4106,7 @@ void Unit::RemoveNotOwnLimitedTargetAuras(bool onPhaseChange /*= false*/)
 
     // limited target auras at other targets
     AurasBySpellIdMap& ltAurasBySpellId = GetAllLimitedCastAuras();
-    for (AurasBySpellIdMap::iterator itr = ltAurasBySpellId.begin(); itr != ltAurasBySpellId.end(); ++itr)
+    for (AurasBySpellIdMap::iterator itr = ltAurasBySpellId.begin(); itr != ltAurasBySpellId.end(); itr++)
     {
         AuraList& list = itr->second;
         for (AuraList::iterator iter = list.begin(); iter != list.end();)
@@ -13453,6 +13452,11 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
         }
         else if (seatId >= 0 && seatId == GetTransSeat())
             return;
+        else
+        {
+            //Exit the current vehicle because unit will reenter in a new seat.
+            m_vehicle->GetBase()->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, GetGUID(), aurApp->GetBase());
+        }
     }
 
     if (aurApp->GetRemoveMode())

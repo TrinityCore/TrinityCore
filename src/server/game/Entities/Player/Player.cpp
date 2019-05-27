@@ -27243,7 +27243,7 @@ void Player::ActivateSpec(uint8 spec)
     AurasBySpellIdMap& ltAurasBySpellId = GetAllLimitedCastAuras();
     for (AurasBySpellIdMap::iterator itr = ltAurasBySpellId.begin(); itr != ltAurasBySpellId.end(); itr++)
     {
-        AuraList list = itr->second;
+        AuraList& list = itr->second;
         for (AuraList::iterator iter = list.begin(); iter != list.end();)
         {
             Aura* aura = *iter;

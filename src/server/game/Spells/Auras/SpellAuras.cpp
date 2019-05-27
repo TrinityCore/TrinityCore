@@ -1084,7 +1084,7 @@ void Aura::UnregisterLimitedTarget()
     ASSERT(m_isLimitedTarget);
     Unit* caster = GetCaster();
     ASSERT(caster);
-    caster->GetLimitedCastAuras(GetSpellInfo()->Id).remove(this);
+    caster->GetLimitedCastAuras(GetId()).remove(this);
     SetIsLimitedTarget(false);
 }
 
