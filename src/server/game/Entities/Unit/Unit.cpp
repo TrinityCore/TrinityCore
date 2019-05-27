@@ -12579,13 +12579,6 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     SetControlled(false, UNIT_STATE_ROOT);      // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
 
-    Position pos;
-    if (!exitPosition)                          // Exit position not specified
-        pos = vehicle->GetBase()->GetPosition();  // This should use passenger's current position, leaving it as it is now
-                                                // because we calculate positions incorrect (sometimes under map)
-    else
-        pos = *exitPosition;
-
     AddUnitState(UNIT_STATE_MOVE);
 
     if (player)
@@ -12596,6 +12589,14 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         data << GetPackGUID();
         SendMessageToSet(&data, false);
     }
+
+    // Default exit position to vehicle position
+    Position pos = vehicle->GetBase()->GetPosition();
+    // If we ask for a specific exit position, use that one. Otherwise allow scripts to modify it
+    if (exitPosition)
+        pos = *exitPosition;
+    else
+        sScriptMgr->ModifyVehiclePassengerExitPos(this, vehicle, pos);
 
     float height = pos.GetPositionZ() + vehicle->GetBase()->GetCollisionHeight();
 
