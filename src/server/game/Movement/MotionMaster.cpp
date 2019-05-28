@@ -352,7 +352,9 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos)
     TC_LOG_DEBUG("misc", "Creature (Entry: %u) landing point (ID: %u X: %f Y: %f Z: %f).", _owner->GetEntry(), id, x, y, z);
 
     Movement::MoveSplineInit init(_owner);
-    init.MoveTo(x, y, z);
+    init.MoveTo(x, y, z, false);
+    init.SetSmooth();
+    init.SetFly();
     init.SetAnimation(Movement::ToGround);
     init.Launch();
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
@@ -366,7 +368,9 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
     TC_LOG_DEBUG("misc", "Creature (Entry: %u) landing point (ID: %u X: %f Y: %f Z: %f).", _owner->GetEntry(), id, x, y, z);
 
     Movement::MoveSplineInit init(_owner);
-    init.MoveTo(x, y, z);
+    init.MoveTo(x, y, z, false);
+    init.SetSmooth();
+    init.SetFly();
     init.SetAnimation(Movement::ToFly);
     init.Launch();
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
