@@ -702,7 +702,7 @@ public:
 
         amount = atoi(rankTxt);
         // try to find rank by name
-        if ((amount == 0) && (rankTxt[0] != '-') && !isdigit(rankTxt[0]))
+        if ((amount == 0) && (rankTxt[0] != '-') && !isdigit((unsigned char)rankTxt[0]))
         {
             std::string rankStr = rankTxt;
             std::wstring wrankStr;
