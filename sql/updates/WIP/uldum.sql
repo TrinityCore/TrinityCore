@@ -1,9 +1,11 @@
-
-DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (46557, 46661);
+-- Movement
+DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (46557, 46661, 46674);
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`) VALUES
 (46557, 0, 0, 1, 0),
-(46661, 0, 0, 1, 0);
+(46661, 0, 0, 1, 0),
+(46674, 0, 0, 1, 0);
 
+-- Spawns
 SET @CGUID := 259631;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+45;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
@@ -15,12 +17,22 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `P
 (@CGUID+5, 44833, 1, 440, 980, 1, 169, 0, 0, 0, -8920.7, -2261.42, 8.960933, 5.846853, 120, 0, 0, 0, 0, 0, 0, 0, 0, 15595), -- Adarrah
 (@CGUID+6, 46516, 1, 440, 980, 1, 169, 0, 0, 0, -8929.7, -2285.64, 8.995103, 1.58825, 120, 0, 0, 0, 0, 0, 0, 0, 0, 15595); -- Uldum Caravan Harness
 
+-- Template Updates
 UPDATE `creature_template` SET `VehicleId`= 1196 WHERE `entry`= 46521; -- Samir's Camel
 UPDATE `creature_template` SET `VehicleId`= 1197 WHERE `entry`= 46524; -- Mack's Camel
 UPDATE `creature_template` SET `VehicleId`= 1195 WHERE `entry`= 46519; -- Budd's Camel
 UPDATE `creature_template` SET `VehicleId`= 1199 WHERE `entry`= 46516; -- Uldum Caravan Harness
 UPDATE `creature_template` SET `npcflag`= 16777216 WHERE `entry`= 46517; -- Lady Humps
+UPDATE `creature_template` SET `flags_extra`= 128, `VehicleId`= 1203, `ScriptName`= 'npc_uldum_uldum_camera_bunny_04' WHERE `entry`= 46557; -- Uldum Camera Bunny 04
+UPDATE `creature_template` SET `flags_extra`= 128 WHERE `entry`= 46661; -- Beam Target Bunny
+UPDATE `creature_template` SET `flags_extra`= 128 WHERE `entry`= 46674; -- Beam Target Bunny 02
+UPDATE `creature_template` SET `VehicleId`= 1202 WHERE `entry`= 46543;
+UPDATE `creature_template` SET `VehicleId`= 1201 WHERE `entry`= 46540;
+UPDATE `creature_template` SET `VehicleId`= 1200 WHERE `entry`= 46538;
+UPDATE `creature_template` SET `VehicleId`= 1198 WHERE `entry`= 46596;
+UPDATE `creature_template` SET `VehicleId`= 1205 WHERE `entry`= 46546;
 
+-- Spellclicks
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (46521, 46524, 46519, 46516, 46517);
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
 (46521, 46598, 1, 1),
@@ -93,13 +105,6 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 (46596, 46547, 2, 1, 'Uldum Caravan Harness - Tanzar', 8, 0), -- Uldum Caravan Harness - Tanzar
 (46596, 46544, 0, 1, 'Uldum Caravan Harness - Turgore', 8, 0); -- Uldum Caravan Harness - Turgore
 
-UPDATE `creature_template` SET `VehicleId`= 1202 WHERE `entry`= 46543;
-UPDATE `creature_template` SET `VehicleId`= 1201 WHERE `entry`= 46540;
-UPDATE `creature_template` SET `VehicleId`= 1200 WHERE `entry`= 46538;
-UPDATE `creature_template` SET `VehicleId`= 1198 WHERE `entry`= 46596;
-UPDATE `creature_template` SET `VehicleId`= 1205 WHERE `entry`= 46546;
-UPDATE `creature_template` SET `VehicleId`= 1203 WHERE `entry`= 46557;
-
 
 UPDATE `spell_target_position` SET `Orientation`= 5.899213 WHERE `ID`= 86751;
 UPDATE `spell_target_position` SET `Orientation`= 1.570796 WHERE `ID`= 86752;
@@ -108,6 +113,7 @@ UPDATE `spell_target_position` SET `Orientation`= 1.64061 WHERE `ID`= 86754;
 UPDATE `spell_target_position` SET `Orientation`= 1.413717 WHERE `ID`= 86755;
 UPDATE `spell_target_position` SET `Orientation`= 1.815142 WHERE `ID`= 86756;
 UPDATE `spell_target_position` SET `Orientation`= 1.902409 WHERE `ID`= 86757;
+UPDATE `spell_target_position` SET `Orientation`= 1.570796 WHERE `ID`= 86758;
 UPDATE `spell_target_position` SET `Orientation`= 1.570796 WHERE `ID`= 86758;
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (46533, 46539, 46680, 46720, 46777);
@@ -119,34 +125,41 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (46720, 0, 0, 'How many coconuts can we get for the ugly one?', 12, 0, 100, 396, 0, 18259, 46774, 'Pygmy Ambusher to Uldum Camera Bunny 04'),
 (46777, 0, 0, 'THREE? He woulda paid five, easy... Dummy!', 12, 0, 100, 0, 0, 18259, 46839, 'Pygmy Ambusher to Pygmy Ambusher');
 
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (41055, 45206) AND `ScriptName`= 'spell_gen_clone_weapon';
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN
-('spell_gen_reverse_cast_ride_vehicle',
+('spell_uldum_initialize_uldum_intro',
+'spell_gen_reverse_cast_ride_vehicle',
 'spell_gen_revserse_cast_mirror_image',
 'spell_gen_mirror_image_aura',
 'spell_uldum_player_summon_camera',
-'spell_uldum_master_ping_all_actors');
-
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (41055, 45206) AND `ScriptName`= 'spell_gen_clone_weapon';
+'spell_uldum_master_ping_all_actors',
+'spell_uldum_master_summon_beam_target_02');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(86748, 'spell_uldum_initialize_uldum_intro'),
 (82721, 'spell_gen_reverse_cast_ride_vehicle'),
+(82315, 'spell_gen_reverse_cast_ride_vehicle'),
+(84301, 'spell_gen_reverse_cast_ride_vehicle'),
 (86783, 'spell_gen_revserse_cast_mirror_image'),
 (86784, 'spell_gen_mirror_image_aura'),
 (41055, 'spell_gen_clone_weapon'),
 (45206, 'spell_gen_clone_weapon'),
 (95747, 'spell_uldum_player_summon_camera'),
-(95747, 'spell_uldum_master_ping_all_actors');
+(95747, 'spell_uldum_master_ping_all_actors'),
+(86960, 'spell_uldum_master_summon_beam_target_02');
 
-DELETE FROM `conditions` WHERE `SourceEntry` IN (86784, 86815, 73448, 73449, 86944, 86943) AND `SourceTypeOrReferenceId`= 13;
+DELETE FROM `conditions` WHERE `SourceEntry` IN (86784, 86815, 73448, 73449, 86944, 86943, 86970) AND `SourceTypeOrReferenceId`= 13;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
 (13, 7, 86784, 0, 0, 31, 0, 3, 46554, 0, 0, 0, '', 'Mirror Image Aura - Target Cloned Image'),
 (13, 1, 86815, 0, 0, 31, 0, 3, 46557, 0, 0, 0, '', 'Ping Camera 00 - Target Uldum Camera Bunny 04'),
 (13, 1, 73448, 0, 0, 31, 0, 3, 46596, 0, 0, 0, '', 'Chains of Bondage - Target Uldum Caravan Harness'),
 (13, 1, 73449, 0, 0, 31, 0, 3, 46596, 0, 0, 0, '', 'Chains of Bondage - Target Uldum Caravan Harness'),
 (13, 1, 86944, 0, 0, 31, 0, 3, 46661, 0, 0, 0, '', 'Ping Beam Target - Target Beam Target Bunny'),
-(13, 1, 86943, 0, 0, 31, 0, 3, 46557, 0, 0, 0, '', 'Ping Camera 01 - Target Uldum Camera Dummy 04');
+(13, 1, 86943, 0, 0, 31, 0, 3, 46557, 0, 0, 0, '', 'Ping Camera 01 - Target Uldum Camera Dummy 04'),
+(13, 1, 86970, 0, 0, 31, 0, 3, 46557, 0, 0, 0, '', 'Ping Camera 02 - Target Uldum Camera Dummy 04');
 
-DELETE FROM `script_spline_chain_waypoints` WHERE `entry` IN (46557, 46661);
+-- Spline Chains
+DELETE FROM `script_spline_chain_waypoints` WHERE `entry` IN (46557, 46661, 46674);
 INSERT INTO `script_spline_chain_waypoints` (`entry`, `chainId`, `splineId`, `wpId`, `x`, `y`, `z`) VALUES
 (46557, 1, 0, 0, -8919,    -2272.5,  12.87063),
 (46557, 1, 0, 1, -8922.04, -2274.03, 14.4508),
@@ -156,21 +169,36 @@ INSERT INTO `script_spline_chain_waypoints` (`entry`, `chainId`, `splineId`, `wp
 (46557, 1, 1, 2, -8928.08, -2291.1,  16.9801),
 (46557, 1, 1, 3, -8932.17, -2279.79, 14.2697),
 (46557, 1, 1, 4, -8933.72, -2263.06, 12.12),
+--
 (46557, 2, 0, 0, -8933.72, -2263.06, 12.12),
 (46557, 2, 0, 1, -8928.93, -2256.39, 14.834),
 (46557, 2, 0, 2, -8929.32, -2252.51, 22.9079),
+--
+(46557, 3, 0, 0, -8892.82, -1756.05, 270),
+(46557, 3, 0, 1, -8893.39, -1756.05, 224.915),
+(46557, 3, 0, 2, -8910.17, -1763.45, 174.896),
+(46557, 3, 0, 3, -8927.54, -1768.3, 137.2482),
+--
 (46661, 1, 0, 0, -8954,    -2188,   10.96293),
 (46661, 1, 0, 1, -8951.25, -2174.06, 17.2353),
-(46661, 1, 0, 2, -8943.43, -2161.06, 54.8142);
+(46661, 1, 0, 2, -8943.43, -2161.06, 54.8142),
+--
+(46674, 1, 0, 0, -8888,    -1631,    278.0833),
+(46674, 1, 0, 1, -8889.82, -1654,    269.947),
+(46674, 1, 0, 2, -8902.86, -1655.57, 245.528),
+(46674, 1, 0, 3, -8937.08, -1666.77, 184.786),
+(46674, 1, 0, 4, -8948.27, -1692.13, 129.785),
+(46674, 1, 0, 5, -8954.04, -1717.66, 114.423),
+(46674, 1, 0, 6, -8957.57, -1734.65, 110.775);
 
-
-
-DELETE FROM `script_spline_chain_meta` WHERE `entry` IN (46557, 46661);
+DELETE FROM `script_spline_chain_meta` WHERE `entry` IN (46557, 46661, 46674);
 INSERT INTo `script_spline_chain_meta` (`entry`, `chainId`, `splineId`, `expectedDuration`, `msUntilNext`) VALUES
 (46557, 1, 0, 6556, 500),
 (46557, 1, 1, 15828, 0),
 (46557, 2, 0, 7047, 0),
-(46661, 1, 0, 7008, 0);
+(46557, 3, 0, 11685, 0),
+(46661, 1, 0, 7008, 0),
+(46674, 1, 0, 11627, 0);
 
 -- Tempfix for invisibility auras breaking vehicle entering
 -- Creature Budd's Camel 46519 SAI
@@ -199,17 +227,7 @@ SET @ENTRY := 46517;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 1, 73, 0, 100, 0, 0, 0, 0, 0, 134, 86751, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "On spellclick - Invoker: Cast spell Summon Adarrah (86751) to Action invoker // "),
-(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 134, 86752, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, " Linked - Invoker: Cast spell Summon Caravan (86752) to Action invoker // "),
-(@ENTRY, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 134, 86753, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, " Linked - Invoker: Cast spell Summon Lady Humps (86753) to Action invoker // "),
-(@ENTRY, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 134, 86754, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, " Linked - Invoker: Cast spell Summon Pack Mule (86754) to Action invoker // "),
-(@ENTRY, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 134, 86755, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, " Linked - Invoker: Cast spell Summon Budd's Camel (86755) to Action invoker // "),
-(@ENTRY, 0, 5, 6, 61, 0, 100, 0, 0, 0, 0, 0, 134, 86756, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, " Linked - Invoker: Cast spell Summon Samir's Camel (86756) to Action invoker // "),
-(@ENTRY, 0, 6, 7, 61, 0, 100, 0, 0, 0, 0, 0, 134, 86757, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, " Linked - Invoker: Cast spell Summon Mack's Camel (86757) to Action invoker // "),
-(@ENTRY, 0, 7, 8, 61, 0, 100, 0, 0, 0, 0, 0, 134, 86758, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, " Linked - Invoker: Cast spell Summon Adarrah's Camel (86758) to Action invoker // "),
-(@ENTRY, 0, 8, 9, 61, 0, 100, 0, 0, 0, 0, 0, 134, 86782, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, " Linked - Invoker: Cast spell Summon Cloned Image (86782) to Action invoker // "),
-(@ENTRY, 0, 9, 10, 61, 0, 100, 0, 0, 0, 0, 0, 134, 86942, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, " Linked - Invoker: Cast spell Summon Beam Target Bunny (86942) to Action invoker // "),
-(@ENTRY, 0, 10, 0, 61, 0, 100, 0, 0, 0, 0, 0, 134, 86748, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, " Linked - Invoker: Cast spell Initialize Uldum Intro (86748) to Action invoker // ");
+(@ENTRY, 0, 0, 0, 73, 0, 100, 0, 0, 0, 0, 0, 134, 86748, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "On spellclick - Invoker: Cast spell Initialize Uldum Intro (86748) to Action invoker // ");
 
 -- ----------------------- INTRO EVENT
 
@@ -218,9 +236,7 @@ SET @ENTRY := 46533;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 1, 37, 0, 100, 0, 0, 0, 0, 0, 44, 169, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set phase id to 169 // "),
-(@ENTRY, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 298, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 298 // "),
-(@ENTRY, 0, 2, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4653300, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4653300 // ");
+(@ENTRY, 0, 0, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4653300, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4653300 // ");
 
 -- TimedActionList  4653300 SAI
 SET @ENTRY := 4653300;
@@ -232,60 +248,45 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@ENTRY, 9, 3, 0, 0, 0, 100, 1, 3600, 3600, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8936.73, -2274.35, 9.00295, 0, "When in combat and timer at the begining between 3600 and 3600 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8936.73, -2274.35, 9.00295, 0) (point id 0) // "),
 (@ENTRY, 9, 4, 0, 0, 0, 100, 1, 2000, 2000, 0, 0, 11, 43671, 0, 0, 0, 0, 0, 19, 46546, 10, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 2000 and 2000 ms (and later repeats every 0 and 0 ms) - Self: Cast spell Ride Vehicle (43671) on Closest alive creature Adarrah's Camel (46546) in 10 yards // ");
 
--- Creature Uldum Camera Bunny 04 46557
-UPDATE `creature_template` SET `AIName`="", `ScriptName`= 'npc_uldum_camera_bunny_04' WHERE `entry`= 46557;
-
--- Creature Beam Target Bunny 46661 SAI
-SET @ENTRY := 46661;
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 1, 37, 0, 100, 0, 0, 0, 0, 0, 44, 169, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set phase id to 169 // "),
-(@ENTRY, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 289, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 289 // ");
-
 -- Creature Mack's Camel 46543 SAI
 SET @ENTRY := 46543;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 1, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
-(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 44, 169, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 169 // "),
-(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 298, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 298 // "),
-(@ENTRY, 0, 3, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4654300, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4654300 // ");
+(@ENTRY, 0, 0, 0, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
+(@ENTRY, 0, 1, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4654300, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4654300 // ");
 
 -- TimedActionList  4654300 SAI
 SET @ENTRY := 4654300;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 9, 0, 0, 0, 0, 100, 1, 13400, 13400, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8919.02, -2248.4, 9.001721, 0, "When in combat and timer at the begining between 13400 and 13400 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8919.02, -2248.4, 9.001721, 0) (point id 0) // "),
-(@ENTRY, 9, 1, 0, 0, 0, 100, 1, 12000, 12000, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8925.41, -2224.72, 9.001721, 0, "When in combat and timer at the begining between 12000 and 12000 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8925.41, -2224.72, 9.001721, 0) (point id 0) // ");
+(@ENTRY, 9, 0, 0, 0, 0, 100, 1, 13400, 13400, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8919.02, -2248.4, 9.00172, 0, "When in combat and timer at the begining between 13400 and 13400 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8919.02, -2248.4, 9.00172, 0) (point id 0) // "),
+(@ENTRY, 9, 1, 0, 0, 0, 100, 1, 12000, 12000, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8925.41, -2224.72, 9.00172, 0, "When in combat and timer at the begining between 12000 and 12000 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8925.41, -2224.72, 9.00172, 0) (point id 0) // "),
+(@ENTRY, 9, 2, 0, 0, 0, 100, 1, 9700, 9700, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8935.07, -2190.94, 9.001843, 0, "When in combat and timer at the begining between 9700 and 9700 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8935.07, -2190.94, 9.001843, 0) (point id 0) // ");
 
 -- Creature Samir's Camel 46540 SAI
 SET @ENTRY := 46540;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 1, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
-(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 44, 169, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 169 // "),
-(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 298, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 298 // "),
-(@ENTRY, 0, 3, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4654000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4654000 // ");
+(@ENTRY, 0, 0, 0, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
+(@ENTRY, 0, 1, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4654000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4654000 // ");
 
 -- TimedActionList  4654000 SAI
 SET @ENTRY := 4654000;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 9, 0, 0, 0, 0, 100, 1, 13400, 13400, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8923.14, -2255.77, 9.001721, 0, "When in combat and timer at the begining between 13400 and 13400 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8923.14, -2255.77, 9.001721, 0) (point id 0) // "),
-(@ENTRY, 9, 1, 0, 0, 0, 100, 1, 14500, 14500, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8927.98, -2228.35, 9.001721, 0, "When in combat and timer at the begining between 14500 and 14500 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8927.98, -2228.35, 9.001721, 0) (point id 0) // ");
+(@ENTRY, 9, 0, 0, 0, 0, 100, 1, 13400, 13400, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8923.14, -2255.77, 9.00172, 0, "When in combat and timer at the begining between 13400 and 13400 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8923.14, -2255.77, 9.00172, 0) (point id 0) // "),
+(@ENTRY, 9, 1, 0, 0, 0, 100, 1, 14500, 14500, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8927.98, -2228.35, 9.00172, 0, "When in combat and timer at the begining between 14500 and 14500 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8927.98, -2228.35, 9.00172, 0) (point id 0) // "),
+(@ENTRY, 9, 2, 0, 0, 0, 100, 1, 9000, 9000, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8930.85, -2208.77, 9.501721, 0, "When in combat and timer at the begining between 9000 and 9000 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8930.85, -2208.77, 9.501721, 0) (point id 0) // ");
 
 -- Creature Budd's Camel 46538 SAI
 SET @ENTRY := 46538;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 1, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
-(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 44, 169, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 169 // "),
-(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 298, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 298 // "),
-(@ENTRY, 0, 3, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4653800, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4653800 // ");
+(@ENTRY, 0, 0, 0, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
+(@ENTRY, 0, 1, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4653800, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4653800 // ");
 
 -- TimedActionList  4653800 SAI
 SET @ENTRY := 4653800;
@@ -299,45 +300,41 @@ SET @ENTRY := 46546;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 1, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
-(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 44, 169, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 169 // "),
-(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 298, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 298 // "),
-(@ENTRY, 0, 3, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4654600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4654600 // ");
+(@ENTRY, 0, 0, 0, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
+(@ENTRY, 0, 1, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4654600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4654600 // ");
 
 -- TimedActionList  4654600 SAI
 SET @ENTRY := 4654600;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (@ENTRY, 9, 0, 0, 0, 0, 100, 1, 10500, 10500, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8931.88, -2249.08, 9.00172, 0, "When in combat and timer at the begining between 10500 and 10500 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8931.88, -2249.08, 9.00172, 0) (point id 0) // "),
-(@ENTRY, 9, 1, 0, 0, 0, 100, 0, 9000, 9000, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8936.35, -2218.25, 9.00196, 0, "When in combat and timer at the begining between 9000 and 9000 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8936.35, -2218.25, 9.00196, 0) (point id 0) // ");
+(@ENTRY, 9, 1, 0, 0, 0, 100, 0, 9000, 9000, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8936.35, -2218.25, 9.00196, 0, "When in combat and timer at the begining between 9000 and 9000 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8936.35, -2218.25, 9.00196, 0) (point id 0) // "),
+(@ENTRY, 9, 2, 0, 0, 0, 100, 1, 3400, 3400, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8942.33, -2190.52, 9.001843, 0, "When in combat and timer at the begining between 3400 and 3400 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8942.33, -2190.52, 9.001843, 0) (point id 0) // ");
 
 -- Creature Lady Humps 46536 SAI
 SET @ENTRY := 46536;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 1, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
-(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 44, 169, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 169 // "),
-(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 298, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 298 // "),
-(@ENTRY, 0, 3, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4653600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4653600 // ");
+(@ENTRY, 0, 0, 0, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
+(@ENTRY, 0, 1, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4653600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4653600 // ");
 
 -- TimedActionList  4653600 SAI
 SET @ENTRY := 4653600;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 9, 0, 0, 0, 0, 100, 1, 13400, 13400, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8931.92, -2234.18, 9.001721, 0, "When in combat and timer at the begining between 13400 and 13400 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8931.92, -2234.18, 9.001721, 0) (point id 0) // "),
-(@ENTRY, 9, 1, 0, 0, 0, 100, 1, 11000, 11000, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8938.87, -2204.73, 9.001956, 0, "When in combat and timer at the begining between 11000 and 11000 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8938.87, -2204.73, 9.001956, 0) (point id 0) // ");
+(@ENTRY, 9, 0, 0, 0, 0, 100, 1, 13400, 13400, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8931.92, -2234.18, 9.00172, 0, "When in combat and timer at the begining between 13400 and 13400 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8931.92, -2234.18, 9.00172, 0) (point id 0) // "),
+(@ENTRY, 9, 1, 0, 0, 0, 100, 1, 11000, 11000, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8938.87, -2204.73, 9.00196, 0, "When in combat and timer at the begining between 11000 and 11000 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8938.87, -2204.73, 9.00196, 0) (point id 0) // "),
+(@ENTRY, 9, 2, 0, 0, 0, 100, 1, 12300, 12300, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8947.44, -2170.03, 9.001843, 0, "When in combat and timer at the begining between 12300 and 12300 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8947.44, -2170.03, 9.001843, 0) (point id 0) // ");
 
 -- Creature Cloned Image 46554 SAI
 SET @ENTRY := 46554;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 1, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
-(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 44, 169, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 169 // "),
-(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 298, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 298 // "),
-(@ENTRY, 0, 3, 4, 25, 0, 100, 0, 0, 0, 0, 0, 11, 86783, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On reset (e.g. after reaching home) - Self: Cast spell Reverse Cast Mirror Image (86783) on Self // "),
-(@ENTRY, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 4655400, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Start timed action list id #4655400 // ");
+(@ENTRY, 0, 0, 0, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
+(@ENTRY, 0, 1, 2, 25, 0, 100, 0, 0, 0, 0, 0, 11, 86783, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On reset (e.g. after reaching home) - Self: Cast spell Reverse Cast Mirror Image (86783) on Self // "),
+(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 4655400, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Start timed action list id #4655400 // ");
 
 -- TimedActionList  4655400 SAI
 SET @ENTRY := 4655400;
@@ -362,28 +359,24 @@ SET @ENTRY := 46537;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 1, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
-(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 44, 169, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 169 // "),
-(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 298, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 298 // "),
-(@ENTRY, 0, 3, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4653700, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4653700 // ");
+(@ENTRY, 0, 0, 0, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
+(@ENTRY, 0, 1, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4653700, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4653700 // ");
 
 -- TimedActionList  4653700 SAI
 SET @ENTRY := 4653700;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 9, 0, 0, 0, 0, 100, 1, 13500, 13500, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8922.56, -2250.76, 9.001721, 0, "When in combat and timer at the begining between 13500 and 13500 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8922.56, -2250.76, 9.001721, 0) (point id 0) // "),
-(@ENTRY, 9, 1, 0, 0, 0, 100, 1, 10000, 10000, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8927.56, -2229.44, 9.001721, 0, "When in combat and timer at the begining between 14500 and 14500 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8927.56, -2229.44, 9.001721, 0) (point id 0) // ");
+(@ENTRY, 9, 0, 0, 0, 0, 100, 1, 13500, 13500, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8922.56, -2250.76, 9.00172, 0, "When in combat and timer at the begining between 13500 and 13500 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8922.56, -2250.76, 9.00172, 0) (point id 0) // "),
+(@ENTRY, 9, 1, 0, 0, 0, 100, 1, 10000, 10000, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8927.56, -2229.44, 9.00172, 0, "When in combat and timer at the begining between 10000 and 10000 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8927.56, -2229.44, 9.00172, 0) (point id 0) // "),
+(@ENTRY, 9, 2, 0, 0, 0, 100, 1, 8500, 8500, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8934.89, -2199.31, 9.001843, 0, "When in combat and timer at the begining between 8500 and 8500 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8934.89, -2199.31, 9.001843, 0) (point id 0) // ");
 
 -- Creature Uldum Caravan Harness 46596 SAI
 SET @ENTRY := 46596;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 1, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
-(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 44, 169, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 169 // "),
-(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 298, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Set phase id to 298 // "),
-(@ENTRY, 0, 3, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4659600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4659600 // "),
-(@ENTRY, 0, 4, 0, 27, 0, 100, 0, 0, 0, 0, 0, 11, 73447, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "On passenger boarded (vehicle) - Self: Cast spell Chains of Bondage (73447) on Action invoker // ");
+(@ENTRY, 0, 0, 0, 37, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On AI initialize - Self: Set walk // "),
+(@ENTRY, 0, 1, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4659600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4659600 // ");
 
 -- TimedActionList  4659600 SAI
 SET @ENTRY := 4659600;
@@ -392,15 +385,33 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@ENTRY, 9, 0, 0, 0, 0, 100, 1, 17000, 17000, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8935.14, -2234.49, 9.00222, 0, "When in combat and timer at the begining between 17000 and 17000 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8935.14, -2234.49, 9.00222, 0) (point id 0) // "),
 (@ENTRY, 9, 1, 0, 0, 0, 100, 0, 19500, 19500, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -8939.94, -2211.02, 9.00196, 0, "When in combat and timer at the begining between 19500 and 19500 ms (and later repeats every 0 and 0 ms) - Self: Move to position (-8939.94, -2211.02, 9.00196, 0) (point id 0) // ");
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=46596 AND SourceId = 0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
-(22, 5, 46596, 0, 0, 31, 0, 3, 46544, 0, 0, "", "If Invoker is TYPEID_UNIT, entry is 46544 and guid is 0");
-
 -- Creature Budd 46539 SAI
 SET @ENTRY := 46539;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 67, 0, 30400, 30400, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Trigger timed event #0 in 30400 - 30400 ms // "),
-(@ENTRY, 0, 1, 0, 59, 0, 100, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On timed event 0 triggered - Self: Talk 0 // ");
+(@ENTRY, 0, 0, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 80, 4653900, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Start timed action list id #4653900 // ");
+
+-- TimedActionList  4653900 SAI
+SET @ENTRY := 4653900;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=9;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 9, 0, 0, 0, 0, 100, 1, 30400, 30400, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 30400 and 30400 ms (and later repeats every 0 and 0 ms) - Self: Talk 0 // "),
+(@ENTRY, 9, 1, 0, 0, 0, 100, 1, 2400, 2400, 0, 0, 5, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "When in combat and timer at the begining between 2400 and 2400 ms (and later repeats every 0 and 0 ms) - Self: Play emote ONESHOT_CHEER(DNR) (4) // ");
+
+-- Creature Harkor 46545 SAI
+SET @ENTRY := 46545;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 8, 0, 100, 0, 86843, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Ping All Actors 00 (86843) hit  - Self: Set event phase to 2 // "),
+(@ENTRY, 0, 1, 0, 60, 2, 100, 0, 6000, 6000, 17000, 17000, 5, 92, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 17000 and 17000 ms (for the first time, timer between 6000 and 6000 ms) - Self: Play emote ONESHOT_EAT_NOSHEATHE (92) // "),
+(@ENTRY, 0, 2, 0, 60, 2, 100, 0, 16000, 16000, 17000, 17000, 5, 92, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 17000 and 17000 ms (for the first time, timer between 16000 and 16000 ms) - Self: Play emote ONESHOT_EAT_NOSHEATHE (92) // ");
+
+-- Creature Beam Target Bunny 02 46674 SAI
+SET @ENTRY := 46674;
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`= @ENTRY;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 0, 60, 0, 100, 1, 2400, 2400, 0, 0, 11, 86970, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Every 0 and 0 ms (for the first time, timer between 2400 and 2400 ms) - Self: Cast spell Ping Camera 02 (86970) on Self // ");
 

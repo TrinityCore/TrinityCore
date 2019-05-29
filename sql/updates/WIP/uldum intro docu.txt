@@ -48,10 +48,6 @@
 18:40:37.896 -- move to X: -8936.73 Y: -2274.35 Z: 9.002953
 18:40:39.897 -- 43671 (Ride Vehicle) on Entry: 46546 (Adarrah's Camel) 
 
--------------- camera bunny 46557
-18:40:29.249 -- 86822 (Invisible Beam) on Entry: 46554 (Cloned Image)
-18:40:29.249 -- 82721 (Reverse Cast Ride Vehicle (HC) on Demon Creator)
-
 ---- harness  46596
 18:40:26.896 -- summon
 18:40:26.907 -- 73447 (Chains of Bondage) on 46544 (Turgore) 
@@ -63,45 +59,62 @@
 18:40:29.380 -- ping hit 86843 (Ping All Actors 00)
 18:40:42.730 -- move to -8919.02 Y: -2248.4 Z: 9.001721
 18:40:54.879 -- move to -8925.41 Y: -2224.72 Z: 9.001721
+18:41:04.580 -- move to -8935.07 Y: -2190.94 Z: 9.001843
+
 
 -- samirs camel
 18:40:29.380 -- ping hit
 18:40:42.730 -- -8923.14 Y: -2255.77 Z: 9.001721
 18:40:57.280 -- -8927.98 Y: -2228.35 Z: 9.001721
+18:41:08.263 -- -8930.85 Y: -2208.77 Z: 9.501721
+
 
 -- pack mule (46537)
 18:40:29.380 -- ping
 18:40:42.730 -- -8922.56 Y: -2250.76 Z: 9.001721
 18:40:52.463 -- -8927.56 Y: -2229.44 Z: 9.001721
+18:41:00.946 -- -8934.89 Y: -2199.31 Z: 9.001843
+
 
 -- lady humps
 18:40:29.380 -- ping
 18:40:42.730 -- -8931.92 Y: -2234.18 Z: 9.001721
 18:40:53.516 -- -8938.87 Y: -2204.73 Z: 9.001956
+18:41:05.813 -- -8947.44 Y: -2170.03 Z: 9.001843
 
 -- Adarrahs camel (46546)
 18:40:29.380 -- ping
 18:40:39.898 -- -8931.88 Y: -2249.08 Z: 9.001721
 18:40:48.730 -- -8936.35 Y: -2218.25 Z: 9.001956
+18:41:02.163 -- -8942.33 Y: -2190.52 Z: 9.001843
 
 -- budd (46539)
 18:40:29.380 -- ping
 18:40:59.714 -- talk 0
+18:41:02.163 -- emote Emote ID: 4 (OneShotCheer)
 
 -- budd's camel (46538)
 18:40:29.380 -- ping
 18:40:51.246 -- -8933.07 Y: -2249.24 Z: 9.001721 
 18:41:05.813 -- -8937.89 Y: -2211.88 Z: 9.001956
 
+-- harkor (46545)
+18:40:29.380 -- ping hit
+18:40:35.463 -- Emote ID: 92 (OneShotEatNoSheathe)
+18:40:45.163 -- Emote ID: 92 (OneShotEatNoSheathe)
+18:40:52.463 -- Emote ID: 92 (OneShotEatNoSheathe)
+18:41:02.163 -- Emote ID: 92 (OneShotEatNoSheathe)
+18:41:09.464 -- Emote ID: 92 (OneShotEatNoSheathe)
+
 -- camera bunny (46557)
 18:40:27.997 -- 86815 (Ping Camera 00) // no target
 
 18:40:29.247 -- 86815 (Ping Camera 00)
-
 18:40:29.249 -- 86822 (Invisible Beam)
 18:40:29.249 -- 82721 (Reverse Cast Ride Vehicle (HC) on Demon Creator)
 18:40:29.251 -- 86848 (Master Ping All Actors)
--- 18:40:29.380 -- 86843 (Ping All Actors 00)
+18:40:29.380 -- 86843 (Ping All Actors 00) hit vehicle
+
 18:40:40.313 -- move path:
 (MovementMonsterSpline) (MovementSpline) [0] Points: X: -8922.04 Y: -2274.03 Z: 14.4508
 (MovementMonsterSpline) (MovementSpline) [1] Points: X: -8915.17 Y: -2282.37 Z: 21.0023
@@ -113,11 +126,10 @@
 (MovementMonsterSpline) (MovementSpline) [2] Points: X: -8932.17 Y: -2279.79 Z: 14.2697
 (MovementMonsterSpline) (MovementSpline) [3] Points: X: -8933.72 Y: -2263.06 Z: 12.12
 (MoveTime: 15828)
-path 1 - time: 6787
-path 2 - time: 19273
 
-18:40:59.714 -- ping camera again?
-18:41:03.34 -- 86944 (Ping Beam Target) on Entry: 46661 (Beam Target Bunny)
+
+18:40:59.714 -- 86815 (Ping Camera 00) 
+18:41:03.34  -- 86944 (Ping Beam Target) on Entry: 46661 (Beam Target Bunny)
 
 (18:41:03.347 -- beam target bunny casts 86943 (Ping Camera 01))
 (18:41:03.347 -- beam target bunny moves up to 
@@ -129,5 +141,34 @@ path 2 - time: 19273
 (MovementMonsterSpline) (MovementSpline) [0] Points: X: -8928.93 Y: -2256.39 Z: 14.834
 (MovementMonsterSpline) (MovementSpline) [1] Points: X: -8929.32 Y: -2252.51 Z: 22.9079
 
-21:38:23.194 --> ping hit
-21:38:23.631 -- channel update 0
+18:41:11.896 -- 88267 (Fade to Black)
+18:41:12.946 -- 82315 (Reverse Cast Ride - Seat 2 - Generic)
+18:41:12.947 -- 86952 (Teleport Camera) 
+18:41:12.947 -- 86960 (Master Summon Beam Target 02)
+18:41:12.949 -- 86848 (Master Ping All Actors)
+
+>>>(18:41:15.396 -- 46674 (Beam Target Bunny 02) casts 86970 (Ping Camera 02))
+18:41:16.930 -- 84301 (Reverse Cast Ride Camera Bunny (Seat 3))
+18:41:16.931 -- 86822 (Invisible Beam) on 46674 (Beam Target Bunny 02)
+18:41:16.931 -- move along spline chain:
+
+-8892.82 Y: -1759.05 Z: 270
+(MovementMonsterSpline) (MovementSpline) [0] Points: X: -8893.39 Y: -1756.05 Z: 224.915
+(MovementMonsterSpline) (MovementSpline) [1] Points: X: -8910.17 Y: -1763.45 Z: 174.896
+(MovementMonsterSpline) (MovementSpline) [2] Points: X: -8927.54 Y: -1768.3 Z: 137.2482
+MoveTime: 11685
+
+
+
+-- 18:41:12.948 beam dummy 2 summoned
+18:41:15.396 -- 86970 (Ping Camera 02)
+18:41:16.830 -- move along path 
+
+Position: X: -8888 Y: -1631 Z: 278.0833
+(MovementMonsterSpline) (MovementSpline) [0] Points: X: -8889.82 Y: -1654 Z: 269.947
+(MovementMonsterSpline) (MovementSpline) [1] Points: X: -8902.86 Y: -1655.57 Z: 245.528
+(MovementMonsterSpline) (MovementSpline) [2] Points: X: -8937.08 Y: -1666.77 Z: 184.786
+(MovementMonsterSpline) (MovementSpline) [3] Points: X: -8948.27 Y: -1692.13 Z: 129.785
+(MovementMonsterSpline) (MovementSpline) [4] Points: X: -8954.04 Y: -1717.66 Z: 114.423
+(MovementMonsterSpline) (MovementSpline) [5] Points: X: -8957.57 Y: -1734.65 Z: 110.775
+MoveTime: 11627
