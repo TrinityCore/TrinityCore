@@ -277,7 +277,6 @@ public:
             if (Creature* frozenCore = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FROZEN_CORE)))
                 frozenCore->AI()->DoAction(ACTION_AHUNE_RETREAT);
             me->RemoveAurasDueToSpell(SPELL_AHUNES_SHIELD);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_31);
             DoCast(me, SPELL_SUBMERGED, true);
             DoCast(me, SPELL_AHUNE_SELF_STUN, true);
             DoCast(me, SPELL_STAY_SUBMERGED, true);
