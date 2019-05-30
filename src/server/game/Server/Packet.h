@@ -19,6 +19,7 @@
 #define PacketBaseWorld_h__
 
 #include "WorldPacket.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {

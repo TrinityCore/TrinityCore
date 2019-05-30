@@ -414,7 +414,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
         }
 
         // prevent invalid memory access/crash with custom opcodes
-        if (opcode >= NUM_OPCODE_HANDLERS)
+        if (uint16(opcode) >= NUM_OPCODE_HANDLERS)
         {
             CloseSocket();
             return ReadDataHandlerResult::Error;

@@ -17,6 +17,7 @@
 
 #include "LFGMgr.h"
 #include "Group.h"
+#include "LFGPackets.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -136,88 +137,44 @@ void BuildQuestReward(WorldPacket& data, Quest const* quest, Quest const* bonusQ
     }
 }
 
-void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgJoinOpcode(WorldPackets::LFG::LFGJoin& lfgJoin)
 {
     if (!sLFGMgr->isOptionEnabled(lfg::LFG_OPTION_ENABLE_DUNGEON_FINDER | lfg::LFG_OPTION_ENABLE_RAID_BROWSER) ||
         (GetPlayer()->GetGroup() && GetPlayer()->GetGroup()->GetLeaderGUID() != GetPlayer()->GetGUID() &&
         (GetPlayer()->GetGroup()->GetMembersCount() == MAXGROUPSIZE || !GetPlayer()->GetGroup()->isLFGGroup())))
-    {
-        recvData.rfinish();
         return;
-    }
 
-    uint32 roles;
-
-    recvData >> roles;
-    for (int32 i = 0; i < 3; ++i)
-        recvData.read_skip<uint32>();
-
-    uint32 commentLen = recvData.ReadBits(9);
-    uint32 numDungeons = recvData.ReadBits(24);
-
-    if (!numDungeons)
+    if (!lfgJoin.Slots.size())
     {
         TC_LOG_DEBUG("lfg", "CMSG_LFG_JOIN %s no dungeons selected", GetPlayerInfo().c_str());
-        recvData.rfinish();
         return;
     }
 
-    std::string comment = recvData.ReadString(commentLen);
-
     lfg::LfgDungeonSet newDungeons;
-    for (uint32 i = 0; i < numDungeons; ++i)
+    for (uint32 slot : lfgJoin.Slots)
     {
-        uint32 dungeon;
-        recvData >> dungeon;
-        dungeon &= 0x00FFFFFF;                             // remove the type from the dungeon entry
-        if (dungeon)
-            newDungeons.insert(dungeon);
+        uint32 dungeonId = slot & 0x00FFFFFF;
+        if (sLFGDungeonStore.LookupEntry(dungeonId))
+            newDungeons.insert(dungeonId);
     }
 
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_JOIN %s roles: %u, Dungeons: %u, Comment: %s",
-        GetPlayerInfo().c_str(), roles, uint8(newDungeons.size()), comment.c_str());
+    TC_LOG_DEBUG("lfg", "CMSG_LFG_JOIN %s roles: %u, Dungeons: %u", GetPlayerInfo().c_str(), lfgJoin.Roles, uint8(newDungeons.size()));
 
-    sLFGMgr->JoinLfg(GetPlayer(), uint8(roles), newDungeons, comment);
+    sLFGMgr->JoinLfg(GetPlayer(), uint8(lfgJoin.Roles), newDungeons, lfgJoin.Comment);
 }
 
-void WorldSession::HandleLfgLeaveOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgLeaveOpcode(WorldPackets::LFG::LFGLeave& lfgLeave)
 {
-    ObjectGuid leaveGuid;
     Group* group = GetPlayer()->GetGroup();
-    ObjectGuid guid = GetPlayer()->GetGUID();
-    ObjectGuid gguid = group ? group->GetGUID() : guid;
 
-    recvData.read_skip<uint32>();                          // Always 8
-    recvData.read_skip<uint32>();                          // Join date
-    recvData.read_skip<uint32>();                          // Always 3
-    recvData.read_skip<uint32>();                          // Queue Id
-
-    leaveGuid[4] = recvData.ReadBit();
-    leaveGuid[5] = recvData.ReadBit();
-    leaveGuid[0] = recvData.ReadBit();
-    leaveGuid[6] = recvData.ReadBit();
-    leaveGuid[2] = recvData.ReadBit();
-    leaveGuid[7] = recvData.ReadBit();
-    leaveGuid[1] = recvData.ReadBit();
-    leaveGuid[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(leaveGuid[7]);
-    recvData.ReadByteSeq(leaveGuid[4]);
-    recvData.ReadByteSeq(leaveGuid[3]);
-    recvData.ReadByteSeq(leaveGuid[2]);
-    recvData.ReadByteSeq(leaveGuid[6]);
-    recvData.ReadByteSeq(leaveGuid[0]);
-    recvData.ReadByteSeq(leaveGuid[1]);
-    recvData.ReadByteSeq(leaveGuid[5]);
-
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_LEAVE %s in group: %u sent guid " UI64FMTD ".",
-        GetPlayerInfo().c_str(), group ? 1 : 0, uint64(leaveGuid));
+    TC_LOG_DEBUG("lfg", "CMSG_LFG_LEAVE %s in group: %u sent guid %s.",
+        GetPlayerInfo().c_str(), group ? 1 : 0, lfgLeave.Ticket.RequesterGuid.ToString().c_str());
 
     // Check cheating - only leader can leave the queue
-    if (!group || group->GetLeaderGUID() == guid)
+    if (!group || group->GetLeaderGUID() == lfgLeave.Ticket.RequesterGuid)
     {
-        sLFGMgr->SetCallToArmsRewardEnligible(guid, false);
-        sLFGMgr->LeaveLfg(gguid);
+        sLFGMgr->SetCallToArmsRewardEnligible(lfgLeave.Ticket.RequesterGuid, false);
+        sLFGMgr->LeaveLfg(lfgLeave.Ticket.RequesterGuid);
     }
 }
 

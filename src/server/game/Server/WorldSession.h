@@ -76,6 +76,11 @@ class RBACData;
 
 namespace WorldPackets
 {
+    namespace LFG
+    {
+        class LFGJoin;
+        class LFGLeave;
+    }
 }
 
 enum AccountDataType
@@ -943,8 +948,8 @@ class TC_GAME_API WorldSession
         void HandleLfgGetLockInfoOpcode(WorldPacket& recvData);
         void SendLfgPlayerLockInfo();
         void SendLfgPartyLockInfo();
-        void HandleLfgJoinOpcode(WorldPacket& recvData);
-        void HandleLfgLeaveOpcode(WorldPacket& recvData);
+        void HandleLfgJoinOpcode(WorldPackets::LFG::LFGJoin& lfgJoin);
+        void HandleLfgLeaveOpcode(WorldPackets::LFG::LFGLeave& lfgleave);
         void HandleLfgSetRolesOpcode(WorldPacket& recvData);
         void HandleLfgProposalResultOpcode(WorldPacket& recvData);
         void HandleLfgSetBootVoteOpcode(WorldPacket& recvData);
