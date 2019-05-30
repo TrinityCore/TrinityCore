@@ -5270,6 +5270,50 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
     });
 
+    // Sonar Pulse (10n, 10h)
+    ApplySpellFix({
+        77672,
+        92412
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 3;
+    });
+
+    // Sonar Pulse (25n, 25h)
+    ApplySpellFix({
+        92411,
+        92413
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 4;
+    });
+
+    // Searing Flame
+    ApplySpellFix({ 77840 }, [](SpellInfo* spellInfo)
+    {
+
+        spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
+        spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+        spellInfo->Effects[EFFECT_1].Amplitude = 2000;
+    });
+
+    // Sonar Pulse
+    ApplySpellFix({
+        92526,
+        92531,
+        92532,
+        92533
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 4;
+    });
+
+    // Roaring Flame Breath
+    ApplySpellFix({ 78207 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
     // END OF BLACKWING DESCENT SPELLS
 
     // Living Bomb

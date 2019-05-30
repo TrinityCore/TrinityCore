@@ -25,6 +25,7 @@ ObjectData const creatureData[] =
 {
     { BOSS_MAGMAW,                          DATA_MAGMAW                         },
     { BOSS_OMNOTRON,                        DATA_OMNOTRON_DEFENSE_SYSTEM        },
+    { BOSS_ATRAMEDES,                       DATA_ATRAMEDES                      },
     { NPC_ELECTRON,                         DATA_ELECTRON                       },
     { NPC_MAGMATRON,                        DATA_MAGMATRON                      },
     { NPC_TOXITRON,                         DATA_TOXITRON                       },
@@ -38,6 +39,7 @@ ObjectData const creatureData[] =
 ObjectData const gameobjectData[] =
 {
     { GO_ANCIENT_BELL,          DATA_ANCIENT_BELL       },
+    { GO_ATHENAEUM_DOOR,        DATA_ATHENAEUM_DOOR     },
     { 0,                        0                       }  // END
 };
 
@@ -52,10 +54,18 @@ Position const MassiveCrashRightSpawnPosition   = { -288.59f,  -14.8472f,  211.2
 Position const MassiveCrashTargetPositionLeft   = { -304.181f, -90.1806f,  214.1653f };
 Position const MassiveCrashTargetPositionRight  = { -337.375f, -43.6615f,  212.0853f };
 Position const ColumnOfLightPosition            = { 231.3559f, -224.3038f, 74.95496f, 3.193953f };
+Position const AtramedesIntroSummonPosition     = { 288.325f,  -222.438f,  96.61964f, 3.089233f };
+Position const AtramedesRespawnPosition         = { 220.0347f, -224.3125f, 74.88777f, 3.141593f };
 
 enum Events
 {
-    EVENT_MAKE_ANCIENT_BELL_SELECTABLE = 1
+    EVENT_MAKE_ANCIENT_BELL_SELECTABLE = 1,
+    EVENT_RESPAWN_ATRAMEDES
+};
+
+enum Actions
+{
+    ACTION_START_ATRAMEDES_INTRO = 0
 };
 
 class instance_blackwing_descent : public InstanceMapScript
@@ -102,7 +112,7 @@ class instance_blackwing_descent : public InstanceMapScript
 
                         break;
                     case NPC_ROOM_STALKER:
-                        _roomStalkerGUIDs.insert(creature->GetGUID());
+                        _roomStalkerGUIDs.push_back(creature->GetGUID());
 
                         if (creature->GetExactDist2d(MassiveCrashTargetPositionLeft) < 1.0f)
                             _roomStalkerTargetDummyLeftGuid = creature->GetGUID();
@@ -118,6 +128,14 @@ class instance_blackwing_descent : public InstanceMapScript
 
                         if (Creature* nefarius = GetCreature(DATA_LORD_VICTOR_NEFARIUS_OMNOTRON))
                             nefarius->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_SONAR_PULSE:
+                    case NPC_TRACKING_FLAMES:
+                    case NPC_SONAR_PULSE_BOMB:
+                    case NPC_REVERBERATING_FLAME:
+                    case NPC_REVERBERATING_FLAME_FIRE:
+                        if (Creature* atramedes = GetCreature(DATA_ATRAMEDES))
+                            atramedes->AI()->JustSummoned(creature);
                         break;
                     default:
                         break;
@@ -194,6 +212,10 @@ class instance_blackwing_descent : public InstanceMapScript
                             _roomStalkerGUIDs.clear();
                         }
                         break;
+                    case DATA_ATRAMEDES:
+                        if (state == FAIL)
+                            _events.ScheduleEvent(EVENT_RESPAWN_ATRAMEDES, 30s);
+                        break;
                     default:
                         break;
                 }
@@ -218,6 +240,14 @@ class instance_blackwing_descent : public InstanceMapScript
                         break;
                     case DATA_ATRAMEDES_INTRO:
                         _atramedesIntro = data;
+
+                        if (Creature* atramedes = instance->SummonCreature(BOSS_ATRAMEDES, AtramedesIntroSummonPosition))
+                        {
+                            atramedes->SetDisableGravity(true);
+                            atramedes->SetHover(true);
+                            atramedes->AI()->DoAction(ACTION_START_ATRAMEDES_INTRO);
+                        }
+
                         SaveToDB();
                         break;
                     default:
@@ -306,6 +336,9 @@ class instance_blackwing_descent : public InstanceMapScript
                             if (Creature* column = GetCreature(DATA_COLUMN_OF_LIGHT))
                                 column->CastSpell(column, SPELL_COLUMN_OF_LIGHT);
                             break;
+                        case EVENT_RESPAWN_ATRAMEDES:
+                            instance->SummonCreature(BOSS_ATRAMEDES, AtramedesRespawnPosition);
+                            break;
                         default:
                             break;
                     }
@@ -322,6 +355,10 @@ class instance_blackwing_descent : public InstanceMapScript
             {
                 data >> _deadDwarfSpirits;
                 data >> _atramedesIntro;
+
+                // Atramedes' intro is done but he has not been defeated yet: spawm him at his respawn location
+                if (_atramedesIntro == DONE && GetBossState(DATA_ATRAMEDES) != DONE)
+                    instance->SummonCreature(BOSS_ATRAMEDES, AtramedesRespawnPosition);
             }
 
         private:
@@ -330,7 +367,7 @@ class instance_blackwing_descent : public InstanceMapScript
             ObjectGuid _massiveCrashRightDummyGUID;
             ObjectGuid _roomStalkerTargetDummyLeftGuid;
             ObjectGuid _roomStalkerTargetDummyRightGuid;
-            GuidSet _roomStalkerGUIDs;
+            GuidVector _roomStalkerGUIDs;
 
             uint8 _deadDwarfSpirits;
             uint8 _atramedesIntro;

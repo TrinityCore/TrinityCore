@@ -51,8 +51,10 @@ enum BWDDataTypes
     DATA_MAGMATRON, 
     DATA_TOXITRON, 
     DATA_ARCANOTRON,
-    DATA_LORD_VICTOR_NEFARIUS_OMNOTRON
+    DATA_LORD_VICTOR_NEFARIUS_OMNOTRON,
 
+    /*Atramedes*/
+    DATA_ATHENAEUM_DOOR,
 };
 
 enum BWDCreatureIds
@@ -92,6 +94,14 @@ enum BWDCreatureIds
     NPC_POWER_GENERATOR                 = 42733,
     NPC_LORD_VICTOR_NEFARIUS_OMNOTRON   = 49226,
 
+    /*Atramedes*/
+    NPC_SONAR_PULSE                     = 41546,
+    NPC_SONAR_PULSE_TARGET              = 49679,
+    NPC_SONAR_PULSE_BOMB                = 49623,
+    NPC_TRACKING_FLAMES                 = 41879,
+    NPC_REVERBERATING_FLAME             = 41962,
+    NPC_REVERBERATING_FLAME_FIRE        = 42001,
+
     /*Events*/
     NPC_SPIRIT_OF_MOLTENFIST            = 43125,
     NPC_SPIRIT_OF_ANVILRAGE             = 43128,
@@ -107,7 +117,8 @@ enum BWDCreatureIds
 enum BWDGameObjectIds
 {
     GO_INNER_CHAMBER_DOOR   = 205830,
-    GO_ANCIENT_BELL         = 204276
+    GO_ANCIENT_BELL         = 204276,
+    GO_ATHENAEUM_DOOR       = 208291,
 };
 
 enum BWDMisc

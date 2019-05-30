@@ -43,6 +43,8 @@ struct go_bwd_ancient_bell : public GameObjectAI
 
             if (Creature* column = _instance->GetCreature(DATA_COLUMN_OF_LIGHT))
                 column->DespawnOrUnsummon();
+
+            me->DespawnOrUnsummon(7s + 400ms);
         }
         return true;
     }
