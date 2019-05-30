@@ -465,13 +465,13 @@ struct boss_garothi_worldbreaker : public BossAI
          if (Creature* decimator = instance->GetCreature(DATA_DECIMATOR))
          {
              instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, decimator);
-             decimator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
+             decimator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE));
          }
 
          if (Creature* annihilator = instance->GetCreature(DATA_ANNIHILATOR))
          {
              instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, annihilator);
-             annihilator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
+             annihilator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE));
          }
      }
 };

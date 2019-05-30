@@ -314,13 +314,13 @@ class spell_ichoron_drained : public SpellScriptLoader
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
+                GetTarget()->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 GetTarget()->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
+                GetTarget()->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 GetTarget()->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
 
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)

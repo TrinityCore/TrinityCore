@@ -131,7 +131,6 @@ public:
                 DoCast(me, SPELL_TELEPORT);
 
                 DoCast(me, SPELL_SHIELD_OF_LIGHT);
-                me->AddUnitFlag(UNIT_FLAG_UNK_31);
 
                 DoCastAOE(SPELL_ACTIVATE_BEACONS);
 
