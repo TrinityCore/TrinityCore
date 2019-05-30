@@ -122,7 +122,7 @@ class npc_tiger_matriarch_credit : public CreatureScript
                             if (!(*itr)->IsSummon())
                                 continue;
 
-                            if (Unit* summoner = (*itr)->ToTempSummon()->GetSummoner())
+                            if (Unit* summoner = (*itr)->ToTempSummon()->GetSummonerUnit())
                                 if (!summoner->HasAura(SPELL_NO_SUMMON_AURA) && !summoner->HasAura(SPELL_SUMMON_ZENTABRA_TRIGGER)
                                     && !summoner->IsInCombat())
                                 {
@@ -166,9 +166,10 @@ class npc_tiger_matriarch : public CreatureScript
                 _events.ScheduleEvent(EVENT_NOSUMMON, 50s);
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summonerWO) override
             {
-                if (summoner->GetTypeId() != TYPEID_PLAYER || !summoner->GetVehicle())
+                Player* summoner = summonerWO->ToPlayer();
+                if (!summoner || !summoner->GetVehicle())
                     return;
 
                 _tigerGuid = summoner->GetVehicle()->GetBase()->GetGUID();
@@ -184,7 +185,7 @@ class npc_tiger_matriarch : public CreatureScript
                 if (victim->GetTypeId() != TYPEID_UNIT || !victim->IsSummon())
                     return;
 
-                if (Unit* vehSummoner = victim->ToTempSummon()->GetSummoner())
+                if (Unit* vehSummoner = victim->ToTempSummon()->GetSummonerUnit())
                 {
                     vehSummoner->RemoveAurasDueToSpell(SPELL_NO_SUMMON_AURA);
                     vehSummoner->RemoveAurasDueToSpell(SPELL_DETECT_INVIS);
@@ -203,7 +204,7 @@ class npc_tiger_matriarch : public CreatureScript
                 {
                     damage = 0;
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    if (Unit* vehSummoner = attacker->ToTempSummon()->GetSummoner())
+                    if (Unit* vehSummoner = attacker->ToTempSummon()->GetSummonerUnit())
                     {
                         vehSummoner->AddAura(SPELL_SUMMON_ZENTABRA_TRIGGER, vehSummoner);
                         vehSummoner->CastSpell(vehSummoner, SPELL_SUMMON_ZENTABRA, true);
@@ -240,7 +241,7 @@ class npc_tiger_matriarch : public CreatureScript
                             if (Unit* tiger = ObjectAccessor::GetUnit(*me, _tigerGuid))
                             {
                                 if (tiger->IsSummon())
-                                    if (Unit* vehSummoner = tiger->ToTempSummon()->GetSummoner())
+                                    if (Unit* vehSummoner = tiger->ToTempSummon()->GetSummonerUnit())
                                         me->AddAura(SPELL_NO_SUMMON_AURA, vehSummoner);
                             }
                             _events.ScheduleEvent(EVENT_NOSUMMON, 50s);

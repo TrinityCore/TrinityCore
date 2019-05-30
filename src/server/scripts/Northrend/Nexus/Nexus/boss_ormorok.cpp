@@ -208,7 +208,7 @@ public:
             _despawntimer = 0;
         }
 
-        void IsSummonedBy(Unit* owner) override
+        void IsSummonedBy(WorldObject* owner) override
         {
             switch (me->GetEntry())
             {

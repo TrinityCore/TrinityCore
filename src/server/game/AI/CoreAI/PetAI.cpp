@@ -48,38 +48,8 @@ PetAI::PetAI(Creature* creature) : CreatureAI(creature), _tracker(TIME_INTERVAL_
 {
     if (!me->GetCharmInfo())
         throw InvalidAIException("Creature doesn't have a valid charm info");
+
     UpdateAllies();
-}
-
-bool PetAI::NeedToStop()
-{
-    // This is needed for charmed creatures, as once their target was reset other effects can trigger threat
-    if (me->IsCharmed() && me->GetVictim() == me->GetCharmer())
-        return true;
-
-    // dont allow pets to follow targets far away from owner
-    if (Unit* owner = me->GetCharmerOrOwner())
-        if (owner->GetExactDist(me) >= (owner->GetVisibilityRange()-10.0f))
-            return true;
-
-    return !me->IsValidAttackTarget(me->GetVictim());
-}
-
-void PetAI::StopAttack()
-{
-    if (!me->IsAlive())
-    {
-        me->GetMotionMaster()->Clear();
-        me->GetMotionMaster()->MoveIdle();
-        me->CombatStop();
-        return;
-    }
-
-    me->AttackStop();
-    me->InterruptNonMeleeSpells(false);
-    me->GetCharmInfo()->SetIsCommandAttack(false);
-    ClearCharmInfoFlags();
-    HandleReturnMovement();
 }
 
 void PetAI::UpdateAI(uint32 diff)
@@ -258,46 +228,6 @@ void PetAI::UpdateAI(uint32 diff)
     me->UpdateSpeed(MOVE_WALK);
     me->UpdateSpeed(MOVE_FLIGHT);
 
-}
-
-void PetAI::UpdateAllies()
-{
-    _updateAlliesTimer = 10 * IN_MILLISECONDS; // update friendly targets every 10 seconds, lesser checks increase performance
-
-    Unit* owner = me->GetCharmerOrOwner();
-    if (!owner)
-        return;
-
-    Group* group = nullptr;
-    if (Player* player = owner->ToPlayer())
-        group = player->GetGroup();
-
-    // only pet and owner/not in group->ok
-    if (_allySet.size() == 2 && !group)
-        return;
-
-    // owner is in group; group members filled in already (no raid -> subgroupcount = whole count)
-    if (group && !group->isRaidGroup() && _allySet.size() == (group->GetMembersCount() + 2))
-        return;
-
-    _allySet.clear();
-    _allySet.insert(me->GetGUID());
-    if (group) // add group
-    {
-        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-        {
-            Player* Target = itr->GetSource();
-            if (!Target || !Target->IsInMap(owner) || !group->SameSubGroup(owner->ToPlayer(), Target))
-                continue;
-
-            if (Target->GetGUID() == owner->GetGUID())
-                continue;
-
-            _allySet.insert(Target->GetGUID());
-        }
-    }
-    else // remove group
-        _allySet.insert(owner->GetGUID());
 }
 
 void PetAI::KilledUnit(Unit* victim)
@@ -519,7 +449,6 @@ void PetAI::MovementInform(uint32 type, uint32 id)
             {
                 ClearCharmInfoFlags();
                 me->GetCharmInfo()->SetIsAtStay(true);
-                me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
             }
             break;
@@ -622,6 +551,77 @@ void PetAI::ReceiveEmote(Player* player, uint32 emote)
                 me->HandleEmoteCommand(EMOTE_ONESHOT_OMNICAST_GHOUL);
             break;
     }
+}
+
+bool PetAI::NeedToStop()
+{
+    // This is needed for charmed creatures, as once their target was reset other effects can trigger threat
+    if (me->IsCharmed() && me->GetVictim() == me->GetCharmer())
+        return true;
+
+    // dont allow pets to follow targets far away from owner
+    if (Unit* owner = me->GetCharmerOrOwner())
+        if (owner->GetExactDist(me) >= (owner->GetVisibilityRange() - 10.0f))
+            return true;
+
+    return !me->IsValidAttackTarget(me->GetVictim());
+}
+
+void PetAI::StopAttack()
+{
+    if (!me->IsAlive())
+    {
+        me->GetMotionMaster()->Clear();
+        me->GetMotionMaster()->MoveIdle();
+        me->CombatStop();
+        return;
+    }
+
+    me->AttackStop();
+    me->InterruptNonMeleeSpells(false);
+    me->GetCharmInfo()->SetIsCommandAttack(false);
+    ClearCharmInfoFlags();
+    HandleReturnMovement();
+}
+
+void PetAI::UpdateAllies()
+{
+    _updateAlliesTimer = 10 * IN_MILLISECONDS; // update friendly targets every 10 seconds, lesser checks increase performance
+
+    Unit* owner = me->GetCharmerOrOwner();
+    if (!owner)
+        return;
+
+    Group* group = nullptr;
+    if (Player* player = owner->ToPlayer())
+        group = player->GetGroup();
+
+    // only pet and owner/not in group->ok
+    if (_allySet.size() == 2 && !group)
+        return;
+
+    // owner is in group; group members filled in already (no raid -> subgroupcount = whole count)
+    if (group && !group->isRaidGroup() && _allySet.size() == (group->GetMembersCount() + 2))
+        return;
+
+    _allySet.clear();
+    _allySet.insert(me->GetGUID());
+    if (group) // add group
+    {
+        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+        {
+            Player* Target = itr->GetSource();
+            if (!Target || !Target->IsInMap(owner) || !group->SameSubGroup(owner->ToPlayer(), Target))
+                continue;
+
+            if (Target->GetGUID() == owner->GetGUID())
+                continue;
+
+            _allySet.insert(Target->GetGUID());
+        }
+    }
+    else // remove group
+        _allySet.insert(owner->GetGUID());
 }
 
 void PetAI::ClearCharmInfoFlags()
