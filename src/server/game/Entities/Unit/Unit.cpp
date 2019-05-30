@@ -12591,13 +12591,16 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     }
 
     // Default exit position to vehicle position and use the current orientation
-    Position pos = vehicle->GetBase()->GetPosition();
-    pos.SetOrientation(GetOrientation());
+    Position pos;
     // If we ask for a specific exit position, use that one. Otherwise allow scripts to modify it
     if (exitPosition)
         pos = *exitPosition;
     else
+    {
+        pos = vehicle->GetBase()->GetPosition();
+        pos.SetOrientation(GetOrientation());
         sScriptMgr->ModifyVehiclePassengerExitPos(this, vehicle, pos);
+    }
 
     float height = pos.GetPositionZ() + vehicle->GetBase()->GetCollisionHeight();
 
