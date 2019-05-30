@@ -20,6 +20,7 @@
 #define TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 
 #include "MoveSplineFlag.h"
+#include "ObjectGuid.h"
 #include <vector>
 
 class Unit;
@@ -28,22 +29,21 @@ namespace Movement
 {
     typedef std::vector<Vector3> PointsArray;
 
-    union FacingInfo
+    struct FacingInfo
     {
-        struct {
+        struct
+        {
             float x, y, z;
         } f;
-        uint64  target;
-        float   angle;
+        ObjectGuid target;
+        float angle;
 
-        FacingInfo(float o) : angle(o) { }
-        FacingInfo(uint64 t) : target(t) { }
-        FacingInfo() { }
+        FacingInfo() : angle(0.0f) { f.x = f.y = f.z = 0.0f; }
     };
 
     struct MoveSplineInitArgs
     {
-        MoveSplineInitArgs(size_t path_capacity = 16);
+        explicit MoveSplineInitArgs(size_t path_capacity = 16);
         ~MoveSplineInitArgs();
 
         PointsArray path;
@@ -55,6 +55,7 @@ namespace Movement
         float time_perc;
         uint32 splineId;
         float initialOrientation;
+        bool walk;
         bool HasVelocity;
         bool TransformForTransport;
 

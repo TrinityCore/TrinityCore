@@ -164,9 +164,9 @@ namespace Movement
         STR(TransportExit      ), // 0x00010000
         STR(Unknown3           ), // 0x00020000,
         STR(Unknown4           ), // 0x00040000,
-        STR(OrientationInversed), // 0x00080000,           // Appears With Runmode Flag, Nodes ), // 1, Handles Orientation
+        STR(Backward           ), // 0x00080000,           // Appears With Runmode Flag, Nodes ), // 1, Handles Orientation
         STR(SmoothGroundPath   ), // 0x00100000,
-        STR(Walkmode           ), // 0x00200000,
+        STR(CanSwim            ), // 0x00200000,
         STR(UncompressedPath   ), // 0x00400000,
         STR(Unknown6           ), // 0x00800000,
         STR(Animation          ), // 0x01000000,           // Animationid (0...3), Uint32 Time, Not Compartible With Trajectory And Fall Movement

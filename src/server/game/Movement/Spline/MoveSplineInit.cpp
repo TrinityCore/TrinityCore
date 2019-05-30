@@ -92,17 +92,17 @@ namespace Movement
         move_spline.onTransport = (unit->GetTransGUID() != 0);
 
         uint32 moveFlags = unit->m_movementInfo.GetMovementFlags();
-        moveFlags |= MOVEMENTFLAG_FORWARD;
-
-        if (moveFlags & MOVEMENTFLAG_ROOT)
-            moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
+        if (!args.flags.backward)
+            moveFlags = (moveFlags & ~MOVEMENTFLAG_BACKWARD) | MOVEMENTFLAG_FORWARD;
+        else
+            moveFlags = (moveFlags & ~MOVEMENTFLAG_FORWARD) | MOVEMENTFLAG_BACKWARD;
 
         if (!args.HasVelocity)
         {
             // If spline is initialized with SetWalk method it only means we need to select
             // walk move speed for it but not add walk flag to unit
             uint32 moveFlagsForSpeed = moveFlags;
-            if (args.flags.walkmode)
+            if (args.walk)
                 moveFlagsForSpeed |= MOVEMENTFLAG_WALKING;
             else
                 moveFlagsForSpeed &= ~MOVEMENTFLAG_WALKING;
@@ -179,10 +179,11 @@ namespace Movement
     {
         args.splineId = splineIdGen.NewId();
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
-        args.TransformForTransport = unit->GetTransGUID() != 0;
+        args.TransformForTransport = !unit->GetTransGUID().IsEmpty();
         // mix existing state into new
-        args.flags.walkmode = unit->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);
-        args.flags.flying = unit->m_movementInfo.HasMovementFlag(MovementFlags(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));
+        args.flags.canSwim = unit->CanSwim();
+        args.walk = unit->HasUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        args.flags.flying = unit->HasUnitMovementFlag(MovementFlags(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));
         args.flags.smoothGroundPath = true; // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
     }
 
@@ -201,7 +202,7 @@ namespace Movement
     void MoveSplineInit::SetFacing(Unit const* target)
     {
         args.flags.EnableFacingTarget();
-        args.facing.target = target->GetGUID().GetRawValue();
+        args.facing.target = target->GetGUID();
     }
 
     void MoveSplineInit::SetFacing(float angle)

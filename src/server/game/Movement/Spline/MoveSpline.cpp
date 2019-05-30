@@ -60,7 +60,7 @@ Location MoveSpline::ComputePosition() const
             c.orientation = std::atan2(hermite.y, hermite.x);
         }
 
-        if (splineflags.orientationInversed)
+        if (splineflags.backward)
             c.orientation = -c.orientation;
     }
     return c;
@@ -334,7 +334,7 @@ std::string MoveSpline::ToString() const
     if (splineflags.final_angle)
         str << "facing  angle: " << facing.angle;
     else if (splineflags.final_target)
-        str << "facing target: " << facing.target;
+        str << "facing target: " << facing.target.ToString();
     else if (splineflags.final_point)
         str << "facing  point: " << facing.f.x << " " << facing.f.y << " " << facing.f.z;
     str << std::endl;

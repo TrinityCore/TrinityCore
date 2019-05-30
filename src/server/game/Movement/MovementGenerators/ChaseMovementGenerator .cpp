@@ -185,7 +185,6 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
             init.MovebyPath(_path->GetPath());
             init.SetWalk(false);
             init.SetFacing(target);
-
             init.Launch();
         }
     }

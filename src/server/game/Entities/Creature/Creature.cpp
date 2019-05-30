@@ -2907,10 +2907,7 @@ void Creature::UpdateMovementFlags()
         RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
 
     if (GetMovementTemplate().IsSwimAllowed())
-    {
         SetSwim(IsInWater());
-        SetDisableGravity(IsUnderWater());
-    }
 }
 
 void Creature::SetObjectScale(float scale)

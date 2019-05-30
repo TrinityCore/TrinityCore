@@ -48,9 +48,9 @@ namespace Movement
             TransportExit       = 0x00010000,
             Unknown3            = 0x00020000,           // NOT VERIFIED
             Unknown4            = 0x00040000,           // NOT VERIFIED
-            OrientationInversed = 0x00080000,
+            Backward            = 0x00080000,
             SmoothGroundPath    = 0x00100000,
-            Walkmode            = 0x00200000,
+            CanSwim             = 0x00200000,
             UncompressedPath    = 0x00400000,
             Unknown6            = 0x00800000,           // NOT VERIFIED
             Animation           = 0x01000000,           // Plays animation after some time passed
@@ -69,7 +69,7 @@ namespace Movement
             // flags that shouldn't be appended into SMSG_MONSTER_MOVE\SMSG_MONSTER_MOVE_TRANSPORT packet, should be more probably
             Mask_No_Monster_Move = Mask_Final_Facing | Mask_Animations | Done,
             // Unused, not suported flags
-            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown0|Unknown2|Unknown3|Unknown4|Unknown6|Unknown7|Unknown8|Unknown9
+            Mask_Unused         = No_Spline|Frozen|Unknown0|Unknown2|Unknown3|Unknown4|Unknown6|Unknown7|Unknown8|Unknown9
         };
 
         inline uint32& raw() { return (uint32&)*this; }
@@ -125,9 +125,9 @@ namespace Movement
         bool transportExit       : 1;
         bool unknown3            : 1;
         bool unknown4            : 1;
-        bool orientationInversed : 1;
+        bool backward            : 1;
         bool smoothGroundPath    : 1;
-        bool walkmode            : 1;
+        bool canSwim             : 1;
         bool uncompressedPath    : 1;
         bool unknown6            : 1;
         bool animation           : 1;
