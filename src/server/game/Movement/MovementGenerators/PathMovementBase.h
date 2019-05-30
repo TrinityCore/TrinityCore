@@ -19,6 +19,7 @@
 #define PathMovementBase_h__
 
 #include "Define.h"
+#include <sstream>
 
 template<class Entity, class BasePath>
 class PathMovementBase
@@ -28,6 +29,14 @@ class PathMovementBase
         virtual ~PathMovementBase() { };
 
         uint32 GetCurrentNode() const { return _currentNode; }
+
+        virtual std::string GetDebugInfo() const
+        {
+            std::stringstream sstr;
+            sstr << std::boolalpha
+                << "Current Node: " << GetCurrentNode();
+            return sstr.str();
+        };
 
     protected:
         BasePath _path;
