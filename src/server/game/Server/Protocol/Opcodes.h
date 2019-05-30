@@ -26,14 +26,8 @@
 #include "Define.h"
 #include <string>
 
-/// List of Opcodes
-enum Opcodes
+enum Opcodes : uint16
 {
-    NUM_OPCODE_HANDLERS                               = (0x7FFF+1),
-    UNKNOWN_OPCODE                                    = (0xFFFF+1),
-    NULL_OPCODE                                       = 0,
-    COMPRESSED_OPCODE_MASK                            = 0x8000,
-
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x0205,
     CMSG_ACCEPT_TRADE                                 = 0x7110,
     CMSG_ACTIVATETAXI                                 = 0x6E06,
@@ -1384,6 +1378,15 @@ enum Opcodes
     SMSG_ZONE_UNDER_ATTACK                            = 0x0A06,
 };
 
+enum OpcodeMisc : uint16
+{
+    NUM_OPCODE_HANDLERS = (0x7FFF + 1),
+    NULL_OPCODE         = 0x0000
+};
+
+typedef Opcodes OpcodeClient;
+typedef Opcodes OpcodeServer;
+
 /// Player state
 enum SessionStatus
 {
@@ -1403,51 +1406,66 @@ enum PacketProcessing
 };
 
 class WorldSession;
-class WorldPacket;
 class WorldSession;
 
-typedef void(WorldSession::*pOpcodeHandler)(WorldPacket& recvPacket);
-
-struct OpcodeHandler
+class OpcodeHandler
 {
-    OpcodeHandler() { }
-    OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, pOpcodeHandler _handler)
-        : Handler(_handler), Name(_name), Status(_status), ProcessingPlace(_processing) {}
+public:
+    OpcodeHandler(char const* name, SessionStatus status) : Name(name), Status(status) { }
+    virtual ~OpcodeHandler() { }
 
-    pOpcodeHandler Handler;
     char const* Name;
     SessionStatus Status;
+};
+
+class ClientOpcodeHandler : public OpcodeHandler
+{
+public:
+    ClientOpcodeHandler(char const* name, SessionStatus status, PacketProcessing processing)
+        : OpcodeHandler(name, status), ProcessingPlace(processing) { }
+
+    virtual void Call(WorldSession* session, WorldPacket& packet) const = 0;
+
     PacketProcessing ProcessingPlace;
+};
+
+class ServerOpcodeHandler : public OpcodeHandler
+{
+public:
+    ServerOpcodeHandler(char const* name, SessionStatus status)
+        : OpcodeHandler(name, status) { }
 };
 
 class OpcodeTable
 {
-    public:
-        OpcodeTable();
-        ~OpcodeTable();
+public:
+    OpcodeTable();
 
-        void Initialize();
+    OpcodeTable(OpcodeTable const&) = delete;
+    OpcodeTable& operator=(OpcodeTable const&) = delete;
 
-        OpcodeHandler const* operator[](uint32 index) const
-        {
-            return _internalTable[index];
-        }
+    ~OpcodeTable();
 
-    private:
-        template<bool isInValidRange, bool isNonZero>
-        void ValidateAndSetOpcode(uint16 opcode, char const* name, SessionStatus status, PacketProcessing processing, pOpcodeHandler handler);
+    void Initialize();
 
-        // Prevent copying this structure
-        OpcodeTable(OpcodeTable const&) = delete;
-        OpcodeTable& operator=(OpcodeTable const&) = delete;
+    ClientOpcodeHandler const* operator[](Opcodes index) const
+    {
+        return _internalTableClient[index];
+    }
 
-        OpcodeHandler* _internalTable[NUM_OPCODE_HANDLERS];
+private:
+    template<typename Handler, Handler HandlerFunction>
+    void ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing);
+
+    void ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status);
+
+    ClientOpcodeHandler* _internalTableClient[NUM_OPCODE_HANDLERS];
 };
 
 extern OpcodeTable opcodeTable;
 
 /// Lookup opcode name for human understandable logging
-std::string GetOpcodeNameForLogging(uint32 id);
+std::string GetOpcodeNameForLogging(Opcodes opcode);
 
 #endif
 /// @}

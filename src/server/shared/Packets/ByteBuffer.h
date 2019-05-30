@@ -76,7 +76,11 @@ class TC_SHARED_API ByteBuffer
         }
 
         ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(std::move(buf._storage)) { }
+            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(std::move(buf._storage))
+        {
+            buf._rpos = 0;
+            buf._wpos = 0;
+        }
 
         ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
             _bitpos(right._bitpos), _curbitval(right._curbitval), _storage(right._storage) { }
@@ -92,6 +96,20 @@ class TC_SHARED_API ByteBuffer
                 _bitpos = right._bitpos;
                 _curbitval = right._curbitval;
                 _storage = right._storage;
+            }
+
+            return *this;
+        }
+
+        ByteBuffer& operator=(ByteBuffer&& right)
+        {
+            if (this != &right)
+            {
+                _rpos = right._rpos;
+                right._rpos = 0;
+                _wpos = right._wpos;
+                right._wpos = 0;
+                _storage = std::move(right._storage);
             }
 
             return *this;
@@ -526,6 +544,11 @@ class TC_SHARED_API ByteBuffer
         {
             if (ressize > size())
                 _storage.reserve(ressize);
+        }
+
+        void shrink_to_fit()
+        {
+            _storage.shrink_to_fit();
         }
 
         void append(const char *src, size_t cnt)

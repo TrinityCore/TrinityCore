@@ -5500,7 +5500,7 @@ bool Movement::PrintInvalidSequenceElement(MovementStatusElements const element,
     return false;
 }
 
-Movement::PacketSender::PacketSender(Unit* unit, Opcodes serverControl, Opcodes playerControl, Opcodes broadcast /*= SMSG_PLAYER_MOVE*/, ExtraMovementStatusElement* extras /*= nullptr*/)
+Movement::PacketSender::PacketSender(Unit* unit, uint16 serverControl, uint16 playerControl, uint16 broadcast /*= SMSG_PLAYER_MOVE*/, ExtraMovementStatusElement* extras /*= nullptr*/)
     : _extraElements(extras), _unit(unit)
 {
     if (unit->GetTypeId() == TYPEID_PLAYER && unit->ToPlayer()->m_unitMovedByMe->GetTypeId() == TYPEID_PLAYER)

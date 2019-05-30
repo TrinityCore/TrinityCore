@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,17 +24,16 @@
 #include "ByteBuffer.h"
 #include <chrono>
 
-struct z_stream_s;
-
 class WorldPacket : public ByteBuffer
 {
     public:
                                                             // just container for later use
-        WorldPacket() : ByteBuffer(0), m_opcode(UNKNOWN_OPCODE)
+        WorldPacket() : ByteBuffer(0), m_opcode(NULL_OPCODE)
         {
         }
 
-        explicit WorldPacket(Opcodes opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode) { }
+        WorldPacket(uint16 opcode, size_t res = 200) : ByteBuffer(res),
+            m_opcode(opcode) { }
 
         WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode)
         {
@@ -53,33 +52,39 @@ class WorldPacket : public ByteBuffer
             if (this != &right)
             {
                 m_opcode = right.m_opcode;
-                ByteBuffer::operator =(right);
+                ByteBuffer::operator=(right);
             }
 
             return *this;
         }
 
-        WorldPacket(Opcodes opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode) { }
+        WorldPacket& operator=(WorldPacket&& right)
+        {
+            if (this != &right)
+            {
+                m_opcode = right.m_opcode;
+                ByteBuffer::operator=(std::move(right));
+            }
 
-        void Initialize(Opcodes opcode, size_t newres=200)
+            return *this;
+        }
+
+        WorldPacket(uint16 opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode) { }
+
+        void Initialize(uint16 opcode, size_t newres = 200)
         {
             clear();
             _storage.reserve(newres);
             m_opcode = opcode;
         }
 
-        Opcodes GetOpcode() const { return m_opcode; }
-        void SetOpcode(Opcodes opcode) { m_opcode = opcode; }
-        bool IsCompressed() const { return (m_opcode & COMPRESSED_OPCODE_MASK) != 0; }
-        void Compress(z_stream_s* compressionStream);
-        void Compress(z_stream_s* compressionStream, WorldPacket const* source);
+        uint16 GetOpcode() const { return m_opcode; }
+        void SetOpcode(uint16 opcode) { m_opcode = opcode; }
 
         std::chrono::steady_clock::time_point GetReceivedTime() const { return m_receivedTime; }
 
     protected:
-        Opcodes m_opcode;
-        void Compress(void* dst, uint32 *dst_size, const void* src, int src_size);
-        z_stream_s* _compressionStream;
+        uint16 m_opcode;
         std::chrono::steady_clock::time_point m_receivedTime; // only set for a specific set of opcodes, for performance reasons.
 };
 

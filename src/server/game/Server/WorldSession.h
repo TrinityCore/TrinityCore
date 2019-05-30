@@ -27,6 +27,7 @@
 #include "DatabaseEnvFwd.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
+#include "Packet.h"
 #include "QueryCallbackProcessor.h"
 #include "SharedDefines.h"
 #include <map>
@@ -71,6 +72,10 @@ struct LfgUpdateData;
 namespace rbac
 {
 class RBACData;
+}
+
+namespace WorldPackets
+{
 }
 
 enum AccountDataType
@@ -607,7 +612,7 @@ class TC_GAME_API WorldSession
         void HandleGameObjectQueryOpcode(WorldPacket& recvPacket);
 
         void HandleMoveWorldportAckOpcode(WorldPacket& recvPacket);
-        void HandleMoveWorldportAckOpcode();                // for server-side calls
+        void HandleMoveWorldportAck();                // for server-side calls
 
         void HandleMovementOpcodes(WorldPacket& recvPacket);
         void HandleSetActiveMoverOpcode(WorldPacket& recvData);

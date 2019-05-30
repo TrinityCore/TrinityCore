@@ -104,9 +104,6 @@ bool WorldSocket::Update()
     MessageBuffer buffer(_sendBufferSize);
     while (_bufferQueue.Dequeue(queued))
     {
-        if (_worldSession && queued->size() > 0x400 && !queued->IsCompressed())
-            queued->Compress(_worldSession->GetCompressionStream());
-
         ServerPktHeader header(queued->size() + 2, queued->GetOpcode());
         if (queued->NeedsEncryption())
             _authCrypt.EncryptSend(header.header, header.getHeaderLength());
@@ -335,8 +332,8 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
     if (_initialized)
     {
         ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
+        OpcodeClient opcode = static_cast<OpcodeClient>(header->cmd);
 
-        Opcodes opcode = Opcodes(header->cmd);
 
         WorldPacket packet(opcode, std::move(_packetBuffer));
         WorldPacket* packetToQueue;
@@ -426,7 +423,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
         OpcodeHandler const* handler = opcodeTable[opcode];
         if (!handler)
         {
-            TC_LOG_ERROR("network.opcode", "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), _worldSession->GetPlayerInfo().c_str());
+            TC_LOG_ERROR("network.opcode", "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet.GetOpcode())).c_str(), _worldSession->GetPlayerInfo().c_str());
             return ReadDataHandlerResult::Error;
         }
 
@@ -455,7 +452,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
     return ReadDataHandlerResult::Ok;
 }
 
-void WorldSocket::LogOpcodeText(uint16 opcode, std::unique_lock<std::mutex> const& guard) const
+void WorldSocket::LogOpcodeText(OpcodeClient opcode, std::unique_lock<std::mutex> const& guard) const
 {
     if (!guard)
     {
@@ -470,7 +467,7 @@ void WorldSocket::LogOpcodeText(uint16 opcode, std::unique_lock<std::mutex> cons
 
 void WorldSocket::SendPacketAndLogOpcode(WorldPacket& packet)
 {
-    TC_LOG_TRACE("network.opcode", "S->C: %s %s", GetRemoteIpAddress().to_string().c_str(), GetOpcodeNameForLogging(packet.GetOpcode()).c_str());
+    TC_LOG_TRACE("network.opcode", "S->C: %s %s", GetRemoteIpAddress().to_string().c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
     SendPacket(packet);
 }
 

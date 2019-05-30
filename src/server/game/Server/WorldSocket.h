@@ -33,6 +33,11 @@
 using boost::asio::ip::tcp;
 class EncryptablePacket;
 
+namespace WorldPackets
+{
+    class ServerPacket;
+}
+
 #pragma pack(push, 1)
 
 struct ClientPktHeader
@@ -88,7 +93,7 @@ private:
 
     /// writes network.opcode log
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
-    void LogOpcodeText(uint16 opcode, std::unique_lock<std::mutex> const& guard) const;
+    void LogOpcodeText(OpcodeClient opcode, std::unique_lock<std::mutex> const& guard) const;
     /// sends and logs network.opcode without accessing WorldSession
     void SendPacketAndLogOpcode(WorldPacket& packet);
     void HandleSendAuthSession();
