@@ -178,65 +178,15 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPackets::LFG::LFGLeave& lfgLeave)
     }
 }
 
-void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgProposalResultOpcode(WorldPackets::LFG::LFGProposalResponse& lfgProposalResponse)
 {
-    uint32 proposalID;  // Proposal ID
-    bool accept;
-
-    ObjectGuid guid1;
-    ObjectGuid guid2;
-
-    recvData >> proposalID;
-    recvData.read_skip<uint32>();
-    recvData.read_skip<uint32>();
-    recvData.read_skip<uint32>();
-
-    guid2[4] = recvData.ReadBit();
-    guid2[5] = recvData.ReadBit();
-    guid2[0] = recvData.ReadBit();
-    guid2[6] = recvData.ReadBit();
-    guid2[2] = recvData.ReadBit();
-    guid2[7] = recvData.ReadBit();
-    guid2[1] = recvData.ReadBit();
-    guid2[3] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid2[7]);
-    recvData.ReadByteSeq(guid2[4]);
-    recvData.ReadByteSeq(guid2[3]);
-    recvData.ReadByteSeq(guid2[2]);
-    recvData.ReadByteSeq(guid2[6]);
-    recvData.ReadByteSeq(guid2[0]);
-    recvData.ReadByteSeq(guid2[1]);
-    recvData.ReadByteSeq(guid2[5]);
-
-    guid1[7] = recvData.ReadBit();
-    accept =  recvData.ReadBit();
-    guid1[1] = recvData.ReadBit();
-    guid1[3] = recvData.ReadBit();
-    guid1[0] = recvData.ReadBit();
-    guid1[5] = recvData.ReadBit();
-    guid1[4] = recvData.ReadBit();
-    guid1[6] = recvData.ReadBit();
-    guid1[2] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid1[7]);
-    recvData.ReadByteSeq(guid1[1]);
-    recvData.ReadByteSeq(guid1[5]);
-    recvData.ReadByteSeq(guid1[6]);
-    recvData.ReadByteSeq(guid1[3]);
-    recvData.ReadByteSeq(guid1[4]);
-    recvData.ReadByteSeq(guid1[0]);
-    recvData.ReadByteSeq(guid1[2]);
-
     TC_LOG_DEBUG("lfg", "CMSG_LFG_PROPOSAL_RESULT %s proposal: %u accept: %u",
-        GetPlayerInfo().c_str(), proposalID, accept ? 1 : 0);
-    sLFGMgr->UpdateProposal(proposalID, GetPlayer()->GetGUID(), accept);
+        GetPlayerInfo().c_str(), lfgProposalResponse.ProposalID, lfgProposalResponse.Accepted ? 1 : 0);
+    sLFGMgr->UpdateProposal(lfgProposalResponse.ProposalID, GetPlayer()->GetGUID(), lfgProposalResponse.Accepted);
 }
 
-void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgSetRolesOpcode(WorldPackets::LFG::LFGSetRoles& lfgSetRoles)
 {
-    uint8 roles;
-    recvData >> roles;                                     // Player Group Roles
     ObjectGuid guid = GetPlayer()->GetGUID();
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -247,48 +197,38 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recvData)
     }
     ObjectGuid gguid = group->GetGUID();
     TC_LOG_DEBUG("lfg", "CMSG_LFG_SET_ROLES: Group %s, Player %s, Roles: %u",
-        gguid.ToString().c_str(), GetPlayerInfo().c_str(), roles);
-    sLFGMgr->UpdateRoleCheck(gguid, guid, roles);
+        gguid.ToString().c_str(), GetPlayerInfo().c_str(), lfgSetRoles.RolesDesired);
+    sLFGMgr->UpdateRoleCheck(gguid, guid, lfgSetRoles.RolesDesired);
 }
 
-void WorldSession::HandleLfgSetCommentOpcode(WorldPacket&  recvData)
+void WorldSession::HandleLfgSetCommentOpcode(WorldPackets::LFG::LFGSetComment& lfgSetComment)
 {
-    uint32 length = recvData.ReadBits(9);
-    std::string comment = recvData.ReadString(length);
-
     TC_LOG_DEBUG("lfg", "CMSG_LFG_SET_COMMENT %s comment: %s",
-        GetPlayerInfo().c_str(), comment.c_str());
+        GetPlayerInfo().c_str(), lfgSetComment.Comment.c_str());
 
-    sLFGMgr->SetComment(GetPlayer()->GetGUID(), comment);
+    sLFGMgr->SetComment(GetPlayer()->GetGUID(), lfgSetComment.Comment);
 }
 
-void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgSetBootVoteOpcode(WorldPackets::LFG::LFGBootPlayerVote& lfgBootPlayerVote)
 {
-    bool agree;                                            // Agree to kick player
-    recvData >> agree;
-
     ObjectGuid guid = GetPlayer()->GetGUID();
     TC_LOG_DEBUG("lfg", "CMSG_LFG_SET_BOOT_VOTE %s agree: %u",
-        GetPlayerInfo().c_str(), agree ? 1 : 0);
-    sLFGMgr->UpdateBoot(guid, agree);
+        GetPlayerInfo().c_str(), lfgBootPlayerVote.Vote ? 1 : 0);
+    sLFGMgr->UpdateBoot(guid, lfgBootPlayerVote.Vote);
 }
 
-void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgTeleportOpcode(WorldPackets::LFG::LFGTeleport& lfgTeleport)
 {
-    bool out;
-    recvData >> out;
-
     TC_LOG_DEBUG("lfg", "CMSG_LFG_TELEPORT %s out: %u",
-        GetPlayerInfo().c_str(), out ? 1 : 0);
-    sLFGMgr->TeleportPlayer(GetPlayer(), out, true);
+        GetPlayerInfo().c_str(), lfgTeleport.TeleportOut ? 1 : 0);
+    sLFGMgr->TeleportPlayer(GetPlayer(), lfgTeleport.TeleportOut, true);
 }
 
-void WorldSession::HandleLfgGetLockInfoOpcode(WorldPacket& recvData)
+void WorldSession::HandleLfgGetLockInfoOpcode(WorldPackets::LFG::LFGGetSystemInfo& lfgGetSystemInfo)
 {
-    bool forPlayer = recvData.ReadBit();
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_LOCK_INFO_REQUEST %s for %s", GetPlayerInfo().c_str(), (forPlayer ? "player" : "party"));
+    TC_LOG_DEBUG("lfg", "CMSG_LFG_LOCK_INFO_REQUEST %s for %s", GetPlayerInfo().c_str(), (lfgGetSystemInfo.Player ? "player" : "party"));
 
-    if (forPlayer)
+    if (lfgGetSystemInfo.Player)
         SendLfgPlayerLockInfo();
     else
         SendLfgPartyLockInfo();

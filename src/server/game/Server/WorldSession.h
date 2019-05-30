@@ -80,6 +80,12 @@ namespace WorldPackets
     {
         class LFGJoin;
         class LFGLeave;
+        class LFGProposalResponse;
+        class LFGSetRoles;
+        class LFGSetComment;
+        class LFGBootPlayerVote;
+        class LFGTeleport;
+        class LFGGetSystemInfo;
     }
 }
 
@@ -944,16 +950,16 @@ class TC_GAME_API WorldSession
         void HandleSetCurrencyFlags(WorldPacket& recvData);
 
         // Looking for Dungeon/Raid
-        void HandleLfgSetCommentOpcode(WorldPacket& recvData);
-        void HandleLfgGetLockInfoOpcode(WorldPacket& recvData);
+        void HandleLfgJoinOpcode(WorldPackets::LFG::LFGJoin& lfgJoin);
+        void HandleLfgLeaveOpcode(WorldPackets::LFG::LFGLeave& lfgLeave);
+        void HandleLfgProposalResultOpcode(WorldPackets::LFG::LFGProposalResponse& lfgProposalResponse);
+        void HandleLfgSetRolesOpcode(WorldPackets::LFG::LFGSetRoles& lfgSetRoles);
+        void HandleLfgSetCommentOpcode(WorldPackets::LFG::LFGSetComment& lfgSetComment);
+        void HandleLfgSetBootVoteOpcode(WorldPackets::LFG::LFGBootPlayerVote& lfgBootPlayerVote);
+        void HandleLfgTeleportOpcode(WorldPackets::LFG::LFGTeleport& lfgTeleport);
+        void HandleLfgGetLockInfoOpcode(WorldPackets::LFG::LFGGetSystemInfo& lfgGetSystemInfo);
         void SendLfgPlayerLockInfo();
         void SendLfgPartyLockInfo();
-        void HandleLfgJoinOpcode(WorldPackets::LFG::LFGJoin& lfgJoin);
-        void HandleLfgLeaveOpcode(WorldPackets::LFG::LFGLeave& lfgleave);
-        void HandleLfgSetRolesOpcode(WorldPacket& recvData);
-        void HandleLfgProposalResultOpcode(WorldPacket& recvData);
-        void HandleLfgSetBootVoteOpcode(WorldPacket& recvData);
-        void HandleLfgTeleportOpcode(WorldPacket& recvData);
         void HandleLfrJoinOpcode(WorldPacket& recvData);
         void HandleLfrLeaveOpcode(WorldPacket& recvData);
         void HandleLfgGetStatus(WorldPacket& recvData);

@@ -52,6 +52,69 @@ namespace WorldPackets
 
             RideTicket Ticket;
         };
+
+        class LFGProposalResponse final : public ClientPacket
+        {
+        public:
+            LFGProposalResponse(WorldPacket&& packet) : ClientPacket(CMSG_LFG_PROPOSAL_RESULT, std::move(packet)) { }
+
+            void Read() override;
+
+            RideTicket Ticket;
+            uint64 InstanceID = 0;
+            uint32 ProposalID = 0;
+            bool Accepted = false;
+        };
+
+        class LFGSetRoles final : public ClientPacket
+        {
+        public:
+            LFGSetRoles(WorldPacket&& packet) : ClientPacket(CMSG_LFG_SET_ROLES, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 RolesDesired = 0;
+        };
+
+        class LFGSetComment final : public ClientPacket
+        {
+        public:
+            LFGSetComment(WorldPacket&& packet) : ClientPacket(CMSG_LFG_SET_COMMENT, std::move(packet)) { }
+
+            void Read() override;
+
+            std::string Comment;
+        };
+
+        class LFGBootPlayerVote final : public ClientPacket
+        {
+        public:
+            LFGBootPlayerVote(WorldPacket&& packet) : ClientPacket(CMSG_LFG_SET_BOOT_VOTE, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Vote = false;
+        };
+
+        class LFGTeleport final : public ClientPacket
+        {
+        public:
+            LFGTeleport(WorldPacket&& packet) : ClientPacket(CMSG_LFG_TELEPORT, std::move(packet)) { }
+
+            void Read() override;
+
+            bool TeleportOut = false;
+        };
+
+        class LFGGetSystemInfo final : public ClientPacket
+        {
+        public:
+            LFGGetSystemInfo(WorldPacket&& packet) : ClientPacket(CMSG_LFG_LOCK_INFO_REQUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Player = false;
+        };
     }
 }
 

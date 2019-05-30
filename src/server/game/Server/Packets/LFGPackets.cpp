@@ -31,7 +31,6 @@ void WorldPackets::LFG::LFGJoin::Read()
         _worldPacket >> slot;
 }
 
-
 void WorldPackets::LFG::LFGLeave::Read()
 {
     _worldPacket.read_skip<uint32>();
@@ -59,4 +58,80 @@ void WorldPackets::LFG::LFGLeave::Read()
     _worldPacket.ReadByteSeq(requesterGuid[0]);
     _worldPacket.ReadByteSeq(requesterGuid[1]);
     _worldPacket.ReadByteSeq(requesterGuid[5]);
+}
+
+void WorldPackets::LFG::LFGProposalResponse::Read()
+{
+    _worldPacket >> ProposalID;
+    _worldPacket >> Ticket.Time;
+    uint32 type = 0;
+    _worldPacket >> type;
+    Ticket.Type = RideType(type);
+    _worldPacket >> Ticket.Id;
+
+    ObjectGuid& requesterGuid = Ticket.RequesterGuid;
+    requesterGuid[4] = _worldPacket.ReadBit();
+    requesterGuid[5] = _worldPacket.ReadBit();
+    requesterGuid[0] = _worldPacket.ReadBit();
+    requesterGuid[6] = _worldPacket.ReadBit();
+    requesterGuid[2] = _worldPacket.ReadBit();
+    requesterGuid[7] = _worldPacket.ReadBit();
+    requesterGuid[1] = _worldPacket.ReadBit();
+    requesterGuid[3] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(requesterGuid[7]);
+    _worldPacket.ReadByteSeq(requesterGuid[4]);
+    _worldPacket.ReadByteSeq(requesterGuid[3]);
+    _worldPacket.ReadByteSeq(requesterGuid[2]);
+    _worldPacket.ReadByteSeq(requesterGuid[6]);
+    _worldPacket.ReadByteSeq(requesterGuid[0]);
+    _worldPacket.ReadByteSeq(requesterGuid[1]);
+    _worldPacket.ReadByteSeq(requesterGuid[5]);
+
+    ObjectGuid instaceId;
+    instaceId[7] = _worldPacket.ReadBit();
+    Accepted = _worldPacket.ReadBit();
+    instaceId[1] = _worldPacket.ReadBit();
+    instaceId[3] = _worldPacket.ReadBit();
+    instaceId[0] = _worldPacket.ReadBit();
+    instaceId[5] = _worldPacket.ReadBit();
+    instaceId[4] = _worldPacket.ReadBit();
+    instaceId[6] = _worldPacket.ReadBit();
+    instaceId[2] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(instaceId[7]);
+    _worldPacket.ReadByteSeq(instaceId[1]);
+    _worldPacket.ReadByteSeq(instaceId[5]);
+    _worldPacket.ReadByteSeq(instaceId[6]);
+    _worldPacket.ReadByteSeq(instaceId[3]);
+    _worldPacket.ReadByteSeq(instaceId[4]);
+    _worldPacket.ReadByteSeq(instaceId[0]);
+    _worldPacket.ReadByteSeq(instaceId[2]);
+    InstanceID = uint64(instaceId);
+}
+
+void WorldPackets::LFG::LFGSetRoles::Read()
+{
+    _worldPacket >> RolesDesired;
+}
+
+void WorldPackets::LFG::LFGSetComment::Read()
+{
+    uint32 length = _worldPacket.ReadBits(9);
+    Comment = _worldPacket.ReadString(length);
+}
+
+void WorldPackets::LFG::LFGBootPlayerVote::Read()
+{
+    _worldPacket >> Vote;
+}
+
+void WorldPackets::LFG::LFGTeleport::Read()
+{
+    _worldPacket >> TeleportOut;
+}
+
+void WorldPackets::LFG::LFGGetSystemInfo::Read()
+{
+    Player = _worldPacket.ReadBit();
 }
