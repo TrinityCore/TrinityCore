@@ -141,6 +141,11 @@ namespace WorldPackets
         class GuildSetGuildMaster;
         class SaveGuildEmblem;
     }
+    namespace LFG
+    {
+        class LFGJoin;
+        class LFGLeave;
+    }
     namespace NPC
     {
         class Hello;
@@ -980,8 +985,8 @@ class TC_GAME_API WorldSession
         void HandleLfgSetCommentOpcode(WorldPacket& recvData);
         void HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recvData);
         void HandleLfgPartyLockInfoRequestOpcode(WorldPacket& recvData);
-        void HandleLfgJoinOpcode(WorldPacket& recvData);
-        void HandleLfgLeaveOpcode(WorldPacket& recvData);
+        void HandleLfgJoinOpcode(WorldPackets::LFG::LFGJoin& lfgJoin);
+        void HandleLfgLeaveOpcode(WorldPackets::LFG::LFGLeave& lfgleave);
         void HandleLfgSetRolesOpcode(WorldPacket& recvData);
         void HandleLfgProposalResultOpcode(WorldPacket& recvData);
         void HandleLfgSetBootVoteOpcode(WorldPacket& recvData);
