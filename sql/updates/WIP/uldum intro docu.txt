@@ -54,39 +54,78 @@
 18:40:29.380 -- ping hit
 18:40:46.363 -- move to -8935.14 Y: -2234.49 Z: 9.002217
 18:41:05.813 -- move to -8939.94 Y: -2211.02 Z: 9.001956
+18:41:16.931 -- teleport to 
+[1] Position: X: -8965 Y: -1735 Z: 94.4533
+[1] Orientation: 1.5708
+18:41:24.064 -- move to -8966.66 Y: -1627.04 Z: 94.57835
 
----- macks camel 
+---- macks camel (46543)
 18:40:29.380 -- ping hit 86843 (Ping All Actors 00)
 18:40:42.730 -- move to -8919.02 Y: -2248.4 Z: 9.001721
 18:40:54.879 -- move to -8925.41 Y: -2224.72 Z: 9.001721
 18:41:04.580 -- move to -8935.07 Y: -2190.94 Z: 9.001843
+18:41:20.746 -- teleport to
+[0] Position: X: -8956 Y: -1735 Z: 94.4533
+[0] Orientation: 1.5708
+18:41:24.064 -- move to -8956.22 Y: -1653.3 Z: 94.57835
+18:41:44.746 -- move to -8956.64 Y: -1614.71 Z: 94.57835
+18:41:53.833 -- 50630 (Eject All Passengers)
+18:41:53.833 -- move to -8907.16 Y: -1644.48 Z: 96.05394
 
-
--- samirs camel
+-- samirs camel (46540)
 18:40:29.380 -- ping hit
 18:40:42.730 -- -8923.14 Y: -2255.77 Z: 9.001721
 18:40:57.280 -- -8927.98 Y: -2228.35 Z: 9.001721
 18:41:08.263 -- -8930.85 Y: -2208.77 Z: 9.501721
-
+18:41:18.329 -- teleport to
+[0] Position: X: -8958 Y: -1744 Z: 94.4533
+[0] Orientation: 1.5708
+18:41:24.064 -- move to -8957.25 Y: -1653.6 Z: 94.57835
+18:41:47.197 -- move to -8956.91 Y: -1622.85 Z: 94.57835
+18:41:53.833 -- 50630 (Eject All Passengers)
+18:41:53.833 -- move to  -8889.912 Y: -1617.428 Z: 97.51894
 
 -- pack mule (46537)
 18:40:29.380 -- ping
 18:40:42.730 -- -8922.56 Y: -2250.76 Z: 9.001721
 18:40:52.463 -- -8927.56 Y: -2229.44 Z: 9.001721
 18:41:00.946 -- -8934.89 Y: -2199.31 Z: 9.001843
+18:41:15.680 -- teleport
+[1] Position: X: -8960 Y: -1728 Z: 94.4533
+[1] Orientation: 1.5708
+18:41:24.064 -- move to -8960.52 Y: -1665.42 Z: 94.57835
+18:41:39.863 -- move to -8960.71 Y: -1616.34 Z: 94.57835
+18:41:53.833 -- move to -8961.9 Y: -1565.36 Z: 94.57835
+18:41:54.398 -- move to -8962.98 Y: -1533.89 Z: 94.57835
+18:41:55.714 -- movw to -8953.83 Y: -1501.06 Z: 94.57835  (run)
 
 
--- lady humps
+-- lady humps (46536)
 18:40:29.380 -- ping
 18:40:42.730 -- -8931.92 Y: -2234.18 Z: 9.001721
 18:40:53.516 -- -8938.87 Y: -2204.73 Z: 9.001956
 18:41:05.813 -- -8947.44 Y: -2170.03 Z: 9.001843
+18:41:23.180 -- teleport
+[0] Position: X: -8965 Y: -1720 Z: 94.4533
+[0] Orientation: 1.5708
+18:41:24.064 -- move to -8966.77 Y: -1637.49 Z: 94.57826
+18:41:44.746 -- move to -8967.16 Y: -1607.32 Z: 94.57835
+18:41:53.833 -- move to -8997.21 Y: -1550.94 Z: 94.57835
+18:42:00.430 --  -9030.65 Y: -1549.04 Z: 94.57835
+
 
 -- Adarrahs camel (46546)
 18:40:29.380 -- ping
 18:40:39.898 -- -8931.88 Y: -2249.08 Z: 9.001721
 18:40:48.730 -- -8936.35 Y: -2218.25 Z: 9.001956
 18:41:02.163 -- -8942.33 Y: -2190.52 Z: 9.001843
+18:41:15.680 -- teleport
+[2] Position: X: -8971 Y: -1727 Z: 94.4533
+[2] Orientation: 1.5708
+18:41:24.064 -- -8977.74 Y: -1644.23 Z: 94.57826
+18:41:44.746 -- -8976.28 Y: -1612.19 Z: 94.57835
+18:41:53.832 -- 50630 (Eject All Passengers)
+18:41:53.832 -- -9044.94 Y: -1613.99 Z: 94.55248
 
 -- budd (46539)
 18:40:29.380 -- ping
@@ -97,6 +136,12 @@
 18:40:29.380 -- ping
 18:40:51.246 -- -8933.07 Y: -2249.24 Z: 9.001721 
 18:41:05.813 -- -8937.89 Y: -2211.88 Z: 9.001956
+18:41:23.180 -- teleport
+[1] Position: X: -8968 Y: -1746 Z: 94.4533
+[1] Orientation: 1.5708
+18:41:26.396 -- move to -8968.27 Y: -1685.77 Z: 94.57826
+18:41:41.080 -- -8968.21 Y: -1661.29 Z: 94.57826
+18:41:48.247 -- -8967.31 Y: -1641.22 Z: 94.57826
 
 -- harkor (46545)
 18:40:29.380 -- ping hit
@@ -106,7 +151,9 @@
 18:41:02.163 -- Emote ID: 92 (OneShotEatNoSheathe)
 18:41:09.464 -- Emote ID: 92 (OneShotEatNoSheathe)
 
--- camera bunny (46557)
+
+
+-- -------------------- camera bunny (46557)
 18:40:27.997 -- 86815 (Ping Camera 00) // no target
 
 18:40:29.247 -- 86815 (Ping Camera 00)
@@ -158,12 +205,48 @@
 (MovementMonsterSpline) (MovementSpline) [2] Points: X: -8927.54 Y: -1768.3 Z: 137.2482
 MoveTime: 11685
 
+18:41:28.763 -- 86822 (Invisible Beam) on cloned image
+18:41:28.764 -- move along spline chain:
+-8927.54 Y: -1768.3 Z: 137.2482
+(MovementMonsterSpline) (MovementSpline) [0] Points: X: -8957.792 Y: -1700.462 Z: 114.447
+(MovementMonsterSpline) (MovementSpline) [1] Points: X: -8966.18 Y: -1677.19 Z: 106.987
+MoveTime: 16567
+
+18:41:45.447 -- 87010 (Master Summon Skarf)
+18:41:47.480 -- 84318 (Reverse Cast Ride Camera Bunny (Seat 4))
+18:41:47.481 -- 86822 (Invisible Beam) on  Entry: 46679 (Skarf)
+
+18:41:53.483 -- 86822 (Invisible Beam) on cloned image
+18:41:59.630 -- 84301 (Reverse Cast Ride Camera Bunny (Seat 3))
+18:41:59.630 -- 86822 (Invisible Beam) on cloned image
+18:41:59.630 -- move along chain:
+Position: X: -8966.179 Y: -1677.19 Z: 106.987
+(MovementMonsterSpline) (MovementSpline) [0] Points: X: -8952.7 Y: -1671.49 Z: 108.556
+(MovementMonsterSpline) (MovementSpline) [1] Points: X: -8930.17 Y: -1677.51 Z: 124.105
+(MovementMonsterSpline) (MovementSpline) [2] Points: X: -8908.42 Y: -1672.84 Z: 133.82
+(MovementMonsterSpline) (MovementSpline) [3] Points: X: -8894.9 Y: -1646.28 Z: 134.988
+(MovementMonsterSpline) (MovementSpline) [4] Points: X: -8896.54 Y: -1624.27 Z: 129.188
+(MovementMonsterSpline) (MovementSpline) [5] Points: X: -8912.56 Y: -1603.82 Z: 130.583
+(MovementMonsterSpline) (MovementSpline) [6] Points: X: -8929.97 Y: -1592.75 Z: 126.827
+(MovementMonsterSpline) (MovementSpline) [7] Points: X: -8947.9 Y: -1586.34 Z: 119.108
+(MovementMonsterSpline) (MovementSpline) [8] Points: X: -8966.19 Y: -1586.85 Z: 99.3789
+MoveTime: 10710
+
+18:42:20.247 -- 94642 (Fade to Black)
+18:42:23.747 -- 87108 (Teleport Camera 01)
+18:42:23.748 -- 87109 (Master Summon Scene)
+
+------- skarf (46679)
+18:41:45.447 -- summoned (vehicle id 1208, run speed 8)   as accessory 46680 (Sultan Oogah)
+18:41:47.481 -- invisible beam on me 
+18:41:49.130 -- sound (22585)
+18:41:49.130 -- jump to -9005.86 Y: -1657.31 Z: 107.515
+18:41:50.730 -- set ai anim kit AnimKitID: 1075
 
 
--- 18:41:12.948 beam dummy 2 summoned
+------- 18:41:12.948 beam dummy 2 summoned
 18:41:15.396 -- 86970 (Ping Camera 02)
-18:41:16.830 -- move along path 
-
+18:41:16.830 -- move along path
 Position: X: -8888 Y: -1631 Z: 278.0833
 (MovementMonsterSpline) (MovementSpline) [0] Points: X: -8889.82 Y: -1654 Z: 269.947
 (MovementMonsterSpline) (MovementSpline) [1] Points: X: -8902.86 Y: -1655.57 Z: 245.528

@@ -45,7 +45,8 @@ enum UldumIntro
     SPELL_SUMMON_ADARRAHS_CAMEL         = 86758,
     SPELL_SUMMON_CLONED_IMAGE           = 86782,
     SPELL_SUMMON_BEAM_TARGET_BUNNY      = 86942,
-    SPELL_SUMMON_BEAM_TARGET_BUNNY_02   = 86964
+    SPELL_SUMMON_BEAM_TARGET_BUNNY_02   = 86964,
+    SPELL_SUMMON_SKARF                  = 87012,
 };
 
 // 86748 - Intialize Uldum Intro
@@ -134,6 +135,27 @@ class spell_uldum_master_summon_beam_target_02 : public SpellScript
     }
 };
 
+// 87010 - Master Summon Skarf
+class spell_uldum_master_summon_skarf : public SpellScript
+{
+    PrepareSpellScript(spell_uldum_master_summon_skarf);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_SKARF });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_SKARF, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_uldum_master_summon_skarf::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 95747 - Player Summon Camera
 class spell_uldum_player_summon_camera : public SpellScript
 {
@@ -167,9 +189,11 @@ enum UldumCameraBunny
     SPELL_REVERSE_CAST_RIDE_VEHICLE             = 82721,
     SPELL_REVERSE_CAST_RIDE_SEAT_2              = 82315,
     SPELL_REVERSE_CAST_RIDE_CAMERA_BUNNY_SEAT_3 = 84301,
+    SPELL_REVERSE_CAST_RIDE_CAMERA_BUNNY_SEAT_4 = 84318,
     SPELL_FADE_TO_BLACK                         = 88267,
     SPELL_TELEPORT_CAMERA                       = 86952,
     SPELL_MASTER_SUMMON_BEAM_TARGET_02          = 86960,
+    SPELL_MASTER_SUMMON_SKARF                   = 87010,
 
     // Events
     EVENT_MOVE_PATH_1                           = 1,
@@ -177,14 +201,20 @@ enum UldumCameraBunny
     EVENT_FADE_TO_BLACK_1                       = 3,
     EVENT_TELEPORT_CAMERA_1                     = 4,
     EVENT_TARGET_BEAM_BUNNY_2                   = 5,
+    EVENT_TARGET_SKARF                          = 6,
+    EVENT_TARGET_CLONED_IMAGE                   = 7,
+    EVENT_MOVE_ARROUND_CARAVAN                  = 8,
 
     // Move Points
     POINT_NONE                                  = 0,
+    POINT_FOCUS_CLONED_IMAGE                    = 1,
+    POINT_SUMMON_AMBUSH                         = 2,
 
     // Spline Chains
     SPLINE_CHAIN_ID_CAMERA_PATH_1               = 1, // Uldum Camera Bunny 04 - Move behind next to the caravan
     SPLINE_CHAIN_ID_CAMERA_PATH_2               = 2, // Uldum Camera Bunny 04 - Move behind the caravan
     SPLINE_CHAIN_ID_CAMERA_PATH_3               = 3, // Uldum Camera Bunny 04 - Move along the statue
+    SPLINE_CHAIN_ID_CAMERA_PATH_4               = 4, // Uldum Camera Bunny 04 - Move behind the caravan
     SPLINE_CHAIN_ID_BEAM_TARGET_PATH_1          = 1, // Beam Target Bunny - Move up
     SPLINE_CHAIN_ID_BEAM_TARGET_2_PATH_1        = 1, // Beam Target Bunny 02 - Move down
 
@@ -217,6 +247,7 @@ struct npc_uldum_uldum_camera_bunny_04 : public ScriptedAI
             case SPELL_PING_CAMERA_00:
                 if (_pingCount == PING_INDEX_PING_ALL_ACTORS)
                 {
+                    _clonedImageGUID = caster->GetGUID();
                     DoCast(caster, SPELL_INVISIBLE_BEAM);
                     DoCastSelf(SPELL_REVERSE_CAST_RIDE_VEHICLE, true);
                     DoCastSelf(SPELL_MASTER_PING_ALL_ACTORS, true);
@@ -235,7 +266,7 @@ struct npc_uldum_uldum_camera_bunny_04 : public ScriptedAI
                 _events.ScheduleEvent(EVENT_FADE_TO_BLACK_1, 8s + 500ms);
                 break;
             case SPELL_PING_CAMERA_02:
-                _cameraBunnyGUID = caster->GetGUID();
+                _beamBunnyGUID = caster->GetGUID();
                 _events.ScheduleEvent(EVENT_TARGET_BEAM_BUNNY_2, 1s + 500ms);
                 break;
             default:
@@ -247,6 +278,29 @@ struct npc_uldum_uldum_camera_bunny_04 : public ScriptedAI
     {
         if (spell->Id == SPELL_PING_BEAM_TARGET)
             target->CastSpell(me, SPELL_PING_CAMERA_01, true);
+    }
+
+    void MovementInform(uint32 motionType, uint32 pointId) override
+    {
+        if (motionType != SPLINE_CHAIN_MOTION_TYPE)
+            return;
+
+        switch (pointId)
+        {
+            case POINT_FOCUS_CLONED_IMAGE:
+                if (Creature* image = ObjectAccessor::GetCreature(*me, _clonedImageGUID))
+                {
+                    me->CastStop();
+                    DoCast(image, SPELL_INVISIBLE_BEAM, true);
+                    me->GetMotionMaster()->MoveAlongSplineChain(POINT_SUMMON_AMBUSH, SPLINE_CHAIN_ID_CAMERA_PATH_4, false);
+                }
+                break;
+            case POINT_SUMMON_AMBUSH:
+                DoCastSelf(SPELL_MASTER_SUMMON_SKARF, true);
+                break;
+            default:
+                break;
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -277,12 +331,28 @@ struct npc_uldum_uldum_camera_bunny_04 : public ScriptedAI
                     DoCastSelf(SPELL_MASTER_PING_ALL_ACTORS, true);
                     break;
                 case EVENT_TARGET_BEAM_BUNNY_2:
-                    if (Creature* bunny = ObjectAccessor::GetCreature(*me, _cameraBunnyGUID))
+                    if (Creature* bunny = ObjectAccessor::GetCreature(*me, _beamBunnyGUID))
                     {
                         DoCastSelf(SPELL_REVERSE_CAST_RIDE_CAMERA_BUNNY_SEAT_3, true);
                         DoCast(bunny, SPELL_INVISIBLE_BEAM, true);
-                        me->GetMotionMaster()->MoveAlongSplineChain(POINT_NONE, SPLINE_CHAIN_ID_CAMERA_PATH_3, false);
+                        me->GetMotionMaster()->MoveAlongSplineChain(POINT_FOCUS_CLONED_IMAGE, SPLINE_CHAIN_ID_CAMERA_PATH_3, false);
                         bunny->GetMotionMaster()->MoveAlongSplineChain(POINT_NONE, SPLINE_CHAIN_ID_BEAM_TARGET_2_PATH_1, false);
+                    }
+                    break;
+                case EVENT_TARGET_CLONED_IMAGE:
+                    if (Creature* image = ObjectAccessor::GetCreature(*me, _clonedImageGUID))
+                    {
+                        me->CastStop();
+                        DoCast(image, SPELL_INVISIBLE_BEAM, true);
+                    }
+                    _events.ScheduleEvent(EVENT_MOVE_ARROUND_CARAVAN, 6s);
+                    break;
+                case EVENT_MOVE_ARROUND_CARAVAN:
+                    DoCastSelf(SPELL_REVERSE_CAST_RIDE_CAMERA_BUNNY_SEAT_3, true);
+                    if (Creature* image = ObjectAccessor::GetCreature(*me, _clonedImageGUID))
+                    {
+                        me->CastStop();
+                        DoCast(image, SPELL_INVISIBLE_BEAM, true);
                     }
                     break;
                 default:
@@ -292,9 +362,51 @@ struct npc_uldum_uldum_camera_bunny_04 : public ScriptedAI
     }
 
 private:
-    uint8 _pingCount;
     EventMap _events;
-    ObjectGuid _cameraBunnyGUID;
+    uint8 _pingCount;
+    ObjectGuid _beamBunnyGUID;
+    ObjectGuid _clonedImageGUID;
+};
+
+struct npc_uldum_uldum_skarf : public ScriptedAI
+{
+    npc_uldum_uldum_skarf(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.ScheduleEvent(EVENT_TARGET_SKARF, 2s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TARGET_SKARF:
+                    if (TempSummon* summon = me->ToTempSummon())
+                    {
+                        if (Unit* summoner = summon->GetSummoner())
+                        {
+                            if (Creature* vehicle = summoner->GetVehicleCreatureBase())
+                            {
+                                vehicle->CastStop();
+                                vehicle->CastSpell(me, SPELL_INVISIBLE_BEAM, true);
+                                vehicle->CastSpell(vehicle, SPELL_REVERSE_CAST_RIDE_CAMERA_BUNNY_SEAT_4, true);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
 };
 
 // Gobbles! Quest
@@ -348,9 +460,11 @@ class spell_summon_schnottz : public SpellScript
 void AddSC_uldum()
 {
     RegisterCreatureAI(npc_uldum_uldum_camera_bunny_04);
+    RegisterCreatureAI(npc_uldum_uldum_skarf);
     RegisterSpellScript(spell_uldum_initialize_uldum_intro);
     RegisterSpellScript(spell_uldum_master_ping_all_actors);
     RegisterSpellScript(spell_uldum_master_summon_beam_target_02);
+    RegisterSpellScript(spell_uldum_master_summon_skarf);
     RegisterSpellScript(spell_uldum_player_summon_camera);
     RegisterSpellScript(spell_gobbles_initialize);
     RegisterSpellScript(spell_summon_schnottz);
