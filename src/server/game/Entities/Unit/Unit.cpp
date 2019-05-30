@@ -12590,13 +12590,13 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         SendMessageToSet(&data, false);
     }
 
-    // Default exit position to vehicle position and use the current orientation
     Position pos;
     // If we ask for a specific exit position, use that one. Otherwise allow scripts to modify it
     if (exitPosition)
         pos = *exitPosition;
     else
     {
+        // Set exit position to vehicle position and use the current orientation
         pos = vehicle->GetBase()->GetPosition();
         pos.SetOrientation(GetOrientation());
         sScriptMgr->ModifyVehiclePassengerExitPos(this, vehicle, pos);
