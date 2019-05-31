@@ -4576,6 +4576,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->ProcChance = 10;
     });
 
+    // Baron Rivendare (Stratholme) - Unholy Aura
+    ApplySpellFix({ 17466, 17467 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+    });
+
     //
     // FIRELANDS SPELLS
     //
