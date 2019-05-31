@@ -185,7 +185,7 @@ class theramore_wounded_event : public CreatureScript
 
                     case EVENT_TELEPORT_8:
                         if (Creature * kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 30.f))
-                            kinndy->SetFacingToObject(kalecgos);
+                            kinndy->SetFacingTo(3.17f);
                         jaina->AI()->Talk(SAY_TELEPORT_4);
                         jaina->SetFacingToObject(kalecgos);
                         events.ScheduleEvent(EVENT_TELEPORT_9, 3s);

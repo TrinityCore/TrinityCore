@@ -84,7 +84,7 @@ enum Spells
     SPELL_FIREBALL                  = 100002,
     SPELL_BLIZZARD                  = 100001,
     SPELL_FROSTBOLT                 = 100006,
-    SPELL_FROST_BREEZE              = 100033,
+    SPELL_FROST_RUNE                = 100041,
 
     SPELL_SIMPLE_TELEPORT           = 100032,
     SPELL_ICE_NOVA                  = 56935,
@@ -104,12 +104,7 @@ enum Casting
 {
     CASTING_FIREBALL                = 200,
     CASTING_FROSTBOLT,
-
-    CASTING_FROST_RUNE_1,
-    CASTING_FROST_RUNE_2,
-    CASTING_FROST_RUNE_3,
-
-    CASTING_ARCANIC_VOLLEY,
+    CASTING_FROST_RUNE,
 };
 
 enum Text

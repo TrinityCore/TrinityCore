@@ -27,6 +27,7 @@ void AddSC_theramore_wounded_event();
 void AddSC_npc_warrior();
 void AddSC_npc_paladin();
 void AddSC_theramore_ruins();
+void AddSC_dalaran_jaina_anduin();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -43,4 +44,5 @@ void AddCustomScripts()
     AddSC_npc_warrior();
     AddSC_npc_paladin();
     AddSC_theramore_ruins();
+    AddSC_dalaran_jaina_anduin();
 }
