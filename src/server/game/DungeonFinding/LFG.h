@@ -60,7 +60,7 @@ enum LfgUpdateType
     LFG_UPDATETYPE_JOIN_LFG_OBJECT_FAILED        = 45,
 };
 
-enum LfgState
+enum LfgState : uint8
 {
     LFG_STATE_NONE,                                        // Not using LFG / LFR
     LFG_STATE_ROLECHECK,                                   // Rolecheck active

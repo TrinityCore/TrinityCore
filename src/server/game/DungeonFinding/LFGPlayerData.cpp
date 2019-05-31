@@ -26,6 +26,11 @@ LfgPlayerData::LfgPlayerData(): m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NO
 
 LfgPlayerData::~LfgPlayerData() { }
 
+void LfgPlayerData::SetTicket(WorldPackets::LFG::RideTicket const& ticket)
+{
+    m_Ticket = ticket;
+}
+
 void LfgPlayerData::SetState(LfgState state)
 {
     switch (state)
@@ -82,6 +87,11 @@ void LfgPlayerData::SetSelectedDungeons(LfgDungeonSet const& dungeons)
 void LfgPlayerData::SetCallToArmsRewardEnligible(bool apply)
 {
     m_CallToArmsRewardEnligible = apply;
+}
+
+WorldPackets::LFG::RideTicket const& LfgPlayerData::GetTicket() const
+{
+    return m_Ticket;
 }
 
 LfgState LfgPlayerData::GetState() const

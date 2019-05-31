@@ -135,3 +135,152 @@ void WorldPackets::LFG::LFGGetSystemInfo::Read()
 {
     Player = _worldPacket.ReadBit();
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackListSlot const& lfgBlackListSlot)
+{
+    data << uint32(lfgBlackListSlot.Slot);
+    data << uint32(lfgBlackListSlot.Reason);
+    data << uint32(lfgBlackListSlot.SubReason1);
+    data << uint32(lfgBlackListSlot.SubReason2);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGBlackList const& blackList)
+{
+    if (blackList.PlayerGuid)
+        data << *blackList.PlayerGuid;
+
+    data << uint32(blackList.Slot.size());
+    for (WorldPackets::LFG::LFGBlackListSlot const& slot : blackList.Slot)
+        data << slot;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardItem const& playerQuestRewardItem)
+{
+    ItemTemplate const* item = sObjectMgr->GetItemTemplate(playerQuestRewardItem.ItemID);
+    data << int32(playerQuestRewardItem.ItemID);
+    data << int32(item ? item->DisplayInfoID : 0);
+    data << int32(playerQuestRewardItem.Quantity);
+    data << uint8(0);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestRewardCurrency const& playerQuestRewardCurrency)
+{
+    data << int32(playerQuestRewardCurrency.CurrencyID);
+    data << int32(0);
+    data << int32(playerQuestRewardCurrency.Quantity);
+    data << uint8(1);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward const& playerQuestReward)
+{
+    data << int32(playerQuestReward.RewardMoney);
+    data << int32(playerQuestReward.RewardXP);
+    data << uint8(playerQuestReward.Item.size() + playerQuestReward.Currency.size());
+
+    for (WorldPackets::LFG::LfgPlayerQuestRewardCurrency const& currency : playerQuestReward.Currency)
+        data << currency;
+
+    for (WorldPackets::LFG::LfgPlayerQuestRewardItem const& item : playerQuestReward.Item)
+        data << item;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo const& playerDungeonInfo)
+{
+    data << uint32(playerDungeonInfo.Slot);
+    data << uint8(playerDungeonInfo.FirstReward);
+    data << uint32(playerDungeonInfo.CompletionQuantity);
+    data << uint32(playerDungeonInfo.CompletionLimit);
+    data << uint32(playerDungeonInfo.CompletionCurrencyID);
+    data << uint32(playerDungeonInfo.SpecificQuantity);
+    data << uint32(playerDungeonInfo.SpecificLimit);
+    data << uint32(playerDungeonInfo.OverallQuantity);
+    data << uint32(playerDungeonInfo.OverallLimit);
+    data << uint32(playerDungeonInfo.PurseWeeklyQuantity);
+    data << uint32(playerDungeonInfo.PurseWeeklyLimit);
+    data << uint32(playerDungeonInfo.PurseQuantity);
+    data << uint32(playerDungeonInfo.PurseLimit);
+    data << uint32(playerDungeonInfo.Quantity);
+    data << uint32(playerDungeonInfo.CompletedMask);
+    data << uint8(playerDungeonInfo.ShortageEligible);
+
+    // Todo: Shortage System (Call to Arms)
+    for (uint8 i = 0; i < 3; i++)
+        data << uint32(0);
+
+    data << playerDungeonInfo.Rewards;
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::LFG::LFGPlayerInfo::Write()
+{
+    _worldPacket << uint8(Dungeon.size());
+    for (LfgPlayerDungeonInfo const& playerDungeonInfo : Dungeon)
+        _worldPacket << playerDungeonInfo;
+
+    _worldPacket << uint32(BlackList.Slot.size());
+    for (WorldPackets::LFG::LFGBlackListSlot const& slot : BlackList.Slot)
+        _worldPacket << slot;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::LFGPartyInfo::Write()
+{
+    _worldPacket << uint8(Player.size());
+    for (WorldPackets::LFG::LFGBlackList const& player : Player)
+        _worldPacket << player;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::LFGUpdateStatus::Write()
+{
+    _worldPacket.WriteBit(Ticket.RequesterGuid[1]);
+    _worldPacket.WriteBit(IsParty);
+    _worldPacket.WriteBits(Slots.size(), 24);
+    _worldPacket.WriteBit(Ticket.RequesterGuid[6]);
+    _worldPacket.WriteBit(Joined);
+    _worldPacket.WriteBits(Comment.length(), 9);
+    _worldPacket.WriteBit(Ticket.RequesterGuid[4]);
+    _worldPacket.WriteBit(Ticket.RequesterGuid[7]);
+    _worldPacket.WriteBit(Ticket.RequesterGuid[2]);
+    _worldPacket.WriteBit(LfgJoined);
+    _worldPacket.WriteBit(Ticket.RequesterGuid[0]);
+    _worldPacket.WriteBit(Ticket.RequesterGuid[3]);
+    _worldPacket.WriteBit(Ticket.RequesterGuid[5]);
+    _worldPacket.WriteBit(Queued);
+    _worldPacket << uint8(Reason);
+    _worldPacket.WriteString(Comment);
+
+    _worldPacket << uint32(Ticket.Id);
+    _worldPacket << uint32(Ticket.Time);
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[6]);
+
+    for (uint8 i = 0; i < 3; ++i)
+        _worldPacket << uint8(0); // unk - Always 0
+
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[1]);
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[2]);
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[4]);
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[3]);
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[5]);
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[0]);
+    _worldPacket << uint32(Ticket.Type);
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[7]);
+
+    for (uint32 slot : Slots)
+        _worldPacket << uint32(slot);
+
+    return &_worldPacket;
+}

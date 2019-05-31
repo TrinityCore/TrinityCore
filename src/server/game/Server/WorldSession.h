@@ -67,6 +67,7 @@ struct LfgQueueStatusData;
 struct LfgPlayerRewardData;
 struct LfgRoleCheck;
 struct LfgUpdateData;
+enum LfgTeleportResult : uint8;
 }
 
 namespace rbac
@@ -86,6 +87,9 @@ namespace WorldPackets
         class LFGBootPlayerVote;
         class LFGTeleport;
         class LFGGetSystemInfo;
+        class LFGPlayerInfo;
+        class LFGPartyInfo;
+        class LFGUpdateStatus;
     }
 }
 

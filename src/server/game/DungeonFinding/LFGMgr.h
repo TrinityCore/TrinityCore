@@ -33,6 +33,14 @@ class Map;
 struct LFGDungeonEntry;
 enum Difficulty : uint8;
 
+namespace WorldPackets
+{
+    namespace LFG
+    {
+        struct RideTicket;
+    }
+}
+
 namespace lfg
 {
 
@@ -82,17 +90,21 @@ enum LfgProposalState
 };
 
 /// Teleport errors
-enum LfgTeleportError
+enum LfgTeleportResult : uint8
 {
     // 7 = "You can't do that right now" | 5 = No client reaction
-    LFG_TELEPORTERROR_OK                         = 0,      // Internal use
-    LFG_TELEPORTERROR_PLAYER_DEAD                = 1,
-    LFG_TELEPORTERROR_FALLING                    = 2,
-    LFG_TELEPORTERROR_IN_VEHICLE                 = 3,
-    LFG_TELEPORTERROR_FATIGUE                    = 4,
-    LFG_TELEPORTERROR_INVALID_LOCATION           = 6,
-    LFG_TELEPORTERROR_CHARMING                   = 7,
-    LFG_TELEPORTERROR_IN_COMBAT                  = 8
+    LFG_TELEPORT_RESULT_NONE                = 0,      // Internal use
+    LFG_TELEPORT_RESULT_DEAD                = 1,
+    LFG_TELEPORT_RESULT_FALLING             = 2,
+    LFG_TELEPORT_RESULT_ON_TRANSPORT        = 3,
+    LFG_TELEPORT_RESULT_EXHAUSTION          = 4,
+    LFG_TELEPORT_RESULT_NO_RETURN_LOCATION  = 6,
+    LFG_TELEPORT_RESULT_IMMUNE_TO_SUMMONS   = 8      // FIXME - It can be 7 or 8 (Need proper data)
+
+    // unknown values
+    //LFG_TELEPORT_RESULT_NOT_IN_DUNGEON,
+    //LFG_TELEPORT_RESULT_NOT_ALLOWED,
+    //LFG_TELEPORT_RESULT_ALREADY_IN_DUNGEON
 };
 
 /// Queue join results
@@ -187,14 +199,13 @@ struct LfgUpdateData
 // Data needed by SMSG_LFG_QUEUE_STATUS
 struct LfgQueueStatusData
 {
-    LfgQueueStatusData(uint8 _queueId = 0, uint32 _dungeonId = 0, time_t _joinTime = 0, int32 _waitTime = -1, int32 _waitTimeAvg = -1, int32 _waitTimeTank = -1, int32 _waitTimeHealer = -1,
+    LfgQueueStatusData(uint8 _queueId = 0, uint32 _dungeonId = 0, int32 _waitTime = -1, int32 _waitTimeAvg = -1, int32 _waitTimeTank = -1, int32 _waitTimeHealer = -1,
         int32 _waitTimeDps = -1, uint32 _queuedTime = 0, uint8 _tanks = 0, uint8 _healers = 0, uint8 _dps = 0) :
-        queueId(_queueId), dungeonId(_dungeonId), joinTime(_joinTime), waitTime(_waitTime), waitTimeAvg(_waitTimeAvg), waitTimeTank(_waitTimeTank),
+        queueId(_queueId), dungeonId(_dungeonId), waitTime(_waitTime), waitTimeAvg(_waitTimeAvg), waitTimeTank(_waitTimeTank),
         waitTimeHealer(_waitTimeHealer), waitTimeDps(_waitTimeDps), queuedTime(_queuedTime), tanks(_tanks), healers(_healers), dps(_dps) { }
 
     uint8 queueId;
     uint32 dungeonId;
-    time_t joinTime;
     int32 waitTime;
     int32 waitTimeAvg;
     int32 waitTimeTank;
@@ -435,6 +446,8 @@ class TC_GAME_API LFGMgr
         void JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, std::string const& comment);
         /// Leaves lfg
         void LeaveLfg(ObjectGuid guid, bool disconnected = false);
+        /// Gets unique join queue data
+        WorldPackets::LFG::RideTicket const* GetTicket(ObjectGuid guid) const;
 
         // LfgQueue
         /// Get last lfg state (NONE, DUNGEON or FINISHED_DUNGEON)
@@ -467,6 +480,7 @@ class TC_GAME_API LFGMgr
         void SetDungeon(ObjectGuid guid, uint32 dungeon);
         void SetSelectedDungeons(ObjectGuid guid, LfgDungeonSet const& dungeons);
         void DecreaseKicksLeft(ObjectGuid guid);
+        void SetTicket(ObjectGuid guid, WorldPackets::LFG::RideTicket const& ticket);
         void SetState(ObjectGuid guid, LfgState state);
         void SetVoteKick(ObjectGuid gguid, bool active);
         void RemovePlayerData(ObjectGuid guid);

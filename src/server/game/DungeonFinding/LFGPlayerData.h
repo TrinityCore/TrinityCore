@@ -19,6 +19,7 @@
 #define _LFGPLAYERDATA_H
 
 #include "LFG.h"
+#include "LFGPacketsCommon.h"
 
 namespace lfg
 {
@@ -33,6 +34,7 @@ class TC_GAME_API LfgPlayerData
         ~LfgPlayerData();
 
         // General
+        void SetTicket(WorldPackets::LFG::RideTicket const& ticket);
         void SetState(LfgState state);
         void RestoreState();
         void SetTeam(uint8 team);
@@ -44,6 +46,7 @@ class TC_GAME_API LfgPlayerData
         void SetSelectedDungeons(const LfgDungeonSet& dungeons);
 
         // General
+        WorldPackets::LFG::RideTicket const& GetTicket() const;
         LfgState GetState() const;
         LfgState GetOldState() const;
         uint8 GetTeam() const;
@@ -60,6 +63,7 @@ class TC_GAME_API LfgPlayerData
 
     private:
         // General
+        WorldPackets::LFG::RideTicket m_Ticket;            ///< Join ticket
         LfgState m_State;                                  ///< State if group in LFG
         LfgState m_OldState;                               ///< Old State - Used to restore state after failed Rolecheck/Proposal
         // Player

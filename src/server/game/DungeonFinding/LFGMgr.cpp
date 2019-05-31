@@ -549,6 +549,11 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
 
     SetComment(guid, comment);
 
+    WorldPackets::LFG::RideTicket ticket;
+    ticket.RequesterGuid = guid;
+    ticket.Id = GetQueueId(gguid);
+    ticket.Type = WorldPackets::LFG::RideType::Lfg;
+    ticket.Time = int32(time(nullptr));
     std::string debugNames = "";
     if (grp)                                               // Begin rolecheck
     {
@@ -576,6 +581,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                 ObjectGuid pguid = plrg->GetGUID();
                 plrg->GetSession()->SendLfgUpdateStatus(updateData, true);
                 SetState(pguid, LFG_STATE_ROLECHECK);
+                SetTicket(pguid, ticket);
                 if (!isContinue)
                     SetSelectedDungeons(pguid, dungeons);
                 roleCheck.roles[pguid] = 0;
@@ -608,18 +614,12 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
             SetCallToArmsRewardEnligible(player->GetGUID(), true);
 
         // Send update to player
-        player->GetSession()->SendLfgJoinResult(joinData);
-        if (!isRaid)
-        {
-            player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons, comment), false);
-            SetState(gguid, LFG_STATE_QUEUED);
-        }
-        else
-        {
-            player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_JOIN_RAIDBROWSER, dungeons, comment), false);
-            SetState(gguid, LFG_STATE_RAIDBROWSER);
-        }
+        SetTicket(guid, ticket);
         SetRoles(guid, roles);
+        player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE_INITIAL, dungeons, comment), false);
+        SetState(guid, isRaid ? LFG_STATE_RAIDBROWSER : LFG_STATE_QUEUED);
+        player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(isRaid ? LFG_UPDATETYPE_JOIN_RAIDBROWSER : LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, comment), false);
+        player->GetSession()->SendLfgJoinResult(joinData);
         debugNames.append(player->GetName());
     }
 
@@ -704,6 +704,15 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
     }
 }
 
+WorldPackets::LFG::RideTicket const* LFGMgr::GetTicket(ObjectGuid guid) const
+{
+    auto itr = PlayersStore.find(guid);
+    if (itr != PlayersStore.end())
+        return &itr->second.GetTicket();
+
+    return nullptr;
+}
+
 /**
    Update the Role check info with the player selected role.
 
@@ -755,11 +764,7 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
         }
     }
 
-    LfgJoinResult joinResult = LFG_JOIN_FAILED;
-    if (roleCheck.state == LFG_ROLECHECK_MISSING_ROLE || roleCheck.state == LFG_ROLECHECK_WRONG_ROLES)
-        joinResult = LFG_JOIN_ROLE_CHECK_FAILED;
-
-    LfgJoinResultData joinData = LfgJoinResultData(joinResult, roleCheck.state);
+    LfgJoinResultData joinData = LfgJoinResultData(LFG_JOIN_ROLE_CHECK_FAILED, roleCheck.state);
     for (LfgRolesMap::const_iterator it = roleCheck.roles.begin(); it != roleCheck.roles.end(); ++it)
     {
         ObjectGuid pguid = it->first;
@@ -1363,7 +1368,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
     {
         TC_LOG_DEBUG("lfg.teleport", "Player %s not in group/lfggroup or dungeon not found!",
             player->GetName().c_str());
-        player->GetSession()->SendLfgTeleportError(uint8(LFG_TELEPORTERROR_INVALID_LOCATION));
+        player->GetSession()->SendLfgTeleportError(uint8(LFG_TELEPORT_RESULT_NO_RETURN_LOCATION));
         return;
     }
 
@@ -1377,20 +1382,20 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         return;
     }
 
-    LfgTeleportError error = LFG_TELEPORTERROR_OK;
+    LfgTeleportResult error = LFG_TELEPORT_RESULT_NONE;
 
     if (!player->IsAlive())
-        error = LFG_TELEPORTERROR_PLAYER_DEAD;
+        error = LFG_TELEPORT_RESULT_DEAD;
     else if (player->IsFalling() || player->HasUnitState(UNIT_STATE_JUMPING))
-        error = LFG_TELEPORTERROR_FALLING;
+        error = LFG_TELEPORT_RESULT_FALLING;
     else if (player->IsMirrorTimerActive(FATIGUE_TIMER))
-        error = LFG_TELEPORTERROR_FATIGUE;
+        error = LFG_TELEPORT_RESULT_EXHAUSTION;
     else if (player->GetVehicle())
-        error = LFG_TELEPORTERROR_IN_VEHICLE;
+        error = LFG_TELEPORT_RESULT_ON_TRANSPORT;
     else if (player->GetCharmGUID())
-        error = LFG_TELEPORTERROR_CHARMING;
+        error = LFG_TELEPORT_RESULT_IMMUNE_TO_SUMMONS;
     else if (player->HasAura(9454)) // check Freeze debuff
-        error = LFG_TELEPORTERROR_INVALID_LOCATION;
+        error = LFG_TELEPORT_RESULT_NO_RETURN_LOCATION;
     else if (player->GetMapId() != uint32(dungeon->map))  // Do not teleport players in dungeon to the entrance
     {
         uint32 mapid = dungeon->map;
@@ -1436,12 +1441,12 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         }
 
         if (!player->TeleportTo(mapid, x, y, z, orientation))
-            error = LFG_TELEPORTERROR_INVALID_LOCATION;
+            error = LFG_TELEPORT_RESULT_NO_RETURN_LOCATION;
     }
     else
     {
         if (player->IsInCombat())
-            error = LFG_TELEPORTERROR_IN_COMBAT;
+            error = LFG_TELEPORT_RESULT_IMMUNE_TO_SUMMONS;
         else if (player->GetMapId() == uint32(dungeon->map))
         {
             player->SetLFGLeavePoint();
@@ -1449,7 +1454,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         }
     }
 
-    if (error != LFG_TELEPORTERROR_OK)
+    if (error != LFG_TELEPORT_RESULT_NONE)
         player->GetSession()->SendLfgTeleportError(uint8(error));
 
     TC_LOG_DEBUG("lfg.teleport", "Player %s is being teleported in to map %u "
@@ -1946,6 +1951,11 @@ void LFGMgr::DecreaseKicksLeft(ObjectGuid guid)
 {
     GroupsStore[guid].DecreaseKicksLeft();
     TC_LOG_TRACE("lfg.data.group.kicksleft.decrease", "Group: %s, Kicks: %u", guid.ToString().c_str(), GroupsStore[guid].GetKicksLeft());
+}
+
+void LFGMgr::SetTicket(ObjectGuid guid, WorldPackets::LFG::RideTicket const& ticket)
+{
+    PlayersStore[guid].SetTicket(ticket);
 }
 
 void LFGMgr::RemovePlayerData(ObjectGuid guid)

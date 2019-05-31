@@ -42,10 +42,7 @@ void LFGPlayerScript::OnLogout(Player* player)
         return;
 
     if (!player->GetGroup())
-    {
-        player->GetSession()->SendLfgLfrList(false);
         sLFGMgr->LeaveLfg(player->GetGUID());
-    }
     else if (player->GetSession()->PlayerDisconnected())
         sLFGMgr->LeaveLfg(player->GetGUID(), true);
 }
