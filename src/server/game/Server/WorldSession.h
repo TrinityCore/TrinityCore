@@ -90,6 +90,13 @@ namespace WorldPackets
         class LFGPlayerInfo;
         class LFGPartyInfo;
         class LFGUpdateStatus;
+        class RoleChosen;
+        class LFGRoleCheckUpdate;
+        class LFGJoinResult;
+        class LFGQueueStatus;
+        class LFGPlayerReward;
+        class LfgBootPlayer;
+        class LFGProposalUpdate;
     }
 }
 

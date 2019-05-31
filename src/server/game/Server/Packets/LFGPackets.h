@@ -222,7 +222,170 @@ namespace WorldPackets
             bool LfgJoined = false;
             bool Queued = false;
         };
+
+        class RoleChosen final : public ServerPacket
+        {
+        public:
+            RoleChosen() : ServerPacket(SMSG_LFG_ROLE_CHOSEN, 16 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Player;
+            uint32 RoleMask = 0;
+            bool Accepted = false;
+        };
+
+        struct LFGRoleCheckUpdateMember
+        {
+            LFGRoleCheckUpdateMember() { }
+            LFGRoleCheckUpdateMember(ObjectGuid guid, uint32 rolesDesired, uint8 level, bool roleCheckComplete)
+                : Guid(guid), RolesDesired(rolesDesired), Level(level), RoleCheckComplete(roleCheckComplete) { }
+
+            ObjectGuid Guid;
+            uint32 RolesDesired = 0;
+            uint8 Level = 0;
+            bool RoleCheckComplete = false;
+        };
+
+        class LFGRoleCheckUpdate final : public ServerPacket
+        {
+        public:
+            LFGRoleCheckUpdate() : ServerPacket(SMSG_LFG_ROLE_CHECK_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 RoleCheckStatus = 0;
+            std::vector<uint32> JoinSlots;
+            std::vector<LFGRoleCheckUpdateMember> Members;
+            bool IsBeginning = false;
+        };
+
+        struct LFGJoinBlackListSlot
+        {
+            LFGJoinBlackListSlot() { }
+            LFGJoinBlackListSlot(int32 slot, int32 reason, int32 subReason1, int32 subReason2)
+                : Slot(slot), Reason(reason), SubReason1(subReason1), SubReason2(subReason2) { }
+
+            int32 Slot = 0;
+            int32 Reason = 0;
+            int32 SubReason1 = 0;
+            int32 SubReason2 = 0;
+        };
+
+        struct LFGJoinBlackList
+        {
+            ObjectGuid Guid;
+            std::vector<LFGJoinBlackListSlot> Slots;
+        };
+
+        class LFGJoinResult final : public ServerPacket
+        {
+        public:
+            LFGJoinResult() : ServerPacket(SMSG_LFG_JOIN_RESULT) { }
+
+            WorldPacket const* Write() override;
+
+            RideTicket Ticket;
+            uint8 Result = 0;
+            uint8 ResultDetail = 0;
+            std::vector<LFGJoinBlackList> BlackList;
+        };
+
+        class LFGQueueStatus final : public ServerPacket
+        {
+        public:
+            LFGQueueStatus() : ServerPacket(SMSG_LFG_QUEUE_STATUS, 16 + 4 + 4 + 4 + 4 + 4 + 4 + 4 * 3 + 3 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            RideTicket Ticket;
+            uint32 Slot = 0;
+            uint32 AvgWaitTimeMe = 0;
+            uint32 AvgWaitTime = 0;
+            uint32 AvgWaitTimeByRole[3] = {};
+            uint8 LastNeeded[3] = {};
+            uint32 QueuedTime = 0;
+        };
+
+        struct LFGPlayerRewards
+        {
+            LFGPlayerRewards() { }
+            LFGPlayerRewards(int32 rewardItem, uint32 rewardItemQuantity, bool isCurrency)
+                : RewardItem(rewardItem), RewardItemQuantity(rewardItemQuantity), IsCurrency(isCurrency) { }
+
+            int32 RewardItem = 0;
+            uint32 RewardItemQuantity = 0;
+            bool IsCurrency = false;
+        };
+
+        class LFGPlayerReward final : public ServerPacket
+        {
+        public:
+            LFGPlayerReward() : ServerPacket(SMSG_LFG_PLAYER_REWARD) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QueuedSlot = 0;
+            uint32 ActualSlot = 0;
+            int32 RewardMoney = 0;
+            int32 AddedXP = 0;
+            std::vector<LFGPlayerRewards> Rewards;
+        };
+
+        struct LfgBootInfo
+        {
+            bool VoteInProgress = false;
+            bool VotePassed = false;
+            bool MyVoteCompleted = false;
+            bool MyVote = false;
+            ObjectGuid Target;
+            uint32 TotalVotes = 0;
+            uint32 BootVotes = 0;
+            int32 TimeLeft = 0;
+            uint32 VotesNeeded = 0;
+            std::string Reason;
+        };
+
+        class LfgBootPlayer final : public ServerPacket
+        {
+        public:
+            LfgBootPlayer() : ServerPacket(SMSG_LFG_BOOT_PROPOSAL_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            LfgBootInfo Info;
+        };
+
+        struct LFGProposalUpdatePlayer
+        {
+            uint32 Roles = 0;
+            bool Me = false;
+            bool SameParty = false;
+            bool MyParty = false;
+            bool Responded = false;
+            bool Accepted = false;
+        };
+
+        class LFGProposalUpdate final : public ServerPacket
+        {
+        public:
+            LFGProposalUpdate() : ServerPacket(SMSG_LFG_PROPOSAL_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            RideTicket Ticket;
+            uint64 InstanceID = 0;
+            uint32 ProposalID = 0;
+            uint32 Slot = 0;
+            int8 State = 0;
+            uint32 CompletedMask = 0;
+            uint8 Unused;
+            bool ProposalSilent = false;
+            std::vector<LFGProposalUpdatePlayer> Players;
+        };
     }
+
+
 }
 
 #endif // LFGPackets_h__
