@@ -22,6 +22,7 @@
 #include "PathGenerator.h"
 #include "RandomMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
+#include <sstream>
 
 MovementGenerator::~MovementGenerator() { }
 

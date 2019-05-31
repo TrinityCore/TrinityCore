@@ -19,7 +19,7 @@
 #define PathMovementBase_h__
 
 #include "Define.h"
-#include <sstream>
+#include <string>
 
 template<class Entity, class BasePath>
 class PathMovementBase
@@ -32,10 +32,7 @@ class PathMovementBase
 
         virtual std::string GetDebugInfo() const
         {
-            std::stringstream sstr;
-            sstr << std::boolalpha
-                << "Current Node: " << GetCurrentNode();
-            return sstr.str();
+            return "Current Node: " + std::to_string(GetCurrentNode());
         };
 
     protected:

@@ -24,6 +24,7 @@
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include <sstream>
 
 #define FLIGHT_TRAVEL_UPDATE 100
 #define TIMEDIFF_NEXT_WP 250
