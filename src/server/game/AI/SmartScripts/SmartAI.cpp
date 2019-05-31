@@ -1081,6 +1081,16 @@ void SmartGameObjectAI::SpellHit(Unit* unit, SpellInfo const* spellInfo)
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, unit, 0, 0, false, spellInfo);
 }
 
+void SmartGameObjectAI::JustSummoned(Creature* creature)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT, creature);
+}
+
+void SmartGameObjectAI::SummonedCreatureDespawn(Creature* unit)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMON_DESPAWNED, unit, unit->GetEntry());
+}
+
 class SmartTrigger : public AreaTriggerScript
 {
     public:
