@@ -4459,8 +4459,9 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
         return;
 
     float speedxy = m_spellInfo->Effects[effIndex].MiscValue / 10.f;
-    float speedz = damage/ 10.f;
-    unitTarget->JumpTo(speedxy, speedz, false);
+    float speedz = damage / 10.f;
+    // 69070: Rocket Jump
+    unitTarget->JumpTo(speedxy, speedz, m_spellInfo->SpellIconID == 4329);
 
     // changes fall time
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
