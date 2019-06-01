@@ -206,7 +206,7 @@ class npc_jaina_theramore : public CreatureScript
 
         void MoveInLineOfSight(Unit* who) override
         {
-            if (!canBeginEnd)
+            if (me->GetMapId() != 726 || !canBeginEnd)
                 return;
 
             if (who->GetTypeId() != TYPEID_PLAYER)
