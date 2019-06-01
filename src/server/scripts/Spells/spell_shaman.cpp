@@ -56,7 +56,6 @@ enum ShamanSpells
     SPELL_SHAMAN_FREEZE                         = 63685,
     SPELL_SHAMAN_FULMINATION_PROC               = 95774,
     SPELL_SHAMAN_FULMINATION_DAMAGE             = 88767,
-    SPELL_SHAMAN_GLYPH_OF_EARTH_SHIELD          = 63279,
     SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM  = 55456,
     SPELL_SHAMAN_GLYPH_OF_HEALING_WAVE          = 55533,
     SPELL_SHAMAN_GLYPH_OF_MANA_TIDE             = 55441,
@@ -105,7 +104,8 @@ enum ShamanSpellIcons
     SHAMAN_ICON_ID_CLEANSING_WATERS             = 2020,
     SHAMAN_ICON_ID_BLESSING_OF_THE_ETERNALS     = 3157,
     SHAMAN_ICON_ID_FULMINATION                  = 2010,
-    SHAMAN_ICON_ID_GLYPH_OF_LIGHTNING_SHIELD    = 19
+    SHAMAN_ICON_ID_GLYPH_OF_LIGHTNING_SHIELD    = 19,
+    SHAMAN_ICON_ID_GLYPH_OF_EARTH_SHIELD        = 2015
 };
 
 enum MiscSpells
@@ -317,74 +317,37 @@ class spell_sha_chain_heal : public SpellScriptLoader
 };
 
 // 974 - Earth Shield
-class spell_sha_earth_shield : public SpellScriptLoader
+class spell_sha_earth_shield : public AuraScript
 {
-    public:
-        spell_sha_earth_shield() : SpellScriptLoader("spell_sha_earth_shield") { }
+    PrepareAuraScript(spell_sha_earth_shield);
 
-        class spell_sha_earth_shield_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_EARTH_SHIELD_HEAL });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+
+        if (Unit* caster = GetCaster())
         {
-            PrepareAuraScript(spell_sha_earth_shield_AuraScript);
+            Unit* target = GetTarget();
+            int32 bp = aurEff->GetAmount();
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_SHAMAN_EARTH_SHIELD_HEAL, SPELL_SHAMAN_GLYPH_OF_EARTH_SHIELD });
-            }
+            bp = caster->SpellHealingBonusDone(target, GetSpellInfo(), bp, HEAL, aurEff->GetEffIndex());
+            bp = target->SpellHealingBonusTaken(caster, GetSpellInfo(), bp, HEAL);
+            if (AuraEffect const* glyphEff = target->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_GLYPH_OF_EARTH_SHIELD, EFFECT_0))
+                AddPct(bp, glyphEff->GetAmount());
 
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool & /*canBeRecalculated*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, HEAL, aurEff->GetEffIndex());
-                    amount = GetUnitOwner()->SpellHealingBonusTaken(caster, GetSpellInfo(), amount, HEAL);
-
-                    //! WORKAROUND
-                    // If target is affected by healing reduction, modifier is guaranteed to be negative
-                    // value (e.g. -50). To revert the effect, multiply amount with reciprocal of relative value:
-                    // (100 / ((-1) * modifier)) * 100 = (-1) * 100 * 100 / modifier = -10000 / modifier
-                    if (int32 modifier = GetUnitOwner()->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT))
-                        ApplyPct(amount, -10000.0f / float(modifier));
-
-                    // Glyph of Earth Shield
-                    //! WORKAROUND
-                    //! this glyph is a proc
-                    if (AuraEffect* glyph = caster->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_EARTH_SHIELD, EFFECT_0))
-                        AddPct(amount, glyph->GetAmount());
-                }
-            }
-
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
-            {
-                //! HACK due to currenct proc system implementation
-                if (Player* player = GetTarget()->ToPlayer())
-                    if (player->GetSpellHistory()->HasCooldown(SPELL_SHAMAN_EARTH_SHIELD_HEAL))
-                        return false;
-                return true;
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-
-                GetTarget()->CastCustomSpell(SPELL_SHAMAN_EARTH_SHIELD_HEAL, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff, GetCasterGUID());
-
-                /// @hack: due to currenct proc system implementation
-                if (Player* player = GetTarget()->ToPlayer())
-                    player->GetSpellHistory()->AddCooldown(SPELL_SHAMAN_EARTH_SHIELD_HEAL, 0, std::chrono::seconds(3));
-            }
-
-            void Register() override
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_earth_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_DUMMY);
-                DoCheckProc += AuraCheckProcFn(spell_sha_earth_shield_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_sha_earth_shield_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_sha_earth_shield_AuraScript();
+            target->CastCustomSpell(SPELL_SHAMAN_EARTH_SHIELD_HEAL, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff, GetCasterGUID());
         }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_sha_earth_shield::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 6474 - Earthbind Totem - Fix Talent:Earthen Power, Earth's Grasp
@@ -2075,7 +2038,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_bloodlust();
     new spell_sha_cleanse_spirit();
     new spell_sha_chain_heal();
-    new spell_sha_earth_shield();
+    RegisterAuraScript(spell_sha_earth_shield);
     RegisterSpellScript(spell_sha_earth_shock);
     new spell_sha_earthbind_totem();
     new spell_sha_earthen_power();

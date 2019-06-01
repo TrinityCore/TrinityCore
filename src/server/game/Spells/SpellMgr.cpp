@@ -5346,6 +5346,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
     });
 
+    // Earth Shield
+    ApplySpellFix({ 378 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
