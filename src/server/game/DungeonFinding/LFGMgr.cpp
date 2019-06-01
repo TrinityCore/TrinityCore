@@ -1098,7 +1098,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
     time_t joinTime = time(nullptr);
 
     LFGQueue& queue = GetQueue(guid);
-    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_GROUP_FOUND);
+    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_GROUP_FOUND, GetSelectedDungeons(guid), GetComment(guid));
     for (LfgProposalPlayerContainer::const_iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
     {
         ObjectGuid pguid = it->first;
@@ -1111,16 +1111,13 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
         if (gguid)
         {
             waitTime = int32((joinTime - queue.GetJoinTime(gguid)) / IN_MILLISECONDS);
-            SendLfgUpdateStatus(pguid, updateData, false);
+            SendLfgUpdateStatus(pguid, updateData, true);
         }
         else
         {
             waitTime = int32((joinTime - queue.GetJoinTime(pguid)) / IN_MILLISECONDS);
             SendLfgUpdateStatus(pguid, updateData, false);
         }
-        updateData.updateType = LFG_UPDATETYPE_REMOVED_FROM_QUEUE;
-        SendLfgUpdateStatus(pguid, updateData, true);
-        SendLfgUpdateStatus(pguid, updateData, false);
 
         // Update timers
         uint8 role = GetRoles(pguid);
@@ -1501,6 +1498,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
             rDungeonId = (*dungeons.begin());
 
         SetState(guid, LFG_STATE_FINISHED_DUNGEON);
+        SendLfgUpdateStatus(guid, LfgUpdateData(LFG_UPDATETYPE_DUNGEON_FINISHED, GetSelectedDungeons(guid), GetComment(guid)), true);
 
         // Give rewards only if its a random dungeon
         LFGDungeonData const* dungeon = GetLFGDungeon(rDungeonId);

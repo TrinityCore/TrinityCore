@@ -308,13 +308,12 @@ void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, boo
             queued = true;
             break;
         case lfg::LFG_UPDATETYPE_JOIN_RAIDBROWSER:
-            join = true;
-            break;
         case lfg::LFG_UPDATETYPE_PROPOSAL_BEGIN:
             join = true;
             break;
         case lfg::LFG_UPDATETYPE_UPDATE_STATUS:
-            join = updateData.state != lfg::LFG_STATE_ROLECHECK && updateData.state != lfg::LFG_STATE_NONE;
+            join = updateData.state != lfg::LFG_STATE_ROLECHECK && updateData.state != lfg::LFG_STATE_NONE &&
+                updateData.state != lfg::LFG_STATE_DUNGEON && updateData.state != lfg::LFG_STATE_FINISHED_DUNGEON;
             queued = updateData.state == lfg::LFG_STATE_QUEUED || updateData.state == lfg::LFG_STATE_RAIDBROWSER;
             break;
         default:
