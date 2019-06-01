@@ -372,6 +372,9 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
+    if (group->isLFGGroup())
+        return;
+
     switch (packet.LootMethod)
     {
         case FREE_FOR_ALL:
