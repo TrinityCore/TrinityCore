@@ -16021,10 +16021,14 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
                 {
                     if (quest->IsRepeatable())
                     {
-                        if (quest->IsDailyOrWeekly())
+                        if (quest->IsDaily())
                             result2 = DIALOG_STATUS_AVAILABLE_REP;
-                        else
+                        else if (quest->IsWeekly())
+                            result2 = DIALOG_STATUS_AVAILABLE;
+                        else if (quest->IsAutoComplete())
                             result2 = DIALOG_STATUS_REWARD_REP;
+                        else
+                            result2 = DIALOG_STATUS_AVAILABLE;
                     }
                     else if (getLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
                     {
