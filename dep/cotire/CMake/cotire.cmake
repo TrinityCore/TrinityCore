@@ -2867,8 +2867,18 @@ function (cotire_process_target_language _language _configurations _target _whol
 		# check for user provided prefix header files
 		get_property(_prefixHeaderFiles TARGET ${_target} PROPERTY COTIRE_${_language}_PREFIX_HEADER_INIT)
 		if (_prefixHeaderFiles)
-			cotire_setup_prefix_generation_from_provided_command(
-				${_language} ${_target} "${_targetConfigScript}" "${_prefixFile}" _cmds ${_prefixHeaderFiles})
+			list (LENGTH _prefixHeaderFiles _numberOfprefixHeaderFiles)
+			# if there is only one header specified in COTIRE_${_language}_PREFIX_HEADER_INIT then use it directly
+			# this works around a bug/change that causes Visual Studio to always rebuild entire project
+			# even if only one source file changed
+			# custom commands in cmake are designed to be always "out of date" so generation always happens
+			# Visual Studio determines "out of date" status by last modification timestamp, not content
+			if (_numberOfprefixHeaderFiles GREATER 1)
+				cotire_setup_prefix_generation_from_provided_command(
+					${_language} ${_target} "${_targetConfigScript}" "${_prefixFile}" _cmds ${_prefixHeaderFiles})
+			else()
+				list (GET _prefixHeaderFiles 0 _prefixFile)
+			endif()
 		else()
 			cotire_setup_prefix_generation_from_unity_command(
 				${_language} ${_target} "${_targetConfigScript}" "${_prefixFile}" "${_unityFile}" _cmds ${_unitySourceFiles})
