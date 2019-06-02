@@ -2964,7 +2964,7 @@ class npc_traveler_tundra_mammoth_exit_pos : public UnitScript
 public:
     npc_traveler_tundra_mammoth_exit_pos() : UnitScript("npc_traveler_tundra_mammoth_exit_pos") { }
 
-    void ModifyVehiclePassengerExitPos(Unit* passenger, Vehicle* vehicle, Position& pos)
+    void ModifyVehiclePassengerExitPos(Unit* passenger, Vehicle* /*vehicle*/, Position& pos)
     {
         if (passenger->GetTypeId() == TYPEID_UNIT)
         {
