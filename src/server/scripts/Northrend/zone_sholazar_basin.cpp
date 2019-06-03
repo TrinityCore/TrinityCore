@@ -772,6 +772,162 @@ public:
     }
 };
 
+enum TheGreatHuntersChallenge
+{
+    QUEST_THE_GREAT_HUNTERS_CHALLENGE = 12592,
+    NPC_SUMMONED_DROSTAN              = 28857,
+    SPELL_SUMMON_DROSTAN              = 52556,
+    SPELL_DROSTAN_AURA_SLEEP          = 55474,
+
+    EVENT_DROSTAN_RUN_AWAY     = 1,
+    EVENT_DROSTAN_SLEEP        = 2,
+    EVENT_DROSTAN_SAY_7        = 3,
+    EVENT_DROSTAN_OBJECTIVE_6  = 6,
+    EVENT_DROSTAN_OBJECTIVE_11 = 11,
+    EVENT_DROSTAN_OBJECTIVE_21 = 21,
+    EVENT_DROSTAN_OBJECTIVE_28 = 28,
+    EVENT_DROSTAN_OBJECTIVE_35 = 35,
+    EVENT_DROSTAN_OBJECTIVE_41 = 41,
+    EVENT_DROSTAN_OBJECTIVE_49 = 49,
+    EVENT_DROSTAN_OBJECTIVE_56 = 56,
+
+    DROSTAN_SAY_2  = 2,
+    DROSTAN_SAY_3  = 3,
+    DROSTAN_SAY_4  = 4,
+    DROSTAN_SAY_5  = 5,
+    DROSTAN_SAY_6  = 6,
+    DROSTAN_SAY_7  = 7,
+    DROSTAN_SAY_8  = 8,
+    DROSTAN_SAY_9  = 9,
+    DROSTAN_SAY_10 = 10,
+
+};
+
+class npc_drostan : public CreatureScript
+{
+public:
+    npc_drostan() : CreatureScript("npc_drostan") { }
+
+    struct npc_drostanAI : public CreatureAI
+    {
+        npc_drostanAI(Creature* creature) : CreatureAI(creature) { }
+
+        void CallEvent(Player* player, uint32 progress)
+        {
+            _playerGUID = player->GetGUID();
+            _events.ScheduleEvent(progress, Seconds(3));
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            _events.Update(diff);
+
+            if (uint32 eventId = _events.ExecuteEvent())
+            {
+                Unit* player = ObjectAccessor::GetUnit(*me, _playerGUID);
+                if (!player)
+                    return;
+
+                switch (eventId)
+                {
+                    case EVENT_DROSTAN_RUN_AWAY:
+                        me->GetMotionMaster()->MovePoint(0, me->GetPosition().GetPositionWithOffset(Position(0.f, 20.f, 0.f, 0.f)), true);
+                        break;
+                    case EVENT_DROSTAN_SLEEP:
+                        me->SetStandState(UNIT_STAND_STATE_SLEEP);
+                        me->AddAura(SPELL_DROSTAN_AURA_SLEEP, me);
+                        break;
+                    case EVENT_DROSTAN_SAY_7:
+                        Talk(DROSTAN_SAY_7, player);
+                        _events.ScheduleEvent(EVENT_DROSTAN_RUN_AWAY, 3s);
+                        break;
+                    case EVENT_DROSTAN_OBJECTIVE_6:
+                        me->DespawnOrUnsummon(4s);
+                        Talk(DROSTAN_SAY_2, player);
+                        _events.ScheduleEvent(EVENT_DROSTAN_RUN_AWAY, 3s);
+                        break;
+                    case EVENT_DROSTAN_OBJECTIVE_11:
+                        me->DespawnOrUnsummon(4s);
+                        Talk(DROSTAN_SAY_3, player);
+                        _events.ScheduleEvent(EVENT_DROSTAN_RUN_AWAY, 3s);
+                        break;
+                    case EVENT_DROSTAN_OBJECTIVE_21:
+                        me->DespawnOrUnsummon(4s);
+                        Talk(DROSTAN_SAY_4, player);
+                        _events.ScheduleEvent(EVENT_DROSTAN_RUN_AWAY, 3s);
+                        break;
+                    case EVENT_DROSTAN_OBJECTIVE_28:
+                        me->DespawnOrUnsummon(4s);
+                        Talk(DROSTAN_SAY_5, player);
+                        _events.ScheduleEvent(EVENT_DROSTAN_SLEEP, 3s);
+                        break;
+                    case EVENT_DROSTAN_OBJECTIVE_35:
+                        me->DespawnOrUnsummon(10s);
+                        Talk(DROSTAN_SAY_6, player);
+                        _events.ScheduleEvent(EVENT_DROSTAN_SAY_7, 3s);
+                        break;
+                    case EVENT_DROSTAN_OBJECTIVE_41:
+                        me->DespawnOrUnsummon(4s);
+                        Talk(DROSTAN_SAY_8, player);
+                        _events.ScheduleEvent(EVENT_DROSTAN_RUN_AWAY, 3s);
+                        break;
+                    case EVENT_DROSTAN_OBJECTIVE_49:
+                        me->DespawnOrUnsummon(4s);
+                        Talk(DROSTAN_SAY_9, player);
+                        _events.ScheduleEvent(EVENT_DROSTAN_RUN_AWAY, 3s);
+                        break;
+                    case EVENT_DROSTAN_OBJECTIVE_56:
+                        me->DespawnOrUnsummon(4s);
+                        Talk(DROSTAN_SAY_10, player);
+                        _events.ScheduleEvent(EVENT_DROSTAN_RUN_AWAY, 3s);
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap _events;
+        ObjectGuid _playerGUID;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_drostanAI(creature);
+    }
+};
+
+class q12592_objective_tracker : public PlayerScript
+{
+public:
+    q12592_objective_tracker() : PlayerScript("") { }
+
+    void OnQuestObjectiveProgress(Player* player, Quest const* quest, uint32 /*objectiveIndex*/, uint16 progress) override
+    {
+        if (quest->GetQuestId() != QUEST_THE_GREAT_HUNTERS_CHALLENGE)
+            return;
+
+        switch (progress)
+        {
+            case 6:
+            case 11:
+            case 21:
+            case 28:
+            case 35:
+            case 41:
+            case 49:
+            case 56:
+                player->CastSpell(player, SPELL_SUMMON_DROSTAN, true);
+                if (Creature* drostan = player->FindNearestCreature(NPC_SUMMONED_DROSTAN, 50.0f))
+                {
+                    drostan->SetFacingToObject(player, true);
+                    if (npc_drostan::npc_drostanAI* script = CAST_AI(npc_drostan::npc_drostanAI, drostan->AI()))
+                        script->CallEvent(player, progress);
+                }
+                break;
+        }
+    }
+};
+
 void AddSC_sholazar_basin()
 {
     new npc_engineer_helice();
@@ -781,4 +937,6 @@ void AddSC_sholazar_basin()
     new npc_haiphoon();
     new npc_vics_flying_machine();
     new spell_shango_tracks();
+    new npc_drostan();
+    new q12592_objective_tracker();
 }
