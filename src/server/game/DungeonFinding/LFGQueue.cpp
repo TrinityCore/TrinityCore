@@ -603,7 +603,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     return LFG_COMPATIBLES_MATCH;
 }
 
-void LFGQueue::UpdateQueueTimers(uint8 queueId, time_t currTime, uint32 &tankCount, uint32 &healerCount, uint32 &dpsCount)
+void LFGQueue::UpdateQueueTimers(uint8 queueId, time_t currTime, LfgQueueRoleContainer& rolesPerDungeonId)
 {
     TC_LOG_TRACE("lfg.queue.timers.update", "Updating queue timers...");
     for (LfgQueueDataContainer::iterator itQueue = QueueDataStore.begin(); itQueue != QueueDataStore.end(); ++itQueue)
@@ -622,18 +622,12 @@ void LFGQueue::UpdateQueueTimers(uint8 queueId, time_t currTime, uint32 &tankCou
             role |= itPlayer->second;
         role &= ~PLAYER_ROLE_LEADER;
 
-        if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
-        {
-            if (dungeon->minlevel == sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) && dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC)
-            {
-                if (role & PLAYER_ROLE_TANK)
-                    tankCount++;
-                if (role & PLAYER_ROLE_HEALER)
-                    healerCount++;
-                if (role & PLAYER_ROLE_DAMAGE)
-                    dpsCount++;
-            }
-        }
+        if (role & PLAYER_ROLE_TANK)
+            rolesPerDungeonId[dungeonId].currentTanks++;
+        if (role & PLAYER_ROLE_HEALER)
+            rolesPerDungeonId[dungeonId].currentHealers++;
+        if (role & PLAYER_ROLE_DAMAGE)
+            rolesPerDungeonId[dungeonId].currentDps++;
 
         switch (role)
         {

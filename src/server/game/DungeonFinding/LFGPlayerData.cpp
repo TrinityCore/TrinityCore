@@ -21,7 +21,7 @@ namespace lfg
 {
 
 LfgPlayerData::LfgPlayerData(): m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE),
-    m_Team(0), m_Group(), m_Roles(0), m_Comment("")
+    m_Team(0), m_Group(), m_Roles(0), m_Comment(""), m_EnligibleForShortageRewards(false)
 { }
 
 LfgPlayerData::~LfgPlayerData() { }
@@ -84,9 +84,9 @@ void LfgPlayerData::SetSelectedDungeons(LfgDungeonSet const& dungeons)
     m_SelectedDungeons = dungeons;
 }
 
-void LfgPlayerData::SetCallToArmsRewardEnligible(bool apply)
+void LfgPlayerData::SetEnligibleForShortageRewards(bool apply)
 {
-    m_CallToArmsRewardEnligible = apply;
+    m_EnligibleForShortageRewards = apply;
 }
 
 WorldPackets::LFG::RideTicket const& LfgPlayerData::GetTicket() const
@@ -129,9 +129,9 @@ LfgDungeonSet const& LfgPlayerData::GetSelectedDungeons() const
     return m_SelectedDungeons;
 }
 
-bool LfgPlayerData::IsCallToArmsRewardEnligible() const
+bool LfgPlayerData::IsEnligibleForShortageRewards() const
 {
-    return m_CallToArmsRewardEnligible;
+    return m_EnligibleForShortageRewards;
 }
 
 } // namespace lfg

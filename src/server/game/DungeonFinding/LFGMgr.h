@@ -46,8 +46,9 @@ namespace lfg
 
 enum LfgOptions
 {
-    LFG_OPTION_ENABLE_DUNGEON_FINDER             = 0x01,
-    LFG_OPTION_ENABLE_RAID_BROWSER               = 0x02,
+    LFG_OPTION_ENABLE_DUNGEON_FINDER            = 0x1,
+    LFG_OPTION_ENABLE_RAID_BROWSER              = 0x2,
+    LFG_OPTION_ENABLE_SHORTAGE_REWARDS          = 0x4 
 };
 
 enum LFGMgrEnum
@@ -143,12 +144,6 @@ enum LfgRoleCheckState
     LFG_ROLECHECK_NO_ROLE                        = 6       // Someone selected no role
 };
 
-/// Call to Arms bonus rewards
-enum LfgCallToArms
-{
-    LFG_CALL_TO_ARMS_QUEST                       = 29339
-};
-
 // Forward declaration (just to have all typedef together)
 struct LFGDungeonData;
 struct LfgReward;
@@ -170,6 +165,7 @@ typedef std::map<ObjectGuid, LfgPlayerBoot> LfgPlayerBootContainer;
 typedef std::map<ObjectGuid, LfgGroupData> LfgGroupDataContainer;
 typedef std::map<ObjectGuid, LfgPlayerData> LfgPlayerDataContainer;
 typedef std::unordered_map<uint32, LFGDungeonData> LFGDungeonContainer;
+typedef std::unordered_map<uint32, uint32> ShortageRoleMaskContainer;
 
 // Data needed by SMSG_LFG_JOIN_RESULT
 struct LfgJoinResultData
@@ -219,25 +215,26 @@ struct LfgQueueStatusData
 
 struct LfgPlayerRewardData
 {
-    LfgPlayerRewardData(uint32 random, uint32 current, bool _done, Quest const* _quest, Quest const* _callToArmsQuest):
-        rdungeonEntry(random), sdungeonEntry(current), done(_done), quest(_quest), callToArmsQuest(_callToArmsQuest) { }
+    LfgPlayerRewardData(uint32 random, uint32 current, bool _done, Quest const* _quest, Quest const* _shortageQuest):
+        rdungeonEntry(random), sdungeonEntry(current), done(_done), quest(_quest), shortageQuest(_shortageQuest) { }
 
     uint32 rdungeonEntry;
     uint32 sdungeonEntry;
     bool done;
     Quest const* quest;
-    Quest const* callToArmsQuest;
+    Quest const* shortageQuest;
 };
 
 /// Reward info
 struct LfgReward
 {
-    LfgReward(uint32 _maxLevel = 0, uint32 _firstQuest = 0, uint32 _otherQuest = 0, uint8 _completionsPerPeriod = 0, bool _dailyReset = 0):
-        maxLevel(_maxLevel), firstQuest(_firstQuest), otherQuest(_otherQuest), completionsPerPeriod(_completionsPerPeriod), dailyReset(_dailyReset) { }
+    LfgReward(uint32 _maxLevel = 0, uint32 _firstQuest = 0, uint32 _otherQuest = 0, uint32 _shortageQuest = 0, uint8 _completionsPerPeriod = 0, bool _dailyReset = 0):
+        maxLevel(_maxLevel), firstQuest(_firstQuest), otherQuest(_otherQuest), shortageQuest(_shortageQuest), completionsPerPeriod(_completionsPerPeriod), dailyReset(_dailyReset) { }
 
     uint32 maxLevel;
     uint32 firstQuest;
     uint32 otherQuest;
+    uint32 shortageQuest;
     uint8 completionsPerPeriod;
     bool dailyReset;
 };
@@ -365,24 +362,6 @@ class TC_GAME_API LFGMgr
         /// Return Lfg dungeon entry for given dungeon id
         uint32 GetLFGDungeonEntry(uint32 id);
 
-        // Call to Arms
-        /// Returns active state of the Call to Arms system
-        bool IsCallToArmsEnabled() const { return _isCallToArmsEnabled; }
-        /// Check if player fulfills criteria for Call to Arms
-        bool IsCallToArmsEnligible(Player* player, uint32 dungeonId);
-        /// Get Call to Arms reward engligible state
-        bool IsCallToArmsRewardEnligible(ObjectGuid guid);
-        /// Set Call to Arms reward engligible state
-        void SetCallToArmsRewardEnligible(ObjectGuid guid, bool apply);
-        /// Returns if player has selected a enligible role
-        bool IsCallToArmsEnligibleRole(uint8 roles);
-        /// Adds a role to the allowed Call to Arms reward roles
-        void AddCallToArmsRole(uint8 role) { _callToArmsRoles |= role; }
-        /// Removes a role to the allowed Call to Arms reward roles
-        void RemoveCallToArmsRole(uint8 role) { _callToArmsRoles = _callToArmsRoles & ~role; }
-        /// Returns all roles that are currently allowed to earn Call to Arms rewards
-        uint8 GetCallToArmsEnligibleRoles() { return _callToArmsRoles; }
-
         // cs_lfg
         /// Get current player roles
         uint8 GetRoles(ObjectGuid guid);
@@ -472,6 +451,8 @@ class TC_GAME_API LFGMgr
         static void SendLfgQueueStatus(ObjectGuid guid, LfgQueueStatusData const& data);
         /// Returns dungeon datas based on the dungeon ID
         LFGDungeonData const* GetLFGDungeon(uint32 id);
+        /// Returns the stored role mask for the shortage system indexed by random dungeon id
+        uint32 GetShortageRoleMask(uint32 dungeonId);
 
     private:
         uint8 GetTeam(ObjectGuid guid);
@@ -491,6 +472,11 @@ class TC_GAME_API LFGMgr
         // Proposals
         void RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdateType type);
         void MakeNewGroup(LfgProposal const& proposal);
+
+        // Shortages
+        void SetShortageRoleMask(uint32 dungeonId, uint8 role);
+        void SetEnligibleForShortageRewards(ObjectGuid guid, bool enligible);
+        bool IsEnligibleForShortageRewards(ObjectGuid guid);
 
         // Generic
         LFGQueue& GetQueue(ObjectGuid guid);
@@ -517,16 +503,14 @@ class TC_GAME_API LFGMgr
         // Reward System
         LfgRewardContainer RewardMapStore;                 ///< Stores rewards for random dungeons
         LFGDungeonContainer  LfgDungeonStore;
+        // Shortage System
+        ShortageRoleMaskContainer ShortageRoleMaskStore;   ///< Stores the roles that are enligible for additional rewards indexed by random dungeonId
         // Rolecheck - Proposal - Vote Kicks
         LfgRoleCheckContainer RoleChecksStore;             ///< Current Role checks
         LfgProposalContainer ProposalsStore;               ///< Current Proposals
         LfgPlayerBootContainer BootsStore;                 ///< Current player kicks
         LfgPlayerDataContainer PlayersStore;               ///< Player data
         LfgGroupDataContainer GroupsStore;                 ///< Group data
-
-        // Call to Arms System
-        bool _isCallToArmsEnabled;
-        uint8 _callToArmsRoles;
 };
 
 } // namespace lfg

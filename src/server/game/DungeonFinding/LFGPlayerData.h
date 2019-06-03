@@ -57,9 +57,9 @@ class TC_GAME_API LfgPlayerData
         std::string const& GetComment() const;
         LfgDungeonSet const& GetSelectedDungeons() const;
 
-        // Call to Arms
-        void SetCallToArmsRewardEnligible(bool apply);
-        bool IsCallToArmsRewardEnligible() const;
+        // Shortage
+        void SetEnligibleForShortageRewards(bool apply);
+        bool IsEnligibleForShortageRewards() const;
 
     private:
         // General
@@ -75,8 +75,8 @@ class TC_GAME_API LfgPlayerData
         std::string m_Comment;                             ///< Player comment used when joined LFG
         LfgDungeonSet m_SelectedDungeons;                  ///< Selected Dungeons when joined LFG
 
-        // Call to Arms
-        bool m_CallToArmsRewardEnligible;
+        // Shortage
+        bool m_EnligibleForShortageRewards;                ///< Bonus reward state for shortage rewards
 };
 
 } // namespace lfg

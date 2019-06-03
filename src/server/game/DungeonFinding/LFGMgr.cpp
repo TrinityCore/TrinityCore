@@ -53,9 +53,7 @@ LFGDungeonData::LFGDungeonData(LFGDungeonEntry const* dbc) : id(dbc->ID), name(d
 }
 
 LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1),
-    m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK)),
-    _isCallToArmsEnabled(sWorld->getBoolConfig(CONFIG_LFG_CALL_TO_ARMS_ENABLED)),
-    _callToArmsRoles(PLAYER_ROLE_TANK | PLAYER_ROLE_HEALER | PLAYER_ROLE_DAMAGE)
+    m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK))
 {
 }
 
@@ -124,7 +122,7 @@ void LFGMgr::LoadRewards()
     RewardMapStore.clear();
 
     // ORDER BY is very important for GetRandomDungeonReward!
-    QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId, completionsPerPeriod, dailyReset FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
+    QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId, shortageQuestId, completionsPerPeriod, dailyReset FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
 
     if (!result)
     {
@@ -142,8 +140,9 @@ void LFGMgr::LoadRewards()
         uint32 maxLevel = fields[1].GetUInt8();
         uint32 firstQuestId = fields[2].GetUInt32();
         uint32 otherQuestId = fields[3].GetUInt32();
-        uint32 completionsPerPeriod = fields[4].GetUInt8();
-        bool dailyReset = fields[5].GetUInt8();
+        uint32 shortageQuestId = fields[4].GetUInt32();
+        uint32 completionsPerPeriod = fields[5].GetUInt8();
+        bool dailyReset = fields[6].GetUInt8();
 
         if (!GetLFGDungeonEntry(dungeonId))
         {
@@ -169,7 +168,13 @@ void LFGMgr::LoadRewards()
             otherQuestId = 0;
         }
 
-        RewardMapStore.insert(LfgRewardContainer::value_type(dungeonId, new LfgReward(maxLevel, firstQuestId, otherQuestId, completionsPerPeriod, dailyReset)));
+        if (shortageQuestId && !sObjectMgr->GetQuestTemplate(shortageQuestId))
+        {
+            TC_LOG_ERROR("sql.sql", "Shortage quest %u specified for dungeon %u in table `lfg_dungeon_rewards` does not exist!", shortageQuestId, dungeonId);
+            shortageQuestId = 0;
+        }
+
+        RewardMapStore.insert(LfgRewardContainer::value_type(dungeonId, new LfgReward(maxLevel, firstQuestId, otherQuestId, shortageQuestId, completionsPerPeriod, dailyReset)));
         ++count;
     }
     while (result->NextRow());
@@ -204,8 +209,11 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
             case LFG_TYPE_DUNGEON:
             case LFG_TYPE_HEROIC:
             case LFG_TYPE_RAID:
+                LfgDungeonStore.insert(LFGDungeonContainer::value_type(dungeon->ID, LFGDungeonData(dungeon)));
+                break;
             case LFG_TYPE_RANDOM:
                 LfgDungeonStore.insert(LFGDungeonContainer::value_type(dungeon->ID, LFGDungeonData(dungeon)));
+                ShortageRoleMaskStore[dungeon->ID] = 0;
                 break;
         }
     }
@@ -374,33 +382,52 @@ void LFGMgr::Update(uint32 diff)
         }
     }
 
-    // Update all players status queue info
+    // Update all players status queue info and shortage status
     if (m_QueueTimer > LFG_QUEUEUPDATE_INTERVAL)
     {
         m_QueueTimer = 0;
-        uint32 tankCount = 0;
-        uint32 healerCount = 0;
-        uint32 dpsCount = 0;
 
+        LfgQueueRoleContainer rolesPerDungeonId;
         for (LfgQueueContainer::iterator it = QueuesStore.begin(); it != QueuesStore.end(); ++it)
-            it->second.UpdateQueueTimers(it->first, currTime, tankCount, healerCount, dpsCount);
+            it->second.UpdateQueueTimers(it->first, currTime, rolesPerDungeonId);
 
-        uint32 dpsCountAbsolute = dpsCount ? std::floor(dpsCount / 3) : 0;
-        
-        if (!tankCount || dpsCount && tankCount < dpsCountAbsolute || tankCount < healerCount)
-            AddCallToArmsRole(PLAYER_ROLE_TANK);
-        else
-            RemoveCallToArmsRole(PLAYER_ROLE_TANK);
+        if (isOptionEnabled(LFG_OPTION_ENABLE_SHORTAGE_REWARDS))
+        {
+            // Update shortages
+            for (LFGDungeonEntry const* dungeon : sLFGDungeonStore)
+            {
+                if (dungeon->type != LFG_TYPE_RANDOM)
+                    continue;
 
-        if (!healerCount || dpsCount && healerCount < dpsCountAbsolute || healerCount < tankCount)
-            AddCallToArmsRole(PLAYER_ROLE_HEALER);
-        else
-            RemoveCallToArmsRole(PLAYER_ROLE_HEALER);
+                uint32 dpsCount = 0;
+                uint32 tankCount = 0;
+                uint32 healerCount = 0;
 
-        if (!dpsCountAbsolute || dpsCountAbsolute < tankCount || dpsCountAbsolute < healerCount)
-            AddCallToArmsRole(PLAYER_ROLE_DAMAGE);
-        else
-            RemoveCallToArmsRole(PLAYER_ROLE_DAMAGE);
+                for (uint32 dungeonId : GetDungeonsByRandom(dungeon->ID))
+                {
+                    for (auto it : rolesPerDungeonId)
+                    {
+                        dpsCount += it.second.currentDps;
+                        healerCount += it.second.currentHealers;
+                        tankCount += it.second.currentTanks;
+                    }
+                }
+
+                uint32 dpsCountAbsolute = dpsCount ? std::floor(dpsCount / 3) : 0;
+                uint32 roleMask = 0;
+
+                if (dpsCountAbsolute >= tankCount || healerCount >= tankCount)
+                    roleMask |= PLAYER_ROLE_TANK;
+
+                if (dpsCountAbsolute >= healerCount || tankCount >= healerCount)
+                    roleMask |= PLAYER_ROLE_HEALER;
+
+                if (dpsCountAbsolute <= tankCount || dpsCountAbsolute <= healerCount)
+                    roleMask |= PLAYER_ROLE_DAMAGE;
+
+                SetShortageRoleMask(dungeon->ID, roleMask);
+            }
+        }
     }
     else
         m_QueueTimer += diff;
@@ -548,6 +575,8 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
     }
 
     SetComment(guid, comment);
+    if (rDungeonId && !grp && GetShortageRoleMask(rDungeonId) & roles)
+        SetEnligibleForShortageRewards(guid, true);
 
     WorldPackets::LFG::RideTicket ticket;
     ticket.RequesterGuid = guid;
@@ -609,9 +638,6 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
             }
             SetSelectedDungeons(guid, dungeons);
         }
-
-        if (IsCallToArmsEnabled() && IsCallToArmsEnligible(player, rDungeonId) && IsCallToArmsEnligibleRole(roles))
-            SetCallToArmsRewardEnligible(player->GetGUID(), true);
 
         // Send update to player
         SetTicket(guid, ticket);
@@ -702,6 +728,8 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
                 SetState(guid, LFG_STATE_NONE);
             break;
     }
+
+    SetEnligibleForShortageRewards(guid, false);
 }
 
 WorldPackets::LFG::RideTicket const* LFGMgr::GetTicket(ObjectGuid guid) const
@@ -1568,16 +1596,19 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
         if (Group *group = player->GetGroup())
             tmpRole = group->GetLfgRoles(player->GetGUID());
 
-        Quest const* callToArmsQuest = nullptr;
-        if (IsCallToArmsRewardEnligible(player->GetGUID()))
-            if (callToArmsQuest = sObjectMgr->GetQuestTemplate(LFG_CALL_TO_ARMS_QUEST))
-                player->RewardQuest(callToArmsQuest, 0, nullptr, false);
-
-        SetCallToArmsRewardEnligible(player->GetGUID(), false);
+        Quest const* shortageQuest = nullptr;
+        if (IsEnligibleForShortageRewards(guid))
+        {
+            if (shortageQuest = sObjectMgr->GetQuestTemplate(reward->shortageQuest))
+            {
+                player->RewardQuest(shortageQuest, 0, nullptr, false);
+                SetEnligibleForShortageRewards(guid, false);
+            }
+        }
 
         // Give rewards
         TC_LOG_DEBUG("lfg.dungeon.finish", "Group: %s, Player: %s done dungeon %u, %s previously done.", gguid.ToString().c_str(), guid.ToString().c_str(), GetDungeon(gguid), !firstReward ? " " : " not");
-        LfgPlayerRewardData data = LfgPlayerRewardData(dungeon->Entry(), GetDungeon(gguid, false), !firstReward, quest, callToArmsQuest);
+        LfgPlayerRewardData data = LfgPlayerRewardData(dungeon->Entry(), GetDungeon(gguid, false), !firstReward, quest, shortageQuest);
         player->GetSession()->SendLfgPlayerReward(data);
     }
 }
@@ -1634,48 +1665,6 @@ LfgType LFGMgr::GetDungeonType(uint32 dungeonId)
         return LFG_TYPE_NONE;
 
     return LfgType(dungeon->type);
-}
-
-bool LFGMgr::IsCallToArmsEnligible(Player* player, uint32 dungeonId)
-{
-    // Player has not reached max level
-    if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        return false;
-
-    // Player may only get join solo
-    if (player->GetGroup() && player->GetGroup()->GetMembersCount() > 1)
-        return false;
-
-    // Check for valid dungeon
-    LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId);
-    if (!dungeon)
-        return false;
-
-    // Only random heroic dungeons may be used for Call to Arms
-    if (dungeon->type != LFG_TYPE_RANDOM || dungeon->difficulty != DUNGEON_DIFFICULTY_HEROIC)
-        return false;
-
-    // Make sure that we use end game dungeons
-    if (dungeon->minlevel != DEFAULT_MAX_LEVEL)
-        return false;
-
-    return true;
-}
-
-bool LFGMgr::IsCallToArmsEnligibleRole(uint8 roles)
-{
-    uint8 roleSet[] =
-    {
-        lfg::PLAYER_ROLE_TANK,
-        lfg::PLAYER_ROLE_HEALER,
-        lfg::PLAYER_ROLE_DAMAGE
-    };
-
-    for (uint8 i = 0; i < 3; i++)
-        if ((roles & roleSet[i])!= 0 && (_callToArmsRoles & roleSet[i]) != 0)
-            return true;
-
-   return false;
 }
 
 LfgState LFGMgr::GetState(ObjectGuid guid)
@@ -1773,16 +1762,6 @@ LfgDungeonSet const& LFGMgr::GetSelectedDungeons(ObjectGuid guid)
 {
     TC_LOG_TRACE("lfg.data.player.dungeons.selected.get", "Player: %s, Selected Dungeons: %s", guid.ToString().c_str(), ConcatenateDungeons(PlayersStore[guid].GetSelectedDungeons()).c_str());
     return PlayersStore[guid].GetSelectedDungeons();
-}
-
-bool LFGMgr::IsCallToArmsRewardEnligible(ObjectGuid guid)
-{
-    return PlayersStore[guid].IsCallToArmsRewardEnligible();
-}
-
-void LFGMgr::SetCallToArmsRewardEnligible(ObjectGuid guid, bool apply)
-{
-    PlayersStore[guid].SetCallToArmsRewardEnligible(apply);
 }
 
 LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
@@ -2281,6 +2260,26 @@ void LFGMgr::AddDungeonsFromGroupingMap(LfgCachedDungeonContainer& container, ui
                 container[groupId].insert(itr->dungeonId);
         }
     }
+}
+
+void LFGMgr::SetEnligibleForShortageRewards(ObjectGuid guid, bool enligible)
+{
+    PlayersStore[guid].SetEnligibleForShortageRewards(enligible);
+}
+
+bool LFGMgr::IsEnligibleForShortageRewards(ObjectGuid guid)
+{
+    return PlayersStore[guid].IsEnligibleForShortageRewards();
+}
+
+void LFGMgr::SetShortageRoleMask(uint32 dungeonId, uint8 role)
+{
+    ShortageRoleMaskStore[dungeonId] = role;
+}
+
+uint32 LFGMgr::GetShortageRoleMask(uint32 dungeonId)
+{
+    return ShortageRoleMaskStore[dungeonId];
 }
 
 } // namespace lfg

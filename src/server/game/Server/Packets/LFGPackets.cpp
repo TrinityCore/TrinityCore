@@ -213,9 +213,28 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerDungeonInfo
     data << uint32(playerDungeonInfo.CompletedMask);
     data << uint8(playerDungeonInfo.ShortageEligible);
 
-    // Todo: Shortage System (Call to Arms)
-    for (uint8 i = 0; i < 3; i++)
-        data << uint32(0);
+    if (playerDungeonInfo.ShortageEligible)
+    {
+        bool rewardSent = false;
+        for (uint8 i = 0; i < 3; i++)
+        {
+            data << uint32(playerDungeonInfo.ShortageRoleMask);
+            if (!rewardSent)
+            {
+                data << playerDungeonInfo.ShortageReward;
+                rewardSent = true;
+            }
+            else
+            {
+                data << int32(0);
+                data << int32(0);
+                data << uint8(0);
+            }
+        }
+    }
+    else
+        for (uint8 i = 0; i < 3; i++)
+            data << uint32(0);
 
     data << playerDungeonInfo.Rewards;
 

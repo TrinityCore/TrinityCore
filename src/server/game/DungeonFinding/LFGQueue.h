@@ -80,9 +80,18 @@ struct LfgWaitTime
     uint32 number;                                         ///< Number of people used to get that wait time
 };
 
+struct LfgQueueRoleData
+{
+    LfgQueueRoleData() : currentDps(0), currentHealers(0), currentTanks(0) { }
+    uint32 currentDps;
+    uint32 currentHealers;
+    uint32 currentTanks;
+};
+
 typedef std::map<uint32, LfgWaitTime> LfgWaitTimesContainer;
 typedef std::map<std::string, LfgCompatibilityData> LfgCompatibleContainer;
 typedef std::map<ObjectGuid, LfgQueueData> LfgQueueDataContainer;
+typedef std::map<uint32, LfgQueueRoleData> LfgQueueRoleContainer;
 
 /**
     Stores all data related to queue
@@ -105,7 +114,7 @@ class TC_GAME_API LFGQueue
         void UpdateWaitTimeDps(int32 waitTime, uint32 dungeonId);
 
         // Update Queue timers
-        void UpdateQueueTimers(uint8 queueId, time_t currTime, uint32 &tankCount, uint32 &healerCount, uint32 &dpsCount);
+        void UpdateQueueTimers(uint8 queueId, time_t currTime, LfgQueueRoleContainer& rolesPerDungeonId);
         time_t GetJoinTime(ObjectGuid guid) const;
 
         // Find new group

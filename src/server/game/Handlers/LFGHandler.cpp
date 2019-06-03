@@ -62,10 +62,7 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPackets::LFG::LFGLeave& lfgLeave)
 
     // Check cheating - only leader can leave the queue
     if (!group || group->GetLeaderGUID() == lfgLeave.Ticket.RequesterGuid)
-    {
-        sLFGMgr->SetCallToArmsRewardEnligible(lfgLeave.Ticket.RequesterGuid, false);
         sLFGMgr->LeaveLfg(lfgLeave.Ticket.RequesterGuid);
-    }
 }
 
 void WorldSession::HandleLfgProposalResultOpcode(WorldPackets::LFG::LFGProposalResponse& lfgProposalResponse)
@@ -146,6 +143,7 @@ void WorldSession::SendLfgPlayerLockInfo()
 
         bool firstReward = false;
         Quest const* currentQuest = nullptr;
+        Quest const* shortageQuest = nullptr;
 
         if (lfg::LfgReward const* reward = sLFGMgr->GetRandomDungeonReward(slot, level))
         {
@@ -172,6 +170,18 @@ void WorldSession::SendLfgPlayerLockInfo()
                 playerDungeonInfo.OverallLimit = reward->completionsPerPeriod;
                 playerDungeonInfo.Quantity = 1;
             }
+
+            if (!_player->GetGroup())
+            {
+                if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(slot & 0x00FFFFFF))
+                {
+                    if (uint32 roleMask = sLFGMgr->GetShortageRoleMask(dungeon->ID))
+                    {
+                        shortageQuest = sObjectMgr->GetQuestTemplate(reward->shortageQuest);
+                        playerDungeonInfo.ShortageRoleMask = roleMask;
+                    }
+                }
+            }
         }
 
         if (currentQuest)
@@ -190,6 +200,26 @@ void WorldSession::SendLfgPlayerLockInfo()
                             playerDungeonInfo.Rewards.Currency.emplace_back(currencyId, currentQuest->RewardCurrencyCount[i] * CURRENCY_PRECISION);
                         else
                             playerDungeonInfo.Rewards.Currency.emplace_back(currencyId, currentQuest->RewardCurrencyCount[i]);
+                    }
+        }
+
+        if (shortageQuest)
+        {
+            playerDungeonInfo.ShortageEligible = true;
+            playerDungeonInfo.ShortageReward.RewardMoney = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? shortageQuest->GetRewOrReqMoney() : shortageQuest->GetRewMoneyMaxLevel();
+            playerDungeonInfo.ShortageReward.RewardXP = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? shortageQuest->XPValue(_player) : 0;
+            for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+                if (uint32 itemId = shortageQuest->RewardItemId[i])
+                    playerDungeonInfo.ShortageReward.Item.emplace_back(itemId, shortageQuest->RewardItemIdCount[i]);
+
+            for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+                if (uint32 currencyId = shortageQuest->RewardCurrencyId[i])
+                    if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId))
+                    {
+                        if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                            playerDungeonInfo.ShortageReward.Currency.emplace_back(currencyId, shortageQuest->RewardCurrencyCount[i] * CURRENCY_PRECISION);
+                        else
+                            playerDungeonInfo.ShortageReward.Currency.emplace_back(currencyId, shortageQuest->RewardCurrencyCount[i]);
                     }
         }
 
@@ -213,6 +243,7 @@ void WorldSession::SendLfgPlayerLockInfo()
                 playerDungeonInfo.Quantity += itr.Quantity;
             }
         }
+
     }
 
     SendPacket(lfgPlayerInfo.Write());
@@ -456,12 +487,28 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
     WorldPackets::LFG::LFGPlayerReward lfgPlayerReward;
     lfgPlayerReward.QueuedSlot = rewardData.rdungeonEntry;
     lfgPlayerReward.ActualSlot = rewardData.sdungeonEntry;
-    lfgPlayerReward.RewardMoney = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? rewardData.quest->GetRewOrReqMoney() : rewardData.quest->GetRewMoneyMaxLevel();
-    lfgPlayerReward.AddedXP = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? rewardData.quest->XPValue(_player) : 0;
+    uint32 rewardMoney = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? rewardData.quest->GetRewOrReqMoney() : rewardData.quest->GetRewMoneyMaxLevel();
+    uint32 rewardExp = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? rewardData.quest->XPValue(_player) : 0;
+
+    if (rewardData.shortageQuest)
+    {
+        rewardMoney += _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? rewardData.shortageQuest->GetRewOrReqMoney() : rewardData.shortageQuest->GetRewMoneyMaxLevel();
+        rewardExp += _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? rewardData.shortageQuest->XPValue(_player) : 0;
+    }
+
+    lfgPlayerReward.RewardMoney = rewardMoney;
+    lfgPlayerReward.AddedXP = rewardExp;
 
     for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
         if (uint32 itemId = rewardData.quest->RewardItemId[i])
             lfgPlayerReward.Rewards.emplace_back(itemId, rewardData.quest->RewardItemIdCount[i], false);
+
+    if (rewardData.shortageQuest)
+    {
+        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+            if (uint32 itemId = rewardData.shortageQuest->RewardItemId[i])
+                lfgPlayerReward.Rewards.emplace_back(itemId, rewardData.shortageQuest->RewardItemIdCount[i], false);
+    }
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         if (uint32 currencyId = rewardData.quest->RewardCurrencyId[i])
@@ -473,8 +520,21 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
                     lfgPlayerReward.Rewards.emplace_back(currencyId, rewardData.quest->RewardCurrencyCount[i], true);
             }
 
-    SendPacket(lfgPlayerReward.Write());
 
+    if (rewardData.shortageQuest)
+    {
+        for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+            if (uint32 currencyId = rewardData.shortageQuest->RewardCurrencyId[i])
+                if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId))
+                {
+                    if (currency->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                        lfgPlayerReward.Rewards.emplace_back(currencyId, rewardData.shortageQuest->RewardCurrencyCount[i] * CURRENCY_PRECISION, true);
+                    else
+                        lfgPlayerReward.Rewards.emplace_back(currencyId, rewardData.shortageQuest->RewardCurrencyCount[i], true);
+                }
+    }
+
+    SendPacket(lfgPlayerReward.Write());
 }
 
 void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
