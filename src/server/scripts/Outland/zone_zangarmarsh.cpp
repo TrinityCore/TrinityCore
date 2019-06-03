@@ -244,7 +244,7 @@ class spell_crow_whisper_aura : public SpellScriptLoader
         {
             PrepareSpellScript(spell_crow_whisper_aura_SpellScript);
 
-            void HandleEffect(SpellEffIndex effIndex)
+            void HandleEffect(SpellEffIndex /*effIndex*/)
             {
                 SpellInfo const* spellInfo = GetSpellInfo();
                 uint32 talkId = spellInfo->Id - SPELL_WHISPER_AURA_1;
