@@ -20,9 +20,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (15,10908,0,0,0,9,0,24535,0,0,0,0,0,'','Show gossip option if 24535 is incomplete'),
 (15,10908,0,0,1,9,0,24563,0,0,0,0,0,'','Show gossip option if 24563 is incomplete');
 
-DELETE FROM `gameobject` WHERE `id`=201718;
+DELETE FROM `gameobject` WHERE `guid`=9004;
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
-(NULL,201718,530,1,2049,11791.83,-7065.792,24.60784,0,0,0,0,1,120,255,1);
+(9004,201718,530,1,2049,11791.83,-7065.792,24.60784,0,0,0,0,1,120,255,1);
 
 -- Thalorien Dawnseeker
 UPDATE `creature_template` SET `AIName`='SmartAI',`ScriptName`='' WHERE `entry`=37205;

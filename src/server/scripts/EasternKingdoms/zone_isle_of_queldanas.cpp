@@ -176,12 +176,9 @@ public:
                         _events.ScheduleEvent(EVENT_SALUTE, 4s);
                         break;
                     case EVENT_SALUTE:
-                        if (_thalorien)
-                            _thalorien->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-
                         for (auto& summon : _summons)
-                            if (Creature* defender = ObjectAccessor::GetCreature(*me, summon))
-                                defender->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                            if (Creature* creature = ObjectAccessor::GetCreature(*me, summon))
+                                creature->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 
                         _events.ScheduleEvent(EVENT_DEFENDERS_RUN, 3s);
                         break;
@@ -219,8 +216,10 @@ public:
                         break;
                     case EVENT_SUMMON_MORLEN:
                         if (Creature* morlen = me->SummonCreature(NPC_MORLEN_GOLDGRIP, morlenSummon, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        {
                             _morlen = morlen;
                             _morlen->AI()->DoCastSelf(SPELL_BLOOD_PRESENCE);
+                        }
 
                         break;
                     case EVENT_MORLEN_1:
@@ -277,9 +276,11 @@ public:
                         break;
                     case EVENT_MORLEN_ATTACK:
                         if (_morlen)
+                        {
                             _morlen->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                             if (_thalorien)
                                 _morlen->AI()->AttackStart(_thalorien);
+                        }
 
                         break;
                     case EVENT_OUTRO_1:
@@ -301,8 +302,10 @@ public:
                         break;
                     case EVENT_OUTRO_3:
                         if (_thalorien)
+                        {
                             _thalorien->AI()->Talk(SAY_THALORIEN_9);
                             _thalorien->AI()->DoCastSelf(SPELL_POLYMORPH_VISUAL);
+                        }
 
                         _events.ScheduleEvent(EVENT_OUTRO_4, 5s);
                         break;
@@ -314,8 +317,10 @@ public:
                         break;
                     case EVENT_KNEEL:
                         if (_thalorien)
+                        {
                             _thalorien->SetStandState(UNIT_STAND_STATE_KNEEL);
                             _thalorien->DespawnOrUnsummon(5 * IN_MILLISECONDS);
+                        }
 
                         break;
                 }
