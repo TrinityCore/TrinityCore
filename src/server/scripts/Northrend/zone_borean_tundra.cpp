@@ -2523,21 +2523,21 @@ public:
         {
             switch (passenger->GetEntry())
             {
-            case NPC_ORABUS:
-                pos.Relocate(2807.858f, 7038.571f, 7.075813f, 4.73481f);
-                break;
-            case NPC_KVALDIR_CREWMAN_1:
-                pos.Relocate(2803.729f, 7046.516f, 5.362013f, 4.73481f);
-                break;
-            case NPC_KVALDIR_CREWMAN_2:
-                pos.Relocate(2801.168f, 7046.468f, 5.362013f, 4.73481f);
-                break;
-            case NPC_KVALDIR_CREWMAN_3:
-                pos.Relocate(2803.319f, 7051.411f, 5.362913f, 4.73481f);
-                break;
-            case NPC_KVALDIR_CREWMAN_4:
-                pos.Relocate(2801.48f, 7051.379f, 5.362913f, 4.73481f);
-                break;
+                case NPC_ORABUS:
+                    pos.Relocate(2807.858f, 7038.571f, 7.075813f, 4.73481f);
+                    break;
+                case NPC_KVALDIR_CREWMAN_1:
+                    pos.Relocate(2801.168f, 7046.468f, 5.362013f, 4.73481f);
+                    break;
+                case NPC_KVALDIR_CREWMAN_2:
+                    pos.Relocate(2803.729f, 7046.516f, 5.362013f, 4.73481f);
+                    break;
+                case NPC_KVALDIR_CREWMAN_3:
+                    pos.Relocate(2801.48f, 7051.379f, 5.362913f, 4.73481f);
+                    break;
+                case NPC_KVALDIR_CREWMAN_4:
+                    pos.Relocate(2803.319f, 7051.411f, 5.362913f, 4.73481f);
+                    break;
             }
         }
     }
