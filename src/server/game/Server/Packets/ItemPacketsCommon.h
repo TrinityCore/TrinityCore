@@ -25,9 +25,13 @@
 
 class ByteBuffer;
 class Item;
-struct ItemDynamicFieldGems;
 struct LootItem;
 struct VoidStorageItem;
+
+namespace UF
+{
+    struct SocketedGem;
+}
 
 namespace WorldPackets
 {
@@ -45,7 +49,7 @@ namespace WorldPackets
         struct ItemInstance
         {
             void Initialize(::Item const* item);
-            void Initialize(::ItemDynamicFieldGems const* gem);
+            void Initialize(UF::SocketedGem const* gem);
             void Initialize(::LootItem const& lootItem);
             void Initialize(::VoidStorageItem const* voidItem);
 

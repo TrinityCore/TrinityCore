@@ -1419,7 +1419,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, uint8 context /*= 0*/, s
 
         // set the "Crafted by ..." property of the item
         if (pItem->GetTemplate()->GetClass() != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->GetClass() != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
-            pItem->SetGuidValue(ITEM_FIELD_CREATOR, player->GetGUID());
+            pItem->SetCreator(player->GetGUID());
 
         // send info to the client
         player->SendNewItem(pItem, num_to_add, true, bgType == 0);
@@ -1799,7 +1799,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         SendLoot(guid, LOOT_SKINNING);
     else if (itemTarget)
     {
-        itemTarget->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_UNLOCKED);
+        itemTarget->AddItemFlag(ITEM_FIELD_FLAG_UNLOCKED);
         itemTarget->SetState(ITEM_CHANGED, itemTarget->GetOwner());
     }
 
@@ -1858,9 +1858,9 @@ void Spell::EffectSummonChangeItem(SpellEffIndex /*effIndex*/)
         if (m_CastItem->GetEnchantmentId(EnchantmentSlot(j)))
             pNewItem->SetEnchantment(EnchantmentSlot(j), m_CastItem->GetEnchantmentId(EnchantmentSlot(j)), m_CastItem->GetEnchantmentDuration(EnchantmentSlot(j)), m_CastItem->GetEnchantmentCharges(EnchantmentSlot(j)));
 
-    if (m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) < m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY))
+    if (*m_CastItem->m_itemData->Durability < *m_CastItem->m_itemData->MaxDurability)
     {
-        double lossPercent = 1 - m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) / double(m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY));
+        double lossPercent = 1 - *m_CastItem->m_itemData->Durability / double(m_CastItem->m_itemData->MaxDurability);
         player->DurabilityLoss(pNewItem, lossPercent);
     }
 
@@ -2062,9 +2062,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         return;
 
                     summon->SelectLevel();       // some summoned creaters have different from 1 DB data for level/hp
-                    summon->SetUInt64Value(UNIT_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
+                    summon->SetNpcFlags(NPCFlags(summon->GetCreatureTemplate()->npcflag & 0xFFFFFFFF));
+                    summon->SetNpcFlags2(NPCFlags2(summon->GetCreatureTemplate()->npcflag >> 32));
 
-                    summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                    summon->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
 
                     summon->AI()->EnterEvadeMode();
                     break;
@@ -2092,7 +2093,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         {
                             summon->SetOwnerGUID(m_originalCaster->GetGUID());
                             summon->setFaction(m_originalCaster->getFaction());
-                            summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+                            summon->SetCreatedBySpell(m_spellInfo->Id);
                         }
 
                         ExecuteLogEffectSummonObject(effIndex, summon);
@@ -2654,13 +2655,13 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     uint8 level = (creatureTarget->GetLevelForTarget(m_caster) < (m_caster->GetLevelForTarget(creatureTarget) - 5)) ? (m_caster->GetLevelForTarget(creatureTarget) - 5) : creatureTarget->GetLevelForTarget(m_caster);
 
     // prepare visual effect for levelup
-    pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
+    pet->SetLevel(level - 1);
 
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());
 
     // visual effect for levelup
-    pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);
+    pet->SetLevel(level);
 
     // caster have pet now
     m_caster->SetMinion(pet, true);
@@ -2744,7 +2745,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             pet->SetReactState(REACT_DEFENSIVE);
     }
 
-    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+    pet->SetCreatedBySpell(m_spellInfo->Id);
 
     // generate new name for summon pet
     std::string new_name=sObjectMgr->GeneratePetName(petentry);
@@ -3654,8 +3655,8 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
 
     PhasingHandler::InheritPhaseShift(go, m_caster);
 
-    go->SetUInt32Value(GAMEOBJECT_FACTION, m_caster->getFaction());
-    go->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel()+1);
+    go->SetFaction(m_caster->getFaction());
+    go->SetLevel(m_caster->getLevel()+1);
     int32 duration = m_spellInfo->CalcDuration(m_caster);
     go->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     go->SetSpellId(m_spellInfo->Id);
@@ -3693,8 +3694,8 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     duel2->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
     target->duel      = duel2;
 
-    caster->SetGuidValue(PLAYER_DUEL_ARBITER, go->GetGUID());
-    target->SetGuidValue(PLAYER_DUEL_ARBITER, go->GetGUID());
+    caster->SetDuelArbiter(go->GetGUID());
+    target->SetDuelArbiter(go->GetGUID());
 
     sScriptMgr->OnPlayerDuelRequest(target, caster);
 }
@@ -3984,7 +3985,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
 
     PhasingHandler::InheritPhaseShift(go, m_caster);
 
-    //go->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
+    //go->SetLevel(m_caster->getLevel());
     int32 duration = m_spellInfo->CalcDuration(m_caster);
     go->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     go->SetSpellId(m_spellInfo->Id);
@@ -4186,8 +4187,8 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
     uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
 
     m_caster->ToPlayer()->SendLoot(creature->GetGUID(), LOOT_SKINNING);
-    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
-    creature->SetFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+    creature->RemoveUnitFlag(UNIT_FLAG_SKINNABLE);
+    creature->AddDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
 
     if (skill == SKILL_SKINNING)
     {
@@ -4509,8 +4510,8 @@ void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)
         pet->Relocate(x, y, z, player->GetOrientation()); // This is needed so SaveStayPosition() will get the proper coords.
     }
 
-    pet->SetUInt32Value(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
-    pet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+    pet->SetDynamicFlags(UNIT_DYNFLAG_NONE);
+    pet->RemoveUnitFlag(UNIT_FLAG_SKINNABLE);
     pet->setDeathState(ALIVE);
     pet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
     pet->SetHealth(pet->CountPctFromMaxHealth(damage));
@@ -4546,7 +4547,7 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
         Creature* totem = m_caster->GetMap()->GetCreature(m_caster->m_SummonSlot[slot]);
         if (totem && totem->IsTotem())
         {
-            uint32 spell_id = totem->GetUInt32Value(UNIT_CREATED_BY_SPELL);
+            uint32 spell_id = totem->m_unitData->CreatedBySpell;
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
             if (spellInfo)
             {
@@ -4702,7 +4703,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
             go->SetFaction(m_caster->getFaction());
             ObjectGuid bobberGuid = go->GetGUID();
             // client requires fishing bobber guid in channel object slot 0 to be usable
-            m_caster->SetDynamicStructuredValue(UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS, 0, &bobberGuid);
+            m_caster->SetChannelObject(0, bobberGuid);
             m_caster->AddGameObject(go);              // will removed at spell cancel
 
             // end time of range when possible catch fish (FISHING_BOBBER_READY_TIME..GetDuration(m_spellInfo))
@@ -4741,7 +4742,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     go->SetOwnerGUID(m_caster->GetGUID());
 
-    //go->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
+    //go->SetLevel(m_caster->getLevel());
     go->SetSpellId(m_spellInfo->Id);
 
     ExecuteLogEffectSummonObject(effIndex, go);
@@ -4757,7 +4758,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         PhasingHandler::InheritPhaseShift(linkedTrap, m_caster);
 
         linkedTrap->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
-        //linkedTrap->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
+        //linkedTrap->SetLevel(m_caster->getLevel());
         linkedTrap->SetSpellId(m_spellInfo->Id);
         linkedTrap->SetOwnerGUID(m_caster->GetGUID());
 
@@ -5146,7 +5147,7 @@ void Spell::EffectGameObjectDamage(SpellEffIndex /*effIndex*/)
         return;
 
     FactionTemplateEntry const* casterFaction = caster->GetFactionTemplateEntry();
-    FactionTemplateEntry const* targetFaction = sFactionTemplateStore.LookupEntry(gameObjTarget->GetUInt32Value(GAMEOBJECT_FACTION));
+    FactionTemplateEntry const* targetFaction = sFactionTemplateStore.LookupEntry(gameObjTarget->GetFaction());
     // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
     if (!targetFaction || (casterFaction && targetFaction && !casterFaction->IsFriendlyTo(targetFaction)))
         gameObjTarget->ModifyHealth(-damage, caster, GetSpellInfo()->Id);
@@ -5224,10 +5225,11 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
         if (summon->GetEntry() == 27893)
         {
-            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENTRY_OFFSET + (EQUIPMENT_SLOT_MAINHAND * 2)))
+            UF::VisibleItem const& weapon = m_caster->ToPlayer()->m_playerData->VisibleItems[EQUIPMENT_SLOT_MAINHAND];
+            if (weapon.ItemID)
             {
                 summon->SetDisplayId(11686); // modelid2
-                summon->SetVirtualItem(0, weapon);
+                summon->SetVirtualItem(0, weapon.ItemID, weapon.ItemAppearanceModID, weapon.ItemVisual);
             }
             else
                 summon->SetDisplayId(1126); // modelid1
@@ -5248,7 +5250,7 @@ void Spell::EffectRenamePet(SpellEffIndex /*effIndex*/)
         !unitTarget->IsPet() || ((Pet*)unitTarget)->getPetType() != HUNTER_PET)
         return;
 
-    unitTarget->SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED);
+    unitTarget->AddPetFlag(UNIT_PET_FLAG_CAN_BE_RENAMED);
 }
 
 void Spell::EffectPlayMusic(SpellEffIndex /*effIndex*/)
@@ -5645,7 +5647,7 @@ void Spell::EffectEnableBattlePets(SpellEffIndex /*effIndex*/)
         return;
 
     Player* plr = unitTarget->ToPlayer();
-    plr->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
+    plr->AddPlayerFlag(PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
     plr->GetSession()->GetBattlePetMgr()->UnlockSlot(0);
 }
 
@@ -5671,7 +5673,7 @@ void Spell::EffectUncageBattlePet(SpellEffIndex /*effIndex*/)
     Player* plr = m_caster->ToPlayer();
 
     // are we allowed to learn battle pets without it?
-    /*if (plr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED))
+    /*if (plr->HasPlayerFlag(PLAYER_FLAGS_PET_BATTLES_UNLOCKED))
         return; // send some error*/
 
     uint32 speciesId = m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
@@ -5738,7 +5740,7 @@ void Spell::EffectApplyEnchantIllusion(SpellEffIndex /*effIndex*/)
     itemTarget->SetState(ITEM_CHANGED, player);
     itemTarget->SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS, effectInfo->MiscValue);
     if (itemTarget->IsEquipped())
-        player->SetUInt16Value(PLAYER_VISIBLE_ITEM + VISIBLE_ITEM_ENCHANTMENT_OFFSET + (itemTarget->GetSlot() * 2), 1, itemTarget->GetVisibleItemVisual(player));
+        player->SetVisibleItemSlot(itemTarget->GetSlot(), itemTarget);
 
     player->RemoveTradeableItem(itemTarget);
     itemTarget->ClearSoulboundTradeable(player);

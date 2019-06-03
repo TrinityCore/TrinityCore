@@ -186,18 +186,6 @@ ItemRandomEnchantmentId GenerateItemRandomPropertyId(uint32 item_id)
         return GetItemEnchantMod(itemProto->GetRandomSuffix(), ItemRandomEnchantmentType::Suffix);
 }
 
-uint32 GenerateEnchSuffixFactor(uint32 item_id)
-{
-    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
-
-    if (!itemProto)
-        return 0;
-    if (!itemProto->GetRandomSuffix())
-        return 0;
-
-    return GetRandomPropertyPoints(itemProto->GetBaseItemLevel(), itemProto->GetQuality(), itemProto->GetInventoryType(), itemProto->GetSubClass());
-}
-
 TC_GAME_API uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType, uint32 subClass)
 {
     uint32 propIndex;

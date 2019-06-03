@@ -73,7 +73,7 @@ class instance_sethekk_halls : public InstanceMapScript
                             ///              gameobject should have GO_DYNFLAG_LO_ACTIVATE too, which makes gobs interactable with GO_FLAG_INTERACT_COND
                             ///              so just removed GO_FLAG_INTERACT_COND
                             if (GameObject* coffer = GetGameObject(DATA_TALON_KING_COFFER))
-                                coffer->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
+                                coffer->RemoveFlag(GameObjectFlags(GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE));
                         }
                         break;
                     default:

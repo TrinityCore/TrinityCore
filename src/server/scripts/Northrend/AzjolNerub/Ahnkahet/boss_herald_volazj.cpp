@@ -100,7 +100,7 @@ public:
 
         void DamageTaken(Unit* /*pAttacker*/, uint32 &damage) override
         {
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+            if (me->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
                 damage = 0;
 
             if ((GetHealthPct(0) >= 66 && GetHealthPct(damage) < 66)||
@@ -124,7 +124,7 @@ public:
                     // Channel visual
                     DoCast(me, INSANITY_VISUAL, true);
                     // Unattackable
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     me->SetControlled(true, UNIT_STATE_STUNNED);
                 }
 
@@ -182,7 +182,7 @@ public:
 
             // Cleanup
             Summons.DespawnAll();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             me->SetControlled(false, UNIT_STATE_STUNNED);
         }
 
@@ -245,7 +245,7 @@ public:
                     return;
 
                 insanityHandled = 0;
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->SetControlled(false, UNIT_STATE_STUNNED);
                 me->RemoveAurasDueToSpell(INSANITY_VISUAL);
             }

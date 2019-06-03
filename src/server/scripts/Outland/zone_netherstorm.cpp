@@ -500,7 +500,7 @@ public:
         if (quest->GetQuestId() == Q_ALMABTRIEB)
         {
             creature->setFaction(113);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            creature->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
         return true;

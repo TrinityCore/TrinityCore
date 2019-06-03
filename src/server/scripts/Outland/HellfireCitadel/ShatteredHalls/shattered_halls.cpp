@@ -94,9 +94,9 @@ class boss_shattered_executioner : public CreatureScript
                     me->AddLootMode(LOOT_MODE_HARD_MODE_1);
 
                 if (instance->GetBossState(DATA_KARGATH) == DONE)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 else
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
 
                 Initialize();
             }

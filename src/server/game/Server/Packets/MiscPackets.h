@@ -420,6 +420,17 @@ namespace WorldPackets
             UnitStandStateType State = UnitStandStateType(0);
         };
 
+        class SetAnimTier final : public ServerPacket
+        {
+        public:
+            SetAnimTier(): ServerPacket(SMSG_SET_ANIM_TIER, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            int32 Tier = 0;
+        };
+
         class StartMirrorTimer final : public ServerPacket
         {
         public:

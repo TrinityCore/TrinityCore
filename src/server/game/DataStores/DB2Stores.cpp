@@ -394,6 +394,7 @@ namespace
     std::unordered_map<uint32, std::vector<RewardPackXCurrencyTypeEntry const*>> _rewardPackCurrencyTypes;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
     RulesetItemUpgradeContainer _rulesetItemUpgrade;
+    std::unordered_map<uint32, std::vector<SkillLineEntry const*>> _skillLinesByParentSkillLine;
     std::unordered_map<uint32, std::vector<SkillLineAbilityEntry const*>> _skillLineAbilitiesBySkillupSkill;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;
     SpecializationSpellsContainer _specializationSpellsBySpec;
@@ -1025,6 +1026,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (RulesetItemUpgradeEntry const* rulesetItemUpgrade : sRulesetItemUpgradeStore)
         _rulesetItemUpgrade[rulesetItemUpgrade->ItemID] = rulesetItemUpgrade->ItemUpgradeID;
+
+    for (SkillLineEntry const* skill : sSkillLineStore)
+        if (skill->ParentSkillLineID)
+            _skillLinesByParentSkillLine[skill->ParentSkillLineID].push_back(skill);
 
     for (SkillLineAbilityEntry const* skillLineAbility : sSkillLineAbilityStore)
         _skillLineAbilitiesBySkillupSkill[skillLineAbility->SkillupSkillLineID ? skillLineAbility->SkillupSkillLineID : skillLineAbility->SkillLine].push_back(skillLineAbility);
@@ -2327,6 +2332,11 @@ uint32 DB2Manager::GetRulesetItemUpgrade(uint32 itemId) const
         return itr->second;
 
     return 0;
+}
+
+std::vector<SkillLineEntry const*> const* DB2Manager::GetSkillLinesForParentSkill(uint32 parentSkillId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_skillLinesByParentSkillLine, parentSkillId);
 }
 
 std::vector<SkillLineAbilityEntry const*> const* DB2Manager::GetSkillLineAbilitiesBySkill(uint32 skillId) const

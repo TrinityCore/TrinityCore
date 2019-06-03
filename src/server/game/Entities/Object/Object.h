@@ -43,6 +43,7 @@ class DynamicObject;
 class GameObject;
 class InstanceScript;
 class Map;
+class Object;
 class Player;
 class Scenario;
 class TempSummon;
@@ -83,63 +84,38 @@ struct CreateObjectBits
     }
 };
 
-namespace UpdateMask
+namespace UF
 {
-    typedef uint32 BlockType;
-
-    enum DynamicFieldChangeType : uint16
+    template<typename T>
+    inline bool SetUpdateFieldValue(UpdateFieldSetter<T>& setter, typename UpdateFieldSetter<T>::ValueType&& value)
     {
-        UNCHANGED               = 0,
-        VALUE_CHANGED           = 0x7FFF,
-        VALUE_AND_SIZE_CHANGED  = 0x8000
-    };
-
-    inline std::size_t GetBlockCount(std::size_t bitCount)
-    {
-        using BitsPerBlock = std::integral_constant<std::size_t, sizeof(BlockType) * 8>;
-        return (bitCount + BitsPerBlock::value - 1) / BitsPerBlock::value;
-    }
-
-    inline std::size_t EncodeDynamicFieldChangeType(std::size_t blockCount, DynamicFieldChangeType changeType, uint8 updateType)
-    {
-        return blockCount | ((changeType & VALUE_AND_SIZE_CHANGED) * ((3 - updateType /*this part evaluates to 0 if update type is not VALUES*/) / 3));
+        return setter.SetValue(std::move(value));
     }
 
     template<typename T>
-    inline void SetUpdateBit(T* data, std::size_t bitIndex)
+    inline typename DynamicUpdateFieldSetter<T>::NewValueType AddDynamicUpdateFieldValue(DynamicUpdateFieldSetter<T>& setter)
     {
-        static_assert(std::is_integral<T>::value && std::is_unsigned<T>::value, "Type used for SetUpdateBit data arg is not an unsigned integer");
-        using BitsPerBlock = std::integral_constant<std::size_t, sizeof(T) * 8>;
-        data[bitIndex / BitsPerBlock::value] |= T(1) << (bitIndex % BitsPerBlock::value);
+        return setter.AddValue();
+    }
+
+    template<typename T>
+    inline typename DynamicUpdateFieldSetter<T>::NewValueType InsertDynamicUpdateFieldValue(DynamicUpdateFieldSetter<T>& setter, uint32 index)
+    {
+        return setter.InsertValue(index);
+    }
+
+    template<typename T>
+    inline void RemoveDynamicUpdateFieldValue(DynamicUpdateFieldSetter<T>& setter, uint32 index)
+    {
+        setter.RemoveValue(index);
+    }
+
+    template<typename T>
+    inline void ClearDynamicUpdateFieldValues(DynamicUpdateFieldSetter<T>& setter)
+    {
+        setter.Clear();
     }
 }
-
-// Helper class used to iterate object dynamic fields while interpreting them as a structure instead of raw int array
-template<class T>
-class DynamicFieldStructuredView
-{
-public:
-    explicit DynamicFieldStructuredView(std::vector<uint32> const& data) : _data(data) { }
-
-    T const* begin() const
-    {
-        return reinterpret_cast<T const*>(_data.data());
-    }
-
-    T const* end() const
-    {
-        return reinterpret_cast<T const*>(_data.data() + _data.size());
-    }
-
-    std::size_t size() const
-    {
-        using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
-        return _data.size() / BlockCount::value;
-    }
-
-private:
-    std::vector<uint32> const& _data;
-};
 
 class TC_GAME_API Object
 {
@@ -151,12 +127,18 @@ class TC_GAME_API Object
         virtual void AddToWorld();
         virtual void RemoveFromWorld();
 
-        ObjectGuid const& GetGUID() const { return GetGuidValue(OBJECT_FIELD_GUID); }
-        uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY); }
-        void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY, entry); }
+        ObjectGuid const& GetGUID() const { return m_guid; }
+        uint32 GetEntry() const { return m_objectData->EntryID; }
+        void SetEntry(uint32 entry) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::EntryID), entry); }
 
-        float GetObjectScale() const { return GetFloatValue(OBJECT_FIELD_SCALE_X); }
-        virtual void SetObjectScale(float scale) { SetFloatValue(OBJECT_FIELD_SCALE_X, scale); }
+        float GetObjectScale() const { return m_objectData->Scale; }
+        virtual void SetObjectScale(float scale) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::Scale), scale); }
+
+        uint32 GetDynamicFlags() const { return m_objectData->DynamicFlags; }
+        bool HasDynamicFlag(uint32 flag) const { return (*m_objectData->DynamicFlags & flag) != 0; }
+        void AddDynamicFlag(uint32 flag) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
+        void RemoveDynamicFlag(uint32 flag) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
+        void SetDynamicFlags(uint32 flag) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
 
         TypeID GetTypeId() const { return m_objectTypeId; }
         bool isType(uint16 mask) const { return (mask & m_objectType) != 0; }
@@ -164,125 +146,18 @@ class TC_GAME_API Object
         virtual void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
         void SendUpdateToPlayer(Player* player);
 
-        void BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const;
+        void BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* target) const;
+        void BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::UpdateFieldFlag flags, Player const* target) const;
         void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
 
         virtual void DestroyForPlayer(Player* target) const;
 
-        int32 GetInt32Value(uint16 index) const;
-        uint32 GetUInt32Value(uint16 index) const;
-        uint64 GetUInt64Value(uint16 index) const;
-        float GetFloatValue(uint16 index) const;
-        uint8 GetByteValue(uint16 index, uint8 offset) const;
-        uint16 GetUInt16Value(uint16 index, uint8 offset) const;
-        ObjectGuid const& GetGuidValue(uint16 index) const;
-
-        void SetInt32Value(uint16 index, int32 value);
-        void SetUInt32Value(uint16 index, uint32 value);
-        void UpdateUInt32Value(uint16 index, uint32 value);
-        void SetUInt64Value(uint16 index, uint64 value);
-        void SetFloatValue(uint16 index, float value);
-        void SetByteValue(uint16 index, uint8 offset, uint8 value);
-        void SetUInt16Value(uint16 index, uint8 offset, uint16 value);
-        void SetGuidValue(uint16 index, ObjectGuid const& value);
-        void SetStatFloatValue(uint16 index, float value);
-        void SetStatInt32Value(uint16 index, int32 value);
-
-        bool AddGuidValue(uint16 index, ObjectGuid const& value);
-        bool RemoveGuidValue(uint16 index, ObjectGuid const& value);
-
-        void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
-        void ApplyModInt32Value(uint16 index, int32 val, bool apply);
-        void ApplyModUInt16Value(uint16 index, uint8 offset, int16 val, bool apply);
-        void ApplyModPositiveFloatValue(uint16 index, float val, bool apply);
-        void ApplyModSignedFloatValue(uint16 index, float val, bool apply);
-        void ApplyPercentModFloatValue(uint16 index, float val, bool apply);
-
-        void SetFlag(uint16 index, uint32 newFlag);
-        void RemoveFlag(uint16 index, uint32 oldFlag);
-        void ToggleFlag(uint16 index, uint32 flag);
-        bool HasFlag(uint16 index, uint32 flag) const;
-        void ApplyModFlag(uint16 index, uint32 flag, bool apply);
-
-        void SetByteFlag(uint16 index, uint8 offset, uint8 newFlag);
-        void RemoveByteFlag(uint16 index, uint8 offset, uint8 newFlag);
-        void ToggleByteFlag(uint16 index, uint8 offset, uint8 flag);
-        bool HasByteFlag(uint16 index, uint8 offset, uint8 flag) const;
-
-        void SetFlag64(uint16 index, uint64 newFlag);
-        void RemoveFlag64(uint16 index, uint64 oldFlag);
-        void ToggleFlag64(uint16 index, uint64 flag);
-        bool HasFlag64(uint16 index, uint64 flag) const;
-        void ApplyModFlag64(uint16 index, uint64 flag, bool apply);
-
-        std::vector<uint32> const& GetDynamicValues(uint16 index) const;
-        uint32 GetDynamicValue(uint16 index, uint16 offset) const;
-        bool HasDynamicValue(uint16 index, uint32 value);
-        void AddDynamicValue(uint16 index, uint32 value);
-        void RemoveDynamicValue(uint16 index, uint32 value);
-        void ClearDynamicValue(uint16 index);
-        void SetDynamicValue(uint16 index, uint16 offset, uint32 value);
-
-        template<class T>
-        DynamicFieldStructuredView<T> GetDynamicStructuredValues(uint16 index) const
-        {
-            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
-            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
-            ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
-            std::vector<uint32> const& values = _dynamicValues[index];
-            ASSERT((values.size() % BlockCount::value) == 0, "Dynamic field value count must exactly fit into structure");
-            return DynamicFieldStructuredView<T>(values);
-        }
-
-        template<class T>
-        T const* GetDynamicStructuredValue(uint16 index, uint16 offset) const
-        {
-            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
-            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
-            ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
-            std::vector<uint32> const& values = _dynamicValues[index];
-            ASSERT((values.size() % BlockCount::value) == 0, "Dynamic field value count must exactly fit into structure");
-            if (offset * BlockCount::value >= values.size())
-                return nullptr;
-            return reinterpret_cast<T const*>(&values[offset * BlockCount::value]);
-        }
-
-        template<class T>
-        void SetDynamicStructuredValue(uint16 index, uint16 offset, T const* value)
-        {
-            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
-            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
-            SetDynamicValue(index, (offset + 1) * BlockCount::value - 1, 0); // reserve space
-            for (uint16 i = 0; i < BlockCount::value; ++i)
-                SetDynamicValue(index, offset * BlockCount::value + i, *(reinterpret_cast<uint32 const*>(value) + i));
-        }
-
-        template<class T>
-        void AddDynamicStructuredValue(uint16 index, T const* value)
-        {
-            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
-            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
-            std::vector<uint32> const& values = _dynamicValues[index];
-            uint16 offset = uint16(values.size() / BlockCount::value);
-            SetDynamicValue(index, (offset + 1) * BlockCount::value - 1, 0); // reserve space
-            for (uint16 i = 0; i < BlockCount::value; ++i)
-                SetDynamicValue(index, offset * BlockCount::value + i, *(reinterpret_cast<uint32 const*>(value) + i));
-        }
-
-        void ClearUpdateMask(bool remove);
-
-        uint16 GetValuesCount() const { return m_valuesCount; }
+        virtual void ClearUpdateMask(bool remove);
 
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
         virtual void BuildUpdate(UpdateDataMapType&) { }
         void BuildFieldsUpdate(Player*, UpdateDataMapType &) const;
-
-        void SetFieldNotifyFlag(uint16 flag) { _fieldNotifyFlags |= flag; }
-        void RemoveFieldNotifyFlag(uint16 flag) { _fieldNotifyFlags &= uint16(~flag); }
-
-        // FG: some hacky helpers
-        void ForceValuesUpdateAtIndex(uint32);
 
         inline bool IsPlayer() const { return GetTypeId() == TYPEID_PLAYER; }
         Player* ToPlayer() { if (IsPlayer()) return reinterpret_cast<Player*>(this); else return nullptr; }
@@ -316,43 +191,117 @@ class TC_GAME_API Object
         Conversation* ToConversation() { if (GetTypeId() == TYPEID_CONVERSATION) return reinterpret_cast<Conversation*>(this); else return nullptr; }
         Conversation const* ToConversation() const { if (GetTypeId() == TYPEID_CONVERSATION) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
 
+        UF::UpdateFieldHolder m_values;
+        UF::UpdateField<UF::ObjectData, 0, TYPEID_OBJECT> m_objectData;
+
+        template<typename T>
+        void ForceUpdateFieldChange(UF::UpdateFieldSetter<T> const& /*setter*/)
+        {
+            AddToObjectUpdateIfNeeded();
+        }
+
     protected:
         Object();
 
-        void _InitValues();
         void _Create(ObjectGuid const& guid);
-        std::string _ConcatFields(uint16 startIndex, uint16 size) const;
-        void _LoadIntoDataField(std::string const& data, uint32 startOffset, uint32 count);
 
-        uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
-        uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
+        template<typename T>
+        void SetUpdateFieldValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::ValueType value)
+        {
+            if (UF::SetUpdateFieldValue(setter, std::move(value)))
+                AddToObjectUpdateIfNeeded();
+        }
+
+        template<typename T>
+        void SetUpdateFieldFlagValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::ValueType flag)
+        {
+            static_assert(std::is_integral<T>::value, "SetUpdateFieldFlagValue must be used with integral types");
+            SetUpdateFieldValue(setter, setter.GetValue() | flag);
+        }
+
+        template<typename T>
+        void RemoveUpdateFieldFlagValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::ValueType flag)
+        {
+            static_assert(std::is_integral<T>::value, "RemoveUpdateFieldFlagValue must be used with integral types");
+            SetUpdateFieldValue(setter, setter.GetValue() & ~flag);
+        }
+
+        template<typename T>
+        typename UF::DynamicUpdateFieldSetter<T>::NewValueType AddDynamicUpdateFieldValue(UF::DynamicUpdateFieldSetter<T> setter)
+        {
+            AddToObjectUpdateIfNeeded();
+            return UF::AddDynamicUpdateFieldValue(setter);
+        }
+
+        template<typename T>
+        typename UF::DynamicUpdateFieldSetter<T>::NewValueType InsertDynamicUpdateFieldValue(UF::DynamicUpdateFieldSetter<T> setter, uint32 index)
+        {
+            AddToObjectUpdateIfNeeded();
+            return UF::InsertDynamicUpdateFieldValue(setter, index);
+        }
+
+        template<typename T>
+        void RemoveDynamicUpdateFieldValue(UF::DynamicUpdateFieldSetter<T> setter, uint32 index)
+        {
+            AddToObjectUpdateIfNeeded();
+            UF::RemoveDynamicUpdateFieldValue(setter, index);
+        }
+
+        template<typename T>
+        void ClearDynamicUpdateFieldValues(UF::DynamicUpdateFieldSetter<T> setter)
+        {
+            AddToObjectUpdateIfNeeded();
+            UF::ClearDynamicUpdateFieldValues(setter);
+        }
+
+        // stat system helpers
+        template<typename T>
+        void SetUpdateFieldStatValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::ValueType value)
+        {
+            static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
+            SetUpdateFieldValue(setter, std::max(value, T(0)));
+        }
+
+        template<typename T>
+        void ApplyModUpdateFieldValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::ValueType mod, bool apply)
+        {
+            static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
+
+            T value = setter.GetValue();
+            if (apply)
+                value += mod;
+            else
+                value -= mod;
+
+            SetUpdateFieldValue(setter, value);
+        }
+
+        template<typename T>
+        void ApplyPercentModUpdateFieldValue(UF::UpdateFieldSetter<T> setter, float percent, bool apply)
+        {
+            static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
+
+            T value = setter.GetValue();
+
+            // don't want to include Util.h here
+            //ApplyPercentModFloatVar(value, percent, apply);
+            if (percent == -100.0f)
+                percent = -99.99f;
+            value *= (apply ? (100.0f + percent) / 100.0f : 100.0f / (100.0f + percent));
+
+            SetUpdateFieldValue(setter, value);
+        }
 
         void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const;
-        virtual void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
-        virtual void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
+        virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
+        virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;
+        virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;
+        virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
 
         uint16 m_objectType;
 
         TypeID m_objectTypeId;
         CreateObjectBits m_updateFlag;
-
-        union
-        {
-            int32  *m_int32Values;
-            uint32 *m_uint32Values;
-            float  *m_floatValues;
-        };
-
-        std::vector<uint32>* _dynamicValues;
-
-        std::vector<uint8> _changesMask;
-        std::vector<UpdateMask::DynamicFieldChangeType> _dynamicChangesMask;
-        std::vector<uint8>* _dynamicChangesArrayMask;
-
-        uint16 m_valuesCount;
-        uint16 _dynamicValuesCount;
-
-        uint16 _fieldNotifyFlags;
 
         virtual void AddToObjectUpdate() = 0;
         virtual void RemoveFromObjectUpdate() = 0;
@@ -361,10 +310,9 @@ class TC_GAME_API Object
         bool m_objectUpdated;
 
     private:
+        ObjectGuid m_guid;
         bool m_inWorld;
 
-        // for output helpfull error messages from asserts
-        bool PrintIndexError(uint32 index, bool set) const;
         Object(Object const& right) = delete;
         Object& operator=(Object const& right) = delete;
 };

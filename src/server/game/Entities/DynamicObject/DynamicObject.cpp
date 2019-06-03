@@ -33,15 +33,12 @@
 #include "World.h"
 
 DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
-    _aura(NULL), _removedAura(NULL), _caster(NULL), _duration(0), _spellXSpellVisualId(0), _isViewpoint(false)
+    _aura(NULL), _removedAura(NULL), _caster(NULL), _duration(0), _isViewpoint(false)
 {
     m_objectType |= TYPEMASK_DYNAMICOBJECT;
     m_objectTypeId = TYPEID_DYNAMICOBJECT;
 
     m_updateFlag.Stationary = true;
-
-    m_valuesCount = DYNAMICOBJECT_END;
-    _dynamicValuesCount = DYNAMICOBJECT_DYNAMIC_END;
 }
 
 DynamicObject::~DynamicObject()
@@ -87,7 +84,6 @@ void DynamicObject::RemoveFromWorld()
 
 bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, SpellInfo const* spell, Position const& pos, float radius, DynamicObjectType type, uint32 spellXSpellVisualId)
 {
-    _spellXSpellVisualId = spellXSpellVisualId;
     SetMap(caster->GetMap());
     Relocate(pos);
     if (!IsPositionValid())
@@ -101,12 +97,13 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
 
     SetEntry(spell->Id);
     SetObjectScale(1.0f);
-    SetGuidValue(DYNAMICOBJECT_CASTER, caster->GetGUID());
-    SetUInt32Value(DYNAMICOBJECT_TYPE, type);
-    SetUInt32Value(DYNAMICOBJECT_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
-    SetUInt32Value(DYNAMICOBJECT_SPELLID, spell->Id);
-    SetFloatValue(DYNAMICOBJECT_RADIUS, radius);
-    SetUInt32Value(DYNAMICOBJECT_CASTTIME, getMSTime());
+    auto dynamicObjectData = m_values.ModifyValue(&DynamicObject::m_dynamicObjectData);
+    SetUpdateFieldValue(dynamicObjectData.ModifyValue(&UF::DynamicObjectData::Caster), caster->GetGUID());
+    SetUpdateFieldValue(dynamicObjectData.ModifyValue(&UF::DynamicObjectData::Type), type);
+    SetUpdateFieldValue(dynamicObjectData.ModifyValue(&UF::DynamicObjectData::SpellXSpellVisualID), spellXSpellVisualId);
+    SetUpdateFieldValue(dynamicObjectData.ModifyValue(&UF::DynamicObjectData::SpellID), spell->Id);
+    SetUpdateFieldValue(dynamicObjectData.ModifyValue(&UF::DynamicObjectData::Radius), radius);
+    SetUpdateFieldValue(dynamicObjectData.ModifyValue(&UF::DynamicObjectData::CastTime), getMSTime());
 
     if (IsWorldObject())
         setActive(true);    //must before add to map to be put in world container
@@ -247,4 +244,37 @@ void DynamicObject::UnbindFromCaster()
 SpellInfo const* DynamicObject::GetSpellInfo() const
 {
     return sSpellMgr->GetSpellInfo(GetSpellId());
+}
+
+void DynamicObject::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+{
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
+    std::size_t sizePos = data->wpos();
+    *data << uint32(0);
+    *data << uint8(flags);
+    m_objectData->WriteCreate(*data, flags, this, target);
+    m_dynamicObjectData->WriteCreate(*data, flags, this, target);
+    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+}
+
+void DynamicObject::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+{
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
+    std::size_t sizePos = data->wpos();
+    *data << uint32(0);
+    *data << uint32(m_values.GetChangedObjectTypeMask());
+
+    if (m_values.HasChanged(TYPEID_OBJECT))
+        m_objectData->WriteUpdate(*data, flags, this, target);
+
+    if (m_values.HasChanged(TYPEID_DYNAMICOBJECT))
+        m_dynamicObjectData->WriteUpdate(*data, flags, this, target);
+
+    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+}
+
+void DynamicObject::ClearUpdateMask(bool remove)
+{
+    m_values.ClearChangesMask(&DynamicObject::m_dynamicObjectData);
+    Object::ClearUpdateMask(remove);
 }

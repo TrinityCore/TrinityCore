@@ -28,8 +28,8 @@ WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8
     Item.Initialize(item);
     Count = item->GetCount();
     Charges = item->GetSpellCharges();
-    MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
-    Durability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
+    MaxDurability = item->m_itemData->MaxDurability;
+    Durability = item->m_itemData->Durability;
     Unlocked = !item->IsLocked();
 
     for (uint8 j = 0; j < MAX_INSPECTED_ENCHANTMENT_SLOT; j++)
@@ -42,9 +42,9 @@ WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8
     }
 
     uint8 i = 0;
-    for (ItemDynamicFieldGems const& gemData : item->GetGems())
+    for (UF::SocketedGem const& gemData : item->m_itemData->Gems)
     {
-        if (gemData.ItemId)
+        if (gemData.ItemID)
         {
             WorldPackets::Item::ItemGemData gem;
             gem.Slot = i;

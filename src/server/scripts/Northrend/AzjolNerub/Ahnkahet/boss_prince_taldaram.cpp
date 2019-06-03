@@ -264,7 +264,7 @@ class boss_prince_taldaram : public CreatureScript
 
             void RemovePrison()
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), DATA_GROUND_POSITION_Z, me->GetOrientation());
                 DoCast(SPELL_HOVER_FALL);
@@ -395,7 +395,7 @@ class go_prince_taldaram_sphere : public GameObjectScript
             Creature* PrinceTaldaram = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_PRINCE_TALDARAM));
             if (PrinceTaldaram && PrinceTaldaram->IsAlive())
             {
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                go->AddFlag(GO_FLAG_NOT_SELECTABLE);
                 go->SetGoState(GO_STATE_ACTIVE);
 
                 switch (go->GetEntry())

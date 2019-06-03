@@ -148,7 +148,7 @@ public:
                     if (HealthBelowPct(1))
                     {
                         //Handle Escape Event: Don't forget to add Player::RewardPlayerAndGroupAtEvent
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                         uiOutroStep = 1;
                         Phase = OUTRO;
                         return;

@@ -33,15 +33,15 @@ bool WorldPackets::Item::ItemBonusInstanceData::operator==(ItemBonusInstanceData
 void WorldPackets::Item::ItemInstance::Initialize(::Item const* item)
 {
     ItemID               = item->GetEntry();
-    std::vector<uint32> const& bonusListIds = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
+    std::vector<int32> const& bonusListIds = item->m_itemData->BonusListIDs;
     if (!bonusListIds.empty())
     {
         ItemBonus = boost::in_place();
         ItemBonus->BonusListIDs.insert(ItemBonus->BonusListIDs.end(), bonusListIds.begin(), bonusListIds.end());
-        ItemBonus->Context = item->GetUInt32Value(ITEM_FIELD_CONTEXT);
+        ItemBonus->Context = item->m_itemData->Context;
     }
 
-    if (uint32 mask = item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK))
+    if (uint32 mask = item->m_itemData->ModifiersMask)
     {
         Modifications = boost::in_place();
 
@@ -51,9 +51,9 @@ void WorldPackets::Item::ItemInstance::Initialize(::Item const* item)
     }
 }
 
-void WorldPackets::Item::ItemInstance::Initialize(::ItemDynamicFieldGems const* gem)
+void WorldPackets::Item::ItemInstance::Initialize(UF::SocketedGem const* gem)
 {
-    ItemID = gem->ItemId;
+    ItemID = gem->ItemID;
 
     ItemBonusInstanceData bonus;
     bonus.Context = gem->Context;

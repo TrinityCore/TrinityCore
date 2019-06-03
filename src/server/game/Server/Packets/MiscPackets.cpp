@@ -295,6 +295,15 @@ WorldPacket const* WorldPackets::Misc::StandStateUpdate::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::SetAnimTier::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket.WriteBits(Tier, 3);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::PlayerBound::Write()
 {
     _worldPacket << BinderID;

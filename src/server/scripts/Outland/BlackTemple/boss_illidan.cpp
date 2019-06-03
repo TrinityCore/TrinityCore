@@ -543,7 +543,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
             _EnterCombat();
         }
 
@@ -563,7 +563,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
             _JustDied();
         }
@@ -674,7 +674,7 @@ public:
                 Timer[EVENT_TALK_SEQUENCE] = 100;
                 me->RemoveAllAuras();
                 me->InterruptNonMeleeSpells(false);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                 me->GetMotionMaster()->Clear(false);
                 me->AttackStop();
                 break;
@@ -685,7 +685,7 @@ public:
                     Timer[EVENT_FLIGHT_SEQUENCE] = 1;
                     me->RemoveAllAuras();
                     me->InterruptNonMeleeSpells(false);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     me->GetMotionMaster()->Clear(false);
                     me->AttackStop();
                 }
@@ -810,7 +810,7 @@ public:
                         if (Glaive)
                         {
                             GlaiveGUID[i] = Glaive->GetGUID();
-                            Glaive->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            Glaive->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                             Glaive->SetDisplayId(MODEL_INVISIBLE);
                             Glaive->setFaction(me->getFaction());
                             DoCast(Glaive, SPELL_THROW_GLAIVE2);
@@ -826,7 +826,7 @@ public:
                         if (Glaive)
                         {
                             GlaiveGUID[i] = Glaive->GetGUID();
-                            Glaive->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            Glaive->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                             Glaive->SetDisplayId(MODEL_INVISIBLE);
                             Glaive->setFaction(me->getFaction());
                             DoCast(Glaive, SPELL_THROW_GLAIVE, true);
@@ -879,7 +879,7 @@ public:
                     break;
                 case 10: // attack
                     DoResetThreat();
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                     me->SetSheath(SHEATH_STATE_MELEE);
                     EnterPhase(PHASE_NORMAL_2);
                     break;
@@ -1315,7 +1315,7 @@ public:
                     {
                         me->SetFullHealth();
                         me->SetVisible(true);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         Timer[EVENT_MAIEV_STEALTH] = 0;
                         BlinkToPlayer();
                         EnterPhase(Phase);
@@ -1351,7 +1351,7 @@ public:
             if (HealthBelowPct(50))
             {
                 me->SetVisible(false);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 if (Creature* illidan = ObjectAccessor::GetCreature(*me, IllidanGUID))
                     ENSURE_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, illidan->AI())->DeleteFromThreatList(me->GetGUID());
                 me->AttackStop();
@@ -1424,8 +1424,8 @@ public:
 
             KillAllElites();
 
-            me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE); // Database sometimes has strange values..
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->SetNpcFlags(UNIT_NPC_FLAG_NONE); // Database sometimes has strange values..
+            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             me->setActive(false);
             me->SetVisible(false);
         }
@@ -1486,7 +1486,7 @@ public:
         void BeginChannel()
         {
             me->setActive(true);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             if (!JustCreated)
                 return;
             float x, y, z;
@@ -1534,7 +1534,7 @@ public:
                     if (Creature* illidan = ObjectAccessor::GetCreature(*me, IllidanGUID))
                         ENSURE_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, illidan->AI())->DeleteFromThreatList(me->GetGUID());
                     EnterEvadeMode(EVADE_REASON_OTHER);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     ++WalkCount;
                 }
                 JustCreated = false;
@@ -1562,11 +1562,11 @@ public:
                 Timer = 30000; // chain lightning
                 break;
             case PHASE_FIGHT_MINIONS:
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 Timer = urand(10000, 16000); // summon minion
                 break;
             case PHASE_RETURN:
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 KillAllElites();
                 WalkCount = 0;
                 BeginWalk();
@@ -1806,9 +1806,9 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
     Initialize();
 
     me->SetDisplayId(MODEL_ILLIDAN);
-    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    me->RemoveUnitFlag( UNIT_FLAG_IMMUNE_TO_PC);
+    me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
     me->SetDisableGravity(false);
     me->setActive(false);
@@ -1845,7 +1845,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
     case MAIEV_SHADOWSONG:
         {
             summon->SetVisible(false); // Leave her invisible until she has to talk
-            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            summon->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             MaievGUID = summon->GetGUID();
             ENSURE_AI(boss_maiev_shadowsong::boss_maievAI, summon->AI())->GetIllidanGUID(me->GetGUID());
             summon->AI()->DoAction(PHASE_TALK_SEQUENCE);
@@ -1866,7 +1866,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
     switch (TalkCount)
     {
     case 0:
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         break;
     case 8:
         // Equip our warglaives!
@@ -1877,7 +1877,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
     case 9:
         if (Creature* akama = ObjectAccessor::GetCreature(*me, AkamaGUID))
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
             me->AddThreat(akama, 100.0f);
             ENSURE_AI(npc_akama_illidan::npc_akama_illidanAI, akama->AI())->EnterPhase(PHASE_FIGHT_ILLIDAN);
             EnterPhase(PHASE_NORMAL);
@@ -1900,8 +1900,8 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
     case 14:
         if (Creature* maiev = ObjectAccessor::GetCreature(*me, MaievGUID))
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
-            maiev->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+            maiev->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
             maiev->AddThreat(me, 10000000.0f); // Have Maiev add a lot of threat on us so that players don't pull her off if they damage her via AOE
             maiev->AI()->AttackStart(me); // Force Maiev to attack us.
             EnterPhase(PHASE_NORMAL_MAIEV);
@@ -1932,7 +1932,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
         {
             maiev->CastSpell(maiev, SPELL_TELEPORT_VISUAL, true);
             maiev->setDeathState(JUST_DIED);
-            me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+            me->SetStandState(UNIT_STAND_STATE_DEAD);
         }
         break;
     case 21: // Kill ourself.
@@ -1972,7 +1972,7 @@ public:
         {
             Initialize();
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void EnterCombat(Unit* /*who*/) override { }

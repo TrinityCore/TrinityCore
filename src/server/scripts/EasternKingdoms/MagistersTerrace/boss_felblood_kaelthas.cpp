@@ -170,7 +170,7 @@ public:
 
             // Enable the Translocation Orb Exit
             if (GameObject* escapeOrb = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ESCAPE_ORB)))
-                escapeOrb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                escapeOrb->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
@@ -315,7 +315,7 @@ public:
                         Creature* Phoenix = me->SummonCreature(CREATURE_PHOENIX, x, y, LOCATION_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
                         if (Phoenix)
                         {
-                            Phoenix->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
+                            Phoenix->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
                             SetThreatList(Phoenix);
                             Phoenix->AI()->AttackStart(target);
                         }
@@ -454,7 +454,7 @@ public:
         {
             Initialize();
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             me->setFaction(14);
 
             DoCast(me, SPELL_FLAMESTRIKE2, true);
@@ -508,7 +508,7 @@ public:
 
         void Reset() override
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
+            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
             me->SetDisableGravity(true);
             DoCast(me, SPELL_PHOENIX_BURN, true);
             Initialize();
@@ -540,7 +540,7 @@ public:
                 me->RemoveAllAurasOnDeath();
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->ClearAllReactives();
                 me->SetTarget(ObjectGuid::Empty);
                 me->GetMotionMaster()->Clear();
@@ -658,7 +658,7 @@ public:
             DespawnTimer = 30000;
             ChangeTargetTimer = urand(6000, 12000);
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             me->SetDisableGravity(true);
             me->setFaction(14);
             DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);

@@ -941,7 +941,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
     {
         case TARGET_UNIT_CHANNEL_TARGET:
         {
-            for (ObjectGuid const& channelTarget : m_originalCaster->GetChannelObjects())
+            for (ObjectGuid const& channelTarget : m_originalCaster->m_unitData->ChannelObjects)
             {
                 WorldObject* target = ObjectAccessor::GetUnit(*m_caster, channelTarget);
                 CallScriptObjectTargetSelectHandlers(target, effIndex, targetType);
@@ -959,7 +959,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
                 m_targets.SetDst(channeledSpell->m_targets);
             else
             {
-                DynamicFieldStructuredView<ObjectGuid> channelObjects = m_originalCaster->GetChannelObjects();
+                auto const& channelObjects = m_originalCaster->m_unitData->ChannelObjects;
                 WorldObject* target = channelObjects.size() > 0 ? ObjectAccessor::GetWorldObject(*m_caster, *channelObjects.begin()) : nullptr;
                 if (target)
                 {
@@ -2590,7 +2590,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
     if (m_caster != unit)
     {
         // Recheck  UNIT_FLAG_NON_ATTACKABLE for delayed spells
-        if (m_spellInfo->Speed > 0.0f && unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
+        if (m_spellInfo->Speed > 0.0f && unit->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
             return SPELL_MISS_EVADE;
 
         if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
@@ -2707,7 +2707,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
 
                             // if there is no periodic effect
                             if (!duration)
-                                duration = int32(origDuration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED));
+                                duration = int32(origDuration * m_originalCaster->m_unitData->ModCastingSpeed);
                         }
                     }
 
@@ -2992,7 +2992,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     else
         m_casttime = m_spellInfo->CalcCastTime(m_caster->getLevel(), this);
 
-    if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)) // _UNIT actually means creature. for some reason.
+    if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)) // _UNIT actually means creature. for some reason.
         if (!(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat() || (_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING)))
         {
             if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
@@ -3206,7 +3206,7 @@ void Spell::cast(bool skipCheck)
 
     // if the spell allows the creature to turn while casting, then adjust server-side orientation to face the target now
     // client-side orientation is handled by the client itself, as the cast target is targeted due to Creature::FocusTarget
-    if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+    if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
         if (!m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
             if (WorldObject* objTarget = m_targets.GetObjectTarget())
                 m_caster->SetInFront(objTarget);
@@ -3661,7 +3661,7 @@ void Spell::finish(bool ok)
         if (Unit* charm = m_caster->GetCharm())
             if (charm->GetTypeId() == TYPEID_UNIT
                 && charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_PUPPET)
-                && charm->GetUInt32Value(UNIT_CREATED_BY_SPELL) == m_spellInfo->Id)
+                && charm->m_unitData->CreatedBySpell == int32(m_spellInfo->Id))
                 ((Puppet*)charm)->UnSummon();
     }
 
@@ -3674,7 +3674,7 @@ void Spell::finish(bool ok)
     if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->IsSummon())
     {
         // Unsummon statue
-        uint32 spell = m_caster->GetUInt32Value(UNIT_CREATED_BY_SPELL);
+        uint32 spell = m_caster->m_unitData->CreatedBySpell;
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
         if (spellInfo && spellInfo->IconFileDataId == 134230)
         {
@@ -4408,7 +4408,7 @@ void Spell::SendChannelUpdate(uint32 time)
 {
     if (time == 0)
     {
-        m_caster->ClearDynamicValue(UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS);
+        m_caster->ClearChannelObjects();
         m_caster->SetChannelSpellId(0);
         m_caster->SetChannelSpellXSpellVisualId(0);
     }
@@ -4803,7 +4803,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
         {
             //can cast triggered (by aura only?) spells while have this flag
-            if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && m_caster->ToPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY))
+            if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && m_caster->ToPlayer()->HasPlayerFlag(PLAYER_ALLOW_ONLY_ABILITY))
                 return SPELL_FAILED_SPELL_IN_PROGRESS;
 
             // check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
@@ -4820,7 +4820,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         }
     }
 
-    if (m_spellInfo->HasAttribute(SPELL_ATTR7_IS_CHEAT_SPELL) && !m_caster->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR7_IS_CHEAT_SPELL) && !m_caster->HasUnitFlag2(UNIT_FLAG2_ALLOW_CHEAT_SPELLS))
     {
         m_customError = SPELL_CUSTOM_ERROR_GM_ONLY;
         return SPELL_FAILED_CUSTOM_ERROR;
@@ -5217,10 +5217,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
                     if (std::vector<uint32> const* glyphRequiredSpecs = sDB2Manager.GetGlyphRequiredSpecs(glyphId))
                     {
-                        if (!caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID))
+                        if (!caster->GetPrimarySpecialization())
                             return SPELL_FAILED_GLYPH_NO_SPEC;
 
-                        if (std::find(glyphRequiredSpecs->begin(), glyphRequiredSpecs->end(), caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID)) == glyphRequiredSpecs->end())
+                        if (std::find(glyphRequiredSpecs->begin(), glyphRequiredSpecs->end(), caster->GetPrimarySpecialization()) == glyphRequiredSpecs->end())
                             return SPELL_FAILED_GLYPH_INVALID_SPEC;
                     }
 
@@ -5333,7 +5333,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (m_caster->GetTypeId() != TYPEID_PLAYER || !m_targets.GetUnitTarget() || m_targets.GetUnitTarget()->GetTypeId() != TYPEID_UNIT)
                     return SPELL_FAILED_BAD_TARGETS;
 
-                if (!(m_targets.GetUnitTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & UNIT_FLAG_SKINNABLE))
+                if (!m_targets.GetUnitTarget()->HasUnitFlag(UNIT_FLAG_SKINNABLE))
                     return SPELL_FAILED_TARGET_UNSKINNABLE;
 
                 Creature* creature = m_targets.GetUnitTarget()->ToCreature();
@@ -5808,7 +5808,7 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
     SpellCastResult result = SPELL_CAST_OK;
 
     // Get unit state
-    uint32 const unitflag = m_caster->GetUInt32Value(UNIT_FIELD_FLAGS);
+    uint32 const unitflag = m_caster->m_unitData->Flags;
 
     // this check should only be done when player does cast directly
     // (ie not when it's called from a script) Breaks for example PlayerAI when charmed
@@ -5865,7 +5865,7 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
         result = SPELL_FAILED_FLEEING;
     else if (unitflag & UNIT_FLAG_CONFUSED && !usableWhileConfused && !CheckSpellCancelsConfuse(param1))
         result = SPELL_FAILED_CONFUSED;
-    else if (m_caster->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_NO_ACTIONS) && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_NO_ACTIONS)
+    else if (m_caster->HasUnitFlag2(UNIT_FLAG2_NO_ACTIONS) && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_NO_ACTIONS)
         result = SPELL_FAILED_NO_ACTIONS;
 
     // Attr must make flag drop spell totally immune from all effects
@@ -7608,13 +7608,13 @@ void Spell::TriggerGlobalCooldown()
         // Apply haste rating
         if (gcd > MIN_GCD && ((m_spellInfo->StartRecoveryCategory == 133 && !isMeleeOrRangedSpell) || m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE, m_spellInfo)))
         {
-            gcd = int32(float(gcd) * m_caster->GetFloatValue(UNIT_MOD_CAST_HASTE));
+            gcd = int32(float(gcd) * m_caster->m_unitData->ModSpellHaste);
             RoundToInterval<int32>(gcd, MIN_GCD, MAX_GCD);
         }
 
         if (gcd > MIN_GCD && m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE_REGEN, m_spellInfo))
         {
-            gcd = int32(float(gcd) * m_caster->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN));
+            gcd = int32(float(gcd) * m_caster->m_unitData->ModHasteRegen);
             RoundToInterval<int32>(gcd, MIN_GCD, MAX_GCD);
         }
     }

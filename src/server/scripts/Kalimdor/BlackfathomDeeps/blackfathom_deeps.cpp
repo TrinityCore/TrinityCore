@@ -60,7 +60,7 @@ public:
         if (instance)
         {
             go->SetGoState(GO_STATE_ACTIVE);
-            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
             instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
             return true;
         }
@@ -189,7 +189,7 @@ public:
         npc_morriduneAI(Creature* creature) : npc_escortAI(creature)
         {
             Talk(SAY_MORRIDUNE_1);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             Start(false);
         }
 
@@ -200,7 +200,7 @@ public:
                 case 4:
                     SetEscortPaused(true);
                     me->SetFacingTo(1.775791f, true);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     Talk(SAY_MORRIDUNE_2);
                     break;
             }

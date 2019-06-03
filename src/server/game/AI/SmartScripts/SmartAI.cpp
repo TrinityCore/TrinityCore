@@ -126,8 +126,8 @@ void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* invoker)
 
     if (invoker && invoker->GetTypeId() == TYPEID_PLAYER)
     {
-        mEscortNPCFlags = me->GetUInt32Value(UNIT_NPC_FLAGS);
-        me->SetFlag(UNIT_NPC_FLAGS, 0);
+        mEscortNPCFlags = me->m_unitData->NpcFlags[0];
+        me->SetNpcFlags(UNIT_NPC_FLAG_NONE);
     }
 
     GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_START, nullptr, mCurrentWPID, GetScript()->GetPathId());
@@ -222,7 +222,7 @@ void SmartAI::EndPath(bool fail)
 
     if (mEscortNPCFlags)
     {
-        me->SetFlag(UNIT_NPC_FLAGS, mEscortNPCFlags);
+        me->SetNpcFlags(NPCFlags(mEscortNPCFlags));
         mEscortNPCFlags = 0;
     }
 
@@ -645,7 +645,7 @@ void SmartAI::JustSummoned(Creature* creature)
 void SmartAI::AttackStart(Unit* who)
 {
     // dont allow charmed npcs to act on their own
-    if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+    if (me->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED))
     {
         if (who && mCanAutoAttack)
             me->Attack(who, true);

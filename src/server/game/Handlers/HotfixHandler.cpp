@@ -70,17 +70,19 @@ void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotf
         {
             for (auto const& tableRecord : *hotfixedRecords)
             {
-                DB2StorageBase const* storage = sDB2Manager.GetStorage(hotfixRecord.TableHash);
+                uint32 hotfixTableHash = tableRecord.first;
+                int32 hotfixRecordId = tableRecord.second;;
+                DB2StorageBase const* storage = sDB2Manager.GetStorage(hotfixTableHash);
 
                 WorldPackets::Hotfix::HotfixResponse::HotfixData hotfixData;
                 hotfixData.Record = hotfixRecord;
-                if (storage && storage->HasRecord(hotfixData.Record.RecordID))
+                if (storage && storage->HasRecord(hotfixRecordId))
                 {
                     std::size_t pos = hotfixQueryResponse.HotfixContent.size();
-                    storage->WriteRecord(hotfixData.Record.RecordID, GetSessionDbcLocale(), hotfixQueryResponse.HotfixContent);
+                    storage->WriteRecord(hotfixRecordId, GetSessionDbcLocale(), hotfixQueryResponse.HotfixContent);
                     hotfixData.Size = hotfixQueryResponse.HotfixContent.size() - pos;
                 }
-                else if (std::vector<uint8> const* blobData = sDB2Manager.GetHotfixBlobData(hotfixData.Record.TableHash, hotfixData.Record.RecordID))
+                else if (std::vector<uint8> const* blobData = sDB2Manager.GetHotfixBlobData(hotfixTableHash, hotfixRecordId))
                 {
                     hotfixData.Size = blobData->size();
                     hotfixQueryResponse.HotfixContent.append(blobData->data(), blobData->size());

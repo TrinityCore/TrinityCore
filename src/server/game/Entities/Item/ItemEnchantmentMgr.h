@@ -39,7 +39,6 @@ struct ItemRandomEnchantmentId
 
 TC_GAME_API void LoadRandomEnchantmentsTable();
 TC_GAME_API ItemRandomEnchantmentId GenerateItemRandomPropertyId(uint32 item_id);
-TC_GAME_API uint32 GenerateEnchSuffixFactor(uint32 item_id);
 TC_GAME_API uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType, uint32 subclass);
 
 #endif

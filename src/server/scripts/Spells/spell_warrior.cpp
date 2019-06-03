@@ -1271,7 +1271,7 @@ class spell_warr_victorious_state : public SpellScriptLoader
 
             void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
             {
-                if (procInfo.GetActor()->GetTypeId() == TYPEID_PLAYER && procInfo.GetActor()->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_WARRIOR_FURY)
+                if (procInfo.GetActor()->GetTypeId() == TYPEID_PLAYER && procInfo.GetActor()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_WARRIOR_FURY)
                     PreventDefaultAction();
 
                 procInfo.GetActor()->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_IMPENDING_VICTORY, true);

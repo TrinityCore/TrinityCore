@@ -133,7 +133,7 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
         BnetAccountID = player->GetSession()->GetBattlenetAccountGUID();
         Name          = player->GetName();
         Race          = player->getRace();
-        Sex           = player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
+        Sex           = player->m_playerData->NativeSex;
         ClassID       = player->getClass();
         Level         = player->getLevel();
 

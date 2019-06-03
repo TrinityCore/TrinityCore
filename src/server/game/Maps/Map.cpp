@@ -1052,9 +1052,9 @@ void Map::PlayerRelocation(Player* player, float x, float y, float z, float orie
 
     //! If hovering, always increase our server-side Z position
     //! Client automatically projects correct position based on Z coord sent in monster move
-    //! and UNIT_FIELD_HOVERHEIGHT sent in object updates
+    //! and HoverHeight sent in object updates
     if (player->HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        z += player->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+        z += player->m_unitData->HoverHeight;
 
     player->Relocate(x, y, z, orientation);
     if (player->IsVehicle())
@@ -1087,9 +1087,9 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
 
     //! If hovering, always increase our server-side Z position
     //! Client automatically projects correct position based on Z coord sent in monster move
-    //! and UNIT_FIELD_HOVERHEIGHT sent in object updates
+    //! and HoverHeight sent in object updates
     if (creature->HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        z += creature->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+        z += creature->m_unitData->HoverHeight;
 
     // delay creature move for grid/cell to grid/cell moves
     if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
@@ -4217,13 +4217,28 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         bones = new Corpse();
         bones->Create(corpse->GetGUID().GetCounter(), this);
 
-        for (uint8 i = OBJECT_FIELD_GUID + 4; i < CORPSE_END; ++i)                    // don't overwrite guid
-            bones->SetUInt32Value(i, corpse->GetUInt32Value(i));
+        bones->SetCorpseDynamicFlags(CorpseDynFlags(*corpse->m_corpseData->DynamicFlags));
+        bones->SetOwnerGUID(corpse->m_corpseData->Owner);
+        bones->SetPartyGUID(corpse->m_corpseData->PartyGUID);
+        bones->SetGuildGUID(corpse->m_corpseData->GuildGUID);
+        bones->SetDisplayId(corpse->m_corpseData->DisplayID);
+        bones->SetRace(corpse->m_corpseData->RaceID);
+        bones->SetSex(corpse->m_corpseData->Sex);
+        bones->SetSkin(corpse->m_corpseData->SkinID);
+        bones->SetFace(corpse->m_corpseData->FaceID);
+        bones->SetHairStyle(corpse->m_corpseData->HairStyleID);
+        bones->SetHairColor(corpse->m_corpseData->HairColorID);
+        bones->SetFacialHairStyle(corpse->m_corpseData->FacialHairStyleID);
+        bones->SetFlags(corpse->m_corpseData->Flags | CORPSE_FLAG_BONES);
+        bones->SetFactionTemplate(corpse->m_corpseData->FactionTemplate);
+        for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+            bones->SetItem(i, corpse->m_corpseData->Items[i]);
+
+        for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+            bones->SetCustomDisplayOption(i, corpse->m_corpseData->CustomDisplayOption[i]);
 
         bones->SetCellCoord(corpse->GetCellCoord());
         bones->Relocate(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetOrientation());
-
-        bones->SetUInt32Value(CORPSE_FIELD_FLAGS, corpse->GetUInt32Value(CORPSE_FIELD_FLAGS) | CORPSE_FLAG_BONES);
 
         PhasingHandler::InheritPhaseShift(bones, corpse);
 

@@ -250,7 +250,7 @@ public:
         {
             summon->SetVisible(false);
             summon->SetReactState(REACT_PASSIVE);
-            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            summon->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         }
         return false;
     }

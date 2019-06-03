@@ -1174,7 +1174,7 @@ public:
 
                         char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetTrinityString(LANG_KNOWN) : "";
 
-                        char const* activeStr = target && target->GetInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
+                        char const* activeStr = target && *target->m_playerData->PlayerTitle == titleInfo->MaskID
                             ? handler->GetTrinityString(LANG_ACTIVE)
                             : "";
 

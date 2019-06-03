@@ -314,7 +314,7 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
         nodes[0] = FlightPathStartNodes[NA_ROOST_N];
         nodes[1] = FlightPathEndNodes[NA_ROOST_N];
         player->ActivateTaxiPathTo(nodes);
-        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+        player->AddPlayerFlag(PLAYER_FLAGS_IN_PVP);
         player->UpdatePvP(true, true);
         retval = true;
         break;
@@ -322,7 +322,7 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
         nodes[0] = FlightPathStartNodes[NA_ROOST_S];
         nodes[1] = FlightPathEndNodes[NA_ROOST_S];
         player->ActivateTaxiPathTo(nodes);
-        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+        player->AddPlayerFlag(PLAYER_FLAGS_IN_PVP);
         player->UpdatePvP(true, true);
         retval = true;
         break;
@@ -330,7 +330,7 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
         nodes[0] = FlightPathStartNodes[NA_ROOST_W];
         nodes[1] = FlightPathEndNodes[NA_ROOST_W];
         player->ActivateTaxiPathTo(nodes);
-        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+        player->AddPlayerFlag(PLAYER_FLAGS_IN_PVP);
         player->UpdatePvP(true, true);
         retval = true;
         break;
@@ -338,7 +338,7 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
         nodes[0] = FlightPathStartNodes[NA_ROOST_E];
         nodes[1] = FlightPathEndNodes[NA_ROOST_E];
         player->ActivateTaxiPathTo(nodes);
-        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+        player->AddPlayerFlag(PLAYER_FLAGS_IN_PVP);
         player->UpdatePvP(true, true);
         retval = true;
         break;

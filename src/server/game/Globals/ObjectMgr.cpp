@@ -93,10 +93,10 @@ std::string GetScriptCommandName(ScriptCommands command)
     {
         case SCRIPT_COMMAND_TALK: res = "SCRIPT_COMMAND_TALK"; break;
         case SCRIPT_COMMAND_EMOTE: res = "SCRIPT_COMMAND_EMOTE"; break;
-        case SCRIPT_COMMAND_FIELD_SET: res = "SCRIPT_COMMAND_FIELD_SET"; break;
+        case SCRIPT_COMMAND_FIELD_SET_DEPRECATED: res = "SCRIPT_COMMAND_FIELD_SET_DEPRECATED"; break;
         case SCRIPT_COMMAND_MOVE_TO: res = "SCRIPT_COMMAND_MOVE_TO"; break;
-        case SCRIPT_COMMAND_FLAG_SET: res = "SCRIPT_COMMAND_FLAG_SET"; break;
-        case SCRIPT_COMMAND_FLAG_REMOVE: res = "SCRIPT_COMMAND_FLAG_REMOVE"; break;
+        case SCRIPT_COMMAND_FLAG_SET_DEPRECATED: res = "SCRIPT_COMMAND_FLAG_SET_DEPRECATED"; break;
+        case SCRIPT_COMMAND_FLAG_REMOVE_DEPRECATED: res = "SCRIPT_COMMAND_FLAG_REMOVE_DEPRECATED"; break;
         case SCRIPT_COMMAND_TELEPORT_TO: res = "SCRIPT_COMMAND_TELEPORT_TO"; break;
         case SCRIPT_COMMAND_QUEST_EXPLORED: res = "SCRIPT_COMMAND_QUEST_EXPLORED"; break;
         case SCRIPT_COMMAND_KILL_CREDIT: res = "SCRIPT_COMMAND_KILL_CREDIT"; break;
@@ -5286,6 +5286,13 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     continue;
                 }
                 break;
+            }
+            case SCRIPT_COMMAND_FIELD_SET_DEPRECATED:
+            case SCRIPT_COMMAND_FLAG_SET_DEPRECATED:
+            case SCRIPT_COMMAND_FLAG_REMOVE_DEPRECATED:
+            {
+                TC_LOG_ERROR("sql.sql", "Table `%s` uses deprecated direct updatefield modify command %s for script id %u", tableName.c_str(), GetScriptCommandName(tmp.command).c_str(), tmp.id);
+                continue;
             }
             default:
                 break;
