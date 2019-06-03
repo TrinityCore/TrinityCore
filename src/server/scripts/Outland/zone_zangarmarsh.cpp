@@ -229,6 +229,46 @@ public:
     }
 };
 
+enum AsTheCrowFlies
+{
+    SPELL_WHISPER_AURA_1 = 31774,
+    NPC_YSIEL_WINDSINGER = 17841
+};
+
+class spell_crow_whisper_aura : public SpellScriptLoader
+{
+    public:
+        spell_crow_whisper_aura() : SpellScriptLoader("spell_crow_whisper_aura") { }
+
+        class spell_crow_whisper_aura_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_crow_whisper_aura_SpellScript);
+
+            void HandleEffect(SpellEffIndex effIndex)
+            {
+                SpellInfo const* spellInfo = GetSpellInfo();
+                uint32 talkId = spellInfo->Id - SPELL_WHISPER_AURA_1;
+                Unit* caster = GetCaster();
+
+                if (Creature* questgiver = GetHitUnit()->SummonCreature(NPC_YSIEL_WINDSINGER, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), caster->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2000))
+                {
+                    questgiver->SetVisible(false);
+                    questgiver->AI()->Talk(talkId, GetHitUnit());
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_crow_whisper_aura_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_crow_whisper_aura_SpellScript();
+        }
+};
+
 /*######
 ## AddSC
 ######*/
@@ -237,4 +277,5 @@ void AddSC_zangarmarsh()
 {
     new npcs_ashyen_and_keleth();
     new npc_kayra_longmane();
+    new spell_crow_whisper_aura();
 }
