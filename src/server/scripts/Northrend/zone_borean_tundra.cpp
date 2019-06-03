@@ -1528,17 +1528,14 @@ public:
 ######*/
 enum ImprisionedBerylSorcerer
 {
-    SPELL_NEURAL_NEEDLE             = 45634,
+    SPELL_NEURAL_NEEDLE                  = 45634,
+    SPELL_PROTOTYPE_NEURAL_NEEDLE        = 48252,
+    SPELL_NEURAL_NEEDLE_IMPACT           = 45702,
+    SPELL_PROTOTYPE_NEURAL_NEEDLE_IMPACT = 48254,
 
-    NPC_IMPRISONED_BERYL_SORCERER   = 25478,
+    NPC_IMPRISONED_BERYL_SORCERER = 25478,
 
-    SAY_IMPRISIONED_BERYL_1         = 0,
-    SAY_IMPRISIONED_BERYL_2         = 1,
-    SAY_IMPRISIONED_BERYL_3         = 2,
-    SAY_IMPRISIONED_BERYL_4         = 3,
-    SAY_IMPRISIONED_BERYL_5         = 4,
-    SAY_IMPRISIONED_BERYL_6         = 5,
-    SAY_IMPRISIONED_BERYL_7         = 6
+    QUEST_THE_ART_OF_PERSUASION   = 11648
 };
 
 class npc_imprisoned_beryl_sorcerer : public CreatureScript
@@ -1575,9 +1572,7 @@ public:
             if (rebuff <= diff)
             {
                 if (!me->HasAura(SPELL_COSMETIC_ENSLAVE_CHAINS_SELF))
-                {
                     DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF);
-                }
                 rebuff = 180000;
             }
             else
@@ -1592,42 +1587,29 @@ public:
 
         void SpellHit(Unit* unit, SpellInfo const* spell) override
         {
-            if (spell->Id == SPELL_NEURAL_NEEDLE && unit->GetTypeId() == TYPEID_PLAYER)
-                if (Player* player = unit->ToPlayer())
-                    GotStinged(player->GetGUID());
+            if ((spell->Id == SPELL_NEURAL_NEEDLE || spell->Id == SPELL_PROTOTYPE_NEURAL_NEEDLE) && unit->GetTypeId() == TYPEID_PLAYER)
+                GotStinged(unit->ToPlayer(), spell->Id);
         }
 
-        void GotStinged(ObjectGuid casterGUID)
+        void GotStinged(Player* caster, uint32 spellId)
         {
-            if (Player* caster = ObjectAccessor::GetPlayer(*me, casterGUID))
-            {
-                uint32 step = caster->GetAuraCount(SPELL_NEURAL_NEEDLE) + 1;
-                switch (step)
-                {
-                    case 1:
-                        Talk(SAY_IMPRISIONED_BERYL_1);
-                        break;
-                    case 2:
-                        Talk(SAY_IMPRISIONED_BERYL_2, caster);
-                        break;
-                    case 3:
-                        Talk(SAY_IMPRISIONED_BERYL_3);
-                        break;
-                    case 4:
-                        Talk(SAY_IMPRISIONED_BERYL_4);
-                        break;
-                    case 5:
-                        Talk(SAY_IMPRISIONED_BERYL_5);
-                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER);
-                        break;
-                    case 6:
-                        Talk(SAY_IMPRISIONED_BERYL_6, caster);
-                        break;
-                    case 7:
-                        Talk(SAY_IMPRISIONED_BERYL_7);
-                        break;
-                }
-            }
+            DoCastSelf(spellId == SPELL_NEURAL_NEEDLE ? SPELL_NEURAL_NEEDLE_IMPACT : SPELL_PROTOTYPE_NEURAL_NEEDLE_IMPACT);
+
+            // Event cannot happen if quest is not accepted/completed/rewarded
+            if (caster->GetQuestStatus(QUEST_THE_ART_OF_PERSUASION) == QUEST_STATUS_NONE)
+                return;
+
+            uint32 step = 0;
+
+            if (spellId == SPELL_NEURAL_NEEDLE)
+                step = caster->GetAuraCount(SPELL_NEURAL_NEEDLE); // Text IDs 0-6
+            else
+                step = caster->GetAuraCount(SPELL_PROTOTYPE_NEURAL_NEEDLE) + 7; // Text IDs 7-18
+
+            if (spellId == SPELL_NEURAL_NEEDLE && step == 4)
+                caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER);
+
+            Talk(step, caster);
         }
     };
 
