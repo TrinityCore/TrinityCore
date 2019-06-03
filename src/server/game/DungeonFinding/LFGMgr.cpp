@@ -422,7 +422,7 @@ void LFGMgr::Update(uint32 diff)
                 if (dpsCountAbsolute >= healerCount || tankCount >= healerCount)
                     roleMask |= PLAYER_ROLE_HEALER;
 
-                if (dpsCountAbsolute <= tankCount || dpsCountAbsolute <= healerCount)
+                if (dpsCountAbsolute < tankCount && dpsCountAbsolute < healerCount)
                     roleMask |= PLAYER_ROLE_DAMAGE;
 
                 SetShortageRoleMask(dungeon->ID, roleMask);
