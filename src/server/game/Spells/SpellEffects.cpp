@@ -4129,7 +4129,7 @@ void Spell::EffectSummonRaidMarker(SpellEffIndex effIndex)
         return;
     }
 
-    group->AddMarkerToList(dynObj);
+    group->AddMarkerToList(player->GetGUID(), dynObj->GetGUID());
     group->AddGroupMarkerMask(slotMask);
     group->SendRaidMarkerUpdate();
 

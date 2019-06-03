@@ -44,6 +44,7 @@ struct MapEntry;
 #define MAXRAIDSIZE 40
 #define MAX_RAID_SUBGROUPS MAXRAIDSIZE/MAXGROUPSIZE
 #define TARGETICONCOUNT 8
+#define SPELL_RAID_MARKER 84996
 
 enum RollVote
 {
@@ -162,6 +163,14 @@ struct InstanceGroupBind
     InstanceGroupBind() : save(nullptr), perm(false) { }
 };
 
+struct RaidMarkerInfo
+{
+    ObjectGuid summonerGuid;
+    ObjectGuid markerGuid;
+};
+
+typedef std::list<RaidMarkerInfo> RaidMarkerList;
+
 /** request member stats checken **/
 /// @todo uninvite people that not accepted invite
 class TC_GAME_API Group
@@ -217,10 +226,10 @@ class TC_GAME_API Group
         bool   HasMarker(uint32 mask) { return (m_markerMask & mask) != 0; }
         uint32 GetMarkerMask() { return m_markerMask; }
 
-        DynamicObject* GetMarkerGuidBySpell(uint32 spell);
-        void   AddMarkerToList(DynamicObject* dynObj) { m_dynObj.push_back(dynObj); }
-        void   RemoveMarkerFromList(DynamicObject* dynObj) { m_dynObj.remove(dynObj); }
-        void   RemoveAllMarkerFromList() { m_dynObj.clear(); }
+        DynamicObject* GetRaidMarkerBySpellId(uint32 spell);
+        void   AddMarkerToList(ObjectGuid summonerGuid, ObjectGuid markerGuid) { m_raidMarkers.push_back({ summonerGuid, markerGuid }); }
+        void   RemoveRaidMarkerFromList(ObjectGuid markerGuid);
+        void   RemoveAllMarkerFromList() { m_raidMarkers.clear(); }
         void   RemoveMarker();
 
         // properties accessories
@@ -288,7 +297,6 @@ class TC_GAME_API Group
         Difficulty GetRaidDifficulty() const;
         void SetDungeonDifficulty(Difficulty difficulty);
         void SetRaidDifficulty(Difficulty difficulty);
-        uint16 InInstance();
         bool InCombatToInstance(uint32 instanceId);
         void ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo);
 
@@ -398,9 +406,7 @@ class TC_GAME_API Group
         uint32              m_counter;                      // used only in SMSG_GROUP_LIST
         uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
-
-        typedef std::list<DynamicObject*> DynObjectList;
-        DynObjectList m_dynObj;
+        RaidMarkerList      m_raidMarkers;
 };
 
 #endif

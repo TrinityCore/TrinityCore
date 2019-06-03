@@ -1673,37 +1673,48 @@ void Group::SendRaidMarkerUpdateToPlayer(ObjectGuid playerGUID, bool remove)
     player->SendDirectMessage(&data);
 }
 
-DynamicObject* Group::GetMarkerGuidBySpell(uint32 spell)
+DynamicObject* Group::GetRaidMarkerBySpellId(uint32 spellId)
 {
-    if (!m_dynObj.empty())
+    for (RaidMarkerInfo itr : m_raidMarkers)
     {
-        for (DynObjectList::const_iterator i = m_dynObj.begin(); i != m_dynObj.end(); ++i)
-        {
-            DynamicObject* dynObj = *i;
-            if (dynObj && dynObj->GetEntry() == spell)
-                return dynObj;
-        }
+        if (Player* player = ObjectAccessor::FindPlayer(itr.summonerGuid))
+            if (DynamicObject* dynObject = ObjectAccessor::GetDynamicObject(*player, itr.markerGuid))
+                if (dynObject->GetEntry() == spellId)
+                    return dynObject;
     }
 
     return nullptr;
 }
 
+void Group::RemoveRaidMarkerFromList(ObjectGuid markerGuid)
+{
+    for (RaidMarkerList::const_iterator itr = m_raidMarkers.begin(); itr != m_raidMarkers.end();)
+    {
+        if (itr->markerGuid == markerGuid)
+        {
+            m_raidMarkers.erase(itr);
+            itr = m_raidMarkers.begin();
+        }
+        else
+            itr++;
+    }
+}
+
 void Group::RemoveMarker()
 {
-    for (uint32 spell = 0; spell < 5; ++spell)
+    for (uint32 i = 0; i < 5; ++i)
     {
-        uint32 mask = 1 << spell;
-        uint32 spellId = 84996 + spell;
+        uint32 mask = 1 << i;
+        uint32 spellId = SPELL_RAID_MARKER + i;
 
         if (HasMarker(mask))
             continue;
 
-        DynamicObject* dynObject = GetMarkerGuidBySpell(spellId);
-        if (!dynObject)
-            continue;
-
-        RemoveMarkerFromList(dynObject);
-        dynObject->RemoveFromWorld();
+        if (DynamicObject* dynObject = GetRaidMarkerBySpellId(spellId))
+        {
+            RemoveRaidMarkerFromList(dynObject->GetGUID());
+            dynObject->RemoveFromWorld();
+        }
     }
 }
 
