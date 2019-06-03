@@ -489,6 +489,7 @@ struct npc_ozumat_neptulon : public ScriptedAI
             case NPC_FACELESS_SAPPER:
                 summon->CastSpell(summon, SPELL_WATER_EXPLOSION_DOWN);
                 summon->SetReactState(REACT_PASSIVE);
+                summon->AI()->DoZoneInCombat();
                 summon->SetCorpseDelay(4);
                 summon->GetMotionMaster()->MoveFall();
                 summon->m_Events.AddEvent(new EntanglingGraspEvent(summon), summon->m_Events.CalculateTime(3 * IN_MILLISECONDS));
