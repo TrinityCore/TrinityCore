@@ -18,6 +18,8 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 
 enum ThalorienDawnseekerTexts
 {
@@ -74,7 +76,8 @@ enum ThalorienDawnseekerEvents
     EVENT_OUTRO_1       = 18,
     EVENT_OUTRO_2       = 19,
     EVENT_OUTRO_3       = 20,
-    EVENT_OUTRO_4       = 21
+    EVENT_OUTRO_4       = 21,
+    EVENT_KNEEL         = 22
 };
 
 enum ThalorienDawnseeker
@@ -89,12 +92,13 @@ enum ThalorienDawnseeker
     NPC_CRYPT_RAIDER            = 37541,
 
     SPELL_BLOOD_PRESENCE        = 50689,
+    SPELL_KILL_CREDIT           = 70265,
     SPELL_POLYMORPH_VISUAL      = 27123
 };
 
 Position const thalorienSummon = { 11795.32f, -7070.476f, 26.27511f, 5.67232f  };
-Position const morlenSummon = { 11766.46f, -7050.078f, 26.19846f, 5.637414f  };
 Position const thalorienFight = { 11788.46f, -7063.375f, 25.79677f, 3.054326f };
+Position const morlenSummon = { 11766.46f, -7050.078f, 26.19846f, 5.637414f  };
 
 class npc_thalorien_dawnseeker : public CreatureScript
 {
@@ -111,6 +115,7 @@ public:
             {
                 CloseGossipMenuFor(player);
                 DoAction(ACTION_START_QUEST);
+                _playerGUID = player->GetGUID();
             }
             return false;
         }
@@ -133,6 +138,7 @@ public:
         {
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             _summons.DespawnAll();
+            _playerGUID.Clear();
             _events.Reset();
         }
 
@@ -278,27 +284,38 @@ public:
                         break;
                     case EVENT_OUTRO_1:
                         if (_thalorien)
+                        {
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                                _thalorien->AI()->DoCast(player, SPELL_KILL_CREDIT);
+
                             _thalorien->AI()->Talk(SAY_THALORIEN_7);
+                        }
 
                         _events.ScheduleEvent(EVENT_OUTRO_2, 5s);
                         break;
                     case EVENT_OUTRO_2:
                         if (_thalorien)
                             _thalorien->AI()->Talk(SAY_THALORIEN_8);
-                            _thalorien->AI()->DoCastSelf(SPELL_POLYMORPH_VISUAL);
 
                         _events.ScheduleEvent(EVENT_OUTRO_3, 7s);
                         break;
                     case EVENT_OUTRO_3:
                         if (_thalorien)
                             _thalorien->AI()->Talk(SAY_THALORIEN_9);
+                            _thalorien->AI()->DoCastSelf(SPELL_POLYMORPH_VISUAL);
 
                         _events.ScheduleEvent(EVENT_OUTRO_4, 5s);
                         break;
                     case EVENT_OUTRO_4:
                         if (_thalorien)
                             _thalorien->AI()->Talk(SAY_THALORIEN_10);
+
+                        _events.ScheduleEvent(EVENT_KNEEL, 6s);
+                        break;
+                    case EVENT_KNEEL:
+                        if (_thalorien)
                             _thalorien->SetStandState(UNIT_STAND_STATE_KNEEL);
+                            _thalorien->DespawnOrUnsummon(5 * IN_MILLISECONDS);
 
                         break;
                 }
@@ -314,7 +331,6 @@ public:
         {
             _summons.Despawn(summon);
 
-            int size = _summons.size();
             if (_summons.size() == 2)
             {
                 if (summon->GetEntry() == NPC_SCOURGE_ZOMBIE)
@@ -327,13 +343,14 @@ public:
             else if (_summons.size() == 1)
             {
                 if (summon->GetEntry() == NPC_MORLEN_GOLDGRIP)
-                    _events.ScheduleEvent(EVENT_OUTRO_1, 0);
+                    _events.ScheduleEvent(EVENT_OUTRO_1, 2s);
             }
         }
 
     private:
         EventMap _events;
         SummonList _summons;
+        ObjectGuid _playerGUID;
         Creature* _thalorien;
         Creature* _morlen;
     };
