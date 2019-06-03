@@ -224,7 +224,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
         {
             ++count;
             data << uint32(questID);
-            data << (quest->IsAutoComplete() ? 0 : item.QuestIcon);
+            data << uint32(quest->IsAutoComplete() ? 0 : item.QuestIcon);
             data << int32(quest->GetQuestLevel());
             data << uint32(quest->GetFlags());              // 3.3.3 quest flags
             uint8 changeIcon = 0;
