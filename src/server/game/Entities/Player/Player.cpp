@@ -16019,21 +16019,41 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
             {
                 if (SatisfyQuestLevel(quest, false))
                 {
+
+                    bool isNotLowLevelQuest = getLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF));
                     if (quest->IsRepeatable())
                     {
                         if (quest->IsDaily())
-                            result2 = DIALOG_STATUS_AVAILABLE_REP;
+                        {
+                            if (isNotLowLevelQuest)
+                                result2 = DIALOG_STATUS_AVAILABLE_REP;
+                            else
+                                result2 = DIALOG_STATUS_LOW_LEVEL_AVAILABLE_REP;
+                        }
                         else if (quest->IsWeekly())
-                            result2 = DIALOG_STATUS_AVAILABLE;
+                        {
+                            if (isNotLowLevelQuest)
+                                result2 = DIALOG_STATUS_AVAILABLE;
+                            else
+                                result2 = DIALOG_STATUS_LOW_LEVEL_AVAILABLE;
+                        }
                         else if (quest->IsAutoComplete())
-                            result2 = DIALOG_STATUS_REWARD_REP;
+                        {
+                            if (isNotLowLevelQuest)
+                                result2 = DIALOG_STATUS_REWARD_REP;
+                            else
+                                result2 = DIALOG_STATUS_LOW_LEVEL_REWARD_REP;
+                        }
                         else
-                            result2 = DIALOG_STATUS_AVAILABLE;
+                        {
+                            if (isNotLowLevelQuest)
+                                result2 = DIALOG_STATUS_AVAILABLE;
+                            else
+                                result2 = DIALOG_STATUS_LOW_LEVEL_AVAILABLE;
+                        }
                     }
-                    else if (getLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
-                    {
-                         result2 = DIALOG_STATUS_AVAILABLE;
-                    }
+                    else if (isNotLowLevelQuest)
+                        result2 = DIALOG_STATUS_AVAILABLE;
                     else
                         result2 = DIALOG_STATUS_LOW_LEVEL_AVAILABLE;
                 }
