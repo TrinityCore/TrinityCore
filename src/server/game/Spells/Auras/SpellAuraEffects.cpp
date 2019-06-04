@@ -3165,7 +3165,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
     {
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE);
         target->GetThreatManager().EvaluateSuppressed();
-}
+    }
     else
     { 
         // do not remove unit flag if there are more than this auraEffect of that kind on unit
