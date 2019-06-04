@@ -782,7 +782,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 
     if (triggered_spell_id == 0)
     {
-        TC_LOG_DEBUG("spells.nospell", "Spell::EffectTriggerSpell: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
+        TC_LOG_ERROR("spells.nospell", "Spell::EffectTriggerSpell: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
         return;
     }
 
@@ -839,7 +839,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
     uint32 triggered_spell_id = m_spellInfo->Effects[effIndex].TriggerSpell;
     if (triggered_spell_id == 0)
     {
-        TC_LOG_DEBUG("spells.nospell", "Spell::EffectTriggerMissileSpell: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
+        TC_LOG_ERROR("spells.nospell", "Spell::EffectTriggerMissileSpell: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
         return;
     }
 
@@ -893,7 +893,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
     uint32 triggered_spell_id = m_spellInfo->Effects[effIndex].TriggerSpell;
     if (triggered_spell_id == 0)
     {
-        TC_LOG_DEBUG("spells.nospell", "Spell::EffectForceCast: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
+        TC_LOG_ERROR("spells.nospell", "Spell::EffectForceCast: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
         return;
     }
 
@@ -948,7 +948,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex effIndex)
     uint32 triggered_spell_id = m_spellInfo->Effects[effIndex].TriggerSpell;
     if (triggered_spell_id == 0)
     {
-        TC_LOG_DEBUG("spells.nospell", "Spell::EffectTriggerRitualOfSummoning: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
+        TC_LOG_ERROR("spells.nospell", "Spell::EffectTriggerRitualOfSummoning: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
         return;
     }
 
