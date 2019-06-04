@@ -373,7 +373,7 @@ void Guild::BankTab::LoadFromDB(Field* fields)
 
 bool Guild::BankTab::LoadItemFromDB(Field* fields)
 {
-    uint8 slotId = fields[47].GetUInt8();
+    uint8 slotId = fields[46].GetUInt8();
     ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
     uint32 itemEntry = fields[1].GetUInt32();
     if (slotId >= GUILD_BANK_MAX_SLOTS)
@@ -2468,7 +2468,7 @@ void Guild::LoadBankTabFromDB(Field* fields)
 
 bool Guild::LoadBankItemFromDB(Field* fields)
 {
-    uint8 tabId = fields[46].GetUInt8();
+    uint8 tabId = fields[45].GetUInt8();
     if (tabId >= _GetPurchasedTabsSize())
     {
         TC_LOG_ERROR("guild", "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",

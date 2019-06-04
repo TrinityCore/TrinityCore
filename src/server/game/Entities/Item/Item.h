@@ -233,9 +233,8 @@ class TC_GAME_API Item : public Object
 
         uint32 GetSkill();
 
-        // RandomPropertyId (signed but stored as unsigned)
-        void SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId);
-        ItemRandomEnchantmentId GetItemRandomEnchantmentId() const { return m_randomEnchantment; }
+        ItemRandomBonusListId GetItemRandomBonusListId() const { return m_randomBonusListId; }
+        void SetItemRandomBonusList(ItemRandomBonusListId bonusListId);
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, ObjectGuid caster = ObjectGuid::Empty);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
         void SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges);
@@ -383,7 +382,7 @@ class TC_GAME_API Item : public Object
         uint64 m_paidMoney;
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
-        ItemRandomEnchantmentId m_randomEnchantment;        // store separately to easily find which bonus list is the one randomly given for stat rerolling
+        ItemRandomBonusListId m_randomBonusListId;          // store separately to easily find which bonus list is the one randomly given for stat rerolling
         ObjectGuid m_childItem;
         std::unordered_map<uint32, uint16> m_artifactPowerIdToIndex;
         std::array<uint32, MAX_ITEM_PROTO_SOCKETS> m_gemScalingLevels;

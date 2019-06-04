@@ -45,7 +45,7 @@
 #include "WorldSession.h"
 
 Roll::Roll(LootItem const& li) : itemid(li.itemid),
-itemRandomPropId(li.randomPropertyId), itemCount(li.count),
+itemRandomBonusListId(li.randomBonusListId), itemCount(li.count),
 totalPlayersRolling(0), totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0),
 rollVoteMask(ROLL_ALL_TYPE_NO_DISENCHANT) { }
 
@@ -1264,7 +1264,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     item->is_looted = true;
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->unlootedCount--;
-                    player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
+                    player->StoreNewItem(dest, roll->itemid, true, item->randomBonusListId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
                 }
                 else
                 {
@@ -1317,7 +1317,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                         item->is_looted = true;
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                         roll->getLoot()->unlootedCount--;
-                        player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
+                        player->StoreNewItem(dest, roll->itemid, true, item->randomBonusListId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
                     }
                     else
                     {

@@ -21,24 +21,10 @@
 
 #include "Common.h"
 
-enum class ItemRandomEnchantmentType : uint8
-{
-    Property    = 0,
-    Suffix      = 1,
-    BonusList   = 2
-};
+using ItemRandomBonusListId = uint32;
 
-struct ItemRandomEnchantmentId
-{
-    ItemRandomEnchantmentId() = default;
-    ItemRandomEnchantmentId(ItemRandomEnchantmentType type, uint32 id) : Type(type), Id(id) { }
-
-    ItemRandomEnchantmentType Type = ItemRandomEnchantmentType::Property;
-    uint32 Id = 0;
-};
-
-TC_GAME_API void LoadRandomEnchantmentsTable();
-TC_GAME_API ItemRandomEnchantmentId GenerateItemRandomPropertyId(uint32 item_id);
+TC_GAME_API void LoadItemRandomBonusListTemplates();
+TC_GAME_API ItemRandomBonusListId GenerateItemRandomBonusListId(uint32 item_id);
 TC_GAME_API uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType, uint32 subclass);
 
 #endif

@@ -163,7 +163,7 @@ public:
         ItemPosCountVec dest;
         uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 39883, 1); // Cracked Egg
         if (msg == EQUIP_ERR_OK)
-            player->StoreNewItem(dest, 39883, true, GenerateItemRandomPropertyId(39883));
+            player->StoreNewItem(dest, 39883, true, GenerateItemRandomBonusListId(39883));
 
         return true;
     }
@@ -183,7 +183,7 @@ public:
         ItemPosCountVec dest;
         uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 44718, 1); // Ripe Disgusting Jar
         if (msg == EQUIP_ERR_OK)
-            player->StoreNewItem(dest, 44718, true, GenerateItemRandomPropertyId(44718));
+            player->StoreNewItem(dest, 44718, true, GenerateItemRandomBonusListId(44718));
 
         return true;
     }

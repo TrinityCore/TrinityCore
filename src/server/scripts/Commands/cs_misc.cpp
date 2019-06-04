@@ -1355,7 +1355,7 @@ public:
             return false;
         }
 
-        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomPropertyId(itemId), GuidSet(), 0, bonusListIDs);
+        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId), GuidSet(), 0, bonusListIDs);
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)

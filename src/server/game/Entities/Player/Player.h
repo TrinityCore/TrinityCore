@@ -899,22 +899,22 @@ struct BGData
 
 struct VoidStorageItem
 {
-    VoidStorageItem() : ItemId(0), ItemEntry(0), ItemRandomPropertyId(), ItemUpgradeId(0), FixedScalingLevel(0), ArtifactKnowledgeLevel(0), Context(0) { }
-    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid const& creator, ItemRandomEnchantmentId randomPropertyId,
+    VoidStorageItem() : ItemId(0), ItemEntry(0), RandomBonusListId(0), ItemUpgradeId(0), FixedScalingLevel(0), ArtifactKnowledgeLevel(0), Context(0) { }
+    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid const& creator, ItemRandomBonusListId randomBonusListId,
         uint32 upgradeId, uint32 fixedScalingLevel, uint32 artifactKnowledgeLevel, uint8 context, std::vector<int32> const& bonuses)
-        : ItemId(id), ItemEntry(entry), CreatorGuid(creator), ItemRandomPropertyId(randomPropertyId),
+        : ItemId(id), ItemEntry(entry), CreatorGuid(creator), RandomBonusListId(randomBonusListId),
         ItemUpgradeId(upgradeId), FixedScalingLevel(fixedScalingLevel), ArtifactKnowledgeLevel(artifactKnowledgeLevel), Context(context)
     {
         BonusListIDs.insert(BonusListIDs.end(), bonuses.begin(), bonuses.end());
     }
-    VoidStorageItem(VoidStorageItem&& vsi) noexcept : ItemId(vsi.ItemId), ItemEntry(vsi.ItemEntry), CreatorGuid(vsi.CreatorGuid), ItemRandomPropertyId(vsi.ItemRandomPropertyId),
+    VoidStorageItem(VoidStorageItem&& vsi) noexcept : ItemId(vsi.ItemId), ItemEntry(vsi.ItemEntry), CreatorGuid(vsi.CreatorGuid), RandomBonusListId(vsi.RandomBonusListId),
         ItemUpgradeId(vsi.ItemUpgradeId), FixedScalingLevel(vsi.FixedScalingLevel),
         ArtifactKnowledgeLevel(vsi.ArtifactKnowledgeLevel), Context(vsi.Context), BonusListIDs(std::move(vsi.BonusListIDs)) { }
 
     uint64 ItemId;
     uint32 ItemEntry;
     ObjectGuid CreatorGuid;
-    ItemRandomEnchantmentId ItemRandomPropertyId;
+    ItemRandomBonusListId RandomBonusListId;
     uint32 ItemUpgradeId;
     uint32 FixedScalingLevel;
     uint32 ArtifactKnowledgeLevel;
@@ -1160,7 +1160,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem) const;
         InventoryResult CanRollForItemInLFG(ItemTemplate const* item, WorldObject const* lootedObject) const;
-        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomEnchantmentId const& randomPropertyId = {}, GuidSet const& allowedLooters = GuidSet(), uint8 context = 0, std::vector<int32> const& bonusListIDs = std::vector<int32>(), bool addToCollection = true);
+        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomBonusListId randomBonusListId = 0, GuidSet const& allowedLooters = GuidSet(), uint8 context = 0, std::vector<int32> const& bonusListIDs = std::vector<int32>(), bool addToCollection = true);
         Item* StoreItem(ItemPosCountVec const& pos, Item* pItem, bool update);
         Item* EquipNewItem(uint16 pos, uint32 item, bool update);
         Item* EquipItem(uint16 pos, Item* pItem, bool update);

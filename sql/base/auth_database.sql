@@ -1779,7 +1779,7 @@ INSERT INTO `rbac_permissions` VALUES
 (650,'Command: reload support'),
 (651,'Command: reload gossip_menu'),
 (652,'Command: reload gossip_menu_option'),
-(653,'Command: reload item_enchantment_template'),
+(653,'Command: reload item_random_bonus_list_template'),
 (654,'Command: reload item_loot_template'),
 (655,'Command: reload item_set_names'),
 (656,'Command: reload lfg_dungeon_rewards'),
@@ -2180,7 +2180,8 @@ INSERT INTO `updates` VALUES
 ('2018_12_09_00_auth_2017_01_06_00_auth.sql','6CCFE6A9774EC733C9863D36A0F15F3534189BBD','RELEASED','2018-11-22 22:21:26',0),
 ('2018_12_09_01_auth.sql','576C2A11BE671D8420FA3EB705E594E381ECCC56','RELEASED','2018-12-09 14:49:17',0),
 ('2019_06_08_00_auth.sql','EA5A78F5A26C17BC790481EA9B3772D3A6912459','RELEASED','2019-05-20 17:21:20',0),
-('2019_06_08_01_auth.sql','8165B1B787E3ECF0C8C0AD2D641513270977ABB4','RELEASED','2019-06-04 16:51:31',0);
+('2019_06_08_01_auth.sql','8165B1B787E3ECF0C8C0AD2D641513270977ABB4','RELEASED','2019-06-04 16:51:31',0),
+('2019_06_08_02_auth.sql','B39DCBD902290700A81C9D028F54B58601C19A99','RELEASED','2019-06-05 16:26:31',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

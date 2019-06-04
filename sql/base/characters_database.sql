@@ -1623,8 +1623,7 @@ CREATE TABLE `character_void_storage` (
   `itemEntry` mediumint(8) unsigned NOT NULL,
   `slot` tinyint(3) unsigned NOT NULL,
   `creatorGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `randomPropertyType` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `randomProperty` int(10) unsigned NOT NULL DEFAULT '0',
+  `randomBonusListId` int(10) unsigned NOT NULL DEFAULT '0',
   `upgradeId` int(10) unsigned NOT NULL DEFAULT '0',
   `fixedScalingLevel` int(10) unsigned DEFAULT '0',
   `artifactKnowledgeLevel` int(10) unsigned DEFAULT '0',
@@ -2783,8 +2782,7 @@ CREATE TABLE `item_instance` (
   `charges` tinytext,
   `flags` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `enchantments` text NOT NULL,
-  `randomPropertyType` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `randomPropertyId` int(10) unsigned NOT NULL DEFAULT '0',
+  `randomBonusListId` int(10) unsigned NOT NULL DEFAULT '0',
   `durability` smallint(5) unsigned NOT NULL DEFAULT '0',
   `playedTime` int(10) unsigned NOT NULL DEFAULT '0',
   `text` text,
@@ -2967,8 +2965,7 @@ CREATE TABLE `item_loot_items` (
   `counted` tinyint(1) NOT NULL DEFAULT '0',
   `under_threshold` tinyint(1) NOT NULL DEFAULT '0',
   `needs_quest` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'quest drop',
-  `rnd_type` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'random enchantment type',
-  `rnd_prop` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'random enchantment added when originally rolled',
+  `rnd_bonus` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'random bonus list added when originally rolled',
   `context` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `bonus_list_ids` text COMMENT 'Space separated list of bonus list ids',
   PRIMARY KEY (`container_id`,`item_id`)
@@ -3570,7 +3567,8 @@ INSERT INTO `updates` VALUES
 ('2018_12_09_00_characters.sql','7FE9641C93ED762597C08F1E9B6649C9EC2F0E47','RELEASED','2018-09-18 23:34:29',0),
 ('2018_12_09_01_characters.sql','C80B936AAD94C58A0F33382CED08CFB4E0B6AC34','RELEASED','2018-10-10 22:05:28',0),
 ('2018_12_09_02_characters.sql','DBBA0C06985CE8AC4E6E7E94BD6B2673E9ADFAE2','RELEASED','2018-12-02 17:32:31',0),
-('2019_06_08_00_characters.sql','6C5AF52AEF03BC019B96E7A07592C22660F9327B','RELEASED','2019-06-03 20:04:47',0);
+('2019_06_08_00_characters.sql','6C5AF52AEF03BC019B96E7A07592C22660F9327B','RELEASED','2019-06-03 20:04:47',0),
+('2019_06_08_01_characters.sql','55076AFAF4B55DB4E34029C269EE0C84315C31BA','RELEASED','2019-06-04 22:11:47',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

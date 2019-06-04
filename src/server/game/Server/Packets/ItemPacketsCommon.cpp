@@ -69,11 +69,13 @@ void WorldPackets::Item::ItemInstance::Initialize(::LootItem const& lootItem)
 {
     ItemID               = lootItem.itemid;
 
-    if (!lootItem.BonusListIDs.empty())
+    if (!lootItem.BonusListIDs.empty() || lootItem.randomBonusListId)
     {
         ItemBonus = boost::in_place();
         ItemBonus->BonusListIDs = lootItem.BonusListIDs;
         ItemBonus->Context = lootItem.context;
+        if (lootItem.randomBonusListId)
+            ItemBonus->BonusListIDs.push_back(lootItem.randomBonusListId);
     }
 
     if (lootItem.upgradeId)
