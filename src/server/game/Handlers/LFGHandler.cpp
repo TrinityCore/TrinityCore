@@ -629,26 +629,21 @@ void WorldSession::SendLfgLfrList(bool update)
 void WorldSession::SendLfgDisabled()
 {
     TC_LOG_DEBUG("lfg", "SMSG_LFG_DISABLED %s", GetPlayerInfo().c_str());
-    WorldPacket data(SMSG_LFG_DISABLED, 0);
-    SendPacket(&data);
+    SendPacket(WorldPackets::LFG::LFGDisabled().Write());
 }
 
 void WorldSession::SendLfgOfferContinue(uint32 dungeonEntry)
 {
     TC_LOG_DEBUG("lfg", "SMSG_LFG_OFFER_CONTINUE %s dungeon entry: %u",
         GetPlayerInfo().c_str(), dungeonEntry);
-    WorldPacket data(SMSG_LFG_OFFER_CONTINUE, 4);
-    data << uint32(dungeonEntry);
-    SendPacket(&data);
+    SendPacket(WorldPackets::LFG::LFGOfferContinue(sLFGMgr->GetLFGDungeonEntry(dungeonEntry)).Write());
 }
 
-void WorldSession::SendLfgTeleportError(uint8 err)
+void WorldSession::SendLfgTeleportError(lfg::LfgTeleportResult err)
 {
     TC_LOG_DEBUG("lfg", "SMSG_LFG_TELEPORT_DENIED %s reason: %u",
         GetPlayerInfo().c_str(), err);
-    WorldPacket data(SMSG_LFG_TELEPORT_DENIED, 4);
-    data << uint32(err);                                   // Error
-    SendPacket(&data);
+    SendPacket(WorldPackets::LFG::LFGTeleportDenied(err).Write());
 }
 
 /*
