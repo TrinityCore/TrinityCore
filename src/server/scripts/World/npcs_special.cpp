@@ -165,6 +165,13 @@ public:
             return nullptr;
         }
 
+        void UpdateAI(uint32 diff) override
+        {
+            ScriptedAI::UpdateAI(diff);
+
+            inLineOfSightSinceLastUpdate.clear();
+        }
+
         void MoveInLineOfSight(Unit* who) override
         {
             if (!SpawnAssoc)
@@ -188,6 +195,10 @@ public:
                 {
                     case SPAWNTYPE_ALARMBOT:
                     {
+                        // handle only 1 change for world update for each target
+                        if (!inLineOfSightSinceLastUpdate.insert(who->GetGUID()).second)
+                            return;
+
                         if (!who->IsWithinDistInMap(me, RANGE_GUARDS_MARK))
                             return;
 
@@ -239,6 +250,8 @@ public:
                 }
             }
         }
+
+        GuidSet inLineOfSightSinceLastUpdate;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -2442,7 +2455,7 @@ public:
             summonerGUID.Clear();
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             if (summoner->GetTypeId() == TYPEID_PLAYER)
             {
@@ -2938,6 +2951,40 @@ public:
     }
 };
 
+enum TravelerTundraMammothNPCs
+{
+    NPC_HAKMUD_OF_ARGUS  = 32638,
+    NPC_GNIMO            = 32639,
+    NPC_DRIX_BLACKWRENCH = 32641,
+    NPC_MOJODISHU        = 32642
+};
+
+class npc_traveler_tundra_mammoth_exit_pos : public UnitScript
+{
+public:
+    npc_traveler_tundra_mammoth_exit_pos() : UnitScript("npc_traveler_tundra_mammoth_exit_pos") { }
+
+    void ModifyVehiclePassengerExitPos(Unit* passenger, Vehicle* /*vehicle*/, Position& pos)
+    {
+        if (passenger->GetTypeId() == TYPEID_UNIT)
+        {
+            switch (passenger->GetEntry())
+            {
+                // Right side
+                case NPC_DRIX_BLACKWRENCH:
+                case NPC_GNIMO:
+                    pos.RelocateOffset({ -2.0f, -2.0f, 0.0f, 0.0f });
+                    break;
+                // Left side
+                case NPC_MOJODISHU:
+                case NPC_HAKMUD_OF_ARGUS:
+                    pos.RelocateOffset({ -2.0f, 2.0f, 0.0f, 0.0f });
+                    break;
+            }
+        }
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2965,4 +3012,5 @@ void AddSC_npcs_special()
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
+    new npc_traveler_tundra_mammoth_exit_pos();
 }

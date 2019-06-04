@@ -380,11 +380,6 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_ChampioningFaction = 0;
 
-    m_timeSyncCounter = 0;
-    m_timeSyncTimer = 0;
-    m_timeSyncClient = 0;
-    m_timeSyncServer = 0;
-
     for (uint8 i = 0; i < MAX_POWERS; ++i)
         m_powerFraction[i] = 0;
 
@@ -406,6 +401,8 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
+
+    m_groupUpdateTimer.Reset(5000);
 }
 
 Player::~Player()
@@ -1233,14 +1230,6 @@ void Player::Update(uint32 p_time)
             m_zoneUpdateTimer -= p_time;
     }
 
-    if (m_timeSyncTimer > 0)
-    {
-        if (p_time >= m_timeSyncTimer)
-            SendTimeSync();
-        else
-            m_timeSyncTimer -= p_time;
-    }
-
     if (IsAlive())
     {
         m_regenTimer += p_time;
@@ -1342,7 +1331,12 @@ void Player::Update(uint32 p_time)
     }
 
     // group update
-    SendUpdateToOutOfRangeGroupMembers();
+    m_groupUpdateTimer.Update(p_time);
+    if (m_groupUpdateTimer.Passed())
+    {
+        SendUpdateToOutOfRangeGroupMembers();
+        m_groupUpdateTimer.Reset(5000);
+    }
 
     Pet* pet = GetPet();
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityRange()) && !pet->isPossessed())
@@ -2311,7 +2305,7 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid const& guid) const
     if (!go)
         return nullptr;
 
-    if (!go->IsWithinDistInMap(this, go->GetInteractionDistance()))
+    if (!go->IsWithinDistInMap(this))
         return nullptr;
 
     return go;
@@ -2969,7 +2963,7 @@ void Player::RemoveMail(uint32 id)
 
 void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType item_guid, uint32 item_count) const
 {
-    WorldPacket data(SMSG_SEND_MAIL_RESULT, (4+4+4+(mailError == MAIL_ERR_EQUIP_ERROR?4:(mailAction == MAIL_ITEM_TAKEN?4+4:0))));
+    WorldPacket data(SMSG_SEND_MAIL_RESULT, (4+4+4+(4+4)));
     data << (uint32) mailId;
     data << (uint32) mailAction;
     data << (uint32) mailError;
@@ -6059,8 +6053,6 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 SetUInt32Value(PLAYER_SKILL_INDEX(i), MAKE_PAIR32(id, step));
                 SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(i), MAKE_SKILL_VALUE(newVal, maxVal));
                 UpdateSkillEnchantments(id, currVal, newVal);
-                UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
-                UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
 
                 // insert new entry or update if not deleted old entry yet
                 if (itr != mSkillStatus.end())
@@ -6088,6 +6080,8 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
 
                 // Learn all spells for skill
                 LearnSkillRewardedSpells(id, newVal);
+                UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
+                UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
                 return;
             }
         }
@@ -6422,6 +6416,9 @@ void Player::CheckAreaExploreAndOutdoor()
         RemoveAurasWithAttribute(SPELL_ATTR0_OUTDOORS_ONLY);
 
     uint32 const areaId = GetAreaId();
+    if (!areaId)
+        return;
+
     AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
     if (!areaEntry)
     {
@@ -8390,7 +8387,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
             }
             else
             {
-                if (lootType != LOOT_FISHINGHOLE && ((lootType != LOOT_FISHING && lootType != LOOT_FISHING_JUNK) || go->GetOwnerGUID() != GetGUID()) && !go->IsWithinDistInMap(this, INTERACTION_DISTANCE))
+                if (lootType != LOOT_FISHINGHOLE && ((lootType != LOOT_FISHING && lootType != LOOT_FISHING_JUNK) || go->GetOwnerGUID() != GetGUID()) && !go->IsWithinDistInMap(this))
                     return true;
 
                 if (lootType == LOOT_CORPSE && go->GetRespawnTime() && go->isSpawnedByDefault())
@@ -11867,7 +11864,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
     {
         ItemAddedQuestCheck(item, count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, count);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM, item, 1);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM, item, count);
         if (randomPropertyId)
             pItem->SetItemRandomProperties(randomPropertyId);
         pItem = StoreItem(dest, pItem, update);
@@ -13301,7 +13298,7 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
 void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint32 itemid) const
 {
 
-    WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, (msg == EQUIP_ERR_CANT_EQUIP_LEVEL_I ? 22 : 18));
+    WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, (22));
     data << uint8(msg);
 
     if (msg != EQUIP_ERR_OK)
@@ -13354,7 +13351,7 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
 
 void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid, uint32 param) const
 {
-    WorldPacket data(SMSG_SELL_ITEM, (8+8+(param?4:0)+1));  // last check 2.0.10
+    WorldPacket data(SMSG_SELL_ITEM, (8+8+(4)+1));  // last check 2.0.10
     data << uint64(creature ? creature->GetGUID() : ObjectGuid::Empty);
     data << uint64(guid);
     if (param > 0)
@@ -14832,8 +14829,11 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
             Item* item = static_cast<Item*>(questGiver);
             sScriptMgr->OnQuestAccept(this, item, quest);
 
-            // destroy not required for quest finish quest starting item
+            // There are two cases where the source item is not destroyed when the quest is accepted:
+            // - It is required to finish the quest, and is an unique item
+            // - It is the same item present in the source item field (item that would be given on quest accept)
             bool destroyItem = true;
+
             for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
             {
                 if (quest->RequiredItemId[i] == item->GetEntry() && item->GetTemplate()->MaxCount > 0)
@@ -14842,6 +14842,9 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
                     break;
                 }
             }
+
+            if (quest->GetSrcItemId() == item->GetEntry())
+                destroyItem = false;
 
             if (destroyItem)
                 DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
@@ -15754,6 +15757,11 @@ bool Player::GiveQuestSourceItem(Quest const* quest)
     uint32 srcitem = quest->GetSrcItemId();
     if (srcitem > 0)
     {
+        // Don't give source item if it is the same item used to start the quest
+        ItemTemplate const* itemTemplate = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(srcitem));
+        if (quest->GetQuestId() == itemTemplate->StartQuest)
+            return true;
+
         uint32 count = quest->GetSrcItemCount();
         if (count <= 0)
             count = 1;
@@ -15791,10 +15799,9 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
             if (count <= 0)
                 count = 1;
 
-            // exist two cases when destroy source quest item not possible:
-            // a) non un-equippable item (equipped non-empty bag, for example)
-            // b) when quest is started from an item and item also is needed in
-            // the end as RequiredItemId
+            // There are two cases where the source item is not destroyed:
+            // - Item cannot be unequipped (example: non-empty bags)
+            // - The source item is the item that started the quest, so the player is supposed to keep it (otherwise it was already destroyed in AddQuestAndCheckCompletion())
             InventoryResult res = CanUnequipItems(srcItemId, count);
             if (res != EQUIP_ERR_OK)
             {
@@ -15804,12 +15811,7 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
             }
 
             ASSERT(item);
-            bool destroyItem = true;
-            for (uint8 n = 0; n < QUEST_ITEM_OBJECTIVES_COUNT; ++n)
-                if (item->StartQuest == questId && srcItemId == quest->RequiredItemId[n])
-                    destroyItem = false;
-
-            if (destroyItem)
+            if (item->StartQuest != questId)
                 DestroyItemCount(srcItemId, count, true, true);
         }
     }
@@ -16774,6 +16776,8 @@ void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid guid,
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
     if (log_slot < MAX_QUEST_LOG_SIZE)
         SetQuestSlotCounter(log_slot, creatureOrGO_idx, GetQuestSlotCounter(log_slot, creatureOrGO_idx) + add_count);
+
+    sScriptMgr->OnQuestObjectiveProgress(this, quest, creatureOrGO_idx, old_count + add_count);
 }
 
 void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint16 add_count)
@@ -22563,8 +22567,8 @@ void Player::SendInitialPacketsAfterAddToMap()
     GetZoneAndAreaId(newzone, newarea);
     UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
 
-    ResetTimeSync();
-    SendTimeSync();
+    GetSession()->ResetTimeSync();
+    GetSession()->SendTimeSync();
 
     CastSpell(this, 836, true);                             // LOGINEFFECT
 
@@ -23315,6 +23319,10 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
 
         // skip wrong class skills
         if (_spell_idx->second->classmask && (_spell_idx->second->classmask & classmask) == 0)
+            continue;
+
+        // skip wrong class and race skill saved in SkillRaceClassInfo.dbc
+        if (!GetSkillRaceClassInfo(_spell_idx->second->skillId, getRace(), getClass()))
             continue;
 
         return true;
@@ -24115,9 +24123,6 @@ void Player::SetOriginalGroup(Group* group, int8 subgroup)
 
 void Player::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData)
 {
-    if (IsFlying())
-        return;
-
     // process liquid auras using generic unit code
     Unit::ProcessTerrainStatusUpdate(status, liquidData);
 
@@ -26022,25 +26027,6 @@ void Player::LoadActions(PreparedQueryResult result)
         _LoadActions(result);
 
     SendActionButtons(1);
-}
-
-void Player::ResetTimeSync()
-{
-    m_timeSyncCounter = 0;
-    m_timeSyncTimer = 0;
-    m_timeSyncClient = 0;
-    m_timeSyncServer = GameTime::GetGameTimeMS();
-}
-
-void Player::SendTimeSync()
-{
-    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
-    data << uint32(m_timeSyncCounter++);
-    SendDirectMessage(&data);
-
-    // Schedule next sync in 10 sec
-    m_timeSyncTimer = 10000;
-    m_timeSyncServer = GameTime::GetGameTimeMS();
 }
 
 void Player::SetReputation(uint32 factionentry, uint32 value)

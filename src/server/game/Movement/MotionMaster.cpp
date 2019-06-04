@@ -97,7 +97,7 @@ void MotionMaster::Initialize()
 {
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this]()
+        DelayedActionDefine action = [this]()
         {
             Initialize();
         };
@@ -324,7 +324,7 @@ void MotionMaster::Add(MovementGenerator* movement, MovementSlot slot/* = MOTION
 
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this, movement, slot]()
+        DelayedActionDefine action = [this, movement, slot]()
         {
             Add(movement, slot);
         };
@@ -341,7 +341,7 @@ void MotionMaster::Remove(MovementGenerator* movement, MovementSlot slot/* = MOT
 
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this, movement, slot]()
+        DelayedActionDefine action = [this, movement, slot]()
         {
             Remove(movement, slot);
         };
@@ -361,14 +361,10 @@ void MotionMaster::Remove(MovementGenerator* movement, MovementSlot slot/* = MOT
         case MOTION_SLOT_ACTIVE:
             if (!_generators.empty())
             {
-                auto itr = _generators.find(movement);
+                auto bounds = _generators.equal_range(movement);
+                auto itr = std::find(bounds.first, bounds.second, movement);
                 if (itr != _generators.end())
-                {
-                    MovementGenerator* pointer = *itr;
-                    bool const top = GetCurrentMovementGenerator() == pointer;
-                    _generators.erase(pointer);
-                    Delete(pointer, top, false);
-                }
+                    Remove(itr, GetCurrentMovementGenerator() == *itr, false);
             }
             break;
         default:
@@ -383,7 +379,7 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
 
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this, type, slot]()
+        DelayedActionDefine action = [this, type, slot]()
         {
             Remove(type, slot);
         };
@@ -409,12 +405,7 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
                 });
 
                 if (itr != _generators.end())
-                {
-                    MovementGenerator* pointer = *itr;
-                    bool const top = GetCurrentMovementGenerator() == pointer;
-                    _generators.erase(pointer);
-                    Delete(pointer, top, false);
-                }
+                    Remove(itr, GetCurrentMovementGenerator() == *itr, false);
             }
             break;
         default:
@@ -426,7 +417,7 @@ void MotionMaster::Clear()
 {
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this]()
+        DelayedActionDefine action = [this]()
         {
             Clear();
         };
@@ -445,7 +436,7 @@ void MotionMaster::Clear(MovementSlot slot)
 
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this, slot]()
+        DelayedActionDefine action = [this, slot]()
         {
             Clear(slot);
         };
@@ -473,7 +464,7 @@ void MotionMaster::Clear(MovementGeneratorMode mode)
 {
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this, mode]()
+        DelayedActionDefine action = [this, mode]()
         {
             Clear(mode);
         };
@@ -495,7 +486,7 @@ void MotionMaster::Clear(MovementGeneratorPriority priority)
 {
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
-        std::function<void()> action = [this, priority]()
+        DelayedActionDefine action = [this, priority]()
         {
             Clear(priority);
         };
@@ -897,6 +888,10 @@ void MotionMaster::MoveFall(uint32 id/* = 0*/)
     if (std::fabs(_owner->GetPositionZ() - tz) < 0.1f)
         return;
 
+    // rooted units don't move (also setting falling+root flag causes client freezes)
+    if (_owner->HasUnitState(UNIT_STATE_ROOT))
+        return;
+
     _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
     _owner->m_movementInfo.SetFallTime(0);
 
@@ -1024,11 +1019,16 @@ void MotionMaster::LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id/*
 
 /******************** Private methods ********************/
 
+void MotionMaster::Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform)
+{
+    MovementGenerator* pointer = *iterator;
+    _generators.erase(iterator);
+    Delete(pointer, active, movementInform);
+}
+
 void MotionMaster::Pop(bool active, bool movementInform)
 {
-    MovementGenerator* pointer = *_generators.begin();
-    _generators.erase(pointer);
-    Delete(pointer, active, movementInform);
+    Remove(_generators.begin(), active, movementInform);
 }
 
 void MotionMaster::DirectInitialize()
@@ -1125,14 +1125,11 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
             {
                 if (movement->Priority >= (*_generators.begin())->Priority)
                 {
-                    MovementGenerator* pointer = *_generators.begin();
-                    if (movement->Priority == pointer->Priority)
-                    {
-                        _generators.erase(pointer);
-                        Delete(pointer, true, false);
-                    }
+                    auto itr = _generators.begin();
+                    if (movement->Priority == (*itr)->Priority)
+                        Remove(itr, true, false);
                     else
-                        pointer->Deactivate(_owner);
+                        (*itr)->Deactivate(_owner);
                 }
                 else
                 {
@@ -1142,11 +1139,7 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
                     });
 
                     if (itr != _generators.end())
-                    {
-                        MovementGenerator* pointer = *itr;
-                        _generators.erase(pointer);
-                        Delete(pointer, false, false);
-                    }
+                        Remove(itr, false, false);
                 }
             }
             else

@@ -30,6 +30,7 @@
 #include "Configuration/Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
+#include "DeadlineTimer.h"
 #include "GitRevision.h"
 #include "InstanceSaveMgr.h"
 #include "IoContext.h"
@@ -52,7 +53,6 @@
 #include "WorldSocketMgr.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
-#include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/signal_set.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
@@ -97,7 +97,7 @@ class FreezeDetector
         static void Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error);
 
     private:
-        boost::asio::deadline_timer _timer;
+        Trinity::Asio::DeadlineTimer _timer;
         uint32 _worldLoopCounter;
         uint32 _lastChangeMsTime;
         uint32 _maxCoreStuckTimeInMs;
@@ -307,17 +307,6 @@ extern int main(int argc, char** argv)
         ClearOnlineAccounts();
     });
 
-    // Launch CliRunnable thread
-    std::shared_ptr<std::thread> cliThread;
-#ifdef _WIN32
-    if (sConfigMgr->GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
-#else
-    if (sConfigMgr->GetBoolDefault("Console.Enable", true))
-#endif
-    {
-        cliThread.reset(new std::thread(CliThread), &ShutdownCLIThread);
-    }
-
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
     realm.PopulationLevel = 0.0f;
@@ -335,6 +324,17 @@ extern int main(int argc, char** argv)
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     sScriptMgr->OnStartup();
+
+    // Launch CliRunnable thread
+    std::shared_ptr<std::thread> cliThread;
+#ifdef _WIN32
+    if (sConfigMgr->GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
+#else
+    if (sConfigMgr->GetBoolDefault("Console.Enable", true))
+#endif
+    {
+        cliThread.reset(new std::thread(CliThread), &ShutdownCLIThread);
+    }
 
     WorldUpdateLoop();
 

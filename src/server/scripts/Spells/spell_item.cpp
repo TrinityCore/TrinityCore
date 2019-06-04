@@ -650,6 +650,34 @@ class spell_item_decahedral_dwarven_dice : public SpellScript
     }
 };
 
+enum GoblinWeatherMachine
+{
+    SPELL_PERSONALIZED_WEATHER1 = 46740,
+    SPELL_PERSONALIZED_WEATHER2 = 46739,
+    SPELL_PERSONALIZED_WEATHER3 = 46738,
+    SPELL_PERSONALIZED_WEATHER4 = 46736
+};
+
+// 46203 - Goblin Weather Machine
+class spell_item_goblin_weather_machine : public SpellScript
+{
+    PrepareSpellScript(spell_item_goblin_weather_machine);
+
+    void HandleScript(SpellEffIndex /* effIndex */)
+    {
+        Unit* target = GetHitUnit();
+
+        uint32 spellId = RAND(SPELL_PERSONALIZED_WEATHER1, SPELL_PERSONALIZED_WEATHER2, SPELL_PERSONALIZED_WEATHER3,
+                              SPELL_PERSONALIZED_WEATHER4);
+        target->CastSpell(target, spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_goblin_weather_machine::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 8342  - Defibrillate (Goblin Jumper Cables) have 33% chance on success
 // 22999 - Defibrillate (Goblin Jumper Cables XL) have 50% chance on success
 // 54732 - Defibrillate (Gnomish Army Knife) have 67% chance on success
@@ -3687,6 +3715,44 @@ class spell_item_taunt_flag_targeting : public SpellScript
     }
 };
 
+enum MirrensDrinkingHat
+{
+    SPELL_LOCH_MODAN_LAGER      = 29827,
+    SPELL_STOUTHAMMER_LITE      = 29828,
+    SPELL_AERIE_PEAK_PALE_ALE   = 29829
+};
+
+// 29830 - Mirren's Drinking Hat
+class spell_item_mirrens_drinking_hat : public SpellScript
+{
+    PrepareSpellScript(spell_item_mirrens_drinking_hat);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        uint32 spellId = 0;
+        switch (urand(1, 6))
+        {
+            case 1:
+            case 2:
+            case 3:
+                spellId = SPELL_LOCH_MODAN_LAGER; break;
+            case 4:
+            case 5:
+                spellId = SPELL_STOUTHAMMER_LITE; break;
+            case 6:
+                spellId = SPELL_AERIE_PEAK_PALE_ALE; break;
+        }
+
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, spellId);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_mirrens_drinking_hat::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 13180 - Gnomish Mind Control Cap
 enum MindControlCap
 {
@@ -3972,6 +4038,7 @@ void AddSC_item_spell_scripts()
     new spell_item_deathbringers_will<SPELL_STRENGTH_OF_THE_TAUNKA, SPELL_AGILITY_OF_THE_VRYKUL, SPELL_POWER_OF_THE_TAUNKA, SPELL_AIM_OF_THE_IRON_DWARVES, SPELL_SPEED_OF_THE_VRYKUL>("spell_item_deathbringers_will_normal");
     new spell_item_deathbringers_will<SPELL_STRENGTH_OF_THE_TAUNKA_HERO, SPELL_AGILITY_OF_THE_VRYKUL_HERO, SPELL_POWER_OF_THE_TAUNKA_HERO, SPELL_AIM_OF_THE_IRON_DWARVES_HERO, SPELL_SPEED_OF_THE_VRYKUL_HERO>("spell_item_deathbringers_will_heroic");
     RegisterSpellScript(spell_item_decahedral_dwarven_dice);
+    RegisterSpellScript(spell_item_goblin_weather_machine);
     new spell_item_defibrillate("spell_item_goblin_jumper_cables", 67, SPELL_GOBLIN_JUMPER_CABLES_FAIL);
     new spell_item_defibrillate("spell_item_goblin_jumper_cables_xl", 50, SPELL_GOBLIN_JUMPER_CABLES_XL_FAIL);
     new spell_item_defibrillate("spell_item_gnomish_army_knife", 33);
@@ -4060,6 +4127,7 @@ void AddSC_item_spell_scripts()
     RegisterAuraScript(spell_item_charm_witch_doctor);
     RegisterAuraScript(spell_item_mana_drain);
     RegisterSpellScript(spell_item_taunt_flag_targeting);
+    RegisterSpellScript(spell_item_mirrens_drinking_hat);
     RegisterSpellScript(spell_item_mind_control_cap);
     RegisterSpellScript(spell_item_universal_remote);
 

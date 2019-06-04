@@ -238,6 +238,8 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     recvData.ReadPackedTime(unkPackedTime);
     recvData >> flags;
 
+    eventPackedTime = uint32(LocalTimeToUTCTime(eventPackedTime));
+
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
     if (time_t(eventPackedTime) < (GameTime::GetGameTime() - time_t(86400L)))
@@ -331,6 +333,8 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recvData)
     recvData.ReadPackedTime(timeZoneTime);
     recvData >> flags;
 
+    eventPackedTime = uint32(LocalTimeToUTCTime(eventPackedTime));
+
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
     if (time_t(eventPackedTime) < (GameTime::GetGameTime() - time_t(86400L)))
@@ -387,6 +391,8 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
     recvData.ReadPackedTime(eventTime);
     TC_LOG_DEBUG("network", "CMSG_CALENDAR_COPY_EVENT [%s], EventId [" UI64FMTD
         "] inviteId [" UI64FMTD "] Time: %u", guid.ToString().c_str(), eventId, inviteId, eventTime);
+
+    eventTime = uint32(LocalTimeToUTCTime(eventTime));
 
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
@@ -736,7 +742,7 @@ void WorldSession::SendCalendarRaidLockout(InstanceSave const* save, bool add)
     TC_LOG_DEBUG("network", "%s", add ? "SMSG_CALENDAR_RAID_LOCKOUT_ADDED" : "SMSG_CALENDAR_RAID_LOCKOUT_REMOVED");
     time_t currTime = GameTime::GetGameTime();
 
-    WorldPacket data(SMSG_CALENDAR_RAID_LOCKOUT_REMOVED, (add ? 4 : 0) + 4 + 4 + 4 + 8);
+    WorldPacket data(SMSG_CALENDAR_RAID_LOCKOUT_REMOVED, (4) + 4 + 4 + 4 + 8);
     if (add)
     {
         data.SetOpcode(SMSG_CALENDAR_RAID_LOCKOUT_ADDED);

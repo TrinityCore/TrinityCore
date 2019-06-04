@@ -51,6 +51,8 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         void DoDeactivate(Creature*);
         void DoFinalize(Creature*, bool, bool);
 
+        std::string GetDebugInfo() const override;
+
     private:
         void MovementInform(Creature*);
         void OnArrived(Creature*);

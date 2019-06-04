@@ -1459,6 +1459,12 @@ void Spell::EffectHealthLeech(SpellEffIndex effIndex)
     float healMultiplier = m_spellInfo->Effects[effIndex].CalcValueMultiplier(unitCaster, this);
 
     m_damage += damage;
+
+    DamageInfo damageInfo(unitCaster, unitTarget, damage, m_spellInfo, m_spellInfo->GetSchoolMask(), SPELL_DIRECT_DAMAGE, BASE_ATTACK);
+    Unit::CalcAbsorbResist(damageInfo);
+    uint32 const absorb = damageInfo.GetAbsorb();
+    damage -= absorb;
+
     // get max possible damage, don't count overkill for heal
     uint32 healthGain = uint32(-unitTarget->GetHealthGain(-damage) * healMultiplier);
 
@@ -1889,6 +1895,10 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     if (gameObjTarget)
     {
         GameObjectTemplate const* goInfo = gameObjTarget->GetGOInfo();
+
+        if (goInfo->CannotBeUsedUnderImmunity() && m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE))
+            return;
+
         // Arathi Basin banner opening. /// @todo Verify correctness of this check
         if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
             (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK))
@@ -3509,54 +3519,11 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Glyph of Scourge Strike
-                case 69961:
-                {
-                    if (!unitCaster)
-                        return;
-
-                    Unit::AuraEffectList const& mPeriodic = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
-                    for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
-                    {
-                        AuraEffect const* aurEff = *i;
-                        SpellInfo const* spellInfo = aurEff->GetSpellInfo();
-                        // search our Blood Plague and Frost Fever on target
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && spellInfo->SpellFamilyFlags[2] & 0x2 &&
-                            aurEff->GetCasterGUID() == unitCaster->GetGUID())
-                        {
-                            uint32 countMin = aurEff->GetBase()->GetMaxDuration();
-                            uint32 countMax = spellInfo->GetMaxDuration();
-
-                            // this Glyph
-                            countMax += 9000;
-                            // talent Epidemic
-                            if (AuraEffect const* epidemic = unitCaster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 234, EFFECT_0))
-                                countMax += epidemic->GetAmount();
-
-                            if (countMin < countMax)
-                            {
-                                aurEff->GetBase()->SetDuration(aurEff->GetBase()->GetDuration() + 3000);
-                                aurEff->GetBase()->SetMaxDuration(countMin + 3000);
-                            }
-                        }
-                    }
-                    return;
-                }
                 case 55693:                                 // Remove Collapsing Cave Aura
                     if (!unitTarget)
                         return;
                     unitTarget->RemoveAurasDueToSpell(m_spellInfo->Effects[effIndex].CalcValue());
                     break;
-                // Bending Shinbone
-                case 8856:
-                {
-                    if (!itemTarget && m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    uint32 const spell_id = roll_chance_i(20) ? 8854 : 8855;
-                    m_caster->CastSpell(m_caster, spell_id, true);
-                    return;
-                }
                 // Brittle Armor - need remove one 24575 Brittle Armor aura
                 case 24590:
                     unitTarget->RemoveAuraFromStack(24575);
@@ -3590,33 +3557,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     // Shadow Flame
                     m_caster->CastSpell(unitTarget, 22682, true);
                     return;
-                }
-                // Mirren's Drinking Hat
-                case 29830:
-                {
-                    uint32 item = 0;
-                    switch (urand(1, 6))
-                    {
-                        case 1:
-                        case 2:
-                        case 3:
-                            item = 23584; break;            // Loch Modan Lager
-                        case 4:
-                        case 5:
-                            item = 23585; break;            // Stouthammer Lite
-                        case 6:
-                            item = 23586; break;            // Aerie Peak Pale Ale
-                    }
-                    if (item)
-                        DoCreateItem(effIndex, item);
-                    break;
-                }
-                case 20589: // Escape artist
-                case 30918: // Improved Sprint
-                {
-                    // Removes snares and roots.
-                    unitTarget->RemoveMovementImpairingAuras(true);
-                    break;
                 }
                 // Mug Transformation
                 case 41931:
@@ -3661,69 +3601,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         unitTarget->CastSpell(unitTarget, 46394, true);
 
                     break;
-                }
-                // Goblin Weather Machine
-                case 46203:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    uint32 spellId = 0;
-                    switch (rand32() % 4)
-                    {
-                        case 0: spellId = 46740; break;
-                        case 1: spellId = 46739; break;
-                        case 2: spellId = 46738; break;
-                        case 3: spellId = 46736; break;
-                    }
-                    unitTarget->CastSpell(unitTarget, spellId, true);
-                    break;
-                }
-                // 5,000 Gold
-                case 46642:
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    unitTarget->ToPlayer()->ModifyMoney(5000 * GOLD);
-                    break;
-                }
-                // Death Knight Initiate Visual
-                case 51519:
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
-                        return;
-
-                    uint32 iTmpSpellId = 0;
-                    switch (unitTarget->GetDisplayId())
-                    {
-                        case 25369: iTmpSpellId = 51552; break; // bloodelf female
-                        case 25373: iTmpSpellId = 51551; break; // bloodelf male
-                        case 25363: iTmpSpellId = 51542; break; // draenei female
-                        case 25357: iTmpSpellId = 51541; break; // draenei male
-                        case 25361: iTmpSpellId = 51537; break; // dwarf female
-                        case 25356: iTmpSpellId = 51538; break; // dwarf male
-                        case 25372: iTmpSpellId = 51550; break; // forsaken female
-                        case 25367: iTmpSpellId = 51549; break; // forsaken male
-                        case 25362: iTmpSpellId = 51540; break; // gnome female
-                        case 25359: iTmpSpellId = 51539; break; // gnome male
-                        case 25355: iTmpSpellId = 51534; break; // human female
-                        case 25354: iTmpSpellId = 51520; break; // human male
-                        case 25360: iTmpSpellId = 51536; break; // nightelf female
-                        case 25358: iTmpSpellId = 51535; break; // nightelf male
-                        case 25368: iTmpSpellId = 51544; break; // orc female
-                        case 25364: iTmpSpellId = 51543; break; // orc male
-                        case 25371: iTmpSpellId = 51548; break; // tauren female
-                        case 25366: iTmpSpellId = 51547; break; // tauren male
-                        case 25370: iTmpSpellId = 51545; break; // troll female
-                        case 25365: iTmpSpellId = 51546; break; // troll male
-                        default: return;
-                    }
-
-                    unitTarget->CastSpell(unitTarget, iTmpSpellId, true);
-                    Creature* npc = unitTarget->ToCreature();
-                    npc->LoadEquipment();
-                    return;
                 }
                 // Deathbolt from Thalgran Blightbringer
                 // reflected by Freya's Ward
@@ -3862,41 +3739,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     }
 
                     return;
-                }
-                // Stoneclaw Totem
-                case 55328: // Rank 1
-                case 55329: // Rank 2
-                case 55330: // Rank 3
-                case 55332: // Rank 4
-                case 55333: // Rank 5
-                case 55335: // Rank 6
-                case 55278: // Rank 7
-                case 58589: // Rank 8
-                case 58590: // Rank 9
-                case 58591: // Rank 10
-                {
-                    // Cast Absorb on totems
-                    for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
-                    {
-                        if (!unitTarget->m_SummonSlot[slot])
-                            continue;
-
-                        Creature* totem = unitTarget->GetMap()->GetCreature(unitTarget->m_SummonSlot[slot]);
-                        if (totem && totem->IsTotem())
-                        {
-                            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                            args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
-                            m_caster->CastSpell(totem, 55277, args);
-                        }
-                    }
-                    // Glyph of Stoneclaw Totem
-                    if (AuraEffect* aur = unitTarget->GetAuraEffect(63298, 0))
-                    {
-                        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage * aur->GetAmount());
-                        m_caster->CastSpell(unitTarget, 55277, args);
-                    }
-                    break;
                 }
                 case 45668:                                 // Ultra-Advanced Proto-Typical Shortening Blaster
                 {

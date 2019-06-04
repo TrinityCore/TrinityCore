@@ -104,11 +104,13 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
          // z_rot, y_rot, x_rot - rotation angles around z, y and x axes
-        void SetWorldRotationAngles(float z_rot, float y_rot, float x_rot);
-        void SetWorldRotation(float qx, float qy, float qz, float qw);
+        void SetLocalRotationAngles(float z_rot, float y_rot, float x_rot);
+        void SetLocalRotation(float qx, float qy, float qz, float qw);
         void SetParentRotation(QuaternionData const& rotation);      // transforms(rotates) transport's path
-        QuaternionData const& GetWorldRotation() const { return m_worldRotation; }
-        int64 GetPackedWorldRotation() const { return m_packedRotation; }
+        QuaternionData const& GetLocalRotation() const { return m_localRotation; }
+        int64 GetPackedLocalRotation() const { return m_packedRotation; }
+
+        QuaternionData GetWorldRotation() const;
 
         // overwrite WorldObject function for proper name localization
         std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const override;
@@ -282,6 +284,14 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void UpdateModelPosition();
 
+        bool IsAtInteractDistance(Position const& pos, float radius) const;
+        bool IsAtInteractDistance(Player const* player, SpellInfo const* spell = nullptr) const;
+
+        bool IsWithinDistInMap(Player const* player) const;
+        using WorldObject::IsWithinDistInMap;
+
+        SpellInfo const* GetSpellForLock(Player const* player) const;
+
         void AIM_Destroy();
         bool AIM_Initialize();
 
@@ -318,7 +328,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectValue m_goValue;
 
         int64 m_packedRotation;
-        QuaternionData m_worldRotation;
+        QuaternionData m_localRotation;
         Position m_stationaryPosition;
 
         ObjectGuid m_lootRecipient;

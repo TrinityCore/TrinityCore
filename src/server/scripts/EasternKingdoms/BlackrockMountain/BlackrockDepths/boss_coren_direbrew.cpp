@@ -346,7 +346,7 @@ struct npc_direbrew_minion : public ScriptedAI
         DoZoneInCombat();
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         if (Creature* coren = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_COREN)))
             coren->AI()->JustSummoned(me);

@@ -1455,7 +1455,7 @@ class spell_gen_defend : public AuraScript
     {
         if (Unit* caster = GetCaster())
             if (TempSummon* vehicle = caster->ToTempSummon())
-                if (Unit* rider = vehicle->GetSummoner())
+                if (Unit* rider = vehicle->GetSummonerUnit())
                     rider->RemoveAurasDueToSpell(GetId());
     }
 
@@ -1764,6 +1764,23 @@ class spell_steal_essence_visual : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_steal_essence_visual::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 46642 - 5,000 Gold
+class spell_gen_5000_gold : public SpellScript
+{
+    PrepareSpellScript(spell_gen_5000_gold);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* target = GetHitPlayer())
+            target->ModifyMoney(5000 * GOLD);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_5000_gold::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -2858,6 +2875,23 @@ class spell_gen_remove_flight_auras : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_gen_remove_flight_auras::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 20589 - Escape artist
+// 30918 - Improved Sprint
+class spell_gen_remove_impairing_auras : public SpellScript
+{
+    PrepareSpellScript(spell_gen_remove_impairing_auras);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        GetHitUnit()->RemoveMovementImpairingAuras(true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_remove_impairing_auras::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -4211,6 +4245,28 @@ class spell_freezing_circle : public SpellScript
     }
 };
 
+// Used for some spells cast by vehicles or charmed creatures that do not send a cooldown event on their own
+class spell_gen_charmed_unit_spell_cooldown : public SpellScript
+{
+    PrepareSpellScript(spell_gen_charmed_unit_spell_cooldown);
+
+    void HandleCast()
+    {
+        Unit* caster = GetCaster();
+        if (Player* owner = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            WorldPacket data;
+            caster->GetSpellHistory()->BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_NONE, GetSpellInfo()->Id, GetSpellInfo()->RecoveryTime);
+            owner->SendDirectMessage(&data);
+        }
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_gen_charmed_unit_spell_cooldown::HandleCast);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterAuraScript(spell_gen_absorb0_hitlimit1);
@@ -4259,6 +4315,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_ethereal_pet_onsummon);
     RegisterSpellScript(spell_ethereal_pet_aura_remove);
     RegisterAuraScript(spell_steal_essence_visual);
+    RegisterSpellScript(spell_gen_5000_gold);
     RegisterSpellScript(spell_gen_gadgetzan_transporter_backfire);
     RegisterAuraScript(spell_gen_gift_of_naaru);
     RegisterSpellScript(spell_gen_gnomish_transporter);
@@ -4300,6 +4357,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_pet_summoned);
     RegisterSpellScript(spell_gen_profession_research);
     RegisterSpellScript(spell_gen_remove_flight_auras);
+    RegisterSpellScript(spell_gen_remove_impairing_auras);
     RegisterAuraScript(spell_gen_restoration);
     RegisterSpellAndAuraScriptPair(spell_gen_replenishment, spell_gen_replenishment_aura);
     RegisterAuraScript(spell_gen_remove_on_health_pct);
@@ -4334,4 +4392,5 @@ void AddSC_generic_spell_scripts()
     RegisterAuraScript(spell_corrupting_plague_aura);
     RegisterAuraScript(spell_gen_vehicle_control_link);
     RegisterSpellScript(spell_freezing_circle);
+    RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
 }

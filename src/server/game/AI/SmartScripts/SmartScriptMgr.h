@@ -357,7 +357,7 @@ struct SmartEvent
 
         struct
         {
-            uint32 noReportUse;
+            uint32 filter;
         } gossipHello;
 
         struct
@@ -582,8 +582,9 @@ enum SMART_ACTION
     SMART_ACTION_DESPAWN_SPAWNGROUP                 = 132,    // Group ID, min secs, max secs, spawnflags
     SMART_ACTION_RESPAWN_BY_SPAWNID                 = 133,    // spawnType, spawnId
     SMART_ACTION_INVOKER_CAST                       = 134,    // spellID, castFlags
+    SMART_ACTION_PLAY_CINEMATIC                     = 135,    // entry, cinematic
 
-    SMART_ACTION_END                                = 135
+    SMART_ACTION_END                                = 136
 };
 
 struct SmartAction
@@ -720,6 +721,7 @@ struct SmartAction
         {
             uint32 spell;
             uint32 charges;
+            uint32 onlyOwnedAuras;
         } removeAura;
 
         struct
@@ -1132,6 +1134,11 @@ struct SmartAction
             uint32 spawnType;
             uint32 spawnId;
         } respawnData;
+
+        struct
+        {
+            uint32 entry;
+        } cinematic;
 
         //! Note for any new future actions
         //! All parameters must have type uint32

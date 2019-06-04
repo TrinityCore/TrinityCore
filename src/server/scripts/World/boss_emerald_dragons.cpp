@@ -428,8 +428,12 @@ class npc_spirit_shade : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summonerWO) override
             {
+                Unit* summoner = summonerWO->ToUnit();
+                if (!summoner)
+                    return;
+
                 _summonerGuid = summoner->GetGUID();
                 me->GetMotionMaster()->MoveFollow(summoner, 0.0f, 0.0f);
             }

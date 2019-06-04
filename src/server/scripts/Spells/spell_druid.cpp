@@ -1049,7 +1049,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
                 CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = GetCasterGUID();
                 args.AddSpellBP0(healAmount);
-                target->CastSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, args);
+                target->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, args);
             }
 
             void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1059,7 +1059,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
                     return;
 
                 // final heal
-                OnRemoveEffect(GetTarget(), aurEff, GetStackAmount());
+                OnRemoveEffect(GetUnitOwner(), aurEff, GetStackAmount());
             }
 
             void HandleDispel(DispelInfo* dispelInfo)

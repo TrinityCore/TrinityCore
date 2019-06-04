@@ -286,6 +286,10 @@ public:
                     return;
             }
 
+            // All the events below happen during the PHASE_NORMAL phase and shouldn't be executed before that
+            if (!events.IsInPhase(PHASE_NORMAL))
+                return;
+
             // Health check
             if (!m_bCanShatterGolem && me->HealthBelowPct(100 - 20 * m_uiHealthAmountModifier))
             {
