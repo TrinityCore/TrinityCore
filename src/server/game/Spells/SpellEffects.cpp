@@ -782,7 +782,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 
     if (triggered_spell_id == 0)
     {
-        TC_LOG_WARN("spells.effecttriggerspell.nospell", "Spell::EffectTriggerSpell: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
+        TC_LOG_WARN("spells.effect.nospell", "Spell::EffectTriggerSpell: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
         return;
     }
 
@@ -790,7 +790,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(triggered_spell_id);
     if (!spellInfo)
     {
-        TC_LOG_ERROR("spells.effecttriggerspell.nospell", "Spell::EffectTriggerSpell spell %u tried to trigger unknown spell %u", m_spellInfo->Id, triggered_spell_id);
+        TC_LOG_ERROR("spells.effect.nospell", "Spell::EffectTriggerSpell spell %u tried to trigger unknown spell %u", m_spellInfo->Id, triggered_spell_id);
         return;
     }
 
@@ -839,7 +839,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
     uint32 triggered_spell_id = m_spellInfo->Effects[effIndex].TriggerSpell;
     if (triggered_spell_id == 0)
     {
-        TC_LOG_WARN("spells.effecttriggerspell.nospell", "Spell::EffectTriggerMissileSpell: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
+        TC_LOG_WARN("spells.effect.nospell", "Spell::EffectTriggerMissileSpell: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
         return;
     }
 
@@ -847,7 +847,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(triggered_spell_id);
     if (!spellInfo)
     {
-        TC_LOG_ERROR("spells.effecttriggerspell.nospell", "Spell::EffectTriggerMissileSpell spell %u tried to trigger unknown spell %u.", m_spellInfo->Id, triggered_spell_id);
+        TC_LOG_ERROR("spells.effect.nospell", "Spell::EffectTriggerMissileSpell spell %u tried to trigger unknown spell %u.", m_spellInfo->Id, triggered_spell_id);
         return;
     }
 
@@ -893,7 +893,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
     uint32 triggered_spell_id = m_spellInfo->Effects[effIndex].TriggerSpell;
     if (triggered_spell_id == 0)
     {
-        TC_LOG_WARN("spells.effecttriggerspell.nospell", "Spell::EffectForceCast: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
+        TC_LOG_WARN("spells.effect.nospell", "Spell::EffectForceCast: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
         return;
     }
 
@@ -902,7 +902,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
 
     if (!spellInfo)
     {
-        TC_LOG_ERROR("spells.effecttriggerspell.nospell", "Spell::EffectForceCast of spell %u: triggering unknown spell id %i.", m_spellInfo->Id, triggered_spell_id);
+        TC_LOG_ERROR("spells.effect.nospell", "Spell::EffectForceCast of spell %u: triggering unknown spell id %i.", m_spellInfo->Id, triggered_spell_id);
         return;
     }
 
@@ -948,7 +948,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex effIndex)
     uint32 triggered_spell_id = m_spellInfo->Effects[effIndex].TriggerSpell;
     if (triggered_spell_id == 0)
     {
-        TC_LOG_WARN("spells.effecttriggerspell.nospell", "Spell::EffectTriggerRitualOfSummoning: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
+        TC_LOG_WARN("spells.effect.nospell", "Spell::EffectTriggerRitualOfSummoning: Spell %u [EffectIndex: %u] does not have triggered spell.", m_spellInfo->Id, effIndex);
         return;
     }
 
@@ -956,7 +956,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex effIndex)
 
     if (!spellInfo)
     {
-        TC_LOG_ERROR("spells.effecttriggerspell.nospell", "EffectTriggerRitualOfSummoning of spell %u: triggering unknown spell id %i.", m_spellInfo->Id, triggered_spell_id);
+        TC_LOG_ERROR("spells.effect.nospell", "EffectTriggerRitualOfSummoning of spell %u: triggering unknown spell id %i.", m_spellInfo->Id, triggered_spell_id);
         return;
     }
 
