@@ -58,28 +58,29 @@ enum ThalorienDawnseekerActions
 
 enum ThalorienDawnseekerEvents
 {
-    EVENT_INTRO_0       = 1,
-    EVENT_INTRO_1       = 2,
-    EVENT_INTRO_2       = 3,
-    EVENT_INTRO_3       = 4,
-    EVENT_SALUTE        = 5,
-    EVENT_DEFENDERS_RUN = 6,
-    EVENT_THALORIEN_GO  = 7,
-    EVENT_INTRO_4       = 8,
-    EVENT_SUMMON_MORLEN = 9,
-    EVENT_INTRO_5       = 10,
-    EVENT_MORLEN_1      = 11,
-    EVENT_SPAWN_WAVE_1  = 12,
-    EVENT_SPAWN_WAVE_2  = 13,
-    EVENT_SPAWN_WAVE_3  = 14,
-    EVENT_WAVE_ATTACK   = 15,
-    EVENT_MORLEN_2      = 16,
-    EVENT_MORLEN_ATTACK = 17,
-    EVENT_OUTRO_1       = 18,
-    EVENT_OUTRO_2       = 19,
-    EVENT_OUTRO_3       = 20,
-    EVENT_OUTRO_4       = 21,
-    EVENT_KNEEL         = 22
+    EVENT_INTRO_0           = 1,
+    EVENT_INTRO_1           = 2,
+    EVENT_INTRO_2           = 3,
+    EVENT_INTRO_3           = 4,
+    EVENT_SALUTE            = 5,
+    EVENT_DEFENDERS_RUN     = 6,
+    EVENT_DEFENDERS_RUN_2   = 7,
+    EVENT_THALORIEN_GO      = 8,
+    EVENT_INTRO_4           = 9,
+    EVENT_SUMMON_MORLEN     = 10,
+    EVENT_INTRO_5           = 11,
+    EVENT_MORLEN_1          = 12,
+    EVENT_SPAWN_WAVE_1      = 13,
+    EVENT_SPAWN_WAVE_2      = 14,
+    EVENT_SPAWN_WAVE_3      = 15,
+    EVENT_WAVE_ATTACK       = 16,
+    EVENT_MORLEN_2          = 17,
+    EVENT_MORLEN_ATTACK     = 18,
+    EVENT_OUTRO_1           = 19,
+    EVENT_OUTRO_2           = 20,
+    EVENT_OUTRO_3           = 21,
+    EVENT_OUTRO_4           = 22,
+    EVENT_KNEEL             = 23
 };
 
 enum ThalorienDawnseeker
@@ -98,8 +99,11 @@ enum ThalorienDawnseeker
     SPELL_POLYMORPH_VISUAL      = 27123
 };
 
+float const defenderReverse = 5.67232;
+
 Position const thalorienSummon = { 11795.32f, -7070.476f, 26.27511f, 5.67232f  };
 Position const thalorienFight = { 11788.46f, -7063.375f, 25.79677f, 3.054326f };
+Position const defenderRun = { 11910.82f, -7060.951f, 28.25987f };
 Position const morlenSummon = { 11766.46f, -7050.078f, 26.19846f, 5.637414f  };
 
 class npc_thalorien_dawnseeker : public CreatureScript
@@ -185,12 +189,42 @@ public:
                         _events.ScheduleEvent(EVENT_DEFENDERS_RUN, 3s);
                         break;
                     case EVENT_DEFENDERS_RUN:
-                        for (auto& summon : _summons)
-                            if (Creature* creature = ObjectAccessor::GetCreature(*me, summon))
-                                if (creature->GetEntry() == NPC_SUNWELL_DEFENDER)
-                                    creature->GetMotionMaster()->MovePoint(0, 11863.35f, -7073.44f, 27.40f);
+                    {
+                        _events.ScheduleEvent(EVENT_DEFENDERS_RUN_2, 3s);
+                        _events.ScheduleEvent(EVENT_THALORIEN_GO, 2s);
 
-                        _events.ScheduleEvent(EVENT_THALORIEN_GO, 1s);
+                        uint count = 0;
+                        for (auto& summon : _summons)
+                        {
+                            Creature* creature = ObjectAccessor::GetCreature(*me, summon);
+                            if (!creature)
+                                continue;
+
+                            if (creature->GetEntry() != NPC_SUNWELL_DEFENDER)
+                                continue;
+
+                            creature->SetFacingTo(defenderReverse);
+
+                            ++count;
+                            if (count > 5)
+                                creature->GetMotionMaster()->MovePoint(0, defenderRun);
+                        }
+
+                        break;
+                    }
+                    case EVENT_DEFENDERS_RUN_2:
+                        for (auto& summon : _summons)
+                        {
+                            Creature* creature = ObjectAccessor::GetCreature(*me, summon);
+                            if (!creature)
+                                continue;
+
+                            if (creature->GetEntry() != NPC_SUNWELL_DEFENDER)
+                                continue;
+
+                            creature->GetMotionMaster()->MovePoint(0, defenderRun);
+                        }
+
                         break;
                     case EVENT_THALORIEN_GO:
                         if (Creature* thalorien = ObjectAccessor::GetCreature(*me, _thalorienGUID))
