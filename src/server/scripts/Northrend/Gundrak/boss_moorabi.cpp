@@ -121,8 +121,8 @@ class boss_moorabi : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                Talk(SAY_DEATH);
                 Talk(EMOTE_ACTIVATE_ALTAR);
+                Talk(SAY_DEATH);
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
