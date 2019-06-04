@@ -383,9 +383,35 @@ namespace WorldPackets
             bool ProposalSilent = false;
             std::vector<LFGProposalUpdatePlayer> Players;
         };
+
+        class LFGDisabled final : public ServerPacket
+        {
+        public:
+            LFGDisabled() : ServerPacket(SMSG_LFG_DISABLED, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class LFGOfferContinue final : public ServerPacket
+        {
+        public:
+            LFGOfferContinue(uint32 slot) : ServerPacket(SMSG_LFG_OFFER_CONTINUE, 4), Slot(slot) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Slot = 0;
+        };
+
+        class LFGTeleportDenied final : public ServerPacket
+        {
+        public:
+            LFGTeleportDenied(lfg::LfgTeleportResult reason) : ServerPacket(SMSG_LFG_TELEPORT_DENIED, 4), Reason(reason) { }
+
+            WorldPacket const* Write() override;
+
+            lfg::LfgTeleportResult Reason;
+        };
     }
-
-
 }
 
 #endif // LFGPackets_h__

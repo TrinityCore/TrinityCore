@@ -564,3 +564,17 @@ WorldPacket const* WorldPackets::LFG::LFGProposalUpdate::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::LFG::LFGOfferContinue::Write()
+{
+    _worldPacket << uint32(Slot);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::LFG::LFGTeleportDenied::Write()
+{
+    _worldPacket << uint32(Reason);
+
+    return &_worldPacket;
+}

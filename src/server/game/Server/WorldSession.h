@@ -87,8 +87,6 @@ namespace WorldPackets
         class LFGBootPlayerVote;
         class LFGTeleport;
         class LFGGetSystemInfo;
-        class LFGPlayerInfo;
-        class LFGPartyInfo;
         class LFGUpdateStatus;
         class RoleChosen;
         class LFGRoleCheckUpdate;
@@ -96,7 +94,7 @@ namespace WorldPackets
         class LFGQueueStatus;
         class LFGPlayerReward;
         class LfgBootPlayer;
-        class LFGProposalUpdate;
+        class LFGOfferContinue;
     }
 }
 
@@ -986,7 +984,7 @@ class TC_GAME_API WorldSession
         void SendLfgUpdateProposal(lfg::LfgProposal const& proposal);
         void SendLfgDisabled();
         void SendLfgOfferContinue(uint32 dungeonEntry);
-        void SendLfgTeleportError(uint8 err);
+        void SendLfgTeleportError(lfg::LfgTeleportResult err);
 
         // Arena Team
         void HandleInspectArenaTeamsOpcode(WorldPacket& recvData);
