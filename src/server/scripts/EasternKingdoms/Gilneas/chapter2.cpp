@@ -743,6 +743,45 @@ class spell_gilneas_forcecast_cataclysm_1 : public SpellScriptLoader
         }
 };
 
+class SummonerTargetSelector
+{
+public:
+    SummonerTargetSelector(Unit* caster) : _caster(caster) { }
+
+    bool operator() (WorldObject* target)
+    {
+        if (target->GetTypeId() != TYPEID_UNIT)
+            return true;
+
+        if (TempSummon* summon = target->ToUnit()->ToTempSummon())
+            if (summon->GetSummoner() == _caster)
+                return false;
+
+        return true;
+    }
+
+private:
+    Unit* _caster;
+};
+
+class spell_gilneas_worgen_intro_completion : public SpellScript
+{
+    PrepareSpellScript(spell_gilneas_worgen_intro_completion);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(SummonerTargetSelector(GetCaster()));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gilneas_worgen_intro_completion::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
 void AddSC_gilneas_c2()
 {
     new go_gilneas_invasion_camera();
@@ -757,4 +796,5 @@ void AddSC_gilneas_c2()
     new spell_gilneas_fiery_boulder();
     new spell_gilneas_call_attack_mastiff();
     new spell_gilneas_forcecast_cataclysm_1();
+    RegisterSpellScript(spell_gilneas_worgen_intro_completion);
 }
