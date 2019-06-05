@@ -22,12 +22,12 @@ if(WIN32)
     else()
       if (CMAKGE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
         set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
-      else
+      else()
         if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.20)       
           list(APPEND BOOST_LIBRARYDIR
             ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1
             ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
-        else
+        else()
           list(APPEND BOOST_LIBRARYDIR
             ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.2
             ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1)
