@@ -8,18 +8,31 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+# Set CMP0074 to 'NEW' to use '<PackageName>_ROOT' system variables.
+if (POLICY CMP0074)
+    cmake_policy(SET CMP0074 NEW)
+endif()
+
 if(WIN32)
  set(BOOST_DEBUG ON)
   if(DEFINED ENV{BOOST_ROOT})
     set(BOOST_ROOT $ENV{BOOST_ROOT})
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
       set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-12.0)
-    elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
-      set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
     else()
-      list(APPEND BOOST_LIBRARYDIR
-        ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1
-        ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
+      if (CMAKGE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
+        set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
+      else
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.20)       
+          list(APPEND BOOST_LIBRARYDIR
+            ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1
+            ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
+        else
+          list(APPEND BOOST_LIBRARYDIR
+            ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.2
+            ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1)
+        endif()
+      endif()
     endif()
   else()
     message(FATAL_ERROR "No BOOST_ROOT environment variable could be found! Please make sure it is set and the points to your Boost installation.")
