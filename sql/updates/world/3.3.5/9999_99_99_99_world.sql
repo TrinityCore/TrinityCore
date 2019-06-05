@@ -10,7 +10,7 @@ UPDATE `creature_template` SET `gossip_menu_id`=10908,`ScriptName`='npc_thalorie
 DELETE FROM `creature_template_addon` WHERE `entry`=37552;
 INSERT INTO `creature_template_addon` (`entry`,`bytes2`,`auras`) VALUES (37552,1,'29266');
 
-DELETE FROM `gossip_menu` WHERE `MenuID`=10908;
+DELETE FROM `gossip_menu` WHERE `MenuID` IN (10908,37552);
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`) VALUES (10908, 15155);
 DELETE FROM `gossip_menu_option` WHERE `MenuID`=10908;
 INSERT INTO `gossip_menu_option` (`MenuID`,`OptionID`,`OptionIcon`,`OptionText`,`OptionBroadcastTextID`,`OptionType`,`OptionNpcFlag`,`ActionMenuID`,`ActionPoiID`,`BoxCoded`,`BoxMoney`,`BoxText`,`BoxBroadcastTextID`,`VerifiedBuild`) VALUES
