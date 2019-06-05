@@ -15,17 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-Name: Boss_Hakkar
-%Complete: 95
-Comment: Blood siphon spell buggy cause of Core Issue.
-Category: Zul'Gurub
-*/
-
-#include "ScriptMgr.h"
+#include "zulgurub.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
-#include "zulgurub.h"
+#include "ScriptMgr.h"
 
 enum Says
 {
@@ -42,6 +35,7 @@ enum Spells
     SPELL_CAUSE_INSANITY        = 24327, // Spell needs scripting.
     SPELL_WILL_OF_HAKKAR        = 24178,
     SPELL_ENRAGE                = 24318,
+
     // The Aspects of all High Priests spells
     SPELL_ASPECT_OF_JEKLIK      = 24687,
     SPELL_ASPECT_OF_VENOXIS     = 24688,
@@ -57,6 +51,7 @@ enum Events
     EVENT_CAUSE_INSANITY        = 3,     // Spell needs scripting. Event disabled
     EVENT_WILL_OF_HAKKAR        = 4,
     EVENT_ENRAGE                = 5,
+
     // The Aspects of all High Priests events
     EVENT_ASPECT_OF_JEKLIK      = 6,
     EVENT_ASPECT_OF_VENOXIS     = 7,

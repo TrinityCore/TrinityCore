@@ -16,12 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "zulgurub.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
-#include "zulgurub.h"
 
 enum Say
 {
@@ -148,8 +148,8 @@ class boss_jindo : public CreatureScript
 
                                 // Summon a formation of trolls
                                 for (uint8 i = 0; i < 10; ++i)
-                                    if (Creature* SacrificedTroll = me->SummonCreature(NPC_SACRIFICED_TROLL, Formation[i].GetPositionX(), Formation[i].GetPositionY(), Formation[i].GetPositionZ(), Formation[i].GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
-                                        SacrificedTroll->AI()->AttackStart(target);
+                                    if (TempSummon* sacrificedTroll = me->SummonCreature(NPC_SACRIFICED_TROLL, Formation[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                                        sacrificedTroll->AI()->AttackStart(target);
                             }
                             events.ScheduleEvent(EVENT_TELEPORT, 15s, 23s);
                             break;
@@ -179,39 +179,40 @@ class npc_healing_ward : public CreatureScript
 
         struct npc_healing_wardAI : public ScriptedAI
         {
-            npc_healing_wardAI(Creature* creature) : ScriptedAI(creature)
+            npc_healing_wardAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
                 Initialize();
-                instance = creature->GetInstanceScript();
+                creature->SetReactState(REACT_PASSIVE);
             }
 
             void Initialize()
             {
-                Heal_Timer = 2000;
+                _healTimer = 2000;
             }
-
-            uint32 Heal_Timer;
-            InstanceScript* instance;
 
             void Reset() override
             {
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override { }
+            void AttackStart(Unit* /*victim*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
                 // Heal_Timer
-                if (Heal_Timer <= diff)
+                if (_healTimer <= diff)
                 {
-                    if (Unit* jindo = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JINDO)))
+                    if (Creature* jindo = _instance->GetCreature(DATA_JINDO))
                         DoCast(jindo, SPELL_HEAL);
-                    Heal_Timer = 3000;
-                } else Heal_Timer -= diff;
-
-                DoMeleeAttackIfReady();
+                    _healTimer = 3000;
+                }
+                else
+                    _healTimer -= diff;
             }
+
+        private:
+            uint32 _healTimer;
+            InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -220,7 +221,7 @@ class npc_healing_ward : public CreatureScript
         }
 };
 
-//Shade of Jindo
+// Shade of Jindo
 class npc_shade_of_jindo : public CreatureScript
 {
     public:
@@ -235,10 +236,8 @@ class npc_shade_of_jindo : public CreatureScript
 
             void Initialize()
             {
-                ShadowShock_Timer = 1000;
+                _shadowShockTimer = 1000;
             }
-
-            uint32 ShadowShock_Timer;
 
             void Reset() override
             {
@@ -246,19 +245,25 @@ class npc_shade_of_jindo : public CreatureScript
                 DoCast(me, SPELL_INVISIBLE, true);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override { }
-
             void UpdateAI(uint32 diff) override
             {
+                if (!UpdateVictim())
+                    return;
+
                 // ShadowShock_Timer
-                if (ShadowShock_Timer <= diff)
+                if (_shadowShockTimer <= diff)
                 {
                     DoCastVictim(SPELL_SHADOWSHOCK);
-                    ShadowShock_Timer = 2000;
-                } else ShadowShock_Timer -= diff;
+                    _shadowShockTimer = 2000;
+                }
+                else
+                    _shadowShockTimer -= diff;
 
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            uint32 _shadowShockTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

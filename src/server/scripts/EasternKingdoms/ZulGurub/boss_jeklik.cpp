@@ -15,42 +15,42 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "TemporarySummon.h"
 #include "zulgurub.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
-    SAY_AGGRO                   = 0,
-    SAY_RAIN_FIRE               = 1,
-    SAY_DEATH                   = 2
+    SAY_AGGRO               = 0,
+    SAY_RAIN_FIRE           = 1,
+    SAY_DEATH               = 2
 };
 
 enum Spells
 {
-    SPELL_CHARGE                = 22911,
-    SPELL_SONICBURST            = 23918,
-    SPELL_SCREECH               = 6605,
-    SPELL_SHADOW_WORD_PAIN      = 23952,
-    SPELL_MIND_FLAY             = 23953,
-    SPELL_CHAIN_MIND_FLAY       = 26044, // Right ID unknown. So disabled
-    SPELL_GREATERHEAL           = 23954,
-    SPELL_BAT_FORM              = 23966,
+    SPELL_CHARGE            = 22911,
+    SPELL_SONICBURST        = 23918,
+    SPELL_SCREECH           = 6605,
+    SPELL_SHADOW_WORD_PAIN  = 23952,
+    SPELL_MIND_FLAY         = 23953,
+    SPELL_CHAIN_MIND_FLAY   = 26044, // Right ID unknown. So disabled
+    SPELL_GREATERHEAL       = 23954,
+    SPELL_BAT_FORM          = 23966,
 
     // Batriders Spell
-    SPELL_BOMB                  = 40332 // Wrong ID but Magmadars bomb is not working...
+    SPELL_BOMB              = 40332 // Wrong ID but Magmadars bomb is not working...
 };
 
 enum BatIds
 {
-    NPC_BLOODSEEKER_BAT         = 11368,
-    NPC_FRENZIED_BAT            = 14965
+    NPC_BLOODSEEKER_BAT     = 11368,
+    NPC_FRENZIED_BAT        = 14965
 };
 
 enum Events
 {
-    EVENT_CHARGE_JEKLIK         = 1,
+    EVENT_CHARGE_JEKLIK     = 1,
     EVENT_SONIC_BURST,
     EVENT_SCREECH,
     EVENT_SPAWN_BATS,
@@ -63,8 +63,8 @@ enum Events
 
 enum Phase
 {
-    PHASE_ONE                   = 1,
-    PHASE_TWO                   = 2
+    PHASE_ONE               = 1,
+    PHASE_TWO               = 2
 };
 
 Position const SpawnBat[6] =
@@ -124,7 +124,6 @@ class boss_jeklik : public CreatureScript
                     events.ScheduleEvent(EVENT_CHAIN_MIND_FLAY, 26s, 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_GREATER_HEAL, 50s, 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_SPAWN_FLYING_BATS, 10s, 0, PHASE_TWO);
-                    return;
                 }
             }
 
@@ -143,7 +142,7 @@ class boss_jeklik : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CHARGE_JEKLIK:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
                             {
                                 DoCast(target, SPELL_CHARGE);
                                 AttackStart(target);
@@ -159,14 +158,14 @@ class boss_jeklik : public CreatureScript
                             events.ScheduleEvent(EVENT_SCREECH, urand(18000, 26000), 0, PHASE_ONE);
                             break;
                         case EVENT_SPAWN_BATS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
                                 for (uint8 i = 0; i < 6; ++i)
-                                    if (Creature* bat = me->SummonCreature(NPC_BLOODSEEKER_BAT, SpawnBat[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                                    if (TempSummon* bat = me->SummonCreature(NPC_BLOODSEEKER_BAT, SpawnBat[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
                                         bat->AI()->AttackStart(target);
                             events.ScheduleEvent(EVENT_SPAWN_BATS, 1min, 0, PHASE_ONE);
                             break;
                         case EVENT_SHADOW_WORD_PAIN:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
                                 DoCast(target, SPELL_SHADOW_WORD_PAIN);
                             events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(12000, 18000), 0, PHASE_TWO);
                             break;
@@ -185,8 +184,8 @@ class boss_jeklik : public CreatureScript
                             events.ScheduleEvent(EVENT_GREATER_HEAL, urand(25000, 35000), 0, PHASE_TWO);
                             break;
                         case EVENT_SPAWN_FLYING_BATS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                if (Creature* flyingBat = me->SummonCreature(NPC_FRENZIED_BAT, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 15.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
+                                if (TempSummon* flyingBat = me->SummonCreature(NPC_FRENZIED_BAT, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 15.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
                                     flyingBat->AI()->AttackStart(target);
                             events.ScheduleEvent(EVENT_SPAWN_FLYING_BATS, urand(10000, 15000), 0, PHASE_TWO);
                             break;
@@ -223,10 +222,8 @@ class npc_batrider : public CreatureScript
 
             void Initialize()
             {
-                Bomb_Timer = 2000;
+                _bombTimer = 2000;
             }
-
-            uint32 Bomb_Timer;
 
             void Reset() override
             {
@@ -241,19 +238,22 @@ class npc_batrider : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (Bomb_Timer <= diff)
+                if (_bombTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
                     {
                         DoCast(target, SPELL_BOMB);
-                        Bomb_Timer = 5000;
+                        _bombTimer = 5000;
                     }
                 }
                 else
-                    Bomb_Timer -= diff;
+                    _bombTimer -= diff;
 
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            uint32 _bombTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
