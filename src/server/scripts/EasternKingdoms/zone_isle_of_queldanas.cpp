@@ -358,6 +358,8 @@ public:
                             thalorien->DespawnOrUnsummon(5 * IN_MILLISECONDS);
                         }
 
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
                         break;
                 }
             }
