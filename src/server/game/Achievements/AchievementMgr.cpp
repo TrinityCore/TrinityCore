@@ -1016,6 +1016,8 @@ void AchievementMgr<T>::SendAllTrackedCriterias(Player* /*receiver*/, std::set<u
 template<>
 void AchievementMgr<Guild>::SendAllTrackedCriterias(Player* receiver, std::set<uint32> const& trackedCriterias) const
 {
+    return;
+
     ObjectGuid counter;
     ObjectGuid guid;
     uint32 trackedCriteriasCount = 0;

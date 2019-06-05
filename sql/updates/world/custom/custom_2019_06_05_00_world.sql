@@ -1,0 +1,8 @@
+DELETE FROM `creature_sparring_template` WHERE `CreatureID` IN (38915, 38913, 43427);
+INSERT INTO `creature_sparring_template` (`CreatureID`, `HealthLimitPct`) VALUES
+(38915, 85),
+(38913, 85),
+(43427, 85);
+
+DELETE FROM `creature` WHERE `guid` IN (388254, 388255, 388256, 388257, 388258, 388259, 388260, 388262, 384598, 384603);
+DELETE FROM `creature_addon` WHERE `guid` IN (388254, 388255, 388256, 388257, 388258, 388259, 388260, 388262, 384598, 384603);
