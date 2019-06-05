@@ -16,7 +16,9 @@
  */
 
 #include "zulgurub.h"
+#include "DBCStructure.h"
 #include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 
@@ -24,8 +26,9 @@ enum Says
 {
     SAY_AGGRO                   = 0,
     SAY_FLEEING                 = 1,
-    SAY_MINION_DESTROY          = 2,     // Where does it belong?
-    SAY_PROTECT_ALTAR           = 3      // Where does it belong?
+    SAY_MINION_DESTROY          = 2,
+    SAY_PROTECT_ALTAR           = 3,
+    SAY_ENTRANCE                = 4
 };
 
 enum Spells
@@ -180,7 +183,41 @@ class boss_hakkar : public CreatureScript
         }
 };
 
+class at_zulgurub_entrance : public OnlyOnceAreaTriggerScript
+{
+public:
+    at_zulgurub_entrance() : OnlyOnceAreaTriggerScript("at_zulgurub_entrance") { }
+
+    bool _OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger) override
+    {
+        InstanceScript* instance = player->GetInstanceScript();
+        if (!instance || instance->GetBossState(DATA_HAKKAR) == DONE)
+            return true;
+
+        if (Creature* hakkar = instance->GetCreature(DATA_HAKKAR))
+        {
+            switch (areaTrigger->id)
+            {
+                case AREA_TRIGGER_1:
+                    hakkar->AI()->Talk(SAY_ENTRANCE);
+                    break;
+                case AREA_TRIGGER_2:
+                    hakkar->AI()->Talk(SAY_PROTECT_ALTAR);
+                    break;
+                case AREA_TRIGGER_3:
+                    hakkar->AI()->Talk(SAY_MINION_DESTROY);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return true;
+    }
+};
+
 void AddSC_boss_hakkar()
 {
     new boss_hakkar();
+    new at_zulgurub_entrance();
 }

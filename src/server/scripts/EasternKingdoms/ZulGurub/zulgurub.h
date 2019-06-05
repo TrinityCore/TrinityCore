@@ -60,14 +60,21 @@ enum ZGCreatureIds
     NPC_MANDOKIR            = 11382, // Mandokir Event
     NPC_OHGAN               = 14988, // Mandokir Event
     NPC_VILEBRANCH_SPEAKER  = 11391, // Mandokir Event
-    NPC_CHAINED_SPIRT       = 15117  // Mandokir Event
-
+    NPC_CHAINED_SPIRT       = 15117, // Mandokir Event
+    NPC_HAKKAR              = 14834
 };
 
 enum ZGGameObjectIds
 {
     GO_FORCEFIELD           = 180497, // Arlokk Event
     GO_GONG_OF_BETHEKK      = 180526  // Arlokk Event
+};
+
+enum ZulGurubAreaTriggers
+{
+    AREA_TRIGGER_1          = 3957,
+    AREA_TRIGGER_2          = 3958,
+    AREA_TRIGGER_3          = 3960
 };
 
 template <class AI, class T>
