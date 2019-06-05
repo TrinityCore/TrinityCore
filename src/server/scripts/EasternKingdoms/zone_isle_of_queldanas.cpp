@@ -100,10 +100,23 @@ enum ThalorienDawnseeker
 };
 
 float const defenderReverse = 5.67232;
+Position const defenderRun[10] =
+{
+        { 11934.78f, -7064.424f, 33.38046f },
+        { 11927.9f, -7061.303f, 32.00986f },
+        { 11927.81f, -7067.289f, 31.81058f },
+        { 11927.89f, -7058.299f, 32.13486f },
+        { 11927.9f, -7061.303f, 32.00986f },
+
+        { 11934.78f, -7064.424f, 33.38046f },
+        { 11920.69f, -7061.134f, 30.40684f },
+        { 11920.56f, -7067.133f, 30.41605f },
+        { 11920.76f, -7058.135f, 30.61656f },
+        { 11920.5f, -7070.132f, 30.40836f }
+};
 
 Position const thalorienSummon = { 11795.32f, -7070.476f, 26.27511f, 5.67232f  };
 Position const thalorienFight = { 11788.46f, -7063.375f, 25.79677f, 3.054326f };
-Position const defenderRun = { 11910.82f, -7060.951f, 28.25987f };
 Position const morlenSummon = { 11766.46f, -7050.078f, 26.19846f, 5.637414f  };
 
 class npc_thalorien_dawnseeker : public CreatureScript
@@ -193,7 +206,7 @@ public:
                         _events.ScheduleEvent(EVENT_DEFENDERS_RUN_2, 3s);
                         _events.ScheduleEvent(EVENT_THALORIEN_GO, 2s);
 
-                        uint count = 0;
+                        uint i = 0;
                         for (auto& summon : _summons)
                         {
                             Creature* creature = ObjectAccessor::GetCreature(*me, summon);
@@ -205,14 +218,16 @@ public:
 
                             creature->SetFacingTo(defenderReverse);
 
-                            ++count;
-                            if (count > 5)
-                                creature->GetMotionMaster()->MovePoint(0, defenderRun);
+                            ++i;
+                            if (i > 5)
+                                creature->GetMotionMaster()->MovePoint(0, defenderRun[i]);
                         }
 
                         break;
                     }
                     case EVENT_DEFENDERS_RUN_2:
+                    {
+                        uint i = 0;
                         for (auto& summon : _summons)
                         {
                             Creature* creature = ObjectAccessor::GetCreature(*me, summon);
@@ -222,10 +237,12 @@ public:
                             if (creature->GetEntry() != NPC_SUNWELL_DEFENDER)
                                 continue;
 
-                            creature->GetMotionMaster()->MovePoint(0, defenderRun);
+                            ++i;
+                            creature->GetMotionMaster()->MovePoint(0, defenderRun[i]);
                         }
 
                         break;
+                    }
                     case EVENT_THALORIEN_GO:
                         if (Creature* thalorien = ObjectAccessor::GetCreature(*me, _thalorienGUID))
                         {
