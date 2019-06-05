@@ -449,7 +449,7 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket& recvData)
 
     if (group->isLFGGroup())
         return;
-    
+
     if (lootMethod > NEED_BEFORE_GREED)
         return;
 

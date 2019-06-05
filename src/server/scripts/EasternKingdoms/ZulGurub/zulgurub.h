@@ -39,7 +39,9 @@ enum ZGDataTypes
     DATA_EDGE_OF_MADNESS    = 9,  // Optional Event Edge of Madness - one of: Gri'lek, Renataki, Hazza'rah, or Wushoolay
     DATA_LORKHAN            = 10, // Zealot Lor'Khan add to High priest Thekal!
     DATA_ZATH               = 11, // Zealot Zath add to High priest Thekal!
-    TYPE_EDGE_OF_MADNESS    = 12  // Boss storage
+
+    DATA_GONG_BETHEKK       = 12,
+    DATA_VILEBRANCH_SPEAKER = 13
 };
 
 enum ZGCreatureIds
