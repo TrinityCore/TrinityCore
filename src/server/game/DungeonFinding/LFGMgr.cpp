@@ -429,7 +429,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         joinData.result = LFG_JOIN_USING_BG_SYSTEM;
     else if (player->HasAura(LFG_SPELL_DUNGEON_DESERTER))
         joinData.result = LFG_JOIN_DESERTER;
-    else if (player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
+    else if (!isContinue && player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
         joinData.result = LFG_JOIN_RANDOM_COOLDOWN;
     else if (dungeons.empty())
         joinData.result = LFG_JOIN_NOT_MEET_REQS;
@@ -450,7 +450,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                         joinData.result = LFG_JOIN_PARTY_NOT_MEET_REQS;
                     if (plrg->HasAura(LFG_SPELL_DUNGEON_DESERTER))
                         joinData.result = LFG_JOIN_PARTY_DESERTER;
-                    else if (plrg->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
+                    else if (!isContinue && plrg->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
                         joinData.result = LFG_JOIN_PARTY_RANDOM_COOLDOWN;
                     else if (plrg->InBattleground() || plrg->InArena() || plrg->InBattlegroundQueue())
                         joinData.result = LFG_JOIN_USING_BG_SYSTEM;
@@ -483,7 +483,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                         joinData.result = LFG_JOIN_DUNGEON_INVALID;
                     else
                         rDungeonId = (*dungeons.begin());
-                    // No break on purpose (Random can only be dungeon or heroic dungeon)
+                    /* fallthrough - Random can only be dungeon or heroic dungeon */
                 case LFG_TYPE_HEROIC:
                 case LFG_TYPE_DUNGEON:
                     if (isRaid)
@@ -962,8 +962,8 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
         if (!dungeons.empty())
         {
             uint32 rDungeonId = (*dungeons.begin());
-            LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(rDungeonId);
-            if (dungeon && dungeon->type == LFG_TYPE_RANDOM)
+            LFGDungeonEntry const* dungeonEntry = sLFGDungeonStore.LookupEntry(rDungeonId);
+            if (dungeonEntry && dungeonEntry->type == LFG_TYPE_RANDOM)
                 player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
         }
     }
@@ -1345,7 +1345,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         if (!fromOpcode)
         {
             // Select a player inside to be teleported to
-            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr && !mapid; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
             {
                 Player* plrg = itr->GetSource();
                 if (plrg && plrg != player && plrg->GetMapId() == uint32(dungeon->map))
@@ -1429,11 +1429,19 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
         }
 
         Player* player = ObjectAccessor::FindPlayer(guid);
-        if (!player || player->FindMap() != currMap)
+        if (!player)
         {
             TC_LOG_DEBUG("lfg.dungeon.finish", "Group: %s, Player: %s not found in world", gguid.ToString().c_str(), guid.ToString().c_str());
             continue;
         }
+
+        if (player->FindMap() != currMap)
+        {
+            TC_LOG_DEBUG("lfg.dungeon.finish", "Group: %s, Player: %s is in a different map", gguid.ToString().c_str(), guid.ToString().c_str());
+            continue;
+        }
+
+        player->RemoveAurasDueToSpell(LFG_SPELL_DUNGEON_COOLDOWN);
 
         LFGDungeonData const* dungeonDone = GetLFGDungeon(dungeonId);
         uint32 mapId = dungeonDone ? uint32(dungeonDone->map) : 0;

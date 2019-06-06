@@ -69,7 +69,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetObjectScale(float scale) override;
         void SetDisplayId(uint32 modelId) override;
 
-        void DisappearAndDie();
+        void DisappearAndDie() { ForcedDespawn(0); }
 
         bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, Position const& pos, CreatureData const* data = nullptr, uint32 vehId = 0, bool dynamic = false);
         bool LoadCreaturesAddon();
@@ -77,6 +77,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void UpdateLevelDependantStats();
         void LoadEquipment(int8 id = 1, bool force = false);
         void SetSpawnHealth();
+        void LoadTemplateRoot();
 
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
@@ -90,11 +91,18 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsCivilian() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
         bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
+
+        void InitializeMovementFlags();
+        void UpdateMovementFlags();
+
         CreatureMovementData const& GetMovementTemplate() const;
         bool CanWalk() const { return GetMovementTemplate().IsGroundAllowed(); }
         bool CanSwim() const override { return GetMovementTemplate().IsSwimAllowed() || IsPet(); }
         bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed(); }
         bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover; }
+
+        MovementGeneratorType GetDefaultMovementType() const override { return m_defaultMovementType; }
+        void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
 
         bool IsDungeonBoss() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS) != 0; }
         bool IsAffectedByDiminishingReturns() const override { return Unit::IsAffectedByDiminishingReturns() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH) != 0; }
@@ -118,7 +126,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         /// @todo Rename these properly
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
-        bool CanResetTalents(Player* player) const;
+        bool CanResetTalents(Player* player, bool pet) const;
         bool CanCreatureAttack(Unit const* victim, bool force = true) const;
         void LoadTemplateImmunities();
         bool IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster) const override;
@@ -155,8 +163,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool HasSpell(uint32 spellID) const override;
 
         bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr, bool updateLevel = true);
-
-        void UpdateMovementFlags();
 
         bool UpdateStats(Stats stat) override;
         bool UpdateAllStats() override;
@@ -237,9 +243,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool HasSearchedAssistance() const { return m_AlreadySearchedAssistance; }
         bool CanAssistTo(Unit const* u, Unit const* enemy, bool checkfaction = true) const;
         bool _IsTargetAcceptable(Unit const* target) const;
-
-        MovementGeneratorType GetDefaultMovementType() const override { return m_defaultMovementType; }
-        void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
 
         void RemoveCorpse(bool setSpawnTime = true, bool destroyForNearbyPlayers = true);
 

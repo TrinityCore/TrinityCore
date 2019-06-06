@@ -38,6 +38,7 @@
 #include "Transport.h"
 #include "Util.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 #include <cstdarg>
 
 void BattlegroundScore::AppendToPacket(WorldPacket& data)
@@ -564,14 +565,14 @@ Position const* Battleground::GetTeamStartPosition(TeamId teamId) const
     return &StartPosition[teamId];
 }
 
-void Battleground::SendPacketToAll(WorldPacket* packet)
+void Battleground::SendPacketToAll(WorldPacket const* packet)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = _GetPlayer(itr, "SendPacketToAll"))
             player->SendDirectMessage(packet);
 }
 
-void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* sender, bool self)
+void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Player* sender, bool self)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
@@ -659,18 +660,12 @@ void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
     }
 }
 
-void Battleground::UpdateWorldState(uint32 Field, uint32 Value)
+void Battleground::UpdateWorldState(uint32 variable, uint32 value)
 {
-    WorldPacket data;
-    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, Field, Value);
-    SendPacketToAll(&data);
-}
-
-void Battleground::UpdateWorldStateForPlayer(uint32 field, uint32 value, Player* player)
-{
-    WorldPacket data;
-    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, field, value);
-    player->SendDirectMessage(&data);
+    WorldPackets::WorldState::UpdateWorldState worldstate;
+    worldstate.VariableID = variable;
+    worldstate.Value = value;
+    SendPacketToAll(worldstate.Write());
 }
 
 void Battleground::EndBattleground(uint32 winner)

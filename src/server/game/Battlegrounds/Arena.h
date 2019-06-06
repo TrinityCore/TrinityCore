@@ -52,7 +52,7 @@ class TC_GAME_API Arena : public Battleground
         void AddPlayer(Player* player) override;
         void RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) override;
 
-        void FillInitialWorldStates(WorldPacket& data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void UpdateArenaWorldState();
 
         void HandleKillPlayer(Player* player, Player* killer) override;

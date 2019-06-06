@@ -910,8 +910,11 @@ struct npc_jormungars_slime_pool : public ScriptedAI
 
     void Reset() override
     {
-        DoCastSelf(SPELL_SLIME_POOL_EFFECT, true);
-        DoCastSelf(SPELL_PACIFY_SELF, true);
+        me->m_Events.AddEventAtOffset([this]()
+        {
+            DoCastSelf(SPELL_SLIME_POOL_EFFECT, true);
+            DoCastSelf(SPELL_PACIFY_SELF, true);
+        }, 1s);
     }
 };
 

@@ -57,12 +57,16 @@ std::string CreatureMovementData::ToString() const
 {
     char const* const GroundStates[] = { "None", "Run", "Hover" };
     char const* const FlightStates[] = { "None", "DisableGravity", "CanFly" };
+    char const* const ChaseStates[]  = { "Run", "CanWalk", "AlwaysWalk" };
+    char const* const RandomStates[] = { "Walk", "CanRun", "AlwaysRun" };
 
     std::ostringstream str;
     str << std::boolalpha
         << "Ground: " << GroundStates[AsUnderlyingType(Ground)]
         << ", Swim: " << Swim
-        << ", Flight: " << FlightStates[AsUnderlyingType(Flight)];
+        << ", Flight: " << FlightStates[AsUnderlyingType(Flight)]
+        << ", Chase: " << ChaseStates[AsUnderlyingType(Chase)]
+        << ", Random: " << RandomStates[AsUnderlyingType(Random)];
     if (Rooted)
         str << ", Rooted";
 
@@ -303,11 +307,6 @@ void Creature::RemoveFromWorld()
         TC_LOG_DEBUG("entities.unit", "Removing creature %u with entry %u and DBGUID %u to world in map %u", GetGUID().GetCounter(), GetEntry(), m_spawnId, GetMap()->GetId());
         GetMap()->GetObjectsStore().Remove<Creature>(GetGUID());
     }
-}
-
-void Creature::DisappearAndDie()
-{
-    ForcedDespawn(0);
 }
 
 bool Creature::IsReturningHome() const
@@ -606,18 +605,17 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
     }
 
-    if (GetMovementTemplate().IsRooted())
-        SetControlled(true, UNIT_STATE_ROOT);
+    LoadTemplateRoot();
+    InitializeMovementFlags();
 
-    UpdateMovementFlags();
     LoadCreaturesAddon();
-  
     LoadTemplateImmunities();
+
     GetThreatManager().EvaluateSuppressed();
-  
+
     //We must update last scriptId or it looks like we reloaded a script, breaking some things such as gossip temporarily
     LastUsedScriptID = GetScriptId();
-  
+
     return true;
 }
 
@@ -949,7 +947,8 @@ void Creature::DoFleeToGetAssistance()
 
 bool Creature::AIM_Destroy()
 {
-    SetAI(nullptr);
+    PopAI();
+    RefreshAI();
     return true;
 }
 
@@ -1017,7 +1016,12 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
         TC_LOG_ERROR("entities.unit", "Creature::Create(): given coordinates for creature (guidlow %d, entry %d) are not valid (X: %f, Y: %f, Z: %f, O: %f)", guidlow, entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
         return false;
     }
-    UpdatePositionData();
+    {
+        // area/zone id is needed immediately for ZoneScript::GetCreatureEntry hook before it is known which creature template to load (no model/scale available yet)
+        PositionFullTerrainStatus data;
+        GetMap()->GetFullTerrainStatusForPosition(GetPositionX(), GetPositionY(), GetPositionZ(), data, MAP_ALL_LIQUIDS, DEFAULT_COLLISION_HEIGHT);
+        ProcessPositionDataChanged(data);
+    }
 
     // Allow players to see those units while dead, do it here (mayby altered by addon auras)
     if (cinfo->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE)
@@ -1182,13 +1186,15 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
     return true;
 }
 
-bool Creature::CanResetTalents(Player* player) const
+bool Creature::CanResetTalents(Player* player, bool pet) const
 {
     Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(GetEntry());
     if (!trainer)
         return false;
 
-    return player->getLevel() >= 10 && trainer->IsTrainerValidForPlayer(player);
+    return player->getLevel() >= 10 &&
+        (trainer->GetTrainerType() == (pet ? Trainer::Type::Pet : Trainer::Type::Class)) &&
+        trainer->IsTrainerValidForPlayer(player);
 }
 
 Player* Creature::GetLootRecipient() const
@@ -1670,6 +1676,12 @@ void Creature::SetSpawnHealth()
     }
 
     SetHealth((m_deathState == ALIVE || m_deathState == JUST_RESPAWNED) ? curhealth : 0);
+}
+
+void Creature::LoadTemplateRoot()
+{
+    if (GetMovementTemplate().IsRooted())
+        SetControlled(true, UNIT_STATE_ROOT);
 }
 
 bool Creature::hasQuest(uint32 quest_id) const
@@ -2265,7 +2277,12 @@ void Creature::CallForHelp(float radius)
         target = GetThreatManager().GetAnyTarget();
     if (!target)
         target = GetCombatManager().GetAnyTarget();
-    ASSERT(target, "Creature %u (%s) is engaged without threat list", GetEntry(), GetName().c_str());
+
+    if (!target)
+    {
+        TC_LOG_ERROR("entities.unit", "Creature %u (%s) is engaged without threat list", GetEntry(), GetName().c_str());
+        return;
+    }
 
     Trinity::CallOfHelpCreatureInRangeDo u_do(this, target, radius);
     Trinity::CreatureWorker<Trinity::CallOfHelpCreatureInRangeDo> worker(this, u_do);
@@ -2481,6 +2498,10 @@ bool Creature::LoadCreaturesAddon()
     if (cainfo->emote != 0)
         SetUInt32Value(UNIT_NPC_EMOTESTATE, cainfo->emote);
 
+    // Check if visibility distance different
+    if (cainfo->visibilityDistanceType != VisibilityDistanceType::Normal)
+        SetVisibilityDistanceOverride(cainfo->visibilityDistanceType);
+
     // Load Path
     if (cainfo->path_id != 0)
         _waypointPathId = cainfo->path_id;
@@ -2564,6 +2585,52 @@ void Creature::GetRespawnPosition(float &x, float &y, float &z, float* ori, floa
         if (dist)
             *dist = 0;
     }
+}
+
+void Creature::InitializeMovementFlags()
+{
+    // It does the same, for now
+    UpdateMovementFlags();
+}
+
+void Creature::UpdateMovementFlags()
+{
+    // Do not update movement flags if creature is controlled by a player (charm/vehicle)
+    if (m_playerMovingMe)
+        return;
+
+    // Creatures with CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE should control MovementFlags in your own scripts
+    if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE)
+        return;
+
+    // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
+    float ground = GetFloorZ();
+
+    bool canHover = CanHover();
+    bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + (canHover ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f) + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
+
+    if (GetMovementTemplate().IsFlightAllowed() && isInAir && !IsFalling())
+    {
+        if (GetMovementTemplate().Flight == CreatureFlightMovementType::CanFly)
+            SetCanFly(true);
+        else
+            SetDisableGravity(true);
+
+        if (!HasAuraType(SPELL_AURA_HOVER))
+            SetHover(false);
+    }
+    else
+    {
+        SetCanFly(false);
+        SetDisableGravity(false);
+        if (IsAlive() && (CanHover() || HasAuraType(SPELL_AURA_HOVER)))
+            SetHover(true);
+    }
+
+    if (!isInAir)
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
+
+    SetSwim(GetMovementTemplate().IsSwimAllowed() && IsInWater());
 }
 
 CreatureMovementData const& Creature::GetMovementTemplate() const
@@ -2908,46 +2975,6 @@ Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
     Cell::VisitGridObjects(this, searcher, MAX_AGGRO_RADIUS);
 
     return target;
-}
-
-void Creature::UpdateMovementFlags()
-{
-    // Do not update movement flags if creature is controlled by a player (charm/vehicle)
-    if (m_playerMovingMe)
-        return;
-
-    // Creatures with CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE should control MovementFlags in your own scripts
-    if (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE)
-        return;
-
-    // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
-    float ground = GetFloorZ();
-
-    bool canHover = CanHover();
-    bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + (canHover ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f) + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
-
-    if (GetMovementTemplate().IsFlightAllowed() && isInAir && !IsFalling())
-    {
-        if (GetMovementTemplate().Flight == CreatureFlightMovementType::CanFly)
-            SetCanFly(true);
-        else
-            SetDisableGravity(true);
-
-        if (!HasAuraType(SPELL_AURA_HOVER))
-            SetHover(false);
-    }
-    else
-    {
-        SetCanFly(false);
-        SetDisableGravity(false);
-        if (IsAlive() && (CanHover() || HasAuraType(SPELL_AURA_HOVER)))
-            SetHover(true);
-    }
-
-    if (!isInAir)
-        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
-
-    SetSwim(GetMovementTemplate().IsSwimAllowed() && IsInWater());
 }
 
 void Creature::SetObjectScale(float scale)

@@ -142,6 +142,11 @@ enum dtRaycastOptions
 	DT_RAYCAST_USE_COSTS = 0x01,		///< Raycast should calculate movement cost along the ray and fill RaycastHit::cost
 };
 
+enum dtDetailTriEdgeFlags
+{
+	DT_DETAIL_EDGE_BOUNDARY = 0x01,		///< Detail triangle edge is part of the poly boundary
+};
+
 
 /// Limit raycasting during any angle pahfinding
 /// The limit is given as a multiple of the character radius
@@ -299,7 +304,8 @@ struct dtMeshTile
 	/// The detail mesh's unique vertices. [(x, y, z) * dtMeshHeader::detailVertCount]
 	float* detailVerts;	
 
-	/// The detail mesh's triangles. [(vertA, vertB, vertC) * dtMeshHeader::detailTriCount]
+	/// The detail mesh's triangles. [(vertA, vertB, vertC, triFlags) * dtMeshHeader::detailTriCount].
+	/// See dtDetailTriEdgeFlags and dtGetDetailTriEdgeFlags.
 	unsigned char* detailTris;	
 
 	/// The tile bounding volume nodes. [Size: dtMeshHeader::bvNodeCount]
@@ -316,6 +322,15 @@ private:
 	dtMeshTile(const dtMeshTile&);
 	dtMeshTile& operator=(const dtMeshTile&);
 };
+
+/// Get flags for edge in detail triangle.
+/// @param	triFlags[in]		The flags for the triangle (last component of detail vertices above).
+/// @param	edgeIndex[in]		The index of the first vertex of the edge. For instance, if 0,
+///								returns flags for edge AB.
+inline int dtGetDetailTriEdgeFlags(unsigned char triFlags, int edgeIndex)
+{
+	return (triFlags >> (edgeIndex * 2)) & 0x3;
+}
 
 /// Configuration parameters used to define multi-tile navigation meshes.
 /// The values are used to allocate space during the initialization of a navigation mesh.
@@ -648,6 +663,8 @@ private:
 	/// Find nearest polygon within a tile.
 	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center,
 									const float* halfExtents, float* nearestPt) const;
+	/// Returns whether position is over the poly and the height at the position if so.
+	bool getPolyHeight(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* height) const;
 	/// Returns closest point on polygon.
 	void closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const;
 	
@@ -667,6 +684,8 @@ private:
 	unsigned int m_tileBits;			///< Number of tile bits in the tile ID.
 	unsigned int m_polyBits;			///< Number of poly bits in the tile ID.
 #endif
+
+	friend class dtNavMeshQuery;
 };
 
 /// Allocates a navigation mesh object using the Detour allocator.

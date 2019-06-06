@@ -139,7 +139,7 @@ class boss_general_zarithrian : public CreatureScript
                     {
                         case EVENT_SUMMON_ADDS:
                             Talk(SAY_ADDS);
-                            // no break
+                            /* fallthrough */
                         case EVENT_SUMMON_ADDS2:
                         {
                             if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ZARITHRIAN_SPAWN_STALKER_1)))

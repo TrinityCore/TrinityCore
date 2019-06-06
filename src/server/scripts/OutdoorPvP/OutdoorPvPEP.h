@@ -123,25 +123,39 @@ enum EP_TowerStates
     EP_TS_H = 64
 };
 
-class OutdoorPvPEP;
+class OutdoorPvPEP : public OutdoorPvP
+{
+    public:
+        OutdoorPvPEP();
+
+        bool SetupOutdoorPvP() override;
+        void HandlePlayerEnterZone(Player* player, uint32 zone) override;
+        void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
+        bool Update(uint32 diff) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
+        void SendRemoveWorldStates(Player* player) override;
+
+        void BuffTeams();
+        void SetControlledState(uint32 index, uint32 state);
+
+        uint32 EP_Controls[EP_TOWER_NUM]; // how many towers are controlled
+        uint32 m_AllianceTowersControlled;
+        uint32 m_HordeTowersControlled;
+};
 
 class OPvPCapturePointEP_EWT : public OPvPCapturePoint
 {
     public:
         OPvPCapturePointEP_EWT(OutdoorPvP* pvp);
 
-        void ChangeState();
-
-        void FillInitialWorldStates(WorldPacket & data);
+        void ChangeState() override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     protected:
         void SummonSupportUnitAtNorthpassTower(uint32 team);
-
         void UpdateTowerState();
 
-    protected:
         uint32 m_TowerState;
-
         uint32 m_UnitsSummonedSide;
 };
 
@@ -150,18 +164,14 @@ class OPvPCapturePointEP_NPT : public OPvPCapturePoint
     public:
         OPvPCapturePointEP_NPT(OutdoorPvP* pvp);
 
-        void ChangeState();
-
-        void FillInitialWorldStates(WorldPacket & data);
+        void ChangeState() override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     protected:
         void SummonGO(uint32 team);
-
         void UpdateTowerState();
 
-    protected:
         uint32 m_TowerState;
-
         uint32 m_SummonedGOSide;
 };
 
@@ -170,18 +180,14 @@ class OPvPCapturePointEP_CGT : public OPvPCapturePoint
     public:
         OPvPCapturePointEP_CGT(OutdoorPvP* pvp);
 
-        void ChangeState();
-
-        void FillInitialWorldStates(WorldPacket & data);
+        void ChangeState() override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     protected:
         void LinkGraveyard(uint32 team);
-
         void UpdateTowerState();
 
-    protected:
         uint32 m_TowerState;
-
         uint32 m_GraveyardSide;
 };
 
@@ -190,47 +196,15 @@ class OPvPCapturePointEP_PWT : public OPvPCapturePoint
     public:
         OPvPCapturePointEP_PWT(OutdoorPvP* pvp);
 
-        void ChangeState();
-
-        void FillInitialWorldStates(WorldPacket & data);
+        void ChangeState() override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     protected:
         void SummonFlightMaster(uint32 team);
-
         void UpdateTowerState();
 
-    protected:
         uint32 m_FlightMasterSpawned;
-
         uint32 m_TowerState;
-};
-
-class OutdoorPvPEP : public OutdoorPvP
-{
-    public:
-        OutdoorPvPEP();
-
-        bool SetupOutdoorPvP();
-
-        void HandlePlayerEnterZone(Player* player, uint32 zone);
-        void HandlePlayerLeaveZone(Player* player, uint32 zone);
-
-        bool Update(uint32 diff);
-
-        void FillInitialWorldStates(WorldPacket &data);
-
-        void SendRemoveWorldStates(Player* player);
-
-        void BuffTeams();
-
-        void SetControlledState(uint32 index, uint32 state);
-
-    private:
-        // how many towers are controlled
-        uint32 EP_Controls[EP_TOWER_NUM];
-
-        uint32 m_AllianceTowersControlled;
-        uint32 m_HordeTowersControlled;
 };
 
 #endif

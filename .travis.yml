@@ -1,5 +1,4 @@
-sudo: false
-dist: trusty
+dist: xenial
 
 language: cpp
 compiler:
@@ -10,11 +9,7 @@ git:
 
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
-      - sourceline: 'ppa:kzemek/boost'
     packages:
-      - g++-6
       - libboost1.58-dev
       - libboost-filesystem1.58-dev
       - libboost-iostreams1.58-dev
@@ -47,9 +42,9 @@ script:
   - $CXX --version
   - mysql -uroot < sql/create/create_mysql.sql
   - mysql -utrinity -ptrinity auth < sql/base/auth_database.sql
-  - ./contrib/check_updates.sh auth 3.3.5 auth
+  - ./contrib/check_updates.sh auth 3.3.5 auth localhost
   - mysql -utrinity -ptrinity characters < sql/base/characters_database.sql
-  - ./contrib/check_updates.sh characters 3.3.5 characters
+  - ./contrib/check_updates.sh characters 3.3.5 characters localhost
   - mysql -utrinity -ptrinity world < sql/base/dev/world_database.sql
   - cat sql/updates/world/3.3.5/*.sql | mysql -utrinity -ptrinity world
   - mysql -uroot < sql/create/drop_mysql.sql

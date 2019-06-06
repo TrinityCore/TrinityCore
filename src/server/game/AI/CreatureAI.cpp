@@ -49,7 +49,7 @@ void CreatureAI::OnCharmed(bool isNew)
 AISpellInfoType* UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
 
-CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), m_MoveInLineOfSight_locked(false)
+CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), _moveInLOSLocked(false)
 {
 }
 
@@ -96,11 +96,11 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
 // MoveInLineOfSight can be called inside another MoveInLineOfSight and cause stack overflow
 void CreatureAI::MoveInLineOfSight_Safe(Unit* who)
 {
-    if (m_MoveInLineOfSight_locked == true)
+    if (_moveInLOSLocked == true)
         return;
-    m_MoveInLineOfSight_locked = true;
+    _moveInLOSLocked = true;
     MoveInLineOfSight(who);
-    m_MoveInLineOfSight_locked = false;
+    _moveInLOSLocked = false;
 }
 
 void CreatureAI::MoveInLineOfSight(Unit* who)
@@ -112,7 +112,7 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
         me->EngageWithTarget(who);
 }
 
-void CreatureAI::_OnOwnerCombatInteraction(Unit* target)
+void CreatureAI::OnOwnerCombatInteraction(Unit* target)
 {
     if (!target || !me->IsAlive())
         return;
@@ -167,9 +167,6 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
     }
 
     Reset();
-
-    if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
-        me->GetVehicleKit()->Reset(true);
 }
 
 bool CreatureAI::UpdateVictim()

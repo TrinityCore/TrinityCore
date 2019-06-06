@@ -87,11 +87,11 @@ class TC_GAME_API GameObjectAI
 
         // Called when hit by a spell
         virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spellInfo*/) { }
-        virtual void SpellHit(GameObject* /*caster*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHitByGameObject(GameObject* /*caster*/, SpellInfo const* /*spellInfo*/) { }
 
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/) { }
-        virtual void SpellHitTarget(GameObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHitTargetGameObject(GameObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
 };
 
 class TC_GAME_API NullGameObjectAI : public GameObjectAI

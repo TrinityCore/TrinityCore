@@ -125,11 +125,11 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         // Called when hit by a spell
         virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spellInfo*/) { }
-        virtual void SpellHit(GameObject* /*caster*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHitByGameObject(GameObject* /*caster*/, SpellInfo const* /*spellInfo*/) { }
 
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/) { }
-        virtual void SpellHitTarget(GameObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
+        virtual void SpellHitTargetGameObject(GameObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
 
         virtual bool IsEscorted() const { return false; }
 
@@ -150,10 +150,10 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) { }
 
         // Called when owner takes damage
-        virtual void OwnerAttackedBy(Unit* attacker) { _OnOwnerCombatInteraction(attacker); }
+        virtual void OwnerAttackedBy(Unit* attacker) { OnOwnerCombatInteraction(attacker); }
 
         // Called when owner attacks something
-        virtual void OwnerAttacked(Unit* target) { _OnOwnerCombatInteraction(target); }
+        virtual void OwnerAttacked(Unit* target) { OnOwnerCombatInteraction(target); }
 
         /// == Triggered Actions Requested ==================
 
@@ -235,8 +235,9 @@ class TC_GAME_API CreatureAI : public UnitAI
         bool _negateBoundary;
 
     private:
-        bool m_MoveInLineOfSight_locked;
-        void _OnOwnerCombatInteraction(Unit* target);
+        void OnOwnerCombatInteraction(Unit* target);
+
+        bool _moveInLOSLocked;
 };
 
 enum Permitions : int32

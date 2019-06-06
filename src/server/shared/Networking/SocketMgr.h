@@ -53,6 +53,7 @@ public:
         if (!acceptor->Bind())
         {
             TC_LOG_ERROR("network", "StartNetwork failed to bind socket acceptor");
+            delete acceptor;
             return false;
         }
 

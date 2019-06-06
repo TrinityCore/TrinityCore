@@ -306,7 +306,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
         {
             case MODE_APPLY:
                 speed = Apply(availableQuery.first);
-                /*no break*/
+                /* fallthrough */
             case MODE_REHASH:
                 UpdateEntry(file, speed);
                 break;

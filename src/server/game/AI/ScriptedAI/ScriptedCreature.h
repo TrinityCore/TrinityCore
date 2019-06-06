@@ -35,52 +35,50 @@ public:
     typedef StorageType::size_type size_type;
     typedef StorageType::value_type value_type;
 
-    explicit SummonList(Creature* creature)
-        : me(creature)
-    { }
+    explicit SummonList(Creature* creature) : _me(creature) { }
 
     // And here we see a problem of original inheritance approach. People started
     // to exploit presence of std::list members, so I have to provide wrappers
 
     iterator begin()
     {
-        return storage_.begin();
+        return _storage.begin();
     }
 
     const_iterator begin() const
     {
-        return storage_.begin();
+        return _storage.begin();
     }
 
     iterator end()
     {
-        return storage_.end();
+        return _storage.end();
     }
 
     const_iterator end() const
     {
-        return storage_.end();
+        return _storage.end();
     }
 
     iterator erase(iterator i)
     {
-        return storage_.erase(i);
+        return _storage.erase(i);
     }
 
     bool empty() const
     {
-        return storage_.empty();
+        return _storage.empty();
     }
 
     size_type size() const
     {
-        return storage_.size();
+        return _storage.size();
     }
 
     // Clear the underlying storage. This does NOT despawn the creatures - use DespawnAll for that!
     void clear()
     {
-        storage_.clear();
+        _storage.clear();
     }
 
     void Summon(Creature const* summon);
@@ -91,14 +89,14 @@ public:
     template <typename T>
     void DespawnIf(T const& predicate)
     {
-        storage_.remove_if(predicate);
+        _storage.remove_if(predicate);
     }
 
     template <class Predicate>
     void DoAction(int32 info, Predicate&& predicate, uint16 max = 0)
     {
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
-        StorageType listCopy = storage_;
+        StorageType listCopy = _storage;
         Trinity::Containers::RandomResize<StorageType, Predicate>(listCopy, std::forward<Predicate>(predicate), max);
         DoActionImpl(info, listCopy);
     }
@@ -110,8 +108,8 @@ public:
 private:
     void DoActionImpl(int32 action, StorageType const& summons);
 
-    Creature* me;
-    StorageType storage_;
+    Creature* _me;
+    StorageType _storage;
 };
 
 class TC_GAME_API EntryCheckPredicate

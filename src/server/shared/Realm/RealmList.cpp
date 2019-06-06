@@ -18,11 +18,11 @@
 
 #include "RealmList.h"
 #include "DatabaseEnv.h"
+#include "DeadlineTimer.h"
 #include "IoContext.h"
 #include "Log.h"
 #include "Resolver.h"
 #include "Util.h"
-#include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
 RealmList::RealmList() : _updateInterval(0)
@@ -43,7 +43,7 @@ RealmList* RealmList::Instance()
 void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInterval)
 {
     _updateInterval = updateInterval;
-    _updateTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioContext);
+    _updateTimer = Trinity::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
     _resolver = Trinity::make_unique<boost::asio::ip::tcp::resolver>(ioContext);
 
     // Get the content of the realmlist table in the database

@@ -573,7 +573,7 @@ class BattlegroundSA : public Battleground
         bool SetupBattleground() override;
         void Reset() override;
         /// Called for generate packet contain worldstate data
-        void FillInitialWorldStates(WorldPacket& data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         /// Called when a player kill a unit in bg
         void HandleKillUnit(Creature* creature, Player* killer) override;
         /// Return the nearest graveyard where player can respawn

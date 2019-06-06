@@ -19,6 +19,7 @@
 #define VIOLET_HOLD_H_
 
 #include "CreatureAIImpl.h"
+#include "Position.h"
 
 #define VioletHoldScriptName "instance_violet_hold"
 #define DataHeader "VH"

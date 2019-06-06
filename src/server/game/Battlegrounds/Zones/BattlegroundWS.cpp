@@ -26,6 +26,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 // these variables aren't used outside of this file, so declare them only here
 enum BG_WSG_Rewards
@@ -818,44 +819,44 @@ WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveyard(Player* player)
     }
 }
 
-void BattlegroundWS::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundWS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << uint32(BG_WS_FLAG_CAPTURES_ALLIANCE) << uint32(GetTeamScore(TEAM_ALLIANCE));
-    data << uint32(BG_WS_FLAG_CAPTURES_HORDE) << uint32(GetTeamScore(TEAM_HORDE));
+    packet.Worldstates.emplace_back(BG_WS_FLAG_CAPTURES_ALLIANCE, GetTeamScore(TEAM_ALLIANCE));
+    packet.Worldstates.emplace_back(BG_WS_FLAG_CAPTURES_HORDE, GetTeamScore(TEAM_HORDE));
 
     if (_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_GROUND)
-        data << uint32(BG_WS_FLAG_UNK_ALLIANCE) << uint32(-1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_ALLIANCE, uint32(-1)); // ??
     else if (_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        data << uint32(BG_WS_FLAG_UNK_ALLIANCE) << uint32(1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_ALLIANCE, 1);
     else
-        data << uint32(BG_WS_FLAG_UNK_ALLIANCE) << uint32(0);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_ALLIANCE, 0);
 
     if (_flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_ON_GROUND)
-        data << uint32(BG_WS_FLAG_UNK_HORDE) << uint32(-1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_HORDE, uint32(-1)); // ??
     else if (_flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        data << uint32(BG_WS_FLAG_UNK_HORDE) << uint32(1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_HORDE, 1);
     else
-        data << uint32(BG_WS_FLAG_UNK_HORDE) << uint32(0);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_UNK_HORDE, 0);
 
-    data << uint32(BG_WS_FLAG_CAPTURES_MAX) << uint32(BG_WS_MAX_TEAM_SCORE);
+    packet.Worldstates.emplace_back(BG_WS_FLAG_CAPTURES_MAX, BG_WS_MAX_TEAM_SCORE);
 
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        data << uint32(BG_WS_STATE_TIMER_ACTIVE) << uint32(1);
-        data << uint32(BG_WS_STATE_TIMER) << uint32(25-_minutesElapsed);
+        packet.Worldstates.emplace_back(BG_WS_STATE_TIMER_ACTIVE, 1);
+        packet.Worldstates.emplace_back(BG_WS_STATE_TIMER, 25 - _minutesElapsed);
     }
     else
-        data << uint32(BG_WS_STATE_TIMER_ACTIVE) << uint32(0);
+        packet.Worldstates.emplace_back(BG_WS_STATE_TIMER_ACTIVE, 0);
 
     if (_flagState[TEAM_HORDE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        data << uint32(BG_WS_FLAG_STATE_HORDE) << uint32(2);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_STATE_HORDE, 2);
     else
-        data << uint32(BG_WS_FLAG_STATE_HORDE) << uint32(1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_STATE_HORDE, 1);
 
     if (_flagState[TEAM_ALLIANCE] == BG_WS_FLAG_STATE_ON_PLAYER)
-        data << uint32(BG_WS_FLAG_STATE_ALLIANCE) << uint32(2);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_STATE_ALLIANCE, 2);
     else
-        data << uint32(BG_WS_FLAG_STATE_ALLIANCE) << uint32(1);
+        packet.Worldstates.emplace_back(BG_WS_FLAG_STATE_ALLIANCE, 1);
 }
 
 uint32 BattlegroundWS::GetPrematureWinner()

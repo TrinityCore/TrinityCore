@@ -85,11 +85,13 @@ protected:
     typedef void (SplineBase::*InitMethtod)(Vector3 const*, index_type, index_type);
     static InitMethtod initializers[ModesEnd];
 
-    void UninitializedSpline() const { ABORT();}
+    void UninitializedSplineEvaluationMethod(index_type, float, Vector3&) const { ABORT(); }
+    float UninitializedSplineSegLenghtMethod(index_type) const { ABORT(); return 0.0f; }
+    void UninitializedSplineInitMethod(Vector3 const*, index_type, index_type) { ABORT(); }
 
 public:
 
-    explicit SplineBase() : index_lo(0), index_hi(0), m_mode(UninitializedMode), cyclic(false) { }
+    explicit SplineBase() : index_lo(0), index_hi(0), m_mode(UninitializedMode), cyclic(false), initialOrientation(0.f) { }
 
     /** Caclulates the position for given segment Idx, and percent of segment length t
         @param t - percent of segment length, assumes that t in range [0, 1]

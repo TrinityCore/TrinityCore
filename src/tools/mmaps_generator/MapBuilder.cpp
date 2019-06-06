@@ -16,39 +16,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PathCommon.h"
 #include "MapBuilder.h"
-#include "MapTree.h"
-#include "DetourNavMeshBuilder.h"
-#include "DetourNavMesh.h"
 #include "IntermediateValues.h"
-
-#include <limits.h>
-
-#define MMAP_MAGIC 0x4d4d4150   // 'MMAP'
-#define MMAP_VERSION 7
-
-struct MmapTileHeader
-{
-    uint32 mmapMagic;
-    uint32 dtVersion;
-    uint32 mmapVersion;
-    uint32 size;
-    char usesLiquids;
-    char padding[3];
-
-    MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
-        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true), padding() {}
-};
-
-// All padding fields must be handled and initialized to ensure mmaps_generator will produce binary-identical *.mmtile files
-static_assert(sizeof(MmapTileHeader) == 20, "MmapTileHeader size is not correct, adjust the padding field size");
-static_assert(sizeof(MmapTileHeader) == (sizeof(MmapTileHeader::mmapMagic) +
-                                         sizeof(MmapTileHeader::dtVersion) +
-                                         sizeof(MmapTileHeader::mmapVersion) +
-                                         sizeof(MmapTileHeader::size) +
-                                         sizeof(MmapTileHeader::usesLiquids) +
-                                         sizeof(MmapTileHeader::padding)), "MmapTileHeader has uninitialized padding fields");
+#include "MapDefines.h"
+#include "MapTree.h"
+#include "ModelInstance.h"
+#include "PathCommon.h"
+#include "StringFormat.h"
+#include "VMapFactory.h"
+#include "VMapManager2.h"
+#include <DetourCommon.h>
+#include <DetourNavMesh.h>
+#include <DetourNavMeshBuilder.h>
+#include <climits>
 
 namespace MMAP
 {
@@ -567,39 +547,10 @@ namespace MMAP
         int lTriCount = meshData.liquidTris.size() / 3;
         uint8* lTriFlags = meshData.liquidType.getCArray();
 
-        // these are WORLD UNIT based metrics
-        // this are basic unit dimentions
-        // value have to divide GRID_SIZE(533.3333f) ( aka: 0.5333, 0.2666, 0.3333, 0.1333, etc )
-        const static float BASE_UNIT_DIM = m_bigBaseUnit ? 0.5333333f : 0.2666666f;
-
-        // All are in UNIT metrics!
-        const static int VERTEX_PER_MAP = int(GRID_SIZE/BASE_UNIT_DIM + 0.5f);
-        const static int VERTEX_PER_TILE = m_bigBaseUnit ? 40 : 80; // must divide VERTEX_PER_MAP
-        const static int TILES_PER_MAP = VERTEX_PER_MAP/VERTEX_PER_TILE;
-
-        rcConfig config;
-        memset(&config, 0, sizeof(rcConfig));
-
-        rcVcopy(config.bmin, bmin);
-        rcVcopy(config.bmax, bmax);
-
-        config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
-        config.cs = BASE_UNIT_DIM;
-        config.ch = BASE_UNIT_DIM;
-        config.walkableSlopeAngle = m_maxWalkableAngle;
-        config.tileSize = VERTEX_PER_TILE;
-        config.walkableRadius = m_bigBaseUnit ? 1 : 2;
-        config.borderSize = config.walkableRadius + 3;
-        config.maxEdgeLen = VERTEX_PER_TILE + 1;        // anything bigger than tileSize
-        config.walkableHeight = m_bigBaseUnit ? 3 : 6;
-        // a value >= 3|6 allows npcs to walk over some fences
-        // a value >= 4|8 allows npcs to walk over all fences
-        config.walkableClimb = m_bigBaseUnit ? 4 : 8;
-        config.minRegionArea = rcSqr(60);
-        config.mergeRegionArea = rcSqr(50);
-        config.maxSimplificationError = 1.8f;           // eliminates most jagged edges (tiny polygons)
-        config.detailSampleDist = config.cs * 16;
-        config.detailSampleMaxError = config.ch * 1;
+        const TileConfig tileConfig = TileConfig(m_bigBaseUnit);
+        int TILES_PER_MAP = tileConfig.TILES_PER_MAP;
+        float BASE_UNIT_DIM = tileConfig.BASE_UNIT_DIM;
+        rcConfig config = GetMapSpecificConfig(mapID, bmin, bmax, tileConfig);
 
         // this sets the dimensions of the heightfield - should maybe happen before border padding
         rcCalcGridSize(config.bmin, config.bmax, config.cs, &config.width, &config.height);
@@ -639,7 +590,7 @@ namespace MMAP
 
                 // mark all walkable tiles, both liquids and solids
                 unsigned char* triFlags = new unsigned char[tTriCount];
-                memset(triFlags, NAV_GROUND, tTriCount*sizeof(unsigned char));
+                memset(triFlags, NAV_AREA_GROUND, tTriCount*sizeof(unsigned char));
                 rcClearUnwalkableTriangles(m_rcContext, tileCfg.walkableSlopeAngle, tVerts, tVertCount, tTris, tTriCount, triFlags);
                 rcRasterizeTriangles(m_rcContext, tVerts, tVertCount, tTris, triFlags, tTriCount, *tile.solid, config.walkableClimb);
                 delete[] triFlags;
@@ -662,6 +613,12 @@ namespace MMAP
                 if (!rcErodeWalkableArea(m_rcContext, config.walkableRadius, *tile.chf))
                 {
                     printf("%s Failed eroding area!                    \n", tileString);
+                    continue;
+                }
+
+                if (!rcMedianFilterWalkableArea(m_rcContext, *tile.chf))
+                {
+                    printf("%s Failed filtering area!                  \n", tileString);
                     continue;
                 }
 
@@ -745,8 +702,15 @@ namespace MMAP
         // set polygons as walkable
         // TODO: special flags for DYNAMIC polygons, ie surfaces that can be turned on and off
         for (int i = 0; i < iv.polyMesh->npolys; ++i)
-            if (iv.polyMesh->areas[i] & RC_WALKABLE_AREA)
-                iv.polyMesh->flags[i] = iv.polyMesh->areas[i];
+        {
+            if (uint8 area = iv.polyMesh->areas[i] & RC_WALKABLE_AREA)
+            {
+                if (area >= NAV_AREA_MAGMA_SLIME)
+                    iv.polyMesh->flags[i] = 1 << (63 - area);
+                else
+                    iv.polyMesh->flags[i] = NAV_GROUND; // TODO: these will be dynamic in future
+            }
+        }
 
         // setup mesh parameters
         dtNavMeshCreateParams params;
@@ -1025,6 +989,45 @@ namespace MMAP
             return false;
 
         return true;
+    }
+
+    rcConfig MapBuilder::GetMapSpecificConfig(uint32 mapID, float bmin[3], float bmax[3], const TileConfig &tileConfig)
+    {
+        rcConfig config;
+        memset(&config, 0, sizeof(rcConfig));
+
+        rcVcopy(config.bmin, bmin);
+        rcVcopy(config.bmax, bmax);
+
+        config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
+        config.cs = tileConfig.BASE_UNIT_DIM;
+        config.ch = tileConfig.BASE_UNIT_DIM;
+        config.walkableSlopeAngle = m_maxWalkableAngle;
+        config.tileSize = tileConfig.VERTEX_PER_TILE;
+        config.walkableRadius = m_bigBaseUnit ? 1 : 2;
+        config.borderSize = config.walkableRadius + 3;
+        config.maxEdgeLen = tileConfig.VERTEX_PER_TILE + 1;        // anything bigger than tileSize
+        config.walkableHeight = m_bigBaseUnit ? 3 : 6;
+        // a value >= 3|6 allows npcs to walk over some fences
+        // a value >= 4|8 allows npcs to walk over all fences
+        config.walkableClimb = m_bigBaseUnit ? 4 : 8;
+        config.minRegionArea = rcSqr(60);
+        config.mergeRegionArea = rcSqr(50);
+        config.maxSimplificationError = 1.8f;           // eliminates most jagged edges (tiny polygons)
+        config.detailSampleDist = config.cs * 16;
+        config.detailSampleMaxError = config.ch * 1;
+
+        switch (mapID)
+        {
+            // Blade's Edge Arena
+            case 562:
+                config.walkableRadius = 0;
+                break;
+            default:
+                break;
+        }
+
+        return config;
     }
 
     /**************************************************************************/

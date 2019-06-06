@@ -47,6 +47,16 @@
 #include "World.h"
 #include <G3D/Vector3.h>
 
+constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max)] =
+{
+    DEFAULT_VISIBILITY_DISTANCE,
+    VISIBILITY_DISTANCE_TINY,
+    VISIBILITY_DISTANCE_SMALL,
+    VISIBILITY_DISTANCE_LARGE,
+    VISIBILITY_DISTANCE_GIGANTIC,
+    MAX_VISIBILITY_DISTANCE
+};
+
 Object::Object() : m_PackGUID(sizeof(uint64)+1)
 {
     m_objectTypeId      = TYPEID_OBJECT;
@@ -452,7 +462,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     // 0x200
     if (flags & UPDATEFLAG_ROTATION)
-        *data << int64(ToGameObject()->GetPackedWorldRotation());
+        *data << int64(ToGameObject()->GetPackedLocalRotation());
 }
 
 void Object::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
@@ -688,12 +698,7 @@ void Object::SetFloatValue(uint16 index, float value)
 void Object::SetByteValue(uint16 index, uint8 offset, uint8 value)
 {
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
-
-    if (offset > 3)
-    {
-        TC_LOG_ERROR("misc", "Object::SetByteValue: wrong offset %u", offset);
-        return;
-    }
+    ASSERT(offset < 4);
 
     if (uint8(m_uint32Values[index] >> (offset * 8)) != value)
     {
@@ -709,12 +714,7 @@ void Object::SetByteValue(uint16 index, uint8 offset, uint8 value)
 void Object::SetUInt16Value(uint16 index, uint8 offset, uint16 value)
 {
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
-
-    if (offset > 1)
-    {
-        TC_LOG_ERROR("misc", "Object::SetUInt16Value: wrong offset %u", offset);
-        return;
-    }
+    ASSERT(offset < 2);
 
     if (uint16(m_uint32Values[index] >> (offset * 16)) != value)
     {
@@ -805,7 +805,6 @@ void Object::SetFlag(uint16 index, uint32 newFlag)
 void Object::RemoveFlag(uint16 index, uint32 oldFlag)
 {
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
-    ASSERT(m_uint32Values);
 
     uint32 oldval = m_uint32Values[index];
     uint32 newval = oldval & ~oldFlag;
@@ -829,9 +828,7 @@ void Object::ToggleFlag(uint16 index, uint32 flag)
 
 bool Object::HasFlag(uint16 index, uint32 flag) const
 {
-    if (index >= m_valuesCount && !PrintIndexError(index, false))
-        return false;
-
+    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
     return (m_uint32Values[index] & flag) != 0;
 }
 
@@ -843,12 +840,7 @@ void Object::ApplyModFlag(uint16 index, uint32 flag, bool apply)
 void Object::SetByteFlag(uint16 index, uint8 offset, uint8 newFlag)
 {
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
-
-    if (offset > 3)
-    {
-        TC_LOG_ERROR("misc", "Object::SetByteFlag: wrong offset %u", offset);
-        return;
-    }
+    ASSERT(offset < 4);
 
     if (!(uint8(m_uint32Values[index] >> (offset * 8)) & newFlag))
     {
@@ -862,12 +854,7 @@ void Object::SetByteFlag(uint16 index, uint8 offset, uint8 newFlag)
 void Object::RemoveByteFlag(uint16 index, uint8 offset, uint8 oldFlag)
 {
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
-
-    if (offset > 3)
-    {
-        TC_LOG_ERROR("misc", "Object::RemoveByteFlag: wrong offset %u", offset);
-        return;
-    }
+    ASSERT(offset < 4);
 
     if (uint8(m_uint32Values[index] >> (offset * 8)) & oldFlag)
     {
@@ -1014,7 +1001,7 @@ void WorldObject::setActive(bool on)
 
     m_isActive = on;
 
-    if (!IsInWorld())
+    if (on && !IsInWorld())
         return;
 
     Map* map = FindMap();
@@ -1045,6 +1032,15 @@ void WorldObject::SetFarVisible(bool on)
     m_isFarVisible = on;
 }
 
+void WorldObject::SetVisibilityDistanceOverride(VisibilityDistanceType type)
+{
+    ASSERT(type < VisibilityDistanceType::Max);
+    if (GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    m_visibilityDistanceOverride = VisibilityDistances[AsUnderlyingType(type)];
+}
+
 void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
 {
     if (IsInWorld())
@@ -1063,7 +1059,7 @@ void WorldObject::_Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32
 void WorldObject::UpdatePositionData()
 {
     PositionFullTerrainStatus data;
-    GetMap()->GetFullTerrainStatusForPosition(GetPositionX(), GetPositionY(), GetPositionZ(), data, MAP_ALL_LIQUIDS);
+    GetMap()->GetFullTerrainStatusForPosition(GetPositionX(), GetPositionY(), GetPositionZ(), data, MAP_ALL_LIQUIDS, GetCollisionHeight());
     ProcessPositionDataChanged(data);
 }
 
@@ -1418,11 +1414,16 @@ void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
         z = new_z + (isType(TYPEMASK_UNIT) ? static_cast<Unit const*>(this)->GetHoverOffset() : 0.0f);
 }
 
-void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
+void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z, float* groundZ) const
 {
     // TODO: Allow transports to be part of dynamic vmap tree
     if (GetTransport())
+    {
+        if (groundZ)
+            *groundZ = z;
+
         return;
+    }
 
     if (Unit const* unit = ToUnit())
     {
@@ -1448,12 +1449,18 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
                 else if (z < ground_z)
                     z = ground_z;
             }
+
+            if (groundZ)
+                *groundZ = ground_z;
         }
         else
         {
             float ground_z = GetMapHeight(x, y, z) + unit->GetHoverOffset();
             if (z < ground_z)
                 z = ground_z;
+
+            if (groundZ)
+               *groundZ = ground_z;
         }
     }
     else
@@ -1461,6 +1468,9 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         float ground_z = GetMapHeight(x, y, z);
         if (ground_z > INVALID_HEIGHT)
             z = ground_z;
+
+        if (groundZ)
+            *groundZ = ground_z;
     }
 }
 
@@ -1482,7 +1492,9 @@ float WorldObject::GetGridActivationRange() const
 
 float WorldObject::GetVisibilityRange() const
 {
-    if (IsFarVisible() && !ToPlayer())
+    if (IsVisibilityOverridden() && !ToPlayer())
+        return *m_visibilityDistanceOverride;
+    else if (IsFarVisible() && !ToPlayer())
         return MAX_VISIBILITY_DISTANCE;
     else
         return GetMap()->GetVisibilityRange();
@@ -1494,7 +1506,9 @@ float WorldObject::GetSightRange(WorldObject const* target) const
     {
         if (ToPlayer())
         {
-            if (target && target->IsFarVisible() && !target->ToPlayer())
+            if (target && target->IsVisibilityOverridden() && !target->ToPlayer())
+                return *target->m_visibilityDistanceOverride;
+            else if (target && target->IsFarVisible() && !target->ToPlayer())
                 return MAX_VISIBILITY_DISTANCE;
             else if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
                 return DEFAULT_VISIBILITY_INSTANCE;
@@ -2560,13 +2574,13 @@ FactionTemplateEntry const* WorldObject::GetFactionTemplateEntry() const
     if (!entry)
     {
         if (Player const* player = ToPlayer())
-            TC_LOG_ERROR("entities", "Player %s has invalid faction (faction template id) #%u", player->GetName().c_str(), GetFaction());
+            TC_LOG_ERROR("entities.faction", "Player %s has invalid faction (faction template id) #%u", player->GetName().c_str(), GetFaction());
         else if (Creature const* creature = ToCreature())
-            TC_LOG_ERROR("entities", "Creature (template id: %u) has invalid faction (faction template id) #%u", creature->GetCreatureTemplate()->Entry, GetFaction());
+            TC_LOG_ERROR("entities.faction", "Creature (template id: %u) has invalid faction (faction template id) #%u", creature->GetCreatureTemplate()->Entry, GetFaction());
         else if (GameObject const* go = ToGameObject())
-            TC_LOG_ERROR("entities", "GameObject (template id: %u) has invalid faction (faction template id) #%u", go->GetGOInfo()->entry, GetFaction());
+            TC_LOG_ERROR("entities.faction", "GameObject (template id: %u) has invalid faction (faction template id) #%u", go->GetGOInfo()->entry, GetFaction());
         else
-            TC_LOG_ERROR("entities", "WorldObject (name: %s, type: %u) has invalid faction (faction template id) #%u", GetName().c_str(), uint32(GetTypeId()), GetFaction());
+            TC_LOG_ERROR("entities.faction", "WorldObject (name: %s, type: %u) has invalid faction (faction template id) #%u", GetName().c_str(), uint32(GetTypeId()), GetFaction());
     }
 
     return entry;
@@ -2743,13 +2757,13 @@ bool WorldObject::IsNeutralToAll() const
     return my_faction->IsNeutralToAll();
 }
 
-void WorldObject::CastSpell(SpellCastTargets const& targets, uint32 spellId, CastSpellExtraArgs const& args /*= { }*/)
+SpellCastResult WorldObject::CastSpell(SpellCastTargets const& targets, uint32 spellId, CastSpellExtraArgs const& args /*= { }*/)
 {
     SpellInfo const* info = sSpellMgr->GetSpellInfo(spellId);
     if (!info)
     {
         TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell %u by caster %s", spellId, GetGUID().ToString().c_str());
-        return;
+        return SPELL_FAILED_SPELL_UNAVAILABLE;
     }
 
     Spell* spell = new Spell(this, info, args.TriggerFlags, args.OriginalCaster);
@@ -2757,10 +2771,10 @@ void WorldObject::CastSpell(SpellCastTargets const& targets, uint32 spellId, Cas
         spell->SetSpellValue(pair.first, pair.second);
 
     spell->m_CastItem = args.CastItem;
-    spell->prepare(targets, args.TriggeringAura);
+    return spell->prepare(targets, args.TriggeringAura);
 }
 
-void WorldObject::CastSpell(WorldObject* target, uint32 spellId, CastSpellExtraArgs const& args /*= { }*/)
+SpellCastResult WorldObject::CastSpell(WorldObject* target, uint32 spellId, CastSpellExtraArgs const& args /*= { }*/)
 {
     SpellCastTargets targets;
     if (target)
@@ -2772,17 +2786,17 @@ void WorldObject::CastSpell(WorldObject* target, uint32 spellId, CastSpellExtraA
         else
         {
             TC_LOG_ERROR("entities.unit", "CastSpell: Invalid target %s passed to spell cast by %s", target->GetGUID().ToString().c_str(), GetGUID().ToString().c_str());
-            return;
+            return SPELL_FAILED_BAD_TARGETS;
         }
     }
-    CastSpell(targets, spellId, args);
+    return CastSpell(targets, spellId, args);
 }
 
-void WorldObject::CastSpell(Position const& dest, uint32 spellId, CastSpellExtraArgs const& args /*= { }*/)
+SpellCastResult WorldObject::CastSpell(Position const& dest, uint32 spellId, CastSpellExtraArgs const& args /*= { }*/)
 {
     SpellCastTargets targets;
     targets.SetDst(dest);
-    CastSpell(targets, spellId, args);
+    return CastSpell(targets, spellId, args);
 }
 
 // function based on function Unit::CanAttack from 13850 client
@@ -2984,10 +2998,10 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
     // PvP case
     if (unitTarget && unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
     {
-        Player const* targetPlayerOwner = unitTarget->GetAffectingPlayer();
-        if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+        if (unit && unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
         {
             Player const* selfPlayerOwner = GetAffectingPlayer();
+            Player const* targetPlayerOwner = unitTarget->GetAffectingPlayer();
             if (selfPlayerOwner && targetPlayerOwner)
             {
                 // can't assist player which is dueling someone
@@ -2995,7 +3009,7 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
                     return false;
             }
             // can't assist player in ffa_pvp zone from outside
-            if (unitTarget->IsFFAPvP() && unit && !unit->IsFFAPvP())
+            if (unitTarget->IsFFAPvP() && !unit->IsFFAPvP())
                 return false;
 
             // can't assist player out of sanctuary from sanctuary if has pvp enabled
@@ -3237,6 +3251,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         destx, desty, destz + halfHeight,
         destx, desty, destz, -0.5f);
 
+    destz -= halfHeight;
+
     // collision occured
     if (col)
     {
@@ -3251,6 +3267,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
         destx, desty, destz + halfHeight,
         destx, desty, destz, -0.5f);
+
+    destz -= halfHeight;
 
     // Collided with a gameobject
     if (col)
@@ -3279,10 +3297,27 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         }
     }
 
+    float groundZ = VMAP_INVALID_HEIGHT_VALUE;
     Trinity::NormalizeMapCoord(pos.m_positionX);
     Trinity::NormalizeMapCoord(pos.m_positionY);
-    UpdateAllowedPositionZ(destx, desty, pos.m_positionZ);
+    UpdateAllowedPositionZ(destx, desty, pos.m_positionZ, &groundZ);
     pos.SetOrientation(GetOrientation());
+
+    // position has no ground under it (or is too far away)
+    if (groundZ <= INVALID_HEIGHT)
+    {
+        if (Unit const* unit = ToUnit())
+        {
+            // unit can fly, ignore.
+            if (unit->CanFly())
+                return;
+
+            // fall back to gridHeight if any
+            float gridHeight = GetMap()->GetGridHeight(pos.m_positionX, pos.m_positionY);
+            if (gridHeight > INVALID_HEIGHT)
+                pos.m_positionZ = gridHeight + unit->GetHoverOffset();
+        }
+    }
 }
 
 void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)

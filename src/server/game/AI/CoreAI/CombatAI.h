@@ -32,7 +32,7 @@ class TC_GAME_API AggressorAI : public CreatureAI
         static int32 Permissible(Creature const* creature);
 };
 
-typedef std::vector<uint32> SpellVct;
+typedef std::vector<uint32> SpellVector;
 
 class TC_GAME_API CombatAI : public CreatureAI
 {
@@ -49,20 +49,20 @@ class TC_GAME_API CombatAI : public CreatureAI
         static int Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 
     protected:
-        EventMap events;
-        SpellVct spells;
+        EventMap Events;
+        SpellVector Spells;
 };
 
 class TC_GAME_API CasterAI : public CombatAI
 {
     public:
-        explicit CasterAI(Creature* c) : CombatAI(c) { m_attackDist = MELEE_RANGE; }
+        explicit CasterAI(Creature* c) : CombatAI(c) { _attackDistance = MELEE_RANGE; }
         void InitializeAI() override;
-        void AttackStart(Unit* victim) override { AttackStartCaster(victim, m_attackDist); }
+        void AttackStart(Unit* victim) override { AttackStartCaster(victim, _attackDistance); }
         void UpdateAI(uint32 diff) override;
         void JustEngagedWith(Unit* /*who*/) override;
     private:
-        float m_attackDist;
+        float _attackDistance;
 };
 
 struct TC_GAME_API ArcherAI : public CreatureAI
@@ -75,7 +75,7 @@ struct TC_GAME_API ArcherAI : public CreatureAI
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 
     protected:
-        float m_minRange;
+        float _minimumRange;
 };
 
 struct TC_GAME_API TurretAI : public CreatureAI
@@ -89,7 +89,7 @@ struct TC_GAME_API TurretAI : public CreatureAI
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 
     protected:
-        float m_minRange;
+        float _minimumRange;
 };
 
 #define VEHICLE_CONDITION_CHECK_TIME 1000
@@ -110,10 +110,11 @@ struct TC_GAME_API VehicleAI : public CreatureAI
     private:
         void LoadConditions();
         void CheckConditions(uint32 diff);
-        bool m_HasConditions;
-        uint32 m_ConditionsTimer;
-        bool m_DoDismiss;
-        uint32 m_DismissTimer;
+
+        bool _hasConditions;
+        uint32 _conditionsTimer;
+        bool _dismiss;
+        uint32 _dismissTimer;
 };
 
 #endif

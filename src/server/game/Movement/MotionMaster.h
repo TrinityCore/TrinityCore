@@ -122,7 +122,7 @@ class TC_GAME_API MotionMaster
         // Removes first found movement
         // NOTE: MOTION_SLOT_DEFAULT will be autofilled with IDLE_MOTION_TYPE
         void Remove(MovementGeneratorType type, MovementSlot slot = MOTION_SLOT_ACTIVE);
-        // NOTE: NOTE: MOTION_SLOT_DEFAULT wont be affected
+        // NOTE: MOTION_SLOT_DEFAULT wont be affected
         void Clear();
         // Removes all movements for the given MovementSlot
         // NOTE: MOTION_SLOT_DEFAULT will be autofilled with IDLE_MOTION_TYPE
@@ -188,6 +188,7 @@ class TC_GAME_API MotionMaster
         bool HasFlag(uint8 const flag) const { return (_flags & flag) != 0; }
         void RemoveFlag(uint8 const flag) { _flags &= ~flag; }
 
+        void Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform);
         void Pop(bool active, bool movementInform);
         void DirectInitialize();
         void DirectClear();
