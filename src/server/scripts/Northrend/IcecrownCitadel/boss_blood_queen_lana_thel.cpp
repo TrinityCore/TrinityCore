@@ -194,7 +194,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 _creditBloodQuickening = instance->GetData(DATA_BLOOD_QUICKENING_STATE) == IN_PROGRESS;
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -204,14 +204,11 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 CleanAuras();
 
-                if (!killer)
-                    return;
-
                 // Blah, credit the quest
                 if (_creditBloodQuickening)
                 {
                     instance->SetData(DATA_BLOOD_QUICKENING_STATE, DONE);
-                    if (Player* player = killer->ToPlayer())
+                    if (Player* player = me->GetLootRecipient())
                         player->RewardPlayerAndGroupAtEvent(Is25ManRaid() ? NPC_INFILTRATOR_MINCHAR_BQ_25 : NPC_INFILTRATOR_MINCHAR_BQ, player);
                     if (Creature* minchar = me->FindNearestCreature(NPC_INFILTRATOR_MINCHAR_BQ, 200.0f))
                     {

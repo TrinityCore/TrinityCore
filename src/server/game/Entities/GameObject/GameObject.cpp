@@ -117,6 +117,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_respawnTime = 0;
     m_respawnDelayTime = 300;
     m_despawnDelay = 0;
+    m_despawnRespawnTime = 0s;
     m_lootState = GO_NOT_READY;
     m_spawnedByDefault = true;
     m_usetimes = 0;
@@ -754,7 +755,9 @@ void GameObject::Update(uint32 diff)
                     m_usetimes = 0;
                 }
 
-                SetGoState(GO_STATE_READY);
+                // Only goobers with a lock id or a reset time may reset their go state
+                if (GetGOInfo()->GetLockId() || GetGOInfo()->GetAutoCloseTime())
+                    SetGoState(GO_STATE_READY);
 
                 //any return here in case battleground traps
                 if (GameObjectOverride const* goOverride = GetGameObjectOverride())
@@ -1428,6 +1431,9 @@ void GameObject::Use(Unit* user)
 
     if (Player* playerUser = user->ToPlayer())
     {
+        if (m_goInfo->CannotBeUsedUnderImmunity() && playerUser->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE))
+            return;
+
         if (!m_goInfo->IsUsableMounted())
             playerUser->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
@@ -2554,14 +2560,35 @@ float GameObject::GetInteractionDistance() const
 {
     switch (GetGoType())
     {
-        /// @todo find out how the client calculates the maximal usage distance to spellless working
-        // gameobjects like guildbanks and mailboxes - 10.0 is a just an abitrary choosen number
+        case GAMEOBJECT_TYPE_AREADAMAGE:
+            return 0.0f;
+        case GAMEOBJECT_TYPE_QUESTGIVER:
+        case GAMEOBJECT_TYPE_TEXT:
+        case GAMEOBJECT_TYPE_FLAGSTAND:
+        case GAMEOBJECT_TYPE_FLAGDROP:
+        case GAMEOBJECT_TYPE_MINI_GAME:
+            return 5.5555553f;
+        case GAMEOBJECT_TYPE_BINDER:
+            return 10.0f;
+        case GAMEOBJECT_TYPE_CHAIR:
+        case GAMEOBJECT_TYPE_BARBER_CHAIR:
+            return 3.0f;
+        case GAMEOBJECT_TYPE_FISHINGNODE:
+            return 100.0f;
+        case GAMEOBJECT_TYPE_FISHINGHOLE:
+            return 20.0f + CONTACT_DISTANCE; // max spell range
+        case GAMEOBJECT_TYPE_CAMERA:
+        case GAMEOBJECT_TYPE_MAP_OBJECT:
+        case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:
+        case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+        case GAMEOBJECT_TYPE_DOOR:
+            return 5.0f;
+        // Following values are not blizzlike
         case GAMEOBJECT_TYPE_GUILD_BANK:
         case GAMEOBJECT_TYPE_MAILBOX:
-            return 10.0f;
-        case GAMEOBJECT_TYPE_FISHINGHOLE:
-        case GAMEOBJECT_TYPE_FISHINGNODE:
-            return 20.0f + CONTACT_DISTANCE; // max spell range
+            // Successful mailbox interaction is rather critical to the client, failing it will start a minute-long cooldown until the next mail query may be executed.
+            // And since movement info update is not sent with mailbox interaction query, server may find the player outside of interaction range. Thus we increase it.
+            return 10.0f; // 5.0f is blizzlike
         default:
             return INTERACTION_DISTANCE;
     }
@@ -2619,51 +2646,11 @@ bool GameObject::IsAtInteractDistance(Player const* player, SpellInfo const* spe
         if (GetGoType() == GAMEOBJECT_TYPE_SPELL_FOCUS)
             return maxRange * maxRange >= GetExactDistSq(player);
 
-        if (GameObjectDisplayInfoEntry const* displayInfo = sGameObjectDisplayInfoStore.LookupEntry(GetGOInfo()->displayId))
+        if (sGameObjectDisplayInfoStore.LookupEntry(GetGOInfo()->displayId))
             return IsAtInteractDistance(*player, maxRange);
     }
 
-    float distance;
-    switch (GetGoType())
-    {
-        case GAMEOBJECT_TYPE_AREADAMAGE:
-            distance = 0.0f;
-            break;
-        case GAMEOBJECT_TYPE_QUESTGIVER:
-        case GAMEOBJECT_TYPE_TEXT:
-        case GAMEOBJECT_TYPE_FLAGSTAND:
-        case GAMEOBJECT_TYPE_FLAGDROP:
-        case GAMEOBJECT_TYPE_MINI_GAME:
-            distance = 5.5555553f;
-            break;
-        case GAMEOBJECT_TYPE_BINDER:
-            distance = 10.0f;
-            break;
-        case GAMEOBJECT_TYPE_CHAIR:
-        case GAMEOBJECT_TYPE_BARBER_CHAIR:
-            distance = 3.0f;
-            break;
-        case GAMEOBJECT_TYPE_FISHINGNODE:
-            distance = 100.0f;
-            break;
-        case GAMEOBJECT_TYPE_CAMERA:
-        case GAMEOBJECT_TYPE_MAP_OBJECT:
-        case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:
-        case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
-        case GAMEOBJECT_TYPE_DOOR:
-        default:
-            distance = 5.0f;
-            break;
-
-            // Following values are not blizzlike
-        case GAMEOBJECT_TYPE_MAILBOX:
-            // Successful mailbox interaction is rather critical to the client, failing it will start a minute-long cooldown until the next mail query may be executed.
-            // And since movement info update is not sent with mailbox interaction query, server may find the player outside of interaction range. Thus we increase it.
-            distance = 10.0f; // 5.0f is blizzlike
-            break;
-    }
-
-    return IsAtInteractDistance(*player, distance);
+    return IsAtInteractDistance(*player, GetInteractionDistance());
 }
 
 bool GameObject::IsAtInteractDistance(Position const& pos, float radius) const
@@ -2679,15 +2666,20 @@ bool GameObject::IsAtInteractDistance(Position const& pos, float radius) const
         float maxY = displayInfo->maxY * scale + radius;
         float maxZ = displayInfo->maxZ * scale + radius;
 
-        QuaternionData localRotation = GetLocalRotation();
-        G3D::Quat localRotationQuat(localRotation.x, localRotation.y, localRotation.z, localRotation.w);
+        QuaternionData worldRotation = GetWorldRotation();
+        G3D::Quat worldRotationQuat(worldRotation.x, worldRotation.y, worldRotation.z, worldRotation.w);
 
-        return G3D::CoordinateFrame { { localRotationQuat }, { GetPositionX(), GetPositionY(), GetPositionZ() } }
+        return G3D::CoordinateFrame { { worldRotationQuat }, { GetPositionX(), GetPositionY(), GetPositionZ() } }
                 .toWorldSpace(G3D::Box { { minX, minY, minZ }, { maxX, maxY, maxZ } })
                 .contains({ pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() });
     }
 
     return GetExactDist(&pos) <= radius;
+}
+
+bool GameObject::IsWithinDistInMap(Player const* player) const
+{
+    return IsInMap(this) && InSamePhase(this) && IsAtInteractDistance(player);
 }
 
 SpellInfo const* GameObject::GetSpellForLock(Player const* player) const
@@ -2708,7 +2700,7 @@ SpellInfo const* GameObject::GetSpellForLock(Player const* player) const
         if (!lock->Type[i])
             continue;
 
-        if (lock->Type[i] == LOCK_KEY_SKILL)
+        if (lock->Type[i] == LOCK_KEY_SPELL)
             if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(lock->Index[i]))
                 return spell;
 

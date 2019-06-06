@@ -74,6 +74,8 @@ class TC_GAME_API MovementGenerator
         bool HasFlag(uint16 const flag) const { return (Flags & flag) != 0; }
         void RemoveFlag(uint16 const flag) { Flags &= ~flag; }
 
+        virtual std::string GetDebugInfo() const;
+
         uint8 Mode;
         uint8 Priority;
         uint16 Flags;

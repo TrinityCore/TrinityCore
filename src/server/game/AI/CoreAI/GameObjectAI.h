@@ -24,6 +24,7 @@
 #include "Optional.h"
 #include "QuestDef.h"
 
+class Creature;
 class GameObject;
 class Unit;
 class SpellInfo;
@@ -33,8 +34,9 @@ class TC_GAME_API GameObjectAI
 {
     protected:
         GameObject* const me;
+
     public:
-        explicit GameObjectAI(GameObject* g) : me(g) { }
+        explicit GameObjectAI(GameObject* go) : me(go) { }
         virtual ~GameObjectAI() { }
 
         virtual void UpdateAI(uint32 /*diff*/) { }
@@ -92,12 +94,18 @@ class TC_GAME_API GameObjectAI
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spellInfo*/) { }
         virtual void SpellHitTargetGameObject(GameObject* /*target*/, SpellInfo const* /*spellInfo*/) { }
+
+        // Called when the gameobject summon successfully other creature
+        virtual void JustSummoned(Creature* /*summon*/) { }
+
+        virtual void SummonedCreatureDespawn(Creature* /*summon*/) { }
+        virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
 };
 
 class TC_GAME_API NullGameObjectAI : public GameObjectAI
 {
     public:
-        explicit NullGameObjectAI(GameObject* g);
+        explicit NullGameObjectAI(GameObject* go);
 
         void UpdateAI(uint32 /*diff*/) override { }
 

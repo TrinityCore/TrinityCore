@@ -169,7 +169,7 @@ class npc_void_sentry : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 me->CastSpell(me, SPELL_SUMMON_VOID_SENTRY_BALL, true);
             }
