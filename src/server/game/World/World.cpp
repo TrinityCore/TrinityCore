@@ -1632,6 +1632,8 @@ void World::LoadConfigSettings(bool reload)
 /// Initialize the World
 void World::SetInitialWorldSettings()
 {
+    sLog->SetRealmId(realm.Id.Realm);
+
     ///- Server startup begin
     uint32 startupBegin = getMSTime();
 
@@ -2418,8 +2420,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.worldserver", "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
 
     TC_METRIC_EVENT("events", "World initialized", "World initialized in " + std::to_string(startupDuration / 60000) + " minutes " + std::to_string((startupDuration % 60000) / 1000) + " seconds");
-
-    sLog->SetRealmId(realm.Id.Realm);
 }
 
 void World::LoadAutobroadcasts()
