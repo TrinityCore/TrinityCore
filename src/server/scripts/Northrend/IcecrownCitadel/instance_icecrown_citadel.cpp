@@ -805,6 +805,25 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
+            void HandleHeroicAttempts()
+            {
+                if (HeroicAttempts)
+                {
+                    --HeroicAttempts;
+                    DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
+                }
+
+                if (!HeroicAttempts)
+                {
+                    for (ObjectGuid bossGuid : {ProfessorPutricideGUID, BloodQueenLanaThelGUID, SindragosaGUID, TheLichKingGUID})
+                    {
+                        if (Creature* boss = instance->GetCreature(bossGuid))
+                            if (boss->IsAlive())
+                                boss->DespawnOrUnsummon();
+                    }
+                }
+            }
+
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
@@ -921,35 +940,17 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_PROFESSOR_PUTRICIDE:
                         HandleGameObject(PlagueSigilGUID, state != DONE);
-                        if (state == DONE)
+                        if (instance->IsHeroic() && state == FAIL)
+                            HandleHeroicAttempts();
+                        else if (state == DONE)
                             CheckLichKingAvailability();
-                        if (instance->IsHeroic())
-                        {
-                            if (state == FAIL && HeroicAttempts)
-                            {
-                                --HeroicAttempts;
-                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
-                                if (!HeroicAttempts)
-                                    if (Creature* putricide = instance->GetCreature(ProfessorPutricideGUID))
-                                        putricide->DespawnOrUnsummon();
-                            }
-                        }
                         break;
                     case DATA_BLOOD_QUEEN_LANA_THEL:
                         HandleGameObject(BloodwingSigilGUID, state != DONE);
-                        if (state == DONE)
+                        if (instance->IsHeroic() && state == FAIL)
+                            HandleHeroicAttempts();
+                        else if (state == DONE)
                             CheckLichKingAvailability();
-                        if (instance->IsHeroic())
-                        {
-                            if (state == FAIL && HeroicAttempts)
-                            {
-                                --HeroicAttempts;
-                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
-                                if (!HeroicAttempts)
-                                    if (Creature* bq = instance->GetCreature(BloodQueenLanaThelGUID))
-                                        bq->DespawnOrUnsummon();
-                            }
-                        }
                         break;
                     case DATA_VALITHRIA_DREAMWALKER:
                         if (state == DONE)
@@ -962,19 +963,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_SINDRAGOSA:
                         HandleGameObject(FrostwingSigilGUID, state != DONE);
-                        if (state == DONE)
+                        if (instance->IsHeroic() && state == FAIL)
+                            HandleHeroicAttempts();
+                        else if (state == DONE)
                             CheckLichKingAvailability();
-                        if (instance->IsHeroic())
-                        {
-                            if (state == FAIL && HeroicAttempts)
-                            {
-                                --HeroicAttempts;
-                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
-                                if (!HeroicAttempts)
-                                    if (Creature* sindra = instance->GetCreature(SindragosaGUID))
-                                        sindra->DespawnOrUnsummon();
-                            }
-                        }
                         break;
                     case DATA_THE_LICH_KING:
                     {
@@ -986,19 +978,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (GameObject* platform = instance->GetGameObject(ArthasPlatformGUID))
                             platform->SetFarVisible(state == IN_PROGRESS);
 
-                        if (instance->IsHeroic())
-                        {
-                            if (state == FAIL && HeroicAttempts)
-                            {
-                                --HeroicAttempts;
-                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
-                                if (!HeroicAttempts)
-                                    if (Creature* theLichKing = instance->GetCreature(TheLichKingGUID))
-                                        theLichKing->DespawnOrUnsummon();
-                            }
-                        }
-
-                        if (state == DONE)
+                        if (instance->IsHeroic() && state == FAIL)
+                            HandleHeroicAttempts();
+                        else if (state == DONE)
                         {
                             if (GameObject* bolvar = instance->GetGameObject(FrozenBolvarGUID))
                                 bolvar->SetRespawnTime(7 * DAY);
