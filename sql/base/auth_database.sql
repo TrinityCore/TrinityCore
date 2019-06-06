@@ -2388,6 +2388,7 @@ INSERT INTO `updates` VALUES
 ('2018_12_09_00_auth_2017_01_06_00_auth.sql','6CCFE6A9774EC733C9863D36A0F15F3534189BBD','ARCHIVED','2017-01-06 00:00:00',0),
 ('2018_12_09_01_auth.sql','576C2A11BE671D8420FA3EB705E594E381ECCC56','ARCHIVED','2018-12-09 14:49:17',0),
 ('2019_04_27_00_auth.sql','84B1EB9CC9B09BAF55E6295D202EC57D99B1B60E','ARCHIVED','2019-04-27 18:07:18',0),
+('2019_06_06_00_auth.sql','6DE8159E04BEE7BA0A4A81D72D160EB74934B6A5','ARCHIVED','2019-06-06 18:09:54',0),
 ('2019_06_08_00_auth.sql','EA5A78F5A26C17BC790481EA9B3772D3A6912459','ARCHIVED','2019-05-20 17:21:20',0),
 ('2019_06_08_01_auth.sql','8165B1B787E3ECF0C8C0AD2D641513270977ABB4','ARCHIVED','2019-06-04 16:51:31',0),
 ('2019_06_08_02_auth.sql','B39DCBD902290700A81C9D028F54B58601C19A99','ARCHIVED','2019-06-05 16:26:31',0),
@@ -2527,6 +2528,42 @@ LOCK TABLES `uptime` WRITE;
 /*!40000 ALTER TABLE `uptime` DISABLE KEYS */;
 /*!40000 ALTER TABLE `uptime` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Temporary table structure for view `vw_log_history`
+--
+
+DROP TABLE IF EXISTS `vw_log_history`;
+/*!50001 DROP VIEW IF EXISTS `vw_log_history`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `vw_log_history` AS SELECT 
+ 1 AS `First Logged`,
+ 1 AS `Last Logged`,
+ 1 AS `Occurrences`,
+ 1 AS `Realm`,
+ 1 AS `type`,
+ 1 AS `level`,
+ 1 AS `string`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Final view structure for view `vw_log_history`
+--
+
+/*!50001 DROP VIEW IF EXISTS `vw_log_history`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 */
+/*!50001 VIEW `vw_log_history` AS (select from_unixtime(min(`logs`.`time`)) AS `First Logged`,from_unixtime(max(`logs`.`time`)) AS `Last Logged`,count(0) AS `Occurrences`,`realmlist`.`name` AS `Realm`,`logs`.`type` AS `type`,`logs`.`level` AS `level`,`logs`.`string` AS `string` from (`logs` left join `realmlist` on((`logs`.`realm` = `realmlist`.`id`))) group by `logs`.`string`,`logs`.`type`,`logs`.`realm`) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
 -- Dumping routines for database 'auth'
