@@ -72,32 +72,30 @@ CASC::StorageHandle CASC::OpenStorage(boost::filesystem::path const& path, DWORD
 
 namespace CASC
 {
-    static DWORD GetStorageInfo(StorageHandle const& storage, CASC_STORAGE_INFO_CLASS storageInfoClass)
+    template<typename T>
+    static bool GetStorageInfo(StorageHandle const& storage, CASC_STORAGE_INFO_CLASS storageInfoClass, T* value)
     {
-        DWORD value = 0;
         size_t infoDataSizeNeeded = 0;
-        if (!::CascGetStorageInfo(storage.get(), storageInfoClass, &value, sizeof(value), &infoDataSizeNeeded))
-        {
-            if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
-            {
-                std::unique_ptr<char> buf(new char[infoDataSizeNeeded]);
-                ::CascGetStorageInfo(storage.get(), storageInfoClass, buf.get(), infoDataSizeNeeded, &infoDataSizeNeeded);
-                return *reinterpret_cast<DWORD*>(buf.get());
-            }
-        }
-
-        return value;
+        return ::CascGetStorageInfo(storage.get(), storageInfoClass, value, sizeof(T), &infoDataSizeNeeded);
     }
 }
 
 DWORD CASC::GetBuildNumber(StorageHandle const& storage)
 {
-    return GetStorageInfo(storage, CascStorageGameBuild);
+    CASC_STORAGE_PRODUCT product;
+    if (GetStorageInfo(storage, CascStorageProduct, &product))
+        return product.dwBuildNumber;
+
+    return 0;
 }
 
 DWORD CASC::GetInstalledLocalesMask(StorageHandle const& storage)
 {
-    return GetStorageInfo(storage, CascStorageInstalledLocales);
+    DWORD locales;
+    if (GetStorageInfo(storage, CascStorageInstalledLocales, &locales))
+        return locales;
+
+    return 0;
 }
 
 CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors /*= false*/)

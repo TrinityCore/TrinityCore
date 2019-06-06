@@ -14,9 +14,13 @@
 #include "CascCommon.h"
 
 //-----------------------------------------------------------------------------
-// Local functions
+// Local defines
 
-typedef int (*PARSEINFOFILE)(TCascStorage * hs, void * pvListFile);
+typedef int (*PARSETEXTFILE)(TCascStorage * hs, void * pvListFile);
+typedef int (*PARSECSVFILE)(TCascStorage * hs, CASC_CSV & Csv);
+typedef int (*PARSE_VARIABLE)(TCascStorage * hs, const char * szVariableName, const char * szDataBegin, const char * szDataEnd, void * pvParam);
+
+#define MAX_VAR_NAME 80
 
 //-----------------------------------------------------------------------------
 // Local structures
@@ -27,47 +31,62 @@ struct TBuildFileInfo
     CBLD_TYPE BuildFileType;
 };
 
-struct TGameIdString
+struct TGameLocaleString
 {
-    const char * szGameInfo;
-    size_t cchGameInfo;
-    DWORD dwGameInfo;
+    const char * szLocale;
+    DWORD dwLocale;
 };
 
 static const TBuildFileInfo BuildTypes[] =
 {
     {_T(".build.info"), CascBuildInfo},             // Since HOTS build 30027, the game uses .build.info file for storage info
     {_T(".build.db"),   CascBuildDb},               // Older CASC storages
+    {_T("versions"),    CascVersionsDb},            // Older CASC storages
     {NULL, CascBuildNone}
 };
 
 static const TCHAR * DataDirs[] =
 {
-    _T("SC2Data"),                                  // Starcraft II (Legacy of the Void) build 38749
-    _T("Data\\Casc"),                               // Overwatch
+    _T("data") _T(PATH_SEP_STRING) _T("casc"),      // Overwatch
+    _T("data"),                                     // TACT casc (for Linux systems)
     _T("Data"),                                     // World of Warcraft, Diablo
+    _T("SC2Data"),                                  // Starcraft II (Legacy of the Void) build 38749
     _T("HeroesData"),                               // Heroes of the Storm
     _T("BNTData"),                                  // Heroes of the Storm, until build 30414
     NULL,
 };
 
-static const TGameIdString GameIds[] =
+static const TGameLocaleString LocaleStrings[] = 
 {
-    {"Hero",       0x04, CASC_GAME_HOTS},           // Alpha build of Heroes of the Storm
-    {"WoW",        0x03, CASC_GAME_WOW6},           // Alpha build of World of Warcraft - Warlords of Draenor
-    {"Diablo3",    0x07, CASC_GAME_DIABLO3},        // Diablo III BETA 2.2.0
-    {"Prometheus", 0x0A, CASC_GAME_OVERWATCH},      // Overwatch BETA since build 24919
-    {"SC2",        0x03, CASC_GAME_STARCRAFT2},     // Starcraft II - Legacy of the Void
-    {"Starcraft1", 0x0A, CASC_GAME_STARCRAFT1},     // Starcraft 1 (remake)
-    {NULL, 0, 0},
+    {"enUS", CASC_LOCALE_ENUS},
+    {"koKR", CASC_LOCALE_KOKR},
+    {"frFR", CASC_LOCALE_FRFR},
+    {"deDE", CASC_LOCALE_DEDE},
+    {"zhCN", CASC_LOCALE_ZHCN},
+    {"esES", CASC_LOCALE_ESES},
+    {"zhTW", CASC_LOCALE_ZHTW},
+    {"enGB", CASC_LOCALE_ENGB},
+    {"enCN", CASC_LOCALE_ENCN},
+    {"enTW", CASC_LOCALE_ENTW},
+    {"esMX", CASC_LOCALE_ESMX},
+    {"ruRU", CASC_LOCALE_RURU},
+    {"ptBR", CASC_LOCALE_PTBR},
+    {"itIT", CASC_LOCALE_ITIT},
+    {"ptPT", CASC_LOCALE_PTPT},
+    {NULL, 0}
 };
 
 //-----------------------------------------------------------------------------
 // Local functions
 
+static bool inline IsWhiteSpace(const char * szVarValue)
+{
+    return (0 <= szVarValue[0] && szVarValue[0] <= 0x20);
+}
+
 static bool inline IsValueSeparator(const char * szVarValue)
 {
-    return ((0 <= szVarValue[0] && szVarValue[0] <= 0x20) || (szVarValue[0] == '|'));
+    return (IsWhiteSpace(szVarValue) || (szVarValue[0] == '|'));
 }
 
 static bool IsCharDigit(BYTE OneByte)
@@ -75,597 +94,606 @@ static bool IsCharDigit(BYTE OneByte)
     return ('0' <= OneByte && OneByte <= '9');
 }
 
+static const char * CaptureDecimalInteger(const char * szDataPtr, const char * szDataEnd, PDWORD PtrValue)
+{
+    const char * szSaveDataPtr = szDataPtr;
+    DWORD TotalValue = 0;
+    DWORD AddValue = 0;
+
+    // Skip all spaces
+    while (szDataPtr < szDataEnd && szDataPtr[0] == ' ')
+        szDataPtr++;
+
+    // Load the number
+    while (szDataPtr < szDataEnd && szDataPtr[0] != ' ')
+    {
+        // Must only contain decimal digits ('0' - '9')
+        if (!IsCharDigit(szDataPtr[0]))
+            break;
+
+        // Get the next value and verify overflow
+        AddValue = szDataPtr[0] - '0';
+        if ((TotalValue + AddValue) < TotalValue)
+            return NULL;
+
+        TotalValue = (TotalValue * 10) + AddValue;
+        szDataPtr++;
+    }
+
+    // If there were no decimal digits, we consider it failure
+    if(szDataPtr == szSaveDataPtr)
+        return NULL;
+
+    // Give the result
+    PtrValue[0] = TotalValue;
+    return szDataPtr;
+}
+
+static const char * CaptureSingleString(const char * szDataPtr, const char * szDataEnd, char * szBuffer, size_t ccBuffer)
+{
+    char * szBufferEnd = szBuffer + ccBuffer - 1;
+
+    // Skip all whitespaces
+    while (szDataPtr < szDataEnd && IsWhiteSpace(szDataPtr))
+        szDataPtr++;
+
+    // Copy the string
+    while (szDataPtr < szDataEnd && szBuffer < szBufferEnd && !IsWhiteSpace(szDataPtr) && szDataPtr[0] != '=')
+        *szBuffer++ = *szDataPtr++;
+
+    szBuffer[0] = 0;
+    return szDataPtr;
+}
+
+static const char * CaptureSingleHash(const char * szDataPtr, const char * szDataEnd, LPBYTE HashValue, size_t HashLength)
+{
+    const char * szHashString;
+    size_t HashStringLength = HashLength * 2;
+
+    // Skip all whitespaces
+    while (szDataPtr < szDataEnd && IsWhiteSpace(szDataPtr))
+        szDataPtr++;
+    szHashString = szDataPtr;
+
+    // Count all hash characters
+    for (size_t i = 0; i < HashStringLength; i++)
+    {
+        if (szDataPtr >= szDataEnd || isxdigit(szDataPtr[0]) == 0)
+            return NULL;
+        szDataPtr++;
+    }
+
+    // There must be a separator or end-of-string
+    if (szDataPtr > szDataEnd || IsWhiteSpace(szDataPtr) == false)
+        return NULL;
+
+    // Give the values
+    ConvertStringToBinary(szHashString, HashStringLength, HashValue);
+    return szDataPtr;
+}
+
+static const char * CaptureHashCount(const char * szDataPtr, const char * szDataEnd, size_t * PtrHashCount)
+{
+    BYTE HashValue[MD5_HASH_SIZE];
+    size_t HashCount = 0;
+
+    // Capculate the hash count
+    while (szDataPtr < szDataEnd)
+    {
+        // Check one hash
+        szDataPtr = CaptureSingleHash(szDataPtr, szDataEnd, HashValue, MD5_HASH_SIZE);
+        if (szDataPtr == NULL)
+            return NULL;
+
+        // Skip all whitespaces
+        while (szDataPtr < szDataEnd && IsWhiteSpace(szDataPtr))
+            szDataPtr++;
+
+        HashCount++;
+    }
+
+    // Give results
+    PtrHashCount[0] = HashCount;
+    return szDataPtr;
+}
+
 static DWORD GetLocaleMask(const char * szTag)
 {
-    if(!strcmp(szTag, "enUS"))
-        return CASC_LOCALE_ENUS;
-
-    if(!strcmp(szTag, "koKR"))
-        return CASC_LOCALE_KOKR;
-
-    if(!strcmp(szTag, "frFR"))
-        return CASC_LOCALE_FRFR;
-
-    if(!strcmp(szTag, "deDE"))
-        return CASC_LOCALE_DEDE;
-
-    if(!strcmp(szTag, "zhCN"))
-        return CASC_LOCALE_ZHCN;
-
-    if(!strcmp(szTag, "esES"))
-        return CASC_LOCALE_ESES;
-
-    if(!strcmp(szTag, "zhTW"))
-        return CASC_LOCALE_ZHTW;
-
-    if(!strcmp(szTag, "enGB"))
-        return CASC_LOCALE_ENGB;
-
-    if(!strcmp(szTag, "enCN"))
-        return CASC_LOCALE_ENCN;
-
-    if(!strcmp(szTag, "enTW"))
-        return CASC_LOCALE_ENTW;
-
-    if(!strcmp(szTag, "esMX"))
-        return CASC_LOCALE_ESMX;
-
-    if(!strcmp(szTag, "ruRU"))
-        return CASC_LOCALE_RURU;
-
-    if(!strcmp(szTag, "ptBR"))
-        return CASC_LOCALE_PTBR;
-
-    if(!strcmp(szTag, "itIT"))
-        return CASC_LOCALE_ITIT;
-
-    if(!strcmp(szTag, "ptPT"))
-        return CASC_LOCALE_PTPT;
+    for(size_t i = 0; LocaleStrings[i].szLocale != NULL; i++)
+    {
+        if(!strncmp(LocaleStrings[i].szLocale, szTag, 4))
+        {
+            return LocaleStrings[i].dwLocale;
+        }
+    }
 
     return 0;
 }
 
-static bool IsInfoVariable(const char * szLineBegin, const char * szLineEnd, const char * szVarName, const char * szVarType)
+static bool CheckConfigFileVariable(
+    TCascStorage * hs,                  // Pointer to storage structure
+    const char * szLinePtr,             // Pointer to the begin of the line
+    const char * szLineEnd,             // Pointer to the end of the line
+    const char * szVarName,             // Pointer to the variable to check
+    PARSE_VARIABLE PfnParseProc,        // Pointer to the parsing function
+    void * pvParseParam)                // Pointer to the parameter passed to parsing function
 {
-    size_t nLength;
+    char szVariableName[MAX_VAR_NAME];
 
-    // Check the variable name
-    nLength = strlen(szVarName);
-    if((size_t)(szLineEnd - szLineBegin) > nLength)
-    {
-        // Check the variable name
-        if(!_strnicmp(szLineBegin, szVarName, nLength))
-        {
-            // Skip variable name and the exclamation mark
-            szLineBegin += nLength;
-            if(szLineBegin < szLineEnd && szLineBegin[0] == '!')
-            {
-                // Skip the exclamation mark
-                szLineBegin++;
+    // Capture the variable from the line
+    szLinePtr = CaptureSingleString(szLinePtr, szLineEnd, szVariableName, sizeof(szVariableName));
+    if (szLinePtr == NULL)
+        return false;
 
-                // Check the variable type
-                nLength = strlen(szVarType);
-                if((size_t)(szLineEnd - szLineBegin) > nLength)
-                {
-                    // Check the variable name
-                    if(!_strnicmp(szLineBegin, szVarType, nLength))
-                    {
-                        // Skip variable type and the doublecolon
-                        szLineBegin += nLength;
-                        return (szLineBegin < szLineEnd && szLineBegin[0] == ':');
-                    }
-                }
-            }
-        }
-    }
+    // Verify whether this is the variable
+    if (!CascCheckWildCard(szVariableName, szVarName))
+        return false;
 
-    return false;
-}
-
-static const char * SkipInfoVariable(const char * szLineBegin, const char * szLineEnd)
-{
-    while(szLineBegin < szLineEnd)
-    {
-        if(szLineBegin[0] == '|')
-            return szLineBegin + 1;
-
-        szLineBegin++;
-    }
-
-    return NULL;
-}
-
-static TCHAR * CheckForIndexDirectory(TCascStorage * hs, const TCHAR * szSubDir)
-{
-    TCHAR * szIndexPath;
-
-    // Cpmbine the index path
-    szIndexPath = CombinePath(hs->szDataPath, szSubDir);
-    if(DirectoryExists(szIndexPath))
-    {
-        hs->szIndexPath = szIndexPath;
-        return hs->szIndexPath;
-    }
-
-    CASC_FREE(szIndexPath);
-    return NULL;
-}
-
-TCHAR * AppendBlobText(TCHAR * szBuffer, LPBYTE pbData, DWORD cbData, TCHAR chSeparator)
-{
-    // Put the separator, if any
-    if(chSeparator != 0)
-        *szBuffer++ = chSeparator;
-
-    // Copy the blob data as text
-    for(DWORD i = 0; i < cbData; i++)
-    {
-        *szBuffer++ = IntToHexChar[pbData[0] >> 0x04];
-        *szBuffer++ = IntToHexChar[pbData[0] & 0x0F];
-        pbData++;
-    }
-
-    // Terminate the string
-    *szBuffer = 0;
-
-    // Return new buffer position
-    return szBuffer;
-}
-
-static const char * CheckLineVariable(const char * szLineBegin, const char * szLineEnd, const char * szVarName)
-{
-    size_t nLineLength = (size_t)(szLineEnd - szLineBegin);
-    size_t nNameLength = strlen(szVarName);
-
-    // If the line longer than the variable name?
-    if(nLineLength > nNameLength)
-    {
-        if(!_strnicmp((const char *)szLineBegin, szVarName, nNameLength))
-        {
-            // Skip the variable name
-            szLineBegin += nNameLength;
-
-            // Skip the separator(s)
-            while(szLineBegin < szLineEnd && IsValueSeparator(szLineBegin))
-                szLineBegin++;
-
-            // Check if there is "="
-            if(szLineBegin >= szLineEnd || szLineBegin[0] != '=')
-                return NULL;
-            szLineBegin++;
-
-            // Skip the separator(s)
-            while(szLineBegin < szLineEnd && IsValueSeparator(szLineBegin))
-                szLineBegin++;
-
-            // Check if there is "="
-            if(szLineBegin >= szLineEnd)
-                return NULL;
-
-            // Return the begin of the variable
-            return szLineBegin;
-        }
-    }
-
-    return NULL;
-}
-
-static int LoadInfoVariable(PQUERY_KEY pVarBlob, const char * szLineBegin, const char * szLineEnd, bool bHexaValue)
-{
-    const char * szLinePtr = szLineBegin;
-
-    // Sanity checks
-    assert(pVarBlob->pbData == NULL);
-    assert(pVarBlob->cbData == 0);
-
-    // Check length of the variable
-    while(szLinePtr < szLineEnd && szLinePtr[0] != '|')
+    // Skip the spaces and '='
+    while (szLinePtr < szLineEnd && (IsWhiteSpace(szLinePtr) || szLinePtr[0] == '='))
         szLinePtr++;
 
-    // Allocate space for the blob
-    if(bHexaValue)
-    {
-        // Initialize the blob
-        pVarBlob->pbData = CASC_ALLOC(BYTE, (szLinePtr - szLineBegin) / 2);
-        pVarBlob->cbData = (DWORD)((szLinePtr - szLineBegin) / 2);
-        return ConvertStringToBinary(szLineBegin, (size_t)(szLinePtr - szLineBegin), pVarBlob->pbData);
-    }
+    // Call the parsing function only if there is some data
+    if (szLinePtr >= szLineEnd)
+        return false;
 
-    // Initialize the blob
-    pVarBlob->pbData = CASC_ALLOC(BYTE, (szLinePtr - szLineBegin) + 1);
-    pVarBlob->cbData = (DWORD)(szLinePtr - szLineBegin);
-
-    // Check for success
-    if(pVarBlob->pbData == NULL)
-        return ERROR_NOT_ENOUGH_MEMORY;
-
-    // Copy the string
-    memcpy(pVarBlob->pbData, szLineBegin, pVarBlob->cbData);
-    pVarBlob->pbData[pVarBlob->cbData] = 0;
-    return ERROR_SUCCESS;
+    return (PfnParseProc(hs, szVariableName, szLinePtr, szLineEnd, pvParseParam) == ERROR_SUCCESS);
 }
 
-static void AppendConfigFilePath(TCHAR * szFileName, PQUERY_KEY pFileKey)
-{
-    size_t nLength = _tcslen(szFileName);
-
-    // If there is no slash, append if
-    if(nLength > 0 && szFileName[nLength - 1] != '\\' && szFileName[nLength - 1] != '/')
-        szFileName[nLength++] = _T('/');
-
-    // Get to the end of the file name
-    szFileName = szFileName + nLength;
-
-    // Append the "config" directory
-    _tcscpy(szFileName, _T("config"));
-    szFileName += 6;
-
-    // Append the first level directory
-    szFileName = AppendBlobText(szFileName, pFileKey->pbData, 1, _T('/'));
-    szFileName = AppendBlobText(szFileName, pFileKey->pbData + 1, 1, _T('/'));
-    szFileName = AppendBlobText(szFileName, pFileKey->pbData, pFileKey->cbData, _T('/'));
-}
-
-static DWORD GetBlobCount(const char * szLineBegin, const char * szLineEnd)
-{
-    DWORD dwBlobCount = 0;
-
-    // Until we find an end of the line
-    while(szLineBegin < szLineEnd)
-    {
-        // Skip the blob
-        while(szLineBegin < szLineEnd && IsValueSeparator(szLineBegin) == false)
-            szLineBegin++;
-
-        // Increment the number of blobs
-        dwBlobCount++;
-
-        // Skip the separator
-        while(szLineBegin < szLineEnd && IsValueSeparator(szLineBegin))
-            szLineBegin++;
-    }
-
-    return dwBlobCount;
-}
-
-static int LoadBlobArray(
+static int LoadHashArray(
     PQUERY_KEY pBlob,
-    const char * szLineBegin,
+    const char * szLinePtr,
     const char * szLineEnd,
-    DWORD dwMaxBlobs)
+    size_t HashCount)
 {
-    LPBYTE pbBufferEnd = pBlob->pbData + pBlob->cbData;
-    LPBYTE pbBuffer = pBlob->pbData;
-    int nError = ERROR_SUCCESS;
+    int nError = ERROR_NOT_ENOUGH_MEMORY;
 
-    // Sanity check
-    assert(pBlob->pbData != NULL);
-    assert(pBlob->cbData != 0);
-
-    // Until we find an end of the line
-    while(szLineBegin < szLineEnd && dwMaxBlobs > 0)
+    // Allocate the blob buffer
+    pBlob->cbData = (DWORD)(HashCount * MD5_HASH_SIZE);
+    pBlob->pbData = CASC_ALLOC(BYTE, pBlob->cbData);
+    if (pBlob->pbData != NULL)
     {
-        const char * szBlobEnd = szLineBegin;
+        LPBYTE pbBuffer = pBlob->pbData;
 
-        // Find the end of the text blob
-        while(szBlobEnd < szLineEnd && IsValueSeparator(szBlobEnd) == false)
-            szBlobEnd++;
+        for (size_t i = 0; i < HashCount; i++)
+        {
+            // Capture the hash value
+            szLinePtr = CaptureSingleHash(szLinePtr, szLineEnd, pbBuffer, MD5_HASH_SIZE);
+            if (szLinePtr == NULL)
+                return ERROR_BAD_FORMAT;
 
-        // Verify the length of the found blob
-        if((szBlobEnd - szLineBegin) != MD5_STRING_SIZE)
-            return ERROR_BAD_FORMAT;
-
-        // Verify if there is enough space in the buffer
-        if((pbBufferEnd - pbBuffer) < MD5_HASH_SIZE)
-            return ERROR_NOT_ENOUGH_MEMORY;
-
-        // Perform the conversion
-        nError = ConvertStringToBinary(szLineBegin, MD5_STRING_SIZE, pbBuffer);
-        if(nError != ERROR_SUCCESS)
-            return nError;
-
-        // Move pointers
-        pbBuffer += MD5_HASH_SIZE;
-        dwMaxBlobs--;
-
-        // Skip the separator
-        while(szBlobEnd < szLineEnd && IsValueSeparator(szBlobEnd))
-            szBlobEnd++;
-        szLineBegin = szBlobEnd;
+            // Move buffer
+            pbBuffer += MD5_HASH_SIZE;
+        }
+        
+        nError = ERROR_SUCCESS;
     }
 
     return nError;
 }
 
-static int LoadMultipleBlobs(PQUERY_KEY pBlob, const char * szLineBegin, const char * szLineEnd, DWORD dwBlobCount)
+static int LoadMultipleHashes(PQUERY_KEY pBlob, const char * szLineBegin, const char * szLineEnd)
 {
-    size_t nLength = (szLineEnd - szLineBegin);
+    size_t HashCount = 0;
+    int nError = ERROR_SUCCESS;
 
-    // We expect each blob to have length of the encoding key and one space between
-    if(nLength > (dwBlobCount * MD5_STRING_SIZE) + ((dwBlobCount - 1) * sizeof(char)))
-        return ERROR_INVALID_PARAMETER;
+    // Retrieve the hash count
+    if (CaptureHashCount(szLineBegin, szLineEnd, &HashCount) == NULL)
+        return ERROR_BAD_FORMAT;
 
-    // Allocate the blob buffer
-    pBlob->pbData = CASC_ALLOC(BYTE, dwBlobCount * MD5_HASH_SIZE);
-    if(pBlob->pbData == NULL)
-        return ERROR_NOT_ENOUGH_MEMORY;
-
-    // Set the buffer size and load the blob array
-    pBlob->cbData = dwBlobCount * MD5_HASH_SIZE;
-    return LoadBlobArray(pBlob, szLineBegin, szLineEnd, dwBlobCount);
-}
-
-static int LoadMultipleBlobs(PQUERY_KEY pBlob, const char * szLineBegin, const char * szLineEnd)
-{
-    return LoadMultipleBlobs(pBlob, szLineBegin, szLineEnd, GetBlobCount(szLineBegin, szLineEnd));
-}
-
-static int LoadSingleBlob(PQUERY_KEY pBlob, const char * szLineBegin, const char * szLineEnd)
-{
-    return LoadMultipleBlobs(pBlob, szLineBegin, szLineEnd, 1);
-}
-
-static int GetGameType(TCascStorage * hs, const char * szVarBegin, const char * szLineEnd)
-{
-    // Go through all games that we support
-    for(size_t i = 0; GameIds[i].szGameInfo != NULL; i++)
+    // Do nothing if there is no data
+    if(HashCount != 0)
     {
-        // Check the length of the variable
-        if((size_t)(szLineEnd - szVarBegin) == GameIds[i].cchGameInfo)
+        nError = LoadHashArray(pBlob, szLineBegin, szLineEnd, HashCount);
+    }
+
+    return nError;
+}
+
+// Loads a query key from the text form
+// A QueryKey is an array of "ContentKey EncodedKey1 ... EncodedKeyN"
+static int LoadQueryKey(TCascStorage * /* hs */, const char * /* szVariableName */, const char * szDataBegin, const char * szDataEnd, void * pvParam)
+{
+    return LoadMultipleHashes((PQUERY_KEY)pvParam, szDataBegin, szDataEnd);
+}
+
+static int LoadCKeyEntry(TCascStorage * hs, const char * szVariableName, const char * szDataPtr, const char * szDataEnd, void * pvParam)
+{
+    PCASC_CKEY_ENTRY pCKeyEntry = (PCASC_CKEY_ENTRY)pvParam;
+    size_t nLength = strlen(szVariableName);
+    size_t HashCount = 0;
+
+    // If the variable ends at "-size", it means we need to capture the size
+    if((nLength > 5) && !strcmp(szVariableName + nLength - 5, "-size"))
+    {
+        DWORD ContentSize = CASC_INVALID_SIZE;
+        DWORD EncodedSize = CASC_INVALID_SIZE;
+
+        // Load the content size
+        szDataPtr = CaptureDecimalInteger(szDataPtr, szDataEnd, &ContentSize);
+        if(szDataPtr != NULL)
         {
-            // Check the string
-            if(!_strnicmp(szVarBegin, GameIds[i].szGameInfo, GameIds[i].cchGameInfo))
+            CaptureDecimalInteger(szDataPtr, szDataEnd, &EncodedSize);
+            pCKeyEntry->ContentSize = ContentSize;
+            pCKeyEntry->EncodedSize = EncodedSize;
+            return ERROR_SUCCESS;
+        }
+    }
+    else
+    {
+        // Get the number of hashes. It is expected to be 1 or 2
+        if(CaptureHashCount(szDataPtr, szDataEnd, &HashCount) != NULL)
+        {
+            // Capture the CKey
+            if(HashCount >= 1)
             {
-                hs->dwGameInfo = GameIds[i].dwGameInfo;
-                return ERROR_SUCCESS;
+                // Load the CKey. This should alway be there
+                szDataPtr = CaptureSingleHash(szDataPtr, szDataEnd, pCKeyEntry->CKey, MD5_HASH_SIZE);
+                if(szDataPtr == NULL)
+                    return ERROR_BAD_FORMAT;
+                pCKeyEntry->Flags |= CASC_CE_HAS_CKEY;
+            }
+
+            // Capture EKey, if any
+            if(HashCount == 2)
+            {
+                // Load the EKey into the structure
+                szDataPtr = CaptureSingleHash(szDataPtr, szDataEnd, pCKeyEntry->EKey, MD5_HASH_SIZE);
+                if(szDataPtr == NULL)
+                    return ERROR_BAD_FORMAT;
+                pCKeyEntry->Flags |= CASC_CE_HAS_EKEY;
+
+                // Increment the number of EKey entries loaded from text build file
+                hs->EKeyEntries++;
+            }
+
+            return (HashCount == 1 || HashCount == 2) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
+        }
+    }
+
+    // Unrecognized
+    return ERROR_BAD_FORMAT;
+}
+
+static int LoadVfsRootEntry(TCascStorage * hs, const char * szVariableName, const char * szDataPtr, const char * szDataEnd, void * pvParam)
+{
+    PCASC_CKEY_ENTRY pCKeyEntry;
+    CASC_ARRAY * pArray = (CASC_ARRAY *)pvParam;
+    const char * szVarPtr = szVariableName;
+    const char * szVarEnd = szVarPtr + strlen(szVarPtr);
+    DWORD VfsRootIndex = CASC_INVALID_INDEX;
+
+    // Skip the "vfs-" part
+    if (!strncmp(szVariableName, "vfs-", 4))
+    {
+        // Then, there must be a decimal number as index
+        if ((szVarPtr = CaptureDecimalInteger(szVarPtr + 4, szVarEnd, &VfsRootIndex)) != NULL)
+        {
+            // We expect the array to be initialized
+            assert(pArray->IsInitialized());
+
+            // The index of the key must not be NULL
+            if(VfsRootIndex != 0)
+            {
+                // Make sure that he entry is in the array
+                pCKeyEntry = (PCASC_CKEY_ENTRY)pArray->ItemAt(VfsRootIndex - 1);
+                if(pCKeyEntry == NULL)
+                {
+                    // Insert a new entry
+                    pCKeyEntry = (PCASC_CKEY_ENTRY)pArray->InsertAt(VfsRootIndex - 1);
+                    if(pCKeyEntry == NULL)
+                        return ERROR_NOT_ENOUGH_MEMORY;
+                    
+                    // Initialize the new entry
+                    pCKeyEntry->Init();
+                }
+
+                // Call just a normal parse function
+                return LoadCKeyEntry(hs, szVariableName, szDataPtr, szDataEnd, pCKeyEntry);
             }
         }
     }
 
-    // Unknown/unsupported game
-    assert(false);
-    return ERROR_BAD_FORMAT;
+    return ERROR_SUCCESS;
+}
+
+static int LoadBuildProductId(TCascStorage * hs, const char * /* szVariableName */, const char * szDataBegin, const char * szDataEnd, void * /* pvParam */)
+{
+    DWORD dwBuildUid = 0;
+
+    // Convert up to 4 chars to DWORD
+    for(size_t i = 0; i < 4 && szDataBegin < szDataEnd; i++)
+    {
+        dwBuildUid = (dwBuildUid << 0x08) | (BYTE)szDataBegin[0];
+        szDataBegin++;
+    }
+
+    // Product-specific. See https://wowdev.wiki/TACT#Products
+    switch(dwBuildUid)
+    {
+        case 0x00006433:    // 'd3'
+        case 0x00643364:    // 'd3b': Diablo 3 Beta (2013) 
+        case 0x6433636e:    // 'd3cn': Diablo 3 China
+        case 0x00643374:    // 'd3t': Diablo 3 Test
+            hs->szProductName = "Diablo 3";
+            hs->Product = Diablo3;
+            break;
+
+        case 0x64737432:     // 'dst2':
+            hs->szProductName = "Destiny 2";
+            hs->Product = Destiny2;
+            break;
+
+        case 0x00626e74:    // 'bnt': Heroes of the Storm Alpha 
+        case 0x6865726f:    // 'hero': Heroes of the Storm Retail
+        case 0x73746f72:    // 'stor': Heroes of the Storm (deprecated)
+            hs->szProductName = "Heroes Of The Storm";
+            hs->Product = HeroesOfTheStorm;
+            break;
+
+        case 0x0070726f:    // 'pro':
+        case 0x70726f63:    // 'proc':
+        case 0x70726f64:    // 'prod': "prodev": Overwatch Dev
+        case 0x70726f65:    // 'proe': Not on public CDNs
+        case 0x70726f74:    // 'prot': Overwatch Test
+        case 0x70726f76:    // 'prov': Overwatch Vendor
+        case 0x70726f6d:    // 'prom': "proms": Overwatch World Cup Viewer
+            hs->szProductName = "Overwatch";
+            hs->Product = Overwatch;
+            break;
+
+        case 0x00007331:    // 's1': StarCraft 1
+        case 0x00733161:    // 's1a': Starcraft 1 Alpha
+        case 0x00733174:    // 's1t': StarCraft 1 Test
+            hs->szProductName = "Starcraft 1";
+            hs->Product = StarCraft1;
+            break;
+
+        case 0x00007332:    // 's2': StarCraft 2
+        case 0x00733262:    // 's2b': Starcraft 2 Beta
+        case 0x00733274:    // 's2t': StarCraft 2 Test
+        case 0x00736332:    // 'sc2': StarCraft 2 (deprecated)
+            hs->szProductName = "Starcraft 2";
+            hs->Product = StarCraft2;
+            break;
+
+        case 0x76697065:    // "viper", "viperdev", "viperv1": Call of Duty Black Ops 4
+            hs->szProductName = "Call Of Duty Black Ops 4";
+            hs->Product = CallOfDutyBlackOps4;
+            break;
+
+        case 0x00007733:    // 'w3': Warcraft III
+        case 0x00773374:    // 'w3t': Warcraft III Public Test
+        case 0x77617233:    // 'war3': Warcraft III (old)
+            hs->szProductName = "WarCraft 3";
+            hs->Product = WarCraft3;
+            break;
+
+        case 0x00776f77:    // 'wow': World of Warcraft
+        case 0x776f775f:    // "wow_beta", "wow_classic", "wow_classic_beta"
+        case 0x776f7764:    // "wowdev", "wowdemo"
+        case 0x776f7765:    // "wowe1", "wowe3", "wowe3"
+        case 0x776f7774:    // 'wowt': World of Warcraft Test
+        case 0x776f7776:    // 'wowv': World of Warcraft Vendor
+        case 0x776f777a:    // 'wowz': World of Warcraft Submission (previously Vendor)
+            hs->szProductName = "World Of Warcraft";
+            hs->Product = WorldOfWarcraft;
+            break;
+
+        default:
+            hs->szProductName = "Unknown Product";
+            hs->Product = UnknownProduct;
+            break;
+    }
+
+    return ERROR_SUCCESS;
 }
 
 // "B29049"
 // "WOW-18125patch6.0.1"
 // "30013_Win32_2_2_0_Ptr_ptr"
 // "prometheus-0_8_0_0-24919"
-static int GetBuildNumber(TCascStorage * hs, const char * szVarBegin, const char * szLineEnd)
+static int LoadBuildNumber(TCascStorage * hs, const char * /* szVariableName */, const char * szDataBegin, const char * szDataEnd, void * /* pvParam */)
 {
     DWORD dwBuildNumber = 0;
+    DWORD dwMaxValue = 0;
 
-    // Skip all non-digit characters
-    while(szVarBegin < szLineEnd)
+    // Parse the string and take the largest decimal numeric value
+    // "build-name = 1.21.5.4037-retail"
+    while(szDataBegin < szDataEnd)
     {
         // There must be at least three digits (build 99 anyone?)
-        if(IsCharDigit(szVarBegin[0]) && IsCharDigit(szVarBegin[1]) && IsCharDigit(szVarBegin[2]))
+        if(IsCharDigit(szDataBegin[0]))
         {
-            // Convert the build number string to value
-            while(szVarBegin < szLineEnd && IsCharDigit(szVarBegin[0]))
-                dwBuildNumber = (dwBuildNumber * 10) + (*szVarBegin++ - '0');
-            break;
+            dwBuildNumber = (dwBuildNumber * 10) + (szDataBegin[0] - '0');
+            dwMaxValue = CASCLIB_MAX(dwBuildNumber, dwMaxValue);
+        }
+        else
+        {
+            // Reset build number when we find non-digit char
+            dwBuildNumber = 0;
         }
 
         // Move to the next
-        szVarBegin++;
+        szDataBegin++;
     }
 
-    assert(dwBuildNumber != 0);
-    hs->dwBuildNumber = dwBuildNumber;
-    return (dwBuildNumber != 0) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
+    // If not there, just take value from build file
+    if((hs->dwBuildNumber = dwMaxValue) == 0)
+        hs->dwBuildNumber = hs->CdnBuildKey.pbData[0] % 100;
+    return ERROR_BAD_FORMAT;
 }
 
-static int GetDefaultLocaleMask(TCascStorage * hs, PQUERY_KEY pTagsString)
+static int LoadQueryKey(const CASC_CSV_COLUMN & Column, QUERY_KEY & Key)
 {
-    char * szTagEnd = (char *)pTagsString->pbData + pTagsString->cbData;
-    char * szTagPtr = (char *)pTagsString->pbData;
-    char * szNext;
+    // Check the input data
+    if (Column.szValue == NULL)
+        return ERROR_BUFFER_OVERFLOW;
+    if (Column.nLength != MD5_STRING_SIZE)
+        return ERROR_BAD_FORMAT;
+
+    return LoadHashArray(&Key, Column.szValue, Column.szValue + Column.nLength, 1);
+}
+
+static int GetDefaultLocaleMask(TCascStorage * hs, const CASC_CSV_COLUMN & Column)
+{
+    const char * szTagEnd = Column.szValue + Column.nLength;
+    const char * szTagPtr = Column.szValue;
     DWORD dwLocaleMask = 0;
 
     while(szTagPtr < szTagEnd)
     {
-        // Get the next part
-        szNext = strchr(szTagPtr, ' ');
-        if(szNext != NULL)
-            *szNext++ = 0;
-
-        // Check whether the current tag is a language identifier
-        dwLocaleMask = dwLocaleMask | GetLocaleMask(szTagPtr);
-
-        // Get the next part
-        if(szNext == NULL)
-            break;
-
-        // Skip spaces
-        while(szNext < szTagEnd && szNext[0] == ' ')
-            szNext++;
-        szTagPtr = szNext;
+        // Could this be a locale string?
+        if((szTagPtr + 4) <= szTagEnd && (szTagPtr[4] == ',' ||  szTagPtr[4] == ' '))
+        {
+            // Check whether the current tag is a language identifier
+            dwLocaleMask = dwLocaleMask | GetLocaleMask(szTagPtr);
+            szTagPtr += 4;
+        }
+        else
+        {
+            szTagPtr++;
+        }
     }
 
     hs->dwDefaultLocale = dwLocaleMask;
     return ERROR_SUCCESS;
 }
 
-static void * FetchAndVerifyConfigFile(TCascStorage * hs, PQUERY_KEY pFileKey)
+static int ParseFile_CDNS(TCascStorage * hs, CASC_CSV & Csv)
 {
-    TCHAR * szFileName;
-    void * pvListFile = NULL;
+    const char * szWantedRegion = hs->szRegion;
+    TCHAR szCdnServers[MAX_PATH];
+    TCHAR szCdnPath[MAX_PATH];
+    size_t nLineCount;
 
-    // Construct the local file name
-    szFileName = CascNewStr(hs->szDataPath, 8 + 3 + 3 + 32);
-    if(szFileName != NULL)
+    // Fix the region
+    if(szWantedRegion == NULL || !_stricmp(szWantedRegion, "beta") || !_stricmp(szWantedRegion, "xx"))
+        szWantedRegion = "us";
+
+    // Determine the row count
+    nLineCount = Csv.GetLineCount();
+
+    // Find the active config
+    for (size_t i = 0; i < nLineCount; i++)
     {
-        // Add the part where the config file path is
-        AppendConfigFilePath(szFileName, pFileKey);
-
-        // Load and verify the external listfile
-        pvListFile = ListFile_OpenExternal(szFileName);
-        if(pvListFile != NULL)
+        // Is it the version we are looking for?
+        if(!strcmp(Csv[i]["Name!STRING:0"].szValue, szWantedRegion))
         {
-            if(!ListFile_VerifyMD5(pvListFile, pFileKey->pbData))
-            {
-                ListFile_Free(pvListFile);
-                pvListFile = NULL;
-            }
-        }
+            // Save the list of CDN servers
+            CascStrCopy(szCdnServers, _countof(szCdnServers), Csv[i]["Hosts!STRING:0"].szValue);
+            hs->szCdnServers = CascNewStr(szCdnServers);
 
-        // Free the file name
-        CASC_FREE(szFileName);
+            // Save the CDN subpath
+            CascStrCopy(szCdnPath, _countof(szCdnPath), Csv[i]["Path!STRING:0"].szValue);
+            hs->szCdnPath = CascNewStr(szCdnPath);
+
+            // Check and return result
+            return (hs->szCdnServers && hs->szCdnPath) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
+        }
     }
 
-    return pvListFile;
+    return ERROR_FILE_NOT_FOUND;
 }
 
-static int ParseFile_BuildInfo(TCascStorage * hs, void * pvListFile)
+static int ParseFile_BuildInfo(TCascStorage * hs, CASC_CSV & Csv)
 {
-    QUERY_KEY Active = {NULL, 0};
-    QUERY_KEY TagString = {NULL, 0};
-    QUERY_KEY CdnHost = {NULL, 0};
-    QUERY_KEY CdnPath = {NULL, 0};
-    const char * szLinePtr1;
-    const char * szLineEnd1;
-    const char * szLinePtr2;
-    const char * szLineEnd2;
-    size_t nLength1;
-    size_t nLength2;
-    int nError = ERROR_BAD_FORMAT;
-
-    // Extract the first line, cotaining the headers
-    nLength1 = ListFile_GetNextLine(pvListFile, &szLinePtr1, &szLineEnd1);
-    if(nLength1 == 0)
-        return ERROR_BAD_FORMAT;
-
-    // Now parse the second and the next lines. We are looking for line
-    // with "Active" set to 1
-    for(;;)
-    {
-        // Read the next line
-        nLength2 = ListFile_GetNextLine(pvListFile, &szLinePtr2, &szLineEnd2);
-        if(nLength2 == 0)
-            break;
-
-        // Parse all variables
-        while(szLinePtr1 < szLineEnd1)
-        {
-            // Check for variables we need
-            if(IsInfoVariable(szLinePtr1, szLineEnd1, "Active", "DEC"))
-                LoadInfoVariable(&Active, szLinePtr2, szLineEnd2, false);
-            if(IsInfoVariable(szLinePtr1, szLineEnd1, "Build Key", "HEX"))
-                LoadInfoVariable(&hs->CdnBuildKey, szLinePtr2, szLineEnd2, true);
-            if(IsInfoVariable(szLinePtr1, szLineEnd1, "CDN Key", "HEX"))
-                LoadInfoVariable(&hs->CdnConfigKey, szLinePtr2, szLineEnd2, true);
-            if(IsInfoVariable(szLinePtr1, szLineEnd1, "CDN Hosts", "STRING"))
-                LoadInfoVariable(&CdnHost, szLinePtr2, szLineEnd2, false);
-            if(IsInfoVariable(szLinePtr1, szLineEnd1, "CDN Path", "STRING"))
-                LoadInfoVariable(&CdnPath, szLinePtr2, szLineEnd2, false);
-            if(IsInfoVariable(szLinePtr1, szLineEnd1, "Tags", "STRING"))
-                LoadInfoVariable(&TagString, szLinePtr2, szLineEnd2, false);
-
-            // Move both line pointers
-            szLinePtr1 = SkipInfoVariable(szLinePtr1, szLineEnd1);
-            if(szLinePtr1 == NULL)
-                break;
-
-            szLinePtr2 = SkipInfoVariable(szLinePtr2, szLineEnd2);
-            if(szLinePtr2 == NULL)
-                break;
-        }
-
-        // Stop parsing if found active config
-        if(Active.pbData != NULL && *Active.pbData == '1')
-            break;
-
-        // Free the blobs
-        FreeCascBlob(&Active);
-        FreeCascBlob(&hs->CdnBuildKey);
-        FreeCascBlob(&hs->CdnConfigKey);
-        FreeCascBlob(&CdnHost);
-        FreeCascBlob(&CdnPath);
-        FreeCascBlob(&TagString);
-
-        // Rewind column names pointer back to start of line
-        szLinePtr1 = szLineEnd1 - nLength1;
-    }
-
-    // All four must be present
-    if(hs->CdnBuildKey.pbData != NULL &&
-       hs->CdnConfigKey.pbData != NULL &&
-       CdnHost.pbData != NULL &&
-       CdnPath.pbData != NULL)
-    {
-        // Merge the CDN host and CDN path
-        hs->szUrlPath = CASC_ALLOC(TCHAR, CdnHost.cbData + CdnPath.cbData + 1);
-        if(hs->szUrlPath != NULL)
-        {
-            CopyString(hs->szUrlPath, (char *)CdnHost.pbData, CdnHost.cbData);
-            CopyString(hs->szUrlPath + CdnHost.cbData, (char *)CdnPath.pbData, CdnPath.cbData);
-            nError = ERROR_SUCCESS;
-        }
-    }
-
-    // If we found tags, we can extract language build from it
-    if(TagString.pbData != NULL)
-        GetDefaultLocaleMask(hs, &TagString);
-
-    FreeCascBlob(&CdnHost);
-    FreeCascBlob(&CdnPath);
-    FreeCascBlob(&TagString);
-    FreeCascBlob(&Active);
-    return nError;
-}
-
-static int ParseFile_BuildDb(TCascStorage * hs, void * pvListFile)
-{
-    const char * szLinePtr;
-    const char * szLineEnd;
-    char szOneLine[0x200];
-    size_t nLength;
+    size_t nLineCount = Csv.GetLineCount();
     int nError;
 
-    // Load the single line from the text file
-    nLength = ListFile_GetNextLine(pvListFile, szOneLine, _maxchars(szOneLine));
-    if(nLength == 0)
-        return ERROR_BAD_FORMAT;
-
-    // Set the line range
-    szLinePtr = szOneLine;
-    szLineEnd = szOneLine + nLength;
-
-    // Extract the CDN build key
-    nError = LoadInfoVariable(&hs->CdnBuildKey, szLinePtr, szLineEnd, true);
-    if(nError == ERROR_SUCCESS)
+    // Find the active config
+    for(size_t i = 0; i < nLineCount; i++)
     {
-        // Skip the variable
-        szLinePtr = SkipInfoVariable(szLinePtr, szLineEnd);
-
-        // Load the CDN config hash
-        nError = LoadInfoVariable(&hs->CdnConfigKey, szLinePtr, szLineEnd, true);
-        if(nError == ERROR_SUCCESS)
+        // Is that build config active?
+        if (!strcmp(Csv[i]["Active!DEC:1"].szValue, "1"))
         {
-            // Skip the variable
-            szLinePtr = SkipInfoVariable(szLinePtr, szLineEnd);
+            // Extract the CDN build key
+            nError = LoadQueryKey(Csv[i]["Build Key!HEX:16"], hs->CdnBuildKey);
+            if (nError != ERROR_SUCCESS)
+                return nError;
 
-            // Skip the Locale/OS/code variable
-            szLinePtr = SkipInfoVariable(szLinePtr, szLineEnd);
+            // Extract the CDN config key
+            nError = LoadQueryKey(Csv[i]["CDN Key!HEX:16"], hs->CdnConfigKey);
+            if (nError != ERROR_SUCCESS)
+                return nError;
 
-            // Load the URL
-            hs->szUrlPath = CascNewStrFromAnsi(szLinePtr, szLineEnd);
-            if(hs->szUrlPath == NULL)
-                nError = ERROR_NOT_ENOUGH_MEMORY;
+            // If we found tags, we can extract language build from it
+            GetDefaultLocaleMask(hs, Csv[i]["Tags!STRING:0"]);
+
+            // If we found version, extract a build number
+            const CASC_CSV_COLUMN & VerColumn = Csv[i]["Version!STRING:0"];
+            if(VerColumn.szValue && VerColumn.nLength)
+            {
+                LoadBuildNumber(hs, NULL, VerColumn.szValue, VerColumn.szValue + VerColumn.nLength, NULL);
+            }
+
+            // Verify all variables
+            return (hs->CdnBuildKey.pbData != NULL && hs->CdnConfigKey.pbData != NULL) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
         }
     }
 
-    // Verify all variables
-    if(hs->CdnBuildKey.pbData == NULL || hs->CdnConfigKey.pbData == NULL || hs->szUrlPath == NULL)
-        nError = ERROR_BAD_FORMAT;
-    return nError;
+    return ERROR_FILE_NOT_FOUND;
 }
 
-static int LoadCdnConfigFile(TCascStorage * hs, void * pvListFile)
+static int ParseFile_VersionsDb(TCascStorage * hs, CASC_CSV & Csv)
+{
+    size_t nLineCount = Csv.GetLineCount();
+    int nError;
+
+    // Find the active config
+    for (size_t i = 0; i < nLineCount; i++)
+    {
+        // Either take the version required or take the first one
+        if (hs->szRegion == NULL || !strcmp(Csv[i]["Region!STRING:0"].szValue, hs->szRegion))
+        {
+            // Extract the CDN build key
+            nError = LoadQueryKey(Csv[i]["BuildConfig!HEX:16"], hs->CdnBuildKey);
+            if (nError != ERROR_SUCCESS)
+                return nError;
+
+            // Extract the CDN config key
+            nError = LoadQueryKey(Csv[i]["CDNConfig!HEX:16"], hs->CdnConfigKey);
+            if (nError != ERROR_SUCCESS)
+                return nError;
+
+            const CASC_CSV_COLUMN & VerColumn = Csv[i]["VersionsName!String:0"];
+            if (VerColumn.szValue && VerColumn.nLength)
+            {
+                LoadBuildNumber(hs, NULL, VerColumn.szValue, VerColumn.szValue + VerColumn.nLength, NULL);
+            }
+
+            // Verify all variables
+            return (hs->CdnBuildKey.pbData != NULL && hs->CdnConfigKey.pbData != NULL) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
+        }
+    }
+
+    return ERROR_FILE_NOT_FOUND;
+}
+
+static int ParseFile_BuildDb(TCascStorage * hs, CASC_CSV & Csv)
+{
+    int nError;
+
+    // Extract the CDN build key
+    nError = LoadQueryKey(Csv[CSV_ZERO][CSV_ZERO], hs->CdnBuildKey);
+    if(nError != ERROR_SUCCESS)
+        return nError;
+
+    // Extract the CDN config key
+    nError = LoadQueryKey(Csv[CSV_ZERO][1], hs->CdnConfigKey);
+    if (nError != ERROR_SUCCESS)
+        return nError;
+
+    // Load the the tags
+    GetDefaultLocaleMask(hs, Csv[CSV_ZERO][2]);
+
+    // Verify all variables
+    return (hs->CdnBuildKey.pbData != NULL && hs->CdnConfigKey.pbData != NULL) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
+}
+
+static int ParseFile_CdnConfig(TCascStorage * hs, void * pvListFile)
 {
     const char * szLineBegin;
-    const char * szVarBegin;
     const char * szLineEnd;
     int nError = ERROR_SUCCESS;
 
@@ -676,37 +704,28 @@ static int LoadCdnConfigFile(TCascStorage * hs, void * pvListFile)
         if(!ListFile_GetNextLine(pvListFile, &szLineBegin, &szLineEnd))
             break;
 
-        // Archive group
-        szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "archive-group");
-        if(szVarBegin != NULL)
-        {
-            nError = LoadSingleBlob(&hs->ArchivesGroup, szVarBegin, szLineEnd);
+        // CDN key of ARCHIVE-GROUP. Archive-group is actually a very special '.index' file.
+        // It is essentially a merger of all .index files, with a structure change
+        // When ".index" added after the ARCHIVE-GROUP, we get file name in "indices" folder
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "archive-group", LoadQueryKey, &hs->ArchiveGroup))
             continue;
-        }
 
-        // Archives
-        szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "archives");
-        if(szVarBegin != NULL)
-        {
-            nError = LoadMultipleBlobs(&hs->ArchivesKey, szVarBegin, szLineEnd);
+        // CDN key of all archives. When ".index" added to the string, we get file name in "indices" folder
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "archives", LoadQueryKey, &hs->ArchivesKey))
             continue;
-        }
 
-        // Patch archive group
-        szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "patch-archive-group");
-        if(szVarBegin != NULL)
-        {
-            LoadSingleBlob(&hs->PatchArchivesGroup, szVarBegin, szLineEnd);
+        // CDN keys of patch archives (needs research) 
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "patch-archives", LoadQueryKey, &hs->PatchArchivesKey))
             continue;
-        }
 
-        // Patch archives
-        szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "patch-archives");
-        if(szVarBegin != NULL)
-        {
-            nError = LoadMultipleBlobs(&hs->PatchArchivesKey, szVarBegin, szLineEnd);
+        // CDN key of probably the combined patch index file (needs research)
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "patch-archive-group", LoadQueryKey, &hs->PatchArchivesGroup))
             continue;
-        }
+
+        // List of build configs this config supports (optional)
+        // Points to file: "data\config\%02X\%02X\%s
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "builds", LoadQueryKey, &hs->BuildFiles))
+            continue;
     }
 
     // Check if all required fields are present
@@ -716,78 +735,79 @@ static int LoadCdnConfigFile(TCascStorage * hs, void * pvListFile)
     return nError;
 }
 
-static int LoadCdnBuildFile(TCascStorage * hs, void * pvListFile)
+static int ParseFile_CdnBuild(TCascStorage * hs, void * pvListFile)
 {
     const char * szLineBegin;
-    const char * szVarBegin;
     const char * szLineEnd = NULL;
-    int nError = ERROR_SUCCESS;
+    int nError;
 
-    for(;;)
+    // Initialize the empty VFS array
+    nError = hs->VfsRootList.Create<CASC_CKEY_ENTRY>(0x10);
+    if (nError != ERROR_SUCCESS)
+        return nError;
+
+    // Parse all variables
+    while(ListFile_GetNextLine(pvListFile, &szLineBegin, &szLineEnd) != 0)
     {
-        // Get the next line
-        if(!ListFile_GetNextLine(pvListFile, &szLineBegin, &szLineEnd))
-            break;
-
-        // Game name
-        szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "build-product");
-        if(szVarBegin != NULL)
-        {
-            GetGameType(hs, szVarBegin, szLineEnd);
+        // Product name and build name
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "build-uid", LoadBuildProductId, NULL))
             continue;
-        }
-
-        // Game build number
-        szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "build-name");
-        if(szVarBegin != NULL)
-        {
-            GetBuildNumber(hs, szVarBegin, szLineEnd);
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "build-name", LoadBuildNumber, NULL))
             continue;
-        }
 
-        // Root
-        szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "root");
-        if(szVarBegin != NULL)
-        {
-            LoadSingleBlob(&hs->RootKey, szVarBegin, szLineEnd);
+        // Content key of the ROOT file. Look this up in ENCODING to get the encoded key
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "root*", LoadCKeyEntry, &hs->RootFile))
             continue;
-        }
 
-        // Patch
-        szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "patch");
-        if(szVarBegin != NULL)
-        {
-            LoadSingleBlob(&hs->PatchKey, szVarBegin, szLineEnd);
+        // Content key [+ encoded key] of the INSTALL file
+        // If EKey is absent, you need to query the ENCODING file for it
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "install*", LoadCKeyEntry, &hs->InstallCKey))
             continue;
-        }
 
-        // Download
-        szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "download");
-        if(szVarBegin != NULL)
-        {
-            LoadSingleBlob(&hs->DownloadKey, szVarBegin, szLineEnd);
+        // Content key [+ encoded key] of the DOWNLOAD file
+        // If EKey is absent, you need to query the ENCODING file for it
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "download*", LoadCKeyEntry, &hs->DownloadCKey))
             continue;
-        }
 
-        // Install
-        szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "install");
-        if(szVarBegin != NULL)
-        {
-            LoadSingleBlob(&hs->InstallKey, szVarBegin, szLineEnd);
+        // Content key + encoded key of the ENCODING file. Contains CKey+EKey
+        // If either none or 1 is found, the game (at least Wow) switches to plain-data(?). Seen in build 20173 
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "encoding*", LoadCKeyEntry, &hs->EncodingCKey))
             continue;
-        }
 
-        // Encoding keys
-        szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "encoding");
-        if(szVarBegin != NULL)
-        {
-            nError = LoadMultipleBlobs(&hs->EncodingKey, szVarBegin, szLineEnd, 2);
+        // PATCH file
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "patch*", LoadCKeyEntry, &hs->PatchFile))
             continue;
+
+        // SIZE file
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "size*", LoadCKeyEntry, &hs->SizeFile))
+            continue;
+
+        // VFS root file (the root file of the storage VFS)
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "vfs-root*", LoadCKeyEntry, &hs->VfsRoot))
+            continue;
+
+        // Load a directory entry to the VFS
+        if(CheckConfigFileVariable(hs, szLineBegin, szLineEnd, "vfs-*", LoadVfsRootEntry, &hs->VfsRootList))
+            continue;
+    }
+
+    // Special case: Some builds of WoW (22267) don't have the variable in the build file
+    if(hs->szProductName == NULL || hs->Product == UnknownProduct)
+    {
+        if(hs->szCdnPath != NULL)
+        {
+            TCHAR * szPlainName = (TCHAR *)GetPlainFileName(hs->szCdnPath);
+
+            if(szPlainName[0] == 'w' && szPlainName[1] == 'o' && szPlainName[2] == 'w')
+            {
+                hs->szProductName = "World Of Warcraft";
+                hs->Product = WorldOfWarcraft;
+            }
         }
     }
 
-    // Check the encoding keys
-    if(hs->EncodingKey.pbData == NULL || hs->EncodingKey.cbData != MD5_HASH_SIZE * 2)
+    // Both CKey and EKey of ENCODING file is required
+    if((hs->EncodingCKey.Flags & (CASC_CE_HAS_CKEY | CASC_CE_HAS_EKEY)) != (CASC_CE_HAS_CKEY | CASC_CE_HAS_EKEY))
         return ERROR_BAD_FORMAT;
     return nError;
 }
@@ -807,6 +827,7 @@ static int CheckDataDirectory(TCascStorage * hs, TCHAR * szDirectory)
             // Does that directory exist?
             if(DirectoryExists(szDataPath))
             {
+                hs->szRootPath = CascNewStr(szDirectory);
                 hs->szDataPath = szDataPath;
                 return ERROR_SUCCESS;
             }
@@ -819,91 +840,328 @@ static int CheckDataDirectory(TCascStorage * hs, TCHAR * szDirectory)
     return nError;
 }
 
-
-//-----------------------------------------------------------------------------
-// Public functions
-
-int LoadBuildInfo(TCascStorage * hs)
+static int LoadCsvFile(TCascStorage * hs, const TCHAR * szFileName, PARSECSVFILE PfnParseProc, bool bHasHeader)
 {
-    PARSEINFOFILE PfnParseProc = NULL;
-    void * pvListFile;
-    int nError = ERROR_SUCCESS;
+    CASC_CSV Csv(0x40, bHasHeader);
+    int nError = Csv.Load(szFileName);
 
-    switch(hs->BuildFileType)
+    // Load the external file to memory
+    if (nError == ERROR_SUCCESS)
+        nError = PfnParseProc(hs, Csv);
+    return nError;
+}
+
+static const TCHAR * ExtractCdnServerName(TCHAR * szServerName, size_t cchServerName, const TCHAR * szCdnServers)
+{
+    const TCHAR * szSeparator;
+
+    if(szCdnServers[0] != 0)
     {
-        case CascBuildInfo:
-            PfnParseProc = ParseFile_BuildInfo;
-            break;
+        szSeparator = _tcschr(szCdnServers, _T(' '));
+        if(szSeparator != NULL)
+        {
+            // Copy one server name
+            CascStrCopy(szServerName, cchServerName, szCdnServers, (szSeparator - szCdnServers));
 
-        case CascBuildDb:
-            PfnParseProc = ParseFile_BuildDb;
-            break;
-
-        default:
-            nError = ERROR_NOT_SUPPORTED;
-            break;
+            // Skip all separators
+            while(szSeparator[0] == ' ' || szSeparator[0] == 0x09)
+                szSeparator++;
+            return szSeparator;
+        }
+        else
+        {
+            CascStrCopy(szServerName, MAX_PATH, szCdnServers);
+            return szCdnServers + _tcslen(szCdnServers);
+        }
     }
 
-    // Parse the appropriate build file
+    return NULL;
+}
+
+static int ForcePathExist(const TCHAR * szFileName, bool bIsFileName)
+{
+    TCHAR * szLocalPath;
+    size_t nIndex;
+    bool bFirstSeparator = false;
+    int nError = ERROR_NOT_ENOUGH_MEMORY;
+
+    // Sanity checks
+    if(szFileName && szFileName[0])
+    {
+        szLocalPath = CascNewStr(szFileName);
+        if(szLocalPath != NULL)
+        {
+            // Get the end of search
+            if(bIsFileName)
+                CutLastPathPart(szLocalPath);
+
+            // Check the entire path
+            if(_taccess(szLocalPath, 0) != 0)
+            {
+                // Searth the entire path
+                for(nIndex = 0; szLocalPath[nIndex] != 0; nIndex++)
+                {
+                    if(szLocalPath[nIndex] == '\\' || szLocalPath[nIndex] == '/')
+                    {
+                        // Cut the path and verify whether the folder/file exists
+                        szLocalPath[nIndex] = 0;
+
+                        // Skip the very first separator
+                        if(bFirstSeparator == true)
+                        {
+                            // Is it there?
+                            if(DirectoryExists(szLocalPath) == false && MakeDirectory(szLocalPath) == false)
+                            {
+                                nError = ERROR_PATH_NOT_FOUND;
+                                break;
+                            }
+                        }
+
+                        // Restore the character
+                        szLocalPath[nIndex] = PATH_SEP_CHAR;
+                        bFirstSeparator = true;
+                        nError = ERROR_SUCCESS;
+                    }
+                }
+
+                // Now check the final path
+                if(DirectoryExists(szLocalPath) || MakeDirectory(szLocalPath))
+                {
+                    nError = ERROR_SUCCESS;
+                }
+            }
+            else
+            {
+                nError = ERROR_SUCCESS;
+            }
+
+            CASC_FREE(szLocalPath);
+        }
+    }
+
+    return nError;
+}
+
+static int DownloadFile(
+    const TCHAR * szRemoteName,
+    const TCHAR * szLocalName,
+    PULONGLONG PtrByteOffset,
+    DWORD cbReadSize,
+    DWORD dwPortFlags)
+{
+    TFileStream * pRemStream;
+    TFileStream * pLocStream;
+    LPBYTE pbFileData;
+    int nError = ERROR_NOT_ENOUGH_MEMORY;
+
+    // Open the remote stream
+    pRemStream = FileStream_OpenFile(szRemoteName, BASE_PROVIDER_HTTP | STREAM_PROVIDER_FLAT | dwPortFlags);
+    if (pRemStream != NULL)
+    {
+        // Will we download the entire file or just a part of it?
+        if (PtrByteOffset == NULL)
+        {
+            ULONGLONG FileSize = 0;
+
+            // Retrieve the file size
+            if (FileStream_GetSize(pRemStream, &FileSize) && 0 < FileSize && FileSize < 0x10000000)
+            {
+                // Cut the file size down to 32 bits
+                cbReadSize = (DWORD)FileSize;
+            }
+        }
+
+        // Shall we read something?
+        if ((cbReadSize != 0) && (pbFileData = CASC_ALLOC(BYTE, cbReadSize)) != NULL)
+        {
+            // Read all required data from the remote file
+            if (FileStream_Read(pRemStream, PtrByteOffset, pbFileData, cbReadSize))
+            {
+                pLocStream = FileStream_CreateFile(szLocalName, BASE_PROVIDER_FILE | STREAM_PROVIDER_FLAT);
+                if (pLocStream != NULL)
+                {
+                    if (FileStream_Write(pLocStream, NULL, pbFileData, cbReadSize))
+                        nError = ERROR_SUCCESS;
+
+                    FileStream_Close(pLocStream);
+                }
+            }
+
+            // Free the data buffer
+            CASC_FREE(pbFileData);
+        }
+
+        // Close the remote stream
+        FileStream_Close(pRemStream);
+    }
+    else
+    {
+        nError = GetLastError();
+    }
+
+    return nError;
+}
+
+static int DownloadFile(
+    TCascStorage * hs,
+    const TCHAR * szServerName,
+    const TCHAR * szServerPath1,
+    const TCHAR * szServerPath2,
+    const TCHAR * szLocalPath2,
+    PULONGLONG PtrByteOffset,
+    DWORD cbReadSize,
+    TCHAR * szOutLocalPath,
+    size_t cchOutLocalPath,
+    DWORD dwPortFlags,
+    bool bAlwaysDownload,
+    bool bWowClassicRedirect)
+{
+    TCHAR szRemotePath[MAX_PATH];
+    TCHAR szLocalPath[MAX_PATH];
+    size_t nLength;
+    int nError = ERROR_NOT_ENOUGH_MEMORY;
+
+    // Format the target URL
+    if(bWowClassicRedirect && !_tcsicmp(szServerPath1, _T("wow_classic_beta")))
+        szServerPath1 = _T("wow");
+    if (szLocalPath2 == NULL)
+        szLocalPath2 = szServerPath2;
+
+    // Create remote path
+    CombineUrlPath(szRemotePath, _countof(szRemotePath), szServerName, szServerPath1, szServerPath2);
+    CombineFilePath(szLocalPath, _countof(szLocalPath), hs->szRootPath, NULL, szLocalPath2);
+
+    // Make sure that the path exists
+    ForcePathExist(szLocalPath, true);
+
+    // If we are not forced to download a new one, try if local file exists.
+    if ((bAlwaysDownload == false) && (_taccess(szLocalPath, 0) == 0))
+    {
+        nError = ERROR_SUCCESS;
+    }
+    else
+    {
+        nError = DownloadFile(szRemotePath, szLocalPath, PtrByteOffset, cbReadSize, dwPortFlags);
+    }
+
+    // If succeeded, give the local path
     if(nError == ERROR_SUCCESS)
     {
-        pvListFile = ListFile_OpenExternal(hs->szBuildFile);
-        if(pvListFile != NULL)
+        // If the caller wanted local path, give it to him
+        if (szOutLocalPath && cchOutLocalPath)
         {
-            // Parse the info file
+            nLength = _tcslen(szLocalPath);
+            if ((nLength + 1) <= cchOutLocalPath)
+            {
+                CascStrCopy(szOutLocalPath, cchOutLocalPath, szLocalPath);
+            }
+        }
+    }
+
+    return nError;
+}
+
+static int FetchAndLoadConfigFile(TCascStorage * hs, PQUERY_KEY pFileKey, PARSETEXTFILE PfnParseProc)
+{
+    const TCHAR * szPathType = _T("config");
+    TCHAR szLocalPath[MAX_PATH];
+    TCHAR szSubDir[0x80] = _T("");
+    void * pvListFile = NULL;
+    int nError = ERROR_CAN_NOT_COMPLETE;
+
+    // If online storage, we download the file. Otherwise, create a local path
+    if(hs->dwFeatures & CASC_FEATURE_ONLINE)
+    {
+        nError = DownloadFileFromCDN(hs, szPathType, pFileKey->pbData, NULL, szLocalPath, _countof(szLocalPath));
+        if(nError != ERROR_SUCCESS)
+            return nError;
+    }
+    else
+    {
+        CreateCascSubdirectoryName(szSubDir, _countof(szSubDir), szPathType, NULL, pFileKey->pbData);
+        CombineFilePath(szLocalPath, _countof(szLocalPath), hs->szDataPath, szSubDir);
+    }
+
+    // Load and verify the external listfile
+    pvListFile = ListFile_OpenExternal(szLocalPath);
+    if (pvListFile != NULL)
+    {
+        if (ListFile_VerifyMD5(pvListFile, pFileKey->pbData))
+        {
             nError = PfnParseProc(hs, pvListFile);
-            ListFile_Free(pvListFile);
         }
         else
-            nError = ERROR_FILE_NOT_FOUND;
-    }
-
-    // If the .build.info OR .build.db file has been loaded,
-    // proceed with loading the CDN config file and CDN build file
-    if(nError == ERROR_SUCCESS)
-    {
-        // Load the configuration file. Note that we don't
-        // need it for anything, really, so we don't care if it fails
-        pvListFile = FetchAndVerifyConfigFile(hs, &hs->CdnConfigKey);
-        if(pvListFile != NULL)
         {
-            nError = LoadCdnConfigFile(hs, pvListFile);
-            ListFile_Free(pvListFile);
+            nError = ERROR_FILE_CORRUPT;
         }
+        CASC_FREE(pvListFile);
     }
-
-    // Load the build file
-    if(nError == ERROR_SUCCESS)
+    else
     {
-        pvListFile = FetchAndVerifyConfigFile(hs, &hs->CdnBuildKey);
-        if(pvListFile != NULL)
-        {
-            nError = LoadCdnBuildFile(hs, pvListFile);
-            ListFile_Free(pvListFile);
-        }
-        else
-            nError = ERROR_FILE_NOT_FOUND;
-    }
-
-    // Fill the index directory
-    if(nError == ERROR_SUCCESS)
-    {
-        // First, check for more common "data" subdirectory
-        if((hs->szIndexPath = CheckForIndexDirectory(hs, _T("data"))) != NULL)
-            return ERROR_SUCCESS;
-
-        // Second, try the "darch" subdirectory (older builds of HOTS - Alpha)
-        if((hs->szIndexPath = CheckForIndexDirectory(hs, _T("darch"))) != NULL)
-            return ERROR_SUCCESS;
-
         nError = ERROR_FILE_NOT_FOUND;
     }
 
     return nError;
 }
 
+//-----------------------------------------------------------------------------
+// Public functions
+
+int DownloadFileFromCDN(TCascStorage * hs, const TCHAR * szSubDir, LPBYTE pbEKey, const TCHAR * szExtension, TCHAR * szOutLocalPath, size_t cchOutLocalPath)
+{
+    PCASC_ARCINDEX_ENTRY pIndexEntry;
+    const TCHAR * szCdnServers = hs->szCdnServers;
+    TCHAR szRemoteFolder[MAX_PATH];
+    TCHAR szLocalFolder[MAX_PATH];
+    TCHAR szServerName[MAX_PATH];
+    int nError = ERROR_CAN_NOT_COMPLETE;
+
+    // Try all download servers
+    while((szCdnServers = ExtractCdnServerName(szServerName, _countof(szServerName), szCdnServers)) != NULL)
+    {
+        // Create the local subdirectory
+        CreateCascSubdirectoryName(szLocalFolder, _countof(szLocalFolder), szSubDir, szExtension, pbEKey);
+
+        // If the EKey is in an archive, we need to change the source
+        if ((pIndexEntry = (PCASC_ARCINDEX_ENTRY)hs->ArcIndexMap.FindObject(pbEKey)) != NULL)
+        {
+            ULONGLONG ByteOffset;
+
+            // Change the subpath to an archive
+            CreateCascSubdirectoryName(szRemoteFolder, _countof(szRemoteFolder), szSubDir, szExtension, pIndexEntry->IndexHash);
+            ByteOffset = pIndexEntry->ArchiveOffset;
+            nError = DownloadFile(hs,
+                                  szServerName,
+                                  hs->szCdnPath,
+                                  szRemoteFolder,
+                                  szLocalFolder,
+                                 &ByteOffset,
+                                  pIndexEntry->EncodedSize,
+                                  szOutLocalPath,
+                                  cchOutLocalPath, 0, false, false);
+        }
+        else
+        {
+            nError = DownloadFile(hs,
+                                  szServerName,
+                                  hs->szCdnPath,
+                                  szLocalFolder,
+                                  szLocalFolder,
+                                  NULL,
+                                  0,
+                                  szOutLocalPath,
+                                  cchOutLocalPath, 0, false, false);
+        }
+
+        if (nError == ERROR_SUCCESS)
+            break;
+    }
+
+    return nError;
+}
+
 // Checks whether there is a ".build.info" or ".build.db".
-// If yes, the function sets "szRootPath" and "szDataPath"
+// If yes, the function sets "szDataPath" and "szIndexPath"
 // in the storage structure and returns ERROR_SUCCESS
 int CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory)
 {
@@ -912,22 +1170,22 @@ int CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory)
     int nError = ERROR_FILE_NOT_FOUND;
 
     // Try to find any of the root files used in the history
-    for(size_t i = 0; BuildTypes[i].szFileName != NULL; i++)
+    for (size_t i = 0; BuildTypes[i].szFileName != NULL; i++)
     {
         // Create the full name of the .agent.db file
         szBuildFile = CombinePath(szDirectory, BuildTypes[i].szFileName);
-        if(szBuildFile != NULL)
+        if (szBuildFile != NULL)
         {
             // Attempt to open the file
             pStream = FileStream_OpenFile(szBuildFile, STREAM_FLAG_READ_ONLY);
-            if(pStream != NULL)
+            if (pStream != NULL)
             {
                 // Free the stream
                 FileStream_Close(pStream);
 
                 // Check for the data directory
                 nError = CheckDataDirectory(hs, szDirectory);
-                if(nError == ERROR_SUCCESS)
+                if (nError == ERROR_SUCCESS)
                 {
                     hs->szBuildFile = szBuildFile;
                     hs->BuildFileType = BuildTypes[i].BuildFileType;
@@ -942,76 +1200,95 @@ int CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory)
     return nError;
 }
 
-//-----------------------------------------------------------------------------
-// Helpers for a config files that have multiple variables separated by "|"
-// The line structure is (Overwatch 24919): "#MD5|CHUNK_ID|FILENAME|INSTALLPATH"
-// The line structure is (Overwatch 27759): "#MD5|CHUNK_ID|PRIORITY|MPRIORITY|FILENAME|INSTALLPATH"
-// The line has all preceding spaces removed
-
-// Retrieves the index of a variable from the initial line
-int GetRootVariableIndex(const char * szLinePtr, const char * szLineEnd, const char * szVariableName, int * PtrIndex)
+int LoadBuildInfo(TCascStorage * hs)
 {
-    size_t nLength = strlen(szVariableName);
-    int nIndex = 0;
-    
-    while(szLinePtr < szLineEnd)
-    {
-        // Check the variable there
-        if(!_strnicmp(szLinePtr, szVariableName, nLength))
-        {
-            // Does the length match?
-            if(szLinePtr[nLength] == '|' || szLinePtr[nLength] == '0')
-            {
-                PtrIndex[0] = nIndex;
-                return ERROR_SUCCESS;
-            }
-        }
-
-        // Get the next variable
-        szLinePtr = SkipInfoVariable(szLinePtr, szLineEnd);
-        if(szLinePtr == NULL)
-            break;
-        nIndex++;
-    }
-
-    return ERROR_BAD_FORMAT;
-}
-
-// Parses single line from Overwatch.
-int ParseRootFileLine(const char * szLinePtr, const char * szLineEnd, int nFileNameIndex, PQUERY_KEY PtrEncodingKey, char * szFileName, size_t nMaxChars)
-{
-    int nIndex = 0;
+    PARSECSVFILE PfnParseProc = NULL;
+    bool bHasHeader = true;
     int nError;
 
-    // Extract the MD5 (aka encoding key)
-    if(szLinePtr[MD5_STRING_SIZE] != '|')
-        return ERROR_BAD_FORMAT;
-
-    // Convert the encoding key to binary
-    PtrEncodingKey->cbData = MD5_HASH_SIZE;
-    nError = ConvertStringToBinary(szLinePtr, MD5_STRING_SIZE, PtrEncodingKey->pbData);
-    if(nError != ERROR_SUCCESS)
-        return nError;
-
-    // Skip the variable
-    szLinePtr += MD5_STRING_SIZE + 1;
-    nIndex = 1;
-
-    // Skip the variables until we find the file name
-    while(szLinePtr < szLineEnd && nIndex < nFileNameIndex)
+    // If the storage is online storage, we need to download "versions"
+    if(hs->dwFeatures & CASC_FEATURE_ONLINE)
     {
-        if(szLinePtr[0] == '|')
-            nIndex++;
-        szLinePtr++;
+        // Inform the user about loading the build.info/build.db/versions
+        if(hs->PfnCallback && hs->PfnCallback(hs->PtrCallbackParam, "Downloading the \"versions\" file", NULL, 0, 0))
+            return ERROR_CANCELLED;
+
+        // Attempt to download the "versions" file
+        nError = DownloadFile(hs, _T("us.patch.battle.net"), hs->szCodeName, _T("versions"), NULL, NULL, 0, NULL, 0, STREAM_FLAG_USE_PORT_1119, true, false);
+        if(nError != ERROR_SUCCESS)
+        {
+            return nError;
+        }
     }
 
-    // Extract the file name
-    while(szLinePtr < szLineEnd && szLinePtr[0] != '|' && nMaxChars > 1)
+    // We support either ".build.info" or ".build.db"
+    switch (hs->BuildFileType)
     {
-        *szFileName++ = *szLinePtr++;
-        nMaxChars--;
+        case CascBuildInfo:
+            PfnParseProc = ParseFile_BuildInfo;
+            break;
+
+        case CascVersionsDb:
+            PfnParseProc = ParseFile_VersionsDb;
+            break;
+
+        case CascBuildDb:
+            PfnParseProc = ParseFile_BuildDb;
+            bHasHeader = false;
+            break;
+
+        default:
+            return ERROR_NOT_SUPPORTED;
     }
 
-    *szFileName = 0;
-    return ERROR_SUCCESS;
+    return LoadCsvFile(hs, hs->szBuildFile, PfnParseProc, bHasHeader);
+}
+
+int LoadCdnsInfo(TCascStorage * hs)
+{
+    TCHAR szLocalPath[MAX_PATH];
+    int nError = ERROR_SUCCESS;
+
+    // Sanity checks
+    assert(hs->dwFeatures & CASC_FEATURE_ONLINE);
+
+    // Inform the user about what we are doing
+    if(hs->PfnCallback && hs->PfnCallback(hs->PtrCallbackParam, "Downloading the \"cdns\" file", NULL, 0, 0))
+        return ERROR_CANCELLED;
+
+    // Download file and parse it
+    nError = DownloadFile(hs, _T("us.patch.battle.net"), hs->szCodeName, _T("cdns"), NULL, NULL, 0, szLocalPath, _countof(szLocalPath), STREAM_FLAG_USE_PORT_1119, false, true);
+    if(nError == ERROR_SUCCESS)
+    {
+        nError = LoadCsvFile(hs, szLocalPath, ParseFile_CDNS, true);
+    }
+
+    return nError;
+}
+
+int LoadCdnConfigFile(TCascStorage * hs)
+{
+    // The CKey for the CDN config should have been loaded already
+    assert(hs->CdnConfigKey.pbData != NULL && hs->CdnConfigKey.cbData == MD5_HASH_SIZE);
+
+    // Inform the user about what we are doing
+    if(hs->PfnCallback && hs->PfnCallback(hs->PtrCallbackParam, "Downloading CDN config file", NULL, 0, 0))
+        return ERROR_CANCELLED;
+
+    // Load the CDN config file
+    return FetchAndLoadConfigFile(hs, &hs->CdnConfigKey, ParseFile_CdnConfig);
+}
+
+int LoadCdnBuildFile(TCascStorage * hs)
+{
+    // The CKey for the CDN config should have been loaded already
+    assert(hs->CdnBuildKey.pbData != NULL && hs->CdnBuildKey.cbData == MD5_HASH_SIZE);
+
+    // Inform the user about what we are doing
+    if(hs->PfnCallback && hs->PfnCallback(hs->PtrCallbackParam, "Downloading CDN build file", NULL, 0, 0))
+        return ERROR_CANCELLED;
+
+    // Load the CDN config file. Note that we don't
+    // need it for anything, really, so we don't care if it fails
+    return FetchAndLoadConfigFile(hs, &hs->CdnBuildKey, ParseFile_CdnBuild);
 }

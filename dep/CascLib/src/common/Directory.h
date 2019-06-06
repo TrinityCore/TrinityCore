@@ -18,6 +18,8 @@ typedef bool (*INDEX_FILE_FOUND)(const TCHAR * szFileName, PDWORD IndexArray, PD
 
 bool DirectoryExists(const TCHAR * szDirectory);
 
+bool MakeDirectory(const TCHAR * szDirectory);
+
 int ScanIndexDirectory(
     const TCHAR * szIndexPath,
     INDEX_FILE_FOUND pfnOnFileFound,
