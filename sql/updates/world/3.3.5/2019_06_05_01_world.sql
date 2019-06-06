@@ -1,0 +1,28 @@
+-- 
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (24016, 24161, 24162) AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(24016, 0, 0, 0, 9, 0, 100, 0, 0, 5, 7000, 12000, 0, 11, 48288, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "Ulf the Bloodletter - Within 0-5 Range - Cast 'Mace Smash' (Phase 1) (No Repeat)"),
+(24016, 0, 1, 0, 6, 0, 100, 513, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Ulf the Bloodletter - On Just Died - Set Event Phase 1 (Phase 1) (No Repeat)"),
+(24016, 0, 2, 0, 8, 1, 100, 1, 43178, 0, 0, 0, 0, 11, 43191, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Ulf the Bloodletter - On Spellhit 'Plant Forsaken Banner' - Cast 'Ulf Credit' (Phase 1) (No Repeat)"),
+(24016, 0, 3, 4, 11, 0, 100, 512, 0, 0, 0, 0, 0, 18, 768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Ulf the Bloodletter - On Spawn - Set Immune Flags"),
+(24016, 0, 4, 0, 61, 0, 100, 512, 0, 0, 0, 0, 0, 47, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Ulf the Bloodletter - On Spawn - Set Invisible"),
+(24016, 0, 5, 6, 38, 0, 100, 513, 1, 1, 0, 0, 0, 47, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Ulf the Bloodletter - On Data Set - Set Visible"),
+(24016, 0, 6, 7, 61, 0, 100, 513, 0, 0, 0, 0, 0, 19, 768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Ulf the Bloodletter - On Data Set - Remove Immune Flags"),
+(24016, 0, 7, 0, 61, 0, 100, 513, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Ulf the Bloodletter - On Data Set - Say"),
+(24161, 0, 0, 0, 9, 0, 100, 0, 0, 5, 5000, 8000, 0, 11, 15496, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "Oric the Baleful - Within 0-5 Range - Cast 'Cleave' (Phase 1) (No Repeat)"),
+(24161, 0, 1, 0, 0, 0, 100, 0, 9000, 11000, 9000, 13000, 0, 11, 32736, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "Oric the Baleful - In Combat - Cast 'Mortal Strike' (Phase 1) (No Repeat)"),
+(24161, 0, 2, 0, 6, 0, 100, 513, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Oric the Baleful - On Just Died - Set Event Phase 1 (Phase 1) (No Repeat)"),
+(24161, 0, 3, 0, 8, 1, 100, 1, 43178, 0, 0, 0, 0, 11, 43192, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Oric the Baleful - On Spellhit 'Plant Forsaken Banner' - Cast 'Oric Credit' (Phase 1) (No Repeat)"),
+(24161, 0, 4, 5, 11, 0, 100, 512, 0, 0, 0, 0, 0, 18, 768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Oric the Baleful - On Spawn - Set Immune Flags"),
+(24161, 0, 5, 0, 61, 0, 100, 512, 0, 0, 0, 0, 0, 47, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Oric the Baleful - On Spawn - Set Invisible"),
+(24161, 0, 6, 7, 38, 0, 100, 513, 1, 1, 0, 0, 0, 47, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Oric the Baleful - On Data Set - Set Visible"),
+(24161, 0, 7, 8, 61, 0, 100, 513, 0, 0, 0, 0, 0, 19, 768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Oric the Baleful - On Data Set - Remove Immune Flags"),
+(24161, 0, 8, 0, 61, 0, 100, 513, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Oric the Baleful - On Data Set - Say"),
+(24162, 0, 0, 0, 9, 0, 100, 0, 0, 5, 7000, 9000, 0, 11, 41056, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Gunnar Thorvardsson - Within 0-5 Range - Cast 'Whirlwind' (Phase 1) (No Repeat)"),
+(24162, 0, 1, 0, 6, 0, 100, 513, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Gunnar Thorvardsson - On Just Died - Set Event Phase 1 (Phase 1) (No Repeat)"),
+(24162, 0, 2, 0, 8, 1, 100, 1, 43178, 0, 0, 0, 0, 11, 43193, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Gunnar Thorvardsson - On Spellhit 'Plant Forsaken Banner' - Cast 'Gunnar Credit' (Phase 1) (No Repeat)"),
+(24162, 0, 3, 4, 11, 0, 100, 512, 0, 0, 0, 0, 0, 18, 768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Gunnar Thorvardsson - On Spawn - Set Immune Flags"),
+(24162, 0, 4, 0, 61, 0, 100, 512, 0, 0, 0, 0, 0, 47, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Gunnar Thorvardsson - On Spawn - Set Invisible"),
+(24162, 0, 5, 6, 38, 0, 100, 513, 1, 1, 0, 0, 0, 47, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Gunnar Thorvardsson - On Data Set - Set Visible"),
+(24162, 0, 6, 7, 61, 0, 100, 513, 0, 0, 0, 0, 0, 19, 768, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Gunnar Thorvardsson - On Data Set - Remove Immune Flags"),
+(24162, 0, 7, 0, 61, 0, 100, 513, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Gunnar Thorvardsson - On Data Set - Say");

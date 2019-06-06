@@ -16,19 +16,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_ZulGurub
-SD%Complete: 80
-SDComment: Missing reset function after killing a boss for Ohgan, Thekal.
-SDCategory: Zul'Gurub
-EndScriptData */
-
-#include "ScriptMgr.h"
-#include "Creature.h"
+#include "zulgurub.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "zulgurub.h"
+#include "ScriptMgr.h"
 
 DoorData const doorData[] =
 {
@@ -38,7 +30,19 @@ DoorData const doorData[] =
 
 ObjectData const creatureData[] =
 {
-    { NPC_PRIESTESS_MARLI, DATA_MARLI }
+    { NPC_ZEALOT_LORKHAN,     DATA_LORKHAN },
+    { NPC_ZEALOT_ZATH,        DATA_ZATH },
+    { NPC_HIGH_PRIEST_THEKAL, DATA_THEKAL },
+    { NPC_JINDO_THE_HEXXER,   DATA_JINDO },
+    { NPC_ARLOKK,             DATA_ARLOKK },
+    { NPC_PRIESTESS_MARLI,    DATA_MARLI },
+    { NPC_VILEBRANCH_SPEAKER, DATA_VILEBRANCH_SPEAKER },
+    { NPC_HAKKAR,             DATA_HAKKAR }
+};
+
+ObjectData const gameobjectData[] =
+{
+    { GO_GONG_OF_BETHEKK, DATA_GONG_BETHEKK }
 };
 
 class instance_zulgurub : public InstanceMapScript
@@ -51,7 +55,7 @@ class instance_zulgurub : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, gameobjectData);
                 LoadDoorData(doorData);
             }
 
@@ -61,33 +65,6 @@ class instance_zulgurub : public InstanceMapScript
                 return false;
             }
 
-            void OnCreatureCreate(Creature* creature) override
-            {
-                InstanceScript::OnCreatureCreate(creature);
-
-                switch (creature->GetEntry())
-                {
-                    case NPC_ZEALOT_LORKHAN:
-                        _zealotLorkhanGUID = creature->GetGUID();
-                        break;
-                    case NPC_ZEALOT_ZATH:
-                        _zealotZathGUID = creature->GetGUID();
-                        break;
-                    case NPC_HIGH_PRIEST_THEKAL:
-                        _highPriestTekalGUID = creature->GetGUID();
-                        break;
-                    case NPC_JINDO_THE_HEXXER:
-                        _jindoTheHexxerGUID = creature->GetGUID();
-                        break;
-                    case NPC_VILEBRANCH_SPEAKER:
-                        _vilebranchSpeakerGUID = creature->GetGUID();
-                        break;
-                    case NPC_ARLOKK:
-                        _arlokkGUID = creature->GetGUID();
-                        break;
-                }
-            }
-
             void OnGameObjectCreate(GameObject* go) override
             {
                 InstanceScript::OnGameObjectCreate(go);
@@ -95,7 +72,6 @@ class instance_zulgurub : public InstanceMapScript
                 switch (go->GetEntry())
                 {
                     case GO_GONG_OF_BETHEKK:
-                        _goGongOfBethekkGUID = go->GetGUID();
                         if (GetBossState(DATA_ARLOKK) == DONE)
                             go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         else
@@ -105,44 +81,6 @@ class instance_zulgurub : public InstanceMapScript
                         break;
                 }
             }
-
-            ObjectGuid GetGuidData(uint32 uiData) const override
-            {
-                switch (uiData)
-                {
-                    case DATA_LORKHAN:
-                        return _zealotLorkhanGUID;
-                        break;
-                    case DATA_ZATH:
-                        return _zealotZathGUID;
-                        break;
-                    case DATA_THEKAL:
-                        return _highPriestTekalGUID;
-                        break;
-                    case DATA_JINDO:
-                        return _jindoTheHexxerGUID;
-                        break;
-                    case NPC_ARLOKK:
-                        return _arlokkGUID;
-                        break;
-                    case GO_GONG_OF_BETHEKK:
-                        return _goGongOfBethekkGUID;
-                        break;
-                }
-                return ObjectGuid::Empty;
-            }
-
-        private:
-            //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
-            //Storing Lorkhan, Zath and Thekal because we need to cast on them later. Jindo is needed for healfunction too.
-
-            ObjectGuid _zealotLorkhanGUID;
-            ObjectGuid _zealotZathGUID;
-            ObjectGuid _highPriestTekalGUID;
-            ObjectGuid _jindoTheHexxerGUID;
-            ObjectGuid _vilebranchSpeakerGUID;
-            ObjectGuid _arlokkGUID;
-            ObjectGuid _goGongOfBethekkGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
