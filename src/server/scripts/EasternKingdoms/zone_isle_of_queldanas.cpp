@@ -99,7 +99,7 @@ enum ThalorienDawnseeker
     SPELL_POLYMORPH_VISUAL      = 27123
 };
 
-float const defenderReverse = 5.67232;
+float const defenderReverse = 5.67232f;
 Position const defenderRun[10] =
         {
                 { 11934.78f, -7064.424f, 33.38046f },
