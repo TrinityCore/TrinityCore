@@ -158,6 +158,8 @@ public:
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             _summons.DespawnAll();
             _playerGUID.Clear();
+            _morlenGUID.Clear();
+            _thalorienGUID.Clear();
             _events.Reset();
         }
 
@@ -216,11 +218,11 @@ public:
                             if (creature->GetEntry() != NPC_SUNWELL_DEFENDER)
                                 continue;
 
-                            creature->SetFacingTo(defenderReverse);
-
-                            ++i;
-                            if (i > 5)
-                                creature->GetMotionMaster()->MovePoint(0, defenderRun[i]);
+                            i++;
+                            if (i <= 5)
+                                creature->SetFacingTo(defenderReverse);
+                            else
+                                creature->GetMotionMaster()->MovePoint(0, defenderRun[i - 1]);
                         }
 
                         break;
