@@ -112,6 +112,7 @@ namespace WorldPackets
             int64 TokenBalanceAmount                     = 0;
             uint32 BpayStoreProductDeliveryDelay         = 0;
             uint32 ClubsPresenceUpdateTimer              = 0;
+            uint32 HiddenUIClubsPresenceUpdateTimer      = 0; ///< Timer for updating club presence when communities ui frame is hidden
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
@@ -129,6 +130,7 @@ namespace WorldPackets
             bool ClubsEnabled                        = false;
             bool ClubsBattleNetClubTypeAllowed       = false;
             bool ClubsCharacterClubTypeAllowed       = false;
+            bool ClubsPresenceUpdateEnabled          = false;
             bool VoiceChatDisabledByParentalControl  = false;
             bool VoiceChatMutedByParentalControl     = false;
 

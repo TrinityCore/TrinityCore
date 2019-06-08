@@ -186,35 +186,16 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
     if (!CheckDelimiter(iss, DELIMITER, "item"))
         return false;
 
-    if (HasValue(iss) && !ReadInt32(iss, _randomPropertyId))
+    if (HasValue(iss) && !ReadInt32(iss, zero))
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item random property id", iss.str().c_str());
         return false;
     }
 
-    if (_randomPropertyId > 0)
-    {
-        _property = sItemRandomPropertiesStore.LookupEntry(_randomPropertyId);
-        if (!_property)
-        {
-            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid item property id %u in |item command", iss.str().c_str(), _randomPropertyId);
-            return false;
-        }
-    }
-    else if (_randomPropertyId < 0)
-    {
-        _suffix = sItemRandomSuffixStore.LookupEntry(-_randomPropertyId);
-        if (!_suffix)
-        {
-            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid item suffix id %u in |item command", iss.str().c_str(), -_randomPropertyId);
-            return false;
-        }
-    }
-
     if (!CheckDelimiter(iss, DELIMITER, "item"))
         return false;
 
-    if (HasValue(iss) && !ReadInt32(iss, _randomPropertySeed))
+    if (HasValue(iss) && !ReadInt32(iss, zero))
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item random property seed", iss.str().c_str());
         return false;
@@ -381,7 +362,8 @@ bool ItemChatLink::ValidateName(char* buffer, char const* context)
 {
     ChatLink::ValidateName(buffer, context);
 
-    LocalizedString* suffixStrings = _suffix ? _suffix->Name : (_property ? _property->Name : nullptr);
+    // TODO: use suffix from ItemNameDescription
+    LocalizedString* suffixStrings = nullptr;
 
     for (uint8 locale = LOCALE_enUS; locale < TOTAL_LOCALES; ++locale)
     {

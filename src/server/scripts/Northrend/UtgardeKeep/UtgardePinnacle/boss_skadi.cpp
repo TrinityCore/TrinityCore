@@ -231,7 +231,7 @@ public:
             {
                 case ACTION_START_ENCOUNTER:
                     instance->SetBossState(DATA_SKADI_THE_RUTHLESS, IN_PROGRESS);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     me->setActive(true);
                     SpawnFirstWave();
                     Talk(SAY_AGGRO);
@@ -267,7 +267,7 @@ public:
                     Talk(SAY_DRAKE_DEATH);
                     DoCast(me, SPELL_SKADI_TELEPORT, true);
                     summons.DespawnEntry(NPC_WORLD_TRIGGER);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
                     me->SetReactState(REACT_AGGRESSIVE);
                     _phase = PHASE_GROUND;
 
@@ -371,7 +371,7 @@ public:
             me->setActive(true);
             me->SetCanFly(true);
             me->SetDisableGravity(true);
-            me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+            me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
 
             _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
@@ -505,7 +505,7 @@ struct npc_skadi_trashAI : public ScriptedAI
         switch (pointId)
         {
             case POINT_0:
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, me->GetEntry() == NPC_YMIRJAR_WARRIOR ? EMOTE_STATE_READY1H : EMOTE_STATE_READY2HL);
+                me->SetEmoteState(me->GetEntry() == NPC_YMIRJAR_WARRIOR ? EMOTE_STATE_READY1H : EMOTE_STATE_READY2HL);
                 break;
             case POINT_1:
                 _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)

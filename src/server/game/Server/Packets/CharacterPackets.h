@@ -148,7 +148,7 @@ namespace WorldPackets
                 uint32 LastPlayedTime    = 0;
                 uint16 SpecID            = 0;
                 uint32 Unknown703        = 0;
-                uint32 LastLoginBuild    = 0;
+                uint32 LastLoginVersion    = 0;
 
                 struct PetInfo
                 {
@@ -178,6 +178,12 @@ namespace WorldPackets
                 bool HasHeritageArmor = false;
             };
 
+            struct UnlockedConditionalAppearance
+            {
+                int32 AchievementID = 0;
+                int32 Unused = 0;
+            };
+
             EnumCharactersResult() : ServerPacket(SMSG_ENUM_CHARACTERS_RESULT) { }
 
             WorldPacket const* Write() override;
@@ -194,6 +200,7 @@ namespace WorldPackets
 
             std::vector<CharacterInfo> Characters; ///< all characters on the list
             std::vector<RaceUnlock> RaceUnlockData; ///<
+            std::vector<UnlockedConditionalAppearance> UnlockedConditionalAppearances;
         };
 
         class CreateCharacter final : public ClientPacket

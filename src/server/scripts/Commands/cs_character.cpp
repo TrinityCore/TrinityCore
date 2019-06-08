@@ -235,7 +235,7 @@ public:
         {
             player->GiveLevel(newLevel);
             player->InitTalentForLevel();
-            player->SetUInt32Value(ACTIVE_PLAYER_FIELD_XP, 0);
+            player->SetXP(0);
 
             if (handler->needReportToTarget(player))
             {
@@ -281,7 +281,7 @@ public:
                 if (name.empty())
                     continue;
 
-                char const* activeStr = target->GetInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID
+                char const* activeStr = *target->m_playerData->PlayerTitle == titleInfo->MaskID
                 ? handler->GetTrinityString(LANG_ACTIVE)
                 : "";
 

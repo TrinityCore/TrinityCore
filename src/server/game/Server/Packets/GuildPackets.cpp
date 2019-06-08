@@ -29,6 +29,7 @@ WorldPackets::Guild::QueryGuildInfoResponse::QueryGuildInfoResponse()
 WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
 {
     _worldPacket << GuildGuid;
+    _worldPacket << PlayerGuid;
     _worldPacket.WriteBit(Info.is_initialized());
     _worldPacket.FlushBits();
 

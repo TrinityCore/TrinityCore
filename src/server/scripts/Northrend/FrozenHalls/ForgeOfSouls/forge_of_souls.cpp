@@ -78,7 +78,7 @@ public:
         npc_sylvanas_fosAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         }
 
         void Initialize()
@@ -101,7 +101,7 @@ public:
             {
                 CloseGossipMenuFor(player);
                 phase = PHASE_INTRO;
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 events.Reset();
                 events.ScheduleEvent(EVENT_INTRO_1, 1000);
             }
@@ -172,7 +172,7 @@ public:
         npc_jaina_fosAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         }
 
         void Initialize()
@@ -195,7 +195,7 @@ public:
             {
                 CloseGossipMenuFor(player);
                 phase = PHASE_INTRO;
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 events.Reset();
                 events.ScheduleEvent(EVENT_INTRO_1, 1000);
             }

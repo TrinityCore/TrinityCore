@@ -248,7 +248,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                     DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_CHAMPIONS_KILLED_IN_MINUTE);
                                 DoRespawnGameObject(CrusadersCacheGUID, 7*DAY);
                                 if (GameObject* cache = instance->GetGameObject(CrusadersCacheGUID))
-                                    cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                    cache->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                                 EventStage = 3100;
                                 break;
                             default:
@@ -374,7 +374,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     if (state == DONE || NeedSave)
                     {
                         if (Unit* announcer = instance->GetCreature(GetGuidData(NPC_BARRENT)))
-                            announcer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            announcer->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                         Save();
                     }
                 }

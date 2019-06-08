@@ -213,7 +213,7 @@ class instance_stonecore : public InstanceMapScript
                     return;
 
                 teleporter->CastSpell(teleporter, SPELL_TELEPORTER_ACTIVE_VISUAL, true);
-                teleporter->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                teleporter->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
             }
 
             GuidVector millhouseTrashGUIDs;

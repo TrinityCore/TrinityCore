@@ -308,7 +308,6 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
     {
         return sLFGMgr->GetLFGDungeonEntry(dungeonId);
     });
-    lfgRoleCheckUpdate.BgQueueID = 0;
     lfgRoleCheckUpdate.GroupFinderActivityID = 0;
     if (!roleCheck.roles.empty())
     {
@@ -340,6 +339,8 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
     lfgJoinResult.Result = joinData.result;
     if (joinData.result == lfg::LFG_JOIN_ROLE_CHECK_FAILED)
         lfgJoinResult.ResultDetail = joinData.state;
+    else if (joinData.result == lfg::LFG_JOIN_NO_SLOTS)
+        lfgJoinResult.BlackListNames = joinData.playersMissingRequirement;
 
     for (lfg::LfgLockPartyMap::const_iterator it = joinData.lockmap.begin(); it != joinData.lockmap.end(); ++it)
     {

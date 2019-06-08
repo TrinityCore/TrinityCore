@@ -154,7 +154,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
     }
 
     // Verify that the bag is an actual bag or wrapped item that can be used "normally"
-    if (!(proto->GetFlags() & ITEM_FLAG_HAS_LOOT) && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
+    if (!(proto->GetFlags() & ITEM_FLAG_HAS_LOOT) && !item->HasItemFlag(ITEM_FIELD_FLAG_WRAPPED))
     {
         player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
         TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player %s [%s] tried to open item [%s, entry: %u] which is not openable!",
@@ -183,7 +183,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
         }
     }
 
-    if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))// wrapped?
+    if (item->HasItemFlag(ITEM_FIELD_FLAG_WRAPPED))// wrapped?
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
 
@@ -197,9 +197,9 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
             uint32 entry = fields[0].GetUInt32();
             uint32 flags = fields[1].GetUInt32();
 
-            item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid::Empty);
+            item->SetGiftCreator(ObjectGuid::Empty);
             item->SetEntry(entry);
-            item->SetUInt32Value(ITEM_FIELD_FLAGS, flags);
+            item->SetItemFlags(ItemFieldFlags(flags));
             item->SetState(ITEM_CHANGED, player);
         }
         else
@@ -466,7 +466,7 @@ void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& selfRes)
     if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
         return; // silent return, client should display error by itself and not send this opcode
 
-    std::vector<uint32> const& selfResSpells = _player->GetDynamicValues(ACTIVE_PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS);
+    auto const& selfResSpells = _player->m_activePlayerData->SelfResSpells;
     if (std::find(selfResSpells.begin(), selfResSpells.end(), selfRes.SpellID) == selfResSpells.end())
         return;
 
@@ -474,7 +474,7 @@ void WorldSession::HandleSelfResOpcode(WorldPackets::Spells::SelfRes& selfRes)
     if (spellInfo)
         _player->CastSpell(_player, spellInfo, false, nullptr);
 
-    _player->RemoveDynamicValue(ACTIVE_PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS, selfRes.SpellID);
+    _player->RemoveSelfResSpell(selfRes.SpellID);
 }
 
 void WorldSession::HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick)
@@ -520,13 +520,13 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
 
         Guild* guild = player->GetGuild();
 
-        mirrorImageComponentedData.SkinColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
-        mirrorImageComponentedData.FaceVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID);
-        mirrorImageComponentedData.HairVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
-        mirrorImageComponentedData.HairColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
-        mirrorImageComponentedData.BeardVariation = player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
+        mirrorImageComponentedData.SkinColor = player->m_playerData->SkinID;
+        mirrorImageComponentedData.FaceVariation = player->m_playerData->FaceID;
+        mirrorImageComponentedData.HairVariation = player->m_playerData->HairStyleID;
+        mirrorImageComponentedData.HairColor = player->m_playerData->HairColorID;
+        mirrorImageComponentedData.BeardVariation = player->m_playerData->FacialHairStyleID;
         for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
-            mirrorImageComponentedData.CustomDisplay[i] = player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i);
+            mirrorImageComponentedData.CustomDisplay[i] = player->m_playerData->CustomDisplayOption[i];
         mirrorImageComponentedData.GuildGUID = (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
         mirrorImageComponentedData.ItemDisplayID.reserve(11);
@@ -550,10 +550,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
         for (EquipmentSlots slot : itemSlots)
         {
             uint32 itemDisplayId;
-            if ((slot == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM)) ||
-                (slot == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK)))
-                itemDisplayId = 0;
-            else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+            if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
                 itemDisplayId = item->GetDisplayId(player);
             else
                 itemDisplayId = 0;

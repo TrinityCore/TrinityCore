@@ -184,7 +184,7 @@ public:
                             if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
                             {
                                 pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
-                                pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                pAnnouncer->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                                 pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData::fromEulerAnglesZYX(1.42f, 0.0f, 0.0f), 90000);
                             }
                         }
@@ -197,7 +197,7 @@ public:
                         if (Creature* pBoss =  instance->GetCreature(uiArgentChampionGUID))
                         {
                             pBoss->GetMotionMaster()->MovePoint(0, 746.88f, 618.74f, 411.06f);
-                            pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            pBoss->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             pBoss->SetReactState(REACT_AGGRESSIVE);
                         }
                     }
@@ -207,7 +207,7 @@ public:
                     if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                     {
                         pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
-                        pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        pAnnouncer->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                         pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_EADRIC_LOOT_H : GO_EADRIC_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData::fromEulerAnglesZYX(1.42f, 0.0f, 0.0f), 90000);
                     }
                     break;
@@ -216,7 +216,7 @@ public:
                     if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                     {
                         pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
-                        pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        pAnnouncer->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                         pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData::fromEulerAnglesZYX(1.42f, 0.0f, 0.0f), 90000);
                     }
                     break;

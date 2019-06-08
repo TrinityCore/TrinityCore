@@ -47,36 +47,64 @@ WorldPacket const* WorldPackets::Hotfix::DBReply::Write()
 WorldPacket const* WorldPackets::Hotfix::AvailableHotfixes::Write()
 {
     _worldPacket << int32(HotfixCacheVersion);
-    _worldPacket << uint32(Hotfixes.size());
+    _worldPacket << uint32(HotfixCount);
     for (auto const& hotfixEntry : Hotfixes)
-        _worldPacket << uint64(hotfixEntry.first);
+    {
+        for (auto const& tableRecord : hotfixEntry.second)
+        {
+            _worldPacket << uint32(tableRecord.first);
+            _worldPacket << int32(tableRecord.second);
+            _worldPacket << int32(hotfixEntry.first);
+        }
+    }
 
     return &_worldPacket;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Hotfix::HotfixRecord& hotfixRecord)
+{
+    data >> hotfixRecord.TableHash;
+    data >> hotfixRecord.RecordID;
+    data >> hotfixRecord.HotfixID;
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Hotfix::HotfixRecord const& hotfixRecord)
+{
+    data << uint32(hotfixRecord.TableHash);
+    data << int32(hotfixRecord.RecordID);
+    data << int32(hotfixRecord.HotfixID);
+    return data;
+}
+
 void WorldPackets::Hotfix::HotfixRequest::Read()
 {
+    _worldPacket >> ClientBuild;
+    _worldPacket >> DataBuild;
+
     uint32 hotfixCount = _worldPacket.read<uint32>();
-    if (hotfixCount > sDB2Manager.GetHotfixData().size())
-        throw PacketArrayMaxCapacityException(hotfixCount, sDB2Manager.GetHotfixData().size());
+    if (hotfixCount > sDB2Manager.GetHotfixCount())
+        throw PacketArrayMaxCapacityException(hotfixCount, sDB2Manager.GetHotfixCount());
 
     Hotfixes.resize(hotfixCount);
-    for (uint64& hotfixId : Hotfixes)
-        _worldPacket >> hotfixId;
+    for (HotfixRecord& hotfixRecord : Hotfixes)
+        _worldPacket >> hotfixRecord;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Hotfix::HotfixResponse::HotfixData const& hotfixData)
 {
-    data << uint64(hotfixData.ID);
-    data << int32(hotfixData.RecordID);
-    data.WriteBit(hotfixData.Data.is_initialized());
-    if (hotfixData.Data)
+    data << hotfixData.Record;
+    if (hotfixData.Size)
     {
-        data << uint32(hotfixData.Data->size());
-        data.append(*hotfixData.Data);
+        data << uint32(*hotfixData.Size);
+        data.WriteBit(true);
     }
     else
+    {
         data << uint32(0);
+        data.WriteBit(false);
+    }
+    data.FlushBits();
 
     return data;
 }
@@ -86,6 +114,9 @@ WorldPacket const* WorldPackets::Hotfix::HotfixResponse::Write()
     _worldPacket << uint32(Hotfixes.size());
     for (HotfixData const& hotfix : Hotfixes)
         _worldPacket << hotfix;
+
+    _worldPacket << uint32(HotfixContent.size());
+    _worldPacket.append(HotfixContent);
 
     return &_worldPacket;
 }
