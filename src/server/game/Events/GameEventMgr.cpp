@@ -1263,7 +1263,8 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
 
             // Spawn if necessary (loaded grids only)
             Map* map = sMapMgr->CreateBaseMap(data->spawnPoint.GetMapId());
-            map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
+            if (!sPoolMgr->IsPartOfAPool<Creature>(*itr))
+                map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
             // We use spawn coords to spawn
             if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
             {
@@ -1291,7 +1292,8 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             // Spawn if necessary (loaded grids only)
             // this base map checked as non-instanced and then only existed
             Map* map = sMapMgr->CreateBaseMap(data->spawnPoint.GetMapId());
-            map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
+            if (!sPoolMgr->IsPartOfAPool<GameObject>(*itr))
+                map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
             // We use current coords to unspawn, not spawn coords since creature can have changed grid
             if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
             {
@@ -1343,7 +1345,8 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
 
             sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(), [&itr](Map* map)
             {
-                map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
+                if (!sPoolMgr->IsPartOfAPool<Creature>(*itr))
+                    map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
                 auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(*itr);
                 for (auto itr2 = creatureBounds.first; itr2 != creatureBounds.second;)
                 {
@@ -1374,7 +1377,8 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
 
             sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(), [&itr](Map* map)
             {
-                map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
+                if (!sPoolMgr->IsPartOfAPool<GameObject>(*itr))
+                    map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
                 auto gameobjectBounds = map->GetGameObjectBySpawnIdStore().equal_range(*itr);
                 for (auto itr2 = gameobjectBounds.first; itr2 != gameobjectBounds.second;)
                 {
