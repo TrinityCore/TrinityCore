@@ -525,7 +525,7 @@ LPBYTE WINAPI CascFindEncryptionKey(HANDLE hStorage, ULONGLONG KeyName)
     if (hs == NULL)
     {
         SetLastError(ERROR_INVALID_HANDLE);
-        return false;
+        return NULL;
     }
 
     return CascFindKey(hs, KeyName);
