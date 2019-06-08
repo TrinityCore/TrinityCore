@@ -93,10 +93,10 @@ std::string GetScriptCommandName(ScriptCommands command)
     {
         case SCRIPT_COMMAND_TALK: res = "SCRIPT_COMMAND_TALK"; break;
         case SCRIPT_COMMAND_EMOTE: res = "SCRIPT_COMMAND_EMOTE"; break;
-        case SCRIPT_COMMAND_FIELD_SET: res = "SCRIPT_COMMAND_FIELD_SET"; break;
+        case SCRIPT_COMMAND_FIELD_SET_DEPRECATED: res = "SCRIPT_COMMAND_FIELD_SET_DEPRECATED"; break;
         case SCRIPT_COMMAND_MOVE_TO: res = "SCRIPT_COMMAND_MOVE_TO"; break;
-        case SCRIPT_COMMAND_FLAG_SET: res = "SCRIPT_COMMAND_FLAG_SET"; break;
-        case SCRIPT_COMMAND_FLAG_REMOVE: res = "SCRIPT_COMMAND_FLAG_REMOVE"; break;
+        case SCRIPT_COMMAND_FLAG_SET_DEPRECATED: res = "SCRIPT_COMMAND_FLAG_SET_DEPRECATED"; break;
+        case SCRIPT_COMMAND_FLAG_REMOVE_DEPRECATED: res = "SCRIPT_COMMAND_FLAG_REMOVE_DEPRECATED"; break;
         case SCRIPT_COMMAND_TELEPORT_TO: res = "SCRIPT_COMMAND_TELEPORT_TO"; break;
         case SCRIPT_COMMAND_QUEST_EXPLORED: res = "SCRIPT_COMMAND_QUEST_EXPLORED"; break;
         case SCRIPT_COMMAND_KILL_CREDIT: res = "SCRIPT_COMMAND_KILL_CREDIT"; break;
@@ -426,8 +426,10 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                        60           61           62              63                   64            65                 66             67              68
                                              "InhabitType, HoverHeight, HealthModifier, HealthModifierExtra, ManaModifier, ManaModifierExtra, ArmorModifier, DamageModifier, ExperienceModifier, "
-    //                                        69            70          71           72                    73           74
-                                             "RacialLeader, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName FROM creature_template");
+    //                                        69            70          71                72           73                        74           75                    76
+                                             "RacialLeader, movementId, FadeRegionRadius, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, mechanic_immune_mask, flags_extra, "
+    //                                        77
+                                             "ScriptName FROM creature_template");
 
     if (!result)
     {
@@ -525,10 +527,13 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.ModExperience          = fields[68].GetFloat();
     creatureTemplate.RacialLeader           = fields[69].GetBool();
     creatureTemplate.movementId             = fields[70].GetUInt32();
-    creatureTemplate.RegenHealth            = fields[71].GetBool();
-    creatureTemplate.MechanicImmuneMask     = fields[72].GetUInt32();
-    creatureTemplate.flags_extra            = fields[73].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[74].GetString());
+    creatureTemplate.FadeRegionRadius       = fields[71].GetFloat();
+    creatureTemplate.WidgetSetID            = fields[72].GetInt32();
+    creatureTemplate.WidgetSetUnitConditionID = fields[73].GetInt32();
+    creatureTemplate.RegenHealth            = fields[74].GetBool();
+    creatureTemplate.MechanicImmuneMask     = fields[75].GetUInt32();
+    creatureTemplate.flags_extra            = fields[76].GetUInt32();
+    creatureTemplate.ScriptID               = GetScriptId(fields[77].GetString());
 }
 
 void ObjectMgr::LoadCreatureTemplateModels()
@@ -2915,6 +2920,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.MaxMoneyLoot = 0;
         itemTemplate.FlagsCu = 0;
         itemTemplate.SpellPPMRate = 0.0f;
+        itemTemplate.RandomBonusListTemplateId = 0;
         itemTemplate.ItemSpecClassMask = 0;
 
         if (std::vector<ItemSpecOverrideEntry const*> const* itemSpecOverrides = sDB2Manager.GetItemSpecOverrides(sparse->ID))
@@ -3013,7 +3019,7 @@ void ObjectMgr::LoadItemTemplateAddon()
     uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance FROM item_template_addon");
+    QueryResult result = WorldDatabase.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance, RandomBonusListTemplateId FROM item_template_addon");
     if (result)
     {
         do
@@ -3039,6 +3045,7 @@ void ObjectMgr::LoadItemTemplateAddon()
             itemTemplate.MinMoneyLoot = minMoneyLoot;
             itemTemplate.MaxMoneyLoot = maxMoneyLoot;
             itemTemplate.SpellPPMRate = fields[5].GetFloat();
+            itemTemplate.RandomBonusListTemplateId = fields[6].GetUInt32();
             ++count;
         } while (result->NextRow());
     }
@@ -3963,9 +3970,9 @@ void ObjectMgr::LoadQuests()
         "RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, RewardFactionCapIn5, RewardFactionFlags, "
         //96                97                  98                 99                  100                101                 102                103
         "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
-        //104                105                 106          107          108             109               110
-        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, TreasurePickerID, Expansion, "
-        //111      112             113               114              115                116                117                 118                 119
+        //104                105                 106          107          108             109               110        111
+        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, TreasurePickerID, Expansion, ManagedWorldStateID, "
+        //112      113             114               115              116                117                118                 119                 120
         "LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog"
         " FROM quest_template");
     if (!result)
@@ -5281,6 +5288,13 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     continue;
                 }
                 break;
+            }
+            case SCRIPT_COMMAND_FIELD_SET_DEPRECATED:
+            case SCRIPT_COMMAND_FLAG_SET_DEPRECATED:
+            case SCRIPT_COMMAND_FLAG_REMOVE_DEPRECATED:
+            {
+                TC_LOG_ERROR("sql.sql", "Table `%s` uses deprecated direct updatefield modify command %s for script id %u", tableName.c_str(), GetScriptCommandName(tmp.command).c_str(), tmp.id);
+                continue;
             }
             default:
                 break;
@@ -10103,7 +10117,7 @@ void ObjectMgr::LoadPlayerChoices()
     uint32 oldMSTime = getMSTime();
     _playerChoices.clear();
 
-    QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, UiTextureKitId, Question, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
+    QueryResult choices = WorldDatabase.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, Question, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
 
     if (!choices)
     {
@@ -10126,13 +10140,14 @@ void ObjectMgr::LoadPlayerChoices()
         PlayerChoice& choice = _playerChoices[choiceId];
         choice.ChoiceId = choiceId;
         choice.UiTextureKitId = fields[1].GetInt32();
-        choice.Question = fields[2].GetString();
-        choice.HideWarboardHeader = fields[3].GetBool();
-        choice.KeepOpenAfterChoice = fields[4].GetBool();
+        choice.SoundKitId = fields[2].GetUInt32();
+        choice.Question = fields[3].GetString();
+        choice.HideWarboardHeader = fields[4].GetBool();
+        choice.KeepOpenAfterChoice = fields[5].GetBool();
 
     } while (choices->NextRow());
 
-    if (QueryResult responses = WorldDatabase.Query("SELECT ChoiceId, ResponseId, ChoiceArtFileId, Flags, WidgetSetID, GroupID, Header, Answer, Description, Confirmation FROM playerchoice_response ORDER BY `Index` ASC"))
+    if (QueryResult responses = WorldDatabase.Query("SELECT ChoiceId, ResponseId, ChoiceArtFileId, Flags, WidgetSetID, UiTextureAtlasElementID, SoundKitID, GroupID, Answer, Header, SubHeader, ButtonTemplate, Description, Confirmation, RewardQuestID FROM playerchoice_response ORDER BY `Index` ASC"))
     {
         do
         {
@@ -10155,11 +10170,18 @@ void ObjectMgr::LoadPlayerChoices()
             response.ChoiceArtFileId    = fields[2].GetInt32();
             response.Flags              = fields[3].GetInt32();
             response.WidgetSetID        = fields[4].GetUInt32();
-            response.GroupID            = fields[5].GetUInt8();
-            response.Header             = fields[6].GetString();
-            response.Answer             = fields[7].GetString();
-            response.Description        = fields[8].GetString();
-            response.Confirmation       = fields[9].GetString();
+            response.UiTextureAtlasElementID = fields[5].GetUInt32();
+            response.SoundKitID         = fields[6].GetUInt32();
+            response.GroupID            = fields[7].GetUInt8();
+            response.Answer             = fields[8].GetString();
+            response.Header             = fields[9].GetString();
+            response.SubHeader          = fields[10].GetString();
+            response.ButtonTooltip      = fields[11].GetString();
+            response.Description        = fields[12].GetString();
+            response.Confirmation       = fields[13].GetString();
+            if (!fields[14].IsNull())
+                response.RewardQuestID  = fields[14].GetUInt32();
+
             ++responseCount;
 
         } while (responses->NextRow());
@@ -10406,8 +10428,8 @@ void ObjectMgr::LoadPlayerChoicesLocale()
 
     oldMSTime = getMSTime();
 
-    //                                                   0         1           2       3       4       5            6
-    if (QueryResult result = WorldDatabase.Query("SELECT ChoiceID, ResponseID, locale, Header, Answer, Description, Confirmation FROM playerchoice_response_locale"))
+    //                                                   0         1           2       3       4       5          6               7            8
+    if (QueryResult result = WorldDatabase.Query("SELECT ChoiceID, ResponseID, locale, Answer, Header, SubHeader, ButtonTooltip, Description, Confirmation FROM playerchoice_response_locale"))
     {
         std::size_t count = 0;
         do
@@ -10439,10 +10461,12 @@ void ObjectMgr::LoadPlayerChoicesLocale()
                 continue;
 
             PlayerChoiceResponseLocale& data = itr->second.Responses[responseId];
-            AddLocaleString(fields[3].GetString(), locale, data.Header);
-            AddLocaleString(fields[4].GetString(), locale, data.Answer);
-            AddLocaleString(fields[5].GetString(), locale, data.Description);
-            AddLocaleString(fields[6].GetString(), locale, data.Confirmation);
+            AddLocaleString(fields[3].GetString(), locale, data.Answer);
+            AddLocaleString(fields[4].GetString(), locale, data.Header);
+            AddLocaleString(fields[5].GetString(), locale, data.SubHeader);
+            AddLocaleString(fields[6].GetString(), locale, data.ButtonTooltip);
+            AddLocaleString(fields[7].GetString(), locale, data.Description);
+            AddLocaleString(fields[8].GetString(), locale, data.Confirmation);
             ++count;
         } while (result->NextRow());
 

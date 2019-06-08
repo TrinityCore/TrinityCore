@@ -109,6 +109,9 @@ namespace WorldPackets
             Optional<int32> WeeklyQuantity;
             Optional<int32> TrackedQuantity;
             Optional<int32> MaxQuantity;
+            Optional<int32> QuantityChange;
+            Optional<int32> QuantityGainSource;
+            Optional<int32> QuantityLostSource;
             bool SuppressChatLog = false;
         };
 
@@ -415,6 +418,17 @@ namespace WorldPackets
 
             uint32 AnimKitID = 0;
             UnitStandStateType State = UnitStandStateType(0);
+        };
+
+        class SetAnimTier final : public ServerPacket
+        {
+        public:
+            SetAnimTier(): ServerPacket(SMSG_SET_ANIM_TIER, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            int32 Tier = 0;
         };
 
         class StartMirrorTimer final : public ServerPacket

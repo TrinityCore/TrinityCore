@@ -243,7 +243,13 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
         WMO::MODD const& doodad = doodadData.Spawns[doodadIndex];
 
         char ModelInstName[1024];
-        sprintf(ModelInstName, "%s", GetPlainName(&doodadData.Paths[doodad.NameIndex]));
+        if (doodadData.Paths)
+            sprintf(ModelInstName, "%s", GetPlainName(&doodadData.Paths[doodad.NameIndex]));
+        else if (doodadData.FileDataIds)
+            sprintf(ModelInstName, "FILE%08X.xxx", doodadData.FileDataIds[doodad.NameIndex]);
+        else
+            ASSERT(false);
+
         uint32 nlen = strlen(ModelInstName);
         FixNameCase(ModelInstName, nlen);
         FixNameSpaces(ModelInstName, nlen);

@@ -310,7 +310,7 @@ class boss_krick : public CreatureScript
                 Initialize();
 
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             }
 
             Creature* GetIck()

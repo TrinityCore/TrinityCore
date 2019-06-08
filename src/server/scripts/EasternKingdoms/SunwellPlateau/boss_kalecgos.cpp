@@ -163,7 +163,7 @@ public:
             me->setFaction(14);
             if (!bJustReset) //first reset at create
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                 me->SetDisableGravity(false);
                 me->SetVisible(true);
                 me->SetStandState(UNIT_STAND_STATE_SLEEP);
@@ -178,7 +178,7 @@ public:
 
             bJustReset = true;
             me->SetVisible(false);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
             ScriptedAI::EnterEvadeMode(why);
         }
 
@@ -203,7 +203,7 @@ public:
             {
                 if (!TalkSequence)
                 {
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
+                    me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                     me->InterruptNonMeleeSpells(true);
                     me->RemoveAllAuras();
                     me->DeleteThreatList();
@@ -225,7 +225,7 @@ public:
                 {
                     if (ResetTimer <= diff)
                     {
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                         me->SetDisableGravity(false);
                         me->SetVisible(true);
                         me->SetStandState(UNIT_STAND_STATE_SLEEP);

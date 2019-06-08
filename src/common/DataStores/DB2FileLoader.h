@@ -27,6 +27,7 @@ struct DB2FieldMeta;
 struct DB2Meta;
 
 #pragma pack(push, 1)
+
 struct DB2Header
 {
     uint32 Signature;
@@ -49,6 +50,20 @@ struct DB2Header
     uint32 PalletDataSize;
     uint32 SectionCount;
 };
+
+struct DB2SectionHeader
+{
+    uint64 TactId;
+    uint32 FileOffset;
+    uint32 RecordCount;
+    uint32 StringTableSize;
+    uint32 CatalogDataOffset;
+    uint32 IdTableSize;
+    uint32 ParentLookupDataSize;
+    uint32 CatalogDataCount;
+    uint32 CopyTableCount;
+};
+
 #pragma pack(pop)
 
 struct TC_COMMON_API DB2FieldMeta
@@ -146,6 +161,8 @@ public:
     DB2FileLoader();
     ~DB2FileLoader();
 
+    // loadInfo argument is required when trying to read data from the file
+    bool LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* loadInfo);
     bool Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo);
     char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool);
     char* AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale);
@@ -158,6 +175,8 @@ public:
     uint32 GetLayoutHash() const { return _header.LayoutHash; }
     uint32 GetMaxId() const;
 
+    DB2Header const& GetHeader() const { return _header; }
+    DB2SectionHeader const& GetSectionHeader(uint32 section) const;
     DB2Record GetRecord(uint32 recordNumber) const;
     DB2RecordCopy GetRecordCopy(uint32 copyNumber) const;
 

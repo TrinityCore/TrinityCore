@@ -32,17 +32,26 @@ WorldPacket const* WorldPackets::Toy::AccountToysUpdate::Write()
     _worldPacket.WriteBit(IsFullUpdate);
     _worldPacket.FlushBits();
 
-    // both lists have to have the same size
-    _worldPacket << int32(Toys->size());
-    _worldPacket << int32(Toys->size());
+    // all lists have to have the same size
+    _worldPacket << int32(Toys->size()); // ids
+    _worldPacket << int32(Toys->size()); // favorites
+    _worldPacket << int32(Toys->size()); // fanfare
 
-    for (auto const& item : *Toys)
-        _worldPacket << uint32(item.first);
+    for (auto const& toy : *Toys)
+        _worldPacket << uint32(toy.first);
 
-    for (auto const& favourite : *Toys)
-        _worldPacket.WriteBit(favourite.second);
+    for (auto const& toy : *Toys)
+        _worldPacket.WriteBit(toy.second.HasFlag(ToyFlags::Favorite));
+
+    for (auto const& toy : *Toys)
+        _worldPacket.WriteBit(toy.second.HasFlag(ToyFlags::HasFanfare));
 
     _worldPacket.FlushBits();
 
     return &_worldPacket;
+}
+
+void WorldPackets::Toy::ToyClearFanfare::Read()
+{
+    _worldPacket >> ItemID;
 }

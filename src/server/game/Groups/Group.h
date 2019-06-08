@@ -182,8 +182,7 @@ class Roll : public LootValidatorRef
         ItemDisenchantLootEntry const* GetItemDisenchantLoot(Player const* player) const;
 
         uint32 itemid;
-        ItemRandomEnchantmentId itemRandomPropId;
-        uint32 itemRandomSuffix;
+        ItemRandomBonusListId itemRandomBonusListId;
         uint8 itemCount;
         typedef std::map<ObjectGuid, RollVote> PlayerVote;
         PlayerVote playerVote;                              //vote position correspond with player position (in group)

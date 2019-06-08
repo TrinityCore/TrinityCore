@@ -60,9 +60,9 @@ private:
     float m_orientation;
 
 public:
-    bool operator==(Position const &a);
+    bool operator==(Position const &a) const;
 
-    inline bool operator!=(Position const &a)
+    inline bool operator!=(Position const &a) const
     {
         return !(operator==(a));
     }
@@ -283,6 +283,9 @@ struct TaggedPosition
     }
 
     operator Position() const { return Pos; }
+
+    friend bool operator==(TaggedPosition const& left, TaggedPosition const& right) { return left.Pos == right.Pos; }
+    friend bool operator!=(TaggedPosition const& left, TaggedPosition const& right) { return left.Pos != right.Pos; }
 
     friend ByteBuffer& operator<<(ByteBuffer& buf, TaggedPosition const& tagged) { return buf << Position::ConstStreamer<Tag>(tagged.Pos); }
     friend ByteBuffer& operator>>(ByteBuffer& buf, TaggedPosition& tagged) { return buf >> Position::Streamer<Tag>(tagged.Pos); }

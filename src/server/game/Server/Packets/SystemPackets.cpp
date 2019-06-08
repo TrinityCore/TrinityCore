@@ -38,6 +38,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket << uint32(BpayStoreProductDeliveryDelay);
 
     _worldPacket << uint32(ClubsPresenceUpdateTimer);
+    _worldPacket << uint32(HiddenUIClubsPresenceUpdateTimer);
 
     _worldPacket.WriteBit(VoiceEnabled);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
@@ -65,6 +66,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(ClubsEnabled);
     _worldPacket.WriteBit(ClubsBattleNetClubTypeAllowed);
     _worldPacket.WriteBit(ClubsCharacterClubTypeAllowed);
+    _worldPacket.WriteBit(ClubsPresenceUpdateEnabled);
     _worldPacket.WriteBit(VoiceChatDisabledByParentalControl);
     _worldPacket.WriteBit(VoiceChatMutedByParentalControl);
 

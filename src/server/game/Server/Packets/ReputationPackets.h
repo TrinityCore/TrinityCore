@@ -25,7 +25,7 @@ namespace WorldPackets
 {
     namespace Reputation
     {
-        static uint16 const FactionCount = 300;
+        static uint16 const FactionCount = 350;
 
         class InitializeFactions final : public ServerPacket
         {

@@ -63,10 +63,10 @@ public:
             }
             else
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
             me->CastSpell(me, SPELL_STAND);
             me->GetMotionMaster()->MoveRandom(8.0f);
             events.ScheduleEvent(EVENT_CHECK_OOC, 20000);
@@ -234,7 +234,7 @@ public: spell_ruumbos_silly_dance() : SpellScriptLoader("spell_ruumbos_silly_dan
             {
                 if (Player* player = GetHitPlayer())
                 {
-                    player->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+                    player->SetEmoteState(EMOTE_STATE_DANCE);
 
                     if (player->GetMapId() == MAP_KALIMDOR)
                     {

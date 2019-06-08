@@ -102,8 +102,8 @@ public:
         creatureTarget->RemoveCorpse();
         creatureTarget->SetHealth(0); // just for nice GM-mode view
 
-        pet->SetGuidValue(UNIT_FIELD_CREATEDBY, player->GetGUID());
-        pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
+        pet->SetCreatorGUID(player->GetGUID());
+        pet->setFaction(player->getFaction());
 
         if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
         {
@@ -114,7 +114,7 @@ public:
         }
 
         // prepare visual effect for levelup
-        pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel()-1);
+        pet->SetLevel(creatureTarget->getLevel() - 1);
 
         pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
         // this enables pet details window (Shift+P)
@@ -124,7 +124,7 @@ public:
         pet->GetMap()->AddToMap(pet->ToCreature());
 
         // visual effect for levelup
-        pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel());
+        pet->SetLevel(creatureTarget->getLevel());
 
         player->SetMinion(pet, true);
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);

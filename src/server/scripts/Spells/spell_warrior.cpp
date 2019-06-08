@@ -181,7 +181,7 @@ class spell_warr_charge_drop_fire_periodic : public SpellScriptLoader
                     {
                         int32 timeOffset = 6 * i * aurEff->GetPeriod() / 25;
                         Movement::Location loc = GetTarget()->movespline->ComputePosition(timeOffset);
-                        GetTarget()->SendPlaySpellVisual(Position(loc.x, loc.y, loc.z, loc.orientation), 0.f, SPELL_VISUAL_BLAZING_CHARGE, 0, 0, 1.f, true);
+                        GetTarget()->SendPlaySpellVisual(Position(loc.x, loc.y, loc.z), 0.f, SPELL_VISUAL_BLAZING_CHARGE, 0, 0, 1.f, true);
                     }
                 }
             }
@@ -1271,7 +1271,7 @@ class spell_warr_victorious_state : public SpellScriptLoader
 
             void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
             {
-                if (procInfo.GetActor()->GetTypeId() == TYPEID_PLAYER && procInfo.GetActor()->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_WARRIOR_FURY)
+                if (procInfo.GetActor()->GetTypeId() == TYPEID_PLAYER && procInfo.GetActor()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_WARRIOR_FURY)
                     PreventDefaultAction();
 
                 procInfo.GetActor()->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_IMPENDING_VICTORY, true);

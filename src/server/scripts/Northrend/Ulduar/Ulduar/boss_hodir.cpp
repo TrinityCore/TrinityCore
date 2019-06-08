@@ -189,7 +189,7 @@ class npc_flash_freeze : public CreatureScript
                 Initialize();
                 instance = me->GetInstanceScript();
                 me->SetDisplayFromModel(1);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                me->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED));
                 me->SetControlled(true, UNIT_STATE_ROOT);
             }
 
@@ -265,7 +265,7 @@ class npc_ice_block : public CreatureScript
             {
                 instance = me->GetInstanceScript();
                 me->SetDisplayFromModel(1);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                me->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED));
                 me->SetControlled(true, UNIT_STATE_ROOT);
             }
 
@@ -276,7 +276,7 @@ class npc_ice_block : public CreatureScript
             void IsSummonedBy(Unit* summoner) override
             {
                 targetGUID = summoner->GetGUID();
-                summoner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                summoner->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED));
                 summoner->SetControlled(true, UNIT_STATE_ROOT);
                 me->SetInCombatWith(summoner);
                 me->AddThreat(summoner, 250.0f);
@@ -293,7 +293,7 @@ class npc_ice_block : public CreatureScript
             {
                 if (Creature* Helper = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
-                    Helper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                    Helper->RemoveUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED));
                     Helper->SetControlled(false, UNIT_STATE_ROOT);
 
                     if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_HODIR)))
@@ -397,7 +397,7 @@ class boss_hodir : public CreatureScript
                     me->RemoveAllAttackers();
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     me->SetControlled(true, UNIT_STATE_ROOT);
                     me->InterruptNonMeleeSpells(true);
                     me->StopMoving();
@@ -558,7 +558,7 @@ class npc_icicle : public CreatureScript
             {
                 Initialize();
                 me->SetDisplayFromModel(0);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_NOT_SELECTABLE));
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -613,7 +613,7 @@ class npc_snowpacked_icicle : public CreatureScript
             {
                 Initialize();
                 me->SetDisplayFromModel(1);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED));
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -670,7 +670,7 @@ class npc_hodir_priest : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasUnitFlag(UNIT_FLAG_STUNNED))
                     return;
 
                 events.Update(diff);
@@ -752,7 +752,7 @@ class npc_hodir_shaman : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasUnitFlag(UNIT_FLAG_STUNNED))
                     return;
 
                 events.Update(diff);
@@ -817,7 +817,7 @@ class npc_hodir_druid : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasUnitFlag(UNIT_FLAG_STUNNED))
                     return;
 
                 events.Update(diff);
@@ -895,7 +895,7 @@ class npc_hodir_mage : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED) || me->HasUnitFlag(UNIT_FLAG_STUNNED))
                     return;
 
                 events.Update(diff);

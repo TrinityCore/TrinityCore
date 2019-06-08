@@ -61,11 +61,11 @@ class ADTFile
 {
 private:
     CASCFile _file;
-    std::string Adtfilename;
     bool cacheable;
     std::vector<ADTOutputCache>* dirfileCache;
 public:
-    ADTFile(char* filename, bool cache);
+    ADTFile(std::string const& filename, bool cache);
+    ADTFile(uint32 fileDataId, std::string const& description, bool cache);
     ~ADTFile();
     std::vector<std::string> WmoInstanceNames;
     std::vector<std::string> ModelInstanceNames;

@@ -47,43 +47,20 @@ enum UnitStandStateType : uint8
 };
 
 // byte flag value (UNIT_FIELD_BYTES_1, 2)
-enum UnitStandFlags : uint8
+enum UnitVisFlags : uint8
 {
-    UNIT_STAND_FLAGS_UNK1         = 0x01,
-    UNIT_STAND_FLAGS_CREEP        = 0x02,
-    UNIT_STAND_FLAGS_UNTRACKABLE  = 0x04,
-    UNIT_STAND_FLAGS_UNK4         = 0x08,
-    UNIT_STAND_FLAGS_UNK5         = 0x10,
-    UNIT_STAND_FLAGS_ALL          = 0xFF
-};
-
-enum UnitBytes0Offsets : uint8
-{
-    UNIT_BYTES_0_OFFSET_RACE            = 0,
-    UNIT_BYTES_0_OFFSET_CLASS           = 1,
-    UNIT_BYTES_0_OFFSET_PLAYER_CLASS    = 2,
-    UNIT_BYTES_0_OFFSET_GENDER          = 3
-};
-
-enum UnitBytes1Offsets : uint8
-{
-    UNIT_BYTES_1_OFFSET_STAND_STATE = 0,
-    UNIT_BYTES_1_OFFSET_PET_TALENTS = 1,    // unused
-    UNIT_BYTES_1_OFFSET_VIS_FLAG    = 2,
-    UNIT_BYTES_1_OFFSET_ANIM_TIER   = 3
-};
-
-enum UnitBytes2Offsets : uint8
-{
-    UNIT_BYTES_2_OFFSET_SHEATH_STATE    = 0,
-    UNIT_BYTES_2_OFFSET_PVP_FLAG        = 1,
-    UNIT_BYTES_2_OFFSET_PET_FLAGS       = 2,
-    UNIT_BYTES_2_OFFSET_SHAPESHIFT_FORM = 3
+    UNIT_VIS_FLAGS_UNK1         = 0x01,
+    UNIT_VIS_FLAGS_CREEP        = 0x02,
+    UNIT_VIS_FLAGS_UNTRACKABLE  = 0x04,
+    UNIT_VIS_FLAGS_UNK4         = 0x08,
+    UNIT_VIS_FLAGS_UNK5         = 0x10,
+    UNIT_VIS_FLAGS_ALL          = 0xFF
 };
 
 // byte flags value (UNIT_FIELD_BYTES_1, 3)
 enum UnitBytes1_Flags : uint8
 {
+    UNIT_BYTE1_FLAG_NONE            = 0x00,
     UNIT_BYTE1_FLAG_ALWAYS_STAND    = 0x01,
     UNIT_BYTE1_FLAG_HOVER           = 0x02,
     UNIT_BYTE1_FLAG_UNK_3           = 0x04,
@@ -103,6 +80,7 @@ enum SheathState : uint8
 // byte (1 from 0..3) of UNIT_FIELD_BYTES_2
 enum UnitPVPStateFlags : uint8
 {
+    UNIT_BYTE2_FLAG_NONE        = 0x00,
     UNIT_BYTE2_FLAG_PVP         = 0x01,
     UNIT_BYTE2_FLAG_UNK1        = 0x02,
     UNIT_BYTE2_FLAG_FFA_PVP     = 0x04,
@@ -114,10 +92,11 @@ enum UnitPVPStateFlags : uint8
 };
 
 // byte (2 from 0..3) of UNIT_FIELD_BYTES_2
-enum UnitRename : uint8
+enum UnitPetFlag : uint8
 {
-    UNIT_CAN_BE_RENAMED     = 0x01,
-    UNIT_CAN_BE_ABANDONED   = 0x02
+    UNIT_PET_FLAG_NONE              = 0x0,
+    UNIT_PET_FLAG_CAN_BE_RENAMED    = 0x01,
+    UNIT_PET_FLAG_CAN_BE_ABANDONED  = 0x02
 };
 
 // high byte (3 from 0..3) of UNIT_FIELD_BYTES_2
@@ -238,49 +217,54 @@ enum UnitFlags3 : uint32
 };
 
 /// Non Player Character flags
-enum NPCFlags : uint64
+enum NPCFlags : uint32
 {
-    UNIT_NPC_FLAG_NONE                      = 0x00000000000,
-    UNIT_NPC_FLAG_GOSSIP                    = 0x00000000001,     // 100%
-    UNIT_NPC_FLAG_QUESTGIVER                = 0x00000000002,     // 100%
-    UNIT_NPC_FLAG_UNK1                      = 0x00000000004,
-    UNIT_NPC_FLAG_UNK2                      = 0x00000000008,
-    UNIT_NPC_FLAG_TRAINER                   = 0x00000000010,     // 100%
-    UNIT_NPC_FLAG_TRAINER_CLASS             = 0x00000000020,     // 100%
-    UNIT_NPC_FLAG_TRAINER_PROFESSION        = 0x00000000040,     // 100%
-    UNIT_NPC_FLAG_VENDOR                    = 0x00000000080,     // 100%
-    UNIT_NPC_FLAG_VENDOR_AMMO               = 0x00000000100,     // 100%, general goods vendor
-    UNIT_NPC_FLAG_VENDOR_FOOD               = 0x00000000200,     // 100%
-    UNIT_NPC_FLAG_VENDOR_POISON             = 0x00000000400,     // guessed
-    UNIT_NPC_FLAG_VENDOR_REAGENT            = 0x00000000800,     // 100%
-    UNIT_NPC_FLAG_REPAIR                    = 0x00000001000,     // 100%
-    UNIT_NPC_FLAG_FLIGHTMASTER              = 0x00000002000,     // 100%
-    UNIT_NPC_FLAG_SPIRITHEALER              = 0x00000004000,     // guessed
-    UNIT_NPC_FLAG_SPIRITGUIDE               = 0x00000008000,     // guessed
-    UNIT_NPC_FLAG_INNKEEPER                 = 0x00000010000,     // 100%
-    UNIT_NPC_FLAG_BANKER                    = 0x00000020000,     // 100%
-    UNIT_NPC_FLAG_PETITIONER                = 0x00000040000,     // 100% 0xC0000 = guild petitions, 0x40000 = arena team petitions
-    UNIT_NPC_FLAG_TABARDDESIGNER            = 0x00000080000,     // 100%
-    UNIT_NPC_FLAG_BATTLEMASTER              = 0x00000100000,     // 100%
-    UNIT_NPC_FLAG_AUCTIONEER                = 0x00000200000,     // 100%
-    UNIT_NPC_FLAG_STABLEMASTER              = 0x00000400000,     // 100%
-    UNIT_NPC_FLAG_GUILD_BANKER              = 0x00000800000,     //
-    UNIT_NPC_FLAG_SPELLCLICK                = 0x00001000000,     //
-    UNIT_NPC_FLAG_PLAYER_VEHICLE            = 0x00002000000,     // players with mounts that have vehicle data should have it set
-    UNIT_NPC_FLAG_MAILBOX                   = 0x00004000000,     // mailbox
-    UNIT_NPC_FLAG_ARTIFACT_POWER_RESPEC     = 0x00008000000,     // artifact powers reset
-    UNIT_NPC_FLAG_TRANSMOGRIFIER            = 0x00010000000,     // transmogrification
-    UNIT_NPC_FLAG_VAULTKEEPER               = 0x00020000000,     // void storage
-    UNIT_NPC_FLAG_WILD_BATTLE_PET           = 0x00040000000,     // Pet that player can fight (Battle Pet)
-    UNIT_NPC_FLAG_BLACK_MARKET              = 0x00080000000,     // black market
-    UNIT_NPC_FLAG_ITEM_UPGRADE_MASTER       = 0x00100000000,
-    UNIT_NPC_FLAG_GARRISON_ARCHITECT        = 0x00200000000,
-    UNIT_NPC_FLAG_STEERING                  = 0x00400000000,
-    UNIT_NPC_FLAG_SHIPMENT_CRAFTER          = 0x01000000000,
-    UNIT_NPC_FLAG_GARRISON_MISSION_NPC      = 0x02000000000,
-    UNIT_NPC_FLAG_TRADESKILL_NPC            = 0x04000000000,
-    UNIT_NPC_FLAG_BLACK_MARKET_VIEW         = 0x08000000000,
-    UNIT_NPC_FLAG_CONTRIBUTION_COLLECTOR    = 0x40000000000,
+    UNIT_NPC_FLAG_NONE                  = 0x00000000,
+    UNIT_NPC_FLAG_GOSSIP                = 0x00000001,     // 100%
+    UNIT_NPC_FLAG_QUESTGIVER            = 0x00000002,     // 100%
+    UNIT_NPC_FLAG_UNK1                  = 0x00000004,
+    UNIT_NPC_FLAG_UNK2                  = 0x00000008,
+    UNIT_NPC_FLAG_TRAINER               = 0x00000010,     // 100%
+    UNIT_NPC_FLAG_TRAINER_CLASS         = 0x00000020,     // 100%
+    UNIT_NPC_FLAG_TRAINER_PROFESSION    = 0x00000040,     // 100%
+    UNIT_NPC_FLAG_VENDOR                = 0x00000080,     // 100%
+    UNIT_NPC_FLAG_VENDOR_AMMO           = 0x00000100,     // 100%, general goods vendor
+    UNIT_NPC_FLAG_VENDOR_FOOD           = 0x00000200,     // 100%
+    UNIT_NPC_FLAG_VENDOR_POISON         = 0x00000400,     // guessed
+    UNIT_NPC_FLAG_VENDOR_REAGENT        = 0x00000800,     // 100%
+    UNIT_NPC_FLAG_REPAIR                = 0x00001000,     // 100%
+    UNIT_NPC_FLAG_FLIGHTMASTER          = 0x00002000,     // 100%
+    UNIT_NPC_FLAG_SPIRITHEALER          = 0x00004000,     // guessed
+    UNIT_NPC_FLAG_SPIRITGUIDE           = 0x00008000,     // guessed
+    UNIT_NPC_FLAG_INNKEEPER             = 0x00010000,     // 100%
+    UNIT_NPC_FLAG_BANKER                = 0x00020000,     // 100%
+    UNIT_NPC_FLAG_PETITIONER            = 0x00040000,     // 100% 0xC0000 = guild petitions, 0x40000 = arena team petitions
+    UNIT_NPC_FLAG_TABARDDESIGNER        = 0x00080000,     // 100%
+    UNIT_NPC_FLAG_BATTLEMASTER          = 0x00100000,     // 100%
+    UNIT_NPC_FLAG_AUCTIONEER            = 0x00200000,     // 100%
+    UNIT_NPC_FLAG_STABLEMASTER          = 0x00400000,     // 100%
+    UNIT_NPC_FLAG_GUILD_BANKER          = 0x00800000,     //
+    UNIT_NPC_FLAG_SPELLCLICK            = 0x01000000,     //
+    UNIT_NPC_FLAG_PLAYER_VEHICLE        = 0x02000000,     // players with mounts that have vehicle data should have it set
+    UNIT_NPC_FLAG_MAILBOX               = 0x04000000,     // mailbox
+    UNIT_NPC_FLAG_ARTIFACT_POWER_RESPEC = 0x08000000,     // artifact powers reset
+    UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x10000000,     // transmogrification
+    UNIT_NPC_FLAG_VAULTKEEPER           = 0x20000000,     // void storage
+    UNIT_NPC_FLAG_WILD_BATTLE_PET       = 0x40000000,     // Pet that player can fight (Battle Pet)
+    UNIT_NPC_FLAG_BLACK_MARKET          = 0x80000000     // black market
+};
+
+enum NPCFlags2 : uint32
+{
+    UNIT_NPC_FLAG_2_NONE                    = 0x000,
+    UNIT_NPC_FLAG_2_ITEM_UPGRADE_MASTER     = 0x001,
+    UNIT_NPC_FLAG_2_GARRISON_ARCHITECT      = 0x002,
+    UNIT_NPC_FLAG_2_STEERING                = 0x004,
+    UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER        = 0x010,
+    UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC    = 0x020,
+    UNIT_NPC_FLAG_2_TRADESKILL_NPC          = 0x040,
+    UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW       = 0x080,
+    UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR  = 0x400
 };
 
 enum MovementFlags : uint32

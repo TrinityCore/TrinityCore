@@ -42,8 +42,6 @@
 #ifdef WIN32
     #include <direct.h>
     #define mkdir _mkdir
-#else
-    #define ERROR_PATH_NOT_FOUND ERROR_FILE_NOT_FOUND
 #endif
 
 //------------------------------------------------------------------------------
@@ -55,13 +53,15 @@
 
 CASC::StorageHandle CascStorage;
 
-struct map_info
+struct MapEntry
 {
-    char name[64];
-    int32 parent_id;
+    int32 WdtFileDataId = 0;
+    int16 ParentMapID = 0;
+    std::string Name;
+    std::string Directory;
 };
 
-std::map<uint32, map_info> map_ids;
+std::map<uint32, MapEntry> map_ids;
 std::unordered_set<uint32> maps_that_are_parents;
 boost::filesystem::path input_path;
 bool preciseVectorData = false;
@@ -166,7 +166,8 @@ bool ExtractSingleWmo(std::string& fname)
 
     char szLocalFile[1024];
     char* plain_name = GetPlainName(&fname[0]);
-    FixNameCase(plain_name, strlen(plain_name));
+    if (fname.substr(0, 4) != "FILE")
+        FixNameCase(plain_name, strlen(plain_name));
     FixNameSpaces(plain_name, strlen(plain_name));
     sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
 
@@ -192,7 +193,6 @@ bool ExtractSingleWmo(std::string& fname)
         return true;
 
     bool file_ok = true;
-    printf("Extracting %s\n", originalName.c_str());
     WMORoot froot(originalName);
     if (!froot.open())
     {
@@ -253,10 +253,13 @@ void ParsMapFiles()
         auto itr = wdts.find(mapId);
         if (itr == wdts.end())
         {
-            char fn[512];
-            char* name = map_ids[mapId].name;
-            sprintf(fn, "World\\Maps\\%s\\%s.wdt", name, name);
-            itr = wdts.emplace(std::piecewise_construct, std::forward_as_tuple(mapId), std::forward_as_tuple(fn, name, maps_that_are_parents.count(mapId) > 0)).first;
+            uint32 fileDataId = map_ids[mapId].WdtFileDataId;
+            if (!fileDataId)
+                return nullptr;
+
+            std::string description = Trinity::StringFormat("WDT for map %u - %s (FileDataID %u)", mapId, map_ids[mapId].Name.c_str(), fileDataId);
+            std::string directory = map_ids[mapId].Directory;
+            itr = wdts.emplace(std::piecewise_construct, std::forward_as_tuple(mapId), std::forward_as_tuple(fileDataId, description, std::move(directory), maps_that_are_parents.count(mapId) > 0)).first;
             if (!itr->second.init(mapId))
             {
                 wdts.erase(itr);
@@ -271,7 +274,7 @@ void ParsMapFiles()
     {
         if (WDTFile* WDT = getWDT(itr->first))
         {
-            WDTFile* parentWDT = itr->second.parent_id >= 0 ? getWDT(itr->second.parent_id) : nullptr;
+            WDTFile* parentWDT = itr->second.ParentMapID >= 0 ? getWDT(itr->second.ParentMapID) : nullptr;
             printf("Processing Map %u\n[", itr->first);
             for (int32 x = 0; x < 64; ++x)
             {
@@ -287,7 +290,7 @@ void ParsMapFiles()
                     {
                         if (ADTFile* ADT = parentWDT->GetMap(x, y))
                         {
-                            ADT->init(itr->first, itr->second.parent_id);
+                            ADT->init(itr->first, itr->second.ParentMapID);
                             parentWDT->FreeADT(ADT);
                         }
                     }
@@ -468,7 +471,7 @@ int main(int argc, char ** argv)
     {
         printf("Read Map.dbc file... ");
 
-        DB2CascFileSource source(CascStorage, "DBFilesClient\\Map.db2");
+        DB2CascFileSource source(CascStorage, MapLoadInfo::Instance()->Meta->FileDataId);
         DB2FileLoader db2;
         if (!db2.Load(&source, MapLoadInfo::Instance()))
         {
@@ -479,21 +482,16 @@ int main(int argc, char ** argv)
         for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
         {
             DB2Record record = db2.GetRecord(x);
-            map_info& m = map_ids[record.GetId()];
+            if (!record)
+                continue;
 
-            const char* map_name = record.GetString("Directory");
-            size_t max_map_name_length = sizeof(m.name);
-            if (strlen(map_name) >= max_map_name_length)
-            {
-                printf("Fatal error: Map name too long!\n");
-                exit(1);
-            }
-
-            strncpy(m.name, map_name, max_map_name_length);
-            m.name[max_map_name_length - 1] = '\0';
-            m.parent_id = int16(record.GetUInt16("ParentMapID"));
-            if (m.parent_id >= 0)
-                maps_that_are_parents.insert(m.parent_id);
+            MapEntry& m = map_ids[record.GetId()];
+            m.WdtFileDataId = record.GetInt32("WdtFileDataID");
+            m.ParentMapID = int16(record.GetUInt16("ParentMapID"));
+            m.Name = record.GetString("MapName");
+            m.Directory = record.GetString("Directory");
+            if (m.ParentMapID >= 0)
+                maps_that_are_parents.insert(m.ParentMapID);
         }
 
         for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
@@ -502,9 +500,11 @@ int main(int argc, char ** argv)
             auto itr = map_ids.find(copy.SourceRowId);
             if (itr != map_ids.end())
             {
-                map_info& id = map_ids[copy.NewRowId];
-                strcpy(id.name, itr->second.name);
-                id.parent_id = itr->second.parent_id;
+                MapEntry& id = map_ids[copy.NewRowId];
+                id.WdtFileDataId = itr->second.WdtFileDataId;
+                id.ParentMapID = itr->second.ParentMapID;
+                id.Name = itr->second.Name;
+                id.Directory = itr->second.Directory;
             }
         }
 
