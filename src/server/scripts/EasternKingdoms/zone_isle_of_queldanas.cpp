@@ -208,7 +208,7 @@ public:
                         _events.ScheduleEvent(EVENT_DEFENDERS_RUN_2, 3s);
                         _events.ScheduleEvent(EVENT_THALORIEN_GO, 2s);
 
-                        uint i = 0;
+                        uint8 i = 0;
                         for (auto& summon : _summons)
                         {
                             Creature* creature = ObjectAccessor::GetCreature(*me, summon);
@@ -229,7 +229,7 @@ public:
                     }
                     case EVENT_DEFENDERS_RUN_2:
                     {
-                        uint i = 0;
+                        uint8 i = 0;
                         for (auto& summon : _summons)
                         {
                             Creature* creature = ObjectAccessor::GetCreature(*me, summon);
