@@ -39,7 +39,9 @@ enum ZGDataTypes
     DATA_EDGE_OF_MADNESS    = 9,  // Optional Event Edge of Madness - one of: Gri'lek, Renataki, Hazza'rah, or Wushoolay
     DATA_LORKHAN            = 10, // Zealot Lor'Khan add to High priest Thekal!
     DATA_ZATH               = 11, // Zealot Zath add to High priest Thekal!
-    TYPE_EDGE_OF_MADNESS    = 12  // Boss storage
+
+    DATA_GONG_BETHEKK       = 12,
+    DATA_VILEBRANCH_SPEAKER = 13
 };
 
 enum ZGCreatureIds
@@ -58,14 +60,21 @@ enum ZGCreatureIds
     NPC_MANDOKIR            = 11382, // Mandokir Event
     NPC_OHGAN               = 14988, // Mandokir Event
     NPC_VILEBRANCH_SPEAKER  = 11391, // Mandokir Event
-    NPC_CHAINED_SPIRT       = 15117  // Mandokir Event
-
+    NPC_CHAINED_SPIRT       = 15117, // Mandokir Event
+    NPC_HAKKAR              = 14834
 };
 
 enum ZGGameObjectIds
 {
     GO_FORCEFIELD           = 180497, // Arlokk Event
     GO_GONG_OF_BETHEKK      = 180526  // Arlokk Event
+};
+
+enum ZulGurubAreaTriggers
+{
+    AREA_TRIGGER_1          = 3957,
+    AREA_TRIGGER_2          = 3958,
+    AREA_TRIGGER_3          = 3960
 };
 
 template <class AI, class T>

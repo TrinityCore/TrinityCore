@@ -16,27 +16,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Grilek
-SD%Complete: 100
-SDComment:
-SDCategory: Zul'Gurub
-EndScriptData */
-
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "zulgurub.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 
 enum Spells
 {
-    SPELL_AVATAR                    = 24646, // Enrage Spell
-    SPELL_GROUND_TREMOR             = 6524
+    SPELL_AVATAR = 24646, // Enrage Spell
+    SPELL_GROUND_TREMOR = 6524
 };
 
 enum Events
 {
-    EVENT_AVATAR                    = 1,
-    EVENT_GROUND_TREMOR             = 2
+    EVENT_AVATAR = 1,
+    EVENT_GROUND_TREMOR = 2
 };
 
 class boss_grilek : public CreatureScript // grilek
