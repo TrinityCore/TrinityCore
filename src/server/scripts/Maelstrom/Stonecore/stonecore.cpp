@@ -160,7 +160,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                         break;
                 }
 
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+                me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
             }
 
             void MovementInform(uint32 type, uint32 pointId) override
@@ -178,7 +178,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                 switch (pointId)
                 {
                     case POINT_MILLHOUSE_GROUP_2:
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+                        me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 200.0f))
                             me->SetFacingToObject(worldtrigger);
@@ -187,7 +187,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                         events.ScheduleEvent(EVENT_READY_FOR_COMBAT, 10000);
                         break;
                     case POINT_MILLHOUSE_GROUP_3:
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+                        me->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetFacingTo(5.931499f);
                         DoCast(me, SPELL_ANCHOR_HERE);
@@ -236,7 +236,7 @@ class npc_sc_millhouse_manastorm : public CreatureScript
                             events.ScheduleEvent(EVENT_FEAR, 18000);
                             break;
                         case EVENT_READY_FOR_COMBAT:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+                            me->RemoveUnitFlag(UNIT_FLAG_IN_COMBAT);
                             me->SetReactState(REACT_AGGRESSIVE);
                             ScheduleEvents();
                             break;

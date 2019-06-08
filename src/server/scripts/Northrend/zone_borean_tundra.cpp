@@ -120,7 +120,7 @@ public:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         DoCast(me, SPELL_SUMMON_CART, true);
                         if (GameObject* cart = me->FindNearestGameObject(GO_EXPLOSIVES_CART, 3.0f))
-                            cart->SetUInt32Value(GAMEOBJECT_FACTION, 14);
+                            cart->SetFaction(14);
                         phaseTimer = 3000;
                         phase = 2;
                         break;
@@ -140,7 +140,7 @@ public:
                         DoCast(me, SPELL_SUMMON_WORM, true);
                         if (Unit* worm = me->FindNearestCreature(NPC_SCOURGED_BURROWER, 3.0f))
                         {
-                            worm->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            worm->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                             worm->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
                         }
                         phaseTimer = 1000;
@@ -151,7 +151,7 @@ public:
                         if (Unit* worm = me->FindNearestCreature(NPC_SCOURGED_BURROWER, 3.0f))
                         {
                             me->Kill(worm);
-                            worm->RemoveFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                            worm->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
                         }
                         phaseTimer = 2000;
                         phase = 7;
@@ -712,7 +712,7 @@ public:
             owner->CastSpell(owner, SPELL_SUBDUED, true);
             GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
             owner->setFaction(35);
-            owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+            owner->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
             owner->DespawnOrUnsummon(3 * MINUTE*IN_MILLISECONDS);
         }
 
@@ -818,7 +818,7 @@ public:
         void Reset() override
         {
             me->RestoreFaction();
-            me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
 
             Initialize();
         }
@@ -836,7 +836,7 @@ public:
                     if (Creature* arthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313f, 3518.689f, 473.324f, 1.562f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
                     {
                         arthasGUID = arthas->GetGUID();
-                        arthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        arthas->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         arthas->SetReactState(REACT_PASSIVE);
                         arthas->SetWalk(true);
                         arthas->GetMotionMaster()->MovePoint(0, 3737.374756f, 3564.841309f, 477.433014f);
@@ -893,7 +893,7 @@ public:
                         {
                             talbot->UpdateEntry(NPC_PRINCE_VALANAR);
                             talbot->setFaction(14);
-                            talbot->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            talbot->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             talbot->SetReactState(REACT_PASSIVE);
                         }
                         phaseTimer = 5000;
@@ -933,7 +933,7 @@ public:
                             leryssaGUID = leryssa->GetGUID();
                             leryssa->SetWalk(false);
                             leryssa->SetReactState(REACT_PASSIVE);
-                            leryssa->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            leryssa->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             leryssa->GetMotionMaster()->MovePoint(0, 3741.969971f, 3571.439941f, 477.441010f);
                         }
                         phaseTimer = 2000;
@@ -991,10 +991,10 @@ public:
                         break;
 
                     case 14:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         if (talbot)
                         {
-                            talbot->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            talbot->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             talbot->SetReactState(REACT_AGGRESSIVE);
                             talbot->CastSpell(me, SPELL_SHADOW_BOLT, false);
                         }
@@ -1009,7 +1009,7 @@ public:
                         break;
 
                     case 16:
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                         phaseTimer = 20000;
                         ++phase;
                         break;
@@ -1021,7 +1021,7 @@ public:
                             arlos->RemoveFromWorld();
                         if (talbot)
                             talbot->RemoveFromWorld();
-                        me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
                         SetEscortPaused(false);
                         phaseTimer = 0;
                         phase = 0;
@@ -1289,7 +1289,7 @@ public:
             phase = 0;
             phaseTimer = 0;
 
-            creature->RemoveStandFlags(UNIT_STAND_STATE_SIT);
+            creature->SetStandState(UNIT_STAND_STATE_STAND);
         }
 
         bool bDone;
@@ -2165,8 +2165,8 @@ public:
         npc_hidden_cultistAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            uiEmoteState = creature->GetUInt32Value(UNIT_NPC_EMOTESTATE);
-            uiNpcFlags = creature->GetUInt32Value(UNIT_NPC_FLAGS);
+            uiEmoteState = creature->GetEmoteState();
+            uiNpcFlags = NPCFlags(creature->m_unitData->NpcFlags[0]);
         }
 
         void Initialize()
@@ -2177,8 +2177,8 @@ public:
             uiPlayerGUID.Clear();
         }
 
-        uint32 uiEmoteState;
-        uint32 uiNpcFlags;
+        Emote uiEmoteState;
+        NPCFlags uiNpcFlags;
 
         uint32 uiEventTimer;
         uint8 uiEventPhase;
@@ -2188,10 +2188,10 @@ public:
         void Reset() override
         {
             if (uiEmoteState)
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, uiEmoteState);
+                me->SetEmoteState(uiEmoteState);
 
             if (uiNpcFlags)
-                me->SetUInt32Value(UNIT_NPC_FLAGS, uiNpcFlags);
+                me->SetNpcFlags(uiNpcFlags);
 
             Initialize();
 
@@ -2203,8 +2203,8 @@ public:
         void DoAction(int32 /*iParam*/) override
         {
             me->StopMoving();
-            me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+            me->SetNpcFlags(UNIT_NPC_FLAG_NONE);
+            me->SetEmoteState(EMOTE_ONESHOT_NONE);
             if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
                 me->SetFacingToObject(player);
             uiEventTimer = 3000;

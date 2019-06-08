@@ -248,7 +248,7 @@ public:
         {
             _Reset();
             Initialize();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             me->SetVisible(true);
         }
 
@@ -295,7 +295,7 @@ public:
                 _phase = PHASE_TWO;
                 me->RemoveAllAuras();
                 DoCast(me, SPELL_OPEN_ALL_PORTALS, true);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
                 scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
                 {
@@ -409,7 +409,7 @@ public:
             _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
                 if (Creature* _summoner = ObjectAccessor::GetCreature(*me, _summonerGUID))
                     if (Unit* target = _summoner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))

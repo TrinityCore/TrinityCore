@@ -65,39 +65,229 @@ unsigned char IntToHexChar[] = "0123456789abcdef";
 // GetLastError/SetLastError support for non-Windows platform
 
 #ifndef PLATFORM_WINDOWS
-static int nLastError = ERROR_SUCCESS;
+static DWORD dwLastError = ERROR_SUCCESS;
 
-int GetLastError()
+DWORD GetLastError()
 {
-    return nLastError;
+    return dwLastError;
 }
 
-void SetLastError(int nError)
+void SetLastError(DWORD dwErrCode)
 {
-    nLastError = nError;
+    dwLastError = dwErrCode;
 }
 #endif
 
 //-----------------------------------------------------------------------------
-// String manipulation
+// Overloaded "new" and "delete" operators
 
-void CopyString(char * szTarget, const char * szSource, size_t cchLength)
+void * operator new(size_t size)
 {
-    memcpy(szTarget, szSource, cchLength);
-    szTarget[cchLength] = 0;
+    return CASC_ALLOC(BYTE, size);
 }
 
-void CopyString(wchar_t * szTarget, const char * szSource, size_t cchLength)
+void * operator new[](size_t size)
 {
-    mbstowcs(szTarget, szSource, cchLength);
-    szTarget[cchLength] = 0;
+    return CASC_ALLOC(BYTE, size);
 }
 
-void CopyString(char * szTarget, const wchar_t * szSource, size_t cchLength)
+void operator delete(void * ptr)
 {
-    wcstombs(szTarget, szSource, cchLength);
-    szTarget[cchLength] = 0;
+    CASC_FREE(ptr);
 }
+
+void operator delete[](void * ptr)
+{
+    CASC_FREE(ptr);
+}
+
+// For some reason, VS2015 needs this
+void operator delete(void * ptr, size_t)
+{
+    CASC_FREE(ptr);
+}
+
+//-----------------------------------------------------------------------------
+// Linear data stream manipulation
+
+LPBYTE CaptureInteger32(LPBYTE pbDataPtr, LPBYTE pbDataEnd, PDWORD PtrValue)
+{
+    // Is there enough data?
+    if((pbDataPtr + sizeof(DWORD)) > pbDataEnd)
+        return NULL;
+
+    // Give data
+    PtrValue[0] = *(PDWORD)pbDataPtr;
+
+    // Return the pointer to data following after the integer
+    return pbDataPtr + sizeof(DWORD);
+}
+
+LPBYTE CaptureInteger32_BE(LPBYTE pbDataPtr, LPBYTE pbDataEnd, PDWORD PtrValue)
+{
+    // Is there enough data?
+    if((pbDataPtr + sizeof(DWORD)) > pbDataEnd)
+        return NULL;
+
+    // Convert data from Little endian to 
+    PtrValue[0] = ConvertBytesToInteger_4(pbDataPtr);
+
+    // Return the pointer to data following after the integer
+    return pbDataPtr + sizeof(DWORD);
+}
+
+LPBYTE CaptureByteArray(LPBYTE pbDataPtr, LPBYTE pbDataEnd, size_t nLength, LPBYTE pbOutput)
+{
+    // Is there enough data?
+    if((pbDataPtr + nLength) > pbDataEnd)
+        return NULL;
+
+    // Give data
+    memcpy(pbOutput, pbDataPtr, nLength);
+
+    // Return the pointer to data following after the integer
+    return pbDataPtr + nLength;
+}
+
+LPBYTE CaptureContentKey(LPBYTE pbDataPtr, LPBYTE pbDataEnd, PCONTENT_KEY * PtrCKey)
+{
+    // Is there enough data?
+    if((pbDataPtr + sizeof(CONTENT_KEY)) > pbDataEnd)
+        return NULL;
+
+    // Give data
+    PtrCKey[0] = (PCONTENT_KEY)pbDataPtr;
+
+    // Return the pointer to data following after the integer
+    return pbDataPtr + sizeof(CONTENT_KEY);
+}
+
+LPBYTE CaptureArray_(LPBYTE pbDataPtr, LPBYTE pbDataEnd, LPBYTE * PtrArray, size_t ItemSize, size_t ItemCount)
+{
+    size_t ArraySize = ItemSize * ItemCount;
+
+    // Is there enough data?
+    if((pbDataPtr + ArraySize) > pbDataEnd)
+        return NULL;
+
+    // Give data
+    PtrArray[0] = pbDataPtr;
+
+    // Return the pointer to data following after the array
+    return pbDataPtr + ArraySize;
+}
+
+//-----------------------------------------------------------------------------
+// String copying and conversion
+
+void CascStrCopy(char * szTarget, size_t cchTarget, const char * szSource, size_t cchSource)
+{
+    size_t cchToCopy;
+
+    if (cchTarget > 0)
+    {
+        // Make sure we know the length
+        if (cchSource == -1)
+            cchSource = strlen(szSource);
+        cchToCopy = CASCLIB_MIN((cchTarget - 1), cchSource);
+
+        // Copy the string
+        memcpy(szTarget, szSource, cchToCopy);
+        szTarget[cchToCopy] = 0;
+    }
+}
+
+void CascStrCopy(char * szTarget, size_t cchTarget, const wchar_t * szSource, size_t cchSource)
+{
+    size_t cchToCopy;
+
+    if (cchTarget > 0)
+    {
+        // Make sure we know the length
+        if (cchSource == -1)
+            cchSource = wcslen(szSource);
+        cchToCopy = CASCLIB_MIN((cchTarget - 1), cchSource);
+
+        wcstombs(szTarget, szSource, cchToCopy);
+        szTarget[cchToCopy] = 0;
+    }
+}
+
+void CascStrCopy(wchar_t * szTarget, size_t cchTarget, const char * szSource, size_t cchSource)
+{
+    size_t cchToCopy;
+
+    if (cchTarget > 0)
+    {
+        // Make sure we know the length
+        if (cchSource == -1)
+            cchSource = strlen(szSource);
+        cchToCopy = CASCLIB_MIN((cchTarget - 1), cchSource);
+
+        mbstowcs(szTarget, szSource, cchToCopy);
+        szTarget[cchToCopy] = 0;
+    }
+}
+
+void CascStrCopy(wchar_t * szTarget, size_t cchTarget, const wchar_t * szSource, size_t cchSource)
+{
+    size_t cchToCopy;
+
+    if (cchTarget > 0)
+    {
+        // Make sure we know the length
+        if (cchSource == -1)
+            cchSource = wcslen(szSource);
+        cchToCopy = CASCLIB_MIN((cchTarget - 1), cchSource);
+
+        memcpy(szTarget, szSource, cchToCopy * sizeof(wchar_t));
+        szTarget[cchToCopy] = 0;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Safe version of s(w)printf
+
+size_t CascStrPrintf(char * buffer, size_t nCount, const char * format, ...)
+{
+    char * buffend;
+    va_list argList;
+
+    // Start the argument list
+    va_start(argList, format);
+    
+#ifdef PLATFORM_WINDOWS
+    StringCchVPrintfExA(buffer, nCount, &buffend, NULL, 0, format, argList);
+#else
+    buffend = buffer + vsnprintf(buffer, nCount, format, argList);
+#endif
+    
+    // End the argument list
+    va_end(argList);
+    return (buffend - buffer);
+}
+
+size_t CascStrPrintf(wchar_t * buffer, size_t nCount, const wchar_t * format, ...)
+{
+    wchar_t * buffend;
+    va_list argList;
+
+    // Start the argument list
+    va_start(argList, format);
+
+#ifdef PLATFORM_WINDOWS
+    StringCchVPrintfExW(buffer, nCount, &buffend, NULL, 0, format, argList);
+#else
+    buffend = buffer + vswprintf(buffer, nCount, format, argList);
+#endif
+
+    // End the argument list
+    va_end(argList);
+    return (buffend - buffer);
+}
+
+//-----------------------------------------------------------------------------
+// String allocation
 
 char * CascNewStr(const char * szString, size_t nCharsToReserve)
 {
@@ -137,100 +327,142 @@ wchar_t * CascNewStr(const wchar_t * szString, size_t nCharsToReserve)
     return szNewString;
 }
 
-TCHAR * CascNewStrFromAnsi(const char * szBegin, const char * szEnd)
+template <typename XCHAR>
+TCHAR * AppendPathFragment(TCHAR * szBuffer, TCHAR * szBufferEnd, const XCHAR * szPath, char chSeparator, bool bFirstFragment = false)
 {
-    TCHAR * szNewString = NULL;
-
-    // Only if the entry is valid
-    if(szBegin != NULL && szEnd > szBegin)
+    // The "Path" must not be empty
+    if(szPath && szPath[0])
     {
-        // Allocate and copy the string
-        szNewString = CASC_ALLOC(TCHAR, (szEnd - szBegin + 1));
-        if(szNewString != NULL)
-            CopyString(szNewString, szBegin, (szEnd - szBegin));
+        // Append the path separator after the first fragment
+        if(szBuffer < szBufferEnd && bFirstFragment == false)
+        {
+            if(szBuffer[-1] != chSeparator)
+            {
+                *szBuffer++ = chSeparator;
+            }
+        }
+
+        // Copy the sub path
+        while(szBuffer < szBufferEnd && szPath[0] != 0)
+        {
+            // If there is a path separator, we skip it (all of them) and put single separator there
+            if(szPath[0] == '\\' || szPath[0] == '/')
+            {
+                while(szPath[0] == '\\' || szPath[0] == '/')
+                    szPath++;
+                *szBuffer++ = chSeparator;
+            }
+            else
+            {
+                *szBuffer++ = *szPath++;
+            }
+        }
+
+        // Append end of string
+        szBuffer[0] = 0;
     }
 
-    // Return the string
-    return szNewString;
+    return szBuffer;
+}
+
+TCHAR * GetLastPathPart(TCHAR * szWorkPath)
+{
+    size_t nLength = _tcslen(szWorkPath);
+
+    // Go one character back
+    if(nLength > 0)
+        nLength--;
+
+    // Cut ending (back)slashes, if any
+    while(nLength > 0 && (szWorkPath[nLength] == _T('\\') || szWorkPath[nLength] == _T('/')))
+        nLength--;
+
+    // Cut the last path part
+    while(nLength > 0)
+    {
+        // End of path?
+        if(szWorkPath[nLength] == _T('\\') || szWorkPath[nLength] == _T('/'))
+        {
+            return szWorkPath + nLength;
+        }
+
+        // Go one character back
+        nLength--;
+    }
+
+    return NULL;
+}
+
+bool CutLastPathPart(TCHAR * szWorkPath)
+{
+    // Get the last part of the path
+    szWorkPath = GetLastPathPart(szWorkPath);
+    if(szWorkPath == NULL)
+        return false;
+
+    szWorkPath[0] = 0;
+    return true;
 }
 
 TCHAR * CombinePath(const TCHAR * szDirectory, const TCHAR * szSubDir)
 {
+    TCHAR * szFullPathEnd;
     TCHAR * szFullPath = NULL;
     TCHAR * szPathPtr;
-    size_t nLength1 = 0;
-    size_t nLength2 = 0;
+    size_t nLength1 = (szDirectory != NULL) ? _tcslen(szDirectory) : 0;
+    size_t nLength2 = (szSubDir != NULL) ? _tcslen(szSubDir) : 0;
 
-    // Calculate lengths of each part
-    if(szDirectory != NULL)
-    {
-        // Get the length of the directory
-        nLength1 = _tcslen(szDirectory);
-
-        // Cut all ending backslashes
-        while(nLength1 > 0 && (szDirectory[nLength1 - 1] == _T('\\') || szDirectory[nLength1 - 1] == _T('/')))
-            nLength1--;
-    }
-
-    if(szSubDir != NULL)
-    {
-        // Cut all leading backslashes
-        while(szSubDir[0] == _T(PATH_SEPARATOR))
-            szSubDir++;
-
-        // Get the length of the subdir
-        nLength2 = _tcslen(szSubDir);
-
-        // Cut all ending backslashes
-        while(nLength2 > 0 && szSubDir[nLength2 - 1] == _T(PATH_SEPARATOR))
-            nLength2--;
-    }
-
-    // Allocate space for the full path
+    // Allocate the entire buffer
     szFullPath = szPathPtr = CASC_ALLOC(TCHAR, nLength1 + nLength2 + 2);
+    szFullPathEnd = szFullPath + nLength1 + nLength2 + 1;
     if(szFullPath != NULL)
     {
-        // Copy the directory
-        if(szDirectory != NULL && nLength1 != 0)
-        {
-            memcpy(szPathPtr, szDirectory, (nLength1 * sizeof(TCHAR)));
-            szPathPtr += nLength1;
-        }
-
-        // Copy the sub-directory
-        if(szSubDir != NULL && nLength2 != 0)
-        {
-            // Append backslash to the previous one
-            if(szPathPtr > szFullPath)
-                *szPathPtr++ = _T(PATH_SEPARATOR);
-
-            // Copy the string
-            memcpy(szPathPtr, szSubDir, (nLength2 * sizeof(TCHAR)));
-            szPathPtr += nLength2;
-        }
-
-        // Terminate the string
-        szPathPtr[0] = 0;
+        szPathPtr = AppendPathFragment(szPathPtr, szFullPathEnd, szDirectory, PATH_SEP_CHAR, true);
+        szPathPtr = AppendPathFragment(szPathPtr, szFullPathEnd, szSubDir, PATH_SEP_CHAR);
     }
 
     return szFullPath;
 }
 
-TCHAR * CombinePathAndString(const TCHAR * szPath, const char * szString, size_t nLength)
+size_t CombineFilePath(TCHAR * szBuffer, size_t nMaxChars, const TCHAR * szPath, const TCHAR * szSubPath1, const TCHAR * szSubPath2)
 {
-    TCHAR * szFullPath = NULL;
-    TCHAR * szSubDir;
+    TCHAR * szSaveBuffer = szBuffer;
+    TCHAR * szBufferEnd = szBuffer + nMaxChars - 1;
 
-    // Create the subdir string
-    szSubDir = CASC_ALLOC(TCHAR, nLength + 1);
-    if(szSubDir != NULL)
-    {
-        CopyString(szSubDir, szString, nLength);
-        szFullPath = CombinePath(szPath, szSubDir);
-        CASC_FREE(szSubDir);
-    }
+    // Append all three parts and return length
+    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szPath, PATH_SEP_CHAR, true);
+    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szSubPath1, PATH_SEP_CHAR);
+    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szSubPath2, PATH_SEP_CHAR);
+    return (szBuffer - szSaveBuffer);
+}
 
-    return szFullPath;
+size_t CombineUrlPath(TCHAR * szBuffer, size_t nMaxChars, const TCHAR * szHost, const TCHAR * szSubPath1, const TCHAR * szSubPath2)
+{
+    TCHAR * szSaveBuffer = szBuffer;
+    TCHAR * szBufferEnd = szBuffer + nMaxChars - 1;
+
+    // Append all three parts and return length
+    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szHost, '/', true);
+    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szSubPath1, '/');
+    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szSubPath2, '/');
+    return (szBuffer - szSaveBuffer);
+}
+
+size_t CreateCascSubdirectoryName(TCHAR * szBuffer, size_t nMaxChars, const TCHAR * szSubDir, const TCHAR * szExtension, LPBYTE pbEKey)
+{
+    TCHAR * szSaveBuffer = szBuffer;
+    TCHAR * szBufferEnd = szBuffer + nMaxChars - 1;
+    char szHashSubPath[0x80];
+    char szHashText[MD5_STRING_SIZE+1];
+
+    // Prepare the subpath
+    StringFromBinary(pbEKey, MD5_HASH_SIZE, szHashText);
+    CascStrPrintf(szHashSubPath, _countof(szHashSubPath), "%02x/%02x/%s", pbEKey[0], pbEKey[1], szHashText);
+
+    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szSubDir, '/', true);
+    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szHashSubPath, '/');
+    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szExtension, '/', true);
+    return (szBuffer - szSaveBuffer);
 }
 
 size_t NormalizeFileName(const unsigned char * NormTable, char * szNormName, const char * szFileName, size_t cchMaxChars)
@@ -257,19 +489,26 @@ size_t NormalizeFileName_LowerSlash(char * szNormName, const char * szFileName, 
     return NormalizeFileName(AsciiToLowerTable_Slash, szNormName, szFileName, cchMaxChars);
 }
 
+ULONGLONG CalcNormNameHash(const char * szNormName, size_t nLength)
+{
+    uint32_t dwHashHigh = 0;
+    uint32_t dwHashLow = 0;
+
+    // Calculate the HASH value of the normalized file name
+    hashlittle2(szNormName, nLength, &dwHashHigh, &dwHashLow);
+    return ((ULONGLONG)dwHashHigh << 0x20) | dwHashLow;
+}
+
 ULONGLONG CalcFileNameHash(const char * szFileName)
 {
     char szNormName[MAX_PATH+1];
-    uint32_t dwHashHigh = 0;
-    uint32_t dwHashLow = 0;
     size_t nLength;
 
     // Normalize the file name - convert to uppercase, slashes to backslashes
     nLength = NormalizeFileName_UpperBkSlash(szNormName, szFileName, MAX_PATH);
 
-    // Calculate the HASH value of the normalized file name
-    hashlittle2(szNormName, nLength, &dwHashHigh, &dwHashLow);
-    return ((ULONGLONG)dwHashHigh << 0x20) | dwHashLow;
+    // Calculate hash from the normalized name
+    return CalcNormNameHash(szNormName, nLength);
 }
 
 int ConvertDigitToInt32(const TCHAR * szString, PDWORD PtrValue)
@@ -373,13 +612,16 @@ char * StringFromBinary(LPBYTE pbBinary, size_t cbBinary, char * szBuffer)
 {
     char * szSaveBuffer = szBuffer;
 
-    // Convert the string to the array of MD5
-    // Copy the blob data as text
-    for(size_t i = 0; i < cbBinary; i++)
+    // Verify the binary pointer
+    if(pbBinary && cbBinary)
     {
-        *szBuffer++ = IntToHexChar[pbBinary[0] >> 0x04];
-        *szBuffer++ = IntToHexChar[pbBinary[0] & 0x0F];
-        pbBinary++;
+        // Convert the string to the array of MD5
+        // Copy the blob data as text
+        for(size_t i = 0; i < cbBinary; i++)
+        {
+            *szBuffer++ = IntToHexChar[pbBinary[i] >> 0x04];
+            *szBuffer++ = IntToHexChar[pbBinary[i] & 0x0F];
+        }
     }
 
     // Terminate the string
@@ -395,39 +637,51 @@ char * StringFromMD5(LPBYTE md5, char * szBuffer)
 //-----------------------------------------------------------------------------
 // File name utilities
 
-const wchar_t * GetPlainFileName(const wchar_t * szFileName)
+bool IsFileDataIdName(const char * szFileName, DWORD & FileDataId)
 {
-    const wchar_t * szPlainName = szFileName;
+    BYTE BinaryValue[4];
 
-    while(*szFileName != 0)
+    // File name must begin with "File", case insensitive
+    if(AsciiToUpperTable_BkSlash[szFileName[0]] == 'F' &&
+       AsciiToUpperTable_BkSlash[szFileName[1]] == 'I' &&
+       AsciiToUpperTable_BkSlash[szFileName[2]] == 'L' &&
+       AsciiToUpperTable_BkSlash[szFileName[3]] == 'E')
     {
-        if(*szFileName == '\\' || *szFileName == '/')
-            szPlainName = szFileName + 1;
-        szFileName++;
+        // Then, 8 hexadecimal digits must follow
+        if(ConvertStringToBinary(szFileName + 4, 8, BinaryValue) == ERROR_SUCCESS)
+        {
+            // Must be followed by an extension or end-of-string
+            if(szFileName[0x0C] == 0 || szFileName[0x0C] == '.')
+            {
+                FileDataId = ConvertBytesToInteger_4(BinaryValue);
+                return (FileDataId != CASC_INVALID_ID);
+            }
+        }
     }
 
-    return szPlainName;
+    return false;
 }
 
-const char * GetPlainFileName(const char * szFileName)
+bool IsFileCKeyEKeyName(const char * szFileName, LPBYTE PtrKeyBuffer)
 {
-    const char * szPlainName = szFileName;
+    size_t nLength = strlen(szFileName);
 
-    while(*szFileName != 0)
+    if(nLength == MD5_STRING_SIZE)
     {
-        if(*szFileName == '\\' || *szFileName == '/')
-            szPlainName = szFileName + 1;
-        szFileName++;
+        if(ConvertStringToBinary(szFileName, MD5_STRING_SIZE, PtrKeyBuffer) == ERROR_SUCCESS)
+        {
+            return true;
+        }
     }
 
-    return szPlainName;
+    return false;
 }
 
-bool CheckWildCard(const char * szString, const char * szWildCard)
+bool CascCheckWildCard(const char * szString, const char * szWildCard)
 {
     const char * szWildCardPtr;
 
-    for(;;)
+    while(szWildCard && szWildCard[0])
     {
         // If there is '?' in the wildcard, we skip one char
         while(szWildCard[0] == '?')
@@ -455,7 +709,7 @@ bool CheckWildCard(const char * szString, const char * szWildCard)
 
                 if(AsciiToUpperTable_BkSlash[szWildCardPtr[0]] == AsciiToUpperTable_BkSlash[szString[0]])
                 {
-                    if(CheckWildCard(szString, szWildCardPtr))
+                    if(CascCheckWildCard(szString, szWildCardPtr))
                         return true;
                 }
             }
@@ -476,244 +730,43 @@ bool CheckWildCard(const char * szString, const char * szWildCard)
             return (szString[0] == 0) ? true : false;
         }
     }
+    return true;
 }
 
 //-----------------------------------------------------------------------------
 // Hashing functions
 
-bool IsValidMD5(LPBYTE pbMd5)
+bool CascIsValidMD5(LPBYTE pbMd5)
 {
-    BYTE BitSummary = 0;
+    PDWORD Int32Array = (PDWORD)pbMd5;
 
-    // The MD5 is considered invalid of it is zeroed
-    BitSummary |= pbMd5[0x00] | pbMd5[0x01] | pbMd5[0x02] | pbMd5[0x03] | pbMd5[0x04] | pbMd5[0x05] | pbMd5[0x06] | pbMd5[0x07];
-    BitSummary |= pbMd5[0x08] | pbMd5[0x09] | pbMd5[0x0A] | pbMd5[0x0B] | pbMd5[0x0C] | pbMd5[0x0D] | pbMd5[0x0E] | pbMd5[0x0F];
-    return (BitSummary != 0);
+    // The MD5 is considered invalid if it is zeroed
+    return (Int32Array[0] | Int32Array[1] | Int32Array[2] | Int32Array[3]) ? true : false;
 }
 
-bool VerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expected_md5)
+bool CascVerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expected_md5)
 {
-    hash_state md5_state;
+    MD5_CTX md5_ctx;
     BYTE md5_digest[MD5_HASH_SIZE];
 
     // Don't verify the block if the MD5 is not valid.
-    if(!IsValidMD5(expected_md5))
+    if(!CascIsValidMD5(expected_md5))
         return true;
 
     // Calculate the MD5 of the data block
-    md5_init(&md5_state);
-    md5_process(&md5_state, (unsigned char *)pvDataBlock, cbDataBlock);
-    md5_done(&md5_state, md5_digest);
+    MD5_Init(&md5_ctx);
+    MD5_Update(&md5_ctx, pvDataBlock, cbDataBlock);
+    MD5_Final(md5_digest, &md5_ctx);
 
     // Does the MD5's match?
     return (memcmp(md5_digest, expected_md5, MD5_HASH_SIZE) == 0);
 }
 
-void CalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_hash)
+void CascCalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_hash)
 {
-    hash_state md5_state;
+    MD5_CTX md5_ctx;
 
-    md5_init(&md5_state);
-    md5_process(&md5_state, (unsigned char *)pvDataBlock, cbDataBlock);
-    md5_done(&md5_state, md5_hash);
-}
-
-//-----------------------------------------------------------------------------
-// We have our own qsort implementation, optimized for using array of pointers
-
-#define STKSIZ (8*sizeof(void*) - 2)
-
-#define SWAP_ENTRIES(index1, index2)        \
-{                                           \
-    temp = base[index1];                    \
-    base[index1] = base[index2];            \
-    base[index2] = temp;                    \
-}
-
-void qsort_pointer_array(void ** base, size_t num, int (*compare)(const void *, const void *, const void *), const void * context)
-{
-    size_t lo, hi;                  /* ends of sub-array currently sorting */
-    size_t mid;                     /* points to middle of subarray */
-    size_t loguy, higuy;            /* traveling pointers for partition step */
-    size_t size;                    /* size of the sub-array */
-    size_t lostk[STKSIZ], histk[STKSIZ];
-    void * temp;
-    int stkptr;                     /* stack for saving sub-array to be processed */
-
-    /* validation section */
-    assert(base != NULL);
-    assert(compare != NULL);
-
-    if (num < 2)
-        return;                 /* nothing to do */
-
-    stkptr = 0;                 /* initialize stack */
-
-    lo = 0;
-    hi = (num-1);               /* initialize limits */
-
-    /* this entry point is for pseudo-recursion calling: setting
-       lo and hi and jumping to here is like recursion, but stkptr is
-       preserved, locals aren't, so we preserve stuff on the stack */
-recurse:
-
-    size = (hi - lo) + 1;       /* number of el's to sort */
-
-    /* First we pick a partitioning element.  The efficiency of the
-       algorithm demands that we find one that is approximately the median
-       of the values, but also that we select one fast.  We choose the
-       median of the first, middle, and last elements, to avoid bad
-       performance in the face of already sorted data, or data that is made
-       up of multiple sorted runs appended together.  Testing shows that a
-       median-of-three algorithm provides better performance than simply
-       picking the middle element for the latter case. */
-
-    mid = lo + (size / 2);      /* find middle element */
-
-    /* Sort the first, middle, last elements into order */
-    if (compare(context, base[lo], base[mid]) > 0) {
-        SWAP_ENTRIES(lo, mid);
-    }
-    if (compare(context, base[lo], base[hi]) > 0) {
-        SWAP_ENTRIES(lo, hi);
-    }
-    if (compare(context, base[mid], base[hi]) > 0) {
-        SWAP_ENTRIES(mid, hi);
-    }
-
-    /* We now wish to partition the array into three pieces, one consisting
-       of elements <= partition element, one of elements equal to the
-       partition element, and one of elements > than it.  This is done
-       below; comments indicate conditions established at every step. */
-
-    loguy = lo;
-    higuy = hi;
-
-    /* Note that higuy decreases and loguy increases on every iteration,
-       so loop must terminate. */
-    for (;;) {
-        /* lo <= loguy < hi, lo < higuy <= hi,
-           A[i] <= A[mid] for lo <= i <= loguy,
-           A[i] > A[mid] for higuy <= i < hi,
-           A[hi] >= A[mid] */
-
-        /* The doubled loop is to avoid calling comp(mid,mid), since some
-           existing comparison funcs don't work when passed the same
-           value for both pointers. */
-
-        if (mid > loguy) {
-            do  {
-                loguy ++;
-            } while (loguy < mid && compare(context, base[loguy], base[mid]) <= 0);
-        }
-        if (mid <= loguy) {
-            do  {
-                loguy ++;
-            } while (loguy <= hi && compare(context, base[loguy], base[mid]) <= 0);
-        }
-
-        /* lo < loguy <= hi+1, A[i] <= A[mid] for lo <= i < loguy,
-           either loguy > hi or A[loguy] > A[mid] */
-
-        do  {
-            higuy --;
-        } while (higuy > mid && compare(context, base[higuy], base[mid]) > 0);
-
-        /* lo <= higuy < hi, A[i] > A[mid] for higuy < i < hi,
-           either higuy == lo or A[higuy] <= A[mid] */
-
-        if (higuy < loguy)
-            break;
-
-        /* if loguy > hi or higuy == lo, then we would have exited, so
-           A[loguy] > A[mid], A[higuy] <= A[mid],
-           loguy <= hi, higuy > lo */
-
-        SWAP_ENTRIES(loguy, higuy);
-
-        /* If the partition element was moved, follow it.  Only need
-           to check for mid == higuy, since before the swap,
-           A[loguy] > A[mid] implies loguy != mid. */
-
-        if (mid == higuy)
-            mid = loguy;
-
-        /* A[loguy] <= A[mid], A[higuy] > A[mid]; so condition at top
-           of loop is re-established */
-    }
-
-    /*     A[i] <= A[mid] for lo <= i < loguy,
-           A[i] > A[mid] for higuy < i < hi,
-           A[hi] >= A[mid]
-           higuy < loguy
-       implying:
-           higuy == loguy-1
-           or higuy == hi - 1, loguy == hi + 1, A[hi] == A[mid] */
-
-    /* Find adjacent elements equal to the partition element.  The
-       doubled loop is to avoid calling comp(mid,mid), since some
-       existing comparison funcs don't work when passed the same value
-       for both pointers. */
-
-    higuy ++;
-    if (mid < higuy) {
-        do  {
-            higuy --;
-        } while (higuy > mid && compare(context, base[higuy], base[mid]) == 0);
-    }
-    if (mid >= higuy) {
-        do  {
-            higuy --;
-        } while (higuy > lo && compare(context, base[higuy], base[mid]) == 0);
-    }
-
-    /* OK, now we have the following:
-          higuy < loguy
-          lo <= higuy <= hi
-          A[i]  <= A[mid] for lo <= i <= higuy
-          A[i]  == A[mid] for higuy < i < loguy
-          A[i]  >  A[mid] for loguy <= i < hi
-          A[hi] >= A[mid] */
-
-    /* We've finished the partition, now we want to sort the subarrays
-       [lo, higuy] and [loguy, hi].
-       We do the smaller one first to minimize stack usage.
-       We only sort arrays of length 2 or more.*/
-
-    if ( higuy - lo >= hi - loguy ) {
-        if (lo < higuy) {
-            lostk[stkptr] = lo;
-            histk[stkptr] = higuy;
-            ++stkptr;
-        }                           /* save big recursion for later */
-
-        if (loguy < hi) {
-            lo = loguy;
-            goto recurse;           /* do small recursion */
-        }
-    }
-    else {
-        if (loguy < hi) {
-            lostk[stkptr] = loguy;
-            histk[stkptr] = hi;
-            ++stkptr;               /* save big recursion for later */
-        }
-
-        if (lo < higuy) {
-            hi = higuy;
-            goto recurse;           /* do small recursion */
-        }
-    }
-
-    /* We have sorted the array, except for any pending sorts on the stack.
-       Check if there are any, and do them. */
-
-    --stkptr;
-    if (stkptr >= 0) {
-        lo = lostk[stkptr];
-        hi = histk[stkptr];
-        goto recurse;           /* pop subarray from stack */
-    }
-    else
-        return;                 /* all subarrays done */
+    MD5_Init(&md5_ctx);
+    MD5_Update(&md5_ctx, pvDataBlock, cbDataBlock);
+    MD5_Final(md5_hash, &md5_ctx);
 }

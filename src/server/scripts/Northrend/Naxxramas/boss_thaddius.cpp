@@ -299,7 +299,7 @@ struct boss_thaddius : public BossAI
         {
             events.SetPhase(PHASE_TRANSITION);
 
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
             events.ScheduleEvent(EVENT_TRANSITION_1, Seconds(10), 0, PHASE_TRANSITION);
             events.ScheduleEvent(EVENT_TRANSITION_2, Seconds(12), 0, PHASE_TRANSITION);
@@ -320,7 +320,7 @@ struct boss_thaddius : public BossAI
             me->DespawnOrUnsummon();
             me->SetRespawnTime(initial ? 5 : 30);
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED));
             events.SetPhase(PHASE_RESETTING);
             if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                 feugen->AI()->DoAction(ACTION_BEGIN_RESET_ENCOUNTER);
@@ -384,8 +384,8 @@ struct boss_thaddius : public BossAI
                         me->CastSpell(me, SPELL_THADDIUS_SPARK_VISUAL, true);
                         ballLightningUnlocked = false;
                         me->RemoveAura(SPELL_THADDIUS_INACTIVE_VISUAL);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
+                        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                         me->SetReactState(REACT_AGGRESSIVE);
 
                         DoZoneInCombat();
@@ -492,7 +492,7 @@ public:
                 // if the encounter reset while feigning death
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 isOverloading = false;
                 isFeignDeath = false;
 
@@ -543,7 +543,7 @@ public:
                         me->SetFullHealth();
                         me->SetStandState(UNIT_STAND_STATE_STAND);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         Talk(EMOTE_FEIGN_REVIVE);
                         isFeignDeath = false;
 
@@ -619,7 +619,7 @@ public:
                 if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     thaddius->AI()->DoAction(ACTION_STALAGG_DIED);
 
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveAllAuras();
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
@@ -643,7 +643,7 @@ public:
                     if (!isOverloading)
                     {
                         isOverloading = true;
-                        caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        caster->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                         if (Creature* creatureCaster = caster->ToCreature())
                             creatureCaster->AI()->Talk(EMOTE_TESLA_LINK_BREAKS);
                         me->RemoveAura(SPELL_STALAGG_CHAIN_VISUAL);
@@ -660,7 +660,7 @@ public:
                     refreshBeam = false;
                     caster->CastStop();
                     caster->CastSpell(me, SPELL_STALAGG_CHAIN_VISUAL, true);
-                    caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    caster->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 }
             }
 
@@ -760,7 +760,7 @@ public:
                 // if the encounter reset while feigning death
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 isOverloading = false;
                 isFeignDeath = false;
 
@@ -812,7 +812,7 @@ public:
                         me->SetFullHealth();
                         me->SetStandState(UNIT_STAND_STATE_STAND);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         Talk(EMOTE_FEIGN_REVIVE);
                         isFeignDeath = false;
 
@@ -894,7 +894,7 @@ public:
                 me->AttackStop();
                 me->StopMoving();
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
                 damage = 0;
 
@@ -913,7 +913,7 @@ public:
                     if (!isOverloading)
                     {
                         isOverloading = true;
-                        caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        caster->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                         if (Creature* creatureCaster = caster->ToCreature())
                             creatureCaster->AI()->Talk(EMOTE_TESLA_LINK_BREAKS);
                         me->RemoveAura(SPELL_STALAGG_CHAIN_VISUAL);
@@ -930,7 +930,7 @@ public:
                     refreshBeam = false;
                     caster->CastStop();
                     caster->CastSpell(me, SPELL_FEUGEN_CHAIN_VISUAL, true);
-                    caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    caster->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 }
             }
 

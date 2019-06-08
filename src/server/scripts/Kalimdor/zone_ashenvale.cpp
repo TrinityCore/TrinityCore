@@ -98,7 +98,7 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
                     if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                         Cage->SetGoState(GO_STATE_ACTIVE);
                     break;
@@ -246,7 +246,7 @@ public:
 
                             if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_NAGA_BRAZIER, INTERACTION_DISTANCE*2))
                             {
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                                 SetEscortPaused(true);
                             }
                             break;

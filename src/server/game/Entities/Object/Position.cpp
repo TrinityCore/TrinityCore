@@ -23,7 +23,7 @@
 #include <G3D/g3dmath.h>
 #include <sstream>
 
-bool Position::operator==(Position const &a)
+bool Position::operator==(Position const &a) const
 {
     return (G3D::fuzzyEq(a.m_positionX, m_positionX) &&
         G3D::fuzzyEq(a.m_positionY, m_positionY) &&

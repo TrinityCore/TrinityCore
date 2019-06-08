@@ -155,8 +155,6 @@ DB2Storage<ItemLimitCategoryEntry>              sItemLimitCategoryStore("ItemLim
 DB2Storage<ItemLimitCategoryConditionEntry>     sItemLimitCategoryConditionStore("ItemLimitCategoryCondition.db2", ItemLimitCategoryConditionLoadInfo::Instance());
 DB2Storage<ItemModifiedAppearanceEntry>         sItemModifiedAppearanceStore("ItemModifiedAppearance.db2", ItemModifiedAppearanceLoadInfo::Instance());
 DB2Storage<ItemPriceBaseEntry>                  sItemPriceBaseStore("ItemPriceBase.db2", ItemPriceBaseLoadInfo::Instance());
-DB2Storage<ItemRandomPropertiesEntry>           sItemRandomPropertiesStore("ItemRandomProperties.db2", ItemRandomPropertiesLoadInfo::Instance());
-DB2Storage<ItemRandomSuffixEntry>               sItemRandomSuffixStore("ItemRandomSuffix.db2", ItemRandomSuffixLoadInfo::Instance());
 DB2Storage<ItemSearchNameEntry>                 sItemSearchNameStore("ItemSearchName.db2", ItemSearchNameLoadInfo::Instance());
 DB2Storage<ItemSetEntry>                        sItemSetStore("ItemSet.db2", ItemSetLoadInfo::Instance());
 DB2Storage<ItemSetSpellEntry>                   sItemSetSpellStore("ItemSetSpell.db2", ItemSetSpellLoadInfo::Instance());
@@ -347,7 +345,8 @@ namespace
     };
 
     StorageMap _stores;
-    std::map<uint64, int32> _hotfixData;
+    uint32 _hotfixCount = 0;
+    DB2Manager::HotfixContainer _hotfixData;
     std::map<std::pair<uint32 /*tableHash*/, int32 /*recordId*/>, std::vector<uint8>> _hotfixBlob;
 
     AreaGroupMemberContainer _areaGroupMembers;
@@ -393,6 +392,7 @@ namespace
     std::unordered_map<uint32, std::vector<RewardPackXCurrencyTypeEntry const*>> _rewardPackCurrencyTypes;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
     RulesetItemUpgradeContainer _rulesetItemUpgrade;
+    std::unordered_map<uint32, std::vector<SkillLineEntry const*>> _skillLinesByParentSkillLine;
     std::unordered_map<uint32, std::vector<SkillLineAbilityEntry const*>> _skillLineAbilitiesBySkillupSkill;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;
     SpecializationSpellsContainer _specializationSpellsBySpec;
@@ -611,8 +611,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemLimitCategoryConditionStore);
     LOAD_DB2(sItemModifiedAppearanceStore);
     LOAD_DB2(sItemPriceBaseStore);
-    LOAD_DB2(sItemRandomPropertiesStore);
-    LOAD_DB2(sItemRandomSuffixStore);
     LOAD_DB2(sItemSearchNameStore);
     LOAD_DB2(sItemSetStore);
     LOAD_DB2(sItemSetSpellStore);
@@ -1025,6 +1023,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (RulesetItemUpgradeEntry const* rulesetItemUpgrade : sRulesetItemUpgradeStore)
         _rulesetItemUpgrade[rulesetItemUpgrade->ItemID] = rulesetItemUpgrade->ItemUpgradeID;
 
+    for (SkillLineEntry const* skill : sSkillLineStore)
+        if (skill->ParentSkillLineID)
+            _skillLinesByParentSkillLine[skill->ParentSkillLineID].push_back(skill);
+
     for (SkillLineAbilityEntry const* skillLineAbility : sSkillLineAbilityStore)
         _skillLineAbilitiesBySkillupSkill[skillLineAbility->SkillupSkillLineID ? skillLineAbility->SkillupSkillLineID : skillLineAbility->SkillLine].push_back(skillLineAbility);
 
@@ -1258,13 +1260,13 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(10048) ||                // last area added in 8.0.1 (28153)
-        !sCharTitlesStore.LookupEntry(633) ||                // last char title added in 8.0.1 (28153)
-        !sGemPropertiesStore.LookupEntry(3745) ||            // last gem property added in 8.0.1 (28153)
-        !sItemStore.LookupEntry(164760) ||                   // last item added in 8.0.1 (28153)
-        !sItemExtendedCostStore.LookupEntry(6448) ||         // last item extended cost added in 8.0.1 (28153)
-        !sMapStore.LookupEntry(2103) ||                      // last map added in 8.0.1 (28153)
-        !sSpellNameStore.LookupEntry(281872))                // last spell added in 8.0.1 (28153)
+    if (!sAreaTableStore.LookupEntry(10521) ||               // last area added in 8.1.5 (30706)
+        !sCharTitlesStore.LookupEntry(649) ||                // last char title added in 8.1.5 (30706)
+        !sGemPropertiesStore.LookupEntry(3746) ||            // last gem property added in 8.1.5 (30706)
+        !sItemStore.LookupEntry(168279) ||                   // last item added in 8.1.5 (30706)
+        !sItemExtendedCostStore.LookupEntry(6545) ||         // last item extended cost added in 8.1.5 (30706)
+        !sMapStore.LookupEntry(2178) ||                      // last map added in 8.1.5 (30706)
+        !sSpellNameStore.LookupEntry(296952))                // last spell added in 8.1.5 (30706)
     {
         TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         exit(1);
@@ -1302,7 +1304,7 @@ void DB2Manager::LoadHotfixData()
     {
         Field* fields = result->Fetch();
 
-        uint32 id = fields[0].GetUInt32();
+        int32 id = fields[0].GetInt32();
         uint32 tableHash = fields[1].GetUInt32();
         int32 recordId = fields[2].GetInt32();
         bool deleted = fields[3].GetBool();
@@ -1313,7 +1315,8 @@ void DB2Manager::LoadHotfixData()
         }
 
         _maxHotfixId = std::max(_maxHotfixId, id);
-        _hotfixData[MAKE_PAIR64(id, tableHash)] = recordId;
+        _hotfixData[id].emplace_back(tableHash, recordId);
+        ++_hotfixCount;
         deletedRecords[std::make_pair(tableHash, recordId)] = deleted;
         ++count;
     } while (result->NextRow());
@@ -1359,7 +1362,12 @@ void DB2Manager::LoadHotfixBlob()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " hotfix blob records in %u ms", _hotfixBlob.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-std::map<uint64, int32> const& DB2Manager::GetHotfixData() const
+uint32 DB2Manager::GetHotfixCount() const
+{
+    return _hotfixCount;
+}
+
+DB2Manager::HotfixContainer const& DB2Manager::GetHotfixData() const
 {
     return _hotfixData;
 }
@@ -1371,7 +1379,8 @@ std::vector<uint8> const* DB2Manager::GetHotfixBlobData(uint32 tableHash, int32 
 
 void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
 {
-    _hotfixData[MAKE_PAIR64(tableHash, ++_maxHotfixId)] = recordId;
+    _hotfixData[++_maxHotfixId].emplace_back(tableHash, recordId);
+    ++_hotfixCount;
 }
 
 std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId) const
@@ -2319,6 +2328,11 @@ uint32 DB2Manager::GetRulesetItemUpgrade(uint32 itemId) const
         return itr->second;
 
     return 0;
+}
+
+std::vector<SkillLineEntry const*> const* DB2Manager::GetSkillLinesForParentSkill(uint32 parentSkillId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_skillLinesByParentSkillLine, parentSkillId);
 }
 
 std::vector<SkillLineAbilityEntry const*> const* DB2Manager::GetSkillLineAbilitiesBySkill(uint32 skillId) const

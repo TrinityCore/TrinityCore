@@ -234,7 +234,7 @@ public:
                         if (Creature* summon = me->SummonCreature(NPC_DARK_MATTER_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1000))
                         {
                             summon->SetDisplayId(11686);
-                            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            summon->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             summon->CastSpell(target, SPELL_DARK_MATTER, true);
                         }
                     }
@@ -250,7 +250,7 @@ public:
                         if (Creature* summon = me->SummonCreature(NPC_SEARING_GAZE_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1000))
                         {
                             summon->SetDisplayId(11686);
-                            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            summon->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             summon->CastSpell(target, SPELL_SEARING_GAZE, true);
                         }
                     }
@@ -419,7 +419,7 @@ public:
 
         void StartWP()
         {
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             SetEscortPaused(false);
             uiStep = 1;
             Start();
@@ -684,7 +684,7 @@ public:
                         Player* player = GetPlayerForEscort();
                         if (player)
                             player->GroupEventHappens(QUEST_HALLS_OF_STONE, me);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                         JumpToNextStep(180000);
                         break;
                     }

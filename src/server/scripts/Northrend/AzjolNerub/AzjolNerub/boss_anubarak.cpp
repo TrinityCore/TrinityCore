@@ -122,7 +122,7 @@ public:
         void Reset() override
         {
             BossAI::Reset();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
             instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
             _nextSubmerge = 75;
             _petCount = 0;
@@ -334,7 +334,7 @@ public:
                     {
                         me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
                         me->RemoveAurasDueToSpell(SPELL_IMPALE_AURA);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                         DoCastSelf(SPELL_EMERGE);
                         events.SetPhase(PHASE_EMERGE);
                         events.ScheduleEvent(EVENT_POUND, randtime(Seconds(13), Seconds(18)), 0, PHASE_EMERGE);
@@ -365,7 +365,7 @@ public:
         {
             if (spell->Id == SPELL_SUBMERGE)
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                 me->RemoveAurasDueToSpell(SPELL_LEECHING_SWARM);
                 DoCastSelf(SPELL_IMPALE_AURA, true);
 

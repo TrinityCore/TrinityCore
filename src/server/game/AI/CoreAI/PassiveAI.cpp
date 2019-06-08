@@ -48,14 +48,14 @@ void PossessedAI::UpdateAI(uint32 /*diff*/)
 void PossessedAI::JustDied(Unit* /*u*/)
 {
     // We died while possessed, disable our loot
-    me->RemoveFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+    me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
 }
 
 void PossessedAI::KilledUnit(Unit* victim)
 {
     // We killed a creature, disable victim's loot
     if (victim->GetTypeId() == TYPEID_UNIT)
-        victim->RemoveFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+        me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
 }
 
 void PossessedAI::OnCharmed(bool /*apply*/)

@@ -129,7 +129,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Money = 0;
+            uint64 Money = 0;
+            uint64 MoneyMod = 0;
             bool SoleLooter = false;
         };
 

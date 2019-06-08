@@ -54,6 +54,9 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     _worldPacket.WriteBit(TrackedQuantity.is_initialized());
     _worldPacket.WriteBit(MaxQuantity.is_initialized());
     _worldPacket.WriteBit(SuppressChatLog);
+    _worldPacket.WriteBit(QuantityChange.is_initialized());
+    _worldPacket.WriteBit(QuantityGainSource.is_initialized());
+    _worldPacket.WriteBit(QuantityLostSource.is_initialized());
     _worldPacket.FlushBits();
 
     if (WeeklyQuantity)
@@ -64,6 +67,15 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
 
     if (MaxQuantity)
         _worldPacket << int32(*MaxQuantity);
+
+    if (QuantityChange)
+        _worldPacket << int32(*QuantityChange);
+
+    if (QuantityGainSource)
+        _worldPacket << int32(*QuantityGainSource);
+
+    if (QuantityLostSource)
+        _worldPacket << int32(*QuantityLostSource);
 
     return &_worldPacket;
 }
@@ -279,6 +291,15 @@ WorldPacket const* WorldPackets::Misc::StandStateUpdate::Write()
 {
     _worldPacket << uint32(AnimKitID);
     _worldPacket << uint8(State);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetAnimTier::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket.WriteBits(Tier, 3);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

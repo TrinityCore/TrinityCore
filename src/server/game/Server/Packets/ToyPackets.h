@@ -55,6 +55,16 @@ namespace WorldPackets
             bool IsFullUpdate = false;
             ToyBoxContainer const* Toys = nullptr;
         };
+
+        class ToyClearFanfare final : public ClientPacket
+        {
+        public:
+            ToyClearFanfare(WorldPacket&& packet) : ClientPacket(CMSG_TOY_CLEAR_FANFARE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 ItemID = 0;
+        };
     }
 }
 

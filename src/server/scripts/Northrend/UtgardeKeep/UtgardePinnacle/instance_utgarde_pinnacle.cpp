@@ -103,7 +103,7 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                         if (GetBossState(DATA_GORTOK_PALEHOOF) == DONE)
                         {
                             HandleGameObject(ObjectGuid::Empty, true, go);
-                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         break;
                     case GO_SKADI_THE_RUTHLESS_DOOR:

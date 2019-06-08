@@ -101,10 +101,10 @@ enum ScriptCommands
 {
     SCRIPT_COMMAND_TALK                  = 0,                // source/target = Creature, target = any, datalong = talk type (0=say, 1=whisper, 2=yell, 3=emote text, 4=boss emote text), datalong2 & 1 = player talk (instead of creature), dataint = string_id
     SCRIPT_COMMAND_EMOTE                 = 1,                // source/target = Creature, datalong = emote id, datalong2 = 0: set emote state; > 0: play emote state
-    SCRIPT_COMMAND_FIELD_SET             = 2,                // source/target = Creature, datalong = field id, datalog2 = value
+    SCRIPT_COMMAND_FIELD_SET_DEPRECATED  = 2,
     SCRIPT_COMMAND_MOVE_TO               = 3,                // source/target = Creature, datalong2 = time to reach, x/y/z = destination
-    SCRIPT_COMMAND_FLAG_SET              = 4,                // source/target = Creature, datalong = field id, datalog2 = bitmask
-    SCRIPT_COMMAND_FLAG_REMOVE           = 5,                // source/target = Creature, datalong = field id, datalog2 = bitmask
+    SCRIPT_COMMAND_FLAG_SET_DEPRECATED   = 4,
+    SCRIPT_COMMAND_FLAG_REMOVE_DEPRECATED= 5,
     SCRIPT_COMMAND_TELEPORT_TO           = 6,                // source/target = Creature/Player (see datalong2), datalong = map_id, datalong2 = 0: Player; 1: Creature, x/y/z = destination, o = orientation
     SCRIPT_COMMAND_QUEST_EXPLORED        = 7,                // target/source = Player, target/source = GO/Creature, datalong = quest id, datalong2 = distance or 0
     SCRIPT_COMMAND_KILL_CREDIT           = 8,                // target/source = Player, datalong = creature entry, datalong2 = 0: personal credit, 1: group credit
@@ -520,6 +520,8 @@ struct PlayerChoiceResponseLocale
 {
     std::vector<std::string> Answer;
     std::vector<std::string> Header;
+    std::vector<std::string> SubHeader;
+    std::vector<std::string> ButtonTooltip;
     std::vector<std::string> Description;
     std::vector<std::string> Confirmation;
 };
@@ -795,18 +797,24 @@ struct PlayerChoiceResponse
     int32 ChoiceArtFileId;
     int32 Flags;
     uint32 WidgetSetID;
+    uint32 UiTextureAtlasElementID = 0;
+    uint32 SoundKitID = 0;
     uint8 GroupID;
-    std::string Header;
     std::string Answer;
+    std::string Header;
+    std::string SubHeader;
+    std::string ButtonTooltip;
     std::string Description;
     std::string Confirmation;
     Optional<PlayerChoiceResponseReward> Reward;
+    Optional<uint32> RewardQuestID;
 };
 
 struct PlayerChoice
 {
     int32 ChoiceId;
     int32 UiTextureKitId;
+    uint32 SoundKitId;
     std::string Question;
     std::vector<PlayerChoiceResponse> Responses;
     bool HideWarboardHeader;

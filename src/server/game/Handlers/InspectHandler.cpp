@@ -52,7 +52,7 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
     }
 
     inspectResult.ClassID = player->getClass();
-    inspectResult.GenderID = player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
+    inspectResult.GenderID = player->m_playerData->NativeSex;
 
     if (GetPlayer()->CanBeGameMaster() || sWorld->getIntConfig(CONFIG_TALENTS_INSPECTING) + (GetPlayer()->GetTeamId() == player->GetTeamId()) > 1)
     {
@@ -77,62 +77,14 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
     }
 
     inspectResult.InspecteeGUID = inspect.Target;
-    inspectResult.SpecializationID = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
+    inspectResult.SpecializationID = player->GetPrimarySpecialization();
+    inspectResult.LifetimeMaxRank = player->m_activePlayerData->LifetimeMaxRank;
+    inspectResult.TodayHK = player->m_activePlayerData->TodayHonorableKills;
+    inspectResult.YesterdayHK = player->m_activePlayerData->YesterdayHonorableKills;
+    inspectResult.LifetimeHK = player->m_activePlayerData->LifetimeHonorableKills;
+    inspectResult.HonorLevel = player->m_playerData->HonorLevel;
 
     SendPacket(inspectResult.Write());
-}
-
-void WorldSession::HandleRequestHonorStatsOpcode(WorldPackets::Inspect::RequestHonorStats& request)
-{
-    Player* player = ObjectAccessor::FindPlayer(request.TargetGUID);
-    if (!player)
-    {
-        TC_LOG_DEBUG("network", "WorldSession::HandleRequestHonorStatsOpcode: Target %s not found.", request.TargetGUID.ToString().c_str());
-        return;
-    }
-
-    TC_LOG_DEBUG("network", "WorldSession::HandleRequestHonorStatsOpcode: Target %s.", request.TargetGUID.ToString().c_str());
-
-    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
-        return;
-
-    if (GetPlayer()->IsValidAttackTarget(player))
-        return;
-
-    WorldPackets::Inspect::InspectHonorStats honorStats;
-    honorStats.PlayerGUID  = request.TargetGUID;
-    honorStats.LifetimeHK  = player->GetUInt32Value(ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
-    honorStats.YesterdayHK = player->GetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS);
-    honorStats.TodayHK     = player->GetUInt16Value(ACTIVE_PLAYER_FIELD_KILLS, PLAYER_FIELD_KILLS_OFFSET_TODAY_KILLS);
-    honorStats.LifetimeMaxRank = 0; /// @todo
-
-    SendPacket(honorStats.Write());
-}
-
-void WorldSession::HandleInspectPVP(WorldPackets::Inspect::InspectPVPRequest& request)
-{
-    /// @todo: deal with request.InspectRealmAddress
-
-    Player* player = ObjectAccessor::FindPlayer(request.InspectTarget);
-    if (!player)
-    {
-        TC_LOG_DEBUG("network", "WorldSession::HandleInspectPVP: Target %s not found.", request.InspectTarget.ToString().c_str());
-        return;
-    }
-
-    TC_LOG_DEBUG("network", "WorldSession::HandleInspectPVP: Target %s, InspectRealmAddress %u.", request.InspectTarget.ToString().c_str(), request.InspectRealmAddress);
-
-    if (!GetPlayer()->IsWithinDistInMap(player, INSPECT_DISTANCE, false))
-        return;
-
-    if (GetPlayer()->IsValidAttackTarget(player))
-        return;
-
-    WorldPackets::Inspect::InspectPVPResponse response;
-    response.ClientGUID = request.InspectTarget;
-    /// @todo: fill brackets
-
-    SendPacket(response.Write());
 }
 
 void WorldSession::HandleQueryInspectAchievements(WorldPackets::Inspect::QueryInspectAchievements& inspect)

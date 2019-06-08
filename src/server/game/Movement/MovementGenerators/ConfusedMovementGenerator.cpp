@@ -28,7 +28,7 @@ template<class T>
 void ConfusedMovementGenerator<T>::DoInitialize(T* unit)
 {
     unit->AddUnitState(UNIT_STATE_CONFUSED);
-    unit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+    unit->AddUnitFlag(UNIT_FLAG_CONFUSED);
     unit->GetPosition(i_x, i_y, i_z);
 
     if (!unit->IsAlive() || unit->IsStopped())
@@ -101,7 +101,7 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* unit, uint32 diff)
 template<>
 void ConfusedMovementGenerator<Player>::DoFinalize(Player* unit)
 {
-    unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+    unit->RemoveUnitFlag(UNIT_FLAG_CONFUSED);
     unit->ClearUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
     unit->StopMoving();
 }
@@ -109,7 +109,7 @@ void ConfusedMovementGenerator<Player>::DoFinalize(Player* unit)
 template<>
 void ConfusedMovementGenerator<Creature>::DoFinalize(Creature* unit)
 {
-    unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+    unit->RemoveUnitFlag(UNIT_FLAG_CONFUSED);
     unit->ClearUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
     if (unit->GetVictim())
         unit->SetTarget(unit->EnsureVictim()->GetGUID());

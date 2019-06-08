@@ -208,7 +208,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         if (state == DONE)
                         {
                             if (GameObject* go = instance->GetGameObject(_malGanisChestGUID))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             instance->SummonCreature(NPC_CHROMIE_3, ChromieSummonPos[1]);
                         }
                         break;

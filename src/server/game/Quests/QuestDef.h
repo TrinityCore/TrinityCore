@@ -441,6 +441,7 @@ class TC_GAME_API Quest
         uint32 GetRewardReputationMask() const { return RewardReputationMask; }
         int32 GetTreasurePickerId() const { return TreasurePickerID; }
         int32 GetExpansion() const { return Expansion; }
+        int32 GetManagedWorldStateId() const { return ManagedWorldStateID; }
         uint32 GetQuestGiverPortrait() const { return QuestGiverPortrait; }
         int32 GetQuestGiverPortraitMount() const { return QuestGiverPortraitMount; }
         uint32 GetQuestTurnInPortrait() const { return QuestTurnInPortrait; }
@@ -533,6 +534,7 @@ class TC_GAME_API Quest
         uint64 AllowableRaces;
         int32 TreasurePickerID;
         int32 Expansion;
+        int32 ManagedWorldStateID;
         QuestObjectives Objectives;
         std::string LogTitle;
         std::string LogDescription;

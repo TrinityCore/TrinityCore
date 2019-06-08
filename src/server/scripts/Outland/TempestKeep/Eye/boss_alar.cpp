@@ -135,11 +135,11 @@ class boss_alar : public CreatureScript
 
                 me->SetDisplayId(me->GetNativeDisplayId());
                 me->SetSpeedRate(MOVE_RUN, DefaultMoveSpeedRate);
-                //me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-                //me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+                //me->SetBoundingRadius(10);
+                //me->SetCombatReach(10);
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
                 me->SetDisableGravity(true);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->setActive(false);
             }
 
@@ -179,7 +179,7 @@ class boss_alar : public CreatureScript
                         me->SetHealth(0);
                         me->InterruptNonMeleeSpells(true);
                         me->RemoveAllAuras();
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         me->AttackStop();
                         me->SetTarget(ObjectGuid::Empty);
                         me->SetSpeedRate(MOVE_RUN, 5.0f);
@@ -266,7 +266,7 @@ class boss_alar : public CreatureScript
                                 me->SetStandState(UNIT_STAND_STATE_STAND);
                                 me->SetFullHealth();
                                 me->SetSpeedRate(MOVE_RUN, DefaultMoveSpeedRate);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                                 DoZoneInCombat();
                                 DoCast(me, SPELL_REBIRTH, true);
                                 MeltArmor_Timer = 60000;
@@ -307,8 +307,8 @@ class boss_alar : public CreatureScript
                             case WE_SUMMON:
                                 for (uint8 i = 0; i < 2; ++i)
                                     DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                me->SetBoundingRadius(10);
+                                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetDisplayId(me->GetNativeDisplayId());
                                 DoCast(me, SPELL_REBIRTH_2, true);
                                 break;
@@ -391,8 +391,8 @@ class boss_alar : public CreatureScript
                     {
                         me->AttackStop();
                         me->GetMotionMaster()->MovePoint(6, waypoint[4][0], waypoint[4][1], waypoint[4][2]);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 50);
+                        me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetBoundingRadius(50);
                         WaitEvent = WE_METEOR;
                         WaitTimer = 0;
                         DiveBomb_Timer = 40000 + rand32() % 5000;
@@ -408,7 +408,7 @@ class boss_alar : public CreatureScript
                             Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000);
                             if (Summoned)
                             {
-                                Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                Summoned->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                                 Summoned->SetObjectScale(Summoned->GetObjectScale() * 2.5f);
                                 Summoned->SetDisplayId(11686);
                                 Summoned->setFaction(me->getFaction());
@@ -501,7 +501,7 @@ class npc_ember_of_alar : public CreatureScript
                     damage = 0;
                     DoCast(me, SPELL_EMBER_BLAST, true);
                     me->SetDisplayId(11686);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     if (instance->GetBossState(DATA_ALAR) == IN_PROGRESS)
                     {
                         if (Unit* Alar = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ALAR)))
