@@ -743,8 +743,6 @@ struct TC_GAME_API ItemTemplate
     uint32 GetPageText() const { return ExtendedData->PageID; }
     uint32 GetStartQuest() const { return ExtendedData->StartQuestID; }
     uint32 GetLockID() const { return ExtendedData->LockID; }
-    uint32 GetRandomProperty() const { return ExtendedData->RandomSelect; }
-    uint32 GetRandomSuffix() const { return ExtendedData->ItemRandomSuffixGroupID; }
     uint32 GetItemSet() const { return ExtendedData->ItemSet; }
     uint32 GetArea() const { return ExtendedData->ZoneBound; }
     uint32 GetMap() const { return ExtendedData->InstanceBound; }

@@ -220,7 +220,7 @@ void ReadMapDBC()
 {
     printf("Read Map.db2 file...\n");
 
-    DB2CascFileSource source(CascStorage, "DBFilesClient\\Map.db2");
+    DB2CascFileSource source(CascStorage, MapLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
     if (!db2.Load(&source, MapLoadInfo::Instance()))
     {
@@ -268,7 +268,7 @@ void ReadLiquidMaterialTable()
 {
     printf("Read LiquidMaterial.db2 file...\n");
 
-    DB2CascFileSource source(CascStorage, "DBFilesClient\\LiquidMaterial.db2");
+    DB2CascFileSource source(CascStorage, LiquidMaterialLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
     if (!db2.Load(&source, LiquidMaterialLoadInfo::Instance()))
     {
@@ -279,6 +279,9 @@ void ReadLiquidMaterialTable()
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
         DB2Record record = db2.GetRecord(x);
+        if (!record)
+            continue;
+
         LiquidMaterialEntry& liquidType = LiquidMaterials[record.GetId()];
         liquidType.LVF = record.GetUInt8("LVF");
     }
@@ -293,7 +296,7 @@ void ReadLiquidObjectTable()
 {
     printf("Read LiquidObject.db2 file...\n");
 
-    DB2CascFileSource source(CascStorage, "DBFilesClient\\LiquidObject.db2");
+    DB2CascFileSource source(CascStorage, LiquidObjectLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
     if (!db2.Load(&source, LiquidObjectLoadInfo::Instance()))
     {
@@ -304,6 +307,9 @@ void ReadLiquidObjectTable()
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
         DB2Record record = db2.GetRecord(x);
+        if (!record)
+            continue;
+
         LiquidObjectEntry& liquidType = LiquidObjects[record.GetId()];
         liquidType.LiquidTypeID = record.GetUInt16("LiquidTypeID");
     }
@@ -318,7 +324,7 @@ void ReadLiquidTypeTable()
 {
     printf("Read LiquidType.db2 file...\n");
 
-    DB2CascFileSource source(CascStorage, "DBFilesClient\\LiquidType.db2");
+    DB2CascFileSource source(CascStorage, LiquidTypeLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
     if (!db2.Load(&source, LiquidTypeLoadInfo::Instance()))
     {
@@ -329,6 +335,9 @@ void ReadLiquidTypeTable()
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
         DB2Record record = db2.GetRecord(x);
+        if (!record)
+            continue;
+
         LiquidTypeEntry& liquidType = LiquidTypes[record.GetId()];
         liquidType.SoundBank = record.GetUInt8("SoundBank");
         liquidType.MaterialID = record.GetUInt8("MaterialID");
@@ -344,7 +353,7 @@ bool ReadCinematicCameraDBC()
 {
     printf("Read CinematicCamera.db2 file...\n");
 
-    DB2CascFileSource source(CascStorage, "DBFilesClient\\CinematicCamera.db2");
+    DB2CascFileSource source(CascStorage, CinematicCameraLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
     if (!db2.Load(&source, CinematicCameraLoadInfo::Instance()))
     {
@@ -1159,6 +1168,99 @@ bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filen
     return true;
 }
 
+bool ExtractDB2File(uint32 fileDataId, char const* cascFileName, int locale, boost::filesystem::path const& outputPath)
+{
+    DB2CascFileSource source(CascStorage, fileDataId, false);
+    if (!source.IsOpen())
+    {
+        printf("Unable to open file %s in the archive for locale %s: %s\n", cascFileName, localeNames[locale], CASC::HumanReadableCASCError(GetLastError()));
+        return false;
+    }
+
+    std::size_t fileSize = source.GetFileSize();
+    if (fileSize == std::size_t(-1))
+    {
+        printf("Can't read file size of '%s'\n", cascFileName);
+        return false;
+    }
+
+    DB2FileLoader db2;
+    if (!db2.LoadHeaders(&source, nullptr))
+    {
+        printf("Can't read DB2 headers file size of '%s'\n", cascFileName);
+        return false;
+    }
+
+    std::string outputFileName = outputPath.string();
+    FILE* output = fopen(outputFileName.c_str(), "wb");
+    if (!output)
+    {
+        printf("Can't create the output file '%s'\n", outputFileName.c_str());
+        return false;
+    }
+
+    DB2Header header = db2.GetHeader();
+
+    std::size_t posAfterHeaders = 0;
+    posAfterHeaders += fwrite(&header, 1, sizeof(header), output);
+
+    // erase TactId from header if key is known
+    for (uint32 i = 0; i < header.SectionCount; ++i)
+    {
+        DB2SectionHeader sectionHeader = db2.GetSectionHeader(i);
+        if (sectionHeader.TactId && CASC::HasTactKey(CascStorage, sectionHeader.TactId))
+            sectionHeader.TactId = 0;
+
+        posAfterHeaders += fwrite(&sectionHeader, 1, sizeof(sectionHeader), output);
+    }
+
+    char buffer[0x10000];
+    DWORD readBatchSize = 0x10000;
+    DWORD readBytes;
+    source.SetPosition(posAfterHeaders);
+
+    do
+    {
+        readBytes = 0;
+        if (!CASC::ReadFile(source.GetHandle(), buffer, std::min<DWORD>(fileSize, readBatchSize), &readBytes))
+        {
+            if (GetLastError() == ERROR_FILE_ENCRYPTED)
+            {
+                // shrink block size to read as much unencrypted data as possible
+                if (readBatchSize != 1)
+                {
+                    readBatchSize = std::max<DWORD>(1, readBatchSize / 2);
+                    continue;
+                }
+
+                uint8 zero = 0;
+                --fileSize;
+                fwrite(&zero, 1, 1, output);
+                source.SetPosition(source.GetPosition() + 1);
+                continue;
+            }
+
+            printf("Can't read file '%s'\n", outputFileName.c_str());
+            fclose(output);
+            boost::filesystem::remove(outputPath);
+            return false;
+        }
+
+        if (!readBytes)
+            break;
+
+        fwrite(buffer, 1, readBytes, output);
+        fileSize -= readBytes;
+        readBatchSize = 0x10000;
+        if (!fileSize) // now we have read entire file
+            break;
+
+    } while (true);
+
+    fclose(output);
+    return true;
+}
+
 char const* GetCascFilenamePart(char const* cascPath)
 {
     if (char const* lastSep = strrchr(cascPath, '\\'))
@@ -1178,23 +1280,15 @@ void ExtractDBFilesClient(int l)
 
     printf("locale %s output path %s\n", localeNames[l], localePath.string().c_str());
 
-    uint32 index = 0;
     uint32 count = 0;
-    char const* fileName = DBFilesClientList[index];
-    while (fileName)
+    for (DB2FileInfo const& db2 : DBFilesClientList)
     {
-        if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, fileName, CASC_LOCALE_NONE))
-        {
-            boost::filesystem::path filePath = localePath / GetCascFilenamePart(fileName);
+        boost::filesystem::path filePath = localePath / db2.Name;
 
-            if (!boost::filesystem::exists(filePath))
-                if (ExtractFile(dbcFile, filePath.string()))
-                    ++count;
-        }
-        else
-            printf("Unable to open file %s in the archive for locale %s: %s\n", fileName, localeNames[l], CASC::HumanReadableCASCError(GetLastError()));
+        if (!boost::filesystem::exists(filePath))
+            if (ExtractDB2File(db2.FileDataId, db2.Name, l, filePath.string()))
+                ++count;
 
-        fileName = DBFilesClientList[++index];
     }
 
     printf("Extracted %u files\n\n", count);

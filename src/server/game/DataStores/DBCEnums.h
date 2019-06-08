@@ -166,7 +166,7 @@ enum ArtifactPowerFlag : uint8
 
 #define MAX_ARTIFACT_TIER 1
 
-#define BATTLE_PET_SPECIES_MAX_ID 2480
+#define BATTLE_PET_SPECIES_MAX_ID 2592
 
 enum ChrSpecializationFlag
 {
@@ -508,7 +508,7 @@ enum CriteriaTypes : uint8
     CRITERIA_TREE_HEART_OF_AZEROTH_LEVEL_REACHED        = 215
 };
 
-#define CRITERIA_TYPE_TOTAL 216
+#define CRITERIA_TYPE_TOTAL 217
 
 enum CriteriaTreeFlags : uint16
 {
@@ -1002,7 +1002,7 @@ enum SpellShapeshiftFormFlags
     SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
 };
 
-#define TaxiMaskSize 286
+#define TaxiMaskSize 299
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType

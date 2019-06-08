@@ -336,6 +336,9 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //259 SPELL_EFFECT_RESPEC_AZERITE_EMPOWERED_ITEM
     &Spell::EffectNULL,                                     //260 SPELL_EFFECT_SUMMON_STABLED_PET
     &Spell::EffectNULL,                                     //261 SPELL_EFFECT_SCRAP_ITEM
+    &Spell::EffectNULL,                                     //262 SPELL_EFFECT_262
+    &Spell::EffectNULL,                                     //263 SPELL_EFFECT_REPAIR_ITEM
+    &Spell::EffectNULL,                                     //264 SPELL_EFFECT_REMOVE_GEM
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)

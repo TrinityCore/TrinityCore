@@ -155,8 +155,6 @@ DB2Storage<ItemLimitCategoryEntry>              sItemLimitCategoryStore("ItemLim
 DB2Storage<ItemLimitCategoryConditionEntry>     sItemLimitCategoryConditionStore("ItemLimitCategoryCondition.db2", ItemLimitCategoryConditionLoadInfo::Instance());
 DB2Storage<ItemModifiedAppearanceEntry>         sItemModifiedAppearanceStore("ItemModifiedAppearance.db2", ItemModifiedAppearanceLoadInfo::Instance());
 DB2Storage<ItemPriceBaseEntry>                  sItemPriceBaseStore("ItemPriceBase.db2", ItemPriceBaseLoadInfo::Instance());
-DB2Storage<ItemRandomPropertiesEntry>           sItemRandomPropertiesStore("ItemRandomProperties.db2", ItemRandomPropertiesLoadInfo::Instance());
-DB2Storage<ItemRandomSuffixEntry>               sItemRandomSuffixStore("ItemRandomSuffix.db2", ItemRandomSuffixLoadInfo::Instance());
 DB2Storage<ItemSearchNameEntry>                 sItemSearchNameStore("ItemSearchName.db2", ItemSearchNameLoadInfo::Instance());
 DB2Storage<ItemSetEntry>                        sItemSetStore("ItemSet.db2", ItemSetLoadInfo::Instance());
 DB2Storage<ItemSetSpellEntry>                   sItemSetSpellStore("ItemSetSpell.db2", ItemSetSpellLoadInfo::Instance());
@@ -613,8 +611,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemLimitCategoryConditionStore);
     LOAD_DB2(sItemModifiedAppearanceStore);
     LOAD_DB2(sItemPriceBaseStore);
-    LOAD_DB2(sItemRandomPropertiesStore);
-    LOAD_DB2(sItemRandomSuffixStore);
     LOAD_DB2(sItemSearchNameStore);
     LOAD_DB2(sItemSetStore);
     LOAD_DB2(sItemSetSpellStore);
@@ -1264,13 +1260,13 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(10048) ||                // last area added in 8.0.1 (28153)
-        !sCharTitlesStore.LookupEntry(633) ||                // last char title added in 8.0.1 (28153)
-        !sGemPropertiesStore.LookupEntry(3745) ||            // last gem property added in 8.0.1 (28153)
-        !sItemStore.LookupEntry(164760) ||                   // last item added in 8.0.1 (28153)
-        !sItemExtendedCostStore.LookupEntry(6448) ||         // last item extended cost added in 8.0.1 (28153)
-        !sMapStore.LookupEntry(2103) ||                      // last map added in 8.0.1 (28153)
-        !sSpellNameStore.LookupEntry(281872))                // last spell added in 8.0.1 (28153)
+    if (!sAreaTableStore.LookupEntry(10521) ||               // last area added in 8.1.5 (30706)
+        !sCharTitlesStore.LookupEntry(649) ||                // last char title added in 8.1.5 (30706)
+        !sGemPropertiesStore.LookupEntry(3746) ||            // last gem property added in 8.1.5 (30706)
+        !sItemStore.LookupEntry(168279) ||                   // last item added in 8.1.5 (30706)
+        !sItemExtendedCostStore.LookupEntry(6545) ||         // last item extended cost added in 8.1.5 (30706)
+        !sMapStore.LookupEntry(2178) ||                      // last map added in 8.1.5 (30706)
+        !sSpellNameStore.LookupEntry(296952))                // last spell added in 8.1.5 (30706)
     {
         TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         exit(1);

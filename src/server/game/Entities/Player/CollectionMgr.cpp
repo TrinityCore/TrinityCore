@@ -188,7 +188,9 @@ void CollectionMgr::LoadAccountHeirlooms(PreparedQueryResult result)
 
         uint32 bonusId = 0;
 
-        if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_110)
+        if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_120)
+            bonusId = heirloom->UpgradeItemBonusListID[3];
+        else if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_110)
             bonusId = heirloom->UpgradeItemBonusListID[2];
         else if (flags & HEIRLOOM_FLAG_BONUS_LEVEL_100)
             bonusId = heirloom->UpgradeItemBonusListID[1];
@@ -269,6 +271,11 @@ void CollectionMgr::UpgradeHeirloom(uint32 itemId, int32 castItem)
     {
         flags |= HEIRLOOM_FLAG_BONUS_LEVEL_110;
         bonusId = heirloom->UpgradeItemBonusListID[2];
+    }
+    if (heirloom->UpgradeItemID[3] == castItem)
+    {
+        flags |= HEIRLOOM_FLAG_BONUS_LEVEL_120;
+        bonusId = heirloom->UpgradeItemBonusListID[3];
     }
 
     for (Item* item : player->GetItemListByEntry(itemId, true))
@@ -352,6 +359,8 @@ bool CollectionMgr::CanApplyHeirloomXpBonus(uint32 itemId, uint32 level)
     if (itr == _heirlooms.end())
         return false;
 
+    if (itr->second.flags & HEIRLOOM_FLAG_BONUS_LEVEL_120)
+        return level <= 120;
     if (itr->second.flags & HEIRLOOM_FLAG_BONUS_LEVEL_110)
         return level <= 110;
     if (itr->second.flags & HEIRLOOM_FLAG_BONUS_LEVEL_100)

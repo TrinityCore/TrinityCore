@@ -43,7 +43,7 @@ struct CinematicCameraLoadInfo
             { FT_FLOAT, 1, true },
             { FT_INT, 1, false },
         };
-        static DB2Meta meta(-1, 4, 0x20C5E540, fields, -1);
+        static DB2Meta meta(1294214, -1, 4, 0x20C5E540, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
@@ -75,7 +75,7 @@ struct GameobjectDisplayInfoLoadInfo
             { FT_FLOAT, 1, true },
             { FT_FLOAT, 1, true },
         };
-        static DB2Meta meta(-1, 5, 0x7A816799, fields, -1);
+        static DB2Meta meta(1266277, -1, 5, 0x7A816799, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
@@ -96,7 +96,7 @@ struct LiquidMaterialLoadInfo
             { FT_BYTE, 1, true },
             { FT_BYTE, 1, true },
         };
-        static DB2Meta meta(-1, 2, 0x6A7287A2, fields, -1);
+        static DB2Meta meta(1132538, -1, 2, 0x6A7287A2, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
@@ -123,7 +123,7 @@ struct LiquidObjectLoadInfo
             { FT_BYTE, 1, false },
             { FT_BYTE, 1, false },
         };
-        static DB2Meta meta(-1, 5, 0x7AF380AA, fields, -1);
+        static DB2Meta meta(1308058, -1, 5, 0x7AF380AA, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
@@ -216,7 +216,7 @@ struct LiquidTypeLoadInfo
             { FT_INT, 4, false },
             { FT_FLOAT, 4, true },
         };
-        static DB2Meta meta(-1, 21, 0x29F8C65E, fields, -1);
+        static DB2Meta meta(1371380, -1, 21, 0x29F8C65E, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }
@@ -251,10 +251,11 @@ struct MapLoadInfo
             { false, FT_BYTE, "MaxPlayers" },
             { true, FT_SHORT, "WindSettingsID" },
             { true, FT_INT, "ZmpFileDataID" },
+            { true, FT_INT, "WdtFileDataID" },
             { true, FT_INT, "Flags1" },
             { true, FT_INT, "Flags2" },
         };
-        static DB2MetaField const fields[22] =
+        static DB2MetaField const fields[23] =
         {
             { FT_STRING_NOT_LOCALIZED, 1, true },
             { FT_STRING, 1, true },
@@ -277,9 +278,10 @@ struct MapLoadInfo
             { FT_BYTE, 1, false },
             { FT_SHORT, 1, true },
             { FT_INT, 1, true },
+            { FT_INT, 1, true },
             { FT_INT, 2, true },
         };
-        static DB2Meta meta(-1, 22, 0x503A3E58, fields, -1);
+        static DB2Meta meta(1349477, -1, 23, 0xB290D217, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }

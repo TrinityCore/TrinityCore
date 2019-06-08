@@ -36,7 +36,8 @@ enum HeirloomPlayerFlags
     HEIRLOOM_FLAG_NONE                    = 0x00,
     HEIRLOOM_FLAG_BONUS_LEVEL_90          = 0x01,
     HEIRLOOM_FLAG_BONUS_LEVEL_100         = 0x02,
-    HEIRLOOM_FLAG_BONUS_LEVEL_110         = 0x04
+    HEIRLOOM_FLAG_BONUS_LEVEL_110         = 0x04,
+    HEIRLOOM_FLAG_BONUS_LEVEL_120         = 0x08
 };
 
 enum HeirloomItemFlags

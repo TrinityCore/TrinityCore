@@ -87,7 +87,7 @@ void ExtractGameobjectModels()
 {
     printf("Extracting GameObject models...\n");
 
-    DB2CascFileSource source(CascStorage, "DBFilesClient\\GameObjectDisplayInfo.db2");
+    DB2CascFileSource source(CascStorage, GameobjectDisplayInfoLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
     if (!db2.Load(&source, GameobjectDisplayInfoLoadInfo::Instance()))
     {
