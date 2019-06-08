@@ -37,26 +37,15 @@ enum GilneasInvasionCamera
     CINEMATIC_FORSAKEN_INVASION = 168
 };
 
-class go_gilneas_invasion_camera : public GameObjectScript
+struct go_gilneas_invasion_camera : public GameObjectAI
 {
-    public:
-        go_gilneas_invasion_camera() : GameObjectScript("go_gilneas_invasion_camera") { }
+    go_gilneas_invasion_camera(GameObject* go) : GameObjectAI(go) { }
 
-        struct go_gilneas_invasion_cameraAI : public GameObjectAI
-        {
-            go_gilneas_invasion_cameraAI(GameObject* go) : GameObjectAI(go) { }
-
-            bool OnReportUse(Player* player) override
-            {
-                player->SendCinematicStart(CINEMATIC_FORSAKEN_INVASION);
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_gilneas_invasion_cameraAI(go);
-        }
+    bool OnReportUse(Player* player) override
+    {
+        player->SendCinematicStart(CINEMATIC_FORSAKEN_INVASION);
+        return true;
+    }
 };
 
 enum HorridAbomination
@@ -79,109 +68,98 @@ enum HorridAbomination
     SPELL_SHOOT                         = 68559
 };
 
-class npc_gilneas_horrid_abomination : public CreatureScript
+struct npc_gilneas_horrid_abomination : public ScriptedAI
 {
-    public:
-        npc_gilneas_horrid_abomination() : CreatureScript("npc_gilneas_horrid_abomination") { }
+    npc_gilneas_horrid_abomination(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
 
-        struct npc_gilneas_horrid_abominationAI : public ScriptedAI
+    void Initialize()
+    {
+        _playerGUID = ObjectGuid::Empty;
+        _allowEvents = false;
+    }
+
+    void Reset() override
+    {
+        Initialize();
+        me->GetMotionMaster()->MoveRandom(6.0f);
+    }
+
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    {
+        switch (spell->Id)
         {
-            npc_gilneas_horrid_abominationAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
+            case SPELL_KEG_PLACED:
+                Talk(SAY_KEG_PLACED);
+                me->AttackStop();
+                me->SetReactState(REACT_PASSIVE);
+                me->GetMotionMaster()->InitDefault();
+                me->StopMoving();
+                _playerGUID = caster->GetGUID();
+                _allowEvents = true;
+                _events.ScheduleEvent(EVENT_ABOMINATION_KILL_ME, Seconds(2));
+                break;
+            case SPELL_SHOOT:
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    player->KilledMonsterCredit(QUEST_HORRID_ABOMINATION_CREDIT);
 
-            void Initialize()
-            {
-                _playerGUID = ObjectGuid::Empty;
-                _allowEvents = false;
-            }
+                me->RemoveAurasDueToSpell(SPELL_KEG_PLACED);
 
-            void Reset() override
-            {
-                Initialize();
-                me->GetMotionMaster()->MoveRandom(6.0f);
-            }
+                for (uint8 i = 0; i < 11; i++)
+                    DoCastSelf(SPELL_RANDOM_CIRCUMFERENCE_POISON, true);
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
-            {
-                switch (spell->Id)
-                {
-                    case SPELL_KEG_PLACED:
-                        Talk(SAY_KEG_PLACED);
-                        me->AttackStop();
-                        me->SetReactState(REACT_PASSIVE);
-                        me->GetMotionMaster()->InitDefault();
-                        me->StopMoving();
-                        _playerGUID = caster->GetGUID();
-                        _allowEvents = true;
-                        _events.ScheduleEvent(EVENT_ABOMINATION_KILL_ME, Seconds(2));
-                        break;
-                    case SPELL_SHOOT:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                            player->KilledMonsterCredit(QUEST_HORRID_ABOMINATION_CREDIT);
+                for (uint8 i = 0; i < 6; i++)
+                    DoCastSelf(SPELL_RANDOM_CIRCUMFERENCE_BONE, true);
 
-                        me->RemoveAurasDueToSpell(SPELL_KEG_PLACED);
+                for (uint8 i = 0; i < 4; i++)
+                    DoCastSelf(SPELL_RANDOM_CIRCUMFERENCE_BONE_2, true);
 
-                        for (uint8 i = 0; i < 11; i++)
-                            DoCastSelf(SPELL_RANDOM_CIRCUMFERENCE_POISON, true);
-
-                        for (uint8 i = 0; i < 6; i++)
-                            DoCastSelf(SPELL_RANDOM_CIRCUMFERENCE_BONE, true);
-
-                        for (uint8 i = 0; i < 4; i++)
-                            DoCastSelf(SPELL_RANDOM_CIRCUMFERENCE_BONE_2, true);
-
-                        DoCastSelf(SPELL_HORRID_ABOMINATION_EXPLOSION, true);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->DespawnOrUnsummon(Seconds(5));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-            {
-                if (damage >= me->GetHealth())
-                {
-                    damage = 0;
-                    if (!me->HasUnitState(UNIT_STATE_CASTING) && !me->HasAura(SPELL_RESTITCHING))
-                        DoCastSelf(SPELL_RESTITCHING);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim() && !_allowEvents)
-                    return;
-
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch(eventId)
-                    {
-                        case EVENT_ABOMINATION_KILL_ME:
-                            DoCastAOE(SPELL_ABOMINATION_KILL_ME, true);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-            ObjectGuid _playerGUID;
-            bool _allowEvents;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_gilneas_horrid_abominationAI (creature);
+                DoCastSelf(SPELL_HORRID_ABOMINATION_EXPLOSION, true);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->DespawnOrUnsummon(Seconds(5));
+                break;
+            default:
+                break;
         }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (damage >= me->GetHealth())
+        {
+            damage = 0;
+            if (!me->HasUnitState(UNIT_STATE_CASTING) && !me->HasAura(SPELL_RESTITCHING))
+                DoCastSelf(SPELL_RESTITCHING);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && !_allowEvents)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ABOMINATION_KILL_ME:
+                    DoCastAOE(SPELL_ABOMINATION_KILL_ME, true);
+                    break;
+                default:
+                    break;
+            }
+        }
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
+    bool _allowEvents;
 };
 
 enum SaveTheChildren
@@ -222,204 +200,171 @@ Position const CynthiaEscapePos[] =
     { -1926.536f, 2519.312f, 2.246772f }  // Cynthia Point 3
 };
 
-class spell_gilneas_quest_save_james : public SpellScriptLoader
+class spell_gilneas_quest_save_james : public SpellScript
 {
-    public:
-        spell_gilneas_quest_save_james() : SpellScriptLoader("spell_gilneas_quest_save_james") { }
+    PrepareSpellScript(spell_gilneas_quest_save_james);
 
-        class spell_gilneas_quest_save_james_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gilneas_quest_save_james_SpellScript);
-
-            void HandleDummy(SpellEffIndex effIndex)
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Player* player = caster->ToPlayer())
             {
-                if (Unit* caster = GetCaster())
-                    if (Player* player = caster->ToPlayer())
-                    {
-                        Unit* target = GetHitUnit();
-                        player->Talk(BROADCAST_TEXT_ID_JAMES, CHAT_MSG_SAY, 0.0f, target);
-                        player->KilledMonsterCredit(target->GetEntry());
-                    }
+                Unit* target = GetHitUnit();
+                player->Talk(BROADCAST_TEXT_ID_JAMES, CHAT_MSG_SAY, 0.0f, target);
+                player->KilledMonsterCredit(target->GetEntry());
             }
+    }
 
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gilneas_quest_save_james_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gilneas_quest_save_james_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gilneas_quest_save_james::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
-class spell_gilneas_quest_save_the_children : public SpellScriptLoader
+class spell_gilneas_quest_save_the_children : public SpellScript
 {
-    public:
-        spell_gilneas_quest_save_the_children() : SpellScriptLoader("spell_gilneas_quest_save_the_children") { }
+    PrepareSpellScript(spell_gilneas_quest_save_the_children);
 
-        class spell_gilneas_quest_save_the_children_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gilneas_quest_save_the_children_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
             {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_GILNEAS_QUEST_SAVE_JAMES,
-                        SPELL_GILNEAS_QUEST_SAVE_CYNTHIA,
-                        SPELL_GILNEAS_QUEST_SAVE_ASHLEY
-                    });
-            }
+                SPELL_GILNEAS_QUEST_SAVE_JAMES,
+                SPELL_GILNEAS_QUEST_SAVE_CYNTHIA,
+                SPELL_GILNEAS_QUEST_SAVE_ASHLEY
+            });
+    }
 
-            void HandleDummy(SpellEffIndex effIndex)
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Player* player = caster->ToPlayer())
             {
-                if (Unit* caster = GetCaster())
-                    if (Player* player = caster->ToPlayer())
-                    {
-                        Unit* target = GetHitUnit();
+                Unit* target = GetHitUnit();
 
-                        switch (GetSpellInfo()->Id)
-                        {
-                            case SPELL_GILNEAS_QUEST_SAVE_CYNTHIA:
-                                player->Talk(BROADCAST_TEXT_ID_CYNTHIA, CHAT_MSG_SAY, 0.0f, target);
-                                break;
-                            case SPELL_GILNEAS_QUEST_SAVE_ASHLEY:
-                                player->Talk(BROADCAST_TEXT_ID_ASHLEY, CHAT_MSG_SAY, 0.0f, target);
-                                break;
-                            default:
-                                break;
-                        }
+                switch (GetSpellInfo()->Id)
+                {
+                case SPELL_GILNEAS_QUEST_SAVE_CYNTHIA:
+                    player->Talk(BROADCAST_TEXT_ID_CYNTHIA, CHAT_MSG_SAY, 0.0f, target);
+                    break;
+                case SPELL_GILNEAS_QUEST_SAVE_ASHLEY:
+                    player->Talk(BROADCAST_TEXT_ID_ASHLEY, CHAT_MSG_SAY, 0.0f, target);
+                    break;
+                default:
+                    break;
+                }
 
-                        player->KilledMonsterCredit(target->GetEntry());
-                    }
+                player->KilledMonsterCredit(target->GetEntry());
             }
+    }
 
-            void Register() override
-            {
-                    OnEffectHitTarget += SpellEffectFn(spell_gilneas_quest_save_the_children_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gilneas_quest_save_the_children_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gilneas_quest_save_the_children::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
 };
 
-class npc_gilneas_save_the_children : public CreatureScript
+struct npc_gilneas_save_the_children : public ScriptedAI
 {
-    public:
-        npc_gilneas_save_the_children() : CreatureScript("npc_gilneas_save_the_children") { }
+    npc_gilneas_save_the_children(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
 
-        struct npc_gilneas_save_the_childrenAI : public ScriptedAI
+    void Initialize()
+    {
+        _playerGUID = ObjectGuid::Empty;
+    }
+
+    void Reset() override
+    {
+        Initialize();
+        if (me->GetEntry() == NPC_CYNTHIA)
+            _events.ScheduleEvent(EVENT_CRY, Seconds(1));
+    }
+
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    {
+        switch (spell->Id)
         {
-            npc_gilneas_save_the_childrenAI(Creature* creature) : ScriptedAI(creature)
+            case SPELL_GILNEAS_QUEST_SAVE_JAMES:
+            case SPELL_GILNEAS_QUEST_SAVE_CYNTHIA:
+            case SPELL_GILNEAS_QUEST_SAVE_ASHLEY:
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                _playerGUID = caster->GetGUID();
+                _events.ScheduleEvent(EVENT_TALK_RESCUED, Seconds(2) + Milliseconds(500));
+                _events.CancelEvent(EVENT_CRY);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
+            return;
+
+        switch (id)
+        {
+            case POINT_BASEMENT_1:
+                if (me->GetEntry() == NPC_ASHLEY)
+                    me->GetMotionMaster()->MovePoint(0, AshleyEscapePos[1], true);
+                else
+                    me->GetMotionMaster()->MovePoint(POINT_BASEMENT_2, CynthiaEscapePos[1], true);
+                break;
+            case POINT_BASEMENT_2:
+                me->GetMotionMaster()->MovePoint(0, CynthiaEscapePos[2], true);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _playerGUID = ObjectGuid::Empty;
-            }
-
-            void Reset() override
-            {
-                Initialize();
-                if (me->GetEntry() == NPC_CYNTHIA)
-                    _events.ScheduleEvent(EVENT_CRY, Seconds(1));
-            }
-
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
-            {
-                switch (spell->Id)
-                {
-                    case SPELL_GILNEAS_QUEST_SAVE_JAMES:
-                    case SPELL_GILNEAS_QUEST_SAVE_CYNTHIA:
-                    case SPELL_GILNEAS_QUEST_SAVE_ASHLEY:
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        _playerGUID = caster->GetGUID();
-                        _events.ScheduleEvent(EVENT_TALK_RESCUED, Seconds(2) + Milliseconds(500));
-                        _events.CancelEvent(EVENT_CRY);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void MovementInform(uint32 type, uint32 id) override
-            {
-                if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
-                    return;
-
-                switch (id)
-                {
-                    case POINT_BASEMENT_1:
-                        if (me->GetEntry() == NPC_ASHLEY)
-                            me->GetMotionMaster()->MovePoint(0, AshleyEscapePos[1], true);
-                        else
-                            me->GetMotionMaster()->MovePoint(POINT_BASEMENT_2, CynthiaEscapePos[1], true);
-                        break;
-                    case POINT_BASEMENT_2:
-                        me->GetMotionMaster()->MovePoint(0, CynthiaEscapePos[2], true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch(eventId)
+                case EVENT_TALK_RESCUED:
+                    Talk(SAY_CHILD_RESCUED, ObjectAccessor::GetPlayer(*me, _playerGUID));
+                    _events.ScheduleEvent(EVENT_RUN_TO_BASEMENT, me->GetEntry() == NPC_JAMES ? Seconds(3) + Milliseconds(600) : Seconds(2) + Milliseconds(300));
+                    break;
+                case EVENT_RUN_TO_BASEMENT:
+                    switch (me->GetEntry())
                     {
-                        case EVENT_TALK_RESCUED:
-                            Talk(SAY_CHILD_RESCUED, ObjectAccessor::GetPlayer(*me, _playerGUID));
-                            _events.ScheduleEvent(EVENT_RUN_TO_BASEMENT, me->GetEntry() == NPC_JAMES ? Seconds(3) + Milliseconds(600) : Seconds(2) + Milliseconds(300));
+                        case NPC_JAMES:
+                            me->GetMotionMaster()->MovePoint(0, JamesEscapePos, true);
+                            me->DespawnOrUnsummon(Seconds(5) + Milliseconds(200));
                             break;
-                        case EVENT_RUN_TO_BASEMENT:
-                            switch (me->GetEntry())
-                            {
-                                case NPC_JAMES:
-                                    me->GetMotionMaster()->MovePoint(0, JamesEscapePos, true);
-                                    me->DespawnOrUnsummon(Seconds(5) + Milliseconds(200));
-                                    break;
-                                case NPC_ASHLEY:
-                                    me->GetMotionMaster()->MovePoint(POINT_BASEMENT_1, AshleyEscapePos[0], true);
-                                    me->DespawnOrUnsummon(Seconds(3) + Milliseconds(800));
-                                    break;
-                                case NPC_CYNTHIA:
-                                    me->GetMotionMaster()->MovePoint(POINT_BASEMENT_1, CynthiaEscapePos[0], true);
-                                    me->DespawnOrUnsummon(Seconds(8) + Milliseconds(500));
-                                    break;
-                                default:
-                                    break;
-                            }
+                        case NPC_ASHLEY:
+                            me->GetMotionMaster()->MovePoint(POINT_BASEMENT_1, AshleyEscapePos[0], true);
+                            me->DespawnOrUnsummon(Seconds(3) + Milliseconds(800));
                             break;
-                        case EVENT_CRY:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_CRY);
-                            _events.Repeat(Seconds(1), Seconds(1) + Milliseconds(500));
+                        case NPC_CYNTHIA:
+                            me->GetMotionMaster()->MovePoint(POINT_BASEMENT_1, CynthiaEscapePos[0], true);
+                            me->DespawnOrUnsummon(Seconds(8) + Milliseconds(500));
                             break;
                         default:
                             break;
                     }
-                }
+                    break;
+                case EVENT_CRY:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_CRY);
+                    _events.Repeat(Seconds(1), Seconds(1) + Milliseconds(500));
+                    break;
+                default:
+                    break;
             }
-
-        private:
-            EventMap _events;
-            ObjectGuid _playerGUID;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_gilneas_save_the_childrenAI (creature);
         }
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _playerGUID;
 };
 
 enum ForsakenCatapult
@@ -441,176 +386,152 @@ enum ForsakenCatapult
     AREA_ID_DUSKMIST_SHORE  = 5720
 };
 
-class npc_gilneas_forsaken_catapult : public CreatureScript
+struct npc_gilneas_forsaken_catapult : public VehicleAI
 {
-    public:
-        npc_gilneas_forsaken_catapult() : CreatureScript("npc_gilneas_forsaken_catapult") { }
+    npc_gilneas_forsaken_catapult(Creature* creature) : VehicleAI(creature)
+    {
+        Initialize();
+    }
 
-        struct npc_gilneas_forsaken_catapultAI : public VehicleAI
+    void Initialize()
+    {
+        _preparedDespawn = false;
+    }
+
+    void Reset()
+    {
+        Initialize();
+        _events.ScheduleEvent(EVENT_FIERY_BOULDER, Milliseconds(1), Seconds(7));
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (!passenger)
+            return;
+
+        if (passenger->GetEntry() == NPC_FORSAKEN_MACHINIST)
         {
-            npc_gilneas_forsaken_catapultAI(Creature* creature) : VehicleAI(creature)
+            if (apply)
             {
-                Initialize();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                passenger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                if (Creature* creature = passenger->ToCreature())
+                    creature->SetReactState(REACT_PASSIVE);
             }
-
-            void Initialize()
+            else
             {
-                _preparedDespawn = false;
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFaction(FACTION_FRIENDLY);
+                _events.CancelEvent(EVENT_FIERY_BOULDER);
             }
+        }
+        else if (passenger->GetTypeId() == TYPEID_PLAYER && !apply)
+            me->DespawnOrUnsummon(Seconds(9));
+        else if (passenger->GetTypeId() == TYPEID_PLAYER && apply)
+            _events.ScheduleEvent(EVENT_CHECK_AREA, Milliseconds(1));
+    }
 
-            void Reset()
-            {
-                Initialize();
-                _events.ScheduleEvent(EVENT_FIERY_BOULDER, Milliseconds(1), Seconds(7));
-            }
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    {
+        switch (spell->Id)
+        {
+        case SPELL_LAUNCH_INTERNAL:
+            DoCastSelf(SPELL_LAUNCH_INTERNAL_2, true);
+            break;
+        default:
+            break;
+        }
+    }
 
-            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
-            {
-                if (!passenger)
-                    return;
+    void SetTargetDestination(Position pos)
+    {
+        _targetPos = pos;
+    }
 
-                if (passenger->GetEntry() == NPC_FORSAKEN_MACHINIST)
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    {
+        switch (spell->Id)
+        {
+            case SPELL_LAUNCH:
+                if (target->GetVehicleCreatureBase())
                 {
-                    if (apply)
+                    Position pos = target->GetPosition();
+                    pos.m_positionZ += 6.0f;
+                    target->ExitVehicle(&pos);
+                    target->GetMotionMaster()->MoveJump(_targetPos, 58.62504f, 12.75955f);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FIERY_BOULDER:
+                    DoCastAOE(SPELL_FIERY_BOULDER);
+                    _events.Repeat(Seconds(7), Seconds(8));
+                    break;
+                case EVENT_CHECK_AREA:
+                    if (me->GetAreaId() != AREA_ID_DUSKMIST_SHORE)
                     {
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        passenger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        if (Creature* creature = passenger->ToCreature())
-                            creature->SetReactState(REACT_PASSIVE);
+                        if (!_preparedDespawn)
+                        {
+                            if (Vehicle* vehicle = me->GetVehicleKit())
+                                if (Unit* passenger = vehicle->GetPassenger(SEAT_0))
+                                    Talk(SAY_WARN_OUT_OF_AREA, passenger);
+
+                            _preparedDespawn = true;
+                        }
+                        else
+                            me->DespawnOrUnsummon();
+
+                        _events.Repeat(Seconds(10));
                     }
                     else
                     {
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetFaction(FACTION_FRIENDLY);
-                        _events.CancelEvent(EVENT_FIERY_BOULDER);
-                    }
-                }
-                else if (passenger->GetTypeId() == TYPEID_PLAYER && !apply)
-                    me->DespawnOrUnsummon(Seconds(9));
-                else if (passenger->GetTypeId() == TYPEID_PLAYER && apply)
-                    _events.ScheduleEvent(EVENT_CHECK_AREA, Milliseconds(1));
-            }
-
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
-            {
-                switch (spell->Id)
-                {
-                    case SPELL_LAUNCH_INTERNAL:
-                        DoCastSelf(SPELL_LAUNCH_INTERNAL_2, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void SetTargetDestination(Position pos)
-            {
-                _targetPos = pos;
-            }
-
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
-            {
-                switch (spell->Id)
-                {
-                    case SPELL_LAUNCH:
-                        if (target->GetVehicleCreatureBase())
+                        if (_preparedDespawn)
                         {
-                            Position pos = target->GetPosition();
-                            pos.m_positionZ += 6.0f;
-                            target->ExitVehicle(&pos);
-                            target->GetMotionMaster()->MoveJump(_targetPos, 58.62504f, 12.75955f);
+                            _preparedDespawn = false;
+                            _events.Repeat(Seconds(2));
                         }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_FIERY_BOULDER:
-                            DoCastAOE(SPELL_FIERY_BOULDER);
-                            _events.Repeat(Seconds(7), Seconds(8));
-                            break;
-                        case EVENT_CHECK_AREA:
-                            if (me->GetAreaId() != AREA_ID_DUSKMIST_SHORE)
-                            {
-                                if (!_preparedDespawn)
-                                {
-                                    if (Vehicle* vehicle = me->GetVehicleKit())
-                                        if (Unit* passenger = vehicle->GetPassenger(SEAT_0))
-                                            Talk(SAY_WARN_OUT_OF_AREA, passenger);
-
-                                    _preparedDespawn = true;
-
-                                }
-                                else
-                                    me->DespawnOrUnsummon();
-
-                                _events.Repeat(Seconds(10));
-                            }
-                            else
-                            {
-                                if (_preparedDespawn)
-                                {
-                                    _preparedDespawn = false;
-                                    _events.Repeat(Seconds(2));
-                                }
-                                else
-                                    _events.Repeat(Seconds(2));
-                            }
-                            break;
-                        default:
-                            break;
+                        else
+                            _events.Repeat(Seconds(2));
                     }
-                }
-
+                    break;
+                default:
+                    break;
             }
-        private:
-            EventMap _events;
-            Position _targetPos;
-            bool _preparedDespawn;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_gilneas_forsaken_catapultAI(creature);
         }
+
+    }
+private:
+    EventMap _events;
+    Position _targetPos;
+    bool _preparedDespawn;
 };
 
-class spell_gilneas_launch : public SpellScriptLoader
+class spell_gilneas_launch : public SpellScript
 {
-    public:
-        spell_gilneas_launch() : SpellScriptLoader("spell_gilneas_launch") { }
+    PrepareSpellScript(spell_gilneas_launch);
 
-        class spell_gilneas_launch_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gilneas_launch_SpellScript);
-
-            void TransferDestination(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Creature* creature = caster->ToCreature())
-                        if (creature->IsAIEnabled)
-                            CAST_AI(npc_gilneas_forsaken_catapult::npc_gilneas_forsaken_catapultAI,
-                                creature->AI())->SetTargetDestination(GetExplTargetDest()->GetPosition());
-            }
-
-            void Register()
-            {
-                OnEffectLaunch += SpellEffectFn(spell_gilneas_launch_SpellScript::TransferDestination, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void TransferDestination(SpellEffIndex /*effIndex*/)
     {
-        return new spell_gilneas_launch_SpellScript();
+        if (Unit* caster = GetCaster())
+            if (Creature* creature = caster->ToCreature())
+                if (creature->IsAIEnabled)
+                    CAST_AI(npc_gilneas_forsaken_catapult, creature->AI())->SetTargetDestination(GetExplTargetDest()->GetPosition());
+    }
+
+    void Register()
+    {
+        OnEffectLaunch += SpellEffectFn(spell_gilneas_launch::TransferDestination, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -631,38 +552,27 @@ class FireBoulderInFrontCheck
 
 };
 
-class spell_gilneas_fiery_boulder : public SpellScriptLoader
+class spell_gilneas_fiery_boulder : public SpellScript
 {
-    public:
-        spell_gilneas_fiery_boulder() : SpellScriptLoader("spell_gilneas_fiery_boulder") { }
+    PrepareSpellScript(spell_gilneas_fiery_boulder);
 
-        class spell_gilneas_fiery_boulder_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gilneas_fiery_boulder_SpellScript);
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
+        targets.remove_if(FireBoulderInFrontCheck(GetCaster()));
 
-                targets.remove_if(FireBoulderInFrontCheck(GetCaster()));
+        if (targets.empty())
+            return;
 
-                if (targets.empty())
-                    return;
+        Trinity::Containers::RandomResize(targets, 1);
+    }
 
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gilneas_fiery_boulder_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gilneas_fiery_boulder_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gilneas_fiery_boulder::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
 };
 
 enum LeaderOfThePack
@@ -684,63 +594,41 @@ Position const AttackMastiffSummonPositions[] =
     { -1945.504f, 2653.386f, 1.177739f,  1.675516f  }
 };
 
-class spell_gilneas_call_attack_mastiff : public SpellScriptLoader
+class spell_gilneas_call_attack_mastiff : public SpellScript
 {
-    public:
-        spell_gilneas_call_attack_mastiff() : SpellScriptLoader("spell_gilneas_call_attack_mastiff") { }
+    PrepareSpellScript(spell_gilneas_call_attack_mastiff);
 
-        class spell_gilneas_call_attack_mastiff_SpellScript : public SpellScript
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
         {
-            PrepareSpellScript(spell_gilneas_call_attack_mastiff_SpellScript);
-
-            void HandleHit(SpellEffIndex effIndex)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    for (uint8 i = 0; i < 10; i++)
-                        if (Creature* mastiff = caster->SummonCreature(NPC_ATTACK_MASTIFF, AttackMastiffSummonPositions[i], TEMPSUMMON_TIMED_DESPAWN, 60000))
-                            mastiff->AI()->AttackStart(GetHitUnit());
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gilneas_call_attack_mastiff_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gilneas_call_attack_mastiff_SpellScript();
+            for (uint8 i = 0; i < 10; i++)
+                if (Creature* mastiff = caster->SummonCreature(NPC_ATTACK_MASTIFF, AttackMastiffSummonPositions[i], TEMPSUMMON_TIMED_DESPAWN, 60000))
+                    mastiff->AI()->AttackStart(GetHitUnit());
         }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gilneas_call_attack_mastiff::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
-class spell_gilneas_forcecast_cataclysm_1 : public SpellScriptLoader
+class spell_gilneas_forcecast_cataclysm_1 : public SpellScript
 {
-    public:
-        spell_gilneas_forcecast_cataclysm_1() : SpellScriptLoader("spell_gilneas_forcecast_cataclysm_1") { }
+    PrepareSpellScript(spell_gilneas_forcecast_cataclysm_1);
 
-        class spell_gilneas_forcecast_cataclysm_1_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gilneas_forcecast_cataclysm_1_SpellScript);
+    void HandleForcecast(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
+    }
 
-            void HandleForcecast(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gilneas_forcecast_cataclysm_1_SpellScript::HandleForcecast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_gilneas_forcecast_cataclysm_1_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gilneas_forcecast_cataclysm_1::HandleForcecast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+    }
 };
 
 class SummonerTargetSelector
@@ -784,17 +672,15 @@ class spell_gilneas_worgen_intro_completion : public SpellScript
 
 void AddSC_gilneas_c2()
 {
-    new go_gilneas_invasion_camera();
-
-    new npc_gilneas_horrid_abomination();
-    new npc_gilneas_save_the_children();
-    new npc_gilneas_forsaken_catapult();
-
-    new spell_gilneas_quest_save_james();
-    new spell_gilneas_quest_save_the_children();
-    new spell_gilneas_launch();
-    new spell_gilneas_fiery_boulder();
-    new spell_gilneas_call_attack_mastiff();
-    new spell_gilneas_forcecast_cataclysm_1();
+    RegisterGameObjectAI(go_gilneas_invasion_camera);
+    RegisterCreatureAI(npc_gilneas_horrid_abomination);
+    RegisterCreatureAI(npc_gilneas_save_the_children);
+    RegisterCreatureAI(npc_gilneas_forsaken_catapult);
+    RegisterSpellScript(spell_gilneas_quest_save_james);
+    RegisterSpellScript(spell_gilneas_quest_save_the_children);
+    RegisterSpellScript(spell_gilneas_launch);
+    RegisterSpellScript(spell_gilneas_fiery_boulder);
+    RegisterSpellScript(spell_gilneas_call_attack_mastiff);
+    RegisterSpellScript(spell_gilneas_forcecast_cataclysm_1);
     RegisterSpellScript(spell_gilneas_worgen_intro_completion);
 }
