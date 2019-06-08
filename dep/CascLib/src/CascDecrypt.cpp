@@ -353,6 +353,14 @@ static int Decrypt_Salsa20(LPBYTE pbOutBuffer, LPBYTE pbInBuffer, size_t cbInBuf
     return Decrypt(&SalsaState, pbOutBuffer, pbInBuffer, cbInBuffer);
 }
 
+static LPBYTE CascFindKey(TCascStorage * hs, ULONGLONG KeyName)
+{
+    PCASC_ENCRYPTION_KEY pKey;
+
+    pKey = (PCASC_ENCRYPTION_KEY)hs->EncryptionKeys.FindObject(&KeyName);
+    return (pKey != NULL) ? pKey->Key : NULL;
+}
+
 //-----------------------------------------------------------------------------
 // Public functions
 
@@ -374,14 +382,6 @@ int CascLoadEncryptionKeys(TCascStorage * hs)
     // Create array for extra keys
     nError = hs->ExtraKeysList.Create<CASC_ENCRYPTION_KEY>(CASC_EXTRA_KEYS);
     return nError;
-}
-
-LPBYTE CascFindKey(TCascStorage * hs, ULONGLONG KeyName)
-{
-    PCASC_ENCRYPTION_KEY pKey;
-
-    pKey = (PCASC_ENCRYPTION_KEY)hs->EncryptionKeys.FindObject(&KeyName);
-    return (pKey != NULL) ? pKey->Key : NULL;
 }
 
 int CascDecrypt(TCascStorage * hs, LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, DWORD cbInBuffer, DWORD dwFrameIndex)
@@ -514,4 +514,19 @@ bool WINAPI CascAddEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPBYTE Key)
 
     // Also insert the key to the map
     return hs->EncryptionKeys.InsertObject(pEncKey, &pEncKey->KeyName);
+}
+
+LPBYTE WINAPI CascFindEncryptionKey(HANDLE hStorage, ULONGLONG KeyName)
+{
+    TCascStorage* hs;
+
+    // Validate the storage handle
+    hs = TCascStorage::IsValid(hStorage);
+    if (hs == NULL)
+    {
+        SetLastError(ERROR_INVALID_HANDLE);
+        return false;
+    }
+
+    return CascFindKey(hs, KeyName);
 }
