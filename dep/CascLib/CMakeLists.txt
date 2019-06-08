@@ -33,7 +33,7 @@ set(SRC_FILES
     src/CascReadFile.cpp
     src/CascRootFile_Diablo3.cpp
     src/CascRootFile_Install.cpp
-    src/CascRootFile_MNDX.cpp
+    src/CascRootFile_Mndx.cpp
     src/CascRootFile_Text.cpp
     src/CascRootFile_TVFS.cpp
     src/CascRootFile_OW.cpp
