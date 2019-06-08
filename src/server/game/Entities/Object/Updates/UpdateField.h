@@ -20,6 +20,7 @@
 
 #include "ObjectGuid.h"
 #include "UpdateMask.h"
+#include <algorithm>
 #include <vector>
 
 class ByteBuffer;
@@ -369,7 +370,7 @@ namespace UF
         }
 
         template<typename T, uint32 BlockBit, uint32 Bit>
-        void ClearChangesMask(UpdateField<T, BlockBit, Bit>& field, std::false_type) { }
+        void ClearChangesMask(UpdateField<T, BlockBit, Bit>&, std::false_type) { }
 
         template<typename T, uint32 BlockBit, uint32 Bit>
         void ClearChangesMask(UpdateField<T, BlockBit, Bit>& field, std::true_type)
@@ -384,7 +385,7 @@ namespace UF
         }
 
         template<typename T, std::size_t Size, uint32 Bit, uint32 FirstElementBit>
-        void ClearChangesMask(UpdateFieldArray<T, Size, Bit, FirstElementBit>& field, std::false_type) { }
+        void ClearChangesMask(UpdateFieldArray<T, Size, Bit, FirstElementBit>&, std::false_type) { }
 
         template<typename T, std::size_t Size, uint32 Bit, uint32 FirstElementBit>
         void ClearChangesMask(UpdateFieldArray<T, Size, Bit, FirstElementBit>& field, std::true_type)
@@ -401,7 +402,7 @@ namespace UF
         }
 
         template<typename T, uint32 BlockBit, uint32 Bit>
-        void ClearChangesMask(DynamicUpdateField<T, BlockBit, Bit>& field, std::false_type) { }
+        void ClearChangesMask(DynamicUpdateField<T, BlockBit, Bit>&, std::false_type) { }
 
         template<typename T, uint32 BlockBit, uint32 Bit>
         void ClearChangesMask(DynamicUpdateField<T, BlockBit, Bit>& field, std::true_type)

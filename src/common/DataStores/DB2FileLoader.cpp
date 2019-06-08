@@ -262,7 +262,7 @@ public:
         std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletValues, std::unique_ptr<std::unique_ptr<DB2PalletValue[]>[]> palletArrayValues,
         std::unique_ptr<std::unordered_map<uint32, uint32>[]> commonValues) override;
     void SkipEncryptedSection(uint32 section) override;
-    bool LoadTableData(DB2FileSource* source, uint32 section) override { return true; }
+    bool LoadTableData(DB2FileSource* /*source*/, uint32 /*section*/) override { return true; }
     bool LoadCatalogData(DB2FileSource* source, uint32 section) override;
     void SetAdditionalData(std::vector<uint32> /*idTable*/, std::vector<DB2RecordCopy> /*copyTable*/, std::vector<DB2IndexData> /*parentIndexes*/) override;
     char* AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool) override;

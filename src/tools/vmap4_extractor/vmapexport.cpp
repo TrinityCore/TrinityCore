@@ -42,8 +42,6 @@
 #ifdef WIN32
     #include <direct.h>
     #define mkdir _mkdir
-#else
-    #define ERROR_PATH_NOT_FOUND ERROR_FILE_NOT_FOUND
 #endif
 
 //------------------------------------------------------------------------------

@@ -109,11 +109,9 @@ bool WMORoot::open()
         {
             ASSERT(!DoodadData.Paths);
 
-            char* ptr = f.getPointer();
-            char* end = ptr + size;
             uint32 fileDataIdCount = size / sizeof(uint32);
             DoodadData.FileDataIds = std::make_unique<uint32[]>(fileDataIdCount);
-            memcpy(DoodadData.FileDataIds.get(), ptr, size);
+            f.read(DoodadData.FileDataIds.get(), size);
             for (uint32 i = 0; i < fileDataIdCount; ++i)
             {
                 if (!DoodadData.FileDataIds[i])
