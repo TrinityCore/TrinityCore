@@ -342,6 +342,7 @@ struct TCascFile
     DWORD bVerifyIntegrity:1;                       // If true, then the data are validated more strictly when read
     DWORD bDownloadFileIf:1;                        // If true, then the data will be downloaded from the online storage if missing
     DWORD bLocalFileStream:1;                       // If true, then the file stream is a local file
+    DWORD bOvercomeEncrypted:1;                     // If true, then CascReadFile will fill the part that is encrypted (and key was not found) with zeros 
 
     LPBYTE pbFileCache;                             // Pointer to file cache
     DWORD cbFileCache;                              // Size of the file cache

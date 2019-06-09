@@ -79,35 +79,6 @@ void SetLastError(DWORD dwErrCode)
 #endif
 
 //-----------------------------------------------------------------------------
-// Overloaded "new" and "delete" operators
-
-void * operator new(size_t size)
-{
-    return CASC_ALLOC(BYTE, size);
-}
-
-void * operator new[](size_t size)
-{
-    return CASC_ALLOC(BYTE, size);
-}
-
-void operator delete(void * ptr)
-{
-    CASC_FREE(ptr);
-}
-
-void operator delete[](void * ptr)
-{
-    CASC_FREE(ptr);
-}
-
-// For some reason, VS2015 needs this
-void operator delete(void * ptr, size_t)
-{
-    CASC_FREE(ptr);
-}
-
-//-----------------------------------------------------------------------------
 // Linear data stream manipulation
 
 LPBYTE CaptureInteger32(LPBYTE pbDataPtr, LPBYTE pbDataEnd, PDWORD PtrValue)

@@ -27,6 +27,49 @@ extern "C" {
 #endif
 
 //-----------------------------------------------------------------------------
+// Use the apropriate library
+//
+// The library type is encoded in the library name as the following
+// CascLibXYZ.lib
+//
+//  X - D for Debug version, R for Release version
+//  Y - A for ANSI version, U for Unicode version
+//  Z - S for static-linked CRT library, D for multithreaded DLL CRT library
+//
+#if defined(_MSC_VER) && !defined(__CASCLIB_SELF__) && !defined(CASCLIB_NO_AUTO_LINK_LIBRARY)
+
+  #ifdef _DEBUG                                 // DEBUG VERSIONS
+    #ifndef _UNICODE
+      #ifdef _DLL
+        #pragma comment(lib, "CascLibDAD.lib") // Debug Ansi CRT-DLL version
+      #else
+        #pragma comment(lib, "CascLibDAS.lib") // Debug Ansi CRT-LIB version
+      #endif
+    #else
+      #ifdef _DLL
+        #pragma comment(lib, "CascLibDUD.lib") // Debug Unicode CRT-DLL version
+      #else
+        #pragma comment(lib, "CascLibDUS.lib") // Debug Unicode CRT-LIB version
+      #endif
+    #endif
+  #else                                         // RELEASE VERSIONS
+    #ifndef _UNICODE
+      #ifdef _DLL
+        #pragma comment(lib, "CascLibRAD.lib") // Release Ansi CRT-DLL version
+      #else
+        #pragma comment(lib, "CascLibRAS.lib") // Release Ansi CRT-LIB version
+      #endif
+    #else
+      #ifdef _DLL
+        #pragma comment(lib, "CascLibRUD.lib") // Release Unicode CRT-DLL version
+      #else
+        #pragma comment(lib, "CascLibRUS.lib") // Release Unicode CRT-LIB version
+      #endif
+    #endif
+  #endif
+
+#endif
+//-----------------------------------------------------------------------------
 // Defines
 
 #define CASCLIB_VERSION                 0x0132  // Current version of CascLib (1.50)
@@ -40,6 +83,7 @@ extern "C" {
 #define CASC_OPEN_TYPE_MASK         0x0000000F  // The mask which gets open type from the dwFlags
 #define CASC_OPEN_FLAGS_MASK        0xFFFFFFF0  // The mask which gets open type from the dwFlags
 #define CASC_STRICT_DATA_CHECK      0x00000010  // Verify all data read from a file
+#define CASC_OVERCOME_ENCRYPTED     0x00000020  // When CascReadFile encounters a block encrypted with a key that is missing, the block is filled with zeros and returned as success
 
 #define CASC_LOCALE_ALL             0xFFFFFFFF
 #define CASC_LOCALE_NONE            0x00000000

@@ -19,15 +19,9 @@
 #include "StringFormat.h"
 #include <CascLib.h>
 
-DB2CascFileSource::DB2CascFileSource(CASC::StorageHandle const& storage, std::string fileName, bool printErrors /*= true*/)
-{
-    _fileHandle = CASC::OpenFile(storage, fileName.c_str(), CASC_LOCALE_NONE, printErrors);
-    _fileName = std::move(fileName);
-}
-
 DB2CascFileSource::DB2CascFileSource(CASC::StorageHandle const& storage, uint32 fileDataId, bool printErrors /*= true*/)
 {
-    _fileHandle = CASC::OpenFile(storage, fileDataId, CASC_LOCALE_NONE, printErrors);
+    _fileHandle = CASC::OpenFile(storage, fileDataId, CASC_LOCALE_NONE, printErrors, true);
     _fileName = Trinity::StringFormat("FileDataId: %u", fileDataId);
 }
 

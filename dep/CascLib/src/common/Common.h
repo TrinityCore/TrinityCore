@@ -123,15 +123,6 @@ void CASC_FREE(T *& ptr)
 }
 
 //-----------------------------------------------------------------------------
-// Overloaded "new" and "delete" operators
-
-void * operator new(size_t size);
-void * operator new[](size_t size);
-void operator delete(void * ptr);
-void operator delete[](void * ptr);
-void operator delete(void * ptr, size_t);  // For some reason, VS2015 needs this
-
-//-----------------------------------------------------------------------------
 // Big endian number manipulation
 
 inline DWORD ConvertBytesToInteger_2(LPBYTE ValueAsBytes)
