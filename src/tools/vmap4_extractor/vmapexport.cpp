@@ -295,6 +295,7 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
         printf("Found locale '%s'\n", i->c_str());
         locales.push_back(*i);
     }
+
     printf("\n");
 
     // open locale expansion and common files
@@ -311,6 +312,8 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     pArchiveNames.push_back(input_path + std::string("common-2.MPQ"));
     pArchiveNames.push_back(input_path + std::string("expansion.MPQ"));
     pArchiveNames.push_back(input_path + std::string("lichking.MPQ"));
+    pArchiveNames.push_back(input_path + std::string("patch-A.MPQ"));
+    pArchiveNames.push_back(input_path + std::string("patch-B.MPQ"));
 
     // now, scan for the patch levels in the core dir
     printf("Scanning patch levels from data directory.\n");

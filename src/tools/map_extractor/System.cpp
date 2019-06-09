@@ -90,6 +90,12 @@ const char *CONF_mpq_list[]={
     "patch-3.MPQ",
     "patch-4.MPQ",
     "patch-5.MPQ",
+    "patch-6.MPQ",
+    "patch-7.MPQ",
+    "patch-8.MPQ",
+    "patch-9.MPQ",
+    "patch-A.MPQ",
+    "patch-B.MPQ",
 };
 
 static char const* const langs[] = {"enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
@@ -941,7 +947,7 @@ void ExtractMapsFromMpq(uint32 build)
         WDT_file wdt;
         if (!wdt.loadFile(mpqMapName, false))
         {
-//            printf("Error loading %s map wdt data\n", map_ids[z].name);
+            //printf("Error loading %s map wdt data\n", map_ids[z].name);
             continue;
         }
 
@@ -1085,7 +1091,7 @@ void LoadLocaleMPQFiles(int const locale)
 
     new MPQArchive(fileName.c_str());
 
-    for(int i = 1; i < 5; ++i)
+    for(int i = 1; i < 10; ++i)
     {
         std::string ext;
         if (i > 1)

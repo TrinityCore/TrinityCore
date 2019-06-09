@@ -1342,6 +1342,7 @@ class npc_jaina_theramore : public CreatureScript
 
                     case EVENT_END_1:
                         Talk(SAY_END_1);
+                        me->PlayDirectMusic(28046);
                         events.ScheduleEvent(EVENT_END_2, 4s, 0, PHASE_END);
                         break;
 

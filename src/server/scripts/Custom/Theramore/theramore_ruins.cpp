@@ -28,50 +28,76 @@ class npc_jaina_ruins : public CreatureScript
         {
             canSayIntro = false;
             canSayEnd = false;
+            canSayDestruction = false;
         }
 
         void MoveInLineOfSight(Unit* who) override
         {
-            if (me->GetMapId() != 725)
-                return;
-
-            if (canSayIntro && canSayEnd)
-                return;
-
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
             Player* player = who->ToPlayer();
-            if (player && me->IsWithinDist(who, 6.f))
+            if (!player)
+                return;
+
+            switch (me->GetMapId())
             {
-                if (!canSayIntro && player->GetQuestStatus(QUEST_RETURN_TO_THERAMORE) == QUEST_STATUS_COMPLETE)
+                case 1:
                 {
-                    kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 5.f);
+                    if (canSayDestruction)
+                        return;
 
-                    Talk(SAY_IRIS_1);
-                    me->SetWalk(true);
-                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                    kinndy->SetVisible(false);
+                    if (me->IsWithinDist(player, 30.f))
+                    {
+                        if (player->GetQuestStatus(QUEST_LIMIT_THE_NUKE) == QUEST_STATUS_COMPLETE)
+                        {
+                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                            me->SetStandState(UNIT_STAND_STATE_STAND);
 
-                    canSayIntro = true;
-                }
+                            Quest const* limitTheNuke = sObjectMgr->GetQuestTemplate(QUEST_LIMIT_THE_NUKE);
+                            player->RewardQuest(limitTheNuke, 0, me);
 
-                if (!canSayEnd && player->GetQuestStatus(QUEST_DESTROY_THE_DESTROYER) == QUEST_STATUS_COMPLETE)
-                {
-                    canSayEnd = true;
-                    events.ScheduleEvent(EVENT_IRIS_4, 1s);
-                }
-            }
-        }
+                            Quest const* returnToTheramore = sObjectMgr->GetQuestTemplate(QUEST_RETURN_TO_THERAMORE);
+                            player->AddQuestAndCheckCompletion(returnToTheramore, me);
 
-        void QuestAccept(Player* /*player*/, Quest const* quest) override
-        {
-            switch (quest->GetQuestId())
-            {
-                case QUEST_RETURN_TO_THERAMORE:
-                    SetData(EVENT_START_RETURN, 1U);
+                            SetData(EVENT_START_RETURN, 1U);
+
+                            canSayDestruction = true;
+                        }
+                    }
+
                     break;
+                }
+
+                case 725:
+                {
+                    if (canSayIntro && canSayEnd)
+                        return;
+
+                    if (me->IsWithinDist(player, 6.f))
+                    {
+                        if (!canSayIntro && player->GetQuestStatus(QUEST_RETURN_TO_THERAMORE) == QUEST_STATUS_COMPLETE)
+                        {
+                            kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 5.f);
+
+                            Talk(SAY_IRIS_1);
+                            me->SetWalk(true);
+                            me->SetStandState(UNIT_STAND_STATE_STAND);
+                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                            kinndy->SetVisible(false);
+
+                            canSayIntro = true;
+                        }
+
+                        if (!canSayEnd && player->GetQuestStatus(QUEST_DESTROY_THE_DESTROYER) == QUEST_STATUS_COMPLETE)
+                        {
+                            canSayEnd = true;
+                            events.ScheduleEvent(EVENT_IRIS_4, 1s);
+                        }
+                    }
+
+                    break;
+                }
             }
         }
 
@@ -79,10 +105,6 @@ class npc_jaina_ruins : public CreatureScript
         {
             switch (quest->GetQuestId())
             {
-                case QUEST_LIMIT_THE_NUKE:
-                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                    break;
-
                 case QUEST_RETURN_TO_THERAMORE:
                     SetData(EVENT_START_IRIS, 1U);
                     break;
@@ -97,8 +119,10 @@ class npc_jaina_ruins : public CreatureScript
             switch (id)
             {
                 case EVENT_START_RETURN:
-                    events.ScheduleEvent(EVENT_RETURN_1, 2s);
+                {
+                    events.ScheduleEvent(EVENT_RETURN_1, 5s);
                     break;
+                }
 
                 case EVENT_START_IRIS:
                     FillPlayersContainer();
@@ -131,8 +155,7 @@ class npc_jaina_ruins : public CreatureScript
 
         void Reset() override
         {
-            if (me->GetMapId() != 1)
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -590,7 +613,7 @@ class npc_jaina_ruins : public CreatureScript
         Creature* channelTarget;
         Creature* elementals[2];
         GameObject* mirror;
-        bool canSayIntro, canSayEnd;
+        bool canSayIntro, canSayEnd, canSayDestruction;
 
         void FillPlayersContainer()
         {

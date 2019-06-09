@@ -276,7 +276,7 @@ class dalaran_jaina_anduin : public CreatureScript
             if (me->GetMapId() != 727 || phase != PHASE_NONE)
                 return;
 
-            if (me->IsFriendlyTo(who) && me->IsWithinDistInMap(who, 6.0f))
+            if (me->IsFriendlyTo(who) && me->IsWithinDist(who, 6.0f))
             {
                 player = who->ToPlayer();
                 phase = PHASE_NOT_STARTED;
@@ -329,15 +329,12 @@ class dalaran_jaina_anduin : public CreatureScript
                     case EVENT_REUNION_1:
                         center = me->SummonCreature(NPC_INVISIBLE_STALKER, centerPos, TEMPSUMMON_MANUAL_DESPAWN);
                         center->SetObjectScale(5.6f);
-                        me->SetTarget(anduin->GetGUID());
-                        anduin->SetTarget(me->GetGUID());
                         Talk(SAY_JAINA_2);
                         events.ScheduleEvent(EVENT_REUNION_2, 6s);
                         break;
 
                     case EVENT_REUNION_2:
                         Talk(SAY_JAINA_3);
-                        anduin->SetTarget(ObjectGuid::Empty);
                         me->GetMotionMaster()->MoveSmoothPath(0, pathInsideJaina, INSIDE_PATH_SIZE, true);
                         events.ScheduleEvent(EVENT_REUNION_3, 3s);
                         break;
@@ -354,7 +351,6 @@ class dalaran_jaina_anduin : public CreatureScript
 
                     case EVENT_REUNION_5:
                         anduin->AI()->Talk(SAY_ANDUIN_5);
-                        me->SetTarget(ObjectGuid::Empty);
                         me->SetFacingToObject(anduin);
                         anduin->SetFacingToObject(me);
                         events.ScheduleEvent(EVENT_REUNION_6, 1s);
