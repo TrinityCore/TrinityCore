@@ -1251,22 +1251,6 @@ bool ExtractDB2File(uint32 fileDataId, char const* cascFileName, int locale, boo
         readBytes = 0;
         if (!CASC::ReadFile(source.GetHandle(), buffer, std::min<DWORD>(fileSize, readBatchSize), &readBytes))
         {
-            if (GetLastError() == ERROR_FILE_ENCRYPTED)
-            {
-                // shrink block size to read as much unencrypted data as possible
-                if (readBatchSize != 1)
-                {
-                    readBatchSize = std::max<DWORD>(1, readBatchSize / 2);
-                    continue;
-                }
-
-                uint8 zero = 0;
-                --fileSize;
-                fwrite(&zero, 1, 1, output);
-                source.SetPosition(source.GetPosition() + 1);
-                continue;
-            }
-
             printf("Can't read file '%s'\n", outputFileName.c_str());
             fclose(output);
             boost::filesystem::remove(outputPath);

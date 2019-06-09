@@ -36,8 +36,9 @@ bool OpenFileByCKeyEntry(TCascStorage * hs, PCASC_CKEY_ENTRY pCKeyEntry, DWORD d
         // Create the file handle structure
         if((hf = new TCascFile(hs, pCKeyEntry)) != NULL)
         {
-            hf->bVerifyIntegrity = (dwOpenFlags & CASC_STRICT_DATA_CHECK) ? true : false;
-            hf->bDownloadFileIf = (hs->dwFeatures & CASC_FEATURE_ONLINE) ? true : false;
+            hf->bVerifyIntegrity   = (dwOpenFlags & CASC_STRICT_DATA_CHECK)  ? true : false;
+            hf->bDownloadFileIf    = (hs->dwFeatures & CASC_FEATURE_ONLINE)  ? true : false;
+            hf->bOvercomeEncrypted = (dwOpenFlags & CASC_OVERCOME_ENCRYPTED) ? true : false;
             nError = ERROR_SUCCESS;
         }
         else

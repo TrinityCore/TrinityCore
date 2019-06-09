@@ -16,7 +16,7 @@
 
 #define CSV_INVALID_INDEX       ((size_t)(-1))
 #define CSV_ZERO                ((size_t)(0))       // Use Csv[0][CSV_ZERO] instead of ambiguous Csv[0][0]
-#define CSV_MAX_COLUMNS         0x10
+#define CSV_MAX_COLUMNS         0x20
 #define CSV_HASH_TABLE_SIZE     0x80
 
 //-----------------------------------------------------------------------------
