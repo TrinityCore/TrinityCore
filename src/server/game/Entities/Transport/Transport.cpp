@@ -36,7 +36,8 @@
 
 Transport::Transport() : GameObject(),
     _passengerTeleportItr(_passengers.begin()), _currentTransportTime(0), _destinationStopFrameTime(0),
-    _alignmentTransportTime(0), _lastStopFrameTime(0), _isDynamicTransport(false), _initialRelocate(false)
+    _alignmentTransportTime(0), _lastStopFrameTime(0), _isDynamicTransport(false), _initialRelocate(false),
+    _creationGameTime(0)
 {
     m_updateFlag |= UPDATEFLAG_TRANSPORT | UPDATEFLAG_LOWGUID | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION;
 }
@@ -222,6 +223,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint
     SetPathProgress(pathProgress + stopTimer);
     SetDestinationStopFrameTime(stopTimer);
     SetCurrentTransportTime(stopTimer);
+    _creationGameTime = GameTime::GetGameTimeMS();
 
     if (gameObjectAddon && gameObjectAddon->InvisibilityValue)
     {
@@ -296,9 +298,8 @@ void Transport::Update(uint32 diff)
 
     if (IsDynamicTransport())
     {
-        SetCurrentTransportTime(GetCurrentTransportTime() + diff);
-        if (GetCurrentTransportTime() >= GetTransportPeriod())
-            SetCurrentTransportTime(GetCurrentTransportTime() % GetTransportPeriod());
+        uint32 totalTravelTime = GameTime::GetGameTimeMS() - GetTransportCreationTime();
+        SetCurrentTransportTime(totalTravelTime % GetTransportPeriod());
     }
     else
     {
