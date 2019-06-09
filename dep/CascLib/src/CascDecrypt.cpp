@@ -480,6 +480,9 @@ int CascDirectCopy(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, D
     return ERROR_SUCCESS;
 }
 
+//-----------------------------------------------------------------------------
+// Public functions
+
 bool WINAPI CascAddEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPBYTE Key)
 {
     PCASC_ENCRYPTION_KEY pEncKey;

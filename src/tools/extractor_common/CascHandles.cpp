@@ -104,10 +104,14 @@ bool CASC::HasTactKey(StorageHandle const& storage, ULONGLONG keyLookup)
     return CascFindEncryptionKey(storage.get(), keyLookup) != nullptr;
 }
 
-CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors /*= false*/)
+CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors /*= false*/, bool zerofillEncryptedParts /*= false*/)
 {
+    DWORD openFlags = CASC_OPEN_BY_NAME;
+    if (zerofillEncryptedParts)
+        openFlags |= CASC_OVERCOME_ENCRYPTED;
+
     HANDLE handle = nullptr;
-    if (!::CascOpenFile(storage.get(), fileName, localeMask, CASC_OPEN_BY_NAME, &handle))
+    if (!::CascOpenFile(storage.get(), fileName, localeMask, openFlags, &handle))
     {
         DWORD lastError = GetLastError(); // support checking error set by *Open* call, not the next *Close*
         if (printErrors)
@@ -121,10 +125,14 @@ CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, char const* fileNa
     return FileHandle(handle);
 }
 
-CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, DWORD fileDataId, DWORD localeMask, bool printErrors /*= false*/)
+CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, DWORD fileDataId, DWORD localeMask, bool printErrors /*= false*/, bool zerofillEncryptedParts /*= false*/)
 {
+    DWORD openFlags = CASC_OPEN_BY_FILEID;
+    if (zerofillEncryptedParts)
+        openFlags |= CASC_OVERCOME_ENCRYPTED;
+
     HANDLE handle = nullptr;
-    if (!::CascOpenFile(storage.get(), CASC_FILE_DATA_ID(fileDataId), localeMask, CASC_OPEN_BY_FILEID, &handle))
+    if (!::CascOpenFile(storage.get(), CASC_FILE_DATA_ID(fileDataId), localeMask, openFlags, &handle))
     {
         DWORD lastError = GetLastError(); // support checking error set by *Open* call, not the next *Close*
         if (printErrors)

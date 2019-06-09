@@ -791,6 +791,16 @@ bool WINAPI CascReadFile(HANDLE hFile, void * pvBuffer, DWORD dwBytesToRead, PDW
                                                       pbEncodedFrame,
                                                       pFrame->EncodedSize,
                                               (DWORD)(pFrame - hf->pFrames));
+
+                            // Some people find it handy to extract data from partially encrypted file,
+                            // even at the cost producing files that are corrupt.
+                            // We overcome missing decryption key by zeroing the encrypted portions
+                            if(nError == ERROR_FILE_ENCRYPTED && hf->bOvercomeEncrypted)
+                            {
+                                memset(pbDecodedFrame, 0, pFrame->ContentSize);
+                                nError = ERROR_SUCCESS;
+                            }
+
                             if (nError == ERROR_SUCCESS)
                             {
                                 // Mark the frame as loaded
