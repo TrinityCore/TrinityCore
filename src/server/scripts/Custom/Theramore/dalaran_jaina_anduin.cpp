@@ -255,10 +255,10 @@ class dalaran_jaina_anduin : public CreatureScript
             {
                 case ACTION_INTRO_TELEPORT:
                     anduin = GetClosestCreatureWithEntry(me, NPC_ANDUIN_WRYNN, 10.f);
-                    player = me->SelectNearestPlayer(50.f);
+                    if (!player) player = me->SelectNearestPlayer(50.f);
                     anduin->AI()->Talk(SAY_ANDUIN_0);
-                    events.ScheduleEvent(EVENT_INTRO_1,  4s);
-                    events.ScheduleEvent(EVENT_TELEPORT, 1s);
+                    events.ScheduleEvent(EVENT_INTRO_1,  5ms);
+                    events.ScheduleEvent(EVENT_TELEPORT, 5ms);
                     break;
 
                 case ACTION_START_REUNION:
@@ -276,9 +276,16 @@ class dalaran_jaina_anduin : public CreatureScript
             if (me->GetMapId() != 727 || phase != PHASE_NONE)
                 return;
 
-            if (me->IsFriendlyTo(who) && me->IsWithinDist(who, 6.0f))
+            if (who->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            Player* temp = who->ToPlayer();
+            if (temp->IsGameMaster() || temp->GetPhaseMask() != me->GetPhaseMask())
+                return;
+
+            if (me->IsFriendlyTo(temp) && me->IsWithinDist(temp, 6.0f, false))
             {
-                player = who->ToPlayer();
+                player = temp;
                 phase = PHASE_NOT_STARTED;
                 SetData(ACTION_INTRO_TELEPORT, 1U);
             }
