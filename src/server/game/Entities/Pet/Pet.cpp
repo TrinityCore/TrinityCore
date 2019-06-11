@@ -21,6 +21,7 @@
 #include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "Group.h"
+#include "InstanceScript.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -33,6 +34,7 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "ZoneScript.h"
 
 #define PET_XP_FACTOR 0.05f
 
@@ -71,6 +73,8 @@ void Pet::AddToWorld()
         GetMap()->GetObjectsStore().Insert<Pet>(GetGUID(), this);
         Unit::AddToWorld();
         AIM_Initialize();
+        if (ZoneScript* zoneScript = GetZoneScript() ? GetZoneScript() : GetInstanceScript())
+            zoneScript->OnCreatureCreate(this);
     }
 
     // Prevent stuck pets when zoning. Pets default to "follow" when added to world

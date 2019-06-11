@@ -282,9 +282,11 @@ enum ICCEventIds
     EVENT_AWAKEN_WARD_4 = 22909,
 };
 
-enum ICCMovementPoints
+enum ICCMisc
 {
-    POINT_LAND  = 1,
+    POINT_LAND            = 1,
+    ICC_BUFF_MENUID_ALLY  = 11204,
+    ICC_BUFF_MENUID_HORDE = 11207
 };
 
 class FrostwingVrykulSearcher
@@ -1790,6 +1792,19 @@ class npc_arthas_teleport_visual : public CreatureScript
         }
 };
 
+struct npc_entrance_faction_leader : public ScriptedAI
+{
+    npc_entrance_faction_leader(Creature* creature) : ScriptedAI(creature) { }
+
+    bool GossipSelect(Player* /*player*/, uint32 menuId, uint32 /*gossipListId*/) override
+    {
+        if (menuId == ICC_BUFF_MENUID_ALLY || menuId == ICC_BUFF_MENUID_HORDE)
+            if (InstanceScript* instance = me->GetInstanceScript())
+                instance->SetData(DATA_ICC_BUFF, 0);
+        return false;
+    }
+};
+
 class spell_icc_stoneform : public SpellScriptLoader
 {
     public:
@@ -2261,6 +2276,7 @@ void AddSC_icecrown_citadel()
     new npc_frostwing_vrykul();
     new npc_impaling_spear();
     new npc_arthas_teleport_visual();
+    RegisterCreatureAI(npc_entrance_faction_leader);
     new spell_icc_stoneform();
     new spell_icc_sprit_alarm();
     new spell_frost_giant_death_plague();
