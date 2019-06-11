@@ -194,7 +194,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
-                if (creature->IsPet())
+                if (creature->IsPet() && creature->GetOwnerGUID().IsPlayer())
                 {
                     uint32 spellId = TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG;
                     if (ICCBuffActive)
@@ -433,7 +433,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void OnUnitDeath(Unit* unit) override
             {
-                if ((unit->IsPet() || unit->GetTypeId() == TYPEID_PLAYER) && ICCBuffActive)
+                if (((unit->IsPet() && unit->GetOwnerGUID().IsPlayer()) || unit->GetTypeId() == TYPEID_PLAYER) && ICCBuffActive)
                 {
                     uint32 spellId = TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG;
                     unit->CastSpell(unit, spellId, true);
