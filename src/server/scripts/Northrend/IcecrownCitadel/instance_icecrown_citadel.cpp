@@ -433,13 +433,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void OnUnitDeath(Unit* unit) override
             {
-                if (((unit->IsPet() && unit->GetOwnerGUID().IsPlayer()) || unit->GetTypeId() == TYPEID_PLAYER) && ICCBuffActive)
-                {
-                    uint32 spellId = TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG;
-                    unit->CastSpell(unit, spellId, true);
-                    return;
-                }
-
                 Creature* creature = unit->ToCreature();
                 if (!creature)
                     return;
