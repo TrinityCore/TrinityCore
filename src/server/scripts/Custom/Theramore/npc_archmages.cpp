@@ -60,11 +60,6 @@ class npc_archmage_fire : public CreatureScript
             events.ScheduleEvent(CASTING_PYROBLAST, 12s, 24s);
         }
 
-        //void EnterEvadeMode(EvadeReason /*why*/) override
-        //{
-        //    me->SetHealth(me->GetMaxHealth());
-        //}
-
         void AttackStart(Unit* who) override
         {
             if (!who)
@@ -81,7 +76,12 @@ class npc_archmage_fire : public CreatureScript
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            damage = 1;
+            // Que pour la bataille de Theramore
+            if (me->GetMapId() != 726)
+                return;
+
+            if (me->GetHealth() < 5)
+                damage = 0;
         }
 
         void UpdateAI(uint32 diff) override
@@ -147,11 +147,6 @@ class npc_archmage_arcanes : public CreatureScript
             events.ScheduleEvent(CASTING_ARCANE_EXPLOSION, 8s);
         }
 
-        //void EnterEvadeMode(EvadeReason /*why*/) override
-        //{
-        //    me->SetHealth(me->GetMaxHealth());
-        //}
-
         void AttackStart(Unit* who) override
         {
             if (!who)
@@ -168,7 +163,12 @@ class npc_archmage_arcanes : public CreatureScript
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            damage = 1;
+            // Que pour la bataille de Theramore
+            if (me->GetMapId() != 726)
+                return;
+
+            if (me->GetHealth() < 5)
+                damage = 0;
         }
 
         void UpdateAI(uint32 diff) override
@@ -249,11 +249,6 @@ public:
             events.ScheduleEvent(CASTING_ICE_LANCE, 8s, 14s);
         }
 
-        //void EnterEvadeMode(EvadeReason /*why*/) override
-        //{
-        //    me->SetHealth(me->GetMaxHealth());
-        //}
-
         void AttackStart(Unit* who) override
         {
             if (!who)
@@ -279,7 +274,12 @@ public:
                 events.ScheduleEvent(CASTING_BLINK, 6s);
             }
 
-            damage = 1;
+            // Que pour la bataille de Theramore
+            if (me->GetMapId() != 726)
+                return;
+
+            if (me->GetHealth() < 5)
+                damage = 0;
         }
 
         void UpdateAI(uint32 diff) override

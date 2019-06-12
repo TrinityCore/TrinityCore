@@ -34,21 +34,34 @@ enum Spells
     SPELL_REMEMBER_SHADOW   = 100042,
     SPELL_REMEMBER_SUMMON   = 23017,
     SPELL_ALPHA_75_PCT      = 44822,
-    SPELL_SPOT_SCALED       = 50236
+    SPELL_SPOT_SCALED       = 50236,
+    SPELL_MAGIC_TRACKS      = 100049,
+    SPELL_DETECT_MAGIC      = 100045
 };
 
 enum Misc
 {
-    SOUND_REUNION_MUSIC     = 28092,
-    GOB_ANTONIDAS_STATUE    = 500011,
+    SOUND_REUNION_MUSIC         = 28092,
+    SOUND_JAINA_DARNA_MUSIC     = 28096,
 
-    QUEST_THE_FATE_OF_DALARAN = 80012,
+    GOB_ANTONIDAS_STATUE        = 500011,
+    GOB_PORTAL_TO_DALARAN       = 500013,
+
+    MOUNT_WHITE_STEED = 14338,
+
+    QUEST_THE_FATE_OF_DALARAN   = 80012,
+    QUEST_DARNASSUS_ATTACKED    = 80013,
+    QUEST_TRACKING_THE_THIEVES  = 80014,
+
+    MAP_KALIMDOR                = 1,
+    MAP_DALARAN_INSTANCED       = 727
 };
 
 enum Events
 {
     ACTION_INTRO_TELEPORT   = 1,
     ACTION_START_REUNION    = 2,
+    ACTION_INTRO_DARNASSUS  = 3,
 
     EVENT_TALK_SCENE,
     EVENT_SPAWN_SCENE,
@@ -70,7 +83,18 @@ enum Events
     EVENT_REUNION_9,
     EVENT_REUNION_10,
     EVENT_REUNION_11,
-    EVENT_REUNION_12
+    EVENT_REUNION_12,
+
+    EVENT_DARNASSUS_1,
+    EVENT_DARNASSUS_2,
+    EVENT_DARNASSUS_3,
+    EVENT_DARNASSUS_4,
+    EVENT_DARNASSUS_5,
+    EVENT_DARNASSUS_6,
+    EVENT_DARNASSUS_7,
+    EVENT_DARNASSUS_8,
+
+    EVENT_CHECK_SPEED,
 };
 
 enum Phases
@@ -99,20 +123,28 @@ enum Texts
     SAY_JAINA_13            = 11,   // Auto
     SAY_JAINA_14            = 12,
     SAY_ANDUIN_15           = 2,
-    SAY_JAINA_16            = 13
+    SAY_JAINA_16            = 13,
+
+    SAY_JAINA_DARNASSUS_1   = 14,
+    SAY_JAINA_DARNASSUS_2   = 15,
+    SAY_JAINA_DARNASSUS_3   = 16,
+    SAY_JAINA_DARNASSUS_4   = 17,
+    SAY_JAINA_DARNASSUS_5   = 18,
+    SAY_JAINA_DARNASSUS_6   = 19,
 };
 
 #pragma region CONSTANTS
 
-constexpr auto GOSSIP_ITEM_JAINA_START   = "Nous devons faire tout ce que nous pouvons pour garder la neutralité du Kirin Tor.";
+constexpr auto GOSSIP_ITEM_JAINA_START   = "Nous devons faire tout ce que nous pouvons pour garder la neutralitÃ© du Kirin Tor.";
 
-constexpr uint8 INSIDE_PATH_SIZE         = 11;
-constexpr uint8 SCENE_KALECGOS_COUNT     = 4;
-constexpr uint8 SCENE_KEL_THUZAD_COUNT   = 3;
-constexpr uint8 SCENE_KAEL_THAS_COUNT    = 6;
-constexpr uint8 SCENE_AETHAS_COUNT       = 4;
-constexpr uint8 SCENE_ANTONIDAS_COUNT    = 1;
-constexpr uint8 TOTAL_SCENES_COUNT       = 5;
+constexpr int INSIDE_PATH_SIZE           = 11;
+constexpr int SCENE_KALECGOS_COUNT       = 4;
+constexpr int SCENE_KEL_THUZAD_COUNT     = 3;
+constexpr int SCENE_KAEL_THAS_COUNT      = 6;
+constexpr int SCENE_AETHAS_COUNT         = 4;
+constexpr int SCENE_ANTONIDAS_COUNT      = 1;
+constexpr int TOTAL_SCENES_COUNT         = 5;
+constexpr int TOTAL_TRACKERS_COUNT       = 108;
 
 const Position centerPos = { 5848.36f, 853.19f, 843.21f, 4.10f };
 
@@ -198,7 +230,121 @@ const Scene Antonidas[SCENE_ANTONIDAS_COUNT]
 const uint8  Sizes[TOTAL_SCENES_COUNT]  = { SCENE_KALECGOS_COUNT, SCENE_KEL_THUZAD_COUNT, SCENE_KAEL_THAS_COUNT, SCENE_AETHAS_COUNT, SCENE_ANTONIDAS_COUNT };
 const Scene* Scenes[TOTAL_SCENES_COUNT] = { Kalecgos, Kelthuzad, Kaelthas, Aethas, Antonidas };
 
+const Position MagicTracksPos[TOTAL_TRACKERS_COUNT] =
+{
+    { 10126.02f, 2579.14f, 1324.95f, 4.88f },
+    { 10127.75f, 2572.54f, 1323.80f, 5.33f },
+    { 10132.48f, 2565.88f, 1322.61f, 5.30f },
+    { 10134.47f, 2559.67f, 1322.09f, 4.95f },
+    { 10133.65f, 2551.92f, 1321.84f, 4.51f },
+    { 10129.78f, 2544.76f, 1321.81f, 4.16f },
+    { 10122.78f, 2540.33f, 1321.75f, 3.63f },
+    { 10113.11f, 2539.82f, 1321.03f, 3.23f },
+    { 10107.79f, 2539.20f, 1320.32f, 3.38f },
+    { 10101.59f, 2534.91f, 1319.52f, 3.99f },
+    { 10099.31f, 2528.13f, 1319.57f, 4.54f },
+    { 10099.48f, 2520.97f, 1319.41f, 4.87f },
+    { 10098.27f, 2509.61f, 1317.57f, 4.67f },
+    { 10098.42f, 2506.12f, 1317.56f, 4.74f },
+    { 10100.55f, 2496.57f, 1317.55f, 5.14f },
+    { 10103.17f, 2491.35f, 1317.60f, 5.07f },
+    { 10105.36f, 2480.79f, 1317.57f, 4.77f },
+    { 10103.35f, 2471.99f, 1317.26f, 4.36f },
+    { 10099.02f, 2464.09f, 1317.68f, 4.04f },
+    { 10094.46f, 2458.78f, 1318.09f, 4.02f },
+    { 10088.37f, 2453.39f, 1318.11f, 3.71f },
+    { 10080.11f, 2449.62f, 1317.82f, 3.53f },
+    { 10075.10f, 2448.58f, 1317.38f, 3.32f },
+    { 10065.25f, 2444.59f, 1317.72f, 3.68f },
+    { 10056.24f, 2439.21f, 1317.82f, 3.65f },
+    { 10049.11f, 2435.51f, 1317.51f, 3.88f },
+    { 10043.51f, 2431.52f, 1316.37f, 3.25f },
+    { 10037.92f, 2429.89f, 1315.42f, 3.87f },
+    { 10032.19f, 2425.60f, 1315.99f, 3.53f },
+    { 10025.14f, 2420.69f, 1316.34f, 4.05f },
+    { 10021.73f, 2410.25f, 1316.86f, 4.70f },
+    { 10024.95f, 2399.95f, 1318.01f, 4.78f },
+    { 10023.16f, 2392.66f, 1317.99f, 4.84f },
+    { 10025.43f, 2386.42f, 1316.36f, 5.10f },
+    { 10025.87f, 2380.42f, 1316.64f, 4.57f },
+    { 10022.63f, 2372.01f, 1315.79f, 4.12f },
+    { 10016.81f, 2365.65f, 1318.03f, 3.72f },
+    { 10009.34f, 2359.53f, 1318.01f, 4.23f },
+    { 10005.48f, 2353.50f, 1317.05f, 3.91f },
+    { 9999.99f, 2345.53f, 1317.07f, 4.34f },
+    { 10001.24f, 2341.47f, 1317.68f, 5.63f },
+    { 10009.21f, 2329.43f, 1317.56f, 5.05f },
+    { 10015.70f, 2318.72f, 1317.86f, 5.55f },
+    { 10022.21f, 2314.66f, 1319.02f, 5.81f },
+    { 10027.83f, 2309.30f, 1322.55f, 5.42f },
+    { 10030.11f, 2306.65f, 1324.40f, 5.42f },
+    { 10034.84f, 2301.49f, 1327.53f, 5.48f },
+    { 10041.68f, 2292.43f, 1329.58f, 5.13f },
+    { 10042.93f, 2284.58f, 1328.78f, 4.60f },
+    { 10035.46f, 2269.86f, 1329.89f, 3.93f },
+    { 10032.34f, 2265.96f, 1330.13f, 4.24f },
+    { 10029.86f, 2256.36f, 1329.45f, 4.74f },
+    { 10030.08f, 2250.88f, 1328.55f, 4.66f },
+    { 10029.38f, 2243.91f, 1328.54f, 4.55f },
+    { 10025.93f, 2234.35f, 1329.08f, 4.06f },
+    { 10021.26f, 2229.16f, 1328.80f, 3.84f },
+    { 10015.74f, 2225.95f, 1328.93f, 3.51f },
+    { 10007.56f, 2223.68f, 1329.99f, 3.29f },
+    { 9997.16f, 2222.21f, 1329.36f, 3.27f },
+    { 9990.33f, 2220.76f, 1328.77f, 3.46f },
+    { 9980.87f, 2217.47f, 1328.79f, 3.69f },
+    { 9975.09f, 2213.52f, 1329.31f, 3.74f },
+    { 9966.68f, 2205.85f, 1329.06f, 3.95f },
+    { 9961.09f, 2198.71f, 1328.17f, 4.29f },
+    { 9958.50f, 2189.77f, 1327.85f, 4.59f },
+    { 9958.09f, 2183.26f, 1327.63f, 4.57f },
+    { 9954.52f, 2173.43f, 1327.45f, 4.29f },
+    { 9952.43f, 2168.49f, 1327.45f, 4.40f },
+    { 9951.06f, 2160.82f, 1327.49f, 4.70f },
+    { 9953.24f, 2150.09f, 1327.72f, 4.95f },
+    { 9953.94f, 2139.77f, 1327.64f, 4.52f },
+    { 9951.07f, 2129.68f, 1327.66f, 4.40f },
+    { 9951.21f, 2117.33f, 1327.64f, 4.98f },
+    { 9952.97f, 2110.80f, 1327.69f, 4.89f },
+    { 9953.38f, 2107.32f, 1327.72f, 4.80f },
+    { 9953.00f, 2100.02f, 1327.74f, 4.49f },
+    { 9948.14f, 2092.85f, 1327.83f, 3.89f },
+    { 9942.98f, 2086.69f, 1328.16f, 4.13f },
+    { 9939.71f, 2078.11f, 1327.84f, 5.09f },
+    { 9940.26f, 2065.24f, 1329.54f, 4.85f },
+    { 9939.65f, 2057.14f, 1331.51f, 4.19f },
+    { 9933.86f, 2048.27f, 1333.82f, 4.02f },
+    { 9926.91f, 2039.94f, 1336.57f, 3.95f },
+    { 9924.58f, 2037.01f, 1338.31f, 4.17f },
+    { 9922.07f, 2027.62f, 1341.94f, 4.44f },
+    { 9923.49f, 2018.94f, 1342.99f, 4.99f },
+    { 9927.34f, 2010.15f, 1343.21f, 5.29f },
+    { 9929.35f, 2005.21f, 1343.46f, 5.07f },
+    { 9929.53f, 1993.66f, 1345.21f, 4.49f },
+    { 9928.55f, 1986.73f, 1345.00f, 4.62f },
+    { 9928.81f, 1981.62f, 1344.53f, 4.82f },
+    { 9929.74f, 1972.81f, 1343.08f, 4.72f },
+    { 9928.46f, 1962.31f, 1340.40f, 4.76f },
+    { 9928.78f, 1955.32f, 1337.24f, 4.73f },
+    { 9931.17f, 1946.36f, 1333.96f, 5.11f },
+    { 9933.27f, 1939.73f, 1331.74f, 4.77f },
+    { 9932.42f, 1933.28f, 1330.61f, 4.47f },
+    { 9930.50f, 1924.75f, 1329.66f, 4.39f },
+    { 9924.03f, 1915.42f, 1328.22f, 4.05f },
+    { 9920.55f, 1910.06f, 1327.38f, 4.33f },
+    { 9920.62f, 1903.27f, 1326.70f, 5.09f },
+    { 9923.68f, 1895.58f, 1326.60f, 4.92f },
+    { 9923.56f, 1891.07f, 1326.21f, 4.35f },
+    { 9919.73f, 1885.09f, 1324.56f, 3.61f },
+    { 9916.19f, 1878.50f, 1322.66f, 4.66f },
+    { 9908.96f, 1867.44f, 1320.71f, 3.76f },
+    { 9899.47f, 1866.62f, 1319.49f, 3.16f },
+    { 9892.66f, 1865.71f, 1318.80f, 3.32f }
+};
+
 #pragma endregion
+
+// anduin donne pas de quete
 
 class dalaran_jaina_anduin : public CreatureScript
 {
@@ -215,6 +361,7 @@ class dalaran_jaina_anduin : public CreatureScript
         void Initialize()
         {
             sceneIndex = 0;
+            magicTracks = 0;
             talkIndex = SAY_JAINA_6;
             player = nullptr;
             anduin = nullptr;
@@ -223,6 +370,13 @@ class dalaran_jaina_anduin : public CreatureScript
 
         bool GossipHello(Player* player) override
         {
+            if (me->IsQuestGiver())
+            {
+                player->PrepareQuestMenu(me->GetGUID());
+                SendGossipMenuFor(player, 100002, me->GetGUID());
+                return true;
+            }
+
             if (player->GetQuestStatus(QUEST_THE_FATE_OF_DALARAN) == QUEST_STATUS_INCOMPLETE)
             {
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_JAINA_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -249,6 +403,16 @@ class dalaran_jaina_anduin : public CreatureScript
             return true;
         }
 
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            switch (quest->GetQuestId())
+            {
+                case QUEST_TRACKING_THE_THIEVES:
+                    SetData(ACTION_INTRO_DARNASSUS, 0);
+                    break;
+            }
+        }
+
         void SetData(uint32 id, uint32 /*value*/) override
         {
             switch (id)
@@ -257,7 +421,7 @@ class dalaran_jaina_anduin : public CreatureScript
                     anduin = GetClosestCreatureWithEntry(me, NPC_ANDUIN_WRYNN, 10.f);
                     if (!player) player = me->SelectNearestPlayer(50.f);
                     anduin->AI()->Talk(SAY_ANDUIN_0);
-                    events.ScheduleEvent(EVENT_INTRO_1,  5ms);
+                    events.ScheduleEvent(EVENT_INTRO_1,  5s);
                     events.ScheduleEvent(EVENT_TELEPORT, 5ms);
                     break;
 
@@ -268,26 +432,50 @@ class dalaran_jaina_anduin : public CreatureScript
                     events.CancelEvent(EVENT_TELEPORT);
                     events.ScheduleEvent(EVENT_REUNION_1, 2s);
                     break;
+
+                case ACTION_INTRO_DARNASSUS:
+                    if (!player) player = me->SelectNearestPlayer(50.f);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    phase = PHASE_STARTED;
+                    events.ScheduleEvent(EVENT_DARNASSUS_1, 1s);
+                    break;
             }
         }
 
         void MoveInLineOfSight(Unit* who) override
         {
-            if (me->GetMapId() != 727 || phase != PHASE_NONE)
+            if (who->GetTypeId() != TYPEID_PLAYER || phase != PHASE_NONE)
                 return;
 
-            if (who->GetTypeId() != TYPEID_PLAYER)
+            player = who->ToPlayer();
+            if (player->IsGameMaster() || player->GetPhaseMask() != me->GetPhaseMask())
                 return;
 
-            Player* temp = who->ToPlayer();
-            if (temp->IsGameMaster() || temp->GetPhaseMask() != me->GetPhaseMask())
-                return;
-
-            if (me->IsFriendlyTo(temp) && me->IsWithinDist(temp, 6.0f, false))
+            switch (me->GetMapId())
             {
-                player = temp;
-                phase = PHASE_NOT_STARTED;
-                SetData(ACTION_INTRO_TELEPORT, 1U);
+                case MAP_DALARAN_INSTANCED:
+                {
+                    if (me->IsFriendlyTo(player) && me->IsWithinDist(player, 6.f, false))
+                    {
+                        phase = PHASE_NOT_STARTED;
+                        SetData(ACTION_INTRO_TELEPORT, 1U);
+                    }
+                    break;
+                }
+
+                case MAP_KALIMDOR:
+                {
+                    if (me->IsFriendlyTo(player) && me->IsWithinDist(player, 30.f))
+                    {
+                        phase = PHASE_NOT_STARTED;
+                        Talk(SAY_JAINA_DARNASSUS_1);
+
+                        me->PlayDirectMusic(SOUND_JAINA_DARNA_MUSIC);
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    }
+                    break;
+                }
             }
         }
 
@@ -295,6 +483,12 @@ class dalaran_jaina_anduin : public CreatureScript
         {
             events.Reset();
             Initialize();
+
+            if (me->GetMapId() == MAP_KALIMDOR)
+            {
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -314,19 +508,25 @@ class dalaran_jaina_anduin : public CreatureScript
                         break;
 
                     case EVENT_INTRO_2:
-                        anduin->SetFacingToObject(player);
+                        anduin->SetFacingToObject(player ? player->ToUnit() : me);
                         anduin->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                        me->SetFacingToObject(player);
+                        me->SetFacingToObject(player ? player->ToUnit() : anduin);
                         break;
 
                     case EVENT_TELEPORT:
-                        if (player->GetPositionZ() < 840.f)
+                    {
+                        if (!player)
+                            player = me->SelectNearestPlayer(10.f);
+
+                        if (player && player->GetPositionZ() < 840.f)
                         {
                             me->CastSpell(me, SPELL_TELEPORT_ANIM, true);
                             me->CastSpell(player, SPELL_TELEPORT_EFFECT);
                         }
+
                         events.RescheduleEvent(EVENT_TELEPORT, 5ms);
                         break;
+                    }
 
                     #pragma endregion
 
@@ -448,6 +648,92 @@ class dalaran_jaina_anduin : public CreatureScript
 
                     #pragma endregion
 
+                    // Event : Darnassus
+                    #pragma region DARNASSUS
+
+                    case EVENT_DARNASSUS_1:
+                        me->SetFacingTo(4.41f);
+                        events.ScheduleEvent(EVENT_DARNASSUS_2, 2s);
+                        break;
+
+                    case EVENT_DARNASSUS_2:
+                        DoCast(SPELL_DETECT_MAGIC);
+                        events.ScheduleEvent(EVENT_DARNASSUS_3, 8ms);
+                        break;
+
+                    case EVENT_DARNASSUS_3:
+                    {
+                        if (Creature * track = me->SummonCreature(NPC_INVISIBLE_STALKER, MagicTracksPos[magicTracks], TEMPSUMMON_MANUAL_DESPAWN))
+                            track->CastSpell(track, SPELL_MAGIC_TRACKS);
+
+                        magicTracks++;
+                        if (magicTracks >= TOTAL_TRACKERS_COUNT)
+                        {
+                            events.ScheduleEvent(EVENT_DARNASSUS_4, 1s);
+                            break;
+                        }
+
+                        events.RescheduleEvent(EVENT_DARNASSUS_3, 1ms);
+                        break;
+                    }
+
+                    case EVENT_DARNASSUS_4:
+                        me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_DIST);
+                        events.ScheduleEvent(EVENT_DARNASSUS_5, 30s);
+                        events.ScheduleEvent(EVENT_DARNASSUS_6, 1min);
+                        events.ScheduleEvent(EVENT_CHECK_SPEED, 1s);
+                        break;
+
+                    case EVENT_DARNASSUS_5:
+                        Talk(SAY_JAINA_DARNASSUS_2);
+                        break;
+
+                    case EVENT_DARNASSUS_6:
+                        Talk(SAY_JAINA_DARNASSUS_3);
+                        break;
+
+                    case EVENT_DARNASSUS_7:
+                        Talk(SAY_JAINA_DARNASSUS_5);
+                        me->SetFacingToObject(player);
+                        events.ScheduleEvent(EVENT_DARNASSUS_8, 9s);
+                        break;
+
+                    case EVENT_DARNASSUS_8:
+                        Talk(SAY_JAINA_DARNASSUS_6);
+                        me->SetFacingToObject(player);
+                        break;
+
+                    case EVENT_CHECK_SPEED:
+                    {
+                        UpdateSpeed();
+
+                        if (GameObject * portal = GetClosestGameObjectWithEntry(me, GOB_PORTAL_TO_DALARAN, 20.f))
+                        {
+                            me->Dismount();
+                            me->SetSpeed(MOVE_RUN, player->GetSpeed(MOVE_RUN));
+                            me->GetMotionMaster()->Clear();
+
+                            Talk(SAY_JAINA_DARNASSUS_4);
+
+                            float distanceToTravel = me->GetExactDist2d(portal->GetPosition()) - 3.f;
+                            float angle = me->GetAbsoluteAngle(portal);
+                            float destx = me->GetPositionX() + distanceToTravel * cosf(angle);
+                            float desty = me->GetPositionY() + distanceToTravel * sinf(angle);
+                            float time = (distanceToTravel / me->GetSpeed(MOVE_WALK)) * IN_MILLISECONDS;
+                            me->GetMotionMaster()->MovePoint(0, destx, desty, portal->GetPositionZ(), true, 5.51f);
+
+                            events.CancelEvent(EVENT_CHECK_SPEED);
+                            events.ScheduleEvent(EVENT_DARNASSUS_7, time + 500);
+
+                            break;
+                        }
+
+                        events.RescheduleEvent(EVENT_CHECK_SPEED, 1s);
+                        break;
+                    }
+
+                    #pragma endregion
+
                     default:
                         break;
                 }
@@ -462,8 +748,9 @@ class dalaran_jaina_anduin : public CreatureScript
         Phases phase;
         Player* player;
         float startOrientation;
-        uint8 sceneIndex;
-        uint8 talkIndex;
+        int sceneIndex;
+        int talkIndex;
+        int magicTracks;
 
         void SummonScene()
         {
@@ -616,6 +903,16 @@ class dalaran_jaina_anduin : public CreatureScript
                         break;
                 }
             }
+        }
+
+        void UpdateSpeed()
+        {
+            if (player->IsMounted())
+                me->Mount(MOUNT_WHITE_STEED);
+            else
+                me->Dismount();
+
+            me->SetSpeed(MOVE_RUN, player->GetSpeed(MOVE_RUN));
         }
     };
 

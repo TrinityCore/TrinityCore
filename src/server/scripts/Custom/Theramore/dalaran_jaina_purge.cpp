@@ -15,50 +15,50 @@
 
 enum NPCs
 {
-    NPC_JAINA_PROUDMOORE        = 100045,
-    NPC_DISPLACED_SUNREAVER     = 100048,
-    NPC_WATER_ELEMENTAL         = 100011,
-    NPC_AETHAS_SUNREAVER        = 100050,
-    NPC_SUNREAVER_GUARDIAN      = 100046
+    NPC_JAINA_PROUDMOORE = 100045,
+    NPC_DISPLACED_SUNREAVER = 100048,
+    NPC_WATER_ELEMENTAL = 100011,
+    NPC_AETHAS_SUNREAVER = 100050,
+    NPC_SUNREAVER_GUARDIAN = 100046
 };
 
 enum Spells
 {
-    SPELL_FIREBALL              = 100002,
-    SPELL_BLIZZARD              = 100001,
-    SPELL_TELEPORT              = 51347,
-    SPELL_DIRECT_TELEPORT       = 100045,
-    SPELL_AURA_OF_BRILLANCE     = 31260,
-    SPELL_WATER_BOLT            = 100046,
-    SPELL_ICE_PRISON            = 100047,
-    SPELL_POWER_BALL_VISUAL     = 54139,
-    SPELL_FIREBALL_MINOR        = 100003,
-    SPELL_FIREBLAST_MINOR       = 100004,
+    SPELL_FIREBALL = 100002,
+    SPELL_BLIZZARD = 100001,
+    SPELL_TELEPORT = 51347,
+    SPELL_DIRECT_TELEPORT = 100045,
+    SPELL_AURA_OF_BRILLANCE = 31260,
+    SPELL_WATER_BOLT = 100046,
+    SPELL_ICE_PRISON = 100047,
+    SPELL_POWER_BALL_VISUAL = 54139,
+    SPELL_FIREBALL_MINOR = 100003,
+    SPELL_FIREBLAST_MINOR = 100004,
 };
 
 enum Misc
 {
     // Jaina's casting
-    CASTING_BLIZZARD            = 1,
+    CASTING_BLIZZARD = 1,
 
     // Sunreaver's casting
-    CASTING_FIREBLAST           = 1,
+    CASTING_FIREBLAST = 1,
 
-    SAY_JAINA_TELEPORT          = 0,
-    SAY_JAINA_SLAIN             = 1,
-    SAY_JAINA_1                 = 2,
-    SAY_JAINA_2                 = 3,
-    SAY_AETHAS_3                = 0,
-    SAY_JAINA_4                 = 4,
-    SAY_AETHAS_5                = 1,
-    SAY_JAINA_6                 = 5,
-    SAY_JAINA_7                 = 6
+    SAY_JAINA_TELEPORT = 0,
+    SAY_JAINA_SLAIN = 1,
+    SAY_JAINA_1 = 2,
+    SAY_JAINA_2 = 3,
+    SAY_AETHAS_3 = 0,
+    SAY_JAINA_4 = 4,
+    SAY_AETHAS_5 = 1,
+    SAY_JAINA_6 = 5,
+    SAY_JAINA_7 = 6
 };
 
 enum Events
 {
     // Starters
-    ACTION_INTRO                = 1,
+    ACTION_INTRO = 1,
 
     EVENT_ELEMENTAL,
 
@@ -70,7 +70,8 @@ enum Events
     EVENT_AETHAS_6,
     EVENT_AETHAS_7,
     EVENT_AETHAS_8,
-    EVENT_AETHAS_9
+    EVENT_AETHAS_9,
+    EVENT_AETHAS_10
 };
 
 struct Location
@@ -124,6 +125,7 @@ class npc_displaced_sunreaver : public CreatureScript
         void JustEngagedWith(Unit* who) override
         {
             me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveChase(who, 10.f);
             events.ScheduleEvent(CASTING_FIREBLAST, 2s);
         }
 
@@ -207,7 +209,7 @@ class dalaran_jaina_purge : public CreatureScript
         void Initialize()
         {
             teleport = false;
-            teleportTimer = 10 * IN_MILLISECONDS;
+            teleportTimer = 3 * IN_MILLISECONDS;
         }
 
         void Reset() override
@@ -224,7 +226,7 @@ class dalaran_jaina_purge : public CreatureScript
             {
                 Talk(SAY_JAINA_SLAIN);
 
-                teleportTimer = 3 * IN_MILLISECONDS;
+                teleportTimer = 1 * IN_MILLISECONDS;
             }
         }
 
@@ -248,15 +250,19 @@ class dalaran_jaina_purge : public CreatureScript
             {
                 if (teleportTimer <= diff)
                 {
-                    if (Creature* sunreaver = GetClosestCreatureWithEntry(me, NPC_DISPLACED_SUNREAVER, 30.f))
+                    if (Creature * sunreaver = GetClosestCreatureWithEntry(me, NPC_DISPLACED_SUNREAVER, 20.f))
                     {
-                        if (me->IsWithinLOSInMap(sunreaver))
+                        if (sunreaver->IsInCombat())
+                        {
+                            me->Attack(sunreaver, false);
+                        }
+                        else
                         {
                             Talk(SAY_JAINA_TELEPORT);
 
                             DoCast(sunreaver, SPELL_DIRECT_TELEPORT);
                             ENSURE_AI(npc_displaced_sunreaver::npc_displaced_sunreaverAI, sunreaver->AI())->Teleport();
-                            teleportTimer = urand(8 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
+                            teleportTimer = urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
                         }
                     }
                 }
@@ -314,10 +320,24 @@ class dalaran_aethas_event : public CreatureScript
 
         void Initialize()
         {
+            playingEvent = false;
             aethas = nullptr;
             jaina = nullptr;
             elemental = nullptr;
             victimIndex = 0;
+        }
+
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (playingEvent || who->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            player = who->ToPlayer();
+            if (me->GetMapId() == 727)
+            {
+                if (me->IsFriendlyTo(player) && me->IsWithinDist(player, 26.f, false))
+                    SetData(ACTION_INTRO, 1U);
+            }
         }
 
         void Reset() override
@@ -332,14 +352,14 @@ class dalaran_aethas_event : public CreatureScript
             {
                 case ACTION_INTRO:
 
-                    // Reset valeurs pour test
+                    playingEvent = true;
                     victimIndex = 0;
                     for (ObjectGuid guid : guardians)
                         guid.Clear();
 
                     me->PlayDirectMusic(28068);
 
-                    jaina = me->SummonCreature(NPC_JAINA_PROUDMOORE, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
+                    jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 10.f);
                     jaina->setActive(false);
                     jaina->SetSheath(SHEATH_STATE_UNARMED);
                     jaina->RemoveAllAuras();
@@ -369,11 +389,11 @@ class dalaran_aethas_event : public CreatureScript
                         }
                     }
 
-                    elemental = me->SummonCreature(NPC_WATER_ELEMENTAL, 5800.13f, 793.25f, 661.86f, 1.43f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5 * IN_MILLISECONDS);
+                    elemental = GetClosestCreatureWithEntry(me, NPC_WATER_ELEMENTAL, 10.f);
                     elemental->SetControlled(true, UNIT_STATE_ROOT);
 
                     events.ScheduleEvent(EVENT_ELEMENTAL, 3s);
-                    events.ScheduleEvent(EVENT_AETHAS_1,  11s);
+                    events.ScheduleEvent(EVENT_AETHAS_1, 11s);
                     break;
             }
         }
@@ -428,7 +448,7 @@ class dalaran_aethas_event : public CreatureScript
                         jaina->GetMotionMaster()->MoveCloserAndStop(0, aethas, 3.f);
                         aethas->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         elemental->CastSpell(aethas, SPELL_ICE_PRISON);
-                        events.ScheduleEvent(EVENT_AETHAS_8, 5s);
+                        events.ScheduleEvent(EVENT_AETHAS_8, 6s);
                         break;
 
                     case EVENT_AETHAS_8:
@@ -442,6 +462,13 @@ class dalaran_aethas_event : public CreatureScript
                         jaina->DespawnOrUnsummon(2s);
                         aethas->DespawnOrUnsummon(2s);
                         elemental->KillSelf();
+                        events.ScheduleEvent(EVENT_AETHAS_10, 3s);
+                        break;
+
+                    case EVENT_AETHAS_10:
+                        player->SetPhaseMask(1, true);
+                        elemental->DespawnOrUnsummon();
+                        me->setActive(false);
                         break;
 
                     default:
@@ -452,11 +479,13 @@ class dalaran_aethas_event : public CreatureScript
 
         private:
         EventMap events;
+        Player* player;
         Creature* aethas;
         Creature* jaina;
         Creature* elemental;
         uint8 victimIndex;
         std::vector<ObjectGuid> guardians;
+        bool playingEvent;
 
         void KillVictimWithElemental(uint8 index)
         {
