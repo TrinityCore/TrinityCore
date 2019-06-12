@@ -1110,7 +1110,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         SindragosaIntro = data;
                         break;
                     case DATA_ICC_BUFF:
-                    {
                         ICCBuffActive = data;
                         if (!ICCBuffActive)
                         {
@@ -1126,9 +1125,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 }
                             }
                         }
-                        SaveToDB();
                         break;
-                    }
                     default:
                         break;
                 }
@@ -1335,8 +1332,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     << ColdflameJetsState << ' '
                     << BloodQuickeningState << ' '
                     << BloodQuickeningMinutes << ' '
-                    << UpperSpireTeleporterActiveState << ' '
-                    << ICCBuffActive;
+                    << UpperSpireTeleporterActiveState;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
@@ -1356,8 +1352,6 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 data >> temp;
                 UpperSpireTeleporterActiveState = temp ? DONE : NOT_STARTED;
-
-                data >> ICCBuffActive;
             }
 
             void Update(uint32 diff) override
