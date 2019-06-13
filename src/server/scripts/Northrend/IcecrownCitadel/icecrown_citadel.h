@@ -59,7 +59,11 @@ enum ICSharedSpells
 
     // Shadowmourne questline
     SPELL_UNSATED_CRAVING               = 71168,
-    SPELL_SHADOWS_FATE                  = 71169
+    SPELL_SHADOWS_FATE                  = 71169,
+
+    // ICC Buffs
+    SPELL_HELLSCREAMS_WARSONG           = 73822,
+    SPELL_STRENGHT_OF_WRYNN             = 73828
 };
 
 enum ICTeleporterSpells
@@ -122,7 +126,8 @@ enum ICDataTypes
     DATA_UPPERSPIRE_TELE_ACT           = 41, /// also used by conditions
     DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL = 42,
     DATA_BLOOD_PRINCE_COUNCIL_INTRO    = 43,
-    DATA_SINDRAGOSA_INTRO              = 44
+    DATA_SINDRAGOSA_INTRO              = 44,
+    DATA_ICC_BUFF                      = 45 // used by conditions
 };
 
 enum ICCreaturesIds
