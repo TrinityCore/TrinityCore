@@ -24590,7 +24590,7 @@ bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const
     return true;
 }
 
-void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast)
+void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast, bool createdByPlayer)
 {
     Loot loot;
     loot.FillLoot (loot_id, store, this, true);
@@ -24613,7 +24613,7 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
         }
 
         Item* pItem = StoreNewItem(dest, lootItem->itemid, true, lootItem->randomPropertyId);
-        SendNewItem(pItem, lootItem->count, false, false, broadcast);
+        SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast);
     }
 }
 
