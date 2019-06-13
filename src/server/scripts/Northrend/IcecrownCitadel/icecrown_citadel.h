@@ -268,6 +268,7 @@ enum ICCreaturesIds
     NPC_DARKFALLEN_NOBLE                        = 37663,
     NPC_DARKFALLEN_ARCHMAGE                     = 37664,
     NPC_DARKFALLEN_ADVISOR                      = 37571,
+    NPC_DARKFALLEN_TACTICIAN                    = 37666,
     NPC_VAMPIRIC_FIEND                          = 37901,
 
     // Blood-Queen Lana'thel

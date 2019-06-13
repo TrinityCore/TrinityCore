@@ -201,7 +201,11 @@ enum ICCSpells
 
     // Vampiric Fiend
     SPELL_DISEASE_CLOUD             = 41290,
-    SPELL_LEECHING_ROOT             = 70671
+    SPELL_LEECHING_ROOT             = 70671,
+
+    // Darkfallen Tactician
+    SPELL_SHADOWSTEP                = 70431,
+    SPELL_BLOOD_SAP                 = 70432
 };
 
 // Helper defines
@@ -1863,6 +1867,7 @@ public:
             case NPC_DARKFALLEN_NOBLE:
             case NPC_DARKFALLEN_ARCHMAGE:
             case NPC_DARKFALLEN_ADVISOR:
+            case NPC_DARKFALLEN_TACTICIAN:
                 return true;
             default:
                 return false;
@@ -1892,8 +1897,9 @@ struct npc_icc_orb_controller : public ScriptedAI
     {
         _minionGuids.clear();
         std::vector<Creature*> creatures;
-        Trinity::CreatureListSearcher<MinionSearch> searcher(me, creatures, MinionSearch(false));
-        Cell::VisitGridObjects(me, searcher, 20.0f);
+        MinionSearch check(false);
+        Trinity::CreatureListSearcher<MinionSearch> searcher(me, creatures, check);
+        Cell::VisitGridObjects(me, searcher, 10.0f);
 
         for (Creature* creature : creatures)
         {
@@ -1965,14 +1971,14 @@ private:
 
 struct DarkFallenAI : public ScriptedAI
 {
-    DarkFallenAI(Creature* creature) : ScriptedAI(creature), isDoingEmotes(true), attackSpellId(0) { }
+    DarkFallenAI(Creature* creature) : ScriptedAI(creature), IsDoingEmotes(true), AttackSpellId(0) { }
 
     virtual void ScheduleSpells() = 0;
 
     void Reset() override
     {
-        scheduler.CancelAll();
-        scheduler.SetValidator([this]
+        Scheduler.CancelAll();
+        Scheduler.SetValidator([this]
         {
             return !me->HasUnitState(UNIT_STATE_CASTING);
         })
@@ -1981,7 +1987,8 @@ struct DarkFallenAI : public ScriptedAI
             if (roll_chance_i(20))
             {
                 std::vector<Creature*> creatures;
-                Trinity::CreatureListSearcher<MinionSearch> searcher(me, creatures, MinionSearch(true));
+                MinionSearch check(true);
+                Trinity::CreatureListSearcher<MinionSearch> searcher(me, creatures, check);
                 Cell::VisitGridObjects(me, searcher, 10.0f);
                 if (!creatures.empty())
                 {
@@ -1989,21 +1996,21 @@ struct DarkFallenAI : public ScriptedAI
                     DoCast(friendly, SPELL_POLYMORPH_ALLY);
                 }
             }
-            scheduler.Schedule(1s, [this](TaskContext /*emote*/)
+            Scheduler.Schedule(1s, [this](TaskContext /*emote*/)
             {
                 me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(DarkFallensEmotes));
             });
             emote.Repeat(15s, 30s);
         });
-        isDoingEmotes = true;
+        IsDoingEmotes = true;
     }
 
     void JustEngagedWith(Unit* who) override
     {
-        isDoingEmotes = false;
-        scheduler.CancelAll();
+        IsDoingEmotes = false;
+        Scheduler.CancelAll();
         ScheduleSpells();
-        if (Unit* trigger = ObjectAccessor::GetUnit(*me, triggerGuid))
+        if (Unit* trigger = ObjectAccessor::GetUnit(*me, TriggerGuid))
             trigger->GetAI()->DoAction(ACTION_COMBAT);
     }
 
@@ -2017,34 +2024,34 @@ struct DarkFallenAI : public ScriptedAI
     void SetGUID(ObjectGuid const& guid, int32 id) override
     {
         if (id == DATA_GUID)
-            triggerGuid = guid;
+            TriggerGuid = guid;
     }
 
     void JustReachedHome() override
     {
         ScriptedAI::JustReachedHome();
-        if (Unit* trigger = ObjectAccessor::GetUnit(*me, triggerGuid))
+        if (Unit* trigger = ObjectAccessor::GetUnit(*me, TriggerGuid))
             trigger->GetAI()->DoAction(ACTION_EVADE);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim() && !isDoingEmotes)
+        if (!UpdateVictim() && !IsDoingEmotes)
             return;
 
-        scheduler.Update(diff);
+        Scheduler.Update(diff);
 
-        if (attackSpellId)
-            DoSpellAttackIfReady(attackSpellId);
+        if (AttackSpellId)
+            DoSpellAttackIfReady(AttackSpellId);
         else
             DoMeleeAttackIfReady();
     }
 
 protected:
-    TaskScheduler scheduler;
-    ObjectGuid triggerGuid;
-    bool isDoingEmotes;
-    uint32 attackSpellId;
+    TaskScheduler Scheduler;
+    ObjectGuid TriggerGuid;
+    bool IsDoingEmotes;
+    uint32 AttackSpellId;
 };
 
 struct npc_darkfallen_blood_knight : public DarkFallenAI
@@ -2053,7 +2060,7 @@ struct npc_darkfallen_blood_knight : public DarkFallenAI
 
     void ScheduleSpells() override
     {
-        scheduler.Schedule(500ms, [this](TaskContext /*context*/)
+        Scheduler.Schedule(500ms, [this](TaskContext /*context*/)
         {
             DoCastSelf(SPELL_VAMPIRIC_AURA);
         })
@@ -2076,8 +2083,8 @@ struct npc_darkfallen_noble : public DarkFallenAI
 
     void ScheduleSpells() override
     {
-        attackSpellId = SPELL_SHADOW_BOLT;
-        scheduler.Schedule(500ms, [this](TaskContext /*context*/)
+        AttackSpellId = SPELL_SHADOW_BOLT;
+        Scheduler.Schedule(500ms, [this](TaskContext /*context*/)
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, false, -SPELL_CHAINS_OF_SHADOW))
                 DoCast(target, SPELL_CHAINS_OF_SHADOW);
@@ -2136,8 +2143,8 @@ struct npc_darkfallen_archmage : public DarkFallenAI
 
     void ScheduleSpells() override
     {
-        attackSpellId = SPELL_FIREBALL;
-        scheduler.Schedule(1s, [this](TaskContext amplifyMagic)
+        AttackSpellId = SPELL_FIREBALL;
+        Scheduler.Schedule(1s, [this](TaskContext amplifyMagic)
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 DoCast(target, SPELL_AMPLIFY_MAGIC);
@@ -2163,7 +2170,7 @@ struct npc_darkfallen_advisor : public DarkFallenAI
 
     void ScheduleSpells() override
     {
-        scheduler.Schedule(8s, [this](TaskContext lichSlap)
+        Scheduler.Schedule(8s, [this](TaskContext lichSlap)
         {
             DoCastVictim(SPELL_LICH_SLAP);
             lichSlap.Repeat(12s);
@@ -2173,6 +2180,29 @@ struct npc_darkfallen_advisor : public DarkFallenAI
             if (Unit* target = DoSelectLowestHpFriendly(40.0f))
                 DoCast(target, SPELL_SHROUD_OF_SPELL_WARDING);
             immunity.Repeat(20s, 25s);
+        });
+    }
+};
+
+struct npc_darkfallen_tactician : public DarkFallenAI
+{
+    npc_darkfallen_tactician(Creature* creature) : DarkFallenAI(creature) { }
+
+    void ScheduleSpells() override
+    {
+        Scheduler.Schedule(8s, [this](TaskContext unholyStrike)
+        {
+            DoCastVictim(SPELL_UNHOLY_STRIKE);
+            unholyStrike.Repeat(8s, 11s);
+        })
+        .Schedule(10s, [this](TaskContext shadowStep)
+        {
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, false))
+            {
+                DoCast(target, SPELL_SHADOWSTEP);
+                DoCast(target, SPELL_BLOOD_SAP);
+            }
+            shadowStep.Repeat(20s);
         });
     }
 };
@@ -2301,6 +2331,11 @@ class spell_darkfallen_blood_mirror : public SpellScript
 {
     PrepareSpellScript(spell_darkfallen_blood_mirror);
 
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BLOOD_MIRROR_2, SPELL_BLOOD_MIRROR_DAMAGE_SHARE });
+    }
+
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.size() < 2)
@@ -2338,6 +2373,11 @@ private:
 class spell_generic_remove_empowered_blood : public SpellScript
 {
     PrepareSpellScript(spell_generic_remove_empowered_blood);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EMPOWERED_BLOOD });
+    }
 
     void HandleScript(SpellEffIndex effIndex)
     {
@@ -2828,6 +2868,7 @@ void AddSC_icecrown_citadel()
     RegisterCreatureAI(npc_vampiric_fiend);
     RegisterCreatureAI(npc_darkfallen_archmage);
     RegisterCreatureAI(npc_darkfallen_advisor);
+    RegisterCreatureAI(npc_darkfallen_tactician);
     RegisterGameObjectAI(go_empowering_blood_orb);
     RegisterAuraScript(spell_icc_empowered_blood);
     RegisterAuraScript(spell_icc_empowered_blood_3);

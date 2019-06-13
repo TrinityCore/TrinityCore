@@ -5,6 +5,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_darkfallen_noble' WHERE `entry`
 UPDATE `creature_template` SET `ScriptName`='npc_vampiric_fiend' WHERE `entry`=37901;
 UPDATE `creature_template` SET `ScriptName`='npc_darkfallen_archmage' WHERE `entry`=37664;
 UPDATE `creature_template` SET `ScriptName`='npc_darkfallen_advisor' WHERE `entry`=37571;
+UPDATE `creature_template` SET `ScriptName`='npc_darkfallen_tactician' WHERE `entry`=37666;
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
 'spell_icc_empowered_blood',
