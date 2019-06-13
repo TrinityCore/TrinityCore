@@ -848,6 +848,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         //pCurrChar->groupInfo.group->SendInit(this); // useless
         group->SendUpdate();
         group->ResetMaxEnchantingLevel();
+        if (group->GetLeaderGUID() == pCurrChar->GetGUID())
+            group->StopLeaderOfflineTimer();
     }
 
     // friend status
