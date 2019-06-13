@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectMgr.h"
+#include "Pet.h"
 #include "Player.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
@@ -149,6 +150,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 BloodQuickeningMinutes = 0;
                 BloodPrinceIntro = 1;
                 SindragosaIntro = 1;
+                ICCBuffActive = 1;
             }
 
             // A function to help reduce the number of lines for teleporter management.
@@ -182,10 +184,25 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE && GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != DONE)
                     SpawnGunship();
+
+                if (ICCBuffActive)
+                {
+                    uint32 spellId = TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG;
+                    player->CastSpell(player, spellId, true);
+                }
             }
 
             void OnCreatureCreate(Creature* creature) override
             {
+                if (creature->IsPet() && creature->GetOwnerGUID().IsPlayer())
+                {
+                    uint32 spellId = TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG;
+                    if (ICCBuffActive)
+                        creature->CastSpell(creature, spellId, true);
+                    else
+                        creature->RemoveAurasDueToSpell(spellId);
+                }
+
                 switch (creature->GetEntry())
                 {
                     case NPC_LORD_MARROWGAR:
@@ -724,6 +741,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return BloodPrinceIntro;
                     case DATA_SINDRAGOSA_INTRO:
                         return SindragosaIntro;
+                    case DATA_ICC_BUFF:
+                        return ICCBuffActive;
                     default:
                         break;
                 }
@@ -1089,6 +1108,23 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_SINDRAGOSA_INTRO:
                         SindragosaIntro = data;
+                        break;
+                    case DATA_ICC_BUFF:
+                        ICCBuffActive = data;
+                        if (!ICCBuffActive)
+                        {
+                            uint32 spellId = TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG;
+                            Map::PlayerList const& players = instance->GetPlayers();
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            {
+                                if (Player* player = itr->GetSource())
+                                {
+                                    player->RemoveAurasDueToSpell(spellId);
+                                    if (Pet* pet = player->GetPet())
+                                        pet->RemoveAurasDueToSpell(spellId);
+                                }
+                            }
+                        }
                         break;
                     default:
                         break;
@@ -1506,6 +1542,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint16 BloodQuickeningMinutes;
             uint8 BloodPrinceIntro;
             uint8 SindragosaIntro;
+            uint8 ICCBuffActive;
             bool IsBonedEligible;
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;
