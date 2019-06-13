@@ -2005,7 +2005,7 @@ struct DarkFallenAI : public ScriptedAI
         IsDoingEmotes = true;
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         IsDoingEmotes = false;
         Scheduler.CancelAll();
@@ -2104,7 +2104,7 @@ struct npc_vampiric_fiend : public ScriptedAI
 {
     npc_vampiric_fiend(Creature* creature) : ScriptedAI(creature) { }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_DISEASE_CLOUD);
         _scheduler.Schedule(9s, [this](TaskContext /*leechingRoot*/)
