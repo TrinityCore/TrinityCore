@@ -24,6 +24,7 @@
 #include "GroupRefManager.h"
 #include "Loot.h"
 #include "SharedDefines.h"
+#include "Timer.h"
 #include <map>
 
 class Battlefield;

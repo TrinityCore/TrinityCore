@@ -114,13 +114,35 @@ void Group::Update(uint32 diff)
 
 void Group::SelectNewPartyOrRaidLeader()
 {
+    Player* newLeader;
+
+    // Attempt to give leadership to main assistant first
+    if (m_groupType == GROUPTYPE_RAID)
+    {
+        for (auto memberSlot : m_memberSlots)
+        {
+            if ((memberSlot.flags & MEMBER_FLAG_ASSISTANT) == MEMBER_FLAG_ASSISTANT)
+                if (Player* player = ObjectAccessor::FindPlayer(memberSlot.guid))
+                {
+                    newLeader = player;
+                    break;
+                }
+        }
+    }
+
+    // If there aren't assistants in raid, or if the group is not a raid, pick the first available member
     for (auto memberSlot : m_memberSlots)
         if (Player* player = ObjectAccessor::FindPlayer(memberSlot.guid))
         {
-            ChangeLeader(player->GetGUID());
-            SendUpdate();
-            return;
+            newLeader = player;
+            break;
         }
+
+    if (newLeader)
+    {
+        ChangeLeader(newLeader->GetGUID());
+        SendUpdate();
+    }
 }
 
 bool Group::Create(Player* leader)
