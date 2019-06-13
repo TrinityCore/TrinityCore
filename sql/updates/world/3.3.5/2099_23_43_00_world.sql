@@ -1,4 +1,5 @@
-UPDATE `creature_template` SET `modelid1`=11686, `modelid2`=0, `unit_flags`=33554432, `ScriptName`='npc_icc_orb_controller' WHERE `entry`=38463;
+UPDATE `creature_template` SET `modelid1`=11686, `modelid2`=0, `unit_flags`=33554432 WHERE `entry`=38463;
+UPDATE `creature_template` SET `ScriptName`='npc_icc_orb_controller' WHERE `entry`=38463;
 UPDATE `gameobject_template` SET `ScriptName`='go_empowering_blood_orb' WHERE `entry`=201741;
 UPDATE `creature_template` SET `ScriptName`='npc_darkfallen_blood_knight' WHERE `entry`=37595;
 UPDATE `creature_template` SET `ScriptName`='npc_darkfallen_noble' WHERE `entry`=37663;
@@ -23,6 +24,6 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (72099,70299,70293);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(13,1,72099,0,0,31,0,3,38463,0,0,0,0,'','Effect_0 hits Empowering Orb Visual Stalker'),
-(13,1,70299,0,0,31,0,3,38463,0,0,0,0,'','Effect_0 hits Empowering Orb Visual Stalker'),
-(13,1,70293,0,0,31,0,3,38463,0,0,0,0,'','Effect_0 hits Empowering Orb Visual Stalker');
+(13,1,72099,0,0,31,0,3,36934,0,0,0,0,'','Effect_0 hits Empowering Orb Controller'),
+(13,1,70299,0,0,31,0,3,36934,0,0,0,0,'','Effect_0 hits Empowering Orb Controller'),
+(13,1,70293,0,0,31,0,3,38463,0,0,0,0,'','Effect_0 hits Empowering Orb Controller');

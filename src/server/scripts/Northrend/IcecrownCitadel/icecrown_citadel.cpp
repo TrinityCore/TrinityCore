@@ -1927,7 +1927,6 @@ struct npc_icc_orb_controller : public ScriptedAI
         {
             if (GameObject* orb = me->FindNearestGameObject(GO_EMPOWERING_BLOOD_ORB, 5.0f))
                 orb->AI()->SetGUID(caster->GetGUID(), DATA_GUID);
-            me->DespawnOrUnsummon(2s);
         }
     }
 
@@ -1977,6 +1976,7 @@ struct DarkFallenAI : public ScriptedAI
 
     void Reset() override
     {
+        IsDoingEmotes = me->GetWaypointPath() ? false : true;
         Scheduler.CancelAll();
         Scheduler.SetValidator([this]
         {
@@ -1984,6 +1984,9 @@ struct DarkFallenAI : public ScriptedAI
         })
         .Schedule(1s, 10s, [this](TaskContext emote)
         {
+            if (!IsDoingEmotes)
+                return;
+
             if (roll_chance_i(20))
             {
                 std::vector<Creature*> creatures;
@@ -2002,7 +2005,6 @@ struct DarkFallenAI : public ScriptedAI
             });
             emote.Repeat(15s, 30s);
         });
-        IsDoingEmotes = true;
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -2223,6 +2225,8 @@ struct go_empowering_blood_orb : public GameObjectAI
         me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         me->SetGoAnimProgress(255);
         me->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+        if (Creature* target = me->FindNearestCreature(NPC_ORB_VISUAL_STALKER, 10.0f, true))
+            target->KillSelf();
         _scheduler.Schedule(3s, [this](TaskContext /*context*/)
         {
             me->Delete();
@@ -2263,12 +2267,6 @@ class spell_icc_empowered_blood : public AuraScript
         GetTarget()->CastSpell(GetTarget(), SPELL_EMPOWERED_BLOOD_2, true);
     }
 
-    void HandleDespawn(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (Creature* controller = GetTarget()->ToCreature())
-            controller->DespawnOrUnsummon(2s);
-    }
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->RemoveAurasDueToSpell(SPELL_EMPOWERED_BLOOD_2);
@@ -2277,7 +2275,6 @@ class spell_icc_empowered_blood : public AuraScript
     void Register() override
     {
         OnEffectApply += AuraEffectApplyFn(spell_icc_empowered_blood::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-        OnEffectApply += AuraEffectApplyFn(spell_icc_empowered_blood::HandleDespawn, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_icc_empowered_blood::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
     }
 };
@@ -2345,7 +2342,7 @@ class spell_darkfallen_blood_mirror : public SpellScript
         Trinity::Containers::RandomResize(_targets, 2);
     }
 
-    void HandleMirror(SpellEffIndex effIndex)
+    void HandleMirror(SpellEffIndex /*effIndex*/)
     {
         if (_targets.empty())
             return;
@@ -2379,7 +2376,7 @@ class spell_generic_remove_empowered_blood : public SpellScript
         return ValidateSpellInfo({ SPELL_EMPOWERED_BLOOD });
     }
 
-    void HandleScript(SpellEffIndex effIndex)
+    void HandleScript(SpellEffIndex /*effIndex*/)
     {
         GetHitUnit()->RemoveAurasDueToSpell(SPELL_EMPOWERED_BLOOD);
     }
