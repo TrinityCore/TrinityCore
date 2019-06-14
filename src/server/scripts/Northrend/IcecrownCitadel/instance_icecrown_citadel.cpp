@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectMgr.h"
+#include "Pet.h"
 #include "Player.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
@@ -149,6 +150,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 BloodQuickeningMinutes = 0;
                 BloodPrinceIntro = 1;
                 SindragosaIntro = 1;
+                ICCBuffActive = 1;
             }
 
             // A function to help reduce the number of lines for teleporter management.
@@ -182,10 +184,25 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE && GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != DONE)
                     SpawnGunship();
+
+                if (ICCBuffActive)
+                {
+                    uint32 spellId = TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG;
+                    player->CastSpell(player, spellId, true);
+                }
             }
 
             void OnCreatureCreate(Creature* creature) override
             {
+                if (creature->IsPet() && creature->GetOwnerGUID().IsPlayer())
+                {
+                    uint32 spellId = TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG;
+                    if (ICCBuffActive)
+                        creature->CastSpell(creature, spellId, true);
+                    else
+                        creature->RemoveAurasDueToSpell(spellId);
+                }
+
                 switch (creature->GetEntry())
                 {
                     case NPC_LORD_MARROWGAR:
@@ -724,6 +741,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return BloodPrinceIntro;
                     case DATA_SINDRAGOSA_INTRO:
                         return SindragosaIntro;
+                    case DATA_ICC_BUFF:
+                        return ICCBuffActive;
                     default:
                         break;
                 }
@@ -803,6 +822,25 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
 
                 return ObjectGuid::Empty;
+            }
+
+            void HandleHeroicAttempts()
+            {
+                if (HeroicAttempts)
+                {
+                    --HeroicAttempts;
+                    DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
+                }
+
+                if (!HeroicAttempts)
+                {
+                    for (ObjectGuid bossGuid : {ProfessorPutricideGUID, BloodQueenLanaThelGUID, SindragosaGUID, TheLichKingGUID})
+                    {
+                        if (Creature* boss = instance->GetCreature(bossGuid))
+                            if (boss->IsAlive())
+                                boss->DespawnOrUnsummon();
+                    }
+                }
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -921,35 +959,17 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_PROFESSOR_PUTRICIDE:
                         HandleGameObject(PlagueSigilGUID, state != DONE);
-                        if (state == DONE)
+                        if (instance->IsHeroic() && state == FAIL)
+                            HandleHeroicAttempts();
+                        else if (state == DONE)
                             CheckLichKingAvailability();
-                        if (instance->IsHeroic())
-                        {
-                            if (state == FAIL && HeroicAttempts)
-                            {
-                                --HeroicAttempts;
-                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
-                                if (!HeroicAttempts)
-                                    if (Creature* putricide = instance->GetCreature(ProfessorPutricideGUID))
-                                        putricide->DespawnOrUnsummon();
-                            }
-                        }
                         break;
                     case DATA_BLOOD_QUEEN_LANA_THEL:
                         HandleGameObject(BloodwingSigilGUID, state != DONE);
-                        if (state == DONE)
+                        if (instance->IsHeroic() && state == FAIL)
+                            HandleHeroicAttempts();
+                        else if (state == DONE)
                             CheckLichKingAvailability();
-                        if (instance->IsHeroic())
-                        {
-                            if (state == FAIL && HeroicAttempts)
-                            {
-                                --HeroicAttempts;
-                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
-                                if (!HeroicAttempts)
-                                    if (Creature* bq = instance->GetCreature(BloodQueenLanaThelGUID))
-                                        bq->DespawnOrUnsummon();
-                            }
-                        }
                         break;
                     case DATA_VALITHRIA_DREAMWALKER:
                         if (state == DONE)
@@ -962,19 +982,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_SINDRAGOSA:
                         HandleGameObject(FrostwingSigilGUID, state != DONE);
-                        if (state == DONE)
+                        if (instance->IsHeroic() && state == FAIL)
+                            HandleHeroicAttempts();
+                        else if (state == DONE)
                             CheckLichKingAvailability();
-                        if (instance->IsHeroic())
-                        {
-                            if (state == FAIL && HeroicAttempts)
-                            {
-                                --HeroicAttempts;
-                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
-                                if (!HeroicAttempts)
-                                    if (Creature* sindra = instance->GetCreature(SindragosaGUID))
-                                        sindra->DespawnOrUnsummon();
-                            }
-                        }
                         break;
                     case DATA_THE_LICH_KING:
                     {
@@ -986,19 +997,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (GameObject* platform = instance->GetGameObject(ArthasPlatformGUID))
                             platform->SetFarVisible(state == IN_PROGRESS);
 
-                        if (instance->IsHeroic())
-                        {
-                            if (state == FAIL && HeroicAttempts)
-                            {
-                                --HeroicAttempts;
-                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
-                                if (!HeroicAttempts)
-                                    if (Creature* theLichKing = instance->GetCreature(TheLichKingGUID))
-                                        theLichKing->DespawnOrUnsummon();
-                            }
-                        }
-
-                        if (state == DONE)
+                        if (instance->IsHeroic() && state == FAIL)
+                            HandleHeroicAttempts();
+                        else if (state == DONE)
                         {
                             if (GameObject* bolvar = instance->GetGameObject(FrozenBolvarGUID))
                                 bolvar->SetRespawnTime(7 * DAY);
@@ -1107,6 +1108,23 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_SINDRAGOSA_INTRO:
                         SindragosaIntro = data;
+                        break;
+                    case DATA_ICC_BUFF:
+                        ICCBuffActive = data;
+                        if (!ICCBuffActive)
+                        {
+                            uint32 spellId = TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG;
+                            Map::PlayerList const& players = instance->GetPlayers();
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            {
+                                if (Player* player = itr->GetSource())
+                                {
+                                    player->RemoveAurasDueToSpell(spellId);
+                                    if (Pet* pet = player->GetPet())
+                                        pet->RemoveAurasDueToSpell(spellId);
+                                }
+                            }
+                        }
                         break;
                     default:
                         break;
@@ -1524,6 +1542,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint16 BloodQuickeningMinutes;
             uint8 BloodPrinceIntro;
             uint8 SindragosaIntro;
+            uint8 ICCBuffActive;
             bool IsBonedEligible;
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;

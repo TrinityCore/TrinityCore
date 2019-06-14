@@ -145,12 +145,12 @@ class spell_rajaxx_thundercrash : public SpellScript
         if (damage < 200)
             damage = 200;
 
-        SetHitDamage(damage);
+        SetEffectValue(damage);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_rajaxx_thundercrash::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget += SpellEffectFn(spell_rajaxx_thundercrash::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 

@@ -105,6 +105,8 @@ class TC_GAME_API Vehicle : public TransportBase
         void RemovePendingEvent(VehicleJoinEvent* e);
         void RemovePendingEventsForSeat(int8 seatId);
 
+        bool HasPendingEventForSeat(int8 seatId) const;
+
     private:
         Unit* _me;                                          ///< The underlying unit with the vehicle kit. Can be player or creature.
         VehicleEntry const* _vehicleInfo;                   ///< DBC data for vehicle

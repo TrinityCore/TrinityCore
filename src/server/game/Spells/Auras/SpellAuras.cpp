@@ -1153,6 +1153,8 @@ bool Aura::CanBeSaved() const
         case 44413: // Incanter's Absorption
         case 40075: // Fel Flak Fire
         case 55849: // Power Spark
+        case 73822: // Hellscream's Warsong
+        case 73828: // Strength of Wrynn
             return false;
     }
 
@@ -2574,7 +2576,7 @@ std::string Aura::GetDebugInfo() const
 {
     std::stringstream sstr;
     sstr << std::boolalpha
-        << "Id: " << GetId() << " Caster: " << GetCasterGUID().ToString()
+        << "Id: " << GetId() << " Name: '" << GetSpellInfo()->SpellName[sWorld->GetDefaultDbcLocale()] << "' Caster: " << GetCasterGUID().ToString()
         << "\nOwner: " << (GetOwner() ? GetOwner()->GetDebugInfo() : "NULL");
     return sstr.str();
 }
@@ -2714,6 +2716,7 @@ DynObjAura::DynObjAura(AuraCreateInfo const& createInfo)
     LoadScripts();
     ASSERT(GetDynobjOwner());
     ASSERT(GetDynobjOwner()->IsInWorld());
+    ASSERT(createInfo.Caster);
     ASSERT(GetDynobjOwner()->GetMap() == createInfo.Caster->GetMap());
     _InitEffects(createInfo._auraEffectMask, createInfo.Caster, createInfo.BaseAmount);
     GetDynobjOwner()->SetAura(this);

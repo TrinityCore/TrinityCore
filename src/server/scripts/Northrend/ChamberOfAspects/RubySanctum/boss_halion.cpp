@@ -1011,7 +1011,7 @@ class npc_meteor_strike_initial : public CreatureScript
                 }
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 Creature* owner = summoner->ToCreature();
                 if (!owner)
@@ -1083,7 +1083,7 @@ class npc_meteor_strike : public CreatureScript
                 }
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 // Let Halion Controller count as summoner.
                 if (Creature* controller = _instance->GetCreature(DATA_HALION_CONTROLLER))
@@ -1146,7 +1146,7 @@ class npc_meteor_strike_flame : public CreatureScript
                 _events.ScheduleEvent(EVENT_SPAWN_METEOR_FLAME, Milliseconds(800));
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 // Let Halion Controller count as summoner.
                 if (Creature* controller = _instance->GetCreature(DATA_HALION_CONTROLLER))
@@ -1219,7 +1219,7 @@ class npc_combustion_consumption : public CreatureScript
                 }
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 // Let Halion Controller count as summoner
                 if (Creature* controller = _instance->GetCreature(DATA_HALION_CONTROLLER))
@@ -1270,7 +1270,7 @@ class npc_living_inferno : public CreatureScript
         {
             npc_living_infernoAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 DoZoneInCombat();
                 me->CastSpell(me, SPELL_BLAZING_AURA, true);
@@ -1320,7 +1320,7 @@ class npc_living_ember : public CreatureScript
         {
             npc_living_emberAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                     if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))

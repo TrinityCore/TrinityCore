@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SCRIPTEDCREATURE_H_
-#define SCRIPTEDCREATURE_H_
+#ifndef TRINITY_SCRIPTEDCREATURE_H
+#define TRINITY_SCRIPTEDCREATURE_H
 
 #include "CreatureAI.h"
 #include "Creature.h"  // convenience include for scripts, all uses of ScriptedCreature also need Creature (except ScriptedCreature itself doesn't need Creature)
@@ -35,52 +35,50 @@ public:
     typedef StorageType::size_type size_type;
     typedef StorageType::value_type value_type;
 
-    explicit SummonList(Creature* creature)
-        : me(creature)
-    { }
+    explicit SummonList(Creature* creature) : _me(creature) { }
 
     // And here we see a problem of original inheritance approach. People started
     // to exploit presence of std::list members, so I have to provide wrappers
 
     iterator begin()
     {
-        return storage_.begin();
+        return _storage.begin();
     }
 
     const_iterator begin() const
     {
-        return storage_.begin();
+        return _storage.begin();
     }
 
     iterator end()
     {
-        return storage_.end();
+        return _storage.end();
     }
 
     const_iterator end() const
     {
-        return storage_.end();
+        return _storage.end();
     }
 
     iterator erase(iterator i)
     {
-        return storage_.erase(i);
+        return _storage.erase(i);
     }
 
     bool empty() const
     {
-        return storage_.empty();
+        return _storage.empty();
     }
 
     size_type size() const
     {
-        return storage_.size();
+        return _storage.size();
     }
 
     // Clear the underlying storage. This does NOT despawn the creatures - use DespawnAll for that!
     void clear()
     {
-        storage_.clear();
+        _storage.clear();
     }
 
     void Summon(Creature const* summon);
@@ -91,14 +89,14 @@ public:
     template <typename T>
     void DespawnIf(T const& predicate)
     {
-        storage_.remove_if(predicate);
+        _storage.remove_if(predicate);
     }
 
     template <class Predicate>
     void DoAction(int32 info, Predicate&& predicate, uint16 max = 0)
     {
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
-        StorageType listCopy = storage_;
+        StorageType listCopy = _storage;
         Trinity::Containers::RandomResize<StorageType, Predicate>(listCopy, std::forward<Predicate>(predicate), max);
         DoActionImpl(info, listCopy);
     }
@@ -110,8 +108,8 @@ public:
 private:
     void DoActionImpl(int32 action, StorageType const& summons);
 
-    Creature* me;
-    StorageType storage_;
+    Creature* _me;
+    StorageType _storage;
 };
 
 class TC_GAME_API EntryCheckPredicate
@@ -136,45 +134,45 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     virtual ~ScriptedAI() { }
 
     // *************
-    //CreatureAI Functions
+    // CreatureAI Functions
     // *************
 
     void AttackStartNoMove(Unit* target);
 
-    //Called at World update tick
+    // Called at World update tick
     virtual void UpdateAI(uint32 diff) override;
 
     // *************
     // Variables
     // *************
 
-    //For fleeing
+    // For fleeing
     bool IsFleeing;
 
     // *************
-    //Pure virtual functions
+    // Pure virtual functions
     // *************
 
     // Called before JustEngagedWith even before the creature is in combat.
     void AttackStart(Unit* /*target*/) override;
 
     // *************
-    //AI Helper Functions
+    // AI Helper Functions
     // *************
 
-    //Start movement toward victim
+    // Start movement toward victim
     void DoStartMovement(Unit* target, float distance = 0.0f, float angle = 0.0f);
 
-    //Start no movement on victim
+    // Start no movement on victim
     void DoStartNoMovement(Unit* target);
 
-    //Stop attack of current victim
+    // Stop attack of current victim
     void DoStopAttack();
 
-    //Cast spell by spell info
+    // Cast spell by spell info
     void DoCastSpell(Unit* target, SpellInfo const* spellInfo, bool triggered = false);
 
-    //Plays a sound to all nearby players
+    // Plays a sound to all nearby players
     void DoPlaySoundToSet(WorldObject* source, uint32 soundId);
 
     // Add specified amount of threat directly to victim (ignores redirection effects) - also puts victim in combat and engages them if necessary
@@ -191,32 +189,32 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     void DoTeleportTo(float x, float y, float z, uint32 time = 0);
     void DoTeleportTo(float const pos[4]);
 
-    //Teleports a player without dropping threat (only teleports to same map)
+    // Teleports a player without dropping threat (only teleports to same map)
     void DoTeleportPlayer(Unit* unit, float x, float y, float z, float o);
     void DoTeleportAll(float x, float y, float z, float o);
 
-    //Returns friendly unit with the most amount of hp missing from max hp
+    // Returns friendly unit with the most amount of hp missing from max hp
     Unit* DoSelectLowestHpFriendly(float range, uint32 minHPDiff = 1);
 
-    //Returns friendly unit with hp pct below specified and with specified entry
+    // Returns friendly unit with hp pct below specified and with specified entry
     Unit* DoSelectBelowHpPctFriendlyWithEntry(uint32 entry, float range, uint8 hpPct = 1, bool excludeSelf = true);
 
-    //Returns a list of friendly CC'd units within range
+    // Returns a list of friendly CC'd units within range
     std::list<Creature*> DoFindFriendlyCC(float range);
 
-    //Returns a list of all friendly units missing a specific buff within range
+    // Returns a list of all friendly units missing a specific buff within range
     std::list<Creature*> DoFindFriendlyMissingBuff(float range, uint32 spellId);
 
-    //Return a player with at least minimumRange from me
+    // Return a player with at least minimumRange from me
     Player* GetPlayerAtMinimumRange(float minRange);
 
-    //Spawns a creature relative to me
+    // Spawns a creature relative to me
     Creature* DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime);
 
     bool HealthBelowPct(uint32 pct) const;
     bool HealthAbovePct(uint32 pct) const;
 
-    //Returns spells that meet the specified criteria from the creatures spell list
+    // Returns spells that meet the specified criteria from the creatures spell list
     SpellInfo const* SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effect);
 
     void SetEquipmentSlots(bool loadDefault, int32 mainHand = EQUIP_NO_CHANGE, int32 offHand = EQUIP_NO_CHANGE, int32 ranged = EQUIP_NO_CHANGE);
@@ -405,4 +403,4 @@ inline void GetPlayerListInGrid(Container& container, WorldObject* source, float
     source->GetPlayerListInGrid(container, maxSearchRange);
 }
 
-#endif // SCRIPTEDCREATURE_H_
+#endif // TRINITY_SCRIPTEDCREATURE_H

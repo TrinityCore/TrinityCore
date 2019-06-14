@@ -28,8 +28,7 @@ class Totem;
 class TC_GAME_API TotemAI : public CreatureAI
 {
     public:
-
-        explicit TotemAI(Creature* c);
+        explicit TotemAI(Creature* creature);
 
         void MoveInLineOfSight(Unit* who) override;
         void AttackStart(Unit* victim) override;
@@ -39,6 +38,6 @@ class TC_GAME_API TotemAI : public CreatureAI
         static int32 Permissible(Creature const* creature);
 
     private:
-        ObjectGuid i_victimGuid;
+        ObjectGuid _victimGUID;
 };
 #endif

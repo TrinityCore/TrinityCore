@@ -898,7 +898,7 @@ class npc_gatewatcher_web_wrap : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 if (TempSummon* meSummon = me->ToTempSummon())
-                    if (Unit* summoner = meSummon->GetSummoner())
+                    if (Unit* summoner = meSummon->GetSummonerUnit())
                         summoner->RemoveAurasDueToSpell(SPELL_WEB_WRAP_WRAPPED);
             }
         };

@@ -89,6 +89,13 @@ void SplineChainMovementGenerator::Initialize(Unit* owner)
         return;
     }
 
+    if (_nextIndex >= _chainSize)
+    {
+        TC_LOG_WARN("movement", "SplineChainMovementGenerator::Initialize: couldn't initialize generator, _nextIndex is >= _chainSize (%s)", owner->GetGUID().ToString().c_str());
+        _msToNext = 0;
+        return;
+    }
+
     if (_nextFirstWP) // this is a resumed movegen that has to start with a partial spline
     {
         if (HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED))

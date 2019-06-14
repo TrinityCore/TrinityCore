@@ -547,7 +547,9 @@ class boss_toc_champion_controller : public CreatureScript
                             case DONE:
                             {
                                 _championsKilled++;
-                                if (_championsKilled >= summons.size())
+                                if (_championsKilled == 1)
+                                    instance->SetData(DATA_FACTION_CRUSADERS, 0); // Used in Resilience will Fix Achievement
+                                else if (_championsKilled >= summons.size())
                                 {
                                     instance->SetBossState(DATA_FACTION_CRUSADERS, DONE);
                                     summons.DespawnAll();

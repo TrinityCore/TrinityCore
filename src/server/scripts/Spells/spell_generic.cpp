@@ -1455,7 +1455,7 @@ class spell_gen_defend : public AuraScript
     {
         if (Unit* caster = GetCaster())
             if (TempSummon* vehicle = caster->ToTempSummon())
-                if (Unit* rider = vehicle->GetSummoner())
+                if (Unit* rider = vehicle->GetSummonerUnit())
                     rider->RemoveAurasDueToSpell(GetId());
     }
 
@@ -4182,6 +4182,64 @@ class spell_corrupting_plague_aura : public AuraScript
     }
 };
 
+enum StasisFieldEntrys
+{
+    NPC_DAGGERTAIL_LIZARD    = 22255,
+    SPELL_STASIS_FIELD       = 40307
+};
+
+// 40307 - Stasis Field
+class StasisFieldSearcher
+{
+public:
+    StasisFieldSearcher(Unit* obj, float distance) : _unit(obj), _distance(distance)  { }
+
+    bool operator()(Unit* u) const
+    {
+        if (_unit->GetDistance2d(u) < _distance &&
+            (u->GetEntry() == NPC_APEXIS_FLAYER || u->GetEntry() == NPC_SHARD_HIDE_BOAR || u->GetEntry() == NPC_AETHER_RAY || u->GetEntry() == NPC_DAGGERTAIL_LIZARD) &&
+            !u->HasAura(SPELL_STASIS_FIELD))
+            return true;
+
+        return false;
+    }
+
+private:
+    Unit* _unit;
+    float _distance;
+};
+
+// 40306 - Stasis Field
+class spell_stasis_field_aura : public AuraScript
+{
+    PrepareAuraScript(spell_stasis_field_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_STASIS_FIELD });
+    }
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* owner = GetTarget();
+
+        std::list<Creature*> targets;
+        StasisFieldSearcher creature_check(owner, 15.0f);
+        Trinity::CreatureListSearcher<StasisFieldSearcher> creature_searcher(owner, targets, creature_check);
+        Cell::VisitGridObjects(owner, creature_searcher, 15.0f);
+
+        if (!targets.empty())
+            return;
+
+        PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_stasis_field_aura::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 enum SiegeTankControl
 {
     SPELL_SIEGE_TANK_CONTROL = 47963
@@ -4242,6 +4300,28 @@ class spell_freezing_circle : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_freezing_circle::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// Used for some spells cast by vehicles or charmed creatures that do not send a cooldown event on their own
+class spell_gen_charmed_unit_spell_cooldown : public SpellScript
+{
+    PrepareSpellScript(spell_gen_charmed_unit_spell_cooldown);
+
+    void HandleCast()
+    {
+        Unit* caster = GetCaster();
+        if (Player* owner = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            WorldPacket data;
+            caster->GetSpellHistory()->BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_NONE, GetSpellInfo()->Id, GetSpellInfo()->RecoveryTime);
+            owner->SendDirectMessage(&data);
+        }
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_gen_charmed_unit_spell_cooldown::HandleCast);
     }
 };
 
@@ -4368,6 +4448,8 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_clear_debuffs);
     RegisterAuraScript(spell_gen_pony_mount_check);
     RegisterAuraScript(spell_corrupting_plague_aura);
+    RegisterAuraScript(spell_stasis_field_aura);
     RegisterAuraScript(spell_gen_vehicle_control_link);
     RegisterSpellScript(spell_freezing_circle);
+    RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
 }

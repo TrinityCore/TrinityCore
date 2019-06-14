@@ -49,6 +49,8 @@ uint32 UpdateTime::GetTimeWeightedAverageUpdateTime() const
         sum += diff * diff;
         weightsum += diff;
     }
+    if (weightsum == 0)
+        return 0;
     return sum / weightsum;
 }
 

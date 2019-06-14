@@ -15,24 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-Name: Boss_Hakkar
-%Complete: 95
-Comment: Blood siphon spell buggy cause of Core Issue.
-Category: Zul'Gurub
-*/
-
-#include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "ScriptedCreature.h"
 #include "zulgurub.h"
+#include "DBCStructure.h"
+#include "InstanceScript.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 
 enum Says
 {
     SAY_AGGRO                   = 0,
     SAY_FLEEING                 = 1,
-    SAY_MINION_DESTROY          = 2,     // Where does it belong?
-    SAY_PROTECT_ALTAR           = 3      // Where does it belong?
+    SAY_MINION_DESTROY          = 2,
+    SAY_PROTECT_ALTAR           = 3,
+    SAY_ENTRANCE                = 4
 };
 
 enum Spells
@@ -42,6 +38,7 @@ enum Spells
     SPELL_CAUSE_INSANITY        = 24327, // Spell needs scripting.
     SPELL_WILL_OF_HAKKAR        = 24178,
     SPELL_ENRAGE                = 24318,
+
     // The Aspects of all High Priests spells
     SPELL_ASPECT_OF_JEKLIK      = 24687,
     SPELL_ASPECT_OF_VENOXIS     = 24688,
@@ -57,6 +54,7 @@ enum Events
     EVENT_CAUSE_INSANITY        = 3,     // Spell needs scripting. Event disabled
     EVENT_WILL_OF_HAKKAR        = 4,
     EVENT_ENRAGE                = 5,
+
     // The Aspects of all High Priests events
     EVENT_ASPECT_OF_JEKLIK      = 6,
     EVENT_ASPECT_OF_VENOXIS     = 7,
@@ -132,9 +130,16 @@ class boss_hakkar : public CreatureScript
                             // events.ScheduleEvent(EVENT_CAUSE_INSANITY, 35s, 45s);
                             break;
                         case EVENT_WILL_OF_HAKKAR:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_WILL_OF_HAKKAR);
+                        {
+                            // Mind Control is only triggered when there is more than one unit currently fighting Hakkar, including pets/guardians
+                            // But it is only actually cast on the player with the highest threat
+                            std::list<Unit*> unitList;
+                            SelectTargetList(unitList, 2, SELECT_TARGET_MAXTHREAT, 0, 0.0f, false);
+                            if (unitList.size() > 1)
+                                DoCast(SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100, true), SPELL_WILL_OF_HAKKAR);
                             events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 25s, 35s);
                             break;
+                        }
                         case EVENT_ENRAGE:
                             if (!me->HasAura(SPELL_ENRAGE))
                                 DoCast(me, SPELL_ENRAGE);
@@ -178,7 +183,41 @@ class boss_hakkar : public CreatureScript
         }
 };
 
+class at_zulgurub_entrance : public OnlyOnceAreaTriggerScript
+{
+public:
+    at_zulgurub_entrance() : OnlyOnceAreaTriggerScript("at_zulgurub_entrance") { }
+
+    bool _OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger) override
+    {
+        InstanceScript* instance = player->GetInstanceScript();
+        if (!instance || instance->GetBossState(DATA_HAKKAR) == DONE)
+            return true;
+
+        if (Creature* hakkar = instance->GetCreature(DATA_HAKKAR))
+        {
+            switch (areaTrigger->id)
+            {
+                case AREA_TRIGGER_1:
+                    hakkar->AI()->Talk(SAY_ENTRANCE);
+                    break;
+                case AREA_TRIGGER_2:
+                    hakkar->AI()->Talk(SAY_PROTECT_ALTAR);
+                    break;
+                case AREA_TRIGGER_3:
+                    hakkar->AI()->Talk(SAY_MINION_DESTROY);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return true;
+    }
+};
+
 void AddSC_boss_hakkar()
 {
     new boss_hakkar();
+    new at_zulgurub_entrance();
 }

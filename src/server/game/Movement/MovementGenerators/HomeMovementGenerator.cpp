@@ -24,6 +24,7 @@
 #include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "Vehicle.h"
 
 template<class T>
 HomeMovementGenerator<T>::HomeMovementGenerator()
@@ -145,6 +146,8 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active, b
         owner->SetWalk(true);
         owner->SetSpawnHealth();
         owner->LoadCreaturesAddon();
+        if (owner->IsVehicle())
+            owner->GetVehicleKit()->Reset(true);
         owner->AI()->JustReachedHome();
     }
 }

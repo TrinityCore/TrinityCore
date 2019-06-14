@@ -26,6 +26,7 @@
 #include "MapManager.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
+#include "MoveSpline.h"
 #include "Transport.h"
 #include "Battleground.h"
 #include "InstanceSaveMgr.h"
@@ -288,6 +289,12 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         return;
 
     if (!movementInfo.pos.IsPositionValid())
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
+    if (!mover->movespline->Finalized())
     {
         recvData.rfinish();                     // prevent warnings spam
         return;

@@ -113,9 +113,8 @@ enum class CreatureRandomMovementType : uint8
 
 struct TC_GAME_API CreatureMovementData
 {
-    CreatureMovementData() : Ground(CreatureGroundMovementType::Run), Flight(CreatureFlightMovementType::None),
-                             Swim(true), Rooted(false), Chase(CreatureChaseMovementType::Run),
-                             Random(CreatureRandomMovementType::Walk) { }
+    CreatureMovementData() : Ground(CreatureGroundMovementType::Run), Flight(CreatureFlightMovementType::None), Swim(true), Rooted(false), Chase(CreatureChaseMovementType::Run),
+        Random(CreatureRandomMovementType::Walk) { }
 
     CreatureGroundMovementType Ground;
     CreatureFlightMovementType Flight;

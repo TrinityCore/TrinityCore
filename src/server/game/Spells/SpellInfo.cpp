@@ -3710,7 +3710,8 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
             case SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE:
             case SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE:
             case SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE:
-                // have positive and negative spells, check target
+            case SPELL_AURA_DUMMY:
+                // check target for positive and negative spells
                 if (!_isPositiveTarget(spellInfo, effIndex))
                     return false;
                 break;
