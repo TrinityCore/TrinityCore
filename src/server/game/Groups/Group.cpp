@@ -114,7 +114,7 @@ void Group::Update(uint32 diff)
 
 void Group::SelectNewPartyOrRaidLeader()
 {
-    Player* newLeader;
+    Player* newLeader = nullptr;
 
     // Attempt to give leadership to main assistant first
     if (m_groupType == GROUPTYPE_RAID)
@@ -131,12 +131,15 @@ void Group::SelectNewPartyOrRaidLeader()
     }
 
     // If there aren't assistants in raid, or if the group is not a raid, pick the first available member
-    for (auto memberSlot : m_memberSlots)
-        if (Player* player = ObjectAccessor::FindPlayer(memberSlot.guid))
-        {
-            newLeader = player;
-            break;
-        }
+    if (!newLeader)
+    {
+        for (auto memberSlot : m_memberSlots)
+            if (Player* player = ObjectAccessor::FindPlayer(memberSlot.guid))
+            {
+                newLeader = player;
+                break;
+            }
+    }
 
     if (newLeader)
     {
@@ -2604,10 +2607,10 @@ void Group::ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
 void Group::StartLeaderOfflineTimer()
 {
     m_isLeaderOffline = true;
+    m_leaderOfflineTimer.Reset(2 * MINUTE * IN_MILLISECONDS);
 }
 
 void Group::StopLeaderOfflineTimer()
 {
     m_isLeaderOffline = false;
-    m_leaderOfflineTimer.Reset(2 * MINUTE * IN_MILLISECONDS);
 }
