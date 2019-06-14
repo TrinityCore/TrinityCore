@@ -40,7 +40,7 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
     TC_LOG_DEBUG("network", "Petitioner %s tried sell petition: title %s", packet.Unit.ToString().c_str(), packet.Title.c_str());
 
     // prevent cheating
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_PETITIONER);
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_PETITIONER, UNIT_NPC_FLAG_2_NONE);
     if (!creature)
     {
         TC_LOG_DEBUG("network", "WORLD: HandlePetitionBuyOpcode - %s not found or you can't interact with him.", packet.Unit.ToString().c_str());
@@ -96,9 +96,7 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
     if (!charter)
         return;
 
-    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT, charter->GetGUID().GetCounter());
-    // ITEM_FIELD_ENCHANTMENT_1_1 is guild/arenateam id
-    // ITEM_FIELD_ENCHANTMENT_1_1+1 is current signatures count (showed on item)
+    charter->SetPetitionId(charter->GetGUID().GetCounter());
     charter->SetState(ITEM_CHANGED, _player);
     _player->SendNewItem(charter, 1, true, false);
 
@@ -284,7 +282,7 @@ void WorldSession::HandleSignPetition(WorldPackets::Petition::SignPetition& pack
 
     Field* fields = result->Fetch();
     ObjectGuid ownerGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
-    //uint64 signs = fields[1].GetUInt64();
+    uint64 signs = fields[1].GetUInt64();
 
     if (ownerGuid == _player->GetGUID())
         return;
@@ -349,10 +347,11 @@ void WorldSession::HandleSignPetition(WorldPackets::Petition::SignPetition& pack
     // close at signer side
     SendPacket(signResult.Write());
 
-    // update signs count on charter, required testing...
-    //Item* item = _player->GetItemByGuid(petitionguid));
-    //if (item)
-    //    item->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1+1, signs);
+    if (Item* item = _player->GetItemByGuid(packet.PetitionGUID))
+    {
+        item->SetPetitionNumSignatures(signs);
+        item->SetState(ITEM_CHANGED, _player);
+    }
 
     // update for owner if online
     if (Player* owner = ObjectAccessor::FindConnectedPlayer(ownerGuid))
@@ -580,7 +579,7 @@ void WorldSession::HandlePetitionShowList(WorldPackets::Petition::PetitionShowLi
 
 void WorldSession::SendPetitionShowList(ObjectGuid guid)
 {
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER, UNIT_NPC_FLAG_2_NONE);
     if (!creature)
     {
         TC_LOG_DEBUG("network", "WORLD: HandlePetitionShowListOpcode - %s not found or you can't interact with him.", guid.ToString().c_str());

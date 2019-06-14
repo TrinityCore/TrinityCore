@@ -20,6 +20,7 @@
 #include "wdtfile.h"
 #include "adtfile.h"
 #include "Common.h"
+#include "Errors.h"
 #include "StringFormat.h"
 #include <cstdio>
 
@@ -34,9 +35,11 @@ char * wdtGetPlainName(char * FileName)
 
 extern CASC::StorageHandle CascStorage;
 
-WDTFile::WDTFile(char const* storagePath, std::string mapName, bool cache)
-    : _file(CascStorage, storagePath), _mapName(std::move(mapName))
+WDTFile::WDTFile(uint32 fileDataId, std::string const& description, std::string mapName, bool cache)
+    : _file(CascStorage, fileDataId, description), _mapName(std::move(mapName))
 {
+    memset(&_header, 0, sizeof(WDT::MPHD));
+    memset(&_adtInfo, 0, sizeof(WDT::MAIN));
     if (cache)
     {
         _adtCache = Trinity::make_unique<ADTCache>();
@@ -74,10 +77,23 @@ bool WDTFile::init(uint32 mapId)
 
         size_t nextpos = _file.getPos() + size;
 
-        if (!strcmp(fourcc,"MAIN"))
+        if (!strcmp(fourcc, "MPHD"))
         {
+            ASSERT(size == sizeof(WDT::MPHD));
+            _file.read(&_header, sizeof(WDT::MPHD));
         }
-        if (!strcmp(fourcc,"MWMO"))
+        else if (!strcmp(fourcc,"MAIN"))
+        {
+            ASSERT(size == sizeof(WDT::MAIN));
+            _file.read(&_adtInfo, sizeof(WDT::MAIN));
+        }
+        else if (!strcmp(fourcc, "MAID"))
+        {
+            ASSERT(size == sizeof(WDT::MAID));
+            _adtFileDataIds = Trinity::make_unique<WDT::MAID>();
+            _file.read(_adtFileDataIds.get(), sizeof(WDT::MAID));
+        }
+        else if (!strcmp(fourcc,"MWMO"))
         {
             // global map objects
             if (size)
@@ -141,12 +157,19 @@ ADTFile* WDTFile::GetMap(int32 x, int32 y)
     if (_adtCache && _adtCache->file[x][y])
         return _adtCache->file[x][y].get();
 
-    char name[512];
+    if (!(_adtInfo.Data[x][y].Flag & 1))
+        return nullptr;
 
-    sprintf(name, "World\\Maps\\%s\\%s_%d_%d_obj0.adt", _mapName.c_str(), _mapName.c_str(), x, y);
-    ADTFile* adt =  new ADTFile(name, _adtCache != nullptr);
+    ADTFile* adt;
+    std::string name = Trinity::StringFormat("World\\Maps\\%s\\%s_%d_%d_obj0.adt", _mapName.c_str(), _mapName.c_str(), x, y);
+    if (_header.Flags & 0x200)
+        adt = new ADTFile(_adtFileDataIds->Data[x][y].Obj0ADT, name, _adtCache != nullptr);
+    else
+        adt = new ADTFile(name, _adtCache != nullptr);
+
     if (_adtCache)
         _adtCache->file[x][y].reset(adt);
+
     return adt;
 }
 

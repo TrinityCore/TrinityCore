@@ -418,7 +418,7 @@ WorldPacket const* WorldPackets::Party::GroupNewLeader::Write()
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyPlayerInfo const& playerInfo)
 {
     data.WriteBits(playerInfo.Name.size(), 6);
-    data.WriteBits(playerInfo.VoiceStateID.size(), 6);
+    data.WriteBits(playerInfo.VoiceStateID.size() + 1, 6);
     data.WriteBit(playerInfo.FromSocialQueue);
     data.WriteBit(playerInfo.VoiceChatSilenced);
     data << playerInfo.GUID;
@@ -428,7 +428,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyPlayerInfo co
     data << uint8(playerInfo.RolesAssigned);
     data << uint8(playerInfo.Class);
     data.WriteString(playerInfo.Name);
-    data.WriteString(playerInfo.VoiceStateID);
+    if (!playerInfo.VoiceStateID.empty())
+        data << playerInfo.VoiceStateID;
 
     return data;
 }
@@ -531,7 +532,7 @@ WorldPacket const* WorldPackets::Party::RaidMarkersChanged::Write()
     _worldPacket.WriteBits(RaidMarkers.size(), 4);
     _worldPacket.FlushBits();
 
-    for (RaidMarker* raidMarker : RaidMarkers)
+    for (RaidMarker const* raidMarker : RaidMarkers)
     {
         _worldPacket << raidMarker->TransportGUID;
         _worldPacket << raidMarker->Location.GetMapId();
@@ -555,7 +556,7 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
 
     if (!player->IsAlive())
     {
-        if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+        if (player->HasPlayerFlag(PLAYER_FLAGS_GHOST))
             MemberStats.Status |= MEMBER_STATUS_GHOST;
         else
             MemberStats.Status |= MEMBER_STATUS_DEAD;
@@ -592,9 +593,9 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
     MemberStats.PositionY = int16(player->GetPositionY());
     MemberStats.PositionZ = int16(player->GetPositionZ());
 
-    MemberStats.SpecID = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
-    MemberStats.PartyType[0] = player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_PARTY_TYPE) & 0xF;
-    MemberStats.PartyType[1] = player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_PARTY_TYPE) >> 4;
+    MemberStats.SpecID = player->GetPrimarySpecialization();
+    MemberStats.PartyType[0] = player->m_playerData->PartyType & 0xF;
+    MemberStats.PartyType[1] = player->m_playerData->PartyType >> 4;
     MemberStats.WmoGroupID = 0;
     MemberStats.WmoDoodadPlacementID = 0;
 

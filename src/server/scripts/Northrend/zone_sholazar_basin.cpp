@@ -944,7 +944,7 @@ public:
                     case 25:
                         Talk(PLANE_EMOTE);
                         DoCast(SPELL_ENGINE);
-                        me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
+                        me->AddUnitFlag2(UNIT_FLAG2_FORCE_MOVEMENT);
                         break;
                 }
         }

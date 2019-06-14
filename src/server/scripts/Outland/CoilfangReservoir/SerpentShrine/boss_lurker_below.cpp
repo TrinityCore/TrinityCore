@@ -155,8 +155,8 @@ public:
             instance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
             DoCast(me, SPELL_SUBMERGE); // submerge anim
             me->SetVisible(false); // we start invis under water, submerged
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -207,7 +207,7 @@ public:
                     if (!Submerged && WaitTimer2 <= diff) // wait 500ms before emerge anim
                     {
                         me->RemoveAllAuras();
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        me->SetEmoteState(EMOTE_ONESHOT_NONE);
                         DoCast(me, SPELL_EMERGE, false);
                         WaitTimer2 = 60000; // never reached
                         WaitTimer = 3000;
@@ -219,8 +219,8 @@ public:
                     {
                         WaitTimer = 3000;
                         CanStartEvent = true; // fresh fished from pool
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     }
                     else
                         WaitTimer -= diff;
@@ -335,8 +335,8 @@ public:
                     Submerged = false;
                     me->InterruptNonMeleeSpells(false); // shouldn't be any
                     me->RemoveAllAuras();
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                    me->RemoveFlag(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);
+                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetEmoteState(EMOTE_ONESHOT_NONE);
                     DoCast(me, SPELL_EMERGE, true);
                     Spawned = false;
                     SpoutTimer = 3000; // directly cast Spout after emerging!
@@ -355,7 +355,7 @@ public:
 
                 if (!Spawned)
                 {
-                    me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
                     // spawn adds
                     for (uint8 i = 0; i < 9; ++i)
                         if (Creature* summoned = me->SummonCreature(i < 6 ? NPC_COILFANG_AMBUSHER : NPC_COILFANG_GUARDIAN, AddPos[i][0], AddPos[i][1], AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0))

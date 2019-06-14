@@ -398,7 +398,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
 
     if (splineFlags.animation)
     {
-        movementSpline.AnimTier = splineFlags.getAnimationId();
+        movementSpline.AnimTier = splineFlags.getAnimTier();
         movementSpline.TierTransStartTime = moveSpline.effect_start_time;
     }
 
@@ -840,7 +840,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
     data.WriteBit(stateChange.VehicleRecID.is_initialized());
     data.WriteBit(stateChange.CollisionHeight.is_initialized());
     data.WriteBit(stateChange.MovementForce_.is_initialized());
-    data.WriteBit(stateChange.Unknown.is_initialized());
+    data.WriteBit(stateChange.MovementForceGUID.is_initialized());
     data.FlushBits();
 
     if (stateChange.CollisionHeight)
@@ -864,8 +864,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
     if (stateChange.VehicleRecID)
         data << int32(*stateChange.VehicleRecID);
 
-    if (stateChange.Unknown)
-        data << *stateChange.Unknown;
+    if (stateChange.MovementForceGUID)
+        data << *stateChange.MovementForceGUID;
 
     if (stateChange.MovementForce_)
         data << *stateChange.MovementForce_;

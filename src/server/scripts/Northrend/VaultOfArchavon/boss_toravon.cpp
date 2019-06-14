@@ -252,7 +252,7 @@ class npc_frozen_orb_stalker : public CreatureScript
             npc_frozen_orb_stalkerAI(Creature* creature) : ScriptedAI(creature)
             {
                 creature->SetVisible(false);
-                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 creature->SetReactState(REACT_PASSIVE);
 

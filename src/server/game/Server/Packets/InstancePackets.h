@@ -229,7 +229,7 @@ namespace WorldPackets
         class InstanceEncounterGainCombatResurrectionCharge final : public ServerPacket
         {
         public:
-            InstanceEncounterGainCombatResurrectionCharge() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE, 0) { }
+            InstanceEncounterGainCombatResurrectionCharge() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE, 4 + 4) { }
 
             WorldPacket const* Write() override;
 

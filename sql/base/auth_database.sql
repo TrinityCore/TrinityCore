@@ -336,6 +336,7 @@ CREATE TABLE `battlenet_account_toys` (
   `accountId` int(10) unsigned NOT NULL,
   `itemId` int(11) NOT NULL DEFAULT '0',
   `isFavourite` tinyint(1) DEFAULT '0',
+  `hasFanfare` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`accountId`,`itemId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -753,11 +754,8 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,304),
 (196,305),
 (196,306),
-(196,307),
-(196,308),
 (196,309),
 (196,310),
-(196,313),
 (196,314),
 (196,319),
 (196,320),
@@ -772,13 +770,9 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,329),
 (196,330),
 (196,331),
-(196,332),
-(196,333),
-(196,334),
 (196,335),
 (196,336),
 (196,337),
-(196,338),
 (196,339),
 (196,340),
 (196,341),
@@ -1198,7 +1192,6 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (198,532),
 (198,544),
 (198,545),
-(198,546),
 (198,547),
 (198,548),
 (198,549),
@@ -1451,13 +1444,10 @@ INSERT INTO `rbac_permissions` VALUES
 (304,'Command: debug bg'),
 (305,'Command: debug entervehicle'),
 (306,'Command: debug getitemstate'),
-(307,'Command: debug getitemvalue'),
-(308,'Command: debug getvalue'),
 (309,'Command: debug hostil'),
 (310,'Command: debug itemexpire'),
 (311,'Command: debug lootrecipient'),
 (312,'Command: debug los'),
-(313,'Command: debug mod32value'),
 (314,'Command: debug moveflags'),
 (315,'Command: debug play'),
 (316,'Command: debug play cinematics'),
@@ -1476,13 +1466,9 @@ INSERT INTO `rbac_permissions` VALUES
 (329,'Command: debug send setphaseshift'),
 (330,'Command: debug send spellfail'),
 (331,'Command: debug setaurastate'),
-(332,'Command: debug setbit'),
-(333,'Command: debug setitemvalue'),
-(334,'Command: debug setvalue'),
 (335,'Command: debug setvid'),
 (336,'Command: debug spawnvehicle'),
 (337,'Command: debug threat'),
-(338,'Command: debug update'),
 (339,'Command: debug uws'),
 (340,'Command: wpgps'),
 (341,'Command: deserter'),
@@ -1689,7 +1675,6 @@ INSERT INTO `rbac_permissions` VALUES
 (543,'Command: demorph'),
 (544,'Command: modify'),
 (545,'Command: modify arenapoints'),
-(546,'Command: modify bit'),
 (547,'Command: modify drunk'),
 (548,'Command: modify energy'),
 (549,'Command: modify faction'),
@@ -1794,7 +1779,7 @@ INSERT INTO `rbac_permissions` VALUES
 (650,'Command: reload support'),
 (651,'Command: reload gossip_menu'),
 (652,'Command: reload gossip_menu_option'),
-(653,'Command: reload item_enchantment_template'),
+(653,'Command: reload item_random_bonus_list_template'),
 (654,'Command: reload item_loot_template'),
 (655,'Command: reload item_set_names'),
 (656,'Command: reload lfg_dungeon_rewards'),
@@ -2024,7 +2009,7 @@ CREATE TABLE `realmlist` (
   `timezone` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `population` float unsigned NOT NULL DEFAULT '0',
-  `gamebuild` int(10) unsigned NOT NULL DEFAULT '28153',
+  `gamebuild` int(10) unsigned NOT NULL DEFAULT '30706',
   `Region` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `Battlegroup` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -2039,7 +2024,7 @@ CREATE TABLE `realmlist` (
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
 INSERT INTO `realmlist` VALUES
-(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,28153,1,1);
+(1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,0,1,0,0,30706,1,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2193,7 +2178,11 @@ INSERT INTO `updates` VALUES
 ('2018_06_23_00_auth.sql','BE35312C386A127D047E5A7CE0D14DB41D905F8E','RELEASED','2018-05-23 10:14:39',0),
 ('2018_06_29_00_auth.sql','03AAEA7E52848FA5522C3F0C6D9C38B988407480','RELEASED','2018-06-29 22:34:04',0),
 ('2018_12_09_00_auth_2017_01_06_00_auth.sql','6CCFE6A9774EC733C9863D36A0F15F3534189BBD','RELEASED','2018-11-22 22:21:26',0),
-('2018_12_09_01_auth.sql','576C2A11BE671D8420FA3EB705E594E381ECCC56','RELEASED','2018-12-09 14:49:17',0);
+('2018_12_09_01_auth.sql','576C2A11BE671D8420FA3EB705E594E381ECCC56','RELEASED','2018-12-09 14:49:17',0),
+('2019_06_08_00_auth.sql','EA5A78F5A26C17BC790481EA9B3772D3A6912459','RELEASED','2019-05-20 17:21:20',0),
+('2019_06_08_01_auth.sql','8165B1B787E3ECF0C8C0AD2D641513270977ABB4','RELEASED','2019-06-04 16:51:31',0),
+('2019_06_08_02_auth.sql','B39DCBD902290700A81C9D028F54B58601C19A99','RELEASED','2019-06-05 16:26:31',0),
+('2019_06_08_03_auth.sql','F483B657015D39D4F63E3905C27C3AA48241AB03','RELEASED','2019-06-08 17:14:21',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

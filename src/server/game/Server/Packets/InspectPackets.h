@@ -67,6 +67,21 @@ namespace WorldPackets
             int32 AchievementPoints = 0;
         };
 
+        struct PVPBracketData
+        {
+            int32 Rating           = 0;
+            int32 Rank             = 0;
+            int32 WeeklyPlayed     = 0;
+            int32 WeeklyWon        = 0;
+            int32 SeasonPlayed     = 0;
+            int32 SeasonWon        = 0;
+            int32 WeeklyBestRating = 0;
+            int32 Unk710           = 0;
+            int32 Unk801_1         = 0;
+            uint8 Bracket          = 0;
+            bool Unk801_2          = false;
+        };
+
         class InspectResult final : public ServerPacket
         {
         public:
@@ -85,69 +100,14 @@ namespace WorldPackets
             int32 ClassID = CLASS_NONE;
             int32 GenderID = GENDER_NONE;
             Optional<InspectGuildData> GuildData;
+            std::array<PVPBracketData, 6> Bracket;
             int32 SpecializationID = 0;
             Optional<int32> AzeriteLevel;
-        };
-
-        class RequestHonorStats final : public ClientPacket
-        {
-        public:
-            RequestHonorStats(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_HONOR_STATS, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid TargetGUID;
-        };
-
-        class InspectHonorStats final : public ServerPacket
-        {
-        public:
-            InspectHonorStats() : ServerPacket(SMSG_INSPECT_HONOR_STATS, 25) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid PlayerGUID;
-            uint32 LifetimeHK     = 0;
-            uint16 YesterdayHK    = 0;
-            uint16 TodayHK        = 0;
+            uint32 LifetimeHK = 0;
+            uint32 HonorLevel = 0;
+            uint16 TodayHK = 0;
+            uint16 YesterdayHK = 0;
             uint8 LifetimeMaxRank = 0;
-        };
-
-        class InspectPVPRequest final : public ClientPacket
-        {
-        public:
-            InspectPVPRequest(WorldPacket&& packet) : ClientPacket(CMSG_INSPECT_PVP, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid InspectTarget;
-            uint32 InspectRealmAddress = 0;
-        };
-
-        struct PVPBracketData
-        {
-            int32 Rating           = 0;
-            int32 Rank             = 0;
-            int32 WeeklyPlayed     = 0;
-            int32 WeeklyWon        = 0;
-            int32 SeasonPlayed     = 0;
-            int32 SeasonWon        = 0;
-            int32 WeeklyBestRating = 0;
-            int32 Unk710           = 0;
-            int32 Unk801_1         = 0;
-            uint8 Bracket          = 0;
-            bool Unk801_2          = false;
-        };
-
-        class InspectPVPResponse final : public ServerPacket
-        {
-        public:
-            InspectPVPResponse() : ServerPacket(SMSG_INSPECT_PVP, 17) { }
-
-            WorldPacket const* Write() override;
-
-            std::vector<PVPBracketData> Bracket;
-            ObjectGuid ClientGUID;
         };
 
         class QueryInspectAchievements final : public ClientPacket

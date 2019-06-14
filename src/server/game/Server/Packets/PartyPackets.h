@@ -124,6 +124,14 @@ namespace WorldPackets
             std::string Name;
         };
 
+        class GroupUninvite final : public ServerPacket
+        {
+        public:
+            GroupUninvite() : ServerPacket(SMSG_GROUP_UNINVITE, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
         class RequestPartyMemberStats final : public ClientPacket
         {
         public:
@@ -603,7 +611,7 @@ namespace WorldPackets
             uint8 PartyIndex = 0;
             uint32 ActiveMarkers = 0u;
 
-            std::vector<RaidMarker*> RaidMarkers;
+            std::vector<RaidMarker const*> RaidMarkers;
         };
 
         class PartyKillLog final : public ServerPacket

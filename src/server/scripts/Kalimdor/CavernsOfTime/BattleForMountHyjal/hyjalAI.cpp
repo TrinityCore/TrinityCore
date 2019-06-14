@@ -405,7 +405,7 @@ void hyjalAI::Reset()
     }
 
     //Flags
-    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
     //Reset Instance Data for trash count
     if ((!instance->GetData(DATA_ALLIANCE_RETREAT) && me->GetEntry() == JAINA) || (instance->GetData(DATA_ALLIANCE_RETREAT) && me->GetEntry() == THRALL))
@@ -598,7 +598,7 @@ void hyjalAI::StartEvent(Player* player)
     CheckTimer = 5000;
     PlayerGUID = player->GetGUID();
 
-    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
     instance->DoUpdateWorldState(WORLD_STATE_WAVES, 0);
     instance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0);
@@ -630,7 +630,7 @@ void hyjalAI::Retreat()
         Creature* JainaDummy = me->SummonCreature(JAINA, JainaDummySpawn[0][0], JainaDummySpawn[0][1], JainaDummySpawn[0][2], JainaDummySpawn[0][3], TEMPSUMMON_TIMED_DESPAWN, 60000);
         if (JainaDummy)
         {
-            JainaDummy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            JainaDummy->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             ENSURE_AI(hyjalAI, JainaDummy->AI())->IsDummy = true;
             DummyGuid = JainaDummy->GetGUID();
         }
@@ -640,7 +640,7 @@ void hyjalAI::Retreat()
     }
     SpawnVeins();
     Overrun = true;
-    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);//cant talk after overrun event started
+    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);//cant talk after overrun event started
 }
 
 void hyjalAI::SpawnVeins()
@@ -834,7 +834,7 @@ void hyjalAI::UpdateAI(uint32 diff)
                     }
                     EventBegun = false;
                     CheckTimer = 0;
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     BossGUID[i].Clear();
                     instance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0); // Reset world state for enemies to disable it
                 }
@@ -997,7 +997,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     {
                         (*itr)->CastSpell(*itr, SPELL_TELEPORT_VISUAL, true);
                         (*itr)->setFaction(35);//make them friendly so mobs won't attack them
-                        (*itr)->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        (*itr)->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     }
                 }
                 DoCast(me, SPELL_TELEPORT_VISUAL);

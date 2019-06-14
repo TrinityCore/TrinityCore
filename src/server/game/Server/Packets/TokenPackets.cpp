@@ -49,7 +49,7 @@ WorldPacket const* WorldPackets::Token::WowTokenMarketPriceResponse::Write()
     _worldPacket << CurrentMarketPrice;
     _worldPacket << UnkInt;
     _worldPacket << Result;
-    _worldPacket << UnkInt2;
+    _worldPacket << AuctionDuration;
 
     return &_worldPacket;
 }

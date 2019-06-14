@@ -162,6 +162,7 @@ namespace WorldPackets
             int32 TimeAllowed               = 0;
             int32 TreasurePickerID          = 0;
             int32 Expansion                 = 0;
+            int32 ManagedWorldStateID       = 0;
             std::vector<QuestObjective> Objectives;
             int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = { };
             int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = { };
@@ -670,12 +671,17 @@ namespace WorldPackets
             int32 ChoiceArtFileID = 0;
             int32 Flags = 0;
             uint32 WidgetSetID = 0;
+            uint32 UiTextureAtlasElementID = 0;
+            uint32 SoundKitID = 0;
             uint8 GroupID = 0;
             std::string Answer;
             std::string Header;
+            std::string SubHeader;
+            std::string ButtonTooltip;
             std::string Description;
             std::string Confirmation;
             Optional<PlayerChoiceResponseReward> Reward;
+            Optional<uint32> RewardQuestID;
         };
 
         class DisplayPlayerChoice final : public ServerPacket
@@ -688,6 +694,7 @@ namespace WorldPackets
             ObjectGuid SenderGUID;
             int32 ChoiceID = 0;
             int32 UiTextureKitID = 0;
+            uint32 SoundKitID = 0;
             std::string Question;
             std::vector<PlayerChoiceResponse> Responses;
             bool CloseChoiceFrame = false;

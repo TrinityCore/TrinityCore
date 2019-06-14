@@ -964,7 +964,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
 
             void sGossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 me->GetTransport()->EnableMovement(true);
                 _events.SetPhase(PHASE_INTRO);
                 _events.ScheduleEvent(EVENT_INTRO_H_1, 5000, 0, PHASE_INTRO);
@@ -1232,7 +1232,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
 
             void sGossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 me->GetTransport()->EnableMovement(true);
                 _events.SetPhase(PHASE_INTRO);
                 _events.ScheduleEvent(EVENT_INTRO_A_1, 5000);

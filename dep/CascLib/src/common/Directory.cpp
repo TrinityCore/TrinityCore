@@ -38,6 +38,20 @@ bool DirectoryExists(const TCHAR * szDirectory)
     return false;
 }
 
+bool MakeDirectory(const TCHAR * szDirectory)
+{
+#ifdef PLATFORM_WINDOWS
+
+    BOOL bResult = CreateDirectory(szDirectory, NULL);
+    return (bResult) ? true : false;
+
+#else
+
+    return (mkdir(szDirectory, 0755) == 0);
+
+#endif
+}
+
 int ScanIndexDirectory(
     const TCHAR * szIndexPath,
     INDEX_FILE_FOUND pfnOnFileFound,

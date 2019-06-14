@@ -277,13 +277,13 @@ class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoade
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                target->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 target->AddUnitState(UNIT_STATE_ROOT);
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-            GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                GetTarget()->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
             }
 
             void Register() override
@@ -835,8 +835,8 @@ class spell_symbol_of_life_dummy : public SpellScriptLoader
                     if (target->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
                     {
                         target->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-                        target->SetUInt32Value(OBJECT_DYNAMIC_FLAGS, 0);
-                        target->SetUInt32Value(UNIT_FIELD_FLAGS_2, 0);
+                        target->SetDynamicFlags(0);
+                        target->SetUnitFlags2(UnitFlags2(0));
                         target->SetHealth(target->GetMaxHealth() / 2);
                         target->SetPower(POWER_MANA, target->GetMaxPower(POWER_MANA) * 0.75f);
                     }

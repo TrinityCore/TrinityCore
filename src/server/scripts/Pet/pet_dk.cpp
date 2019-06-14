@@ -83,7 +83,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                     return;
 
                 // Stop Fighting
-                me->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE, true);
+                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
                 // Sanctuary
                 me->CastSpell(me, SPELL_DK_SANCTUARY, true);

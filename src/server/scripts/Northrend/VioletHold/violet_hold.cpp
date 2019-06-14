@@ -355,7 +355,7 @@ class npc_sinclari_vh : public CreatureScript
                         summon->AI()->SetData(DATA_PORTAL_LOCATION, i);
 
                 me->SetVisible(true);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 
                 std::list<Creature*> guardList;
                 me->GetCreatureListWithEntryInGrid(guardList, NPC_VIOLET_HOLD_GUARD, 100.0f);
@@ -372,7 +372,7 @@ class npc_sinclari_vh : public CreatureScript
             {
                 if (menuId == GOSSIP_MENU_START_ENCOUNTER && gossipListId == 0)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     _instance->SetData(DATA_MAIN_EVENT_STATE, SPECIAL);
                     ScheduleIntro();
                     player->PlayerTalkClass->SendCloseGossip();
@@ -469,7 +469,7 @@ class npc_sinclari_vh : public CreatureScript
                             if (GameObject* mainDoor = _instance->GetGameObject(DATA_MAIN_DOOR))
                             {
                                 mainDoor->SetGoState(GO_STATE_READY);
-                                mainDoor->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                                mainDoor->AddFlag(GO_FLAG_LOCKED);
                             }
                             task.Repeat(Seconds(5));
                             break;
@@ -496,7 +496,7 @@ class npc_sinclari_vh : public CreatureScript
 
                     task.Schedule(Seconds(10), [this](TaskContext /*task*/)
                     {
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     });
                 });
             }

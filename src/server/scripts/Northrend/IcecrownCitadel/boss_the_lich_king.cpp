@@ -512,7 +512,7 @@ class boss_the_lich_king : public CreatureScript
             void SetupEncounter()
             {
                 _Reset();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_PASSIVE);
                 events.SetPhase(PHASE_INTRO);
                 Initialize();
@@ -534,7 +534,7 @@ class boss_the_lich_king : public CreatureScript
                 _JustDied();
                 DoCastAOE(SPELL_PLAY_MOVIE, false);
                 me->SetDisableGravity(false);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                 me->GetMotionMaster()->MoveFall();
                 if (Creature* frostmourne = me->FindNearestCreature(NPC_FROSTMOURNE_TRIGGER, 50.0f))
                     frostmourne->DespawnOrUnsummon();
@@ -915,7 +915,7 @@ class boss_the_lich_king : public CreatureScript
                             break;
                         case EVENT_FINISH_INTRO:
                             me->SetWalk(false);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                             me->SetReactState(REACT_AGGRESSIVE);
                             events.SetPhase(PHASE_ONE);
                             break;
@@ -1093,7 +1093,7 @@ class boss_the_lich_king : public CreatureScript
                             CreatureTextMgr::SendSound(me, SOUND_PAIN, CHAT_MSG_MONSTER_YELL);
                             // set flight
                             me->SetDisableGravity(true);
-                            me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                            me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
                             me->GetMotionMaster()->MovePoint(POINT_LK_OUTRO_2, OutroFlying);
                             break;
                         case EVENT_OUTRO_TALK_7:
@@ -1144,7 +1144,7 @@ class npc_tirion_fordring_tft : public CreatureScript
             {
                 _events.Reset();
                 if (_instance->GetBossState(DATA_THE_LICH_KING) == DONE)
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 me->LoadEquipment(1);
             }
 
@@ -1156,7 +1156,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                 switch (id)
                 {
                     case POINT_TIRION_INTRO:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                        me->SetEmoteState(EMOTE_STATE_READY2H);
                         if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING)))
                             theLichKing->AI()->DoAction(ACTION_START_ENCOUNTER);
                         break;
@@ -1197,7 +1197,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                 if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                 {
                     _events.SetPhase(PHASE_INTRO);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(POINT_TIRION_INTRO, TirionIntro);
                 }
@@ -1205,7 +1205,7 @@ class npc_tirion_fordring_tft : public CreatureScript
 
             void JustReachedHome() override
             {
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                me->SetEmoteState(EMOTE_ONESHOT_NONE);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1488,7 +1488,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                     case POINT_CHARGE:
                         if (Player* target = ObjectAccessor::GetPlayer(*me, _grabbedPlayer))
                         {
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                             if (GameObject* platform = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_ARTHAS_PLATFORM)))
                             {
                                 std::list<Creature*> triggers;
@@ -1734,7 +1734,7 @@ class npc_terenas_menethil : public CreatureScript
                     damage = me->GetHealth() - 1;
                     if (!me->HasAura(SPELL_TERENAS_LOSES_INSIDE) && !IsHeroic())
                     {
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         DoCast(SPELL_TERENAS_LOSES_INSIDE);
                         _events.ScheduleEvent(EVENT_TELEPORT_BACK, 1000);
                         if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
@@ -1789,13 +1789,13 @@ class npc_terenas_menethil : public CreatureScript
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING)))
                             {
                                 lichKing->AI()->DoAction(ACTION_FINISH_OUTRO);
-                                lichKing->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                                lichKing->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                                 if (Creature* tirion = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HIGHLORD_TIRION_FORDRING)))
                                     tirion->AI()->AttackStart(lichKing);
                             }
                             break;
                         case EVENT_DESTROY_SOUL:
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                             if (Creature* warden = me->FindNearestCreature(NPC_SPIRIT_WARDEN, 20.0f))
                                 warden->CastSpell((Unit*)NULL, SPELL_DESTROY_SOUL, TRIGGERED_NONE);
                             DoCast(SPELL_TERENAS_LOSES_INSIDE);
@@ -2774,7 +2774,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptL
                         summoner->GetAI()->SetData(DATA_VILE, 1);
                 GetCaster()->CastSpell((Unit*)NULL, SPELL_SPIRIT_BURST, true);
                 GetCaster()->ToCreature()->DespawnOrUnsummon(3000);
-                GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                GetCaster()->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void Register() override

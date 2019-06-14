@@ -75,7 +75,7 @@ namespace WorldPackets
             uint64 CurrentMarketPrice   = 0;
             uint32 UnkInt               = 0; // send CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE
             uint32 Result               = 0;
-            uint32 UnkInt2              = 0;
+            uint32 AuctionDuration      = 0; // preset auction duration enum
         };
     }
 }

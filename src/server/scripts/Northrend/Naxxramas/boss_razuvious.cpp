@@ -187,7 +187,7 @@ class npc_dk_understudy : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override
             {
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                me->SetEmoteState(EMOTE_ONESHOT_NONE);
                 if (Creature* razuvious = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_RAZUVIOUS)))
                     razuvious->AI()->DoZoneInCombat(nullptr, 250.0f);
             }

@@ -41,7 +41,7 @@ WorldPacket const* WorldPackets::Duel::DuelComplete::Write()
 
 WorldPacket const* WorldPackets::Duel::DuelCountdown::Write()
 {
-    _worldPacket << Countdown;
+    _worldPacket << uint32(Countdown);
 
     return &_worldPacket;
 }
@@ -67,8 +67,8 @@ WorldPacket const* WorldPackets::Duel::DuelWinner::Write()
     _worldPacket.WriteBits(BeatenName.size(), 6);
     _worldPacket.WriteBits(WinnerName.size(), 6);
     _worldPacket.WriteBit(Fled);
-    _worldPacket << BeatenVirtualRealmAddress;
-    _worldPacket << WinnerVirtualRealmAddress;
+    _worldPacket << uint32(BeatenVirtualRealmAddress);
+    _worldPacket << uint32(WinnerVirtualRealmAddress);
     _worldPacket.WriteString(BeatenName);
     _worldPacket.WriteString(WinnerName);
 

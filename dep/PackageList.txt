@@ -62,7 +62,7 @@ recastnavigation (Recast is state of the art navigation mesh construction toolse
 
 CascLib (An open-source implementation of library for reading CASC storage from Blizzard games since 2014)
   https://github.com/ladislav-zezula/CascLib
-  Version: c63818ecf8d998fae811a2d6db23045f4f6e36a1
+  Version: 03a3bcaed285ab0d8ff0845a65ffe7d1fa653960
 
 rapidjson (A fast JSON parser/generator for C++ with both SAX/DOM style API http://rapidjson.org/)
   https://github.com/miloyip/rapidjson

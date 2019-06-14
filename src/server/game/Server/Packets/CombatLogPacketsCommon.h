@@ -62,6 +62,7 @@ namespace WorldPackets
             uint32 Type = 0;
             int16 PlayerLevelDelta = 0;
             uint16 PlayerItemLevel = 0;
+            uint16 TargetItemLevel = 0;
             uint16 ScalingHealthItemLevelCurveID = 0;
             uint8 TargetLevel = 0;
             uint8 Expansion = 0;

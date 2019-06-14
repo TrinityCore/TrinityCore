@@ -271,7 +271,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void AttackStart(Unit* victim) override
             {
-                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                if (me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
                     return;
 
                 if (victim && me->Attack(victim, true) && _phase != PHASE_ONE)
@@ -645,12 +645,12 @@ class npc_cult_fanatic : public CreatureScript
                                 DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                                 DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
                                 DoCastSelf(SPELL_FULL_HEAL, true);
-                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE);
+                                me->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE));
                             })
                             .Schedule(Seconds(6), [this](TaskContext /*context*/)
                             {
                                 me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE);
+                                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE));
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 DoZoneInCombat(me);
 
@@ -744,12 +744,12 @@ class npc_cult_adherent : public CreatureScript
                                 DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                                 DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
                                 DoCastSelf(SPELL_FULL_HEAL, true);
-                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE);
+                                me->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE));
                             })
                             .Schedule(Seconds(6), [this](TaskContext /*context*/)
                             {
                                 me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE);
+                                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_UNK_29 | UNIT_FLAG_NOT_SELECTABLE));
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 DoCastSelf(SPELL_SHROUD_OF_THE_OCCULT);
                                 DoZoneInCombat(me);

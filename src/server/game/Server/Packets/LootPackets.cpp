@@ -94,7 +94,8 @@ void WorldPackets::Loot::LootRelease::Read()
 
 WorldPacket const* WorldPackets::Loot::LootMoneyNotify::Write()
 {
-    _worldPacket << Money;
+    _worldPacket << uint64(Money);
+    _worldPacket << uint64(MoneyMod);
     _worldPacket.WriteBit(SoleLooter);
     _worldPacket.FlushBits();
 

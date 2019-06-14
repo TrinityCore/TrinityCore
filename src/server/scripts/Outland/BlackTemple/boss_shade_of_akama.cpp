@@ -222,9 +222,9 @@ public:
         {
             _Reset();
             Initialize();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
+            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->SetEmoteState(EMOTE_STATE_STUN);
             me->SetWalk(true);
             events.ScheduleEvent(EVENT_INITIALIZE_SPAWNERS, Seconds(1));
             me->SummonCreatureGroup(SUMMON_GROUP_RESET);
@@ -247,7 +247,7 @@ public:
             if (spell->Id == SPELL_AKAMA_SOUL_CHANNEL)
             {
                 events.ScheduleEvent(EVENT_START_CHANNELERS_AND_SPAWNERS, Seconds(1));
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                me->SetEmoteState(EMOTE_STATE_NONE);
                 events.ScheduleEvent(EVENT_EVADE_CHECK, Seconds(10));
                 if (Creature* akama = instance->GetCreature(DATA_AKAMA_SHADE))
                     AttackStart(akama);
@@ -262,8 +262,8 @@ public:
             if (_isInPhaseOne && motionType == CHASE_MOTION_TYPE)
             {
                 _isInPhaseOne = false;
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetWalk(false);
                 events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
 
@@ -324,7 +324,7 @@ public:
                     {
                         for (ObjectGuid const summonGuid : summons)
                             if (Creature* channeler = ObjectAccessor::GetCreature(*me, summonGuid))
-                                channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                channeler->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
                         for (ObjectGuid const spawnerGuid : _spawners)
                             if (Creature* spawner = ObjectAccessor::GetCreature(*me, spawnerGuid))
@@ -388,7 +388,7 @@ public:
             DoCastSelf(SPELL_STEALTH);
 
             if (_instance->GetBossState(DATA_SHADE_OF_AKAMA) != DONE)
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         }
 
         void JustSummoned(Creature* summon) override
@@ -476,7 +476,7 @@ public:
                 {
                     case EVENT_SHADE_START:
                         _instance->SetBossState(DATA_SHADE_OF_AKAMA, IN_PROGRESS);
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                         me->RemoveAurasDueToSpell(SPELL_STEALTH);
                         me->SetWalk(true);
                         me->GetMotionMaster()->MovePoint(AKAMA_CHANNEL_WAYPOINT, AkamaWP[0], false);
@@ -593,7 +593,7 @@ public:
             {
                 if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                 {
-                    if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                    if (shade->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
                         DoCastSelf(SPELL_SHADE_SOUL_CHANNEL);
 
                     else
@@ -602,7 +602,7 @@ public:
 
                 channel.Repeat(Seconds(2));
             });
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void UpdateAI(uint32 diff) override
@@ -742,7 +742,7 @@ public:
         {
             if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
             {
-                if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                if (shade->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
                     me->GetMotionMaster()->MovePoint(0, shade->GetPosition());
 
                 else if (Creature* akama = _instance->GetCreature(DATA_AKAMA_SHADE))
@@ -780,7 +780,7 @@ public:
                 {
                     if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
                     {
-                        if (shade->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                        if (shade->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
                         {
                             me->SetFacingToObject(shade);
                             DoCastSelf(SPELL_SHADE_SOUL_CHANNEL);
@@ -1174,7 +1174,7 @@ public:
                     Talk(SAY_BROKEN_HAIL);
                     break;
                 case ACTION_BROKEN_EMOTE:
-                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_KNEEL);
+                    me->SetStandState(UNIT_STAND_STATE_KNEEL);
                     break;
                 default:
                     break;

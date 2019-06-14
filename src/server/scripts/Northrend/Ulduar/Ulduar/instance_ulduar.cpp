@@ -201,7 +201,7 @@ class instance_ulduar : public InstanceMapScript
                     if (_algalonTimer && _algalonTimer <= 60)
                         algalon->AI()->DoAction(ACTION_INIT_ALGALON);
                     else
-                        algalon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        algalon->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 }
 
                 // Keepers at Observation Ring
@@ -566,7 +566,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_CELESTIAL_PLANETARIUM_ACCESS_10:
                     case GO_CELESTIAL_PLANETARIUM_ACCESS_25:
                         if (_algalonSummoned)
-                            gameObject->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                            gameObject->AddFlag(GO_FLAG_IN_USE);
                         break;
                     case GO_DOODAD_UL_SIGILDOOR_01:
                         AlgalonSigilDoorGUID[0] = gameObject->GetGUID();
@@ -758,7 +758,7 @@ class instance_ulduar : public InstanceMapScript
                             if (GameObject* gameObject = instance->GetGameObject(KologarnChestGUID))
                             {
                                 gameObject->SetRespawnTime(gameObject->GetRespawnDelay());
-                                gameObject->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                gameObject->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             }
                             HandleGameObject(KologarnBridgeGUID, false);
                         }
@@ -768,7 +768,7 @@ class instance_ulduar : public InstanceMapScript
                         {
                             if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
                                 if (GetData(DATA_HODIR_RARE_CACHE))
-                                    HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                    HodirRareCache->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             if (GameObject* HodirChest = instance->GetGameObject(HodirChestGUID))
                                 HodirChest->SetRespawnTime(HodirChest->GetRespawnDelay());
 
@@ -1193,7 +1193,7 @@ class instance_ulduar : public InstanceMapScript
                                     if (Vehicle* vehicle = vehicleCreature->GetVehicleKit())
                                     {
                                         vehicle->RemoveAllPassengers();
-                                        vehicleCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                        vehicleCreature->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                                         vehicleCreature->DespawnOrUnsummon(5 * MINUTE * IN_MILLISECONDS);
                                     }
                                 }

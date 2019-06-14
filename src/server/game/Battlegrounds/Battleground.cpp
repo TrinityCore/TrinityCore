@@ -491,7 +491,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     player->SendDirectMessage(battlefieldStatus.Write());
 
                     // Correctly display EnemyUnitFrame
-                    player->SetByteValue(PLAYER_BYTES_4, PLAYER_BYTES_4_OFFSET_ARENA_FACTION, player->GetBGTeam());
+                    player->SetArenaFaction(player->GetBGTeam());
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
                     player->ResetAllPowers();
@@ -1034,7 +1034,7 @@ void Battleground::TeleportPlayerToExploitLocation(Player* player)
 void Battleground::AddPlayer(Player* player)
 {
     // remove afk from player
-    if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
+    if (player->isAFK())
         player->ToggleAFK();
 
     // score struct must be created in inherited class
@@ -1044,7 +1044,7 @@ void Battleground::AddPlayer(Player* player)
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
-    bp.ActiveSpec = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
+    bp.ActiveSpec = player->GetPrimarySpecialization();
 
     // Add to list/maps
     m_Players[player->GetGUID()] = bp;
@@ -1288,7 +1288,7 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
         if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerData.PlayerGUID))
         {
             playerData.IsInWorld = true;
-            playerData.PrimaryTalentTree = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
+            playerData.PrimaryTalentTree = player->GetPrimarySpecialization();
             playerData.Sex = player->getGender();
             playerData.Race = player->getRace();
             playerData.Class = player->getClass();
@@ -1618,9 +1618,6 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
         // casting visual effect
         creature->SetChannelSpellId(SPELL_SPIRIT_HEAL_CHANNEL);
         creature->SetChannelSpellXSpellVisualId(VISUAL_SPIRIT_HEAL_CHANNEL);
-        // correct cast speed
-        creature->SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
-        creature->SetFloatValue(UNIT_MOD_CAST_HASTE, 1.0f);
         //creature->CastSpell(creature, SPELL_SPIRIT_HEAL_CHANNEL, true);
         return true;
     }
@@ -1736,7 +1733,7 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
     if (!isArena())
     {
         // To be able to remove insignia -- ONLY IN Battlegrounds
-        victim->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+        victim->AddUnitFlag(UNIT_FLAG_SKINNABLE);
         RewardXPAtKill(killer, victim);
     }
 }

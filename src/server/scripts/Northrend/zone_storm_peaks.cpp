@@ -498,7 +498,7 @@ public:
                     case EVENT_SCRIPT_1:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                             Talk(SAY_BRANN_1, player);
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                        me->RemoveUnitFlag(UnitFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
                         if (Creature* voice = me->SummonCreature(NPC_A_DISTANT_VOICE, 7863.43f, -1396.585f, 1538.076f, 2.949606f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 49000))
                             voiceGUID = voice->GetGUID();
                         events.ScheduleEvent(EVENT_SCRIPT_2, 4000);
@@ -509,11 +509,11 @@ public:
                         events.ScheduleEvent(EVENT_SCRIPT_3, 6000);
                         break;
                     case EVENT_SCRIPT_3:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_WORK_MINING);
+                        me->SetEmoteState(EMOTE_STATE_WORK_MINING);
                         events.ScheduleEvent(EVENT_SCRIPT_4, 6000);
                         break;
                     case EVENT_SCRIPT_4:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        me->SetEmoteState(EMOTE_ONESHOT_NONE);
                         if (Creature* voice = ObjectAccessor::GetCreature(*me, voiceGUID))
                         {
                             voice->CastSpell(voice, SPELL_RESURRECTION);
@@ -673,7 +673,7 @@ public:
                 playerGUID = who->GetGUID();
                 Talk(SAY_HOLD_ON, who);
                 me->CastSpell(who, SPELL_JOKKUM_KILL_CREDIT, true);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                 me->GetMotionMaster()->MovePath(PATH_JOKKUM, false);
             }
         }

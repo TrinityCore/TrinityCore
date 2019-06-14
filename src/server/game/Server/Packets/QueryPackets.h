@@ -82,6 +82,9 @@ namespace WorldPackets
             uint32 RequiredExpansion = 0;
             uint32 VignetteID = 0;
             int32 Class = 0;
+            float FadeRegionRadius = 0.0f;
+            int32 WidgetSetID = 0;
+            int32 WidgetSetUnitConditionID = 0;
             std::array<uint32, 2> Flags;
             std::array<uint32, 2> ProxyCreatureID;
             std::array<std::string, 4> Name;

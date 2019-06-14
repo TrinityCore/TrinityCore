@@ -77,7 +77,7 @@ public:
                     SpawnGameObject(GO_EXIT_PORTAL, exitPortalPosition);
 
                     if (GameObject* platform = instance->GetGameObject(platformGUID))
-                        platform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                        platform->RemoveFlag(GO_FLAG_DESTROYED);
                 }
                 else if (state == DONE)
                     SpawnGameObject(GO_EXIT_PORTAL, exitPortalPosition);
@@ -161,7 +161,7 @@ public:
                     alexstraszaBunny->CastSpell(alexstraszaBunny, SPELL_IRIS_OPENED);
 
                 if (GameObject* iris = instance->GetGameObject(irisGUID))
-                    iris->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                    iris->AddFlag(GO_FLAG_IN_USE);
 
                 if (Creature* malygos = instance->GetCreature(malygosGUID))
                     malygos->AI()->DoAction(0); // ACTION_LAND_ENCOUNTER_START
