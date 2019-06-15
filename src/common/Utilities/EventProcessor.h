@@ -77,6 +77,7 @@ class TC_COMMON_API EventProcessor
         void Update(uint32 p_time);
         void KillAllEvents(bool force);
         void AddEvent(BasicEvent* Event, uint64 e_time, bool set_addtime = true);
+        void ModifyEventTime(BasicEvent* Event, uint64 newTime);
         uint64 CalculateTime(uint64 t_offset) const;
 
     protected:
