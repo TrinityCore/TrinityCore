@@ -389,7 +389,7 @@ class TC_GAME_API Group
 
         bool isRollLootActive() const { return !RollId.empty(); }
         void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r) const;
-        void SendLootRoll(ObjectGuid playerGuid, int32 rollNumber, uint8 rollType, Roll const& roll) const;
+        void SendLootRoll(ObjectGuid playerGuid, int32 rollNumber, uint8 rollType, Roll const& roll, bool autoPass = false) const;
         void SendLootRollWon(ObjectGuid winnerGuid, int32 rollNumber, uint8 rollType, Roll const& roll) const;
         void SendLootAllPassed(Roll const& roll) const;
         void SendLootRollsComplete(Roll const& roll) const;
