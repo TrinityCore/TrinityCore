@@ -9896,6 +9896,28 @@ Bag* Player::GetBagByPos(uint8 bag) const
     return nullptr;
 }
 
+uint32 Player::GetFreeInventorySpace() const
+{
+    uint32 freeSpace = 0;
+
+    // Check backpack
+    for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < INVENTORY_SLOT_ITEM_END; ++slot)
+    {
+        Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+        if (!item)
+            freeSpace += 1;
+    }
+
+    // Check bags
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+    {
+        if (Bag* bag = GetBagByPos(i))
+            freeSpace += bag->GetFreeSlots();
+    }
+
+    return freeSpace;
+}
+
 Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= false*/) const
 {
     uint8 slot;
