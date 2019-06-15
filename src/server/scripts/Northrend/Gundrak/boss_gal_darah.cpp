@@ -22,8 +22,6 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 
-/// @todo: implement stampede
-
 enum Spells
 {
     SPELL_IMPALING_CHARGE                   = 54956,
@@ -35,7 +33,13 @@ enum Spells
     SPELL_ENRAGE                            = 55285,
     SPELL_HEARTH_BEAM_VISUAL                = 54988,
     SPELL_TRANSFORM_RHINO                   = 55297,
-    SPELL_TRANSFORM_BACK                    = 55299
+    SPELL_TRANSFORM_BACK                    = 55299,
+
+    // Rhino Spirit
+    SPELL_STAMPEDE_SPIRIT                   = 55221,
+    SPELL_STAMPEDE_SPIRIT_2                 = 55219,
+    SPELL_STAMPEDE_SPIRIT_CHARGE            = 59823
+
 };
 
 enum Yells
@@ -81,40 +85,39 @@ class boss_gal_darah : public CreatureScript
 
         struct boss_gal_darahAI : public BossAI
         {
-            boss_gal_darahAI(Creature* creature) : BossAI(creature, DATA_GAL_DARAH)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _phaseCounter = 0;
-            }
-
-            void InitializeAI() override
-            {
-                BossAI::InitializeAI();
-                DoCastAOE(SPELL_HEARTH_BEAM_VISUAL, true);
-            }
+            boss_gal_darahAI(Creature* creature) : BossAI(creature, DATA_GAL_DARAH), _phaseCounter(0) { }
 
             void Reset() override
             {
-                Initialize();
                 _Reset();
-                impaledPlayers.clear();
+                _impaledPlayers.clear();
+                _phaseCounter = 0;
+                DoCastAOE(SPELL_HEARTH_BEAM_VISUAL, true);
             }
 
-            void JustReachedHome() override
+            void JustSummoned(Creature* summon) override
             {
-                _JustReachedHome();
-                DoCastAOE(SPELL_HEARTH_BEAM_VISUAL, true);
+                BossAI::JustSummoned(summon);
+                if (summon->GetEntry() == NPC_RHINO_SPIRIT)
+                {
+                    summon->CastSpell(summon, SPELL_STAMPEDE_SPIRIT, true);
+                    summon->CastSpell(summon, SPELL_STAMPEDE_SPIRIT_2, true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        summon->CastSpell(target, SPELL_STAMPEDE_SPIRIT_CHARGE);
+                }
+            }
+
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                summons.DespawnAll();
+                _DespawnAtEvade();
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
-
+                me->InterruptNonMeleeSpells(false);
                 SetPhase(PHASE_TROLL);
             }
 
@@ -124,14 +127,14 @@ class boss_gal_darah : public CreatureScript
                 switch (phase)
                 {
                     case PHASE_TROLL:
-                        events.ScheduleEvent(EVENT_STAMPEDE, 10 * IN_MILLISECONDS, 0, PHASE_TROLL);
-                        events.ScheduleEvent(EVENT_WHIRLING_SLASH, 21 * IN_MILLISECONDS, 0, PHASE_TROLL);
+                        events.ScheduleEvent(EVENT_STAMPEDE, Seconds(10), 0, PHASE_TROLL);
+                        events.ScheduleEvent(EVENT_WHIRLING_SLASH, Seconds(21), 0, PHASE_TROLL);
                         break;
                     case PHASE_RHINO:
-                        events.ScheduleEvent(EVENT_STOMP, 25 * IN_MILLISECONDS, 0, PHASE_RHINO);
-                        events.ScheduleEvent(EVENT_IMPALING_CHARGE, 21 * IN_MILLISECONDS, 0, PHASE_RHINO);
-                        events.ScheduleEvent(EVENT_ENRAGE, 15 * IN_MILLISECONDS, 0, PHASE_RHINO);
-                        events.ScheduleEvent(EVENT_PUNCTURE, 10 * IN_MILLISECONDS, 0, PHASE_RHINO);
+                        events.ScheduleEvent(EVENT_STOMP, Seconds(25), 0, PHASE_RHINO);
+                        events.ScheduleEvent(EVENT_IMPALING_CHARGE, Seconds(21), 0, PHASE_RHINO);
+                        events.ScheduleEvent(EVENT_ENRAGE, Seconds(15), 0, PHASE_RHINO);
+                        events.ScheduleEvent(EVENT_PUNCTURE, Seconds(10), 0, PHASE_RHINO);
                         break;
                 }
             }
@@ -142,14 +145,14 @@ class boss_gal_darah : public CreatureScript
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
                         Talk(EMOTE_IMPALE, target);
-                    impaledPlayers.insert(guid);
+                    _impaledPlayers.insert(guid);
                 }
             }
 
             uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_SHARE_THE_LOVE)
-                    return impaledPlayers.size();
+                    return _impaledPlayers.size();
 
                 return 0;
             }
@@ -181,30 +184,30 @@ class boss_gal_darah : public CreatureScript
                             DoCast(target, SPELL_IMPALING_CHARGE);
                         if (++_phaseCounter >= 2)
                             events.ScheduleEvent(EVENT_TRANSFORM, 5 * IN_MILLISECONDS);
-                        events.ScheduleEvent(eventId, 31 * IN_MILLISECONDS, 0, PHASE_RHINO);
+                        events.Repeat(Seconds(31));
                         break;
                     case EVENT_STOMP:
                         DoCastAOE(SPELL_STOMP);
-                        events.ScheduleEvent(eventId, 20 * IN_MILLISECONDS, 0, PHASE_RHINO);
+                        events.Repeat(Seconds(20));
                         break;
                     case EVENT_PUNCTURE:
                         DoCastVictim(SPELL_PUNCTURE);
-                        events.ScheduleEvent(eventId, 8 * IN_MILLISECONDS, 0, PHASE_RHINO);
+                        events.Repeat(Seconds(8));
                         break;
                     case EVENT_STAMPEDE:
                         Talk(SAY_SUMMON_RHINO);
-                        DoCast(me, SPELL_STAMPEDE);
-                        events.ScheduleEvent(eventId, 15 * IN_MILLISECONDS, 0, PHASE_TROLL);
+                        DoCastAOE(SPELL_STAMPEDE);
+                        events.Repeat(Seconds(15));
                         break;
                     case EVENT_WHIRLING_SLASH:
                         DoCastVictim(SPELL_WHIRLING_SLASH);
                         if (++_phaseCounter >= 2)
                             events.ScheduleEvent(EVENT_TRANSFORM, 5 * IN_MILLISECONDS);
-                        events.ScheduleEvent(eventId, 21 * IN_MILLISECONDS, 0, PHASE_TROLL);
+                        events.Repeat(Seconds(21));
                         break;
                     case EVENT_ENRAGE:
-                        DoCast(me, SPELL_ENRAGE);
-                        events.ScheduleEvent(eventId, 20 * IN_MILLISECONDS, 0, PHASE_RHINO);
+                        DoCastSelf(SPELL_ENRAGE);
+                        events.Repeat(Seconds(20));
                         break;
                     case EVENT_TRANSFORM:
                         if (events.IsInPhase(PHASE_TROLL))
@@ -227,7 +230,7 @@ class boss_gal_darah : public CreatureScript
             }
 
         private:
-            GuidSet impaledPlayers;
+            GuidSet _impaledPlayers;
             uint8 _phaseCounter;
         };
 
@@ -279,6 +282,34 @@ class spell_gal_darah_impaling_charge : public SpellScriptLoader
         }
 };
 
+// 59823 - Stampede (Rhino Spirit Charge)
+class spell_gal_darah_stampede_charge : public SpellScriptLoader
+{
+public:
+    spell_gal_darah_stampede_charge() : SpellScriptLoader("spell_gal_darah_stampede_charge") { }
+
+    class spell_gal_darah_stampede_charge_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gal_darah_stampede_charge_SpellScript);
+
+        void OnHit(SpellEffIndex /*effIndex*/)
+        {
+            if (Creature* caster = GetCaster()->ToCreature())
+                caster->DespawnOrUnsummon(Seconds(1));
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gal_darah_stampede_charge_SpellScript::OnHit, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gal_darah_stampede_charge_SpellScript();
+    }
+};
+
 class achievement_share_the_love : public AchievementCriteriaScript
 {
     public:
@@ -301,5 +332,6 @@ void AddSC_boss_gal_darah()
 {
     new boss_gal_darah();
     new spell_gal_darah_impaling_charge();
+    new spell_gal_darah_stampede_charge();
     new achievement_share_the_love();
 }
