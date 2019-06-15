@@ -1437,32 +1437,22 @@ void Spell::EffectCreateItem2()
 
     Player* player = unitTarget->ToPlayer();
 
-    uint32 item_id = effectInfo->ItemType;
     ItemContext context = m_spellInfo->HasAttribute(SPELL_ATTR0_TRADESPELL) ? ItemContext::Trade_Skill : ItemContext::NONE;
 
-    if (item_id)
-        DoCreateItem(item_id, context);
-
-    // special case: fake item replaced by generate using spell_loot_template
+    // Pick a random item from spell_loot_template
     if (m_spellInfo->IsLootCrafting())
     {
-        if (item_id)
-        {
-            if (!player->HasItemCount(item_id))
-                return;
-
-            // remove reagent
-            uint32 count = 1;
-            player->DestroyItemCount(item_id, count, true);
-
-            // create some random items
-            player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell, context);
-        }
-        else
-            player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell, context);    // create some random items
-
+        player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell, context, false, true);
         player->UpdateCraftSkill(m_spellInfo->Id);
     }
+    else // If there's no random loot entries for this spell, pick the item associated with this spell
+    {
+        uint32 item_id = effectInfo->ItemType;
+
+        if (item_id)
+            DoCreateItem(item_id, context);
+    }
+
     /// @todo ExecuteLogEffectCreateItem(i, m_spellInfo->Effects[i].ItemType);
 }
 
