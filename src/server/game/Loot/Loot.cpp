@@ -158,6 +158,24 @@ void Loot::AddItem(LootStoreItem const& item)
         lootItems.push_back(generatedLoot);
         count -= proto->GetMaxStackSize();
 
+        // In some cases, a dropped item should be visible/lootable only for some players in group
+        bool canSeeItemInLootWindow = false;
+        if (Player* player = ObjectAccessor::FindPlayer(lootOwnerGUID))
+        {
+            if (Group* group = player->GetGroup())
+            {
+                for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+                    if (Player* member = itr->GetSource())
+                        if (generatedLoot.AllowedForPlayer(member))
+                            canSeeItemInLootWindow = true;
+            }
+            else if (generatedLoot.AllowedForPlayer(player))
+                canSeeItemInLootWindow = true;
+        }
+
+        if (!canSeeItemInLootWindow)
+            continue;
+
         // non-conditional one-player only items are counted here,
         // free for all items are counted in FillFFALoot(),
         // non-ffa conditionals are counted in FillNonQuestNonFFAConditionalLoot()
@@ -172,6 +190,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     // Must be provided
     if (!lootOwner)
         return false;
+
+    lootOwnerGUID = lootOwner->GetGUID();
 
     LootTemplate const* tab = store.GetLootFor(lootId);
 
