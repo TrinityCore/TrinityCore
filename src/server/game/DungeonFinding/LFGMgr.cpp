@@ -1088,7 +1088,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
         // Store the number of players that were present in group when joining RFD, used for achievement purposes
         if (Player* player = ObjectAccessor::FindConnectedPlayer(pguid))
             if (Group* group = player->GetGroup())
-                PlayersStore[pguid].numberOfPartyMembersAtJoin = group->GetMembersCount();
+                PlayersStore[pguid].SetNumberOfPartyMembersAtJoin(group->GetMembersCount());
 
         SetState(pguid, LFG_STATE_DUNGEON);
     }
@@ -1461,7 +1461,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
         if (dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC)
         {
             uint8 lfdRandomPlayers = 0;
-            if (uint8 numParty = PlayersStore[guid].numberOfPartyMembersAtJoin)
+            if (uint8 numParty = PlayersStore[guid].GetNumberOfPartyMembersAtJoin())
                 lfdRandomPlayers = 5 - numParty;
             else
                 lfdRandomPlayers = 4;
