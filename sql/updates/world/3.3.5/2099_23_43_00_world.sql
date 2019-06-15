@@ -1,4 +1,4 @@
-UPDATE `creature_template` SET `modelid1`=11686, `modelid2`=0, `unit_flags`=33554432 WHERE `entry`=38463;
+UPDATE `creature_template` SET `unit_flags`=33554432 WHERE `entry`=38463;
 UPDATE `creature_template` SET `ScriptName`='npc_icc_orb_controller' WHERE `entry`=38463;
 UPDATE `gameobject_template` SET `ScriptName`='go_empowering_blood_orb' WHERE `entry`=201741;
 UPDATE `creature_template` SET `ScriptName`='npc_darkfallen_blood_knight' WHERE `entry`=37595;
@@ -27,3 +27,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13,1,72099,0,0,31,0,3,36934,0,0,0,0,'','Effect_0 hits Empowering Orb Controller'),
 (13,1,70299,0,0,31,0,3,36934,0,0,0,0,'','Effect_0 hits Empowering Orb Controller'),
 (13,1,70293,0,0,31,0,3,38463,0,0,0,0,'','Effect_0 hits Empowering Orb Controller');
+
+DELETE FROM `creature_template_movement` WHERE `CreatureId`=36934;
+INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`) VALUES
+(36934,0,0,1,1,0,0);

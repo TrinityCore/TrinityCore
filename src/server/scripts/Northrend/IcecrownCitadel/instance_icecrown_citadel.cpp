@@ -308,9 +308,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         creature->SetCorpseDelay(0);
                         creature->SetReactState(REACT_PASSIVE);
                         break;
-                    case NPC_ORB_CONTROLLER:
-                        creature->SetDisableGravity(true);
-                        break;
                     default:
                         break;
                 }

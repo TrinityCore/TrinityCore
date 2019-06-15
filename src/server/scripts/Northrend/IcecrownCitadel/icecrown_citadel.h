@@ -270,7 +270,6 @@ enum ICCreaturesIds
     NPC_DARKFALLEN_ADVISOR                      = 37571,
     NPC_DARKFALLEN_TACTICIAN                    = 37666,
     NPC_VAMPIRIC_FIEND                          = 37901,
-    NPC_ORB_CONTROLLER                          = 36934,
     NPC_ORB_VISUAL_STALKER                      = 38463,
 
     // Blood-Queen Lana'thel
@@ -565,5 +564,7 @@ inline AI* GetIcecrownCitadelAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ICCScriptName);
 }
+
+#define RegisterIcecrownCitadelCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetIcecrownCitadelAI)
 
 #endif // ICECROWN_CITADEL_H_

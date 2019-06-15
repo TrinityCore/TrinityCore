@@ -1910,14 +1910,14 @@ struct npc_icc_orb_controller : public ScriptedAI
         if (creatures.empty())
             return;
 
-        bool secoundTime = false;
-        _scheduler.Schedule(1s, [this, &secoundTime](TaskContext visual)
+        bool isLongRepeat = false;
+        _scheduler.Schedule(1s, [this, &isLongRepeat](TaskContext visual)
         {
             ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(_minionGuids);
             if (Unit* minion = ObjectAccessor::GetUnit(*me, guid))
                 minion->CastSpell(nullptr, SPELL_BLOOD_ORB_VISUAL);
-            visual.Repeat(secoundTime ? 21s : 3s);
-            secoundTime = !secoundTime;
+            visual.Repeat(isLongRepeat ? 21s : 3s);
+            isLongRepeat = !isLongRepeat;
         });
     }
 
@@ -2858,14 +2858,14 @@ void AddSC_icecrown_citadel()
     new npc_frostwing_vrykul();
     new npc_impaling_spear();
     new npc_arthas_teleport_visual();
-    RegisterCreatureAI(npc_entrance_faction_leader);
-    RegisterCreatureAI(npc_icc_orb_controller);
-    RegisterCreatureAI(npc_darkfallen_blood_knight);
-    RegisterCreatureAI(npc_darkfallen_noble);
-    RegisterCreatureAI(npc_vampiric_fiend);
-    RegisterCreatureAI(npc_darkfallen_archmage);
-    RegisterCreatureAI(npc_darkfallen_advisor);
-    RegisterCreatureAI(npc_darkfallen_tactician);
+    RegisterIcecrownCitadelCreatureAI(npc_entrance_faction_leader);
+    RegisterIcecrownCitadelCreatureAI(npc_icc_orb_controller);
+    RegisterIcecrownCitadelCreatureAI(npc_darkfallen_blood_knight);
+    RegisterIcecrownCitadelCreatureAI(npc_darkfallen_noble);
+    RegisterIcecrownCitadelCreatureAI(npc_vampiric_fiend);
+    RegisterIcecrownCitadelCreatureAI(npc_darkfallen_archmage);
+    RegisterIcecrownCitadelCreatureAI(npc_darkfallen_advisor);
+    RegisterIcecrownCitadelCreatureAI(npc_darkfallen_tactician);
     RegisterGameObjectAI(go_empowering_blood_orb);
     RegisterAuraScript(spell_icc_empowered_blood);
     RegisterAuraScript(spell_icc_empowered_blood_3);
