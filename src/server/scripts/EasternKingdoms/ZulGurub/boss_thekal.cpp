@@ -332,8 +332,8 @@ class npc_zealot_lorkhan : public CreatureScript
 
                     bool roll = roll_chance_i(50);
                     Creature* target = roll ? (thekal ? thekal : zath) : (zath ? zath : thekal);
-                    if (!target)
-                        return;
+                    // As we check already above to ensure at least 1 out of Thekal/Zath is not null, target must be not null
+                    ASSERT(target);
 
                     if (!me->IsWithinMeleeRange(target))
                         target = roll ? zath : thekal;
