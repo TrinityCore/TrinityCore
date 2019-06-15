@@ -1153,6 +1153,7 @@ class TC_GAME_API Unit : public WorldObject
         void AddPvpFlag(UnitPVPStateFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PvpFlags), flags); }
         void RemovePvpFlag(UnitPVPStateFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PvpFlags), flags); }
         void SetPvpFlags(UnitPVPStateFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PvpFlags), flags); }
+        bool IsInSanctuary() const { return HasPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY); }
         bool IsPvP() const { return HasPvpFlag(UNIT_BYTE2_FLAG_PVP); }
         bool IsFFAPvP() const { return HasPvpFlag(UNIT_BYTE2_FLAG_FFA_PVP); }
         virtual void SetPvP(bool state);
@@ -1277,11 +1278,13 @@ class TC_GAME_API Unit : public WorldObject
         bool IsInFlight()  const { return HasUnitState(UNIT_STATE_IN_FLIGHT); }
 
         bool IsInCombat()  const { return HasUnitFlag(UNIT_FLAG_IN_COMBAT); }
+        bool IsPetInCombat() const { return HasUnitFlag(UNIT_FLAG_PET_IN_COMBAT); }
         bool IsInCombatWith(Unit const* who) const;
         void CombatStart(Unit* target, bool initialAggro = true);
         void SetInCombatState(bool PvP, Unit* enemy = NULL);
         void SetInCombatWith(Unit* enemy);
         void ClearInCombat();
+        void ClearInPetCombat();
         uint32 GetCombatTimer() const { return m_CombatTimer; }
 
         bool HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint32 familyFlags) const;

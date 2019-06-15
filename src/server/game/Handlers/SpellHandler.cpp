@@ -582,6 +582,9 @@ void WorldSession::HandleMissileTrajectoryCollision(WorldPackets::Spells::Missil
     pos.Relocate(packet.CollisionPos);
     spell->m_targets.ModDst(pos);
 
+    // we changed dest, recalculate flight time
+    spell->RecalculateDelayMomentForDst();
+
     WorldPackets::Spells::NotifyMissileTrajectoryCollision notify;
     notify.Caster = packet.Target;
     notify.CastID = packet.CastID;
