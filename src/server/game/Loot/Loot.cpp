@@ -54,7 +54,7 @@ LootItem::LootItem(LootStoreItem const& li)
 }
 
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-bool LootItem::AllowedForPlayer(Player const* player) const
+bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter) const
 {
     // DB conditions check
     if (!sConditionMgr->IsObjectMeetToConditions(const_cast<Player*>(player), conditions))
@@ -64,15 +64,29 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     if (!pProto)
         return false;
 
-    // not show loot for players without profession or those who already know the recipe
-    if ((pProto->Flags & ITEM_FLAG_HIDE_UNUSABLE_RECIPE) && (!player->HasSkill(pProto->RequiredSkill) || player->HasSpell(pProto->Spells[1].SpellId)))
-        return false;
-
     // not show loot for not own team
     if ((pProto->Flags2 & ITEM_FLAG2_FACTION_HORDE) && player->GetTeam() != HORDE)
         return false;
 
     if ((pProto->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)
+        return false;
+
+    // Master looter can see certain items even if the character can't loot them
+    if (!isGivenByMasterLooter && player->GetGroup() && player->GetGroup()->GetMasterLooterGuid() == player->GetGUID())
+    {
+        // check quest requirements
+        if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && (needs_quest || pProto->StartQuest))
+            return false;
+
+        return true;
+    }
+
+    // Don't allow loot for players without profession or those who already know the recipe
+    if ((pProto->Flags & ITEM_FLAG_HIDE_UNUSABLE_RECIPE) && (!player->HasSkill(pProto->RequiredSkill) || player->HasSpell(pProto->Spells[1].SpellId)))
+        return false;
+
+    // Don't allow to loot soulbound recipes that the player has already learned
+    if (pProto->Class == ITEM_CLASS_RECIPE && pProto->Bonding == BIND_WHEN_PICKED_UP && pProto->Spells[1].SpellId != 0 && player->HasSpell(pProto->Spells[1].SpellId))
         return false;
 
     // check quest requirements
