@@ -164,10 +164,6 @@ private:
 
 enum SaveTheChildren
 {
-    BROADCAST_TEXT_ID_JAMES             = 36328,
-    BROADCAST_TEXT_ID_CYNTHIA           = 36329,
-    BROADCAST_TEXT_ID_ASHLEY            = 36331,
-
     SPELL_GILNEAS_QUEST_SAVE_JAMES      = 68596,
     SPELL_GILNEAS_QUEST_SAVE_CYNTHIA    = 68597,
     SPELL_GILNEAS_QUEST_SAVE_ASHLEY     = 68598,
@@ -200,67 +196,34 @@ Position const CynthiaEscapePos[] =
     { -1926.536f, 2519.312f, 2.246772f }  // Cynthia Point 3
 };
 
-class spell_gilneas_quest_save_james : public SpellScript
-{
-    PrepareSpellScript(spell_gilneas_quest_save_james);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* caster = GetCaster())
-            if (Player* player = caster->ToPlayer())
-            {
-                Unit* target = GetHitUnit();
-                player->Talk(BROADCAST_TEXT_ID_JAMES, CHAT_MSG_SAY, 0.0f, target);
-                player->KilledMonsterCredit(target->GetEntry());
-            }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_gilneas_quest_save_james::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 class spell_gilneas_quest_save_the_children : public SpellScript
 {
     PrepareSpellScript(spell_gilneas_quest_save_the_children);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_GILNEAS_QUEST_SAVE_JAMES,
-                SPELL_GILNEAS_QUEST_SAVE_CYNTHIA,
-                SPELL_GILNEAS_QUEST_SAVE_ASHLEY
-            });
+        return ValidateSpellInfo({ SPELL_GILNEAS_QUEST_SAVE_JAMES });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleDummy(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
+        {
             if (Player* player = caster->ToPlayer())
             {
                 Unit* target = GetHitUnit();
-
-                switch (GetSpellInfo()->Id)
-                {
-                case SPELL_GILNEAS_QUEST_SAVE_CYNTHIA:
-                    player->Talk(BROADCAST_TEXT_ID_CYNTHIA, CHAT_MSG_SAY, 0.0f, target);
-                    break;
-                case SPELL_GILNEAS_QUEST_SAVE_ASHLEY:
-                    player->Talk(BROADCAST_TEXT_ID_ASHLEY, CHAT_MSG_SAY, 0.0f, target);
-                    break;
-                default:
-                    break;
-                }
-
+                player->Talk(GetSpellInfo()->Effects[effIndex].BasePoints, CHAT_MSG_SAY, 0.0f, target);
                 player->KilledMonsterCredit(target->GetEntry());
             }
+        }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_gilneas_quest_save_the_children::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        if (m_scriptSpellId == SPELL_GILNEAS_QUEST_SAVE_JAMES)
+            OnEffectHitTarget += SpellEffectFn(spell_gilneas_quest_save_the_children::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        else
+            OnEffectHitTarget += SpellEffectFn(spell_gilneas_quest_save_the_children::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -676,7 +639,6 @@ void AddSC_gilneas_c2()
     RegisterCreatureAI(npc_gilneas_horrid_abomination);
     RegisterCreatureAI(npc_gilneas_save_the_children);
     RegisterCreatureAI(npc_gilneas_forsaken_catapult);
-    RegisterSpellScript(spell_gilneas_quest_save_james);
     RegisterSpellScript(spell_gilneas_quest_save_the_children);
     RegisterSpellScript(spell_gilneas_launch);
     RegisterSpellScript(spell_gilneas_fiery_boulder);
