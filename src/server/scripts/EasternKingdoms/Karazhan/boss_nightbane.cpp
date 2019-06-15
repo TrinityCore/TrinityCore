@@ -20,6 +20,7 @@
 #include "InstanceScript.h"
 #include "karazhan.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
