@@ -63,7 +63,7 @@ Loot* Roll::getLoot()
 Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
 m_dungeonDifficulty(DUNGEON_DIFFICULTY_NORMAL), m_raidDifficulty(RAID_DIFFICULTY_10MAN_NORMAL),
 m_bgGroup(nullptr), m_bfGroup(nullptr), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
-m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0)
+m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_isLeaderOffline(false)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i].Clear();
@@ -97,6 +97,55 @@ Group::~Group()
 
     // Sub group counters clean up
     delete[] m_subGroupsCounts;
+}
+
+void Group::Update(uint32 diff)
+{
+    if (m_isLeaderOffline && (m_groupType == GROUPTYPE_NORMAL || m_groupType == GROUPTYPE_RAID))
+    {
+        m_leaderOfflineTimer.Update(diff);
+        if (m_leaderOfflineTimer.Passed())
+        {
+            SelectNewPartyOrRaidLeader();
+            m_isLeaderOffline = false;
+        }
+    }
+}
+
+void Group::SelectNewPartyOrRaidLeader()
+{
+    Player* newLeader = nullptr;
+
+    // Attempt to give leadership to main assistant first
+    if (m_groupType == GROUPTYPE_RAID)
+    {
+        for (auto memberSlot : m_memberSlots)
+        {
+            if ((memberSlot.flags & MEMBER_FLAG_ASSISTANT) == MEMBER_FLAG_ASSISTANT)
+                if (Player* player = ObjectAccessor::FindPlayer(memberSlot.guid))
+                {
+                    newLeader = player;
+                    break;
+                }
+        }
+    }
+
+    // If there aren't assistants in raid, or if the group is not a raid, pick the first available member
+    if (!newLeader)
+    {
+        for (auto memberSlot : m_memberSlots)
+            if (Player* player = ObjectAccessor::FindPlayer(memberSlot.guid))
+            {
+                newLeader = player;
+                break;
+            }
+    }
+
+    if (newLeader)
+    {
+        ChangeLeader(newLeader->GetGUID());
+        SendUpdate();
+    }
 }
 
 bool Group::Create(Player* leader)
@@ -2553,4 +2602,15 @@ void Group::ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
         slot->flags |= flag;
     else
         slot->flags &= ~flag;
+}
+
+void Group::StartLeaderOfflineTimer()
+{
+    m_isLeaderOffline = true;
+    m_leaderOfflineTimer.Reset(2 * MINUTE * IN_MILLISECONDS);
+}
+
+void Group::StopLeaderOfflineTimer()
+{
+    m_isLeaderOffline = false;
 }
