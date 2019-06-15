@@ -54,6 +54,9 @@ class TC_GAME_API LfgPlayerData
         std::string const& GetComment() const;
         LfgDungeonSet const& GetSelectedDungeons() const;
 
+        // Achievement-related
+        uint8 numberOfPartyMembersAtJoin;
+
     private:
         // General
         LfgState m_State;                                  ///< State if group in LFG
