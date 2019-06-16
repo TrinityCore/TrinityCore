@@ -214,7 +214,7 @@ class boss_thekal : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth() && events.IsInPhase(PHASE_ONE))
                 {
@@ -375,7 +375,7 @@ public: npc_zealot_lorkhan() : CreatureScript("npc_zealot_lorkhan") { }
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -493,7 +493,7 @@ class npc_zealot_zath : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (damage >= me->GetHealth())
                 {
@@ -503,7 +503,6 @@ class npc_zealot_zath : public CreatureScript
                     me->SetImmuneToNPC(true, true);
                     DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH, true);
                     me->AttackStop();
-                    //instance->SetBossState(DATA_THEKAL, SPECIAL);
                     if (Creature* thekal = _instance->GetCreature(DATA_THEKAL))
                         thekal->AI()->SetData(DATA_FAKE_DEATH, me->GetEntry());
                     damage = 0;
