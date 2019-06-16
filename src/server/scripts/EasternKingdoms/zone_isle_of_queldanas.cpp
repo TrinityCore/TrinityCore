@@ -213,7 +213,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                     _events.ScheduleEvent(EVENT_DEFENDERS_RUN_2, 3s);
                     _events.ScheduleEvent(EVENT_THALORIEN_GO, 2s);
 
-                    uint8 i = 0;
+                    uint8 defendersCount = 0;
                     for (auto& summon : _summons)
                     {
                         Creature* creature = ObjectAccessor::GetCreature(*me, summon);
@@ -223,18 +223,18 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                         if (creature->GetEntry() != NPC_SUNWELL_DEFENDER)
                             continue;
 
-                        i++;
-                        if (i <= 5)
+                        defendersCount++;
+                        if (defendersCount <= 5)
                             creature->SetFacingTo(defenderReverse);
                         else
-                            creature->GetMotionMaster()->MovePoint(0, defenderRun[i - 1]);
+                            creature->GetMotionMaster()->MovePoint(0, defenderRun[defendersCount - 1]);
                     }
 
                     break;
                 }
                 case EVENT_DEFENDERS_RUN_2:
                 {
-                    uint8 i = 0;
+                    uint8 defendersCount = 0;
                     for (auto& summon : _summons)
                     {
                         Creature* creature = ObjectAccessor::GetCreature(*me, summon);
@@ -244,8 +244,8 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                         if (creature->GetEntry() != NPC_SUNWELL_DEFENDER)
                             continue;
 
-                        ++i;
-                        creature->GetMotionMaster()->MovePoint(0, defenderRun[i]);
+                        ++defendersCount;
+                        creature->GetMotionMaster()->MovePoint(0, defenderRun[defendersCount]);
                     }
 
                     break;
@@ -255,7 +255,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                     {
                         thalorien->SetWalk(true);
                         thalorien->GetMotionMaster()->MovePoint(0, thalorienFight);
-                        thalorien->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                        thalorien->SetUInt32Value(UNIT_NPC_EMOTESTATE, 1717,);
                         thalorien->SetHomePosition(thalorienFight);
                     }
 
@@ -395,7 +395,8 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                 _events.ScheduleEvent(EVENT_SPAWN_WAVE_3, 1s);
             else if (summon->GetEntry() == NPC_CRYPT_RAIDER)
                 _events.ScheduleEvent(EVENT_MORLEN_2, 1s);
-        } else if (_summons.size() == 1)
+        }
+        else if (_summons.size() == 1)
         {
             if (summon->GetEntry() == NPC_MORLEN_GOLDGRIP)
                 _events.ScheduleEvent(EVENT_OUTRO_1, 2s);
