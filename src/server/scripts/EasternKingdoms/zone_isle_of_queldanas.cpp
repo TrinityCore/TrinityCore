@@ -255,7 +255,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                     {
                         thalorien->SetWalk(true);
                         thalorien->GetMotionMaster()->MovePoint(0, thalorienFight);
-                        thalorien->SetUInt32Value(UNIT_NPC_EMOTESTATE, 1717,);
+                        thalorien->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
                         thalorien->SetHomePosition(thalorienFight);
                     }
 
