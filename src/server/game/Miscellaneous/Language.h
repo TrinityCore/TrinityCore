@@ -1144,8 +1144,9 @@ enum TrinityStrings
     LANG_NPCINFO_UNIT_FIELD_FLAGS_3       = 5085,
     LANG_NPCINFO_NPC_FLAGS                = 5086,
     LANG_NPCINFO_PHASE_IDS                = 5087,
+    LANG_SCENARIO                         = 5088,
 
-    // Room for more Trinity strings        5088-6603
+    // Room for more Trinity strings        5089-6603
 
     // Level requirement notifications
     LANG_SAY_REQ                          = 6604,
