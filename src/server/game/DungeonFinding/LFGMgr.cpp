@@ -1107,6 +1107,11 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
                 break;
         }
 
+        // Store the number of players that were present in group when joining RFD, used for achievement purposes
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(pguid))
+            if (Group* group = player->GetGroup())
+                PlayersStore[pguid].SetNumberOfPartyMembersAtJoin(group->GetMembersCount());
+
         SetState(pguid, LFG_STATE_DUNGEON);
     }
 
@@ -1476,7 +1481,14 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
 
         // Update achievements
         if (dungeon->difficulty == DIFFICULTY_HEROIC)
-            player->UpdateCriteria(CriteriaType::CompletedLFGDungeonWithStrangers, 1);
+        {
+            uint8 lfdRandomPlayers = 0;
+            if (uint8 numParty = PlayersStore[guid].GetNumberOfPartyMembersAtJoin())
+                lfdRandomPlayers = 5 - numParty;
+            else
+                lfdRandomPlayers = 4;
+            player->UpdateCriteria(CriteriaType::CompletedLFGDungeonWithStrangers, lfdRandomPlayers);
+        }
 
         LfgReward const* reward = GetRandomDungeonReward(rDungeonId, player->getLevel());
         if (!reward)
