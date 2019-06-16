@@ -41,6 +41,7 @@
 #include "OutdoorPvPMgr.h"
 #include "PathGenerator.h"
 #include "Pet.h"
+#include "PetAI.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
@@ -3056,7 +3057,42 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
 
     // this effect use before aura Taunt apply for prevent taunt already attacking target
     // for spell as marked "non effective at already attacking target"
-    if (!unitTarget || !unitTarget->CanHaveThreatList())
+
+    if (!unitTarget || unitTarget->IsTotem())
+    {
+        SendCastResult(SPELL_FAILED_DONT_REPORT);
+        return;
+    }
+
+    // Hand of Reckoning can hit some entities that can't have a threat list (including players' pets)
+    if (m_spellInfo->Id == 62124)
+        if (unitTarget->GetTypeId() != TYPEID_PLAYER && unitTarget->GetTarget() != unitCaster->GetGUID())
+            unitCaster->CastSpell(unitTarget, 67485, true);
+
+    // Taunting player pets will force them to swap target
+    if (unitTarget->IsPet() && unitTarget->GetOwnerGUID().IsPlayer())
+    {
+        if (Unit* owner = unitTarget->GetOwner())
+            if (!owner->IsValidAttackTarget(unitCaster))
+                return;
+
+        if (unitTarget->GetVictim() != unitCaster)
+        {
+            if (unitTarget->GetVictim())
+                unitTarget->AttackStop();
+
+            if (unitTarget->GetTypeId() != TYPEID_PLAYER && unitTarget->ToCreature()->IsAIEnabled())
+            {
+                CreatureAI* AI = unitTarget->ToCreature()->AI();
+                if (PetAI* petAI = dynamic_cast<PetAI*>(AI))
+                    petAI->_AttackStart(unitCaster); // force target switch
+                else
+                    AI->AttackStart(unitCaster);
+            }
+        }
+    }
+
+    if (!unitTarget->CanHaveThreatList())
     {
         SendCastResult(SPELL_FAILED_DONT_REPORT);
         return;
@@ -3068,10 +3104,6 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
         SendCastResult(SPELL_FAILED_DONT_REPORT);
         return;
     }
-
-    // Hand of Reckoning
-    if (m_spellInfo->Id == 62124)
-        unitCaster->CastSpell(unitTarget, 67485, true);
 
     if (!mgr.IsThreatListEmpty())
         // Set threat equal to highest threat currently on target
