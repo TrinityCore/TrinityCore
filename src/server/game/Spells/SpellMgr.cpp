@@ -4030,6 +4030,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RecoveryTime = 20000;
     });
 
+    // Resurrection - Zul'Gurub, High Priest Thekal
+    ApplySpellFix({ 24173 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(1);
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
