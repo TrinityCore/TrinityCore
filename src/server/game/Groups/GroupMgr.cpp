@@ -109,6 +109,12 @@ Group* GroupMgr::GetGroupByGUID(ObjectGuid::LowType groupId) const
     return nullptr;
 }
 
+void GroupMgr::Update(uint32 diff)
+{
+    for (auto group : GroupStore)
+        group.second->Update(diff);
+}
+
 void GroupMgr::AddGroup(Group* group)
 {
     GroupStore[group->GetLowGUID()] = group;

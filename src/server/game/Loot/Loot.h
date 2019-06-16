@@ -149,7 +149,7 @@ struct TC_GAME_API LootItem
                  { };
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-    bool AllowedForPlayer(Player const* player) const;
+    bool AllowedForPlayer(Player const* player, bool isGivenByMasterLooter = false) const;
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
 };
@@ -213,6 +213,7 @@ struct TC_GAME_API Loot
     uint32 gold;
     uint8 unlootedCount;
     ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
+    ObjectGuid lootOwnerGUID;
     LootType loot_type;                                     // required for achievement system
     uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 

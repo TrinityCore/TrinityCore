@@ -206,6 +206,19 @@ bool HasDiscoveredAllSpells(uint32 spellId, Player* player)
     return true;
 }
 
+bool HasDiscoveredAnySpell(uint32 spellId, Player* player)
+{
+    SkillDiscoveryMap::const_iterator tab = SkillDiscoveryStore.find(int32(spellId));
+    if (tab == SkillDiscoveryStore.end())
+        return false;
+
+    for (SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
+        if (player->HasSpell(item_iter->spellId))
+            return true;
+
+    return false;
+}
+
 uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)
 {
     uint32 skillvalue = skillId ? player->GetSkillValue(skillId) : uint32(0);
