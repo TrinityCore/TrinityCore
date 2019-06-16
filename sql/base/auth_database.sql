@@ -770,6 +770,9 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,871),
 (196,872),
 (196,873),
+(196,875),
+(196,876),
+(196,877),
 (197,232),
 (197,236),
 (197,237),
@@ -1647,7 +1650,10 @@ INSERT INTO `rbac_permissions` VALUES
 (871,'Command: debug instancespawn'),
 (872,'Command: server debug'),
 (873,'Command: reload creature_movement_override'),
-(874,'Command: debug asan');
+(874,'Command: debug asan'),
+(875,'Command: lookup map id'),
+(876,'Command: lookup item id'),
+(877,'Command: lookup quest id');
 /*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 
