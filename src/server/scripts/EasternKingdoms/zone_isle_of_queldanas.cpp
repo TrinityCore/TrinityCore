@@ -99,8 +99,9 @@ enum ThalorienDawnseeker
     SPELL_POLYMORPH_VISUAL      = 27123
 };
 
-float const defenderReverse = 5.67232f;
-Position const defenderRun[] =
+uint8 const defenders = 10;
+float const defendersOrientation = 5.67232f;
+Position const defendersRun[] =
 {
         { 11934.78f, -7064.424f, 33.38046f },
         { 11927.9f,  -7061.303f, 32.00986f },
@@ -225,9 +226,10 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
 
                         defendersCount++;
                         if (defendersCount <= 5)
-                            creature->SetFacingTo(defenderReverse);
+                            creature->SetFacingTo(defendersOrientation);
                         else
-                            creature->GetMotionMaster()->MovePoint(0, defenderRun[defendersCount - 1]);
+                            if (defendersCount - 1 < defenders)
+                                creature->GetMotionMaster()->MovePoint(0, defendersRun[defendersCount - 1]);
                     }
 
                     break;
@@ -245,7 +247,8 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                             continue;
 
                         ++defendersCount;
-                        creature->GetMotionMaster()->MovePoint(0, defenderRun[defendersCount]);
+                        if (defendersCount < defenders)
+                            creature->GetMotionMaster()->MovePoint(0, defendersRun[defendersCount]);
                     }
 
                     break;
