@@ -206,7 +206,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint
 
     _isDynamicTransport = m_goValue.Transport.StopFrames->empty();
 
-    uint32 pathProgress = GameTime::GetGameTimeMS();
+    uint32 pathProgress = getMSTime();
     if (m_goValue.Transport.AnimationInfo)
         pathProgress -= pathProgress % GetTransportPeriod();
 
@@ -366,7 +366,7 @@ void Transport::Update(uint32 diff)
         }
     }
 
-    SetPathProgress(GameTime::GetGameTimeMS() + GetCurrentTransportTime());
+    SetPathProgress(getMSTime() + GetCurrentTransportTime());
     RelocateToProgress(GetCurrentTransportTime());
 }
 
