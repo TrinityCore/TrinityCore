@@ -3861,6 +3861,10 @@ void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)
         return;
     }
 
+    // Do NOT allow to start a new actionlist if a previous one is already running. We need to always finish the current actionlist
+    if (!mTimedActionList.empty())
+        return;
+
     mTimedActionList.clear();
     mTimedActionList = sSmartScriptMgr->GetScript(entry, SMART_SCRIPT_TYPE_TIMED_ACTIONLIST);
     if (mTimedActionList.empty())
