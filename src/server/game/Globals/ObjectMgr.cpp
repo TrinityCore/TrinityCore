@@ -947,8 +947,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
     if (!cInfo->Models.size())
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) does not have any existing display id in creature_template_model.", cInfo->Entry);
-    else if (std::accumulate(cInfo->Models.begin(), cInfo->Models.end(), 0.0f, [](float sum, CreatureModel const& model) { return sum + model.Probability; }) <= 0.0f)
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has zero total chance for all models in creature_template_model.", cInfo->Entry);
 
     if (!cInfo->unit_class || ((1 << (cInfo->unit_class-1)) & CLASSMASK_ALL_CREATURES) == 0)
     {
