@@ -821,6 +821,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_REWARD_QUEST:
                 if (e.event.quest.quest && !IsQuestValid(e, e.event.quest.quest))
                     return false;
+
+                if (!IsMinMaxValid(e, e.event.quest.cooldownMin, e.event.quest.cooldownMax))
+                    return false;
                 break;
             case SMART_EVENT_RECEIVE_EMOTE:
             {
