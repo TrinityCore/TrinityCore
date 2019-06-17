@@ -1,12 +1,12 @@
 UPDATE `creature_template` SET `unit_flags`=33554432 WHERE `entry`=38463;
 UPDATE `creature_template` SET `ScriptName`='npc_icc_orb_controller' WHERE `entry`=38463;
-UPDATE `gameobject_template` SET `ScriptName`='go_empowering_blood_orb' WHERE `entry`=201741;
 UPDATE `creature_template` SET `ScriptName`='npc_darkfallen_blood_knight' WHERE `entry`=37595;
 UPDATE `creature_template` SET `ScriptName`='npc_darkfallen_noble' WHERE `entry`=37663;
 UPDATE `creature_template` SET `ScriptName`='npc_vampiric_fiend' WHERE `entry`=37901;
 UPDATE `creature_template` SET `ScriptName`='npc_darkfallen_archmage' WHERE `entry`=37664;
 UPDATE `creature_template` SET `ScriptName`='npc_darkfallen_advisor' WHERE `entry`=37571;
 UPDATE `creature_template` SET `ScriptName`='npc_darkfallen_tactician' WHERE `entry`=37666;
+UPDATE `gameobject_template` SET `ScriptName`='go_empowering_blood_orb' WHERE `entry`=201741;
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
 'spell_icc_empowered_blood',
