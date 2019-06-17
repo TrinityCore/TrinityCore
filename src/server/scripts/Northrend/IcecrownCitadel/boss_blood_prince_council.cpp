@@ -106,6 +106,7 @@ enum Spells
     SPELL_KINETIC_BOMB                  = 72080,
     SPELL_SHOCK_VORTEX                  = 72037,
     SPELL_EMPOWERED_SHOCK_VORTEX        = 72039,
+    SPELL_REMOVE_EMPOWERED_BLOOD        = 72131,
 
     // Kinetic Bomb
     SPELL_UNSTABLE                      = 72059,
@@ -246,7 +247,10 @@ class boss_blood_council_controller : public CreatureScript
                             prince->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             prince->SetImmuneToPC(false);
                             if (bossData == DATA_PRINCE_VALANAR)
+                            {
                                 prince->SetHealth(prince->GetMaxHealth());
+                                prince->CastSpell(prince, SPELL_REMOVE_EMPOWERED_BLOOD, true);
+                            }
                         }
             }
 
