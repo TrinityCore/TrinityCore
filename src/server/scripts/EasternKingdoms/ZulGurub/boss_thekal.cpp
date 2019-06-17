@@ -98,7 +98,7 @@ class boss_thekal : public CreatureScript
 
         struct boss_thekalAI : public BossAI
         {
-            boss_thekalAI(Creature* creature) : BossAI(creature, DATA_THEKAL), _instance(creature->GetInstanceScript())
+            boss_thekalAI(Creature* creature) : BossAI(creature, DATA_THEKAL)
             {
                 Initialize();
             }
@@ -142,9 +142,9 @@ class boss_thekal : public CreatureScript
                 Talk(TALK_DEATH);
 
                 // Adds are still feign-deathing, so kill them when the encounter is over
-                if (Creature* creature = _instance->GetCreature(DATA_LORKHAN))
+                if (Creature* creature = instance->GetCreature(DATA_LORKHAN))
                     creature->KillSelf();
-                if (Creature* creature = _instance->GetCreature(DATA_ZATH))
+                if (Creature* creature = instance->GetCreature(DATA_ZATH))
                     creature->KillSelf();
                 instance->SetBossState(DATA_LORKHAN, DONE);
                 instance->SetBossState(DATA_ZATH, DONE);
@@ -203,9 +203,9 @@ class boss_thekal : public CreatureScript
                     if (data == NPC_HIGH_PRIEST_THEKAL)
                         creature = me;
                     else if (data == NPC_ZEALOT_LORKHAN)
-                        creature = _instance->GetCreature(DATA_LORKHAN);
+                        creature = instance->GetCreature(DATA_LORKHAN);
                     else if (data == NPC_ZEALOT_ZATH)
-                        creature = _instance->GetCreature(DATA_ZATH);
+                        creature = instance->GetCreature(DATA_ZATH);
 
                     // Resurrect
                     creature->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
@@ -255,8 +255,8 @@ class boss_thekal : public CreatureScript
                         {
                             _isResurrectTimerActive = false;
                             // Resurrect timer is up, so obtain pointers to adds
-                            Creature* lorkhan = _instance->GetCreature(DATA_LORKHAN);
-                            Creature* zath = _instance->GetCreature(DATA_ZATH);
+                            Creature* lorkhan = instance->GetCreature(DATA_LORKHAN);
+                            Creature* zath = instance->GetCreature(DATA_ZATH);
 
                             // Resurrect
                             if (_isThekalDead)
@@ -343,7 +343,6 @@ class boss_thekal : public CreatureScript
             bool _isZathDead;
             bool _isResurrectTimerActive;
             bool _isEvadeDisabled;
-            InstanceScript* _instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
