@@ -2754,6 +2754,39 @@ public:
     }
 };
 
+/*######
+## Quest 14386 Leader of the Pack
+######*/
+
+enum CallAttackMastiffs
+{
+    NPC_ATTACK_MASTIFF = 36405
+};
+
+// 68682 Call Attack Mastiffs
+class spell_q14386_call_attack_mastiffs : public SpellScript
+{
+    PrepareSpellScript(spell_q14386_call_attack_mastiffs);
+
+    void HandleEffect(SpellEffIndex /*eff*/)
+    {
+        Unit* caster = GetCaster();
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1944.573f, 2657.402f, 0.994939f, 1.691919f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -2005.65f, 2663.526f, -2.086935f, 0.5942355f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1996.506f, 2651.347f, -1.011707f, 0.8185352f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1972.352f, 2640.07f, 1.080288f, 1.217854f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1949.322f, 2642.76f, 1.242482f, 1.58074f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1993.94f, 2672.535f, -2.322549f, 0.5766209f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1982.724f, 2662.8f, -1.773986f, 0.8628055f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1973.301f, 2655.475f, -0.7831049f, 1.098415f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1956.509f, 2650.655f, 1.350571f, 1.441473f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_q14386_call_attack_mastiffs::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+    }
+};
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2823,4 +2856,5 @@ void AddSC_quest_spell_scripts()
     new spell_q11306_mixing_vrykul_blood();
     new spell_q11306_failed_mix_43376();
     new spell_q11306_failed_mix_43378();
+    RegisterSpellScript(spell_q14386_call_attack_mastiffs);
 }
