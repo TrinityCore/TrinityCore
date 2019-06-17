@@ -1891,7 +1891,7 @@ std::vector<uint32> DarkFallensEmotes =
 
 struct npc_icc_orb_controller : public ScriptedAI
 {
-    npc_icc_orb_controller(Creature* creature) : ScriptedAI(creature), _isInCombat(false) { }
+    npc_icc_orb_controller(Creature* creature) : ScriptedAI(creature), _isInCombat(false), _isLongRepeat(false) { }
 
     void Reset() override
     {
@@ -1910,14 +1910,14 @@ struct npc_icc_orb_controller : public ScriptedAI
         if (creatures.empty())
             return;
 
-        bool isLongRepeat = false;
-        _scheduler.Schedule(1s, [this, &isLongRepeat](TaskContext visual)
+        _isLongRepeat = false;
+        _scheduler.Schedule(1s, [this](TaskContext visual)
         {
             ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(_minionGuids);
             if (Unit* minion = ObjectAccessor::GetUnit(*me, guid))
                 minion->CastSpell(nullptr, SPELL_BLOOD_ORB_VISUAL);
-            visual.Repeat(isLongRepeat ? 21s : 3s);
-            isLongRepeat = !isLongRepeat;
+            visual.Repeat(_isLongRepeat ? 21s : 3s);
+            _isLongRepeat = !_isLongRepeat;
         });
     }
 
@@ -1966,6 +1966,7 @@ private:
     TaskScheduler _scheduler;
     GuidVector _minionGuids;
     bool _isInCombat;
+    bool _isLongRepeat;
 };
 
 struct DarkFallenAI : public ScriptedAI
