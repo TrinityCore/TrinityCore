@@ -369,7 +369,7 @@ class LorKhanSelectTargetToHeal
 
         bool operator()(Unit* u)
         {
-            if (!u->GetTypeId() != TYPEID_UNIT || !u->IsAlive() || !u->IsInCombat())
+            if (u->GetTypeId() != TYPEID_UNIT || !u->IsAlive() || !u->IsInCombat())
                 return false;
 
             if (u->ToCreature()->GetEntry() != NPC_HIGH_PRIEST_THEKAL && u->GetEntry() != NPC_ZEALOT_LORKHAN && u->GetEntry() != NPC_ZEALOT_ZATH)
