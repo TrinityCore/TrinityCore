@@ -17,6 +17,8 @@
  */
 
 #include "zulgurub.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -359,6 +361,35 @@ enum LorkhanEvents
     EVENT_DISARM
 };
 
+// Find which one of the three creatures Lor'Khan should heal (self, Thekal or Zath)
+class LorKhanSelectTargetToHeal
+{
+    public:
+        LorKhanSelectTargetToHeal(Unit const* obj, float range) : i_obj(obj), i_range(range), i_hp(0) { }
+
+        bool operator()(Unit* u)
+        {
+            if (!u->GetTypeId() != TYPEID_UNIT || !u->IsAlive() || !u->IsInCombat())
+                return false;
+
+            if (u->ToCreature()->GetEntry() != NPC_HIGH_PRIEST_THEKAL && u->GetEntry() != NPC_ZEALOT_LORKHAN && u->GetEntry() != NPC_ZEALOT_ZATH)
+                return false;
+
+            if ((u->GetMaxHealth() - u->GetHealth() > i_hp) && i_obj->IsWithinDistInMap(u, i_range))
+            {
+                i_hp = u->GetMaxHealth() - u->GetHealth();
+                return true;
+            }
+
+            return false;
+        }
+
+    private:
+        Unit const* i_obj;
+        float i_range;
+        uint32 i_hp;
+};
+
 // Zealot Lor'Khan
 class npc_zealot_lorkhan : public CreatureScript
 {
@@ -424,23 +455,12 @@ public: npc_zealot_lorkhan() : CreatureScript("npc_zealot_lorkhan") { }
                             break;
                         case EVENT_GREATER_HEAL:
                         {
-                            Creature* thekal = _instance->GetCreature(DATA_THEKAL);
-                            Creature* zath = _instance->GetCreature(DATA_ZATH);
-                            if (!thekal && !zath)
-                                return;
+                            Unit* target = nullptr;
+                            LorKhanSelectTargetToHeal check(me, 100.0f);
+                            Trinity::UnitLastSearcher<LorKhanSelectTargetToHeal> searcher(me, target, check);
+                            Cell::VisitAllObjects(me, searcher, 100.0f);
 
-                            bool roll = roll_chance_i(50);
-                            Creature* target = roll ? (thekal ? thekal : zath) : (zath ? zath : thekal);
-                            if (!target)
-                                return;
-
-                            // As we check already above to ensure at least 1 out of Thekal/Zath is not null, target must be not null
-                            ASSERT(target);
-
-                            if (!me->IsWithinMeleeRange(target))
-                                target = roll ? zath : thekal;
-
-                            if (me->IsWithinMeleeRange(target))
+                            if (target)
                                 DoCast(target, SPELL_GREATERHEAL);
 
                             _events.ScheduleEvent(EVENT_GREATER_HEAL, 15s, 20s);
