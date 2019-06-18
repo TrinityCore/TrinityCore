@@ -197,6 +197,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void UpdatePath(uint32 diff);
         void UpdateFollow(uint32 diff);
         void UpdateDespawn(uint32 diff);
+        void FollowOrGoHome();
 
         SmartScript _script;
         bool _charmed;

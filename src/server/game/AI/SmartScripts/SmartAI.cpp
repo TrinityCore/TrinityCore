@@ -406,7 +406,7 @@ void SmartAI::MovementInform(uint32 type, uint32 id)
         _OOCReached = true;
 }
 
-void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
+void SmartAI::EnterEvadeMode(EvadeReason why)
 {
     if (_evadeDisabled)
     {
@@ -420,6 +420,12 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
         return;
     }
 
+    if (why == EVADE_REASON_JUST_SPAWNED)
+    {
+        FollowOrGoHome();
+        return;
+    }
+
     if (!_EnterEvadeMode())
         return;
 
@@ -429,24 +435,7 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
 
     SetRun(_run);
 
-    if (Unit* owner = me->GetCharmerOrOwner())
-    {
-        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-        me->ClearUnitState(UNIT_STATE_EVADE);
-    }
-    else if (HasEscortState(SMART_ESCORT_ESCORTING))
-    {
-        AddEscortState(SMART_ESCORT_RETURNING);
-        ReturnToLastOOCPos();
-    }
-    else if (Unit* target = _followGUID ? ObjectAccessor::GetUnit(*me, _followGUID) : nullptr)
-    {
-        me->GetMotionMaster()->MoveFollow(target, _followDistance, _followAngle);
-        // evade is not cleared in MoveFollow, so we can't keep it
-        me->ClearUnitState(UNIT_STATE_EVADE);
-    }
-    else
-        me->GetMotionMaster()->MoveTargetedHome();
+    FollowOrGoHome();    
 
     if (!me->HasUnitState(UNIT_STATE_EVADE))
         GetScript()->OnReset();
@@ -983,6 +972,28 @@ void SmartAI::UpdateDespawn(uint32 diff)
     }
     else
         _despawnTime -= diff;
+}
+
+void SmartAI::FollowOrGoHome()
+{
+    if (Unit * owner = me->GetCharmerOrOwner())
+    {
+        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+        me->ClearUnitState(UNIT_STATE_EVADE);
+    }
+    else if (HasEscortState(SMART_ESCORT_ESCORTING))
+    {
+        AddEscortState(SMART_ESCORT_RETURNING);
+        ReturnToLastOOCPos();
+    }
+    else if (Unit * target = _followGUID ? ObjectAccessor::GetUnit(*me, _followGUID) : nullptr)
+    {
+        me->GetMotionMaster()->MoveFollow(target, _followDistance, _followAngle);
+        // evade is not cleared in MoveFollow, so we can't keep it
+        me->ClearUnitState(UNIT_STATE_EVADE);
+    }
+    else
+        me->GetMotionMaster()->MoveTargetedHome();
 }
 
 void SmartGameObjectAI::UpdateAI(uint32 diff)

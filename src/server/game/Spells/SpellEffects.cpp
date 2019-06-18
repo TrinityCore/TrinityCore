@@ -2246,7 +2246,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     summon->SetUInt32Value(UNIT_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
                     summon->SetImmuneToAll(true);
 
-                    summon->AI()->EnterEvadeMode();
+                    summon->AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_JUST_SPAWNED);
                     break;
                 }
                 default:
@@ -5443,7 +5443,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
                 summon->SetDisplayId(1126); // modelid1
         }
 
-        summon->AI()->EnterEvadeMode();
+        summon->AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_JUST_SPAWNED);
 
         ExecuteLogEffectSummonObject(i, summon);
     }
