@@ -592,7 +592,7 @@ namespace WorldPackets
                 Optional<int32> VehicleRecID;
                 Optional<CollisionHeightInfo> CollisionHeight;
                 Optional<MovementForce> MovementForce_;
-                Optional<ObjectGuid> Unknown;
+                Optional<ObjectGuid> MovementForceGUID;
             };
 
             MoveSetCompoundState() : ServerPacket(SMSG_MOVE_SET_COMPOUND_STATE, 4 + 1) { }

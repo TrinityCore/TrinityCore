@@ -222,7 +222,7 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
         return nullptr;
 
     //Silenced so we can't cast
-    if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
+    if (me->HasUnitFlag(UNIT_FLAG_SILENCED))
         return nullptr;
 
     //Using the extended script system we first create a list of viable spells

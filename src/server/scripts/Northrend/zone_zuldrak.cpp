@@ -55,7 +55,7 @@ public:
         void Reset() override
         {
             _rageclawGUID.Clear();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
             float x, y, z;
             me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 0.1f);
@@ -237,8 +237,8 @@ public:
 
         void Reset() override
         {
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
+            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            me->SetEmoteState(EMOTE_STATE_COWER);
             Initialize();
         }
 
@@ -251,8 +251,8 @@ public:
                 switch (eventId)
                 {
                     case EVENT_RECRUIT_1:
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                        me->SetEmoteState(EMOTE_ONESHOT_NONE);
                         Talk(SAY_RECRUIT);
                         _events.ScheduleEvent(EVENT_RECRUIT_2, 3000);
                         break;
@@ -509,12 +509,12 @@ public:
                     {
                         case EVENT_TURN_TO_POT:
                             me->SetFacingTo(6.230825f);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING_NO_SHEATHE);
+                            me->SetEmoteState(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
                             _events.ScheduleEvent(EVENT_TURN_BACK, 11000);
                             break;
                         case EVENT_TURN_BACK:
                             me->SetFacingTo(4.886922f);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                            me->SetEmoteState(EMOTE_STATE_NONE);
                             _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(25000, 41000));
                             break;
                         case EVENT_EASY_123:

@@ -91,12 +91,10 @@ bool DB2StorageBase::Load(std::string const& path, uint32 locale, char**& indexT
 {
     indexTable = nullptr;
     DB2FileLoader db2;
-    {
-        DB2FileSystemSource source(path + _fileName);
-        // Check if load was successful, only then continue
-        if (!db2.Load(&source, _loadInfo))
-            return false;
-    }
+    DB2FileSystemSource source(path + _fileName);
+    // Check if load was successful, only then continue
+    if (!db2.Load(&source, _loadInfo))
+        return false;
 
     _fieldCount = db2.GetCols();
     _tableHash = db2.GetTableHash();
@@ -123,12 +121,10 @@ bool DB2StorageBase::LoadStringsFrom(std::string const& path, uint32 locale, cha
         return false;
 
     DB2FileLoader db2;
-    {
-        DB2FileSystemSource source(path + _fileName);
-        // Check if load was successful, only then continue
-        if (!db2.Load(&source, _loadInfo))
-            return false;
-    }
+    DB2FileSystemSource source(path + _fileName);
+    // Check if load was successful, only then continue
+    if (!db2.Load(&source, _loadInfo))
+        return false;
 
     // load strings from another locale db2 data
     if (_loadInfo->GetStringFieldCount(true))

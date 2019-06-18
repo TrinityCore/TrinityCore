@@ -108,7 +108,7 @@ public:
             { "gameobject_queststarter",       rbac::RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTSTARTER,          true,  &HandleReloadGOQuestStarterCommand,             "" },
             { "gossip_menu",                   rbac::RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU,                      true,  &HandleReloadGossipMenuCommand,                 "" },
             { "gossip_menu_option",            rbac::RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU_OPTION,               true,  &HandleReloadGossipMenuOptionCommand,           "" },
-            { "item_enchantment_template",     rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_ENCHANTMENT_TEMPLATE,        true,  &HandleReloadItemEnchantementsCommand,          "" },
+            { "item_random_bonus_list_template", rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_RANDOM_BONUS_LIST_TEMPLATE, true, &HandleReloadItemRandomBonusListTemplatesCommand, "" },
             { "item_loot_template",            rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_LOOT_TEMPLATE,               true,  &HandleReloadLootTemplatesItemCommand,          "" },
             { "lfg_dungeon_rewards",           rbac::RBAC_PERM_COMMAND_RELOAD_LFG_DUNGEON_REWARDS,              true,  &HandleReloadLfgRewardsCommand,                 "" },
             { "locales_achievement_reward",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_ACHIEVEMENT_REWARD,       true,  &HandleReloadLocalesAchievementRewardCommand,   "" },
@@ -308,7 +308,7 @@ public:
     static bool HandleReloadAllItemCommand(ChatHandler* handler, const char* /*args*/)
     {
         HandleReloadPageTextsCommand(handler, "a");
-        HandleReloadItemEnchantementsCommand(handler, "a");
+        HandleReloadItemRandomBonusListTemplatesCommand(handler, "a");
         return true;
     }
 
@@ -878,11 +878,11 @@ public:
         return true;
     }
 
-    static bool HandleReloadItemEnchantementsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadItemRandomBonusListTemplatesCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Item Random Enchantments Table...");
-        LoadRandomEnchantmentsTable();
-        handler->SendGlobalGMSysMessage("DB table `item_enchantment_template` reloaded.");
+        TC_LOG_INFO("misc", "Re-Loading Random item bonus list definitions...");
+        LoadItemRandomBonusListTemplates();
+        handler->SendGlobalGMSysMessage("DB table `item_random_bonus_list_template` reloaded.");
         return true;
     }
 

@@ -174,7 +174,7 @@ void npc_escortAI::EnterEvadeMode(EvadeReason /*why*/)
     {
         me->GetMotionMaster()->MoveTargetedHome();
         if (HasImmuneToNPCFlags)
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
         Reset();
     }
 }
@@ -497,11 +497,12 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
     }
 
     //disable npcflags
-    me->SetUInt64Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-    if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
+    me->SetNpcFlags(UNIT_NPC_FLAG_NONE);
+    me->SetNpcFlags2(UNIT_NPC_FLAG_2_NONE);
+    if (me->HasUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC))
     {
         HasImmuneToNPCFlags = true;
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
     TC_LOG_DEBUG("scripts", "EscortAI started. ActiveAttacker = %d, Run = %d, PlayerGUID = %s", uint32(m_bIsActiveAttacker), uint32(m_bIsRunning), m_uiPlayerGUID.ToString().c_str());

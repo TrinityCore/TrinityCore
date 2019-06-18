@@ -205,7 +205,7 @@ bool LootStore::HaveQuestLootFor(uint32 loot_id) const
     return itr->second->HasQuestDrop(m_LootTemplates);
 }
 
-bool LootStore::HaveQuestLootForPlayer(uint32 loot_id, Player* player) const
+bool LootStore::HaveQuestLootForPlayer(uint32 loot_id, Player const* player) const
 {
     LootTemplateMap::const_iterator tab = m_LootTemplates.find(loot_id);
     if (tab != m_LootTemplates.end())

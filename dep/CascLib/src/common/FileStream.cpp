@@ -219,10 +219,24 @@ static bool BaseFile_Read(
 #endif
 
     // Increment the current file position by number of bytes read
-    // If the number of bytes read doesn't match to required amount, return false
     pStream->Base.File.FilePos = ByteOffset + dwBytesRead;
-    if(dwBytesRead != dwBytesToRead)
-        SetLastError(ERROR_HANDLE_EOF);
+
+    // If the number of bytes read doesn't match to required amount, return false
+    // However, Blizzard's CASC handlers read encoded data so that if less than expected
+    // was read, then they fill the rest with zeros
+    if(dwBytesRead < dwBytesToRead)
+    {
+        if(pStream->dwFlags & STREAM_FLAG_FILL_MISSING)
+        {
+            memset((LPBYTE)pvBuffer + dwBytesRead, 0, (dwBytesToRead - dwBytesRead));
+            dwBytesRead = dwBytesToRead;
+        }
+        else
+        {
+            SetLastError(ERROR_HANDLE_EOF);
+        }
+    }
+        
     return (dwBytesRead == dwBytesToRead);
 }
 
@@ -597,22 +611,26 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
 {
 #ifdef PLATFORM_WINDOWS
 
+    INTERNET_PORT ServerPort = INTERNET_DEFAULT_HTTP_PORT;
     HINTERNET hRequest;
     DWORD dwTemp = 0;
     bool bFileAvailable = false;
     int nError = ERROR_SUCCESS;
 
-    // Keep compiler happy
-    dwStreamFlags = dwStreamFlags;
+    // Check alternate ports
+    if(dwStreamFlags & STREAM_FLAG_USE_PORT_1119)
+    {
+        ServerPort = 1119;
+    }
 
-    // Don't connect to the internet
+    // Don't download if we are not connected to the internet
     if(!InternetGetConnectedState(&dwTemp, 0))
         nError = GetLastError();
 
     // Initiate the connection to the internet
     if(nError == ERROR_SUCCESS)
     {
-        pStream->Base.Http.hInternet = InternetOpen(_T("CascLib HTTP archive reader"),
+        pStream->Base.Http.hInternet = InternetOpen(_T("agent/2.17.2.6700"),
                                                     INTERNET_OPEN_TYPE_PRECONFIG,
                                                     NULL,
                                                     NULL,
@@ -631,7 +649,7 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         szFileName = BaseHttp_ExtractServerName(szFileName, szServerName);
         pStream->Base.Http.hConnect = InternetConnect(pStream->Base.Http.hInternet,
                                                       szServerName,
-                                                      INTERNET_DEFAULT_HTTP_PORT,
+                                                      ServerPort,
                                                       NULL,
                                                       NULL,
                                                       INTERNET_SERVICE_HTTP,
@@ -651,25 +669,40 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
             if(HttpSendRequest(hRequest, NULL, 0, NULL, 0))
             {
                 ULONGLONG FileTime = 0;
+                LPTSTR szEndPtr;
+                TCHAR szStatusCode[0x10];
+                DWORD dwStatusCode = 404;
                 DWORD dwFileSize = 0;
-                DWORD dwDataSize;
+                DWORD dwDataSize = sizeof(szStatusCode);
                 DWORD dwIndex = 0;
 
-                // Check if the archive has Last Modified field
-                dwDataSize = sizeof(ULONGLONG);
-                if(HttpQueryInfo(hRequest, HTTP_QUERY_LAST_MODIFIED | HTTP_QUERY_FLAG_SYSTEMTIME, &FileTime, &dwDataSize, &dwIndex))
-                    pStream->Base.Http.FileTime = FileTime;
+                // Check whether the file exists
+                if (HttpQueryInfo(hRequest, HTTP_QUERY_STATUS_CODE, szStatusCode, &dwDataSize, &dwIndex))
+                    dwStatusCode = _tcstoul(szStatusCode, &szEndPtr, 10);
 
-                // Verify if the server supports random access
-                dwDataSize = sizeof(DWORD);
-                if(HttpQueryInfo(hRequest, HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER, &dwFileSize, &dwDataSize, &dwIndex))
+                // Copare the statuc code
+                if (dwStatusCode == 200)
                 {
-                    if(dwFileSize != 0)
+                    // Check if the archive has Last Modified field
+                    dwDataSize = sizeof(ULONGLONG);
+                    if (HttpQueryInfo(hRequest, HTTP_QUERY_LAST_MODIFIED | HTTP_QUERY_FLAG_SYSTEMTIME, &FileTime, &dwDataSize, &dwIndex))
+                        pStream->Base.Http.FileTime = FileTime;
+
+                    // Verify if the server supports random access
+                    dwDataSize = sizeof(DWORD);
+                    if (HttpQueryInfo(hRequest, HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER, &dwFileSize, &dwDataSize, &dwIndex))
                     {
-                        pStream->Base.Http.FileSize = dwFileSize;
-                        pStream->Base.Http.FilePos = 0;
-                        bFileAvailable = true;
+                        if (dwFileSize != 0)
+                        {
+                            pStream->Base.Http.FileSize = dwFileSize;
+                            pStream->Base.Http.FilePos = 0;
+                            bFileAvailable = true;
+                        }
                     }
+                }
+                else
+                {
+                    nError = ERROR_FILE_NOT_FOUND;
                 }
             }
             InternetCloseHandle(hRequest);
@@ -681,6 +714,7 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
     if(bFileAvailable == false)
     {
         pStream->BaseClose(pStream);
+        SetLastError(nError);
         return false;
     }
 
@@ -723,7 +757,7 @@ static bool BaseHttp_Read(
         {
             // Add range request to the HTTP headers
             // http://www.clevercomponents.com/articles/article015/resuming.asp
-            _stprintf(szRangeRequest, _T("Range: bytes=%u-%u"), (unsigned int)dwStartOffset, (unsigned int)dwEndOffset);
+            CascStrPrintf(szRangeRequest, _countof(szRangeRequest), _T("Range: bytes=%u-%u"), (unsigned int)dwStartOffset, (unsigned int)dwEndOffset);
             HttpAddRequestHeaders(hRequest, szRangeRequest, 0xFFFFFFFF, HTTP_ADDREQ_FLAG_ADD_IF_NEW);
 
             // Send the request to the server
@@ -963,9 +997,7 @@ static bool BlockStream_GetPos(TFileStream * pStream, ULONGLONG * pByteOffset)
 static void BlockStream_Close(TBlockStream * pStream)
 {
     // Free the data map, if any
-    if(pStream->FileBitmap != NULL)
-        CASC_FREE(pStream->FileBitmap);
-    pStream->FileBitmap = NULL;
+    CASC_FREE(pStream->FileBitmap);
 
     // Call the base class for closing the stream
     pStream->BaseClose(pStream);
@@ -1026,7 +1058,7 @@ static TFileStream * AllocateFileStream(
     if(pStream != NULL)
     {
         // Zero the entire structure
-        memset(pStream, 0, StreamSize);
+        memset(pStream, 0, StreamSize + FileNameSize + sizeof(TCHAR));
         pStream->pMaster = pMaster;
         pStream->dwFlags = dwStreamFlags;
 
@@ -1344,7 +1376,10 @@ static TFileStream * FlatStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
     // Create new empty stream
     pStream = (TBlockStream *)AllocateFileStream(szFileName, sizeof(TBlockStream), dwStreamFlags);
     if(pStream == NULL)
+    {
+        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return NULL;
+    }
 
     // Do we have a master stream?
     if(pStream->pMaster != NULL)
@@ -1661,7 +1696,7 @@ static void PartStream_Close(TBlockStream * pStream)
 
         // Make sure that the header is properly BSWAPed
         BSWAP_ARRAY32_UNSIGNED(&PartHeader, sizeof(PART_FILE_HEADER));
-        sprintf(PartHeader.GameBuildNumber, "%u", (unsigned int)pStream->BuildNumber);
+        CascStrPrintf(PartHeader.GameBuildNumber, _countof(PartHeader.GameBuildNumber), "%u", (unsigned int)pStream->BuildNumber);
 
         // Write the part header
         pStream->BaseWrite(pStream, &ByteOffset, &PartHeader, sizeof(PART_FILE_HEADER));
@@ -1754,7 +1789,6 @@ static bool PartStream_CreateMirror(TBlockStream * pStream)
     // which would take long time on larger files.
     return true;
 }
-
 
 static TFileStream * PartStream_Open(const TCHAR * szFileName, DWORD dwStreamFlags)
 {
@@ -2193,9 +2227,7 @@ static void Block4Stream_Close(TBlockStream * pStream)
     }
 
     // Free the data map, if any
-    if(pStream->FileBitmap != NULL)
-        CASC_FREE(pStream->FileBitmap);
-    pStream->FileBitmap = NULL;
+    CASC_FREE(pStream->FileBitmap);
 
     // Do not call the BaseClose function,
     // we closed all handles already
@@ -2246,7 +2278,7 @@ static TFileStream * Block4Stream_Open(const TCHAR * szFileName, DWORD dwStreamF
         for(int nSuffix = 0; nSuffix < 30; nSuffix++)
         {
             // Open the n-th file
-            _stprintf(szNameBuff, _T("%s.%u"), pStream->szFileName, nSuffix);
+            CascStrPrintf(szNameBuff, (nNameLength + 4), _T("%s.%u"), pStream->szFileName, nSuffix);
             if(!pStream->BaseOpen(pStream, szNameBuff, dwBaseFlags))
                 break;
 
@@ -2368,7 +2400,6 @@ TFileStream * FileStream_CreateFile(
 
         // File create failed, delete the stream
         CASC_FREE(pStream);
-        pStream = NULL;
     }
 
     // Return the stream

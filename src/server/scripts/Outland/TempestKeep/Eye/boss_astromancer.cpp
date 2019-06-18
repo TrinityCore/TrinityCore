@@ -151,7 +151,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 Initialize();
                 _Reset();
                 me->SetArmor(defaultarmor, 0);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->SetVisible(true);
                 me->SetObjectScale(defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
@@ -217,7 +217,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         AppearDelay = false;
                         if (Phase == 2)
                         {
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                             me->SetVisible(false);
                         }
                         AppearDelay_Timer = 2000;
@@ -320,7 +320,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         {
                             if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700))
                             {
-                                Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                Summoned->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                                 Summoned->CastSpell(Summoned, SPELL_SPOTLIGHT, false);
                             }
                         }
@@ -364,7 +364,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                             if (j != i)
                                 SummonMinion(NPC_SOLARIUM_PRIEST, Portals[j][0], Portals[j][1], Portals[j][2]);
 
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         me->SetVisible(true);
 
                         Talk(SAY_SUMMON2);
@@ -399,7 +399,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 {
                     Phase = 4;
                     //To make sure she wont be invisible or not selecatble
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     me->SetVisible(true);
                     Talk(SAY_VOIDA);
                     Talk(SAY_VOIDB);

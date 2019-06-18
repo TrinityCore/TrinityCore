@@ -631,7 +631,7 @@ public:
                             _explosivesGuids.clear();
                             if (Creature* sironas = me->FindNearestCreature(NPC_SIRONAS, SIZE_OF_GRIDS))
                             {
-                                sironas->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                sironas->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
                                 me->SetFacingToObject(sironas);
                             }
                             _moveTimer = 1 * IN_MILLISECONDS;

@@ -360,7 +360,7 @@ public:
         {
             Initialize();
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void HandleAnimation()
@@ -844,7 +844,7 @@ public:
                 if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer))
                 {
                     if (spawn->GetEntry() == NPC_KALDOREI_INFANTRY)
-                        spawn->SetUInt32Value(UNIT_FIELD_DISPLAYID, 15427 + rand32() % 4);
+                        spawn->SetDisplayId(15427 + rand32() % 4);
                     if (i >= 30) WaveCount = 1;
                     if (i >= 33) WaveCount = 2;
                     if (i >= 45) WaveCount = 3;
@@ -978,25 +978,25 @@ public:
 
                 if (Merithra)
                 {
-                    Merithra->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-                    Merithra->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                    Merithra->SetUInt32Value(UNIT_FIELD_DISPLAYID, MERITHRA_NIGHT_ELF_FORM);
+                    Merithra->SetNpcFlags(UNIT_NPC_FLAG_NONE);
+                    Merithra->SetStandState(UNIT_STAND_STATE_STAND);
+                    Merithra->SetDisplayId(MERITHRA_NIGHT_ELF_FORM);
                     Merithra->setFaction(35);
                 }
 
                 if (Caelestrasz)
                 {
-                    Caelestrasz->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-                    Caelestrasz->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                    Caelestrasz->SetUInt32Value(UNIT_FIELD_DISPLAYID, CAELESTRASZ_NIGHT_ELF_FORM);
+                    Caelestrasz->SetNpcFlags(UNIT_NPC_FLAG_NONE);
+                    Caelestrasz->SetStandState(UNIT_STAND_STATE_STAND);
+                    Caelestrasz->SetDisplayId(CAELESTRASZ_NIGHT_ELF_FORM);
                     Caelestrasz->setFaction(35);
                 }
 
                 if (Arygos)
                 {
-                    Arygos->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-                    Arygos->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                    Arygos->SetUInt32Value(UNIT_FIELD_DISPLAYID, ARYGOS_GNOME_FORM);
+                    Arygos->SetNpcFlags(UNIT_NPC_FLAG_NONE);
+                    Arygos->SetStandState(UNIT_STAND_STATE_STAND);
+                    Arygos->SetDisplayId(ARYGOS_GNOME_FORM);
                     Arygos->setFaction(35);
                 }
 
@@ -1224,7 +1224,7 @@ class go_wind_stone : public GameObjectScript
                     summons->AI()->Talk(YELL_ROYAL_AGGRO);
                     break;
             }
-            summons->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            summons->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             summons->SendMeleeAttackStart(player);
             summons->CombatStart(player);
         }

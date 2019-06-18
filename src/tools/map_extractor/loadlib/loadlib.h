@@ -83,6 +83,7 @@ public:
     virtual ~ChunkedFile();
     bool prepareLoadedData();
     bool loadFile(CASC::StorageHandle const& mpq, std::string const& fileName, bool log = true);
+    bool loadFile(CASC::StorageHandle const& mpq, uint32 fileDataId, std::string const& description, bool log = true);
     void free();
 
     void parseChunks();

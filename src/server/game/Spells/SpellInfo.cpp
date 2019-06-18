@@ -307,7 +307,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_RANDOM},      // 86 TARGET_DEST_DEST_RANDOM
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 87 TARGET_DEST_DEST
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 88 TARGET_DEST_DYNOBJ_NONE
-    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 89 TARGET_DEST_TRAJ
+    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_TRAJ,    TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 89 TARGET_DEST_TRAJ
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 90 TARGET_UNIT_TARGET_MINIPET
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_RANDOM},      // 91 TARGET_DEST_DEST_RADIUS
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 92 TARGET_UNIT_SUMMONER
@@ -1031,6 +1031,9 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 259 SPELL_EFFECT_RESPEC_AZERITE_EMPOWERED_ITEM
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 260 SPELL_EFFECT_SUMMON_STABLED_PET
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 261 SPELL_EFFECT_SCRAP_ITEM
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 262 SPELL_EFFECT_262
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 263 SPELL_EFFECT_REPAIR_ITEM
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 264 SPELL_EFFECT_REMOVE_GEM
 };
 
 SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const& effectsMap, SpellVisualMap&& visuals)
@@ -1200,6 +1203,8 @@ SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const&
 
     _spellSpecific = SPELL_SPECIFIC_NORMAL;
     _auraState = AURA_STATE_NONE;
+
+    _allowedMechanicMask = 0;
 }
 
 SpellInfo::~SpellInfo()
@@ -2041,16 +2046,9 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     // creature/player specific target checks
     if (unitTarget)
     {
-        if (HasAttribute(SPELL_ATTR1_CANT_TARGET_IN_COMBAT))
-        {
-            if (unitTarget->IsInCombat())
-                return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
-            // player with active pet counts as a player in combat
-            else if (Player const* player = unitTarget->ToPlayer())
-                if (Pet* pet = player->GetPet())
-                    if (pet->GetVictim() && !pet->HasUnitState(UNIT_STATE_CONTROLLED))
-                        return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
-        }
+        // spells cannot be cast if player is in fake combat also
+        if (HasAttribute(SPELL_ATTR1_CANT_TARGET_IN_COMBAT) && (unitTarget->IsInCombat() || unitTarget->IsPetInCombat()))
+            return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
 
         // only spells with SPELL_ATTR3_ONLY_TARGET_GHOSTS can target ghosts
         if (HasAttribute(SPELL_ATTR3_ONLY_TARGET_GHOSTS) != unitTarget->HasAuraType(SPELL_AURA_GHOST))
@@ -3367,6 +3365,8 @@ void SpellInfo::_LoadImmunityInfo()
 
         immuneInfo.AuraTypeImmune.shrink_to_fit();
         immuneInfo.SpellEffectImmune.shrink_to_fit();
+
+        _allowedMechanicMask |= immuneInfo.MechanicImmuneMask;
     };
 
     for (auto const& effects : _effects)
@@ -3379,6 +3379,31 @@ void SpellInfo::_LoadImmunityInfo()
             loadImmunityInfoFn(const_cast<SpellEffectInfo*>(effect));
         }
     }
+
+    if (HasAttribute(SPELL_ATTR5_USABLE_WHILE_STUNNED))
+    {
+        switch (Id)
+        {
+            case 22812: // Barkskin
+                _allowedMechanicMask |=
+                    (1 << MECHANIC_STUN) |
+                    (1 << MECHANIC_FREEZE) |
+                    (1 << MECHANIC_KNOCKOUT) |
+                    (1 << MECHANIC_SLEEP);
+                break;
+            case 49039: // Lichborne, don't allow normal stuns
+                break;
+            default:
+                _allowedMechanicMask |= (1 << MECHANIC_STUN);
+                break;
+        }
+    }
+
+    if (HasAttribute(SPELL_ATTR5_USABLE_WHILE_CONFUSED))
+        _allowedMechanicMask |= (1 << MECHANIC_DISORIENTED);
+
+    if (HasAttribute(SPELL_ATTR5_USABLE_WHILE_FEARED))
+        _allowedMechanicMask |= (1 << MECHANIC_FEAR);
 }
 
 void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const* effect, bool apply) const
@@ -3577,6 +3602,11 @@ bool SpellInfo::SpellCancelsAuraEffect(AuraEffect const* aurEff) const
     }
 
     return false;
+}
+
+uint32 SpellInfo::GetAllowedMechanicMask() const
+{
+    return _allowedMechanicMask;
 }
 
 float SpellInfo::GetMinRange(bool positive) const
@@ -3892,10 +3922,10 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
 
 inline float CalcPPMHasteMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster)
 {
-    float haste = caster->GetFloatValue(UNIT_FIELD_MOD_HASTE);
-    float rangedHaste = caster->GetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE);
-    float spellHaste = caster->GetFloatValue(UNIT_MOD_CAST_HASTE);
-    float regenHaste = caster->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+    float haste = caster->m_unitData->ModHaste;
+    float rangedHaste = caster->m_unitData->ModRangedHaste;
+    float spellHaste = caster->m_unitData->ModSpellHaste;
+    float regenHaste = caster->m_unitData->ModHasteRegen;
 
     switch (mod->Param)
     {
@@ -3918,12 +3948,13 @@ inline float CalcPPMHasteMod(SpellProcsPerMinuteModEntry const* mod, Unit* caste
 
 inline float CalcPPMCritMod(SpellProcsPerMinuteModEntry const* mod, Unit* caster)
 {
-    if (caster->GetTypeId() != TYPEID_PLAYER)
+    Player const* player = caster->ToPlayer();
+    if (!player)
         return 0.0f;
 
-    float crit = caster->GetFloatValue(ACTIVE_PLAYER_FIELD_CRIT_PERCENTAGE);
-    float rangedCrit = caster->GetFloatValue(ACTIVE_PLAYER_FIELD_RANGED_CRIT_PERCENTAGE);
-    float spellCrit = caster->GetFloatValue(ACTIVE_PLAYER_FIELD_SPELL_CRIT_PERCENTAGE1);
+    float crit = player->m_activePlayerData->CritPercentage;
+    float rangedCrit = player->m_activePlayerData->RangedCritPercentage;
+    float spellCrit = player->m_activePlayerData->SpellCritPercentage;
 
     switch (mod->Param)
     {
@@ -3984,7 +4015,7 @@ float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
             case SPELL_PPM_MOD_SPEC:
             {
                 if (Player* plrCaster = caster->ToPlayer())
-                    if (plrCaster->GetInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == mod->Param)
+                    if (plrCaster->GetPrimarySpecialization() == uint32(mod->Param))
                         ppm *= 1.0f + mod->Coeff;
                 break;
             }

@@ -114,6 +114,7 @@ namespace WorldPackets
             int32 ExtendedCostID            = 0;
             int32 PlayerConditionFailed     = 0;
             bool DoNotFilterOnVendor        = false;
+            bool Refundable                 = false;
         };
 
         class VendorInventory final : public ServerPacket

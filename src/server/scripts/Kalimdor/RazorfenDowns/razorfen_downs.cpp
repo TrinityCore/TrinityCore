@@ -107,7 +107,7 @@ public:
                 channeling = false;
                 eventProgress = 0;
                 spawnerCount  = 0;
-                me->SetFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
+                me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
             }
         }
 
@@ -136,7 +136,7 @@ public:
             {
                 eventInProgress = true;
                 Talk(SAY_QUEST_ACCEPTED);
-                me->RemoveFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                 me->setFaction(FACTION_ESCORT);
                 me->GetMotionMaster()->MovePath(PATH_ESCORT, false);
             }

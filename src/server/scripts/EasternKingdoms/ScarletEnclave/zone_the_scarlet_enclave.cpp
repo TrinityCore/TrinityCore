@@ -70,7 +70,7 @@ public:
         {
             me->setActive(true);
             me->SetVisible(false);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetCanFly(true);
 
             me->GetPosition(x, y, z);

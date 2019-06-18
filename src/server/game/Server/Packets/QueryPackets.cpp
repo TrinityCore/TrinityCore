@@ -79,6 +79,9 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket << int32(Stats.RequiredExpansion);
         _worldPacket << int32(Stats.VignetteID);
         _worldPacket << int32(Stats.Class);
+        _worldPacket << float(Stats.FadeRegionRadius);
+        _worldPacket << int32(Stats.WidgetSetID);
+        _worldPacket << int32(Stats.WidgetSetUnitConditionID);
 
         if (!Stats.Title.empty())
             _worldPacket << Stats.Title;
@@ -130,7 +133,7 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
         BnetAccountID = player->GetSession()->GetBattlenetAccountGUID();
         Name          = player->GetName();
         Race          = player->getRace();
-        Sex           = player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
+        Sex           = player->m_playerData->NativeSex;
         ClassID       = player->getClass();
         Level         = player->getLevel();
 

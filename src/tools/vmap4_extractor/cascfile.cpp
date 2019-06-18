@@ -21,7 +21,7 @@
 
 CASCFile::CASCFile(CASC::StorageHandle const& casc, const char* filename, bool warnNoExist /*= true*/) :
     eof(false),
-    buffer(0),
+    buffer(nullptr),
     pointer(0),
     size(0)
 {
@@ -34,18 +34,41 @@ CASCFile::CASCFile(CASC::StorageHandle const& casc, const char* filename, bool w
         return;
     }
 
+    init(file, filename);
+}
+
+CASCFile::CASCFile(CASC::StorageHandle const& casc, uint32 fileDataId, std::string const& description, bool warnNoExist /*= true*/) :
+    eof(false),
+    buffer(nullptr),
+    pointer(0),
+    size(0)
+{
+    CASC::FileHandle file = CASC::OpenFile(casc, fileDataId, CASC_LOCALE_ALL, false);
+    if (!file)
+    {
+        if (warnNoExist || GetLastError() != ERROR_FILE_NOT_FOUND)
+            fprintf(stderr, "Can't open %s: %s\n", description.c_str(), CASC::HumanReadableCASCError(GetLastError()));
+        eof = true;
+        return;
+    }
+
+    init(file, description.c_str());
+}
+
+void CASCFile::init(CASC::FileHandle const& file, const char* description)
+{
     DWORD fileSizeHigh = 0;
     DWORD fileSize = CASC::GetFileSize(file, &fileSizeHigh);
     if (fileSize == CASC_INVALID_SIZE)
     {
-        fprintf(stderr, "Can't open %s, failed to get size: %s!\n", filename, CASC::HumanReadableCASCError(GetLastError()));
+        fprintf(stderr, "Can't open %s, failed to get size: %s!\n", description, CASC::HumanReadableCASCError(GetLastError()));
         eof = true;
         return;
     }
 
     if (fileSizeHigh)
     {
-        fprintf(stderr, "Can't open %s, file larger than 2GB", filename);
+        fprintf(stderr, "Can't open %s, file larger than 2GB", description);
         eof = true;
         return;
     }
@@ -56,7 +79,7 @@ CASCFile::CASCFile(CASC::StorageHandle const& casc, const char* filename, bool w
     buffer = new char[size];
     if (!CASC::ReadFile(file, buffer, size, &read) || size != read)
     {
-        fprintf(stderr, "Can't read %s, size=%u read=%u: %s\n", filename, uint32(size), uint32(read), CASC::HumanReadableCASCError(GetLastError()));
+        fprintf(stderr, "Can't read %s, size=%u read=%u: %s\n", description, uint32(size), uint32(read), CASC::HumanReadableCASCError(GetLastError()));
         eof = true;
         return;
     }

@@ -1343,6 +1343,9 @@ enum SpellEffectName
     SPELL_EFFECT_RESPEC_AZERITE_EMPOWERED_ITEM      = 259,
     SPELL_EFFECT_SUMMON_STABLED_PET                 = 260,
     SPELL_EFFECT_SCRAP_ITEM                         = 261,
+    SPELL_EFFECT_262                                = 262,
+    SPELL_EFFECT_REPAIR_ITEM                        = 263,
+    SPELL_EFFECT_REMOVE_GEM                         = 264,
     TOTAL_SPELL_EFFECTS
 };
 

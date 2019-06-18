@@ -244,7 +244,7 @@ class boss_blood_council_controller : public CreatureScript
                     for (uint32 bossData : PrincesData)
                         if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetGuidData(bossData)))
                         {
-                            prince->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                            prince->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
                             if (bossData == DATA_PRINCE_VALANAR)
                                 prince->SetHealth(prince->GetMaxHealth());
                         }
@@ -453,7 +453,7 @@ struct BloodPrincesBossAI : public BossAI
         summons.DespawnAll();
         me->SetCombatPulseDelay(0);
 
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         _isEmpowered = false;
         me->SetHealth(_spawnHealth);
         instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(true));
@@ -536,7 +536,7 @@ struct BloodPrincesBossAI : public BossAI
         _isEmpowered = false;
         if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             controller->AI()->SetData(DATA_PRINCE_EVADE, 1);
         }
     }
@@ -562,10 +562,9 @@ struct BloodPrincesBossAI : public BossAI
         {
             case ACTION_STAND_UP:
                 me->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                me->RemoveFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
-                me->ForceValuesUpdateAtIndex(UNIT_NPC_FLAGS);   // was in sniff. don't ask why
+                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                me->RemoveDynamicFlag(UNIT_DYNFLAG_DEAD);
+                me->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
                 me->m_Events.AddEvent(new StandUpEvent(me), me->m_Events.CalculateTime(1000));
                 break;
             case ACTION_CAST_INVOCATION:
@@ -814,7 +813,7 @@ class boss_prince_valanar_icc : public CreatureScript
                         summon->GetPosition(x, y, z);
                         float ground_Z = summon->GetMap()->GetHeight(summon->GetPhaseShift(), x, y, z, true, 500.0f);
                         summon->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, x, y, ground_Z);
-                        summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        summon->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         break;
                     }
                     case NPC_SHOCK_VORTEX:

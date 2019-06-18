@@ -37,12 +37,13 @@ void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& q
     if (Guild* guild = sGuildMgr->GetGuildByGuid(query.GuildGuid))
         if (guild->IsMember(query.PlayerGuid))
         {
-            guild->SendQueryResponse(this);
+            guild->SendQueryResponse(this, query.PlayerGuid);
             return;
         }
 
     WorldPackets::Guild::QueryGuildInfoResponse response;
     response.GuildGuid = query.GuildGuid;
+    response.PlayerGuid = query.PlayerGuid;
     SendPacket(response.Write());
 
     TC_LOG_DEBUG("guild", "SMSG_GUILD_QUERY_RESPONSE [%s]", GetPlayerInfo().c_str());
@@ -185,7 +186,7 @@ void WorldSession::HandleSaveGuildEmblem(WorldPackets::Guild::SaveGuildEmblem& p
         , emblemInfo.GetColor(), emblemInfo.GetBorderStyle()
         , emblemInfo.GetBorderColor(), emblemInfo.GetBackgroundColor());
 
-    if (GetPlayer()->GetNPCIfCanInteractWith(packet.Vendor, UNIT_NPC_FLAG_TABARDDESIGNER))
+    if (GetPlayer()->GetNPCIfCanInteractWith(packet.Vendor, UNIT_NPC_FLAG_TABARDDESIGNER, UNIT_NPC_FLAG_2_NONE))
     {
         // Remove fake death
         if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
@@ -375,7 +376,10 @@ void WorldSession::HandleGuildChallengeUpdateRequest(WorldPackets::Guild::GuildC
 
 void WorldSession::HandleDeclineGuildInvites(WorldPackets::Guild::DeclineGuildInvites& packet)
 {
-    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD, packet.Allow);
+    if (packet.Allow)
+        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_AUTO_DECLINE_GUILD);
+    else
+        GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_AUTO_DECLINE_GUILD);
 }
 
 void WorldSession::HandleRequestGuildRewardsList(WorldPackets::Guild::RequestGuildRewardsList& /*packet*/)

@@ -354,9 +354,9 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
             if (TempSummon* point = owner->SummonCreature(BOUNDARY_VISUALIZE_CREATURE, Position(startPosition.GetPositionX() + front.first*BOUNDARY_VISUALIZE_STEP_SIZE, startPosition.GetPositionY() + front.second*BOUNDARY_VISUALIZE_STEP_SIZE, spawnZ), TEMPSUMMON_TIMED_DESPAWN, duration * IN_MILLISECONDS))
             {
                 point->SetObjectScale(BOUNDARY_VISUALIZE_CREATURE_SCALE);
-                point->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_STUNNED | UNIT_FLAG_IMMUNE_TO_NPC);
+                point->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_STUNNED | UNIT_FLAG_IMMUNE_TO_NPC));
                 if (!hasOutOfBoundsNeighbor)
-                    point->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    point->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             }
         Q.pop();
     }

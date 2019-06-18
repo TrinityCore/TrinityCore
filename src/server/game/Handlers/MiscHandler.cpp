@@ -58,7 +58,7 @@
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
 {
-    if (GetPlayer()->IsAlive() || GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+    if (GetPlayer()->IsAlive() || GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_GHOST))
         return;
 
     if (GetPlayer()->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
@@ -257,11 +257,11 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequ
     if (!GetPlayer()->GetLootGUID().IsEmpty())
         GetPlayer()->SendLootReleaseAll();
 
-    bool instantLogout = (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && !GetPlayer()->IsInCombat()) ||
+    bool instantLogout = (GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_RESTING) && !GetPlayer()->IsInCombat()) ||
                          GetPlayer()->IsInFlight() || HasPermission(rbac::RBAC_PERM_INSTANT_LOGOUT);
 
     /// TODO: Possibly add RBAC permission to log out in combat
-    bool canLogoutInCombat = GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
+    bool canLogoutInCombat = GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_RESTING);
 
     uint32 reason = 0;
     if (GetPlayer()->IsInCombat() && !canLogoutInCombat)
@@ -295,7 +295,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequ
         if (GetPlayer()->GetStandState() == UNIT_STAND_STATE_STAND)
             GetPlayer()->SetStandState(UNIT_STAND_STATE_SIT);
         GetPlayer()->SetRooted(true);
-        GetPlayer()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+        GetPlayer()->AddUnitFlag(UNIT_FLAG_STUNNED);
     }
 
     SetLogoutStartTime(time(NULL));
@@ -321,49 +321,49 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCance
         GetPlayer()->SetStandState(UNIT_STAND_STATE_STAND);
 
         //! DISABLE_ROTATE
-        GetPlayer()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+        GetPlayer()->RemoveUnitFlag(UNIT_FLAG_STUNNED);
     }
 }
 
 void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& /*packet*/)
 {
-    bool inPvP = GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
-
-    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, !inPvP);
-    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, inPvP);
-
-    if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
+    if (GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_IN_PVP))
     {
-        if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.EndTimer)
-            GetPlayer()->UpdatePvP(true, true);
+        GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_IN_PVP);
+        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
+        if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
+            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start toggle-off
     }
     else
     {
-        if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start toggle-off
+        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_IN_PVP);
+        GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_PVP_TIMER);
+        if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.EndTimer)
+            GetPlayer()->UpdatePvP(true, true);
     }
 }
 
 void WorldSession::HandleSetPvP(WorldPackets::Misc::SetPvP& packet)
 {
-    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, packet.EnablePVP);
-    GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !packet.EnablePVP);
-
-    if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
+    if (!packet.EnablePVP)
     {
-        if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.EndTimer)
-            GetPlayer()->UpdatePvP(true, true);
+        GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_IN_PVP);
+        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
+        if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
+            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start toggle-off
     }
     else
     {
-        if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start set-off
+        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_IN_PVP);
+        GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_PVP_TIMER);
+        if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.EndTimer)
+            GetPlayer()->UpdatePvP(true, true);
     }
 }
 
 void WorldSession::HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& /*packet*/)
 {
-    if (GetPlayer()->IsAlive() || !GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+    if (GetPlayer()->IsAlive() || !GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_GHOST))
         return;
     GetPlayer()->RepopAtGraveyard();
 }
@@ -419,7 +419,7 @@ void WorldSession::HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& /*pack
         return;
 
     // body not released yet
-    if (!_player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+    if (!_player->HasPlayerFlag(PLAYER_FLAGS_GHOST))
         return;
 
     Corpse* corpse = _player->GetCorpse();
@@ -534,7 +534,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
         player->GetRestMgr().SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
 
         if (sWorld->IsFFAPvPRealm())
-            player->RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP);
+            player->RemovePvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
 
         return;
     }
@@ -756,7 +756,7 @@ void WorldSession::HandleSetActionBarToggles(WorldPackets::Character::SetActionB
         return;
     }
 
-    GetPlayer()->SetByteValue(ACTIVE_PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, packet.Mask);
+    GetPlayer()->SetMultiActionBars(packet.Mask);
 }
 
 void WorldSession::HandlePlayedTime(WorldPackets::Character::RequestPlayedTime& packet)
@@ -824,11 +824,11 @@ void WorldSession::HandleFarSightOpcode(WorldPackets::Misc::FarSight& packet)
 {
     if (packet.Enable)
     {
-        TC_LOG_DEBUG("network", "Added FarSight %s to %s", _player->GetGuidValue(ACTIVE_PLAYER_FIELD_FARSIGHT).ToString().c_str(), _player->GetGUID().ToString().c_str());
+        TC_LOG_DEBUG("network", "Added FarSight %s to %s", _player->m_activePlayerData->FarsightObject->ToString().c_str(), _player->GetGUID().ToString().c_str());
         if (WorldObject* target = _player->GetViewpoint())
             _player->SetSeer(target);
         else
-            TC_LOG_DEBUG("network", "Player %s (%s) requests non-existing seer %s", _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->GetGuidValue(ACTIVE_PLAYER_FIELD_FARSIGHT).ToString().c_str());
+            TC_LOG_DEBUG("network", "Player %s (%s) requests non-existing seer %s", _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->m_activePlayerData->FarsightObject->ToString().c_str());
     }
     else
     {
@@ -842,7 +842,7 @@ void WorldSession::HandleFarSightOpcode(WorldPackets::Misc::FarSight& packet)
 void WorldSession::HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packet)
 {
     // -1 at none
-    if (packet.TitleID > 0 && packet.TitleID < MAX_TITLE_INDEX)
+    if (packet.TitleID > 0)
     {
        if (!GetPlayer()->HasTitle(packet.TitleID))
             return;
@@ -850,7 +850,7 @@ void WorldSession::HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packe
     else
         packet.TitleID = 0;
 
-    GetPlayer()->SetUInt32Value(PLAYER_CHOSEN_TITLE, packet.TitleID);
+    GetPlayer()->SetChosenTitle(packet.TitleID);
 }
 
 void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& packet)
@@ -1046,7 +1046,10 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDiff
 
 void WorldSession::HandleSetTaxiBenchmark(WorldPackets::Misc::SetTaxiBenchmarkMode& packet)
 {
-    _player->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK, packet.Enable);
+    if (packet.Enable)
+        _player->AddPlayerFlag(PLAYER_FLAGS_TAXI_BENCHMARK);
+    else
+        _player->RemovePlayerFlag(PLAYER_FLAGS_TAXI_BENCHMARK);
 }
 
 void WorldSession::HandleGuildSetFocusedAchievement(WorldPackets::Achievement::GuildSetFocusedAchievement& setFocusedAchievement)

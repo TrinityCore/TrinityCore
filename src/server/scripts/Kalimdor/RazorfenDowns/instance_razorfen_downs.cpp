@@ -71,7 +71,7 @@ public:
                 case GO_GONG:
                     goGongGUID = gameObject->GetGUID();
                     if (GetBossState(DATA_TUTEN_KASH) == DONE)
-                        gameObject->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        gameObject->AddFlag(GO_FLAG_NOT_SELECTABLE);
                     break;
                 case GO_IDOL_OVEN_FIRE:
                 case GO_IDOL_CUP_FIRE:
@@ -114,7 +114,7 @@ public:
                     case IN_PROGRESS:
                     {
                         if (GameObject* go = instance->GetGameObject(goGongGUID))
-                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
 
                         switch (gongWave)
                         {
@@ -148,7 +148,7 @@ public:
                         {
                             fiendsKilled = 0;
                             if (GameObject* go = instance->GetGameObject(goGongGUID))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         break;
                     case NPC_TOMB_REAVER:
@@ -156,7 +156,7 @@ public:
                         {
                             reaversKilled = 0;
                             if (GameObject* go = instance->GetGameObject(goGongGUID))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         break;
                 }

@@ -71,6 +71,7 @@ struct WMODoodadData
 {
     std::vector<WMO::MODS> Sets;
     std::unique_ptr<char[]> Paths;
+    std::unique_ptr<uint32[]> FileDataIds;
     std::vector<WMO::MODD> Spawns;
     std::unordered_set<uint16> References;
 };

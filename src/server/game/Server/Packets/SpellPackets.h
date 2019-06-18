@@ -297,8 +297,19 @@ namespace WorldPackets
             ObjectGuid ServerCastID;
         };
 
+        struct SpellHitStatus
+        {
+            SpellHitStatus() { }
+            SpellHitStatus(uint8 reason) : Reason(reason) { }
+
+            uint8 Reason;
+        };
+
         struct SpellMissStatus
         {
+            SpellMissStatus() { }
+            SpellMissStatus(uint8 reason, uint8 reflectStatus) : Reason(reason), ReflectStatus(reflectStatus) { }
+
             uint8 Reason = 0;
             uint8 ReflectStatus = 0;
         };
@@ -354,6 +365,7 @@ namespace WorldPackets
             uint32 CastTime     = 0;
             std::vector<ObjectGuid> HitTargets;
             std::vector<ObjectGuid> MissTargets;
+            std::vector<SpellHitStatus> HitStatus;
             std::vector<SpellMissStatus> MissStatus;
             SpellTargetData Target;
             std::vector<SpellPowerData> RemainingPower;
@@ -699,8 +711,8 @@ namespace WorldPackets
             int32 SpellVisualID = 0;
             bool SpeedAsTime = false;
             float TravelSpeed = 0.0f;
-            float UnkZero = 0.0f; // Always zero
-            float Unk801 = 0.0f;
+            float LaunchDelay = 0.0f;
+            float MinDuration = 0.0f;
             TaggedPosition<Position::XYZ> SourceRotation; // Vector of rotations, Orientation is z
             TaggedPosition<Position::XYZ> TargetLocation; // Exclusive with Target
         };
@@ -714,15 +726,16 @@ namespace WorldPackets
 
             ObjectGuid Source;
             ObjectGuid Target; // Exclusive with TargetPosition
-            ObjectGuid Unk801_1;
-            uint16 MissReason = 0;
-            uint32 SpellVisualID = 0;
-            bool SpeedAsTime = false;
-            uint16 ReflectStatus = 0;
-            float TravelSpeed = 0.0f;
+            ObjectGuid Transport; // Used when Target = Empty && (SpellVisual::Flags & 0x400) == 0
             TaggedPosition<Position::XYZ> TargetPosition; // Exclusive with Target
-            float Orientation = 0.0f;
-            float Unk801_2 = 0.0f;
+            uint32 SpellVisualID = 0;
+            float TravelSpeed = 0.0f;
+            uint16 HitReason = 0;
+            uint16 MissReason = 0;
+            uint16 ReflectStatus = 0;
+            float LaunchDelay = 0.0f;
+            float MinDuration = 0.0f;
+            bool SpeedAsTime = false;
         };
 
         class PlaySpellVisualKit final : public ServerPacket

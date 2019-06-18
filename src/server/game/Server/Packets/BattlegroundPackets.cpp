@@ -21,6 +21,7 @@ WorldPacket const* WorldPackets::Battleground::PVPSeason::Write()
 {
     _worldPacket << uint32(CurrentSeason);
     _worldPacket << uint32(PreviousSeason);
+    _worldPacket << uint32(PvpSeasonID);
 
     return &_worldPacket;
 }
@@ -125,10 +126,11 @@ WorldPacket const* WorldPackets::Battleground::PVPLogData::Write()
 
 void WorldPackets::Battleground::BattlemasterJoin::Read()
 {
-    _worldPacket >> QueueID;
+    QueueIDs.resize(_worldPacket.read<uint32>());
     _worldPacket >> Roles;
     _worldPacket >> BlacklistMap[0] >> BlacklistMap[1];
-    JoinAsGroup = _worldPacket.ReadBit();
+    for (uint64& queueId : QueueIDs)
+        _worldPacket >> queueId;
 }
 
 void WorldPackets::Battleground::BattlemasterJoinArena::Read()

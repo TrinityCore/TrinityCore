@@ -22,6 +22,7 @@
 #include "LFGPacketsCommon.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "PacketUtilities.h"
 #include "Position.h"
 
 namespace WorldPackets
@@ -37,6 +38,7 @@ namespace WorldPackets
 
             uint32 PreviousSeason = 0;
             uint32 CurrentSeason = 0;
+            uint32 PvpSeasonID = 0;
         };
 
         class AreaSpiritHealerQuery final : public ClientPacket
@@ -220,9 +222,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            bool JoinAsGroup = false;
+            Array<uint64, 1> QueueIDs;
             uint8 Roles = 0;
-            uint64 QueueID = 0;
             int32 BlacklistMap[2] = { };
         };
 
