@@ -62,12 +62,6 @@ void SmartAI::UpdateDespawn(uint32 diff)
 
 void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 1*/)
 {
-    if (me->IsInCombat()) // no wp movement in combat
-    {
-        TC_LOG_ERROR("misc", "SmartAI::StartPath: Creature entry %u wanted to start waypoint movement (%u) while in combat, ignoring.", me->GetEntry(), pathId);
-        return;
-    }
-
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         StopPath();
 
