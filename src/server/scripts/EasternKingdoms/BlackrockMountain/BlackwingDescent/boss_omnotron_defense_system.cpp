@@ -160,26 +160,35 @@ enum Events
 enum Actions
 {
     // Omnotron
-    ACTION_GOLEM_ACTIVATED          = 0,
-    ACTION_START_ENCOUNTER          = 1,
-    ACTION_STOP_ENCOUNTER           = 2,
-    ACTION_FINISH_ENCOUNTER         = 3,
-    ACTION_SAY_ACQUIRING_TARGET     = 4,
+    ACTION_GOLEM_ACTIVATED                  = 0,
+    ACTION_START_ENCOUNTER                  = 1,
+    ACTION_STOP_ENCOUNTER                   = 2,
+    ACTION_FINISH_ENCOUNTER                 = 3,
+    ACTION_SAY_ACQUIRING_TARGET             = 4,
 
     // Omnotron Defense System
-    ACTION_ACTIVATE_GOLEM           = 0,
-    ACTION_DEACTIVATE_GOLEM         = 1,
+    ACTION_ACTIVATE_GOLEM                   = 0,
+    ACTION_DEACTIVATE_GOLEM                 = 1,
+
+    // Magmatron
+    ACTION_FAIL_STATIC_SHOCK_CRITERIA       = 2,
+    ACTION_FAIL_POISON_BOMB_CRITERIA        = 3,
+    ACTION_FAIL_ARCANE_ANNIHILATOR_CRITERIA = 4,
+    ACTION_FAIL_FLAMETHROWER_CRITERIA       = 5,
 
     // Lord Victor Nefarius
-    ACTION_CAST_SHADOW_INFUSION     = 0,
-    ACTION_CAST_ENCASING_SHADOWS    = 1
+    ACTION_CAST_SHADOW_INFUSION             = 0,
+    ACTION_CAST_ENCASING_SHADOWS            = 1
 };
 
 enum Data
 {
     // Omnotron
-    DATA_NEXT_GOLEM_IN_QUEUE    = 0,
-    DATA_SAY_GOLEM_SHIELD       = 0,
+    DATA_NEXT_GOLEM_IN_QUEUE                = 0,
+    DATA_SAY_GOLEM_SHIELD                   = 0,
+
+    // Magmatron
+    DATA_FAILED_CRITERIA_MASK               = 0
 };
 
 Position const FirstGolemPatrolStartPoint           = { -324.665f,  -398.085f,  213.8214f };
@@ -194,6 +203,16 @@ enum SummonGroups
 {
     SUMMON_GROUP_GOLEMS = 0
 };
+
+enum FailedAchievementCriteriaMask
+{
+    FAILED_CRITERIA_NONE                = 0x0,
+    FAILED_CRITERIA_STATIC_SHOCK        = 0x1,
+    FAILED_CRITERIA_POISON_BOMB         = 0x2,
+    FAILED_CRITERIA_ARCANE_ANNIHILATOR  = 0x4,
+    FAILED_CRITERIA_FLAMETHROWER        = 0x8
+};
+
 
 struct GolemInfo
 {
@@ -543,6 +562,7 @@ struct npc_omnotron_magmatron : public ScriptedAI
 
     void Initialize()
     {
+        _failedCriteriaMask = 0;
         me->SetReactState(REACT_PASSIVE);
     }
 
@@ -583,6 +603,14 @@ struct npc_omnotron_magmatron : public ScriptedAI
         }
     }
 
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_FAILED_CRITERIA_MASK)
+            return _failedCriteriaMask;
+
+        return 0;
+    }
+
     void DoAction(int32 action) override
     {
         switch (action)
@@ -608,6 +636,18 @@ struct npc_omnotron_magmatron : public ScriptedAI
             case ACTION_DEACTIVATE_GOLEM:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 _events.Reset();
+                break;
+            case ACTION_FAIL_STATIC_SHOCK_CRITERIA:
+                _failedCriteriaMask |= FAILED_CRITERIA_STATIC_SHOCK;
+                break;
+            case ACTION_FAIL_POISON_BOMB_CRITERIA:
+                _failedCriteriaMask |= FAILED_CRITERIA_POISON_BOMB;
+                break;
+            case ACTION_FAIL_ARCANE_ANNIHILATOR_CRITERIA:
+                _failedCriteriaMask |= FAILED_CRITERIA_ARCANE_ANNIHILATOR;
+                break;
+            case ACTION_FAIL_FLAMETHROWER_CRITERIA:
+                _failedCriteriaMask |= FAILED_CRITERIA_FLAMETHROWER;
                 break;
             default:
                 break;
@@ -675,6 +715,7 @@ struct npc_omnotron_magmatron : public ScriptedAI
 private:
     EventMap _events;
     InstanceScript* _instance;
+    uint32 _failedCriteriaMask;
 };
 
 struct npc_omnotron_toxitron : public ScriptedAI
@@ -913,6 +954,13 @@ struct npc_omnotron_arcanotron : public ScriptedAI
             me->MakeInterruptable(true);
     }
 
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_ARCANE_ANNIHILATION)
+            if (Creature* magmatron = _instance->GetCreature(DATA_MAGMATRON))
+                magmatron->AI()->DoAction(ACTION_FAIL_ARCANE_ANNIHILATOR_CRITERIA);
+    }
+
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
@@ -1145,6 +1193,10 @@ struct npc_omnotron_poison_bomb : public ScriptedAI
     {
         if (spell->Id == SPELL_QUIETE_SUICIDE)
         {
+            if (InstanceScript* instance = me->GetInstanceScript())
+                if (Creature* magmatron = instance->GetCreature(DATA_MAGMATRON))
+                    magmatron->AI()->DoAction(ACTION_FAIL_POISON_BOMB_CRITERIA);
+
             DoCastSelf(SPELL_POISON_BOMB_DAMAGE, true);
             DoCastSelf(SPELL_POISON_BOMB_SUMMON_PUDDLE, true);
         }
@@ -1359,10 +1411,7 @@ class spell_omnotron_unstable_shield : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-            {
-                SPELL_STATIC_SHOCK
-            });
+        return ValidateSpellInfo({ SPELL_STATIC_SHOCK });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -1379,6 +1428,10 @@ class spell_omnotron_unstable_shield : public AuraScript
             return;
 
         caster->CastSpell(target, SPELL_STATIC_SHOCK, true, nullptr, aurEff);
+
+        if (InstanceScript* instance = caster->GetInstanceScript())
+            if (Creature* magmatron = instance->GetCreature(DATA_MAGMATRON))
+                magmatron->AI()->DoAction(ACTION_FAIL_STATIC_SHOCK_CRITERIA);
     }
 
     void Register() override
@@ -1556,6 +1609,80 @@ class spell_omnotron_overcharged_power_generator : public AuraScript
     }
 };
 
+class spell_omnotron_flamethrower : public SpellScript
+{
+    PrepareSpellScript(spell_omnotron_flamethrower);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.size() >= 2)
+            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                if (Creature* magmatron = instance->GetCreature(DATA_MAGMATRON))
+                    magmatron->AI()->DoAction(ACTION_FAIL_FLAMETHROWER_CRITERIA);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_omnotron_flamethrower::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+    }
+};
+
+class achievement_achieve_a_tron_static_shock : public AchievementCriteriaScript
+{
+    public:
+        achievement_achieve_a_tron_static_shock() : AchievementCriteriaScript("achievement_achieve_a_tron_static_shock") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target) override
+        {
+            if (target && target->IsAIEnabled)
+                return !(target->GetAI()->GetData(DATA_FAILED_CRITERIA_MASK) & FAILED_CRITERIA_STATIC_SHOCK);
+
+            return false;
+        }
+};
+
+class achievement_achieve_a_tron_poison_bomb : public AchievementCriteriaScript
+{
+    public:
+        achievement_achieve_a_tron_poison_bomb() : AchievementCriteriaScript("achievement_achieve_a_tron_poison_bomb") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target) override
+        {
+            if (target && target->IsAIEnabled)
+                return !(target->GetAI()->GetData(DATA_FAILED_CRITERIA_MASK) & FAILED_CRITERIA_POISON_BOMB);
+
+            return false;
+        }
+};
+
+class achievement_achieve_a_tron_arcane_annihilator : public AchievementCriteriaScript
+{
+    public:
+        achievement_achieve_a_tron_arcane_annihilator() : AchievementCriteriaScript("achievement_achieve_a_tron_arcane_annihilator") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target) override
+        {
+            if (target && target->IsAIEnabled)
+                return !(target->GetAI()->GetData(DATA_FAILED_CRITERIA_MASK) & FAILED_CRITERIA_ARCANE_ANNIHILATOR);
+
+            return false;
+        }
+};
+
+class achievement_achieve_a_tron_flamethrower : public AchievementCriteriaScript
+{
+    public:
+        achievement_achieve_a_tron_flamethrower() : AchievementCriteriaScript("achievement_achieve_a_tron_flamethrower") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target) override
+        {
+            if (target && target->IsAIEnabled)
+                return !(target->GetAI()->GetData(DATA_FAILED_CRITERIA_MASK) & FAILED_CRITERIA_FLAMETHROWER);
+
+            return false;
+        }
+};
+
 void AddSC_boss_omnotron_defense_system()
 {
     RegisterBlackwingDescentCreatureAI(boss_omnotron_defense_system);
@@ -1579,4 +1706,9 @@ void AddSC_boss_omnotron_defense_system()
     RegisterSpellScript(spell_omnotron_shadow_conductor);
     RegisterSpellScript(spell_omnotron_overcharge);
     RegisterAuraScript(spell_omnotron_overcharged_power_generator);
+    RegisterSpellScript(spell_omnotron_flamethrower);
+    new achievement_achieve_a_tron_static_shock;
+    new achievement_achieve_a_tron_poison_bomb;
+    new achievement_achieve_a_tron_arcane_annihilator;
+    new achievement_achieve_a_tron_flamethrower;
 }
