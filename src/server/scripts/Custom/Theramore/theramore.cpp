@@ -272,6 +272,7 @@ class npc_jaina_theramore : public CreatureScript
                     aden->SetPhaseMask(3, true);
                     kinndy->NearTeleportTo(-3637.63f, -4408.91f, 9.79f, 4.84f);
                     kinndy->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_CRY);
+                    kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
                     std::vector<GameObject*> fires;
                     GetGameObjectListWithEntryInGrid(fires, me, GOB_FIRE_THERAMORE, 5000.f);
@@ -807,7 +808,6 @@ class npc_jaina_theramore : public CreatureScript
 
                     // Event - Evacuation
                     case EVENT_EVACUATION_1:
-                        kalecgos = GetClosestCreatureWithEntry(me, NPC_KALECGOS, 100.f);
                         kalecgos->SetVisible(true);
                         kalecgos->NearTeleportTo(-3724.90f, -4547.24f, 25.82f, 0.51f);
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);

@@ -53,8 +53,9 @@ class npc_paladin : public CreatureScript
             if (!handOfProtection && HealthBelowPct(10))
             {
                 DoCastSelf(SPELL_HAND_OF_PROTECTION);
+                me->SetControlled(true, UNIT_STATE_ROOT);
                 handOfProtection = true;
-                events.ScheduleEvent(CASTING_SACRED_LIGHT, 2s);
+                events.ScheduleEvent(CASTING_SACRED_LIGHT, 5ms);
             }
         }
 
@@ -65,9 +66,6 @@ class npc_paladin : public CreatureScript
                 return;
 
             events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -90,13 +88,8 @@ class npc_paladin : public CreatureScript
                         break;
 
                     case CASTING_SACRED_LIGHT:
-                        if (HealthAbovePct(50))
-                        {
-                            DoCastSelf(SPELL_SACRED_LIGHT);
-                            events.RescheduleEvent(CASTING_HAND_OF_RECKONING, 1s);
-                        }
-                        else
-                            events.CancelEvent(CASTING_HAND_OF_RECKONING);
+                        DoCastSelf(SPELL_SACRED_LIGHT);
+                        me->SetControlled(false, UNIT_STATE_ROOT);
                         break;
                 }
             }

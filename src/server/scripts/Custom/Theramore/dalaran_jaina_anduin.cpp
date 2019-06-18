@@ -135,7 +135,7 @@ enum Texts
 
 #pragma region CONSTANTS
 
-constexpr auto GOSSIP_ITEM_JAINA_START   = "Nous devons faire tout ce que nous pouvons pour garder la neutralitÃ© du Kirin Tor.";
+constexpr auto GOSSIP_ITEM_JAINA_START   = "Nous devons faire tout ce que nous pouvons pour garder la neutralité du Kirin Tor.";
 
 constexpr int INSIDE_PATH_SIZE           = 11;
 constexpr int SCENE_KALECGOS_COUNT       = 4;
@@ -343,8 +343,6 @@ const Position MagicTracksPos[TOTAL_TRACKERS_COUNT] =
 };
 
 #pragma endregion
-
-// anduin donne pas de quete
 
 class dalaran_jaina_anduin : public CreatureScript
 {

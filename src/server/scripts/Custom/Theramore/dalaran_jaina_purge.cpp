@@ -15,44 +15,50 @@
 
 enum NPCs
 {
-    NPC_JAINA_PROUDMOORE = 100045,
-    NPC_DISPLACED_SUNREAVER = 100048,
-    NPC_WATER_ELEMENTAL = 100011,
-    NPC_AETHAS_SUNREAVER = 100050,
-    NPC_SUNREAVER_GUARDIAN = 100046
+    NPC_JAINA_PROUDMOORE        = 100045,
+    NPC_DISPLACED_SUNREAVER     = 100048,
+    NPC_WATER_ELEMENTAL         = 100011,
+    NPC_AETHAS_SUNREAVER        = 100050,
+    NPC_SUNREAVER_GUARDIAN      = 100046,
+    NPC_SILVER_COV_GUARDIAN     = 100047,
 };
 
 enum Spells
 {
-    SPELL_FIREBALL = 100002,
-    SPELL_BLIZZARD = 100001,
-    SPELL_TELEPORT = 51347,
-    SPELL_DIRECT_TELEPORT = 100045,
-    SPELL_AURA_OF_BRILLANCE = 31260,
-    SPELL_WATER_BOLT = 100046,
-    SPELL_ICE_PRISON = 100047,
-    SPELL_POWER_BALL_VISUAL = 54139,
-    SPELL_FIREBALL_MINOR = 100003,
-    SPELL_FIREBLAST_MINOR = 100004,
+    SPELL_FIREBALL              = 100002,
+    SPELL_BLIZZARD              = 100001,
+    SPELL_TELEPORT              = 51347,
+    SPELL_DIRECT_TELEPORT       = 100045,
+    SPELL_AURA_OF_BRILLANCE     = 31260,
+    SPELL_WATER_BOLT            = 100046,
+    SPELL_ICE_PRISON            = 100047,
+    SPELL_POWER_BALL_VISUAL     = 54139,
+    SPELL_FIREBALL_MINOR        = 100003,
+    SPELL_FIREBLAST_MINOR       = 100004,
+    SPELL_REMEMBER_THERAMORE    = 100051,
+    SPELL_KNOCKBACK             = 100052,
+    SPELL_ARCANE_SHIELD         = 100048
 };
 
 enum Misc
 {
     // Jaina's casting
-    CASTING_BLIZZARD = 1,
+    CASTING_BLIZZARD            = 1,
 
     // Sunreaver's casting
-    CASTING_FIREBLAST = 1,
+    CASTING_FIREBLAST           = 1,
 
-    SAY_JAINA_TELEPORT = 0,
-    SAY_JAINA_SLAIN = 1,
-    SAY_JAINA_1 = 2,
-    SAY_JAINA_2 = 3,
-    SAY_AETHAS_3 = 0,
-    SAY_JAINA_4 = 4,
-    SAY_AETHAS_5 = 1,
-    SAY_JAINA_6 = 5,
-    SAY_JAINA_7 = 6
+    SAY_JAINA_TELEPORT          = 0,
+    SAY_JAINA_SLAIN             = 1,
+    SAY_JAINA_1                 = 2,
+    SAY_JAINA_2                 = 3,
+    SAY_AETHAS_3                = 0,
+    SAY_JAINA_4                 = 4,
+    SAY_AETHAS_5                = 1,
+    SAY_JAINA_6                 = 5,
+    SAY_JAINA_7                 = 6,
+
+    SAY_IVRENNE_1               = 0
 };
 
 enum Events
@@ -78,7 +84,9 @@ struct Location
 {
     uint32 entry;
     Position position;
-} npcsLocation[NPCS_TOTAL_COUNT] =
+};
+
+const Location npcsLocation[NPCS_TOTAL_COUNT] =
 {
     { NPC_AETHAS_SUNREAVER,   { 5802.06f, 839.48f, 680.05f, 4.62f }},
     { NPC_SUNREAVER_GUARDIAN, { 5794.70f, 810.40f, 661.83f, 4.53f }},
@@ -88,6 +96,14 @@ struct Location
 };
 
 const Position destinationAethas1 = { 5799.26f, 812.35f, 662.02f, 4.62f };
+
+const Position spawnSilverCovGuardian[] =
+{
+    { 5769.24f, 669.04f, 643.82f, 5.59f },
+    { 5833.89f, 676.41f, 643.60f, 4.06f },
+    { 5842.63f, 609.25f, 650.60f, 2.50f },
+    { 5774.73f, 602.09f, 650.54f, 0.90f }
+};
 
 class npc_displaced_sunreaver : public CreatureScript
 {
@@ -218,6 +234,7 @@ class dalaran_jaina_purge : public CreatureScript
             Initialize();
 
             me->AddAura(SPELL_AURA_OF_BRILLANCE, me);
+            me->AddAura(SPELL_REMEMBER_THERAMORE, me);
         }
 
         void KilledUnit(Unit* victim) override
@@ -508,10 +525,204 @@ class dalaran_aethas_event : public CreatureScript
     }
 };
 
+class npc_arcanist_ivrenne : public CreatureScript
+{
+    public:
+    npc_arcanist_ivrenne() : CreatureScript("npc_arcanist_ivrenne") {}
+
+    struct npc_arcanist_ivrenneAI : public ScriptedAI
+    {
+        npc_arcanist_ivrenneAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            playingEvent = false;
+        }
+
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (playingEvent || who->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            player = who->ToPlayer();
+            if (me->GetMapId() == 727)
+            {
+                if (me->IsFriendlyTo(player) && me->IsWithinDist2d(player, 10.f))
+                {
+                    playingEvent = true;
+
+                    me->AI()->Talk(SAY_IVRENNE_1);
+                    events.ScheduleEvent(1, 2s);
+                }
+            }
+        }
+
+        void Reset() override
+        {
+            events.Reset();
+            Initialize();
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case 1:
+                        DoCast(player, SPELL_KNOCKBACK);
+                        events.ScheduleEvent(2, 5s);
+                        break;
+
+                    case 2:
+                        playingEvent = false;
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private:
+        EventMap events;
+        Player* player;
+        bool playingEvent;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_arcanist_ivrenneAI(creature);
+    }
+};
+
+class SilverCovenantGuardian : public BasicEvent
+{
+    public:
+    SilverCovenantGuardian(Creature* owner, Creature* uovril, const Position& final) : owner(owner), step(0), uovril(uovril), finalPos(final) { }
+
+    bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+    {
+        switch (step)
+        {
+            case 0:
+                owner->SetHomePosition(finalPos);
+                owner->GetMotionMaster()->MoveCloserAndStop(0, uovril, 5.f);
+                owner->m_Events.AddEvent(this, eventTime + 1000);
+                break;
+
+            case 1:
+            {
+                if (!owner->IsWithinDist2d(uovril, 8.f))
+                {
+                    owner->m_Events.AddEvent(this, eventTime + 500);
+                    return false;
+                }
+
+                owner->SetWalk(true);
+                owner->SetReactState(REACT_AGGRESSIVE);
+                owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                owner->GetMotionMaster()->MovePoint(0, finalPos, true, finalPos.GetOrientation());
+
+                return true;
+            }
+        }
+
+        step++;
+        return false;
+    }
+
+    private:
+    Creature* owner;
+    Creature* uovril;
+    Position finalPos;
+    uint8 step;
+};
+
+class npc_arcanist_uovril : public CreatureScript
+{
+    public:
+    npc_arcanist_uovril() : CreatureScript("npc_arcanist_uovril") {}
+
+    struct npc_arcanist_uovrilAI : public ScriptedAI
+    {
+        npc_arcanist_uovrilAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+
+        }
+
+        void Reset() override
+        {
+            events.Reset();
+            Initialize();
+
+            DoCastSelf(SPELL_ARCANE_SHIELD);
+
+            events.ScheduleEvent(1, 5s);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case 1:
+                    {
+                        int randomPos = irand(0, 3);
+                        if (Creature* guardian = me->SummonCreature(RAND(NPC_SUNREAVER_GUARDIAN, NPC_SILVER_COV_GUARDIAN), spawnSilverCovGuardian[randomPos], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min))
+                        {
+                            guardian->SetReactState(REACT_PASSIVE);
+                            guardian->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            guardian->m_Events.AddEvent(new SilverCovenantGuardian(guardian, me, GetRandomPosition(frand(3.f, 8.f))), guardian->m_Events.CalculateTime(500));
+                        }
+                        events.Repeat(10s, 20s);
+                        break;
+                    }
+
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private:
+        EventMap events;
+
+        Position GetRandomPosition(float dist)
+        {
+            const Position center = me->GetPosition();
+            float alpha = 2 * float(M_PI) * float(rand_norm());
+            float r = dist * sqrtf(float(rand_norm()));
+            float x = r * cosf(alpha) + center.GetPositionX();
+            float y = r * sinf(alpha) + center.GetPositionY();
+            return { x, y, center.GetPositionZ(), 0.f };
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_arcanist_uovrilAI(creature);
+    }
+};
 
 void AddSC_dalaran_jaina_purge()
 {
     new dalaran_jaina_purge();
     new npc_displaced_sunreaver();
     new dalaran_aethas_event();
+    new npc_arcanist_ivrenne();
+    new npc_arcanist_uovril();
 }

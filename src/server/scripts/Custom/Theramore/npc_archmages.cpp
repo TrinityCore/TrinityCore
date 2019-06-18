@@ -80,7 +80,7 @@ class npc_archmage_fire : public CreatureScript
             if (me->GetMapId() != 726)
                 return;
 
-            if (me->GetHealth() < 5)
+            if (HealthBelowPct(5))
                 damage = 0;
         }
 
@@ -167,7 +167,7 @@ class npc_archmage_arcanes : public CreatureScript
             if (me->GetMapId() != 726)
                 return;
 
-            if (me->GetHealth() < 5)
+            if (HealthBelowPct(5))
                 damage = 0;
         }
 
@@ -278,7 +278,7 @@ public:
             if (me->GetMapId() != 726)
                 return;
 
-            if (me->GetHealth() < 5)
+            if (HealthBelowPct(5))
                 damage = 0;
         }
 
