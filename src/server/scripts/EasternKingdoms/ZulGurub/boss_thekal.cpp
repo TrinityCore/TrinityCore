@@ -375,6 +375,10 @@ class LorKhanSelectTargetToHeal
             if (u->ToCreature()->GetEntry() != NPC_HIGH_PRIEST_THEKAL && u->GetEntry() != NPC_ZEALOT_LORKHAN && u->GetEntry() != NPC_ZEALOT_ZATH)
                 return false;
 
+            // Don't allow to heal a target that is waiting for resurrection
+            if (u->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
+                return false;
+
             if ((u->GetMaxHealth() - u->GetHealth() > i_hp) && i_obj->IsWithinDistInMap(u, i_range))
             {
                 i_hp = u->GetMaxHealth() - u->GetHealth();
