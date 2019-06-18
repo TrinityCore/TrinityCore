@@ -49,9 +49,9 @@ struct AchievementEntry
 struct AnimationDataEntry
 {
     uint32 ID;
-    uint16 Fallback;
+    uint16 BehaviorID;
     uint8 BehaviorTier;
-    int32 BehaviorID;
+    int32 Fallback;
     int32 Flags[2];
 };
 
@@ -2648,9 +2648,9 @@ struct SpellItemEnchantmentEntry
     LocalizedString* HordeName;
     uint32 EffectArg[MAX_ITEM_ENCHANTMENT_EFFECTS];
     float EffectScalingPoints[MAX_ITEM_ENCHANTMENT_EFFECTS];
+    uint32 TransmogPlayerConditionID;
     uint32 TransmogCost;
     uint32 IconFileDataID;
-    uint32 TransmogPlayerConditionID;
     int16 EffectPointsMin[MAX_ITEM_ENCHANTMENT_EFFECTS];
     uint16 ItemVisual;
     uint16 Flags;
