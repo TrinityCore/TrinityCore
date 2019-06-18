@@ -2311,9 +2311,9 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 return false;
             }
 
-            if (cond->ConditionValue3 > quest->RequiredNpcOrGo[cond->ConditionValue2])
+            if (cond->ConditionValue3 > quest->RequiredNpcOrGoCount[cond->ConditionValue2])
             {
-                TC_LOG_ERROR("sql.sql", "%s has quest objective count %u in value3, but quest %u has a maximum objective count of %u in RequiredNPCOrGO%u, skipped.", cond->ToString(true).c_str(), cond->ConditionValue3, cond->ConditionValue2, quest->RequiredNpcOrGo[cond->ConditionValue2], cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "%s has quest objective count %u in value3, but quest %u has a maximum objective count of %u in RequiredNPCOrGOCount%u, skipped.", cond->ToString(true).c_str(), cond->ConditionValue3, cond->ConditionValue2, quest->RequiredNpcOrGoCount[cond->ConditionValue2], cond->ConditionValue2);
                 return false;
             }
             break;
