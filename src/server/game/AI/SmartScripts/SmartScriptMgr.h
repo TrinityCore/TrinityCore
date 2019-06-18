@@ -103,7 +103,7 @@ enum SMART_EVENT
     SMART_EVENT_AGGRO                    = 4,       // NONE
     SMART_EVENT_KILL                     = 5,       // CooldownMin0, CooldownMax1, playerOnly2, else creature entry3
     SMART_EVENT_DEATH                    = 6,       // NONE
-    SMART_EVENT_EVADE                    = 7,       // NONE
+    SMART_EVENT_EVADE                    = 7,       // IncludeReasonsMask (0 all, < 1 << EVADE_REASON_END), ExcludeReasonsMask (0 none, < 1 << EVADE_REASON_END)
     SMART_EVENT_SPELLHIT                 = 8,       // SpellID, School, CooldownMin, CooldownMax
     SMART_EVENT_RANGE                    = 9,       // MinDist, MaxDist, RepeatMin, RepeatMax
     SMART_EVENT_OOC_LOS                  = 10,      // NoHostile, MaxRnage, CooldownMin, CooldownMax
@@ -428,6 +428,12 @@ struct SmartEvent
             uint32 cooldownMin;
             uint32 cooldownMax;
         } counter;
+
+        struct
+        {
+            uint32 includeReasonsMask;
+            uint32 excludeReasonsMask;
+        } evade;
 
         struct
         {

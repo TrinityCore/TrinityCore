@@ -406,11 +406,11 @@ void SmartAI::MovementInform(uint32 type, uint32 id)
         _OOCReached = true;
 }
 
-void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
+void SmartAI::EnterEvadeMode(EvadeReason why)
 {
     if (_evadeDisabled)
     {
-        GetScript()->ProcessEventsFor(SMART_EVENT_EVADE);
+        GetScript()->ProcessEventsFor(SMART_EVENT_EVADE, nullptr, why);
         return;
     }
 
@@ -425,7 +425,7 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
 
     me->AddUnitState(UNIT_STATE_EVADE);
 
-    GetScript()->ProcessEventsFor(SMART_EVENT_EVADE); // must be after _EnterEvadeMode (spells, auras, ...)
+    GetScript()->ProcessEventsFor(SMART_EVENT_EVADE, nullptr, why); // must be after _EnterEvadeMode (spells, auras, ...)
 
     SetRun(_run);
 

@@ -2980,7 +2980,6 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         //no params
         case SMART_EVENT_AGGRO:
         case SMART_EVENT_DEATH:
-        case SMART_EVENT_EVADE:
         case SMART_EVENT_REACHED_HOME:
         case SMART_EVENT_CHARMED_TARGET:
         case SMART_EVENT_CORPSE_REMOVED:
@@ -3388,6 +3387,17 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
 
             ProcessTimedAction(e, e.event.counter.cooldownMin, e.event.counter.cooldownMax);
             break;
+        case SMART_EVENT_EVADE:
+        {
+            // Skip the action if includeReasonsMask is specified and this event does NOT match it
+            if (e.event.evade.includeReasonsMask != 0 && !(e.event.evade.includeReasonsMask & (1 << var0)))
+                return;
+            // Skip the action if excludeReasonsMask is specified and this event does match it
+            if (e.event.evade.excludeReasonsMask != 0 && (e.event.evade.excludeReasonsMask & (1 << var0)))
+                return;
+            ProcessAction(e, unit, var0, var1, bvar, spell, gob);
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessEvent: Unhandled Event type %u", e.GetEventType());
             break;

@@ -16,6 +16,7 @@
  */
 
 #include "SmartScriptMgr.h"
+#include "CreatureAI.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
@@ -1010,6 +1011,19 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
                 }
                 break;
+            case SMART_EVENT_EVADE:
+                // Check if the includeReasons and excludeReasons masks store any value equal/higher than EVADE_REASON_END (which is itself not allowed)
+                if ((e.event.evade.includeReasonsMask >> CreatureAI::EVADE_REASON_END) > 0)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_EVADE using invalid includeReasonsMask mask %u, skipped.", e.event.evade.includeReasonsMask);
+                    return false;
+                }
+                if ((e.event.evade.excludeReasonsMask >> CreatureAI::EVADE_REASON_END) > 0)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_EVADE using invalid excludeReasonsMask mask %u, skipped.", e.event.evade.excludeReasonsMask);
+                    return false;
+                }
+                break;
             case SMART_EVENT_LINK:
             case SMART_EVENT_GO_LOOT_STATE_CHANGED:
             case SMART_EVENT_GO_EVENT_INFORM:
@@ -1024,7 +1038,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_TRANSPORT_REMOVE_PLAYER:
             case SMART_EVENT_AGGRO:
             case SMART_EVENT_DEATH:
-            case SMART_EVENT_EVADE:
             case SMART_EVENT_REACHED_HOME:
             case SMART_EVENT_RESET:
             case SMART_EVENT_QUEST_ACCEPTED:
