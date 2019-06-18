@@ -41,6 +41,8 @@ public:
     Group* GetGroupByDbStoreId(uint32 storageId) const;
     void   SetGroupDbStoreSize(uint32 newSize) { GroupDbStore.resize(newSize); }
 
+    void Update(uint32 diff);
+
     void   LoadGroups();
     ObjectGuid::LowType GenerateGroupId();
     void   AddGroup(Group* group);
