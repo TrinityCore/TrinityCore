@@ -2299,7 +2299,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 return false;
             }
 
-            if (cond->ConditionValue2 < 0 || cond->ConditionValue2 > 3)
+            if (cond->ConditionValue2 > 3)
             {
                 TC_LOG_ERROR("sql.sql", "%s has out-of-range quest objective index specified (%u), it must be a number between 0 and 3. skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
