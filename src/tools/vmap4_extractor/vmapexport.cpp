@@ -65,6 +65,7 @@ std::map<uint32, MapEntry> map_ids;
 std::unordered_set<uint32> maps_that_are_parents;
 boost::filesystem::path input_path;
 bool preciseVectorData = false;
+char const* CascProduct = "wow";
 std::unordered_map<std::string, WMODoodadData> WmoDoodads;
 
 // Constants
@@ -106,7 +107,7 @@ bool OpenCascStorage(int locale)
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[locale]);
+        CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[locale], CascProduct);
         if (!CascStorage)
         {
             printf("error opening casc storage '%s' locale %s\n", storage_dir.string().c_str(), localeNames[locale]);
@@ -127,7 +128,7 @@ uint32 GetInstalledLocalesMask()
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        CASC::StorageHandle storage = CASC::OpenStorage(storage_dir, 0);
+        CASC::StorageHandle storage = CASC::OpenStorage(storage_dir, 0, CascProduct);
         if (!storage)
             return false;
 
@@ -330,9 +331,16 @@ bool processArgv(int argc, char ** argv, const char *versionString)
         {
             result = false;
         }
-        else if(strcmp("-l",argv[i]) == 0)
+        else if (strcmp("-l", argv[i]) == 0)
         {
             preciseVectorData = true;
+        }
+        else if (strcmp("-p", argv[i]) == 0)
+        {
+            if (i + 1 < argc && strlen(argv[i + 1]))
+                CascProduct = argv[++i];
+            else
+                result = false;
         }
         else
         {
@@ -344,10 +352,11 @@ bool processArgv(int argc, char ** argv, const char *versionString)
     if (!result)
     {
         printf("Extract %s.\n",versionString);
-        printf("%s [-?][-s][-l][-d <path>]\n", argv[0]);
+        printf("%s [-?][-s][-l][-d <path>][-p <product>]\n", argv[0]);
         printf("   -s : (default) small size (data size optimization), ~500MB less vmap data.\n");
         printf("   -l : large size, ~500MB more vmap data. (might contain more details)\n");
         printf("   -d <path>: Path to the vector data source folder.\n");
+        printf("   -p <product>: which installed product to open (wow/wowt/wow_beta)\n");
         printf("   -? : This message.\n");
     }
 
