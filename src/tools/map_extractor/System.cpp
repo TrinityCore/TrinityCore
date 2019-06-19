@@ -100,6 +100,8 @@ float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - l
 
 uint32 CONF_Locale = 0;
 
+char const* CONF_Product = "wow";
+
 #define CASC_LOCALES_COUNT 17
 
 char const* CascLocaleNames[CASC_LOCALES_COUNT] =
@@ -151,6 +153,7 @@ void Usage(char const* prg)
         "-e extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(15)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
         "-l dbc locale\n"\
+        "-p which installed product to open (wow/wowt/wow_beta)\n"\
         "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, prg);
     exit(1);
 }
@@ -206,6 +209,12 @@ void HandleArgs(int argc, char* arg[])
                             CONF_Locale = 1 << i;
                     ++c;
                 }
+                else
+                    Usage(arg[0]);
+                break;
+            case 'p':
+                if (c + 1 < argc && strlen(arg[c + 1]))      // all ok
+                    CONF_Product = arg[++c];
                 else
                     Usage(arg[0]);
                 break;
@@ -1214,7 +1223,7 @@ bool ExtractDB2File(uint32 fileDataId, char const* cascFileName, int locale, boo
     DB2FileLoader db2;
     if (!db2.LoadHeaders(&source, nullptr))
     {
-        printf("Can't read DB2 headers file size of '%s'\n", cascFileName);
+        printf("Can't read DB2 headers of '%s'\n", cascFileName);
         return false;
     }
 
@@ -1414,7 +1423,7 @@ bool OpenCascStorage(int locale)
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[locale]);
+        CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[locale], CONF_Product);
         if (!CascStorage)
         {
             printf("error opening casc storage '%s' locale %s\n", storage_dir.string().c_str(), localeNames[locale]);
@@ -1435,7 +1444,7 @@ uint32 GetInstalledLocalesMask()
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        CASC::StorageHandle storage = CASC::OpenStorage(storage_dir, 0);
+        CASC::StorageHandle storage = CASC::OpenStorage(storage_dir, 0, CONF_Product);
         if (!storage)
             return false;
 

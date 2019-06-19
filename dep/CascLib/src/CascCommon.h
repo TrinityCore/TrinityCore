@@ -206,20 +206,19 @@ struct TCascStorage
 
     static TCascStorage * IsValid(HANDLE hStorage);
 
-    PFNPROGRESSCALLBACK PfnCallback;                // Callback to be called during CascOpen(Online)Storage
-    void * PtrCallbackParam;
+    PCASC_OPEN_STORAGE_ARGS pArgs;                  // Open storage arguments. Only valid during opening the storage
 
-    const TCHAR * szIndexFormat;                    // Format of the index file name
-    const char * szClassName;                       // "TCascStorage"
-    const char * szProductName;                     // String representation of the product name
-    TCHAR * szRootPath;                             // Path where the build file is
-    TCHAR * szDataPath;                             // This is the directory where data files are
-    TCHAR * szIndexPath;                            // This is the directory where index files are
-    TCHAR * szBuildFile;                            // Build file name (.build.info or .build.db)
-    TCHAR * szCdnServers;                           // Multi-SZ list of CDN servers
-    TCHAR * szCdnPath;                              // Remote CDN sub path for the product
-    TCHAR * szCodeName;                             // Product code name. Only for online storages
-    char * szRegion;                                // Product region. Only when "versions" is used as storage root file
+    LPCTSTR szIndexFormat;                          // Format of the index file name
+    LPCSTR  szClassName;                            // "TCascStorage"
+    LPCSTR  szProductName;                          // String representation of the product name
+    LPTSTR  szCodeName;                             // On local storage, this select a product in a multi-product storage. For online storage, this selects a product
+    LPTSTR  szRootPath;                             // Path where the build file is
+    LPTSTR  szDataPath;                             // This is the directory where data files are
+    LPTSTR  szIndexPath;                            // This is the directory where index files are
+    LPTSTR  szBuildFile;                            // Build file name (.build.info or .build.db)
+    LPTSTR  szCdnServers;                           // Multi-SZ list of CDN servers
+    LPTSTR  szCdnPath;                              // Remote CDN sub path for the product
+    LPSTR   szRegion;                               // Product region. Only when "versions" is used as storage root file
     CASC_PRODUCT Product;                           // Product enum value (see CASC_PRODUCT)
     DWORD dwBuildNumber;                            // Product build number
     DWORD dwRefCount;                               // Number of references
@@ -414,12 +413,13 @@ void FreeCascBlob(PQUERY_KEY pQueryKey);
 //-----------------------------------------------------------------------------
 // Text file parsing (CascFiles.cpp)
 
-int DownloadFileFromCDN(TCascStorage * hs, const TCHAR * szSubDir, LPBYTE pbEKey, const TCHAR * szExtension, TCHAR * szOutLocalPath, size_t cchOutLocalPath);
-int CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory);
-int LoadCdnsInfo(TCascStorage * hs);
-int LoadBuildInfo(TCascStorage * hs);
-int LoadCdnConfigFile(TCascStorage * hs);
-int LoadCdnBuildFile(TCascStorage * hs);
+bool  InvokeProgressCallback(TCascStorage * hs, LPCSTR szMessage, LPCSTR szObject, DWORD CurrentValue, DWORD TotalValue);
+DWORD DownloadFileFromCDN(TCascStorage * hs, const TCHAR * szSubDir, LPBYTE pbEKey, const TCHAR * szExtension, TCHAR * szOutLocalPath, size_t cchOutLocalPath);
+DWORD CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory);
+DWORD LoadCdnsInfo(TCascStorage * hs);
+DWORD LoadBuildInfo(TCascStorage * hs);
+DWORD LoadCdnConfigFile(TCascStorage * hs);
+DWORD LoadCdnBuildFile(TCascStorage * hs);
 
 //-----------------------------------------------------------------------------
 // Internal file functions
