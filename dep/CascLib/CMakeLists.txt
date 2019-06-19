@@ -2,20 +2,23 @@ set(HEADER_FILES
     src/CascCommon.h
     src/CascLib.h
     src/CascPort.h
+    src/CascStructs.h
     src/common/Array.h
     src/common/Common.h
     src/common/Csv.h
+    src/common/Directory.h
     src/common/FileStream.h
     src/common/FileTree.h
     src/common/ListFile.h
     src/common/Map.h
+    src/common/RootHandler.h
     src/jenkins/lookup.h
 )
 
 set(SRC_FILES
     src/common/Common.cpp
-    src/common/Directory.cpp
     src/common/Csv.cpp
+    src/common/Directory.cpp
     src/common/FileStream.cpp
     src/common/FileTree.cpp
     src/common/ListFile.cpp
@@ -34,14 +37,15 @@ set(SRC_FILES
     src/CascRootFile_Diablo3.cpp
     src/CascRootFile_Install.cpp
     src/CascRootFile_MNDX.cpp
+    src/CascRootFile_OW.cpp
     src/CascRootFile_Text.cpp
     src/CascRootFile_TVFS.cpp
-    src/CascRootFile_OW.cpp
     src/CascRootFile_WoW.cpp
 )
 
 set(MD5_FILES
     src/md5/md5.cpp
+    src/md5/md5.h
 )
 
 add_library(casc STATIC ${SRC_FILES} ${HEADER_FILES} ${MD5_FILES})
