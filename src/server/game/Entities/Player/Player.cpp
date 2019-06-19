@@ -2669,6 +2669,8 @@ void Player::GiveLevel(uint8 level)
                     SetByteFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL, 0x01);
             }
 
+    SendQuestGiverStatusMultiple();
+
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
