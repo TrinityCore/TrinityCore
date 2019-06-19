@@ -16,8 +16,8 @@
 //-----------------------------------------------------------------------------
 // Local defines
 
+typedef DWORD (*PARSECSVFILE)(TCascStorage * hs, CASC_CSV & Csv);
 typedef int (*PARSETEXTFILE)(TCascStorage * hs, void * pvListFile);
-typedef int (*PARSECSVFILE)(TCascStorage * hs, CASC_CSV & Csv);
 typedef int (*PARSE_VARIABLE)(TCascStorage * hs, const char * szVariableName, const char * szDataBegin, const char * szDataEnd, void * pvParam);
 
 #define MAX_VAR_NAME 80
@@ -560,7 +560,18 @@ static int GetDefaultLocaleMask(TCascStorage * hs, const CASC_CSV_COLUMN & Colum
     return ERROR_SUCCESS;
 }
 
-static int ParseFile_CDNS(TCascStorage * hs, CASC_CSV & Csv)
+static void SetProductCodeName(TCascStorage * hs, LPCSTR szCodeName)
+{
+    TCHAR szCodeNameT[0x40];
+
+    if(hs->szCodeName == NULL && szCodeName != NULL)
+    {
+        CascStrCopy(szCodeNameT, _countof(szCodeNameT), szCodeName);
+        hs->szCodeName = CascNewStr(szCodeNameT);
+    }
+}
+
+static DWORD ParseFile_CDNS(TCascStorage * hs, CASC_CSV & Csv)
 {
     const char * szWantedRegion = hs->szRegion;
     TCHAR szCdnServers[MAX_PATH];
@@ -596,49 +607,133 @@ static int ParseFile_CDNS(TCascStorage * hs, CASC_CSV & Csv)
     return ERROR_FILE_NOT_FOUND;
 }
 
-static int ParseFile_BuildInfo(TCascStorage * hs, CASC_CSV & Csv)
+static DWORD ParseFile_BuildInfo(TCascStorage * hs, CASC_CSV & Csv)
 {
+    PFNPRODUCTCALLBACK PfnProductCallback = hs->pArgs->PfnProductCallback;
+    LPCSTR szProductColumn = "Product!STRING:0";
+    LPCSTR szCodeName;
+    void * PtrProductParam = hs->pArgs->PtrProductParam;
+    size_t nProductColumnIndex = Csv.GetColumnIndex(szProductColumn);
     size_t nLineCount = Csv.GetLineCount();
-    int nError;
+    size_t nSelected = CASC_INVALID_INDEX;
+    DWORD dwErrCode;
+    char szWantedCodeName[0x40] = "";
 
-    // Find the active config
+    //
+    // Find the configuration that we're gonna load.
+    //
+
+    // If the product is not specified and there is product callback, we use the callback to specify the product
+    if(hs->szCodeName == NULL && nProductColumnIndex != CASC_INVALID_INDEX && PfnProductCallback != NULL)
+    {
+        LPCSTR ProductsList[0x40] = {NULL};
+        size_t nProductCount = 0;
+        size_t nChoiceIndex = CASC_INVALID_INDEX;
+        size_t nDefault = CASC_INVALID_INDEX;
+
+        // Load all products to the array
+        for(size_t i = 0; i < nLineCount; i++)
+        {
+            // Ignore anything that is not marked "active"
+            if(!strcmp(Csv[i]["Active!DEC:1"].szValue, "1"))
+            {
+                ProductsList[nProductCount] = Csv[i]["Product!STRING:0"].szValue;
+                nProductCount++;
+                nDefault = i;
+            }
+        }
+        
+        // Only if there is more than one active products
+        if(nProductCount > 1)
+        {
+            // Ask the callback to choose the product
+            if(!PfnProductCallback(PtrProductParam, ProductsList, nProductCount, &nChoiceIndex) || (nChoiceIndex >= nProductCount))
+                return ERROR_CANCELLED;
+
+            // We now have preferred product to open
+            SetProductCodeName(hs, ProductsList[nChoiceIndex]);
+        }
+        else if(nProductCount == 1)
+        {
+            // We now have preferred product to open
+            SetProductCodeName(hs, ProductsList[nDefault]);
+        }
+        else
+        {
+            return ERROR_FILE_NOT_FOUND;
+        }
+    }
+
+    // If the product is specified by hs->szCodeName and the ".build.info" contains "Product!STRING:0", we watch for that product.
+    if(hs->szCodeName != NULL && nProductColumnIndex != CASC_INVALID_INDEX)
+    {
+        CascStrCopy(szWantedCodeName, _countof(szWantedCodeName), hs->szCodeName);
+    }
+
+    // Parse all lines in the CSV file. Either take the first that is active
+    // or take the one that has been selected by the callback
     for(size_t i = 0; i < nLineCount; i++)
     {
-        // Is that build config active?
-        if (!strcmp(Csv[i]["Active!DEC:1"].szValue, "1"))
+        // Ignore anything that is not marked "active"
+        if(!strcmp(Csv[i]["Active!DEC:1"].szValue, "1"))
         {
-            // Extract the CDN build key
-            nError = LoadQueryKey(Csv[i]["Build Key!HEX:16"], hs->CdnBuildKey);
-            if (nError != ERROR_SUCCESS)
-                return nError;
-
-            // Extract the CDN config key
-            nError = LoadQueryKey(Csv[i]["CDN Key!HEX:16"], hs->CdnConfigKey);
-            if (nError != ERROR_SUCCESS)
-                return nError;
-
-            // If we found tags, we can extract language build from it
-            GetDefaultLocaleMask(hs, Csv[i]["Tags!STRING:0"]);
-
-            // If we found version, extract a build number
-            const CASC_CSV_COLUMN & VerColumn = Csv[i]["Version!STRING:0"];
-            if(VerColumn.szValue && VerColumn.nLength)
+            // If we have no product code name specified, we pick the very first active build
+            if(hs->szCodeName == NULL)
             {
-                LoadBuildNumber(hs, NULL, VerColumn.szValue, VerColumn.szValue + VerColumn.nLength, NULL);
+                // Save the code name of the selected product
+                SetProductCodeName(hs, Csv[i]["Product!STRING:0"].szValue);
+                nSelected = i;
+                goto __ChooseThisProduct;
             }
 
-            // Verify all variables
-            return (hs->CdnBuildKey.pbData != NULL && hs->CdnConfigKey.pbData != NULL) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
+            // If we have a product code name specified, pick the first matching
+            else if((szCodeName = Csv[i]["Product!STRING:0"].szValue) != NULL)
+            {
+                if(!strcmp(szCodeName, szWantedCodeName))
+                {
+                    nSelected = i;
+                    goto __ChooseThisProduct;
+                }
+            }
         }
+    }
+
+    __ChooseThisProduct:
+
+    // Load the selected product
+    if(nSelected < nLineCount)
+    {
+        // Extract the CDN build key
+        dwErrCode = LoadQueryKey(Csv[nSelected]["Build Key!HEX:16"], hs->CdnBuildKey);
+        if (dwErrCode != ERROR_SUCCESS)
+            return dwErrCode;
+
+        // Extract the CDN config key
+        dwErrCode = LoadQueryKey(Csv[nSelected]["CDN Key!HEX:16"], hs->CdnConfigKey);
+        if (dwErrCode != ERROR_SUCCESS)
+            return dwErrCode;
+
+        // If we found tags, we can extract language build from it
+        GetDefaultLocaleMask(hs, Csv[nSelected]["Tags!STRING:0"]);
+
+        // If we found version, extract a build number
+        const CASC_CSV_COLUMN & VerColumn = Csv[nSelected]["Version!STRING:0"];
+        if(VerColumn.szValue && VerColumn.nLength)
+        {
+            LoadBuildNumber(hs, NULL, VerColumn.szValue, VerColumn.szValue + VerColumn.nLength, NULL);
+        }
+
+        // Verify all variables
+        return (hs->CdnBuildKey.pbData != NULL && hs->CdnConfigKey.pbData != NULL) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
     }
 
     return ERROR_FILE_NOT_FOUND;
 }
 
-static int ParseFile_VersionsDb(TCascStorage * hs, CASC_CSV & Csv)
+static DWORD ParseFile_VersionsDb(TCascStorage * hs, CASC_CSV & Csv)
 {
     size_t nLineCount = Csv.GetLineCount();
-    int nError;
+    DWORD dwErrCode;
 
     // Find the active config
     for (size_t i = 0; i < nLineCount; i++)
@@ -647,14 +742,14 @@ static int ParseFile_VersionsDb(TCascStorage * hs, CASC_CSV & Csv)
         if (hs->szRegion == NULL || !strcmp(Csv[i]["Region!STRING:0"].szValue, hs->szRegion))
         {
             // Extract the CDN build key
-            nError = LoadQueryKey(Csv[i]["BuildConfig!HEX:16"], hs->CdnBuildKey);
-            if (nError != ERROR_SUCCESS)
-                return nError;
+            dwErrCode = LoadQueryKey(Csv[i]["BuildConfig!HEX:16"], hs->CdnBuildKey);
+            if (dwErrCode != ERROR_SUCCESS)
+                return dwErrCode;
 
             // Extract the CDN config key
-            nError = LoadQueryKey(Csv[i]["CDNConfig!HEX:16"], hs->CdnConfigKey);
-            if (nError != ERROR_SUCCESS)
-                return nError;
+            dwErrCode = LoadQueryKey(Csv[i]["CDNConfig!HEX:16"], hs->CdnConfigKey);
+            if (dwErrCode != ERROR_SUCCESS)
+                return dwErrCode;
 
             const CASC_CSV_COLUMN & VerColumn = Csv[i]["VersionsName!String:0"];
             if (VerColumn.szValue && VerColumn.nLength)
@@ -670,19 +765,19 @@ static int ParseFile_VersionsDb(TCascStorage * hs, CASC_CSV & Csv)
     return ERROR_FILE_NOT_FOUND;
 }
 
-static int ParseFile_BuildDb(TCascStorage * hs, CASC_CSV & Csv)
+static DWORD ParseFile_BuildDb(TCascStorage * hs, CASC_CSV & Csv)
 {
-    int nError;
+    DWORD dwErrCode;
 
     // Extract the CDN build key
-    nError = LoadQueryKey(Csv[CSV_ZERO][CSV_ZERO], hs->CdnBuildKey);
-    if(nError != ERROR_SUCCESS)
-        return nError;
+    dwErrCode = LoadQueryKey(Csv[CSV_ZERO][CSV_ZERO], hs->CdnBuildKey);
+    if(dwErrCode != ERROR_SUCCESS)
+        return dwErrCode;
 
     // Extract the CDN config key
-    nError = LoadQueryKey(Csv[CSV_ZERO][1], hs->CdnConfigKey);
-    if (nError != ERROR_SUCCESS)
-        return nError;
+    dwErrCode = LoadQueryKey(Csv[CSV_ZERO][1], hs->CdnConfigKey);
+    if (dwErrCode != ERROR_SUCCESS)
+        return dwErrCode;
 
     // Load the the tags
     GetDefaultLocaleMask(hs, Csv[CSV_ZERO][2]);
@@ -840,15 +935,15 @@ static int CheckDataDirectory(TCascStorage * hs, TCHAR * szDirectory)
     return nError;
 }
 
-static int LoadCsvFile(TCascStorage * hs, const TCHAR * szFileName, PARSECSVFILE PfnParseProc, bool bHasHeader)
+static DWORD LoadCsvFile(TCascStorage * hs, const TCHAR * szFileName, PARSECSVFILE PfnParseProc, bool bHasHeader)
 {
     CASC_CSV Csv(0x40, bHasHeader);
-    int nError = Csv.Load(szFileName);
+    DWORD dwErrCode;
 
     // Load the external file to memory
-    if (nError == ERROR_SUCCESS)
-        nError = PfnParseProc(hs, Csv);
-    return nError;
+    if ((dwErrCode = Csv.Load(szFileName)) == ERROR_SUCCESS)
+        dwErrCode = PfnParseProc(hs, Csv);
+    return dwErrCode;
 }
 
 static const TCHAR * ExtractCdnServerName(TCHAR * szServerName, size_t cchServerName, const TCHAR * szCdnServers)
@@ -1028,8 +1123,8 @@ static int DownloadFile(
         szLocalPath2 = szServerPath2;
 
     // Create remote path
-    CombineUrlPath(szRemotePath, _countof(szRemotePath), szServerName, szServerPath1, szServerPath2);
-    CombineFilePath(szLocalPath, _countof(szLocalPath), hs->szRootPath, NULL, szLocalPath2);
+    CombinePath(szRemotePath, _countof(szRemotePath), URL_SEP_CHAR, szServerName, szServerPath1, szServerPath2, NULL);
+    CombinePath(szLocalPath, _countof(szLocalPath), PATH_SEP_CHAR, hs->szRootPath, szLocalPath2, NULL);
 
     // Make sure that the path exists
     ForcePathExist(szLocalPath, true);
@@ -1079,7 +1174,7 @@ static int FetchAndLoadConfigFile(TCascStorage * hs, PQUERY_KEY pFileKey, PARSET
     else
     {
         CreateCascSubdirectoryName(szSubDir, _countof(szSubDir), szPathType, NULL, pFileKey->pbData);
-        CombineFilePath(szLocalPath, _countof(szLocalPath), hs->szDataPath, szSubDir);
+        CombinePath(szLocalPath, _countof(szLocalPath), PATH_SEP_CHAR, hs->szDataPath, szSubDir, NULL);
     }
 
     // Load and verify the external listfile
@@ -1107,14 +1202,24 @@ static int FetchAndLoadConfigFile(TCascStorage * hs, PQUERY_KEY pFileKey, PARSET
 //-----------------------------------------------------------------------------
 // Public functions
 
-int DownloadFileFromCDN(TCascStorage * hs, const TCHAR * szSubDir, LPBYTE pbEKey, const TCHAR * szExtension, TCHAR * szOutLocalPath, size_t cchOutLocalPath)
+bool InvokeProgressCallback(TCascStorage * hs, LPCSTR szMessage, LPCSTR szObject, DWORD CurrentValue, DWORD TotalValue)
+{
+    PCASC_OPEN_STORAGE_ARGS pArgs = hs->pArgs;
+    bool bResult = false;
+
+    if(pArgs && pArgs->PfnProgressCallback)
+        bResult = pArgs->PfnProgressCallback(pArgs->PtrProgressParam, szMessage, szObject, CurrentValue, TotalValue);
+    return bResult;
+}
+
+DWORD DownloadFileFromCDN(TCascStorage * hs, const TCHAR * szSubDir, LPBYTE pbEKey, const TCHAR * szExtension, TCHAR * szOutLocalPath, size_t cchOutLocalPath)
 {
     PCASC_ARCINDEX_ENTRY pIndexEntry;
     const TCHAR * szCdnServers = hs->szCdnServers;
     TCHAR szRemoteFolder[MAX_PATH];
     TCHAR szLocalFolder[MAX_PATH];
     TCHAR szServerName[MAX_PATH];
-    int nError = ERROR_CAN_NOT_COMPLETE;
+    DWORD dwErrCode = ERROR_CAN_NOT_COMPLETE;
 
     // Try all download servers
     while((szCdnServers = ExtractCdnServerName(szServerName, _countof(szServerName), szCdnServers)) != NULL)
@@ -1130,44 +1235,44 @@ int DownloadFileFromCDN(TCascStorage * hs, const TCHAR * szSubDir, LPBYTE pbEKey
             // Change the subpath to an archive
             CreateCascSubdirectoryName(szRemoteFolder, _countof(szRemoteFolder), szSubDir, szExtension, pIndexEntry->IndexHash);
             ByteOffset = pIndexEntry->ArchiveOffset;
-            nError = DownloadFile(hs,
-                                  szServerName,
-                                  hs->szCdnPath,
-                                  szRemoteFolder,
-                                  szLocalFolder,
-                                 &ByteOffset,
-                                  pIndexEntry->EncodedSize,
-                                  szOutLocalPath,
-                                  cchOutLocalPath, 0, false, false);
+            dwErrCode = DownloadFile(hs,
+                                     szServerName,
+                                     hs->szCdnPath,
+                                     szRemoteFolder,
+                                     szLocalFolder,
+                                    &ByteOffset,
+                                     pIndexEntry->EncodedSize,
+                                     szOutLocalPath,
+                                     cchOutLocalPath, 0, false, false);
         }
         else
         {
-            nError = DownloadFile(hs,
-                                  szServerName,
-                                  hs->szCdnPath,
-                                  szLocalFolder,
-                                  szLocalFolder,
-                                  NULL,
-                                  0,
-                                  szOutLocalPath,
-                                  cchOutLocalPath, 0, false, false);
+            dwErrCode = DownloadFile(hs,
+                                     szServerName,
+                                     hs->szCdnPath,
+                                     szLocalFolder,
+                                     szLocalFolder,
+                                     NULL,
+                                     0,
+                                     szOutLocalPath,
+                                     cchOutLocalPath, 0, false, false);
         }
 
-        if (nError == ERROR_SUCCESS)
+        if (dwErrCode == ERROR_SUCCESS)
             break;
     }
 
-    return nError;
+    return dwErrCode;
 }
 
 // Checks whether there is a ".build.info" or ".build.db".
 // If yes, the function sets "szDataPath" and "szIndexPath"
 // in the storage structure and returns ERROR_SUCCESS
-int CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory)
+DWORD CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory)
 {
     TFileStream * pStream;
     TCHAR * szBuildFile;
-    int nError = ERROR_FILE_NOT_FOUND;
+    DWORD dwErrCode = ERROR_FILE_NOT_FOUND;
 
     // Try to find any of the root files used in the history
     for (size_t i = 0; BuildTypes[i].szFileName != NULL; i++)
@@ -1184,8 +1289,8 @@ int CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory)
                 FileStream_Close(pStream);
 
                 // Check for the data directory
-                nError = CheckDataDirectory(hs, szDirectory);
-                if (nError == ERROR_SUCCESS)
+                dwErrCode = CheckDataDirectory(hs, szDirectory);
+                if (dwErrCode == ERROR_SUCCESS)
                 {
                     hs->szBuildFile = szBuildFile;
                     hs->BuildFileType = BuildTypes[i].BuildFileType;
@@ -1197,27 +1302,27 @@ int CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory)
         }
     }
 
-    return nError;
+    return dwErrCode;
 }
 
-int LoadBuildInfo(TCascStorage * hs)
+DWORD LoadBuildInfo(TCascStorage * hs)
 {
     PARSECSVFILE PfnParseProc = NULL;
+    DWORD dwErrCode;
     bool bHasHeader = true;
-    int nError;
 
     // If the storage is online storage, we need to download "versions"
     if(hs->dwFeatures & CASC_FEATURE_ONLINE)
     {
         // Inform the user about loading the build.info/build.db/versions
-        if(hs->PfnCallback && hs->PfnCallback(hs->PtrCallbackParam, "Downloading the \"versions\" file", NULL, 0, 0))
+        if(InvokeProgressCallback(hs, "Downloading the \"versions\" file", NULL, 0, 0))
             return ERROR_CANCELLED;
 
         // Attempt to download the "versions" file
-        nError = DownloadFile(hs, _T("us.patch.battle.net"), hs->szCodeName, _T("versions"), NULL, NULL, 0, NULL, 0, STREAM_FLAG_USE_PORT_1119, true, false);
-        if(nError != ERROR_SUCCESS)
+        dwErrCode = DownloadFile(hs, _T("us.patch.battle.net"), hs->szCodeName, _T("versions"), NULL, NULL, 0, NULL, 0, STREAM_FLAG_USE_PORT_1119, true, false);
+        if(dwErrCode != ERROR_SUCCESS)
         {
-            return nError;
+            return dwErrCode;
         }
     }
 
@@ -1244,48 +1349,48 @@ int LoadBuildInfo(TCascStorage * hs)
     return LoadCsvFile(hs, hs->szBuildFile, PfnParseProc, bHasHeader);
 }
 
-int LoadCdnsInfo(TCascStorage * hs)
+DWORD LoadCdnsInfo(TCascStorage * hs)
 {
     TCHAR szLocalPath[MAX_PATH];
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Sanity checks
     assert(hs->dwFeatures & CASC_FEATURE_ONLINE);
 
     // Inform the user about what we are doing
-    if(hs->PfnCallback && hs->PfnCallback(hs->PtrCallbackParam, "Downloading the \"cdns\" file", NULL, 0, 0))
+    if(InvokeProgressCallback(hs, "Downloading the \"cdns\" file", NULL, 0, 0))
         return ERROR_CANCELLED;
 
     // Download file and parse it
-    nError = DownloadFile(hs, _T("us.patch.battle.net"), hs->szCodeName, _T("cdns"), NULL, NULL, 0, szLocalPath, _countof(szLocalPath), STREAM_FLAG_USE_PORT_1119, false, true);
-    if(nError == ERROR_SUCCESS)
+    dwErrCode = DownloadFile(hs, _T("us.patch.battle.net"), hs->szCodeName, _T("cdns"), NULL, NULL, 0, szLocalPath, _countof(szLocalPath), STREAM_FLAG_USE_PORT_1119, false, true);
+    if(dwErrCode == ERROR_SUCCESS)
     {
-        nError = LoadCsvFile(hs, szLocalPath, ParseFile_CDNS, true);
+        dwErrCode = LoadCsvFile(hs, szLocalPath, ParseFile_CDNS, true);
     }
 
-    return nError;
+    return dwErrCode;
 }
 
-int LoadCdnConfigFile(TCascStorage * hs)
+DWORD LoadCdnConfigFile(TCascStorage * hs)
 {
     // The CKey for the CDN config should have been loaded already
     assert(hs->CdnConfigKey.pbData != NULL && hs->CdnConfigKey.cbData == MD5_HASH_SIZE);
 
     // Inform the user about what we are doing
-    if(hs->PfnCallback && hs->PfnCallback(hs->PtrCallbackParam, "Downloading CDN config file", NULL, 0, 0))
+    if(InvokeProgressCallback(hs, "Downloading CDN config file", NULL, 0, 0))
         return ERROR_CANCELLED;
 
     // Load the CDN config file
     return FetchAndLoadConfigFile(hs, &hs->CdnConfigKey, ParseFile_CdnConfig);
 }
 
-int LoadCdnBuildFile(TCascStorage * hs)
+DWORD LoadCdnBuildFile(TCascStorage * hs)
 {
     // The CKey for the CDN config should have been loaded already
     assert(hs->CdnBuildKey.pbData != NULL && hs->CdnBuildKey.cbData == MD5_HASH_SIZE);
 
     // Inform the user about what we are doing
-    if(hs->PfnCallback && hs->PfnCallback(hs->PtrCallbackParam, "Downloading CDN build file", NULL, 0, 0))
+    if(InvokeProgressCallback(hs, "Downloading CDN build file", NULL, 0, 0))
         return ERROR_CANCELLED;
 
     // Load the CDN config file. Note that we don't
