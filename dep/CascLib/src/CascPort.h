@@ -60,6 +60,7 @@
     #define PLATFORM_32BIT
   #endif
 
+  #define URL_SEP_CHAR              '/'
   #define PATH_SEP_CHAR             '\\'
   #define PATH_SEP_STRING           "\\"
   
@@ -102,6 +103,7 @@
     #define PLATFORM_LITTLE_ENDIAN
   #endif
 
+  #define URL_SEP_CHAR              '/'
   #define PATH_SEP_CHAR             '/'
   #define PATH_SEP_STRING           "/"
   
@@ -132,6 +134,7 @@
   #include <assert.h>
   #include <errno.h>
 
+  #define URL_SEP_CHAR              '/'
   #define PATH_SEP_CHAR             '/'
   #define PATH_SEP_STRING           "/"
   

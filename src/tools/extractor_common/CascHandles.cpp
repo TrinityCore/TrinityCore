@@ -55,10 +55,16 @@ void CASC::FileDeleter::operator()(HANDLE handle)
         ::CascCloseFile(handle);
 }
 
-CASC::StorageHandle CASC::OpenStorage(boost::filesystem::path const& path, DWORD localeMask)
+CASC::StorageHandle CASC::OpenStorage(boost::filesystem::path const& path, DWORD localeMask, char const* product)
 {
+    std::string strPath = path.string();
+    CASC_OPEN_STORAGE_ARGS args = {};
+    args.Size = sizeof(CASC_OPEN_STORAGE_ARGS);
+    args.szLocalPath = strPath.c_str();
+    args.szCodeName = product;
+    args.dwLocaleMask = localeMask;
     HANDLE handle = nullptr;
-    if (!::CascOpenStorage(path.string().c_str(), localeMask, &handle))
+    if (!::CascOpenStorageEx(nullptr, &args, false, &handle))
     {
         DWORD lastError = GetLastError(); // support checking error set by *Open* call, not the next *Close*
         printf("Error opening casc storage '%s': %s\n", path.string().c_str(), HumanReadableCASCError(lastError));
