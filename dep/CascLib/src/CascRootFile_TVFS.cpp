@@ -98,6 +98,19 @@ typedef struct _TVFS_PATH_TABLE_ENTRY
     DWORD NodeValue;                                // Node value
 } TVFS_PATH_TABLE_ENTRY, *PTVFS_PATH_TABLE_ENTRY;
 
+// In-memory layout of VFS span entry
+typedef struct _TVFS_SPAN_ENTRY
+{
+    LPBYTE pbCftFileTable;
+    LPBYTE pbCftFileEntry;
+    LPBYTE pbCftFileEnd;
+
+    DWORD dwFileOffset;                             // Offset into the referenced file
+    DWORD dwSpanSize;                               // Size of the span
+    DWORD dwCftOffset;                              // Offset relative to the beginning of the container file table
+
+} TVFS_SPAN_ENTRY, *PTVFS_SPAN_ENTRY;
+
 //-----------------------------------------------------------------------------
 // Handler definition for TVFS root file
 
@@ -235,37 +248,31 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         return ERROR_SUCCESS;
     }
 
-    int CaptureVfsSpanEntries(TVFS_DIRECTORY_HEADER & DirHeader, PENCODED_KEY pEKey, PDWORD PtrSpanSize, DWORD dwVfsOffset)
+    LPBYTE CaptureVfsSpanCount(TVFS_DIRECTORY_HEADER & DirHeader, DWORD dwVfsOffset, DWORD & SpanCount)
     {
         LPBYTE pbVfsFileTable = DirHeader.pbDirectoryData + DirHeader.VfsTableOffset;
         LPBYTE pbVfsFileEntry = pbVfsFileTable + dwVfsOffset;
         LPBYTE pbVfsFileEnd = pbVfsFileTable + DirHeader.VfsTableSize;
-        LPBYTE pbCftFileTable;
-        LPBYTE pbCftFileEntry;
-        LPBYTE pbCftFileEnd;
-        LPBYTE pbTemp = NULL;
-        size_t ItemSize = sizeof(DWORD) + sizeof(DWORD) + DirHeader.CftOffsSize;
-        DWORD dwCftOffset;
-        DWORD dwSpanCount;
-        DWORD dwSpanSize;
 
         // Get the number of span entries
-        if(!(pbVfsFileTable <= pbVfsFileEntry && pbVfsFileEntry <= pbVfsFileEnd))
-            return ERROR_INVALID_PARAMETER;
-        dwSpanCount = *pbVfsFileEntry++;
+        if(!(pbVfsFileTable <= pbVfsFileEntry && pbVfsFileEntry < pbVfsFileEnd))
+            return NULL;
+        SpanCount = *pbVfsFileEntry++;
 
         // 1 - 224 = valid file, 225-254 = other file, 255 = deleted file
         // We will ignore all files with unsupported span count
-        if(dwSpanCount == 0 || dwSpanCount > 224)
-            return ERROR_BAD_FORMAT;
+        return (1 <= SpanCount && SpanCount <= 224) ? pbVfsFileEntry : NULL;
+    }
 
-        // So far we've only saw entries with 1 span.
-        // Need to test files with multiple spans. Ignore such files for now.
-        assert(dwSpanCount == 1);
+    LPBYTE CaptureVfsSpanEntry(TVFS_DIRECTORY_HEADER & DirHeader, LPBYTE pbVfsSpanEntry, TVFS_SPAN_ENTRY & SpanEntry)
+    {
+        LPBYTE pbVfsFileTable = DirHeader.pbDirectoryData + DirHeader.VfsTableOffset;
+        LPBYTE pbVfsFileEnd = pbVfsFileTable + DirHeader.VfsTableSize;
+        size_t ItemSize = sizeof(DWORD) + sizeof(DWORD) + DirHeader.CftOffsSize;
 
-        // Capture the array of span items
-        if(CaptureArray_(pbVfsFileEntry, pbVfsFileEnd, &pbTemp, ItemSize, dwSpanCount) == NULL)
-            return ERROR_BAD_FORMAT;
+        // Check the range being captured
+        if(pbVfsSpanEntry < pbVfsFileTable || (pbVfsSpanEntry + ItemSize) > pbVfsFileEnd)
+            return NULL;
 
         //
         // Structure of the span entry:
@@ -274,21 +281,15 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         // (?bytes): Offset into Container File Table. Length depends on container file table size
         //
 
-        // Get the offset to the Container File Table
-        dwCftOffset = ConvertBytesToInteger_X(pbVfsFileEntry + sizeof(DWORD) + sizeof(DWORD), DirHeader.CftOffsSize);
-        dwSpanSize = ConvertBytesToInteger_4(pbVfsFileEntry + sizeof(DWORD));
+        SpanEntry.dwFileOffset = ConvertBytesToInteger_4(pbVfsSpanEntry);
+        SpanEntry.dwSpanSize   = ConvertBytesToInteger_4(pbVfsSpanEntry + sizeof(DWORD));
+        SpanEntry.dwCftOffset  = ConvertBytesToInteger_X(pbVfsSpanEntry + sizeof(DWORD) + sizeof(DWORD), DirHeader.CftOffsSize);
 
-        // Go to the Container File Table and fetch the EKey from there
-        pbCftFileTable = DirHeader.pbDirectoryData + DirHeader.CftTableOffset;
-        pbCftFileEntry = pbCftFileTable + dwCftOffset;
-        pbCftFileEnd = pbCftFileTable + DirHeader.CftTableSize;
-        if((pbCftFileEntry + DirHeader.EKeySize) > pbCftFileEnd)
-            return ERROR_BAD_FORMAT;
-
-        // Give the pointer to the EKey
-        memcpy(pEKey->Value, pbCftFileEntry, DirHeader.EKeySize);
-        PtrSpanSize[0] = dwSpanSize;
-        return ERROR_SUCCESS;
+        // Resolve the Container File Table entries
+        SpanEntry.pbCftFileTable = DirHeader.pbDirectoryData + DirHeader.CftTableOffset;
+        SpanEntry.pbCftFileEntry = SpanEntry.pbCftFileTable + SpanEntry.dwCftOffset;
+        SpanEntry.pbCftFileEnd = SpanEntry.pbCftFileTable + DirHeader.CftTableSize;
+        return pbVfsSpanEntry + ItemSize;
     }
 
     //
@@ -439,8 +440,9 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         TVFS_PATH_TABLE_ENTRY PathEntry;
         PCASC_CKEY_ENTRY pCKeyEntry;
         ENCODED_KEY EKey;
+        LPBYTE pbVfsSpanEntry;
         char * szSavePathPtr = PathBuffer.szPtr;
-        DWORD dwSpanSize = 0;
+        DWORD dwSpanCount = 0;
         int nError;
 
         // Prepare the EKey structure to be filled with zeros
@@ -480,43 +482,67 @@ struct TRootHandler_TVFS : public TFileTreeRoot
                 }
                 else
                 {
-                    // Capture the VFS and Container Table Entry in order to get the file EKey
-                    nError = CaptureVfsSpanEntries(DirHeader, &EKey, &dwSpanSize, PathEntry.NodeValue);
-                    if (nError != ERROR_SUCCESS)
-                        return nError;
-
-                    // We need to check whether this is another TVFS directory file
-                    if (IsVfsSubDirectory(hs, DirHeader, SubHeader, EKey, dwSpanSize) == ERROR_SUCCESS)
+                    // Capture the number of VFS spans
+                    pbVfsSpanEntry = CaptureVfsSpanCount(DirHeader, PathEntry.NodeValue, dwSpanCount);
+                    if(pbVfsSpanEntry == NULL)
+                        return ERROR_BAD_FORMAT;
+#ifdef _DEBUG
+                    // So far we've only saw entries with 1 span.
+                    // Need to test files with multiple spans. Ignore such files for now.
+                    if(dwSpanCount != 1)
+                        __debugbreak();
+                    dwSpanCount = 1;
+#endif
+                    // Parse all span entries
+                    for(DWORD i = 0; i < dwSpanCount; i++)
                     {
-                        // Add colon (':')
-                        PathBuffer_AddChar(PathBuffer, ':');
+                        TVFS_SPAN_ENTRY SpanEntry;
 
-                        // Insert the file to the file tree
-                        if((pCKeyEntry = FindCKeyEntry_EKey(hs, EKey.Value)) != NULL)
+                        // Capture the n-th span entry
+                        pbVfsSpanEntry = CaptureVfsSpanEntry(DirHeader, pbVfsSpanEntry, SpanEntry);
+                        if(pbVfsSpanEntry == NULL)
+                            return ERROR_FILE_CORRUPT;
+
+                        // Capture the encoded key
+                        if((SpanEntry.pbCftFileEntry + DirHeader.EKeySize) > SpanEntry.pbCftFileEnd)
+                            return ERROR_BAD_FORMAT;
+
+                        // Copy the EKey
+                        memcpy(EKey.Value, SpanEntry.pbCftFileEntry, DirHeader.EKeySize);
+
+                        // We need to check whether this is another TVFS directory file
+                        if (IsVfsSubDirectory(hs, DirHeader, SubHeader, EKey, SpanEntry.dwSpanSize) == ERROR_SUCCESS)
                         {
-                            // The file content size should already be there
-                            assert(pCKeyEntry->ContentSize == dwSpanSize);
-                            FileTree.InsertByName(pCKeyEntry, PathBuffer.szBegin);
+                            // Add colon (':')
+                            PathBuffer_AddChar(PathBuffer, ':');
+
+                            // Insert the file to the file tree
+                            if((pCKeyEntry = FindCKeyEntry_EKey(hs, EKey.Value)) != NULL)
+                            {
+                                // The file content size should already be there
+                                assert(pCKeyEntry->ContentSize == SpanEntry.dwSpanSize);
+                                FileTree.InsertByName(pCKeyEntry, PathBuffer.szBegin);
+                            }
+
+                            ParseDirectoryData(hs, SubHeader, PathBuffer);
+                            CASC_FREE(SubHeader.pbDirectoryData);
                         }
-
-                        ParseDirectoryData(hs, SubHeader, PathBuffer);
-                        CASC_FREE(SubHeader.pbDirectoryData);
-                    }
-                    else
-                    {
-//                      if (fp != NULL)
-//                      {
-//                          fwrite(PathBuffer.szBegin, 1, (PathBuffer.szPtr - PathBuffer.szBegin), fp);
-//                          fprintf(fp, "\n");
-//                      }
-
-                        // Insert the file to the file tree
-                        if((pCKeyEntry = FindCKeyEntry_EKey(hs, EKey.Value)) != NULL)
+                        else
                         {
-                            // If the file content is not there, supply it now
-                            if(pCKeyEntry->ContentSize == CASC_INVALID_SIZE)
-                                pCKeyEntry->ContentSize = dwSpanSize;
-                            FileTree.InsertByName(pCKeyEntry, PathBuffer.szBegin);
+//                          if (fp != NULL)
+//                          {
+//                              fwrite(PathBuffer.szBegin, 1, (PathBuffer.szPtr - PathBuffer.szBegin), fp);
+//                              fprintf(fp, "\n");
+//                          }
+
+                            // Insert the file to the file tree
+                            if((pCKeyEntry = FindCKeyEntry_EKey(hs, EKey.Value)) != NULL)
+                            {
+                                // If the file content is not there, supply it now
+                                if(pCKeyEntry->ContentSize == CASC_INVALID_SIZE)
+                                    pCKeyEntry->ContentSize = SpanEntry.dwSpanSize;
+                                FileTree.InsertByName(pCKeyEntry, PathBuffer.szBegin);
+                            }
                         }
                     }
                 }

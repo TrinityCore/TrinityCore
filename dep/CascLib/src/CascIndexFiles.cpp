@@ -522,7 +522,7 @@ static int LoadLocalIndexFiles(TCascStorage * hs)
                 if((szFileName = CreateIndexFileName(hs, i, IndexArray[i])) != NULL)
                 {
                     // Inform the user about what we are doing
-                    if(hs->PfnCallback && hs->PfnCallback(hs->PtrCallbackParam, "Loading index files", NULL, i, CASC_INDEX_COUNT))
+                    if(InvokeProgressCallback(hs, "Loading index files", NULL, i, CASC_INDEX_COUNT))
                     {
                         nError = ERROR_CANCELLED;
                         break;
@@ -727,7 +727,7 @@ static int LoadArchiveIndexFiles(TCascStorage * hs)
         LPBYTE pbIndexHash = hs->ArchivesKey.pbData + (i * MD5_HASH_SIZE);
 
         // Inform the user about what we are doing
-        if(hs->PfnCallback && hs->PfnCallback(hs->PtrCallbackParam, "Downloading archive indexes", NULL, (DWORD)(i), (DWORD)(nArchiveCount)))
+        if(InvokeProgressCallback(hs, "Downloading archive indexes", NULL, (DWORD)(i), (DWORD)(nArchiveCount)))
         {
             nError = ERROR_CANCELLED;
             break;

@@ -395,14 +395,24 @@ struct TRootHandler_WoW : public TFileTreeRoot
         {
             PCASC_FILE_NODE pFileNode;
             ULONGLONG FileNameHash;
+            size_t nLength;
             DWORD FileDataId = CASC_INVALID_ID;
             char szFileName[MAX_PATH];
 
             if(RootFormat == RootFormatWoW82)
             {
                 // Keep going through the listfile
-                while(ListFile_GetNext(pSearch->pCache, szFileName, _countof(szFileName), &FileDataId))
+                for(;;)
                 {
+                    // Retrieve the next line from the list file. Ignore lines that are too long to fit in the buffer
+                    nLength = ListFile_GetNext(pSearch->pCache, szFileName, _countof(szFileName), &FileDataId);
+                    if(nLength == 0)
+                    {
+                        if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+                            continue;
+                        break;
+                    }
+
                     // Try to find the file node by file data id
                     pFileNode = FileTree.FindById(FileDataId);
                     if(pFileNode != NULL && pFileNode->NameLength == 0)
@@ -414,8 +424,17 @@ struct TRootHandler_WoW : public TFileTreeRoot
             else
             {
                 // Keep going through the listfile
-                while(ListFile_GetNextLine(pSearch->pCache, szFileName, MAX_PATH))
+                for(;;)
                 {
+                    // Retrieve the next line from the list file. Ignore lines that are too long to fit in the buffer
+                    nLength = ListFile_GetNextLine(pSearch->pCache, szFileName, _countof(szFileName));
+                    if(nLength == 0)
+                    {
+                        if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+                            continue;
+                        break;
+                    }
+
                     // Calculate the hash of the file name
                     FileNameHash = CalcFileNameHash(szFileName);
 

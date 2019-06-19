@@ -9,9 +9,11 @@ LIBRARY CascLib.dll
 EXPORTS
 
     CascOpenStorage
+    CascOpenStorageEx
     CascOpenOnlineStorage
     CascGetStorageInfo
     CascAddEncryptionKey
+    CascFindEncryptionKey
     CascCloseStorage
 
     CascOpenFile

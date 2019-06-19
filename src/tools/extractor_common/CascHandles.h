@@ -48,7 +48,7 @@ namespace CASC
 
     char const* HumanReadableCASCError(DWORD error);
 
-    StorageHandle OpenStorage(boost::filesystem::path const& path, DWORD localeMask);
+    StorageHandle OpenStorage(boost::filesystem::path const& path, DWORD localeMask, char const* product);
     DWORD GetBuildNumber(StorageHandle const& storage);
     DWORD GetInstalledLocalesMask(StorageHandle const& storage);
     bool HasTactKey(StorageHandle const& storage, ULONGLONG keyLookup);

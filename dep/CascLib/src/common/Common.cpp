@@ -336,7 +336,7 @@ TCHAR * AppendPathFragment(TCHAR * szBuffer, TCHAR * szBufferEnd, const XCHAR * 
     return szBuffer;
 }
 
-TCHAR * GetLastPathPart(TCHAR * szWorkPath)
+LPTSTR GetLastPathPart(LPTSTR szWorkPath)
 {
     size_t nLength = _tcslen(szWorkPath);
 
@@ -375,51 +375,56 @@ bool CutLastPathPart(TCHAR * szWorkPath)
     return true;
 }
 
-TCHAR * CombinePath(const TCHAR * szDirectory, const TCHAR * szSubDir)
+size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, char chSeparator, va_list argList)
 {
-    TCHAR * szFullPathEnd;
-    TCHAR * szFullPath = NULL;
-    TCHAR * szPathPtr;
-    size_t nLength1 = (szDirectory != NULL) ? _tcslen(szDirectory) : 0;
-    size_t nLength2 = (szSubDir != NULL) ? _tcslen(szSubDir) : 0;
+    LPTSTR szSaveBuffer = szBuffer;
+    LPTSTR szBufferEnd = szBuffer + nMaxChars - 1;
+    LPTSTR szFragment;
+    bool bFirstFragment = true;
 
-    // Allocate the entire buffer
-    szFullPath = szPathPtr = CASC_ALLOC(TCHAR, nLength1 + nLength2 + 2);
-    szFullPathEnd = szFullPath + nLength1 + nLength2 + 1;
-    if(szFullPath != NULL)
+    // Combine all parts of the path here
+    while((szFragment = va_arg(argList, LPTSTR)) != NULL)
     {
-        szPathPtr = AppendPathFragment(szPathPtr, szFullPathEnd, szDirectory, PATH_SEP_CHAR, true);
-        szPathPtr = AppendPathFragment(szPathPtr, szFullPathEnd, szSubDir, PATH_SEP_CHAR);
+        szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szFragment, chSeparator, bFirstFragment);
+        bFirstFragment = false;
+    }
+
+    return (szBuffer - szSaveBuffer);
+}
+
+size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, char chSeparator, ...)
+{
+    va_list argList;
+    size_t nLength;
+
+    va_start(argList, chSeparator);
+    nLength = CombinePath(szBuffer, nMaxChars, chSeparator, argList);
+    va_end(argList);
+
+    return nLength;
+}
+
+LPTSTR CombinePath(LPCTSTR szDirectory, LPCTSTR szSubDir)
+{
+    LPTSTR szFullPath;
+    size_t nLength = 0;
+
+    // Calculate length
+    if(szDirectory != NULL)
+        nLength += (_tcslen(szDirectory) + 1);
+    if(szSubDir != NULL)
+        nLength += (_tcslen(szSubDir) + 1);
+
+    // Allocate buffer
+    if((szFullPath = CASC_ALLOC(TCHAR, nLength)) != NULL)
+    {
+        CombinePath(szFullPath, nLength, PATH_SEP_CHAR, szDirectory, szSubDir, NULL);
     }
 
     return szFullPath;
 }
 
-size_t CombineFilePath(TCHAR * szBuffer, size_t nMaxChars, const TCHAR * szPath, const TCHAR * szSubPath1, const TCHAR * szSubPath2)
-{
-    TCHAR * szSaveBuffer = szBuffer;
-    TCHAR * szBufferEnd = szBuffer + nMaxChars - 1;
-
-    // Append all three parts and return length
-    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szPath, PATH_SEP_CHAR, true);
-    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szSubPath1, PATH_SEP_CHAR);
-    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szSubPath2, PATH_SEP_CHAR);
-    return (szBuffer - szSaveBuffer);
-}
-
-size_t CombineUrlPath(TCHAR * szBuffer, size_t nMaxChars, const TCHAR * szHost, const TCHAR * szSubPath1, const TCHAR * szSubPath2)
-{
-    TCHAR * szSaveBuffer = szBuffer;
-    TCHAR * szBufferEnd = szBuffer + nMaxChars - 1;
-
-    // Append all three parts and return length
-    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szHost, '/', true);
-    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szSubPath1, '/');
-    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szSubPath2, '/');
-    return (szBuffer - szSaveBuffer);
-}
-
-size_t CreateCascSubdirectoryName(TCHAR * szBuffer, size_t nMaxChars, const TCHAR * szSubDir, const TCHAR * szExtension, LPBYTE pbEKey)
+size_t CreateCascSubdirectoryName(LPTSTR szBuffer, size_t nMaxChars, LPCTSTR szSubDir, LPCTSTR szExtension, LPBYTE pbEKey)
 {
     TCHAR * szSaveBuffer = szBuffer;
     TCHAR * szBufferEnd = szBuffer + nMaxChars - 1;
@@ -430,9 +435,10 @@ size_t CreateCascSubdirectoryName(TCHAR * szBuffer, size_t nMaxChars, const TCHA
     StringFromBinary(pbEKey, MD5_HASH_SIZE, szHashText);
     CascStrPrintf(szHashSubPath, _countof(szHashSubPath), "%02x/%02x/%s", pbEKey[0], pbEKey[1], szHashText);
 
-    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szSubDir, '/', true);
-    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szHashSubPath, '/');
-    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szExtension, '/', true);
+    // Combine the path together
+    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szSubDir, URL_SEP_CHAR, true);
+    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szHashSubPath, URL_SEP_CHAR);
+    szBuffer = AppendPathFragment(szBuffer, szBufferEnd, szExtension, URL_SEP_CHAR, true);
     return (szBuffer - szSaveBuffer);
 }
 
@@ -610,16 +616,33 @@ char * StringFromMD5(LPBYTE md5, char * szBuffer)
 
 bool IsFileDataIdName(const char * szFileName, DWORD & FileDataId)
 {
+    const char * szFilePtr;
     BYTE BinaryValue[4];
 
-    // File name must begin with "File", case insensitive
-    if(AsciiToUpperTable_BkSlash[szFileName[0]] == 'F' &&
-       AsciiToUpperTable_BkSlash[szFileName[1]] == 'I' &&
-       AsciiToUpperTable_BkSlash[szFileName[2]] == 'L' &&
-       AsciiToUpperTable_BkSlash[szFileName[3]] == 'E')
+    // If the file name begins with "File", then a decimal file data ID must follow
+    if(!strncmp(szFileName, "File", 4))
     {
-        // Then, 8 hexadecimal digits must follow
-        if(ConvertStringToBinary(szFileName + 4, 8, BinaryValue) == ERROR_SUCCESS)
+        DWORD Accumulator = 0;
+
+        for(szFilePtr = szFileName + 4; szFilePtr[0] != 0 && szFilePtr[0] != '.'; szFilePtr++)
+        {
+            if(!('0' <= szFilePtr[0] && szFilePtr[0] <= '9'))
+                return false;
+            Accumulator = (Accumulator * 10) + (szFilePtr[0] - '0');
+        }
+
+        if(szFilePtr[0] == '.' || szFilePtr[0] == 0)
+        {
+            FileDataId = Accumulator;
+            return true;
+        }
+    }
+
+    // If the file name begins with "FILE", then a hexadecimal file data ID must follow
+    if(!strncmp(szFileName, "FILE", 4) && strlen(szFileName) >= 0x0C)
+    {
+        // Convert the hexadecimal number to integer
+        if(ConvertStringToBinary(szFileName+4, 8, BinaryValue) == ERROR_SUCCESS)
         {
             // Must be followed by an extension or end-of-string
             if(szFileName[0x0C] == 0 || szFileName[0x0C] == '.')
