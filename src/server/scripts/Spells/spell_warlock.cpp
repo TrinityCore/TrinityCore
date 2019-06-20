@@ -228,7 +228,6 @@ class spell_warl_conflagrate : public SpellScript
         if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffect(SPELL_WARLOCK_IMMOLATE, EFFECT_2, GetCaster()->GetGUID()))
         {
             int32 damage = aurEff->GetAmount();
-            damage += GetCaster()->SpellDamageBonusDone(GetHitUnit(), aurEff->GetSpellInfo(), damage, DOT, EFFECT_2);
             damage *= aurEff->GetTotalTicks();
             SetHitDamage(CalculatePct(damage, GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster())));
         }
