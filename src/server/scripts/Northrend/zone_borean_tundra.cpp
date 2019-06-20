@@ -39,6 +39,7 @@ EndContentData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "QuestDef.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 #include "ScriptedGossip.h"
