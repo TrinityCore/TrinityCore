@@ -772,6 +772,34 @@ public:
     }
 };
 
+enum ReturnedSevenfold
+{
+    SPELL_FREYAS_WARD           = 51845,
+    SPELL_SEVENFOLD_RETRIBUTION = 51856,
+    SPELL_DEATHBOLT             = 51855
+};
+
+class spell_q12611_deathbolt : public SpellScript
+{
+    PrepareSpellScript(spell_q12611_deathbolt);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (target->HasAura(SPELL_FREYAS_WARD))
+            target->CastSpell(caster, SPELL_SEVENFOLD_RETRIBUTION, true);
+        else
+            caster->CastSpell(target, SPELL_DEATHBOLT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q12611_deathbolt::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_sholazar_basin()
 {
     new npc_engineer_helice();
@@ -781,4 +809,5 @@ void AddSC_sholazar_basin()
     new npc_haiphoon();
     new npc_vics_flying_machine();
     new spell_shango_tracks();
+    RegisterSpellScript(spell_q12611_deathbolt);
 }
