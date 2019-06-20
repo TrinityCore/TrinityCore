@@ -33,6 +33,18 @@ DoorData const doorData[] =
     { 0,                 0,                        DOOR_TYPE_ROOM } // END
 };
 
+ObjectData const creatureData[] =
+{
+    { NPC_BROGGOK,             DATA_BROGGOK             },
+    { 0,                       0                        } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_BROGGOK_LEVER,      DATA_BROGGOK_LEVER },
+    { 0,                     0                  } //END
+};
+
 class instance_blood_furnace : public InstanceMapScript
 {
     public:
@@ -45,6 +57,7 @@ class instance_blood_furnace : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadObjectData(creatureData, gameObjectData);
 
                 PrisonerCounter5        = 0;
                 PrisonerCounter6        = 0;
@@ -54,6 +67,8 @@ class instance_blood_furnace : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case NPC_THE_MAKER:
@@ -90,7 +105,6 @@ class instance_blood_furnace : public InstanceMapScript
                         PrisonDoor4GUID = go->GetGUID();
                         break;
                     case GO_BROGGOK_LEVER:
-                        go->SetRespawnCompatibilityMode(true);
                         BroggokLeverGUID = go->GetGUID();
                         break;
                     case GO_PRISON_CELL_DOOR_1:
@@ -154,8 +168,6 @@ class instance_blood_furnace : public InstanceMapScript
                                 break;
                             case NOT_STARTED:
                                 ResetPrisons();
-                                if (GameObject* lever = instance->GetGameObject(BroggokLeverGUID))
-                                    lever->Respawn();
                                 break;
                             default:
                                 break;
@@ -189,18 +201,13 @@ class instance_blood_furnace : public InstanceMapScript
 
             void ResetPrisoners(GuidSet& prisoners)
             {
-                std::list<ObjectGuid> deadPrisoners;
-                for (GuidSet::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
+                for (GuidSet::const_iterator i = prisoners.begin(); i != prisoners.end();)
                     if (Creature * prisoner = instance->GetCreature(*i))
                     {
-                        if (!prisoner->IsAlive()) deadPrisoners.insert(std::begin(deadPrisoners), prisoner->GetGUID());
+                        i = !prisoner->IsAlive() ? prisoners.erase(i) : ++i;
+
                         ResetPrisoner(prisoner);
                     }
-
-                // remove dead prisoners from last encounter so
-                // we don't count them in future encounters (this makes PrisonerCounterX invalid)
-                for (ObjectGuid deadPrisoner : deadPrisoners)
-                    prisoners.erase(deadPrisoner);
             }
 
             void ResetPrisoner(Creature* prisoner)
