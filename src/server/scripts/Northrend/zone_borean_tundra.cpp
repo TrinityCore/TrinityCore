@@ -487,7 +487,7 @@ public:
 
             if (TempSummon* summon = me->ToTempSummon())
                 if (summon->IsSummon())
-                    if (Unit* temp = summon->GetSummoner())
+                    if (Unit* temp = summon->GetSummonerUnit())
                         if (Player* player = temp->ToPlayer())
                             player->KilledMonsterCredit(me->GetEntry());
 
@@ -1134,7 +1134,7 @@ public:
                 return;
 
             if (me->IsSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                     ENSURE_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->arthasInPosition = true;
         }
     };
@@ -1166,7 +1166,7 @@ public:
             me->AddUnitState(UNIT_STATE_STUNNED);
             me->CastSpell(me, SPELL_STUN, true);
             if (me->IsSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                     ENSURE_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->arlosInPosition = true;
         }
     };
@@ -1228,7 +1228,7 @@ public:
                 return;
 
             if (me->IsSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                     ENSURE_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->talbotInPosition = true;
         }
 
@@ -1345,7 +1345,7 @@ public:
                 me->CastSpell(me, SPELL_STUN, true);
 
                 if (me->IsSummon())
-                    if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                    if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                         ENSURE_AI(npc_thassarian::npc_thassarianAI, summoner->GetAI())->leryssaInPosition = true;
                 bDone = true;
             }
@@ -1353,7 +1353,7 @@ public:
             {
                 me->SetStandState(UNIT_STAND_STATE_SIT);
                 if (me->IsSummon())
-                    if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                    if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                     summoner->SetStandState(UNIT_STAND_STATE_SIT);
                 phaseTimer = 1500;
                 phase = 1;
@@ -1370,7 +1370,7 @@ public:
                 {
                     case 1:
                         if (me->IsSummon())
-                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                                 if (Creature* thassarian = summoner->ToCreature())
                                     thassarian->AI()->Talk(SAY_THASSARIAN_4);
                         phaseTimer = 5000;
@@ -1383,7 +1383,7 @@ public:
                         break;
                     case 3:
                         if (me->IsSummon())
-                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                                 if (Creature* thassarian = summoner->ToCreature())
                                     thassarian->AI()->Talk(SAY_THASSARIAN_5);
                         phaseTimer = 5000;
@@ -1396,7 +1396,7 @@ public:
                         break;
                     case 5:
                         if (me->IsSummon())
-                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                                 if (Creature* thassarian = summoner->ToCreature())
                                     thassarian->AI()->Talk(SAY_THASSARIAN_6);
                         phaseTimer = 5000;
@@ -1410,7 +1410,7 @@ public:
                         break;
                     case 7:
                         if (me->IsSummon())
-                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                                 if (Creature* thassarian = summoner->ToCreature())
                                 {
                                     thassarian->AI()->Talk(SAY_THASSARIAN_7);

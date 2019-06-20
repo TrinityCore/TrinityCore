@@ -486,7 +486,7 @@ struct npc_skadi_trashAI : public ScriptedAI
         ScheduleTasks();
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
             skadi->AI()->JustSummoned(me);

@@ -23,10 +23,16 @@ SDComment: Charging healers and casters not working. Perhaps wrong Spell Timers.
 SDCategory: Zul'Gurub
 EndScriptData */
 
+#include "SpellScript.h"
+#include "SpellInfo.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 #include "zulgurub.h"
+#include "InstanceScript.h"
+#include "GameObjectAI.h"
+#include "GameObject.h"
+#include "Object.h"
 
 enum Says
 {
@@ -43,6 +49,8 @@ enum Spells
     SPELL_ENVOLWINGWEB        = 24110,
     SPELL_POISON_VOLLEY       = 24099,
     SPELL_SPIDER_FORM         = 24084,
+    SPELL_HATCH_EGGS          = 24083,
+    SPELL_HATCH_SPIDER_EGG    = 24082,
     // The Spider Spell
     SPELL_LEVELUP             = 24312  // Not right Spell.
 };
@@ -51,7 +59,7 @@ enum Events
 {
     EVENT_SPAWN_START_SPIDERS = 1, // Phase 1
     EVENT_POISON_VOLLEY       = 2, // Phase All
-    EVENT_SPAWN_SPIDER        = 3, // Phase All
+    EVENT_HATCH_SPIDER_EGG    = 3, // Phase All
     EVENT_CHARGE_PLAYER       = 4, // Phase 3
     EVENT_ASPECT_OF_MARLI     = 5, // Phase 2
     EVENT_TRANSFORM           = 6, // Phase 2
@@ -67,7 +75,8 @@ enum Phases
 
 enum Misc
 {
-    NPC_SPIDER                = 15041
+    NPC_SPIDER                = 15041,
+    GOB_SPIDER_EGG            = 179985,
 };
 
 // AWFUL HACK WARNING
@@ -89,6 +98,17 @@ class boss_marli : public CreatureScript
             {
                 if (events.IsInPhase(PHASE_THREE))
                     me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
+
+                std::list<GameObject*> eggs;
+                me->GetGameObjectListWithEntryInGrid(eggs, GOB_SPIDER_EGG);
+
+                for(GameObject* egg : eggs)
+                {
+                    egg->Respawn();
+                    egg->UpdateObjectVisibility(true);
+                }
+
+                summons.DespawnAll();
                 _Reset();
             }
 
@@ -103,6 +123,12 @@ class boss_marli : public CreatureScript
                 _JustEngagedWith();
                 events.ScheduleEvent(EVENT_SPAWN_START_SPIDERS, 1s, 0, PHASE_ONE);
                 Talk(SAY_AGGRO);
+            }
+
+            void JustSummoned(Creature* creature) override
+            {
+                creature->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                summons.Summon(creature);
             }
 
             void UpdateAI(uint32 diff) override
@@ -120,20 +146,18 @@ class boss_marli : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SPAWN_START_SPIDERS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            {
-                                Talk(SAY_SPIDER_SPAWN);
-                                for (uint8 i = 0; i < 4; ++i)
-                                    if (Creature* spider = me->SummonCreature(NPC_SPIDER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
-                                        spider->AI()->AttackStart(target);
-                            }
+                        {
+                            Talk(SAY_SPIDER_SPAWN);
+                            DoCastAOE(SPELL_HATCH_EGGS);
+
                             events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_TRANSFORM, 45s, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_POISON_VOLLEY, 15s);
-                            events.ScheduleEvent(EVENT_SPAWN_SPIDER, 30s);
+                            events.ScheduleEvent(EVENT_HATCH_SPIDER_EGG, 30s);
                             events.ScheduleEvent(EVENT_TRANSFORM, 45s, 0, PHASE_TWO);
                             events.SetPhase(PHASE_TWO);
                             break;
+                        }
                         case EVENT_POISON_VOLLEY:
                             DoCastVictim(SPELL_POISON_VOLLEY, true);
                             events.ScheduleEvent(EVENT_POISON_VOLLEY, 10s, 20s);
@@ -142,11 +166,9 @@ class boss_marli : public CreatureScript
                             DoCastVictim(SPELL_ASPECT_OF_MARLI, true);
                             events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, urand(13000, 18000), 0, PHASE_TWO);
                             break;
-                        case EVENT_SPAWN_SPIDER:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                if (Creature* spider = me->SummonCreature(NPC_SPIDER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
-                                    spider->AI()->AttackStart(target);
-                            events.ScheduleEvent(EVENT_SPAWN_SPIDER, 12s, 17s);
+                        case EVENT_HATCH_SPIDER_EGG:
+                            me->CastSpell(me, SPELL_HATCH_SPIDER_EGG);
+                            events.ScheduleEvent(EVENT_HATCH_SPIDER_EGG, 12s, 17s);
                             break;
                         case EVENT_TRANSFORM:
                         {
@@ -164,6 +186,7 @@ class boss_marli : public CreatureScript
                                 ModifyThreatByPercent(me->GetVictim(), -100);
                             events.ScheduleEvent(EVENT_CHARGE_PLAYER, 1500ms, 0, PHASE_THREE);
                             events.ScheduleEvent(EVENT_TRANSFORM_BACK, 25s, 0, PHASE_THREE);
+                            events.CancelEvent(EVENT_HATCH_SPIDER_EGG);
                             events.SetPhase(PHASE_THREE);
                             break;
                         }
@@ -198,7 +221,7 @@ class boss_marli : public CreatureScript
                             events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_TRANSFORM, 45s, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_POISON_VOLLEY, 15s);
-                            events.ScheduleEvent(EVENT_SPAWN_SPIDER, 30s);
+                            events.ScheduleEvent(EVENT_HATCH_SPIDER_EGG, 12s, 17s);
                             events.ScheduleEvent(EVENT_TRANSFORM, urand(35000, 60000), 0, PHASE_TWO);
                             events.SetPhase(PHASE_TWO);
                             break;
@@ -218,6 +241,31 @@ class boss_marli : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetZulGurubAI<boss_marliAI>(creature);
+        }
+};
+
+class gob_spider_egg : public GameObjectScript
+{
+   public: gob_spider_egg() : GameObjectScript("gob_spider_egg") { }
+
+        struct gob_spider_eggAI : public GameObjectAI
+        {
+            gob_spider_eggAI(GameObject* gob) : GameObjectAI(gob), _instance(gob->GetInstanceScript()) { }
+
+            void JustSummoned(Creature* creature) override
+            {
+                if (Creature * marli = _instance->GetCreature(DATA_MARLI))
+                    marli->AI()->JustSummoned(creature);
+
+                me->SetRespawnCompatibilityMode(true);
+            }
+        private:
+            InstanceScript* const _instance;
+        };
+
+        GameObjectAI* GetAI(GameObject* gob) const override
+        {
+            return GetZulGurubAI<gob_spider_eggAI>(gob);
         }
 };
 
@@ -270,8 +318,27 @@ class npc_spawn_of_marli : public CreatureScript
         }
 };
 
+class spell_hatch_spiders : public SpellScript
+{
+       PrepareSpellScript(spell_hatch_spiders);
+
+       void HandleObjectAreaTargetSelect(std::list<WorldObject*>& targets)
+       {
+           targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+           targets.resize(GetSpellInfo()->MaxAffectedTargets);
+       }
+
+       void Register() override
+       {
+           OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hatch_spiders::HandleObjectAreaTargetSelect, EFFECT_0, TARGET_GAMEOBJECT_DEST_AREA);
+       }
+
+};
+
 void AddSC_boss_marli()
 {
     new boss_marli();
     new npc_spawn_of_marli();
+    new gob_spider_egg();
+    RegisterSpellScript(spell_hatch_spiders);
 }

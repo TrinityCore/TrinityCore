@@ -190,7 +190,7 @@ public:
             events.ScheduleEvent(EVENT_MORTAL_STRIKE, 17s, 19s);
         }
 
-        void IsSummonedBy(Unit* /*summoner*/) override
+        void IsSummonedBy(WorldObject* /*summoner*/) override
         {
             me->SetImmuneToPC(false);
             DoZoneInCombat();
