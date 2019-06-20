@@ -2216,7 +2216,7 @@ void AuraEffect::HandleAuraModScale(AuraApplication const* aurApp, uint8 mode, b
     Unit* target = aurApp->GetTarget();
 
     float scale = target->GetObjectScale();
-    ApplyPercentModFloatVar(scale, float(GetAmount()), apply);
+    scale += CalculatePct(1.0f, apply ? GetAmount() : -GetAmount());
     target->SetObjectScale(scale);
 }
 
