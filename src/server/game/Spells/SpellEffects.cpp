@@ -3680,21 +3680,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
 
                     return;
                 }
-                case 59317:                                 // Teleporting
-                {
-
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // return from top
-                    if (unitTarget->ToPlayer()->GetAreaId() == 4637)
-                        unitTarget->CastSpell(unitTarget, 59316, true);
-                    // teleport atop
-                    else
-                        unitTarget->CastSpell(unitTarget, 59314, true);
-
-                    return;
-                }
                 case 62482: // Grab Crate
                 {
                     if (!unitCaster)
