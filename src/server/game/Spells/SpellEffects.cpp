@@ -3249,23 +3249,6 @@ void Spell::EffectScriptEffect()
 
                     return;
                 }
-                case 59317:                                 // Teleporting
-                {
-
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // return from top
-                    if (unitTarget->ToPlayer()->GetAreaId() == 4637)
-                        unitTarget->CastSpell(unitTarget, 59316, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                            .SetOriginalCastId(m_castId));
-                    // teleport atop
-                    else
-                        unitTarget->CastSpell(unitTarget, 59314, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                            .SetOriginalCastId(m_castId));
-
-                    return;
-                }
                 case 62482: // Grab Crate
                 {
                     if (!unitCaster)
