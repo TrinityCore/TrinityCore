@@ -25,7 +25,6 @@ EndScriptData */
 
 /* ContentData
 npc_maghar_captive
-npc_creditmarker_visit_with_ancestors
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -216,48 +215,6 @@ public:
         return new npc_maghar_captiveAI(creature);
     }
 
-};
-
-/*######
-## npc_creditmarker_visist_with_ancestors
-######*/
-
-class npc_creditmarker_visit_with_ancestors : public CreatureScript
-{
-public:
-    npc_creditmarker_visit_with_ancestors() : CreatureScript("npc_creditmarker_visit_with_ancestors") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_creditmarker_visit_with_ancestorsAI(creature);
-    }
-
-    struct npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI
-    {
-        npc_creditmarker_visit_with_ancestorsAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override { }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void MoveInLineOfSight(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            Player* player = who->ToPlayer();
-            if (player && player->GetQuestStatus(10085) == QUEST_STATUS_INCOMPLETE)
-            {
-                uint32 creditMarkerId = me->GetEntry();
-                if (creditMarkerId >= 18840 && creditMarkerId <= 18843)
-                {
-                    // 18840: Sunspring, 18841: Laughing, 18842: Garadar, 18843: Bleeding
-                    if (!player->GetReqKillOrCastCurrentCount(10085, creditMarkerId))
-                        player->KilledMonsterCredit(creditMarkerId, me->GetGUID());
-                }
-            }
-        }
-    };
 };
 
 /*######
@@ -924,7 +881,6 @@ public:
 void AddSC_nagrand()
 {
     new npc_maghar_captive();
-    new npc_creditmarker_visit_with_ancestors();
     new npc_corki();
     new go_corkis_prison();
     new npc_kurenai_captive();
