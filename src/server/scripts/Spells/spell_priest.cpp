@@ -72,6 +72,16 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
 };
 
+enum Mics
+{
+    PRIEST_LIGHTWELL_NPC_1                          = 31897,
+    PRIEST_LIGHTWELL_NPC_2                          = 31896,
+    PRIEST_LIGHTWELL_NPC_3                          = 31895,
+    PRIEST_LIGHTWELL_NPC_4                          = 31894,
+    PRIEST_LIGHTWELL_NPC_5                          = 31893,
+    PRIEST_LIGHTWELL_NPC_6                          = 31883
+};
+
 class PowerCheck
 {
     public:
@@ -696,21 +706,21 @@ class spell_pri_lightwell : public SpellScript
         if (!caster || !caster->IsSummon())
             return;
 
-        uint32 spellId = 0;
+        uint32 lightwellRenew = 0;
         switch (caster->GetEntry())
         {
-            case 31897: spellId = 7001; break;
-            case 31896: spellId = 27873; break;
-            case 31895: spellId = 27874; break;
-            case 31894: spellId = 28276; break;
-            case 31893: spellId = 48084; break;
-            case 31883: spellId = 48085; break;
+            case PRIEST_LIGHTWELL_NPC_1: lightwellRenew = 7001; break;
+            case PRIEST_LIGHTWELL_NPC_2: lightwellRenew = 27873; break;
+            case PRIEST_LIGHTWELL_NPC_3: lightwellRenew = 27874; break;
+            case PRIEST_LIGHTWELL_NPC_4: lightwellRenew = 28276; break;
+            case PRIEST_LIGHTWELL_NPC_5: lightwellRenew = 48084; break;
+            case PRIEST_LIGHTWELL_NPC_6: lightwellRenew = 48085; break;
         }
 
         // proc a spellcast
         if (Aura* chargesAura = caster->GetAura(SPELL_PRIEST_LIGHTWELL_CHARGES))
         {
-            caster->CastSpell(GetHitUnit(), spellId, caster->ToTempSummon()->GetSummonerGUID());
+            caster->CastSpell(GetHitUnit(), lightwellRenew, caster->ToTempSummon()->GetSummonerGUID());
             if (chargesAura->ModCharges(-1))
                 caster->ToTempSummon()->UnSummon();
         }
