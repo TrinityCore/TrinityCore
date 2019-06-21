@@ -1876,8 +1876,8 @@ public:
 
 private:
     // Need check to not use polymorph in a casting creature
-    bool _checkCasting;
     Unit* _owner;
+    bool _checkCasting;
 };
 
 std::vector<uint32> DarkFallensEmotes =
