@@ -3233,22 +3233,6 @@ void Spell::EffectScriptEffect()
 
                     return;
                 }
-                case 58418:                                 // Portal to Orgrimmar
-                case 58420:                                 // Portal to Stormwind
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || effectInfo->EffectIndex != 0)
-                        return;
-
-                    // Effects for 58418 and 58420 are all DIFFICULTY_NONE so always valid
-                    uint32 spellID = m_spellInfo->GetEffect(EFFECT_0).CalcValue();
-                    uint32 questID = m_spellInfo->GetEffect(EFFECT_1).CalcValue();
-
-                    if (unitTarget->ToPlayer()->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE)
-                        unitTarget->CastSpell(unitTarget, spellID, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                            .SetOriginalCastId(m_castId));
-
-                    return;
-                }
                 case 62482: // Grab Crate
                 {
                     if (!unitCaster)
