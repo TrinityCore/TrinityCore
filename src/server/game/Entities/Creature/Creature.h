@@ -359,8 +359,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool CanGiveExperience() const;
 
-        void AtEnterCombat() override;
-        void AtExitCombat() override;
+        void AtEngage(Unit* target) override;
+        void AtDisengage() override;
 
         std::string GetDebugInfo() const override;
 
