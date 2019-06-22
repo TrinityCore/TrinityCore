@@ -1854,14 +1854,14 @@ struct npc_entrance_faction_leader : public ScriptedAI
 class MinionSearch
 {
 public:
-    MinionSearch(bool checkCasting) : _checkCasting(checkCasting) { }
+    MinionSearch(Unit* owner, bool checkCasting) : _owner(owner), _checkCasting(checkCasting) { }
 
-    bool operator()(Unit* unit) const
+    bool operator()(Creature* target) const
     {
-        if (!unit->IsAlive() || (_checkCasting && unit->HasUnitState(UNIT_STATE_CASTING)))
+        if (!target->IsAlive() || (_checkCasting && target->HasUnitState(UNIT_STATE_CASTING)) || target->GetWaypointPath() || _owner->GetDistance(target) > 10.0f)
             return false;
 
-        switch (unit->GetEntry())
+        switch (target->GetEntry())
         {
             case NPC_DARKFALLEN_BLOOD_KNIGHT:
             case NPC_DARKFALLEN_NOBLE:
@@ -1876,6 +1876,7 @@ public:
 
 private:
     // Need check to not use polymorph in a casting creature
+    Unit* _owner;
     bool _checkCasting;
 };
 
@@ -1895,23 +1896,29 @@ struct npc_icc_orb_controller : public ScriptedAI
 
     void Reset() override
     {
-        _minionGuids.clear();
-        std::vector<Creature*> creatures;
-        MinionSearch check(false);
-        Trinity::CreatureListSearcher<MinionSearch> searcher(me, creatures, check);
-        Cell::VisitGridObjects(me, searcher, 10.0f);
-
-        for (Creature* creature : creatures)
+        _scheduler.Schedule(1s, [this](TaskContext /*initialize*/)
         {
-            creature->AI()->SetGUID(me->GetGUID(), DATA_GUID);
-            _minionGuids.push_back(creature->GetGUID());
-        }
+            std::vector<Creature*> creatures;
+            MinionSearch check(me, false);
+            Trinity::CreatureListSearcher<MinionSearch> searcher(me, creatures, check);
+            Cell::VisitGridObjects(me, searcher, 10.0f);
 
-        if (creatures.empty())
-            return;
+            if (creatures.empty())
+                return;
 
-        _isLongRepeat = false;
-        _scheduler.Schedule(1s, [this](TaskContext visual)
+            for (Creature* creature : creatures)
+            {
+                creature->AI()->SetGUID(me->GetGUID(), DATA_GUID);
+                _minionGuids.push_back(creature->GetGUID());
+            }
+
+            ScheduleVisualChannel(false);
+        });
+    }
+
+    void ScheduleVisualChannel(bool evading)
+    {
+        _scheduler.Schedule(evading ? 5s : 1s, [this](TaskContext visual)
         {
             ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(_minionGuids);
             if (Unit* minion = ObjectAccessor::GetUnit(*me, guid))
@@ -1921,39 +1928,67 @@ struct npc_icc_orb_controller : public ScriptedAI
         });
     }
 
+    void UpdateValidGuids()
+    {
+        for (GuidVector::iterator itr = _minionGuids.begin(); itr != _minionGuids.end();)
+        {
+            if (Unit* minion = ObjectAccessor::GetUnit(*me, (*itr)))
+            {
+                if (!minion->IsAlive())
+                {
+                    itr = _minionGuids.erase(itr);
+                    continue;
+                }
+
+                ++itr;
+            }
+            // Is not in world anymore
+            else
+                itr = _minionGuids.erase(itr);
+        }
+    }
+
     void SpellHit(Unit* caster, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ORB_CONTROLLER_ACTIVE)
-        {
             if (GameObject* orb = me->FindNearestGameObject(GO_EMPOWERING_BLOOD_ORB, 5.0f))
                 orb->AI()->SetGUID(caster->GetGUID(), DATA_GUID);
+    }
+
+    void SetGUID(ObjectGuid const& guid, int32 id) override
+    {
+        if (id != ACTION_COMBAT || _isInCombat)
+            return;
+
+        Creature* darkfallen = ObjectAccessor::GetCreature(*me, guid);
+        if (!darkfallen)
+            return;
+
+        _isInCombat = true;
+        _scheduler.CancelAll();
+        if (_minionGuids.empty())
+            return;
+
+        for (ObjectGuid guid : _minionGuids)
+        {
+            if (Creature* minion = ObjectAccessor::GetCreature(*me, guid))
+                if (minion->IsAIEnabled() && !minion->IsInCombat())
+                    minion->AI()->DoZoneInCombat(darkfallen);
         }
+
+        if (Unit* minion = ObjectAccessor::GetUnit(*me, Trinity::Containers::SelectRandomContainerElement(_minionGuids)))
+            minion->CastSpell(nullptr, SPELL_SIPHON_ESSENCE);
     }
 
     void DoAction(int32 action) override
     {
-        if (action == ACTION_COMBAT && !_isInCombat)
-        {
-            _isInCombat = true;
-            _scheduler.CancelAll();
-            if (_minionGuids.empty())
-                return;
-
-            if (Unit* minion = ObjectAccessor::GetUnit(*me, Trinity::Containers::SelectRandomContainerElement(_minionGuids)))
-                minion->CastSpell(me, SPELL_SIPHON_ESSENCE);
-
-            for (ObjectGuid guid : _minionGuids)
-            {
-                if (Creature* minion = ObjectAccessor::GetCreature(*me, guid))
-                    if (minion->IsAIEnabled() && !minion->IsInCombat())
-                        minion->AI()->DoZoneInCombat();
-            }
-        }
-        else if (action == ACTION_EVADE && _isInCombat)
+        if (action == ACTION_EVADE && _isInCombat)
         {
             _isInCombat = false;
-            // Update Darkfallens
-            Reset();
+            UpdateValidGuids();
+            ScheduleVisualChannel(true);
+            if (GameObject* orb = me->FindNearestGameObject(GO_EMPOWERING_BLOOD_ORB, 5.0f))
+                orb->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
     }
 
@@ -1991,7 +2026,7 @@ struct DarkFallenAI : public ScriptedAI
             if (roll_chance_i(20))
             {
                 std::vector<Creature*> creatures;
-                MinionSearch check(true);
+                MinionSearch check(me, true);
                 Trinity::CreatureListSearcher<MinionSearch> searcher(me, creatures, check);
                 Cell::VisitGridObjects(me, searcher, 10.0f);
                 if (!creatures.empty())
@@ -2014,7 +2049,7 @@ struct DarkFallenAI : public ScriptedAI
         Scheduler.CancelAll();
         ScheduleSpells();
         if (Unit* trigger = ObjectAccessor::GetUnit(*me, TriggerGuid))
-            trigger->GetAI()->DoAction(ACTION_COMBAT);
+            trigger->GetAI()->SetGUID(me->GetGUID(), ACTION_COMBAT);
     }
 
     void DoAction(int32 action) override
@@ -2030,9 +2065,9 @@ struct DarkFallenAI : public ScriptedAI
             TriggerGuid = guid;
     }
 
-    void JustReachedHome() override
+    void EnterEvadeMode(EvadeReason why) override
     {
-        ScriptedAI::JustReachedHome();
+        ScriptedAI::EnterEvadeMode(why);
         if (Unit* trigger = ObjectAccessor::GetUnit(*me, TriggerGuid))
             trigger->GetAI()->DoAction(ACTION_EVADE);
     }
@@ -2214,6 +2249,12 @@ struct go_empowering_blood_orb : public GameObjectAI
 {
     go_empowering_blood_orb(GameObject* go) : GameObjectAI(go) { }
 
+    void Reset() override
+    {
+        if (Creature* trigger = me->SummonCreature(NPC_ORB_VISUAL_STALKER, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN))
+            _triggerGuid = trigger->GetGUID();
+    }
+
     bool GossipHello(Player* player) override
     {
         me->CastSpell(player, SPELL_EMPOWERED_BLOOD, true);
@@ -2226,8 +2267,8 @@ struct go_empowering_blood_orb : public GameObjectAI
         me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         me->SetGoAnimProgress(255);
         me->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-        if (Creature* target = me->FindNearestCreature(NPC_ORB_VISUAL_STALKER, 10.0f, true))
-            target->KillSelf();
+        if (Creature* trigger = ObjectAccessor::GetCreature(*me, _triggerGuid))
+            trigger->DespawnOrUnsummon();
         _scheduler.Schedule(3s, [this](TaskContext /*context*/)
         {
             me->Delete();
@@ -2251,6 +2292,7 @@ struct go_empowering_blood_orb : public GameObjectAI
 
 private:
     TaskScheduler _scheduler;
+    ObjectGuid _triggerGuid;
 };
 
 // 70227 - Empowered Blood
@@ -2314,7 +2356,7 @@ class spell_icc_siphon_essence : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL)
             GetTarget()->GetAI()->DoAction(ACTION_SIPHON_INTERRUPTED);
     }
 
@@ -2336,6 +2378,11 @@ class spell_darkfallen_blood_mirror : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
+        targets.remove_if([](WorldObject* target)
+        {
+            return target->GetTypeId() != TYPEID_PLAYER;
+        });
+
         if (targets.size() < 2)
             return;
 
