@@ -243,11 +243,8 @@ class TC_GAME_API CreatureAI : public UnitAI
 
     private:
         void OnOwnerCombatInteraction(Unit* target);
-        // Returns the value of IsEngaged() from the previous tick
-        bool SetWasEngaged(bool value);
 
         bool _moveInLOSLocked;
-        bool _wasEngaged;
 };
 
 #endif

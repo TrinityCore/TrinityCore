@@ -36,9 +36,7 @@
 AISpellInfoType* UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
 
-CreatureAI::CreatureAI(Creature* creature)
-    : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), _moveInLOSLocked(false),
-    _wasEngaged(false)
+CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), _moveInLOSLocked(false)
 {
 }
 
@@ -155,9 +153,6 @@ void CreatureAI::TriggerAlert(Unit const* who) const
 
 void CreatureAI::EnterEvadeMode(EvadeReason why)
 {
-    // Set the WasEngaged flag to false to ensure we don't evade twice
-    SetWasEngaged(false);
-
     if (!_EnterEvadeMode(why))
         return;
 
@@ -184,11 +179,7 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
 
 bool CreatureAI::UpdateVictim()
 {
-    bool wasEngaged = SetWasEngaged(me->IsEngaged());
-
-    // Don't skip the checks below if we were engaged in the tick before and are not engaged anymore now
-    // (and we didn't evade yet. Notice that EnterEvadeMode() calls SetWasEngaged(false) )
-    if (!wasEngaged && !me->IsEngaged())
+    if (!me->IsEngaged())
         return false;
 
     if (!me->HasReactState(REACT_PASSIVE))
@@ -365,11 +356,4 @@ Creature* CreatureAI::DoSummonFlyer(uint32 entry, WorldObject* obj, float flight
     Position pos = obj->GetRandomNearPosition(radius);
     pos.m_positionZ += flightZ;
     return me->SummonCreature(entry, pos, summonType, despawnTime);
-}
-
-bool CreatureAI::SetWasEngaged(bool value)
-{
-    bool previousValue = _wasEngaged;
-    _wasEngaged = value;
-    return previousValue;
 }
