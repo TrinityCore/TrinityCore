@@ -166,7 +166,7 @@ void ThreatReference::UnregisterAndFree()
     return true;
 }
 
-ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _ownerEngaged(false), _needClientUpdate(false), _updateTimer(THREAT_UPDATE_INTERVAL), _currentVictimRef(nullptr), _fixateRef(nullptr)
+ThreatManager::ThreatManager(Unit* owner) : _owner(owner), _ownerCanHaveThreatList(false), _needClientUpdate(false), _updateTimer(THREAT_UPDATE_INTERVAL), _currentVictimRef(nullptr), _fixateRef(nullptr)
 {
     for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         _singleSchoolModifiers[i] = 1.0f;
@@ -186,7 +186,7 @@ void ThreatManager::Initialize()
 
 void ThreatManager::Update(uint32 tdiff)
 {
-    if (!CanHaveThreatList() || !IsEngaged())
+    if (!CanHaveThreatList() || IsThreatListEmpty())
         return;
     if (_updateTimer <= tdiff)
     {
@@ -398,11 +398,9 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     if (ref->IsOnline()) // ...and if the ref is online it also gets the threat it should have
         ref->AddThreat(amount);
 
-    if (!_ownerEngaged)
+    if (!_owner->IsEngaged())
     {
-        Creature* cOwner = ASSERT_NOTNULL(_owner->ToCreature()); // if we got here the owner can have a threat list, and must be a creature!
-        _ownerEngaged = true;
-
+        _owner->AtEngage(target);
         UpdateVictim();
 
         SaveCreatureHomePositionIfNeed(cOwner);
@@ -486,14 +484,17 @@ void ThreatManager::ClearThreat(ThreatReference* ref)
 
 void ThreatManager::ClearAllThreat()
 {
-    _ownerEngaged = false;
-    if (_myThreatListEntries.empty())
-        return;
-
-    SendClearAllThreatToClients();
-    do
-        _myThreatListEntries.begin()->second->UnregisterAndFree();
-    while (!_myThreatListEntries.empty());
+    if (!_myThreatListEntries.empty())
+    {
+        SendClearAllThreatToClients();
+        do
+            _myThreatListEntries.begin()->second->UnregisterAndFree();
+        while (!_myThreatListEntries.empty());
+    }
+    // note: i don't really like having this here
+    // (maybe engage flag should be in creature ai? it's inherently an AI property...)
+    if (_owner->IsEngaged())
+        _owner->AtDisengage();
 }
 
 void ThreatManager::FixateTarget(Unit* target)

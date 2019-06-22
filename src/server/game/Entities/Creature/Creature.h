@@ -358,8 +358,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void MakeInterruptable(bool apply);
 
-        void AtEnterCombat() override;
-        void AtExitCombat() override;
+        void AtEngage(Unit* target) override;
+        void AtDisengage() override;
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
