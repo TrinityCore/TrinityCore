@@ -336,11 +336,15 @@ bool CombatManager::UpdateOwnerCombatState() const
     {
         _owner->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
         _owner->AtEnterCombat();
+        if (!_owner->CanHaveThreatList() && !_owner->IsEngaged())
+            _owner->AtEngage(GetAnyTarget());
     }
     else
     {
         _owner->RemoveUnitFlag(UNIT_FLAG_IN_COMBAT);
         _owner->AtExitCombat();
+        if (_owner->IsEngaged() && !(_owner->ToCreature() && _owner->ToCreature()->IsAIEnabled()))
+            _owner->AtDisengage();
     }
 
     if (Unit* master = _owner->GetCharmerOrOwner())
