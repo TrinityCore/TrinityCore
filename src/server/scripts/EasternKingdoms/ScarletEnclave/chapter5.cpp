@@ -1672,14 +1672,11 @@ class spell_teleport_leaders_blessing : public SpellScript
 {
     PrepareSpellScript(spell_teleport_leaders_blessing);
 
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
         Player* target = GetHitPlayer();
+        if (!target)
+            return;
 
         uint32 spellID = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
         uint32 questID = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
