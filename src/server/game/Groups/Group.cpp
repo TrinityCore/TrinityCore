@@ -2152,7 +2152,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
             // do not reset the instance, just unbind if others are permanently bound to it
             if (isEmpty && instanceSave->CanReset())
             {
-                if (map && this->isRaidGroup() && map->IsDungeon() && SendMsgTo)
+                if (map && isRaidGroup() && map->IsDungeon() && SendMsgTo)
                 {
                     AreaTriggerStruct const* instanceEntrance = sObjectMgr->GetGoBackTrigger(map->GetId());
 
