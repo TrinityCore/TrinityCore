@@ -138,7 +138,6 @@ class TC_GAME_API Puppet : public Minion
         void InitStats(uint32 duration) override;
         void InitSummon() override;
         void Update(uint32 time) override;
-        void RemoveFromWorld() override;
 };
 
 class TC_GAME_API ForcedUnsummonDelayEvent : public BasicEvent
