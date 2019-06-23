@@ -3069,29 +3069,6 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
         if (unitTarget->GetTypeId() != TYPEID_PLAYER && unitTarget->GetTarget() != unitCaster->GetGUID())
             unitCaster->CastSpell(unitTarget, 67485, true);
 
-    // Taunting player pets (that are aggressive or defensive) will force them to swap target
-    if (unitTarget->IsPet() && unitTarget->GetOwnerGUID().IsPlayer() && unitTarget->ToPet()->GetReactState() != REACT_PASSIVE)
-    {
-        if (Unit* owner = unitTarget->GetOwner())
-            if (!owner->IsValidAttackTarget(unitCaster))
-                return;
-
-        if (unitTarget->GetVictim() != unitCaster)
-        {
-            if (unitTarget->GetVictim())
-                unitTarget->AttackStop();
-
-            if (unitTarget->GetTypeId() != TYPEID_PLAYER && unitTarget->ToCreature()->IsAIEnabled())
-            {
-                CreatureAI* AI = unitTarget->ToCreature()->AI();
-                if (PetAI* petAI = dynamic_cast<PetAI*>(AI))
-                    petAI->_AttackStart(unitCaster); // force target switch
-                else
-                    AI->AttackStart(unitCaster);
-            }
-        }
-    }
-
     if (!unitTarget->CanHaveThreatList())
     {
         SendCastResult(SPELL_FAILED_DONT_REPORT);
