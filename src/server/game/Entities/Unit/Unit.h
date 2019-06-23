@@ -1190,14 +1190,14 @@ class TC_GAME_API Unit : public WorldObject
         CharmInfo* GetCharmInfo() { return m_charmInfo; }
         CharmInfo* InitCharmInfo();
         void DeleteCharmInfo();
+
+        // all of these are for DIRECT CLIENT CONTROL only
+        void SetMovedUnit(Unit* target);
         // returns the unit that this player IS CONTROLLING
-        Unit* GetUnitBeingMoved() const;
-        // returns the player that this player IS CONTROLLING
-        Player* GetPlayerBeingMoved() const;
+        Unit* GetUnitBeingMoved() const { return m_unitMovedByMe; }
         // returns the player that this unit is BEING CONTROLLED BY
         Player* GetPlayerMovingMe() const { return m_playerMovingMe; }
-        // only set for direct client control (possess effects, vehicles and similar)
-        Player* m_playerMovingMe;
+
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* player);
         void RemovePlayerFromVision(Player* player);
@@ -1739,6 +1739,8 @@ class TC_GAME_API Unit : public WorldObject
 
         float m_speed_rate[MAX_MOVE_TYPE];
 
+        Unit* m_unitMovedByMe;    // only ever set for players, and only for direct client control
+        Player* m_playerMovingMe; // only set for direct client control (possess effects, vehicles and similar)
         Unit* m_charmer; // Unit that is charming ME
         Unit* m_charmed; // Unit that is being charmed BY ME
         CharmInfo* m_charmInfo;

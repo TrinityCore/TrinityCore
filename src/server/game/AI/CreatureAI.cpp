@@ -151,6 +151,18 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS, me->GetAbsoluteAngle(who));
 }
 
+void CreatureAI::JustAppeared()
+{
+    if (!me->GetVehicle())
+    {
+        if (Unit* owner = me->GetCharmerOrOwner())
+        {
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+        }
+    }
+}
+
 void CreatureAI::EnterEvadeMode(EvadeReason why)
 {
     if (!_EnterEvadeMode(why))

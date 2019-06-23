@@ -1942,7 +1942,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
         void UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode);
         // only changed for direct client control (possess, vehicle etc.), not stuff you control using pet commands
-        Unit* m_unitMovedByMe;
         WorldObject* m_seer;
         void SetFallInformation(uint32 time, float z);
         void HandleFall(MovementInfo const& movementInfo);
@@ -1950,8 +1949,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CanFlyInZone(uint32 mapid, uint32 zone, SpellInfo const* bySpell) const;
 
         void SetClientControl(Unit* target, bool allowMove);
-
-        void SetMovedUnit(Unit* target);
 
         void SetSeer(WorldObject* target) { m_seer = target; }
         void SetViewpoint(WorldObject* target, bool apply);
