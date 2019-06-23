@@ -204,13 +204,14 @@ class boss_thekal : public CreatureScript
                     else if (data == NPC_ZEALOT_ZATH)
                         creature = instance->GetCreature(DATA_ZATH);
 
-                    ASSERT(creature);
-
                     // Resurrect
-                    creature->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-                    creature->SetFullHealth();
-                    creature->SetImmuneToPC(false, true);
-                    creature->SetImmuneToNPC(false, true);
+                    if (creature)
+                    {
+                        creature->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
+                        creature->SetFullHealth();
+                        creature->SetImmuneToPC(false, true);
+                        creature->SetImmuneToNPC(false, true);
+                    }
                 }
             }
 
@@ -268,19 +269,21 @@ class boss_thekal : public CreatureScript
 
                             if (_isLorkhanDead)
                             {
-                                Creature* lorkhan = instance->GetCreature(DATA_LORKHAN);
-                                ASSERT(lorkhan);
-                                lorkhan->AI()->DoCastSelf(SPELL_RESURRECT_VISUAL);
-                                SetData(DATA_RESURRECTED, lorkhan->GetEntry());
+                                if (Creature* lorkhan = instance->GetCreature(DATA_LORKHAN))
+                                {
+                                    lorkhan->AI()->DoCastSelf(SPELL_RESURRECT_VISUAL);
+                                    SetData(DATA_RESURRECTED, lorkhan->GetEntry());
+                                }
                                 _isLorkhanDead = false;
                             }
 
                             if (_isZathDead)
                             {
-                                Creature* zath = instance->GetCreature(DATA_ZATH);
-                                ASSERT(zath);
-                                zath->AI()->DoCastSelf(SPELL_RESURRECT_VISUAL);
-                                SetData(DATA_RESURRECTED, zath->GetEntry());
+                                if (Creature* zath = instance->GetCreature(DATA_ZATH))
+                                {
+                                    zath->AI()->DoCastSelf(SPELL_RESURRECT_VISUAL);
+                                    SetData(DATA_RESURRECTED, zath->GetEntry());
+                                }
                                 _isZathDead = false;
                             }
                             break;
