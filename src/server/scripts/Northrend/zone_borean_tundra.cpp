@@ -39,6 +39,7 @@ EndContentData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "QuestDef.h"
+#include "CreatureAIImpl.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 #include "ScriptedGossip.h"
@@ -2525,6 +2526,48 @@ public:
     }
 };
 
+// 45668 - Ultra-Advanced Proto-Typical Shortening Blaster
+enum ShorteningBlaster
+{
+    SPELL_SHORTENING_BLASTER_BIGGER1    = 45674,
+    SPELL_SHORTENING_BLASTER_SHRUNK1    = 45675,
+    SPELL_SHORTENING_BLASTER_YELLOW1    = 45678,
+    SPELL_SHORTENING_BLASTER_GHOST1     = 45682,
+    SPELL_SHORTENING_BLASTER_POLYMORPH1 = 45684,
+
+    SPELL_SHORTENING_BLASTER_BIGGER2    = 45673,
+    SPELL_SHORTENING_BLASTER_SHRUNK2    = 45672,
+    SPELL_SHORTENING_BLASTER_YELLOW2    = 45677,
+    SPELL_SHORTENING_BLASTER_GHOST2     = 45682,
+    SPELL_SHORTENING_BLASTER_POLYMORPH2 = 45683
+};
+
+class spell_q11653_shortening_blaster : public SpellScript
+{
+    PrepareSpellScript(spell_q11653_shortening_blaster);
+
+    void HandleScript(SpellEffIndex /* effIndex */)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        uint32 spellId = RAND(SPELL_SHORTENING_BLASTER_BIGGER1, SPELL_SHORTENING_BLASTER_SHRUNK1,
+                              SPELL_SHORTENING_BLASTER_YELLOW1,
+                              SPELL_SHORTENING_BLASTER_GHOST1, SPELL_SHORTENING_BLASTER_POLYMORPH1);
+        uint32 spellId2 = RAND(SPELL_SHORTENING_BLASTER_BIGGER2, SPELL_SHORTENING_BLASTER_SHRUNK2,
+                               SPELL_SHORTENING_BLASTER_YELLOW2,
+                               SPELL_SHORTENING_BLASTER_GHOST2, SPELL_SHORTENING_BLASTER_POLYMORPH2);
+
+        caster->CastSpell(caster, spellId, true);
+        target->CastSpell(target, spellId2, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q11653_shortening_blaster::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     new npc_sinkhole_kill_credit();
@@ -2552,4 +2595,5 @@ void AddSC_borean_tundra()
     new spell_q11719_bloodspore_ruination_45997();
     new npc_bloodmage_laurith();
     new npc_orabus_the_helmsman_ship_exit_pos();
+    RegisterSpellScript(spell_q11653_shortening_blaster);
 }
