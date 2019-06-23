@@ -22226,7 +22226,7 @@ bool Player::IsNeverVisible() const
 bool Player::CanAlwaysSee(WorldObject const* obj) const
 {
     // Always can see self
-    if (m_unitMovedByMe == obj)
+    if (GetUnitBeingMoved() == obj)
         return true;
 
     if (ObjectGuid guid = GetGuidValue(PLAYER_FARSIGHT))
@@ -23892,14 +23892,6 @@ void Player::SetClientControl(Unit* target, bool allowMove)
 
     if (allowMove)
         SetMovedUnit(target);
-}
-
-void Player::SetMovedUnit(Unit* target)
-{
-    m_unitMovedByMe->m_playerMovingMe = nullptr;
-
-    m_unitMovedByMe = target;
-    m_unitMovedByMe->m_playerMovingMe = this;
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)
