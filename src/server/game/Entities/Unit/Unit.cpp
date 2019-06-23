@@ -293,7 +293,7 @@ Unit::Unit(bool isWorldObject) :
     movespline(new Movement::MoveSpline()), m_ControlledByPlayer(false), m_AutoRepeatFirstCast(false),
     m_procDeep(0), m_transformSpell(0), m_removedAurasCount(0), m_charmer(nullptr), m_charmed(nullptr),
     i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_vehicle(nullptr), m_vehicleKit(nullptr),
-    m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(), m_combatManager(this), m_threatManager(this),
+    m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(), m_isEngaged(false), m_combatManager(this), m_threatManager(this),
     m_aiLocked(false), m_comboTarget(nullptr), m_comboPoints(0), m_spellHistory(new SpellHistory(this))
 {
     m_objectType |= TYPEMASK_UNIT;
@@ -2009,7 +2009,7 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
     if ((attType == BASE_ATTACK || attType == OFF_ATTACK) && !IsWithinLOSInMap(victim))
         return;
 
-    AttackedTarget(victim, true);
+    AtTargetAttacked(victim, true);
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MELEE_ATTACK);
 
     if (attType != BASE_ATTACK && attType != OFF_ATTACK)
@@ -8144,29 +8144,6 @@ void Unit::EngageWithTarget(Unit* enemy)
         SetInCombatWith(enemy);
 }
 
-void Unit::AttackedTarget(Unit* target, bool canInitialAggro)
-{
-    if (!target->IsEngaged() && !canInitialAggro)
-        return;
-    target->EngageWithTarget(this);
-    if (Unit* targetOwner = target->GetCharmerOrOwner())
-        targetOwner->EngageWithTarget(this);
-
-    //Patch 3.0.8: All player spells which cause a creature to become aggressive to you will now also immediately cause the creature to be tapped.
-    if (Creature* creature = target->ToCreature())
-        if (!creature->hasLootRecipient() && GetTypeId() == TYPEID_PLAYER)
-            creature->SetLootRecipient(this);
-
-    Player* myPlayerOwner = GetCharmerOrOwnerPlayerOrPlayerItself();
-    Player* targetPlayerOwner = target->GetCharmerOrOwnerPlayerOrPlayerItself();
-    if (myPlayerOwner && targetPlayerOwner && !(myPlayerOwner->duel && myPlayerOwner->duel->Opponent == targetPlayerOwner))
-    {
-        myPlayerOwner->UpdatePvP(true);
-        myPlayerOwner->SetContestedPvP(targetPlayerOwner);
-        myPlayerOwner->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
-    }
-}
-
 void Unit::SetImmuneToAll(bool apply, bool keepCombat)
 {
     if (apply)
@@ -8684,6 +8661,29 @@ void Unit::setDeathState(DeathState s)
 void Unit::AtExitCombat()
 {
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LEAVE_COMBAT);
+}
+
+void Unit::AtTargetAttacked(Unit* target, bool canInitialAggro)
+{
+    if (!target->IsEngaged() && !canInitialAggro)
+        return;
+    target->EngageWithTarget(this);
+    if (Unit* targetOwner = target->GetCharmerOrOwner())
+        targetOwner->EngageWithTarget(this);
+
+    //Patch 3.0.8: All player spells which cause a creature to become aggressive to you will now also immediately cause the creature to be tapped.
+    if (Creature* creature = target->ToCreature())
+        if (!creature->hasLootRecipient() && GetTypeId() == TYPEID_PLAYER)
+            creature->SetLootRecipient(this);
+
+    Player* myPlayerOwner = GetCharmerOrOwnerPlayerOrPlayerItself();
+    Player* targetPlayerOwner = target->GetCharmerOrOwnerPlayerOrPlayerItself();
+    if (myPlayerOwner && targetPlayerOwner && !(myPlayerOwner->duel && myPlayerOwner->duel->Opponent == targetPlayerOwner))
+    {
+        myPlayerOwner->UpdatePvP(true);
+        myPlayerOwner->SetContestedPvP(targetPlayerOwner);
+        myPlayerOwner->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+    }
 }
 
 void Unit::UpdatePetCombatState()

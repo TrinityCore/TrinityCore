@@ -3666,20 +3666,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
 
                     return;
                 }
-                case 58418:                                 // Portal to Orgrimmar
-                case 58420:                                 // Portal to Stormwind
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || effIndex != 0)
-                        return;
-
-                    uint32 spellID = m_spellInfo->Effects[EFFECT_0].CalcValue();
-                    uint32 questID = m_spellInfo->Effects[EFFECT_1].CalcValue();
-
-                    if (unitTarget->ToPlayer()->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE)
-                        unitTarget->CastSpell(unitTarget, spellID, true);
-
-                    return;
-                }
                 case 62482: // Grab Crate
                 {
                     if (!unitCaster)
@@ -3698,33 +3684,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         }
                     }
                     return;
-                }
-                case 45668:                                 // Ultra-Advanced Proto-Typical Shortening Blaster
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
-                        return;
-
-                    static uint32 const spellPlayer[5] =
-                    {
-                        45674,                            // Bigger!
-                        45675,                            // Shrunk
-                        45678,                            // Yellow
-                        45682,                            // Ghost
-                        45684                             // Polymorph
-                    };
-
-                    static uint32 const spellTarget[5] =
-                    {
-                        45673,                            // Bigger!
-                        45672,                            // Shrunk
-                        45677,                            // Yellow
-                        45681,                            // Ghost
-                        45683                             // Polymorph
-                    };
-
-                    m_caster->CastSpell(m_caster, spellPlayer[urand(0, 4)], true);
-                    unitTarget->CastSpell(unitTarget, spellTarget[urand(0, 4)], true);
-                    break;
                 }
             }
             break;
