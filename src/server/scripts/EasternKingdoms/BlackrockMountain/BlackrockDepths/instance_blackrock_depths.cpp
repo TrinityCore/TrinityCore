@@ -398,8 +398,8 @@ public:
                     {//do not call EnterEvadeMode(), it will create infinit loops
                         boss->Respawn();
                         boss->RemoveAllAuras();
-                        boss->GetThreatManager().ClearAllThreat();
                         boss->CombatStop(true);
+                        boss->GetThreatManager().NotifyDisengaged();
                         boss->LoadCreaturesAddon();
                         boss->GetMotionMaster()->MoveTargetedHome();
                         boss->SetLootRecipient(nullptr);

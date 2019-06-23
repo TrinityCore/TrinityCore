@@ -91,8 +91,8 @@ public:
             me->SetFaction(FACTION_FRIENDLY);
             me->SetStandState(UNIT_STAND_STATE_SIT);
             me->RemoveAllAuras();
-            me->GetThreatManager().ClearAllThreat();
             me->CombatStop(true);
+            me->GetThreatManager().NotifyDisengaged();
             UnkorUnfriendly_Timer = 60000;
         }
 

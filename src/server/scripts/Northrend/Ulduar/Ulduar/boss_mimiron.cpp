@@ -1310,7 +1310,7 @@ class npc_mimiron_assault_bot : public CreatureScript
                 {
                     if (Unit* newTarget = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 30.0f, true))
                     {
-                        me->GetThreatManager().ClearAllThreat();
+                        me->GetThreatManager().ResetAllThreat();
                         AttackStart(newTarget);
                     }
                 }
