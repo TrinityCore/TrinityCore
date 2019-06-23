@@ -23880,7 +23880,11 @@ void Player::SetClientControl(Unit* target, bool allowMove)
 {
     // still affected by some aura that shouldn't allow control, only allow on last such aura to be removed
     if (allowMove && target->HasUnitState(UNIT_STATE_CANT_CLIENT_CONTROL))
+    {
+        // this should never happen, otherwise m_unitBeingMoved might be left dangling!
+        ASSERT(GetUnitBeingMoved() == target);
         return;
+    }
 
     WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, target->GetPackGUID().size()+1);
     data << target->GetPackGUID();
