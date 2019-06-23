@@ -58,8 +58,8 @@ enum RBACPermissions
     RBAC_PERM_JOIN_ARENAS                                    = 5,
     RBAC_PERM_JOIN_DUNGEON_FINDER                            = 6,
     RBAC_PERM_IGNORE_IDLE_CONNECTION                         = 7,
-    //  8 - reuse
-    //  9 - reuse
+    RBAC_PERM_CANNOT_EARN_ACHIEVEMENTS                       = 8,
+    RBAC_PERM_CANNOT_EARN_REALM_FIRST_ACHIEVEMENTS           = 9,
     RBAC_PERM_USE_CHARACTER_TEMPLATES                        = 10, // not on 3.3.5a
     RBAC_PERM_LOG_GM_TRADE                                   = 11,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER     = 12, // not on 3.3.5a
@@ -772,6 +772,9 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_SERVER_DEBUG                           = 872,
     RBAC_PERM_COMMAND_RELOAD_CREATURE_MOVEMENT_OVERRIDE      = 873,
     RBAC_PERM_COMMAND_DEBUG_ASAN                             = 874,
+    RBAC_PERM_COMMAND_LOOKUP_MAP_ID                          = 875,
+    RBAC_PERM_COMMAND_LOOKUP_ITEM_ID                         = 876,
+    RBAC_PERM_COMMAND_LOOKUP_QUEST_ID                        = 877,
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN MASTER BRANCH AS WELL!
     //

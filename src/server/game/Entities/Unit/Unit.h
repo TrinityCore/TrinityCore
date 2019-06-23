@@ -1023,16 +1023,16 @@ class TC_GAME_API Unit : public WorldObject
 
         /// ====================== THREAT & COMBAT ====================
         bool CanHaveThreatList() const { return m_threatManager.CanHaveThreatList(); }
-        // For NPCs with threat list: Whether there are any enemies on our threat list
-        // For other units: Whether we're in combat
-        // This value is different from IsInCombat when a projectile spell is midair (combat on launch - threat+aggro on impact)
-        bool IsEngaged() const { return CanHaveThreatList() ? m_threatManager.IsEngaged() : IsInCombat(); }
+        // This value can be different from IsInCombat:
+        // - when a projectile spell is midair against a creature (combat on launch - threat+aggro on impact)
+        // - when the creature has no targets left, but the AI has not yet ceased engaged logic
+        bool IsEngaged() const { return m_isEngaged; }
         bool IsEngagedBy(Unit const* who) const { return CanHaveThreatList() ? IsThreatenedBy(who) : IsInCombatWith(who); }
         void EngageWithTarget(Unit* who); // Adds target to threat list if applicable, otherwise just sets combat state
         // Combat handling
         CombatManager& GetCombatManager() { return m_combatManager; }
         CombatManager const& GetCombatManager() const { return m_combatManager; }
-        void AttackedTarget(Unit* target, bool canInitialAggro);
+        void AtTargetAttacked(Unit* target, bool canInitialAggro);
 
         bool IsImmuneToAll() const { return IsImmuneToPC() && IsImmuneToNPC(); }
         void SetImmuneToAll(bool apply, bool keepCombat);
@@ -1766,6 +1766,9 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtEnterCombat() { }
         virtual void AtExitCombat();
 
+        virtual void AtEngage(Unit* /*target*/) { m_isEngaged = true; }
+        virtual void AtDisengage() { m_isEngaged = false; }
+
     private:
 
         void UpdateSplineMovement(uint32 t_diff);
@@ -1789,7 +1792,9 @@ class TC_GAME_API Unit : public WorldObject
         TimeTrackerSmall m_movesplineTimer;
 
         DiminishingReturn m_Diminishing[DIMINISHING_MAX];
-        // Manage all Units that are threatened by us
+
+        // Threat+combat management
+        bool m_isEngaged;
         friend class CombatManager;
         CombatManager m_combatManager;
         friend class ThreatManager;

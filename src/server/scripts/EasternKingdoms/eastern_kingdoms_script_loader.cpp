@@ -181,6 +181,7 @@ void AddSC_duskwood();
 void AddSC_ghostlands();
 void AddSC_goldshire();
 void AddSC_hinterlands();
+void AddSC_isle_of_queldanas();
 void AddSC_redridge_mountains();
 void AddSC_silverpine_forest();
 void AddSC_stormwind_city();
@@ -358,6 +359,7 @@ void AddEasternKingdomsScripts()
     AddSC_ghostlands();
     AddSC_goldshire();
     AddSC_hinterlands();
+    AddSC_isle_of_queldanas();
     AddSC_redridge_mountains();
     AddSC_silverpine_forest();
     AddSC_stormwind_city();

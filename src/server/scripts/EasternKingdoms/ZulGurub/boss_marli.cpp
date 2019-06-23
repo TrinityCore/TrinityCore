@@ -16,23 +16,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Marli
-SD%Complete: 80
-SDComment: Charging healers and casters not working. Perhaps wrong Spell Timers.
-SDCategory: Zul'Gurub
-EndScriptData */
-
-#include "SpellScript.h"
-#include "SpellInfo.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "TemporarySummon.h"
 #include "zulgurub.h"
-#include "InstanceScript.h"
-#include "GameObjectAI.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
 #include "Object.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -101,8 +94,7 @@ class boss_marli : public CreatureScript
 
                 std::list<GameObject*> eggs;
                 me->GetGameObjectListWithEntryInGrid(eggs, GOB_SPIDER_EGG);
-
-                for(GameObject* egg : eggs)
+                for (GameObject* egg : eggs)
                 {
                     egg->Respawn();
                     egg->UpdateObjectVisibility(true);
@@ -127,7 +119,7 @@ class boss_marli : public CreatureScript
 
             void JustSummoned(Creature* creature) override
             {
-                creature->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                creature->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true));
                 summons.Summon(creature);
             }
 
@@ -146,10 +138,8 @@ class boss_marli : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SPAWN_START_SPIDERS:
-                        {
                             Talk(SAY_SPIDER_SPAWN);
                             DoCastAOE(SPELL_HATCH_EGGS);
-
                             events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12s, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_TRANSFORM, 45s, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_POISON_VOLLEY, 15s);
@@ -157,14 +147,13 @@ class boss_marli : public CreatureScript
                             events.ScheduleEvent(EVENT_TRANSFORM, 45s, 0, PHASE_TWO);
                             events.SetPhase(PHASE_TWO);
                             break;
-                        }
                         case EVENT_POISON_VOLLEY:
                             DoCastVictim(SPELL_POISON_VOLLEY, true);
                             events.ScheduleEvent(EVENT_POISON_VOLLEY, 10s, 20s);
                             break;
                         case EVENT_ASPECT_OF_MARLI:
                             DoCastVictim(SPELL_ASPECT_OF_MARLI, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, urand(13000, 18000), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 13s, 18s, 0, PHASE_TWO);
                             break;
                         case EVENT_HATCH_SPIDER_EGG:
                             me->CastSpell(me, SPELL_HATCH_SPIDER_EGG);
@@ -283,33 +272,32 @@ class npc_spawn_of_marli : public CreatureScript
 
             void Initialize()
             {
-                LevelUp_Timer = 3000;
+                _levelUpTimer = 3000;
             }
-
-            uint32 LevelUp_Timer;
 
             void Reset() override
             {
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override { }
-
             void UpdateAI(uint32 diff) override
             {
-                //Return since we have no target
                 if (!UpdateVictim())
                     return;
 
-                //LevelUp_Timer
-                if (LevelUp_Timer <= diff)
+                if (_levelUpTimer <= diff)
                 {
                     DoCast(me, SPELL_LEVELUP);
-                    LevelUp_Timer = 3000;
-                } else LevelUp_Timer -= diff;
+                    _levelUpTimer = 3000;
+                }
+                else
+                    _levelUpTimer -= diff;
 
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            uint32 _levelUpTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
