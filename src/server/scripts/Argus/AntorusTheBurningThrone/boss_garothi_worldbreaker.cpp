@@ -323,12 +323,6 @@ struct boss_garothi_worldbreaker : public BossAI
         }
     }
 
-    void MovementInform(uint32 type, uint32 id) override
-    {
-        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
-            return;
-    }
-
     void JustSummoned(Creature* summon) override
     {
         summons.Summon(summon);
@@ -810,7 +804,7 @@ class spell_garothi_annihilation_triggered : public SpellScript
 {
     PrepareSpellScript(spell_garothi_annihilation_triggered);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ANNIHILATION_DAMAGE_UNSPLITTED });
     }
