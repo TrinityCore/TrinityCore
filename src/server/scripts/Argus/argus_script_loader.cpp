@@ -16,7 +16,6 @@
  */
 
 // This is where scripts' loading functions should be declared:
-void AddSC_boss_argus_the_unmaker();
 void AddSC_boss_garothi_worldbreaker();
 void AddSC_instance_antorus_the_burning_throne();
 
