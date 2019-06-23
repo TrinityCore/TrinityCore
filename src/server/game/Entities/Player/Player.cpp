@@ -23990,7 +23990,7 @@ bool Player::IsNeverVisibleFor(WorldObject const* seer) const
 bool Player::CanAlwaysSee(WorldObject const* obj) const
 {
     // Always can see self
-    if (m_unitMovedByMe == obj)
+    if (GetUnitBeingMoved() == obj)
         return true;
 
     ObjectGuid guid = m_activePlayerData->FarsightObject;
@@ -24431,7 +24431,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     initialSetup.ServerExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);
     SendDirectMessage(initialSetup.Write());
 
-    SetMover(this);
+    SetMovedUnit(this);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
@@ -25748,19 +25748,7 @@ void Player::SetClientControl(Unit* target, bool allowMove)
         SetViewpoint(target, allowMove);
 
     if (allowMove)
-        SetMover(target);
-}
-
-void Player::SetMover(Unit* target)
-{
-    m_unitMovedByMe->m_playerMovingMe = nullptr;
-
-    m_unitMovedByMe = target;
-    m_unitMovedByMe->m_playerMovingMe = this;
-
-    WorldPackets::Movement::MoveSetActiveMover packet;
-    packet.MoverGUID = target->GetGUID();
-    SendDirectMessage(packet.Write());
+        SetMovedUnit(target);
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)
