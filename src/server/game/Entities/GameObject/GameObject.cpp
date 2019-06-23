@@ -767,11 +767,12 @@ void GameObject::Update(uint32 diff)
 
             loot.clear();
 
-            // Do not delete goobers that are not consumed on loot, while still allowing them to despawn when they expire if summoned
+            // Do not delete gameobjects that are not consumed on loot, while still allowing them to despawn when they expire if summoned
             bool isSummonedAndExpired = (GetOwner() || GetSpellId()) && m_respawnTime == 0;
             bool isPermanentSpawn = m_respawnDelayTime == 0;
-            if (GetGoType() == GAMEOBJECT_TYPE_GOOBER && // ToDo: allow it to work with chests too
-                !GetGOInfo()->IsDespawnAtAction() && (!isSummonedAndExpired || isPermanentSpawn))
+            if (!GetGOInfo()->IsDespawnAtAction() &&
+                ((GetGoType() == GAMEOBJECT_TYPE_GOOBER && (!isSummonedAndExpired || isPermanentSpawn)) ||
+                (GetGoType() == GAMEOBJECT_TYPE_CHEST && !isSummonedAndExpired))) // ToDo: chests with data2 (chestRestockTime) > 0 and data3 (consumable) = 0 should not despawn on loot
             {
                 SetLootState(GO_READY);
                 UpdateObjectVisibility();
