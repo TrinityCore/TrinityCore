@@ -528,6 +528,9 @@ void SmartAI::InitializeAI()
 
 void SmartAI::JustAppeared()
 {
+    CreatureAI::JustAppeared();
+
+
     if (me->isDead())
         return;
 
