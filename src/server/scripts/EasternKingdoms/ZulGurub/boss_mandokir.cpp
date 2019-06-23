@@ -682,7 +682,7 @@ class spell_mandokir_ohgan_orders_trigger : public SpellScriptLoader
                     // HACK: research better way
                     caster->ClearUnitState(UNIT_STATE_CASTING);
                     caster->GetMotionMaster()->Clear();
-                    caster->GetThreatManager().ClearAllThreat();
+                    caster->GetThreatManager().ResetAllThreat();
                     caster->GetThreatManager().AddThreat(target, 50000000.0f);
                     // TODO: Fixate mechanic
                 }

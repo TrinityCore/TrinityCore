@@ -227,19 +227,15 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
 
     me->RemoveAurasOnEvade();
 
-    // sometimes bosses stuck in combat?
-    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
+    me->GetThreatManager().NotifyDisengaged();
     me->SetLootRecipient(nullptr);
     me->ResetPlayerDamageReq();
     me->SetLastDamagedTime(0);
     me->SetCannotReachTarget(false);
     me->DoNotReacquireTarget();
 
-    if (me->IsInEvadeMode())
-        return false;
-
-    return true;
+    return !me->IsInEvadeMode();
 }
 
 Optional<QuestGiverStatus> CreatureAI::GetDialogStatus(Player* /*player*/)
