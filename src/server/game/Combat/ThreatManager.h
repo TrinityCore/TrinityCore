@@ -154,6 +154,9 @@ class TC_GAME_API ThreatManager
         void ClearThreat(ThreatReference* ref);
         // Removes all targets from the threat list (will cause evade in UpdateVictim if called)
         void ClearAllThreat();
+        // THIS SHOULD ONLY BE CALLED FROM A CREATURE'S AI (typically in EnterEvadeMode)
+        // notify the unit that the AI has disengaged
+        void NotifyDisengaged();
 
         // Fixate on the passed target; this target will always be selected until the fixate is cleared
         // (if the target is not in the threat list, does nothing)

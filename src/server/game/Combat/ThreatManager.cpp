@@ -478,6 +478,10 @@ void ThreatManager::ClearAllThreat()
             _myThreatListEntries.begin()->second->UnregisterAndFree();
         while (!_myThreatListEntries.empty());
     }
+}
+
+void ThreatManager::NotifyDisengaged()
+{
     // note: i don't really like having this here
     // (maybe engage flag should be in creature ai? it's inherently an AI property...)
     if (_owner->IsEngaged())

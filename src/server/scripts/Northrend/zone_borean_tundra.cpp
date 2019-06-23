@@ -720,7 +720,7 @@ public:
             Creature* owner = GetOwner()->ToCreature();
             owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
             owner->CombatStop(true);
-            owner->GetThreatManager().ClearAllThreat();
+            owner->GetThreatManager().NotifyDisengaged();
             owner->GetMotionMaster()->Clear(false);
             owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
             owner->CastSpell(owner, SPELL_SUBDUED, true);
