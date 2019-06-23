@@ -237,13 +237,13 @@ struct boss_garothi_worldbreaker : public BossAI
                 Creature* decimator = instance->GetCreature(DATA_DECIMATOR);
                 Creature* annihilator = instance->GetCreature(DATA_ANNIHILATOR);
 
-                if ((_lastCanonEntry == NPC_ANNIHILATOR && decimator) || decimator && !annihilator)
+                if ((_lastCanonEntry == NPC_ANNIHILATOR && decimator) || (decimator && !annihilator))
                 {
                     decimator->CastSpell(decimator, SPELL_DECIMATION_SELECTOR, true);
                     Talk(SAY_DECIMATION, decimator);
                     _lastCanonEntry = NPC_DECIMATOR;
                 }
-                else if ((_lastCanonEntry == NPC_DECIMATOR && annihilator) || annihilator && !decimator)
+                else if ((_lastCanonEntry == NPC_DECIMATOR && annihilator) || (annihilator && !decimator))
                 {
                     uint8 count = std::max<uint8>(MIN_TARGETS_SIZE, std::ceil(me->GetMap()->GetPlayersCountExceptGMs() / 5));
                     for (uint8 i = 0; i < count; i++)
