@@ -301,7 +301,7 @@ struct boss_garothi_worldbreaker : public BossAI
             case DIFFICULTY_MYTHIC_RAID:
             case DIFFICULTY_HEROIC_RAID:
                 if ((me->HealthBelowPctDamaged(65, damage) && _apocalypseDriveCount == 0)
-                    || me->HealthBelowPctDamaged(35, damage) && _apocalypseDriveCount == 1)
+                    || (me->HealthBelowPctDamaged(35, damage) && _apocalypseDriveCount == 1))
                 {
                     me->InterruptNonMeleeSpells(true);
                     events.ScheduleEvent(EVENT_APOCALYPSE_DRIVE, 1ms);
@@ -311,7 +311,7 @@ struct boss_garothi_worldbreaker : public BossAI
             case DIFFICULTY_NORMAL_RAID:
             case DIFFICULTY_LFR_NEW:
                 if ((me->HealthBelowPctDamaged(60, damage) && _apocalypseDriveCount == 0)
-                    || me->HealthBelowPctDamaged(20, damage) && _apocalypseDriveCount == 1)
+                    || (me->HealthBelowPctDamaged(20, damage) && _apocalypseDriveCount == 1))
                 {
                     me->InterruptNonMeleeSpells(true);
                     events.ScheduleEvent(EVENT_APOCALYPSE_DRIVE, 1ms);
