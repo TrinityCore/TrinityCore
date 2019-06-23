@@ -799,7 +799,7 @@ void Creature::Update(uint32 diff)
 
             if (m_regenTimer == 0)
             {
-                bool bInCombat = IsInCombat() && (!GetVictim() ||                                                            // if IsInCombat() is true and this has no victim
+                bool bInCombat = IsEngaged() && (!GetVictim() ||                                                            // if IsInCombat() is true and this has no victim
                                                   !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
                                                   !EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->IsGameMaster()); // or the victim/owner/charmer is not a GameMaster
 
