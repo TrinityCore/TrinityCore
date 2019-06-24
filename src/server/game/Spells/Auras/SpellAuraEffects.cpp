@@ -2161,6 +2161,11 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
         return;
 
     Unit* target = aurApp->GetTarget();
+    if (Player * targetPlayer = target->ToPlayer())
+    {
+        targetPlayer->SetUnderACKmount();
+        targetPlayer->SetSkipOnePacketForASH(true);
+    }
 
     if (apply)
     {
@@ -2638,6 +2643,8 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, 
         return;
 
     Unit* target = aurApp->GetTarget();
+    if (target->ToPlayer())
+        target->ToPlayer()->SetUnderACKmount();
 
     if (!apply)
     {
@@ -2655,6 +2662,8 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
         return;
 
     Unit* target = aurApp->GetTarget();
+    if (target->ToPlayer())
+        target->ToPlayer()->SetUnderACKmount();
 
     if (!apply)
     {
@@ -2676,6 +2685,8 @@ void AuraEffect::HandleAuraHover(AuraApplication const* aurApp, uint8 mode, bool
         return;
 
     Unit* target = aurApp->GetTarget();
+    if (target->ToPlayer())
+        target->ToPlayer()->SetUnderACKmount();
 
     if (!apply)
     {
@@ -2992,6 +3003,8 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
     Unit* target = aurApp->GetTarget();
 
     target->UpdateSpeed(MOVE_RUN);
+    if (target->ToPlayer())
+        target->ToPlayer()->SetUnderACKmount();
 }
 
 void AuraEffect::HandleAuraModIncreaseMountedSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3031,6 +3044,9 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
                 target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 16314);
         }
     }
+
+    if (target->ToPlayer())
+        target->ToPlayer()->SetUnderACKmount();
 }
 
 void AuraEffect::HandleAuraModIncreaseSwimSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -3041,6 +3057,8 @@ void AuraEffect::HandleAuraModIncreaseSwimSpeed(AuraApplication const* aurApp, u
     Unit* target = aurApp->GetTarget();
 
     target->UpdateSpeed(MOVE_SWIM);
+    if (target->ToPlayer())
+        target->ToPlayer()->SetUnderACKmount();
 }
 
 void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -3056,6 +3074,9 @@ void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8
     target->UpdateSpeed(MOVE_RUN_BACK);
     target->UpdateSpeed(MOVE_SWIM_BACK);
     target->UpdateSpeed(MOVE_FLIGHT_BACK);
+
+    if (target->ToPlayer())
+        target->ToPlayer()->SetUnderACKmount();
 }
 
 void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -3068,6 +3089,9 @@ void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint
     target->UpdateSpeed(MOVE_RUN);
     target->UpdateSpeed(MOVE_SWIM);
     target->UpdateSpeed(MOVE_FLIGHT);
+
+    if (target->ToPlayer())
+        target->ToPlayer()->SetUnderACKmount();
 }
 
 /*********************************************************/

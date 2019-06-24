@@ -306,6 +306,21 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_stableSlots = 0;
 
+    /////////////////// AntiCheat System /////////////////////
+    m_flyhackTimer = 0;
+    if (sWorld->getBoolConfig(CONFIG_ANTICHEAT_FLYHACK_ENABLED))
+        m_flyhackTimer = sWorld->getIntConfig(CONFIG_ANTICHEAT_FLYHACK_TIMER);
+    m_mountTimer = 0;
+    m_rootUpdTimer = 0;
+    m_ACKmounted = false;
+    m_rootUpd = false;
+    m_skipOnePacketForASH = true;
+    m_isjumping = false;
+    m_canfly = false;
+
+    lastMoveClientTimestamp = 0;
+    lastMoveServerTimestamp = 0;
+
     /////////////////// Instance System /////////////////////
 
     m_HomebindTimer = 0;
@@ -1230,6 +1245,41 @@ void Player::Update(uint32 p_time)
             m_zoneUpdateTimer -= p_time;
     }
 
+    if (m_flyhackTimer > 0)
+    {
+        if (p_time >= m_flyhackTimer)
+        {
+            if (!CheckOnFlyHack() && sWorld->getBoolConfig(CONFIG_AFH_KICK_ENABLED))
+                GetSession()->KickPlayer();
+
+            m_flyhackTimer = sWorld->getIntConfig(CONFIG_ANTICHEAT_FLYHACK_TIMER);
+        }
+        else
+            m_flyhackTimer -= p_time;
+    }
+
+    if (m_ACKmounted && m_mountTimer > 0)
+    {
+        if (p_time >= m_mountTimer)
+        {
+            m_mountTimer = 0;
+            m_ACKmounted = false;
+        }
+        else
+            m_mountTimer -= p_time;
+    }
+
+    if (m_rootUpd && m_rootUpdTimer > 0)
+    {
+        if (p_time >= m_rootUpdTimer)
+        {
+            m_rootUpdTimer = 0;
+            m_rootUpd = false;
+        }
+        else
+            m_rootUpdTimer -= p_time;
+    }
+
     if (IsAlive())
     {
         m_regenTimer += p_time;
@@ -1616,6 +1666,8 @@ uint8 Player::GetChatTag() const
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
+    SetSkipOnePacketForASH(true); // for except kick by antispeedhack
+
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         TC_LOG_ERROR("maps", "Player::TeleportTo: Invalid map (%d) or invalid coordinates (X: %f, Y: %f, Z: %f, O: %f) given when teleporting player '%s' (%s, MapID: %d, X: %f, Y: %f, Z: %f, O: %f).",
@@ -26381,6 +26433,7 @@ bool Player::SetCanFly(bool apply, bool packetOnly /*= false*/)
     if (!apply)
         SetFallInformation(0, GetPositionZ());
 
+    SetCanFlybyServer(apply);
     WorldPacket data(apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY, 12);
     data << GetPackGUID();
     data << uint32(0);          //! movement counter
@@ -26711,4 +26764,244 @@ std::string Player::GetDebugInfo() const
     std::stringstream sstr;
     sstr << Unit::GetDebugInfo();
     return sstr.str();
+}
+
+// Anticheat System
+void Player::SetUnderACKmount()
+{
+    m_mountTimer = 3000;
+    m_ACKmounted = true;
+}
+
+void Player::SetRootACKUpd(uint32 delay)
+{
+    m_rootUpdTimer = 1500 + delay;
+    m_rootUpd = true;
+}
+
+bool Player::CheckOnFlyHack()
+{
+    if (IsCanFlybyServer())
+        return true;
+
+    if (ToUnit()->IsFalling() || IsFalling())
+        return true;
+
+    if (IsFlying() && !CanFly()) // kick flyhacks
+    {
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  FlyHack Detected for Account id : %u, Player %s", GetPlayerMovingMe()->GetSession()->GetAccountId(), GetPlayerMovingMe()->GetName().c_str());
+        TC_LOG_INFO("anticheat", "Player::========================================================");
+        TC_LOG_INFO("anticheat", "Player IsFlying but CanFly is false");
+
+        sWorld->SendGMText(LANG_GM_ANNOUNCE_AFH_CANFLYWRONG, GetPlayerMovingMe()->GetName().c_str());
+        return false;
+    }
+
+    if (IsFlying() || IsLevitating() || IsInFlight())
+        return true;
+
+    if (GetTransport() || GetVehicle() || GetVehicleKit())
+        return true;
+
+    if (HasAuraType(SPELL_AURA_CONTROL_VEHICLE))
+        return true;
+
+    if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+        return true;
+
+    if (HasUnitState(UNIT_STATE_IGNORE_ANTISPEEDHACK))
+        return true;
+
+    if (GetPlayerMovingMe())
+    {
+        if (GetPlayerMovingMe()->UnderACKmount())
+            return true;
+
+        if (GetPlayerMovingMe()->IsSkipOnePacketForASH())
+            return true;
+    }
+    else
+        return true;
+
+    Position npos = GetPosition();
+    float pz = npos.GetPositionZ();
+    if (!IsInWater() && HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
+    {
+        float waterlevel = GetBaseMap()->GetWaterLevel(npos.GetPositionX(), npos.GetPositionY()); // water walking
+        bool hovergaura = HasAuraType(SPELL_AURA_WATER_WALK) || HasAuraType(SPELL_AURA_HOVER);
+        if (waterlevel && (pz - waterlevel) <= (hovergaura ? GetCollisionHeight() + 1.5f + GetHoverOffset() : GetCollisionHeight() + GetHoverOffset()))
+            return true;
+
+        TC_LOG_INFO("anticheat", "Player::CheckOnFlyHack :  FlyHack Detected for Account id : %u, Player %s", GetPlayerMovingMe()->GetSession()->GetAccountId(), GetPlayerMovingMe()->GetName().c_str());
+        TC_LOG_INFO("anticheat", "Player::========================================================");
+        TC_LOG_INFO("anticheat", "Player::CheckOnFlyHack :  Player has a MOVEMENTFLAG_SWIMMING, but not in water");
+
+        sWorld->SendGMText(LANG_GM_ANNOUNCE_AFK_SWIMMING, GetPlayerMovingMe()->GetName().c_str());
+        return false;
+    }
+    else
+    {
+        float z = GetMap()->GetHeight(GetPhaseMask(), npos.GetPositionX(), npos.GetPositionY(), pz + GetCollisionHeight() + 0.5f, true, 50.0f); // smart flyhacks -> SimpleFly
+        float diff = pz - z;
+        if (diff > 6.8f)
+            if (diff > 6.8f + GetHoverOffset()) // better calculate the second time for false situations, but not call GetHoverOffset everytime (economy resource)
+            {
+                float waterlevel = GetBaseMap()->GetWaterLevel(npos.GetPositionX(), npos.GetPositionY()); // water walking
+                if (waterlevel && waterlevel + GetCollisionHeight() + GetHoverOffset() > pz)
+                    return true;
+
+                float cx, cy, cz;
+                GetClosePoint(cx, cy, cz, DEFAULT_PLAYER_BOUNDING_RADIUS, 6.0f, 0, 6.8f); // first check
+                if (pz - cz > 6.8f)
+                {
+                    // check dynamic collision for transport (TODO navmesh for transport map)
+                    GetMap()->getObjectHitPos(GetPhaseMask(), GetPositionX(), GetPositionY(), GetPositionZ() + GetCollisionHeight(), cx, cy, cz + GetCollisionHeight(), cx, cy, cz, -GetCollisionHeight());
+
+                    if (pz - cz > 6.8f)
+                    {
+                        TC_LOG_INFO("anticheat", "Player::CheckOnFlyHack :  FlyHack Detected for Account id : %u, Player %s", GetPlayerMovingMe()->GetSession()->GetAccountId(), GetPlayerMovingMe()->GetName().c_str());
+                        TC_LOG_INFO("anticheat", "Player::========================================================");
+                        TC_LOG_INFO("anticheat", "Player::CheckOnFlyHack :  playerZ = %f", pz);
+                        TC_LOG_INFO("anticheat", "Player::CheckOnFlyHack :  normalZ = %f", z);
+                        TC_LOG_INFO("anticheat", "Player::CheckOnFlyHack :  checkz = %f", cz);
+                        sWorld->SendGMText(LANG_GM_ANNOUNCE_AFH, GetPlayerMovingMe()->GetName().c_str());
+                        return false;
+                    }
+                }
+            }
+    }
+
+    return true;
+}
+
+void Player::UpdateMovementInfo(MovementInfo const& movementInfo)
+{
+    SetLastMoveClientTimestamp(movementInfo.time);
+    SetLastMoveServerTimestamp(GameTime::GetGameTimeMS());
+}
+
+bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
+{
+    if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_SPEEDHACK_ENABLED))
+        return true;
+
+    uint32 ctime = GetLastMoveClientTimestamp();
+    if (ctime)
+    {
+        if (ToUnit()->IsFalling() || IsInFlight())
+            return true;
+
+        if (GetTransport() || GetVehicle() || GetVehicleKit())
+            return true;
+
+        if (HasAuraType(SPELL_AURA_CONTROL_VEHICLE))
+            return true;
+
+        if (movementInfo.GetMovementFlags() & MOVEMENTFLAG_ONTRANSPORT || HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            return true;
+
+        if (!IsControlledByPlayer())
+            return true;
+
+        if (GetPlayerMovingMe())
+        {
+            if (GetPlayerMovingMe()->UnderACKmount())
+                return true;
+
+            if (GetPlayerMovingMe()->IsSkipOnePacketForASH())
+            {
+                GetPlayerMovingMe()->SetSkipOnePacketForASH(false);
+                return true;
+            }
+        }
+        else
+            return true;
+
+        Position npos = movementInfo.pos;
+        if (sWorld->getBoolConfig(CONFIG_ANTICHEAT_IGNORE_CONTROL_MOVEMENT_ENABLED))
+        {
+            if (HasUnitState(UNIT_STATE_ROOT) && !UnderACKRootUpd())
+            {
+                bool unrestricted = npos.GetPositionX() != GetPositionX() || npos.GetPositionY() != GetPositionY();
+                if (unrestricted)
+                {
+                    TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  Ignore control Hack detected for Account id : %u, Player %s", GetSession()->GetAccountId(), GetName().c_str());
+                    sWorld->SendGMText(LANG_GM_ANNOUNCE_MOVE_UNDER_CONTROL, GetSession()->GetAccountId(), GetName().c_str());
+                    return false;
+                }
+            }
+        }
+
+        if (HasUnitState(UNIT_STATE_IGNORE_ANTISPEEDHACK))
+            return true;
+
+        float distance, movetime, runspeed, speed, difftime, normaldistance, delay, delaysentrecieve, x, y;
+        distance = GetExactDist2d(npos);
+
+        if (!jump && !CanFly() && !isSwimming())
+        {
+            float diffz = fabs(movementInfo.pos.GetPositionZ() - GetPositionZ());
+            float tanangle = distance / diffz;
+
+            if (movementInfo.pos.GetPositionZ() > GetPositionZ() &&
+                diffz > 1.87f &&
+                tanangle < 0.57735026919f) // 30 degrees
+            {
+                std::string mapname = GetMap()->GetMapName();
+                TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  Climb-Hack detected for Account id : %u, Player %s, diffZ = %f, distance = %f, angle = %f, Map = %s, mapId = %u, X = %f, Y = %f, Z = %f",
+                    GetSession()->GetAccountId(), GetName().c_str(), diffz, distance, tanangle, mapname.c_str(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ());
+                sWorld->SendGMText(LANG_GM_ANNOUNCE_WALLCLIMB, GetSession()->GetAccountId(), GetName().c_str(), diffz, distance, tanangle, mapname.c_str(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ());
+                return false;
+            }
+        }
+
+        uint32 oldstime = GetLastMoveServerTimestamp();
+        uint32 stime = GameTime::GetGameTimeMS();
+        uint32 ping, latency;
+        movetime = movementInfo.time;
+        latency = GetSession()->GetLatency();
+        ping = std::max(uint32(60), latency);
+
+        runspeed = GetSpeed(MOVE_RUN);
+        speed = runspeed;
+        if (isSwimming())
+            speed = GetSpeed(MOVE_SWIM);
+        if (IsFlying() || GetPlayerMovingMe()->CanFly())
+        {
+            speed = GetSpeed(MOVE_FLIGHT);
+            if (runspeed > speed)
+                speed = runspeed;
+        }
+
+        delaysentrecieve = (ctime - oldstime) / 10000000000;
+        delay = fabsf(movetime - stime) / 10000000000 + delaysentrecieve;
+        difftime = (movetime - ctime + ping) * 0.001f + delay;
+        normaldistance = speed * difftime; // if movetime faked and lower, difftime should be with "-"
+
+        if (distance < normaldistance)
+            return true;
+
+        GetPosition(x, y);
+
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  SpeedHack Detected for Account id : %u, Player %s", GetSession()->GetAccountId(), GetName().c_str());
+        TC_LOG_INFO("anticheat", "Player::========================================================");
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  oldX = %f", x);
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  oldY = %f", y);
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  newX = %f", npos.GetPositionX());
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  newY = %f", npos.GetPositionY());
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  packetdistance = %f", distance);
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  available distance = %f", normaldistance);
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  movetime = %f", movetime);
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  delay sent ptk - recieve pkt (previous) = %f", delaysentrecieve);
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  FullDelay = %f", delay);
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  difftime = %f", difftime);
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  latency = %u", latency);
+        TC_LOG_INFO("anticheat", "Player::CheckMovementInfo :  ping = %u", ping);
+
+        sWorld->SendGMText(LANG_GM_ANNOUNCE_ASH, GetName().c_str(), normaldistance, distance);
+    }
+    else
+        return true;
+
+    return false;
 }

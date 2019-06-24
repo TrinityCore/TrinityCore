@@ -1006,6 +1006,9 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     if (!unitTarget)
         return;
 
+    if (unitTarget->ToPlayer())
+        unitTarget->ToPlayer()->SetUnderACKmount();
+
     float speedXY, speedZ;
     CalculateJumpSpeeds(m_spellInfo, effIndex, unitCaster->GetExactDist2d(unitTarget), speedXY, speedZ);
     unitCaster->GetMotionMaster()->MoveJump(*unitTarget, speedXY, speedZ, EVENT_JUMP, false);
@@ -1024,6 +1027,9 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
 
     if (!m_targets.HasDst())
         return;
+
+    if (unitCaster->ToPlayer())
+        unitCaster->ToPlayer()->SetUnderACKmount();
 
     float speedXY, speedZ;
     CalculateJumpSpeeds(m_spellInfo, effIndex, unitCaster->GetExactDist2d(destTarget), speedXY, speedZ);
@@ -4372,6 +4378,12 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
             unitCaster->ToPlayer()->SetFallInformation(0, unitCaster->GetPositionZ());
 
         float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : SPEED_CHARGE;
+
+        unitCaster->AddUnitState(UNIT_STATE_CHARGING);
+
+        if (unitCaster->ToPlayer())
+            unitCaster->ToPlayer()->SetUnderACKmount();
+
         // Spell is not using explicit target - no generated path
         if (!m_preGeneratedPath)
         {
@@ -4388,6 +4400,10 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         // not all charge effects used in negative spells
         if (!m_spellInfo->IsPositive() && m_caster->GetTypeId() == TYPEID_PLAYER)
             unitCaster->Attack(unitTarget, true);
+
+        unitCaster->ClearUnitState(UNIT_STATE_CHARGING);
+        if (unitCaster->ToPlayer())
+            unitCaster->ToPlayer()->SetSkipOnePacketForASH(true);
     }
 }
 
@@ -4409,6 +4425,9 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
             float dist = unitCaster->GetDistance(pos);
             pos = unitCaster->GetFirstCollisionPosition(dist, angle);
         }
+
+        if (unitCaster->ToPlayer())
+            unitCaster->ToPlayer()->SetSkipOnePacketForASH(true);
 
         unitCaster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
     }
@@ -4452,6 +4471,9 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
     else //if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_KNOCK_BACK)
         m_caster->GetPosition(x, y);
 
+    if (unitTarget->ToPlayer())
+        unitTarget->ToPlayer()->SetUnderACKmount();
+
     unitTarget->KnockbackFrom(x, y, speedxy, speedz);
 }
 
@@ -4470,7 +4492,10 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
 
     // changes fall time
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
         m_caster->ToPlayer()->SetFallInformation(0, m_caster->GetPositionZ());
+        m_caster->ToPlayer()->SetUnderACKmount();
+    }
 }
 
 void Spell::EffectQuestClear(SpellEffIndex effIndex)
@@ -4552,6 +4577,12 @@ void Spell::EffectPullTowards(SpellEffIndex effIndex)
 
     float speedXY = float(m_spellInfo->Effects[effIndex].MiscValue) * 0.1f;
     float speedZ = unitTarget->GetDistance(pos) / speedXY * 0.5f * Movement::gravity;
+
+    if (unitTarget->ToPlayer())
+    {
+        unitTarget->ToPlayer()->SetSkipOnePacketForASH(true);
+        unitTarget->ToPlayer()->SetUnderACKmount();
+    }
 
     unitTarget->GetMotionMaster()->MoveJump(pos, speedXY, speedZ);
 }

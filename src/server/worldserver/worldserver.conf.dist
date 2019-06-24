@@ -36,6 +36,7 @@
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #    METRIC SETTINGS
+#    MISC ANTI-CHEAT SETTINGS
 #
 ###################################################################################################
 
@@ -4025,6 +4026,108 @@ Metric.ConnectionInfo = "127.0.0.1;8086;worldserver"
 #
 
 Metric.OverallStatusInterval = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+# MISC ANTI-CHEAT SETTINGS
+#    AntiCheats.FlyHack
+#        Description: Enable AntiCheat.FlyHack
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+AntiCheats.FlyHack.Enabled = 1
+
+#    AntiCheats.FlyHack
+#        Description: Enable AntiCheat.SpeedHack
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+AntiCheats.SpeedHack.Enabled = 1
+
+#    AntiCheats.DoubleJump.Enabled
+#        Description: Enable AntiCheat.DoubleJump Kick when player sent opcode jump when has flag falling (client can't do this)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+AntiCheats.DoubleJump.Enabled = 1
+
+#    AntiCheats.FakeJumper.Enabled
+#        Description: Enable AntiCheat.FakeJumper : when player sent a move opcode (with new Z higher) when has flag falling (client can't sent any new packets when falling)
+#		      It's normal for Gagarin hacks and with Air Mode + "space" click = "falling" mode (player can't change orientation of flying, but it move up)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+AntiCheats.FakeJumper.Enabled = 1
+
+#    AntiCheats.FakeFlyingmode.Enabled
+#        Description: Enable AntiCheat.FakeFlyingmode : when player sent a move opcode with added fly flag but on server this flag doesn't restricted for player.
+#		      It's normal for Hitchhiker's Hack with Air Mode
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+AntiCheats.FakeFlyingmode.Enabled = 1
+
+#    AntiCheats.IgnoreControlMovement.Enabled
+#        Description: Enable AntiCheat.IgnoreControlMovement : when player in root state - client can't send a new movement packets.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+AntiCheats.IgnoreControlMovement.Enabled = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+# Logs for Anticheat
+
+Appender.Anticheat=2,3,15,Anticheat.log
+Logger.anticheat=3,Console Anticheat
+
+#
+###################################################################################################
+
+###################################################################################################
+# Sanctions - Kicks
+#
+#    AntiCheats.FlyHack.Kick.Enabled
+#        Description: Enable AntiCheat.FlyHack Kick when detected
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+AntiCheats.FlyHack.Kick.Enabled = 1
+
+#    AntiCheats.SpeedHack.Kick.Enabled
+#        Description: Enable AntiCheat.SpeedHack Kick when detected
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+AntiCheats.SpeedHack.Kick.Enabled = 1
+
+#    AntiCheats.FakeJumper.Kick.Enabled
+#        Description: Enable AntiCheats.FakeJumper Kick when detected
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+AntiCheats.FakeJumper.Kick.Enabled = 1
+
+#    AntiCheats.FakeFlyingmode.Kick.Enabled
+#        Description: Enable AntiCheats.FakeFlyingmode Kick when detected
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+AntiCheats.FakeFlyingmode.Kick.Enabled = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+#    AntiCheats.FlyHackTimer
+#        Description: Timer for AntiCheat FlyHack check
+#        Default:     3000 - 1 check in 3 second (for big projects better (1500ppl +) set 5000 (5 sec) or more)
+
+AntiCheats.FlyHackTimer = 3000
 
 #
 ###################################################################################################
