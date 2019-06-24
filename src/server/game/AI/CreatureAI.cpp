@@ -158,8 +158,9 @@ void CreatureAI::JustAppeared()
     if (!me->IsSummon())
         return;
 
+    // Summons without SummonProperties are generally scripted summons that don't belong to any owner
     TempSummon* summon = me->ToTempSummon();
-    if (summon->m_Properties->Category != SUMMON_CATEGORY_UNK && summon->m_Properties->Category != SUMMON_CATEGORY_PET)
+    if (!summon->m_Properties || (summon->m_Properties->Category != SUMMON_CATEGORY_UNK && summon->m_Properties->Category != SUMMON_CATEGORY_PET))
         return;
 
     // Not applied to vehicles
