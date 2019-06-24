@@ -742,6 +742,7 @@ enum TrinityStrings
     LANG_PINFO_CHR_MAILS                  = 854,
     LANG_PINFO_CHR_LEVEL_HIGH             = 871,
     LANG_PINFO_CHR_MAP_WITH_AREA          = 882,
+    LANG_PINFO_CHR_FLY_MODE               = 884,
 
     LANG_CHARACTER_GENDER_MALE            = 855,
     LANG_CHARACTER_GENDER_FEMALE          = 856,
@@ -1070,6 +1071,17 @@ enum TrinityStrings
     LANG_GM_ANNOUNCE_COLOR                = 6615,
 
     LANG_GM_SILENCE                       = 6616,  // "Silence is ON for %s" - Spell 1852
+    // 6617-6625 for Anticheat reserved
+    // Anticheat
+    LANG_GM_ANNOUNCE_ASH                  = 6617,  // AntiSpeedHack
+    LANG_GM_ANNOUNCE_AFH_CANFLYWRONG      = 6618,  // AntiFlyHack - flying without canfly 
+    LANG_GM_ANNOUNCE_AFK_SWIMMING         = 6619,  // AntiFlyHack - flying swimming not in water
+    LANG_GM_ANNOUNCE_AFH                  = 6620,  // AntiFlyHack
+    LANG_GM_ANNOUNCE_DOUBLE_JUMP          = 6621,  // Double jump (client can't sent second packet of jump (only hack))
+    LANG_GM_ANNOUNCE_JUMPER_FAKE          = 6622,  // Gagarin and others can set falling flag and move up as jump
+    LANG_GM_ANNOUNCE_JUMPER_FLYING        = 6623,  // Hitchhiker's Hack and others can set fly unrestricted flag
+    LANG_GM_ANNOUNCE_WALLCLIMB            = 6624,  // Wallclimb
+    LANG_GM_ANNOUNCE_MOVE_UNDER_CONTROL   = 6625,  // Movement under Controll (not restricted)
 
     LANG_WORLD_CLOSED                     = 7523,
     LANG_WORLD_OPENED                     = 7524,

@@ -1386,7 +1386,10 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
     ReadMovementInfo(recvData, &movementInfo);
 
     recvData.read_skip<float>();                           // unk2
-
+    if (movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY))
+        _player->SetCanFlybyServer(true);
+    else
+        _player->SetCanFlybyServer(false);
     _player->GetUnitBeingMoved()->m_movementInfo.flags = movementInfo.GetMovementFlags();
 }
 
