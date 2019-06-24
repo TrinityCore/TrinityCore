@@ -21,6 +21,7 @@
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
+#include "DB2Structure.h"
 #include "Errors.h"
 #include "Language.h"
 #include "Log.h"
@@ -160,13 +161,22 @@ void CreatureAI::TriggerAlert(Unit const* who) const
 
 void CreatureAI::JustAppeared()
 {
-    if (!me->GetVehicle())
+    // Filter which type of summons apply the following follow handling
+    if (!me->IsSummon())
+        return;
+
+    TempSummon* summon = me->ToTempSummon();
+    if (summon->m_Properties->Control != SUMMON_CATEGORY_UNK && summon->m_Properties->Control != SUMMON_CATEGORY_PET)
+        return;
+
+    // Not applied to vehicles
+    if (summon->GetVehicle())
+        return;
+
+    if (Unit* owner = summon->GetCharmerOrOwner())
     {
-        if (Unit* owner = me->GetCharmerOrOwner())
-        {
-            me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
-        }
+        summon->GetMotionMaster()->Clear();
+        summon->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, summon->GetFollowAngle());
     }
 }
 
