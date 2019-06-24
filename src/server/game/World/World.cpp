@@ -1416,6 +1416,28 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_WARDEN_CLIENT_FAIL_ACTION]    = sConfigMgr->GetIntDefault("Warden.ClientCheckFailAction", 0);
     m_int_configs[CONFIG_WARDEN_CLIENT_RESPONSE_DELAY] = sConfigMgr->GetIntDefault("Warden.ClientResponseDelay", 600);
 
+    /*********************************************************/
+    /***                  ANTICHEAT SYSTEM                   ***/
+    /*********************************************************/
+    // AntiCheat
+    m_bool_configs[CONFIG_ANTICHEAT_FLYHACK_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.FlyHack.Enabled", false);
+    m_bool_configs[CONFIG_ANTICHEAT_SPEEDHACK_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.SpeedHack.Enabled", false);
+    m_bool_configs[CONFIG_ANTICHEAT_DOUBLEJUMP_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.DoubleJump.Enabled", false);
+    m_bool_configs[CONFIG_ANTICHEAT_FAKEJUMPER_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.FakeJumper.Enabled", false);
+    m_bool_configs[CONFIG_ANTICHEAT_FAKEFLYINGMODE_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.FakeFlyingmode.Enabled", false);
+    m_bool_configs[CONFIG_ANTICHEAT_IGNORE_CONTROL_MOVEMENT_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.IgnoreControlMovement.Enabled", false);
+    // punishment
+    m_bool_configs[CONFIG_AFH_KICK_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.FlyHack.Kick.Enabled", false);
+    m_bool_configs[CONFIG_ASH_KICK_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.SpeedHack.Kick.Enabled", false);
+    m_bool_configs[CONFIG_FAKEJUMPER_KICK_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.FakeJumper.Kick.Enabled", false);
+    m_bool_configs[CONFIG_FAKEFLYINGMODE_KICK_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.FakeFlyingmode.Kick.Enabled", false);
+    // Anticheat AFH timer
+    m_int_configs[CONFIG_ANTICHEAT_FLYHACK_TIMER] = sConfigMgr->GetIntDefault("AntiCheats.FlyHackTimer", 3000);
+    // Exclude some mapIDs for ASH and AFH
+    SetACMapExcludes(sConfigMgr->GetStringDefault("AntiCheats.forceExcludeMapsid", ""));
+    TC_LOG_INFO("server.loading", "AntiCheats disabled for %u maps", (uint32)excludeACMapsId.size());
+    // END anticheat system
+
     // Dungeon finder
     m_int_configs[CONFIG_LFG_OPTIONSMASK] = sConfigMgr->GetIntDefault("DungeonFinder.OptionsMask", 1);
 
@@ -3458,6 +3480,16 @@ void World::ReloadRBAC()
 void World::RemoveOldCorpses()
 {
     m_timers[WUPDATE_CORPSES].SetCurrent(m_timers[WUPDATE_CORPSES].GetInterval());
+}
+
+void World::SetACMapExcludes(const std::string& mapIdExcludes)
+{
+    excludeACMapsId.clear();
+
+    std::stringstream excludeStream(mapIdExcludes);
+    std::string temp;
+    while (std::getline(excludeStream, temp, ','))
+        excludeACMapsId.insert(atoi(temp.c_str()));
 }
 
 Realm realm;

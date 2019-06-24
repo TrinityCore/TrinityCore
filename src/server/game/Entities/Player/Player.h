@@ -1693,6 +1693,36 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void BuildPlayerRepop();
         void RepopAtGraveyard();
 
+        /*********************************************************/
+        /***                  ANTICHEAT SYSTEM                   ***/
+        /*********************************************************///
+        // AntiCheat
+        void SetSkipOnePacketForASH(bool blinked) { m_skipOnePacketForASH = blinked; }
+        bool IsSkipOnePacketForASH() const { return m_skipOnePacketForASH; }
+        void SetJumpingbyOpcode(bool jump) { m_isjumping = jump; }
+        bool IsJumpingbyOpcode() const { return m_isjumping; }
+        void SetCanFlybyServer(bool canfly) { m_canfly = canfly; }
+        bool IsCanFlybyServer() const { return m_canfly; }
+
+        bool UnderACKmount() const { return m_ACKmounted; }
+        bool UnderACKRootUpd() const { return m_rootUpd; }
+        void SetUnderACKmount();
+        void SetRootACKUpd(uint32 delay);
+
+        // should only be used by packet handlers to validate and apply incoming MovementInfos from clients. Do not use internally to modify m_movementInfo
+        void UpdateMovementInfo(MovementInfo const& movementInfo);
+        bool CheckMovementInfo(MovementInfo const& movementInfo, bool jump); // ASH
+        bool CheckOnFlyHack(); // AFH
+
+        void SetLastMoveClientTimestamp(uint32 timestamp) { lastMoveClientTimestamp = timestamp; }
+        void SetLastMoveServerTimestamp(uint32 timestamp) { lastMoveServerTimestamp = timestamp; }
+        uint32 GetLastMoveClientTimestamp() const { return lastMoveClientTimestamp; }
+        uint32 GetLastMoveServerTimestamp() const { return lastMoveServerTimestamp; }
+
+        std::string GetDescriptionACForLogs(uint8 type, float param1 = 0.f, float param2 = 0.f) const;
+        std::string GetPositionACForLogs() const;
+        // END AntiCheat system
+
         void RemoveGhoul();
 
         void DurabilityLossAll(double percent, bool inventory);
@@ -2472,6 +2502,25 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_DelayedOperations;
         bool m_bCanDelayTeleport;
         bool m_bHasDelayedTeleport;
+
+        /*********************************************************/
+        /***                  Anticheat FEATURES                  ***/
+        /*********************************************************///
+        // Anticheat
+        bool m_skipOnePacketForASH; // Used for skip 1 movement packet after charge or blink
+        bool m_isjumping;           // Used for jump-opcode in movementhandler
+        bool m_canfly;              // Used for access at fly flag - handled restricted access
+        bool m_ACKmounted;
+        bool m_rootUpd;
+        uint32 m_mountTimer;
+        uint32 m_rootUpdTimer;
+        uint32 m_flyhackTimer;
+
+        // Timestamp on client clock of the moment the most recently processed movement packet was SENT by the client
+        uint32 lastMoveClientTimestamp;
+        // Timestamp on server clock of the moment the most recently processed movement packet was RECEIVED from the client
+        uint32 lastMoveServerTimestamp;
+        // END Anticheat feautures
 
         // Temporary removed pet cache
         uint32 m_temporaryUnsummonedPetNumber;

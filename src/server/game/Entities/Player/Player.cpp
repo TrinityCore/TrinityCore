@@ -308,6 +308,21 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_stableSlots = 0;
 
+    /////////////////// AntiCheat System /////////////////////
+    m_flyhackTimer = 0;
+    if (sWorld->getBoolConfig(CONFIG_ANTICHEAT_FLYHACK_ENABLED))
+        m_flyhackTimer = sWorld->getIntConfig(CONFIG_ANTICHEAT_FLYHACK_TIMER);
+    m_mountTimer = 0;
+    m_rootUpdTimer = 0;
+    m_ACKmounted = false;
+    m_rootUpd = false;
+    m_skipOnePacketForASH = true;
+    m_isjumping = false;
+    m_canfly = false;
+
+    lastMoveClientTimestamp = 0;
+    lastMoveServerTimestamp = 0;
+
     /////////////////// Instance System /////////////////////
 
     m_HomebindTimer = 0;
@@ -405,6 +420,8 @@ Player::Player(WorldSession* session): Unit(true)
     m_reputationMgr = new ReputationMgr(this);
 
     m_groupUpdateTimer.Reset(5000);
+    SetLastMoveClientTimestamp(GameTime::GetGameTimeMS());
+    SetLastMoveServerTimestamp(GameTime::GetGameTimeMS());
 }
 
 Player::~Player()
@@ -1232,6 +1249,41 @@ void Player::Update(uint32 p_time)
             m_zoneUpdateTimer -= p_time;
     }
 
+    if (m_flyhackTimer > 0)
+    {
+        if (p_time >= m_flyhackTimer)
+        {
+            if (!CheckOnFlyHack() && sWorld->getBoolConfig(CONFIG_AFH_KICK_ENABLED))
+                GetSession()->KickPlayer();
+
+            m_flyhackTimer = sWorld->getIntConfig(CONFIG_ANTICHEAT_FLYHACK_TIMER);
+        }
+        else
+            m_flyhackTimer -= p_time;
+    }
+
+    if (m_ACKmounted && m_mountTimer > 0)
+    {
+        if (p_time >= m_mountTimer)
+        {
+            m_mountTimer = 0;
+            m_ACKmounted = false;
+        }
+        else
+            m_mountTimer -= p_time;
+    }
+
+    if (m_rootUpd && m_rootUpdTimer > 0)
+    {
+        if (p_time >= m_rootUpdTimer)
+        {
+            m_rootUpdTimer = 0;
+            m_rootUpd = false;
+        }
+        else
+            m_rootUpdTimer -= p_time;
+    }
+
     if (IsAlive())
     {
         m_regenTimer += p_time;
@@ -1618,6 +1670,8 @@ uint8 Player::GetChatTag() const
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
+    SetSkipOnePacketForASH(true); // for except kick by antispeedhack
+
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         TC_LOG_ERROR("maps", "Player::TeleportTo: Invalid map (%d) or invalid coordinates (X: %f, Y: %f, Z: %f, O: %f) given when teleporting player '%s' (%s, MapID: %d, X: %f, Y: %f, Z: %f, O: %f).",
@@ -26455,6 +26509,7 @@ bool Player::SetCanFly(bool apply, bool packetOnly /*= false*/)
     if (!apply)
         SetFallInformation(0, GetPositionZ());
 
+    SetCanFlybyServer(apply);
     WorldPacket data(apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY, 12);
     data << GetPackGUID();
     data << uint32(0);          //! movement counter
