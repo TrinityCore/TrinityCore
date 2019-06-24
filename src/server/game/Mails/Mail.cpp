@@ -100,7 +100,7 @@ void MailDraft::prepareItems(Player* receiver, SQLTransaction& trans)
 
     m_mailTemplateItemsNeed = false;
 
-    // The mail sent after turning in the quest The Wrath of Neptulon contains 100g
+    // The mail sent after turning in the quest The Good News and The Bad News contains 100g
     if (m_mailTemplateId == 123)
         m_money = 1000000;
 
