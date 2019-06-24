@@ -151,6 +151,18 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS, me->GetAbsoluteAngle(who));
 }
 
+void CreatureAI::JustAppeared()
+{
+    if (!me->GetVehicle())
+    {
+        if (Unit* owner = me->GetCharmerOrOwner())
+        {
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
+        }
+    }
+}
+
 void CreatureAI::EnterEvadeMode(EvadeReason why)
 {
     if (!_EnterEvadeMode(why))
@@ -208,9 +220,8 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
 
     me->RemoveAurasOnEvade();
 
-    // sometimes bosses stuck in combat?
-    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
+    me->GetThreatManager().NotifyDisengaged();
     me->LoadCreaturesAddon();
     me->SetLootRecipient(nullptr);
     me->ResetPlayerDamageReq();
@@ -218,10 +229,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->SetCannotReachTarget(false);
     me->DoNotReacquireTarget();
 
-    if (me->IsInEvadeMode())
-        return false;
-
-    return true;
+    return !me->IsInEvadeMode();
 }
 
 static const uint32 BOUNDARY_VISUALIZE_CREATURE = 15425;

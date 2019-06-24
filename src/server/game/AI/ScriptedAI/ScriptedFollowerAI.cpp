@@ -107,8 +107,8 @@ void FollowerAI::EnterEvadeMode(EvadeReason /*why*/)
         return;
 
     me->RemoveAllAuras();
-    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
+    me->GetThreatManager().NotifyDisengaged();
     me->SetLootRecipient(nullptr);
     me->SetCannotReachTarget(false);
     me->DoNotReacquireTarget();
