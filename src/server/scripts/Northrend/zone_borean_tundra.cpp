@@ -16,30 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Borean_Tundra
-SD%Complete: 100
-SDCategory: Borean Tundra
-EndScriptData */
-
-/* ContentData
-npc_iruk
-npc_corastrasza
-npc_sinkhole_kill_credit
-npc_khunok_the_behemoth
-npc_nerubar_victim
-npc_nesingwary_trapper
-npc_lurgglbr
-EndContentData */
-
 #include "ScriptMgr.h"
+#include "CreatureAIImpl.h"
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "QuestDef.h"
-#include "CreatureAIImpl.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 #include "ScriptedGossip.h"
@@ -735,7 +719,7 @@ public:
             Creature* owner = GetOwner()->ToCreature();
             owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
             owner->CombatStop(true);
-            owner->GetThreatManager().ClearAllThreat();
+            owner->GetThreatManager().NotifyDisengaged();
             owner->GetMotionMaster()->Clear();
             owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
             owner->CastSpell(owner, SPELL_SUBDUED, true);
@@ -2551,12 +2535,10 @@ class spell_q11653_shortening_blaster : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        uint32 spellId = RAND(SPELL_SHORTENING_BLASTER_BIGGER1, SPELL_SHORTENING_BLASTER_SHRUNK1,
-                              SPELL_SHORTENING_BLASTER_YELLOW1,
-                              SPELL_SHORTENING_BLASTER_GHOST1, SPELL_SHORTENING_BLASTER_POLYMORPH1);
-        uint32 spellId2 = RAND(SPELL_SHORTENING_BLASTER_BIGGER2, SPELL_SHORTENING_BLASTER_SHRUNK2,
-                               SPELL_SHORTENING_BLASTER_YELLOW2,
-                               SPELL_SHORTENING_BLASTER_GHOST2, SPELL_SHORTENING_BLASTER_POLYMORPH2);
+        uint32 spellId = RAND(SPELL_SHORTENING_BLASTER_BIGGER1, SPELL_SHORTENING_BLASTER_SHRUNK1, SPELL_SHORTENING_BLASTER_YELLOW1,
+            SPELL_SHORTENING_BLASTER_GHOST1, SPELL_SHORTENING_BLASTER_POLYMORPH1);
+        uint32 spellId2 = RAND(SPELL_SHORTENING_BLASTER_BIGGER2, SPELL_SHORTENING_BLASTER_SHRUNK2, SPELL_SHORTENING_BLASTER_YELLOW2,
+            SPELL_SHORTENING_BLASTER_GHOST2, SPELL_SHORTENING_BLASTER_POLYMORPH2);
 
         caster->CastSpell(caster, spellId, true);
         target->CastSpell(target, spellId2, true);
