@@ -17,7 +17,6 @@
 
 // This is where scripts' loading functions should be declared:
 void AddSC_theramore();
-void AddSC_Transmogrification();
 void AddSC_theramore_waves_invoker();
 void AddSC_npc_priest();
 void AddSC_npc_archmages();
@@ -37,7 +36,6 @@ void AddSC_npcs_sunreaver();
 void AddCustomScripts()
 {
 	AddSC_theramore();
-    AddSC_Transmogrification();
     AddSC_theramore_waves_invoker();
     AddSC_npc_priest();
 	AddSC_npc_archmages();
