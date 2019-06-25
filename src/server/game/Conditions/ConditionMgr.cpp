@@ -507,10 +507,9 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             {
                 const Quest* quest = sObjectMgr->GetQuestTemplate(ConditionValue1);
                 uint16 log_slot = player->FindQuestSlot(quest->GetQuestId());
-                uint32 progressCount = 0;
-                if (log_slot < MAX_QUEST_LOG_SIZE)
-                    progressCount = player->GetQuestSlotCounter(log_slot, ConditionValue2);
-                if (progressCount == ConditionValue3)
+                if (log_slot >= MAX_QUEST_LOG_SIZE)
+                    break;
+                if (player->GetQuestSlotCounter(log_slot, ConditionValue2) == ConditionValue3)
                     condMeets = true;
             }
             break;

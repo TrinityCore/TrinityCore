@@ -515,12 +515,6 @@ void SmartAI::InitializeAI()
 
     me->SetVisible(true);
 
-    if (!me->isDead())
-    {
-        GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
-        GetScript()->OnReset();
-    }
-
     _followGUID.Clear(); // do not reset follower on Reset(), we need it after combat evade
     _followDistance = 0;
     _followAngle = 0;
@@ -528,6 +522,17 @@ void SmartAI::InitializeAI()
     _followArrivedTimer = 1000;
     _followArrivedEntry = 0;
     _followCreditType = 0;
+}
+
+void SmartAI::JustAppeared()
+{
+    CreatureAI::JustAppeared();
+
+    if (me->isDead())
+        return;
+
+    GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
+    GetScript()->OnReset();
 }
 
 void SmartAI::JustReachedHome()

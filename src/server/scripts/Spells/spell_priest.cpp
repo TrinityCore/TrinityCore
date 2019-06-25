@@ -22,11 +22,17 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "Errors.h"
 #include "GridNotifiers.h"
 #include "Player.h"
+#include "Random.h"
+#include "SharedDefines.h"
 #include "SpellAuraEffects.h"
+#include "SpellDefines.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum PriestSpells
 {
@@ -38,6 +44,7 @@ enum PriestSpells
     SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL    = 56161,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
+    SPELL_PRIEST_LIGHTWELL_CHARGES                  = 59907,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
@@ -60,7 +67,13 @@ enum PriestSpells
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_MIND_BLAST_R1                      = 8092,
     SPELL_PRIEST_SHADOW_WORD_DEATH_R1               = 32379,
-    SPELL_PRIEST_MIND_FLAY_DAMAGE                   = 58381
+    SPELL_PRIEST_MIND_FLAY_DAMAGE                   = 58381,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R1                 = 7001,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R2                 = 27873,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R3                 = 27874,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R4                 = 28276,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R5                 = 48084,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R6                 = 48085,
 };
 
 enum PriestSpellIcons
@@ -68,6 +81,16 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
     PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT           = 3021,
     PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
+};
+
+enum PriestMisc
+{
+    PRIEST_LIGHTWELL_NPC_1                          = 31897,
+    PRIEST_LIGHTWELL_NPC_2                          = 31896,
+    PRIEST_LIGHTWELL_NPC_3                          = 31895,
+    PRIEST_LIGHTWELL_NPC_4                          = 31894,
+    PRIEST_LIGHTWELL_NPC_5                          = 31893,
+    PRIEST_LIGHTWELL_NPC_6                          = 31883
 };
 
 class PowerCheck
@@ -676,6 +699,75 @@ class spell_pri_item_t6_trinket : public SpellScriptLoader
         {
             return new spell_pri_item_t6_trinket_AuraScript();
         }
+};
+
+// 60123 - Lightwell
+class spell_pri_lightwell : public SpellScript
+{
+    PrepareSpellScript(spell_pri_lightwell);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_LIGHTWELL_RENEW_R1,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R2,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R3,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R4,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R5,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R6
+            });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_UNIT;
+    }
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster || !caster->IsSummon())
+            return;
+
+        uint32 lightwellRenew = 0;
+        switch (caster->GetEntry())
+        {
+            case PRIEST_LIGHTWELL_NPC_1:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R1;
+                break;
+            case PRIEST_LIGHTWELL_NPC_2:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R2;
+                break;
+            case PRIEST_LIGHTWELL_NPC_3:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R3;
+                break;
+            case PRIEST_LIGHTWELL_NPC_4:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R4;
+                break;
+            case PRIEST_LIGHTWELL_NPC_5:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R5;
+                break;
+            case PRIEST_LIGHTWELL_NPC_6:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R6;
+                break;
+            default:
+                return;
+        }
+
+        // proc a spellcast
+        if (Aura* chargesAura = caster->GetAura(SPELL_PRIEST_LIGHTWELL_CHARGES))
+        {
+            caster->CastSpell(GetHitUnit(), lightwellRenew, caster->ToTempSummon()->GetSummonerGUID());
+            if (chargesAura->ModCharges(-1))
+                caster->ToTempSummon()->UnSummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_lightwell::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // -7001 - Lightwell Renew
@@ -1467,6 +1559,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_imp_shadowform();
     new spell_pri_improved_spirit_tap();
     new spell_pri_item_t6_trinket();
+    RegisterSpellScript(spell_pri_lightwell);
     new spell_pri_lightwell_renew();
     new spell_pri_mana_leech();
     new spell_pri_mind_sear();

@@ -358,6 +358,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (193,197),
 (194,1),
 (194,2),
+(194,9),
 (194,11),
 (194,13),
 (194,14),
@@ -1001,6 +1002,8 @@ INSERT INTO `rbac_permissions` VALUES
 (5,'Join Arenas'),
 (6,'Join Dungeon Finder'),
 (7,'Skip idle connection check'),
+(8,"Cannot earn achievements"),
+(9,"Cannot earn realm first achievements"),
 (11,'Log GM trades'),
 (13,'Skip Instance required bosses check'),
 (14,'Skip character creation team mask check'),
@@ -1789,7 +1792,8 @@ INSERT INTO `updates` VALUES
 ('2019_05_15_00_auth.sql','8A7B96E66D689DA63380654142FF60A1EE938697','ARCHIVED','2019-05-15 06:13:20',0),
 ('2019_06_06_00_auth.sql','6DE8159E04BEE7BA0A4A81D72D160EB74934B6A5','ARCHIVED','2019-06-06 18:09:54',0),
 ('2019_06_15_00_auth.sql','456B92D99FFD2E7B6CBF64F4C68555A42B24B298','ARCHIVED','2019-06-15 07:33:45',0),
-('2019_06_16_00_auth.sql','B14AED4D3387B56FF8C8161D3671750AEEAE0F2E','ARCHIVED','2019-06-15 23:32:12',0);
+('2019_06_16_00_auth.sql','B14AED4D3387B56FF8C8161D3671750AEEAE0F2E','ARCHIVED','2019-06-15 23:32:12',0),
+('2019_06_21_00_auth.sql','C519239830204B68E710F698BC0C9E89B6D5FD24','ARCHIVED','2019-06-20 19:43:50',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

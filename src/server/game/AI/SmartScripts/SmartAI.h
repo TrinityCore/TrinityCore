@@ -133,8 +133,11 @@ class TC_GAME_API SmartAI : public CreatureAI
         // Called when a Player/Creature enters the creature (vehicle)
         void PassengerBoarded(Unit* who, int8 seatId, bool apply) override;
 
-        // Called when gets initialized, when creature is added to world
+        // Called when gets initialized
         void InitializeAI() override;
+
+        // Called once creature is fully added to world
+        void JustAppeared() override;
 
         // Called when creature gets charmed by another unit
         void OnCharmed(bool isNew) override;

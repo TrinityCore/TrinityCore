@@ -74,6 +74,7 @@ class TC_GAME_API Object
         virtual void AddToWorld();
         virtual void RemoveFromWorld();
 
+        static ObjectGuid GetGUID(Object const* o) { return o ? o->GetGUID() : ObjectGuid::Empty; }
         ObjectGuid GetGUID() const { return GetGuidValue(OBJECT_FIELD_GUID); }
         PackedGuid const& GetPackGUID() const { return m_PackGUID; }
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY); }
@@ -156,23 +157,35 @@ class TC_GAME_API Object
         // FG: some hacky helpers
         void ForceValuesUpdateAtIndex(uint32);
 
-        Player* ToPlayer() { if (GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player*>(this); else return nullptr; }
-        Player const* ToPlayer() const { if (GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player const*>(this); else return nullptr; }
+        static Player* ToPlayer(Object* o) { if (o && o->GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player*>(o); else return nullptr; }
+        static Player const* ToPlayer(Object const* o) { if (o && o->GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player const*>(o); else return nullptr; }
+        Player* ToPlayer() { return ToPlayer(this); }
+        Player const* ToPlayer() const { return ToPlayer(this); }
 
-        Creature* ToCreature() { if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature*>(this); else return nullptr; }
-        Creature const* ToCreature() const { if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature const*>(this); else return nullptr; }
+        static Creature* ToCreature(Object* o) { if (o && o->GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature*>(o); else return nullptr; }
+        static Creature const* ToCreature(Object const* o) { if (o && o->GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature const*>(o); else return nullptr; }
+        Creature* ToCreature() { return ToCreature(this); }
+        Creature const* ToCreature() const { return ToCreature(this); }
 
-        Unit* ToUnit() { if (isType(TYPEMASK_UNIT)) return reinterpret_cast<Unit*>(this); else return nullptr; }
-        Unit const* ToUnit() const { if (isType(TYPEMASK_UNIT)) return reinterpret_cast<Unit const*>(this); else return nullptr; }
+        static Unit* ToUnit(Object* o) { if (o && o->isType(TYPEMASK_UNIT)) return reinterpret_cast<Unit*>(o); else return nullptr; }
+        static Unit const* ToUnit(Object const* o) { if (o && o->isType(TYPEMASK_UNIT)) return reinterpret_cast<Unit const*>(o); else return nullptr; }
+        Unit* ToUnit() { return ToUnit(this); }
+        Unit const* ToUnit() const { return ToUnit(this); }
 
-        GameObject* ToGameObject() { if (GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject*>(this); else return nullptr; }
-        GameObject const* ToGameObject() const { if (GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject const*>(this); else return nullptr; }
+        static GameObject* ToGameObject(Object* o) { if (o && o->GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject*>(o); else return nullptr; }
+        static GameObject const* ToGameObject(Object const* o) { if (o && o->GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject const*>(o); else return nullptr; }
+        GameObject* ToGameObject() { return ToGameObject(this); }
+        GameObject const* ToGameObject() const { return ToGameObject(this); }
 
-        Corpse* ToCorpse() { if (GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse*>(this); else return nullptr; }
-        Corpse const* ToCorpse() const { if (GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse const*>(this); else return nullptr; }
+        static Corpse* ToCorpse(Object* o) { if (o && o->GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse*>(o); else return nullptr; }
+        static Corpse const* ToCorpse(Object const* o) { if (o && o->GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse const*>(o); else return nullptr; }
+        Corpse* ToCorpse() { return ToCorpse(this); }
+        Corpse const* ToCorpse() const { return ToCorpse(this); }
 
-        DynamicObject* ToDynObject() { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject*>(this); else return nullptr; }
-        DynamicObject const* ToDynObject() const { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject const*>(this); else return nullptr; }
+        static DynamicObject* ToDynObject(Object* o) { if (o && o->GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject*>(o); else return nullptr; }
+        static DynamicObject const* ToDynObject(Object const* o) { if (o && o->GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject const*>(o); else return nullptr; }
+        DynamicObject* ToDynObject() { return ToDynObject(this); }
+        DynamicObject const* ToDynObject() const { return ToDynObject(this); }
 
         virtual std::string GetDebugInfo() const;
 

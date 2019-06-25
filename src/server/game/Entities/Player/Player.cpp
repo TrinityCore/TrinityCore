@@ -1665,8 +1665,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     // reset movement flags at teleport, because player will continue move with these flags after teleport
     SetUnitMovementFlags(GetUnitMovementFlags() & MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE);
     DisableSpline();
-    if (!IsInFlight())
-        GetMotionMaster()->Clear();
+    GetMotionMaster()->Remove(EFFECT_MOTION_TYPE);
 
     if (Transport* transport = GetTransport())
     {
@@ -8411,7 +8410,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
         // loot was generated and respawntime has passed since then, allow to recreate loot
         // to avoid bugs, this rule covers spawned gameobjects only
-        if (go->isSpawnedByDefault() && go->getLootState() == GO_ACTIVATED && !go->loot.isLooted() && go->GetLootGenerationTime() + go->GetRespawnDelay() < GameTime::GetGameTime())
+        // Don't allow to regenerate chest loot inside instances and raids, to avoid exploits with duplicate boss loot being given for some encounters
+        if (go->isSpawnedByDefault() && go->getLootState() == GO_ACTIVATED && !go->loot.isLooted() && !go->GetMap()->Instanceable() && go->GetLootGenerationTime() + go->GetRespawnDelay() < GameTime::GetGameTime())
             go->SetLootState(GO_READY);
 
         if (go->getLootState() == GO_READY)
@@ -22225,7 +22225,7 @@ bool Player::IsNeverVisible() const
 bool Player::CanAlwaysSee(WorldObject const* obj) const
 {
     // Always can see self
-    if (m_unitMovedByMe == obj)
+    if (GetUnitBeingMoved() == obj)
         return true;
 
     if (ObjectGuid guid = GetGuidValue(PLAYER_FARSIGHT))
@@ -23879,7 +23879,11 @@ void Player::SetClientControl(Unit* target, bool allowMove)
 {
     // still affected by some aura that shouldn't allow control, only allow on last such aura to be removed
     if (allowMove && target->HasUnitState(UNIT_STATE_CANT_CLIENT_CONTROL))
+    {
+        // this should never happen, otherwise m_unitBeingMoved might be left dangling!
+        ASSERT(GetUnitBeingMoved() == target);
         return;
+    }
 
     WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, target->GetPackGUID().size()+1);
     data << target->GetPackGUID();
@@ -23891,14 +23895,6 @@ void Player::SetClientControl(Unit* target, bool allowMove)
 
     if (allowMove)
         SetMovedUnit(target);
-}
-
-void Player::SetMovedUnit(Unit* target)
-{
-    m_unitMovedByMe->m_playerMovingMe = nullptr;
-
-    m_unitMovedByMe = target;
-    m_unitMovedByMe->m_playerMovingMe = this;
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)
