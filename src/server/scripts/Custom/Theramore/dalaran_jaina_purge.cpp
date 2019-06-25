@@ -16,7 +16,7 @@
 #include <iostream>
 
 #define NPCS_TOTAL_COUNT 5
-#define GOSSIP_ITEM_ISIAN_WALL "Vereesa me demande de faire le mÃ©nage dans le sanctuaire des saccage-soleil."
+#define GOSSIP_ITEM_ISIAN_WALL "Vereesa me demande de faire le ménage dans le sanctuaire des saccage-soleil."
 
 enum NPCs
 {
@@ -257,7 +257,7 @@ class npc_displaced_sunreaver : public CreatureScript
             {
                 for (Creature* assist : assistList)
                 {
-                    if (assist->IsInCombat())
+                    if (assist->IsEngaged())
                         continue;
 
                     assist->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
@@ -294,6 +294,15 @@ class dalaran_jaina_purge : public CreatureScript
             teleportTimer = 3 * IN_MILLISECONDS;
         }
 
+        void AttackStart(Unit* who) override
+        {
+            if (!who)
+                return;
+
+            if (me->Attack(who, false))
+                DoStartMovement(who, 35.f);
+        }
+
         void Reset() override
         {
             events.Reset();
@@ -327,13 +336,14 @@ class dalaran_jaina_purge : public CreatureScript
                 {
                     if (Creature * sunreaver = GetClosestCreatureWithEntry(me, NPC_DISPLACED_SUNREAVER, 20.f))
                     {
-                        if (sunreaver->IsInCombat())
+                        if (sunreaver->IsEngaged())
                         {
                             me->Attack(sunreaver, false);
                         }
                         else
                         {
-                            Talk(SAY_JAINA_TELEPORT);
+                            if (roll_chance_i(60))
+                                Talk(SAY_JAINA_TELEPORT);
 
                             DoCast(sunreaver, SPELL_DIRECT_TELEPORT);
                             ENSURE_AI(npc_displaced_sunreaver::npc_displaced_sunreaverAI, sunreaver->AI())->Teleport();

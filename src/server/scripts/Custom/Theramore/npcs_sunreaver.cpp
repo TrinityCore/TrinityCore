@@ -1,22 +1,24 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "World.h"
+#include <iostream>
 
 enum Misc
 {
     // Quests
     QUEST_SEWER_CLEANING        = 80017,
-
+    NPC_INVISIBLE_STALKER       = 32780,
     SUNREAVER_KILL_CREDIT       = 100062,
-
     SAY_BRASAEL_AGGRO           = 0,
 };
 
 enum Spells
 {
     // Assassin
-	SPELL_SINISTER_STRIKE		= 59409,
-	SPELL_KIDNEY_SHOT			= 72335,
+    SPELL_SINISTER_STRIKE       = 59409,
+    SPELL_KIDNEY_SHOT           = 72335,
 
     // Duelist
     SPELL_MIGHTY_KICK           = 69021,
@@ -37,33 +39,34 @@ enum Spells
     SPELL_SCORCH                = 100055,
     SPELL_METEOR                = 100054,
     SPELL_DRAGON_BREATH         = 37289,
-    SPELL_POSTCOMBUSTION        = 59183
+    SPELL_POSTCOMBUSTION        = 59183,
+    SPELL_DUMMY_METEOR          = 100056 
 };
 
 enum Casting
 {
     // Assassin
-    CASTING_SINISTER_STRIKE		= 1,
-	CASTING_KIDNEY_SHOT			= 2,
+    CASTING_SINISTER_STRIKE = 1,
+    CASTING_KIDNEY_SHOT = 2,
 
     // Duelist
-    CASTING_MIGHTY_KICK         = 1,
+    CASTING_MIGHTY_KICK = 1,
 
     // Pyromancer
-    CASTING_FIREBALL            = 1,
-	CASTING_FIREBLAST           = 2,
-	CASTING_PYROBLAST           = 3,
+    CASTING_FIREBALL = 1,
+    CASTING_FIREBLAST = 2,
+    CASTING_PYROBLAST = 3,
 
     // Forsthand
-    CASTING_FROSTBOLT           = 1,
-	CASTING_ICE_LANCE           = 2,
-	CASTING_FROST_CONE          = 3,
+    CASTING_FROSTBOLT = 1,
+    CASTING_ICE_LANCE = 2,
+    CASTING_FROST_CONE = 3,
 
     // Brasael
-    CASTING_SCORCH              = 1,
-    CASTING_METEOR              = 2,
-    CASTING_DRAGON_BREATH       = 3,
-    CASTING_POSTCOMBUSTION      = 4
+    CASTING_SCORCH = 1,
+    CASTING_METEOR = 2,
+    CASTING_DRAGON_BREATH = 3,
+    CASTING_POSTCOMBUSTION = 4
 };
 
 void KillCredit(Unit* killer)
@@ -133,7 +136,7 @@ class npc_sunreaver_assassin : public CreatureScript
         EventMap events;
     };
 
-    CreatureAI* GetAI(Creature * creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_sunreaver_assassinAI(creature);
     }
@@ -219,15 +222,17 @@ class npc_sunreaver_pyromancer : public CreatureScript
         void Reset() override
         {
             events.Reset();
-
-            DoCastSelf(SPELL_FIRE_ARMOR);
         }
 
         void UpdateAI(uint32 diff) override
         {
             // Combat
             if (!UpdateVictim())
+            {
+                if (!me->HasAura(SPELL_FIRE_ARMOR))
+                    DoCastSelf(SPELL_FIRE_ARMOR);
                 return;
+            }
 
             events.Update(diff);
 
@@ -296,15 +301,17 @@ class npc_sunreaver_frosthand : public CreatureScript
         void Reset() override
         {
             events.Reset();
-
-            DoCastSelf(SPELL_FROST_ARMOR);
         }
 
         void UpdateAI(uint32 diff) override
         {
             // Combat
             if (!UpdateVictim())
+            {
+                if (!me->HasAura(SPELL_FROST_ARMOR))
+                    DoCastSelf(SPELL_FROST_ARMOR);
                 return;
+            }
 
             events.Update(diff);
 
@@ -356,26 +363,37 @@ class npc_magister_brasael : public CreatureScript
 
     struct npc_magister_brasaelAI : public ScriptedAI
     {
-        npc_magister_brasaelAI(Creature* creature) : ScriptedAI(creature), phase(1) { }
+        npc_magister_brasaelAI(Creature* creature) : ScriptedAI(creature), phase(1), meteors(0) { }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_BRASAEL_AGGRO);
 
-            events.ScheduleEvent(CASTING_SCORCH, 5s);
+            events.ScheduleEvent(CASTING_SCORCH, 5ms);
             events.ScheduleEvent(CASTING_DRAGON_BREATH, 14s);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
-            if (phase != 2 && HealthBelowPct(50))
+            if (phase != 2 && HealthBelowPct(80))
             {
                 phase = 2;
 
+                events.CancelEvent(CASTING_SCORCH);
                 events.CancelEvent(CASTING_DRAGON_BREATH);
                 events.ScheduleEvent(CASTING_POSTCOMBUSTION, 1s);
-                events.ScheduleEvent(CASTING_METEOR, 5s);
             }
+        }
+
+        void KilledUnit(Unit* /*victim*/) override
+        {
+            me->SetControlled(false, UNIT_STATE_ROOT);
+        }
+
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+        {
+            if (spellInfo->Id == SPELL_POSTCOMBUSTION)
+                events.ScheduleEvent(CASTING_METEOR, 1s);
         }
 
         void JustDied(Unit* killer) override
@@ -387,16 +405,19 @@ class npc_magister_brasael : public CreatureScript
         {
             events.Reset();
 
-            DoCastSelf(SPELL_FIRE_ARMOR);
-
             phase = 1;
+            meteors = 0;
         }
 
         void UpdateAI(uint32 diff) override
         {
             // Combat
             if (!UpdateVictim())
+            {
+                if (!me->HasAura(SPELL_FIRE_ARMOR))
+                    DoCastSelf(SPELL_FIRE_ARMOR);
                 return;
+            }
 
             events.Update(diff);
 
@@ -419,13 +440,33 @@ class npc_magister_brasael : public CreatureScript
 
                     case CASTING_POSTCOMBUSTION:
                         DoCastSelf(SPELL_POSTCOMBUSTION);
-                        events.RescheduleEvent(CASTING_POSTCOMBUSTION, 20s, 28s);
+                        me->SetControlled(true, UNIT_STATE_ROOT);
                         break;
 
                     case CASTING_METEOR:
-                        DoCastVictim(SPELL_METEOR);
-                        events.RescheduleEvent(CASTING_METEOR, 30s, 48s);
+                    {
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        if (target->GetTypeId() != TYPEID_PLAYER)
+                            break;
+
+                        if (meteors > 1)
+                        {
+                            me->SetControlled(false, UNIT_STATE_ROOT);
+                            events.ScheduleEvent(CASTING_SCORCH, 5ms);
+                            events.ScheduleEvent(CASTING_DRAGON_BREATH, 14s);
+                            break;
+                        }
+
+                        meteors++;
+                        
+                        const Position spellDestination = target->GetPosition();
+                        if (Creature * fx = DoSummon(NPC_INVISIBLE_STALKER, spellDestination, 7000, TEMPSUMMON_TIMED_DESPAWN))
+                            fx->CastSpell(fx, SPELL_DUMMY_METEOR);
+                        me->CastSpell(spellDestination, SPELL_METEOR);
+
+                        events.RescheduleEvent(CASTING_METEOR, 6s);
                         break;
+                    }
                 }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -438,6 +479,7 @@ class npc_magister_brasael : public CreatureScript
         private:
         EventMap events;
         uint8 phase;
+        uint8 meteors;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
