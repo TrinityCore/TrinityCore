@@ -61,6 +61,11 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (17, 0, 49590, 30, 0, 190094, 8, 11, "Arcane Disruption - Must be within 8yd of Suspicious Grain Crate"),
 (17, 0, 49590, 29, 0,  27827, 8, 11, "Arcane Disruption - Must be within 8yd of Grain Crate Helper");
 
+-- Arcane Disruption should ignore Line of Sight because the helper NPC is spawned inside the crates
+DELETE FROM `disables` WHERE `sourceType`=0 AND `entry`=49590;
+INSERT INTO `disables` (`sourceType`, `entry`, `flags`) VALUES
+(0, 49590, 64);
+
 -- Make Suspicious Grain Crate and Grain Crate Helper never respawn
 UPDATE `creature` SET `spawntimesecs`=@DAY WHERE `id`=27827;
 UPDATE `gameobject` SET `spawntimesecs`=@DAY WHERE `id`=190094;
@@ -193,6 +198,9 @@ UPDATE `creature_text` SET `emote`=396 WHERE
 UPDATE `creature_text` SET `emote`=432 WHERE
 	(`creatureid`=26499 AND `groupid` IN (29));
 	
+-- Clean up some incorrect spawns in wave area
+DELETE FROM `creature` WHERE `guid` BETWEEN 143949 AND 143952;
+
 -- spawn group data
 DELETE FROM `spawn_group` WHERE `groupId` BETWEEN 52 and 56;
 -- middle chromie
@@ -240,11 +248,8 @@ INSERT INTO `creature_text` (`creatureid`,`groupid`,`text`,`type`,`probability`,
 (27913, 4, "Scourge forces have been spotted near the Elder's Square Gate!", 14, 100, 27645, 3, "Lordaeron Crier ELDERS_SQUARE"),
 (27913, 5, "Scourge forces have been spotted near the Town Hall!", 14, 100, 27646, 3, "Lordaeron Crier TOWN_HALL");
 
--- Clean up some incorrect spawns in wave area
-DELETE FROM `creature` WHERE `guid` BETWEEN 143949 AND 143952;
-
 -- Get rid of the colossal mess that is Risen Zombie SmartAI
-UPDATE `creature_template` SET `ScriptName`="npc_stratholme_fluff_undead",`AIName`="" WHERE `entry` = 27737;
+UPDATE `creature_template` SET `AIName`="" WHERE `entry` = 27737;
 DELETE FROM `smart_scripts` WHERE -`entryorguid` IN (SELECT `guid` FROM `creature` WHERE `id`=27737 AND `map`=595);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND -`SourceEntry` IN (SELECT `guid` FROM `creature` WHERE `id`=27737 AND `map`=595);
 
@@ -283,7 +288,6 @@ INSERT INTO `conditions` (`sourcetypeorreferenceid`,`sourcegroup`,`sourceentry`,
 DELETE FROM `creature_template_addon` WHERE `entry`=30997;
 INSERT INTO `creature_template_addon` (`entry`,`bytes1`) VALUES
 (30997,50331648);
-UPDATE `creature_template` SET `npcflag`=0 WHERE `entry`=30997;
 DELETE FROM `creature_template_movement` WHERE `creatureid`=30997;
 INSERT INTO `creature_template_movement` (`creatureid`,`ground`,`flight`) VALUES (30997,1,2);
 DELETE FROM `creature_text` WHERE `creatureid`=30997;

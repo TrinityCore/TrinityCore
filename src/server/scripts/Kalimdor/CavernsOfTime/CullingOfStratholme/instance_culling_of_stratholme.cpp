@@ -716,33 +716,17 @@ class instance_culling_of_stratholme : public InstanceMapScript
 
                 switch (state)
                 {
-                    case CRATES_IN_PROGRESS:
-                        break;
                     case CRATES_DONE:
                         if (Creature* bunny = instance->GetCreature(_genericBunnyGUID))
                             bunny->CastSpell(nullptr, SPELL_CRATES_KILL_CREDIT, TRIGGERED_FULL_MASK);
                         events.ScheduleEvent(EVENT_CRIER_CALL_TO_GATES, 5s);
-                        break;
-                    case UTHER_TALK:
-                    case PURGE_STARTING:
-                        // nothing to do here, initialization is triggered on arthas AI by SetGUID
                         break;
                     case WAVES_IN_PROGRESS:
                         _waveCount = 0;
                         _currentSpawnLoc = 0;
                         _waveSpawns.clear();
                         events.ScheduleEvent(EVENT_SCOURGE_WAVE, 1s);
-
-                        if (!_infiniteGuardianTimeout && instance->GetSpawnMode() == DUNGEON_DIFFICULTY_HEROIC && (GetBossState(DATA_INFINITE_CORRUPTOR) != DONE && GetBossState(DATA_INFINITE_CORRUPTOR) != FAIL))
-                        {
-                            instance->SummonCreature(NPC_TIME_RIFT, CorruptorRiftPos);
-                            instance->SummonCreature(NPC_GUARDIAN_OF_TIME, GuardianPos);
-                            instance->SummonCreature(NPC_INFINITE_CORRUPTOR, CorruptorPos);
-                            _infiniteGuardianTimeout = GameTime::GetGameTime() + 25 * MINUTE;
-                            events.ScheduleEvent(EVENT_GUARDIAN_TICK, 6s);
-                        }
-                        break;
-                    case WAVES_DONE:
+                        SpawnInfiniteCorruptor();
                         break;
                     default:
                         break;
@@ -776,6 +760,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         creature->DespawnOrUnsummon(0, 1s);
                     }
 
+                    SpawnInfiniteCorruptor();
                     events.RescheduleEvent(EVENT_RESPAWN_ARTHAS, 1s);
                 }
 
@@ -793,6 +778,18 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         if (crateHelper->IsAlive() && !crateHelper->AI()->GetData(DATA_CRATE_REVEALED))
                             ++returnValue;
                 return returnValue;
+            }
+
+            void SpawnInfiniteCorruptor()
+            {
+                if (!_infiniteGuardianTimeout && instance->GetSpawnMode() == DUNGEON_DIFFICULTY_HEROIC && (GetBossState(DATA_INFINITE_CORRUPTOR) != DONE && GetBossState(DATA_INFINITE_CORRUPTOR) != FAIL))
+                {
+                    instance->SummonCreature(NPC_TIME_RIFT, CorruptorRiftPos);
+                    instance->SummonCreature(NPC_GUARDIAN_OF_TIME, GuardianPos);
+                    instance->SummonCreature(NPC_INFINITE_CORRUPTOR, CorruptorPos);
+                    _infiniteGuardianTimeout = GameTime::GetGameTime() + 25 * MINUTE;
+                    events.ScheduleEvent(EVENT_GUARDIAN_TICK, 6s);
+                }
             }
 
             void SetWorldState(COSWorldStates state, uint32 value, bool immediate = true)

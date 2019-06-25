@@ -439,12 +439,9 @@ enum PositionIndices : uint32
     RP5_MALGANIS_POS,
     ARTHAS_FINAL_POS,
     RP5_CHROMIE_SPAWN,
-    RP5_CHROMIE_WP1,
-    RP5_CHROMIE_WP2,
-    RP5_CHROMIE_WP3,
 
     // Array element count
-    NUM_POSITIONS
+    NUM_POSITIONS,
 };
 
 enum OtherLines
@@ -500,10 +497,15 @@ static std::array<Position, NUM_POSITIONS> const ArthasPositions =
         { 2296.862f, 1501.015f, 128.4456f, 5.131268f }, // RP5_MALGANIS_POS
         { 2301.055f, 1478.977f, 128.1299f, 1.758816f }, // ARTHAS_FINAL_POS
         { 2319.560f, 1506.408f, 152.0474f }, // RP5_CHROMIE_SPAWN
-        { 2320.632f, 1507.193f, 152.5081f }, // RP5_CHROMIE_WP1
-        { 2319.823f, 1506.605f, 152.5081f }, // RP5_CHROMIE_WP2
-        { 2306.770f, 1496.780f, 128.3620f }  // RP5_CHROMIE_WP3
     }
+};
+
+uint32 const chromiePathSize = 3;
+G3D::Vector3 const ChromieSplinePos[chromiePathSize] =
+{
+    { 2320.632f, 1507.193f, 152.5081f }, // RP5_CHROMIE_WP1
+    { 2319.823f, 1506.605f, 152.5081f }, // RP5_CHROMIE_WP2
+    { 2306.770f, 1496.780f, 128.3620f }  // RP5_CHROMIE_WP3
 };
 
 static float const ArthasSnapbackDistanceThreshold = 5.0f; // how far we can be from where we're supposed at start of phase to be before we snap back
@@ -553,7 +555,7 @@ public:
 
         void AdvanceToState(COSProgressStates newState)
         {
-            TC_LOG_DEBUG("scripts.cos", "npc_arthas_stratholmeAI::AdvanceToState: advancing to %s", newState);
+            TC_LOG_DEBUG("scripts.cos", "npc_arthas_stratholmeAI::AdvanceToState: advancing to 0x%X", newState);
             if (!_progressRP)
             {
                 TC_LOG_WARN("scripts.cos", "npc_arthas_stratholmeAI::AdvanceToState: advancing to instance state 0x%X, but RP is paused. Overriding!", newState);
@@ -1474,15 +1476,13 @@ public:
                     case RP5_EVENT_CHROMIE_SPAWN:
                         if (Creature* chromie = instance->instance->SummonCreature(NPC_CHROMIE_3, ArthasPositions[RP5_CHROMIE_SPAWN]))
                         {
-                            // SMOOOOOOOOOOOOOOOOTH AF custom movespline
+                            chromie->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                            Movement::PointsArray path(ChromieSplinePos, ChromieSplinePos + chromiePathSize);
                             Movement::MoveSplineInit init(chromie);
-                            /*init.Path().push_back(_positions[RP5_CHROMIE_WP1]);
-                            init.Path().push_back(_positions[RP5_CHROMIE_WP2]);
-                            init.Path().push_back(_positions[RP5_CHROMIE_WP3]);
-                            init.Path().push_back(_positions[RP5_CHROMIE_WP3]);*/
                             init.SetFly();
                             init.SetWalk(true);
-                            init.Launch();
+                            init.MovebyPath(path, 0);
+                            me->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
                         }
                         break;
                     case RP5_EVENT_CHROMIE_LAND:
