@@ -1591,10 +1591,8 @@ public:
                 instance->SetGuidData(command, cause->GetGUID());
         }
 
-        bool GossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
+        bool GossipSelect(Player* player, uint32 /*sender*/, uint32 /*listId*/) override
         {
-            uint32 const action = GetGossipActionFor(player, listId);
-
             AdvanceDungeon(player, PURGE_PENDING, DATA_START_PURGE);
             AdvanceDungeon(player, TOWN_HALL_PENDING, DATA_START_TOWN_HALL);
             AdvanceDungeon(player, TOWN_HALL_COMPLETE, DATA_TO_GAUNTLET);
@@ -1603,7 +1601,7 @@ public:
             return true;
         }
 
-        bool GossipHello(Player* player) override
+        bool GossipHello(Player* /*player*/) override
         {
             return false;
         }
