@@ -768,7 +768,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
             }
 
         private:
-            typedef std::unordered_map<COSWorldStates, uint32> WorldStateMap;
+            typedef std::unordered_map<uint32, uint32> WorldStateMap;
 
             uint32 MissingPlagueCrates() const
             {

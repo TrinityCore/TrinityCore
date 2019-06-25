@@ -518,7 +518,7 @@ struct SnapbackInfo
 };
 
 // Positions Arthas should be at when starting a given phase
-static std::unordered_map<COSProgressStates, SnapbackInfo> const ArthasSnapbackPositions =
+static std::unordered_map<uint32, SnapbackInfo> const ArthasSnapbackPositions =
 {
     { JUST_STARTED,         { REACT_PASSIVE,    false, &ArthasPositions[RP1_ARTHAS_INITIAL] } },
     { CRATES_IN_PROGRESS,   { REACT_PASSIVE,    false, &ArthasPositions[RP1_ARTHAS_INITIAL] } },
