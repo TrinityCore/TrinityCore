@@ -139,35 +139,24 @@ class boss_salramm : public CreatureScript
         }
 };
 
-class spell_salramm_steal_flesh : public SpellScriptLoader
+class spell_salramm_steal_flesh : public AuraScript
 {
-    public:
-        spell_salramm_steal_flesh() : SpellScriptLoader("spell_salramm_steal_flesh") { }
+    PrepareAuraScript(spell_salramm_steal_flesh);
 
-        class spell_salramm_steal_flesh_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_salramm_steal_flesh_AuraScript);
+    void HandlePeriodic(AuraEffect const* /*eff*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_STEAL_FLESH_BUFF, true);
+        GetCaster()->CastSpell(GetTarget(), SPELL_STEAL_FLESH_DEBUFF, true);
+    }
 
-            void HandlePeriodic(AuraEffect const* /*eff*/)
-            {
-                GetCaster()->CastSpell(GetCaster(), SPELL_STEAL_FLESH_BUFF, true);
-                GetCaster()->CastSpell(GetTarget(), SPELL_STEAL_FLESH_DEBUFF, true);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_salramm_steal_flesh_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_salramm_steal_flesh_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_salramm_steal_flesh::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 void AddSC_boss_salramm()
 {
     new boss_salramm();
-    new spell_salramm_steal_flesh();
+    RegisterAuraScript(spell_salramm_steal_flesh);
 }

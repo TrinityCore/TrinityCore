@@ -1644,37 +1644,26 @@ struct npc_stratholme_rp_dummy : NullCreatureAI
     }
 };
 
-class spell_stratholme_crusader_strike : public SpellScriptLoader
+class spell_stratholme_crusader_strike : public SpellScript
 {
-    public:
-        spell_stratholme_crusader_strike() : SpellScriptLoader("spell_stratholme_crusader_strike") { }
+    PrepareSpellScript(spell_stratholme_crusader_strike);
 
-        class spell_stratholme_crusader_strike_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_stratholme_crusader_strike_SpellScript);
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            if (target->GetEntry() == NPC_CITIZEN || target->GetEntry() == NPC_RESIDENT)
+                Unit::Kill(GetCaster(), target);
+    }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* target = GetHitUnit())
-                    if (target->GetEntry() == NPC_CITIZEN || target->GetEntry() == NPC_RESIDENT)
-                        Unit::Kill(GetCaster(), target);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_stratholme_crusader_strike_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_stratholme_crusader_strike_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_stratholme_crusader_strike::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 void AddSC_npc_arthas_stratholme()
 {
     new npc_arthas_stratholme();
     RegisterCreatureAI(npc_stratholme_rp_dummy);
-    new spell_stratholme_crusader_strike();
+    RegisterSpellScript(spell_stratholme_crusader_strike);
 }
