@@ -107,46 +107,46 @@ struct TC_GAME_API AuctionEntry
 //this class is used as auctionhouse instance
 class TC_GAME_API AuctionHouseObject
 {
-    public:
-        ~AuctionHouseObject()
-        {
-            for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
-                delete itr->second;
-        }
+public:
+    ~AuctionHouseObject()
+    {
+        for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
+            delete itr->second;
+    }
 
-        typedef std::map<uint32, AuctionEntry*> AuctionEntryMap;
-        typedef std::unordered_map<ObjectGuid, time_t> PlayerGetAllThrottleMap;
+    typedef std::map<uint32, AuctionEntry*> AuctionEntryMap;
+    typedef std::unordered_map<ObjectGuid, time_t> PlayerGetAllThrottleMap;
 
-        uint32 Getcount() const { return AuctionsMap.size(); }
+    uint32 Getcount() const { return AuctionsMap.size(); }
 
-        AuctionEntryMap::iterator GetAuctionsBegin() {return AuctionsMap.begin();}
-        AuctionEntryMap::iterator GetAuctionsEnd() {return AuctionsMap.end();}
+    AuctionEntryMap::iterator GetAuctionsBegin() {return AuctionsMap.begin();}
+    AuctionEntryMap::iterator GetAuctionsEnd() {return AuctionsMap.end();}
 
-        AuctionEntry* GetAuction(uint32 id) const
-        {
-            AuctionEntryMap::const_iterator itr = AuctionsMap.find(id);
-            return itr != AuctionsMap.end() ? itr->second : nullptr;
-        }
+    AuctionEntry* GetAuction(uint32 id) const
+    {
+        AuctionEntryMap::const_iterator itr = AuctionsMap.find(id);
+        return itr != AuctionsMap.end() ? itr->second : nullptr;
+    }
 
-        void AddAuction(AuctionEntry* auction);
+    void AddAuction(AuctionEntry* auction);
 
-        bool RemoveAuction(AuctionEntry* auction);
+    bool RemoveAuction(AuctionEntry* auction);
 
-        void Update();
+    void Update();
 
-        void BuildListBidderItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount);
-        void BuildListOwnerItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount);
-        void BuildListAuctionItems(WorldPacket& data, Player* player,
-            std::wstring const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable,
-            uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
-            uint32& count, uint32& totalcount, bool getall = false);
+    void BuildListBidderItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount);
+    void BuildListOwnerItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount);
+    void BuildListAuctionItems(WorldPacket& data, Player* player,
+        std::wstring const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable,
+        uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
+        uint32& count, uint32& totalcount, bool getall = false);
 
-    private:
-        AuctionEntryMap AuctionsMap;
+private:
+    AuctionEntryMap AuctionsMap;
 
-        // Map of throttled players for GetAll, and throttle expiry time
-        // Stored here, rather than player object to maintain persistence after logout
-        PlayerGetAllThrottleMap GetAllThrottleMap;
+    // Map of throttled players for GetAll, and throttle expiry time
+    // Stored here, rather than player object to maintain persistence after logout
+    PlayerGetAllThrottleMap GetAllThrottleMap;
 
 };
 
