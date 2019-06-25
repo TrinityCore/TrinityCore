@@ -503,9 +503,9 @@ static std::array<Position, NUM_POSITIONS> const ArthasPositions =
 uint32 const chromiePathSize = 3;
 G3D::Vector3 const ChromieSplinePos[chromiePathSize] =
 {
-    { 2320.632f, 1507.193f, 152.5081f }, // RP5_CHROMIE_WP1
-    { 2319.823f, 1506.605f, 152.5081f }, // RP5_CHROMIE_WP2
-    { 2306.770f, 1496.780f, 128.3620f }  // RP5_CHROMIE_WP3
+    { 2320.632f, 1507.193f, 152.5081f },
+    { 2319.823f, 1506.605f, 152.5081f },
+    { 2306.770f, 1496.780f, 128.3620f }
 };
 
 static float const ArthasSnapbackDistanceThreshold = 5.0f; // how far we can be from where we're supposed at start of phase to be before we snap back
