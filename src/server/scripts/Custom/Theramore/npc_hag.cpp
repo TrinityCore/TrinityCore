@@ -43,15 +43,6 @@ class npc_hag : public CreatureScript
             events.ScheduleEvent(CASTING_ARCANE_BLAST, 3s);
         }
 
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->Attack(who, false))
-                DoStartMovement(who, 35.f);
-        }
-
         void Reset() override
         {
             events.Reset();
@@ -85,7 +76,7 @@ class npc_hag : public CreatureScript
                 {
                     case CASTING_FIREBALL:
                         DoCastVictim(SPELL_FIREBALL);
-                        events.RescheduleEvent(CASTING_FIREBALL, 1180);
+                        events.RescheduleEvent(CASTING_FIREBALL, 3s, 5s);
                         break;
 
                     case CASTING_ICE_LANCE:
@@ -107,6 +98,9 @@ class npc_hag : public CreatureScript
                         events.RescheduleEvent(CASTING_ARCANE_BLAST, 8s, 14s);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();

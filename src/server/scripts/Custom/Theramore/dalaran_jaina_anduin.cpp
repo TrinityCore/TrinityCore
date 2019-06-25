@@ -8,6 +8,7 @@
 #include "ScriptedCreature.h"
 #include "CreatureAIImpl.h"
 #include "MotionMaster.h"
+#include "Group.h"
 
 enum NPCs
 {
@@ -52,6 +53,7 @@ enum Misc
     QUEST_THE_FATE_OF_DALARAN   = 80012,
     QUEST_DARNASSUS_ATTACKED    = 80013,
     QUEST_TRACKING_THE_THIEVES  = 80014,
+    QUEST_JAINAS_RESOLUTION     = 80015,
 
     MAP_KALIMDOR                = 1,
     MAP_DALARAN_INSTANCED       = 727
@@ -62,6 +64,7 @@ enum Events
     ACTION_INTRO_TELEPORT   = 1,
     ACTION_START_REUNION    = 2,
     ACTION_INTRO_DARNASSUS  = 3,
+    ACTION_OUTRO_REUNION    = 4,
 
     EVENT_TALK_SCENE,
     EVENT_SPAWN_SCENE,
@@ -95,6 +98,17 @@ enum Events
     EVENT_DARNASSUS_8,
 
     EVENT_CHECK_SPEED,
+
+    EVENT_OUTRO_REUNION_1,
+    EVENT_OUTRO_REUNION_2,
+    EVENT_OUTRO_REUNION_3,
+    EVENT_OUTRO_REUNION_4,
+    EVENT_OUTRO_REUNION_5,
+    EVENT_OUTRO_REUNION_6,
+    EVENT_OUTRO_REUNION_7,
+    EVENT_OUTRO_REUNION_8,
+    EVENT_OUTRO_REUNION_9,
+    EVENT_OUTRO_REUNION_10
 };
 
 enum Phases
@@ -408,6 +422,10 @@ class dalaran_jaina_anduin : public CreatureScript
                 case QUEST_TRACKING_THE_THIEVES:
                     SetData(ACTION_INTRO_DARNASSUS, 0);
                     break;
+
+                case QUEST_JAINAS_RESOLUTION:
+                    if (portal) portal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    break;
             }
         }
 
@@ -656,29 +674,24 @@ class dalaran_jaina_anduin : public CreatureScript
 
                     case EVENT_DARNASSUS_2:
                         DoCast(SPELL_DETECT_MAGIC);
-                        events.ScheduleEvent(EVENT_DARNASSUS_3, 8ms);
+                        events.ScheduleEvent(EVENT_DARNASSUS_3, 5ms);
+                        events.ScheduleEvent(EVENT_DARNASSUS_4, 1s);
                         break;
 
                     case EVENT_DARNASSUS_3:
-                    {
                         if (Creature * track = me->SummonCreature(NPC_INVISIBLE_STALKER, MagicTracksPos[magicTracks], TEMPSUMMON_MANUAL_DESPAWN))
                             track->CastSpell(track, SPELL_MAGIC_TRACKS);
-
                         magicTracks++;
                         if (magicTracks >= TOTAL_TRACKERS_COUNT)
-                        {
-                            events.ScheduleEvent(EVENT_DARNASSUS_4, 1s);
-                            break;
-                        }
-
-                        events.RescheduleEvent(EVENT_DARNASSUS_3, 1ms);
+                            events.CancelEvent(EVENT_DARNASSUS_3);
+                        else
+                            events.RescheduleEvent(EVENT_DARNASSUS_3, 1ms);
                         break;
-                    }
 
                     case EVENT_DARNASSUS_4:
                         me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_DIST);
-                        events.ScheduleEvent(EVENT_DARNASSUS_5, 30s);
-                        events.ScheduleEvent(EVENT_DARNASSUS_6, 1min);
+                        events.ScheduleEvent(EVENT_DARNASSUS_5, 20s);
+                        events.ScheduleEvent(EVENT_DARNASSUS_6, 50s);
                         events.ScheduleEvent(EVENT_CHECK_SPEED, 1s);
                         break;
 
@@ -693,22 +706,25 @@ class dalaran_jaina_anduin : public CreatureScript
                     case EVENT_DARNASSUS_7:
                         Talk(SAY_JAINA_DARNASSUS_5);
                         me->SetFacingToObject(player);
+                        player->CompleteQuest(QUEST_TRACKING_THE_THIEVES);
                         events.ScheduleEvent(EVENT_DARNASSUS_8, 9s);
                         break;
 
                     case EVENT_DARNASSUS_8:
                         Talk(SAY_JAINA_DARNASSUS_6);
                         me->SetFacingToObject(player);
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         break;
 
                     case EVENT_CHECK_SPEED:
                     {
-                        UpdateSpeed();
-
-                        if (GameObject * portal = GetClosestGameObjectWithEntry(me, GOB_PORTAL_TO_DALARAN, 20.f))
+                        if (portal = GetClosestGameObjectWithEntry(me, GOB_PORTAL_TO_DALARAN, 30.f))
                         {
+                            portal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
                             me->Dismount();
-                            me->SetSpeed(MOVE_RUN, player->GetSpeed(MOVE_RUN));
+                            me->SetSpeedRate(MOVE_RUN, 1);
                             me->GetMotionMaster()->Clear();
 
                             Talk(SAY_JAINA_DARNASSUS_4);
@@ -717,7 +733,7 @@ class dalaran_jaina_anduin : public CreatureScript
                             float angle = me->GetAbsoluteAngle(portal);
                             float destx = me->GetPositionX() + distanceToTravel * cosf(angle);
                             float desty = me->GetPositionY() + distanceToTravel * sinf(angle);
-                            float time = (distanceToTravel / me->GetSpeed(MOVE_WALK)) * IN_MILLISECONDS;
+                            float time = (distanceToTravel / me->GetSpeed(MOVE_RUN)) * IN_MILLISECONDS;
                             me->GetMotionMaster()->MovePoint(0, destx, desty, portal->GetPositionZ(), true, 5.51f);
 
                             events.CancelEvent(EVENT_CHECK_SPEED);
@@ -725,6 +741,8 @@ class dalaran_jaina_anduin : public CreatureScript
 
                             break;
                         }
+
+                        UpdateSpeed();
 
                         events.RescheduleEvent(EVENT_CHECK_SPEED, 1s);
                         break;
@@ -742,6 +760,7 @@ class dalaran_jaina_anduin : public CreatureScript
         EventMap events;
         Creature* anduin;
         Creature* center;
+        GameObject* portal;
         GuidList guids;
         Phases phase;
         Player* player;
@@ -920,7 +939,86 @@ class dalaran_jaina_anduin : public CreatureScript
     }
 };
 
+class dalaran_anduin_wrynn : public CreatureScript
+{
+    public:
+    dalaran_anduin_wrynn() : CreatureScript("dalaran_anduin_wrynn") {}
+
+    struct dalaran_anduin_wrynnAI : public ScriptedAI
+    {
+        dalaran_anduin_wrynnAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+
+        }
+
+        void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+        {
+            switch (quest->GetQuestId())
+            {
+                case QUEST_THE_FATE_OF_DALARAN:
+                    SetData(ACTION_OUTRO_REUNION, 0U);
+                    break;
+            }
+        }
+
+        void SetData(uint32 id, uint32 /*value*/) override
+        {
+            switch (id)
+            {
+                case ACTION_OUTRO_REUNION:
+                    jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 10.f);
+                    jaina->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    jaina->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    events.ScheduleEvent(EVENT_OUTRO_REUNION_1, 2s);
+                    break;
+            }
+        }
+
+        void Reset() override
+        {
+            events.Reset();
+            Initialize();
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_OUTRO_REUNION_1:
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private:
+        EventMap events;
+        Creature* jaina;
+        Creature* sentinel;
+        GameObject* portal;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new dalaran_anduin_wrynnAI(creature);
+    }
+};
+
 void AddSC_dalaran_jaina_anduin()
 {
     new dalaran_jaina_anduin();
+    new dalaran_anduin_wrynn();
 }

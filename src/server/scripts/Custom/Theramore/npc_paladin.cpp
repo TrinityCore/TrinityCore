@@ -6,7 +6,7 @@ enum Spells
     SPELL_DIVINE_STORM          = 100034,
     SPELL_HAMMER_OF_JUSTICE     = 100035,
     SPELL_HAND_OF_RECKONING     = 100036,
-    SPELL_HAND_OF_PROTECTION    = 100037,
+    SPELL_DIVINE_SHIELD         =  67251,
     SPELL_SACRED_LIGHT          =  68013
 };
 
@@ -52,9 +52,10 @@ class npc_paladin : public CreatureScript
         {
             if (!handOfProtection && HealthBelowPct(10))
             {
-                DoCastSelf(SPELL_HAND_OF_PROTECTION);
-                me->SetControlled(true, UNIT_STATE_ROOT);
                 handOfProtection = true;
+
+                me->SetControlled(true, UNIT_STATE_ROOT);
+                DoCastSelf(SPELL_DIVINE_SHIELD);
                 events.ScheduleEvent(CASTING_SACRED_LIGHT, 5ms);
             }
         }
@@ -66,6 +67,9 @@ class npc_paladin : public CreatureScript
                 return;
 
             events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -92,6 +96,9 @@ class npc_paladin : public CreatureScript
                         me->SetControlled(false, UNIT_STATE_ROOT);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();

@@ -60,15 +60,6 @@ class npc_archmage_fire : public CreatureScript
             events.ScheduleEvent(CASTING_PYROBLAST, 12s, 24s);
         }
 
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->Attack(who, false))
-                SetCombatMovement(false);
-        }
-
         void Reset() override
         {
             events.Reset();
@@ -77,11 +68,14 @@ class npc_archmage_fire : public CreatureScript
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             // Que pour la bataille de Theramore
-            if (me->GetMapId() != 726)
-                return;
+            if (me->GetMapId() == 726)
+            {
+                if (damage >= me->GetMaxHealth())
+                    damage = 0;
 
-            if (HealthBelowPct(5))
-                damage = 0;
+                if (HealthBelowPct(20))
+                    damage = 0;
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -101,7 +95,7 @@ class npc_archmage_fire : public CreatureScript
                 {
                     case CASTING_FIREBALL:
                         DoCastVictim(SPELL_FIREBALL);
-                        events.RescheduleEvent(CASTING_FIREBALL, 1180);
+                        events.RescheduleEvent(CASTING_FIREBALL, 3s, 8s);
                         break;
 
                     case CASTING_FIREBLAST:
@@ -116,7 +110,12 @@ class npc_archmage_fire : public CreatureScript
                         events.RescheduleEvent(CASTING_PYROBLAST, 22s, 35s);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
+
+            DoMeleeAttackIfReady();
         }
 
     private:
@@ -147,15 +146,6 @@ class npc_archmage_arcanes : public CreatureScript
             events.ScheduleEvent(CASTING_ARCANE_EXPLOSION, 8s);
         }
 
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->Attack(who, false))
-                SetCombatMovement(false);
-        }
-
         void Reset() override
         {
             events.Reset();
@@ -164,11 +154,14 @@ class npc_archmage_arcanes : public CreatureScript
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
             // Que pour la bataille de Theramore
-            if (me->GetMapId() != 726)
-                return;
+            if (me->GetMapId() == 726)
+            {
+                if (damage >= me->GetMaxHealth())
+                    damage = 0;
 
-            if (HealthBelowPct(5))
-                damage = 0;
+                if (HealthBelowPct(20))
+                    damage = 0;
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -189,7 +182,7 @@ class npc_archmage_arcanes : public CreatureScript
                     case CASTING_ARCANE_BLAST:
                         if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_ARCANE_BLAST);
-                        events.RescheduleEvent(CASTING_ARCANE_BLAST, 1s);
+                        events.RescheduleEvent(CASTING_ARCANE_BLAST, 3s, 8s);
                         break;
 
                     case CASTING_ARCANE_PROJECTILE:
@@ -222,6 +215,8 @@ class npc_archmage_arcanes : public CreatureScript
                     }
                 }
             }
+
+            DoMeleeAttackIfReady();
         }
 
     private:
@@ -249,15 +244,6 @@ public:
             events.ScheduleEvent(CASTING_ICE_LANCE, 8s, 14s);
         }
 
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->Attack(who, false))
-                DoStartMovement(who, 35.f);
-        }
-
         void Reset() override
         {
             events.Reset();
@@ -275,11 +261,14 @@ public:
             }
 
             // Que pour la bataille de Theramore
-            if (me->GetMapId() != 726)
-                return;
+            if (me->GetMapId() == 726)
+            {
+                if (damage >= me->GetMaxHealth())
+                    damage = 0;
 
-            if (HealthBelowPct(5))
-                damage = 0;
+                if (HealthBelowPct(20))
+                    damage = 0;
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -300,7 +289,7 @@ public:
                     // Frost
                     case CASTING_FROSTBOLT:
                         DoCastVictim(SPELL_FROSTBOLT);
-                        events.RescheduleEvent(CASTING_FROSTBOLT, 1s);
+                        events.RescheduleEvent(CASTING_FROSTBOLT, 5s, 8s);
                         break;
 
                     case CASTING_ICE_LANCE:
@@ -315,7 +304,12 @@ public:
                         DoCast(SPELL_BLINK);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
+
+            DoMeleeAttackIfReady();
         }
 
     private:

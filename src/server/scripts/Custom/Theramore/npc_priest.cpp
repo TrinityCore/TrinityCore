@@ -62,15 +62,6 @@ class npc_priest : public CreatureScript
             events.ScheduleEvent(CASTING_HOLY_FIRE, 8s, 14s);
         }
 
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->Attack(who, false))
-                DoStartMovement(who, 35.f);
-        }
-
         void Reset() override
         {
             events.Reset();
@@ -121,10 +112,6 @@ class npc_priest : public CreatureScript
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            uint32 powerPct = CalculatePct(me->GetMaxPower(POWER_MANA), me->GetPower(POWER_MANA));
-            if (powerPct <= 3)
-                DoStartMovement(me->GetVictim());
-
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
@@ -158,7 +145,12 @@ class npc_priest : public CreatureScript
                         events.RescheduleEvent(CASTING_HEAL, 3s);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
+
+            DoMeleeAttackIfReady();
         }
 
         private:

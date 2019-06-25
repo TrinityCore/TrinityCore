@@ -550,8 +550,8 @@ class npc_jaina_ruins : public CreatureScript
                             break;
 
                         case EVENT_IRIS_24:
-                            elementals[0]->DespawnOrUnsummon();
-                            elementals[1]->DespawnOrUnsummon();
+                            if (elementals[0] && elementals[0]->IsAlive()) elementals[0]->DespawnOrUnsummon();
+                            if (elementals[1] && elementals[1]->IsAlive()) elementals[1]->DespawnOrUnsummon();
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SPELL_CAST_OMNI);
                             me->CastSpell(me, SPELL_POWER_BALL_VISUAL);
                             events.ScheduleEvent(EVENT_IRIS_25, 1830);
@@ -559,7 +559,7 @@ class npc_jaina_ruins : public CreatureScript
 
                         case EVENT_IRIS_25:
                             me->SetVisible(false);
-                            me->SummonGameObject(195139, me->GetPosition(), QuaternionData(), 0);
+                            me->SummonGameObject(500014, me->GetPosition(), QuaternionData(), 0);
                             break;
 
                         #pragma endregion

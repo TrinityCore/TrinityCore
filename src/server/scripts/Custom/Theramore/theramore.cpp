@@ -165,6 +165,7 @@ class npc_jaina_theramore : public CreatureScript
             firesCount = 0;
             npcCount = 0;
             canBeginEnd = false;
+            debug = false;
         }
 
         void QuestAccept(Player* player, Quest const* quest) override
@@ -302,8 +303,11 @@ class npc_jaina_theramore : public CreatureScript
 
                 case EVENT_START_BATTLE:
                 {
+                    debug = value ? true : false;
+
                     tervosh = me->FindNearestCreature(NPC_ARCHMAGE_TERVOSH, 15.f);
                     kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
+                    kalecgos = me->FindNearestCreature(NPC_KALECGOS, 2000.f);
                     aden = me->FindNearestCreature(NPC_LIEUTENANT_ADEN, 2000.f);
 
                     kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -319,7 +323,14 @@ class npc_jaina_theramore : public CreatureScript
 
                     events.SetPhase(PHASE_PRE_BATTLE);
                     events.ScheduleEvent(EVENT_SHAKER, 2s, 0, PHASE_PRE_BATTLE);
-                    events.ScheduleEvent(EVENT_PRE_BATTLE_1, 2s, 0, PHASE_PRE_BATTLE);
+                    if (!debug)
+                        events.ScheduleEvent(EVENT_PRE_BATTLE_1, 2s, 0, PHASE_PRE_BATTLE);
+                    else
+                    {
+                        events.ScheduleEvent(EVENT_EVACUATION_1, 0, PHASE_PRE_BATTLE);
+                        events.ScheduleEvent(EVENT_PRE_BATTLE_6, 5s, 0, PHASE_PRE_BATTLE);
+                    }
+
                     break;
                 }
 
@@ -981,8 +992,16 @@ class npc_jaina_theramore : public CreatureScript
                         if (npcCount >= 6)
                         {
                             npcCount = 0;
+
                             events.CancelEvent(EVENT_PRE_BATTLE_6);
-                            events.ScheduleEvent(EVENT_PRE_BATTLE_7, 1s, 0, PHASE_PRE_BATTLE);
+                            if (!debug)
+                                events.ScheduleEvent(EVENT_PRE_BATTLE_7, 1s, 0, PHASE_PRE_BATTLE);
+                            else
+                            {
+                                events.CancelEvent(EVENT_SHAKER);
+                                events.ScheduleEvent(EVENT_PRE_BATTLE_19, 1s, 0, PHASE_PRE_BATTLE);
+                            }
+
                             break;
                         }
 
@@ -1472,7 +1491,7 @@ class npc_jaina_theramore : public CreatureScript
         std::vector<GameObject*> fires;
         std::vector<Player*> players;
         std::list<Creature*> civils;
-        bool playerShaker, canBeginEnd;
+        bool playerShaker, canBeginEnd, debug;
         uint8 firesCount;
         uint8 npcCount;
 

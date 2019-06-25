@@ -8,10 +8,15 @@
 #include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "CreatureGroups.h"
+#include "GridNotifiers.h"
+#include "CellImpl.h"
+#include "World.h"
+#include "ScriptedGossip.h"
 
 #include <iostream>
 
 #define NPCS_TOTAL_COUNT 5
+#define GOSSIP_ITEM_ISIAN_WALL "Vereesa me demande de faire le ménage dans le sanctuaire des saccage-soleil."
 
 enum NPCs
 {
@@ -21,6 +26,7 @@ enum NPCs
     NPC_AETHAS_SUNREAVER        = 100050,
     NPC_SUNREAVER_GUARDIAN      = 100046,
     NPC_SILVER_COV_GUARDIAN     = 100047,
+    NPC_INVISIBLE_STALKER       = 32780
 };
 
 enum Spells
@@ -37,17 +43,27 @@ enum Spells
     SPELL_FIREBLAST_MINOR       = 100004,
     SPELL_REMEMBER_THERAMORE    = 100051,
     SPELL_KNOCKBACK             = 100052,
-    SPELL_ARCANE_SHIELD         = 100048
+    SPELL_ARCANE_SHIELD         = 100048,
+    SPELL_FROST_CHANNELING      = 45846
 };
 
 enum Misc
 {
+    // Quests
+    QUEST_JAINAS_RESOLUTION     = 80015,
+    QUEST_NOWHERE_TO_HIDE       = 80016,
+
+    // GoB
+    GOB_ICE_WALL                = 500012,
+
     // Jaina's casting
     CASTING_BLIZZARD            = 1,
+    CASTING_FIREBALL            = 2,
 
     // Sunreaver's casting
     CASTING_FIREBLAST           = 1,
 
+    // Sunreaver chase
     SAY_JAINA_TELEPORT          = 0,
     SAY_JAINA_SLAIN             = 1,
     SAY_JAINA_1                 = 2,
@@ -58,13 +74,19 @@ enum Misc
     SAY_JAINA_6                 = 5,
     SAY_JAINA_7                 = 6,
 
-    SAY_IVRENNE_1               = 0
+    // Violet Hold Event
+    SAY_IVRENNE_1               = 0,
+
+    // Ice wall sunreaver Event
+    SAY_ISIAN_1                 = 0,
+    SAY_ISIAN_2                 = 1
 };
 
 enum Events
 {
     // Starters
-    ACTION_INTRO = 1,
+    ACTION_INTRO        = 1,
+    ACTION_ISIAN_WALL   = 2,
 
     EVENT_ELEMENTAL,
 
@@ -77,7 +99,13 @@ enum Events
     EVENT_AETHAS_7,
     EVENT_AETHAS_8,
     EVENT_AETHAS_9,
-    EVENT_AETHAS_10
+    EVENT_AETHAS_10,
+
+    EVNT_ISIAN_1,
+    EVNT_ISIAN_2,
+    EVNT_ISIAN_3,
+    EVNT_ISIAN_4,
+    EVNT_ISIAN_5
 };
 
 struct Location
@@ -142,7 +170,11 @@ class npc_displaced_sunreaver : public CreatureScript
         {
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MoveChase(who, 10.f);
-            events.ScheduleEvent(CASTING_FIREBLAST, 2s);
+
+            CallAssistance(who, 20.f);
+
+            events.ScheduleEvent(CASTING_FIREBALL, 2s);
+            events.ScheduleEvent(CASTING_FIREBLAST, 5s);
         }
 
         void Reset() override
@@ -182,26 +214,60 @@ class npc_displaced_sunreaver : public CreatureScript
             {
                 events.Update(diff);
 
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case CASTING_FIREBLAST:
                             DoCastVictim(SPELL_FIREBLAST_MINOR);
-                            events.RescheduleEvent(CASTING_FIREBLAST, 8s, 10s);
+                            events.RescheduleEvent(CASTING_FIREBLAST, 3s, 10s);
+                            break;
+
+                        case CASTING_FIREBALL:
+                            DoCastVictim(SPELL_FIREBALL_MINOR);
+                            events.RescheduleEvent(CASTING_FIREBALL, 5s, 8s);
                             break;
 
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
-                DoSpellAttackIfReady(SPELL_FIREBALL_MINOR);
+                DoMeleeAttackIfReady();
             }
         }
 
         private:
         EventMap events;
+
+        void CallAssistance(Unit* who, float radius)
+        {
+            std::list<Creature*> assistList;
+            Trinity::AllCreaturesOfEntryInRange u_check(me, NPC_DISPLACED_SUNREAVER, radius);
+            Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, assistList, u_check);
+            Cell::VisitGridObjects(me, searcher, radius);
+
+            if (!assistList.empty())
+            {
+                for (Creature* assist : assistList)
+                {
+                    if (assist->IsInCombat())
+                        continue;
+
+                    assist->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                    assist->SetReactState(REACT_AGGRESSIVE);
+                    assist->GetMotionMaster()->Clear();
+                    assist->GetMotionMaster()->MoveChase(who, 10.f);
+                    assist->Attack(who, true);
+                }
+            }
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -247,18 +313,10 @@ class dalaran_jaina_purge : public CreatureScript
             }
         }
 
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->Attack(who, false))
-                SetCombatMovement(false);
-        }
-
         void JustEngagedWith(Unit* who) override
         {
-            events.ScheduleEvent(CASTING_BLIZZARD, 2s);
+            events.ScheduleEvent(CASTING_FIREBALL, 0s);
+            events.ScheduleEvent(CASTING_BLIZZARD, 5s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -302,12 +360,21 @@ class dalaran_jaina_purge : public CreatureScript
                             events.RescheduleEvent(CASTING_BLIZZARD, 14s, 25s);
                             break;
 
+                        case CASTING_FIREBALL:
+                            if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_FIREBALL);
+                            events.RescheduleEvent(CASTING_FIREBALL, 5s, 8s);
+                            break;
+
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
-                DoSpellAttackIfReady(SPELL_FIREBALL);
+                DoMeleeAttackIfReady();
             }
         }
 
@@ -352,7 +419,7 @@ class dalaran_aethas_event : public CreatureScript
             player = who->ToPlayer();
             if (me->GetMapId() == 727)
             {
-                if (me->IsFriendlyTo(player) && me->IsWithinDist(player, 26.f, false))
+                if (player->GetPhaseMask() == me->GetPhaseMask() && me->IsFriendlyTo(player) && me->IsWithinDist(player, 30.f, false))
                     SetData(ACTION_INTRO, 1U);
             }
         }
@@ -424,10 +491,17 @@ class dalaran_aethas_event : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_ELEMENTAL:
+                    {
+                        if (currentVictim && currentVictim->IsAlive())
+                            currentVictim->KillSelf();
+
                         KillVictimWithElemental(victimIndex++);
+
                         if (victimIndex < 4)
-                            events.RescheduleEvent(EVENT_ELEMENTAL, 2s, 5s);
+                            events.RescheduleEvent(EVENT_ELEMENTAL, 3s);
+
                         break;
+                    }
 
                     case EVENT_AETHAS_1:
                         jaina->AI()->Talk(SAY_JAINA_1);
@@ -464,6 +538,7 @@ class dalaran_aethas_event : public CreatureScript
                     case EVENT_AETHAS_7:
                         jaina->GetMotionMaster()->MoveCloserAndStop(0, aethas, 3.f);
                         aethas->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        aethas->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
                         elemental->CastSpell(aethas, SPELL_ICE_PRISON);
                         events.ScheduleEvent(EVENT_AETHAS_8, 6s);
                         break;
@@ -483,6 +558,7 @@ class dalaran_aethas_event : public CreatureScript
                         break;
 
                     case EVENT_AETHAS_10:
+                        player->CompleteQuest(QUEST_JAINAS_RESOLUTION);
                         player->SetPhaseMask(1, true);
                         elemental->DespawnOrUnsummon();
                         me->setActive(false);
@@ -501,6 +577,7 @@ class dalaran_aethas_event : public CreatureScript
         Creature* jaina;
         Creature* elemental;
         uint8 victimIndex;
+        Creature* currentVictim;
         std::vector<ObjectGuid> guardians;
         bool playingEvent;
 
@@ -511,10 +588,10 @@ class dalaran_aethas_event : public CreatureScript
             args.SetTriggerFlags(TRIGGERED_IGNORE_GCD);
             args.AddSpellBP0(9999999);
 
-            if (Creature * victim = ObjectAccessor::GetCreature(*me, guardians[index]))
+            if (currentVictim = ObjectAccessor::GetCreature(*me, guardians[index]))
             {
-                victim->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                elemental->CastSpell(victim, SPELL_WATER_BOLT, args);
+                currentVictim->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                elemental->CastSpell(currentVictim, SPELL_WATER_BOLT, args);
             }
         }
     };
@@ -612,7 +689,7 @@ class SilverCovenantGuardian : public BasicEvent
         {
             case 0:
                 owner->SetHomePosition(finalPos);
-                owner->GetMotionMaster()->MoveCloserAndStop(0, uovril, 5.f);
+                owner->GetMotionMaster()->MoveCloserAndStop(0, uovril, 6.f);
                 owner->m_Events.AddEvent(this, eventTime + 1000);
                 break;
 
@@ -628,6 +705,7 @@ class SilverCovenantGuardian : public BasicEvent
                 owner->SetReactState(REACT_AGGRESSIVE);
                 owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 owner->GetMotionMaster()->MovePoint(0, finalPos, true, finalPos.GetOrientation());
+                owner->DespawnOrUnsummon(30s);
 
                 return true;
             }
@@ -682,11 +760,11 @@ class npc_arcanist_uovril : public CreatureScript
                     case 1:
                     {
                         int randomPos = irand(0, 3);
-                        if (Creature* guardian = me->SummonCreature(RAND(NPC_SUNREAVER_GUARDIAN, NPC_SILVER_COV_GUARDIAN), spawnSilverCovGuardian[randomPos], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min))
+                        if (Creature* guardian = me->SummonCreature(RAND(NPC_SUNREAVER_GUARDIAN, NPC_SILVER_COV_GUARDIAN), spawnSilverCovGuardian[randomPos], TEMPSUMMON_CORPSE_DESPAWN))
                         {
                             guardian->SetReactState(REACT_PASSIVE);
                             guardian->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            guardian->m_Events.AddEvent(new SilverCovenantGuardian(guardian, me, GetRandomPosition(frand(3.f, 8.f))), guardian->m_Events.CalculateTime(500));
+                            guardian->m_Events.AddEvent(new SilverCovenantGuardian(guardian, me, GetRandomPosition(frand(4.f, 9.f))), guardian->m_Events.CalculateTime(500));
                         }
                         events.Repeat(10s, 20s);
                         break;
@@ -718,6 +796,123 @@ class npc_arcanist_uovril : public CreatureScript
     }
 };
 
+class npc_enchanter_isian : public CreatureScript
+{
+    public:
+    npc_enchanter_isian() : CreatureScript("npc_enchanter_isian") {}
+
+    struct npc_enchanter_isianAI : public ScriptedAI
+    {
+        npc_enchanter_isianAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetQuestStatus(QUEST_NOWHERE_TO_HIDE) == QUEST_STATUS_INCOMPLETE)
+            {
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ISIAN_WALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, 100004, me->GetGUID());
+                return true;
+            }
+
+            SendGossipMenuFor(player, 100003, me->GetGUID());
+            return true;
+        }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            switch (action)
+            {
+                case GOSSIP_ACTION_INFO_DEF + 1:
+                    SetData(ACTION_ISIAN_WALL, 1U);
+                    break;
+            }
+
+            CloseGossipMenuFor(player);
+            return true;
+        }
+
+        void SetData(uint32 id, uint32 value) override
+        {
+            switch (id)
+            {
+                case ACTION_ISIAN_WALL:
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                    icewall = GetClosestGameObjectWithEntry(me, GOB_ICE_WALL, 100.f);
+                    events.ScheduleEvent(EVNT_ISIAN_1, 2s);
+                    break;
+            }
+        }
+
+        void Reset() override
+        {
+            events.Reset();
+            Initialize();
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVNT_ISIAN_1:
+                        Talk(SAY_ISIAN_1);
+                        events.ScheduleEvent(EVNT_ISIAN_2, 3s);
+                        break;
+
+                    case EVNT_ISIAN_2:
+                        Talk(SAY_ISIAN_2);
+                        events.ScheduleEvent(EVNT_ISIAN_3, 5s);
+                        break;
+
+                    case EVNT_ISIAN_3:
+                        DoCastSelf(SPELL_FROST_CHANNELING);
+                        events.ScheduleEvent(EVNT_ISIAN_4, 3s);
+                        break;
+
+                    case EVNT_ISIAN_4:
+                        if (Creature * fx = me->SummonCreature(NPC_INVISIBLE_STALKER, icewall->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 5s))
+                            fx->CastSpell(fx, 73773);
+                        icewall->UseDoorOrButton();
+                        events.ScheduleEvent(EVNT_ISIAN_5, 3s);
+                        break;
+
+                    case EVNT_ISIAN_5:
+                        me->RemoveAurasDueToSpell(SPELL_FROST_CHANNELING);
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private:
+        EventMap events;
+        GameObject* icewall;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_enchanter_isianAI(creature);
+    }
+};
+
 void AddSC_dalaran_jaina_purge()
 {
     new dalaran_jaina_purge();
@@ -725,4 +920,5 @@ void AddSC_dalaran_jaina_purge()
     new dalaran_aethas_event();
     new npc_arcanist_ivrenne();
     new npc_arcanist_uovril();
+    new npc_enchanter_isian();
 }

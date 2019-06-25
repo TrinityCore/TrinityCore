@@ -28,15 +28,6 @@ class npc_felcaster : public CreatureScript
             events.ScheduleEvent(CASTING_FEL_FIREBALL, 3s);
         }
 
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->Attack(who, false))
-                DoStartMovement(who, 35.f);
-        }
-
         void Reset() override
         {
             events.Reset();
@@ -59,7 +50,7 @@ class npc_felcaster : public CreatureScript
                 {
                     case CASTING_SHADOWN_BOLT:
                         DoCastVictim(SPELL_SHADOW_BOLT);
-                        events.RescheduleEvent(CASTING_SHADOWN_BOLT, 1180);
+                        events.RescheduleEvent(CASTING_SHADOWN_BOLT, 3s, 5s);
                         break;
 
                     case CASTING_FEL_FIREBALL:
@@ -68,6 +59,9 @@ class npc_felcaster : public CreatureScript
                         events.RescheduleEvent(CASTING_FEL_FIREBALL, 25s, 30s);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();

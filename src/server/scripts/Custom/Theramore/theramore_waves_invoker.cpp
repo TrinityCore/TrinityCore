@@ -78,8 +78,6 @@ class KalecgosFlightEvent : public BasicEvent
     public:
     KalecgosFlightEvent(Creature* owner) : owner(owner)
     {
-        spellArgs.AddSpellMod(SPELLVALUE_BASE_POINT0, 300000);
-
         spellArgs.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
         spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_SET_FACING);
         spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS);
@@ -90,7 +88,7 @@ class KalecgosFlightEvent : public BasicEvent
         owner->CastSpell(owner, SPELL_FROST_BREEZE, spellArgs);
         owner->SetReactState(REACT_PASSIVE);
         owner->GetThreatManager().RemoveMeFromThreatLists();
-        owner->m_Events.AddEvent(this, eventTime + 2000);
+        owner->m_Events.AddEvent(this, eventTime + 5000);
         return false;
     }
 
