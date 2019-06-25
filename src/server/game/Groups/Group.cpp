@@ -2181,7 +2181,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
                         TC_LOG_DEBUG("root", "Instance entrance not found for maps %u", map->GetId());
                     else
                     {
-                        WorldSafeLocsEntry const * graveyardLocation = sObjectMgr->GetClosestGraveyard(instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z, instanceEntrance->target_mapId, SendMsgTo->GetTeam());;
+                        WorldSafeLocsEntry const * graveyardLocation = sObjectMgr->GetClosestGraveyard(instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z, instanceEntrance->target_mapId, SendMsgTo->GetTeam());
                         uint32 const zoneId = sMapMgr->GetZoneId(graveyardLocation->map_id, graveyardLocation->x, graveyardLocation->y, graveyardLocation->z);
 
                         for (MemberSlot const& member : GetMemberSlots())

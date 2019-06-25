@@ -22,9 +22,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "Errors.h"
 #include "GridNotifiers.h"
 #include "Player.h"
+#include "Random.h"
+#include "SharedDefines.h"
 #include "SpellAuraEffects.h"
+#include "SpellDefines.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -62,7 +67,13 @@ enum PriestSpells
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_MIND_BLAST_R1                      = 8092,
     SPELL_PRIEST_SHADOW_WORD_DEATH_R1               = 32379,
-    SPELL_PRIEST_MIND_FLAY_DAMAGE                   = 58381
+    SPELL_PRIEST_MIND_FLAY_DAMAGE                   = 58381,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R1                 = 7001,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R2                 = 27873,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R3                 = 27874,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R4                 = 28276,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R5                 = 48084,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R6                 = 48085,
 };
 
 enum PriestSpellIcons
@@ -72,7 +83,7 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
 };
 
-enum Mics
+enum PriestMisc
 {
     PRIEST_LIGHTWELL_NPC_1                          = 31897,
     PRIEST_LIGHTWELL_NPC_2                          = 31896,
@@ -695,6 +706,19 @@ class spell_pri_lightwell : public SpellScript
 {
     PrepareSpellScript(spell_pri_lightwell);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_LIGHTWELL_RENEW_R1,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R2,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R3,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R4,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R5,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R6
+            });
+    }
+
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -709,12 +733,26 @@ class spell_pri_lightwell : public SpellScript
         uint32 lightwellRenew = 0;
         switch (caster->GetEntry())
         {
-            case PRIEST_LIGHTWELL_NPC_1: lightwellRenew = 7001; break;
-            case PRIEST_LIGHTWELL_NPC_2: lightwellRenew = 27873; break;
-            case PRIEST_LIGHTWELL_NPC_3: lightwellRenew = 27874; break;
-            case PRIEST_LIGHTWELL_NPC_4: lightwellRenew = 28276; break;
-            case PRIEST_LIGHTWELL_NPC_5: lightwellRenew = 48084; break;
-            case PRIEST_LIGHTWELL_NPC_6: lightwellRenew = 48085; break;
+            case PRIEST_LIGHTWELL_NPC_1:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R1;
+                break;
+            case PRIEST_LIGHTWELL_NPC_2:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R2;
+                break;
+            case PRIEST_LIGHTWELL_NPC_3:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R3;
+                break;
+            case PRIEST_LIGHTWELL_NPC_4:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R4;
+                break;
+            case PRIEST_LIGHTWELL_NPC_5:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R5;
+                break;
+            case PRIEST_LIGHTWELL_NPC_6:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R6;
+                break;
+            default:
+                return;
         }
 
         // proc a spellcast
