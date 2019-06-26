@@ -631,7 +631,12 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     if (updateLevel)
         SelectLevel();
     else
+    {
+        uint32 previousHealth = GetHealth();
         UpdateLevelDependantStats(); // We still re-initialize level dependant stats on entry update
+        if (previousHealth > 0)
+            SetHealth(previousHealth);
+    }
 
     SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
     SetStatFlatModifier(UNIT_MOD_RESISTANCE_HOLY, BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_HOLY]));
