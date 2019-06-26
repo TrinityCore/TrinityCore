@@ -772,7 +772,7 @@ void GameObject::Update(uint32 diff)
             bool isPermanentSpawn = m_respawnDelayTime == 0;
             if (!GetGOInfo()->IsDespawnAtAction() &&
                 ((GetGoType() == GAMEOBJECT_TYPE_GOOBER && (!isSummonedAndExpired || isPermanentSpawn)) ||
-                (GetGoType() == GAMEOBJECT_TYPE_CHEST && !isSummonedAndExpired))) // ToDo: chests with data2 (chestRestockTime) > 0 and data3 (consumable) = 0 should not despawn on loot
+                (GetGoType() == GAMEOBJECT_TYPE_CHEST && !isSummonedAndExpired && GetGOInfo()->chest.chestRestockTime == 0))) // ToDo: chests with data2 (chestRestockTime) > 0 and data3 (consumable) = 0 should not despawn on loot
             {
                 SetLootState(GO_READY);
                 UpdateObjectVisibility();
