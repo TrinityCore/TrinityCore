@@ -1597,10 +1597,6 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     {
         if (spellInfo->HasAttribute(SPELL_ATTR4_IGNORE_RESISTANCES))
             return 0;
-
-        // Binary spells can't have damage part resisted
-        if (spellInfo->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
-            return 0;
     }
 
     float const averageResist = Unit::CalculateAverageResistReduction(attacker, schoolMask, victim, spellInfo);
