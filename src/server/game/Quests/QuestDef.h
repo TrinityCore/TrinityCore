@@ -259,7 +259,7 @@ class TC_GAME_API Quest
         std::string const& GetCompletedText() const { return _completedText; }
         int32  GetRewOrReqMoney() const;
         uint32 GetRewHonorAddition() const { return _rewardHonor; }
-        float GetRewHonorMultiplier() const { return _rewardKillHonor; }
+        float  GetRewHonorMultiplier() const { return _rewardKillHonor; }
         uint32 GetRewMoneyMaxLevel() const; // use in XP calculation at client
         uint32 GetRewSpell() const { return _rewardDisplaySpell; }
         int32  GetRewSpellCast() const { return _rewardSpell; }
