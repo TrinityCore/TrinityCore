@@ -161,10 +161,10 @@ typedef std::unordered_map<uint16, InstanceTemplate> InstanceTemplateContainer;
 
 struct GameTele
 {
-    float position_x;
-    float position_y;
-    float position_z;
-    float orientation;
+    float  position_x;
+    float  position_y;
+    float  position_z;
+    float  orientation;
     uint32 mapId;
     std::string name;
     std::wstring wnameLow;
